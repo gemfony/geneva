@@ -77,7 +77,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 		break;
 
 	case DOUBLEGAUSSIAN:
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->bi_normal_distribution(0.,0.5,2.)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->bi_normal_distribution(0.,0.5,2.))); // (mean, sigma, distance)
 		break;
 
 	case EVEN: // double in the range [0,1[
@@ -207,6 +207,8 @@ int main(int argc, char **argv){
 	}
 	ofs << std::endl;
 
+//---------------------------------------------------------------------------------
+
 	ofs << "  gauss->GetXaxis()->SetTitle(\"x\");" << std::endl
 	    << "  gauss->GetYaxis()->SetTitle(\"number of entries\");" << std::endl
 	    << "  gauss->GetYaxis()->SetTitleOffset(1.2);" << std::endl
@@ -223,20 +225,64 @@ int main(int argc, char **argv){
 		<< "  gaussLine->SetLineStyle(2);" << std::endl
 		<< "  gaussLine->Draw();" << std::endl
 		<< "  cc->SaveAs(\"gauss.png\");" << std::endl
+
+//---------------------------------------------------------------------------------
+
+		<< "  dgauss->GetXaxis()->SetTitle(\"x\");" << std::endl
+	    << "  dgauss->GetYaxis()->SetTitle(\"number of entries\");" << std::endl
+	    << "  dgauss->GetYaxis()->SetTitleOffset(1.2);" << std::endl
 		<< "  dgauss->Draw();" << std::endl
+		<< "  TLatex *dgaussText1 = new TLatex(1.5, 970, \"Two normal distributions with\");" << std::endl
+		<< "  TLatex *dgaussText2 = new TLatex(1.5, 920, \"mean=0.5, #sigma=0.5 and distance\");" << std::endl
+		<< "  TLatex *dgaussText3 = new TLatex(1.5, 870, \"between the mean values of 2\");" << std::endl
+		<< "  dgaussText1->SetTextSize(0.025);" << std::endl
+		<< "  dgaussText2->SetTextSize(0.025);" << std::endl
+		<< "  dgaussText3->SetTextSize(0.025);" << std::endl
+		<< "  dgaussText1->Draw();" << std::endl
+		<< "  dgaussText2->Draw();" << std::endl
+		<< "  dgaussText3->Draw();" << std::endl
+		<< "  gPad->Update();" << std::endl
+		<< "  double ymax = gPad->GetUymax();" << std::endl
+	    << "  TLine *dgaussLine1 = new TLine(-1.,0.,-1., ymax);" << std::endl
+		<< "  dgaussLine1->SetLineStyle(2);" << std::endl
+		<< "  dgaussLine1->Draw();" << std::endl
+	    << "  TLine *dgaussLine2 = new TLine(1.,0.,1., ymax);" << std::endl
+		<< "  dgaussLine2->SetLineStyle(2);" << std::endl
+		<< "  dgaussLine2->Draw();" << std::endl
 		<< "  cc->SaveAs(\"dgauss.png\");" << std::endl
+
+//---------------------------------------------------------------------------------
+
 		<< "  even->Draw();" << std::endl
 		<< "  cc->SaveAs(\"even.png\");" << std::endl
+
+//---------------------------------------------------------------------------------
+
 		<< "  evenwb->Draw();" << std::endl
 		<< "  cc->SaveAs(\"evenwb.png\");" << std::endl
+
+//---------------------------------------------------------------------------------
+
 		<< "  discrete->Draw();" << std::endl
 		<< "  cc->SaveAs(\"discrete.png\");" << std::endl
+
+//---------------------------------------------------------------------------------
+
 		<< "  discretewb->Draw();" << std::endl
 		<< "  cc->SaveAs(\"discretewb.png\");" << std::endl
+
+//---------------------------------------------------------------------------------
+
 		<< "  bitprob->Draw();" << std::endl
 		<< "  cc->SaveAs(\"bitprob.png\");" << std::endl
+
+//---------------------------------------------------------------------------------
+
 		<< "  bitsimple->Draw();" << std::endl
 		<< "  cc->SaveAs(\"bitsimple.png\");" << std::endl
+
+//---------------------------------------------------------------------------------
+
 		<< "}" << std::endl;
 
 	ofs.close();
