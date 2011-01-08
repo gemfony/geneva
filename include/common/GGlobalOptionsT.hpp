@@ -64,7 +64,7 @@ namespace Common {
 /***************************************************************************/
 /**
  * This class provides access to global options of user-defined type.
- * Note that these are not serialized, so you need to take case yourself
+ * Note that these are not serialized, so you need to take care yourself
  * that these are available on remote systems. An easy way is to instantiate
  * both the client and the server from the same main function and to fill
  * the global object before both are started. A command line option can

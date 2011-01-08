@@ -45,12 +45,6 @@
 #include <fstream>
 
 // Boost header files
-#include <boost/thread.hpp>
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/cast.hpp>
-#include <boost/random.hpp>
 
 // Geneva header files
 #include "hap/GRandomT.hpp"
