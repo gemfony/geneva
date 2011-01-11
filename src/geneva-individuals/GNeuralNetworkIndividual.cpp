@@ -32,12 +32,10 @@
 
 #include <geneva-individuals/GNeuralNetworkIndividual.hpp>
 
-// Make the NN classes known to the boost serialization framework
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::trainingSet)
-BOOST_CLASS_EXPORT(Gem::Geneva::networkData)
-BOOST_CLASS_EXPORT(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>)
-BOOST_CLASS_EXPORT(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::trainingSet)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::networkData)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF>)
 
 namespace Gem {
 namespace Geneva {

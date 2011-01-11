@@ -31,9 +31,7 @@
 
 #include "GParaboloidIndividual2D.hpp"
 
-/* Included here so no conflicts occur */
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GParaboloidIndividual2D)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParaboloidIndividual2D)
 
 namespace Gem
 {

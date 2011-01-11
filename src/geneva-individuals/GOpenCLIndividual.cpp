@@ -31,9 +31,7 @@
 
 #include <geneva-individuals/GOpenCLIndividual.hpp>
 
-/* Included here so no conflicts occur */
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GOpenCLIndividual)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOpenCLIndividual)
 
 namespace Gem
 {

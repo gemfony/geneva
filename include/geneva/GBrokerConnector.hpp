@@ -85,7 +85,7 @@ namespace Geneva {
  * This class centralizes some functionality and data that is needed to connect
  * optimization algorithms to networked execution through Geneva's broker. This
  * class helps to avoid duplication of code in GBrokerSwarm and GBrokerEA (as well
- * as other optimization algorithms that may be implemeted later).
+ * as other optimization algorithms that may be implemented later).
  */
 class GBrokerConnector
 {
@@ -307,5 +307,7 @@ template <> boost::shared_ptr<GIndividual> GBrokerConnector::retrieveItem<GIndiv
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBrokerConnector)
 
 #endif /* GBROKERCONNECTOR_HPP_ */

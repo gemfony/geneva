@@ -1379,4 +1379,9 @@ boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> > TFac
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::trainingSet)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::networkData)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF>)
+
 #endif /* GNEURALNETWORKINDIVIDUAL_HPP_ */

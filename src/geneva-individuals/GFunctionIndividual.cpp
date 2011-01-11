@@ -31,8 +31,7 @@
 
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GFunctionIndividual)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFunctionIndividual)
 
 namespace Gem
 {

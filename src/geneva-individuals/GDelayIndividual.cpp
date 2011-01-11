@@ -31,9 +31,7 @@
 
 #include "geneva-individuals/GDelayIndividual.hpp"
 
-// Needed for serialization purposes
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Tests::GDelayIndividual)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GDelayIndividual)
 
 namespace Gem
 {

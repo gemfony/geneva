@@ -175,4 +175,6 @@ private:
 } /* namespace Tests */
 } /* namespace Gem */
 
+BOOST_CLASS_EXPORT_KEY(Gem::Tests::GDelayIndividual)
+
 #endif /* GDELAYINDIVIDUAL_HPP_ */

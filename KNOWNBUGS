@@ -1,27 +1,7 @@
 Add new bugs here ...
 
 --
-
-On OpenSUSE 11 / 64 bit / g++ 4.3.1, as well as Ubuntu 8.04 and Debian Lenny, Geneva 
-programs currently suffer from a segmentation fault at the end of their execution. All 
-functions started from main have terminated at this time, and the crash does to the best
-of our knowledge not affect the program result. The problem seems to be caused by a 
-bug in the Boost 1.36 serialization library. A post on the Boost mailing list on 
-September 15, 2008 yielded the following answer:
-
-"This has been previously reported and fixed in the trunk. I hope to merge
-this into the release branch before the end of the month."
-
-Removing the two lines 
-
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GParabolaIndividual)
-
-at the end of GParabolaIndividual.hpp makes the segfault go away. Not
-including these lines can result in problems when using serialization functionality, though.
-
-Update: The problem seems to be gone with Boost 1.38 . In order to make finding that library 
-easier, we recommend to also upgrade to CMake 2.6.3 (or use that version's FindBoost.cmake
-macro). 
-
---
+Likele due to a problem with the termination of singletons in the Boost.Serialization library
+after main() has ended, some Geneva programs will segfault at the end of the program execution
+for Boost versions 1.44 and 1.45 . This should not affect the results of the optimization in any
+way, though.  

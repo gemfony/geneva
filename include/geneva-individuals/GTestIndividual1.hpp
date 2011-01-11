@@ -155,4 +155,6 @@ public:
 } /* namespace Tests */
 } /* namespace Gem */
 
+BOOST_CLASS_EXPORT_KEY(Gem::Tests::GTestIndividual1)
+
 #endif /* GTESTINDIVIDUAL1_HPP_ */

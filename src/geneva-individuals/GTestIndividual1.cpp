@@ -31,9 +31,7 @@
 
 #include "geneva-individuals/GTestIndividual1.hpp"
 
-// Needed for serialization purposes
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Tests::GTestIndividual1)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual1)
 
 namespace Gem
 {
