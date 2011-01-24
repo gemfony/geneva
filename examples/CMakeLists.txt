@@ -14,6 +14,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+  02_GParaboloid
+)
+
+ADD_SUBDIRECTORY (
 	01_Optimizer
 )
 
