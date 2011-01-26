@@ -149,6 +149,8 @@ class GDelayIndividualFactory :public GIndividualFactoryT<GDelayIndividual>
 public:
 	/** @brief The standard constructor for this class */
 	GDelayIndividualFactory(const std::string&);
+	/** @brief The destructor */
+	virtual ~GDelayIndividualFactory();
 
 	/** @brief Allows to retrieve the name of the result file */
 	std::string getResultFileName() const;

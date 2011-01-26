@@ -231,6 +231,13 @@ GDelayIndividualFactory::GDelayIndividualFactory(const std::string& cF)
 
 /********************************************************************************************/
 /**
+ * The destructor
+ */
+GDelayIndividualFactory::~GDelayIndividualFactory()
+{ /* nothing */ }
+
+/********************************************************************************************/
+/**
  * Allows to retrieve the name of the result file
  *
  * @return The Name of the result file
