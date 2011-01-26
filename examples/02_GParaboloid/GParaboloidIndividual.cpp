@@ -49,6 +49,13 @@ GParaboloidIndividual::GParaboloidIndividual()
 
 /********************************************************************************************/
 /**
+ * The destructor
+ */
+GParaboloidIndividual::~GParaboloidIndividual()
+{ /* nothing */ }
+
+/********************************************************************************************/
+/**
  * The standard constructor. This function will add nPar constrained double parameters to
  * this individual, each of which has a constrained value range [par_min_, par_max_[.
  *
@@ -88,15 +95,6 @@ GParaboloidIndividual::GParaboloidIndividual(const GParaboloidIndividual& cp)
 	, par_min_(cp.par_min_)
 	, par_max_(cp.par_max_)
 { /* nothing */ }
-
-/********************************************************************************************/
-/**
- * The standard destructor. Note that you do not need to care for the parameter objects
- * added in the constructor. Upon destruction, they will take care of releasing the allocated
- * memory.
- */
-GParaboloidIndividual::~GParaboloidIndividual()
-{ /* nothing */	}
 
 /********************************************************************************************/
 /**

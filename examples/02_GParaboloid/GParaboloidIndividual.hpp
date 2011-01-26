@@ -122,6 +122,8 @@ class GParaboloidIndividualFactory
 public:
 	/** @brief The standard constructor for this class */
 	GParaboloidIndividualFactory(const std::string&);
+	/** @brief The destructor */
+	virtual ~GParaboloidIndividualFactory();
 
 protected:
 	/** @brief Allows to describe configuration options of this class */
