@@ -48,6 +48,13 @@ GFunctionIndividual::GFunctionIndividual()
 
 /********************************************************************************************/
 /**
+ * Destructor
+ */
+GFunctionIndividualFactory::~GFunctionIndividualFactory()
+{ /* nothing */ }
+
+/********************************************************************************************/
+/**
  * Initialization with the desired demo function
  *
  * @param dF The id if the demo function

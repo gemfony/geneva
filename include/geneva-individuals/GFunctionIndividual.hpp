@@ -346,6 +346,8 @@ class GFunctionIndividualFactory :public GIndividualFactoryT<GFunctionIndividual
 public:
 	/** @brief The standard constructor for this class */
 	GFunctionIndividualFactory(const std::string&);
+	/** @brief Destructor */
+	virtual ~GFunctionIndividualFactory();
 
 protected:
 	/** @brief Allows to describe configuration options in derived classes */
