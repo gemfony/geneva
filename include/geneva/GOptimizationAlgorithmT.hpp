@@ -3,13 +3,13 @@
  */
 
 /*
- * Copyright (C) Authors of the Geneva library collection and Karlsruhe
+ * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt) and Karlsruhe
  * Institute of Technology (University of the State of Baden-Wuerttemberg
  * and National Laboratory of the Helmholtz Association).
  *
  * See the AUTHORS file in the top-level directory for a list of authors.
  *
- * Contact: info [at] gemfony (dot) com
+ * Contact: contact [at] gemfony (dot) com
  *
  * This file is part of the Geneva library collection
  *
@@ -147,7 +147,7 @@ public:
 		, emitTerminationReason_(false)
 		, halted_(false)
 		, optAlg_(NONE)
-		, optimizationMonitor_ptr_(new GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
+		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
 	{ /* nothing */ }
 
 	/**************************************************************************************/
@@ -177,7 +177,7 @@ public:
 		, emitTerminationReason_(cp.emitTerminationReason_)
 		, halted_(cp.halted_)
 		, optAlg_(cp.optAlg_)
-		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::clone<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>())
+		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>())
 	{ /* nothing */ }
 
 	/**************************************************************************************/
@@ -543,7 +543,7 @@ public:
 		}
 #endif /* DEBUG */
 
-		optimizationMonitor_ptr_->informationFunction(im, this);
+		(this->optimizationMonitor_ptr_)->informationFunction(im, this);
 	}
 
 	/**************************************************************************************/
@@ -565,7 +565,7 @@ public:
 		}
 #endif /* DEBUG */
 
-		optimizationMonitor_ptr_ = om_ptr->GObject::clone<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
+		this->optimizationMonitor_ptr_ = om_ptr->GObject::clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 	}
 
 	/**************************************************************************************/
@@ -850,8 +850,8 @@ public:
 	 *
 	 * @return A boost::shared_ptr to the current optimization monitor
 	 */
-	boost::shared_ptr<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> getOptimizationMonitor() {
-		return optimizationMonitor_ptr_;
+	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> getOptimizationMonitor() {
+		return this->optimizationMonitor_ptr_;
 	}
 
 protected:
@@ -888,7 +888,7 @@ protected:
 		emitTerminationReason_ = p_load->emitTerminationReason_;
 		halted_ = p_load->halted_;
 		optAlg_ = p_load->optAlg_;
-		optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::clone<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
+		this->optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 	}
 
 	/**************************************************************************************/
@@ -1285,7 +1285,7 @@ private:
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_; ///< Set to true when halt() has returned "true"
 	personality optAlg_; ///< Allows to identify the actual optimization algorithm built on top of this class
-	boost::shared_ptr<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
+	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 
 #ifdef GENEVATESTING
 public:

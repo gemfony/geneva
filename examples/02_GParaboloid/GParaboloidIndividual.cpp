@@ -3,13 +3,13 @@
  */
 
 /*
- * Copyright (C) Authors of the Geneva library collection and Karlsruhe
+ * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt) and Karlsruhe
  * Institute of Technology (University of the State of Baden-Wuerttemberg
  * and National Laboratory of the Helmholtz Association).
  *
  * See the AUTHORS file in the top-level directory for a list of authors.
  *
- * Contact: info [at] gemfony (dot) com
+ * Contact: contact [at] gemfony (dot) com
  *
  * This file is part of the Geneva library collection
  *
@@ -170,6 +170,13 @@ GParaboloidIndividualFactory::GParaboloidIndividualFactory(const std::string& cF
 	, nPar_(2)
 	, par_min_(-10.)
 	, par_max_(10.)
+{ /* nothing */ }
+
+/********************************************************************************************/
+/**
+ * The destructor
+ */
+GParaboloidIndividualFactory::~GParaboloidIndividualFactory()
 { /* nothing */ }
 
 /********************************************************************************************/

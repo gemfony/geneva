@@ -3,7 +3,7 @@
  */
 
 /*
- * Copyright (C) Authors of the Geneva library collection and Karlsruhe
+ * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt) and Karlsruhe
  * Institute of Technology (University of the State of Baden-Wuerttemberg
  * and National Laboratory of the Helmholtz Association).
  *

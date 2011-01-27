@@ -3,7 +3,7 @@
 # and Karlsruhe Institute of Technology (University of the State of
 # Baden-Wuerttemberg and National Laboratory of the Helmholtz Association)
 #
-# Contact: info [at] gemfony (dot) com
+# Contact: contact [at] gemfony (dot) com
 #
 # This file is part of the Geneva library, Gemfony scientific's optimization
 # library.

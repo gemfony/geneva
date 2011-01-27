@@ -4,7 +4,7 @@
 
 /* This file is part of the Geneva library collection.
  *
- * Contact: info [at] gemfony (dot) com
+ * Contact: contact [at] gemfony (dot) com
  *
  * Note: This class was adapted from an earlier Boost 1.36 version of the
  * thread_group class. The original code contained the following text:
@@ -19,7 +19,7 @@
  *
  * All modifications to Anthony William's original code, as shown in this
  * file, are also covered by the Boost Software License, Version 1.0,
- * and are Copyright (C) Authors of the Geneva library collection and
+ * and are Copyright (C) Gemfony scientific UG (haftungsbeschraenkt) and
  * Karlsruhe Institute of Technology.
  *
  * See the AUTHORS file in the top-level directory for a list of authors.

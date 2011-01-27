@@ -23,12 +23,12 @@
  *
  * All modifications to Jan Gaspar's original code, as shown in this
  * file, are also covered by the Boost Software License, Version 1.0,
- * and are Copyright (C) Authors of the Geneva library collection and
+ * and are Copyright (C) Gemfony scientific UG (haftungsbeschraenkt) and
  * Karlsruhe Institute of Technology.
  *
  * See the AUTHORS file in the top-level directory for a list of authors.
  *
- * Contact: info [at] gemfony (dot) com
+ * Contact: contact [at] gemfony (dot) com
  *
  * In particular, please note that:
  *
