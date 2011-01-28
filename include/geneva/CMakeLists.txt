@@ -42,6 +42,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GMultiThreadedSwarm.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp
+	GNumBiGaussAdaptorT.hpp
 	GNumGaussAdaptorT.hpp
 	GNumCollectionT.hpp
 	GNumFPT.hpp

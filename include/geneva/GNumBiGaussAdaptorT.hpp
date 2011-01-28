@@ -1,5 +1,5 @@
 /**
- * @file GNumGaussAdaptorT.hpp
+ * @file GNumBiGaussAdaptorT.hpp
  */
 
 /*
@@ -35,8 +35,8 @@
 
 // Boost headers go here
 
-#ifndef GNUMGAUSSADAPTORT_HPP_
-#define GNUMGAUSSADAPTORT_HPP_
+#ifndef GNUMBIGAUSSADAPTORT_HPP_
+#define GNUMBIGAUSSADAPTORT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -52,13 +52,18 @@ namespace Geneva {
 
 /************************************************************************************************/
 /**
- * GNumGaussAdaptorT represents an adaptor used for the adaption of numeric
- * types, by the addition of gaussian-distributed random numbers. Different numeric
- * types may be used, including Boost's integer representations.
- * The type used needs to be specified as a template parameter.
+ * GNumBiGaussAdaptorT is used for the adaption of numeric types, by the addition of random numbers
+ * distributed as two adjacent gaussians. Different numeric types may be used, including Boost's
+ * integer representations. The type used needs to be specified as a template parameter. In comparison
+ * to GNumGaussAdaptorT, an additional parameter "delta" is added, which represents the distance between
+ * both gaussians. Just like sigma, delta can be subject to mutations. It is also possible to use
+ * two different sigma/sigmaSigma values and adaption rates for both gaussians. Note that this adaptor
+ * is experimental. Your mileage may vary.
+ *
+ * NOTE: THIS CLASS ISN'T FINISHED YET. DON'T USE.
  */
 template<typename T>
-class GNumGaussAdaptorT :public GAdaptorT<T>
+class GNumBiGaussAdaptorT :public GAdaptorT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -69,10 +74,18 @@ class GNumGaussAdaptorT :public GAdaptorT<T>
 
 		// Save all necessary data
 		ar & make_nvp("GAdaptorT_num", boost::serialization::base_object<GAdaptorT<T> >(*this))
-		   & BOOST_SERIALIZATION_NVP(sigma_)
-		   & BOOST_SERIALIZATION_NVP(sigmaSigma_)
-		   & BOOST_SERIALIZATION_NVP(minSigma_)
-		   & BOOST_SERIALIZATION_NVP(maxSigma_);
+		   & BOOST_SERIALIZATION_NVP(sigma1_)
+		   & BOOST_SERIALIZATION_NVP(sigmaSigma1_)
+		   & BOOST_SERIALIZATION_NVP(minSigma1_)
+		   & BOOST_SERIALIZATION_NVP(maxSigma1_)
+		   & BOOST_SERIALIZATION_NVP(sigma2_)
+		   & BOOST_SERIALIZATION_NVP(sigmaSigma2_)
+		   & BOOST_SERIALIZATION_NVP(minSigma2_)
+		   & BOOST_SERIALIZATION_NVP(maxSigma2_)
+		   & BOOST_SERIALIZATION_NVP(delta_)
+		   & BOOST_SERIALIZATION_NVP(sigmaDelta_)
+		   & BOOST_SERIALIZATION_NVP(minDelta_)
+		   & BOOST_SERIALIZATION_NVP(maxDelta_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -81,7 +94,7 @@ public:
 	/**
 	 * The standard constructor.
 	 */
-	GNumGaussAdaptorT()
+	GNumBiGaussAdaptorT()
 		: GAdaptorT<T> ()
 		, sigma_(DEFAULTSIGMA)
 		, sigmaSigma_(DEFAULTSIGMASIGMA)
@@ -95,7 +108,7 @@ public:
 	 *
 	 * @param probability The likelihood for a adaption actually taking place
 	 */
-	GNumGaussAdaptorT(const double& probability)
+	GNumBiGaussAdaptorT(const double& probability)
 		: GAdaptorT<T> (probability)
 		, sigma_(DEFAULTSIGMA)
 		, sigmaSigma_(DEFAULTSIGMASIGMA)
@@ -112,7 +125,7 @@ public:
 	 * @param minSigma The minimal value allowed for sigma_
 	 * @param maxSigma The maximal value allowed for sigma_
 	 */
-	GNumGaussAdaptorT(const double& sigma, const double& sigmaSigma,
+	GNumBiGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma)
 		: GAdaptorT<T> ()
 		, sigma_(DEFAULTSIGMA)
@@ -136,7 +149,7 @@ public:
 	 * @param maxSigma The maximal value allowed for sigma_
 	 * @param probability The likelihood for a adaption actually taking place
 	 */
-	GNumGaussAdaptorT(const double& sigma, const double& sigmaSigma,
+	GNumBiGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma,
 				const double& probability)
 		: GAdaptorT<T> (probability)
@@ -156,9 +169,9 @@ public:
 	 * A standard copy constructor. It assumes that the values of the other object are correct
 	 * and does no additional error checks.
 	 *
-	 * @param cp Another GNumGaussAdaptorT object
+	 * @param cp Another GNumBiGaussAdaptorT object
 	 */
-	GNumGaussAdaptorT(const GNumGaussAdaptorT<T>& cp)
+	GNumBiGaussAdaptorT(const GNumBiGaussAdaptorT<T>& cp)
 		: GAdaptorT<T> (cp)
 		, sigma_(cp.sigma_)
 		, sigmaSigma_(cp.sigmaSigma_)
@@ -171,45 +184,45 @@ public:
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
 	 */
-	~GNumGaussAdaptorT()
+	~GNumBiGaussAdaptorT()
 	{ /* nothing */ }
 
 	/********************************************************************************************/
 	/**
-	 * A standard assignment operator for GNumGaussAdaptorT objects,
+	 * A standard assignment operator for GNumBiGaussAdaptorT objects,
 	 *
-	 * @param cp A copy of another GNumGaussAdaptorT object
+	 * @param cp A copy of another GNumBiGaussAdaptorT object
 	 */
-	const GNumGaussAdaptorT<T>& operator=(const GNumGaussAdaptorT<T>& cp)
+	const GNumBiGaussAdaptorT<T>& operator=(const GNumBiGaussAdaptorT<T>& cp)
 	{
-		GNumGaussAdaptorT<T>::load_(&cp);
+		GNumBiGaussAdaptorT<T>::load_(&cp);
 		return *this;
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for equality with another GNumGaussAdaptorT<T> object
+	 * Checks for equality with another GNumBiGaussAdaptorT<T> object
 	 *
-	 * @param  cp A constant reference to another GNumGaussAdaptorT<T> object
+	 * @param  cp A constant reference to another GNumBiGaussAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GNumGaussAdaptorT<T>& cp) const {
+	bool operator==(const GNumBiGaussAdaptorT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumGaussAdaptorT<T>::operator==","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumBiGaussAdaptorT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for inequality with another GNumGaussAdaptorT<T> object
+	 * Checks for inequality with another GNumBiGaussAdaptorT<T> object
 	 *
-	 * @param  cp A constant reference to another GNumGaussAdaptorT<T> object
+	 * @param  cp A constant reference to another GNumBiGaussAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GNumGaussAdaptorT<T>& cp) const {
+	bool operator!=(const GNumBiGaussAdaptorT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumGaussAdaptorT<T>::operator!=","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumBiGaussAdaptorT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/********************************************************************************************/
@@ -235,21 +248,21 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GNumGaussAdaptorT<T>  *p_load = GObject::conversion_cast<GNumGaussAdaptorT<T> >(&cp);
+		const GNumBiGaussAdaptorT<T>  *p_load = GObject::conversion_cast<GNumBiGaussAdaptorT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GAdaptorT<T>::checkRelationshipWith(cp, e, limit, "GNumGaussAdaptorT<T>", y_name, withMessages));
+		deviations.push_back(GAdaptorT<T>::checkRelationshipWith(cp, e, limit, "GNumBiGaussAdaptorT<T>", y_name, withMessages));
 
 		// ... and then our local data
-		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<T>", sigma_, p_load->sigma_, "sigma_", "p_load->sigma_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<T>", sigmaSigma_, p_load->sigmaSigma_, "sigmaSigma_", "p_load->sigmaSigma_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<T>", minSigma_, p_load->minSigma_, "minSigma_", "p_load->minSigma_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<T>", maxSigma_, p_load->maxSigma_, "maxSigma_", "p_load->maxSigma_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<T>", sigma_, p_load->sigma_, "sigma_", "p_load->sigma_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<T>", sigmaSigma_, p_load->sigmaSigma_, "sigmaSigma_", "p_load->sigmaSigma_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<T>", minSigma_, p_load->minSigma_, "minSigma_", "p_load->minSigma_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<T>", maxSigma_, p_load->maxSigma_, "maxSigma_", "p_load->maxSigma_", e , limit));
 
-		return evaluateDiscrepancies("GNumGaussAdaptorT<T>", caller, deviations, e);
+		return evaluateDiscrepancies("GNumBiGaussAdaptorT<T>", caller, deviations, e);
 	}
 
 	/********************************************************************************************/
@@ -263,7 +276,7 @@ public:
 	{
 		if(sigma < 0.) {
 			raiseException(
-					"In GNumGaussAdaptorT::setSigma(const double&):" << std::endl
+					"In GNumBiGaussAdaptorT::setSigma(const double&):" << std::endl
 					<< "sigma is negative: " << sigma
 			);
 		}
@@ -276,7 +289,7 @@ public:
 		if(tmpSigma < minSigma_ || tmpSigma > maxSigma_)
 		{
 			raiseException(
-					"In GNumGaussAdaptorT::setSigma(const double&):" << std::endl
+					"In GNumBiGaussAdaptorT::setSigma(const double&):" << std::endl
 					<< "sigma is not in the allowed range: " << std::endl
 					<< tmpSigma << " " << minSigma_ << " " << maxSigma_ << std::endl
 					<< "If you want to use these values you need to" << std::endl
@@ -316,7 +329,7 @@ public:
 		// Do some error checks
 		if(tmpMinSigma<=0. || minSigma >= maxSigma){ // maxSigma will automatically be > 0. now
 			raiseException(
-					"In GNumGaussAdaptorT::setSigmaRange(const double&, const double&):" << std::endl
+					"In GNumBiGaussAdaptorT::setSigmaRange(const double&, const double&):" << std::endl
 					<< "Invalid values for minSigma and maxSigma given:" << tmpMinSigma << " " << maxSigma
 			);
 		}
@@ -330,8 +343,8 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Setting of valid ranges is tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	 * Setting of invalid ranges is tested in GNumGaussAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * Setting of valid ranges is tested in GNumBiGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Setting of invalid ranges is tested in GNumBiGaussAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -347,7 +360,7 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GNumBiGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -367,7 +380,7 @@ public:
 		if(sigmaSigma <= 0.)
 		{
 			raiseException(
-					"In GNumGaussAdaptorT::setSigmaSigma(double, double):" << std::endl
+					"In GNumBiGaussAdaptorT::setSigmaSigma(double, double):" << std::endl
 					<< "Bad value for sigmaSigma given: " << sigmaSigma
 			);
 		}
@@ -376,8 +389,8 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Setting of valid adaption rates is tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	 * Setting of invalid adaption rates is tested in GNumGaussAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * Setting of valid adaption rates is tested in GNumBiGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Setting of invalid adaption rates is tested in GNumBiGaussAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -392,7 +405,7 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Retrieval of adaption rates is tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Retrieval of adaption rates is tested in GNumBiGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -414,7 +427,7 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GNumBiGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -427,7 +440,7 @@ public:
 	 */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const {
 		raiseException(
-				"In Gem::Geneva::adaptorId GNumGaussAdaptorT::getAdaptorId():" << std::endl
+				"In Gem::Geneva::adaptorId GNumBiGaussAdaptorT::getAdaptorId():" << std::endl
 				<< "Function used with a type it was not designed for"
 		);
 	}
@@ -435,15 +448,15 @@ public:
 protected:
 	/********************************************************************************************/
 	/**
-	 * This function loads the data of another GNumGaussAdaptorT, camouflaged as a GObject.
+	 * This function loads the data of another GNumBiGaussAdaptorT, camouflaged as a GObject.
 	 * We assume that the values given to us by the other object are correct and do no error checks.
 	 *
-	 * @param A copy of another GNumGaussAdaptorT, camouflaged as a GObject
+	 * @param A copy of another GNumBiGaussAdaptorT, camouflaged as a GObject
 	 */
 	void load_(const GObject *cp)
 	{
 		// Convert GObject pointer to local format
-		const GNumGaussAdaptorT<T> *p_load = GObject::conversion_cast<GNumGaussAdaptorT<T> >(cp);
+		const GNumBiGaussAdaptorT<T> *p_load = GObject::conversion_cast<GNumBiGaussAdaptorT<T> >(cp);
 
 		// Load the data of our parent class ...
 		GAdaptorT<T>::load_(cp);
@@ -494,10 +507,18 @@ protected:
 
 protected: // For performance reasons, so we do not have to go through access functions
 	/********************************************************************************************/
-	double sigma_; ///< The width of the gaussian used to adapt values
-	double sigmaSigma_; ///< affects sigma_ adaption
-	double minSigma_; ///< minimum allowed value for sigma_
-	double maxSigma_; ///< maximum allowed value for sigma_
+	double sigma1_; ///< The width of the first gaussian used to adapt values
+	double sigmaSigma1_; ///< affects sigma1_ adaption
+	double minSigma1_; ///< minimum allowed value for sigma1_
+	double maxSigma1_; ///< maximum allowed value for sigma1_
+	double sigma2_; ///< The width of the second gaussian used to adapt values
+	double sigmaSigma2_; ///< affects sigma2_ adaption
+	double minSigma2_; ///< minimum allowed value for sigma2_
+	double maxSigma2_; ///< maximum allowed value for sigma2_
+	double delta_; ///< The distance between both gaussians
+	double sigmaDelta_; ///< affects the adaption of delta_
+	double minDelta_; ///< minimum allowed value for delta_
+	double maxDelta_; ///< maximum allowed value for delta_
 
 #ifdef GENEVATESTING
 public:
@@ -517,7 +538,7 @@ public:
 		if(GAdaptorT<T>::modify_GUnitTests()) result = true;
 
 		// A relatively harmless change
-		sigmaSigma_ *= 1.1;
+		sigmaSigma1_ *= 1.1;
 		result = true;
 
 		return result;
@@ -533,132 +554,6 @@ public:
 
 		// Call the parent classes' functions
 		GAdaptorT<T>::specificTestsNoFailureExpected_GUnitTests();
-
-		//------------------------------------------------------------------------------
-
-		{ // Test setting and retrieval of the sigma range
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			for(double dlower=0.; dlower<1.; dlower+=0.1) {
-				double dupper = 2.*dlower;
-
-				BOOST_CHECK_NO_THROW(p_test->setSigmaRange(dlower, dlower==0.?1.:dupper));
-				std::pair<double, double> range;
-				BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
-
-				if(dlower == 0.) { // Account for the fact that a lower boundary of 0. will be silently changed
-					BOOST_CHECK(range.first == DEFAULTMINSIGMA);
-					BOOST_CHECK(range.second == 1.);
-				}
-				else {
-					BOOST_CHECK(range.first == dlower);
-					BOOST_CHECK(fabs(range.second - 2.*dlower) < pow(10,-8)); // Take into account rounding errors
-				}
-			}
-
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Test that setting a sigma of 0. will result in a sigma with value DEFAULTMINSIGMA
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(0., 2.));
-			BOOST_CHECK_NO_THROW(p_test->setSigma(0.));
-			BOOST_CHECK(p_test->getSigma() == DEFAULTMINSIGMA);
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Tests setting and retrieval of the sigma parameter
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(0., 2.));
-
-			for(double d=0.1; d<1.9; d+=0.1) {
-				BOOST_CHECK_NO_THROW(p_test->setSigma(d));
-				BOOST_CHECK(p_test->getSigma() == d);
-			}
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Test setting and retrieval of the sigma adaption rate
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			for(double d=0.1; d<1.9; d+=0.1) {
-				BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(d));
-				BOOST_CHECK(p_test->getSigmaAdaptionRate() == d);
-			}
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Check that simultaneous setting of all "sigma-values" has an effect
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			BOOST_CHECK_NO_THROW(p_test->setAll(0.5, 0.8, 0., 1.));
-			BOOST_CHECK(p_test->getSigma() == 0.5);
-			BOOST_CHECK(p_test->getSigmaAdaptionRate() == 0.8);
-			std::pair<double, double> range;
-			BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
-			BOOST_CHECK(range.first == DEFAULTMINSIGMA);
-			BOOST_CHECK(range.second == 1.);
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Test sigma adaption
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			const double minSigma = 0.1;
-			const double maxSigma = 0.5;
-			const double sigmaStart = 0.3;
-			const double sigmaSigma = 0.3;
-
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(minSigma, maxSigma));
-			BOOST_CHECK_NO_THROW(p_test->setSigma(sigmaStart));
-			BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(sigmaSigma));
-
-			double oldSigma = p_test->getSigma();
-			double newSigma = 0.;
-			BOOST_CHECK(oldSigma == sigmaStart);
-
-			std::size_t nTests = 10000;
-			std::size_t maxCounter = 0;
-			std::size_t maxMaxCounter = 5000;
-			for(std::size_t i=0; i<nTests; i++) {
-				BOOST_CHECK_NO_THROW(p_test->adaptAdaption());
-				BOOST_CHECK(newSigma = p_test->getSigma());
-				BOOST_CHECK(newSigma >= minSigma && newSigma <= maxSigma);
-
-				if(newSigma != minSigma && newSigma != maxSigma) {
-					BOOST_CHECK_MESSAGE (
-						newSigma != oldSigma
-						,  "\n"
-						<< "oldSigma = " << oldSigma << "\n"
-						<< "newSigma = " << newSigma << "\n"
-						<< "iteration = " << i << "\n"
-					);
-					oldSigma = newSigma;
-				}
-				else {
-					// We want to know how often we have exceeded the boundaries
-					maxCounter++;
-				}
-			}
-
-			// std::cout << "maxCounter = " << maxCounter << std::endl;
-
-			BOOST_CHECK_MESSAGE (
-					maxCounter < maxMaxCounter
-					,  "\n"
-					<< "maxCounter = " << maxCounter << "\n"
-					<< "maxMaxCounter = " << maxMaxCounter << "\n"
-			);
-		}
-
-		//------------------------------------------------------------------------------
 	}
 
 	/***********************************************************************************/
@@ -670,67 +565,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests();
-
-		//------------------------------------------------------------------------------
-
-		{ // Test that setting a minimal sigma < 0. throws
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			BOOST_CHECK_THROW(p_test->setSigmaRange(-1., 2.), Gem::Common::gemfony_error_condition);
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Test that setting a minimal sigma > the maximum sigma throws
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			BOOST_CHECK_THROW(p_test->setSigmaRange(2., 1.), Gem::Common::gemfony_error_condition);
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Test that setting a negative sigma throws
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			BOOST_CHECK_THROW(p_test->setSigma(-1.), Gem::Common::gemfony_error_condition);
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Test that setting a sigma below the allowed range throws
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(0.5, 2.));
-			BOOST_CHECK_THROW(p_test->setSigma(0.1), Gem::Common::gemfony_error_condition);
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Test that setting a sigma above the allowed range throws
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(0.5, 2.));
-			BOOST_CHECK_THROW(p_test->setSigma(3.), Gem::Common::gemfony_error_condition);
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Check that setting a negative sigma adaption rate throws
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			BOOST_CHECK_THROW(p_test->setSigmaAdaptionRate(-1.), Gem::Common::gemfony_error_condition);
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Check that setting a 0 sigma adaption rate throws
-			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
-
-			BOOST_CHECK_THROW(p_test->setSigmaAdaptionRate(0.), Gem::Common::gemfony_error_condition);
-		}
-
-		//------------------------------------------------------------------------------
+		GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests();d
 	}
 
 #endif /* GENEVATESTING */
@@ -746,10 +581,10 @@ public:
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract< Gem::Geneva::GNumGaussAdaptorT<T> > : public boost::true_type {};
+		struct is_abstract< Gem::Geneva::GNumBiGaussAdaptorT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::Geneva::GNumGaussAdaptorT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GNumBiGaussAdaptorT<T> > : public boost::true_type {};
 	}
 }
 
-#endif /* GNUMGAUSSADAPTORT_HPP_ */
+#endif /* GNUMBIGAUSSADAPTORT_HPP_ */
