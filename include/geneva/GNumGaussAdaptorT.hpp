@@ -306,7 +306,7 @@ public:
 	 * range.
 	 *
 	 * @param minSigma The minimum allowed value of sigma_
-	 * @param minSigma The maximum allowed value of sigma_
+	 * @param maxSigma The maximum allowed value of sigma_
 	 */
 	void setSigmaRange(const double& minSigma, const double& maxSigma){
 		double tmpMinSigma = minSigma;
@@ -353,9 +353,8 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * This function sets the values of the sigmaSigma_ parameter and the
-	 * minimal value allowed for sigma_. 0 is not allowed. If you do want to
-	 * prevent adaption of sigma, you can use the GAdaptorT<T>::setAdaptionThreshold()
+	 * This function sets the values of the sigmaSigma_ parameter. Values <= 0 are not allowed.
+	 * If you do want to prevent adaption of sigma, you can use the GAdaptorT<T>::setAdaptionThreshold()
 	 * function. It determines, after how many adaptions the internal parameters
 	 * of the adaption should be adapted. If set to 0, no adaption takes place.
 	 *
@@ -367,7 +366,7 @@ public:
 		if(sigmaSigma <= 0.)
 		{
 			raiseException(
-					"In GNumGaussAdaptorT::setSigmaSigma(double, double):" << std::endl
+					"In GNumGaussAdaptorT::setSigmaAdaptionRate(double, double):" << std::endl
 					<< "Bad value for sigmaSigma given: " << sigmaSigma
 			);
 		}
