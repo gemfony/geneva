@@ -44,6 +44,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
+#include "hap/GRandomBase.hpp"
 #include "hap/GRandomT.hpp"
 #include "geneva/GMutableI.hpp"
 #include "geneva/GObject.hpp"
@@ -159,7 +160,7 @@ public:
 	) const;
 
 	/** @brief Assigns a random number generator from another object. */
-	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *);
+	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *);
 	/** @brief Re-connects the local random number generator to gr */
 	virtual void resetGRandomPointer();
 	/** @brief Checks whether the local random number generator is used */
@@ -204,8 +205,8 @@ protected:
      * connected to a local random number generator assigned in the constructor, or
      * to a "factory" generator located in the surrounding GParameterSet object.
      */
-	Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_local;
-	Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr;
+	Gem::Hap::GRandomBase *gr_local;
+	Gem::Hap::GRandomBase *gr;
 
 	/**************************************************************************************************/
 	/** @brief Loads the data of another GObject */

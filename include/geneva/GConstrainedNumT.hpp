@@ -47,7 +47,6 @@
 #include "geneva/GParameterT.hpp"
 #include "geneva/GConstrainedValueLimit.hpp"
 #include "common/GExceptions.hpp"
-#include "hap/GRandomT.hpp"
 
 namespace Gem {
 namespace Geneva {

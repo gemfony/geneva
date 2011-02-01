@@ -124,7 +124,7 @@ public:
 		// Add bounded double objects
 		for(std::size_t i=0; i<dim; i++) {
 			// GConstrainedDoubleObject will start with random values in the range [min:max]
-			boost::shared_ptr<GConstrainedDoubleObject> gbd_ptr(new GConstrainedDoubleObject(gr.uniform_real(min, max), min, max) );
+			boost::shared_ptr<GConstrainedDoubleObject> gbd_ptr(new GConstrainedDoubleObject(gr.uniform_real<double>(min, max), min, max) );
 
 			// Create a suitable adaptor (sigma=0.1, sigma-adaption=0.5, min sigma=0, max sigma=0,5)
 			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 0.5));

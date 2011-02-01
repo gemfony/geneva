@@ -835,7 +835,7 @@ void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& chi
  */
 void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, const std::vector<double>& threshold) {
 	bool done=false;
-	double randTest = gr.uniform_01(); // get the test value
+	double randTest = gr.uniform_01<double>(); // get the test value
 
 	for(std::size_t par=0; par<nParents_; par++) {
 		if(randTest<threshold[par]) {

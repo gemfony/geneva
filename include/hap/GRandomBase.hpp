@@ -97,28 +97,24 @@ public:
 	/****************************************************************************/
 	/** @brief Helps to use this object as a generator for boost's PRNR distributions */
 	typedef double result_type;
-	/** @brief The minimum value returned by evenRandom() */
-	const result_type min_value;
-	/** @brief The maximum value returned by evenRandom() */
-	const result_type max_value;
 
 	/************************************************************************/
 	/** @brief The standard constructor */
-	GRandomBase()
-		: min_value(result_type(0.))
-		, max_value(result_type(1.))
-		, fltGaussCache_(float(0.))
-		, dblGaussCache_(double(0.))
-		, ldblGaussCache_((long double)0.)
-		, fltGaussCacheAvailable_(false)
-    	, dblGaussCacheAvailable_(false)
-		, ldblGaussCacheAvailable_(false)
-	{ /* nothing */ }
-
-	/************************************************************************/
+	GRandomBase();
 	/** @brief A standard destructor */
-	virtual ~GRandomBase()
-	{ /* nothing */ }
+	virtual ~GRandomBase();
+
+	/** @brief Retrieves an uniform_01 item */
+	result_type operator()();
+	/** @brief Returns the minimum value returned by evenRandom() */
+	result_type min() const;
+	/** @brief Returns the maximum value returned by evenRandom() */
+	result_type max() const;
+
+	/** @brief This function returns true with a probability "probability", otherwise false */
+	bool weighted_bool(const double&);
+	/** @brief This function produces boolean values with a 50% likelihood each for true and false */
+	bool uniform_bool();
 
 	/************************************************************************/
 	/** @brief Uniformly distributed random numbers in the range [0,1[ */
@@ -126,39 +122,7 @@ public:
 	fp_type uniform_01(
 			typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 	) {
-		return static_cast<float>(uniform_01<double>());
-	}
-
-	/************************************************************************/
-	/**
-	 * Retrieves an uniform_01 item. Thus function, together with the min() and
-	 * max() functions make it possible to use GRandomBase as a generator for
-	 * boost's random distributions.
-	 *
-	 * @return A random number taken from the evenRandom function
-	 */
-	result_type operator()() {
-		return uniform_01<result_type>();
-	}
-
-	/************************************************************************/
-	/**
-	 * Returns the minimum value returned by evenRandom()
-	 *
-	 * @return The minimum value returned by evenRandom()
-	 */
-	result_type min() const {
-		return min_value;
-	}
-
-	/************************************************************************/
-	/**
-	 * Returns the maximum value returned by evenRandom()
-	 *
-	 * @return The maximum value returned by evenRandom()
-	 */
-	result_type max() const {
-		return max_value;
+		return static_cast<float>(dbl_random01());
 	}
 
 	/************************************************************************/
@@ -297,38 +261,11 @@ public:
 		  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 	) {
 		if (uniform_bool()) {
-			return normal_distribution<fp_type>(mean - GFabs(distance / 2.), sigma);
+			return normal_distribution<fp_type>(mean - Gem::Common::GFabs(distance / 2.), sigma);
 		}
 		else {
-			return normal_distribution<fp_type>(mean + GFabs(distance / 2.), sigma);
+			return normal_distribution<fp_type>(mean + Gem::Common::GFabs(distance / 2.), sigma);
 		}
-	}
-
-	/************************************************************************/
-	/**
-	 * This function returns true with a probability "probability", otherwise false.
-	 *
-	 * @param p The probability for the value "true" to be returned
-	 * @return A boolean value, which will be true with a user-defined likelihood
-	 */
-	bool weighted_bool(
-			const double& probability
-	) {
-	#ifdef DEBUG
-		assert(probability>=0. && probability<=1.);
-	#endif
-		return ((uniform_01<double>()<probability)?true:false);
-	}
-
-	/************************************************************************/
-	/**
-	 * This function produces boolean values with a 50% likelihood each for
-	 * true and false.
-	 *
-	 * @return Boolean values with a 50% likelihood for true/false respectively
-	 */
-	bool uniform_bool() {
-		return weighted_bool(0.5);
 	}
 
 	/*************************************************************************/
@@ -372,7 +309,7 @@ public:
 			  const int_type& max
 			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
 	) {
-		return uniform_int(0, max);
+		return uniform_int<int_type>(0, max);
 	}
 
 	/*************************************************************************/
@@ -385,6 +322,7 @@ public:
 	 * @param max The maximum (excluded) value of the range
 	 * @return Discrete random numbers evenly distributed in the range [min,max]
 	 */
+	template <typename int_type>
 	int_type uniform_smallint (
 			  const int_type& min
 			, const int_type& max
@@ -413,6 +351,7 @@ public:
 	 * @param max The maximum (excluded) value of the range
 	 * @return Discrete random numbers evenly distributed in the range [0,max]
 	 */
+	template <typename int_type>
 	int_type uniform_smallint (
 			  const int_type& max
 			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
@@ -421,12 +360,20 @@ public:
 		assert(max >= 0);
 #endif /* DEBUG */
 
-		return uniform_smallint(0, max);
+		return uniform_smallint<int_type>(0, max);
 	}
 
 protected:
-	 /** @brief Uniformly distributed double random numbers in the range [0,1[ */
+	/************************************************************************/
+	/** @brief Uniformly distributed double random numbers in the range [0,1[ */
 	virtual double dbl_random01() = 0;
+
+public:
+	/************************************************************************/
+	/** @brief The minimum value returned by evenRandom() */
+	const result_type min_value;
+	/** @brief The maximum value returned by evenRandom() */
+	const result_type max_value;
 
 private:
 	/************************************************************************/
@@ -445,113 +392,14 @@ private:
 };
 
 /****************************************************************************/
+// Specializationsof normal_distributions for the available floating point types
 
-/**
- * Produces gaussian-distributed float random numbers with sigma 1 and mean 0
- *
- * @return float random numbers with a gaussian distribution
- */
-template<>
-float GRandomBase::normal_distribution<float>() {
-	using namespace Gem::Common;
-
-	if(fltGaussCacheAvailable_) {
-		fltGaussCacheAvailable_ = false;
-		return fltGaussCache_;
-	}
-	else {
-#ifdef USEBOXMULLER
-		float rnr1 = uniform_01<float>();
-		float rnr2 = uniform_01<float>();
-		dblGaussCache_ = GSqrt(GFabs(-2.f * GLog(1.f - rnr1))) * GCos(2.f * (float)M_PI	* rnr2);
-		dblGaussCacheAvailable_ = true;
-		return GSqrt(GFabs(-2.f * GLog(1.f - rnr1))) * GSin(2.f * (float)M_PI	* rnr2);
-#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
-		float q, u1, u2;
-		do {
-			u1 = 2.f* uniform_01<float>() - 1.f;
-			u2 = 2.f* uniform_01<float>() - 1.f;
-			q = u1*u1 + u2*u2;
-		} while (q > 1.f);
-		q = GSqrt((-2.f*GLog(q))/q);
-		fltGaussCache_ = u2 * q;
-		fltGaussCacheAvailable_ = true;
-		return u1 * q;
-#endif
-	}
-}
-
-/****************************************************************************/
-/**
- * Produces gaussian-distributed double random numbers with sigma 1 and mean 0
- *
- * @return double random numbers with a gaussian distribution
- */
-template<>
-double GRandomBase::normal_distribution<double>() {
-	using namespace Gem::Common;
-
-	if(dblGaussCacheAvailable_) {
-		dblGaussCacheAvailable_ = false;
-		return dblGaussCache_;
-	}
-	else {
-#ifdef USEBOXMULLER
-		double rnr1 = uniform_01<double>();
-		double rnr2 = uniform_01<double>();
-		dblGaussCache_ = GSqrt(GFabs(-2. * GLog(1. - rnr1))) * GCos(2. * M_PI	* rnr2);
-		dblGaussCacheAvailable_ = true;
-		return GSqrt(GFabs(-2. * GLog(1. - rnr1))) * GSin(2. * M_PI	* rnr2);
-#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
-		double q, u1, u2;
-		do {
-			u1 = 2.* uniform_01<double>() - 1.;
-			u2 = 2.* uniform_01<double>() - 1.;
-			q = u1*u1 + u2*u2;
-		} while (q > 1.0);
-		q = GSqrt((-2.*GLog(q))/q);
-		dblGaussCache_ = u2 * q;
-		dblGaussCacheAvailable_ = true;
-		return u1 * q;
-#endif
-	}
-}
-
-/****************************************************************************/
-/**
- * Produces gaussian-distributed long double random numbers with sigma 1 and mean 0
- *
- * @return double random numbers with a gaussian distribution
- */
-template<>
-long double GRandomBase::normal_distribution<long double>() {
-	using namespace Gem::Common;
-
-	if(ldblGaussCacheAvailable_) {
-		ldblGaussCacheAvailable_ = false;
-		return ldblGaussCache_;
-	}
-	else {
-#ifdef USEBOXMULLER
-		long double rnr1 = uniform_01<long double>();
-		long double rnr2 = uniform_01<long double>();
-		ldblGaussCache_ = GSqrt(GFabs(-2. * GLog(1.l - rnr1))) * GCos(2.l * (long double)M_PI	* rnr2);
-		ldblGaussCacheAvailable_ = true;
-		return GSqrt(GFabs(-2.l * GLog(1.l - rnr1))) * GSin(2. * (long double)M_PI	* rnr2);
-#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
-		long double q, u1, u2;
-		do {
-			u1 = 2.l* uniform_01<long double>() - 1.l;
-			u2 = 2.l* uniform_01<long double>() - 1.l;
-			q = u1*u1 + u2*u2;
-		} while (q > 1.0l);
-		q = GSqrt((-2.l*GLog(q))/q);
-		ldblGaussCache_ = u2 * q;
-		ldblGaussCacheAvailable_ = true;
-		return u1 * q;
-#endif
-	}
-}
+/** @brief  Produces gaussian-distributed float random numbers with sigma 1 and mean 0 */
+template<> float GRandomBase::normal_distribution<float>();
+/** @brief Produces gaussian-distributed double random numbers with sigma 1 and mean 0 */
+template<> double GRandomBase::normal_distribution<double>();
+/** @brief Produces gaussian-distributed long double random numbers with sigma 1 and mean 0 */
+template<> long double GRandomBase::normal_distribution<long double>();
 
 /****************************************************************************/
 

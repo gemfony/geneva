@@ -52,7 +52,7 @@ GParaboloidIndividual2D::GParaboloidIndividual2D()
 		// GConstrainedDoubleObject cannot assume value below or above PAR_MIN_/MAX_
 		boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(PAR_MIN_, PAR_MAX_));
 		// Assign a random value in the expected range
-		gcdo_ptr->setValue(gr.uniform_real(PAR_MIN_, PAR_MAX_));
+		gcdo_ptr->setValue(gr.uniform_real<double>(PAR_MIN_, PAR_MAX_));
 		// Add the parameters to this individual
 		this->push_back(gcdo_ptr);
 	}

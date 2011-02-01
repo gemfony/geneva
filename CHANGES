@@ -11,6 +11,7 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
    combo for serialization (except for Boost 1.40, where these macros didn't exist).
  - Cleaned up the header files (surplus includes) 
  - Introduced more verbatim exceptions
+ - Cleaned up the GRandomBase and GRandomT classes, including an interface change
  - Started to clean up and add examples, in line with the documentation
 
 //------------------------------------------------------------------------------------------------------

@@ -41,7 +41,7 @@ namespace Geneva {
 GParameterBase::GParameterBase()
 	: GMutableI()
 	, GObject()
-	, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>())
+	, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>())
 	, gr(gr_local)
 	, adaptionsActive_(true)
 	, randomInitializationBlocked_(false)
@@ -56,7 +56,7 @@ GParameterBase::GParameterBase()
 GParameterBase::GParameterBase(const GParameterBase& cp)
 	: GMutableI(cp)
 	, GObject(cp)
-	, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>()) // We do *not* copy cp's random number generator!
+	, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>()) // We do *not* copy cp's random number generator!
 	, gr(gr_local)
 	, adaptionsActive_(cp.adaptionsActive_)
 	, randomInitializationBlocked_(cp.randomInitializationBlocked_)
@@ -216,9 +216,9 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
 /**
  * Assign a random number generator from another object.
  *
- * @param gr_cp A reference to another object's GRandomBaseT object derivative
+ * @param gr_cp A reference to another object's GRandomBase object derivative
  */
-void GParameterBase::assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
+void GParameterBase::assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
 		if(!gr_cp) {
 			raiseException(
 					"In GParameterBase::assignGRandomPointer() :" << std::endl
@@ -686,7 +686,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		}
 
 		// Assign a factory generator
-		Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>();
+		Gem::Hap::GRandomBase *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>();
 
 		BOOST_CHECK_NO_THROW(p_test1->assignGRandomPointer(gr_test));
 		BOOST_CHECK_NO_THROW(p_test2->assignGRandomPointer(gr_test));

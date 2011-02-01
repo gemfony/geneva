@@ -1,5 +1,5 @@
 /**
- * @file GRandom.hpp
+ * @file GHapEnums.hpp
  */
 
 /*

@@ -68,24 +68,24 @@ enum distType {
 };
 
 template <class T>
-void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, boost::shared_ptr<Gem::Hap::GRandomBaseT<> > gr_ptr){
+void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr){
 	std::size_t i;
 
 	switch(dType){
 	case GAUSSIAN: // standard distribution
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->normal_distribution(0.,0.5)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->normal_distribution<double>(0.,0.5)));
 		break;
 
 	case DOUBLEGAUSSIAN:
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->bi_normal_distribution(0.,0.5,2.))); // (mean, sigma, distance)
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->bi_normal_distribution<double>(0.,0.5,2.))); // (mean, sigma, distance)
 		break;
 
 	case EVEN: // double in the range [0,1[
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->uniform_01()));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->uniform_01<double>()));
 		break;
 
 	case EVENWITHBOUNDARIES: // double in the range [-3,2[
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->uniform_real(-3.,2.)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->uniform_real<double>(-3.,2.)));
 		break;
 
 	case DISCRETE:
@@ -117,7 +117,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 }
 
 int main(int argc, char **argv){
-	boost::shared_ptr<Gem::Hap::GRandomBaseT<> > gr_ptr;
+	boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr;
 
 	bool verbose;
 	const std::size_t nEntries = 60000;

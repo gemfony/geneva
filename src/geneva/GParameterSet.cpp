@@ -773,8 +773,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test_0->empty());
 		// Add some floating pount parameters
 		for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
-			p_test_0->push_back(boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(gr.uniform_real(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE)));
-			p_test_0->push_back(boost::shared_ptr<GDoubleObject>(new GDoubleObject(gr.uniform_real(MINGDOUBLE,MAXGDOUBLE))));
+			p_test_0->push_back(boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(gr.uniform_real<double>(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE)));
+			p_test_0->push_back(boost::shared_ptr<GDoubleObject>(new GDoubleObject(gr.uniform_real<double>(MINGDOUBLE,MAXGDOUBLE))));
 			p_test_0->push_back(boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL)));
 		}
 

@@ -49,7 +49,6 @@
 #include "common/GExceptions.hpp"
 #include "common/GCommonEnums.hpp"
 #include "hap/GRandomT.hpp"
-#include "hap/GRandom.hpp"
 
 using namespace Gem::Hap;
 
@@ -98,7 +97,7 @@ public:
 			const boost::int32_t MINRANDOM=-10;
 			const boost::int32_t MAXRANDOM= 10;
 
-			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>());
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
 
 			std::vector<boost::int32_t> randomHist(21); // 21 positions from -10 to 10
 
@@ -131,7 +130,7 @@ public:
 			const boost::int32_t MINRANDOM=-10;
 			const boost::int32_t MAXRANDOM= 10;
 
-			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>());
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
 
 			std::vector<boost::int32_t> randomHist(21); // 21 positions from -10 to 10
 
@@ -163,7 +162,7 @@ public:
 			// A few settings
 			const boost::int32_t MAXRANDOM= 10;
 
-			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>());
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
 
 			std::vector<boost::int32_t> randomHist(11); // 11 positions from 0 to 10
 
@@ -195,7 +194,7 @@ public:
 			// A few settings
 			const boost::int32_t MAXRANDOM= 10;
 
-			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>());
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
 
 			std::vector<boost::int32_t> randomHist(11); // 11 positions from 0 to 10
 
@@ -228,7 +227,7 @@ public:
 			const boost::int32_t MINRANDOM=-10;
 			const boost::int32_t MAXRANDOM= 10;
 
-			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>());
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
 
 			volatile boost::int32_t randVal;
 			for(std::size_t i=0; i<nTests; i++) {
@@ -243,7 +242,7 @@ public:
 			const boost::int32_t MINRANDOM=-10;
 			const boost::int32_t MAXRANDOM= 10;
 
-			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>());
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
 
 			volatile boost::int32_t randVal;
 			for(std::size_t i=0; i<nTests; i++) {
@@ -257,7 +256,7 @@ public:
 			// A few settings
 			const boost::int32_t MAXRANDOM= 10;
 
-			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>());
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
 
 			volatile boost::int32_t randVal;
 			for(std::size_t i=0; i<nTests; i++) {
@@ -271,7 +270,7 @@ public:
 			// A few settings
 			const boost::int32_t MAXRANDOM= 10;
 
-			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>());
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
 
 			volatile boost::int32_t randVal;
 			for(std::size_t i=0; i<nTests; i++) {
@@ -286,7 +285,7 @@ public:
 			const boost::int32_t MINRANDOM=-10;
 			const boost::int32_t MAXRANDOM= 10;
 
-			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>());
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
 
 			std::vector<boost::int32_t> randomHist(21); // 21 positions from -10 to 10
 
@@ -319,7 +318,7 @@ public:
 			const boost::int32_t MINRANDOM=-10;
 			const boost::int32_t MAXRANDOM= 10;
 
-			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>());
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
 
 			std::vector<boost::int32_t> randomHist(21); // 21 positions from -10 to 10
 
@@ -351,7 +350,7 @@ public:
 			// A few settings
 			const boost::int32_t MAXRANDOM= 10;
 
-			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>());
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
 
 			std::vector<boost::int32_t> randomHist(11); // 11 positions from 0 to 10
 
@@ -383,7 +382,7 @@ public:
 			// A few settings
 			const boost::int32_t MAXRANDOM= 10;
 
-			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>());
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
 
 			std::vector<boost::int32_t> randomHist(11); // 11 positions from 0 to 10
 

@@ -325,7 +325,7 @@ public:
 				// Add GDoubleObject objects
 				for(std::size_t i=0; i<(layerNumber==0?2*nNodes:nNodes*(nNodesPrevious+1)); i++) {
 					// Set up a GDoubleObject object, initializing it with random data
-					boost::shared_ptr<GDoubleObject> gd_ptr(new GDoubleObject(gr.uniform_real(min,max)));
+					boost::shared_ptr<GDoubleObject> gd_ptr(new GDoubleObject(gr.uniform_real<double>(min,max)));
 
 					// Set up an adaptor
 					boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
@@ -515,7 +515,7 @@ public:
 			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
 			for(std::size_t i=0; i<nDim; i++){
-				double oneDimRnd = gr_l.uniform_real(-edgelength,edgelength);
+				double oneDimRnd = gr_l.uniform_real<double>(-edgelength,edgelength);
 
 				// Need to find at least one dimension outside of the perimeter
 				// in order to set the outside flag to true.
@@ -598,7 +598,7 @@ public:
 		{
 			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
-			local_radius = gr_l.uniform_real(3*radius);
+			local_radius = gr_l.uniform_real<double>(3*radius);
 			if(local_radius > radius) tS->Output.push_back(0.99);
 			else tS->Output.push_back(0.01);
 
@@ -614,7 +614,7 @@ public:
 
 			case 2:
 				{
-					double phi = gr_l.uniform_real(2*M_PI);
+					double phi = gr_l.uniform_real<double>(2*M_PI);
 					tS->Input.push_back(local_radius*sin(phi)); // x
 					tS->Input.push_back(local_radius*cos(phi)); // y
 				}
@@ -628,9 +628,9 @@ public:
 					std::size_t nAngles = nDim - 1;
 					std::vector<double> angle_collection(nAngles);
 					for(std::size_t i=0; i<(nAngles-1); i++){ // Angles in range [0,Pi[
-						angle_collection[i]=gr_l.uniform_real(M_PI);
+						angle_collection[i]=gr_l.uniform_real<double>(M_PI);
 					}
-					angle_collection[nAngles-1]=gr_l.uniform_real(2.*M_PI); // Range of last angle is [0, 2.*Pi[
+					angle_collection[nAngles-1]=gr_l.uniform_real<double>(2.*M_PI); // Range of last angle is [0, 2.*Pi[
 
 					//////////////////////////////////////////////////////////////////
 					// Now we can fill the source-vector itself
@@ -727,7 +727,7 @@ public:
 			// Create even distribution across all dimensions
 			if(dataCounter%2 == 0) {
 				for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) {
-					(tS->Input).push_back(gr_l.uniform_01());
+					(tS->Input).push_back(gr_l.uniform_01<double>());
 				}
 				(tS->Output).push_back(0.01);
 			}
@@ -736,7 +736,7 @@ public:
 			else {
 				// Create a test value
 				double probeValue = 0.;
-				for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) probeValue += exp(-5.*gr_l.uniform_01());
+				for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) probeValue += exp(-5.*gr_l.uniform_01<double>());
 
 				double functionValue;
 				std::vector<double> inputVector(nDim);
@@ -745,7 +745,7 @@ public:
 
 					// Create the input vector
 					for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) {
-						inputVector[dimCounter] = gr_l.uniform_01();
+						inputVector[dimCounter] = gr_l.uniform_01<double>();
 						functionValue += exp(-5*inputVector[dimCounter]);
 					}
 					functionValue = pow(functionValue, 4.);
@@ -827,8 +827,8 @@ public:
 			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
 			// create the two test values
-			(tS->Input).push_back(gr_l.uniform_real(-6., 6.)); // x
-			(tS->Input).push_back(gr_l.uniform_real(-6., 6.)); // y
+			(tS->Input).push_back(gr_l.uniform_real<double>(-6., 6.)); // x
+			(tS->Input).push_back(gr_l.uniform_real<double>(-6., 6.)); // y
 
 			// Check whether we are below or above the sin function and assign the output value accordingly
 			if((tS->Input)[1] > 4.*sin((tS->Input)[0])) {

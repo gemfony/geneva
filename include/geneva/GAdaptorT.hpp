@@ -45,7 +45,6 @@
 
 #include "common/GTriboolSerialization.hpp"
 #include "hap/GRandomT.hpp"
-#include "hap/GRandomBaseT.hpp"
 #include "GObject.hpp"
 #include "GObjectExpectationChecksT.hpp"
 #include "GOptimizationEnums.hpp"
@@ -118,7 +117,7 @@ public:
 	 */
 	GAdaptorT()
 		: GObject()
-		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>())
+		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>())
 		, gr(gr_local)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
@@ -134,7 +133,7 @@ public:
 	 */
 	GAdaptorT(const double& prob)
 		: GObject()
-		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>())
+		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>())
 		, gr(gr_local)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
@@ -158,7 +157,7 @@ public:
 	 */
 	GAdaptorT(const GAdaptorT<T>& cp)
 		: GObject(cp)
-		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>()) // We do *not* copy the other object's generator
+		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>()) // We do *not* copy the other object's generator
 		, gr(gr_local)
 		, adaptionCounter_(cp.adaptionCounter_)
 		, adaptionThreshold_(cp.adaptionThreshold_)
@@ -441,7 +440,7 @@ public:
 	 */
 	void adapt(T& val) {
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate
-			if(gr->uniform_01() <= adProb_) { // Should we perform adaption
+			if(gr->uniform_01<double>() <= adProb_) { // Should we perform adaption
 				// The adaption parameters are modified every adaptionThreshold_ number of adaptions.
 				if(adaptionThreshold_) {
 					if(++adaptionCounter_ >= adaptionThreshold_){
@@ -449,7 +448,7 @@ public:
 						adaptAdaption();
 					}
 				} else if(adaptAdaptionProbability_) { // Do the same with probability settings
-					if(gr->uniform_01() <= adaptAdaptionProbability_) {
+					if(gr->uniform_01<double>() <= adaptAdaptionProbability_) {
 						adaptAdaption();
 					}
 				}
@@ -473,9 +472,9 @@ public:
 	/**
 	 * Assign a random number generator from another object.
 	 *
-	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
+	 * @param gr_cp A reference to another object's GRandomBase object derivative
 	 */
-	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
+	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
 #ifdef DEBUG
 		if(!gr_cp) {
 			raiseException(
@@ -547,8 +546,8 @@ protected:
      * connected to a local random number generator assigned in the constructor, or
      * to a "factory" generator located in the surrounding GParameterSet object.
      */
-	Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_local;
-	Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr;
+	Gem::Hap::GRandomBase *gr_local;
+	Gem::Hap::GRandomBase *gr;
 
 	/***********************************************************************************/
 	/**
@@ -951,7 +950,7 @@ public:
 			}
 
 			// Assign a factory generator
-			Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>();
+			Gem::Hap::GRandomBase *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>();
 
 			BOOST_CHECK_NO_THROW(p_test->assignGRandomPointer(gr_test));
 

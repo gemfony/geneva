@@ -650,8 +650,8 @@ void GSwarm::updatePositions(
 		break;
 	case LINEAR:
 		// Multiply local_best_tmp and global_best_tmp with a single [0,1[ random number each
-		local_best_tmp->fpMultiplyBy(gr.uniform_01());
-		global_best_tmp->fpMultiplyBy(gr.uniform_01());
+		local_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
+		global_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
 	}
 
 	// Multiply each floating point value with a fixed, configurable constant value

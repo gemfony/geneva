@@ -194,9 +194,9 @@ protected:
      * done in a random number server, depending on the defines you have chosen.
      */
 #ifdef USELOCALRANDOMADAPTION /* produce random numbers locally */
-	Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL> gr;
 #else /* act as a proxy, take random numbers from a factory */
-	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr;
 #endif /* USEPROXYRANDOM */
 
 	/**********************************************************************************/

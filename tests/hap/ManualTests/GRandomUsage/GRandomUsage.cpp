@@ -73,7 +73,7 @@ enum distType {
 };
 
 template <class T>
-void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, boost::shared_ptr<Gem::Hap::GRandomBaseT<> > gr_ptr){
+void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr){
 	std::size_t i;
 
 	switch(dType){
@@ -86,11 +86,11 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 		break;
 
 	case EVEN: // double in the range [0,1[
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->uniform_01()));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->uniform_01<double>()));
 		break;
 
 	case EVENWITHBOUNDARIES: // double in the range [-3,2[
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->uniform_real(-3.,2.)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->uniform_real<double>(-3.,2.)));
 		break;
 
 	case DISCRETE:
@@ -142,7 +142,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 }
 
 int main(int argc, char **argv){
-	boost::shared_ptr<Gem::Hap::GRandomBaseT<> > gr_ptr;
+	boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr;
 
 	bool verbose;
 	std::size_t nEntries;
@@ -209,13 +209,13 @@ int main(int argc, char **argv){
 
 	// In this test correlations between sequential random numbers (with same proxy/seed) are sought for
 	for(i=0; i<nEntries; i++){
-		ofs << "  evenSelfCorrelation->Fill(" << gr_ptr->uniform_01() << ", " << gr_ptr->uniform_01()  << ");" << std::endl;
+		ofs << "  evenSelfCorrelation->Fill(" << gr_ptr->uniform_01<double>() << ", " << gr_ptr->uniform_01<double>()  << ");" << std::endl;
 	}
 	ofs << std::endl;
 
 	// In this test correlations between subsequent numbers of two generators (with different seeds) are sought for
-	boost::shared_ptr<Gem::Hap::GRandomBaseT<> > gr_ptr_one;
-	boost::shared_ptr<Gem::Hap::GRandomBaseT<> > gr_ptr_two;
+	boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr_one;
+	boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr_two;
 
 	switch(rnrProductionMode) {
 	case 0:
@@ -230,15 +230,15 @@ int main(int argc, char **argv){
 	};
 
 	for(i=0; i<nEntries; i++) {
-		ofs << "  evenRNGCorrelation->Fill(" << gr_ptr_one->uniform_01() << ", " << gr_ptr_two->uniform_01()  << ");" << std::endl;
-		ofs << "  rngDiff->Fill(" << 	i << ", " << gr_ptr_one->uniform_01()-gr_ptr_two->uniform_01() << ");" << std::endl;
+		ofs << "  evenRNGCorrelation->Fill(" << gr_ptr_one->uniform_01<double>() << ", " << gr_ptr_two->uniform_01<double>()  << ");" << std::endl;
+		ofs << "  rngDiff->Fill(" << 	i << ", " << gr_ptr_one->uniform_01<double>()-gr_ptr_two->uniform_01<double>() << ");" << std::endl;
 	}
 
 	// In this test, a number of GRandomT objects are instantiated and their
 	// initial values (after a number of calls) are asked for. There should be no
 	// correlation.
 	for(i=1; i<=10; i++) {
-		boost::shared_ptr<Gem::Hap::GRandomBaseT<> > gr_ptr_seed;
+		boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr_seed;
 		switch(rnrProductionMode) {
 		case 0:
 			gr_ptr_seed = boost::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
@@ -249,8 +249,8 @@ int main(int argc, char **argv){
 			break;
 		};
 
-		for(std::size_t j=0; j<5; j++) double tmp=gr_ptr_seed->uniform_real(1.);
-		initCorr.push_back(gr_ptr_seed->uniform_real(1.));
+		for(std::size_t j=0; j<5; j++) double tmp=gr_ptr_seed->uniform_real<double>(1.);
+		initCorr.push_back(gr_ptr_seed->uniform_real<double>(1.));
 	}
 
 	// In this test, a number of lagged fibonacci generators are instantiated with

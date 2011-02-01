@@ -500,9 +500,9 @@ public:
 	 * Assigns a random number generator from another object to all objects stored in this
 	 * collection and to the object itself.
 	 *
-	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
+	 * @param gr_cp A reference to another object's GRandomBase object derivative
 	 */
-	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
+	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
 		// Do some error checking
 		if(!gr_cp) {
 			raiseException(
@@ -686,7 +686,7 @@ public:
 			boost::shared_ptr<GParameterTCollectionT<T> > p_test1 = this->clone<GParameterTCollectionT<T> >();
 
 			// Assign a factory generator
-			Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>();
+			Gem::Hap::GRandomBase *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>();
 			BOOST_CHECK_NO_THROW(p_test1->assignGRandomPointer(gr_test));
 
 			// Has the generator been assigned ?

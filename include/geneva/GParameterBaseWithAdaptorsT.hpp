@@ -323,7 +323,7 @@ public:
 	 *
 	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
 	 */
-	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
+	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
 		if(adaptor_) adaptor_->assignGRandomPointer(gr_cp);
 		GParameterBase::assignGRandomPointer(gr_cp);
 	}
@@ -536,7 +536,7 @@ public:
 			BOOST_CHECK(p_test->adaptor_ && p_test->adaptor_->usesLocalRNG() == true);
 
 			// Create and assign a "foreign" generator
-			Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>();
+			Gem::Hap::GRandomBase *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>();
 			BOOST_CHECK_NO_THROW(p_test->assignGRandomPointer(gr_test));
 
 			// Cross-check that the foreign generator is used

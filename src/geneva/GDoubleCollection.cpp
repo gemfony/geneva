@@ -250,7 +250,7 @@ void GDoubleCollection::fillWithData(const std::size_t& nItems) {
 	BOOST_CHECK_NO_THROW(this->push_back(0.));
 
 	for(std::size_t i=1; i<nItems - 1; i++) {
-		BOOST_CHECK_NO_THROW(this->push_back(gr->uniform_real(-10., 10.)));
+		BOOST_CHECK_NO_THROW(this->push_back(gr->uniform_real<double>(-10., 10.)));
 	}
 
 	// Add a single item of defined value, so we can test the find() and count() functions
