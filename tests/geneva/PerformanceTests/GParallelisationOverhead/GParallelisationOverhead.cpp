@@ -42,7 +42,7 @@
 #include <geneva/Go.hpp>
 
 // The individual that should be optimized
-#include "geneva-individuals/GDelayIndividual.hpp"
+#include "GDelayIndividual.hpp"
 
 using namespace Gem::Geneva;
 using namespace Gem::Tests;

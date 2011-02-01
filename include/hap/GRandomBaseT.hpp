@@ -116,17 +116,6 @@ public:
 	GRandomBaseT()
 		: min_value(0.)
 		, max_value(1.)
-		, initialSeed_(GRANDOMFACTORY->getSeed())
-		, gaussCache_(0.)
-	    , gaussCacheAvailable_(false)
-	{ /* nothing */ }
-
-	/************************************************************************/
-	/** @brief Initialization by seed */
-	explicit GRandomBaseT(const seed_type& initialSeed)
-		: min_value(0.)
-		, max_value(1.)
-		, initialSeed_(initialSeed)
 		, gaussCache_(0.)
 	    , gaussCacheAvailable_(false)
 	{ /* nothing */ }
@@ -451,12 +440,6 @@ public:
 
 		return uniform_smallint(0, max);
 	}
-
-
-protected:
-	/************************************************************************/
-	/** @brief Holds the initial seed used in a local random number generator */
-	seed_type initialSeed_;
 
 private:
 	/************************************************************************/

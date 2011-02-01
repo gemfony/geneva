@@ -4,6 +4,7 @@ SET (EXECUTABLENAME GParallelisationOverhead)
 
 SET (${EXECUTABLENAME}_SRCS
 	GParallelisationOverhead
+	GDelayIndividual
 )
 
 SET (CONFIGURATIONFILES

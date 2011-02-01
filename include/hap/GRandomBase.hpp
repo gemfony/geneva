@@ -89,8 +89,6 @@ namespace Hap {
  * This class defines ways of obtaining different random number distributions
  * from "raw" random numbers, which can be obtained in derived classes using
  * various different ways.
- *
- * TODO: Change value ranges of uniform_*int in all of Geneva so that the upper boundary is inclusive
  */
 class GRandomBase
 	: private boost::noncopyable
@@ -110,10 +108,10 @@ public:
 		: min_value(result_type(0.))
 		, max_value(result_type(1.))
 		, fltGaussCache_(float(0.))
-    	, fltGaussCacheAvailable_(false)
 		, dblGaussCache_(double(0.))
-	    , dblGaussCacheAvailable_(false)
 		, ldblGaussCache_((long double)0.)
+		, fltGaussCacheAvailable_(false)
+    	, dblGaussCacheAvailable_(false)
 		, ldblGaussCacheAvailable_(false)
 	{ /* nothing */ }
 
@@ -122,24 +120,13 @@ public:
 	virtual ~GRandomBase()
 	{ /* nothing */ }
 
-
 	/************************************************************************/
-	/** @brief Uniformly distributed float random numbers in the range [0,1[ */
-	template<>
-	float uniform_01<float>() {
+	/** @brief Uniformly distributed random numbers in the range [0,1[ */
+	template <typename fp_type>
+	fp_type uniform_01(
+			typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+	) {
 		return static_cast<float>(uniform_01<double>());
-	}
-
-	/************************************************************************/
-	/** @brief Uniformly distributed double random numbers in the range [0,1[. To be specified in derived classes */
-	template<>
-	virtual double uniform_01<double>() = 0;
-
-	/************************************************************************/
-	/** @brief Uniformly distributed long double random numbers in the range [0,1[ */
-	template<>
-	long double uniform_01<long double>() {
-		return static_cast<long double>(uniform_01<double>());
 	}
 
 	/************************************************************************/
@@ -240,110 +227,18 @@ public:
 
 	/************************************************************************/
 	/**
-	 * Produces gaussian-distributed float random numbers with sigma 1 and mean 0
+	 * Produces gaussian-distributed floating point random numbers with sigma 1
+	 * and mean 0. This function is a trap. See the corresponding specializations
+	 * for the actual implementation.
 	 *
-	 * @return float random numbers with a gaussian distribution
+	 * @return floating point random numbers with a gaussian distribution
 	 */
-	template<>
-	float normal_distribution<float>() {
-		using namespace Gem::Common;
-
-		if(fltGaussCacheAvailable_) {
-			fltGaussCacheAvailable_ = false;
-			return fltGaussCache_;
-		}
-		else {
-#ifdef USEBOXMULLER
-			float rnr1 = uniform_01<float>();
-			float rnr2 = uniform_01<float>();
-			dblGaussCache_ = GSqrt(GFabs(-2.f * GLog(1.f - rnr1))) * GCos(2.f * (float)M_PI	* rnr2);
-			dblGaussCacheAvailable_ = true;
-			return GSqrt(GFabs(-2.f * GLog(1.f - rnr1))) * GSin(2.f * (float)M_PI	* rnr2);
-#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
-			float q, u1, u2;
-	        do {
-	        	u1 = 2.f* uniform_01() - 1.f;
-	        	u2 = 2.f* uniform_01() - 1.f;
-	        	q = u1*u1 + u2*u2;
-	        } while (q > 1.f);
-	        q = GSqrt((-2.f*GLog(q))/q);
-	        fltGaussCache_ = u2 * q;
-	        fltGaussCacheAvailable_ = true;
-			return u1 * q;
-#endif
-		}
-	}
-
-	/************************************************************************/
-	/**
-	 * Produces gaussian-distributed double random numbers with sigma 1 and mean 0
-	 *
-	 * @return double random numbers with a gaussian distribution
-	 */
-	template<>
-	double normal_distribution<double>() {
-		using namespace Gem::Common;
-
-		if(dblGaussCacheAvailable_) {
-			dblGaussCacheAvailable_ = false;
-			return dblGaussCache_;
-		}
-		else {
-#ifdef USEBOXMULLER
-			double rnr1 = uniform_01<double>();
-			double rnr2 = uniform_01<double>();
-			dblGaussCache_ = GSqrt(GFabs(-2. * GLog(1. - rnr1))) * GCos(2. * M_PI	* rnr2);
-			dblGaussCacheAvailable_ = true;
-			return GSqrt(GFabs(-2. * GLog(1. - rnr1))) * GSin(2. * M_PI	* rnr2);
-#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
-			double q, u1, u2;
-	        do {
-	        	u1 = 2.* uniform_01() - 1.;
-	        	u2 = 2.* uniform_01() - 1.;
-	        	q = u1*u1 + u2*u2;
-	        } while (q > 1.0);
-	        q = GSqrt((-2.*GLog(q))/q);
-	        dblGaussCache_ = u2 * q;
-	        dblGaussCacheAvailable_ = true;
-			return u1 * q;
-#endif
-		}
-	}
-
-	/************************************************************************/
-	/**
-	 * Produces gaussian-distributed long double random numbers with sigma 1 and mean 0
-	 *
-	 * @return double random numbers with a gaussian distribution
-	 */
-	template<>
-	long double normal_distribution<long double>() {
-		using namespace Gem::Common;
-
-		if(ldblGaussCacheAvailable_) {
-			ldblGaussCacheAvailable_ = false;
-			return ldblGaussCache_;
-		}
-		else {
-#ifdef USEBOXMULLER
-			long double rnr1 = uniform_01<long double>();
-			long double rnr2 = uniform_01<long double>();
-			ldblGaussCache_ = GSqrt(GFabs(-2. * GLog(1.l - rnr1))) * GCos(2.l * (long double)M_PI	* rnr2);
-			ldblGaussCacheAvailable_ = true;
-			return GSqrt(GFabs(-2.l * GLog(1.l - rnr1))) * GSin(2. * (long double)M_PI	* rnr2);
-#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
-			long double q, u1, u2;
-	        do {
-	        	u1 = 2.l* uniform_01() - 1.l;
-	        	u2 = 2.l* uniform_01() - 1.l;
-	        	q = u1*u1 + u2*u2;
-	        } while (q > 1.0l);
-	        q = GSqrt((-2.l*GLog(q))/q);
-	        ldblGaussCache_ = u2 * q;
-	        ldblGaussCacheAvailable_ = true;
-			return u1 * q;
-#endif
-		}
+	template<typename fp_type>
+	fp_type normal_distribution() {
+		raiseException(
+			"In GRandomBase::normal_distribution<fp_type>(): Error!" << std::endl
+			<< "function called with incorrect type"
+		);
 	}
 
 	/************************************************************************/
@@ -472,6 +367,7 @@ public:
 	 * @param max The maximum (excluded) value of the range
 	 * @return Discrete random numbers evenly distributed in the range [0,max]
 	 */
+	template <typename int_type>
 	int_type uniform_int (
 			  const int_type& max
 			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
@@ -479,54 +375,9 @@ public:
 		return uniform_int(0, max);
 	}
 
-	/*************************************************************************/
-	/**
-	 * This function produces integer random numbers in the range of [min, max] .
-	 * Note that max may also be < 0. . The size of the integers is assumed to be
-	 * small compared to int_type's value range.
-	 *
-	 * @param min The minimum value of the range
-	 * @param max The maximum (excluded) value of the range
-	 * @return Discrete random numbers evenly distributed in the range [min,max]
-	 */
-	int_type uniform_smallint (
-			  const int_type& min
-			, const int_type& max
-			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
-	) {
-#ifdef DEBUG
-		assert(max >= min);
-#endif /* DEBUG */
-
-		// A uniform distribution in the desired range. Note that boost::uniform_int produces
-		// random numbers up to and including its upper limit.
-		boost::uniform_smallint<int_type> ui(min, max);
-
-		// A generator that binds together our own random number generator and a uniform_smallint distribution
-		boost::variate_generator<Gem::Hap::GRandomBase<fp_type, int_type>&, boost::uniform_smallint<int_type> > boost_uniform_smallint(*this, ui);
-
-		return boost_uniform_smallint();
-	}
-
-	/****************************************************************************/
-	/**
-	 * This function produces integer random numbers in the range of [0, max] .
-	 * The size of the integers is assumed to be small compared to int_type's value
-	 * range.
-	 *
-	 * @param max The maximum (excluded) value of the range
-	 * @return Discrete random numbers evenly distributed in the range [0,max]
-	 */
-	int_type uniform_smallint (
-			  const int_type& max
-			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
-	) {
-#ifdef DEBUG
-		assert(max >= 0);
-#endif /* DEBUG */
-
-		return uniform_smallint(0, max);
-	}
+protected:
+	 /** @brief Uniformly distributed double random numbers in the range [0,1[ */
+	virtual double dbl_random01() = 0;
 
 private:
 	/************************************************************************/
@@ -543,6 +394,115 @@ private:
 	/** @brief Specifies whether a valid cached long double gaussian is available */
 	bool ldblGaussCacheAvailable_;
 };
+
+/****************************************************************************/
+
+/**
+ * Produces gaussian-distributed float random numbers with sigma 1 and mean 0
+ *
+ * @return float random numbers with a gaussian distribution
+ */
+template<>
+float GRandomBase::normal_distribution<float>() {
+	using namespace Gem::Common;
+
+	if(fltGaussCacheAvailable_) {
+		fltGaussCacheAvailable_ = false;
+		return fltGaussCache_;
+	}
+	else {
+#ifdef USEBOXMULLER
+		float rnr1 = uniform_01<float>();
+		float rnr2 = uniform_01<float>();
+		dblGaussCache_ = GSqrt(GFabs(-2.f * GLog(1.f - rnr1))) * GCos(2.f * (float)M_PI	* rnr2);
+		dblGaussCacheAvailable_ = true;
+		return GSqrt(GFabs(-2.f * GLog(1.f - rnr1))) * GSin(2.f * (float)M_PI	* rnr2);
+#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
+		float q, u1, u2;
+		do {
+			u1 = 2.f* uniform_01<float>() - 1.f;
+			u2 = 2.f* uniform_01<float>() - 1.f;
+			q = u1*u1 + u2*u2;
+		} while (q > 1.f);
+		q = GSqrt((-2.f*GLog(q))/q);
+		fltGaussCache_ = u2 * q;
+		fltGaussCacheAvailable_ = true;
+		return u1 * q;
+#endif
+	}
+}
+
+/****************************************************************************/
+/**
+ * Produces gaussian-distributed double random numbers with sigma 1 and mean 0
+ *
+ * @return double random numbers with a gaussian distribution
+ */
+template<>
+double GRandomBase::normal_distribution<double>() {
+	using namespace Gem::Common;
+
+	if(dblGaussCacheAvailable_) {
+		dblGaussCacheAvailable_ = false;
+		return dblGaussCache_;
+	}
+	else {
+#ifdef USEBOXMULLER
+		double rnr1 = uniform_01<double>();
+		double rnr2 = uniform_01<double>();
+		dblGaussCache_ = GSqrt(GFabs(-2. * GLog(1. - rnr1))) * GCos(2. * M_PI	* rnr2);
+		dblGaussCacheAvailable_ = true;
+		return GSqrt(GFabs(-2. * GLog(1. - rnr1))) * GSin(2. * M_PI	* rnr2);
+#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
+		double q, u1, u2;
+		do {
+			u1 = 2.* uniform_01<double>() - 1.;
+			u2 = 2.* uniform_01<double>() - 1.;
+			q = u1*u1 + u2*u2;
+		} while (q > 1.0);
+		q = GSqrt((-2.*GLog(q))/q);
+		dblGaussCache_ = u2 * q;
+		dblGaussCacheAvailable_ = true;
+		return u1 * q;
+#endif
+	}
+}
+
+/****************************************************************************/
+/**
+ * Produces gaussian-distributed long double random numbers with sigma 1 and mean 0
+ *
+ * @return double random numbers with a gaussian distribution
+ */
+template<>
+long double GRandomBase::normal_distribution<long double>() {
+	using namespace Gem::Common;
+
+	if(ldblGaussCacheAvailable_) {
+		ldblGaussCacheAvailable_ = false;
+		return ldblGaussCache_;
+	}
+	else {
+#ifdef USEBOXMULLER
+		long double rnr1 = uniform_01<long double>();
+		long double rnr2 = uniform_01<long double>();
+		ldblGaussCache_ = GSqrt(GFabs(-2. * GLog(1.l - rnr1))) * GCos(2.l * (long double)M_PI	* rnr2);
+		ldblGaussCacheAvailable_ = true;
+		return GSqrt(GFabs(-2.l * GLog(1.l - rnr1))) * GSin(2. * (long double)M_PI	* rnr2);
+#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
+		long double q, u1, u2;
+		do {
+			u1 = 2.l* uniform_01<long double>() - 1.l;
+			u2 = 2.l* uniform_01<long double>() - 1.l;
+			q = u1*u1 + u2*u2;
+		} while (q > 1.0l);
+		q = GSqrt((-2.l*GLog(q))/q);
+		ldblGaussCache_ = u2 * q;
+		ldblGaussCacheAvailable_ = true;
+		return u1 * q;
+#endif
+	}
+}
 
 /****************************************************************************/
 

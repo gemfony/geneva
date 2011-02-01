@@ -6,6 +6,7 @@ SET ( HAPINCLUDES
 	GRandomBaseT.hpp
 	GRandomDefines.hpp
 	GRandomFactory.hpp
+	GRandom.hpp
 	GRandomT.hpp
 	GSeedManager.hpp
 )

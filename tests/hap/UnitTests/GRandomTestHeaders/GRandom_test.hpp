@@ -49,6 +49,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GCommonEnums.hpp"
 #include "hap/GRandomT.hpp"
+#include "hap/GRandom.hpp"
 
 using namespace Gem::Hap;
 

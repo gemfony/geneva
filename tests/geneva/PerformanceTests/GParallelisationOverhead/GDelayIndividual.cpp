@@ -29,7 +29,7 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva-individuals/GDelayIndividual.hpp"
+#include "GDelayIndividual.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GDelayIndividual)
 

@@ -1,7 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( SAMPLEINDIVIDUALINCLUDES
-	GDelayIndividual.hpp
 	GFunctionIndividual.hpp
 	GIndividualFactoryT.hpp
 	GNeuralNetworkIndividual.hpp
@@ -10,7 +9,6 @@ SET ( SAMPLEINDIVIDUALINCLUDES
 )
 
 SET ( SAMPLEINDIVIDUALCONFIGS
-  GDelayIndividual.cfg
   GFunctionIndividual.cfg
 )
 
