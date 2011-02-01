@@ -1,5 +1,5 @@
 /**
- * @file GRandom.hpp
+ * @file GRandomT.hpp
  */
 
 /*
@@ -46,8 +46,8 @@
 
 // Boost headers go here
 
-#ifndef GRANDOM_HPP_
-#define GRANDOM_HPP_
+#ifndef GRANDOMT_HPP_
+#define GRANDOMT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -72,14 +72,14 @@ namespace Hap {
  * implementation can be found in the (partial) specializations of this class.
  */
 template <Gem::Hap::gRandomTSpecialization s = Gem::Hap::RANDOMPROXY>
-class MyGRandom
+class GRandomT
 	: public Gem::Hap::GRandomBase
 {
 public:
 	/** @brief The default constructor */
-	MyGRandom();
+	GRandomT();
 	/** @brief The destructor */
-	virtual ~MyGRandom();
+	virtual ~GRandomT();
 
 protected:
 	 /** @brief Uniformly distributed double random numbers in the range [0,1[ */
@@ -90,14 +90,14 @@ protected:
 //////////////////////////////////////////////////////////////////////////////
 /****************************************************************************/
 /**
- * This specialization of the general MyGRandom<> class retrieves random numbers
+ * This specialization of the general GRandomT<> class retrieves random numbers
  * in batches from a global random number factory. The functions provided by
  * GRandomBase then produce different types of random numbers from this raw material.
  * As the class derives from boost::noncopyable, it is not possible to assign other
  * objects or use copy constructors.
  */
 template <>
-class MyGRandom<Gem::Hap::RANDOMPROXY>
+class GRandomT<Gem::Hap::RANDOMPROXY>
 	: public Gem::Hap::GRandomBase
 {
 public:
@@ -105,7 +105,7 @@ public:
 	/**
 	 * The standard constructor
 	 */
-	MyGRandom()
+	GRandomT()
 		: Gem::Hap::GRandomBase()
 		, currentPackageSize_(DEFAULTARRAYSIZE)
 		, current01_(1) // position 0 holds the array size
@@ -119,7 +119,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~MyGRandom()
+	virtual ~GRandomT()
 	{
 		p01_.reset();
 		grf_.reset();
@@ -173,7 +173,7 @@ private:
 		}
 		else {
 			raiseException(
-					"In MyGRandom<RANDOMPROXY>::getNewP01(): Error!" << std::endl
+					"In GRandomT<RANDOMPROXY>::getNewP01(): Error!" << std::endl
 					<< "No connection to GRandomFactory object."
 			);
 		}
@@ -200,18 +200,21 @@ private:
 	boost::shared_ptr<Gem::Hap::GRandomFactory> grf_;
 };
 
+/** @brief Convenience typedef */
+typedef GRandomT<Gem::Hap::RANDOMPROXY, double, boost::uint32_t> GRandom;
+
 /****************************************************************************/
 //////////////////////////////////////////////////////////////////////////////
 /****************************************************************************/
 /**
- * This specialization of the general MyGRandom<> class produces random numbers
+ * This specialization of the general GRandomT<> class produces random numbers
  * locally. The functions provided by GRandomBaseT<> then produce different types
  * of random numbers from this raw material. A seed can be provided either to
  * the constructor, or is taken from the global seed manager (recommended) in
  * case the default constructor is used.
  */
 template <>
-class MyGRandom<Gem::Hap::RANDOMLOCAL>
+class GRandomT<Gem::Hap::RANDOMLOCAL>
 	: public Gem::Hap::GRandomBase
 {
 public:
@@ -219,7 +222,7 @@ public:
 	/**
 	 * The standard constructor
 	 */
-	MyGRandom()
+	GRandomT()
 		: Gem::Hap::GRandomBase()
 		, linCongr_(boost::numeric_cast<boost::uint64_t>(GRANDOMFACTORY->getSeed()))
 	{ /* nothing */ }
@@ -228,7 +231,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~MyGRandom()
+	virtual ~GRandomT()
 	{ /* nothing */ }
 
 	/************************************************************************/
@@ -261,4 +264,4 @@ private:
 } /* namespace Hap */
 } /* namespace Gem */
 
-#endif /* GRANDOM_HPP_ */
+#endif /* GRANDOMT_HPP_ */

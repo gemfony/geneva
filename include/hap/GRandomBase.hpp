@@ -375,6 +375,55 @@ public:
 		return uniform_int(0, max);
 	}
 
+	/*************************************************************************/
+	/**
+	 * This function produces integer random numbers in the range of [min, max] .
+	 * Note that max may also be < 0. . The size of the integers is assumed to be
+	 * small compared to int_type's value range.
+	 *
+	 * @param min The minimum value of the range
+	 * @param max The maximum (excluded) value of the range
+	 * @return Discrete random numbers evenly distributed in the range [min,max]
+	 */
+	int_type uniform_smallint (
+			  const int_type& min
+			, const int_type& max
+			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
+	) {
+#ifdef DEBUG
+		assert(max >= min);
+#endif /* DEBUG */
+
+		// A uniform distribution in the desired range. Note that boost::uniform_int produces
+		// random numbers up to and including its upper limit.
+		boost::uniform_smallint<int_type> ui(min, max);
+
+		// A generator that binds together our own random number generator and a uniform_smallint distribution
+		boost::variate_generator<Gem::Hap::GRandomBase&, boost::uniform_smallint<int_type> > boost_uniform_smallint(*this, ui);
+
+		return boost_uniform_smallint();
+	}
+
+	/****************************************************************************/
+	/**
+	 * This function produces integer random numbers in the range of [0, max] .
+	 * The size of the integers is assumed to be small compared to int_type's value
+	 * range.
+	 *
+	 * @param max The maximum (excluded) value of the range
+	 * @return Discrete random numbers evenly distributed in the range [0,max]
+	 */
+	int_type uniform_smallint (
+			  const int_type& max
+			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
+	) {
+#ifdef DEBUG
+		assert(max >= 0);
+#endif /* DEBUG */
+
+		return uniform_smallint(0, max);
+	}
+
 protected:
 	 /** @brief Uniformly distributed double random numbers in the range [0,1[ */
 	virtual double dbl_random01() = 0;
