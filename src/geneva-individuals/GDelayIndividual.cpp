@@ -61,7 +61,7 @@ GDelayIndividual::GDelayIndividual(const boost::posix_time::time_duration& sleep
  * @param cp A copy of another GDelayIndividual
  */
 GDelayIndividual::GDelayIndividual(const GDelayIndividual& cp)
-: GParameterSet(cp)
+: Gem::Geneva::GParameterSet(cp)
 , sleepTime_(cp.sleepTime_)
 { /* nothing */ }
 
@@ -133,7 +133,7 @@ boost::optional<std::string> GDelayIndividual::checkRelationshipWith(const GObje
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GDelayIndividual *p_load = GObject::conversion_cast<GDelayIndividual>(&cp);
+	const GDelayIndividual *p_load = Gem::Geneva::GObject::conversion_cast<GDelayIndividual>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -153,11 +153,11 @@ boost::optional<std::string> GDelayIndividual::checkRelationshipWith(const GObje
  *
  * @param cp A copy of another GDelayIndividual, camouflaged as a GObject
  */
-void GDelayIndividual::load_(const GObject* cp){
+void GDelayIndividual::load_(const Gem::Geneva::GObject* cp){
 	const GDelayIndividual *p_load = conversion_cast<GDelayIndividual>(cp);
 
 	// Load our parent class'es data ...
-	GParameterSet::load_(cp);
+	Gem::Geneva::GParameterSet::load_(cp);
 
 	// ... and then our own.
 	sleepTime_ = p_load->sleepTime_;
@@ -169,7 +169,7 @@ void GDelayIndividual::load_(const GObject* cp){
  *
  * @return A deep clone of this object, camouflaged as a GObject
  */
-GObject* GDelayIndividual::clone_() const {
+Gem::Geneva::GObject* GDelayIndividual::clone_() const {
 	return new GDelayIndividual(*this);
 }
 
@@ -223,7 +223,7 @@ boost::posix_time::time_duration GDelayIndividual::getSleepTime() const {
  * The standard constructor for this class
  */
 GDelayIndividualFactory::GDelayIndividualFactory(const std::string& cF)
-	: GIndividualFactoryT<GDelayIndividual>(cF)
+	: Gem::Geneva::GIndividualFactoryT<GDelayIndividual>(cF)
 	, processingCycles_(1)
 	, nVariables_(100)
 	, resultFile_("networkResults.C")
@@ -362,13 +362,13 @@ boost::shared_ptr<GDelayIndividual> GDelayIndividualFactory::getIndividual_(cons
 		gdi_ptr->setProcessingCycles(processingCycles_);
 
 		// Set up a GConstrainedDoubleObjectCollection
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> gbdc_ptr(new GConstrainedDoubleObjectCollection());
+		boost::shared_ptr<Gem::Geneva::GConstrainedDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GConstrainedDoubleObjectCollection());
 
 		// Set up nVariables GConstrainedDoubleObject objects in the desired value range,
 		// and register them with the collection. The configuration parameters don't matter for this use case
 		for(std::size_t var=0; var<nVariables_; var++) {
-			boost::shared_ptr<GConstrainedDoubleObject> gbd_ptr(new GConstrainedDoubleObject(0.,1.));
-			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
+			boost::shared_ptr<Gem::Geneva::GConstrainedDoubleObject> gbd_ptr(new Gem::Geneva::GConstrainedDoubleObject(0.,1.));
+			boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
 			gdga_ptr->setAdaptionThreshold(1);
 			gbd_ptr->addAdaptor(gdga_ptr);
 

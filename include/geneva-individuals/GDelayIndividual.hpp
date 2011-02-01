@@ -67,15 +67,13 @@ namespace Gem
 namespace Tests
 {
 
-using namespace Gem::Geneva;
-
 /************************************************************************************************/
 /**
  * This individual waits for a predefined amount time before returning the result of the evaluation
  * (which is always the same). Its purpose is to measure the overhead of the parallelization, compared
  * to the serial execution.
  */
-class GDelayIndividual: public GParameterSet
+class GDelayIndividual: public Gem::Geneva::GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -85,7 +83,7 @@ class GDelayIndividual: public GParameterSet
     {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Geneva::GParameterSet)
 		   & BOOST_SERIALIZATION_NVP(sleepTime_);
     }
 	///////////////////////////////////////////////////////////////////////
@@ -96,7 +94,7 @@ public:
 	/** @brief A standard copy constructor */
 	GDelayIndividual(const GDelayIndividual&);
 	/** @brief The standard destructor */
-	~GDelayIndividual();
+	virtual ~GDelayIndividual();
 
 	/** @brief A standard assignment operator */
 	const GDelayIndividual& operator=(const GDelayIndividual&);
@@ -108,7 +106,7 @@ public:
 
 	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&,
+			const Gem::Geneva::GObject&,
 			const Gem::Common::expectation&,
 			const double&,
 			const std::string&,
@@ -124,7 +122,7 @@ protected:
 	/** @brief Loads the data of another GDelayIndividual, camouflaged as a GObject */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const;
+	virtual Gem::Geneva::GObject* clone_() const;
 
 	/** @brief The actual adaption operations */
 	virtual void customAdaptions();
@@ -144,7 +142,7 @@ private:
 /**
  * A factory for GDelayIndividual objects
  */
-class GDelayIndividualFactory :public GIndividualFactoryT<GDelayIndividual>
+class GDelayIndividualFactory :public Gem::Geneva::GIndividualFactoryT<GDelayIndividual>
 {
 public:
 	/** @brief The standard constructor for this class */
