@@ -238,6 +238,39 @@ long double GLog(const long double& x) {
 }
 
 /************************************************************************************/
+/**
+ * Calculates the exp value of a float value
+ *
+ * @param x The value for which exp should be calculated
+ * @return The exp value of x
+ */
+float GExp(const float& x) {
+	return expf(x);
+}
+
+/************************************************************************************/
+/**
+ * Calculates the exp value of a double value
+ *
+ * @param x The value for which exp should be calculated
+ * @return The exp value of x
+ */
+double GExp(const double& x) {
+	return exp(x);
+}
+
+/************************************************************************************/
+/**
+ * Calculates the exp value of a long double value
+ *
+ * @param x The value for which exp should be calculated
+ * @return The exp value of x
+ */
+long double GExp(const long double& x) {
+	return expl(x);
+}
+
+/************************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

@@ -43,7 +43,7 @@ namespace Geneva {
  * suitable for us.
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor()
-	: GNumGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA)
+	: GNumGaussAdaptorT<boost::int32_t, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -53,7 +53,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor()
  * @param cp A copy of another GInt32GaussAdaptor object
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor& cp)
-	: GNumGaussAdaptorT<boost::int32_t>(cp)
+	: GNumGaussAdaptorT<boost::int32_t, double>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -65,7 +65,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor& cp)
  * @param adProb The adaption probability
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(const double& adProb)
-	: GNumGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, adProb)
+	: GNumGaussAdaptorT<boost::int32_t, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, adProb)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -79,7 +79,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const double& adProb)
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(const double& sigma, const double& sigmaSigma,
 			        const double& minSigma, const double& maxSigma)
-	: GNumGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma)
+	: GNumGaussAdaptorT<boost::int32_t, double> (sigma, sigmaSigma, minSigma, maxSigma)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -94,7 +94,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const double& sigma, const double& sigmaS
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(const double& sigma, const double& sigmaSigma,
 			        const double& minSigma, const double& maxSigma, const double& adProb)
-	: GNumGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
+	: GNumGaussAdaptorT<boost::int32_t, double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -181,7 +181,7 @@ boost::optional<std::string> GInt32GaussAdaptor::checkRelationshipWith(const GOb
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GNumGaussAdaptorT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GInt32GaussAdaptor", y_name, withMessages));
+	deviations.push_back(GNumGaussAdaptorT<boost::int32_t, double>::checkRelationshipWith(cp, e, limit, "GInt32GaussAdaptor", y_name, withMessages));
 
 	// no local data ...
 
@@ -199,7 +199,7 @@ void GInt32GaussAdaptor::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GInt32GaussAdaptor>(cp);
 
 	// Load our parent class'es data ...
-	GNumGaussAdaptorT<boost::int32_t>::load_(cp);
+	GNumGaussAdaptorT<boost::int32_t, double>::load_(cp);
 
 	// ... no local data
 }
@@ -277,7 +277,7 @@ bool GInt32GaussAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GNumGaussAdaptorT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if(GNumGaussAdaptorT<boost::int32_t, double>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -288,7 +288,7 @@ bool GInt32GaussAdaptor::modify_GUnitTests() {
  */
 void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GNumGaussAdaptorT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+	GNumGaussAdaptorT<boost::int32_t, double>::specificTestsNoFailureExpected_GUnitTests();
 
 	//------------------------------------------------------------------------------
 
@@ -312,7 +312,7 @@ void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GInt32GaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GNumGaussAdaptorT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+	GNumGaussAdaptorT<boost::int32_t, double>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

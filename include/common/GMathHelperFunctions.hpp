@@ -92,6 +92,13 @@ double GLog(const double&);
 /** @brief Calculates the log value of a long double value */
 long double GLog(const long double&);
 
+/** @brief Calculates the exp value of a float value */
+float GExo(const float&);
+/** @brief Calculates the exp value of a double value */
+double GExp(const double&);
+/** @brief Calculates the exp value of a long double value */
+long double GExp(const long double&);
+
 /************************************************************************************/
 
 } /* namespace Common */

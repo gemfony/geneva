@@ -50,7 +50,7 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor()
  * @param cp A copy of another GDoubleGaussAdaptor object
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(const GDoubleGaussAdaptor& cp)
-	: GNumGaussAdaptorT<double>(cp)
+	: GFPGaussAdaptorT<double>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -60,7 +60,7 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const GDoubleGaussAdaptor& cp)
  * @param adProb The adaption probability
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& adProb)
-	: GNumGaussAdaptorT<double>(adProb)
+	: GFPGaussAdaptorT<double>(adProb)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -72,9 +72,13 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& adProb)
  * @param minSigma The minimal value allowed for sigma_
  * @param maxSigma The maximal value allowed for sigma_
  */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const double& sigmaSigma,
-			        const double& minSigma, const double& maxSigma)
-	: GNumGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma)
+GDoubleGaussAdaptor::GDoubleGaussAdaptor(
+		const double& sigma
+		, const double& sigmaSigma
+		, const double& minSigma
+		, const double& maxSigma
+)
+	: GFPGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -86,10 +90,16 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const double& sigm
  * @param sigmaSigma The initial value for the sigmaSigma_ parameter
  * @param minSigma The minimal value allowed for sigma_
  * @param maxSigma The maximal value allowed for sigma_
+ * @param adProb The adaption probability
  */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const double& sigmaSigma,
-			        const double& minSigma, const double& maxSigma, const double& adProb)
-	: GNumGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
+GDoubleGaussAdaptor::GDoubleGaussAdaptor(
+		const double& sigma
+		, const double& sigmaSigma
+		, const double& minSigma
+		, const double& maxSigma
+		, const double& adProb
+)
+	: GFPGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -165,8 +175,8 @@ boost::optional<std::string> GDoubleGaussAdaptor::checkRelationshipWith(const GO
 		const double& limit,
 		const std::string& caller,
 		const std::string& y_name,
-		const bool& withMessages) const
-{
+		const bool& withMessages
+) const {
     using namespace Gem::Common;
 
     // Check that we are not accidently assigning this object to itself
@@ -176,7 +186,7 @@ boost::optional<std::string> GDoubleGaussAdaptor::checkRelationshipWith(const GO
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GNumGaussAdaptorT<double>::checkRelationshipWith(cp, e, limit, "GDoubleGaussAdaptor", y_name, withMessages));
+	deviations.push_back(GFPGaussAdaptorT<double>::checkRelationshipWith(cp, e, limit, "GDoubleGaussAdaptor", y_name, withMessages));
 
 	// no local data ...
 
@@ -194,7 +204,7 @@ void GDoubleGaussAdaptor::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GDoubleGaussAdaptor>(cp);
 
 	// Load our parent class'es data ...
-	GNumGaussAdaptorT<double>::load_(cp);
+	GFPGaussAdaptorT<double>::load_(cp);
 
 	// ... no local data
 }
@@ -214,49 +224,6 @@ Gem::Geneva::adaptorId GDoubleGaussAdaptor::getAdaptorId() const {
  * ----------------------------------------------------------------------------------
  */
 
-/*******************************************************************************************/
-/**
- * The actual adaption of the supplied value takes place here.
- *
- * @param value The value that is going to be adapted in situ
- */
-void GDoubleGaussAdaptor::customAdaptions(double &value) {
-	// adapt the value in situ. Note that this changes
-	// the argument of this function
-#if defined (CHECKOVERFLOWS)
-	// Prevent over- and underflows. Note that we currently do not check the
-	// size of "addition" in comparison to "value".
-	double addition = this->gr->normal_distribution(sigma_);
-
-	if(value >= 0){
-		if(addition >= 0. && (std::numeric_limits<double>::max()-value < addition)) {
-#ifdef DEBUG
-			std::cout << "Warning in GDoubleGaussAdaptor::customAdaptions(): Had to change adaption due to overflow" << std::endl;
-#endif
-			addition *= -1.;
-		}
-	}
-	else { // < 0
-		if(addition < 0. && (std::numeric_limits<double>::min()-value > addition)) {
-#ifdef DEBUG
-			std::cout << "Warning in GDoubleGaussAdaptor::customAdaptions(): Had to change adaption due to underflow" << std::endl;
-#endif
-			addition *= -1.;
-		}
-	}
-
-	value += addition;
-#else
-	// We do not check for over- or underflows for performance reasons.
-	value += this->gr->normal_distribution(sigma_);
-#endif /* CHECKOVERFLOWS */
-}
-
-/* ----------------------------------------------------------------------------------
- * - Tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
 #ifdef GENEVATESTING
 /*******************************************************************************************/
 /**
@@ -271,7 +238,7 @@ bool GDoubleGaussAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GNumGaussAdaptorT<double>::modify_GUnitTests()) result = true;
+	if(GFPGaussAdaptorT<double>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -285,7 +252,7 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GNumGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GFPGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
 
 	//------------------------------------------------------------------------------
 
@@ -317,7 +284,7 @@ void GDoubleGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GNumGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
+	GFPGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

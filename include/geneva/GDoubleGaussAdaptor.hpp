@@ -43,7 +43,7 @@
 
 
 // Geneva headers go here
-#include "geneva/GNumGaussAdaptorT.hpp"
+#include "geneva/GFPGaussAdaptorT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -58,7 +58,7 @@ namespace Geneva {
  * base class that can also be used to adapt other numeric types.
  */
 class GDoubleGaussAdaptor
-	:public GNumGaussAdaptorT<double>
+	:public GFPGaussAdaptorT<double>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -67,7 +67,7 @@ class GDoubleGaussAdaptor
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GNumGaussAdaptorT_double", boost::serialization::base_object<GNumGaussAdaptorT<double> >(*this));
+	  ar & make_nvp("GFPGaussAdaptorT_double", boost::serialization::base_object<GFPGaussAdaptorT<double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -104,9 +104,6 @@ protected:
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
-
-	/** The actual adaption performed on the value type */
-	virtual void customAdaptions(double&);
 
 #ifdef GENEVATESTING
 public:

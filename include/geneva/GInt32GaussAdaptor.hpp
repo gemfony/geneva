@@ -62,7 +62,7 @@ namespace Geneva {
  * accordingly, so sigma cannot get too small when being adapted.
  */
 class GInt32GaussAdaptor
-	:public GNumGaussAdaptorT<boost::int32_t>
+	:public GNumGaussAdaptorT<boost::int32_t, double>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -71,7 +71,7 @@ class GInt32GaussAdaptor
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GNumGaussAdaptorT_int", boost::serialization::base_object<GNumGaussAdaptorT<boost::int32_t> >(*this));
+	  ar & make_nvp("GNumGaussAdaptorT_int", boost::serialization::base_object<GNumGaussAdaptorT<boost::int32_t, double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
