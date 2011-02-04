@@ -13,6 +13,7 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
  - Introduced more verbatim exceptions
  - Cleaned up the GRandomBase and GRandomT classes, including an interface change
  - Started to clean up and add examples, in line with the documentation
+ - Made the adaptor hierarchy more consistent
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9, "Alice" - November 24, 2010

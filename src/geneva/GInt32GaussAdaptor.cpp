@@ -43,7 +43,7 @@ namespace Geneva {
  * suitable for us.
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor()
-	: GNumGaussAdaptorT<boost::int32_t, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA)
+	: GIntGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -53,7 +53,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor()
  * @param cp A copy of another GInt32GaussAdaptor object
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor& cp)
-	: GNumGaussAdaptorT<boost::int32_t, double>(cp)
+	: GIntGaussAdaptorT<boost::int32_t>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -65,7 +65,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor& cp)
  * @param adProb The adaption probability
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(const double& adProb)
-	: GNumGaussAdaptorT<boost::int32_t, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, adProb)
+	: GIntGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, adProb)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -77,9 +77,13 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const double& adProb)
  * @param minSigma The minimal value allowed for sigma_
  * @param maxSigma The maximal value allowed for sigma_
  */
-GInt32GaussAdaptor::GInt32GaussAdaptor(const double& sigma, const double& sigmaSigma,
-			        const double& minSigma, const double& maxSigma)
-	: GNumGaussAdaptorT<boost::int32_t, double> (sigma, sigmaSigma, minSigma, maxSigma)
+GInt32GaussAdaptor::GInt32GaussAdaptor(
+		const double& sigma
+		, const double& sigmaSigma
+		, const double& minSigma
+		, const double& maxSigma
+)
+	: GIntGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -91,10 +95,16 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const double& sigma, const double& sigmaS
  * @param sigmaSigma The initial value for the sigmaSigma_ parameter
  * @param minSigma The minimal value allowed for sigma_
  * @param maxSigma The maximal value allowed for sigma_
+ * @param adProb The adaption probability
  */
-GInt32GaussAdaptor::GInt32GaussAdaptor(const double& sigma, const double& sigmaSigma,
-			        const double& minSigma, const double& maxSigma, const double& adProb)
-	: GNumGaussAdaptorT<boost::int32_t, double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
+GInt32GaussAdaptor::GInt32GaussAdaptor(
+		const double& sigma
+		, const double& sigmaSigma
+		, const double& minSigma
+		, const double& maxSigma
+		, const double& adProb
+)
+	: GIntGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -165,13 +175,14 @@ bool GInt32GaussAdaptor::operator!=(const GInt32GaussAdaptor& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GInt32GaussAdaptor::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+boost::optional<std::string> GInt32GaussAdaptor::checkRelationshipWith(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
     using namespace Gem::Common;
 
     // Check that we are not accidently assigning this object to itself
@@ -181,7 +192,7 @@ boost::optional<std::string> GInt32GaussAdaptor::checkRelationshipWith(const GOb
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GNumGaussAdaptorT<boost::int32_t, double>::checkRelationshipWith(cp, e, limit, "GInt32GaussAdaptor", y_name, withMessages));
+	deviations.push_back(GIntGaussAdaptorT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GInt32GaussAdaptor", y_name, withMessages));
 
 	// no local data ...
 
@@ -199,7 +210,7 @@ void GInt32GaussAdaptor::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GInt32GaussAdaptor>(cp);
 
 	// Load our parent class'es data ...
-	GNumGaussAdaptorT<boost::int32_t, double>::load_(cp);
+	GIntGaussAdaptorT<boost::int32_t>::load_(cp);
 
 	// ... no local data
 }
@@ -219,53 +230,6 @@ Gem::Geneva::adaptorId GInt32GaussAdaptor::getAdaptorId() const {
  * ----------------------------------------------------------------------------------
  */
 
-/*******************************************************************************************/
-/**
- * The actual adaption of the supplied value takes place here.
- *
- * @param value The value that is going to be adapted in situ
- */
-void GInt32GaussAdaptor::customAdaptions(boost::int32_t &value) {
-	// adapt the value in situ. Note that this changes
-	// the argument of this function
-#if defined (DEBUG)
-	boost::int32_t addition = boost::numeric_cast<boost::int32_t>(gr->normal_distribution(sigma_));
-#else
-	boost::int32_t addition = static_cast<boost::int32_t>(gr->normal_distribution(sigma_));
-#endif /* DEBUG */
-
-	if(addition == 0) { // Enforce a minimal change of 1.
-		gr->uniform_bool()?(addition=1):(addition=-1);
-	}
-
-#if defined (CHECKOVERFLOWS)
-	// Prevent over- and underflows.
-	if(value >= 0){
-		if(addition >= 0 && (std::numeric_limits<boost::int32_t>::max()-value < addition)) {
-#ifdef DEBUG
-			std::cout << "Warning in GInt32GaussAdaptor::customAdaptions(): Had to change adaption due to overflow" << std::endl;
-#endif
-			addition *= -1;
-		}
-	}
-	else { // < 0
-		if(addition < 0 && (std::numeric_limits<boost::int32_t>::min()-value > addition)) {
-#ifdef DEBUG
-			std::cout << "Warning in GInt32GaussAdaptor::customAdaptions(): Had to change adaption due to underflow" << std::endl;
-#endif
-			addition *= -1;
-		}
-	}
-#endif /* CHECKOVERFLOWS  */
-
-	value += addition;
-}
-
-/* ----------------------------------------------------------------------------------
- * - Tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
 #ifdef GENEVATESTING
 /*******************************************************************************************/
 /**
@@ -277,7 +241,7 @@ bool GInt32GaussAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GNumGaussAdaptorT<boost::int32_t, double>::modify_GUnitTests()) result = true;
+	if(GIntGaussAdaptorT<boost::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -288,7 +252,7 @@ bool GInt32GaussAdaptor::modify_GUnitTests() {
  */
 void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GNumGaussAdaptorT<boost::int32_t, double>::specificTestsNoFailureExpected_GUnitTests();
+	GIntGaussAdaptorT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
 
 	//------------------------------------------------------------------------------
 
@@ -312,7 +276,7 @@ void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GInt32GaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GNumGaussAdaptorT<boost::int32_t, double>::specificTestsFailuresExpected_GUnitTests();
+	GIntGaussAdaptorT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

@@ -45,14 +45,14 @@
 
 // Geneva headers go here
 
-#include "geneva/GNumGaussAdaptorT.hpp"
+#include "geneva/GIntGaussAdaptorT.hpp"
 
 namespace Gem {
 namespace Geneva {
 
 /*************************************************************************/
 /**
- * The GInt32GaussAdaptor represents an adaptor used for the adaption of
+ * The GInt32GaussAdaptor class represents an adaptor used for the adaption of
  * boost::int32_t values through the addition of gaussian-distributed random numbers.
  * See the documentation of GAdaptorT<T> for further information on adaptors
  * in the Geneva context. Most functionality is currently implemented in the
@@ -62,7 +62,7 @@ namespace Geneva {
  * accordingly, so sigma cannot get too small when being adapted.
  */
 class GInt32GaussAdaptor
-	:public GNumGaussAdaptorT<boost::int32_t, double>
+	:public GIntGaussAdaptorT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -71,7 +71,7 @@ class GInt32GaussAdaptor
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GNumGaussAdaptorT_int", boost::serialization::base_object<GNumGaussAdaptorT<boost::int32_t, double> >(*this));
+	  ar & make_nvp("GIntGaussAdaptorT_int32", boost::serialization::base_object<GIntGaussAdaptorT<boost::int32_t> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -108,8 +108,6 @@ protected:
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
-	/** The actual adaption performed on the value type */
-	virtual void customAdaptions(boost::int32_t&);
 
 #ifdef GENEVATESTING
 public:

@@ -37,6 +37,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GInt32Object.hpp
 	GInt32ObjectCollection.hpp
 	GIntFlipAdaptorT.hpp
+	GIntGaussAdaptorT.hpp
 	GIntNumCollectionT.hpp
 	GMultiThreadedEA.hpp
 	GMultiThreadedGD.hpp
