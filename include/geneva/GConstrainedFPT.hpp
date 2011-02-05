@@ -484,7 +484,7 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * Initializes double-based parameters with a given value. Allows e.g. to set all
+	 * Initializes floating-point-based parameters with a given value. Allows e.g. to set all
 	 * floating point parameters to 0. Note that, contrary to the usual behavior,
 	 * we accept initialization outside of the allowed boundaries. However, the internal
 	 * representation will then be transferred back to an external value in the allowed
@@ -504,7 +504,7 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * Multiplies double-based parameters with a given value. Note that the resulting
+	 * Multiplies floating-point-based parameters with a given value. Note that the resulting
 	 * internal value may well be outside of the allowed boundaries. However, the internal
 	 * representation will then be transferred back to an external value in the allowed
 	 * value range.

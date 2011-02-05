@@ -1,5 +1,5 @@
 /**
- * @file GDoubleGaussAdaptor.cpp
+ * @file GDoubleBiGaussAdaptor.cpp
  */
 
 /*
@@ -29,9 +29,9 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GDoubleBiGaussAdaptor.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleGaussAdaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleBiGaussAdaptor)
 
 namespace Gem {
 namespace Geneva {
@@ -40,17 +40,17 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor()
+GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor()
 { /* nothing */ }
 
 /*******************************************************************************************/
 /**
  * The copy constructor
  *
- * @param cp A copy of another GDoubleGaussAdaptor object
+ * @param cp A copy of another GDoubleBiGaussAdaptor object
  */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor(const GDoubleGaussAdaptor& cp)
-	: GFPGaussAdaptorT<double>(cp)
+GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const GDoubleBiGaussAdaptor& cp)
+	: GFPBiGaussAdaptorT<double>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -59,65 +59,26 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const GDoubleGaussAdaptor& cp)
  *
  * @param adProb The adaption probability
  */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& adProb)
-	: GFPGaussAdaptorT<double>(adProb)
-{ /* nothing */ }
-
-/********************************************************************************************/
-/**
- * This constructor lets a user set all sigma parameters in one go.
- *
- * @param sigma The initial value for the sigma_ parameter
- * @param sigmaSigma The initial value for the sigmaSigma_ parameter
- * @param minSigma The minimal value allowed for sigma_
- * @param maxSigma The maximal value allowed for sigma_
- */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor(
-		const double& sigma
-		, const double& sigmaSigma
-		, const double& minSigma
-		, const double& maxSigma
-)
-	: GFPGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma)
-{ /* nothing */ }
-
-/********************************************************************************************/
-/**
- * This constructor lets a user set all sigma parameters, as well as the adaption
- * probability in one go.
- *
- * @param sigma The initial value for the sigma_ parameter
- * @param sigmaSigma The initial value for the sigmaSigma_ parameter
- * @param minSigma The minimal value allowed for sigma_
- * @param maxSigma The maximal value allowed for sigma_
- * @param adProb The adaption probability
- */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor(
-		const double& sigma
-		, const double& sigmaSigma
-		, const double& minSigma
-		, const double& maxSigma
-		, const double& adProb
-)
-	: GFPGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
+GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const double& adProb)
+	: GFPBiGaussAdaptorT<double>(adProb)
 { /* nothing */ }
 
 /*******************************************************************************************/
 /**
  * The destructor
  */
-GDoubleGaussAdaptor::~GDoubleGaussAdaptor()
+GDoubleBiGaussAdaptor::~GDoubleBiGaussAdaptor()
 { /* nothing */ }
 
 /*******************************************************************************************/
 /**
  * A standard assignment operator.
  *
- * @param cp A copy of another GDoubleGaussAdaptor object
+ * @param cp A copy of another GDoubleBiGaussAdaptor object
  * @return A constant reference to this object
  */
-const GDoubleGaussAdaptor& GDoubleGaussAdaptor::operator=(const GDoubleGaussAdaptor& cp){
-	GDoubleGaussAdaptor::load_(&cp);
+const GDoubleBiGaussAdaptor& GDoubleBiGaussAdaptor::operator=(const GDoubleBiGaussAdaptor& cp){
+	GDoubleBiGaussAdaptor::load_(&cp);
 	return *this;
 }
 
@@ -127,34 +88,34 @@ const GDoubleGaussAdaptor& GDoubleGaussAdaptor::operator=(const GDoubleGaussAdap
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GDoubleGaussAdaptor::clone_() const {
-	return new GDoubleGaussAdaptor(*this);
+GObject* GDoubleBiGaussAdaptor::clone_() const {
+	return new GDoubleBiGaussAdaptor(*this);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for equality with another GDoubleGaussAdaptor object
+ * Checks for equality with another GDoubleBiGaussAdaptor object
  *
- * @param  cp A constant reference to another GDoubleGaussAdaptor object
+ * @param  cp A constant reference to another GDoubleBiGaussAdaptor object
  * @return A boolean indicating whether both objects are equal
  */
-bool GDoubleGaussAdaptor::operator==(const GDoubleGaussAdaptor& cp) const {
+bool GDoubleBiGaussAdaptor::operator==(const GDoubleBiGaussAdaptor& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GDoubleGaussAdaptor::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GDoubleBiGaussAdaptor::operator==","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for inequality with another GDoubleGaussAdaptor object
+ * Checks for inequality with another GDoubleBiGaussAdaptor object
  *
- * @param  cp A constant reference to another GDoubleGaussAdaptor object
+ * @param  cp A constant reference to another GDoubleBiGaussAdaptor object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GDoubleGaussAdaptor::operator!=(const GDoubleGaussAdaptor& cp) const {
+bool GDoubleBiGaussAdaptor::operator!=(const GDoubleBiGaussAdaptor& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GDoubleGaussAdaptor::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GDoubleBiGaussAdaptor::operator!=","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
@@ -170,7 +131,7 @@ bool GDoubleGaussAdaptor::operator!=(const GDoubleGaussAdaptor& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GDoubleGaussAdaptor::checkRelationshipWith(
+boost::optional<std::string> GDoubleBiGaussAdaptor::checkRelationshipWith(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -181,31 +142,31 @@ boost::optional<std::string> GDoubleGaussAdaptor::checkRelationshipWith(
     using namespace Gem::Common;
 
     // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GDoubleGaussAdaptor>(&cp);
+    GObject::selfAssignmentCheck<GDoubleBiGaussAdaptor>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GFPGaussAdaptorT<double>::checkRelationshipWith(cp, e, limit, "GDoubleGaussAdaptor", y_name, withMessages));
+	deviations.push_back(GFPBiGaussAdaptorT<double>::checkRelationshipWith(cp, e, limit, "GDoubleBiGaussAdaptor", y_name, withMessages));
 
 	// no local data ...
 
-	return evaluateDiscrepancies("GDoubleGaussAdaptor", caller, deviations, e);
+	return evaluateDiscrepancies("GDoubleBiGaussAdaptor", caller, deviations, e);
 }
 
 /*******************************************************************************************/
 /**
  * Loads the data of another GObject
  *
- * @param cp A copy of another GDoubleGaussAdaptor object, camouflaged as a GObject
+ * @param cp A copy of another GDoubleBiGaussAdaptor object, camouflaged as a GObject
  */
-void GDoubleGaussAdaptor::load_(const GObject* cp){
+void GDoubleBiGaussAdaptor::load_(const GObject* cp){
     // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GDoubleGaussAdaptor>(cp);
+    GObject::selfAssignmentCheck<GDoubleBiGaussAdaptor>(cp);
 
 	// Load our parent class'es data ...
-	GFPGaussAdaptorT<double>::load_(cp);
+	GFPBiGaussAdaptorT<double>::load_(cp);
 
 	// ... no local data
 }
@@ -216,12 +177,12 @@ void GDoubleGaussAdaptor::load_(const GObject* cp){
  *
  * @return The id of this adaptor
  */
-Gem::Geneva::adaptorId GDoubleGaussAdaptor::getAdaptorId() const {
-	return Gem::Geneva::GDOUBLEGAUSSADAPTOR;
+Gem::Geneva::adaptorId GDoubleBiGaussAdaptor::getAdaptorId() const {
+	return Gem::Geneva::GDOUBLEBIGAUSSADAPTOR;
 }
 
 /* ----------------------------------------------------------------------------------
- * - Tested in GDoubleGaussAdaptor::specificTestsNoFailuresExpected_GUnitTests()
+ * - Tested in GDoubleBiGaussAdaptor::specificTestsNoFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -232,14 +193,14 @@ Gem::Geneva::adaptorId GDoubleGaussAdaptor::getAdaptorId() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GDoubleGaussAdaptor::modify_GUnitTests() {
+bool GDoubleBiGaussAdaptor::modify_GUnitTests() {
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GFPGaussAdaptorT<double>::modify_GUnitTests()) result = true;
+	if(GFPBiGaussAdaptorT<double>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -248,23 +209,23 @@ bool GDoubleGaussAdaptor::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+void GDoubleBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GFPGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GFPBiGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
 
 	//------------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
-		boost::shared_ptr<GDoubleGaussAdaptor> p_test = this->clone<GDoubleGaussAdaptor>();
+		boost::shared_ptr<GDoubleBiGaussAdaptor> p_test = this->clone<GDoubleBiGaussAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
-			p_test->getAdaptorId() == GDOUBLEGAUSSADAPTOR
+			p_test->getAdaptorId() == GDOUBLEBIGAUSSADAPTOR
 			,  "\n"
 			<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-			<< "GDOUBLEGAUSSADAPTOR     = " << GDOUBLEGAUSSADAPTOR << "\n"
+			<< "GDOUBLEBIGAUSSADAPTOR     = " << GDOUBLEBIGAUSSADAPTOR << "\n"
 		);
 	}
 
@@ -280,12 +241,12 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GDoubleGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
+void GDoubleBiGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GFPGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
+	GFPBiGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

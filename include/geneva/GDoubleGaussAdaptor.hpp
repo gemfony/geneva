@@ -79,9 +79,20 @@ public:
 	/** @brief Initialization with a adaption probability */
 	explicit GDoubleGaussAdaptor(const double&);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian */
-	GDoubleGaussAdaptor(const double&, const double&, const double&, const double&);
+	GDoubleGaussAdaptor(
+			const double&
+			, const double&
+			, const double&
+			, const double&
+	);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian and the adaption probability */
-	GDoubleGaussAdaptor(const double&, const double&, const double&, const double&, const double&);
+	GDoubleGaussAdaptor(
+			const double&
+			, const double&
+			, const double&
+			, const double&
+			, const double&
+	);
 	/** @brief The destructor */
 	virtual ~GDoubleGaussAdaptor();
 
@@ -94,7 +105,14 @@ public:
 	bool operator!=(const GDoubleGaussAdaptor&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+			const GObject&
+			, const Gem::Common::expectation&
+			, const double&
+			, const std::string&
+			, const std::string&
+			, const bool&
+	) const;
 
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const;

@@ -186,7 +186,8 @@ enum infoMode {
  * Ids that are assigned to adaptors and which should (by convention!) be unique for these
  */
 enum adaptorId {
-	  GDOUBLEGAUSSADAPTOR
+	GDOUBLEBIGAUSSADAPTOR
+	, GDOUBLEGAUSSADAPTOR
 	, GINT32GAUSSADAPTOR
 	, GBOOLEANADAPTOR
 	, GINT32FLIPADAPTOR
@@ -231,7 +232,7 @@ const bool DEFAULTMARKOLDPARENTS = false;
 const double DEFAULTSIGMA = 1; ///< Default start value for sigma_
 const double DEFAULTINT32SIGMA = 5; ///< Default sigma start value for GInt32GaussAdaptor
 const double DEFAULTSIGMASIGMA = 0.8; ///< Default width of the gaussian used for sigma adaption
-const double DEFAULTMINSIGMA = 0.001; ///< Default minimum allowed value for sigma_
+const double DEFAULTMINSIGMA = 0.0001; ///< Default minimum allowed value for sigma_
 const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_
 const double DEFAULTDELTA = 1; ///< Default value of distance between two gaussians in GNumBiGaussAdaptorT
 const double DEFAULTSIGMADELTA = 0.8; ///< Default width of the gaussian used for delta adaption in GNumBiGaussAdaptorT

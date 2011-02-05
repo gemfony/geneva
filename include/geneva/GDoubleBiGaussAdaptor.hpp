@@ -1,5 +1,5 @@
 /**
- * @file GBooleanAdaptor.hpp
+ * @file GDoubleBiGaussAdaptor.hpp
  */
 
 /*
@@ -29,41 +29,36 @@
  * http://www.gemfony.com .
  */
 
-
 // Standard headers go here
 
 // Boost headers go here
 
-#ifndef GBOOLEANADAPTOR_HPP_
-#define GBOOLEANADAPTOR_HPP_
+#ifndef GDOUBLEBIGAUSSADAPTOR_HPP_
+#define GDOUBLEBIGAUSSADAPTOR_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
 #pragma once
 #endif
 
+
 // Geneva headers go here
-#include "common/GExceptions.hpp"
-#include "GAdaptorT.hpp"
-#include "GConstrainedDoubleObject.hpp"
-#include "GIntFlipAdaptorT.hpp"
-#include "GObject.hpp"
-#include "GObjectExpectationChecksT.hpp"
-#include "GOptimizationEnums.hpp"
+#include "geneva/GFPBiGaussAdaptorT.hpp"
 
 namespace Gem {
 namespace Geneva {
 
 /*************************************************************************/
 /**
- * The GBooleanAdaptor represents an adaptor used for the adaption of
- * bool values by flipping its value. See the documentation of GAdaptorT<T> for
- * further information on adaptors in the Geneva context. Most functionality
- * (with the notable exception of the actual adaption logic) is currently
- * implemented in the GIntFlipAdaptorT class.
+ * The GDoubleBiGaussAdaptor represents an adaptor used for the adaption of
+ * double values through the addition of gaussian-distributed random numbers.
+ * See the documentation of GNumGaussAdaptorT<T> for further information on adaptors
+ * in the Geneva context. This class is at the core of evolutionary strategies,
+ * as implemented by this library. It is now implemented through a generic
+ * base class that can also be used to adapt other numeric types.
  */
-class GBooleanAdaptor
-	:public GIntFlipAdaptorT<bool>
+class GDoubleBiGaussAdaptor
+	:public GFPBiGaussAdaptorT<double>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -72,28 +67,27 @@ class GBooleanAdaptor
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GIntFlipAdaptorT_bool", boost::serialization::base_object<GIntFlipAdaptorT<bool> >(*this));
+	  ar & make_nvp("GFPBiGaussAdaptorT_double", boost::serialization::base_object<GFPBiGaussAdaptorT<double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GBooleanAdaptor();
+	GDoubleBiGaussAdaptor();
 	/** @brief The copy constructor */
-	GBooleanAdaptor(const GBooleanAdaptor&);
+	GDoubleBiGaussAdaptor(const GDoubleBiGaussAdaptor&);
 	/** @brief Initialization with a adaption probability */
-	explicit GBooleanAdaptor(const double&);
-
+	explicit GDoubleBiGaussAdaptor(const double&);
 	/** @brief The destructor */
-	virtual ~GBooleanAdaptor();
+	virtual ~GDoubleBiGaussAdaptor();
 
 	/** @brief A standard assignment operator */
-	const GBooleanAdaptor& operator=(const GBooleanAdaptor&);
+	const GDoubleBiGaussAdaptor& operator=(const GDoubleBiGaussAdaptor&);
 
-	/** @brief Checks for equality with another GBooleanAdaptor object */
-	bool operator==(const GBooleanAdaptor&) const;
-	/** @brief Checks for inequality with another GBooleanAdaptor object */
-	bool operator!=(const GBooleanAdaptor&) const;
+	/** @brief Checks for equality with another GDoubleBiGaussAdaptor object */
+	bool operator==(const GDoubleBiGaussAdaptor&) const;
+	/** @brief Checks for inequality with another GDoubleBiGaussAdaptor object */
+	bool operator!=(const GDoubleBiGaussAdaptor&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
@@ -114,9 +108,6 @@ protected:
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
 
-	/** The actual adaption logic */
-	virtual void customAdaptions(bool&);
-
 #ifdef GENEVATESTING
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -128,11 +119,11 @@ public:
 #endif /* GENEVATESTING */
 };
 
-/***********************************************************************************/
+/*************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanAdaptor)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleBiGaussAdaptor)
 
-#endif /* GBOOLEANADAPTOR_HPP_ */
+#endif /* GDOUBLEBIGAUSSADAPTOR_HPP_ */

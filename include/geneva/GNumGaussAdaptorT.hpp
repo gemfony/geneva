@@ -227,37 +227,25 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * This function sets the value of the sigma_ parameter. Note that this function
-	 * will silently set a 0 sigma to a very small value.
+	 * This function sets the value of the sigma_ parameter.
 	 *
 	 * @param sigma The new value of the sigma_ parameter
 	 */
 	void setSigma(const fp_type& sigma)
 	{
-		if(sigma < fp_type(0.)) {
-			raiseException(
-					"In GNumGaussAdaptorT<num_type, fp_type>::setSigma(const fp_type&):" << std::endl
-					<< "sigma is negative: " << sigma
-			);
-		}
-
-		fp_type tmpSigma;
-		if(sigma == fp_type(0.)) tmpSigma = DEFAULTMINSIGMA;
-		else tmpSigma = sigma;
-
-		// Sigma must be in the allowed value range
-		if(tmpSigma < minSigma_ || tmpSigma > maxSigma_)
+		// Sigma must be in the allowed value range.
+		if(sigma < minSigma_ || sigma > maxSigma_)
 		{
 			raiseException(
-					"In GNumGaussAdaptorT<num_type, fp_type>::setSigma(const fp_type&):" << std::endl
+					"In GNumGaussAdaptorT::setSigma(const fp_type&):" << std::endl
 					<< "sigma is not in the allowed range: " << std::endl
-					<< tmpSigma << " " << minSigma_ << " " << maxSigma_ << std::endl
+					<< minSigma_ << " <= " << sigma << " < " << maxSigma_ << std::endl
 					<< "If you want to use these values you need to" << std::endl
 					<< "adapt the allowed range first."
 			);
 		}
 
-		sigma_ = tmpSigma;
+		sigma_ = sigma;
 	}
 
 	/********************************************************************************************/
@@ -283,16 +271,17 @@ public:
 	 */
 	void setSigmaRange(const fp_type& minSigma, const fp_type& maxSigma){
 		fp_type tmpMinSigma = minSigma;
+
 		// Silently adapt minSigma, if necessary. A value of 0. does not make sense.
-		if(minSigma == fp_type(0.)) tmpMinSigma = fp_type(DEFAULTMINSIGMA);
+		if(tmpMinSigma>=fp_type(0.) && tmpMinSigma<fp_type(DEFAULTMINSIGMA)) tmpMinSigma = fp_type(DEFAULTMINSIGMA);
 
 		// Do some error checks
-		if(tmpMinSigma<=fp_type(0.) || minSigma >= maxSigma){ // maxSigma will automatically be > 0. now
+		if(tmpMinSigma<fp_type(0.) || tmpMinSigma >= maxSigma){
 			raiseException(
 					"In GNumGaussAdaptorT<num_type, fp_type>::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
 					<< "Invalid values for minSigma and maxSigma given:" << tmpMinSigma << " " << maxSigma
 			);
-		}
+		} // maxSigma will automatically be > 0. now
 
 		minSigma_ = tmpMinSigma;
 		maxSigma_ = maxSigma;
@@ -326,24 +315,15 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * This function sets the values of the sigmaSigma_ parameter. Values <= 0 are not allowed.
-	 * If you do want to prevent adaption of sigma, you can use the GAdaptorT<T>::setAdaptionThreshold()
-	 * function. It determines, after how many adaptions the internal parameters
-	 * of the adaption should be adapted. If set to 0, no adaption takes place.
+	 * This function sets the values of the sigmaSigma_ parameter. Values <= 0 mean "do not adapt
+	 * sigma". If you do want to prevent adaption of sigma, you can also use the
+	 * GAdaptorT<T>::setAdaptionThreshold() function. It determines, after how many calls the
+	 * internal parameters of the adaption should be adapted. If set to 0, no adaption takes place.
 	 *
 	 * @param sigmaSigma The new value of the sigmaSigma_ parameter
 	 */
 	void setSigmaAdaptionRate(const fp_type& sigmaSigma)
 	{
-		// A value of sigmaSigma <= 0. is not useful.
-		if(sigmaSigma <= fp_type(0.))
-		{
-			raiseException(
-					"In GNumGaussAdaptorT<num_type, fp_type>::setSigmaAdaptionRate(fp_type, fp_type):" << std::endl
-					<< "Bad value for sigmaSigma given: " << sigmaSigma
-			);
-		}
-
 		sigmaSigma_ = sigmaSigma;
 	}
 
@@ -431,6 +411,8 @@ protected:
 	/**
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	 * algorithm to adapt to changing geometries of the quality surface.
+	 *
+	 * ATTENTION: sigma/delta may become 0 here ??!?
 	 */
 	virtual void adaptAdaption()
 	{
@@ -438,7 +420,7 @@ protected:
 
 		// We do not want to favor the decrease or increase of sigma, hence we choose
 		// randomly whether to multiply or divide. TODO: cross-check.
-		sigma_ *= GExp(GAdaptorT<num_type>::gr->normal_distribution(sigmaSigma_)*(GAdaptorT<num_type>::gr->uniform_bool()?fp_type(1):fp_type(-1)));
+		if(sigmaSigma_ > fp_type(0.)) sigma_ *= GExp(GAdaptorT<num_type>::gr->normal_distribution(sigmaSigma_)*(GAdaptorT<num_type>::gr->uniform_bool()?fp_type(1):fp_type(-1)));
 
 		// make sure sigma_ doesn't get out of range
 		if(sigma_ < minSigma_) sigma_ = minSigma_;
@@ -529,7 +511,7 @@ public:
 			boost::shared_ptr<GNumGaussAdaptorT<num_type, fp_type> > p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type> >();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(2.)));
-			BOOST_CHECK_NO_THROW(p_test->setSigma(fp_type(0.)));
+			BOOST_CHECK_NO_THROW(p_test->setSigma(fp_type(DEFAULTMINSIGMA)));
 			BOOST_CHECK(p_test->getSigma() == fp_type(DEFAULTMINSIGMA));
 		}
 
@@ -681,21 +663,6 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Check that setting a negative sigma adaption rate throws
-			boost::shared_ptr<GNumGaussAdaptorT<num_type, fp_type> > p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type> >();
-
-			BOOST_CHECK_THROW(p_test->setSigmaAdaptionRate(fp_type(-1.)), Gem::Common::gemfony_error_condition);
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Check that setting a 0 sigma adaption rate throws
-			boost::shared_ptr<GNumGaussAdaptorT<num_type, fp_type> > p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type> >();
-
-			BOOST_CHECK_THROW(p_test->setSigmaAdaptionRate(fp_type(0.)), Gem::Common::gemfony_error_condition);
-		}
-
-		//------------------------------------------------------------------------------
 	}
 
 #endif /* GENEVATESTING */

@@ -1,5 +1,5 @@
 /**
- * @file GIntFlipAdaptorT.hpp
+ * @file GNumFlipAdaptorT.hpp
  */
 
 /*
@@ -34,8 +34,8 @@
 
 // Boost headers go here
 
-#ifndef GINTFLIPADAPTORT_HPP_
-#define GINTFLIPADAPTORT_HPP_
+#ifndef GNUMFLIPADAPTORT_HPP_
+#define GNUMFLIPADAPTORT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -44,7 +44,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "geneva/GNumFlipAdaptorT.hpp"
+#include "geneva/GAdaptorT.hpp"
 #include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GObject.hpp"
@@ -55,15 +55,13 @@ namespace Geneva {
 
 /************************************************************************************************/
 /**
- * GIntFlipAdaptorT represents an adaptor used for the adaption of integer
- * types, by flipping an integer number to the next larger or smaller number.
- * The integer type used needs to be specified as a template parameter. Note
- * that a specialization of this class, as defined in GIntFlipAdaptorT.cpp,
- * allows to deal with booleans instead of "standard" integer types.
+ * GNumFlipAdaptorT represents an adaptor used for the adaption of numeric
+ * types, by flipping a number to the next larger or smaller one. The unerlying
+ * type needs to be specified as a template parameter.
  */
-template<typename int_type>
-class GIntFlipAdaptorT
-	:public GNumFlipAdaptorT<int_type>
+template<typename num_type>
+class GNumFlipAdaptorT
+	:public GAdaptorT<num_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -71,7 +69,7 @@ class GIntFlipAdaptorT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GNumFlipAdaptorT", boost::serialization::base_object<GNumFlipAdaptorT<int_type> >(*this));
+		ar & make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<num_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -80,8 +78,8 @@ public:
 	/**
 	 * The standard constructor.
 	 */
-	GIntFlipAdaptorT()
-		: GNumFlipAdaptorT<int_type> ()
+	GNumFlipAdaptorT()
+		: GAdaptorT<num_type> (DEFAULTBITADPROB)
 	{ /* nothing */	}
 
 	/********************************************************************************************/
@@ -91,18 +89,18 @@ public:
 	 *
 	 * @param prob The probability for a flip
 	 */
-	explicit GIntFlipAdaptorT(const double& prob)
-		: GNumFlipAdaptorT<int_type>(prob)
+	explicit GNumFlipAdaptorT(const double& prob)
+		: GAdaptorT<num_type>(prob)
 	{ /* nothing */ }
 
 	/********************************************************************************************/
 	/**
 	 * A standard copy constructor.
 	 *
-	 * @param cp Another GIntFlipAdaptorT object
+	 * @param cp Another GNumFlipAdaptorT object
 	 */
-	GIntFlipAdaptorT(const GIntFlipAdaptorT<int_type>& cp)
-		: GNumFlipAdaptorT<int_type>(cp)
+	GNumFlipAdaptorT(const GNumFlipAdaptorT<num_type>& cp)
+		: GAdaptorT<num_type>(cp)
 	{ /* nothing */	}
 
 	/********************************************************************************************/
@@ -110,7 +108,7 @@ public:
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
 	 */
-	~GIntFlipAdaptorT()
+	~GNumFlipAdaptorT()
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -137,17 +135,17 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GIntFlipAdaptorT<int_type>  *p_load = GObject::conversion_cast<GIntFlipAdaptorT<int_type> >(&cp);
+		const GNumFlipAdaptorT<num_type>  *p_load = GObject::conversion_cast<GNumFlipAdaptorT<num_type> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GNumFlipAdaptorT<int_type>::checkRelationshipWith(cp, e, limit, "GIntFlipAdaptorT<int_type>", y_name, withMessages));
+		deviations.push_back(GAdaptorT<num_type>::checkRelationshipWith(cp, e, limit, "GNumFlipAdaptorT<num_type>", y_name, withMessages));
 
 		// no local data ...
 
-		return evaluateDiscrepancies("GIntFlipAdaptorT<int_type>", caller, deviations, e);
+		return evaluateDiscrepancies("GNumFlipAdaptorT<num_type>", caller, deviations, e);
 	}
 
 	/********************************************************************************************/
@@ -168,17 +166,17 @@ public:
 protected:
 	/********************************************************************************************/
 	/**
-	 * This function loads the data of another GIntFlipAdaptorT, camouflaged as a GObject.
+	 * This function loads the data of another GNumFlipAdaptorT, camouflaged as a GObject.
 	 *
-	 * @param A copy of another GIntFlipAdaptorT, camouflaged as a GObject
+	 * @param A copy of another GNumFlipAdaptorT, camouflaged as a GObject
 	 */
 	void load_(const GObject *cp)
 	{
 		// Check that this object is not accidently assigned to itself
-		GObject::selfAssignmentCheck<GIntFlipAdaptorT<int_type> >(cp);
+		GObject::selfAssignmentCheck<GNumFlipAdaptorT<num_type> >(cp);
 
 		// Load the data of our parent class ...
-		GNumFlipAdaptorT<int_type>::load_(cp);
+		GAdaptorT<num_type>::load_(cp);
 
 		// no local data
 	}
@@ -191,6 +189,50 @@ protected:
 	 * @return A deep copy of this object
 	 */
 	virtual GObject *clone_() const = 0;
+
+	/********************************************************************************************/
+	/**
+	 * We want to flip the value only in a given percentage of cases. Thus
+	 * we calculate a probability between 0 and 1 and compare it with the desired
+	 * adaption probability. Please note that evenRandom returns a value in the
+	 * range of [0,1[, so we make a tiny error here.
+	 *
+	 * @param value The bit value to be adapted
+	 */
+	virtual void customAdaptions(num_type& value) {
+		bool up = this->gr->uniform_bool();
+		if(up){
+#if defined (CHECKOVERFLOWS)
+			if(std::numeric_limits<num_type>::max() == value) {
+#ifdef DEBUG
+				std::cout << "Warning: Had to change adaption due to overflow in GNumFlipAdaptorT<>::customAdaptions()" << std::endl;
+#endif
+				value -= 1;
+			}
+			else value += 1;
+#else
+			value += 1;
+#endif
+		}
+		else {
+#if defined (CHECKOVERFLOWS)
+			if(std::numeric_limits<num_type>::min() == value) {
+#ifdef DEBUG
+				std::cout << "Warning: Had to change adaption due to underflow in GNumFlipAdaptorT<>::customAdaptions()" << std::endl;
+#endif
+				value += 1;
+			}
+			else value -= 1;
+#else
+			value -= 1;
+#endif
+		}
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GAdaptorT<num_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 #ifdef GENEVATESTING
 public:
@@ -207,7 +249,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GNumFlipAdaptorT<int_type>::modify_GUnitTests()) result = true;
+		if(GAdaptorT<num_type>::modify_GUnitTests()) result = true;
 
 		// no local data -- nothing to change
 
@@ -223,7 +265,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GNumFlipAdaptorT<int_type>::specificTestsNoFailureExpected_GUnitTests();
+		GAdaptorT<num_type>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
 	/*******************************************************************************************/
@@ -235,7 +277,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GNumFlipAdaptorT<int_type>::specificTestsFailuresExpected_GUnitTests();
+		GAdaptorT<num_type>::specificTestsFailuresExpected_GUnitTests();
 	}
 
 #endif /* GENEVATESTING */
@@ -251,13 +293,13 @@ public:
 
 namespace boost {
 	namespace serialization {
-		template<typename int_type>
-		struct is_abstract<Gem::Geneva::GIntFlipAdaptorT<int_type> > : public boost::true_type {};
-		template<typename int_type>
-		struct is_abstract< const Gem::Geneva::GIntFlipAdaptorT<int_type> > : public boost::true_type {};
+		template<typename num_type>
+		struct is_abstract<Gem::Geneva::GNumFlipAdaptorT<num_type> > : public boost::true_type {};
+		template<typename num_type>
+		struct is_abstract< const Gem::Geneva::GNumFlipAdaptorT<num_type> > : public boost::true_type {};
 	}
 }
 
 /********************************************************************************************/
 
-#endif /* GINTFLIPADAPTORT_HPP_ */
+#endif /* GNUMFLIPADAPTORT_HPP_ */

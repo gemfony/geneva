@@ -135,7 +135,6 @@ public:
 					<< " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max()
 			);
 		}
-
 	}
 
 	/****************************************************************************/

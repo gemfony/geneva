@@ -13,6 +13,7 @@ SET ( OPTIMIZATIONSOURCES
 	GConstrainedDoubleObjectCollection
 	GConstrainedInt32Object
 	GConstrainedInt32ObjectCollection
+	GDoubleBiGaussAdaptor
 	GDoubleCollection
 	GDoubleGaussAdaptor
 	GDoubleObject
@@ -28,7 +29,6 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32GaussAdaptor
 	GInt32Object
 	GInt32ObjectCollection
-	GIntFlipAdaptorT
 	GMultiThreadedEA
 	GMultiThreadedGD
 	GMultiThreadedSwarm

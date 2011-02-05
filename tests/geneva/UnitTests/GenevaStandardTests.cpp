@@ -41,6 +41,7 @@ using namespace boost::unit_test;
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GBooleanObjectCollection.hpp"
 #include "geneva/GInt32ObjectCollection.hpp"
@@ -87,6 +88,7 @@ public:
 			GInt32FlipAdaptor
 			, GBooleanAdaptor
 			, GInt32GaussAdaptor
+			, GDoubleBiGaussAdaptor
 			, GDoubleGaussAdaptor
 		>
 		adaptor_types;

@@ -128,23 +128,25 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * This constructor allows to set the probability with which a adaption is indeed
+	 * This constructor allows to set the probability with which an adaption is indeed
 	 * performed.
+	 *
+	 * @param adProb The likelihood for a an adaption to be actually carried out
 	 */
-	GAdaptorT(const double& prob)
+	GAdaptorT(const double& adProb)
 		: GObject()
 		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>())
 		, gr(gr_local)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
-		, adProb_(prob)
+		, adProb_(adProb)
 		, adaptionMode_(DEFAULTADAPTIONMODE)
 		, adaptAdaptionProbability_(DEFAULTADAPTADAPTIONPROB)
 	{
 		// Do some error checking
-		if(prob < 0. || prob > 1.) {
+		if(adProb < 0. || adProb > 1.) {
 			std::cerr << "In GAdaptorT<T>::GadaptorT(const double& prob):" << std::endl
-					  << "Provided daption probability is invalid: " << prob << std::endl;
+					  << "Provided daption probability is invalid: " << adProb << std::endl;
 			std::terminate();
 		}
 	}

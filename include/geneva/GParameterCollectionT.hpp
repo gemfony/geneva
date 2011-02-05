@@ -234,6 +234,30 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
+	/*******************************************************************************************/
+	/**
+	 * Retrieval of the value at a given position
+	 *
+	 * @param pos The position for which the value needs to be returned
+	 * @return The value of val_
+	 */
+	virtual T value(const std::size_t& pos) {
+		return this->at(pos);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Allows to set the internal (and usually externally visible) value at a given position. Note
+	 * that we assume here that T has an operator=() or is a basic value type, such as double
+	 * or int.
+	 *
+	 * @param pos The position at which the value shout be stored
+	 * @param val The new T value stored in this class
+	 */
+	virtual void setValue(const std::size_t& pos, const T& val)  {
+		this->at(pos) = val;
+	}
+
 protected:
 	/*******************************************************************************************/
 	/**

@@ -268,6 +268,37 @@ public:
 		}
 	}
 
+	/************************************************************************/
+	/**
+	 * This function adds two gaussians with sigmas "sigma1" and "sigma2" and a
+	 * distance "distance" from each other, centered around mean. The idea is to use
+	 * this function in conjunction with evolutionary strategies, so we avoid
+	 * searching with the highest likelihood at a location where we already
+	 * know a good value exists. Rather we want to shift the highest likelihood
+	 * for probes a bit further away from the candidate solution.
+	 *
+	 * @param mean The mean value of the entire distribution
+	 * @param sigma1 The sigma of the first gaussian
+	 * @param sigma2 The sigma of the second gaussian
+	 * @param distance The distance between both peaks
+	 * @return Random numbers with a bi-gaussian shape
+	 */
+	template <typename fp_type>
+	fp_type bi_normal_distribution(
+			const fp_type& mean
+		  , const fp_type& sigma1
+		  , const fp_type& sigma2
+		  , const fp_type& distance
+		  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+	) {
+		if (uniform_bool()) {
+			return normal_distribution<fp_type>(mean - Gem::Common::GFabs(distance / 2.), sigma1);
+		}
+		else {
+			return normal_distribution<fp_type>(mean + Gem::Common::GFabs(distance / 2.), sigma2);
+		}
+	}
+
 	/*************************************************************************/
 	/**
 	 * This function produces integer random numbers in the range of [min, max] .

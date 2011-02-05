@@ -4,7 +4,9 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.1, yet unnamed - release-date unknown
- - Bumped the minimal Boost version to 1.41
+
+The main changes for this release include:
+ - Bumped the minimal Boost version to 1.40
  - Made sure that parameter objects always have an adaptor loaded. Before this it
    was empty by default.
  - Moved from BOOST_CLASS_EXPORT to the BOOST_CLASS_EXPORT_KEY/BOOST_CLASS_EXPORT_IMPLEMENTATION
@@ -14,6 +16,9 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
  - Cleaned up the GRandomBase and GRandomT classes, including an interface change
  - Started to clean up and add examples, in line with the documentation
  - Made the adaptor hierarchy more consistent
+ - Add a "bi-gaussian" adaptor
+ 
+Recommended version of Boost: 1.43
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9, "Alice" - November 24, 2010
