@@ -123,7 +123,7 @@ public:
 		// parent class, as the "real" upper boundary is defined by "upper_closed_".
 		if(lowerBoundary >= upperBoundary) {
 			raiseException(
-					"In GConstrainedFPT<fp_type>::GConstrainedFPT(lower,upper):" << std::endl
+					"In GConstrainedFPNumCollectionT<fp_type>::GConstrainedFPNumCollectionT(lower,upper):" << std::endl
 					<< "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
 					<< "upperBoundary = " << upperBoundary
 			);
@@ -151,44 +151,6 @@ public:
 
 	/******************************************************************/
 	/**
-	 * The standard assignment operator.
-	 *
-	 * @param cp A copy of another GDoubleCollection object
-	 * @return A constant reference to this object
-	 */
-	const GConstrainedFPNumCollectionT& operator=(const GConstrainedFPNumCollectionT<fp_type>& cp){
-		GConstrainedFPNumCollectionT<fp_type>::load_(&cp);
-		return *this;
-	}
-
-	/******************************************************************/
-	/**
-	 * Checks for equality with another GConstrainedFPNumCollectionT<fp_type> object
-	 *
-	 * @param  cp A constant reference to another GConstrainedFPNumCollectionT<fp_type> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool operator==(const GConstrainedFPNumCollectionT<fp_type>& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedFPNumCollectionT<fp_type>::operator==","cp", CE_SILENT);
-	}
-
-	/******************************************************************/
-	/**
-	 * Checks for inequality with another GConstrainedFPNumCollectionT<fp_type> object
-	 *
-	 * @param  cp A constant reference to another GConstrainedFPNumCollectionT<fp_type> object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool operator!=(const GConstrainedFPNumCollectionT<fp_type>& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedFPNumCollectionT<fp_type>::operator!=","cp", CE_SILENT);
-	}
-
-	/******************************************************************/
-	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
 	 *
@@ -200,13 +162,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	boost::optional<std::string> checkRelationshipWith(
+			const GObject& cp
+			, const Gem::Common::expectation& e
+			, const double& limit
+			, const std::string& caller
+			, const std::string& y_name
+			, const bool& withMessages
+	) const {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -352,14 +315,14 @@ public:
 	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) {
 		// We first need to convert p_base into the local type
 		boost::shared_ptr<GConstrainedFPNumCollectionT<fp_type> > p
-			= GParameterBase::parameterbase_cast<GConstrainedFPT<fp_type> >(p_base);
+			= GParameterBase::parameterbase_cast<GConstrainedFPNumCollectionT<fp_type> >(p_base);
 
 #ifdef DEBUG
 		// Cross-check that the sizes match
 		if(this->size() != p->size()) {
 			raiseException(
 					"In GConstrainedFPNumCollectionT<fp_type>::fpAdd():" << std::endl
-					<< "Sizes of vectors don't match: " << this->size() << "/" p->size()
+					<< "Sizes of vectors don't match: " << this->size() << "/" << p->size()
 			);
 		}
 #endif
@@ -384,14 +347,14 @@ public:
 	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) {
 		// We first need to convert p_base into the local type
 		boost::shared_ptr<GConstrainedFPNumCollectionT<fp_type> > p
-			= GParameterBase::parameterbase_cast<GConstrainedFPT<fp_type> >(p_base);
+			= GParameterBase::parameterbase_cast<GConstrainedFPNumCollectionT<fp_type> >(p_base);
 
 #ifdef DEBUG
 		// Cross-check that the sizes match
 		if(this->size() != p->size()) {
 			raiseException(
 					"In GConstrainedFPNumCollectionT<fp_type>::fpAdd():" << std::endl
-					<< "Sizes of vectors don't match: " << this->size() << "/" p->size()
+					<< "Sizes of vectors don't match: " << this->size() << "/" << p->size()
 			);
 		}
 #endif

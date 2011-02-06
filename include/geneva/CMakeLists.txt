@@ -10,6 +10,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GBrokerEA.hpp
 	GBrokerGD.hpp
 	GBrokerSwarm.hpp
+	GConstrainedDoubleCollection.hpp
 	GConstrainedDoubleObject.hpp
 	GConstrainedDoubleObjectCollection.hpp
 	GConstrainedFPT.hpp

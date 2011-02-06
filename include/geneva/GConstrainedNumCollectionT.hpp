@@ -88,7 +88,7 @@ class GConstrainedNumCollectionT
 
 public:
 	/** @brief Specifies the type of parameters stored in this collection */
-	typedef T collection_type;
+	typedef num_type collection_type;
 
 	/******************************************************************/
 	/**
@@ -96,8 +96,8 @@ public:
 	 */
 	GConstrainedNumCollectionT()
 		: GParameterCollectionT<num_type> ()
-		, lowerBoundary_(T(0))
-		, upperBoundary_(T(1))
+		, lowerBoundary_(num_type(0))
+		, upperBoundary_(num_type(1))
 	{ /* nothing */ }
 
 	/******************************************************************/
@@ -109,8 +109,8 @@ public:
 	 */
 	GConstrainedNumCollectionT(const num_type& lowerBoundary, const num_type& upperBoundary)
 		: GParameterCollectionT<num_type> ()
-		, lowerBoundary_(min)
-		, upperBoundary_(max)
+		, lowerBoundary_(lowerBoundary)
+		, upperBoundary_(upperBoundary)
 	{
 		// Naturally the upper boundary should be > the lower boundary
 		if(lowerBoundary_ > upperBoundary_) {
@@ -194,7 +194,7 @@ public:
      *
      * @return The value of the lower boundary
      */
-	T getLowerBoundary() const {
+	num_type getLowerBoundary() const {
     	return lowerBoundary_;
 	}
 
@@ -204,7 +204,7 @@ public:
      *
      * @return The value of the upper boundary
      */
-	T getUpperBoundary() const {
+	num_type getUpperBoundary() const {
     	return upperBoundary_;
 	}
 
@@ -228,30 +228,29 @@ public:
 	 * @param lower The new lower boundary for this object
 	 * @param upper The new upper boundary for this object
 	 */
-	virtual void setBoundaries(const T& lower, const T& upper) {
-		const T currentValue = GParameterT<num_type>::value();
+	virtual void setBoundaries(const num_type& lower, const num_type& upper) {
+		std::vector<num_type> currentValues;
+		for(std::size_t pos=0; pos<this->size(); pos++) {
+			currentValues.push_back(GParameterCollectionT<num_type>::value(pos));
+
+			// Check that the value is inside the allowed range
+			if(currentValues[pos] < lower || currentValues[pos] > upper){
+				raiseException(
+						"In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&) :" << std::endl
+						<< "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
+						<< "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
+						<< "with existing value  " << currentValues[pos] << " at position " << pos << " outside of this range."
+				);
+			}
+		}
 
 		// Check that the boundaries make sense
 		if(lower > upper) {
 			raiseException(
-					"In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&)" << std::endl
-					<< "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
+					"In GConstrainedNumT<num_type>::setBoundaries(const num_type&, const num_type&)" << std::endl
+					<< "with typeid(num_type).name() = " << typeid(num_type).name() << " :" << std::endl
 					<< "Lower and/or upper boundary has invalid value : " << lower << " " << upper
 			);
-		}
-
-		// Check that the value is inside the allowed range
-		if(currentValue < lower || currentValue > upper){
-			raiseException(
-					"In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&) :" << std::endl
-					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
-					<< "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
-					<< "with existing value  " << currentValue << " outside of this range."
-			);
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		lowerBoundary_ = lower;
@@ -261,7 +260,7 @@ public:
 		// region of the transformation internally, and the mapping will likely depend on
 		// the boundaries.
 		for(std::size_t pos=0; pos<this->size(); pos++) {
-			GParameterCollectionT<num_type>::setValue(pos, currentValue);
+			GParameterCollectionT<num_type>::setValue(pos, currentValues.at(pos));
 		}
 	}
 
@@ -272,9 +271,9 @@ public:
 	 * you want to set the value together with its boundaries instead.
 	 *
 	 * @param pos The position of the parameter to be set
-	 * @param val The new T value stored in this class
+	 * @param val The new num_type value stored in this class
 	 */
-	virtual void setValue(const std::size_t& pos, const T& val)  {
+	virtual void setValue(const std::size_t& pos, const num_type& val)  {
 		// Do some error checking
 		if(val < lowerBoundary_ || val > upperBoundary_) {
 			raiseException(
@@ -287,7 +286,7 @@ public:
 		}
 
 		// O.k., assign value
-		GParameterCollectionT<num_type>::setValue(pos, currentValue);
+		GParameterCollectionT<num_type>::setValue(pos, val);
 	}
 
 	/****************************************************************************/
@@ -299,8 +298,8 @@ public:
 	 * @param pos The position for which the transformed value needs to be returned
 	 * @return The transformed value of val_
 	 */
-	virtual T value(const std::size_t& pos) {
-		T mapping = transfer(GParameterT<num_type>::value(pos));
+	virtual num_type value(const std::size_t& pos) {
+		num_type mapping = transfer(GParameterCollectionT<num_type>::value(pos));
 
 		// Reset internal value
 		GParameterCollectionT<num_type>::setValue(pos, mapping);
@@ -311,7 +310,7 @@ public:
 	/****************************************************************************/
 	/** @brief The transfer function needed to calculate the externally visible
 	 * value. Declared public so we can do tests of the value transformation. */
-	virtual T transfer(const T&) const = 0;
+	virtual num_type transfer(const num_type&) const = 0;
 
 protected:
 	/******************************************************************/
@@ -350,8 +349,8 @@ protected:
 
 private:
 	/******************************************************************/
-	T lowerBoundary_; ///< The lower allowed boundary for our value
-	T upperBoundary_; ///< The upper allowed boundary for our value
+	num_type lowerBoundary_; ///< The lower allowed boundary for our value
+	num_type upperBoundary_; ///< The upper allowed boundary for our value
 
 #ifdef GENEVATESTING
 public:

@@ -35,8 +35,8 @@
 
 // Boost header files go here
 
-#ifndef GCONSTRAINEDDOUBLECOLLECTION_HPP_
-#define GCONSTRAINEDDOUBLECOLLECTION_HPP_
+#ifndef GCONSTRAINEDDOUBLEOBJECTCOLLECTION_HPP_
+#define GCONSTRAINEDDOUBLEOBJECTCOLLECTION_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -117,4 +117,4 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleObjectCollection)
 
-#endif /* GCONSTRAINEDDOUBLECOLLECTION_HPP_ */
+#endif /* GCONSTRAINEDDOUBLEOBJECTCOLLECTION_HPP_ */

@@ -52,6 +52,7 @@ using namespace boost::unit_test;
 #include "geneva/GConstrainedInt32Object.hpp"
 #include "geneva/GInt32Object.hpp"
 #include "geneva/GDoubleObject.hpp"
+#include "geneva/GConstrainedDoubleCollection.hpp"
 #include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GInt32Collection.hpp"
 #include "geneva/GDoubleCollection.hpp"
@@ -94,22 +95,27 @@ public:
 		adaptor_types;
 
 		typedef boost::mpl::list<
+			GBooleanObject
+			, GInt32Object
+			, GDoubleObject
+			, GConstrainedInt32Object
+			, GConstrainedDoubleObject
+		>
+		data_types;
+
+		typedef boost::mpl::list<
 			GParameterObjectCollection
 			, GBooleanObjectCollection
 			, GInt32ObjectCollection
 			, GConstrainedInt32ObjectCollection
 			, GDoubleObjectCollection
 			, GConstrainedDoubleObjectCollection
-			, GBooleanObject
-			, GInt32Object
-			, GDoubleObject
-			, GConstrainedInt32Object
-			, GConstrainedDoubleObject
 			, GInt32Collection
 			, GDoubleCollection
 			, GBooleanCollection
+			, GConstrainedDoubleCollection
 		>
-		data_types;
+		collection_types;
 
 		typedef boost::mpl::list<
 			GEvolutionaryAlgorithm
@@ -150,6 +156,9 @@ public:
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, data_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, data_types ) );
+
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, collection_types ) );
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, collection_types ) );
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, algorithm_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, algorithm_types ) );

@@ -13,10 +13,11 @@ The main changes for this release include:
    combo for serialization (except for Boost 1.40, where these macros didn't exist).
  - Cleaned up the header files (surplus includes) 
  - Introduced more verbatim exceptions
- - Cleaned up the GRandomBase and GRandomT classes, including an interface change
+ - Cleaned up the GRandomBase/T and GRandomT classes, including an interface change
  - Started to clean up and add examples, in line with the documentation
- - Made the adaptor hierarchy more consistent
- - Add a "bi-gaussian" adaptor
+ - Made the adaptor hierarchy more consistent and added a "bi-gaussian" adaptor
+ - Added a new collection class GConstrainedDoubleCollection that allows to apply common
+   upper and lower limits to a set of double values
  
 Recommended version of Boost: 1.43
 
