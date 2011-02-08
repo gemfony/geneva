@@ -92,22 +92,17 @@ public:
 
 	/******************************************************************/
 	/**
-	 * The default constructor.
-	 */
-	GConstrainedNumCollectionT()
-		: GParameterCollectionT<num_type> ()
-		, lowerBoundary_(num_type(0))
-		, upperBoundary_(num_type(1))
-	{ /* nothing */ }
-
-	/******************************************************************/
-	/**
 	 * Initialize the lower and upper boundaries for data members of this class
 	 *
+	 * @param size Zje desired size of the vector
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	GConstrainedNumCollectionT(const num_type& lowerBoundary, const num_type& upperBoundary)
+	GConstrainedNumCollectionT(
+			const std::size_t size
+			, const num_type& lowerBoundary
+			, const num_type& upperBoundary
+	)
 		: GParameterCollectionT<num_type> ()
 		, lowerBoundary_(lowerBoundary)
 		, upperBoundary_(upperBoundary)
@@ -129,6 +124,10 @@ public:
 					  << "-GConstrainedValueLimit<num_type>::max() = " << -GConstrainedValueLimit<num_type>::max() << std::endl
 					  << " GConstrainedValueLimit<num_type>::max() = " <<  GConstrainedValueLimit<num_type>::max();
 			std::terminate();
+		}
+
+		for(std::size_t i=0; i<size; i++) {
+			this->push_back(lowerBoundary);
 		}
 	}
 
@@ -346,6 +345,18 @@ protected:
 	/******************************************************************/
 	/** @brief Triggers random initialization of the parameter collection */
 	virtual void randomInit_() = 0;
+
+	/******************************************************************/
+	/**
+	 * The default constructor. Intentionally protected -- only needed
+	 * for de-serialization and as the basis for derived class'es default
+	 * constructors
+	 */
+	GConstrainedNumCollectionT()
+		: GParameterCollectionT<num_type> ()
+		, lowerBoundary_(num_type(0))
+		, upperBoundary_(num_type(1))
+	{ /* nothing */ }
 
 private:
 	/******************************************************************/

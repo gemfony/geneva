@@ -49,7 +49,9 @@
 // Geneva header files go here
 #include <geneva-individuals/GIndividualFactoryT.hpp>
 #include <geneva/GDoubleCollection.hpp>
+#include <geneva/GConstrainedDoubleCollection.hpp>
 #include <geneva/GDoubleGaussAdaptor.hpp>
+#include <geneva/GDoubleBiGaussAdaptor.hpp>
 #include <geneva/GParameterSet.hpp>
 #include <common/GParserBuilder.hpp>
 
@@ -358,13 +360,23 @@ protected:
 private:
 	double adProb;
 	boost::uint32_t adaptionThreshold;
-	double sigma;
-	double sigmaSigma;
-	double minSigma;
-	double maxSigma;
+	bool useBiGaussian;
+	double sigma1;
+	double sigmaSigma1;
+	double minSigma1;
+	double maxSigma1;
+	double sigma2;
+	double sigmaSigma2;
+	double minSigma2;
+	double maxSigma2;
+	double delta;
+	double sigmaDelta;
+	double minDelta;
+	double maxDelta;
 	std::size_t parDim;
 	double minVar;
 	double maxVar;
+	bool useConstrainedDoubleCollection;
 	boost::uint32_t processingCycles;
 	boost::uint16_t evalFunction;
 };

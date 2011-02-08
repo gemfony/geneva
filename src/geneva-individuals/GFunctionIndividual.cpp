@@ -48,13 +48,6 @@ GFunctionIndividual::GFunctionIndividual()
 
 /********************************************************************************************/
 /**
- * Destructor
- */
-GFunctionIndividualFactory::~GFunctionIndividualFactory()
-{ /* nothing */ }
-
-/********************************************************************************************/
-/**
  * Initialization with the desired demo function
  *
  * @param dF The id if the demo function
@@ -341,15 +334,32 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& cF)
 	: GIndividualFactoryT<GFunctionIndividual>(cF)
 	, adProb(0.05)
 	, adaptionThreshold(1)
-	, sigma(0.5)
-	, sigmaSigma(0.8)
-	, minSigma(0.001)
-	, maxSigma(2.)
+	, useBiGaussian(false)
+	, sigma1(0.5)
+	, sigmaSigma1(0.8)
+	, minSigma1(0.001)
+	, maxSigma1(2.)
+	, sigma2(0.5)
+	, sigmaSigma2(0.8)
+	, minSigma2(0.001)
+	, maxSigma2(2.)
+	, delta(0.5)
+	, sigmaDelta(0.8)
+	, minDelta(0.001)
+	, maxDelta(2.)
 	, parDim(2)
 	, minVar(-30.)
 	, maxVar(30.)
+	, useConstrainedDoubleCollection(false)
 	, processingCycles(1)
 	, evalFunction(3)
+{ /* nothing */ }
+
+/********************************************************************************************/
+/**
+ * Destructor
+ */
+GFunctionIndividualFactory::~GFunctionIndividualFactory()
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -359,13 +369,23 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& cF)
 void GFunctionIndividualFactory::describeConfigurationOptions_() {
 	gpb.registerParameter("adProb", adProb, adProb);
 	gpb.registerParameter("adaptionThreshold", adaptionThreshold, adaptionThreshold);
-	gpb.registerParameter("sigma", sigma, sigma);
-	gpb.registerParameter("sigmaSigma", sigmaSigma, sigmaSigma);
-	gpb.registerParameter("minSigma", minSigma, minSigma);
-	gpb.registerParameter("maxSigma", maxSigma, maxSigma);
+	gpb.registerParameter("useBiGaussian", useBiGaussian, useBiGaussian);
+	gpb.registerParameter("sigma1", sigma1, sigma1);
+	gpb.registerParameter("sigmaSigma1", sigmaSigma1, sigmaSigma1);
+	gpb.registerParameter("minSigma1", minSigma1, minSigma1);
+	gpb.registerParameter("maxSigma1", maxSigma1, maxSigma1);
+	gpb.registerParameter("sigma2", sigma2, sigma2);
+	gpb.registerParameter("sigmaSigma2", sigmaSigma2, sigmaSigma2);
+	gpb.registerParameter("minSigma2", minSigma2, minSigma2);
+	gpb.registerParameter("maxSigma2", maxSigma2, maxSigma2);
+	gpb.registerParameter("delta", delta, delta);
+	gpb.registerParameter("sigmaDelta", sigmaDelta, sigmaDelta);
+	gpb.registerParameter("minDelta", minDelta, minDelta);
+	gpb.registerParameter("maxDelta", maxDelta, maxDelta);
 	gpb.registerParameter("parDim", parDim, parDim);
 	gpb.registerParameter("minVar", minVar, minVar);
 	gpb.registerParameter("maxVar", maxVar,  maxVar);
+	gpb.registerParameter("useConstrainedDoubleCollection", useConstrainedDoubleCollection,  useConstrainedDoubleCollection);
 	gpb.registerParameter("processingCycles", processingCycles, processingCycles);
 	gpb.registerParameter("evalFunction", evalFunction, evalFunction);
 }
@@ -415,21 +435,43 @@ boost::shared_ptr<GFunctionIndividual> GFunctionIndividualFactory::getIndividual
 		break;
 	}
 
-	// Set up a GDoubleCollection with dimension values, each initialized
-	// with a random number in the range [min,max[
-	boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim, minVar, maxVar));
-	// Let the GDoubleCollection know about its desired initialization range
-	gdc_ptr->setInitBoundaries(minVar, maxVar);
+
+	boost::shared_ptr<GParameterCollectionT<double> > c_ptr;
+	if(useConstrainedDoubleCollection) {
+		// Set up a collection with dimension values
+		boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(parDim, minVar, maxVar));
+		// Randomly initialize
+		gcdc_ptr->randomInit();
+		// Attach to the "parent pointer"
+		c_ptr = gcdc_ptr;
+	} else {
+		// Set up a collection with dimension values, each initialized with a random number in the range [min,max[
+		boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim, minVar, maxVar));
+		// Let the GDoubleCollection know about its desired initialization range
+		gdc_ptr->setInitBoundaries(minVar, maxVar);
+		// Attach to the "parent pointer"
+		c_ptr = gdc_ptr;
+	}
 
 	// Set up and register an adaptor for the collection, so it
 	// knows how to be adapted.
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
-	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
-	gdga_ptr->setAdaptionProbability(adProb);
-	gdc_ptr->addAdaptor(gdga_ptr);
+	if(useBiGaussian) {
+		boost::shared_ptr<GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
+		gdbga_ptr->setAllSigma1(sigma1, sigmaSigma1, minSigma1, maxSigma1);
+		gdbga_ptr->setAllSigma1(sigma2, sigmaSigma2, minSigma2, maxSigma2);
+		gdbga_ptr->setAllSigma1(delta, sigmaDelta, minDelta, maxDelta);
+		gdbga_ptr->setAdaptionThreshold(adaptionThreshold);
+		gdbga_ptr->setAdaptionProbability(adProb);
+		c_ptr->addAdaptor(gdbga_ptr);
+	} else {
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma1, sigmaSigma1, minSigma1, maxSigma1));
+		gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+		gdga_ptr->setAdaptionProbability(adProb);
+		c_ptr->addAdaptor(gdga_ptr);
+	}
 
 	// Make the parameter collection known to this individual
-	functionIndividual_ptr->push_back(gdc_ptr);
+	functionIndividual_ptr->push_back(c_ptr);
 	functionIndividual_ptr->setProcessingCycles(processingCycles);
 
 	return functionIndividual_ptr;

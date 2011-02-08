@@ -183,6 +183,9 @@ std::size_t GDoubleCollection::countDoubleParameters() const {
 /*******************************************************************************************/
 /**
  * Assigns part of a value vector to the parameter
+ *
+ * @param parVec The vector from which the data should be taken
+ * @param pos The position inside of the vector from which the data is extracted in each turn of the loop
  */
 void GDoubleCollection::assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
 	  for(GDoubleCollection::iterator it=this->begin(); it!=this->end(); ++it) {

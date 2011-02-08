@@ -77,10 +77,8 @@ class GConstrainedDoubleCollection
 
 public:
 	/******************************************************************/
-	/** @brief The default constructor */
-	GConstrainedDoubleCollection();
 	/** @brief Initialize the lower and upper boundaries for data members of this class */
-	GConstrainedDoubleCollection (const double&, const double&);
+	GConstrainedDoubleCollection (const std::size_t&, const double&, const double&);
 	/** @brief The standard copy constructor */
 	GConstrainedDoubleCollection(const GConstrainedDoubleCollection&);
 	/** @brief The standard destructor */
@@ -104,12 +102,23 @@ public:
 			, const bool&
 	) const;
 
+	/** @brief Attach our local values to the vector. */
+	virtual void doubleStreamline(std::vector<double>&) const;
+	/** @brief Tell the audience that we own a number of double values */
+	virtual std::size_t countDoubleParameters() const;
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&);
+
 protected:
 	/******************************************************************/
 	/** @brief Loads the data of another GConstrainedDoubleCollection object */
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
 	GObject* clone_() const;
+
+	/******************************************************************/
+	/** @brief The default constructor. Intentionally protected	 */
+	GConstrainedDoubleCollection();
 
 #ifdef GENEVATESTING
 public:
@@ -129,6 +138,20 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+#ifdef GENEVATESTING
+// Tests of this class (and parent classes)
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/** @brief We need to provide a specialization of the factory function that creates objects of this type. */
+template <> boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection>
+TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>();
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+#endif /* GENEVATESTING */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleCollection)
 

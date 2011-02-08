@@ -40,6 +40,7 @@ SET ( GENEVACOMMONINCLUDES
 	GGlobalOptionsT.hpp
 	GHelperFunctions.hpp
 	GHelperFunctionsT.hpp
+	GMainLoop.hpp
 	GMathHelperFunctions.hpp
 	GParserBuilder.hpp
 	GPODExpectationChecksT.hpp

@@ -38,7 +38,7 @@ namespace Geneva {
 
 /*******************************************************************************************/
 /**
- * The default constructor.
+ * The default constructor. Protected, as it is only needed for de-serialization purposes.
  */
 GConstrainedDoubleCollection::GConstrainedDoubleCollection()
 	: GConstrainedFPNumCollectionT<double> ()
@@ -48,14 +48,16 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection()
 /**
  * Initialize the lower and upper boundaries for data members of this class
  *
+ * @param size The desired size of the collection
  * @param lowerBoundary The lower boundary for data members
  * @param upperBoundary The upper boundary for data members
  */
 GConstrainedDoubleCollection::GConstrainedDoubleCollection (
-		const double& lowerBoundary
+		const std::size_t& size
+		, const double& lowerBoundary
 		, const double& upperBoundary
 )
-	: GConstrainedFPNumCollectionT<double> (lowerBoundary, upperBoundary)
+	: GConstrainedFPNumCollectionT<double> (size, lowerBoundary, upperBoundary)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -152,6 +154,54 @@ boost::optional<std::string> GConstrainedDoubleCollection::checkRelationshipWith
 
 /*******************************************************************************************/
 /**
+ * Attach our local values to the vector. This is used to collect all parameters of this type
+ * in the sequence in which they were registered.
+ *
+ * @param parVec The vector to which the local value should be attached
+ */
+void GConstrainedDoubleCollection::doubleStreamline(std::vector<double>& parVec) const {
+	for(std::size_t pos = 0; pos < this->size(); pos++) {
+		parVec.push_back(this->transfer(this->at(pos)));
+	}
+}
+
+/*******************************************************************************************/
+/**
+ * Tell the audience that we own a number of double values
+ *
+ * @return The number of double parameters
+ */
+std::size_t GConstrainedDoubleCollection::countDoubleParameters() const {
+	return this->size();
+}
+
+/*******************************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter. Note that we apply a transformation to the
+ * vector, so that it lies inside of the allowed value range.
+ *
+ * @param parVec The vector from which the data should be taken
+ * @param pos The position inside of the vector from which the data is extracted in each turn of the loop
+ */
+void GConstrainedDoubleCollection::assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
+	for(std::size_t i=0; i<this->size(); i++) {
+#ifdef DEBUG
+		  // Do we have a valid position ?
+		  if(pos >= parVec.size()) {
+			  raiseException(
+					  "In GConstrainedDoubleCollection::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
+					  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
+			  );
+		  }
+#endif
+
+		  this->setValue(i, this->transfer(parVec[pos]));
+		  pos++;
+	}
+}
+
+/*******************************************************************************************/
+/**
  * Loads the data of another GConstrainedDoubleCollection object,
  * camouflaged as a GObject. We have no local data, so
  * all we need to do is to the standard identity check,
@@ -219,3 +269,30 @@ void GConstrainedDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+#ifdef GENEVATESTING
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/**
+ * As Gem::Geneva::GConstrainedDoubleCollection has a private default constructor, we need to provide a
+ * specialization of the factory function that creates objects of this type.
+ */
+template <>
+boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>() {
+	const std::size_t NPARAMETERS = 100;
+	double LOWERBOUNDARY = -10.;
+	double UPPERBOUNDARY =  10.;
+	boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> p;
+	BOOST_CHECK_NO_THROW(
+			p= boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection>(
+					new Gem::Geneva::GConstrainedDoubleCollection(NPARAMETERS, LOWERBOUNDARY, UPPERBOUNDARY)
+			)
+	);
+	return p;
+}
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+#endif /* GENEVATESTING */

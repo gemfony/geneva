@@ -93,28 +93,18 @@ public:
 
 	/******************************************************************/
 	/**
-	 * The default constructor.
-	 */
-	GConstrainedFPNumCollectionT()
-		: GConstrainedNumCollectionT<fp_type> ()
-		, upper_closed_(fp_type(0))
-	{
-		// Assign a correct value to the upper_closed_ variable
-		upper_closed_ = boost::math::float_prior<fp_type>(GConstrainedNumCollectionT<fp_type>::getUpperBoundary());
-	}
-
-	/******************************************************************/
-	/**
 	 * Initialize the lower and upper boundaries for data members of this class
 	 *
+	 * @param size The desired size of the collection
 	 * @param lowerBoundary The lower boundary for data members
 	 * @param upperBoundary The upper boundary for data members
 	 */
 	GConstrainedFPNumCollectionT (
-			const fp_type& lowerBoundary
+			const std::size_t& size
+			, const fp_type& lowerBoundary
 			, const fp_type& upperBoundary
 	)
-		: GConstrainedNumCollectionT<fp_type> (lowerBoundary, upperBoundary)
+		: GConstrainedNumCollectionT<fp_type> (size, lowerBoundary, upperBoundary)
 		, upper_closed_(fp_type(0))
 	{
 		// Do some error checking.
@@ -408,7 +398,23 @@ protected:
 		}
 	}
 
+	/******************************************************************/
+	/**
+	 * The default constructor. Intentionally protected, as it is only
+	 * needed for de-serialization and as the basis for derived class'es
+	 * default constructors.
+	 */
+	GConstrainedFPNumCollectionT()
+		: GConstrainedNumCollectionT<fp_type> ()
+		, upper_closed_(fp_type(0))
+	{
+		// Assign a correct value to the upper_closed_ variable
+		upper_closed_ = boost::math::float_prior<fp_type>(GConstrainedNumCollectionT<fp_type>::getUpperBoundary());
+	}
+
 private:
+	/******************************************************************/
+
 	fp_type upper_closed_; //< The next floating point value directly before an upper boundary
 
 #ifdef GENEVATESTING
