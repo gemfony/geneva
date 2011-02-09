@@ -381,7 +381,7 @@ void GSwarm::init() {
 		// undefined results in RELEASE mode
 		boost::shared_ptr<GParameterSet> p((*it)->clone<GParameterSet>());
 		// Assign the value 0. to all floating point parameters
-		p->fpFixedValueInit(float(0.));
+		p->fpFixedValueInit(0.f);
 		// Add the zero-initialized individual to the velocity array.
 		// The necessary downcast will be handled by
 		velocities_.push_back(p);

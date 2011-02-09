@@ -51,8 +51,8 @@ namespace Geneva {
 
 /*********************************************************************************/
 // Forward declaration needed as GSwarmPersonalityTraits.hpp is
-// included in GIndividual.hpp
-class GIndividual;
+// included in GIndividual.hpp. Breaks circular dependency.
+class GParameterSet;
 
 /*********************************************************************************/
 /**
@@ -71,7 +71,9 @@ class GSwarmPersonalityTraits :public GPersonalityTraits
 	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
 	     & BOOST_SERIALIZATION_NVP(neighborhood_)
 	     & BOOST_SERIALIZATION_NVP(command_)
-	     & BOOST_SERIALIZATION_NVP(noPositionUpdate_);
+	     & BOOST_SERIALIZATION_NVP(noPositionUpdate_)
+	     & BOOST_SERIALIZATION_NVP(personal_best_)
+	     & BOOST_SERIALIZATION_NVP(personal_best_quality_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -110,6 +112,15 @@ public:
 	/** @brief Retrieves and resets the current value of the noPositionUpdate_ flag */
 	bool checkNoPositionUpdateAndReset();
 
+	/** @brief Allows to add a new personal best to the individual */
+	void registerPersonalBest(boost::shared_ptr<GParameterSet>);
+	/** @brief Allows to retrieve the personal best individual */
+	boost::shared_ptr<GParameterSet> getPersonalBest() const;
+	/** @brief Resets the personal best individual */
+	void resetPersonalBest();
+	/** @brief Retrieve quality of personally best individual */
+	double getPersonalBestQuality() const;
+
 protected:
 	/** @brief Loads the data of another GSwarmPersonalityTraits object */
 	virtual void load_(const GObject*);
@@ -124,6 +135,11 @@ private:
 
 	/** @brief Determines whether the individual has been randomly initialized */
 	bool noPositionUpdate_;
+
+	/** @brief Holds the personally best GParameterSet */
+	boost::shared_ptr<GParameterSet> personal_best_;
+	/** @brief The quality of the personally best individual */
+	double personal_best_quality_;
 
 #ifdef GENEVATESTING
 public:

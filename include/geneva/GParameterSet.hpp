@@ -145,6 +145,9 @@ public:
 	/** @brief Subtracts the floating point parameters of another GParameterSet object from this one */
 	void fpSubtract(boost::shared_ptr<GParameterSet>);
 
+	/** @brief Emits a GParameterSet object that only has the GParameterBase objects attached to it */
+	boost::shared_ptr<GParameterSet> parameter_clone() const;
+
 	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
 	virtual void updateRNGs();
 	/** @brief Restores the local random number generators contained in this object's GParameterBase-derivatives */
@@ -194,14 +197,22 @@ public:
 	/**********************************************************************/
 	/**
 	 * Retrieve information about the total number of parameters of type
-	 * par_type in the individual. The actual counting is implemented in
-	 * the specializations provided for the so far implemented types "double",
-	 * "bool" and "boost::int32_t" . The function will return 0 for all other
-	 * types.
+	 * par_type in the individual. Note that the GParameterBase-template
+	 * function will throw if this function is called for un unsupported type.
 	 */
 	template <typename par_type>
 	std::size_t countParameters() const {
-		return 0;
+		std::size_t result = 0;
+
+		// Loop over all GParameterBase objects. Each object
+		// will contribute the amount of its parameters of this type
+		// to the result.
+		GParameterSet::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			result += (*cit)->countParameters<par_type>();
+		}
+
+		return result;
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -210,30 +221,67 @@ public:
 	 */
 
 	/**********************************************************************/
-	/** @brief Provides easy access to parameters of type double */
-	void streamline(std::vector<double>&) const;
-	/** @brief Provides easy access to parameters of type boost::int32_t */
-	void streamline(std::vector<boost::int32_t>&) const;
-	/** @brief Provides easy access to parameters of type bool */
-	void streamline(std::vector<bool>&) const;
+
+	template <typename par_type>
+	void streamline(std::vector<par_type>& parVec) const {
+		// Make sure the vector is clean
+		parVec.clear();
+
+		// Loop over all GParameterBase objects. Each object
+		// will add the values of its parameters to the vector,
+		// if they comply with the type of the parameters to
+		// be stored in the vector.
+		GParameterSet::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			(*cit)->streamline<par_type>(parVec);
+		}
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * So far untested.
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/**********************************************************************/
-	/** @brief Assigns double values to the parameters in the collection */
-	void assignValueVector(const std::vector<double>&);
-	/** @brief Assigns boost::int32_t values to the parameters in the collection */
-	void assignValueVector(const std::vector<boost::int32_t>&);
-	/** @brief Assigns bool values to the parameters in the collection */
-	void assignValueVector(const std::vector<bool>&);
+	/**
+	 * Assigns values from a std::vector to the parameters in the collection
+	 *
+	 * @param parVec A vector of values, to be assigned to be added to GParameterBase derivatives
+	 */
+	template <typename par_type>
+	void assignValueVector(const std::vector<par_type>& parVec) {
+	#ifdef DEBUG
+		if(countParameters<par_type>() != parVec.size()) {
+			raiseException(
+					"In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << std::endl
+					<< "Sizes don't match: " <<  countParameters<par_type>() << " / " << parVec.size()
+			);
+		}
+	#endif /* DEBUG */
 
-	/**********************************************************************/
+		// Start assignment at the beginning of parVec
+		std::size_t pos = 0;
+
+		// Loop over all GParameterBase objects. Each object will extract the relevant
+		// parameters and increment the position counter as required.
+		GParameterSet::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			(*cit)->assignValueVector<par_type>(parVec, pos);
+		}
+
+		// As we have modified our internal data sets, make sure the dirty flag is set
+		GIndividual::setDirtyFlag();
+	}
+
 protected:
+	/**********************************************************************/
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const = 0;
+	virtual GObject* clone_() const;
 
 	/** @brief The actual fitness calculation takes place here */
-	virtual double fitnessCalculation() = 0;
+	virtual double fitnessCalculation();
 	/* @brief The actual adaption operations. */
 	virtual void customAdaptions();
 
@@ -251,11 +299,6 @@ public:
 #endif /* GENEVATESTING */
 };
 
-/*************************************************************************************************/
-// Specializations of some functions
-template <> std::size_t GParameterSet::countParameters<double>() const;
-template <> std::size_t GParameterSet::countParameters<boost::int32_t>() const;
-template <> std::size_t GParameterSet::countParameters<bool>() const;
 
 } /* namespace Geneva */
 } /* namespace Gem */
@@ -264,7 +307,7 @@ template <> std::size_t GParameterSet::countParameters<bool>() const;
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterSet)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSet)
 
 /*************************************************************************************************/
 

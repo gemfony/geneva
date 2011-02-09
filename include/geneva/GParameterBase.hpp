@@ -118,12 +118,50 @@ public:
 	/** @brief Subtract the floating point parameters of another GParameterBase object from this one */
 	virtual void fpSubtract(boost::shared_ptr<GParameterBase>);
 
+	/**************************************************************************************/
+	/**
+	 * Allows to add all parameters of a specific type to the vector. This function is a
+	 * trap, needed to catch streamlining attempts with unsupported types. Use the supplied
+	 * specializations instead.
+	 *
+	 * @oaram parVec The vector to which the items should be added
+	 */
+	template <typename par_type>
+	void streamline(std::vector<par_type>& parVec) const
+	{
+		raiseException(
+				"In GParameterBase::streamline(std::vector<>&)" << std::endl
+				<< "Function called for unsupported type!"
+		);
+	}
+
+	/**************************************************************************************/
+
 	/** @brief Attach parameters of type double to the vector */
-	virtual void doubleStreamline(std::vector<double>& parVec) const;
+	virtual void doubleStreamline(std::vector<double>&) const;
 	/** @brief Attach parameters of type boost::int32_t to the vector */
-	virtual void int32Streamline(std::vector<boost::int32_t>& parVec) const;
+	virtual void int32Streamline(std::vector<boost::int32_t>&) const;
 	/** @brief Attach parameters of type bool to the vector */
-	virtual void booleanStreamline(std::vector<bool>& parVec) const;
+	virtual void booleanStreamline(std::vector<bool>&) const;
+
+	/**************************************************************************************/
+	/**
+	 * Allows to count parameters of a specific type. This function is a trap, needed to
+	 * catch attempts to use this function with unsupported types. Use the supplied
+	 * specializations instead.
+	 *
+	 * @return The number of parameters of a given Type
+	 */
+	template <typename par_type>
+	par_type countParameters() const
+	{
+		raiseException(
+				"In GParameterBase::countParameters()" << std::endl
+				<< "Function called for unsupported type!"
+		);
+	}
+
+	/**************************************************************************************/
 
 	/** @brief Count the number of double parameters */
 	virtual std::size_t countDoubleParameters() const;
@@ -131,6 +169,26 @@ public:
 	virtual std::size_t countInt32Parameters() const;
 	/** @brief Count the number of bool parameters */
 	virtual std::size_t countBoolParameters() const;
+
+	/**************************************************************************************/
+	/**
+	 * Allows to assign the parameters inside of a vector the corresponding parameter objects.
+	 * This function is a trap, needed to catch attempts to use this function with unsupported
+	 * types. Use the supplied specializations instead.
+	 *
+	 * @param parVec The vector with the parameters to be assigned to the object
+	 * @param pos The position from which parameters will be taken (will be updated by the call)
+	 */
+	template <typename par_type>
+	void assignValueVector(const std::vector<par_type>& parVec, std::size_t& pos)
+	{
+		raiseException(
+				"In GParameterBase::assignValueVector()" << std::endl
+				<< "Function called for unsupported type!"
+		);
+	}
+
+	/**************************************************************************************/
 
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&);
@@ -231,6 +289,22 @@ public:
 	virtual void specificTestsFailuresExpected_GUnitTests();
 #endif /* GENEVATESTING */
 };
+
+/**************************************************************************************************/
+/**
+ * Specializations of some template functions
+ */
+template <>	void GParameterBase::streamline<double>(std::vector<double>&) const;
+template <>	void GParameterBase::streamline<boost::int32_t>(std::vector<boost::int32_t>&) const;
+template <>	void GParameterBase::streamline<bool>(std::vector<bool>&) const;
+
+template <>	double GParameterBase::countParameters<double>() const;
+template <>	boost::int32_t GParameterBase::countParameters<boost::int32_t>() const;
+template <>	bool GParameterBase::countParameters<bool>() const;
+
+template <>	void GParameterBase::assignValueVector<double>(const std::vector<double>&, std::size_t&);
+template <>	void GParameterBase::assignValueVector<boost::int32_t>(const std::vector<boost::int32_t>&, std::size_t&);
+template <>	void GParameterBase::assignValueVector<bool>(const std::vector<bool>&, std::size_t&);
 
 } /* namespace Geneva */
 } /* namespace Gem */

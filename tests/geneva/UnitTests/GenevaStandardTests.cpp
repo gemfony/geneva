@@ -68,6 +68,7 @@ using namespace boost::unit_test;
 #include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/Go.hpp"
+#include "geneva/GParameterSet.hpp"
 #include "geneva-individuals/GTestIndividual1.hpp"
 
 #include "GStandard_test.hpp"
@@ -114,6 +115,7 @@ public:
 			, GDoubleCollection
 			, GBooleanCollection
 			, GConstrainedDoubleCollection
+			, GParameterSet
 		>
 		collection_types;
 

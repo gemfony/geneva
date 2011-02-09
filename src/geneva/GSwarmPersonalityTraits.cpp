@@ -30,6 +30,7 @@
  */
 
 #include "geneva/GSwarmPersonalityTraits.hpp"
+#include "geneva/GParameterSet.hpp" // Included here to break circular dependency
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSwarmPersonalityTraits)
 
@@ -45,6 +46,8 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits()
 	, neighborhood_(0)
 	, command_("")
 	, noPositionUpdate_(false)
+	, personal_best_(boost::shared_ptr<GParameterSet>(new GParameterSet()))
+	, personal_best_quality_(0.)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -58,6 +61,8 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits& 
 	, neighborhood_(cp.neighborhood_)
 	, command_(cp.command_)
 	, noPositionUpdate_(cp.noPositionUpdate_)
+	, personal_best_((cp.personal_best_)->clone<GParameterSet>())
+	, personal_best_quality_(cp.personal_best_quality_)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -128,6 +133,8 @@ boost::optional<std::string> GSwarmPersonalityTraits::checkRelationshipWith(cons
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", neighborhood_, p_load->neighborhood_, "neighborhood_", "p_load->neighborhood_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", command_, p_load->command_, "command_", "p_load->command_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", noPositionUpdate_, p_load->noPositionUpdate_, "noPositionUpdate_", "p_load->noPositionUpdate_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", personal_best_, p_load->personal_best_, "personal_best_", "p_load->personal_best_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", personal_best_quality_, p_load->personal_best_quality_, "personal_best_quality_", "p_load->personal_best_quality_", e , limit));
 
 	return evaluateDiscrepancies("GEAPersonalityTraits", caller, deviations, e);
 }
@@ -179,6 +186,88 @@ bool GSwarmPersonalityTraits::checkNoPositionUpdateAndReset() {
 
 /*****************************************************************************/
 /**
+ * Allows to add a new personal best to the individual. Note that this function
+ * will internally clone the argument and extract the GParameterBase objects
+ * and p's fitness, as this is all we need.
+ *
+ * @param p A pointer to the personally best parameter set
+ */
+void GSwarmPersonalityTraits::registerPersonalBest(boost::shared_ptr<GParameterSet> p) {
+	// Some error checking
+#ifdef DEBUG
+	// Does it point anywhere ?
+	if(!p) {
+		raiseException(
+				"In GSwarmPersonalityTraits::registerPersonalBest():" << std::endl
+				<< "Got empty smart pointer."
+		);
+	}
+
+	// Is the dirty flag set ?
+	if(p->isDirty()) {
+		raiseException(
+				"In GSwarmPersonalityTraits::registerPersonalBest():" << std::endl
+				<< "Got individual whose dirty flag is set."
+		);
+	}
+#endif
+
+	personal_best_ = p->parameter_clone();
+	personal_best_quality_ = p->fitness();
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/*****************************************************************************/
+/**
+ * Allows to retrieve the personally best individual
+ *
+ * @return The personally best individual
+ */
+boost::shared_ptr<GParameterSet> GSwarmPersonalityTraits::getPersonalBest() const {
+	return personal_best_;
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/*****************************************************************************/
+/**
+ * Resets the personally best individual by assigning a default-constructed
+ * parameter set.
+ */
+void GSwarmPersonalityTraits::resetPersonalBest() {
+	personal_best_ = boost::shared_ptr<GParameterSet>(new GParameterSet());
+	personal_best_quality_ = 0.;
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/*****************************************************************************/
+/**
+ * Retrieve quality of personally best individual
+ *
+ * @return The fitness of the personally best individual
+ */
+double GSwarmPersonalityTraits::getPersonalBestQuality() const {
+	return personal_best_quality_;
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/*****************************************************************************/
+/**
  * Creates a deep clone of this object
  *
  * @return A clone of this object, camouflaged as a GObject
@@ -203,6 +292,8 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
 	neighborhood_ = p_load->neighborhood_;
 	command_ = p_load->command_;
 	noPositionUpdate_ = p_load->noPositionUpdate_;
+	personal_best_ = p_load->personal_best_->clone<GParameterSet>();
+	personal_best_quality_ = p_load->personal_best_quality_;
 }
 
 /*****************************************************************************/

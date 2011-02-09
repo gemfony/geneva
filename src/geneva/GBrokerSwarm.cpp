@@ -369,8 +369,8 @@ void GBrokerSwarm::swarmLogic() {
 	}
 
 	//--------------------------------------------------------------------------------
-	// We now need to sort the individuals according to their neighborhood, so that
-	// the individuals of the same neighborhood are in adjacent areas.
+	// We now need to sort the individuals according to their neighborhoods, so that
+	// individuals of the same neighborhood are in adjacent areas.
 	sort(data.begin(), data.end(), indNeighborhoodComp());
 
 	// Now update the number of items in each neighborhood

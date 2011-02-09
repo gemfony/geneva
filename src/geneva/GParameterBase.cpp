@@ -405,6 +405,39 @@ void GParameterBase::fpSubtract(boost::shared_ptr<GParameterBase> p)
 
 /**********************************************************************************/
 /**
+ * Allows to add all parameters of type double to the vector.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+void GParameterBase::streamline<double>(std::vector<double>& parVec) const {
+	this->doubleStreamline(parVec);
+}
+
+/**********************************************************************************/
+/**
+ * Allows to add all parameters of type boost::int32_t to the vector.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+void GParameterBase::streamline<boost::int32_t>(std::vector<boost::int32_t>& parVec) const {
+	this->int32Streamline(parVec);
+}
+
+/**********************************************************************************/
+/**
+ * Allows to add all parameters of type bool to the vector.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+void GParameterBase::streamline<bool>(std::vector<bool>& parVec) const {
+	this->booleanStreamline(parVec);
+}
+
+/**********************************************************************************/
+/**
  * Attach parameters of type double to the vector. This function does nothing by
  * default. Parameter types based on doubles need to overload this function and do
  * the actual work.
@@ -444,6 +477,39 @@ void GParameterBase::booleanStreamline(std::vector<bool>& parVec) const
  * So far untested
  * ----------------------------------------------------------------------------------
  */
+
+/**********************************************************************************/
+/**
+ * Allows to count parameters of type double.
+ *
+ * @return The number of parameters of type double
+ */
+template <>
+double GParameterBase::countParameters<double>() const {
+	return this->countDoubleParameters();
+}
+
+/**********************************************************************************/
+/**
+ * Allows to count parameters of type boost::int32_t.
+ *
+ * @return The number of parameters of type boost::int32_t
+ */
+template <>
+boost::int32_t GParameterBase::countParameters<boost::int32_t>() const {
+	return this->countInt32Parameters();
+}
+
+/**********************************************************************************/
+/**
+ * Allows to count parameters of type bool.
+ *
+ * @return The number of parameters of type bool
+ */
+template <>
+bool GParameterBase::countParameters<bool>() const {
+	return this->countBoolParameters();
+}
 
 /**********************************************************************************/
 /**
@@ -492,6 +558,51 @@ std::size_t GParameterBase::countBoolParameters() const {
  * So far untested
  * ----------------------------------------------------------------------------------
  */
+
+/**********************************************************************************/
+/**
+ * Allows to assign the parameters inside of a vector the corresponding parameter objects.
+ *
+ * @param parVec The vector with the parameters to be assigned to the object
+ * @param pos The position from which parameters will be taken (will be updated by the call)
+ */
+template <>
+void GParameterBase::assignValueVector<double>(
+		const std::vector<double>& parVec
+		, std::size_t& pos
+) {
+	this->assignDoubleValueVector(parVec, pos);
+}
+
+/**********************************************************************************/
+/**
+ * Allows to assign the parameters inside of a vector the corresponding parameter objects.
+ *
+ * @param parVec The vector with the parameters to be assigned to the object
+ * @param pos The position from which parameters will be taken (will be updated by the call)
+ */
+template <>
+void GParameterBase::assignValueVector<boost::int32_t>(
+		const std::vector<boost::int32_t>& parVec
+		, std::size_t& pos
+) {
+	this->assignInt32ValueVector(parVec, pos);
+}
+
+/**********************************************************************************/
+/**
+ * Allows to assign the parameters inside of a vector the corresponding parameter objects.
+ *
+ * @param parVec The vector with the parameters to be assigned to the object
+ * @param pos The position from which parameters will be taken (will be updated by the call)
+ */
+template <>
+void GParameterBase::assignValueVector<bool>(
+		const std::vector<bool>& parVec
+		, std::size_t& pos
+) {
+	this->assignBooleanValueVector(parVec, pos);
+}
 
 /**********************************************************************************/
 /**

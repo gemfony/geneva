@@ -30,6 +30,9 @@
 
 #include "geneva/GParameterSet.hpp"
 
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSet)
+
+
 namespace Gem {
 namespace Geneva {
 
@@ -110,13 +113,14 @@ bool GParameterSet::operator!=(const GParameterSet& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GParameterSet::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+boost::optional<std::string> GParameterSet::checkRelationshipWith(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
 	using namespace Gem::Common;
 
 	// Check that we are not accidently assigning this object to itself
@@ -147,6 +151,30 @@ void GParameterSet::load_(const GObject* cp){
 	GMutableSetT<Gem::Geneva::GParameterBase>::load_(cp);
 
 	// No local data
+}
+
+/************************************************************************************************************/
+/**
+ * Creates a deep clone of this object
+ *
+ * @return A deep clone of this object
+ */
+GObject* GParameterSet::clone_() const {
+	return new GParameterSet(*this);
+}
+
+/************************************************************************************************************/
+/**
+ * The actual fitness calculation takes place here. Note: This function is a trap. You need to overload
+ * this function in derived classes.
+ *
+ * @return The fitness of this object
+ */
+double GParameterSet::fitnessCalculation() {
+	raiseException(
+			"In GParameterSet::fitnessCalculation()" << std::endl
+			<< "Function called directly which should not happen"
+	);
 }
 
 /************************************************************************************************************/
@@ -385,230 +413,25 @@ void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
  * ----------------------------------------------------------------------------------
  */
 
-/**********************************************************************/
+/************************************************************************************************************/
 /**
- * Provides easy access to parameters of type double
+ * Emits a GParameterSet object that only has clones of our GParameterBase objects attached to it
  *
- * @param parVec the vector in which the parameters will be stored
+ * @return A GParameterSet object that only has clones of our GParameterBase objects attached to it
  */
-void GParameterSet::streamline(std::vector<double>& parVec) const {
-	// Make sure the vector is clean
-	parVec.clear();
-
-	// Loop over all GParameterBase objects. Each object
-	// will add the values of its parameters to the vector,
-	// if they comply with the type of the parameters to
-	// be stored in the vector.
+boost::shared_ptr<GParameterSet> GParameterSet::parameter_clone() const {
+	boost::shared_ptr<GParameterSet> result(new GParameterSet());
 	GParameterSet::const_iterator cit;
 	for(cit=this->begin(); cit!=this->end(); ++cit) {
-		(*cit)->doubleStreamline(parVec);
+		result->push_back((*cit)->clone<GParameterBase>());
 	}
+	return result;
 }
 
 /* ----------------------------------------------------------------------------------
  * So far untested
  * ----------------------------------------------------------------------------------
  */
-
-/**********************************************************************/
-/**
- * Provides easy access to parameters of type boost::int32_t
- *
- * @param parVec the vector in which the parameters will be stored
- */
-void GParameterSet::streamline(std::vector<boost::int32_t>& parVec) const {
-	// Make sure the vector is clean
-	parVec.clear();
-
-	// Loop over all GParameterBase objects. Each object
-	// will add the values of its parameters to the vector,
-	// if they comply with the type of the parameters to
-	// be stored in the vector.
-	GParameterSet::const_iterator cit;
-	for(cit=this->begin(); cit!=this->end(); ++cit) {
-		(*cit)->int32Streamline(parVec);
-	}
-}
-
-/* ----------------------------------------------------------------------------------
- * So far untested
- * ----------------------------------------------------------------------------------
- */
-
-/**********************************************************************/
-/**
- * Provides easy access to parameters of type bool
- *
- * @param parVec the vector in which the parameters will be stored
- */
-void GParameterSet::streamline(std::vector<bool>& parVec) const {
-	// Make sure the vector is clean
-	parVec.clear();
-
-	// Loop over all GParameterBase objects. Each object
-	// will add the values of its parameters to the vector,
-	// if they comply with the type of the parameters to
-	// be stored in the vector.
-	GParameterSet::const_iterator cit;
-	for(cit=this->begin(); cit!=this->end(); ++cit) {
-		(*cit)->booleanStreamline(parVec);
-	}
-}
-
-/* ----------------------------------------------------------------------------------
- * So far untested
- * ----------------------------------------------------------------------------------
- */
-
-/************************************************************************************************************/
-/**
- * Counts the number of double-based parameters in the individual
- *
- * @return The number of double-based parameters in the individual
- */
-template <>
-std::size_t GParameterSet::countParameters<double>() const {
-	std::size_t result = 0;
-
-	// Loop over all GParameterBase objects. Each object
-	// will the amount of parameters of this type to result.
-	GParameterSet::const_iterator cit;
-	for(cit=this->begin(); cit!=this->end(); ++cit) {
-		result += (*cit)->countDoubleParameters();
-	}
-
-	return result;
-}
-
-/************************************************************************************************************/
-/**
- * Counts the number of boost::int32_t-based parameters in the individual
- *
- * @return The number of boost::int32_t-based parameters in the individual
- */
-template <>
-std::size_t GParameterSet::countParameters<boost::int32_t>() const {
-	std::size_t result = 0;
-
-	// Loop over all GParameterBase objects. Each object
-	// will the amount of parameters of this type to result.
-	GParameterSet::const_iterator cit;
-	for(cit=this->begin(); cit!=this->end(); ++cit) {
-		result += (*cit)->countInt32Parameters();
-	}
-
-	return result;
-}
-
-/************************************************************************************************************/
-/**
- * Counts the number of bool-based parameters in the individual
- *
- * @return The number of bool-based parameters in the individual
- */
-template <>
-std::size_t GParameterSet::countParameters<bool>() const {
-	std::size_t result = 0;
-
-	// Loop over all GParameterBase objects. Each object
-	// will the amount of parameters of this type to result.
-	GParameterSet::const_iterator cit;
-	for(cit=this->begin(); cit!=this->end(); ++cit) {
-		result += (*cit)->countBoolParameters();
-	}
-
-	return result;
-}
-
-/************************************************************************************************************/
-/**
- * Assigns double values to the parameters in the collection
- *
- * @param parVec A vector of double values, to be assigned to double-based parameters
- */
-void GParameterSet::assignValueVector(const std::vector<double>& parVec) {
-#ifdef DEBUG
-	if(countParameters<double>() != parVec.size()) {
-		raiseException(
-				"In GParameterSet::assignValueVector(const std::vector<double>&):" << std::endl
-				<< "Sizes don't match: " <<  countParameters<double>() << " / " << parVec.size()
-		);
-	}
-#endif /* DEBUG */
-
-	// Start assignment at the beginning of parVec
-	std::size_t pos = 0;
-
-	// Loop over all GParameterBase objects. Each object will extract the relevant
-	// parameters and increment the position counter as required.
-	GParameterSet::const_iterator cit;
-	for(cit=this->begin(); cit!=this->end(); ++cit) {
-		(*cit)->assignDoubleValueVector(parVec, pos);
-	}
-
-	// As we have modified our internal data sets, make sure the dirty flag is set
-	GIndividual::setDirtyFlag();
-}
-
-/************************************************************************************************************/
-/**
- * Assigns boost::int32_t values to the parameters in the collection
- *
- * @param parVec A vector of boost::int32_t values, to be assigned to boost::int32_t-based parameters
- */
-void GParameterSet::assignValueVector(const std::vector<boost::int32_t>& parVec) {
-#ifdef DEBUG
-	if(countParameters<boost::int32_t>() != parVec.size()) {
-		raiseException(
-				"In GParameterSet::assignValueVector(const std::vector<boost::int32_t>&):" << std::endl
-				<< "Sizes don't match: " <<  countParameters<boost::int32_t>() << " / " << parVec.size()
-		);
-	}
-#endif /* DEBUG */
-
-	// Start assignment at the beginning of parVec
-	std::size_t pos = 0;
-
-	// Loop over all GParameterBase objects. Each object will extract the relevant
-	// parameters and increment the position counter as required.
-	GParameterSet::const_iterator cit;
-	for(cit=this->begin(); cit!=this->end(); ++cit) {
-		(*cit)->assignInt32ValueVector(parVec, pos);
-	}
-
-	// As we have modified our internal data sets, make sure the dirty flag is set
-	GIndividual::setDirtyFlag();
-}
-
-/************************************************************************************************************/
-/**
- * Assigns bool values to the parameters in the collection
- *
- * @param parVec A vector of bool values, to be assigned to bool-based parameters
- */
-void GParameterSet::assignValueVector(const std::vector<bool>& parVec) {
-#ifdef DEBUG
-	if(countParameters<bool>() != parVec.size()) {
-		raiseException(
-				"In GParameterSet::assignValueVector(const std::vector<bool>&):" << std::endl
-				<< "Sizes don't match: " <<  countParameters<bool>() << " / " << parVec.size()
-		);
-	}
-#endif /* DEBUG */
-
-	// Start assignment at the beginning of parVec
-	std::size_t pos = 0;
-
-	// Loop over all GParameterBase objects. Each object will extract the relevant
-	// parameters and increment the position counter as required.
-	GParameterSet::const_iterator cit;
-	for(cit=this->begin(); cit!=this->end(); ++cit) {
-		(*cit)->assignBooleanValueVector(parVec, pos);
-	}
-
-	// As we have modified our internal data sets, make sure the dirty flag is set
-	GIndividual::setDirtyFlag();
-}
 
 /************************************************************************************************************/
 /**
