@@ -241,6 +241,7 @@ void GMultiThreadedEA::adaptChildren() {
 	if(GEvolutionaryAlgorithm::getIteration()==0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
+		case SA:
 		case MUPLUSNU:
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
 			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
@@ -271,6 +272,7 @@ void GMultiThreadedEA::adaptChildren() {
 	if(GEvolutionaryAlgorithm::getIteration() == 0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
+		case SA:
 		case MUPLUSNU:
 		case MUNU1PRETAIN: // same procedure
 			for(it=data.begin(); it!=data.begin() + nParents; ++it) {

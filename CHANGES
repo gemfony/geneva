@@ -18,7 +18,9 @@ The main changes for this release include:
  - Made the adaptor hierarchy more consistent and added a "bi-gaussian" adaptor
  - Added a new collection class GConstrainedDoubleCollection that allows to apply common
    upper and lower limits to a set of double values
- 
+ - Implemented Simulated Annealing (integrated into Evolutionary Algorithms 
+   (NOTE: This SA implementation is still rather untested, use with care at this point)
+
 Recommended version of Boost: 1.43
 
 //------------------------------------------------------------------------------------------------------

@@ -284,6 +284,7 @@ void GBrokerEA::adaptChildren() {
 	if(iteration==0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
+		case SA:
 		case MUPLUSNU:
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
 			// Note that we only have parents left in this iteration
@@ -301,7 +302,7 @@ void GBrokerEA::adaptChildren() {
 			break; // nothing
 		}
 		//--------------------------------------------------------------
-		// If we are running in MUPLUSNU or MUNU1PRETAIN mode, we now have an empty population,
+		// If we are running in SA, MUPLUSNU or MUNU1PRETAIN mode, we now have an empty population,
 		// as parents have been sent away for evaluation. If this is the MUCOMMANU mode, parents
 		// do not participate in the sorting and can be ignored.
 	}
@@ -388,7 +389,7 @@ void GBrokerEA::adaptChildren() {
 		// Mark as complete, if a full set of children (and parents in iteration 0 / MUPLUSNU / MUNU1PRETAIN)
 		// of the current iteration has returned. Older individuals may return in the next iterations, unless
 		// they are parents.
-		if(iteration == 0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)) {
+		if(iteration == 0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)) {
 			if(nReceivedParent+nReceivedChildCurrent==np+getDefaultNChildren()) {
 				complete=true;
 			}
@@ -400,7 +401,7 @@ void GBrokerEA::adaptChildren() {
 	}
 
 	// If parents have been evaluated, make sure they are at the beginning of the array.
-	if(iteration==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
+	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
 		// Have any individuals returned at all ?
 		if(data.size()==0) { // No way out ...
 			raiseException(
@@ -430,7 +431,7 @@ void GBrokerEA::adaptChildren() {
 				<< "some individuals of the current population did not return" << std::endl
 				<< "in iteration " << iteration << "." << std::endl;
 
-	if(iteration==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
+	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
 		information << "We have received " << nReceivedParent << " parents." << std::endl
 			        << "where " << np << " parents were expected." << std::endl;
 	}
@@ -463,7 +464,7 @@ void GBrokerEA::adaptChildren() {
 
 	// Mark the first nParents_ individuals as parents, if they aren't parents yet. We want
 	// to have a "sane" population.
-	if(iteration==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
+	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
 		GEvolutionaryAlgorithm::iterator it;
 		for(it=this->begin(); it!=this->begin() + getNParents(); ++it) {
 			if(!(*it)->getEAPersonalityTraits()->isParent()) {

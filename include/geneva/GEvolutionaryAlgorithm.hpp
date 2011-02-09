@@ -109,6 +109,9 @@ class GEvolutionaryAlgorithm
 		   & BOOST_SERIALIZATION_NVP(defaultNChildren_)
 		   & BOOST_SERIALIZATION_NVP(oneTimeMuCommaNu_)
 		   & BOOST_SERIALIZATION_NVP(logOldParents_)
+		   & BOOST_SERIALIZATION_NVP(t0_)
+		   & BOOST_SERIALIZATION_NVP(t_)
+		   & BOOST_SERIALIZATION_NVP(alpha_)
 		   & BOOST_SERIALIZATION_NVP(oldParents_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -130,7 +133,14 @@ public:
 	bool operator!=(const GEvolutionaryAlgorithm&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+			const GObject&
+			, const Gem::Common::expectation&
+			, const double&
+			, const std::string&
+			, const std::string&
+			, const bool&
+	) const;
 
 	/** @brief Sets the default population size and number of parents */
 	void setDefaultPopulationSize(const std::size_t&, const std::size_t&);
@@ -166,6 +176,19 @@ public:
 	void setMicroTrainingInterval(const boost::uint32_t&);
 	/** @brief Retrieve the interval in which micro training should be performed */
 	boost::uint32_t getMicroTrainingInterval() const;
+
+	//------------------------------------------------------------------------------------------
+	// Settings for simulated annealing
+	/** @brief Determines the strength of the temperature degradation */
+	void setTDegradationStrength(const double&);
+	/** @brief Retrieves the temperature degradation strength */
+	double getTDegradationStrength() const;
+	/** @brief Sets the start temperature */
+	void setT0(const double&);
+	/** @brief Retrieves the start temperature */
+	double getT0() const;
+	/** @brief Retrieves the current temperature */
+	double getT() const;
 
 	/**************************************************************************************************/
 	/**
@@ -350,12 +373,23 @@ private:
 	/** @brief Selection, MUNU1PRETAIN style */
 	void sortMunu1pretainMode();
 
+	/** Performs a simulated annealing style sorting and selection */
+	void sortSAMode();
+	/** @brief Calculates the Simulated Annealing probability for a child to replace a parent */
+	double saProb(const double&, const double&);
+	/** @brief Updates the temperature (used for simulated annealing) */
+	void updateTemperature();
+
 	std::size_t nParents_; ///< The number of parents
-	boost::uint32_t microTrainingInterval_; ///< The number of generations without improvements after which a micro training should be started
+	boost::uint32_t microTrainingInterval_; ///< The number of iterations without improvements after which a micro training should be started
 	recoScheme recombinationMethod_; ///< The chosen recombination method
 	sortingMode smode_; ///< The chosen sorting scheme
 	std::size_t defaultNChildren_; ///< Expected number of children
 	bool oneTimeMuCommaNu_; ///< Specifies whether a one-time selection scheme of MUCOMMANU should be used
+
+	double t0_; ///< The start temperature, used in simulated annealing
+	double t_; ///< The current temperature, used in simulated annealing
+	double alpha_; ///< A constant used in the cooling schedule in simulated annealing
 
 	bool logOldParents_; ///< If set, a copy of the old parent individuals will be kept and the id of the parent individual will be recorded
 	std::vector<boost::shared_ptr<GIndividual> > oldParents_; ///< Holds the last generation's parents, if logOldParents_ is set

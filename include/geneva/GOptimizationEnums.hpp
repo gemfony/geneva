@@ -198,13 +198,22 @@ enum adaptorId {
  * The selection mode in populations. MUPLUSNU means that new parents are selected from old
  * parents and their children. MUCOMMNU means that new parents are selected from children only.
  * MUNU1PRETAIN means that the best parent of the last generation will also become a new parent
- * (unless a better child was found). All other parents are selected from children only.
+ * (unless a better child was found). All other parents are selected from children only. SA
+ * is a selection scheme used in simulated annealing.
  */
 enum sortingMode {
 	  MUPLUSNU = 0
 	, MUCOMMANU = 1
 	, MUNU1PRETAIN = 2
+	, SA = 3
 };
+
+/**********************************************************************************************/
+/**
+ * Settings for simulated annealing
+ */
+const double SA_T0 = 1000.; ///< The default start temperature in simulated annealing
+const double SA_ALPHA = 0.95; ///< The degradation strength in simulated annealing
 
 /**********************************************************************************************/
 /**

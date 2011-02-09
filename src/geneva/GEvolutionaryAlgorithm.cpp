@@ -51,6 +51,9 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
 	, smode_(DEFAULTSMODE)
 	, defaultNChildren_(0)
 	, oneTimeMuCommaNu_(false)
+	, t0_(SA_T0)
+	, t_(t0_)
+	, alpha_(SA_ALPHA)
 	, logOldParents_(DEFAULTMARKOLDPARENTS)
 {
 	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::setOptimizationAlgorithm(EA);
@@ -79,6 +82,9 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
 	, smode_(cp.smode_)
 	, defaultNChildren_(cp.defaultNChildren_)
 	, oneTimeMuCommaNu_(cp.oneTimeMuCommaNu_)
+	, t0_(cp.t0_)
+	, t_(cp.t_)
+	, alpha_(cp.alpha_)
 	, logOldParents_(cp.logOldParents_)
 {
 	// Copy the old parents array over if requested
@@ -132,6 +138,9 @@ void GEvolutionaryAlgorithm::load_(const GObject * cp)
 	smode_ = p_load->smode_;
 	defaultNChildren_ = p_load->defaultNChildren_;
 	oneTimeMuCommaNu_ = p_load->oneTimeMuCommaNu_;
+	t0_ = p_load->t0_;
+	t_ = p_load->t_;
+	alpha_ = p_load->alpha_;
 	logOldParents_ = p_load->logOldParents_;
 	if(logOldParents_) {
 		oldParents_.clear();
@@ -216,6 +225,9 @@ boost::optional<std::string> GEvolutionaryAlgorithm::checkRelationshipWith(const
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", smode_, p_load->smode_, "smode_", "p_load->smode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", defaultNChildren_, p_load->defaultNChildren_, "defaultNChildren_", "p_load->defaultNChildren_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", oneTimeMuCommaNu_, p_load->oneTimeMuCommaNu_, "oneTimeMuCommaNu_", "p_load->oneTimeMuCommaNu_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", t0_, p_load->t0_, "t0_", "p_load->t0_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", t_, p_load->t_, "t_", "p_load->t_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", alpha_, p_load->alpha_, "alpha_", "p_load->alpha_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", logOldParents_, p_load->logOldParents_, "logOldParents_", "p_load->logOldParents_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", oldParents_, p_load->oldParents_, "oldParents_", "p_load->oldParents_", e , limit));
 
@@ -509,11 +521,11 @@ void GEvolutionaryAlgorithm::init() {
 
 	// In MUCOMMANU mode we want to have at least as many children as parents,
 	// whereas MUPLUSNU only requires the population size to be larger than the
-	// number of parents. NUNU1PRETAIN has the same requirements as MUCOMMANU,
+	// number of parents. NUNU1PRETAIN has the same requirements as MUCOMMANU and SA,
 	// as it is theoretically possible that all children are better than the former
 	// parents, so that the first parent individual will be replaced.
 	std::size_t popSize = getPopulationSize();
-	if(((smode_==MUCOMMANU || smode_==MUNU1PRETAIN) && (popSize < 2*nParents_)) || (smode_==MUPLUSNU && popSize<=nParents_))
+	if(((smode_==MUCOMMANU || smode_==MUNU1PRETAIN || smode_==SA) && (popSize < 2*nParents_)) || (smode_==MUPLUSNU && popSize<=nParents_))
 	{
 		std::ostringstream error;
 		error << "In GEvolutionaryAlgorithm::init() :" << std::endl
@@ -529,6 +541,9 @@ void GEvolutionaryAlgorithm::init() {
 			break;
 		case MUNU1PRETAIN:
 			error << "MUNU1PRETAIN" << std::endl;
+			break;
+		case SA:
+			error << "SA" << std::endl;
 			break;
 		}
 
@@ -666,7 +681,7 @@ std::size_t GEvolutionaryAlgorithm::getNChildren() const {
  * population, including the old parents. In MUCOMMANU new parents will be selected
  * from children only. MUNU1PRETAIN means that the best parent of the last generation
  * will also become a new parent (unless a better child was found). All other parents are
- * selected from children only.
+ * selected from children only. SA is the selection scheme used in simulated annealing.
  *
  * @param smode The desired sorting scheme
  */
@@ -875,6 +890,7 @@ void GEvolutionaryAlgorithm::adaptChildren()
 	if(getIteration()==0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
+		case SA:
 		case MUPLUSNU:
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
 			for(it=data.begin(); it!=data.begin() + nParents_; ++it) {
@@ -935,6 +951,10 @@ void GEvolutionaryAlgorithm::select()
 		sortMucommanuMode();
 		break;
 	//----------------------------------------------------------------------------
+	case SA:
+		sortSAMode();
+		break;
+	//----------------------------------------------------------------------------
 	}
 
 	// Let parents know they are parents
@@ -970,18 +990,10 @@ void GEvolutionaryAlgorithm::sortMucommanuMode() {
 	if(this->getMaxMode()){
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
 			  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
-		/*
-		std::sort(data.begin()+nParents_, data.end(),
-				boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
-		*/
 	}
 	else{
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
 			  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
-		/*
-		std::sort(data.begin()+nParents_, data.end(),
-				boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
-		*/
 	}
 	std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
 }
@@ -1021,6 +1033,144 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 			std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
 		}
 	}
+}
+
+/************************************************************************************************************/
+/**
+ * Performs a simulated annealing style sorting and selection
+ */
+void GEvolutionaryAlgorithm::sortSAMode() {
+	// Position the nParents best children of the population right behind the parents
+	if(this->getMaxMode()){
+		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
+			  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+	}
+	else{
+		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
+			  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+	}
+
+	// Check for each parent whether it should be replaced by the corresponding child
+	for(std::size_t np=0; np<nParents_; np++) {
+		double pPass = saProb(this->at(np)->fitness(), this->at(nParents_+np)->fitness());
+		if(pPass >= 1.) {
+			this->at(np)->load(this->at(nParents_+np));
+		} else {
+			double challenge = gr.uniform_01<double>();
+			if(challenge < pPass) {
+				this->at(np)->load(this->at(nParents_+np));
+			}
+		}
+	}
+
+	// Sort the parents -- it is possible that a child with a worse fitness has replaced a parent
+	if(this->getMaxMode()){
+		std::sort(data.begin(), data.begin() + nParents_,
+			  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+	}
+	else{
+		std::sort(data.begin(), data.begin() + nParents_,
+			  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+	}
+
+	// Make sure the temperature gets updated
+	updateTemperature();
+}
+
+/************************************************************************************************************/
+/**
+ * Calculates the simulated annealing probability for a child to replace a parent
+ *
+ * @param qParent The fitness of the parent
+ * @param qChild The fitness of the child
+ * @return A double value in the range [0,1[, representing the likelihood for the child to replace the parent
+ */
+double GEvolutionaryAlgorithm::saProb(const double& qParent, const double& qChild) {
+	// We do not have to do anything if the child is better than the parent
+	if(isBetter(qChild, qParent)) {
+		return 2.;
+	}
+
+	double result = 0.;
+	if(this->getMaxMode()){
+		result = exp(-(qParent - qChild)/t_);
+	} else {
+		result = exp(-(qChild-qParent)/t_);
+	}
+
+	return result;
+}
+
+/************************************************************************************************************/
+/**
+ * Updates the temperature. This function is used for simulated annealing.
+ */
+void GEvolutionaryAlgorithm::updateTemperature() {
+	t_ *= alpha_;
+}
+
+/************************************************************************************************************/
+/**
+ * Determines the strength of the temperature degradation. This function is used for simulated annealing.
+ *
+ * @param alpha The degradation speed of the temperature
+ */
+void GEvolutionaryAlgorithm::setTDegradationStrength(const double& alpha) {
+	if(alpha <=0.) {
+		raiseException(
+				"In GEvolutionaryAlgorithm::setTDegradationStrength(const double&):" << std::endl
+				<< "Got negative alpha: " << alpha
+		);
+	}
+
+	alpha_ = alpha;
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieves the temperature degradation strength. This function is used for simulated annealing.
+ *
+ * @return The temperature degradation strength
+ */
+double GEvolutionaryAlgorithm::getTDegradationStrength() const {
+	return alpha_;
+}
+
+/************************************************************************************************************/
+/**
+ * Sets the start temperature. This function is used for simulated annealing.
+ *
+ * @param t0 The start temperature
+ */
+void GEvolutionaryAlgorithm::setT0(const double& t0) {
+	if(t0 <=0.) {
+		raiseException(
+				"In GEvolutionaryAlgorithm::setT0(const double&):" << std::endl
+				<< "Got negative start temperature: " << t0
+		);
+	}
+
+	t0_ = t0;
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieves the start temperature. This function is used for simulated annealing.
+ *
+ * @return The start temperature
+ */
+double GEvolutionaryAlgorithm::getT0() const {
+	return t0_;
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieves the current temperature. This function is used for simulated annealing.
+ *
+ * @return The current temperature
+ */
+double GEvolutionaryAlgorithm::getT() const {
+	return t_;
 }
 
 /************************************************************************************************************/
