@@ -86,6 +86,7 @@ class GSwarm
 		   & BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
 		   & BOOST_SERIALIZATION_NVP(global_best_)
 		   & BOOST_SERIALIZATION_NVP(local_bests_)
+		   & BOOST_SERIALIZATION_NVP(c_personal_)
 		   & BOOST_SERIALIZATION_NVP(c_local_)
 		   & BOOST_SERIALIZATION_NVP(c_global_)
 		   & BOOST_SERIALIZATION_NVP(c_delta_)
@@ -111,25 +112,37 @@ public:
 	bool operator!=(const GSwarm&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+			const GObject&
+			, const Gem::Common::expectation&
+			, const double&
+			, const std::string&
+			, const std::string&
+			, const bool&
+	) const;
 
 	/** @brief Loads a checkpoint from disk */
 	virtual void loadCheckpoint(const std::string&);
 
+	/** @brief Allows to set a static multiplier for personal distances */
+	void setCPersonal(const double&);
+	/** @brief Allows to retrieve the static multiplier for personal distances */
+	double getCPersonal() const;
+
 	/** @brief Allows to set a static multiplier for local distances */
-	void setCLocal(const float&);
-	/** @brief Allows to retrieve the static multiplier for local distances or the lower boundary of a random range */
-	float getCLocal() const;
+	void setCLocal(const double&);
+	/** @brief Allows to retrieve the static multiplier for local distances */
+	double getCLocal() const;
 
 	/** @brief Allows to set a static multiplier for global distances */
-	void setCGlobal(const float&);
-	/** @brief Allows to retrieve the static multiplier for local distances or the lower boundary of a random range */
-	float getCGlobal() const;
+	void setCGlobal(const double&);
+	/** @brief Allows to retrieve the static multiplier for local distances */
+	double getCGlobal() const;
 
 	/** @brief Allows to set a static multiplier for deltas */
-	void setCDelta(const float&);
-	/** @brief Allows to retrieve the static multiplier for deltas or the lower boundary of a random range */
-	float getCDelta() const;
+	void setCDelta(const double&);
+	/** @brief Allows to retrieve the static multiplier for deltas */
+	double getCDelta() const;
 
 	/** @brief Retrieves the number of neighborhoods */
 	std::size_t getNNeighborhoods() const;
@@ -256,29 +269,30 @@ protected:
 
 	/** @brief Triggers an update of the individuals' positions */
 	void updatePositions(
-		    std::size_t
+		  const std::size_t&
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
-		  , double
-		  , double
-		  , double
+		  , boost::tuple<double, double, double, double>
 	);
 
 	/** @brief Triggers the fitness calculation */
-	virtual void updateFitness(std::size_t, boost::shared_ptr<GParameterSet>);
+	virtual void updateFitness(
+			const boost::uint32_t&
+			, const std::size_t&
+			, boost::shared_ptr<GParameterSet>
+	);
 
 	/** @brief Updates the individual's position and performs the fitness calculation */
-	void updatePositionsAndFitness (
-		    std::size_t
+	void updateSwarm (
+		  const boost::uint32_t&
+		  , const std::size_t&
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
-		  , double
-		  , double
-		  , double
+	      , boost::tuple<double, double, double, double>
 	);
 
     /** @brief Checks whether each neighborhood has at least the default size */
@@ -292,15 +306,21 @@ protected:
 	std::vector<boost::shared_ptr<GParameterSet> > local_bests_; ///< The collection of best individuals from each neighborhood
 	std::vector<boost::shared_ptr<GParameterSet> > velocities_; ///< Holds velocities, as calculated in the previous iteration
 
-	float c_local_; ///< A factor for multiplication of local bests
-	float c_global_; ///< A factor for multiplication of global bests
-	float c_delta_; ///< A factor for multiplication of deltas
+	double c_personal_; ///< A factor for multiplication of personal bests
+	double c_local_; ///< A factor for multiplication of local bests
+	double c_global_; ///< A factor for multiplication of global bests
+	double c_delta_; ///< A factor for multiplication of deltas
 
 	updateRule ur_; ///< Specifies how the parameters are updated
 	bool randomFillUp_; ///< Specifies whether neighborhoods are filled up with random values
 
 	/** @brief The default constructor. Intentionally protected, as it is only needed for de-serialization purposes. */
 	GSwarm();
+
+	/** Updates the personal best of an individual */
+	void updatePersonalBest(boost::shared_ptr<GParameterSet>, boost::shared_ptr<GParameterSet>);
+	/** Updates the personal best of an individual, if a better solution was found */
+	void updatePersonalBestIfBetter(boost::shared_ptr<GParameterSet>, boost::shared_ptr<GParameterSet>);
 
 private:
 	/**************************************************************************************************/

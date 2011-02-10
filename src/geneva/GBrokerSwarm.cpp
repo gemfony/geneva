@@ -145,13 +145,14 @@ bool GBrokerSwarm::operator!=(const GBrokerSwarm& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
@@ -239,7 +240,11 @@ void GBrokerSwarm::finalize() {
  * @param neighborhood The neighborhood the individual is in
  * @param ind The individual for which the fitness calculation should be performed
  */
-void GBrokerSwarm::updateFitness(std::size_t neighborhood, boost::shared_ptr<GParameterSet> ind) {
+void GBrokerSwarm::updateFitness(
+		const boost::uint32_t& iteration
+		, const std::size_t& neighborhood
+		, boost::shared_ptr<GParameterSet> ind
+) {
 	// Let the individual know in which neighborhood it is
 	ind->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
 
@@ -267,6 +272,13 @@ bool GBrokerSwarm::updateIndividualsAndIntegrate(
 	  , std::size_t& nReceivedOlder
 	  , const boost::uint32_t& iteration
 ) {
+	// Update the personal best
+	if(iteration == 0) {
+		updatePersonalBest(p, p);
+	} else {
+		updatePersonalBestIfBetter(p, p);
+	}
+
 	if(p->getParentAlgIteration() == iteration) {
 		// Add the individual to our list.
 		this->push_back(p);

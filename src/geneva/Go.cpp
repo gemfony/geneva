@@ -71,6 +71,7 @@ Go::Go()
 	, swarmNNeighborhoods_(GO_DEF_SWARMNNEIGHBORHOODS)
 	, swarmNNeighborhoodMembers_(GO_DEF_SWARMNNEIGHBORHOODMEMBERS)
 	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
+	, swarmCPersonal_(GO_DEF_SWARMCPERSONAL)
 	, swarmCLocal_(GO_DEF_SWARMCLOCAL)
 	, swarmCGlobal_(GO_DEF_SWARMCCGLOBAL)
 	, swarmCDelta_(GO_DEF_SWARMCCDELTA)
@@ -128,6 +129,7 @@ Go::Go(int argc, char **argv, const std::string& configFilename)
 	, swarmNNeighborhoods_(GO_DEF_SWARMNNEIGHBORHOODS)
 	, swarmNNeighborhoodMembers_(GO_DEF_SWARMNNEIGHBORHOODMEMBERS)
 	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
+	, swarmCPersonal_(GO_DEF_SWARMCPERSONAL)
 	, swarmCLocal_(GO_DEF_SWARMCLOCAL)
 	, swarmCGlobal_(GO_DEF_SWARMCCGLOBAL)
 	, swarmCDelta_(GO_DEF_SWARMCCDELTA)
@@ -211,6 +213,7 @@ Go::Go(
 	, swarmNNeighborhoods_(GO_DEF_SWARMNNEIGHBORHOODS)
 	, swarmNNeighborhoodMembers_(GO_DEF_SWARMNNEIGHBORHOODMEMBERS)
 	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
+	, swarmCPersonal_(GO_DEF_SWARMCPERSONAL)
 	, swarmCLocal_(GO_DEF_SWARMCLOCAL)
 	, swarmCGlobal_(GO_DEF_SWARMCCGLOBAL)
 	, swarmCDelta_(GO_DEF_SWARMCCDELTA)
@@ -266,6 +269,7 @@ Go::Go(const Go& cp)
 	, swarmNNeighborhoods_(cp.swarmNNeighborhoods_)
 	, swarmNNeighborhoodMembers_(cp.swarmNNeighborhoodMembers_)
 	, swarmRandomFillUp_(cp.swarmRandomFillUp_)
+	, swarmCPersonal_(cp.swarmCPersonal_)
 	, swarmCLocal_(cp.swarmCLocal_)
 	, swarmCGlobal_(cp.swarmCGlobal_)
 	, swarmCDelta_(cp.swarmCDelta_)
@@ -401,6 +405,7 @@ boost::optional<std::string> Go::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmNNeighborhoods_, p_load->swarmNNeighborhoods_, "swarmNNeighborhoods_", "p_load->swarmNNeighborhoods_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmNNeighborhoodMembers_, p_load->swarmNNeighborhoodMembers_, "swarmNNeighborhoodMembers_", "p_load->swarmNNeighborhoodMembers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmRandomFillUp_, p_load->swarmRandomFillUp_, "swarmRandomFillUp_", "p_load->swarmRandomFillUp_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", swarmCPersonal_, p_load->swarmCPersonal_, "swarmCPersonal_", "p_load->swarmCPersonal_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmCLocal_, p_load->swarmCLocal_, "swarmCLocal_", "p_load->swarmCLocal_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmCGlobal_, p_load->swarmCGlobal_, "swarmCGlobal_", "p_load->swarmCGlobal_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmCDelta_, p_load->swarmCDelta_, "swarmCDelta_", "p_load->swarmCDelta_", e , limit));
@@ -460,6 +465,7 @@ void Go::load_(const GObject *cp) {
 	swarmNNeighborhoods_ = p_load->swarmNNeighborhoods_;
 	swarmNNeighborhoodMembers_ = p_load->swarmNNeighborhoodMembers_;
 	swarmRandomFillUp_ = p_load->swarmRandomFillUp_;
+	swarmCPersonal_ = p_load->swarmCPersonal_;
 	swarmCLocal_ = p_load->swarmCLocal_;
 	swarmCGlobal_ = p_load->swarmCGlobal_;
 	swarmCDelta_ = p_load->swarmCDelta_;
@@ -1210,6 +1216,26 @@ bool Go::getSwarmRandomFillUp() const {
 
 /**************************************************************************************/
 /**
+ * Allows to set the desired value of the swarm algorithm's CPersonal parameter
+ *
+ * @param swarmCPersonal The desired value of the swarm algorithm's CPersonal parameter
+ */
+void Go::setSwarmCPersonal(const float& swarmCPersonal) {
+	swarmCPersonal_ = swarmCPersonal;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the current value of the swarm algorithm's CPersonal parameter
+ *
+ * @return The current value of the swarm algorithm's CPersonal parameter
+ */
+float Go::getSwarmCPersonal() const {
+	return swarmCPersonal_;
+}
+
+/**************************************************************************************/
+/**
  * Allows to set the desired value of the swarm algorithm's CLocal parameter
  *
  * @param swarmCLocal The desired value of the swarm algorithm's CLocal parameter
@@ -1469,6 +1495,7 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 		("swarmNNeighborhoods", po::value<std::size_t>(&swarmNNeighborhoods_)->default_value(GO_DEF_SWARMNNEIGHBORHOODS))
 		("swarmNNeighborhoodMembers", po::value<std::size_t>(&swarmNNeighborhoodMembers_)->default_value(GO_DEF_SWARMNNEIGHBORHOODMEMBERS))
 		("swarmRandomFillUp", po::value<bool>(&swarmRandomFillUp_)->default_value(GO_DEF_SWARMRANDOMFILLUP))
+		("swarmCPersonal", po::value<float>(&swarmCPersonal_)->default_value(GO_DEF_SWARMCPERSONAL))
 		("swarmCLocal", po::value<float>(&swarmCLocal_)->default_value(GO_DEF_SWARMCLOCAL))
 		("swarmCGlobal", po::value<float>(&swarmCGlobal_)->default_value(GO_DEF_SWARMCCGLOBAL))
 		("swarmCDelta", po::value<float>(&swarmCDelta_)->default_value(GO_DEF_SWARMCCDELTA))
@@ -1514,6 +1541,7 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 					  << "swarmNNeighborhoods = " << swarmNNeighborhoods_ << std::endl
 					  << "swarmNNeighborhoodMembers = " << swarmNNeighborhoodMembers_ << std::endl
 					  << "swarmRandomFillUp = " << swarmRandomFillUp_ << std::endl
+					  << "swarmCPersonal = " << swarmCPersonal_ << std::endl
 					  << "swarmCLocal = " << swarmCLocal_ << std::endl
 					  << "swarmCGlobal = " << swarmCGlobal_ << std::endl
 					  << "swarmCDelta = " << swarmCDelta_ << std::endl

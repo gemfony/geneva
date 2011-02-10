@@ -251,36 +251,32 @@ void GMultiThreadedSwarm::swarmLogic() {
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
 			GMultiThreadedSwarm::iterator current = start + offset;
 
-			if(iteration == 0 || (*current)->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
-				tp_.schedule(
-					Gem::Common::GThreadWrapper(
-						boost::bind(
-							&GMultiThreadedSwarm::updateFitness
-							,this
-							, neighborhood
-							, *current
-						)
-					)
-				);
-			}
-			else {
-				tp_.schedule(
-					Gem::Common::GThreadWrapper(
-						boost::bind(
-							&GMultiThreadedSwarm::updatePositionsAndFitness
-							, this
-							, neighborhood
-							, *current
-							, local_bests_[neighborhood]->clone<GParameterSet>()
-							, global_best_->clone<GParameterSet>()
-							, velocities_[offset]
+			// Schedule position update and fitness calculation as a thread
+			// Note: global/local bests and velocities haven't been determined yet in iteration 0 and are not needed there
+			tp_.schedule(
+				Gem::Common::GThreadWrapper(
+					boost::bind(
+						&GMultiThreadedSwarm::updateSwarm
+						, this
+						, iteration
+						, neighborhood
+						, *current
+						, iteration>0?(local_bests_[neighborhood]->clone<GParameterSet>()):boost::shared_ptr<GParameterSet>()
+						, iteration>0?global_best_->clone<GParameterSet>():boost::shared_ptr<GParameterSet>()
+		#ifdef DEBUG
+						, iteration>0?velocities_.at(offset):boost::shared_ptr<GParameterSet>()
+		#else
+						, iteration>0?velocities_[offset]:boost::shared_ptr<GParameterSet>()
+		#endif /* DEBUG */
+						, boost::make_tuple(
+							getCPersonal()
 							, getCLocal()
 							, getCGlobal()
 							, getCDelta()
 						)
 					)
-				);
-			}
+				)
+			);
 
 			offset++;
 		}

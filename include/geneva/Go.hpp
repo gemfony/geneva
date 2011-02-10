@@ -97,6 +97,7 @@ const bool GO_DEF_EATRACKPARENTRELATIONS=false;
 const std::size_t GO_DEF_SWARMNNEIGHBORHOODS=5;
 const std::size_t GO_DEF_SWARMNNEIGHBORHOODMEMBERS=10;
 const bool GO_DEF_SWARMRANDOMFILLUP=1;
+const float GO_DEF_SWARMCPERSONAL=0.05;
 const float GO_DEF_SWARMCLOCAL=2.;
 const float GO_DEF_SWARMCCGLOBAL=2.;
 const float GO_DEF_SWARMCCDELTA=0.4;
@@ -159,6 +160,7 @@ class Go
 	     & BOOST_SERIALIZATION_NVP(swarmNNeighborhoods_)
 	     & BOOST_SERIALIZATION_NVP(swarmNNeighborhoodMembers_)
 	     & BOOST_SERIALIZATION_NVP(swarmRandomFillUp_)
+	     & BOOST_SERIALIZATION_NVP(swarmCPersonal_)
 	     & BOOST_SERIALIZATION_NVP(swarmCLocal_)
 	     & BOOST_SERIALIZATION_NVP(swarmCGlobal_)
 	     & BOOST_SERIALIZATION_NVP(swarmCDelta_)
@@ -320,6 +322,9 @@ public:
 
 	void setSwarmRandomFillUp(const bool&);
 	bool getSwarmRandomFillUp() const;
+
+	void setSwarmCPersonal(const float&);
+	float getSwarmCPersonal() const;
 
 	void setSwarmCLocal(const float&);
 	float getSwarmCLocal() const;
@@ -539,6 +544,9 @@ public:
 	       << "# Indicates whether all individuals of a neighborhood should" << std::endl
 	       << "# start at the same or a random position" << std::endl
 	       << "swarmRandomFillUp = " << GO_DEF_SWARMRANDOMFILLUP << std::endl
+	       << std::endl
+	       << "# A multiplicative factor for personal updates" << std::endl
+	       << "swarmCPersonal = " << GO_DEF_SWARMCPERSONAL << std::endl
 	       << std::endl
 	       << "# A multiplicative factor for local updates" << std::endl
 	       << "swarmCLocal = " << GO_DEF_SWARMCLOCAL << std::endl
@@ -765,6 +773,7 @@ private:
 		else {
 			swarm_ptr->setNeighborhoodsEqualFillUp();
 		}
+		swarm_ptr->setCPersonal(swarmCPersonal_);
 		swarm_ptr->setCLocal(swarmCLocal_);
 		swarm_ptr->setCGlobal(swarmCGlobal_);
 		swarm_ptr->setCDelta(swarmCDelta_);
@@ -984,7 +993,8 @@ private:
     std::size_t swarmNNeighborhoods_; ///< The number of neighborhoods in a swarm algorithm
     std::size_t swarmNNeighborhoodMembers_; ///< The number of members in each neighborhood
     bool swarmRandomFillUp_; ///< Specifies whether neighborhoods are filled up with random values
-	float swarmCLocal_; ///< A factor for multiplication of local bests
+    float swarmCPersonal_; ///< A factor for multiplication of personal bests
+    float swarmCLocal_; ///< A factor for multiplication of local bests
 	float swarmCGlobal_; ///< A factor for multiplication of global bests
 	float swarmCDelta_; ///< A factor for multiplication of deltas
 	updateRule swarmUpdateRule_; ///< Specifies how the parameters are updated

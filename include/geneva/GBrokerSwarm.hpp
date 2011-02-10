@@ -92,7 +92,14 @@ public:
 	bool operator!=(const GBrokerSwarm&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+			const GObject&
+			, const Gem::Common::expectation&
+			, const double&
+			, const std::string&
+			, const std::string&
+			, const bool&
+	) const;
 
 protected:
     /*********************************************************************************/
@@ -108,7 +115,11 @@ protected:
 	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
 	virtual void finalize();
 	/** @brief Triggers the fitness calculation */
-	virtual void updateFitness(std::size_t, boost::shared_ptr<GParameterSet>);
+	virtual void updateFitness(
+			const boost::uint32_t&
+			, const std::size_t&
+			, boost::shared_ptr<GParameterSet>
+	);
     /** @brief Updates the positions and/or fitness of all individuals, using the broker infrastructure */
 	virtual void swarmLogic();
 	/** @brief Updates and integrates individuals into the population after their return */

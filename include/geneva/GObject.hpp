@@ -88,6 +88,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/xtime.hpp>
+#include <boost/tuple/tuple.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/utility.hpp>
 #include <boost/utility/enable_if.hpp>

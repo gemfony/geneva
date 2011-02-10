@@ -255,12 +255,10 @@ const boost::logic::tribool DEFAULTADAPTIONMODE = boost::logic::indeterminate; /
 
 /**********************************************************************************************/
 
+const double DEFAULTCPERSONAL = 0.05; ///< Default multiplier for personal distances (swarm)
 const double DEFAULTCLOCAL = 2.; ///< Default multiplier for local distances (swarm)
 const double DEFAULTCGLOBAL = 2.; ///< Default multiplier for global distances (swarm)
 const double DEFAULTCDELTA = 0.4; ///< Default multiplier for deltas (swarm)
-const double CLOCALRANGEDISABLED = -1.; ///< A value < 0 means that the local range is disabled
-const double CGLOBALRANGEDISABLED = -1.; ///< A value < 0 means that the global range is disabled
-const double CDELTARANGEDISABLED = -1.; ///< A value < 0 means that the delta range is disabled
 
 /**********************************************************************************************/
 /**

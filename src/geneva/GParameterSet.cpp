@@ -425,6 +425,7 @@ boost::shared_ptr<GParameterSet> GParameterSet::parameter_clone() const {
 	for(cit=this->begin(); cit!=this->end(); ++cit) {
 		result->push_back((*cit)->clone<GParameterBase>());
 	}
+	result->setDirtyFlag(false); // Make sure the parameter set is clean.
 	return result;
 }
 

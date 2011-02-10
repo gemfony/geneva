@@ -346,9 +346,8 @@ bool GIndividual::getMaxMode() const {
 
 /************************************************************************************************************/
 /**
- * Sets the dirtyFlag_. This is a "one way" function, accessible to the external
- * user. Once the dirty flag has been set, the only way to reset it is to calculate
- * the fitness of this object.
+ * Sets the dirtyFlag_. This is a "one way" function, accessible to derived classes. Once the dirty flag
+ * has been set, the only way to reset it is to calculate the fitness of this object.
  */
 void GIndividual::setDirtyFlag()  {
 	dirtyFlag_ = true;

@@ -238,6 +238,7 @@ public:
 	virtual bool localRNGsUsed() const;
 
 protected:
+	/**************************************************************************************************/
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
@@ -252,11 +253,11 @@ protected:
 	void setDirtyFlag() ;
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode_(const bool&);
-
-private:
 	/** @brief Sets the dirtyFlag_ to any desired value */
 	bool setDirtyFlag(const bool&) ;
 
+private:
+	/**************************************************************************************************/
 	/** @brief Holds this object's internal fitness */
     double currentFitness_;
     /** @brief Holds the globally best known fitness of all individuals */
@@ -278,6 +279,7 @@ private:
     /** @brief Holds the actual personality information */
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
 
+	/**************************************************************************************************/
 #ifdef GENEVATESTING
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

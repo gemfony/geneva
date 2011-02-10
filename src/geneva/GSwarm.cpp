@@ -59,6 +59,7 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	, defaultNNeighborhoodMembers_((nNeighborhoodMembers<=1)?2:nNeighborhoodMembers)
 	, nNeighborhoodMembers_(nNeighborhoods_)
 	, local_bests_(nNeighborhoods_)
+	, c_personal_(DEFAULTCPERSONAL)
 	, c_local_(DEFAULTCLOCAL)
 	, c_global_(DEFAULTCGLOBAL)
 	, c_delta_(DEFAULTCDELTA)
@@ -95,6 +96,7 @@ GSwarm::GSwarm(const GSwarm& cp)
 	, nNeighborhoodMembers_(cp.nNeighborhoodMembers_)
 	, global_best_((cp.getIteration()>0)?(cp.global_best_)->clone<GParameterSet>():boost::shared_ptr<GParameterSet>())
 	, local_bests_(nNeighborhoods_) // We copy the smart pointers over later
+	, c_personal_(cp.c_personal_)
 	, c_local_(cp.c_local_)
 	, c_global_(cp.c_global_)
 	, c_delta_(cp.c_delta_)
@@ -160,6 +162,7 @@ void GSwarm::load_(const GObject *cp)
 
 	// ... and then our own data
 	defaultNNeighborhoodMembers_ = p_load->defaultNNeighborhoodMembers_;
+	c_personal_ = p_load->c_personal_;
 	c_local_ = p_load->c_local_;
 	c_global_ = p_load->c_global_;
 	c_delta_ = p_load->c_delta_;
@@ -285,6 +288,7 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoods_, p_load->nNeighborhoods_, "nNeighborhoods_", "p_load->nNeighborhoods_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", defaultNNeighborhoodMembers_, p_load->defaultNNeighborhoodMembers_, "defaultNNeighborhoodMembers_", "p_load->defaultNNeighborhoodMembers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", global_best_, p_load->global_best_, "global_best_", "p_load->global_best_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_personal_, p_load->c_personal_, "c_personal_", "p_load->c_personal_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_local_, p_load->c_local_, "c_local_", "p_load->c_local_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_global_, p_load->c_global_, "c_global_", "p_load->c_global_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_delta_, p_load->c_delta_, "c_delta_", "p_load->c_delta_", e , limit));
@@ -492,6 +496,58 @@ std::size_t GSwarm::getLastNIPos(const std::size_t& neighborhood) const {
 
 /************************************************************************************************************/
 /**
+ * Updates the personal best of an individual
+ *
+ * @param p_outer A pointer to the GParameterSet object to be updated
+ * @param p_inner A pointer to the GParameterSet object serving as the personal best
+ */
+void GSwarm::updatePersonalBest(
+		boost::shared_ptr<GParameterSet> p_outer
+		, boost::shared_ptr<GParameterSet> p_inner
+) {
+#ifdef DEBUG
+	if(p_outer->isDirty() || p_inner->isDirty()) {
+		raiseException(
+				"In GSwarm::updatePersonalBest():" << std::endl
+				<< "p_inner and/or p_outer has dirty flag set:" << p_outer->isDirty() << " / " << p_inner->isDirty()
+		);
+	}
+#endif /* DEBUG */
+
+	p_outer->getSwarmPersonalityTraits()->registerPersonalBest(p_inner);
+}
+
+/************************************************************************************************************/
+/**
+ * Updates the personal best of an individual, if a better solution was found
+ *
+ * @param p_outer A pointer to the GParameterSet object to be updated
+ * @param p_inner A pointer to the GParameterSet object serving as the personal best
+ */
+void GSwarm::updatePersonalBestIfBetter(
+		boost::shared_ptr<GParameterSet> p_outer
+		, boost::shared_ptr<GParameterSet> p_inner
+) {
+#ifdef DEBUG
+	if(p_outer->isDirty() || p_inner->isDirty()) {
+		raiseException(
+				"In GSwarm::updatePersonalBestIfBetter():" << std::endl
+				<< "p_inner and/or p_outer has dirty flag set:" << p_outer->isDirty() << " / " << p_inner->isDirty()
+		);
+	}
+#endif /* DEBUG */
+
+	if(GOptimizationAlgorithmT<GParameterSet>::isBetter(
+			p_inner->getSwarmPersonalityTraits()->getPersonalBestQuality()
+			, p_outer->fitness()
+		)
+	) {
+		p_outer->getSwarmPersonalityTraits()->registerPersonalBest(p_inner);
+	}
+}
+
+/************************************************************************************************************/
+/**
  * This function implements the logic that constitutes each cycle of a swarm algorithm. The
  * function is called by GOptimizationAlgorithmT<GParameterSet>::optimize() for each iteration of
  * the optimization,
@@ -555,28 +611,25 @@ void GSwarm::swarmLogic() {
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
 			GSwarm::iterator current = start + offset;
 
-			if(iteration == 0 || (*current)->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
-				updateFitness (
-					  neighborhood
-				    , *current
-				);
-			}
-			else {
-				updatePositionsAndFitness (
-					  neighborhood
-					, *current
-					, local_bests_[neighborhood]->clone<GParameterSet>()
-					, global_best_->clone<GParameterSet>()
+			// Note: global/local bests and velocities haven't been determined yet in iteration 0 and are not needed there
+			updateSwarm (
+				iteration
+				, neighborhood
+				, (*current)
+				, iteration>0?(local_bests_[neighborhood]->clone<GParameterSet>()):boost::shared_ptr<GParameterSet>()
+				, iteration>0?global_best_->clone<GParameterSet>():boost::shared_ptr<GParameterSet>()
 #ifdef DEBUG
-					, velocities_.at(offset)
+				, iteration>0?velocities_.at(offset):boost::shared_ptr<GParameterSet>()
 #else
-					, velocities_[offset]
+				, iteration>0?velocities_[offset]:boost::shared_ptr<GParameterSet>()
 #endif /* DEBUG */
+				, boost::make_tuple(
+					getCPersonal()
 					, getCLocal()
 					, getCGlobal()
 					, getCDelta()
-				);
-			}
+				  )
+			);
 
 			offset++;
 		}
@@ -585,33 +638,121 @@ void GSwarm::swarmLogic() {
 
 /************************************************************************************************************/
 /**
- * Update the individual's positions
+ * Updates the individual's position and performs the fitness calculation
  *
  * @param neighborhood The neighborhood that has been assigned to the individual
  * @param ind The individual whose position should be updated
  * @param local_best_tmp The locally best dataset of the individual's neighborhood
  * @param global_best_tmp The globally best individual so far
  * @param velocity A velocity vector
- * @param cLocal A constant used for multiplication with the local direction
- * @param cGlobal A constant used for multiplication with the global direction
- * @param cDelta A constant used for multiplication with the velocity vector
+ * @param constants A boost::tuple holding the various constants needed for the position update
  */
-void GSwarm::updatePositions(
-	    std::size_t neighborhood
+void GSwarm::updateSwarm(
+	  const boost::uint32_t& iteration
+	  , const std::size_t& neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
 	  , boost::shared_ptr<GParameterSet> local_best_tmp
 	  , boost::shared_ptr<GParameterSet> global_best_tmp
 	  , boost::shared_ptr<GParameterSet> velocity
-	  , double cLocal
-	  , double cGlobal
-	  , double cDelta
+	  , boost::tuple<double, double, double, double> constants
+){
+	if(iteration > 0 && !ind->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
+		// Update the swarm positions:
+		updatePositions(
+		  neighborhood
+		  , ind
+		  , local_best_tmp
+		  , global_best_tmp
+		  , velocity
+		  , constants
+		);
+	}
+
+	// Update the fitness
+	updateFitness(
+		iteration
+		, neighborhood
+		, ind
+	);
+}
+
+/************************************************************************************************************/
+/**
+ * Prepares individuals for the fitness calculation and performs that calculation. Also updates the
+ * personal best.
+ *
+ * @param iteration The current iteration of the optimization
+ * @param neighborhood The neighborhood the individual is in
+ * @param ind The individual for which the fitness calculation should be performed
+ */
+void GSwarm::updateFitness(
+	  const boost::uint32_t& iteration
+	  , const std::size_t& neighborhood
+	  , boost::shared_ptr<GParameterSet> ind
+){
+	// Let the personality know in which neighborhood it is
+	ind->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
+
+	// Trigger the fitness calculation (if necessary). Make sure
+	// that fitness calculation is indeed allowed at this point.
+	bool originalServerMode = ind->setServerMode(false);
+	ind->fitness();
+	ind->setServerMode(originalServerMode);
+
+	// Update the personal best
+	if(iteration == 0) {
+		updatePersonalBest(ind, ind);
+	} else {
+		updatePersonalBestIfBetter(ind, ind);
+	}
+}
+
+/************************************************************************************************************/
+/**
+ * Update the individual's positions. Note that we use a boost::tuple as an argument,
+ * so that we do not have to pass too many parameters (problematic with boost::bind).
+ *
+ * @param neighborhood The neighborhood that has been assigned to the individual
+ * @param ind The individual whose position should be updated
+ * @param local_best_tmp The locally best dataset of the individual's neighborhood
+ * @param global_best_tmp The globally best individual so far
+ * @param velocity A velocity vector
+ * @param constants A boost::tuple holding the various constants needed for the position update
+ */
+void GSwarm::updatePositions(
+	  const std::size_t& neighborhood
+	  , boost::shared_ptr<GParameterSet> ind
+	  , boost::shared_ptr<GParameterSet> local_best_tmp
+	  , boost::shared_ptr<GParameterSet> global_best_tmp
+	  , boost::shared_ptr<GParameterSet> velocity
+	  , boost::tuple<double, double, double, double> constants
 ) {
+	// Extract the constants from the tuple
+	double cPersonal = constants.get<0>();
+	double cLocal = constants.get<1>();
+	double cGlobal = constants.get<2>();
+	double cDelta = constants.get<3>();
+
 #ifdef DEBUG
 	// Do some error checking
 	if(!ind) {
 		raiseException(
 				"In GSwarm::updatePositions():" << std::endl
 				<< "Found empty individual \"ind\""
+		);
+	}
+#endif /* DEBUG */
+
+	// Extract the personal best
+	boost::shared_ptr<GParameterSet> personal_best_tmp =
+			ind->getSwarmPersonalityTraits()->getPersonalBest()->clone<GParameterSet>();
+
+	// Further error checks
+#ifdef DEBUG
+	if(!personal_best_tmp) {
+		raiseException(
+				"In GSwarm::updatePositions():" << std::endl
+				<< "Found empty individual \"personal_best_tmp\""
 		);
 	}
 
@@ -639,94 +780,39 @@ void GSwarm::updatePositions(
 #endif /* DEBUG */
 
 	// Subtract the current individual
+	personal_best_tmp->fpSubtract(ind);
 	local_best_tmp->fpSubtract(ind);
 	global_best_tmp->fpSubtract(ind);
 
 	switch(ur_) {
 	case CLASSIC:
 		// Multiply each floating point value with a random fp number in the range [0,1[
+		personal_best_tmp->fpMultiplyByRandom();
 		local_best_tmp->fpMultiplyByRandom();
 		global_best_tmp->fpMultiplyByRandom();
 		break;
 	case LINEAR:
 		// Multiply local_best_tmp and global_best_tmp with a single [0,1[ random number each
+		personal_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
 		local_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
 		global_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
 	}
 
 	// Multiply each floating point value with a fixed, configurable constant value
+	personal_best_tmp->fpMultiplyBy(cPersonal);
 	local_best_tmp->fpMultiplyBy(cLocal);
 	global_best_tmp->fpMultiplyBy(cGlobal);
 
 	// Multiply the last iterations velocity with a fixed, configurable constant value
 	velocity->fpMultiplyBy(cDelta);
 
-	// Add the local and global tmps
+	// Add the personal, local and global tmps
+	velocity->fpAdd(personal_best_tmp);
 	velocity->fpAdd(local_best_tmp);
 	velocity->fpAdd(global_best_tmp);
 
 	// Add the velocity to the current individual
 	ind->fpAdd(velocity);
-}
-
-/************************************************************************************************************/
-/**
- * Prepares individuals for the fitness calculation and performs that calculation
- *
- * @param neighborhood The neighborhood the individual is in
- * @param ind The individual for which the fitness calculation should be performed
- */
-void GSwarm::updateFitness(
-	    std::size_t neighborhood
-	  , boost::shared_ptr<GParameterSet> ind
-){
-	// Let the personality know in which neighborhood it is
-	ind->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
-
-	// Trigger the fitness calculation (if necessary). Make sure
-	// that fitness calculation is indeed allows at this point.
-	bool originalServerMode = ind->setServerMode(false);
-	ind->fitness();
-	ind->setServerMode(originalServerMode);
-}
-
-/************************************************************************************************************/
-/**
- * Updates the individual's position and performs the fitness calculation
- *
- * @param neighborhood The neighborhood that has been assigned to the individual
- * @param ind The individual whose position should be updated
- * @param local_best_tmp The locally best dataset of the individual's neighborhood
- * @param global_best_tmp The globally best individual so far
- * @param velocity A velocity vector
- * @param cLocal A constant used for multiplication with the local direction
- * @param cGlobal A constant used for multiplication with the global direction
- * @param cDelta A constant used for multiplication with the velocity vector
- */
-void GSwarm::updatePositionsAndFitness(
-	    std::size_t neighborhood
-	  , boost::shared_ptr<GParameterSet> ind
-	  , boost::shared_ptr<GParameterSet> local_best_tmp
-	  , boost::shared_ptr<GParameterSet> global_best_tmp
-	  , boost::shared_ptr<GParameterSet> velocity
-	  , double cLocal
-	  , double cGlobal
-	  , double cDelta
-){
-	// Update the swarm positions:
-	updatePositions(
-		neighborhood
-	  , ind
-	  , local_best_tmp
-	  , global_best_tmp
-	  , velocity
-	  , cLocal
-	  , cGlobal
-	  , cDelta
-	);
-
-	// Update the fitness
-	updateFitness(neighborhood, ind);
 }
 
 /************************************************************************************************************/
@@ -988,17 +1074,33 @@ bool GSwarm::neighborhoodsHaveNominalValues() const {
 
 /************************************************************************************************************/
 /**
+ * Allows to set a static multiplier for personal distances.
+ */
+void GSwarm::setCPersonal(const double& c_personal) {
+	c_personal_ = c_personal;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to retrieve the static multiplier for local distances
+ */
+double GSwarm::getCPersonal() const {
+	return c_personal_;
+}
+
+/************************************************************************************************************/
+/**
  * Allows to set a static multiplier for local distances.
  */
-void GSwarm::setCLocal(const float& c_local) {
+void GSwarm::setCLocal(const double& c_local) {
 	c_local_ = c_local;
 }
 
 /************************************************************************************************************/
 /**
- * Allows to retrieve the static multiplier for local distances or the lower boundary of a random range
+ * Allows to retrieve the static multiplier for local distances
  */
-float GSwarm::getCLocal() const {
+double GSwarm::getCLocal() const {
 	return c_local_;
 }
 
@@ -1006,15 +1108,15 @@ float GSwarm::getCLocal() const {
 /**
  * Allows to set a static multiplier for global distances
  */
-void GSwarm::setCGlobal(const float& c_global) {
+void GSwarm::setCGlobal(const double& c_global) {
 	c_global_ = c_global;
 }
 
 /************************************************************************************************************/
 /**
- * Allows to retrieve the static multiplier for local distances or the lower boundary of a random range
+ * Allows to retrieve the static multiplier for local distances
  */
-float GSwarm::getCGlobal() const {
+double GSwarm::getCGlobal() const {
 	return c_global_;
 }
 
@@ -1022,15 +1124,15 @@ float GSwarm::getCGlobal() const {
 /**
  * Allows to set a static multiplier for deltas
  */
-void GSwarm::setCDelta(const float& c_delta) {
+void GSwarm::setCDelta(const double& c_delta) {
 	c_delta_ = c_delta;
 }
 
 /************************************************************************************************************/
 /**
- * Allows to retrieve the static multiplier for deltas or the lower boundary of a random range
+ * Allows to retrieve the static multiplier for deltas
  */
-float GSwarm::getCDelta() const {
+double GSwarm::getCDelta() const {
 	return c_delta_;
 }
 
