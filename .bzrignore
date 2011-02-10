@@ -1,2 +1,4 @@
 RE:build/(?!README).*
 include/common/GGlobalDefines.hpp
+.tag
+.project
