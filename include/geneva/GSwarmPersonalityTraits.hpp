@@ -85,6 +85,9 @@ public:
 	/** @brief The standard destructor */
 	virtual ~GSwarmPersonalityTraits();
 
+	/** @brief A standard assignment operator */
+	const GSwarmPersonalityTraits& operator=(const GSwarmPersonalityTraits&);
+
 	/** @brief Checks for equality with another GSwarmPersonalityTraits object */
 	bool operator==(const GSwarmPersonalityTraits&) const;
 	/** @brief Checks for inequality with another GSwarmPersonalityTraits object */

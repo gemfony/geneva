@@ -74,6 +74,18 @@ GSwarmPersonalityTraits::~GSwarmPersonalityTraits()
 
 /*****************************************************************************/
 /**
+ * A standard assignment operator for GSwarmPersonalityTraits objects.
+ *
+ * @param cp Reference to another GSwarmPersonalityTraits object
+ * @return A constant reference to this object
+ */
+const GSwarmPersonalityTraits& GSwarmPersonalityTraits::operator=(const GSwarmPersonalityTraits& cp) {
+	GSwarmPersonalityTraits::load_(&cp);
+	return *this;
+}
+
+/*****************************************************************************/
+/**
  * Checks for equality with another GSwarmPersonalityTraits object
  *
  * @param  cp A constant reference to another GSwarmPersonalityTraits object

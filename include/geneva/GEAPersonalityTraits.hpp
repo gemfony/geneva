@@ -79,6 +79,9 @@ public:
 	/** @brief The standard destructor */
 	virtual ~GEAPersonalityTraits();
 
+	/** @brief A standard assignment operator */
+	const GEAPersonalityTraits& operator=(const GEAPersonalityTraits&);
+
 	/** @brief Checks for equality with another GEAPersonalityTraits object */
 	bool operator==(const GEAPersonalityTraits&) const;
 	/** @brief Checks for inequality with another GEAPersonalityTraits object */

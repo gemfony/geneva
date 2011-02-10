@@ -78,6 +78,9 @@ public:
 	/** @brief The standard destructor */
 	virtual ~GGDPersonalityTraits();
 
+	/** @brief A standard assignment operator */
+	const GGDPersonalityTraits& operator=(const GGDPersonalityTraits&);
+
 	/** @brief Checks for equality with another GGDPersonalityTraits object */
 	bool operator==(const GGDPersonalityTraits&) const;
 	/** @brief Checks for inequality with another GGDPersonalityTraits object */

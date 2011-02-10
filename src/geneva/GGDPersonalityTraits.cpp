@@ -66,6 +66,18 @@ GGDPersonalityTraits::~GGDPersonalityTraits()
 
 /*****************************************************************************/
 /**
+ * A standard assignment operator for GGDPersonalityTraits objects.
+ *
+ * @param cp Reference to another GGDPersonalityTraits object
+ * @return A constant reference to this object
+ */
+const GGDPersonalityTraits& GGDPersonalityTraits::operator=(const GGDPersonalityTraits& cp) {
+	GGDPersonalityTraits::load_(&cp);
+	return *this;
+}
+
+/*****************************************************************************/
+/**
  * Checks for equality with another GGDPersonalityTraits object
  *
  * @param  cp A constant reference to another GGDPersonalityTraits object
