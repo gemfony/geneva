@@ -796,6 +796,7 @@ void GSwarm::updatePositions(
 		personal_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
 		local_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
 		global_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
+		break;
 	}
 
 	// Multiply each floating point value with a fixed, configurable constant value
