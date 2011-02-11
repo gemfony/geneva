@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------------
 Wishlist for version 1.0, yet unnamed, release-date unknown
- - Full documentation.
+ - Full documentation (well underway !!)
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.1, yet unnamed - release-date unknown
@@ -20,6 +20,7 @@ The main changes for this release include:
    upper and lower limits to a set of double values
  - Implemented Simulated Annealing (integrated into Evolutionary Algorithms 
    (NOTE: This SA implementation is still rather untested, use with care at this point)
+ - Updated obsolete Doxygen settings to reflect new doxygen versions
 
 Recommended version of Boost: 1.43
 
