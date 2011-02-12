@@ -1,26 +1,31 @@
 //------------------------------------------------------------------------------------------------------
 Wishlist for version 1.0, yet unnamed, release-date unknown
- - Full documentation (well underway !!)
+
+ - Full documentation (well underway!!)
 
 //------------------------------------------------------------------------------------------------------
-* Version 0.9.1, yet unnamed - release-date unknown
+* Version 0.9.1, "Route Cockroft" - February 12, 2011
 
 The main changes for this release include:
- - Bumped the minimal Boost version to 1.40
- - Made sure that parameter objects always have an adaptor loaded. Before this it
-   was empty by default.
- - Moved from BOOST_CLASS_EXPORT to the BOOST_CLASS_EXPORT_KEY/BOOST_CLASS_EXPORT_IMPLEMENTATION
-   combo for serialization (except for Boost 1.40, where these macros didn't exist).
- - Cleaned up the header files (surplus includes) 
- - Introduced more verbatim exceptions
- - Cleaned up the GRandomBase/T and GRandomT classes, including an interface change
- - Started to clean up and add examples, in line with the documentation
- - Made the adaptor hierarchy more consistent and added a "bi-gaussian" adaptor
- - Added a new collection class GConstrainedDoubleCollection that allows to apply common
-   upper and lower limits to a set of double values
- - Implemented Simulated Annealing (integrated into Evolutionary Algorithms 
-   (NOTE: This SA implementation is still rather untested, use with care at this point)
- - Updated obsolete Doxygen settings to reflect new doxygen versions
+ - Implemented Simulated Annealing, as part of Evolutionary Algorithms. 
+   NOTE: This SA implementation is still rather untested, use with care
+   at this point.
+ - Made sure that parameter objects always have an adaptor loaded. Before
+   this it was empty by default.
+ - Moved from BOOST_CLASS_EXPORT to the BOOST_CLASS_EXPORT_KEY and
+   BOOST_CLASS_EXPORT_IMPLEMENTATION combo for serialization (except for
+   Boost 1.40, where these macros didn't exist).
+ - Added a new collection class GConstrainedDoubleCollection that allows
+   to apply common upper and lower limits to a set of double values.
+ - Made the adaptor hierarchy more consistent and added a "bi-gaussian"
+   adaptor.
+ - Cleaned up the GRandomBase/T and GRandomT classes, including an
+   interface change.
+ - Introduced more verbatim exceptions.
+ - Cleaned up the header files from surplus includes.
+ - Started to clean up and add examples, in line with the documentation.
+ - Updated obsolete Doxygen settings to reflect new doxygen versions.
+ - Bumped the minimal Boost version to 1.40.
 
 Recommended version of Boost: 1.43
 
