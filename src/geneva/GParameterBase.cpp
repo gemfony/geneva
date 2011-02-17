@@ -485,7 +485,7 @@ void GParameterBase::booleanStreamline(std::vector<bool>& parVec) const
  * @return The number of parameters of type double
  */
 template <>
-double GParameterBase::countParameters<double>() const {
+std::size_t GParameterBase::countParameters<double>() const {
 	return this->countDoubleParameters();
 }
 
@@ -496,7 +496,7 @@ double GParameterBase::countParameters<double>() const {
  * @return The number of parameters of type boost::int32_t
  */
 template <>
-boost::int32_t GParameterBase::countParameters<boost::int32_t>() const {
+std::size_t GParameterBase::countParameters<boost::int32_t>() const {
 	return this->countInt32Parameters();
 }
 
@@ -507,7 +507,7 @@ boost::int32_t GParameterBase::countParameters<boost::int32_t>() const {
  * @return The number of parameters of type bool
  */
 template <>
-bool GParameterBase::countParameters<bool>() const {
+std::size_t GParameterBase::countParameters<bool>() const {
 	return this->countBoolParameters();
 }
 

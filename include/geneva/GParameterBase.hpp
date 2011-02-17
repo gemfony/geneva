@@ -153,7 +153,7 @@ public:
 	 * @return The number of parameters of a given Type
 	 */
 	template <typename par_type>
-	par_type countParameters() const
+	std::size_t countParameters() const
 	{
 		raiseException(
 				"In GParameterBase::countParameters()" << std::endl
@@ -298,9 +298,9 @@ template <>	void GParameterBase::streamline<double>(std::vector<double>&) const;
 template <>	void GParameterBase::streamline<boost::int32_t>(std::vector<boost::int32_t>&) const;
 template <>	void GParameterBase::streamline<bool>(std::vector<bool>&) const;
 
-template <>	double GParameterBase::countParameters<double>() const;
-template <>	boost::int32_t GParameterBase::countParameters<boost::int32_t>() const;
-template <>	bool GParameterBase::countParameters<bool>() const;
+template <>	std::size_t GParameterBase::countParameters<double>() const;
+template <>	std::size_t GParameterBase::countParameters<boost::int32_t>() const;
+template <>	std::size_t GParameterBase::countParameters<bool>() const;
 
 template <>	void GParameterBase::assignValueVector<double>(const std::vector<double>&, std::size_t&);
 template <>	void GParameterBase::assignValueVector<boost::int32_t>(const std::vector<boost::int32_t>&, std::size_t&);
