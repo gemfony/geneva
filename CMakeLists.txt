@@ -205,7 +205,7 @@ INSTALL ( FILES ${INFORMATIONFILES} DESTINATION .
 # Warning for CMake 2.6, comes last to avoid the message being "lost" in the later output.
 #
 IF( OLD_CMAKE )
-	MESSAGE( AUTHOR_WARNING "You are using CMake 2.6. Some files will not be copied to the _build_ tree, "
+	MESSAGE( AUTHOR_WARNING ": You are using CMake 2.6. Some files will not be copied to the _build_ tree, "
 				"in particular the configuration files for the examples will be missing. "
 				"Updating to CMake 2.8 or later is recommended!" )
 ENDIF()
