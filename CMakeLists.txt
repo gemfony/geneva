@@ -76,6 +76,14 @@ ENDIF()
 # Note: -fno-unsafe-math-optimizations -fno-finite-math-only prevent false optimization of some critical
 # code in GRandomBaseT inside uniform_real().
 
+
+# The "FOREACH IN LISTS" construct is only available starting with CMake 2.8, detect that
+# case to avoid build errors in CMake 2.6.
+IF( CMAKE_MAJOR_VERSION GREATER 1 AND CMAKE_MINOR_VERSION LESS 8 )
+	SET( OLD_CMAKE TRUE )
+	# We print a warning at end of the generation, to avoid it getting lost
+ENDIF()
+
 # Set the library type to shared by default
 IF( NOT GENEVA_STATIC )
 	SET( GENEVA_STATIC FALSE )
@@ -192,6 +200,16 @@ INSTALL ( FILES ${INFORMATIONFILES} DESTINATION .
 	GROUP_READ
 	WORLD_READ
 )
+
+#
+# Warning for CMake 2.6, comes last to avoid the message being "lost" in the later output.
+#
+IF( OLD_CMAKE )
+	MESSAGE( AUTHOR_WARNING "You are using CMake 2.6. Some files will not be copied to the _build_ tree, "
+				"in particular the configuration files for the examples will be missing. "
+				"Updating to CMake 2.8 or later is recommended!" )
+ENDIF()
+
 
 #########################################################
 # Code for package generation with CPack.
