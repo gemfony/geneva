@@ -41,3 +41,4 @@ BUILDPCH="0"                              # Whether to use pre-compiled headers 
                                           #   Beware of the huge space requirement, many GB!!
 VERBOSEMAKEFILE="0"                       # Whether compilation information should be emitted
 INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
+CEXTRAFLAGS=""                            # Further CMake settings you might want to provide
