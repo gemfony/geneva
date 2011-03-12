@@ -102,7 +102,26 @@ public:
 		, processed_(0)
 		, processMax_(0)
 		, returnRegardless_(false)
+		, additionalDataTemplate_(boost::shared_ptr<processable_type>())
 	{ /* nothing*/ }
+
+	/*********************************************************************************/
+	/**
+	 * A constructor that accepts a model of the item to be processed. This can be
+	 * used to avoid having to transfer or reload data that doesn't change. Note that
+	 * the model must understand the clone() command.
+	 *
+	 * @param additionalDataTemplate The model of the item to be processed
+	 */
+	GBaseClientT(boost::shared_ptr<processable_type> additionalDataTemplate)
+		: startTime_(boost::posix_time::microsec_clock::local_time())
+		, maxDuration_(boost::posix_time::microsec(0))
+		, processed_(0)
+		, processMax_(0)
+		, returnRegardless_(false)
+		, additionalDataTemplate_(additionalDataTemplate)
+	{ /* nothing*/ }
+
 
 	/*********************************************************************************/
 	/**
@@ -245,6 +264,9 @@ protected:
 		// generally happen through the same type that was used for serialization.
 		boost::shared_ptr<processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
 
+		// If we have a model for the item to be parallelized, load its data into the target
+		if(additionalDataTemplate_) target->loadConstantData(additionalDataTemplate_);
+
 		// This one line is all it takes to do the processing required for this object.
 		// The object has all required functions on board. GBaseClientT<T> does not need to understand
 		// what is being done during the processing. If processing did not lead to a useful result,
@@ -312,6 +334,8 @@ private:
 	boost::uint32_t processMax_; ///< The maximum number of items to process
 
 	bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
+
+	boost::shared_ptr<processable_type> additionalDataTemplate_; ///< Optionally holds a template of the object to be processed
 };
 
 /*********************************************************************************/

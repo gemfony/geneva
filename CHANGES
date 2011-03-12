@@ -4,6 +4,14 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
  - Full documentation (well underway!!)
 
 //------------------------------------------------------------------------------------------------------
+* Version 0.9.2, yet unnamed, release-date unknown
+
+The main changes for this release include:
+ - Added a mechanism to deposit data at a remote site, so it doesn't need 
+   to be (de-)serialized. Note that, if you use this feature together with 
+   check-pointing, you need to make sure that un-serialized data is loaded.
+
+//------------------------------------------------------------------------------------------------------
 * Version 0.9.1, "Route Cockroft" - February 12, 2011
 
 The main changes for this release include:

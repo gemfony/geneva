@@ -97,13 +97,40 @@ class GAsioTCPClientT
 public:
 	/***********************************************************************/
 	/**
-	 * The main constructor for this class. No default constructor is provided.
+	 * Initialization by server name/ip and port
 	 *
 	 * @param server Identifies the server
 	 * @param port Identifies the port on the server
 	 */
 	GAsioTCPClientT(const std::string& server, const std::string& port)
 	   : GBaseClientT<processable_type>()
+	   , maxStalls_(ASIOMAXSTALLS)
+	   , maxConnectionAttempts_(ASIOMAXCONNECTIONATTEMPTS)
+	   , stalls_(0)
+	   , io_service_()
+	   , socket_(io_service_)
+	   , resolver_(io_service_)
+	   , query_(server, port)
+	   , endpoint_iterator0_(resolver_.resolve(query_))
+	   , end_()
+	{
+		tmpBuffer_ = new char[Gem::Courtier::COMMANDLENGTH];
+	}
+
+	/***********************************************************************/
+	/**
+	 * Initialization by server name/ip, port and a model for the item to
+	 * be processed.
+	 *
+	 * @param server Identifies the server
+	 * @param port Identifies the port on the server
+	 */
+	GAsioTCPClientT(
+			const std::string& server
+			, const std::string& port
+			, boost::shared_ptr<processable_type> additionalDataTemplate
+	)
+	   : GBaseClientT<processable_type>(additionalDataTemplate)
 	   , maxStalls_(ASIOMAXSTALLS)
 	   , maxConnectionAttempts_(ASIOMAXCONNECTIONATTEMPTS)
 	   , stalls_(0)

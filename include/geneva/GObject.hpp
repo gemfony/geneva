@@ -186,6 +186,9 @@ public:
 	/** @brief Creates a clone of this object, storing it in a boost::shared_ptr<GObject> */
 	boost::shared_ptr<GObject> clone() const;
 
+	/** @brief Loads user-specified data */
+	virtual void loadConstantData(boost::shared_ptr<GObject>);
+
 	/**************************************************************************************************/
 	/**
 	 * Loads the data of another GObject(-derivative), wrapped in a shared pointer. Note that this

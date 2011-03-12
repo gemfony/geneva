@@ -319,6 +319,19 @@ void GObject::fromFile(const std::string& fileName, const Gem::Common::serializa
 
 /**************************************************************************************************/
 /**
+ * Loads user-specified data. This function can be overloaded by derived classes. It is mainly
+ * intended to provide a mechanism to "deposit" an individual at a remote site that holds otherwise
+ * constant data. That data then does not need to be serialized but can be loaded whenever a new work
+ * item arrives and has been de-serialized. Note that, if your individuals do not serialize important
+ * parts of an object, you need to make sure that constant data is loaded after reloading a checkpoint.
+ *
+ * @param cD_ptr A pointer to the object whose data should be loaded
+ */
+void GObject::loadConstantData(boost::shared_ptr<GObject> cD_ptr)
+{ /* nothing */ }
+
+/**************************************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A pointer to another GObject object
