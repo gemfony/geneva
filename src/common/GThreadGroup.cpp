@@ -2,7 +2,8 @@
  * @file GThreadGroup.cpp
  */
 
-/* This file is part of the Geneva library collection.
+/*
+ * This file is part of the Geneva library collection.
  *
  * Contact: contact [at] gemfony (dot) com
  *
