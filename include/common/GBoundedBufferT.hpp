@@ -2,18 +2,13 @@
  * @file GBoundedBufferT.hpp
  */
 
-/* This file is part of the Geneva library collection.
+/*
+ * This file is part of the Geneva library collection.
  *
- * Note: This class was adapted from a circular_buffer test case (
- * [Boost 1.36 trunk version 17.7.08]/libs/circular_buffer/test/bounded_buffer_comparison.cpp )
- * by Jan Gaspar. bounded_buffer_comparison.cpp is covered by the
- * Boost Software License, Version 1.0 (see
- * http://www.boost.org/LICENSE_1_0.txt) of the file
- * BOOST_LICENSE_1_0.
+ * Note: this class was adapted from a circular_buffer test case
+ * ([Boost 1.36 trunk version 17.7.08]/libs/circular_buffer/test/bounded_buffer_comparison.cpp )
+ * by Jan Gaspar. The original code contained the following text:
  *
- * Modifications were applied to the code.
- *
- * The code by Jan Gaspar contained the following text:
  ***************************************************************
  * Copyright (c) 2003-2007 Jan Gaspar
  * Use, modification, and distribution is subject to the Boost Software
@@ -21,23 +16,28 @@
  * http://www.boost.org/LICENSE_1_0.txt)
  ***************************************************************
  *
- * All modifications to Jan Gaspar's original code, as shown in this
- * file, are also covered by the Boost Software License, Version 1.0,
- * and are Copyright (C) Gemfony scientific UG (haftungsbeschraenkt) and
- * Karlsruhe Institute of Technology.
+ * As allowed by the license, modifications were applied to the code.
+ * These are also covered by the Boost Software License, Version 1.0, and are
+ * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
  *
  * See the AUTHORS file in the top-level directory for a list of authors.
  *
  * Contact: contact [at] gemfony (dot) com
  *
- * In particular, please note that:
+ * Geneva was developed with kind support from Karlsruhe Institute of
+ * Technology (KIT) and Steinbuch Centre for Computing (SCC). Further
+ * information about KIT and SCC can be found at http://www.kit.edu/english
+ * and http://scc.kit.edu .
  *
- ***************************************************************
- * THE AUTHORS OF THIS SOFTWARE AND KARLSRUHE INSTITUTE OF
- * TECHNOLOGY MAKE NO REPRESENTATION ABOUT THE SUITABILITY OF
- * THIS SOFTWARE FOR ANY PURPOSE. IT IS PROVIDED "AS IS" WITHOUT
- * EXPRESS OR IMPLIED WARRANTY.
- ***************************************************************
+ * In particular, please note that
+ * Geneva is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * Boost Software License for more details.
+ *
+ * Note that different licenses apply to other parts of the Geneva
+ * library collection. These licenses are specified in each file of
+ * the source code.
  */
 
 /*

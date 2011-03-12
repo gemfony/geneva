@@ -5,9 +5,7 @@
 /*
  * This file is part of the Geneva library collection.
  *
- * Contact: contact [at] gemfony (dot) com
- *
- * Note: This class was adapted from an earlier Boost 1.36 version of the
+ * Note: this class was adapted from an earlier Boost 1.36 version of the
  * thread_group class. The original code contained the following text:
  *
  * ***
@@ -17,22 +15,23 @@
  * ***
  *
  * As allowed by the license, modifications were applied to the code.
- *
- * All modifications to Anthony William's original code, as shown in this
- * file, are also covered by the Boost Software License, Version 1.0,
- * and are Copyright (C) Gemfony scientific UG (haftungsbeschraenkt) and
- * Karlsruhe Institute of Technology.
+ * These are also covered by the Boost Software License, Version 1.0, and are
+ * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
  *
  * See the AUTHORS file in the top-level directory for a list of authors.
  *
- * In particular, please note that
+ * Contact: contact [at] gemfony (dot) com
  *
- ***************************************************************
- * THE AUTHORS OF THIS SOFTWARE AND KARLSRUHE INSTITUTE OF TECHNOLOGY
- * MAKE NO REPRESENTATION ABOUT THE SUITABILITY OF THIS SOFTWARE FOR
- * ANY PURPOSE. IT IS PROVIDED "AS IS" WITHOUT EXPRESS OR IMPLIED
- * WARRANTY.
- ***************************************************************
+ * Geneva was developed with kind support from Karlsruhe Institute of
+ * Technology (KIT) and Steinbuch Centre for Computing (SCC). Further
+ * information about KIT and SCC can be found at http://www.kit.edu/english
+ * and http://scc.kit.edu .
+ *
+ * In particular, please note that
+ * Geneva is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * Boost Software License for more details.
  *
  * Note that different licenses apply to other parts of the Geneva
  * library collection. These licenses are specified in each file of
