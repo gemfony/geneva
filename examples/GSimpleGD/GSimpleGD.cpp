@@ -166,37 +166,16 @@ int main(int argc, char **argv){
   }
 
   //***************************************************************************
-  // Create an instance of our optimization monitor
-  /*
-  std::ofstream resultSummary("./result.C");
-  boost::shared_ptr<optimizationMonitor> om_ptr(new optimizationMonitor(df, resultSummary));
-  om_ptr->setDims(xDim, yDim);
-  om_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
-  om_ptr->setXExtremes(minVar, maxVar);
-  om_ptr->setYExtremes(minVar, maxVar);
-  om_ptr->setTrackParentRelations(trackParentRelations);
-  om_ptr->setDrawArrows(drawArrows);
-  */
-
-  //***************************************************************************
+  // Create a factory for GFunctionIndividual objects and perform
+  // any necessary initial work.
+  GFunctionIndividualFactory gfi("./GFunctionIndividual.cfg");
+  gfi.init();
 
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
   std::vector<boost::shared_ptr<GParameterSet> > parentIndividuals;
   for(std::size_t p = 0 ; p<nStartingPoints; p++) {
-	  boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual::getFunctionIndividual(df);
-
-	  // Set up a GDoubleCollection with dimension values, each initialized
-	  // with a random number in the range [min,max[
-	  boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
-	  // Let the GDoubleCollection know about its desired initialization range
-	  gdc_ptr->setInitBoundaries(minVar, maxVar);
-
-	  // Note: We do not need to set up an adaptor for gradient descents
-
-	  // Make the parameter collection known to this individual
-	  functionIndividual_ptr->push_back(gdc_ptr);
-	  functionIndividual_ptr->setProcessingCycles(processingCycles);
-
+	  boost::shared_ptr<GParameterSet> functionIndividual_ptr = gfi();
+	  functionIndividual_ptr->randomInit();
 	  parentIndividuals.push_back(functionIndividual_ptr);
   }
 
@@ -237,7 +216,7 @@ int main(int argc, char **argv){
 	  GINDIVIDUALBROKER->enrol(gatc);
 
 	  // Create the actual broker population
-	  boost::shared_ptr<GBrokerGD> popBroker_ptr(new GBrokerGD());
+	  boost::shared_ptr<GBrokerGD> popBroker_ptr(new GBrokerGD(nStartingPoints, finiteStep, stepSize));
 	  popBroker_ptr->setWaitFactor(waitFactor);
 
 	  // Assignment to the base pointer

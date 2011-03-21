@@ -82,6 +82,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 
 SET ( CONFIGFILE
 	GSimpleGD.cfg
+	GFunctionIndividual.cfg
 )
 
 ADD_PCH_RULE( GArgumentParser.hpp ${EXECUTABLENAME}_SRCS )
