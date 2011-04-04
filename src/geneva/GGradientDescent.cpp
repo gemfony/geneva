@@ -475,6 +475,7 @@ void GGradientDescent::updateParentIndividuals() {
 
 		// Calculate the adaption of each parameter
 		double step = 0.;
+		//std::cout << "==============" << std::endl;
 		for(std::size_t j=0; j<nFPParmsFirst_; j++) {
 			// Calculate the position of the child
 			std::size_t childPos = nStartingPoints_ + i*nFPParmsFirst_ + j;
@@ -482,7 +483,7 @@ void GGradientDescent::updateParentIndividuals() {
 			// Calculate the step to be performed in a given direction
 			step = (1./finiteStep_) * (this->at(childPos)->fitness() - parentFitness);
 
-			// std::cout << j << ": " << step << std::endl;
+			//std::cout << j << ": " << step << " " << finiteStep_ << " " << this->at(childPos)->fitness() << " " << parentFitness << std::endl;
 
 			if(this->getMaxMode()) {
 				parmVec[j] += stepSize_*step;
@@ -491,6 +492,7 @@ void GGradientDescent::updateParentIndividuals() {
 				parmVec[j] -= stepSize_*step;
 			}
 		}
+		//std::cout << "==============" << std::endl;
 
 		// Load the parameter vector back into the parent
 		this->at(i)->assignValueVector(parmVec);
