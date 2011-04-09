@@ -491,7 +491,7 @@ public:
 	       << std::endl
 	       << "# Specifies how long the server should wait for arrivals. 1 means:" << std::endl
 	       << "# \"wait the same amount it has taken the first answer to return\"" << std::endl
-	       << "nProcessingUnits_ = " << GO_DEF_NPROCUNITS << std::endl
+	       << "nProcessingUnits = " << GO_DEF_NPROCUNITS << std::endl
 	       << std::endl
 	       << "# Indicates the maximum number of iterations in the optimization" << std::endl
 	       << "maxIterations = " << GO_DEF_MAXITERATIONS << std::endl

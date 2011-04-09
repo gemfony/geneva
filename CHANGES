@@ -8,8 +8,11 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
 
 The main changes for this release include:
  - Added a mechanism to deposit data at a remote site, so it doesn't need 
-   to be (de-)serialized. Note that, if you use this feature together with 
-   check-pointing, you need to make sure that un-serialized data is loaded.
+   to be (de-)serialized in each iteration. Note that, if you use this feature 
+   together with  check-pointing, you need to make sure that un-serialized data 
+   is loaded.
+ - Removed the publicly visible "waitFactor", instead users now need to provide
+   the expected number of compute unites participating in a distributed optimization.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.1, "Route Cockroft" - February 12, 2011

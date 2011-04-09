@@ -335,7 +335,7 @@ void GBrokerConnector::markNewIteration() {
 	// Recalculate the wait factor, based on the current number of processing units and the number of processable items
 	// If e.g. nProcessableItems_ is 10 and nProcessingUnits_ is 3. we want the result to be 4. The calculation will also
 	// result in a minimum wait factor of 1
-	waitFactor_ = boost::numeric_cast<boost::uint32_t>(std::ceil(double(std::min(nProcessableItems_, boost::uint32_t(1)))/double(std::min(nProcessingUnits_, boost::uint32_t(1)))));
+	waitFactor_ = boost::numeric_cast<boost::uint32_t>(std::ceil(double(std::max(nProcessableItems_, boost::uint32_t(1)))/double(std::max(nProcessingUnits_, boost::uint32_t(1)))));
 
 	// Set the start time of the new iteration so we calculate a correct
 	// Return time for the first individual, regardless of whether older

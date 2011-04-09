@@ -75,7 +75,7 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 
 # Copy the config files to the build tree for easier testing
 IF( NOT OLD_CMAKE )
-	FOREACH ( file IN LISTS CONFIGFILE )
+	FOREACH ( file IN LISTS CONFIGFILES )
 		CONFIGURE_FILE ( ${file} . COPYONLY )
 	ENDFOREACH ()
 ENDIF()
