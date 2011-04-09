@@ -438,6 +438,29 @@ bool GEvolutionaryAlgorithm::oldParentsLogged() const {
 
 /************************************************************************************************************/
 /**
+ * Retrieve the number of processable items in the current iteration.
+ *
+ * @return The number of processable items in the current iteration
+ */
+std::size_t GEvolutionaryAlgorithm::getNProcessableItems() const {
+	if(getIteration()==this->getOffset()) { // usually this means iteration == 0
+		switch(getSortingScheme()) {
+		case SA:
+		case MUPLUSNU:
+		case MUNU1PRETAIN: // same procedure for all three nodes
+			return this->size(); // parents and children need to be processed
+			break;
+		case MUCOMMANU:
+			return this->getDefaultNChildren();
+			break; // nothing
+		}
+	} else {
+		return this->getDefaultNChildren();
+	}
+}
+
+/************************************************************************************************************/
+/**
  * Specifies the default size of the population plus the number of parents.
  * The population will be filled with additional individuals later, as required --
  * see GEvolutionaryAlgorithm::adjustPopulation() . Also, all error checking is done in

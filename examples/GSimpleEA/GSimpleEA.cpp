@@ -45,6 +45,7 @@
 #include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GAsioTCPClientT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GBoostThreadConsumerT.hpp"
 #include "geneva/GBrokerEA.hpp"
 #include "geneva/GEvolutionaryAlgorithm.hpp"
 #include "geneva/GIndividual.hpp"
@@ -89,7 +90,7 @@ int main(int argc, char **argv){
   double maxVar;
   sortingMode smode;
   boost::uint32_t processingCycles;
-  boost::uint32_t waitFactor;
+  boost::uint32_t nProcessingUnits;
   demoFunction df;
   boost::uint32_t adaptionThreshold;
   double sigma;
@@ -104,6 +105,7 @@ int main(int argc, char **argv){
   bool followProgress;
   bool trackParentRelations;
   bool drawArrows;
+  bool addLocalConsumer;
 
   if(!parseCommandLine(
 		  argc
@@ -114,6 +116,7 @@ int main(int argc, char **argv){
 		  , ip
 		  , port
 		  , serMode
+		  , addLocalConsumer
   )
      ||
      !parseConfigFile(
@@ -130,7 +133,7 @@ int main(int argc, char **argv){
 		 , arraySize
 		 , processingCycles
 		 , returnRegardless
-		 , waitFactor
+		 , nProcessingUnits
 		 , adProb
 		 , adaptionThreshold
 		 , sigma
@@ -238,16 +241,22 @@ int main(int argc, char **argv){
   break;
 
   //-----------------------------------------------------------------------------------------------------
-  case 2: // Execution with networked consumer
+  case 2: // Execution with networked consumer and possibly a local, multi-threaded consumer
   {
 	  // Create a network consumer and enrol it with the broker
 	  boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
 	  gatc->setSerializationMode(serMode);
 	  GINDIVIDUALBROKER->enrol(gatc);
 
+	  if(addLocalConsumer) {
+		  boost::shared_ptr<GBoostThreadConsumerT<GIndividual> > gbtc(new GBoostThreadConsumerT<GIndividual>());
+		  gbtc->setMaxThreads(nEvaluationThreads);
+		  GINDIVIDUALBROKER->enrol(gbtc);
+	  }
+
 	  // Create the actual broker population
 	  boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
-	  popBroker_ptr->setWaitFactor(waitFactor);
+	  popBroker_ptr->setNProcessingUnits(nProcessingUnits);
 
 	  // Assignment to the base pointer
 	  pop_ptr = popBroker_ptr;

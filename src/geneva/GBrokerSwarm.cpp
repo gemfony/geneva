@@ -179,6 +179,9 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
  * @return The best achieved fitness
  */
 double GBrokerSwarm::cycleLogic() {
+	// Let the connector know how many processable items are available
+	GBrokerConnector::setBCNProcessableItems(GSwarm::getNProcessableItems());
+
 	// Let the GBrokerConnector know that we are starting a new iteration
 	GBrokerConnector::markNewIteration();
 

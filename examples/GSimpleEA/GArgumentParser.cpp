@@ -49,17 +49,14 @@ bool parseCommandLine(
 		, std::string& ip
 		, unsigned short& port
 		, Gem::Common::serializationMode& serMode
+		, bool& addLocalConsumer
 ) {
 	try {
 		// Check the command line options. Uses the Boost program options library.
 		po::options_description desc("Usage: evaluator [options]");
 		desc.add_options()("help,h", "emit help message")("configFile,c",
-				po::value<std::string>(&configFile)->default_value(
-						DEFAULTCONFIGFILE),
-				"The name of the configuration file holding further configuration options")(
-				"parallelizationMode,p",
-				po::value<boost::uint16_t>(&parallelizationMode)->default_value(
-						DEFAULTPARALLELIZATIONMODE),
+				po::value<std::string>(&configFile)->default_value(DEFAULTCONFIGFILE),
+				"The name of the configuration file holding further configuration options")("parallelizationMode,p", po::value<boost::uint16_t>(&parallelizationMode)->default_value(DEFAULTPARALLELIZATIONMODE),
 				"Whether or not to run this optimization in serial mode (0), multi-threaded (1) or networked (2) mode")(
 				"serverMode,s",
 				"Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")(
@@ -67,10 +64,10 @@ bool parseCommandLine(
 				"The ip of the server")("port",
 				po::value<unsigned short>(&port)->default_value(DEFAULTPORT),
 				"The port of the server")(
-				"serMode",
-				po::value<Gem::Common::serializationMode>(&serMode)->default_value(
-						DEFAULTSERMODE),
-				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
+				"serMode",	po::value<Gem::Common::serializationMode>(&serMode)->default_value(DEFAULTSERMODE),
+				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
+				("addLocalConsumer,a", "Whether or not a local consumer should be added to networked execution")
+				;
 
 		po::variables_map vm;
 		po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -80,6 +77,12 @@ bool parseCommandLine(
 		if (vm.count("help")) {
 			std::cerr << desc << std::endl;
 			return false;
+		}
+
+		if(vm.count("addLocalConsumer")) {
+			addLocalConsumer=true;
+		} else {
+			addLocalConsumer=false;
 		}
 
 		serverMode = false;
@@ -98,8 +101,7 @@ bool parseCommandLine(
 					serverMode = true;
 		}
 
-		if (parallelizationMode != DEFAULTPARALLELIZATIONMODE || ip
-				!= DEFAULTIP || port != DEFAULTPORT) {
+		if (parallelizationMode != DEFAULTPARALLELIZATIONMODE || ip	!= DEFAULTIP || port != DEFAULTPORT) {
 			std::string parModeString;
 			switch (parallelizationMode) {
 			case 0:
@@ -109,7 +111,11 @@ bool parseCommandLine(
 				parModeString = "multi-threaded";
 				break;
 			case 2:
-				parModeString = "networked";
+				if(!addLocalConsumer) {
+					parModeString = "networked";
+				} else {
+					parModeString = "networked and local threads";
+				}
 				break;
 			};
 
@@ -148,7 +154,7 @@ bool parseConfigFile(
 		, std::size_t& arraySize
 		, boost::uint32_t& processingCycles
 		, bool& returnRegardless
-		, boost::uint32_t& waitFactor
+		, boost::uint32_t& nProcessingUnits
 		, double& adProb
 		, boost::uint32_t& adaptionThreshold
 		, double& sigma
@@ -207,8 +213,8 @@ bool parseConfigFile(
 			"The maximum number of cycles a client should perform adaptions before it returns without success")
 			("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
 			"Specifies whether results should be returned even if they are not better than before")
-			("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
-			"Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
+			("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
+			"Specifies how many processing units are available in networked mode")
 			("adProb", po::value<double>(&adProb)->default_value(DEFAULTGDAADPROB),
 			"Specifies the likelihood for adaptions to be actually carried out")
 			("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLDAP),
@@ -310,7 +316,7 @@ bool parseConfigFile(
 					<< "sortingScheme = " << smode << std::endl
 					<< "arraySize = " << arraySize << std::endl
 					<< "processingCycles = " << processingCycles << std::endl
-					<< "waitFactor = " << waitFactor << std::endl
+					<< "nProcessingUnits = " << nProcessingUnits << std::endl
 					<< "adProb = " << adProb << std::endl
 					<< "adaptionThreshold = " << adaptionThreshold << std::endl
 					<< "sigma = " << sigma << std::endl << "sigmaSigma "

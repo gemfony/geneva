@@ -144,7 +144,7 @@ namespace Gem
 		  , std::size_t& arraySize
 		  , boost::uint32_t& processingCycles
 		  , bool& returnRegardless
-		  , boost::uint32_t& waitFactor
+		  , boost::uint32_t& nProcessingUnits
 		  , double& adProb
 		  , boost::uint32_t& adaptionThreshold
 		  , double& sigma
@@ -211,8 +211,8 @@ namespace Gem
 	   "The maximum number of cycles a client should perform adaptions before it returns without success")
       ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
        "Specifies whether results should be returned even if they are not better than before")
-	  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
-	   "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
+	  ("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
+	   "Specifies how many processing units are available in networked mode")
 	  ("adProb", po::value<double>(&adProb)->default_value(DEFAULTGDAADPROB),
 		"Specifies the likelihood for adaptions to be actually carried out")
 	  ("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLDAP),
@@ -322,7 +322,7 @@ namespace Gem
 		    << "arraySize = " << arraySize << std::endl
 		    << "processingCycles = " << processingCycles << std::endl
 			<< "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
-	        << "waitFactor = " << waitFactor << std::endl
+	        << "nProcessingUnits = " << nProcessingUnits << std::endl
  		    << "adProb = " << adProb << std::endl
 			<< "adaptionThreshold = " << adaptionThreshold << std::endl
 		    << "sigma = " << sigma << std::endl

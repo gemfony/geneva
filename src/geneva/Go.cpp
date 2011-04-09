@@ -60,7 +60,7 @@ Go::Go()
 	, nProducerThreads_(GO_DEF_NPRODUCERTHREADS)
 	, arraySize_(GO_DEF_ARRAYSIZE)
 	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
-	, waitFactor_(GO_DEF_WAITFACTOR)
+	, nProcessingUnits_(GO_DEF_NPROCUNITS)
 	, maxIterations_(GO_DEF_MAXITERATIONS)
 	, maxStallIteration_(GO_DEF_MAXSTALLITERATIONS)
 	, maxMinutes_(GO_DEF_MAXMINUTES)
@@ -118,7 +118,7 @@ Go::Go(int argc, char **argv, const std::string& configFilename)
 	, nProducerThreads_(GO_DEF_NPRODUCERTHREADS)
 	, arraySize_(GO_DEF_ARRAYSIZE)
 	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
-	, waitFactor_(GO_DEF_WAITFACTOR)
+	, nProcessingUnits_(GO_DEF_NPROCUNITS)
 	, maxIterations_(GO_DEF_MAXITERATIONS)
 	, maxStallIteration_(GO_DEF_MAXSTALLITERATIONS)
 	, maxMinutes_(GO_DEF_MAXMINUTES)
@@ -202,7 +202,7 @@ Go::Go(
 	, nProducerThreads_(GO_DEF_NPRODUCERTHREADS)
 	, arraySize_(GO_DEF_ARRAYSIZE)
 	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
-	, waitFactor_(GO_DEF_WAITFACTOR)
+	, nProcessingUnits_(GO_DEF_NPROCUNITS)
 	, maxIterations_(GO_DEF_MAXITERATIONS)
 	, maxStallIteration_(GO_DEF_MAXSTALLITERATIONS)
 	, maxMinutes_(GO_DEF_MAXMINUTES)
@@ -258,7 +258,7 @@ Go::Go(const Go& cp)
 	, nProducerThreads_(cp.nProducerThreads_)
 	, arraySize_(cp.arraySize_)
 	, nEvaluationThreads_(cp.nEvaluationThreads_)
-	, waitFactor_(cp.waitFactor_)
+	, nProcessingUnits_(cp.nProcessingUnits_)
 	, maxIterations_(cp.maxIterations_)
 	, maxStallIteration_(cp.maxStallIteration_)
 	, maxMinutes_(cp.maxMinutes_)
@@ -394,7 +394,7 @@ boost::optional<std::string> Go::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go", nProducerThreads_, p_load->nProducerThreads_, "nProducerThreads_", "p_load->nProducerThreads_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", arraySize_, p_load->arraySize_, "arraySize_", "p_load->arraySize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", nEvaluationThreads_, p_load->nEvaluationThreads_, "nEvaluationThreads_", "p_load->nEvaluationThreads_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go", waitFactor_, p_load->waitFactor_, "waitFactor_", "p_load->waitFactor_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", nProcessingUnits_, p_load->nProcessingUnits_, "nProcessingUnits_", "p_load->nProcessingUnits_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", maxIterations_, p_load->maxIterations_, "maxIterations_", "p_load->maxIterations_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", maxStallIteration_, p_load->maxStallIteration_, "maxStallIteration_", "p_load->maxStallIteration_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", maxMinutes_, p_load->maxMinutes_, "maxMinutes_", "p_load->maxMinutes_", e , limit));
@@ -454,7 +454,7 @@ void Go::load_(const GObject *cp) {
 	nProducerThreads_ = p_load->nProducerThreads_;
 	arraySize_ = p_load->arraySize_;
 	nEvaluationThreads_ = p_load->nEvaluationThreads_;
-	waitFactor_ = p_load->waitFactor_;
+	nProcessingUnits_ = p_load->nProcessingUnits_;
 	maxIterations_ = p_load->maxIterations_;
 	maxStallIteration_ = p_load->maxStallIteration_;
 	maxMinutes_ = p_load->maxMinutes_;
@@ -931,23 +931,24 @@ boost::uint16_t Go::getNEvaluationThreads() const {
 
 /**************************************************************************************/
 /**
- * Allows to set the wait factor used in each iteration to wait for further arrivals.
- * This is interpreted as a multiple of the arrival times of the first individual.
+ * Allows to set the number of processing units available for computation in networked mode.
+ * This has an effect on the amount of time the algorithm waits for further arrivales from
+ * remote computations. 0 means that the calculation will always wait for all items to return.
  *
- * @param waitFactor The wait factor used in each iteration to wait for further arrivals
+ * @param nProcessingUnits The number of processing units available for computation
  */
-void Go::setWaitFactor(const boost::uint32_t& waitFactor) {
-	waitFactor_ = waitFactor;
+void Go::setNProcessingUnits(const boost::uint32_t& nProcessingUnits) {
+	nProcessingUnits_ = nProcessingUnits;
 }
 
 /**************************************************************************************/
 /**
- * Allows to retrieve the wait factor used in each iteration to wait for further arrivals.
+ * Allows to retrieve the number of processing units available for computation in networked mode.
  *
- * @return The wait factor used in each iteration to wait for further arrivals
+ * @return The number of processing units available for computation
  */
-boost::uint32_t Go::getWaitFactor() const {
-	return waitFactor_;
+boost::uint32_t Go::getNProcessingUnits() const {
+	return nProcessingUnits_;
 }
 
 /**************************************************************************************/
@@ -1484,7 +1485,7 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 		("arraySize", po::value<std::size_t>(&arraySize_)->default_value(GO_DEF_ARRAYSIZE))
 		("nEvaluationThreads", po::value<boost::uint16_t>(&nEvaluationThreads_)->default_value(GO_DEF_NEVALUATIONTHREADS))
 		("serializationMode", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO_DEF_SERIALIZATIONMODE))
-		("waitFactor", po::value<boost::uint32_t>(&waitFactor_)->default_value(GO_DEF_WAITFACTOR))
+		("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits_)->default_value(GO_DEF_NPROCUNITS))
 		("maxIterations", po::value<boost::uint32_t>(&maxIterations_)->default_value(GO_DEF_MAXITERATIONS))
 		("maxStallIteration", po::value<boost::uint32_t>(&maxStallIteration_)->default_value(GO_DEF_MAXSTALLITERATIONS))
 		("maxMinutes", po::value<long>(&maxMinutes_)->default_value(GO_DEF_MAXMINUTES))
@@ -1530,7 +1531,7 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 					  << "arraySize = " << arraySize_ << std::endl
 					  << "nEvaluationThreads = " << nEvaluationThreads_ << std::endl
 					  << "serializationMode = " << serializationMode_ << std::endl
-					  << "waitFactor = " << waitFactor_ << std::endl
+					  << "nProcessingUnits = " << nProcessingUnits_ << std::endl
 					  << "maxIterations = " << maxIterations_ << std::endl
 					  << "maxStallIteration = " << maxStallIteration_ << std::endl
 					  << "maxMinutes = " << maxMinutes_ << std::endl

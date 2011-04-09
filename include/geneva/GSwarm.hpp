@@ -166,6 +166,9 @@ public:
 	/** @brief Allows to check whether neighborhoods are filled up with random individuals */
 	bool neighborhoodsFilledUpRandomly() const;
 
+	/** @brief Retrieves the number of processable items for the current iteration */
+	virtual std::size_t getNProcessableItems() const;
+
 	/**************************************************************************************************/
 	/**
 	 * Retrieves the best individual of the population and casts it to the desired type. Note that this

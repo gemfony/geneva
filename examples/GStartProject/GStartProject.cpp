@@ -85,7 +85,7 @@ int main(int argc, char **argv){
   sortingMode smode;
   boost::uint32_t processingCycles;
   bool returnRegardless;
-  boost::uint32_t waitFactor;
+  boost::uint32_t nProcessingUnits;
   Gem::Common::serializationMode serMode;
 
   if(!parseCommandLine(argc, argv,
@@ -109,7 +109,7 @@ int main(int argc, char **argv){
 		      arraySize,
 		      processingCycles,
 		      returnRegardless,
-		      waitFactor,
+		      nProcessingUnits,
 		      parDim,
 		      minVar,
 		      maxVar))
@@ -185,7 +185,7 @@ int main(int argc, char **argv){
 
       // Create the actual broker population
       boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
-      popBroker_ptr->setWaitFactor(waitFactor);
+      popBroker_ptr->setNProcessingUnits(nProcessingUnits);
 
       // Assignment to the base pointer
       pop_ptr = popBroker_ptr;

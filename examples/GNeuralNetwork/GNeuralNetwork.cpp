@@ -161,7 +161,7 @@ int main(int argc, char **argv){
   sortingMode smode;
   boost::uint32_t processingCycles;
   bool returnRegardless;
-  boost::uint32_t waitFactor;
+  boost::uint32_t nProcessingUnits;
   trainingDataType tdt;
   std::string trainingDataFile;
   std::size_t nDataSets;
@@ -207,7 +207,7 @@ int main(int argc, char **argv){
 		   , arraySize
 		   , processingCycles
 		   , returnRegardless
-		   , waitFactor
+		   , nProcessingUnits
 		   , tF
 		   , trainingInputData
 		   , resultProgram
@@ -336,7 +336,7 @@ int main(int argc, char **argv){
 
       // Create the actual broker population
       boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
-      popBroker_ptr->setWaitFactor(waitFactor);
+      popBroker_ptr->setNProcessingUnits(nProcessingUnits);
 
       // Assignment to the base pointer
       pop_ptr = popBroker_ptr;

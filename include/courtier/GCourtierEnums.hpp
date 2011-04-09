@@ -66,6 +66,11 @@ namespace Courtier {
  */
 const std::size_t COMMANDLENGTH=64;
 
+/**
+ * The default assumed number of processing units
+ */
+const std::size_t DEFAULTNPROCESSINGUNITS=1;
+
 /**********************************************************************************************/
 
 } /* namespace Courtier */

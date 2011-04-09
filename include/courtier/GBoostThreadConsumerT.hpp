@@ -98,7 +98,7 @@ public:
 	 */
 	GBoostThreadConsumerT()
 		: Gem::Courtier::GConsumer()
-		, maxThreads_(DEFAULTGBTCMAXTHREADS)
+		, maxThreads_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTGBTCMAXTHREADS)))
 		, stop_(false)
 	{ /* nothing */ }
 

@@ -95,7 +95,7 @@ namespace Gem
     const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
     const bool DEFAULTRETURNREGARDLESS=true;
     const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
-    const boost::uint32_t DEFAULTGBTCWAITFACTOR=5;
+    const boost::uint32_t DEFAULTGBTCNPROCUNITS=1;
     const Gem::Geneva::trainingDataType DEFAULTTRAININGDATATYPE=Gem::Geneva::TDTNONE;
     const std::string DEFAULTTRAININGDATAFILE="geneva_training.dat";
     const std::size_t DEFAULTNDATASETS=2000;
@@ -141,7 +141,7 @@ namespace Gem
 			, std::size_t& arraySize
 			, boost::uint32_t& processingCycles
 			, bool& returnRegardless
-			, boost::uint32_t& waitFactor
+			, boost::uint32_t& nProcessingUnits
 			, transferFunction& tF
 			, std::string& trainingInputData
 			, std::string& resultProgram

@@ -100,6 +100,8 @@ class GBrokerConnector
       using boost::serialization::make_nvp;
 
       ar & BOOST_SERIALIZATION_NVP(waitFactor_)
+         & BOOST_SERIALIZATION_NVP(nProcessingUnits_)
+         & BOOST_SERIALIZATION_NVP(nProcessableItems_)
 		 & BOOST_SERIALIZATION_NVP(firstTimeOut_)
 		 & BOOST_SERIALIZATION_NVP(doLogging_);
     }
@@ -135,10 +137,15 @@ public:
 	/** @brief Intentionally left undefined */
 	bool operator!=(const GBrokerConnector&) const;
 
-    /** @brief Sets the wait factor */
-    void setWaitFactor(const boost::uint32_t&);
-    /** @brief Retrieves the wait factor */
-    boost::uint32_t getWaitFactor() const;
+    /** @brief Sets the number of processing units available for this population */
+    void setNProcessingUnits(const boost::uint32_t&);
+    /** @brief Allows to retrieve the number of processing units available for this population */
+    boost::uint32_t getNProcessingUnits() const;
+
+    /** @brief Sets the number of processable items in a given iteration */
+    void setBCNProcessableItems(const boost::uint32_t&);
+    /** @brief Allows to retrieve the number of processable items in a given iteration */
+    boost::uint32_t getBCNProcessableItems() const;
 
     /** @brief Sets the first timeout factor */
     void setFirstTimeOut(const boost::posix_time::time_duration&);
@@ -205,10 +212,10 @@ protected:
 		}
 
 		// At this point we have received the first individual of the current generation back.
-		// Record the elapsed time and calculated the time until which other individuals are
+		// Record the elapsed time and calculate the time for which other individuals are
 		// allowed to return
 		totalElapsedFirst_ = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
-		maxAllowedElapsed_ = totalElapsedFirst_ * waitFactor_;
+		maxAllowedElapsed_ = totalElapsedFirst_ * (waitFactor_ + 1);
 
 		// Convert the item to the target type. Note that there is a specialization
 		// of this function in case ind_type == GIndividual
@@ -245,8 +252,11 @@ protected:
 		// Will hold converted items
 		boost::shared_ptr<ind_type> p_converted;
 
-		if(waitFactor_) { // Have we been asked to consider a possible time-out ?
-			if(!CurrentBufferPort_->pop_back_processed_bool(&p,	maxAllowedElapsed_-(boost::posix_time::microsec_clock::local_time()-iterationStartTime_))) {
+		if(nProcessingUnits_ > 0) { // Have we been asked to consider a possible time-out ?
+			// Calculate how much time has elapsed since the start of the iteration
+			boost::posix_time::time_duration currentElapsed = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
+
+			if((maxAllowedElapsed_ < currentElapsed) || !CurrentBufferPort_->pop_back_processed_bool(&p, maxAllowedElapsed_-currentElapsed)) {
 				return p_converted; // will be empty
 			}
 		} else {// Wait indefinitely for the next item
@@ -278,6 +288,8 @@ protected:
 	/******************************************************************************/
 private:
 	boost::uint32_t waitFactor_; ///< Affects the timeout for returning individuals
+	boost::uint32_t nProcessingUnits_; ///< An indication of the number of processing units available for this population
+	boost::uint32_t nProcessableItems_; ///< Indicates the number of processable items in a given iteration
 
     boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
     boost::posix_time::ptime iterationStartTime_; ///< Temporary that holds the start time for the retrieval of items in a given iteration
@@ -289,6 +301,11 @@ private:
     std::vector<std::vector<boost::uint32_t> >  arrivalTimes_; ///< Holds the actual arrival times. Note: Neither serialized nor copied
 
     GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the optimization cycle. Note: Neither serialized nor copied
+
+    /** @brief Sets the wait factor */
+    void setWaitFactor(const boost::uint32_t&);
+    /** @brief Retrieves the wait factor */
+    boost::uint32_t getWaitFactor() const;
 
 #ifdef GENEVATESTING
 public:

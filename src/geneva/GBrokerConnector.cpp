@@ -47,6 +47,8 @@ namespace Geneva
  */
 GBrokerConnector::GBrokerConnector()
     : waitFactor_(DEFAULTBROKERWAITFACTOR)
+    , nProcessingUnits_(DEFAULTNPROCESSINGUNITS)
+    , nProcessableItems_(1)
     , firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTBROKERFIRSTTIMEOUT))
     , doLogging_(false)
 { /* nothing */ }
@@ -59,6 +61,8 @@ GBrokerConnector::GBrokerConnector()
  */
 GBrokerConnector::GBrokerConnector(const GBrokerConnector& cp)
 	: waitFactor_(cp.waitFactor_)
+	, nProcessingUnits_(cp.nProcessingUnits_)
+	, nProcessableItems_(cp.nProcessableItems_)
 	, firstTimeOut_(cp.firstTimeOut_)
 	, doLogging_(cp.doLogging_)
 { /* nothing */ }
@@ -91,6 +95,8 @@ const GBrokerConnector& GBrokerConnector::operator=(const GBrokerConnector& cp) 
  */
 void GBrokerConnector::load(GBrokerConnector const * const cp) {
 	waitFactor_ = cp->waitFactor_;
+	nProcessingUnits_ = cp->nProcessingUnits_;
+	nProcessableItems_ = cp->nProcessableItems_;
 	firstTimeOut_ = cp->firstTimeOut_;
 	doLogging_ = cp->doLogging_;
 }
@@ -123,6 +129,8 @@ boost::optional<std::string> GBrokerConnector::checkRelationshipWith(
 
 	// Check the local local data
 	deviations.push_back(checkExpectation(withMessages, "GBrokerConnector", waitFactor_, cp.waitFactor_, "waitFactor_", "cp.waitFactor_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GBrokerConnector", nProcessingUnits_, cp.nProcessingUnits_, "nProcessingUnits_", "cp.nProcessingUnits_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GBrokerConnector", nProcessableItems_, cp.nProcessableItems_, "nProcessableItems_", "cp.nProcessableItems_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBrokerConnector", firstTimeOut_, cp.firstTimeOut_, "firstTimeOut_", "cp.firstTimeOut_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBrokerConnector", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
 
@@ -177,6 +185,55 @@ void GBrokerConnector::setWaitFactor(const boost::uint32_t& waitFactor)  {
  */
 boost::uint32_t GBrokerConnector::getWaitFactor() const  {
 	return waitFactor_;
+}
+
+/************************************************************************************************************/
+/**
+ * Sets the desired number of processing units available for this population
+ *
+ * @param nProcessingUnits The desired number of processing units available for this population
+ */
+void GBrokerConnector::setNProcessingUnits(const boost::uint32_t& nProcessingUnits) {
+	nProcessingUnits_ = nProcessingUnits;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to retrieve the assumed number of processing units available for this population
+ *
+ * @return The assumed number of processing units available for this population
+ */
+boost::uint32_t GBrokerConnector::getNProcessingUnits() const {
+	return nProcessingUnits_;
+}
+
+/************************************************************************************************************/
+/**
+ * Sets the number of processable items in a given iteration
+ *
+ * @param nProcessableItems The desired number of processable items in a given iteration
+ */
+void GBrokerConnector::setBCNProcessableItems(const boost::uint32_t& nProcessableItems) {
+#ifdef DEBUG
+	if(nProcessableItems == 0) {
+		raiseException (
+				"In GBrokerConnector::setNProcessableItems(...): Error!" << std::endl
+				<< "Received invalid number of processable items: " << nProcessableItems << std::endl
+		);
+	}
+#endif
+
+	nProcessableItems_ = nProcessableItems;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to retrieve the number of processable items in a given iteration
+ *
+ * @return The number of processable items in a given iteration
+ */
+boost::uint32_t GBrokerConnector::getBCNProcessableItems() const {
+	return nProcessableItems_;
 }
 
 /************************************************************************************************************/
@@ -246,7 +303,8 @@ std::vector<std::vector<boost::uint32_t> > GBrokerConnector::getLoggingResults()
 
 /************************************************************************************************************/
 /**
- * Performs necessary initialization work after an optimization run
+ * Performs necessary initialization work after an optimization run. In particular it creates a buffer port
+ * and registers it with the broker, so communication with external consumers can occur.
  */
 void GBrokerConnector::init() {
 	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<boost::shared_ptr<Gem::Geneva::GIndividual> >());
@@ -273,6 +331,11 @@ void GBrokerConnector::markNewIteration() {
 	// If logging is enabled, add a std::vector<boost::uint32_t> for the current iteration
 	// to arrivalTimes_
 	if(doLogging_) arrivalTimes_.push_back(std::vector<boost::uint32_t>());
+
+	// Recalculate the wait factor, based on the current number of processing units and the number of processable items
+	// If e.g. nProcessableItems_ is 10 and nProcessingUnits_ is 3. we want the result to be 4. The calculation will also
+	// result in a minimum wait factor of 1
+	waitFactor_ = boost::numeric_cast<boost::uint32_t>(std::ceil(double(std::min(nProcessableItems_, boost::uint32_t(1)))/double(std::min(nProcessingUnits_, boost::uint32_t(1)))));
 
 	// Set the start time of the new iteration so we calculate a correct
 	// Return time for the first individual, regardless of whether older
@@ -352,8 +415,12 @@ boost::shared_ptr<GIndividual> GBrokerConnector::retrieveItem<GIndividual>() {
 	// Will hold retrieved items or stay empty, if none could be retrieved
 	boost::shared_ptr<GIndividual> p;
 
-	if(waitFactor_) { // Have we been asked to take into account a possible time-out ?
-	   if(!CurrentBufferPort_->pop_back_processed_bool(&p,	maxAllowedElapsed_-(boost::posix_time::microsec_clock::local_time()-iterationStartTime_))) {
+	if(nProcessingUnits_ > 0) { // Have we been asked to take into account a possible time-out ?
+	   // Calculate how much time has elapsed since the start of the iteration
+	   boost::posix_time::time_duration currentElapsed = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
+
+	   // Make sure (maxAllowedElapsed_ - currentElapsed) is not negative and an item has been retrieved
+	   if((maxAllowedElapsed_ < currentElapsed) || !CurrentBufferPort_->pop_back_processed_bool(&p,	maxAllowedElapsed_-currentElapsed)) {
 		   p.reset(); // Make sure it is empty if we have encountered a time-out
 	   }
 	} else {// Wait indefinitely for the next item

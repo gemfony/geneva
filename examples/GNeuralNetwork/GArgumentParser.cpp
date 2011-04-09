@@ -202,7 +202,7 @@ namespace Gem
 			, std::size_t& arraySize
 			, boost::uint32_t& processingCycles
 			, bool& returnRegardless
-			, boost::uint32_t& waitFactor
+			, boost::uint32_t& nProcessingUnits
 			, transferFunction& tF
 			, std::string& trainingInputData
 			, std::string& resultProgram
@@ -250,7 +250,7 @@ namespace Gem
 	   "The maximum number of cycles a client should perform adaptions before it returns without success")
 	  ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
 	   "Specifies whether results should be returned even if they are not better than before")
-	  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
+	  ("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
 	   "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
 	  ("transferFunction", po::value<Gem::Geneva::transferFunction>(&tF)->default_value(DEFAULTTRANSFERFUNCTION),
 	   "The transfer function used in the network: 0 (SIGMOID), 1(RBF)")
@@ -323,7 +323,7 @@ namespace Gem
 		    << "arraySize = " << arraySize << std::endl
 		    << "processingCycles = " << processingCycles << std::endl
 		    << "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
-		    << "waitFactor = " << waitFactor << std::endl
+		    << "nProcessingUnits = " << nProcessingUnits << std::endl
 		    << "transferFunction = " << tF << std::endl
 		    << "trainingInputData = " << trainingInputData << std::endl
 		    << "resultProgram = " << resultProgram << std::endl

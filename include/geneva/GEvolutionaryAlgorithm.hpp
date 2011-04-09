@@ -173,6 +173,9 @@ public:
 	/** @brief Retrieves the current value of the logOldParents_ flag */
 	bool oldParentsLogged() const;
 
+	/** @brief Retrieves the number of processable items for the current iteration */
+	virtual std::size_t getNProcessableItems() const;
+
 	//------------------------------------------------------------------------------------------
 	// Settings specific to micro-training
 	/** @brief Set the interval in which micro training should be performed */

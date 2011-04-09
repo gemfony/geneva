@@ -75,8 +75,9 @@
 #include "common/GBoundedBufferWithIdT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"
-#include "GConsumer.hpp"
-#include "GBufferPortT.hpp"
+#include "courtier/GConsumer.hpp"
+#include "courtier/GBufferPortT.hpp"
+#include "courtier/GCourtierEnums.hpp"
 
 namespace Gem {
 namespace Courtier {

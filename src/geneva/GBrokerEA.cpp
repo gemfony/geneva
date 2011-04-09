@@ -178,6 +178,9 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
  * @return The best achieved fitness
  */
 double GBrokerEA::cycleLogic() {
+	// Let the connector know how many processable items are available
+	GBrokerConnector::setBCNProcessableItems(GEvolutionaryAlgorithm::getNProcessableItems());
+
 	// Let the GBrokerConnector know that we are starting a new iteration
 	GBrokerConnector::markNewIteration();
 
@@ -283,7 +286,7 @@ void GBrokerEA::adaptChildren() {
 	data.resize(np);
 
 	// Make sure we also evaluate the parents in the first iteration, if needed.
-	// This is only applicable to the MUPLUSNU and MUNU1PRETAIN modes.
+	// This is only applicable to the SA, MUPLUSNU and MUNU1PRETAIN modes.
 	if(iteration==0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
@@ -366,7 +369,7 @@ void GBrokerEA::adaptChildren() {
 	// retrieveItem will return an empty pointer, if a timeout has been reached
 	while(!complete && (p=GBrokerConnector::retrieveItem<GIndividual>())) {
 		// Count the number of items received.
-		if(p->getParentAlgIteration() == iteration) {
+		if(p->getParentAlgIteration() == iteration) { // First count items of the current iteration
 			// Add the individual to our list.
 			this->push_back(p);
 
@@ -376,8 +379,8 @@ void GBrokerEA::adaptChildren() {
 			// Update the counter
 			if(p->getEAPersonalityTraits()->isParent()) nReceivedParent++;
 			else nReceivedChildCurrent++;
-		} else {
-			if(!p->getEAPersonalityTraits()->isParent()){  // Parents from older populations will be ignored, as there is no else clause
+		} else { // Now count items of older iterations
+			if(!p->getEAPersonalityTraits()->isParent()){  // Parents from older iterations will be ignored, as there is no else clause
 				// Make it known to the individual that it is now part of a new iteration
 				p->setParentAlgIteration(iteration);
 
@@ -421,7 +424,6 @@ void GBrokerEA::adaptChildren() {
 	//--------------------------------------------------------------------------------
 	// We are done, if a full set of individuals has returned.
 	// The population size is at least at nominal values.
-	// TODO: Adapt waitFactor_ variable
 	if(complete) return;
 
 	//--------------------------------------------------------------------------------

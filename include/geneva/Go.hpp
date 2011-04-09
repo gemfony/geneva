@@ -86,7 +86,7 @@ const bool GO_DEF_RETURNREGARDLESS=true;
 const boost::uint16_t GO_DEF_NPRODUCERTHREADS=0;
 const std::size_t GO_DEF_ARRAYSIZE=1000;
 const boost::uint16_t GO_DEF_NEVALUATIONTHREADS=0;
-const boost::uint32_t GO_DEF_WAITFACTOR=0;
+const boost::uint32_t GO_DEF_NPROCUNITS=0;
 const boost::uint32_t GO_DEF_MAXITERATIONS=1000;
 const boost::uint32_t GO_DEF_MAXSTALLITERATIONS=0;
 const long GO_DEF_MAXMINUTES=0;
@@ -149,7 +149,7 @@ class Go
 	     & BOOST_SERIALIZATION_NVP(arraySize_)
 	     & BOOST_SERIALIZATION_NVP(nEvaluationThreads_)
 	     & BOOST_SERIALIZATION_NVP(serializationMode_)
-	     & BOOST_SERIALIZATION_NVP(waitFactor_)
+	     & BOOST_SERIALIZATION_NVP(nProcessingUnits_)
 	     & BOOST_SERIALIZATION_NVP(maxIterations_)
 	     & BOOST_SERIALIZATION_NVP(maxStallIteration_)
 	     & BOOST_SERIALIZATION_NVP(maxMinutes_)
@@ -284,8 +284,8 @@ public:
 	void setNEvaluationThreads(const boost::uint16_t&);
 	boost::uint16_t getNEvaluationThreads() const;
 
-	void setWaitFactor(const boost::uint32_t&);
-	boost::uint32_t getWaitFactor() const;
+	void setNProcessingUnits(const boost::uint32_t&);
+	boost::uint32_t getNProcessingUnits() const;
 
 	void setMaxIterations(const boost::uint32_t&);
 	boost::uint32_t getMaxIterations() const;
@@ -491,7 +491,7 @@ public:
 	       << std::endl
 	       << "# Specifies how long the server should wait for arrivals. 1 means:" << std::endl
 	       << "# \"wait the same amount it has taken the first answer to return\"" << std::endl
-	       << "waitFactor = " << GO_DEF_WAITFACTOR << std::endl
+	       << "nProcessingUnits_ = " << GO_DEF_NPROCUNITS << std::endl
 	       << std::endl
 	       << "# Indicates the maximum number of iterations in the optimization" << std::endl
 	       << "maxIterations = " << GO_DEF_MAXITERATIONS << std::endl
@@ -642,7 +642,7 @@ private:
 
 			// Create the actual broker population
 			boost::shared_ptr<GBrokerEA> eaBroker_ptr(new GBrokerEA());
-			eaBroker_ptr->setWaitFactor(waitFactor_);
+			eaBroker_ptr->setNProcessingUnits(nProcessingUnits_);
 
 			// Assignment to the base pointer
 			ea_ptr = eaBroker_ptr;
@@ -759,7 +759,7 @@ private:
 
 			// Create the actual broker population
 			boost::shared_ptr<GBrokerSwarm> swarmBroker_ptr(new GBrokerSwarm(swarmNNeighborhoods_, swarmNNeighborhoodMembers_));
-			swarmBroker_ptr->setWaitFactor(waitFactor_);
+			swarmBroker_ptr->setNProcessingUnits(nProcessingUnits_);
 
 			// Assignment to the base pointer
 			swarm_ptr = swarmBroker_ptr;
@@ -881,7 +881,7 @@ private:
 
 			// Create the actual broker population
 			boost::shared_ptr<GBrokerGD> gdBroker_ptr(new GBrokerGD(gdNStartingPoints_, gdFiniteStep_, gdStepSize_));
-			gdBroker_ptr->setWaitFactor(waitFactor_);
+			gdBroker_ptr->setNProcessingUnits(nProcessingUnits_);
 
 			// Assignment to the base pointer
 			gd_ptr = gdBroker_ptr;
@@ -978,7 +978,7 @@ private:
     boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
     std::size_t arraySize_; ///< The size of the random number packages being transferred to the proxy RNGs
     boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
-    boost::uint32_t waitFactor_; ///< Influences the timeout in each iteration on the server side in networked execution
+    boost::uint32_t nProcessingUnits_; ///< Influences the timeout in each iteration on the server side in networked execution
     boost::uint32_t maxIterations_; ///< The maximum number of iterations of the optimization algorithms
     boost::uint32_t maxStallIteration_; ///< The maximum number of generations without improvement, after which optimization is stopped
     long maxMinutes_; ///< The maximum duration of the optimization

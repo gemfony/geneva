@@ -200,6 +200,17 @@ float GGradientDescent::getStepSize() const {
 
 /************************************************************************************************************/
 /**
+ * Retrieve the number of processable items in the current iteration.
+ *
+ * @return The number of processable items in the current iteration
+ */
+std::size_t GGradientDescent::getNProcessableItems() const {
+	return this->size(); // Evaluation always needs to be done for the entire population
+}
+
+
+/************************************************************************************************************/
+/**
  * A standard assignment operator
  *
  * @param cp A copy of another GRadientDescent object

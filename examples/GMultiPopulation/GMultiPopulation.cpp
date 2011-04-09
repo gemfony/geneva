@@ -92,7 +92,7 @@ int main(int argc, char **argv){
   double maxVar;
   boost::uint32_t processingCycles;
   bool returnRegardless;
-  boost::uint32_t waitFactor;
+  boost::uint32_t nProcessingUnits;
   demoFunction df;
   boost::uint32_t adaptionThreshold;
   double sigma;
@@ -130,7 +130,7 @@ int main(int argc, char **argv){
 		      arraySize,
 		      processingCycles,
 			  returnRegardless,
-		      waitFactor,
+			  nProcessingUnits,
 		      adProb,
 		      adaptionThreshold,
 			  sigma,
@@ -248,7 +248,7 @@ int main(int argc, char **argv){
 
       // Create the actual broker population
       boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
-      popBroker_ptr->setWaitFactor(waitFactor);
+      popBroker_ptr->setNProcessingUnits(nProcessingUnits);
 
       // Assignment to the base pointer
       super_pop_ptr = popBroker_ptr;

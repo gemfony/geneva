@@ -1216,6 +1216,17 @@ bool GSwarm::neighborhoodsFilledUpRandomly() const {
 	return randomFillUp_;
 }
 
+/************************************************************************************************************/
+/**
+ * Retrieve the number of processable items in the current iteration.
+ *
+ * @return The number of processable items in the current iteration
+ */
+std::size_t GSwarm::getNProcessableItems() const {
+	return this->size(); // All items in the population are updated in each iteration and need to be processed
+}
+
+
 #ifdef GENEVATESTING
 /************************************************************************************************************/
 /**

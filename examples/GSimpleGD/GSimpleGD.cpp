@@ -89,7 +89,7 @@ int main(int argc, char **argv){
   double maxVar;
   sortingMode smode;
   boost::uint32_t processingCycles;
-  boost::uint32_t waitFactor;
+  boost::uint32_t nProcessingUnits;
   demoFunction df;
   boost::uint32_t adaptionThreshold;
   double sigma;
@@ -133,7 +133,7 @@ int main(int argc, char **argv){
    		, arraySize
    		, processingCycles
    		, returnRegardless
-   		, waitFactor
+   		, nProcessingUnits
    		, parDim
    		, minVar
    		, maxVar
@@ -217,7 +217,7 @@ int main(int argc, char **argv){
 
 	  // Create the actual broker population
 	  boost::shared_ptr<GBrokerGD> popBroker_ptr(new GBrokerGD(nStartingPoints, finiteStep, stepSize));
-	  popBroker_ptr->setWaitFactor(waitFactor);
+	  popBroker_ptr->setNProcessingUnits(nProcessingUnits);
 
 	  // Assignment to the base pointer
 	  pop_ptr = popBroker_ptr;

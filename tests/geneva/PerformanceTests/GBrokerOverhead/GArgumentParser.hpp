@@ -93,7 +93,7 @@ namespace Gem
     const boost::uint32_t DEFAULTSTARTITERATION=0;
     const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
     const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
-    const boost::uint32_t DEFAULTGBTCWAITFACTOR=5;
+    const boost::uint32_t DEFAULTGBTCNPROCUNITS=1;
     const std::size_t DEFAULTPARDIM=100;
     const double DEFAULTMINVAR=-10.;
     const double DEFAULTMAXVAR=10.;
@@ -122,7 +122,7 @@ namespace Gem
 		  , sortingMode& smode
 		  , std::size_t& arraySize
 		  , boost::uint32_t& processingCycles
-		  , boost::uint32_t& waitFactor
+		  , boost::uint32_t& nProcessingUnits
 		  , double& adProb
 		  , boost::uint32_t& adaptionThreshold
 		  , double& sigma

@@ -85,7 +85,7 @@ int main(int argc, char **argv){
 	double maxVar;
 	boost::uint32_t processingCycles;
 	bool returnRegardless;
-	boost::uint32_t waitFactor;
+	boost::uint32_t nProcessingUnits;
 	std::size_t nNeighborhoods;
 	std::size_t nNeighborhoodMembers;
 	demoFunction df;
@@ -119,7 +119,7 @@ int main(int argc, char **argv){
 			, arraySize
 			, processingCycles
 			, returnRegardless
-			, waitFactor
+			, nProcessingUnits
 			, parDim
 			, minVar
 			, maxVar
@@ -202,7 +202,7 @@ int main(int argc, char **argv){
 
 		// Create the actual broker population
 		boost::shared_ptr<GBrokerSwarm> popBroker_ptr(new GBrokerSwarm(nNeighborhoods, nNeighborhoodMembers));
-		popBroker_ptr->setWaitFactor(waitFactor);
+		popBroker_ptr->setNProcessingUnits(nProcessingUnits);
 
 		// Assignment to the base pointer
 		pop_ptr = popBroker_ptr;

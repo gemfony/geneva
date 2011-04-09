@@ -159,6 +159,9 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
  * @return The best achieved fitness
  */
 double GBrokerGD::cycleLogic() {
+	// Let the connector know how many processable items are available
+	GBrokerConnector::setBCNProcessableItems(GGradientDescent::getNProcessableItems());
+
 	// Let the GBrokerConnector know that we are starting a new iteration
 	GBrokerConnector::markNewIteration();
 
@@ -243,7 +246,7 @@ void GBrokerGD::finalize() {
 /************************************************************************************************************/
 /**
  * Triggers fitness calculation of a number of individuals. This function performs the same task as done
- * in GGradientDescent, albeit multi-threaded.
+ * in GGradientDescent, albeit by delegating work to the broker.
  *
  * @param finalPos The position in the vector up to which the fitness calculation should be performed
  * @return The best fitness found amongst all parents

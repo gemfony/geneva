@@ -361,8 +361,8 @@ public:
 			*/
 			return false;
 		}
-		(*pItem) = container_.back();
-		container_.pop_back();
+		(*pItem) = container_.back(); // Assign the item at the back of the container
+		container_.pop_back(); // Remove it from the container
 		lock.unlock();
 		not_full_.notify_one();
 		return true;

@@ -91,7 +91,7 @@ namespace Gem
     const boost::uint32_t DEFAULTSTARTITERATION=0;
     const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
     const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
-    const boost::uint32_t DEFAULTGBTCWAITFACTOR=5;
+    const boost::uint32_t DEFAULTGBTCNPROCUNITS=1;
     const std::size_t DEFAULTPARDIM=100;
     const double DEFAULTMINVAR=-10.;
     const double DEFAULTMAXVAR=10.;
@@ -105,6 +105,7 @@ namespace Gem
     const bool DEFAULTFOLLOWPROGRESS=false;
     const bool DEFAULTTRACKPARENTRELATIONS=false;
     const bool DEFAULTDRAWARROWS=false;
+    const bool DEFAULTADDLOCALCONSUMER=false;
 
     namespace po = boost::program_options;
 
@@ -116,6 +117,7 @@ namespace Gem
     		, std::string& ip
     		, unsigned short& port
     		, Gem::Common::serializationMode& serMode
+    		, bool& addLocalConsumer
 	);
 
     bool parseConfigFile(
@@ -132,7 +134,7 @@ namespace Gem
     		, std::size_t& arraySize
     		, boost::uint32_t& processingCycles
     		, bool& returnRegardless
-    		, boost::uint32_t& waitFactor
+    		, boost::uint32_t& nProcessingUnits
     		, double& adProb
     		, boost::uint32_t& adaptionThreshold
     		, double& sigma

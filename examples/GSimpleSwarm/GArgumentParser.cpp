@@ -137,7 +137,7 @@ namespace Gem
 	   , std::size_t& arraySize
 	   , boost::uint32_t& processingCycles
 	   , bool& returnRegardless
-	   , boost::uint32_t& waitFactor
+	   , boost::uint32_t& nProcessingUnits
 	   , std::size_t& parDim
 	   , double& minVar
 	   , double& maxVar
@@ -186,8 +186,8 @@ namespace Gem
 		   "The maximum number of cycles a client should perform adaptions before it returns without success")
 		  ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
 		   "Specifies whether results should be returned even if they are not better than before")
-		  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
-		   "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
+		  ("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
+		   "Specifies how many processing units are available in networked mode")
 		  ("parDim", po::value<std::size_t>(&parDim)->default_value(DEFAULTPARDIM),
 		   "The amount of variables in the parabola")
 		  ("minVar", po::value<double>(&minVar)->default_value(DEFAULTMINVAR),
@@ -251,7 +251,7 @@ namespace Gem
 					<< "arraySize = " << arraySize << std::endl
 					<< "processingCycles = " << processingCycles << std::endl
 					<< "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
-					<< "waitFactor = " << waitFactor << std::endl
+					<< "nProcessingUnits = " << nProcessingUnits << std::endl
 					<< "parDim = " << parDim << std::endl
 					<< "minVar = " << minVar << std::endl
 					<< "maxVar = " << maxVar << std::endl

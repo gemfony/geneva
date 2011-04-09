@@ -284,7 +284,12 @@ const updateRule DEFAULTUPDATERULE = CLASSIC; ///< The default update rule in sw
  * Used in conjunction with optimization algorithms that
  * communicate via the "courtier" broker infrastructure.
  */
-const boost::uint32_t DEFAULTBROKERWAITFACTOR = 20;
+const boost::uint32_t DEFAULTBROKERWAITFACTOR = 0;
+
+/**
+ * The default number of processing units
+ */
+const boost::uint32_t DEFAULTNPROCESSINGUNITS = 0;
 
 /**********************************************************************************************/
 /**

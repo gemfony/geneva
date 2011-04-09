@@ -692,6 +692,8 @@ public:
 	/**************************************************************************************/
 	/**
 	 * Removes the quality threshold
+	 *
+	 * TODO: rename to resetQualityThreshold()
 	 */
 	void unsetQualityThreshold() {
 		hasQualityThreshold_ = false;
@@ -836,6 +838,18 @@ public:
 	 * to make better use of Multi-Populations in Evolutionary Algorithms.
 	 */
 	void randomInit() { /* nothing */ }
+
+	/**************************************************************************************/
+	/**
+	 * Retrieve the number of processable items in the current iteration. This function should
+	 * be overloaded for derived classes. It is used to determine a suitable wait factor for
+	 * networked execution.
+	 *
+	 * @return The number of processable items in the current iteration
+	 */
+	virtual std::size_t getNProcessableItems() const {
+		return this->size();
+	}
 
 	/**************************************************************************************/
 	/**
@@ -1622,7 +1636,7 @@ public:
 		/**********************************************************************************/
 		bool quiet_; ///< Specifies whether any information should be emitted at all
 		std::string resultFile_; ///< Specifies where result information should be sent to
-		std::ofstream summary_; ///< The stream to which information is written (not serialied)
+		std::ofstream summary_; ///< The stream to which information is written (not serialized)
 
 #ifdef GENEVATESTING
 	public:
