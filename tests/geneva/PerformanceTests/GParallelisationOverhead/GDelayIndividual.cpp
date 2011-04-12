@@ -195,8 +195,8 @@ double GDelayIndividual::fitnessCalculation(){
 	// Sleep for the desired amount of time
 	boost::this_thread::sleep(sleepTime_);
 
-	// We always return the same value
-	return 1.;
+	// Return a random value - we do not perform a real optimization
+	return gr.uniform_01<double>();
 }
 
 /********************************************************************************************/

@@ -38,6 +38,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <unistd.h>
 
 // Boost header files go here
 
@@ -98,11 +99,14 @@ int main(int argc, char **argv) {
 		<< "  // =========================================================" << std::endl
 		<< "  // Sleep time = " << gdi_ptr->getSleepTime().total_milliseconds() << " milliseconds) :" << std::endl
 		<< "  sleepTime.push_back(" << gdi_ptr->getSleepTime().total_milliseconds()  << "/1000.);" << std::endl
-		<< "  averageProcessingTime.push_back(" << double(duration.total_milliseconds())/double(go.getMaxIterations()+1) <<"/1000.);" << std::endl
+		<< "  averageProcessingTime.push_back(" << double(duration.total_milliseconds()) << "/1000.);" << std::endl
 		<< std::endl;
 
 		// Clean up the collection
 		go.clear();
+
+		// Wait for late arrivals
+		sleep(120);
 
 		// Increment the iteration counter
 		iter++;
@@ -131,7 +135,7 @@ int main(int argc, char **argv) {
 	       << "  evGraph->SetMarkerSize(1.0);" << std::endl
 	       << "  evGraph->Draw(\"ACP\");" << std::endl
 	       << "  evGraph->GetXaxis()->SetTitle(\"Evaluation time/individual [s]\");" << std::endl
-	       << "  evGraph->GetYaxis()->SetTitle(\"Average processing time/generation [s]\");" << std::endl
+	       << "  evGraph->GetYaxis()->SetTitle(\"Total processing time/ [s]\");" << std::endl
 	       << "}" << std::endl;
 
 	 // Close the result file
