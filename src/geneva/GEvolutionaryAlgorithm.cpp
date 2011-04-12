@@ -457,6 +457,9 @@ std::size_t GEvolutionaryAlgorithm::getNProcessableItems() const {
 	} else {
 		return this->getDefaultNChildren();
 	}
+
+	// Make the compiler happy
+	return 0;
 }
 
 /************************************************************************************************************/
