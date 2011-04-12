@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 	<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,600);" << std::endl
 	<< std::endl
 	<< "  std::vector<double> sleepTime; // The amount of time each individual sleeps" << std::endl
-	<< "  std::vector<double> averageProcessingTime; // The average processing time per generation" << std::endl
+	<< "  std::vector<double> totalProcessingTime; // The total processing time for a given optimization cycle" << std::endl
 	<< std::endl;
 
 	// Loop until no valid individuals can be retrieved anymore
@@ -97,9 +97,9 @@ int main(int argc, char **argv) {
 		result
 		<< std::endl
 		<< "  // =========================================================" << std::endl
-		<< "  // Sleep time = " << gdi_ptr->getSleepTime().total_milliseconds() << " milliseconds) :" << std::endl
+		<< "  // Sleep time = " << gdi_ptr->getSleepTime().total_milliseconds() << " milliseconds:" << std::endl
 		<< "  sleepTime.push_back(" << gdi_ptr->getSleepTime().total_milliseconds()  << "/1000.);" << std::endl
-		<< "  averageProcessingTime.push_back(" << double(duration.total_milliseconds()) << "/1000.);" << std::endl
+		<< "  totalProcessingTime.push_back(" << double(duration.total_milliseconds()) << "/1000.);" << std::endl
 		<< std::endl;
 
 		// Clean up the collection
@@ -121,15 +121,15 @@ int main(int argc, char **argv) {
 	result << std::endl
 		   << "  // Transfer of vectors into arrays" << std::endl
 		   << "  double sleepTimeArr[" << gdif.getNMeasurements() << "];" << std::endl
-		   << "  double averageProcessingTimeArr[" << gdif.getNMeasurements() << "];" << std::endl
+		   << "  double totalProcessingTimeArr[" << gdif.getNMeasurements() << "];" << std::endl
 		   << std::endl
 		   << "  for(int i=0; i< " << gdif.getNMeasurements() << "; i++) {" << std::endl
 		   << "    sleepTimeArr[i] = sleepTime.at(i);" << std::endl
-		   << "    averageProcessingTimeArr[i] = averageProcessingTime.at(i);" << std::endl
+		   << "    totalProcessingTimeArr[i] = totalProcessingTime.at(i);" << std::endl
 		   << "  }" << std::endl
 	       << std::endl
 	       << "  // Creation of TGraph objects and data transfer into the objects" << std::endl
-	       << "  TGraph *evGraph = new TGraph(" << gdif.getNMeasurements() << ", sleepTimeArr, averageProcessingTimeArr);" << std::endl
+	       << "  TGraph *evGraph = new TGraph(" << gdif.getNMeasurements() << ", sleepTimeArr, totalProcessingTimeArr);" << std::endl
 	       << std::endl
 	       << "  evGraph->SetMarkerStyle(2);" << std::endl
 	       << "  evGraph->SetMarkerSize(1.0);" << std::endl
