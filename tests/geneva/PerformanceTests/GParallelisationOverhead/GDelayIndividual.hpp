@@ -155,8 +155,12 @@ public:
 
 	/** @brief Allows to retrieve the name of the result file */
 	std::string getResultFileName() const;
+	/** @brief Allows to retrieve the name of the file holding the short measurement results */
+	std::string getShortResultFileName() const;
 	/** @brief Allows to retrieve the number of measurements to be made */
 	std::size_t getNMeasurements() const;
+	/** @brief Allows to retrieve the amount of seconds in between two measurements */
+	boost::uint32_t getInterMeasurementDelay() const;
 
 protected:
 	/** @brief Necessary initialization work */
@@ -172,6 +176,8 @@ private:
 	std::string delays_;
 	std::vector<long> sleepSeconds_, sleepMilliSeconds_;
 	std::string resultFile_;
+	std::string shortResultFile_;
+	boost::uint32_t interMeasurementDelay_;
 };
 
 /************************************************************************************************/

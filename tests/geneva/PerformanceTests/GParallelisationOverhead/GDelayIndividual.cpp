@@ -230,6 +230,8 @@ GDelayIndividualFactory::GDelayIndividualFactory(const std::string& cF)
 	, processingCycles_(1)
 	, nVariables_(100)
 	, resultFile_("networkResults.C")
+	, shortResultFile_("shortDelayResults.txt")
+	, interMeasurementDelay_(20)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -251,12 +253,32 @@ std::string GDelayIndividualFactory::getResultFileName() const {
 
 /********************************************************************************************/
 /**
+ * Allows to retrieve the name of the file holding the short measurement results
+ *
+ * @return The file name holding short measurement results
+ */
+std::string GDelayIndividualFactory::getShortResultFileName() const {
+	return shortResultFile_;
+}
+
+/********************************************************************************************/
+/**
  * Allows to retrieve the number of measurements to be made
  *
  * @return The number of measurements that will be made
  */
 std::size_t GDelayIndividualFactory::getNMeasurements() const {
 	return sleepSeconds_.size();
+}
+
+/********************************************************************************************/
+/**
+ * Allows to retrieve the amount of seconds in between two measurements
+ *
+ * @return The amount of seconds the process will sleeb in between two measurements
+ */
+boost::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
+	return interMeasurementDelay_;
 }
 
 /********************************************************************************************/
@@ -340,6 +362,8 @@ void GDelayIndividualFactory::describeConfigurationOptions_() {
 	gpb.registerParameter("nVariables", nVariables_, nVariables_);
 	gpb.registerParameter("delays", delays_, std::string(""));
 	gpb.registerParameter("resultFile", resultFile_, resultFile_);
+	gpb.registerParameter("shortResultFile", shortResultFile_, shortResultFile_);
+	gpb.registerParameter("interMeasurementDelay", interMeasurementDelay_, interMeasurementDelay_);
 }
 
 /********************************************************************************************/

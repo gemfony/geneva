@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
 	gdif.init();
 
 	//---------------------------------------------------------------------
-	// Prepare the output file used to record the measurements
+	// Prepare the output files used to record the measurements
 	std::ofstream result(gdif.getResultFileName().c_str());
 	result
 	<< "{" << std::endl
@@ -80,6 +80,11 @@ int main(int argc, char **argv) {
 	<< "  std::vector<double> sleepTime; // The amount of time each individual sleeps" << std::endl
 	<< "  std::vector<double> totalProcessingTime; // The total processing time for a given optimization cycle" << std::endl
 	<< std::endl;
+
+	std::ofstream shortResult(gdif.getShortResultFileName().c_str());
+
+	// Determine the amount of seconds the process should sleep in between two measurements
+	boost::uint32_t interMeasurementDelay = gdif.getInterMeasurementDelay();
 
 	// Loop until no valid individuals can be retrieved anymore
 	std::size_t iter = 0;
@@ -102,11 +107,14 @@ int main(int argc, char **argv) {
 		<< "  totalProcessingTime.push_back(" << double(duration.total_milliseconds()) << "/1000.);" << std::endl
 		<< std::endl;
 
+		shortResult
+		<< gdi_ptr->getSleepTime().total_milliseconds() << "/" << duration.total_milliseconds() << std::endl;
+
 		// Clean up the collection
 		go.clear();
 
 		// Wait for late arrivals
-		sleep(120);
+		sleep(interMeasurementDelay);
 
 		// Increment the iteration counter
 		iter++;
@@ -138,8 +146,9 @@ int main(int argc, char **argv) {
 	       << "  evGraph->GetYaxis()->SetTitle(\"Total processing time/ [s]\");" << std::endl
 	       << "}" << std::endl;
 
-	 // Close the result file
+	 // Close the result files
 	result.close();
+	shortResult.close();
 
 	std::cout << "Done ..." << std::endl;
 	return 0;
