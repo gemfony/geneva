@@ -13,6 +13,7 @@ The main changes for this release include:
    is loaded.
  - Removed the publicly visible "waitFactor", instead users now need to provide
    the expected number of compute unites participating in a distributed optimization.
+ - Scripts now reside in their own subdirectory
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.1, "Route Cockroft" - February 12, 2011

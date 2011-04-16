@@ -73,9 +73,12 @@ elif [ $# -eq 1 ]; then
 	echo -e "\nUsing configuration file $1"
 	. $1
 else
-	echo "You should provide exactly one Geneva config file as command"
-	echo "line argument, ending in .gcfg . Got $# arguments instead."
-	echo "See the Geneva directory for an example. Leaving."
+        echo "Reveived $# command line arguments, which is an invalid number."
+        echo "You can either call this script without arguments, in which case"
+	echo "default values will be assumed for all configuration options,"
+	echo "or you can provide exactly one Geneva config file as command"
+	echo "line argument, ending in .gcfg . Leaving now, as we do not know"
+	echo "how to proceed."
 	exit
 fi
 
@@ -83,7 +86,7 @@ fi
 # Some checks
 if [ ! -x ${CMAKE} ]; then
 	echo "Error: Could not find cmake executable ${CMAKE}"
-	echo "Please provide the correct path"
+	echo "Please provide the correct path in the configuration file."
 	exit
 fi
 
@@ -124,7 +127,7 @@ fi
 # Find out where this script is located and whether there is a
 # CMakeLists.txt file in the same directory. We then assume that
 # this is the project root, as it should be.
-PROJECTROOT=`dirname $0`
+PROJECTROOT=`dirname $0`/..
 if [ ! -e ${PROJECTROOT}/CMakeLists.txt ]; then
 	echo "Error: the script should reside in the project root."
 	echo "Leaving."
