@@ -1,14 +1,10 @@
 Target systems
 ==============
 
-The Geneva library has been developed on OpenSUSE systems (version 11.x) and nowadays the
-main development work is done on Ubuntu and Debian. While it is likely that the same code
-will compile on any other Linux and possibly Unix platforms (particularly if gcc versions
-newer than 4.3 are used), only Scientific Linux (RHEL clone) systems have been tested in
-addition to the above mentioned ones.
+The main development work of the Geneva library collection is currently done on Ubuntu and Debian. 
+It is likely that Geneva compiles on most other Linux and Unix systems using the GNU Compiler Collection. 
 The authors would very much appreciate your feedback through the Geneva Development Forum
-    http://www.gemfony.com/index.php?id=108
-if you manage to compile the library on systems other than those mentioned here.
+http://www.gemfony.com/index.php?id=108 .
 
 
 Building and installing
@@ -24,6 +20,7 @@ Boost 1.43 .
 To build the Geneva library use one of the two procedures enumerated below.
 In case you encounter any bugs or issues please let us know through the Geneva
 bugtracker:
+    
     https://bugs.launchpad.net/geneva
 
 
@@ -34,11 +31,11 @@ Geneva comes with a build script that facilitates the somewhat complicated call 
 cmake. Assuming you are in $HOME/build and Geneva is in $HOME/Geneva, copy the config
 file over:
 
-cp ../Geneva/genevaConfig.gcfg ./myGenevaConfig.gcfg
+cp ../Geneva/scripts/genevaConfig.gcfg ./myGenevaConfig.gcfg
 
 Adapt the variables in the file appropriately. Then call
 
-sh ../Geneva/prepareBuild.sh ./myGenevaConfig.gcfg
+sh ../Geneva/scripts/prepareBuild.sh ./myGenevaConfig.gcfg
 
 Finally build and install in the usual way:
 
@@ -72,11 +69,11 @@ with the content
 /where/the/library/goes/lib
 
 You then need to execute "ldconfig -v". Otherwise you can export the library
-location prior to compiling programs based on Geneva:
+location prior to running programs based on Geneva:
 
 export LD_LIBRARY_PATH="/where/the/library/goes/lib:$LD_LIBRARY_PATH"
 
-Somewhat older distributions won't provide a new enough Boost version (i.e.,
+Somewhat older distributions won't provide a new enough version of Boost (i.e.,
 at least 1.40). You might thus have compiled your own version of Boost, and have
 installed it in a non-standard location. In order for CMake to find this directory,
 you can either edit the top-level CMakeLists.txt file and hard-code the paths
@@ -102,11 +99,11 @@ The commands shown here were tested on an Ubuntu 9.10 system.
 Recommended Software
 ====================
 
-By default a Geneva population emits information suitable for the ROOT framework
-(see http://root.cern.ch). ROOT is a C++ analysis framework widely used in particle
-physics. It is built around the C++ interpreter cint. It is recommended to install
-ROOT in your system, as also some of the examples emit information in the ROOT format
-(they are essentially writing ROOT programs).
+By default a Geneva population emits information suitable for ROOT (see http://root.cern.ch). 
+ROOT is a C++ analysis framework widely used in particle physics. It is built around the 
+C++ interpreter cint. It is recommended to install ROOT in your system, as also some of the 
+examples emit information in the ROOT format (they are essentially writing ROOT programs).
+Note, though, that ROOT is not required to perform optimization with the Geneva library collection.
 
 
 Appendix: Installing Boost in Debian/Ubuntu
@@ -168,27 +165,5 @@ should not be necessary for boost versions prior to 1.40.
 Appendix: Known bugs and (possibly) fixes on some platforms
 ===========================================================
 
-* Debian Lenny
+--
 
-The gcc compiler in Debian returns a version number string which is not handled
-correctly by the CMake versions older than 2.6.2, as the one available in Debian Lenny
-(see http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=501024).
-You can either install the cmake version from Debian "Testing" or apply the following
-patch to /usr/share/cmake-2.6/Modules/FindBoost.cmake before calling cmake for Geneva
-
-================================================================================
---- FindBoost.cmake.orig        2008-10-02 22:18:42.000000000 +0200
-+++ FindBoost.cmake     2008-10-02 22:19:00.000000000 +0200
-@@ -374,7 +374,7 @@
-             ARGS --version
-             OUTPUT_VARIABLE _boost_COMPILER_VERSION
-         )
--        STRING(REGEX REPLACE ".* ([0-9])\\.([0-9])\\.[0-9] .*" "\\1\\2"
-+        STRING(REGEX REPLACE ".* ([0-9])\\.([0-9])\\.[0-9][^ ]* .*" "\\1\\2"
-                _boost_COMPILER_VERSION ${_boost_COMPILER_VERSION})
-         SET (_boost_COMPILER "-gcc${_boost_COMPILER_VERSION}")
-       ENDIF (NOT CMAKE_COMPILER_IS_GNUCC)
-================================================================================
-
-NOTE: This procedure is likely not necessary anymore in current versions of Geneva,
-as the code is shipped with a copy of a working FindBoost.cmake .
