@@ -29,21 +29,36 @@
 # http://www.gemfony.com .
 #
 ####################################################################
+# This script will read a list of hosts from the file specified with
+# the first command line option. It will then call the ssh program for
+# all hosts specified there. All other command line arguments given to 
+# this script will be passed verbatim the each ssh call. 
+# Note that it may be useful to use ssh-agent or not to specify
+# any passphrase at all during key generation in order not having to
+# enter the passphrase for each ssh call. 
+# You can call this script like this:
+# ./listRunCommand.sh ./myHostsFile -p 24 -l myUserName myCommand
+# The host file should list one name of a remote host per line.
+# The script will stop execution when one of the ssh calls fails.
+####################################################################
+# !/bin/bash
 #
-# This file holds some configuration options used for the compilation
-# of the Geneva library. Copy to your compilation directory and adapt
-# as needed. Then configure Geneva with a command line similar to
-# "/where/geneva/resides/scripts/prepareBuild.sh ./myGenevaConfig.gcfg"
-# Follow the instructions given by the script.
+# Check that the number of command line options is at least two 
+# (the name of the hosts file and the command to be executed remotely).
+if [ $# -lt 2 ]; then
+	echo "Usage: ./listRunCommand.sh <hostFile> <command>"
+fi
 
-CMAKE=/usr/bin/cmake                      # Where the cmake executable is located
-BOOSTROOT="/opt/boost"                    # Where Boost is installed
-BOOSTLIBS="${BOOSTROOT}/lib"              # Where the Boost libraries are
-BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
-BUILDMODE="Release"                       # Release or Debug
-BUILDTESTCODE="0"                         # Whether to build Geneva with testing code
-BUILDPCH="0"                              # Whether to use pre-compiled headers if possible (GCC4+ only)
-                                          #   Beware of the huge space requirement, many GB!!
-VERBOSEMAKEFILE="0"                       # Whether compilation information should be emitted
-INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
-CEXTRAFLAGS=""                            # Further CMake settings you might want to provide
+# Check that the hosts file exists
+if [ ! -e $1 ]; then
+	echo "Error: File $1 does not exist"
+fi
+
+# Read the host names into a list
+
+HOSTS[0]="141.52.7.30"
+
+# Assemble the command string and execute it for each host in the list
+for host in "${HOSTS[@]}"; do
+	COMMANDSTRING="ssh "
+done

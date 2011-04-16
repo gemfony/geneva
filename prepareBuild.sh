@@ -1,6 +1,8 @@
 ####################################################################
 #
-# Copyright (C) Dr. Ruediger Berlich
+# Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
+#
+# See the AUTHORS file in the top-level directory for a list of authors.
 #
 # Contact: contact [at] gemfony (dot) com
 #
@@ -30,9 +32,9 @@
 # This script is a wrapper around the rather complicated cmake call,
 # allowing you to permanently specify some options you'd otherwise
 # have to provide repeatedly on the command line. Call the script
-# with a file setting the variables below. See the Geneva root dir
-# for an example (genevaConfig.gcfg). Config files need to end with
-# .gcfg
+# with a file setting the variables below. See the script directory
+# in the Geneva root directory for an example (genevaConfig.gcfg). 
+# Note that configuration files need to end with ".gcfg" .
 ####################################################################
 #!/bin/bash
 
