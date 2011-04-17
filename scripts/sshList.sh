@@ -43,6 +43,13 @@
 # !/bin/bash
 #
 
+# Check that the number of command line options is at least two 
+# (the name of the hosts file and the command to be executed remotely).
+if [ $# -lt 2 ]; then
+	echo "Usage: ./sshList.sh <optional ssh options> <hostFile.hcfg> <command>"
+	exit
+fi
+
 # Locate the host file in the command line arguments
 parmcnt=1
 hostFilePos=0
@@ -63,13 +70,6 @@ if [ ${hostFileFound} -eq 0 ]; then
     echo "Error: You need to speficy the name of a file with host names"
     echo "ending in .hcfg . Leaving now ..."
     exit
-fi
-
-# Check that the number of command line options is at least two 
-# (the name of the hosts file and the command to be executed remotely).
-if [ $# -lt 2 ]; then
-	echo "Usage: ./listRunCommand.sh <optional ssh options> <hostFile.hcfg> <command>"
-	exit
 fi
 
 # Check that the hosts file exists
