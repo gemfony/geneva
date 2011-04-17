@@ -103,4 +103,8 @@ for host in "${HOSTS[@]}"; do
 	COMMANDSTRING=`echo ${RAWCOMMANDSTRING} | sed s/HNPLACEHOLDER/${host}/g`
 	echo "> ssh ${COMMANDSTRING}"
 	ssh ${COMMANDSTRING}
+	if [ $? -ne 0 ]; then
+		echo "Error: Got bad return code from ssh call. Leaving ..."
+		exit
+	fi
 done
