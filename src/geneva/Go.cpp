@@ -66,6 +66,7 @@ Go::Go()
 	, maxMinutes_(GO_DEF_MAXMINUTES)
 	, reportIteration_(GO_DEF_REPORTITERATION)
 	, offset_(GO_DEF_OFFSET)
+	, consumerInitialized_(GO_DEF_CONSUMERINITIALIZED)
 	, eaPopulationSize_(GO_DEF_EAPOPULATIONSIZE)
 	, eaNParents_(GO_DEF_EANPARENTS)
 	, eaRecombinationScheme_(GO_DEF_EARECOMBINATIONSCHEME)
@@ -124,6 +125,7 @@ Go::Go(int argc, char **argv, const std::string& configFilename)
 	, maxMinutes_(GO_DEF_MAXMINUTES)
 	, reportIteration_(GO_DEF_REPORTITERATION)
 	, offset_(GO_DEF_OFFSET)
+	, consumerInitialized_(GO_DEF_CONSUMERINITIALIZED)
 	, eaPopulationSize_(GO_DEF_EAPOPULATIONSIZE)
 	, eaNParents_(GO_DEF_EANPARENTS)
 	, eaRecombinationScheme_(GO_DEF_EARECOMBINATIONSCHEME)
@@ -208,6 +210,7 @@ Go::Go(
 	, maxMinutes_(GO_DEF_MAXMINUTES)
 	, reportIteration_(GO_DEF_REPORTITERATION)
 	, offset_(GO_DEF_OFFSET)
+	, consumerInitialized_(GO_DEF_CONSUMERINITIALIZED)
 	, eaPopulationSize_(GO_DEF_EAPOPULATIONSIZE)
 	, eaNParents_(GO_DEF_EANPARENTS)
 	, eaRecombinationScheme_(GO_DEF_EARECOMBINATIONSCHEME)
@@ -264,6 +267,7 @@ Go::Go(const Go& cp)
 	, maxMinutes_(cp.maxMinutes_)
 	, reportIteration_(cp.reportIteration_)
 	, offset_(cp.offset_)
+	, consumerInitialized_(cp.consumerInitialized_)
 	, eaPopulationSize_(cp.eaPopulationSize_)
 	, eaNParents_(cp.eaNParents_)
 	, eaRecombinationScheme_(cp.eaRecombinationScheme_)
@@ -400,6 +404,7 @@ boost::optional<std::string> Go::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go", maxMinutes_, p_load->maxMinutes_, "maxMinutes_", "p_load->maxMinutes_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", reportIteration_, p_load->reportIteration_, "reportIteration_", "p_load->reportIteration_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", offset_, p_load->offset_, "offset_", "p_load->offset_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", consumerInitialized_, p_load->consumerInitialized_, "consumerInitialized_", "p_load->consumerInitialized_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", eaPopulationSize_, p_load->eaPopulationSize_, "eaPopulationSize_", "p_load->eaPopulationSize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", eaNParents_, p_load->eaNParents_, "eaNParents_", "p_load->eaNParents_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", eaRecombinationScheme_, p_load->eaRecombinationScheme_, "eaRecombinationScheme_", "p_load->eaRecombinationScheme_", e , limit));
@@ -460,6 +465,7 @@ void Go::load_(const GObject *cp) {
 	maxMinutes_ = p_load->maxMinutes_;
 	reportIteration_ = p_load->reportIteration_;
 	offset_ = p_load->offset_;
+	consumerInitialized_ = p_load->consumerInitialized_;
 	eaPopulationSize_ = p_load->eaPopulationSize_;
 	eaNParents_ = p_load->eaNParents_;
 	eaRecombinationScheme_ = p_load->eaRecombinationScheme_;

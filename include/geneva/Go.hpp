@@ -92,6 +92,7 @@ const boost::uint32_t GO_DEF_MAXSTALLITERATIONS=0;
 const long GO_DEF_MAXMINUTES=0;
 const boost::uint32_t GO_DEF_REPORTITERATION=1;
 const boost::uint32_t GO_DEF_OFFSET=0;
+const bool GO_DEF_CONSUMERINITIALIZED=false;
 const std::size_t GO_DEF_EAPOPULATIONSIZE=100;
 const std::size_t GO_DEF_EANPARENTS=1;
 const recoScheme GO_DEF_EARECOMBINATIONSCHEME=VALUERECOMBINE;
@@ -635,10 +636,14 @@ private:
 		//----------------------------------------------------------------------------------
 		case ASIONETWORKED:
 		{
-			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
-			gatc->setSerializationMode(serializationMode_);
-			GINDIVIDUALBROKER->enrol(gatc);
+			if(!consumerInitialized_) {
+				// Create a network consumer and enrol it with the broker
+				boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
+				gatc->setSerializationMode(serializationMode_);
+				GINDIVIDUALBROKER->enrol(gatc);
+
+				consumerInitialized_ = true;
+			}
 
 			// Create the actual broker population
 			boost::shared_ptr<GBrokerEA> eaBroker_ptr(new GBrokerEA());
@@ -753,9 +758,14 @@ private:
 
 		case ASIONETWORKED:
 		{
-			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
-			GINDIVIDUALBROKER->enrol(gatc);
+			if(!consumerInitialized_) {
+				// Create a network consumer and enrol it with the broker
+				boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
+				gatc->setSerializationMode(serializationMode_);
+				GINDIVIDUALBROKER->enrol(gatc);
+
+				consumerInitialized_ = true;
+			}
 
 			// Create the actual broker population
 			boost::shared_ptr<GBrokerSwarm> swarmBroker_ptr(new GBrokerSwarm(swarmNNeighborhoods_, swarmNNeighborhoodMembers_));
@@ -875,9 +885,14 @@ private:
 		//----------------------------------------------------------------------------------
 		case ASIONETWORKED:
 		{
-			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
-			GINDIVIDUALBROKER->enrol(gatc);
+			if(!consumerInitialized_) {
+				// Create a network consumer and enrol it with the broker
+				boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
+				gatc->setSerializationMode(serializationMode_);
+				GINDIVIDUALBROKER->enrol(gatc);
+
+				consumerInitialized_ = true;
+			}
 
 			// Create the actual broker population
 			boost::shared_ptr<GBrokerGD> gdBroker_ptr(new GBrokerGD(gdNStartingPoints_, gdFiniteStep_, gdStepSize_));
@@ -984,6 +999,7 @@ private:
     long maxMinutes_; ///< The maximum duration of the optimization
     boost::uint32_t reportIteration_; ///< The number of iterations after which information should be emitted
     boost::uint32_t offset_; ///< The offset to be used when starting a new optimization run
+    bool consumerInitialized_; ///< Determines whether a consumer has already been started. Note that this variable will not be serialized
 
     // EA parameters
     std::size_t eaPopulationSize_; ///< The desired size of EA populations
