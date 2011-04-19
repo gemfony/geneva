@@ -232,6 +232,7 @@ GDelayIndividualFactory::GDelayIndividualFactory(const std::string& cF)
 	, resultFile_("networkResults.C")
 	, shortResultFile_("shortDelayResults.txt")
 	, interMeasurementDelay_(20)
+	, nMeasurements_(10)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -263,11 +264,11 @@ std::string GDelayIndividualFactory::getShortResultFileName() const {
 
 /********************************************************************************************/
 /**
- * Allows to retrieve the number of measurements to be made
+ * Allows to retrieve the number of delays provided by the user
  *
- * @return The number of measurements that will be made
+ * @return The number of delays provided by the user
  */
-std::size_t GDelayIndividualFactory::getNMeasurements() const {
+std::size_t GDelayIndividualFactory::getNDelays() const {
 	return sleepSeconds_.size();
 }
 
@@ -279,6 +280,16 @@ std::size_t GDelayIndividualFactory::getNMeasurements() const {
  */
 boost::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
 	return interMeasurementDelay_;
+}
+
+/********************************************************************************************/
+/**
+ * Allows to retrieve the number of measurements to be made for each delay
+ *
+ * @return The number of measurements to be made for each delay
+ */
+boost::uint32_t GDelayIndividualFactory::getNMeasurements() const {
+	return nMeasurements_;
 }
 
 /********************************************************************************************/
@@ -364,6 +375,7 @@ void GDelayIndividualFactory::describeConfigurationOptions_() {
 	gpb.registerParameter("resultFile", resultFile_, resultFile_);
 	gpb.registerParameter("shortResultFile", shortResultFile_, shortResultFile_);
 	gpb.registerParameter("interMeasurementDelay", interMeasurementDelay_, interMeasurementDelay_);
+	gpb.registerParameter("nMeasurements", nMeasurements_, nMeasurements_);
 }
 
 /********************************************************************************************/

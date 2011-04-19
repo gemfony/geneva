@@ -78,7 +78,8 @@ int main(int argc, char **argv) {
 	<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,600);" << std::endl
 	<< std::endl
 	<< "  std::vector<double> sleepTime; // The amount of time each individual sleeps" << std::endl
-	<< "  std::vector<double> totalProcessingTime; // The total processing time for a given optimization cycle" << std::endl
+	<< "  std::vector<double> meanProcessingTime; // The mean processing time for a given optimization cycle" << std::endl
+	<< "  std::vector<double> standardDeviation; // The standard deviation of all measurements" << std::endl
 	<< std::endl;
 
 	std::ofstream shortResult(gdif.getShortResultFileName().c_str());
@@ -86,32 +87,69 @@ int main(int argc, char **argv) {
 	// Determine the amount of seconds the process should sleep in between two measurements
 	boost::uint32_t interMeasurementDelay = gdif.getInterMeasurementDelay();
 
+	// Determine the number of measurements to be made for each delay
+	boost::uint32_t nMeasurements = gdif.getNMeasurements();
+
 	// Loop until no valid individuals can be retrieved anymore
 	std::size_t iter = 0;
 	while(boost::shared_ptr<GDelayIndividual> gdi_ptr = gdif()) {
-		// Make the individual known to the optimizer
-		go.push_back(gdi_ptr);
+		std::vector<boost::uint32_t> delaySummary;
+		for(boost::uint32_t i=0; i<nMeasurements; i++) {
+			// Make the individual known to the optimizer
+			go.push_back(gdi_ptr);
 
-		// Do the actual optimization and measure the time
-		boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
-		go.optimize<GDelayIndividual>();
-		boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
-		boost::posix_time::time_duration duration = endTime - startTime;
+			// Do the actual optimization and measure the time
+			boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
+			go.optimize<GDelayIndividual>();
+			boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
+			boost::posix_time::time_duration duration = endTime - startTime;
+
+			delaySummary.push_back(double(duration.total_milliseconds())/1000.);
+
+			// Clean up the collection
+			go.clear();
+		}
+
+		// Calculate the mean value of all measurements
+		double mean = 0.;
+		for(boost::uint32_t i=0; i<nMeasurements; i++) {
+			mean += double(delaySummary[i]);
+		}
+		mean /= double(nMeasurements);
+
+		// Calculate the standard deviation
+		double sd = 0.;
+		if(nMeasurements > 1) {
+			for(boost::uint32_t i=0; i<nMeasurements; i++) {
+				sd += GSQUARED(delaySummary[i] - mean);
+			}
+			sd /= (nMeasurements - 1);
+			sd = sqrt(sd);
+		}
 
 		// Output the results
 		result
 		<< std::endl
 		<< "  // =========================================================" << std::endl
-		<< "  // Sleep time = " << gdi_ptr->getSleepTime().total_milliseconds() << " milliseconds:" << std::endl
-		<< "  sleepTime.push_back(" << gdi_ptr->getSleepTime().total_milliseconds()  << "/1000.);" << std::endl
-		<< "  totalProcessingTime.push_back(" << double(duration.total_milliseconds()) << "/1000.);" << std::endl
+		<< "  // Sleep time = " << double(gdi_ptr->getSleepTime().total_milliseconds())/1000. << " s:" << std::endl;
+
+		for(boost::uint32_t  i=0; i<nMeasurements; i++) {
+			result
+			<< "  // Measurement " << i << ": " << delaySummary[i] << " s" << std::endl;
+		}
+		result
+		<< "  // Mean: " << mean << " s" << std::endl
+		<< "  // Standard deviation: " << sd << " s" << std::endl
+		<< "  sleepTime.push_back(" << double(gdi_ptr->getSleepTime().total_milliseconds())/1000. << ");" << std::endl
+		<< "  meanProcessingTime.push_back(" << mean << ");" << std::endl
+		<< "  standardDeviation.push_back(" << sd << ")" << std::endl
 		<< std::endl;
 
 		shortResult
-		<< gdi_ptr->getSleepTime().total_milliseconds() << "/" << duration.total_milliseconds() << std::endl;
+		<< double(gdi_ptr->getSleepTime().total_milliseconds())/1000. << " / " << mean << " / " << sd << std::endl;
 
-		// Clean up the collection
-		go.clear();
+		// Clean up the delay vector
+		delaySummary.clear();
 
 		// Wait for late arrivals
 		sleep(interMeasurementDelay);
@@ -128,22 +166,32 @@ int main(int argc, char **argv) {
 	// Output the footer of the result file
 	result << std::endl
 		   << "  // Transfer of vectors into arrays" << std::endl
-		   << "  double sleepTimeArr[" << gdif.getNMeasurements() << "];" << std::endl
-		   << "  double totalProcessingTimeArr[" << gdif.getNMeasurements() << "];" << std::endl
+		   << "  double sleepTimeArr[" << gdif.getNDelays() << "];" << std::endl
+		   << "  double meanProcessingTimeArr[" << gdif.getNDelays() << "];" << std::endl
+		   << "  double sdArr[" << gdif.getNDelays() << "];" << std::endl
 		   << std::endl
-		   << "  for(int i=0; i< " << gdif.getNMeasurements() << "; i++) {" << std::endl
+		   << "  for(int i=0; i< " << gdif.getNDelays() << "; i++) {" << std::endl
 		   << "    sleepTimeArr[i] = sleepTime.at(i);" << std::endl
-		   << "    totalProcessingTimeArr[i] = totalProcessingTime.at(i);" << std::endl
+		   << "    meanProcessingTimeArr[i] = meanProcessingTime.at(i);" << std::endl
+		   << "    sdArr[i] = standardDeviation.at(i);" << std::endl
 		   << "  }" << std::endl
 	       << std::endl
-	       << "  // Creation of TGraph objects and data transfer into the objects" << std::endl
-	       << "  TGraph *evGraph = new TGraph(" << gdif.getNMeasurements() << ", sleepTimeArr, totalProcessingTimeArr);" << std::endl
-	       << std::endl
+	       << "  // Creation of TGraph objects and data transfer into the objects" << std::endl;
+
+	if(nMeasurements == 1) {
+		result
+		<< "  TGraph *evGraph = new TGraph(" << gdif.getNDelays() << ", sleepTimeArr, meanProcessingTimeArr);" << std::endl;
+	} else {
+		result
+		<< "  TGraphErrors *evGraph = new TGraphErrors(" << gdif.getNDelays() << ", sleepTimeArr, meanProcessingTimeArr, 0, sdArr);"<< std::endl;
+	}
+
+	result << std::endl
 	       << "  evGraph->SetMarkerStyle(2);" << std::endl
 	       << "  evGraph->SetMarkerSize(1.0);" << std::endl
 	       << "  evGraph->Draw(\"ACP\");" << std::endl
 	       << "  evGraph->GetXaxis()->SetTitle(\"Evaluation time/individual [s]\");" << std::endl
-	       << "  evGraph->GetYaxis()->SetTitle(\"Total processing time/ [s]\");" << std::endl
+	       << "  evGraph->GetYaxis()->SetTitle(\"Mean processing time for " << nMeasurements << " measurements [s]\");" << std::endl
 	       << "}" << std::endl;
 
 	 // Close the result files
