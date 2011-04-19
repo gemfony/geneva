@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
 	// Loop until no valid individuals can be retrieved anymore
 	std::size_t iter = 0;
 	while(boost::shared_ptr<GDelayIndividual> gdi_ptr = gdif()) {
-		std::vector<boost::uint32_t> delaySummary;
+		std::vector<double> delaySummary;
 		for(boost::uint32_t i=0; i<nMeasurements; i++) {
 			// Make the individual known to the optimizer
 			go.push_back(gdi_ptr);
@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
 		// Calculate the mean value of all measurements
 		double mean = 0.;
 		for(boost::uint32_t i=0; i<nMeasurements; i++) {
-			mean += double(delaySummary[i]);
+			mean += delaySummary[i];
 		}
 		mean /= double(nMeasurements);
 
