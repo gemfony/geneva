@@ -400,22 +400,22 @@ boost::shared_ptr<GDelayIndividual> GDelayIndividualFactory::getIndividual_(cons
 		boost::shared_ptr<GDelayIndividual> gdi_ptr(new GDelayIndividual(sleepTime));
 		gdi_ptr->setProcessingCycles(processingCycles_);
 
-		// Set up a GConstrainedDoubleObjectCollection
-		boost::shared_ptr<Gem::Geneva::GConstrainedDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GConstrainedDoubleObjectCollection());
+		// Set up a GDoubleObjectCollection
+		boost::shared_ptr<Gem::Geneva::GDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GDoubleObjectCollection());
 
 		// Set up nVariables GConstrainedDoubleObject objects in the desired value range,
 		// and register them with the collection. The configuration parameters don't matter for this use case
 		for(std::size_t var=0; var<nVariables_; var++) {
-			boost::shared_ptr<Gem::Geneva::GConstrainedDoubleObject> gbd_ptr(new Gem::Geneva::GConstrainedDoubleObject(0.,1.));
+			boost::shared_ptr<Gem::Geneva::GDoubleObject> gbd_ptr(new Gem::Geneva::GDoubleObject(0.5));
 			boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
 			gdga_ptr->setAdaptionThreshold(1);
 			gbd_ptr->addAdaptor(gdga_ptr);
 
-			// Make the GConstrainedDoubleObject known to the collection
+			// Make the GDoubleObject known to the collection
 			gbdc_ptr->push_back(gbd_ptr);
 		}
 
-		// Make the GConstrainedDoubleObjectCollection known to the individual
+		// Make the GDoubleObjectCollection known to the individual
 		gdi_ptr->push_back(gbdc_ptr);
 
 		// Assign to the result item

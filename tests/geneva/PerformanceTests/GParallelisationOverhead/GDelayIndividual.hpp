@@ -59,8 +59,8 @@
 
 // Geneva header files go here
 #include "geneva/GDoubleCollection.hpp"
-#include "geneva/GConstrainedDoubleObject.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/GDoubleObject.hpp"
+#include "geneva/GDoubleObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva-individuals/GIndividualFactoryT.hpp"
