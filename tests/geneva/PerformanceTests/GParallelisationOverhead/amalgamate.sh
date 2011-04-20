@@ -37,7 +37,7 @@
 #
 
 # Set some variables
-RESULTFILE=result.C
+RESULTFILE=speedup.C
 
 # Check that the number of command line options is at exactly two 
 # (the names of the files holding the serial and the parallel measurement).
@@ -63,6 +63,7 @@ nMeasurements=0
 while read -r measurement; do
   	delays[${mcnt}]=`echo $measurement | awk -F"/" '{ print $1 }'`
 	serial[${mcnt}]=`echo $measurement | awk -F"/" '{ print $2 }'`
+	sdSerial[${mcnt}]=`echo $measurement | awk -F"/" '{ print $3 }'` # The standard deviation
 	let mcnt=${mcnt}+1
 done < $1
 
@@ -73,6 +74,7 @@ nMeasurements=${mcnt}
 mcnt=0
 while read -r measurement; do
 	parallel[${mcnt}]=`echo $measurement | awk -F"/" '{ print $2 }'`
+	sdParallel[${mcnt}]=`echo $measurement | awk -F"/" '{ print $3 }'`
 	let mcnt=${mcnt}+1
 done < $2
 
@@ -98,6 +100,7 @@ echo "  double parallel[$nMeasurements];" >> ${RESULTFILE}
 echo "  double serial_error[$nMeasurements];" >> ${RESULTFILE}
 echo "  double parallel_error[$nMeasurements];" >> ${RESULTFILE}
 echo "  double speedup[$nMeasurements];" >> ${RESULTFILE}
+echo "  double speedup_error[$nMeasurements];" >> ${RESULTFILE}
 echo >> ${RESULTFILE}
 
 # Fill the arrays
@@ -113,6 +116,12 @@ for s in "${serial[@]}"; do
     let scnt=$scnt+1
 done
 
+secnt=0 # Serial error counter
+for se in "${sdSerial[@]}"; do
+    echo "  serial_error[$secnt]=double($se);" >> ${RESULTFILE}
+    let secnt=$secnt+1
+done
+
 pcnt=0
 for p in "${parallel[@]}"; do
     echo "  parallel[$pcnt]=double($p);" >> ${RESULTFILE}
@@ -120,12 +129,24 @@ for p in "${parallel[@]}"; do
     let pcnt=$pcnt+1
 done
 
+pecnt=0 # Parallel error counter
+for pe in "${sdParallel[@]}"; do
+    echo "  parallel_error[$pecnt]=double($pe);" >> ${RESULTFILE}
+    let pecnt=$pecnt+1	
+done
+
+let upperLimit=${nMeasurements}-1
+for spe in `seq 1 upperLimit`; do
+	echo "  speedup_error[$spe] = sqrt(pow(${serial[$spe]}*${sdParallel[$spe]}/pow(${parallel[$spe]}, 2) + pow(${sdSerial[$spe]}/${parallel[$spe]}, 2));" >> ${RESULTFILE}
+done
+
+# Emit the footer
 echo >> ${RESULTFILE}
-echo "  TGraph *evGraph = new TGraph($nMeasurements, delays, speedup); " >> ${RESULTFILE}
+echo "  TGraphError *evGraph = new TGraphError($nMeasurements, delays, speedup, 0, speedup_error); " >> ${RESULTFILE}
 echo >> ${RESULTFILE}
 echo "  evGraph->SetMarkerStyle(2);" >> ${RESULTFILE}
 echo "  evGraph->SetMarkerSize(1.0);" >> ${RESULTFILE}
 echo "  evGraph->Draw(\"ACP\");" >> ${RESULTFILE}
 echo "  evGraph->GetXaxis()->SetTitle(\"Evaluation time/individual [s]\");" >> ${RESULTFILE}
-echo "  evGraph->GetYaxis()->SetTitle(\"Total processing time/ [s]\");" >> ${RESULTFILE}
+echo "  evGraph->GetYaxis()->SetTitle(\"Speedup\");" >> ${RESULTFILE}
 echo "}" >> ${RESULTFILE}
