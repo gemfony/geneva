@@ -347,8 +347,8 @@ protected:
 					return shutdown(false);
 				}
 
-				// We can continue. But let's wait approximately 0.5 seconds first.
-				usleep(500000);
+				// We can continue. But let's wait a short time (0.05 seconds) first.
+				usleep(50000);
 
 				// Indicate that we want to continue
 				return shutdown(true);
@@ -519,8 +519,8 @@ private:
 			// We were successful
 			if (!error)	break;
 
-			// Unsuccessful. Sleep for a second, then try again
-			usleep(200000);
+			// Unsuccessful. Sleep for 0.1 seconds, then try again
+			usleep(100000);
 		}
 
 		// Still error ? Return, terminate
