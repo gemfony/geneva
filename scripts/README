@@ -1,3 +1,24 @@
 This directory contains a number of scripts that appear to be useful 
-in conjunction with submitting jobs with the Geneva.
+in conjunction with submitting jobs with the Geneva. Note: These scripts
+are subject to frequent changes.
  
+genevaConfig.gcfg
+   A configuration file used to steer compilation of Geneva
+
+prepareBuild.sh
+   A wrapper script around CMake that eases compilation. Uses 
+   genevaConfig.gcfg as input data
+
+rsyncList.sh
+   Allows to sync a local directory with a list of hosts, contained
+   in a file with extension .hcfg
+
+sampleHostFile.hcfg
+   A sample host file, as input for rsyncList.sh and sshList.sh
+   
+sshList.sh
+   Allows to execute a given command on a number of hosts, using ssh
+
+startLocalJobs.sh
+   Allows to start a number of Geneva clients plus a server on the 
+   local host for testing purposes.

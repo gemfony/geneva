@@ -3,8 +3,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( GENEVASCRIPTS
 	genevaConfig.gcfg
 	prepareBuild.sh
+	rsyncList.sh
 	sampleHostFile.hcfg
 	sshList.sh
+	startLocalJobs.sh
 )
 
 INSTALL ( FILES ${GENEVASCRIPTS} DESTINATION scripts
