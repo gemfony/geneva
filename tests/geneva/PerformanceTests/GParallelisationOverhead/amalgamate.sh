@@ -136,7 +136,7 @@ for pe in "${sdParallel[@]}"; do
 done
 
 let upperLimit=${nMeasurements}-1
-for spe in `seq 1 upperLimit`; do
+for spe in `seq 1 ${upperLimit}`; do
 	echo "  speedup_error[$spe] = sqrt(pow(${serial[$spe]}*${sdParallel[$spe]}/pow(${parallel[$spe]}, 2) + pow(${sdSerial[$spe]}/${parallel[$spe]}, 2));" >> ${RESULTFILE}
 done
 
