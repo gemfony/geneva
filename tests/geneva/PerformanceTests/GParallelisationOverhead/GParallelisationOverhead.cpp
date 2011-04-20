@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
 		<< "  // Standard deviation: " << sd << " s" << std::endl
 		<< "  sleepTime.push_back(" << double(gdi_ptr->getSleepTime().total_milliseconds())/1000. << ");" << std::endl
 		<< "  meanProcessingTime.push_back(" << mean << ");" << std::endl
-		<< "  standardDeviation.push_back(" << sd << ")" << std::endl
+		<< "  standardDeviation.push_back(" << sd << ");" << std::endl
 		<< std::endl;
 
 		shortResult
