@@ -1496,21 +1496,21 @@ public:
 	    		}
 
 	    		// Emit the header and perform any necessary initialization work
-	    		summary_ << this->firstInformation(goa);
+	    		summary_ << this->firstInformation(goa) << std::flush;
 	    	}
 	    	break;
 
 	    	case Gem::Geneva::INFOPROCESSING:
 	    	{
 	    		// Regular information emitted during each iteration
-	    		summary_ << this->cycleInformation(goa);
+	    		summary_ << this->cycleInformation(goa) << std::flush;
 	    	}
 	    	break;
 
 	    	case Gem::Geneva::INFOEND:
 	    	{
 	    		// Emit any remaining information
-	    		summary_ << this->lastInformation(goa);
+	    		summary_ << this->lastInformation(goa) << std::flush;
 
 	    		// Clean up
 	    		summary_.close();
