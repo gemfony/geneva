@@ -120,12 +120,22 @@ public:
 	bool operator!=(const GIndividual&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+			const GObject&
+			, const Gem::Common::expectation&
+			, const double&
+			, const std::string&
+			, const std::string&
+			, const bool&
+	) const;
 
 	/** @brief The adaption interface */
 	virtual void adapt();
-	/** @brief Calculate the fitness of this object */
+	/** @brief Calculate or returns the result of the main fitness function of this object */
 	virtual double fitness();
+	/** @brief Adapts and evaluates the individual in one go */
+	virtual double adaptAndEvaluate();
+
 	/** @brief Do the required processing for this object */
 	bool process();
 	/** @brief Allows to instruct this individual to perform multiple process operations in one go. */
@@ -242,12 +252,19 @@ public:
 
 protected:
 	/**************************************************************************************************/
-	/** @brief Loads the data of another GObject */
+	/** @brief Loads the data of another GIndividual */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
-	/** @brief The actual fitness calculation takes place here */
+
+	/** @brief The fitness calculation for the main quality criterion takes place here */
 	virtual double fitnessCalculation() = 0;
+
+	/** @brief Determines whether more than one fitness criterion is present for this individual */
+	bool hasMultipleFitnessCriteria() const;
+	/** @brief Determines the number of fitness criteria present for individual */
+	std::size_t getNumberOfFitnessCriteria() const;
+
 	/** @brief The actual adaption operations */
 	virtual void customAdaptions();
 	/** @brief Updates the object's structure and/or parameters, if the optimization has stalled */

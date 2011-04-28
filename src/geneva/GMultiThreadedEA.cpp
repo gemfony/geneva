@@ -265,7 +265,7 @@ void GMultiThreadedEA::adaptChildren() {
 		// Make re-evaluation accessible
 		(*it)->setServerMode(false);
 		// Schedule the actual job
-		tp_.schedule(Gem::Common::GThreadWrapper(boost::bind(&GIndividual::adapt, *it)));
+		tp_.schedule(Gem::Common::GThreadWrapper(boost::bind(&GIndividual::adaptAndEvaluate, *it)));
 	}
 
 	// ... and wait for all tasks to complete

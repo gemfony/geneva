@@ -126,13 +126,14 @@ bool GIndividual::operator!=(const GIndividual& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GIndividual::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+boost::optional<std::string> GIndividual::checkRelationshipWith(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
@@ -161,7 +162,7 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(const GObject& c
 
 /************************************************************************************************************/
 /**
- * Loads the data of another GObject
+ * Loads the data of another GIndividual, camouflaged as a GObject
  *
  * @param cp A copy of another GIndividual object, camouflaged as a GObject
  */
@@ -186,12 +187,14 @@ void GIndividual::load_(const GObject* cp) {
 
 /************************************************************************************************************/
 /**
- * The adaption interface. This function also triggers re-evaluation of the fitness.
+ * The adaption interface. Triggers adaption of the individual, using each parameter object's adaptor.
+ * Sets the dirty flag, as the parameters have been changed.
+ *
+ * TODO: Check why immediate evaluation is done here
  */
 void GIndividual::adapt() {
 	customAdaptions(); // The actual mutation and adaption process
 	GIndividual::setDirtyFlag(true);
-	GIndividual::fitness(); // Trigger re-evaluation
 }
 
 /* ----------------------------------------------------------------------------------
@@ -228,6 +231,15 @@ double GIndividual::fitness() {
  * Test for throw in serverMode tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
+
+/************************************************************************************************************/
+/**
+ * Adapts and evaluates the individual in one go
+ */
+double GIndividual::adaptAndEvaluate() {
+	adapt();
+	return fitness();
+}
 
 /************************************************************************************************************/
 /**
@@ -611,7 +623,7 @@ bool GIndividual::process(){
 		{
 			if(getPersonalityTraits()->getCommand() == "adapt") {
 				if(processingCycles_ == 1 || getParentAlgIteration() == 0) {
-					adapt();
+					adaptAndEvaluate();
 					gotUsefulResult = true;
 				}
 				else{

@@ -51,6 +51,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GParameterBase.hpp"
+#include "geneva/GEvaluator.hpp"
 
 #ifdef GENEVATESTING
 #include "geneva/GBooleanObject.hpp"
@@ -131,6 +132,12 @@ public:
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode(const bool&);
 
+	/** @brief Allows to register an evaluator */
+	// void registerEvaluator(boost::shared_ptr<GParameterSet::GEvaluator>);
+	/** @brief Returns the number of registered evaluators */
+	// std::size_t getNEvaluators() const;
+	/** @brief Returns the fitness calculated by a given evaluator */
+	// double fitness(const std::size_t&);
 
 	/** @brief Multiplies with a random floating point number in a given range */
 	void fpMultiplyByRandom(const float&, const float&);
@@ -291,6 +298,8 @@ protected:
 private:
 	explicit GParameterSet(const float&); ///< Intentionally private and undefined
 
+	std::vector<boost::shared_ptr<GEvaluator> > evaluators_; ///< Holds all evaluators registered with this object
+
 #ifdef GENEVATESTING
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -300,8 +309,8 @@ public:
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 #endif /* GENEVATESTING */
-};
 
+};
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -36,7 +36,6 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSet)
 
-
 namespace Gem {
 namespace Geneva {
 
