@@ -542,7 +542,7 @@ void GSwarm::updatePersonalBestIfBetter(
 
 	if(GOptimizationAlgorithmT<GParameterSet>::isBetter(
 			p_inner->getSwarmPersonalityTraits()->getPersonalBestQuality()
-			, p_outer->fitness()
+			, p_outer->fitness(0)
 		)
 	) {
 		p_outer->getSwarmPersonalityTraits()->registerPersonalBest(p_inner);
@@ -699,7 +699,7 @@ void GSwarm::updateFitness(
 	// Trigger the fitness calculation (if necessary). Make sure
 	// that fitness calculation is indeed allowed at this point.
 	bool originalServerMode = ind->setServerMode(false);
-	ind->fitness();
+	ind->fitness(0);
 	ind->setServerMode(originalServerMode);
 
 	// Update the personal best
@@ -842,11 +842,11 @@ double GSwarm::findBests() {
 		// Only partially sort the arrays
 		if(this->getMaxMode() == true){
 			std::sort(this->begin() + firstCounter, this->begin() + lastCounter,
-					boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+					boost::bind(&GIndividual::fitness, _1, 0) > boost::bind(&GIndividual::fitness, _2, 0));
 		}
 		else{
 			std::sort(this->begin() + firstCounter, this->begin() + lastCounter,
-					boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+					boost::bind(&GIndividual::fitness, _1, 0) < boost::bind(&GIndividual::fitness, _2, 0));
 		}
 
 		// Check whether the best individual of the neighborhood is better than
@@ -855,14 +855,14 @@ double GSwarm::findBests() {
 			local_bests_[neighborhood] = (*(this->begin() + firstCounter))->clone<GParameterSet>();
 		}
 		else {
-			if(isBetter((*(this->begin() + firstCounter))->fitness(), local_bests_[neighborhood]->fitness())) {
+			if(isBetter((*(this->begin() + firstCounter))->fitness(0), local_bests_[neighborhood]->fitness(0))) {
 				local_bests_[neighborhood]->load(*(this->begin() + firstCounter));
 			}
 		}
 
 		// Find out which is the "best local best"
-		if(isBetter((*(this->begin() + firstCounter))->fitness(), bestCurrentLocalFitness)) {
-			bestCurrentLocalFitness = (*(this->begin() + firstCounter))->fitness();
+		if(isBetter((*(this->begin() + firstCounter))->fitness(0), bestCurrentLocalFitness)) {
+			bestCurrentLocalFitness = (*(this->begin() + firstCounter))->fitness(0);
 			bestCurrentLocalId = neighborhood;
 		}
 	}
@@ -873,7 +873,7 @@ double GSwarm::findBests() {
 		global_best_= local_bests_[bestCurrentLocalId]->clone<GParameterSet>();
 	}
 	else {
-		if(isBetter(bestCurrentLocalFitness, global_best_->fitness())) {
+		if(isBetter(bestCurrentLocalFitness, global_best_->fitness(0))) {
 			global_best_->load(local_bests_[bestCurrentLocalId]);
 		}
 	}

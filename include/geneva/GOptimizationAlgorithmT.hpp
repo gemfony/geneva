@@ -972,11 +972,13 @@ protected:
 	/**
 	 * Fitness calculation for a population means optimization. The fitness is then determined
 	 * by the best individual which, after the end of the optimization cycle, can be found in
-	 * the first position of the array. This is true for all sorting modes.
+	 * the first position of the array. Note that this function will only take into account the
+	 * fitness of the first registered evaluation criterion in an individual.
 	 *
+	 * @param The id of an evaluation criterion (will be ignored by this function)
 	 * @return The fitness of the best individual in the population
 	 */
-	virtual double fitnessCalculation() {
+	virtual double fitnessCalculation(const std::size_t& id) {
 		bool dirty = false;
 
 		this->optimize();
@@ -986,7 +988,7 @@ protected:
 		// run across an unevaluated individual.
 		if(dirty) {
 			raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::fitnessCalculation():" << std::endl
+					"In GOptimizationAlgorithmT<ind_type>::fitnessCalculation(const std::size_t&):" << std::endl
 					<< "Came across dirty individual"
 			);
 		}

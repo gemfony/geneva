@@ -63,8 +63,10 @@ public:
 	/** @brief The standard destructor */
 	virtual ~GRateableI(){ /* nothing */ }
 
-	/** @brief Retrieve a value for this class */
+	/** @brief Retrieve a value for this class, using a fixed fitness function */
 	virtual double fitness() = 0;
+	/** @brief Retrieve a value for this class, using a fitness function with a given id */
+	virtual double fitness(const std::size_t&) = 0;
 };
 
 } /* namespace Geneva */

@@ -222,8 +222,8 @@ protected:
 	virtual GObject* clone_() const = 0;
 
 	/**********************************************************************************/
-	/** @brief The actual fitness calculation takes place here */
-	virtual double fitnessCalculation() = 0;
+	/** @brief The actual fitness calculation takes place in derived objects */
+	virtual double fitnessCalculation(const std::size_t&) = 0;
 
 	/**********************************************************************************/
 	/**

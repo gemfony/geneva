@@ -1281,9 +1281,10 @@ protected:
 	 * A small demonstration of the technique of storing a reference to a vector
 	 * in another vector is shown in the file refWrapper.cpp in the Geneva test cases.
 	 *
+	 * @param id The id of the target function (ignored here)
 	 * @return The fitness of this object
 	 */
-	virtual double fitnessCalculation() {
+	virtual double fitnessCalculation(const std::size_t& id) {
 		double result=0;
 
 		// Now loop over all data sets

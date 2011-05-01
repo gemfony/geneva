@@ -628,9 +628,10 @@ void Go::randomInit()
  * Fitness calculation for an optimization algorithm means optimization. The fitness is
  * then determined by the best individual which, after the end of the optimization cycle.
  *
+ * @param id The id of the target function (ignored here)
  * @return The fitness of the best individual in the population
  */
-double Go::fitnessCalculation() {
+double Go::fitnessCalculation(const std::size_t& id) {
 	bool dirty = false;
 
 	boost::shared_ptr<GParameterSet> p = this->optimize<GParameterSet>();

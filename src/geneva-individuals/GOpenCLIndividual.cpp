@@ -199,9 +199,10 @@ GObject* GOpenCLIndividual::clone_() const {
 /**
  * The actual fitness calculation. It will transmit the calculation to the graphics card
  *
+ * @param id The id of the target function (ignored here)
  * @return The value of this object
  */
-double GOpenCLIndividual::fitnessCalculation(){
+double GOpenCLIndividual::fitnessCalculation(const std::size_t& id){
 	return 0.; // Make the compiler happy
 }
 

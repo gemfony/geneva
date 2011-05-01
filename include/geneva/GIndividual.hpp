@@ -131,8 +131,11 @@ public:
 
 	/** @brief The adaption interface */
 	virtual void adapt();
-	/** @brief Calculate or returns the result of the main fitness function of this object */
+
+	/** @brief Calculates the result of the fitness function with id 0 */
 	virtual double fitness();
+	/** @brief Calculate or returns the result of a fitness function with a given id */
+	virtual double fitness(const std::size_t&);
 	/** @brief Adapts and evaluates the individual in one go */
 	virtual double adaptAndEvaluate();
 
@@ -258,7 +261,7 @@ protected:
 	virtual GObject* clone_() const = 0;
 
 	/** @brief The fitness calculation for the main quality criterion takes place here */
-	virtual double fitnessCalculation() = 0;
+	virtual double fitnessCalculation(const std::size_t&) = 0;
 
 	/** @brief Determines whether more than one fitness criterion is present for this individual */
 	bool hasMultipleFitnessCriteria() const;

@@ -482,7 +482,7 @@ void GGradientDescent::updateParentIndividuals() {
 #endif /* DEBUG*/
 
 		// Retrieve the fitness of the individual again
-		double parentFitness = this->at(i)->fitness();
+		double parentFitness = this->at(i)->fitness(0);
 
 		// Calculate the adaption of each parameter
 		double gradient = 0.;
@@ -492,7 +492,7 @@ void GGradientDescent::updateParentIndividuals() {
 			std::size_t childPos = nStartingPoints_ + i*nFPParmsFirst_ + j;
 
 			// Calculate the step to be performed in a given direction
-			gradient = (1./finiteStep_) * (this->at(childPos)->fitness() - parentFitness);
+			gradient = (1./finiteStep_) * (this->at(childPos)->fitness(0) - parentFitness);
 
 			/*
 			std::cout << "parmVec[" << j << "] = " << parmVec[j] << std::endl
@@ -587,7 +587,7 @@ double GGradientDescent::doFitnessCalculation(const std::size_t& finalPos) {
 		}
 #endif /* DEBUG*/
 
-		fitnessFound = this->at(i)->fitness();
+		fitnessFound = this->at(i)->fitness(0);
 
 		// Update the best fitness value found
 		if(i<nStartingPoints_) {

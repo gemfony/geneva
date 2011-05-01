@@ -239,7 +239,7 @@ public:
 	/** @brief Allows to randomly initialize parameter members. Unused in this wrapper object */
 	virtual void randomInit();
 	/** @brief Triggers fitness calculation (i.e. optimization) for this object */
-	virtual double fitnessCalculation();
+	virtual double fitnessCalculation(const std::size_t&);
 
 	/**************************************************************************************/
 	// The following is a trivial list of getters and setters

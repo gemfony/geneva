@@ -177,7 +177,7 @@ public:
 		// Loop over all "parent" individuals and find out which one is the best
 		std::size_t pos_best=0;
 		for(std::size_t i=1; i<nStartingPoints_; i++) {
-			if(isBetter(data.at(i)->fitness(), data.at(i-1)->fitness())) {
+			if(isBetter(data.at(i)->fitness(0), data.at(i-1)->fitness(0))) {
 				pos_best=i;
 			}
 		}

@@ -297,7 +297,7 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 		);
 	}
 #endif /* DEBUG */
-	double newValue = this->at(0)->fitness();
+	double newValue = this->at(0)->fitness(0);
 
 	// Determine a suitable name for the output file
 	std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(getIteration()) + "_"
@@ -923,7 +923,7 @@ void GEvolutionaryAlgorithm::adaptChildren()
 		case MUPLUSNU:
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
 			for(it=data.begin(); it!=data.begin() + nParents_; ++it) {
-				(*it)->fitness();
+				(*it)->fitness(0);
 			}
 			break;
 
@@ -1000,11 +1000,11 @@ void GEvolutionaryAlgorithm::sortMuplusnuMode() {
 	// Only partially sort the arrays
 	if(this->getMaxMode()){
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
-				boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+				boost::bind(&GIndividual::fitness, _1, 0) > boost::bind(&GIndividual::fitness, _2, 0));
 	}
 	else{ // Minimization
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
-				boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+				boost::bind(&GIndividual::fitness, _1, 0) < boost::bind(&GIndividual::fitness, _2, 0));
 	}
 }
 
@@ -1018,11 +1018,11 @@ void GEvolutionaryAlgorithm::sortMucommanuMode() {
 	// Only sort the children
 	if(this->getMaxMode()){
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
-			  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+			  boost::bind(&GIndividual::fitness, _1, 0) > boost::bind(&GIndividual::fitness, _2, 0));
 	}
 	else{
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
-			  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+			  boost::bind(&GIndividual::fitness, _1, 0) < boost::bind(&GIndividual::fitness, _2, 0));
 	}
 	std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
 }
@@ -1044,16 +1044,16 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 		// Sort the children
 		if(this->getMaxMode()){
 			std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
-				  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+				  boost::bind(&GIndividual::fitness, _1, 0) > boost::bind(&GIndividual::fitness, _2, 0));
 		}
 		else{
 			std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
-				  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+				  boost::bind(&GIndividual::fitness, _1, 0) < boost::bind(&GIndividual::fitness, _2, 0));
 		}
 
 		// Retrieve the best child's and the last generation's best parent's fitness
-		double bestChildFitness = (*(data.begin() + nParents_))->fitness();
-		double bestParentFitness = (*(data.begin()))->fitness();
+		double bestChildFitness = (*(data.begin() + nParents_))->fitness(0);
+		double bestParentFitness = (*(data.begin()))->fitness(0);
 
 		// Leave the best parent in place, if no better child was found
 		if(!isBetter(bestChildFitness, bestParentFitness)) {
@@ -1072,16 +1072,16 @@ void GEvolutionaryAlgorithm::sortSAMode() {
 	// Position the nParents best children of the population right behind the parents
 	if(this->getMaxMode()){
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
-			  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+			  boost::bind(&GIndividual::fitness, _1, 0) > boost::bind(&GIndividual::fitness, _2, 0));
 	}
 	else{
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
-			  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+			  boost::bind(&GIndividual::fitness, _1, 0) < boost::bind(&GIndividual::fitness, _2, 0));
 	}
 
 	// Check for each parent whether it should be replaced by the corresponding child
 	for(std::size_t np=0; np<nParents_; np++) {
-		double pPass = saProb(this->at(np)->fitness(), this->at(nParents_+np)->fitness());
+		double pPass = saProb(this->at(np)->fitness(0), this->at(nParents_+np)->fitness(0));
 		if(pPass >= 1.) {
 			this->at(np)->load(this->at(nParents_+np));
 		} else {
@@ -1095,11 +1095,11 @@ void GEvolutionaryAlgorithm::sortSAMode() {
 	// Sort the parents -- it is possible that a child with a worse fitness has replaced a parent
 	if(this->getMaxMode()){
 		std::sort(data.begin(), data.begin() + nParents_,
-			  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+			  boost::bind(&GIndividual::fitness, _1, 0) > boost::bind(&GIndividual::fitness, _2, 0));
 	}
 	else{
 		std::sort(data.begin(), data.begin() + nParents_,
-			  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+			  boost::bind(&GIndividual::fitness, _1, 0) < boost::bind(&GIndividual::fitness, _2, 0));
 	}
 
 	// Make sure the temperature gets updated

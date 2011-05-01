@@ -205,9 +205,10 @@ GObject* GFunctionIndividual::clone_() const {
 /**
  * The actual value calculation takes place here
  *
+ * @param The id of the target function (ignored here)
  * @return The value of this object, as calculated with the evaluation function
  */
-double GFunctionIndividual::fitnessCalculation(){
+double GFunctionIndividual::fitnessCalculation(const std::size_t&){
 	double result = 0;
 
 	// Retrieve the parameters

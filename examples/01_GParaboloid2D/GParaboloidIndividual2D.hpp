@@ -83,7 +83,7 @@ protected:
 	virtual GObject* clone_() const;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual double fitnessCalculation();
+	virtual double fitnessCalculation(const std::size_t&);
 
 private:
 	/** @brief Make the class accessible to Boost.Serialization */

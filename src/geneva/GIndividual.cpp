@@ -204,12 +204,14 @@ void GIndividual::adapt() {
 
 /************************************************************************************************************/
 /**
- * Returns the last known fitness calculation of this object. Re-calculation
- * of the fitness is triggered, unless this is the server mode.
+ * Returns the last known fitness calculations of this object. Re-calculation
+ * of the fitness is triggered, unless this is the server mode. By means of supplying
+ * an id it is possible to distinguish between different target functions.
  *
+ * @param id The id of the fitness calculation
  * @return The fitness of this individual
  */
-double GIndividual::fitness() {
+double GIndividual::fitness(const std::size_t& id) {
 	if (dirtyFlag_) {
 		// Re-evaluation is not allowed on the server
 		if (serverMode_) {
@@ -219,7 +221,7 @@ double GIndividual::fitness() {
 			);
 		}
 
-		currentFitness_ = fitnessCalculation();
+		currentFitness_ = fitnessCalculation(id);
 		setDirtyFlag(false);
 	}
 
@@ -234,11 +236,35 @@ double GIndividual::fitness() {
 
 /************************************************************************************************************/
 /**
+ * Returns the last known fitness calculation of this object, using the fitness function
+ * with id 0.
+ *
+ * @return The fitness of this individual, according to the fitness function with id 0
+ */
+double GIndividual::fitness() {
+	return fitness(0);
+}
+
+/************************************************************************************************************/
+/**
  * Adapts and evaluates the individual in one go
  */
 double GIndividual::adaptAndEvaluate() {
 	adapt();
-	return fitness();
+	doFitnessCalculation();
+
+	bool dirtyFlag = false;
+	double result = getCurrentFitness(dirtyFlag);
+#ifdef DEBUG
+	if(true == dirtyFlag) {
+		raiseException(
+				"In GIndividual::adaptAndEvaluate():" << std::endl
+				<< "Came across individual whose dirty flag is set" << std::endl
+		);
+	}
+#endif /* DEBUG */
+
+	return result;
 }
 
 /************************************************************************************************************/
@@ -262,10 +288,12 @@ double GIndividual::getCurrentFitness(bool& dirtyFlag) const  {
 /**
  * Enforces re-calculation of the fitness. Mainly needed for testing purposes.
  *
+ * TODO: Enforce evaluation of all criteria
+ *
  * @return The result of the fitness calculation
  */
 double GIndividual::doFitnessCalculation() {
-	currentFitness_ = fitnessCalculation();
+	currentFitness_ = fitnessCalculation(0);
 	setDirtyFlag(false);
 	return currentFitness_;
 }
@@ -656,7 +684,8 @@ bool GIndividual::process(){
 
 						// Adapt and check fitness. Leave if a better solution was found
 						p->adapt();
-						if((!maximize_ && p->fitness() < originalFitness) || (maximize_ && p->fitness() > originalFitness))	{
+						p->doFitnessCalculation();
+						if((!maximize_ && p->fitness(0) < originalFitness) || (maximize_ && p->fitness(0) > originalFitness))	{
 							success = true;
 							break;
 						}
@@ -674,7 +703,7 @@ bool GIndividual::process(){
 				}
 			}
 			else if(getPersonalityTraits()->getCommand() == "evaluate") {
-				fitness();
+				doFitnessCalculation();
 				gotUsefulResult = true;
 			}
 			else {
@@ -691,7 +720,7 @@ bool GIndividual::process(){
 		{
 			if(getPersonalityTraits()->getCommand() == "evaluate") {
 				// Trigger fitness calculation
-				fitness();
+				doFitnessCalculation();
 			}
 			else {
 				raiseException(
@@ -711,7 +740,7 @@ bool GIndividual::process(){
 		{
 			if(getPersonalityTraits()->getCommand() == "evaluate") {
 				// Trigger fitness calculation
-				fitness();
+				doFitnessCalculation();
 			}
 			else {
 				raiseException(

@@ -173,9 +173,9 @@ GObject* GParameterSet::clone_() const {
  *
  * @return The fitness of this object
  */
-double GParameterSet::fitnessCalculation() {
+double GParameterSet::fitnessCalculation(const std::size_t&) {
 	raiseException(
-			"In GParameterSet::fitnessCalculation()" << std::endl
+			"In GParameterSet::fitnessCalculation(const std::size_t&)" << std::endl
 			<< "Function called directly which should not happen"
 	);
 }
@@ -640,10 +640,6 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				// Create a GParameterSet object as a clone of p_test_0 for further usage
 				boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
-				// Make sure the individual is clean by manually setting the dirty flag to false
-				// We might not have any evaluation code, so we cannot just call the fitness() function
-				// p_test->setDirtyFlag(false);
-
 				// Initialize all fp-values with 0.
 				p_test->fpFixedValueInit(d);
 
@@ -707,10 +703,6 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				// Create a GParameterSet object as a clone of p_test_0 for further usage
 				boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
-				// Make sure the individual is clean by manually setting the dirty flag to false
-				// We might not have any evaluation code, so we cannot just call the fitness() function
-				// p_test->setDirtyFlag(false);
-
 				// Initialize all fp-values with FPFIXEDVALINITMAX
 				BOOST_CHECK_NO_THROW(p_test->fpFixedValueInit(FPFIXEDVALINITMAX));
 
@@ -768,10 +760,6 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			// Create a GParameterSet object as a clone of p_test_0 for further usage
 			boost::shared_ptr<GParameterSet> p_test       = p_test_0->clone<GParameterSet>();
 
-			// Make sure the individual is clean by manually setting the dirty flag to false
-			// We might not have any evaluation code, so we cannot just call the fitness() function
-			// p_test->setDirtyFlag(false);
-
 			// Multiply each floating point value with a constrained random value
 			BOOST_CHECK_NO_THROW(p_test->fpMultiplyByRandom(FPMULTIPLYBYRANDMIN, FPMULTIPLYBYRANDMAX));
 
@@ -823,10 +811,6 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		{ // Test that fpMultiplyByRandom() changes every single parameter
 			// Create a GParameterSet object as a clone of p_test_0 for further usage
 			boost::shared_ptr<GParameterSet> p_test       = p_test_0->clone<GParameterSet>();
-
-			// Make sure the individual is clean by manually setting the dirty flag to false
-			// We might not have any evaluation code, so we cannot just call the fitness() function
-			// p_test->setDirtyFlag(false);
 
 			// Multiply each floating point value with a constrained random value
 			BOOST_CHECK_NO_THROW(p_test->fpMultiplyByRandom());

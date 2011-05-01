@@ -250,8 +250,8 @@ void GMultiThreadedEA::adaptChildren() {
 			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
 				// Make re-evaluation accessible
 				(*it)->setServerMode(false);
-				// Schedule the actual job
-				tp_.schedule(Gem::Common::GThreadWrapper(boost::bind(&GIndividual::fitness, *it)));
+				// Schedule the actual job; enforce fitness calculation of parents
+				tp_.schedule(Gem::Common::GThreadWrapper(boost::bind(&GIndividual::doFitnessCalculation, *it)));
 			}
 			break;
 

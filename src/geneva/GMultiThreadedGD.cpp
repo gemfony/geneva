@@ -312,6 +312,7 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 				boost::bind(
 					&GParameterSet::fitness
 					, this->at(i)
+					, 0
 				)
 			)
 		);
@@ -327,7 +328,7 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 		this->at(i)->setServerMode(true);
 
 		if(i<nStartingPoints) {
-			fitnessFound = this->at(i)->fitness();
+			fitnessFound = this->at(i)->fitness(0);
 
 			if(isBetter(fitnessFound, bestFitness)) {
 				bestFitness = fitnessFound;
