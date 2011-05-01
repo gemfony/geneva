@@ -494,10 +494,12 @@ void GGradientDescent::updateParentIndividuals() {
 			// Calculate the step to be performed in a given direction
 			gradient = (1./finiteStep_) * (this->at(childPos)->fitness() - parentFitness);
 
+			/*
 			std::cout << "parmVec[" << j << "] = " << parmVec[j] << std::endl
 					  << "gradient = " << gradient << std::endl
 					  << "stepSize_ = " << stepSize_ << std::endl
 					  << "adaption = " << stepSize_*gradient << std::endl;
+	        */
 
 			if(this->getMaxMode()) {
 				parmVec[j] += stepSize_*gradient;
@@ -506,7 +508,7 @@ void GGradientDescent::updateParentIndividuals() {
 				parmVec[j] -= stepSize_*gradient;
 			}
 		}
-		std::cout << "==============" << std::endl;
+		// std::cout << "==============" << std::endl;
 
 		// Load the parameter vector back into the parent
 		this->at(i)->assignValueVector(parmVec);
