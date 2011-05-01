@@ -300,6 +300,7 @@ private:
 
 	std::vector<boost::shared_ptr<GEvaluator> > evaluators_; ///< Holds all evaluators registered with this object
 
+	/**********************************************************************/
 #ifdef GENEVATESTING
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -309,7 +310,7 @@ public:
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 #endif /* GENEVATESTING */
-
+	/**********************************************************************/
 };
 
 } /* namespace Geneva */

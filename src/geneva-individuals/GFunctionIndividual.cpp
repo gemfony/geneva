@@ -284,7 +284,7 @@ double GFunctionIndividual::fitnessCalculation(){
 	// The Rastrigin function (see e.g. http://www.it.lut.fi/ip/evo/functions/node6.html)
 	case RASTRIGIN:
 	{
-		double result = 10*double(parameterSize);
+		result = 10*double(parameterSize);
 
 		for(std::size_t i=0; i<parameterSize; i++) {
 			result += (GSQUARED(parVec[i]) - 10.*cos(2*M_PI*parVec[i]));
