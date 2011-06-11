@@ -517,7 +517,7 @@ double GEvolutionaryAlgorithm::cycleLogic() {
 
 	// Retrieve the fitness of the best individual in the collection
 	bool isDirty = false;
-	double bestFitness = this->at(0)->getCurrentFitness(isDirty);
+	double bestFitness = this->at(0)->getCachedFitness(isDirty);
 
 #ifdef DEBUG
 	if(isDirty) {
@@ -1618,7 +1618,7 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaCycleInformation(G
 
 		// Retrieve the fitness of this individual
 		isDirty = false;
-		currentEvaluation = gi_ptr->getCurrentFitness(isDirty);
+		currentEvaluation = gi_ptr->getCachedFitness(isDirty);
 
 		// Write information to the output stream
 		result << "  evaluation" << i << ".push_back(" <<  currentEvaluation << ");" << (isDirty?" // dirty flag is set":"") << std::endl;

@@ -357,10 +357,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 				dirtyFlag = false; // The next call should change this value
 				// Once oldFitness has been set (in iterations > 0), currentFitness() should return that value here
 				BOOST_CHECK_MESSAGE (
-						oldFitness == p_test->getCurrentFitness(dirtyFlag)
+						oldFitness == p_test->getCachedFitness(dirtyFlag)
 						,  "\n"
 						<< "oldFitness = " << oldFitness << "\n"
-						<< "p_test->getCurrentFitness(dirtyFlag) = " << p_test->getCurrentFitness(dirtyFlag) << "\n"
+						<< "p_test->getCachedFitness(dirtyFlag) = " << p_test->getCachedFitness(dirtyFlag) << "\n"
 						<< "dirtyFlag = " << dirtyFlag << "\n"
 						<< "iteration = " << i << "\n"
 				);
@@ -369,13 +369,13 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 			}
 			// Trigger value calculation
 			BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness());
-			// Check that getCurrentFitness() returns the same value as fitness()
+			// Check that getCachedFitness() returns the same value as fitness()
 			dirtyFlag = true; // The next call should change this value
 			BOOST_CHECK_MESSAGE (
-					currentFitness == p_test->getCurrentFitness(dirtyFlag)
+					currentFitness == p_test->getCachedFitness(dirtyFlag)
 					,  "\n"
 					<< "currentFitness = " << currentFitness << "\n"
-					<< "p_test->getCurrentFitness(dirtyFlag) = " << p_test->getCurrentFitness(dirtyFlag) << "\n"
+					<< "p_test->getCachedFitness(dirtyFlag) = " << p_test->getCachedFitness(dirtyFlag) << "\n"
 					<< "dirtyFlag = " << dirtyFlag << "\n"
 					<< "iteration = " << i << "\n"
 			);

@@ -343,7 +343,7 @@ void GSwarm::saveCheckpoint() const {
 #endif /* DEBUG */
 
 	bool isDirty;
-	double newValue = global_best_->getCurrentFitness(isDirty);
+	double newValue = global_best_->getCachedFitness(isDirty);
 
 #ifdef DEBUG
 	if(isDirty) {
@@ -1527,7 +1527,7 @@ std::string GSwarm::GSwarmOptimizationMonitor::swarmCycleInformation(GSwarm * co
 	boost::shared_ptr<GParameterSet> gsi_ptr = swarm->getBestIndividual<GParameterSet>();
 
 	// Retrieve the fitness of this individual
-	currentEvaluation = gsi_ptr->getCurrentFitness(isDirty);
+	currentEvaluation = gsi_ptr->getCachedFitness(isDirty);
 
 	// Write information to the output stream
 	result << "  evaluation.push_back(" <<  currentEvaluation << ");" << (isDirty?" // dirty flag is set":"") << std::endl

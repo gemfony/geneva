@@ -144,7 +144,7 @@ public:
 			boost::shared_ptr<GIndividual> gdii_ptr = ea->getBestIndividual<GIndividual>();
 
 			// Retrieve the fitness of this individual
-			currentEvaluation = gdii_ptr->getCurrentFitness(isDirty);
+			currentEvaluation = gdii_ptr->getCachedFitness(isDirty);
 
 			// Let the audience know about the best result
 			std::cout << iteration << ": " << currentEvaluation << std::endl;
@@ -419,7 +419,7 @@ private:
 		boost::shared_ptr<GParameterSet> g_best_ptr = ea->getBestIndividual<GParameterSet>();
 		// Extract the fitness
 		bool isDirty;
-		double global_best_fitness = g_best_ptr->getCurrentFitness(isDirty);
+		double global_best_fitness = g_best_ptr->getCachedFitness(isDirty);
 #ifdef DEBUG
 		// Check that the dirty flag isn't set
 		if(isDirty) {

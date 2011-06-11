@@ -636,7 +636,7 @@ double Go::fitnessCalculation() {
 
 	boost::shared_ptr<GParameterSet> p = this->optimize<GParameterSet>();
 
-	double val = p->getCurrentFitness(dirty);
+	double val = p->getCachedFitness(dirty);
 	// is this the current fitness ? We should at this stage never
 	// run across an unevaluated individual.
 	if(dirty) {

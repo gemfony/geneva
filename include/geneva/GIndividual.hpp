@@ -94,7 +94,9 @@ class GIndividual
 
 	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
 	     & BOOST_SERIALIZATION_NVP(currentFitness_)
+	     & BOOST_SERIALIZATION_NVP(currentSecondaryFitness_)
 	     & BOOST_SERIALIZATION_NVP(bestPastFitness_)
+	     & BOOST_SERIALIZATION_NVP(bestPastSecondaryFitness_)
 	     & BOOST_SERIALIZATION_NVP(nStalls_)
 	     & BOOST_SERIALIZATION_NVP(dirtyFlag_)
 	     & BOOST_SERIALIZATION_NVP(serverMode_)
@@ -147,12 +149,12 @@ public:
 	boost::uint32_t getProcessingCycles() const;
 
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
-	double getCurrentFitness(bool&) const;
+	double getCachedFitness(bool&, const std::size_t& = 0) const;
 	/** @brief Enforce fitness calculation */
 	double doFitnessCalculation();
 
-	/** @brief Allows to specify the number of evaluation criteria implemented in the fitnessCalculation() function */
-	void setNumberOfFitnessCriteria(const std::size_t&);
+	/** @brief Registers a new, secondary result value of the custom fitness calculation */
+	void registerSecondaryResult(const double&);
 	/** @brief Determines the number of fitness criteria present for individual */
 	std::size_t getNumberOfFitnessCriteria() const;
 	/** @brief Determines whether more than one fitness criterion is present for this individual */
@@ -283,10 +285,14 @@ protected:
 
 private:
 	/**************************************************************************************************/
-	/** @brief Holds this object's internal fitness */
+	/** @brief Holds this object's internal, primary fitness */
     double currentFitness_;
+    /** @brief Holds this object's internal, secondary fitness values */
+    std::vector<double> currentSecondaryFitness_;
     /** @brief Holds the globally best known fitness of all individuals */
     double bestPastFitness_;
+    /** @brief Holds the globally best known secondary fitness values of all individuals */
+    std::vector<double> bestPastSecondaryFitness_;
     /** @brief The number of stalls in the entire set of individuals */
     boost::uint32_t nStalls_;
     /** @brief Internal representation of the adaption status of this object */

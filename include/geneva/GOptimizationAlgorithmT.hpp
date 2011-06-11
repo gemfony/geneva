@@ -983,7 +983,7 @@ protected:
 
 		this->optimize();
 
-		double val = this->at(0)->getCurrentFitness(dirty);
+		double val = this->at(0)->getCachedFitness(dirty);
 		// is this the current fitness ? We should at this stage never
 		// run across an unevaluated individual.
 		if(dirty) {

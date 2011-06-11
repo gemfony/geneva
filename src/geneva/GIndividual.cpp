@@ -46,7 +46,9 @@ GIndividual::GIndividual()
 	, GRateableI()
 	, GObject()
 	, currentFitness_(0.)
+    , currentSecondaryFitness_()
 	, bestPastFitness_(0.)
+	, bestPastSecondaryFitness_(0)
 	, nStalls_(0)
 	, dirtyFlag_(true)
 	, serverMode_(false)
@@ -67,7 +69,9 @@ GIndividual::GIndividual(const GIndividual& cp)
 	, GRateableI(cp)
 	, GObject(cp)
 	, currentFitness_(cp.currentFitness_)
+	, currentSecondaryFitness_(cp.currentSecondaryFitness_)
 	, bestPastFitness_(cp.bestPastFitness_)
+	, bestPastSecondaryFitness_(cp.bestPastSecondaryFitness_)
 	, nStalls_(cp.nStalls_)
 	, dirtyFlag_(cp.dirtyFlag_)
 	, serverMode_(cp.serverMode_)
@@ -147,7 +151,9 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", currentFitness_, p_load->currentFitness_, "currentFitness_", "p_load->currentFitness_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", currentSecondaryFitness_, p_load->currentSecondaryFitness_, "currentSecondaryFitness_", "p_load->currentSecondaryFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", bestPastSecondaryFitness_, p_load->bestPastSecondaryFitness_, "bestPastSecondaryFitness_", "p_load->bestPastSecondaryFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", nStalls_, p_load->nStalls_, "nStalls_", "p_load->nStalls_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", dirtyFlag_, p_load->dirtyFlag_, "dirtyFlag_", "p_load->dirtyFlag_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
@@ -174,7 +180,9 @@ void GIndividual::load_(const GObject* cp) {
 
 	// Then load our local data
 	currentFitness_ = p_load->currentFitness_;
+	currentSecondaryFitness_ = p_load->currentSecondaryFitness_;
 	bestPastFitness_ = p_load->bestPastFitness_;
+	bestPastSecondaryFitness_ = p_load->bestPastSecondaryFitness_;
 	nStalls_ = p_load->nStalls_;
 	dirtyFlag_ = p_load->dirtyFlag_;
 	serverMode_ = p_load->serverMode_;
@@ -190,7 +198,7 @@ void GIndividual::load_(const GObject* cp) {
  * The adaption interface. Triggers adaption of the individual, using each parameter object's adaptor.
  * Sets the dirty flag, as the parameters have been changed.
  *
- * TODO: Check why immediate evaluation is done here
+ * TODO: Check why immediate evaluation is done here (is this still the case ???)
  */
 void GIndividual::adapt() {
 	customAdaptions(); // The actual mutation and adaption process
@@ -206,12 +214,14 @@ void GIndividual::adapt() {
 /**
  * Returns the last known fitness calculations of this object. Re-calculation
  * of the fitness is triggered, unless this is the server mode. By means of supplying
- * an id it is possible to distinguish between different target functions.
+ * an id it is possible to distinguish between different target functions. 0 denotes
+ * the main fitness criterion.
  *
- * @param id The id of the fitness calculation
+ * @param id The id of the fitness criterion
  * @return The fitness of this individual
  */
 double GIndividual::fitness(const std::size_t& id) {
+	// Check whether we need to recalculate the fitness
 	if (dirtyFlag_) {
 		// Re-evaluation is not allowed on the server
 		if (serverMode_) {
@@ -221,12 +231,21 @@ double GIndividual::fitness(const std::size_t& id) {
 			);
 		}
 
-		// Add fitness[0] here
+		// Make sure the secondary fitness vector is empty
+		currentSecondaryFitness_.clear();
+
+		// Trigger fitness calculation. This will also
+		// register secondary fitness values used in multi-criterion
+		// optimization.
 		currentFitness_ = fitnessCalculation();
+
+		// Clear the dirty flag
 		setDirtyFlag(false);
 	}
 
-	return currentFitness_;
+	// Return the desired result
+	bool tmpDirtyFlag = false;
+	return getCachedFitness(tmpDirtyFlag, id);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -249,34 +268,42 @@ double GIndividual::fitness() {
 /************************************************************************************************************/
 /**
  * Adapts and evaluates the individual in one go
+ *
+ * @return The main fitness result
  */
 double GIndividual::adaptAndEvaluate() {
 	adapt();
-	doFitnessCalculation();
-
-	bool dirtyFlag = false;
-	double result = getCurrentFitness(dirtyFlag);
-#ifdef DEBUG
-	if(true == dirtyFlag) {
-		raiseException(
-				"In GIndividual::adaptAndEvaluate():" << std::endl
-				<< "Came across individual whose dirty flag is set" << std::endl
-		);
-	}
-#endif /* DEBUG */
-
-	return result;
+	return doFitnessCalculation();
 }
 
 /************************************************************************************************************/
 /**
- * Retrieves the current (not necessarily up-to-date) fitness
+ * Retrieves the cached (not necessarily up-to-date) fitness
  *
  * @param dirtyFlag The value of the dirtyFlag_ variable
- * @return The current fitness value (not necessarily up-to-date)
+ * @param id The id of the primary or secondary fitness value
+ * @return The cached fitness value (not necessarily up-to-date) with id id
  */
-double GIndividual::getCurrentFitness(bool& dirtyFlag) const  {
+double GIndividual::getCachedFitness(bool& dirtyFlag, const std::size_t& id) const  {
 	dirtyFlag = dirtyFlag_;
+
+	if(0 == id) {
+		return currentFitness_;
+	} else {
+#ifdef DEBUG
+		if(currentSecondaryFitness_.size() < id) {
+			raiseException(
+					"In GIndividual::getCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
+					<< "Got invalid result id: " << id << std::endl
+					<< "where maximum allowed id would be " << currentSecondaryFitness_.size()-1 << std::endl
+			);
+		}
+#endif /* DEBUG */
+
+		return currentSecondaryFitness_.at(id - 1);
+	}
+
+	// Make the compiler happy
 	return currentFitness_;
 }
 
@@ -289,13 +316,16 @@ double GIndividual::getCurrentFitness(bool& dirtyFlag) const  {
 /**
  * Enforces re-calculation of the fitness.
  *
- * TODO: Enforce evaluation of all criteria
- *
- * @return The result of the fitness calculation
+ * @return The main result of the fitness calculation
  */
 double GIndividual::doFitnessCalculation() {
+	// Make sure the secondary fitness vector is empty
+	currentSecondaryFitness_.clear();
+	// Do the actual calculation
 	currentFitness_ = fitnessCalculation();
+	// Clear the dirty flag
 	setDirtyFlag(false);
+	// Return the main fitness value
 	return currentFitness_;
 }
 
@@ -306,22 +336,25 @@ double GIndividual::doFitnessCalculation() {
 
 /************************************************************************************************************/
 /**
- * Allows to specify the number of evaluation criteria implemented in the fitnessCalculation() function
+ * Registers a new, secondary result value of the custom fitness calculation. This is used in multi-criterion
+ * optimization. fitnessCalculation() returns the main fitness value, but may also add further, secondary
+ * results. Note that, whether these are used, depends on the optimization algorithm being used.
  *
- * @param nCriteria The number of fitness criteria implemented in the fitnessCalculation() function
+ * @param secondaryValue The secondary fitness value to be registered
  */
-void GIndividual::setNumberOfFitnessCriteria(const std::size_t& nCriteria) {
-
+void GIndividual::registerSecondaryResult(const double& secondaryValue) {
+	currentSecondaryFitness_.push_back(secondaryValue);
 }
 
 /************************************************************************************************************/
 /**
- * Determines the number of fitness criteria present for individual
+ * Determines the number of fitness criteria present for individual. Secondary fitness values are stored in
+ * a std::vector, so we determine its size and add 1 for the main fitness value (which always needs to be present).
  *
  * @return The number of fitness criteria registered with this individual
  */
 std::size_t GIndividual::getNumberOfFitnessCriteria() const {
-	return 1;
+	return currentSecondaryFitness_.size() + 1;
 }
 
 /************************************************************************************************************/
@@ -331,7 +364,7 @@ std::size_t GIndividual::getNumberOfFitnessCriteria() const {
  * @return A boolean indicating whether more than one target function is present
  */
 bool GIndividual::hasMultipleFitnessCriteria() const {
-	return false;
+	return (getNumberOfFitnessCriteria()>1?true:false);
 }
 
 /************************************************************************************************************/
@@ -688,7 +721,7 @@ bool GIndividual::process(){
 				else{
 					// Retrieve this object's current fitness.
 					bool isDirty=false;
-					double originalFitness = getCurrentFitness(isDirty);
+					double originalFitness = getCachedFitness(isDirty);
 
 #ifdef DEBUG
 					// Individuals that arrive here for adaption should be "clean"
