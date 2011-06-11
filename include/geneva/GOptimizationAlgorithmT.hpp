@@ -978,7 +978,7 @@ protected:
 	 * @param The id of an evaluation criterion (will be ignored by this function)
 	 * @return The fitness of the best individual in the population
 	 */
-	virtual double fitnessCalculation(const std::size_t& id) {
+	virtual double fitnessCalculation() {
 		bool dirty = false;
 
 		this->optimize();
@@ -988,7 +988,7 @@ protected:
 		// run across an unevaluated individual.
 		if(dirty) {
 			raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::fitnessCalculation(const std::size_t&):" << std::endl
+					"In GOptimizationAlgorithmT<ind_type>::fitnessCalculation():" << std::endl
 					<< "Came across dirty individual"
 			);
 		}

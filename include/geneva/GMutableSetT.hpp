@@ -223,7 +223,7 @@ protected:
 
 	/**********************************************************************************/
 	/** @brief The actual fitness calculation takes place in derived objects */
-	virtual double fitnessCalculation(const std::size_t&) = 0;
+	virtual double fitnessCalculation() = 0;
 
 	/**********************************************************************************/
 	/**

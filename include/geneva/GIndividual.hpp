@@ -151,6 +151,13 @@ public:
 	/** @brief Enforce fitness calculation */
 	double doFitnessCalculation();
 
+	/** @brief Allows to specify the number of evaluation criteria implemented in the fitnessCalculation() function */
+	void setNumberOfFitnessCriteria(const std::size_t&);
+	/** @brief Determines the number of fitness criteria present for individual */
+	std::size_t getNumberOfFitnessCriteria() const;
+	/** @brief Determines whether more than one fitness criterion is present for this individual */
+	bool hasMultipleFitnessCriteria() const;
+
 	/** @brief (De-)activates the server mode */
 	bool setServerMode(const bool&);
 	/** @brief Checks whether the server mode is set */
@@ -261,12 +268,7 @@ protected:
 	virtual GObject* clone_() const = 0;
 
 	/** @brief The fitness calculation for the main quality criterion takes place here */
-	virtual double fitnessCalculation(const std::size_t&) = 0;
-
-	/** @brief Determines whether more than one fitness criterion is present for this individual */
-	bool hasMultipleFitnessCriteria() const;
-	/** @brief Determines the number of fitness criteria present for individual */
-	std::size_t getNumberOfFitnessCriteria() const;
+	virtual double fitnessCalculation() = 0;
 
 	/** @brief The actual adaption operations */
 	virtual void customAdaptions();

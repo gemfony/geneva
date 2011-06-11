@@ -1284,7 +1284,7 @@ protected:
 	 * @param id The id of the target function (ignored here)
 	 * @return The fitness of this object
 	 */
-	virtual double fitnessCalculation(const std::size_t& id) {
+	virtual double fitnessCalculation() {
 		double result=0;
 
 		// Now loop over all data sets

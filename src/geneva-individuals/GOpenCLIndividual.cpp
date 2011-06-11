@@ -202,7 +202,7 @@ GObject* GOpenCLIndividual::clone_() const {
  * @param id The id of the target function (ignored here)
  * @return The value of this object
  */
-double GOpenCLIndividual::fitnessCalculation(const std::size_t& id){
+double GOpenCLIndividual::fitnessCalculation(){
 	return 0.; // Make the compiler happy
 }
 

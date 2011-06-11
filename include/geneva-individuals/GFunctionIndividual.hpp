@@ -333,7 +333,7 @@ protected:
 	virtual GObject* clone_() const;
 
 	/** @brief The actual value calculation takes place here */
-	virtual double fitnessCalculation(const std::size_t&);
+	virtual double fitnessCalculation();
 
 	/********************************************************************************************/
 private:

@@ -146,7 +146,7 @@ GObject* GParaboloidIndividual::clone_() const {
  * @param id The id of the target function (ignored for this function)
  * @return The value of this object
  */
-double GParaboloidIndividual::fitnessCalculation(const std::size_t& id){
+double GParaboloidIndividual::fitnessCalculation(){
 	double result = 0.; // Will hold the result
 	std::vector<double> parVec; // Will hold the parameters
 

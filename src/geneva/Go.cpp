@@ -631,7 +631,7 @@ void Go::randomInit()
  * @param id The id of the target function (ignored here)
  * @return The fitness of the best individual in the population
  */
-double Go::fitnessCalculation(const std::size_t& id) {
+double Go::fitnessCalculation() {
 	bool dirty = false;
 
 	boost::shared_ptr<GParameterSet> p = this->optimize<GParameterSet>();

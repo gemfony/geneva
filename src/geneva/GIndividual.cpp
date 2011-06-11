@@ -221,7 +221,8 @@ double GIndividual::fitness(const std::size_t& id) {
 			);
 		}
 
-		currentFitness_ = fitnessCalculation(id);
+		// Add fitness[0] here
+		currentFitness_ = fitnessCalculation();
 		setDirtyFlag(false);
 	}
 
@@ -286,14 +287,14 @@ double GIndividual::getCurrentFitness(bool& dirtyFlag) const  {
 
 /************************************************************************************************************/
 /**
- * Enforces re-calculation of the fitness. Mainly needed for testing purposes.
+ * Enforces re-calculation of the fitness.
  *
  * TODO: Enforce evaluation of all criteria
  *
  * @return The result of the fitness calculation
  */
 double GIndividual::doFitnessCalculation() {
-	currentFitness_ = fitnessCalculation(0);
+	currentFitness_ = fitnessCalculation();
 	setDirtyFlag(false);
 	return currentFitness_;
 }
@@ -302,6 +303,36 @@ double GIndividual::doFitnessCalculation() {
  * untested
  * ----------------------------------------------------------------------------------
  */
+
+/************************************************************************************************************/
+/**
+ * Allows to specify the number of evaluation criteria implemented in the fitnessCalculation() function
+ *
+ * @param nCriteria The number of fitness criteria implemented in the fitnessCalculation() function
+ */
+void GIndividual::setNumberOfFitnessCriteria(const std::size_t& nCriteria) {
+
+}
+
+/************************************************************************************************************/
+/**
+ * Determines the number of fitness criteria present for individual
+ *
+ * @return The number of fitness criteria registered with this individual
+ */
+std::size_t GIndividual::getNumberOfFitnessCriteria() const {
+	return 1;
+}
+
+/************************************************************************************************************/
+/**
+ * Determines whether more than one fitness criterion is present for this individual
+ *
+ * @return A boolean indicating whether more than one target function is present
+ */
+bool GIndividual::hasMultipleFitnessCriteria() const {
+	return false;
+}
 
 /************************************************************************************************************/
 /**

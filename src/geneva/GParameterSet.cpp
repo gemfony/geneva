@@ -173,9 +173,9 @@ GObject* GParameterSet::clone_() const {
  *
  * @return The fitness of this object
  */
-double GParameterSet::fitnessCalculation(const std::size_t&) {
+double GParameterSet::fitnessCalculation() {
 	raiseException(
-			"In GParameterSet::fitnessCalculation(const std::size_t&)" << std::endl
+			"In GParameterSet::fitnessCalculation()" << std::endl
 			<< "Function called directly which should not happen"
 	);
 }
