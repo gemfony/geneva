@@ -283,6 +283,11 @@ protected:
 	/** @brief Sets the dirtyFlag_ to any desired value */
 	bool setDirtyFlag(const bool&) ;
 
+	/** @brief Combines secondary evaluation results by calculation the square root of the squared sum */
+	double squaredSumCombiner() const;
+	/** @brief Combines secondary evaluation results by calculation the square root of the weighed squared sum */
+	double weighedSquaredSumCombiner(const std::vector<double>&) const;
+
 private:
 	/**************************************************************************************************/
 	/** @brief Holds this object's internal, primary fitness */

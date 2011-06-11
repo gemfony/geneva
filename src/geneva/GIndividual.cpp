@@ -486,6 +486,53 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
 
 /************************************************************************************************************/
 /**
+ * Combines secondary evaluation results by calculation the square root of the squared sum. Note that we
+ * only evaluate the secondary results here. It is assumed that the result of this function is returned as
+ * the main result of the fitnessCalculation() function.
+ *
+ * @return The result of the combination
+ */
+double GIndividual::squaredSumCombiner() const {
+	double result = 0.;
+	std::vector<double>::const_iterator cit;
+	for(cit=currentSecondaryFitness_.begin(); cit!=currentSecondaryFitness_.end(); ++cit) {
+		result += GSQUARED(*cit);
+	}
+	return sqrt(result);
+}
+
+/************************************************************************************************************/
+/**
+ * Combines secondary evaluation results by calculation the square root of the weighed squared sum. Note that we
+ * only evaluate the secondary results here. It is assumed that the result of this function is returned as
+ * the main result of the fitnessCalculation() function.
+ *
+ * @param weights The weights to be multiplied with the cached results
+ * @return The result of the combination
+ */
+double GIndividual::weighedSquaredSumCombiner(const std::vector<double>& weights) const {
+	double result = 0.;
+	std::vector<double>::const_iterator cit_eval, cit_weights;
+
+	if(currentSecondaryFitness_.size() != weights.size()) {
+		raiseException(
+				"In GIndividual::weighedSquaredSumCombine(): Error!" << std::endl
+				<< "Sizes of currentSecondaryFitness_ and the weights vector don't match: " << currentSecondaryFitness_.size() << " / " << weights.size() << std::endl
+		);
+	}
+
+	for(cit_eval=currentSecondaryFitness_.begin(), cit_weights=weights.begin();
+		cit_eval!=currentSecondaryFitness_.end();
+		++cit_eval, ++cit_weights
+	) {
+		result += GSQUARED((*cit_weights)*(*cit_eval));
+	}
+
+	return sqrt(result);
+}
+
+/************************************************************************************************************/
+/**
  * Sets the current personality of this individual
  *
  * @param pers The desired personality of this individual
