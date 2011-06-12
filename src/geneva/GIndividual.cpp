@@ -486,6 +486,36 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
 
 /************************************************************************************************************/
 /**
+ * Combines secondary evaluation results by adding the individual results
+ *
+ *  @return The result of the combination
+ */
+double GIndividual::sumCombiner() const {
+	double result = 0.;
+	std::vector<double>::const_iterator cit;
+	for(cit=currentSecondaryFitness_.begin(); cit!=currentSecondaryFitness_.end(); ++cit) {
+		result += *cit;
+	}
+	return result;
+}
+
+/************************************************************************************************************/
+/**
+ * Combines secondary evaluation results by adding the absolute values of individual results
+ *
+ *  @return The result of the combination
+ */
+double GIndividual::fabsSumCombiner() const {
+	double result = 0.;
+	std::vector<double>::const_iterator cit;
+	for(cit=currentSecondaryFitness_.begin(); cit!=currentSecondaryFitness_.end(); ++cit) {
+		result += fabs(*cit);
+	}
+	return result;
+}
+
+/************************************************************************************************************/
+/**
  * Combines secondary evaluation results by calculation the square root of the squared sum. Note that we
  * only evaluate the secondary results here. It is assumed that the result of this function is returned as
  * the main result of the fitnessCalculation() function.
