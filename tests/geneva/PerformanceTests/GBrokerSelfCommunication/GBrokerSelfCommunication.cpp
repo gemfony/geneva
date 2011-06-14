@@ -127,7 +127,7 @@ int main(int argc, char **argv){
 	// Create a consumer and enrol it with the broker
 	boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
 	gatc->setSerializationMode(serMode);
-	GBROKER( boost::shared_ptr<Gem::Geneva::GIndividual> )->enrol(gatc);
+	GBROKER(Gem::Geneva::GIndividual)->enrol(gatc);
 
 	// Set up a single function individual
 	boost::shared_ptr<GFunctionIndividual> functionIndividual(new GFunctionIndividual(PARABOLA));

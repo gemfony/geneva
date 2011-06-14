@@ -308,7 +308,7 @@ std::vector<std::vector<boost::uint32_t> > GBrokerConnector::getLoggingResults()
  */
 void GBrokerConnector::init() {
 	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<boost::shared_ptr<Gem::Geneva::GIndividual> >());
-	GBROKER( boost::shared_ptr<GIndividual> )->enrol(CurrentBufferPort_);
+	GBROKER(Gem::Geneva::GIndividual)->enrol(CurrentBufferPort_);
 }
 
 /************************************************************************************************************/

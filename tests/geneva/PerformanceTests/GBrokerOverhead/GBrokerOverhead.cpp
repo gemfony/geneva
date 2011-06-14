@@ -183,7 +183,7 @@ int main(int argc, char **argv){
 		// Create a consumer and make it known to the global broker
 		boost::shared_ptr< GBoostThreadConsumerT<GIndividual> > gbtc(new GBoostThreadConsumerT<GIndividual>());
 		gbtc->setMaxThreads(nEvaluationThreads);
-		GBROKER( boost::shared_ptr<Gem::Geneva::GIndividual> )->enrol(gbtc);
+		GBROKER(Gem::Geneva::GIndividual)->enrol(gbtc);
 
 		// Create the actual broker population and set parameters as needed
 		boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());

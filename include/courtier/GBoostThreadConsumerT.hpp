@@ -87,7 +87,7 @@ const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
  * accepts more than one consumer. You can thus use this class to aid networked
  * optimization, if the server has spare CPU cores that would otherwise run idle.
  */
-template <class processable_object>
+template <class processable_type>
 class GBoostThreadConsumerT
 	:public Gem::Courtier::GConsumer
 {
@@ -105,7 +105,7 @@ public:
 	/***************************************************************/
 	/**
 	* Standard destructor. Nothing - our thread is interrupted by the
-	* broker, and GConsumer<processable_object>::process() catches the exception.
+	* broker, and GConsumer<processable_type>::process() catches the exception.
 	*/
 	~GBoostThreadConsumerT()
 	{ /* nothing */ }
@@ -179,7 +179,7 @@ private:
 	*/
 	void processItems(){
 		try{
-			boost::shared_ptr<processable_object> p;
+			boost::shared_ptr<processable_type> p;
 			Gem::Common::PORTIDTYPE id;
 			boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 
@@ -191,7 +191,7 @@ private:
 				}
 
 				try{
-					id = GBROKER(boost::shared_ptr<processable_object>)->get(p, timeout);
+					id = GBROKER(processable_type)->get(p, timeout);
 				}
 				catch(Gem::Common::condition_time_out &) { continue; }
 
@@ -199,7 +199,7 @@ private:
 					p->process();
 
 					try{
-						GBROKER(boost::shared_ptr<processable_object>)->put(id, p, timeout);
+						GBROKER(processable_type)->put(id, p, timeout);
 					}
 					catch(Gem::Common::condition_time_out &) { continue; }
 				}

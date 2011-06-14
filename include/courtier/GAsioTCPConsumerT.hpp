@@ -164,7 +164,7 @@ public:
 	            Gem::Common::PORTIDTYPE id;
 
 	            // Retrieve an item
-	            id = GBROKER( boost::shared_ptr<processable_type> )->get(p, timeout);
+	            id = GBROKER(processable_type)->get(p, timeout);
 
 	            if (!this->submit(Gem::Common::sharedPtrToString(p, serializationMode_),
 	                              "compute",
@@ -197,7 +197,7 @@ public:
 
 	            Gem::Common::PORTIDTYPE id = boost::lexical_cast<Gem::Common::PORTIDTYPE>(portid);
 	            try {
-	                GBROKER( boost::shared_ptr<processable_type> )->put(id, p, timeout);
+	                GBROKER(processable_type)->put(id, p, timeout);
 	            }
 	            catch(Gem::Common::condition_time_out &gucto){
 	            	/* nothing we can do */
