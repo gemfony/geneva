@@ -1271,10 +1271,14 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
  * @param b The individual that is assumed to be dominated
  * @return A boolean indicating whether the first individual dominates the second
  */
-bool GEvolutionaryAlgorithm::aDominatesB(boost::shared_ptr<GIndividual> a, boost::shared_ptr<GIndividual>b) const {
-	std::size_t nCriteriaA = a->getNumberOfFitnessCriteria(), nCriteriaB = b->getNumberOfFitnessCriteria();
+bool GEvolutionaryAlgorithm::aDominatesB(
+		boost::shared_ptr<GIndividual> a
+		, boost::shared_ptr<GIndividual>b) const
+{
+	std::size_t nCriteriaA = a->getNumberOfFitnessCriteria();
 
 #ifdef DEBUG
+	std::size_t nCriteriaB = b->getNumberOfFitnessCriteria();
 	if(nCriteriaA != nCriteriaB) {
 		raiseException(
 				"In GEvolutionaryAlgorithm::aDominatesB(): Error!" << std::endl
