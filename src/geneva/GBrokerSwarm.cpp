@@ -252,7 +252,7 @@ void GBrokerSwarm::updateFitness(
 		, boost::shared_ptr<GParameterSet> ind
 ) {
 	// Let the individual know in which neighborhood it is
-	ind->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
+	ind->getPersonalityTraits<GSwarmPersonalityTraits>()->setNeighborhood(neighborhood);
 
 	// Let the individual know that it should perform the "evaluate" command
 	// after having passed the broker (i.e. usually on a remote machine)
@@ -396,7 +396,7 @@ void GBrokerSwarm::swarmLogic() {
 		nNeighborhoodMembers_[i] = 0;
 	}
 	for(it=this->begin(); it!=this->end(); ++it) { // Update the number of individuals in each neighborhood
-		nNeighborhoodMembers_[(*it)->getSwarmPersonalityTraits()->getNeighborhood()] += 1;
+		nNeighborhoodMembers_[(*it)->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood()] += 1;
 	}
 
 	//--------------------------------------------------------------------------------
@@ -439,10 +439,10 @@ void GBrokerSwarm::swarmLogic() {
 					this->insert(insert_it+firstNIPos, *(remove_it + firstOldPos));
 
 #ifdef DEBUG
-					if((*(insert_it+firstNIPos))->getSwarmPersonalityTraits()->getNeighborhood() != n) {
+					if((*(insert_it+firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() != n) {
 						raiseException(
 								"In GBrokerSwarm::swarmLogic():" << std::endl
-								<< "Found invalid neighborhood in copy: " << (*(insert_it+firstNIPos))->getSwarmPersonalityTraits()->getNeighborhood() << "/" << n
+								<< "Found invalid neighborhood in copy: " << (*(insert_it+firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() << "/" << n
 						);
 					}
 #endif /* DEBUG */
@@ -490,10 +490,10 @@ void GBrokerSwarm::swarmLogic() {
 
 				// Randomly initialize the item and prevent position updates
 				(*(insert_it + firstNIPos))->randomInit();
-				(*(insert_it + firstNIPos))->getSwarmPersonalityTraits()->setNoPositionUpdate();
+				(*(insert_it + firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->setNoPositionUpdate();
 
 				// Set the neighborhood as required
-				(*(insert_it + firstNIPos))->getSwarmPersonalityTraits()->setNeighborhood(n);
+				(*(insert_it + firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->setNeighborhood(n);
 
 				// Update the counter
 				nNeighborhoodMembers_[n] += 1;

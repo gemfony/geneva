@@ -237,15 +237,17 @@ void GMultiThreadedEA::adaptChildren() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	// We start with the parents, if this is iteration 0. Their
-	// initial fitness needs to be determined, if this is the MUPLUSNU
+	// initial fitness needs to be determined, if this is the MUPLUSNU_SINGLEEVAL
 	// or MUNU1PRETAIN selection model.
 	// Make sure we also evaluate the parents in the first iteration, if needed.
-	// This is only applicable to the MUPLUSNU and MUNU1PRETAIN modes.
+	// This is only applicable to the MUPLUSNU_SINGLEEVAL and MUNU1PRETAIN modes.
 	if(GEvolutionaryAlgorithm::getIteration()==0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case SA:
-		case MUPLUSNU:
+		case MUPLUSNU_SINGLEEVAL:
+		case MUPLUSNU_PARETO:
+		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
 			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
 				// Make re-evaluation accessible
@@ -255,7 +257,7 @@ void GMultiThreadedEA::adaptChildren() {
 			}
 			break;
 
-		case MUCOMMANU:
+		case MUCOMMANU_SINGLEEVAL:
 			break; // nothing
 		}
 	}
@@ -276,7 +278,9 @@ void GMultiThreadedEA::adaptChildren() {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case SA:
-		case MUPLUSNU:
+		case MUPLUSNU_SINGLEEVAL:
+		case MUPLUSNU_PARETO:
+		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
 		case MUNU1PRETAIN: // same procedure
 			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
 				// Make re-evaluation impossible
@@ -284,7 +288,7 @@ void GMultiThreadedEA::adaptChildren() {
 			}
 			break;
 
-		case MUCOMMANU:
+		case MUCOMMANU_SINGLEEVAL:
 			break; // nothing
 		}
 	}

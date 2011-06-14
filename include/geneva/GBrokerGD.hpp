@@ -133,7 +133,7 @@ private:
      */
     struct indPositionComp {
     	bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
-    		return x->getGDPersonalityTraits()->getPopulationPosition() < y->getGDPersonalityTraits()->getPopulationPosition();
+    		return x->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition() < y->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition();
     	}
     };
 

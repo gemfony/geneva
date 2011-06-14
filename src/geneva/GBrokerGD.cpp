@@ -341,7 +341,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 				std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 				bool itemIsUnique = true;
 				for(it=gps_vec.begin(); it!=gps_vec.end(); ++it) {
-					if((*it)->getGDPersonalityTraits()->getPopulationPosition() == p->getGDPersonalityTraits()->getPopulationPosition()) {
+					if((*it)->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition() == p->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition()) {
 						itemIsUnique = false;
 						break; // Leave the for-loop
 					}
@@ -381,7 +381,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 			for(std::size_t pos=0; pos < finalPos; pos++) {
 				bool found = false;
 				for(std::size_t gps_pos = gps_start_pos; gps_pos<gps_vec.size(); gps_pos++) {
-					if(gps_vec[gps_pos]->getGDPersonalityTraits()->getPopulationPosition() == pos) {
+					if(gps_vec[gps_pos]->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition() == pos) {
 						found = true;
 						gps_start_pos = gps_pos+1; // We can start searching in the next position in the next iteration
 						break;

@@ -198,7 +198,7 @@ bool GParameterSet::updateOnStall() {
 #ifdef DEBUG
 	{
 		// This function should only be called for parents. Check ...
-		if(!getEAPersonalityTraits()->isParent()) {
+		if(!getPersonalityTraits<GEAPersonalityTraits>()->isParent()) {
 			raiseException(
 					"In GParameterSet::updateOnStall() (called for EA personality):" << std::endl
 					<< "This function should only be called for parent individuals."

@@ -80,14 +80,14 @@ namespace Gem
     const boost::uint32_t DEFAULTMAXITERATIONSSUPER=20;
     const long DEFAULTMAXMINUTESSUPER=0;
     const boost::uint32_t DEFAULTREPORTITERATIONSUPER=1;
-    const sortingMode DEFAULTSORTINGSCHEMESUPER=MUPLUSNU;
+    const sortingMode DEFAULTSORTINGSCHEMESUPER=MUPLUSNU_SINGLEEVAL;
     const recoScheme DEFAULTRSCHEMESUPER=VALUERECOMBINE;
     const std::size_t DEFAULTPOPULATIONSIZESUB=100;
     const std::size_t DEFAULTNPARENTSSUB=5; // Allow to explore the parameter space from many starting points
     const boost::uint32_t DEFAULTMAXITERATIONSSUB=100;
     const long DEFAULTMAXMINUTESSUB=0;
     const boost::uint32_t DEFAULTREPORTITERATIONSUB=0;
-    const sortingMode DEFAULTSORTINGSCHEMESUB=MUPLUSNU;
+    const sortingMode DEFAULTSORTINGSCHEMESUB=MUPLUSNU_SINGLEEVAL;
     const recoScheme DEFAULTRSCHEMESUB=VALUERECOMBINE;
     const bool DEFAULTVERBOSE=true;
     const bool DEFAULTPARALLELIZATIONMODE=1;

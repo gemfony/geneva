@@ -67,7 +67,7 @@ class GEAOptimizationMonitor;
 /**
  * The default sorting mode
  */
-const sortingMode DEFAULTSMODE=MUPLUSNU;
+const sortingMode DEFAULTSMODE=MUPLUSNU_SINGLEEVAL;
 
 /**
  * The default number of generations without improvement after which
@@ -359,7 +359,20 @@ protected:
 	virtual void adjustPopulation();
 
 private:
-	/** @brief Enforces a one-time selection policy of MUCOMMANU */
+	/**********************************************************************************/
+    /**
+     * A simple comparison operator that helps to sort individuals according to their
+     * pareto status
+     */
+    class indParetoComp {
+    public:
+    	bool operator()(boost::shared_ptr<GIndividual> x, boost::shared_ptr<GIndividual> y) {
+    		return x->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront() > y->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront();
+    	}
+    };
+
+    /**********************************************************************************/
+	/** @brief Enforces a one-time selection policy of MUCOMMANU_SINGLEEVAL */
 	void setOneTimeMuCommaNu();
 	/** @brief Updates the parent's structure */
 	bool updateParentStructure();
@@ -372,9 +385,9 @@ private:
 	/** @brief Implements the VALUERECOMBINE recombination scheme */
 	void valueRecombine(boost::shared_ptr<GIndividual>&, const std::vector<double>&);
 
-	/** @brief Selection, MUPLUSNU style */
+	/** @brief Selection, MUPLUSNU_SINGLEEVAL style */
 	void sortMuplusnuMode();
-	/** @brief Selection, MUCOMMANU style */
+	/** @brief Selection, MUCOMMANU_SINGLEEVAL style */
 	void sortMucommanuMode();
 	/** @brief Selection, MUNU1PRETAIN style */
 	void sortMunu1pretainMode();
@@ -386,12 +399,19 @@ private:
 	/** @brief Updates the temperature (used for simulated annealing) */
 	void updateTemperature();
 
+	/** @brief Selection according to the pareto tag in MUPLUSNU mode (i.e. taking into account the parents) */
+	void sortMuPlusNuParetoMode();
+	/** @brief Selection according to the pareto tag in MUCOMMANU mode (i.e. not taking into account the parents) */
+	void sortMuCommaNuParetoMode();
+	/** @brief Determines whether the first individual dominates the second */
+	bool aDominatesB(boost::shared_ptr<GIndividual>, boost::shared_ptr<GIndividual>) const;
+
 	std::size_t nParents_; ///< The number of parents
 	boost::uint32_t microTrainingInterval_; ///< The number of iterations without improvements after which a micro training should be started
 	recoScheme recombinationMethod_; ///< The chosen recombination method
 	sortingMode smode_; ///< The chosen sorting scheme
 	std::size_t defaultNChildren_; ///< Expected number of children
-	bool oneTimeMuCommaNu_; ///< Specifies whether a one-time selection scheme of MUCOMMANU should be used
+	bool oneTimeMuCommaNu_; ///< Specifies whether a one-time selection scheme of MUCOMMANU_SINGLEEVAL should be used
 
 	double t0_; ///< The start temperature, used in simulated annealing
 	double t_; ///< The current temperature, used in simulated annealing

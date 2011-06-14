@@ -362,7 +362,7 @@ public:
 
 				// Only draw the particle if it is inside of the function plot
 				if(x_ref[0] > minX_ && x_ref[0] < maxX_ && x_ref[1] > minY_ && x_ref[1] < maxY_) {
-					ofs << "  TText txt_" << particle << "(" << x_ref[0] << ", " << x_ref[1] << ", \"" << (*it)->getSwarmPersonalityTraits()->getNeighborhood() << "\");" << std::endl
+					ofs << "  TText txt_" << particle << "(" << x_ref[0] << ", " << x_ref[1] << ", \"" << (*it)->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() << "\");" << std::endl
 						<< "  txt_" << particle << "->SetTextSize(0.013);" << std::endl
 						<< "  txt_" << particle << "->Draw();" << std::endl
 						<< std::endl;

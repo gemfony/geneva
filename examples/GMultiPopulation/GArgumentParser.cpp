@@ -188,7 +188,7 @@ namespace Gem
 	  ("rSchemeSuper",po::value<boost::uint16_t>(&recombinationSchemeSuper)->default_value(DEFAULTRSCHEMESUPER),
 	   "The recombination scheme for the super-population")
 	  ("sortingSchemeSuper", po::value<sortingMode>(&smodeSuper)->default_value(DEFAULTSORTINGSCHEMESUPER),
-	   "Determines whether sorting is done in MUCOMMANU (0), MUPLUSNU (1)  or MUNU1PRETAIN (2) mode in the super-population")
+	   "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode in the super-population")
 	  ("populationSizeSub",po::value<std::size_t>(&populationSizeSub)->default_value(DEFAULTPOPULATIONSIZESUB),
 	   "The size of the sub-population")
 	  ("nParentsSub",po::value<std::size_t>(&nParentsSub)->default_value(DEFAULTNPARENTSSUB),
@@ -202,7 +202,7 @@ namespace Gem
 	  ("rSchemeSub",po::value<boost::uint16_t>(&recombinationSchemeSub)->default_value(DEFAULTRSCHEMESUB),
 	   "The recombination scheme for the sub-population")
 	  ("sortingSchemeSub", po::value<sortingMode>(&smodeSub)->default_value(DEFAULTSORTINGSCHEMESUB),
-	   "Determines whether sorting is done in MUCOMMANU (0), MUPLUSNU (1)  or MUNU1PRETAIN (2) mode in the sub-population")
+	   "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode in the sub-population")
 	  ("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
 	   "The size of the buffer with random arrays in the random factory")
 	  ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),

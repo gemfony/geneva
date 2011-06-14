@@ -517,7 +517,7 @@ void GSwarm::updatePersonalBest(
 	}
 #endif /* DEBUG */
 
-	p_outer->getSwarmPersonalityTraits()->registerPersonalBest(p_inner);
+	p_outer->getPersonalityTraits<GSwarmPersonalityTraits>()->registerPersonalBest(p_inner);
 }
 
 /************************************************************************************************************/
@@ -541,11 +541,11 @@ void GSwarm::updatePersonalBestIfBetter(
 #endif /* DEBUG */
 
 	if(GOptimizationAlgorithmT<GParameterSet>::isBetter(
-			p_inner->getSwarmPersonalityTraits()->getPersonalBestQuality()
+			p_inner->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBestQuality()
 			, p_outer->fitness(0)
 		)
 	) {
-		p_outer->getSwarmPersonalityTraits()->registerPersonalBest(p_inner);
+		p_outer->getPersonalityTraits<GSwarmPersonalityTraits>()->registerPersonalBest(p_inner);
 	}
 }
 
@@ -659,7 +659,7 @@ void GSwarm::updateSwarm(
 	  , boost::shared_ptr<GParameterSet> velocity
 	  , boost::tuple<double, double, double, double> constants
 ){
-	if(iteration > 0 && !ind->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
+	if(iteration > 0 && !ind->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
 		// Update the swarm positions:
 		updatePositions(
 		  neighborhood
@@ -694,7 +694,7 @@ void GSwarm::updateFitness(
 	  , boost::shared_ptr<GParameterSet> ind
 ){
 	// Let the personality know in which neighborhood it is
-	ind->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
+	ind->getPersonalityTraits<GSwarmPersonalityTraits>()->setNeighborhood(neighborhood);
 
 	// Trigger the fitness calculation (if necessary). Make sure
 	// that fitness calculation is indeed allowed at this point.
@@ -748,7 +748,7 @@ void GSwarm::updatePositions(
 
 	// Extract the personal best
 	boost::shared_ptr<GParameterSet> personal_best_tmp =
-			ind->getSwarmPersonalityTraits()->getPersonalBest()->clone<GParameterSet>();
+			ind->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBest()->clone<GParameterSet>();
 
 	// Further error checks
 #ifdef DEBUG
@@ -924,7 +924,7 @@ void GSwarm::adjustNeighborhoods() {
 			// We use the first item of the range as a template, then randomly initialize the data item.
 			this->insert(this->begin() + n*defaultNNeighborhoodMembers_, (*(this->begin() + n*defaultNNeighborhoodMembers_))->clone<GParameterSet>());
 			(*(this->begin() + n*defaultNNeighborhoodMembers_))->randomInit();
-			(*(this->begin() + n*defaultNNeighborhoodMembers_))->getSwarmPersonalityTraits()->setNoPositionUpdate();
+			(*(this->begin() + n*defaultNNeighborhoodMembers_))->getPersonalityTraits<GSwarmPersonalityTraits>()->setNoPositionUpdate();
 		}
 
 		// Update the number of entries in this neighborhood

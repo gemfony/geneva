@@ -1005,9 +1005,9 @@ protected:
 
 	/**************************************************************************************/
 	/**
-	 * Helps to determine whether a given value is better than a given older one.
-	 * As "better" means something different for maximization and minimization, this
-	 * function helps to make the code easier to understand.
+	 * Helps to determine whether a given value is strictly better (i.e. better than equal)
+	 * than another one. As "better" means something different for maximization and minimization,
+	 * this function helps to make the code easier to understand.
 	 *
 	 * @param newValue The new value
 	 * @param oldValue The old value
@@ -1020,6 +1020,27 @@ protected:
 		}
 		else { // minimization
 			if(newValue < oldValue) return true;
+			else return false;
+		}
+	}
+
+	/**************************************************************************************/
+	/**
+	 * Helps to determine whether a given value is strictly worse (i.e. worse than equal)
+	 * than another one. As "worse" means something different for maximization and minimization,
+	 * this function helps to make the code easier to understand.
+	 *
+	 * @param newValue The new value
+	 * @param oldValue The old value
+	 * @return true of newValue is worse than oldValue, otherwise false.
+	 */
+	bool isWorse(double newValue, const double& oldValue) const {
+		if(this->getMaxMode()) {
+			if(newValue < oldValue) return true;
+			else return false;
+		}
+		else { // minimization
+			if(newValue > oldValue) return true;
 			else return false;
 		}
 	}
@@ -1229,7 +1250,7 @@ private:
 		// Do some error checking
 		if(this->empty()) {
 			raiseException(
-					"In GOptimizationAlgorithmTgetIndividualMaxMode():" << std::endl
+					"In GOptimizationAlgorithmT::setLocalMaxMode():" << std::endl
 					<< "There should at least be one individual present at this stage." << std::endl
 					<< "Found none."
 			);
@@ -1239,7 +1260,7 @@ private:
 		for(std::size_t i=1; i<this->size(); i++) {
 			if(this->at(i)->getMaxMode() != localMaxMode) {
 				raiseException(
-						"In GOptimizationAlgorithmTgetIndividualMaxMode():" << std::endl
+						"In GOptimizationAlgorithmT::setLocalMaxMode():" << std::endl
 						<< "Found individual with maximization mode " << this->at(i)->getMaxMode() << " in position " << i << std::endl
 						<< "where " << localMaxMode << " was expected."
 				);

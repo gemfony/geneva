@@ -248,7 +248,7 @@ void GEvolutionaryAlgorithm::setIndividualPersonalities() {
 
 /************************************************************************************************************/
 /**
- * Enforces a one-time selection policy of MUCOMMANU. This is used for updates of
+ * Enforces a one-time selection policy of MUCOMMANU_SINGLEEVAL. This is used for updates of
  * the parents' structure in the optimize() function. As the quality of updated
  * parents may decrease, it is important to ensure that the next generation's parents
  * are chosen from children with new structure.
@@ -445,12 +445,14 @@ bool GEvolutionaryAlgorithm::oldParentsLogged() const {
 std::size_t GEvolutionaryAlgorithm::getNProcessableItems() const {
 	if(getIteration()==this->getOffset()) { // usually this means iteration == 0
 		switch(getSortingScheme()) {
+		case MUPLUSNU_PARETO:
+		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
 		case SA:
-		case MUPLUSNU:
+		case MUPLUSNU_SINGLEEVAL:
 		case MUNU1PRETAIN: // same procedure for all three nodes
 			return this->size(); // parents and children need to be processed
 			break;
-		case MUCOMMANU:
+		case MUCOMMANU_SINGLEEVAL:
 			return this->getDefaultNChildren();
 			break; // nothing
 		}
@@ -548,13 +550,13 @@ void GEvolutionaryAlgorithm::init() {
 		nParents_ = 1;
 	}
 
-	// In MUCOMMANU mode we want to have at least as many children as parents,
-	// whereas MUPLUSNU only requires the population size to be larger than the
-	// number of parents. NUNU1PRETAIN has the same requirements as MUCOMMANU and SA,
+	// In MUCOMMANU_SINGLEEVAL mode we want to have at least as many children as parents,
+	// whereas MUPLUSNU_SINGLEEVAL only requires the population size to be larger than the
+	// number of parents. NUNU1PRETAIN has the same requirements as MUCOMMANU_SINGLEEVAL and SA,
 	// as it is theoretically possible that all children are better than the former
 	// parents, so that the first parent individual will be replaced.
 	std::size_t popSize = getPopulationSize();
-	if(((smode_==MUCOMMANU || smode_==MUNU1PRETAIN || smode_==SA) && (popSize < 2*nParents_)) || (smode_==MUPLUSNU && popSize<=nParents_))
+	if(((smode_==MUCOMMANU_SINGLEEVAL || smode_==MUNU1PRETAIN || smode_==SA) && (popSize < 2*nParents_)) || (smode_==MUPLUSNU_SINGLEEVAL && popSize<=nParents_))
 	{
 		std::ostringstream error;
 		error << "In GEvolutionaryAlgorithm::init() :" << std::endl
@@ -562,17 +564,23 @@ void GEvolutionaryAlgorithm::init() {
 		      << "Sorting scheme is ";
 
 		switch(smode_) {
-		case MUPLUSNU:
-			error << "MUPLUSNU" << std::endl;
+		case MUPLUSNU_SINGLEEVAL:
+			error << "MUPLUSNU_SINGLEEVAL" << std::endl;
 			break;
-		case MUCOMMANU:
-			error << "MUCOMMANU" << std::endl;
+		case MUCOMMANU_SINGLEEVAL:
+			error << "MUCOMMANU_SINGLEEVAL" << std::endl;
 			break;
 		case MUNU1PRETAIN:
 			error << "MUNU1PRETAIN" << std::endl;
 			break;
 		case SA:
 			error << "SA" << std::endl;
+			break;
+		case MUPLUSNU_PARETO:
+			error << "MUPLUSNU_PARETO" << std::endl;
+			break;
+		case MUCOMMANU_PARETO:
+			error << "MUCOMMANU_PARETO" << std::endl;
 			break;
 		}
 
@@ -706,8 +714,8 @@ std::size_t GEvolutionaryAlgorithm::getNChildren() const {
 
 /************************************************************************************************************/
 /**
- * Sets the sorting scheme. In MUPLUSNU, new parents will be selected from the entire
- * population, including the old parents. In MUCOMMANU new parents will be selected
+ * Sets the sorting scheme. In MUPLUSNU_SINGLEEVAL, new parents will be selected from the entire
+ * population, including the old parents. In MUCOMMANU_SINGLEEVAL new parents will be selected
  * from children only. MUNU1PRETAIN means that the best parent of the last generation
  * will also become a new parent (unless a better child was found). All other parents are
  * selected from children only. SA is the selection scheme used in simulated annealing.
@@ -790,7 +798,7 @@ void GEvolutionaryAlgorithm::doRecombine() {
 			std::size_t p_pos = 0;
 			for(it=data.begin()+1; it!= data.end(); ++it) {
 				(*it)->GObject::load(*(data.begin()));
-				(*it)->getEAPersonalityTraits()->setParentId(p_pos++);
+				(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setParentId(p_pos++);
 			}
 		}
 		else {
@@ -863,7 +871,7 @@ void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& chi
 	child->GObject::load(*(data.begin() + parent_pos));
 
 	// Let the individual know the id of the parent
-	child->getEAPersonalityTraits()->setParentId(parent_pos);
+	child->getPersonalityTraits<GEAPersonalityTraits>()->setParentId(parent_pos);
 }
 
 /************************************************************************************************************/
@@ -886,7 +894,7 @@ void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, c
 			// Load the parent's data
 			p->GObject::load(*(data.begin() + par));
 			// Let the individual know the parent's id
-			p->getEAPersonalityTraits()->setParentId(par);
+			p->getPersonalityTraits<GEAPersonalityTraits>()->setParentId(par);
 			done = true;
 
 			break;
@@ -912,22 +920,24 @@ void GEvolutionaryAlgorithm::adaptChildren()
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	// We start with the parents, if this is iteration 0. Their
-	// initial fitness needs to be determined, if this is the MUPLUSNU
+	// initial fitness needs to be determined, if this is the MUPLUSNU_SINGLEEVAL
 	// or MUNU1PRETAIN selection model.
 	// Make sure we also evaluate the parents in the first iteration, if needed.
-	// This is only applicable to the MUPLUSNU and MUNU1PRETAIN modes.
+	// This is only applicable to the MUPLUSNU_SINGLEEVAL and MUNU1PRETAIN modes.
 	if(getIteration()==0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case SA:
-		case MUPLUSNU:
+		case MUPLUSNU_PARETO:
+		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
+		case MUPLUSNU_SINGLEEVAL:
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
 			for(it=data.begin(); it!=data.begin() + nParents_; ++it) {
 				(*it)->fitness(0);
 			}
 			break;
 
-		case MUCOMMANU:
+		case MUCOMMANU_SINGLEEVAL:
 			break; // nothing
 		}
 	}
@@ -958,7 +968,7 @@ void GEvolutionaryAlgorithm::select()
 
 	switch(smode_) {
 	//----------------------------------------------------------------------------
-	case MUPLUSNU:
+	case MUPLUSNU_SINGLEEVAL:
 		if(oneTimeMuCommaNu_) {
 			sortMucommanuMode();
 			oneTimeMuCommaNu_=false;
@@ -976,7 +986,7 @@ void GEvolutionaryAlgorithm::select()
 		break;
 
 	//----------------------------------------------------------------------------
-	case MUCOMMANU:
+	case MUCOMMANU_SINGLEEVAL:
 		sortMucommanuMode();
 		break;
 	//----------------------------------------------------------------------------
@@ -984,6 +994,13 @@ void GEvolutionaryAlgorithm::select()
 		sortSAMode();
 		break;
 	//----------------------------------------------------------------------------
+	case MUPLUSNU_PARETO:
+		sortMuPlusNuParetoMode();
+		break;
+	//----------------------------------------------------------------------------
+	case MUCOMMANU_PARETO:
+		sortMuCommaNuParetoMode();
+		break;
 	}
 
 	// Let parents know they are parents
@@ -992,9 +1009,9 @@ void GEvolutionaryAlgorithm::select()
 
 /************************************************************************************************************/
 /**
- * Selection, MUPLUSNU style. Note that not all individuals of the population (including parents)
+ * Selection, MUPLUSNU_SINGLEEVAL style. Note that not all individuals of the population (including parents)
  * are sorted -- only the nParents best individuals are identified. The quality of the population can only
- * increase, but the optimization will stall more easily in MUPLUSNU mode.
+ * increase, but the optimization will stall more easily in MUPLUSNU_SINGLEEVAL mode.
  */
 void GEvolutionaryAlgorithm::sortMuplusnuMode() {
 	// Only partially sort the arrays
@@ -1010,7 +1027,7 @@ void GEvolutionaryAlgorithm::sortMuplusnuMode() {
 
 /************************************************************************************************************/
 /**
- * Selection, MUCOMMANU style. New parents are selected from children only. The quality
+ * Selection, MUCOMMANU_SINGLEEVAL style. New parents are selected from children only. The quality
  * of the population may decrease occasionally from generation to generation, but the
  * optimization is less likely to stall.
  */
@@ -1029,16 +1046,16 @@ void GEvolutionaryAlgorithm::sortMucommanuMode() {
 
 /************************************************************************************************************/
 /**
- * Selection, MUNU1PRETAIN style. This is a hybrid between MUPLUSNU and MUCOMMANU
+ * Selection, MUNU1PRETAIN style. This is a hybrid between MUPLUSNU_SINGLEEVAL and MUCOMMANU_SINGLEEVAL
  * mode. If a better child was found than the best parent of the last generation,
  * all former parents are replaced. If no better child was found than the best
  * parent of the last generation, then this parent stays in place. All other parents
- * are replaced by the (nParents_-1) best children. The scheme falls back to MUPLUSNU
+ * are replaced by the (nParents_-1) best children. The scheme falls back to MUPLUSNU_SINGLEEVAL
  * mode, if only one parent is available, or if this is the first generation (so we
  * do not accidentally trigger value calculation).
  */
 void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
-	if(nParents_==1 || getIteration()==0) { // Falls back to MUPLUSNU mode
+	if(nParents_==1 || getIteration()==0) { // Falls back to MUPLUSNU_SINGLEEVAL mode
 		sortMuplusnuMode();
 	} else {
 		// Sort the children
@@ -1062,6 +1079,215 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 			std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
 		}
 	}
+}
+
+/************************************************************************************************************/
+/**
+ * Selection according to the pareto tag, also taking into account the parents of a population (i.e. in MUPLUSNU
+ * mode). This is used in conjunction with multi-criterion optimization. See e.g.
+ * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
+ */
+void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
+	GEvolutionaryAlgorithm::iterator it, it_cmp;
+
+	// We fall back to the single-eval MUPLUSNU mode if there is just one evaluation criterion
+	it=this->begin();
+	if(!(*it)->hasMultipleFitnessCriteria()) {
+		sortMuplusnuMode();
+	}
+
+	// Mark all individuals as being on the pareto front initially
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)->getPersonalityTraits<GEAPersonalityTraits>()->resetParetoTag();
+	}
+
+	// Compare all parameters
+	for(it=this->begin(); it!=this->end(); ++it) {
+		for(it_cmp=it+1; it_cmp != this->end(); ++it_cmp) {
+			// If we already know that this individual is *not*
+			// on the front we do not have to do any tests
+			if(!(*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) continue;
+
+			// Check if it dominates it_cmp. If so, mark it accordingly
+			if(aDominatesB(*it, *it_cmp)) {
+				(*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->setIsNotOnParetoFront();
+			}
+
+			// If a it dominated by it_cmp, we mark it accordingly and break the loop
+			if(aDominatesB(*it_cmp, *it)) {
+				(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsNotOnParetoFront();
+				break;
+			}
+		}
+	}
+
+	// At this point we have tagged all individuals according to whether or not they are
+	// on the pareto front. Lets sort them accordingly, bringing individuals with the
+	// pareto tag to the front of the collection.
+	sort(data.begin(), data.end(), indParetoComp());
+
+	// Count the number of individuals on the pareto front
+	std::size_t nIndividualsOnParetoFront = 0;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		if((*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
+	}
+
+	// If the number of individuals on the pareto front exceeds the number of parents, we
+	// do not want to introduce a bias by selecting only the first nParent individuals. Hence
+	// we randomly shuffle them. Note that not all individuals on the pareto front might survive,
+	// as subsequent iterations will only take into account parents for the reproduction step.
+	// If fewer individuals are on the pareto front than there are parents, then we want the
+	// remaining parent positions to be filled up with the non-pareto-front individuals with
+	// the best fitness(0), i.e. with the best "master" fitness.
+	if(nIndividualsOnParetoFront > getNParents()) {
+		// randomly shuffle pareto-front individuals to avoid a bias
+		std::random_shuffle(this->begin(), this->begin()+nIndividualsOnParetoFront);
+	} else if(nIndividualsOnParetoFront < getNParents()) {
+		// Sort the non-pareto-front individuals according to their master fitness
+		if(this->getMaxMode()){
+			std::partial_sort(data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
+				  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+		}
+		else{
+			std::partial_sort(data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
+				  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+		}
+	}
+
+	// Finally, we sort the parents only according to their master fitness. This is meant
+	// to give some sense to the value recombination scheme. It won't change much in case of the
+	// random recombination scheme.
+	if(this->getMaxMode()){
+		std::sort(data.begin(), data.begin() + nParents_,
+			  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+	}
+	else{
+		std::sort(data.begin(), data.begin() + nParents_,
+			  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+	}
+}
+
+/************************************************************************************************************/
+/**
+ * Selection according to the pareto tag, not taking into account the parents of a population (i.e. in MUCOMMANU
+ * mode). This is used in conjunction with multi-criterion optimization. See e.g.
+ * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
+ */
+void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
+	GEvolutionaryAlgorithm::iterator it, it_cmp;
+
+	// We fall back to the single-eval MUCOMMANU mode if there is just one evaluation criterion
+	it=this->begin();
+	if(!(*it)->hasMultipleFitnessCriteria()) {
+		sortMucommanuMode();
+	}
+
+	// Mark the last iterations parents as not being on the pareto front
+	for(it=this->begin(); it!=this->begin() + nParents_; ++it) {
+		(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsNotOnParetoFront();
+	}
+
+	// Mark all children as being on the pareto front initially
+	for(it=this->begin()+nParents_; it!=this->end(); ++it) {
+		(*it)->getPersonalityTraits<GEAPersonalityTraits>()->resetParetoTag();
+	}
+
+	// Compare all parameters of all children
+	for(it=this->begin()+nParents_; it!=this->end(); ++it) {
+		for(it_cmp=it+1; it_cmp != this->end(); ++it_cmp) {
+			// If we already know that this individual is *not*
+			// on the front we do not have to do any tests
+			if(!(*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) continue;
+
+			// Check if it dominates it_cmp. If so, mark it accordingly
+			if(aDominatesB(*it, *it_cmp)) {
+				(*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->setIsNotOnParetoFront();
+			}
+
+			// If a it dominated by it_cmp, we mark it accordingly and break the loop
+			if(aDominatesB(*it_cmp, *it)) {
+				(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsNotOnParetoFront();
+				break;
+			}
+		}
+	}
+
+	// At this point we have tagged all children according to whether or not they are
+	// on the pareto front. Lets sort them accordingly, bringing individuals with the
+	// pareto tag to the front of the population. Note that parents have been manually
+	// tagged as not being on the pareto front in the beginning of this function, so
+	// sorting the individuals according to the pareto tag will move former parents out
+	// of the parents section.
+	sort(data.begin(), data.end(), indParetoComp());
+
+	// Count the number of individuals on the pareto front
+	std::size_t nIndividualsOnParetoFront = 0;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		if((*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
+	}
+
+	// If the number of individuals on the pareto front exceeds the number of parents, we
+	// do not want to introduce a bias by selecting only the first nParent individuals. Hence
+	// we randomly shuffle them. Note that not all individuals on the pareto front might survive,
+	// as subsequent iterations will only take into account parents for the reproduction step.
+	// If fewer individuals are on the pareto front than there are parents, then we want the
+	// remaining parent positions to be filled up with the non-pareto-front individuals with
+	// the best fitness(0), i.e. with the best "master" fitness. Note that, unlike MUCOMMANU_SINGLEEVAL
+	// this implies the possibility that former parents are "elected" as new parents again. This
+	// might be changed in subsequent versions of Geneva (TODO).
+	if(nIndividualsOnParetoFront > getNParents()) {
+		// randomly shuffle pareto-front individuals to avoid a bias
+		std::random_shuffle(this->begin(), this->begin()+nIndividualsOnParetoFront);
+	} else if(nIndividualsOnParetoFront < getNParents()) {
+		// Sort the non-pareto-front individuals according to their master fitness
+		if(this->getMaxMode()){
+			std::partial_sort(data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
+				  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+		}
+		else{
+			std::partial_sort(data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
+				  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+		}
+	}
+
+	// Finally, we sort the parents only according to their master fitness. This is meant
+	// to give some sense to the value recombination scheme. It won't change much in case of the
+	// random recombination scheme.
+	if(this->getMaxMode()){
+		std::sort(data.begin(), data.begin() + nParents_,
+			  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+	}
+	else{
+		std::sort(data.begin(), data.begin() + nParents_,
+			  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+	}
+}
+
+/************************************************************************************************************/
+/**
+ * Determines whether the first individual dominates the second.
+ *
+ * @param a The individual that is assumed to dominate
+ * @param b The individual that is assumed to be dominated
+ * @return A boolean indicating whether the first individual dominates the second
+ */
+bool GEvolutionaryAlgorithm::aDominatesB(boost::shared_ptr<GIndividual> a, boost::shared_ptr<GIndividual>b) const {
+	std::size_t nCriteriaA = a->getNumberOfFitnessCriteria(), nCriteriaB = b->getNumberOfFitnessCriteria();
+
+#ifdef DEBUG
+	if(nCriteriaA != nCriteriaB) {
+		raiseException(
+				"In GEvolutionaryAlgorithm::aDominatesB(): Error!" << std::endl
+				<< "Number of fitness criteria differ: " << nCriteriaA << " / " << nCriteriaB << std::endl
+		);
+	}
+#endif
+
+	for(std::size_t i=0; i<nCriteriaA; i++) {
+		if(isWorse(a->fitness(i),b->fitness(i))) return false;
+	}
+
+	return true;
 }
 
 /************************************************************************************************************/
@@ -1122,7 +1348,7 @@ double GEvolutionaryAlgorithm::saProb(const double& qParent, const double& qChil
 
 	double result = 0.;
 	if(this->getMaxMode()){
-		result = exp(-(qParent - qChild)/t_);
+		result = exp(-(qParent-qChild)/t_);
 	} else {
 		result = exp(-(qChild-qParent)/t_);
 	}
@@ -1209,7 +1435,7 @@ double GEvolutionaryAlgorithm::getT() const {
 void GEvolutionaryAlgorithm::markParents() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.begin()+nParents_; ++it){
-		(*it)->getEAPersonalityTraits()->setIsParent();
+		(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent();
 	}
 }
 
@@ -1220,7 +1446,7 @@ void GEvolutionaryAlgorithm::markParents() {
 void GEvolutionaryAlgorithm::markChildren() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin()+nParents_; it!=data.end(); ++it){
-		(*it)->getEAPersonalityTraits()->setIsChild();
+		(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsChild();
 	}
 }
 
@@ -1232,7 +1458,7 @@ void GEvolutionaryAlgorithm::markChildren() {
 void GEvolutionaryAlgorithm::markIndividualPositions() {
 	std::size_t pos = 0;
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it) (*it)->getEAPersonalityTraits()->setPopulationPosition(pos++);
+	for(it=data.begin(); it!=data.end(); ++it) (*it)->getPersonalityTraits<GEAPersonalityTraits>()->setPopulationPosition(pos++);
 }
 
 /************************************************************************************************************/

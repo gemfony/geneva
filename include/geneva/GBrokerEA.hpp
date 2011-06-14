@@ -133,7 +133,7 @@ namespace Geneva
     class indParentComp {
     public:
     	bool operator()(boost::shared_ptr<GIndividual> x, boost::shared_ptr<GIndividual> y) {
-    		return x->getEAPersonalityTraits()->isParent() > y->getEAPersonalityTraits()->isParent();
+    		return x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GEAPersonalityTraits>()->isParent();
     	}
     };
 

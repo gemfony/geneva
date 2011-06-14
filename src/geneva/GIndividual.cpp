@@ -565,6 +565,8 @@ double GIndividual::weighedSquaredSumCombiner(const std::vector<double>& weights
 /**
  * Sets the current personality of this individual
  *
+ * TODO: Remove this dependency on GXXPersonalityTraits
+ *
  * @param pers The desired personality of this individual
  * @return The previous personality of this individual
  */
@@ -660,55 +662,6 @@ boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
 /* ----------------------------------------------------------------------------------
  * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
  * Tested in GIndividual::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/**************************************************************************************************/
-/**
- * Convenience function to make the code more readable. Gives access to the evolutionary algorithm
- * personality. Will throw if another personality is active.
- *
- * @return A shared_ptr to the evolutionary algorithms personality traits
- */
-boost::shared_ptr<GEAPersonalityTraits> GIndividual::getEAPersonalityTraits() {
-	return this->getPersonalityTraits<GEAPersonalityTraits>();
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
- * Tested in GIndividual::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/**************************************************************************************************/
-/**
- * Convenience function to make the code more readable. Gives access to the gradient descent
- * personality. Will throw if another personality is active.
- *
- * @return A shared_ptr to the gradient descent personality traits
- */
-boost::shared_ptr<GGDPersonalityTraits> GIndividual::getGDPersonalityTraits() {
-	return this->getPersonalityTraits<GGDPersonalityTraits>();
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/**************************************************************************************************/
-/**
- * Convenience function to make the code more readable. Gives access to the swarm algorithm
- * personality. Will throw if another personality is active.
- *
- * @return A shared_ptr to the swarm algorithms personality traits
- */
-boost::shared_ptr<GSwarmPersonalityTraits> GIndividual::getSwarmPersonalityTraits() {
-	return this->getPersonalityTraits<GSwarmPersonalityTraits>();
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -1241,11 +1194,6 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Try to retrieve a GEAPersonalityTraits object and check that the smart pointer actually points somewhere
 		boost::shared_ptr<GEAPersonalityTraits> p_pt_ea;
-		BOOST_CHECK_NO_THROW(p_pt_ea = p_test->getEAPersonalityTraits());
-		BOOST_CHECK(p_pt_ea);
-
-		// Retrieve the same object through a different method
-		p_pt_ea.reset();
 		BOOST_CHECK_NO_THROW(p_pt_ea = p_test->getPersonalityTraits<GEAPersonalityTraits>());
 		BOOST_CHECK(p_pt_ea);
 		p_pt_ea.reset();
@@ -1272,11 +1220,6 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Try to retrieve a GGDPersonalityTraits object and check that the smart pointer actually points somewhere
 		boost::shared_ptr<GGDPersonalityTraits> p_pt_gd;
-		BOOST_CHECK_NO_THROW(p_pt_gd = p_test->getGDPersonalityTraits());
-		BOOST_CHECK(p_pt_gd);
-
-		// Retrieve the same object through a different method
-		p_pt_gd.reset();
 		BOOST_CHECK_NO_THROW(p_pt_gd = p_test->getPersonalityTraits<GGDPersonalityTraits>());
 		BOOST_CHECK(p_pt_gd);
 		p_pt_gd.reset();
@@ -1303,11 +1246,6 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Try to retrieve a GSwarmPersonalityTraits object and check that the smart pointer actually points somewhere
 		boost::shared_ptr<GSwarmPersonalityTraits> p_pt_swarm;
-		BOOST_CHECK_NO_THROW(p_pt_swarm = p_test->getSwarmPersonalityTraits());
-		BOOST_CHECK(p_pt_swarm);
-
-		// Retrieve the same object through a different method
-		p_pt_swarm.reset();
 		BOOST_CHECK_NO_THROW(p_pt_swarm = p_test->getPersonalityTraits<GSwarmPersonalityTraits>());
 		BOOST_CHECK(p_pt_swarm);
 		p_pt_swarm.reset();
@@ -1358,7 +1296,7 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 
 		// Trying to retrieve an EA personality object should throw
 		boost::shared_ptr<GEAPersonalityTraits> p_pt_ea;
-		BOOST_CHECK_THROW(p_pt_ea = p_test->getEAPersonalityTraits(), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_pt_ea = p_test->getPersonalityTraits<GEAPersonalityTraits>(), Gem::Common::gemfony_error_condition);
 	}
 #endif /* DEBUG */
 
@@ -1372,7 +1310,7 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->setPersonality(SWARM));
 
 		// Trying to retrieve an EA personality object should throw
-		BOOST_CHECK_THROW(p_test->getEAPersonalityTraits(), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>(), Gem::Common::gemfony_error_condition);
 	}
 #endif /* DEBUG */
 

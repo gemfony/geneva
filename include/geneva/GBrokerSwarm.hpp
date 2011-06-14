@@ -149,7 +149,7 @@ private:
     class indNeighborhoodComp {
     public:
     	bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
-    		return x->getSwarmPersonalityTraits()->getNeighborhood() < y->getSwarmPersonalityTraits()->getNeighborhood();
+    		return x->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() < y->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood();
     	}
     };
 

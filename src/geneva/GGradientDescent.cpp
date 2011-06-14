@@ -444,7 +444,7 @@ void GGradientDescent::updateChildParameters() {
 			this->at(childPos)->load(this->at(i));
 
 			// Update the child's position in the population
-			this->at(childPos)->getGDPersonalityTraits()->setPopulationPosition(childPos);
+			this->at(childPos)->getPersonalityTraits<GGDPersonalityTraits>()->setPopulationPosition(childPos);
 
 			// Make a note of the current parameter's value
 			double origParmVal = parmVec[j];
@@ -744,7 +744,7 @@ void GGradientDescent::saveCheckpoint() const {
  */
 void GGradientDescent::markIndividualPositions() {
 	for(std::size_t pos=0; pos<this->size(); pos++) {
-		this->at(pos)->getGDPersonalityTraits()->setPopulationPosition(pos);
+		this->at(pos)->getPersonalityTraits<GGDPersonalityTraits>()->setPopulationPosition(pos);
 	}
 }
 

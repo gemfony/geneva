@@ -90,7 +90,7 @@ namespace Gem
     const unsigned short DEFAULTPORT=10000;
     const std::string DEFAULTIP="localhost";
     const std::string DEFAULTCONFIGFILE="./GNeuralNetwork.cfg";
-    const sortingMode DEFAULTSORTINGSCHEME=MUPLUSNU;
+    const sortingMode DEFAULTSORTINGSCHEME=MUPLUSNU_SINGLEEVAL;
     const boost::uint32_t DEFAULTSTARTITERATION=0;
     const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
     const bool DEFAULTRETURNREGARDLESS=true;

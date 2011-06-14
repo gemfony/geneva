@@ -49,6 +49,7 @@ GEAPersonalityTraits::GEAPersonalityTraits()
 	, popPos_(0)
 	, command_("")
 	, parentId_(-1) // means "unset"
+	, isOnParetoFront_(true)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -63,6 +64,7 @@ GEAPersonalityTraits::GEAPersonalityTraits(const GEAPersonalityTraits& cp)
 	, popPos_(cp.popPos_)
 	, command_(cp.command_)
 	, parentId_(cp.parentId_)
+	, isOnParetoFront_(cp.isOnParetoFront_)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -146,6 +148,7 @@ boost::optional<std::string> GEAPersonalityTraits::checkRelationshipWith(const G
 	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", popPos_, p_load->popPos_, "popPos_", "p_load->popPos_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", command_, p_load->command_, "command_", "p_load->command_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", parentId_, p_load->parentId_, "parentId_", "p_load->parentId_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", isOnParetoFront_, p_load->isOnParetoFront_, "isOnParetoFront_", "p_load->isOnParetoFront_", e , limit));
 
 	return evaluateDiscrepancies("GEAPersonalityTraits", caller, deviations, e);
 }
@@ -177,6 +180,7 @@ void GEAPersonalityTraits::load_(const GObject* cp) {
 	popPos_ = p_load->popPos_;
 	command_ = p_load->command_;
 	parentId_ = p_load->parentId_;
+	isOnParetoFront_ = p_load->isOnParetoFront_;
 }
 
 /*****************************************************************************/
@@ -401,6 +405,34 @@ void GEAPersonalityTraits::unsetParentId() {
  * Tested in GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
+
+/*****************************************************************************/
+/**
+ * Allows to check whether this individual lies on the pareto front (only yields
+ * useful results after pareto-sorting in EA)
+ *
+ * @return A boolean indicating whether this object lies on the current pareto front
+ */
+bool GEAPersonalityTraits::isOnParetoFront() const {
+	return isOnParetoFront_;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to reset the pareto tag to "true"
+ */
+void GEAPersonalityTraits::resetParetoTag() {
+	isOnParetoFront_ = true;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to specify that this individual does not lie on the pareto front
+ * of the current iteration
+ */
+void GEAPersonalityTraits::setIsNotOnParetoFront() {
+	isOnParetoFront_ = false;
+}
 
 #ifdef GENEVATESTING
 /*****************************************************************************/

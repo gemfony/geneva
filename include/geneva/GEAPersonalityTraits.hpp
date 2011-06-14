@@ -70,7 +70,8 @@ class GEAPersonalityTraits :public GPersonalityTraits
 	     & BOOST_SERIALIZATION_NVP(parentCounter_)
 	     & BOOST_SERIALIZATION_NVP(popPos_)
 	     & BOOST_SERIALIZATION_NVP(command_)
-	     & BOOST_SERIALIZATION_NVP(parentId_);
+	     & BOOST_SERIALIZATION_NVP(parentId_)
+	     & BOOST_SERIALIZATION_NVP(isOnParetoFront_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -124,6 +125,13 @@ public:
 	/** @brief Marks the parent id as unset */
 	void unsetParentId();
 
+	/** @brief Allows to check whether this individual lies on the pareto front (only yields useful results after pareto-sorting in EA) */
+	bool isOnParetoFront() const;
+	/** @brief Allows to reset the pareto tag to "true" */
+	void resetParetoTag();
+	/** @brief Allows to specify that this individual does not lie on the pareto front of the current iteration */
+	void setIsNotOnParetoFront();
+
 protected:
 	/** @brief Loads the data of another GEAPersonalityTraits object */
 	virtual void load_(const GObject*);
@@ -139,6 +147,8 @@ private:
 	std::string command_;
 	/** @brief The id of the old parent individual. This is intentionally a signed value. A negative value refers to an unset parent id */
 	boost::int16_t parentId_;
+	/** @brief Determines whether the individual lies on the pareto front */
+	bool isOnParetoFront_;
 
 #ifdef GENEVATESTING
 public:

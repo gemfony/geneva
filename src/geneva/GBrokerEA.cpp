@@ -259,7 +259,7 @@ void GBrokerEA::finalize() {
 /************************************************************************************************************/
 /**
  * Starting from the end of the children's list, we submit individuals  to the
- * broker. In the first generation, in the case of the MUPLUSNU sorting strategy,
+ * broker. In the first generation, in the case of the MUPLUSNU_SINGLEEVAL sorting strategy,
  * also the fitness of the parents is calculated. The type of command intended to
  * be executed on the individuals is stored in the individual. The function
  * then waits for the first individual to come back. The time frame for all other
@@ -286,12 +286,14 @@ void GBrokerEA::adaptChildren() {
 	data.resize(np);
 
 	// Make sure we also evaluate the parents in the first iteration, if needed.
-	// This is only applicable to the SA, MUPLUSNU and MUNU1PRETAIN modes.
+	// This is only applicable to the SA, MUPLUSNU_SINGLEEVAL and MUNU1PRETAIN modes.
 	if(iteration==0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case SA:
-		case MUPLUSNU:
+		case MUPLUSNU_SINGLEEVAL:
+		case MUPLUSNU_PARETO:
+		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
 			// Note that we only have parents left in this iteration
 			for(rit=data.rbegin(); rit!=data.rend(); ++rit) {
@@ -304,12 +306,12 @@ void GBrokerEA::adaptChildren() {
 			data.clear();
 			break;
 
-		case MUCOMMANU:
+		case MUCOMMANU_SINGLEEVAL:
 			break; // nothing
 		}
 		//--------------------------------------------------------------
-		// If we are running in SA, MUPLUSNU or MUNU1PRETAIN mode, we now have an empty population,
-		// as parents have been sent away for evaluation. If this is the MUCOMMANU mode, parents
+		// If we are running in SA, MUPLUSNU_SINGLEEVAL or MUNU1PRETAIN mode, we now have an empty population,
+		// as parents have been sent away for evaluation. If this is the MUCOMMANU_SINGLEEVAL mode, parents
 		// do not participate in the sorting and can be ignored.
 	}
 
@@ -341,12 +343,12 @@ void GBrokerEA::adaptChildren() {
 			GBrokerConnector::log();
 
 			// Update the counter.
-			if(p->getEAPersonalityTraits()->isParent()) nReceivedParent++;
+			if(p->getPersonalityTraits<GEAPersonalityTraits>()->isParent()) nReceivedParent++;
 			else nReceivedChildCurrent++;
 
 			break;
 		} else {
-			if(!p->getEAPersonalityTraits()->isParent()){
+			if(!p->getPersonalityTraits<GEAPersonalityTraits>()->isParent()){
 				// Make it known to the individual that it is now part of a new iteration
 				p->setParentAlgIteration(iteration);
 
@@ -377,10 +379,10 @@ void GBrokerEA::adaptChildren() {
 			GBrokerConnector::log();
 
 			// Update the counter
-			if(p->getEAPersonalityTraits()->isParent()) nReceivedParent++;
+			if(p->getPersonalityTraits<GEAPersonalityTraits>()->isParent()) nReceivedParent++;
 			else nReceivedChildCurrent++;
 		} else { // Now count items of older iterations
-			if(!p->getEAPersonalityTraits()->isParent()){  // Parents from older iterations will be ignored, as there is no else clause
+			if(!p->getPersonalityTraits<GEAPersonalityTraits>()->isParent()){  // Parents from older iterations will be ignored, as there is no else clause
 				// Make it known to the individual that it is now part of a new iteration
 				p->setParentAlgIteration(iteration);
 
@@ -392,10 +394,10 @@ void GBrokerEA::adaptChildren() {
 			}
 		}
 
-		// Mark as complete, if a full set of children (and parents in iteration 0 / MUPLUSNU / MUNU1PRETAIN)
+		// Mark as complete, if a full set of children (and parents in iteration 0 / MUPLUSNU_SINGLEEVAL / MUNU1PRETAIN)
 		// of the current iteration has returned. Older individuals may return in the next iterations, unless
 		// they are parents.
-		if(iteration == 0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)) {
+		if(iteration == 0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU_SINGLEEVAL || getSortingScheme()==MUNU1PRETAIN)) {
 			if(nReceivedParent+nReceivedChildCurrent==np+getDefaultNChildren()) {
 				complete=true;
 			}
@@ -407,7 +409,7 @@ void GBrokerEA::adaptChildren() {
 	}
 
 	// If parents have been evaluated, make sure they are at the beginning of the array.
-	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
+	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU_SINGLEEVAL || getSortingScheme()==MUNU1PRETAIN)){
 		// Have any individuals returned at all ?
 		if(data.size()==0) { // No way out ...
 			raiseException(
@@ -436,7 +438,7 @@ void GBrokerEA::adaptChildren() {
 				<< "some individuals of the current population did not return" << std::endl
 				<< "in iteration " << iteration << "." << std::endl;
 
-	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
+	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU_SINGLEEVAL || getSortingScheme()==MUNU1PRETAIN)){
 		information << "We have received " << nReceivedParent << " parents." << std::endl
 			        << "where " << np << " parents were expected." << std::endl;
 	}
@@ -469,11 +471,11 @@ void GBrokerEA::adaptChildren() {
 
 	// Mark the first nParents_ individuals as parents, if they aren't parents yet. We want
 	// to have a "sane" population.
-	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
+	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU_SINGLEEVAL || getSortingScheme()==MUNU1PRETAIN)){
 		GEvolutionaryAlgorithm::iterator it;
 		for(it=this->begin(); it!=this->begin() + getNParents(); ++it) {
-			if(!(*it)->getEAPersonalityTraits()->isParent()) {
-				(*it)->getEAPersonalityTraits()->setIsParent();
+			if(!(*it)->getPersonalityTraits<GEAPersonalityTraits>()->isParent()) {
+				(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent();
 			}
 		}
 	}
@@ -481,7 +483,7 @@ void GBrokerEA::adaptChildren() {
 	// We care for too many returned individuals in the select() function. Older
 	// individuals might nevertheless have a better quality. We do not want to loose them.
 
-	// We might theoretically at this point have a population that (in iteration 0 / MUPLUSNU / MUNU1PRETAIN)
+	// We might theoretically at this point have a population that (in iteration 0 / MUPLUSNU_SINGLEEVAL / MUNU1PRETAIN)
 	// consists of only parents. This is not a problem, as the entire population will get sorted
 	// in this case, and new parents and children will be tagged after the select function.
 }

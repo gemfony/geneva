@@ -366,7 +366,7 @@ public:
 				if(trackParentRelations_ && drawArrows_ && iteration>0) { // Tracking doesn't make sense for iteration 0
 #ifdef DEBUG
 					// Check whether the parent is was set at all
-					if(!(*it)->getEAPersonalityTraits()->parentIdSet()) {
+					if(!(*it)->getPersonalityTraits<GEAPersonalityTraits>()->parentIdSet()) {
 						std::ostringstream error;
 						error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
 								<< "Tried to access parent id while the id wasn't set." << std::endl;
@@ -375,7 +375,7 @@ public:
 #endif /* DEBUG */
 
 					// Retrieve the id of the individual's parent
-					std::size_t oldParentId = (*it)->getEAPersonalityTraits()->getParentId();
+					std::size_t oldParentId = (*it)->getPersonalityTraits<GEAPersonalityTraits>()->getParentId();
 
 					// Retrieve a pointer to that parent
 					boost::shared_ptr<GParameterSet> op_ptr = ea->getOldParentIndividual<GParameterSet>(oldParentId);

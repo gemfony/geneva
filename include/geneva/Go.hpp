@@ -96,7 +96,7 @@ const bool GO_DEF_CONSUMERINITIALIZED=false;
 const std::size_t GO_DEF_EAPOPULATIONSIZE=100;
 const std::size_t GO_DEF_EANPARENTS=1;
 const recoScheme GO_DEF_EARECOMBINATIONSCHEME=VALUERECOMBINE;
-const sortingMode GO_DEF_EASORTINGSCHEME=MUCOMMANU;
+const sortingMode GO_DEF_EASORTINGSCHEME=MUCOMMANU_SINGLEEVAL;
 const bool GO_DEF_EATRACKPARENTRELATIONS=false;
 const std::size_t GO_DEF_SWARMNNEIGHBORHOODS=5;
 const std::size_t GO_DEF_SWARMNNEIGHBORHOODMEMBERS=10;
@@ -527,7 +527,7 @@ public:
 	       << "# RANDOMRECOMBINE (1) or VALUERECOMBINE(2)" << std::endl
 	       << "eaRecombinationScheme = " << GO_DEF_EARECOMBINATIONSCHEME << std::endl
 	       << std::endl
-	       << "# The sorting scheme: MUPLUSNU (0), MUCOMMANU (1) or MUNU1PRETAIN (2)" << std::endl
+	       << "# The sorting scheme: MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1) or MUNU1PRETAIN (2)" << std::endl
 	       << "eaSortingScheme = " << GO_DEF_EASORTINGSCHEME << std::endl
 	       << std::endl
 	       << "# Indicates whether the algorithm should track relationships" << std::endl
@@ -1005,7 +1005,7 @@ private:
     std::size_t eaPopulationSize_; ///< The desired size of EA populations
     std::size_t eaNParents_; ///< The number of parents in an EA population
     recoScheme eaRecombinationScheme_; ///< The recombination scheme in EA
-    sortingMode eaSortingScheme_; ///< The sorting scheme in EA (MUCOMMANU etc.)
+    sortingMode eaSortingScheme_; ///< The sorting scheme in EA (MUCOMMANU_SINGLEEVAL etc.)
     bool eaTrackParentRelations_; ///< Whether relations between children and parents should be tracked in EA
 
     // SWARM parameters

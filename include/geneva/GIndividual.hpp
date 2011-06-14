@@ -50,10 +50,11 @@
 #include "common/GExceptions.hpp"
 #include "courtier/GBrokerT.hpp"         // Just for the GINDIVIDUALBROKER macro
 #include "geneva/GObject.hpp"
-#include "geneva/GEAPersonalityTraits.hpp"
-#include "geneva/GGDPersonalityTraits.hpp"
+#include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GMutableI.hpp"
 #include "geneva/GRateableI.hpp"
+#include "geneva/GEAPersonalityTraits.hpp"
+#include "geneva/GGDPersonalityTraits.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
 
 namespace Gem {
@@ -243,12 +244,6 @@ public:
 
 	/** @brief This function returns the current personality traits base pointer */
 	boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
-	/** @brief This function returns the current evolutionary algorithm personality traits pointer */
-	boost::shared_ptr<GEAPersonalityTraits> getEAPersonalityTraits();
-	/** @brief This function returns the current gradient descent personality traits pointer */
-	boost::shared_ptr<GGDPersonalityTraits> getGDPersonalityTraits();
-	/** @brief This function returns the current swarm algorithm personality traits pointer */
-	boost::shared_ptr<GSwarmPersonalityTraits> getSwarmPersonalityTraits();
 
 	/** @brief Sets the current personality of this individual */
 	personality setPersonality(const personality&);

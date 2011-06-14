@@ -7,6 +7,10 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
 * Version 0.9.2, yet unnamed, release-date unknown
 
 The main changes for this release include:
+ - Added a preliminary version of multi-criterion ("pareto front") optimization to 
+   Geneva's Evolutionary Algorithms
+ - Added the ability to individuals to store secondary evaluation criteria in
+   addition the main criterion.
  - Added a mechanism to deposit data at a remote site, so it doesn't need 
    to be (de-)serialized in each iteration. Note that, if you use this feature 
    together with  check-pointing, you need to make sure that un-serialized data 
@@ -220,11 +224,11 @@ The main changes for this release include:
  - Added a new selection scheme MUNU1PRETAIN to GBasePopulation. In this
    scheme, the best parent of the last generation is retained, unless a
    better child was found. The other parents are replaced by the best
-   children. This is a hybrid between the MUPLUSNU and MUCOMMANU modes.
+   children. This is a hybrid between the MUPLUSNU_SINGLEEVAL and MUCOMMANU_SINGLEEVAL modes.
  - Added micro-training environment to GBasePopulation (and derivatives).
    When the optimization stalls, parents may perform structural updates.
    As these will very likely lead to a decrease in quality, a one-time
-   selection policy of MUPLUSNU is used.
+   selection policy of MUPLUSNU_SINGLEEVAL is used.
  - Added the option to set an arbitrary start generation. This is useful
    when intermediate results are written out, whose file name is based on
    the current generation. Files can continue to be written out with
@@ -232,7 +236,7 @@ The main changes for this release include:
    anew, e.g. using a checkpoint file.
  - Added the option to prevent the data of unsuccessful mutation attempts
    to be returned to the server. The goal is to lessen the network traffic.
-   On the down-side, the MUCOMMANU and MUNU1PRETAIN selection mode also
+   On the down-side, the MUCOMMANU_SINGLEEVAL and MUNU1PRETAIN selection mode also
    need sub-optimal results and might work less efficient, when this
    setting is enabled.
  - Prevented GBrokerPopulation from becoming an individual inside of

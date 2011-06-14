@@ -583,7 +583,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Make this a parent individual in EA mode
 		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::EA));
-		BOOST_CHECK_NO_THROW(p_test->getEAPersonalityTraits()->setIsParent());
+		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent());
 
 		// Perform the actual update
 		bool updatePerformed = false;
@@ -944,7 +944,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 		// Make this a parent individual in EA mode
 		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::EA));
-		BOOST_CHECK_NO_THROW(p_test->getEAPersonalityTraits()->setIsChild());
+		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>()->setIsChild());
 
 		// Perform the actual update
 		BOOST_CHECK_THROW(p_test->updateOnStall(), Gem::Common::gemfony_error_condition);

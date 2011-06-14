@@ -1,0 +1,4 @@
+This directory contains a simple use case of multi criterion optimization.
+Two parabolas with adjustable location of their minimum represent two, possibly
+opposing evaluation criteria. Geneva's EA implementation of pareto-front 
+optimization is used to tacke this problem.
