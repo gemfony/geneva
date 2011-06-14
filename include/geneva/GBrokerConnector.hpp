@@ -77,6 +77,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GPODExpectationChecksT.hpp"
 #include "courtier/GBufferPortT.hpp"
+#include "courtier/GBrokerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GIndividual.hpp"
 

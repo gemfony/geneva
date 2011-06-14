@@ -48,7 +48,6 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "courtier/GBrokerT.hpp"         // Just for the GINDIVIDUALBROKER macro
 #include "geneva/GObject.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GMutableI.hpp"
@@ -328,15 +327,6 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
-
-
-/**************************************************************************************/
-/**
- * We require the Broker object to be a singleton. This macro creates the Broker
- * for the particular case of GIndividuals. All external communication should
- * refer to GINDIVIDUALBROKER.
- */
-#define GINDIVIDUALBROKER GBROKER(boost::shared_ptr<Gem::Geneva::GIndividual>)
 
 /**************************************************************************************************/
 /**

@@ -63,8 +63,8 @@ namespace Common {
 /**
  * These typedefs are needed as it is not clear whether we're running on a 64 or 32 bit
  * machine. We do want, however, to be able to count as high as is possible for a given machine
- * for the port id. This is a poor replacement for a guid, which is not officially part of
- * Boost yet.
+ * for the port id. This is a poor replacement for a guid, which was not yet officially part of
+ * Boost, when this class was created.
  */
 #ifdef BOOST_HAS_LONG_LONG
 typedef boost::uint64_t PORTIDTYPE;

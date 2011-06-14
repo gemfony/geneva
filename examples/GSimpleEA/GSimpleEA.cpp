@@ -246,12 +246,12 @@ int main(int argc, char **argv){
 	  // Create a network consumer and enrol it with the broker
 	  boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
 	  gatc->setSerializationMode(serMode);
-	  GINDIVIDUALBROKER->enrol(gatc);
+	  GBROKER( boost::shared_ptr<Gem::Geneva::GIndividual> )->enrol(gatc);
 
 	  if(addLocalConsumer) {
 		  boost::shared_ptr<GBoostThreadConsumerT<GIndividual> > gbtc(new GBoostThreadConsumerT<GIndividual>());
 		  gbtc->setMaxThreads(nEvaluationThreads);
-		  GINDIVIDUALBROKER->enrol(gbtc);
+		  GBROKER( boost::shared_ptr<Gem::Geneva::GIndividual> )->enrol(gbtc);
 	  }
 
 	  // Create the actual broker population

@@ -78,7 +78,7 @@
 #include <stdexcept>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
@@ -264,35 +264,6 @@ public:
 		lock.unlock();
 		not_empty_.notify_one();
 		return true;
-	}
-
-	/***************************************************************/
-	/**
-	 * Uses the function(-object) f to produce an item to be added
-	 * to the list. Loops until an item has been produced that is
-	 * not yet present.
-	 *
-	 * @param item An item to be added to the front of the buffer
-	 */
-	void push_front_if_unique(boost::function<value_type ()> f) {
-		boost::mutex::scoped_lock lock(mutex_);
-		// Note that this overload of wait() internally runs a loop on is_not_full to
-		// deal with spurious wakeups
-		not_full_.wait(lock, boost::bind(&GBoundedBufferT<value_type>::is_not_full, this));
-
-		while(true) {
-			// Produce an item
-			value_type item = f();
-			// Search the container for this item
-			if(std::find(container_.begin(), container_.end(), item) == container_.end()) {
-				// Only add the item if it could not be found in the list
-				container_.push_front(item);
-				break; // break the loop if unique
-			}
-		}
-
-		lock.unlock();
-		not_empty_.notify_one();
 	}
 
 	/***************************************************************/

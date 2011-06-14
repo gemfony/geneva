@@ -198,7 +198,7 @@ int main(int argc, char **argv){
 	{
 		// Create a network consumer and enrol it with the broker
 		boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
-		GINDIVIDUALBROKER->enrol(gatc);
+		GBROKER( boost::shared_ptr<Gem::Geneva::GIndividual> )->enrol(gatc);
 
 		// Create the actual broker population
 		boost::shared_ptr<GBrokerSwarm> popBroker_ptr(new GBrokerSwarm(nNeighborhoods, nNeighborhoodMembers));

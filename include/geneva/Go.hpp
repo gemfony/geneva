@@ -640,7 +640,7 @@ private:
 				// Create a network consumer and enrol it with the broker
 				boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
 				gatc->setSerializationMode(serializationMode_);
-				GINDIVIDUALBROKER->enrol(gatc);
+				GBROKER( boost::shared_ptr<Gem::Geneva::GIndividual> )->enrol(gatc);
 
 				consumerInitialized_ = true;
 			}
@@ -762,7 +762,7 @@ private:
 				// Create a network consumer and enrol it with the broker
 				boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
 				gatc->setSerializationMode(serializationMode_);
-				GINDIVIDUALBROKER->enrol(gatc);
+				GBROKER( boost::shared_ptr<Gem::Geneva::GIndividual> )->enrol(gatc);
 
 				consumerInitialized_ = true;
 			}
@@ -889,7 +889,7 @@ private:
 				// Create a network consumer and enrol it with the broker
 				boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
 				gatc->setSerializationMode(serializationMode_);
-				GINDIVIDUALBROKER->enrol(gatc);
+				GBROKER( boost::shared_ptr<Gem::Geneva::GIndividual> )->enrol(gatc);
 
 				consumerInitialized_ = true;
 			}

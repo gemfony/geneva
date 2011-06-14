@@ -55,7 +55,7 @@ namespace Common {
 
 /***************************************************************************************/
 /**
- * This class implements a basic main loop, as required by various objects in Geneva.
+ * This interface-class describes a basic main loop, as required by various objects in Geneva.
  */
 class GMainLoop {
 public:
