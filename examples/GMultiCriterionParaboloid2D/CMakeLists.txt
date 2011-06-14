@@ -58,13 +58,13 @@ LINK_DIRECTORIES (
 SET ( EXECUTABLENAME GParaboloid )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GMultiCriterionParaboloid2D
-	GMultiCriterionParaboloidIndividual2D
+	GMultiCriterionParabola
+	GMultiCriterionParabolaIndividual
 )
 
 SET ( CONFIGFILES
-	GMultiCriterionParaboloid2D.cfg
-	GMultiCriterionParaboloidIndividual2D.cfg
+	GMultiCriterionParabola.cfg
+	GMultiCriterionParabolaIndividual.cfg
 )
 
 ADD_PCH_RULE( GParaboloidIndividual.hpp ${EXECUTABLENAME}_SRCS )
