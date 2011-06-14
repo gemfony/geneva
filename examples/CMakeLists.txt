@@ -22,6 +22,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	GMultiCriterionParabola
+)
+
+ADD_SUBDIRECTORY (
 	GMultiPopulation
 )
 

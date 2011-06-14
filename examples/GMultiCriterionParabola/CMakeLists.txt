@@ -1,4 +1,4 @@
-PROJECT (GParaboloid)
+PROJECT (GMultiCriterionParabola)
 
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
@@ -55,7 +55,7 @@ LINK_DIRECTORIES (
 	${Boost_LIBRARY_DIRS}
 )
 
-SET ( EXECUTABLENAME GParaboloid )
+SET ( EXECUTABLENAME GMultiCriterionParabola )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	GMultiCriterionParabola
