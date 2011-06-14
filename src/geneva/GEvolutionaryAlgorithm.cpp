@@ -1129,7 +1129,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 	// Count the number of individuals on the pareto front
 	std::size_t nIndividualsOnParetoFront = 0;
 	for(it=this->begin(); it!=this->end(); ++it) {
-		if((*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
+		if((*it)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
 	}
 
 	// If the number of individuals on the pareto front exceeds the number of parents, we
@@ -1223,7 +1223,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 	// Count the number of individuals on the pareto front
 	std::size_t nIndividualsOnParetoFront = 0;
 	for(it=this->begin(); it!=this->end(); ++it) {
-		if((*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
+		if((*it)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
 	}
 
 	// If the number of individuals on the pareto front exceeds the number of parents, we
