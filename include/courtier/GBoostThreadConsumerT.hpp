@@ -72,8 +72,8 @@
 
 #include "common/GThreadGroup.hpp"
 #include "common/GHelperFunctions.hpp"
-#include "GBrokerT.hpp"
-#include "GConsumer.hpp"
+#include "courtier/GBrokerT.hpp"
+#include "courtier/GConsumer.hpp"
 
 namespace Gem {
 namespace Courtier {

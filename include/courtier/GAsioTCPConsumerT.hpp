@@ -77,10 +77,10 @@
 #include "common/GHelperFunctions.hpp"
 #include "hap/GRandomT.hpp"
 #include "hap/GRandomFactory.hpp"
-#include "GAsioHelperFunctions.hpp"
-#include "GBrokerT.hpp"
-#include "GCourtierEnums.hpp"
-#include "GConsumer.hpp"
+#include "courtier/GAsioHelperFunctions.hpp"
+#include "courtier/GBrokerT.hpp"
+#include "courtier/GCourtierEnums.hpp"
+#include "courtier/GConsumer.hpp"
 
 namespace Gem
 {

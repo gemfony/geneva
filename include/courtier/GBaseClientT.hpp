@@ -72,7 +72,7 @@
 
 // Geneva headers go here
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "GCourtierEnums.hpp"
+#include "courtier/GCourtierEnums.hpp"
 
 namespace Gem
 {

@@ -89,21 +89,11 @@ class GConsumer
 	:private boost::noncopyable
 {
 public:
-	/**********************************************************************************/
-	/**
-	 * The default constructor
-	 */
-	GConsumer()
-	{ /* nothing */ }
+	/** @brief The default constructor */
+	GConsumer();
+	/** @brief The standard destructor */
+	virtual ~GConsumer();
 
-	/**********************************************************************************/
-	/**
-	 * The standard destructor
-	 */
-	virtual ~GConsumer()
-	{ /* nothing */ }
-
-	/**********************************************************************************/
 	/** @brief The actual business logic */
 	virtual void process() = 0;
 	/** @brief To be called from GConsumer::process() */

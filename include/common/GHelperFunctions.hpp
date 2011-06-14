@@ -62,8 +62,8 @@
 #endif
 
 // Our own headers go here
-#include "GCommonEnums.hpp"
-#include "GExceptions.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GExceptions.hpp"
 
 namespace Gem
 {

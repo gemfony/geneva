@@ -68,9 +68,9 @@
 // Geneva headers go here
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "hap/GRandomT.hpp"
-#include "GAsioHelperFunctions.hpp"
-#include "GBaseClientT.hpp"
-#include "GCourtierEnums.hpp"
+#include "courtier/GAsioHelperFunctions.hpp"
+#include "courtier/GBaseClientT.hpp"
+#include "courtier/GCourtierEnums.hpp"
 
 namespace Gem
 {

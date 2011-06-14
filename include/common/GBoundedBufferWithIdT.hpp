@@ -55,7 +55,7 @@
 
 
 // Geneva header files go here
-#include "GBoundedBufferT.hpp"
+#include "common/GBoundedBufferT.hpp"
 
 namespace Gem {
 namespace Common {
