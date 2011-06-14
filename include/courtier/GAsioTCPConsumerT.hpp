@@ -1,4 +1,4 @@
- /**
+/**
  * @file GAsioTCPConsumerT.hpp
  */
 
@@ -101,7 +101,7 @@ const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
  * header files.
  */
 template <class processable_type>
-class GAsioServerSession
+class GAsioServerSessionT
 	:private boost::noncopyable
 {
 public:
@@ -113,7 +113,7 @@ public:
 	 *
 	 * @param io_service A reference to the server's io_service
 	 */
-	GAsioServerSession(boost::asio::io_service& io_service, const Gem::Common::serializationMode& serMod)
+	GAsioServerSessionT(boost::asio::io_service& io_service, const Gem::Common::serializationMode& serMod)
 	    : socket_(io_service)
 	    , serializationMode_(serMod)
 	{ /* nothing */ }
@@ -122,7 +122,7 @@ public:
 	/**
 	 * A standard destructor. Shuts down and closes the socket. Note: Non-virtual.
 	 */
-	~GAsioServerSession(){
+	~GAsioServerSessionT(){
 	    try{
 	        // Make sure we don't leave any open sockets lying around.
 	        socket_.close();
@@ -131,7 +131,7 @@ public:
 	    // Log and leave.
 	    catch(boost::system::system_error&){
 	        std::ostringstream error;
-	        error << "In GAsioServerSession::~GAsioServerSession():" << std::endl
+	        error << "In GAsioServerSessionT<processable_type>::~GAsioServerSessionT():" << std::endl
 	              << "Caught boost::system::system_error exception" << std::endl;
 	        std::cerr << error.str();
 	        std::terminate();
@@ -172,7 +172,7 @@ public:
 	                              boost::lexical_cast<std::string>(id)))
 	            {
 	                std::ostringstream information;
-	                information << "In GAsioServerSession::processRequest():" << std::endl
+	                information << "In GAsioServerSessionT<processable_type>::processRequest():" << std::endl
 	                            << "Could not submit item to client!" << std::endl;
 
 	                std::cout << information.str();
@@ -202,21 +202,21 @@ public:
 	            catch(Gem::Common::condition_time_out &gucto){
 	            	/* nothing we can do */
 #ifdef DEBUG
-	            	std::cerr << "In GAsioTCPConumerT<>::processRequest(): Had to discard an item" << std::endl
+	            	std::cerr << "GAsioServerSessionT<processable_type>::processRequest(): Had to discard an item" << std::endl
 	            			  << "Because the queue didn't accept the item in time." << std::endl;
 #endif
 	            }
 	        }
 	        else {
 	            std::ostringstream information;
-	            information << "GAsioServerSession::processRequest():" << std::endl
+	            information << "GAsioServerSessionT<processable_type>::processRequest():" << std::endl
 	                        << "Could not retrieve item from client." << std::endl;
 	            std::cout << information.str();
 	        }
 	    }
 	    else { // Also covers the "empty" return value of getSingleCommand()
 	        std::ostringstream warning;
-	        warning << "In GAsioServerSession::processRequest: Warning!" << std::endl
+	        warning << "In GAsioServerSessionT<processable_type>::processRequest: Warning!" << std::endl
 	                << "Received command \"" << command << "\"" << std::endl;
 	        std::cout << warning.str();
 
@@ -236,7 +236,6 @@ public:
 
 
 protected:
-
 	/*********************************************************************/
 	/**
 	 * Retrieve a single command from the stream. It will afterwards have
@@ -253,7 +252,7 @@ protected:
 	    }
 	    catch(boost::system::system_error&){
 	        std::ostringstream error;
-	        error << "In GAsioServerSession::getSingleCommand(): Warning" << std::endl
+	        error << "In GAsioServerSessionT<processable_type>::getSingleCommand(): Warning" << std::endl
 	              << "Caught boost::system::system_error exception. The function" << std::endl
 	              << "will return the \"empty\" value." << std::endl;
 	        std::cerr << error.str();
@@ -280,7 +279,7 @@ protected:
 	    }
 	    catch(boost::system::system_error&){
 	        std::ostringstream error;
-	        error << "In GAsioServerSession::sendSingleCommand(): Warning" << std::endl
+	        error << "In GAsioServerSessionT<processable_type>::sendSingleCommand(): Warning" << std::endl
 	              << "Caught boost::system::system_error exception" << std::endl;
 	        std::cerr << error.str();
 	    }
@@ -367,9 +366,9 @@ protected:
 
 
 private:
-	GAsioServerSession(); ///< Intentionally left undefined
-	GAsioServerSession(const GAsioServerSession&); ///< Intentionally left undefined
-	const GAsioServerSession& operator=(const GAsioServerSession&); ///< Intentionally left undefined
+	GAsioServerSessionT(); ///< Intentionally left undefined
+	GAsioServerSessionT(const GAsioServerSessionT<processable_type>&); ///< Intentionally left undefined
+	const GAsioServerSessionT& operator=(const GAsioServerSessionT<processable_type>&); ///< Intentionally left undefined
 
 	boost::asio::ip::tcp::socket socket_; ///< The underlying socket
 	Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
@@ -412,8 +411,8 @@ public:
 		  acceptor_.bind(endpoint);
 		  acceptor_.listen();
 
-		  boost::shared_ptr<GAsioServerSession<processable_type> > currentSession(
-				  new GAsioServerSession<processable_type>(
+		  boost::shared_ptr<GAsioServerSessionT<processable_type> > currentSession(
+				  new GAsioServerSessionT<processable_type>(
 						  io_service_
 						  , serializationMode_
 				  )
@@ -485,14 +484,14 @@ private:
 	   * @param error Possible error conditions
 	   */
 	  void handleAccept(
-			  boost::shared_ptr<GAsioServerSession<processable_type> > currentSession
+			  boost::shared_ptr<GAsioServerSessionT<processable_type> > currentSession
 			  , const boost::system::error_code& error)
 	  {
 		  // Check whether an error occurred. This will likely indicate that we've been asked to stop.
 		  if(error) return;
 
 		  // First we make sure a new session is started asynchronously so the next request can be served
-		  boost::shared_ptr<GAsioServerSession<processable_type> > newSession(new GAsioServerSession<processable_type>(io_service_, serializationMode_));
+		  boost::shared_ptr<GAsioServerSessionT<processable_type> > newSession(new GAsioServerSessionT<processable_type>(io_service_, serializationMode_));
 		  acceptor_.async_accept(
 				  newSession->getSocket()
 				  , boost::bind(
