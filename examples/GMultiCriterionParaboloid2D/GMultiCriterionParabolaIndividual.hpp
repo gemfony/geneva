@@ -1,5 +1,5 @@
 /**
- * @file GMultiCriterionParabola.hpp
+ * @file GMultiCriterionParabolaIndividual.hpp
  */
 
 /*
@@ -62,38 +62,12 @@ namespace Geneva
 {
 /******************************************************************/
 /**
- * This individual searches for the minimum of a 2-dimensional parabola.
- * It is part of an introductory example, used in the Geneva manual.
+ * This individual implements several, possibly conflicting evaluation
+ * criteria, each implemented as a parabola with its own minimum
  */
-class GMultiCriterionParabola :public GParameterSet
+class GMultiCriterionParabolaIndividual
+	:public GParameterSet
 {
-public:
-	/** @brief The standard constructor */
-	GMultiCriterionParabola(const std::size_t&, const double&, const double&);
-	/** @brief A standard copy constructor */
-	GMultiCriterionParabola(const GMultiCriterionParabola&);
-	/** @brief The destructor */
-	virtual ~GMultiCriterionParabola();
-
-	/** @brief A standard assignment operator */
-	const GMultiCriterionParabola& operator=(const GMultiCriterionParabola&);
-
-protected:
-	/** @brief Loads the data of another GMultiCriterionParabola */
-	virtual void load_(const GObject*);
-	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const;
-
-	/** @brief The actual fitness calculation takes place here. */
-	virtual double fitnessCalculation();
-
-private:
-	/** @brief The default constructor. Intentionally private. */
-	GMultiCriterionParabola();
-
-	/** @brief Make the class accessible to Boost.Serialization */
-	friend class boost::serialization::access;
-
 	/**************************************************************/
 	/**
 	 * This function triggers serialization of this class and its
@@ -105,40 +79,73 @@ private:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
 		   & BOOST_SERIALIZATION_NVP(nPar_)
 		   & BOOST_SERIALIZATION_NVP(par_min_)
-		   & BOOST_SERIALIZATION_NVP(par_max_);
+		   & BOOST_SERIALIZATION_NVP(par_max_)
+		   & BOOST_SERIALIZATION_NVP(minima_);
 	}
 	/**************************************************************/
+
+public:
+	/** @brief The standard constructor */
+	GMultiCriterionParabolaIndividual(const std::size_t&, const double&, const double&, const std::vector<double>&);
+	/** @brief A standard copy constructor */
+	GMultiCriterionParabolaIndividual(const GMultiCriterionParabolaIndividual&);
+	/** @brief The destructor */
+	virtual ~GMultiCriterionParabolaIndividual();
+
+	/** @brief A standard assignment operator */
+	const GMultiCriterionParabolaIndividual& operator=(const GMultiCriterionParabolaIndividual&);
+
+protected:
+	/** @brief Loads the data of another GMultiCriterionParabolaIndividual */
+	virtual void load_(const GObject*);
+	/** @brief Creates a deep clone of this object */
+	virtual GObject* clone_() const;
+
+	/** @brief The actual fitness calculation takes place here. */
+	virtual double fitnessCalculation();
+
+private:
+	/** @brief The default constructor. Intentionally private. */
+	GMultiCriterionParabolaIndividual();
+
+	/** @brief Make the class accessible to Boost.Serialization */
+	friend class boost::serialization::access;
 
 	std::size_t nPar_; ///< The number of parameters of the parabola
 	double par_min_; ///< The lower boundary of the initialization range
 	double par_max_; ///< The upper boundary of the initialization range
+	std::vector<double> minima_; ///< The desired minima of the parabolas
 };
 
 /******************************************************************/
 ////////////////////////////////////////////////////////////////////
 /******************************************************************/
 /**
- * A factory for GMultiCriterionParabola objects
+ * A factory for GMultiCriterionParabolaIndividual objects
  */
-class GMultiCriterionParabolaFactory
-	:public GIndividualFactoryT<GMultiCriterionParabola>
+class GMultiCriterionParabolaIndividualFactory
+	:public GIndividualFactoryT<GMultiCriterionParabolaIndividual>
 {
 public:
 	/** @brief The standard constructor for this class */
-	GMultiCriterionParabolaFactory(const std::string&);
+	GMultiCriterionParabolaIndividualFactory(const std::string&);
 	/** @brief The destructor */
-	virtual ~GMultiCriterionParabolaFactory();
+	virtual ~GMultiCriterionParabolaIndividualFactory();
 
 protected:
+	/** @brief Necessary initialization work */
+	virtual void init_();
 	/** @brief Allows to describe configuration options of this class */
 	virtual void describeConfigurationOptions_();
 	/** @brief Creates individuals of the desired type */
-	virtual boost::shared_ptr<GMultiCriterionParabola> getIndividual_(const std::size_t&);
+	virtual boost::shared_ptr<GMultiCriterionParabolaIndividual> getIndividual_(const std::size_t&);
 
 private:
 	std::size_t nPar_;
 	double par_min_;
 	double par_max_;
+	std::vector<double> minima_;
+	std::string minima_string_;
 };
 
 
@@ -147,6 +154,6 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMultiCriterionParabola)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMultiCriterionParabolaIndividual)
 
 #endif /* GPARABOLOIDINDIVIDUAL_HPP_ */

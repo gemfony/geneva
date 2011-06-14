@@ -1,5 +1,5 @@
 /**
- * @file GMultiCriterionParaboloid2D.cpp
+ * @file GMultiCriterionParabola.cpp
  */
 
 /*

@@ -70,10 +70,12 @@ GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(
 	const std::size_t& nPar
 	, const double& par_min
 	, const double& par_max
+	, const std::vector<double>& minima
 )
 	: nPar_(nPar)
 	, par_min_(par_min)
  	, par_max_(par_max)
+	, minima_(minima)
 {
 	for(std::size_t npar=0; npar<nPar_; npar++) {
 		// GConstrainedDoubleObject cannot assume value below or above par_min_/max_
@@ -97,6 +99,7 @@ GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(const GMult
 	, nPar_(cp.nPar_)
 	, par_min_(cp.par_min_)
 	, par_max_(cp.par_max_)
+	, minima_(cp.minima_)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -124,10 +127,12 @@ void GMultiCriterionParabolaIndividual::load_(const GObject* cp)
 	// Load our parent's data ...
 	GParameterSet::load_(cp);
 
-	// ... and then our local data
-	nPar_ = p_load->nPar_;
-	par_min_ = p_load->par_min_;
-	par_max_ = p_load->par_max_;
+	// We do not copy local data, as it doesn't change during the
+	// course of the optimization
+	// nPar_ = p_load->nPar_;
+	// par_min_ = p_load->par_min_;
+	// par_max_ = p_load->par_max_;
+	// minima_ = p_load->minima_;
 }
 
 /********************************************************************************************/
@@ -147,17 +152,20 @@ GObject* GMultiCriterionParabolaIndividual::clone_() const {
  * @return The value of this object
  */
 double GMultiCriterionParabolaIndividual::fitnessCalculation(){
-	double result = 0.; // Will hold the result
-	std::vector<double> parVec; // Will hold the parameters
+	double main_result = 0.; // Will hold the main result
+	std::vector<double> parVec; // Will hold the individual parameters
 
 	this->streamline(parVec); // Retrieve the parameters
 
-	// Do the actual calculation
+	// Do the actual calculations. Note that the first calculation
+	// counts as the main result and that we can register other,
+	// secondary evaluation criteria.
+	main_result = GSQUARED(parVec[0] - minima_[0]);
 	for(std::size_t i=0; i<parVec.size(); i++) {
-		result += parVec[i]*parVec[i];
+		registerSecondaryResult(GSQUARED(parVec[i] - minima_[i]));
 	}
 
-	return result;
+	return main_result;
 }
 
 /********************************************************************************************/
@@ -173,6 +181,8 @@ GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFacto
 	, nPar_(2)
 	, par_min_(-10.)
 	, par_max_(10.)
+	, minima_(0)
+	, minima_string_("")
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -184,12 +194,47 @@ GMultiCriterionParabolaIndividualFactory::~GMultiCriterionParabolaIndividualFact
 
 /********************************************************************************************/
 /**
+ * Necessary initialization work. Here we divide minima_string_ into individual minima
+ * and initialize the nPar_ variables.
+ */
+void GMultiCriterionParabolaIndividualFactory::init_() {
+	// Parse the sleep string and break it into timing values
+	std::vector<std::string> minimaTokens;
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	boost::char_separator<char> space_sep(" ");
+	tokenizer minimaTokenizer(minima_string_, space_sep);
+	tokenizer::iterator s;
+	std::size_t parabola_counter = 0;
+	for(s=minimaTokenizer.begin(); s!=minimaTokenizer.end(); ++s){
+		std::cout << "Parabola " << parabola_counter++ << " minimum = " << *s << std::endl;
+		minimaTokens.push_back(*s);
+	}
+	if(minimaTokens.empty()) { // No sleep tokens were provided
+		raiseException(
+				"In GMultiCriterionParabolaIndividualFactory::init_(): Error!" << std::endl
+				<< "You did not provide any minimum settings" << std::endl
+		);
+	}
+
+	minima_.clear();
+
+	std::vector<std::string>::iterator t;
+	for(t=minimaTokens.begin(); t!=minimaTokens.end(); ++t) {
+		// Assign the converted minimum
+		minima_.push_back(boost::lexical_cast<double>(*t));
+	}
+
+	// Initialize the number of parabolas
+	nPar_ = minima_.size();
+}
+/********************************************************************************************/
+/**
  * Allows to describe configuration options in derived classes
  */
 void GMultiCriterionParabolaIndividualFactory::describeConfigurationOptions_() {
-	gpb.registerParameter("nPar", nPar_, nPar_);
 	gpb.registerParameter("par_min", par_min_, par_min_);
 	gpb.registerParameter("par_max", par_max_, par_max_);
+	gpb.registerParameter("minima", minima_string_, std::string(""));
 }
 
 /********************************************************************************************/
@@ -202,7 +247,7 @@ void GMultiCriterionParabolaIndividualFactory::describeConfigurationOptions_() {
  * @return An individual of the desired type
  */
 boost::shared_ptr<GMultiCriterionParabolaIndividual> GMultiCriterionParabolaIndividualFactory::getIndividual_(const std::size_t& id) {
-	return boost::shared_ptr<GMultiCriterionParabolaIndividual>(new GMultiCriterionParabolaIndividual(nPar_, par_min_, par_max_));
+	return boost::shared_ptr<GMultiCriterionParabolaIndividual>(new GMultiCriterionParabolaIndividual(nPar_, par_min_, par_max_, minima_));
 }
 
 /********************************************************************************************/
