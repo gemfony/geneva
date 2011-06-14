@@ -1,5 +1,5 @@
 /**
- * @file GMultiCriterionParaboloidIndividual2D.hpp
+ * @file GMultiCriterionParabolaIndividual.hpp
  */
 
 /*
@@ -32,9 +32,9 @@
  * http://www.gemfony.com .
  */
 
-#include "GMultiCriterionParaboloidIndividual2D.hpp"
+#include "GMultiCriterionParabolaIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMultiCriterionParaboloidIndividual2D)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMultiCriterionParabolaIndividual)
 
 namespace Gem
 {
@@ -47,14 +47,14 @@ namespace Geneva
  * needed for (de-)serialization purposes. As all variables will be set by the Boost.Serialization
  * library, no variables are initialized here.
  */
-GMultiCriterionParaboloidIndividual2D::GMultiCriterionParaboloidIndividual2D()
+GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual()
 { /* nothing */ }
 
 /********************************************************************************************/
 /**
  * The destructor
  */
-GMultiCriterionParaboloidIndividual2D::~GMultiCriterionParaboloidIndividual2D()
+GMultiCriterionParabolaIndividual::~GMultiCriterionParabolaIndividual()
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -66,7 +66,7 @@ GMultiCriterionParaboloidIndividual2D::~GMultiCriterionParaboloidIndividual2D()
  * @param par_min The lower boundary of the initialization range
  * @param par_max The upper boundary of the initialization range
  */
-GMultiCriterionParaboloidIndividual2D::GMultiCriterionParaboloidIndividual2D(
+GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(
 	const std::size_t& nPar
 	, const double& par_min
 	, const double& par_max
@@ -90,9 +90,9 @@ GMultiCriterionParaboloidIndividual2D::GMultiCriterionParaboloidIndividual2D(
  * A standard copy constructor. All real work is done by the parent class. All we need to
  * do here is to copy local data.
  *
- * @param cp A copy of another GMultiCriterionParaboloidIndividual2D
+ * @param cp A copy of another GMultiCriterionParabolaIndividual
  */
-GMultiCriterionParaboloidIndividual2D::GMultiCriterionParaboloidIndividual2D(const GMultiCriterionParaboloidIndividual2D& cp)
+GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(const GMultiCriterionParabolaIndividual& cp)
 	: GParameterSet(cp)
 	, nPar_(cp.nPar_)
 	, par_min_(cp.par_min_)
@@ -103,23 +103,23 @@ GMultiCriterionParaboloidIndividual2D::GMultiCriterionParaboloidIndividual2D(con
 /**
  * A standard assignment operator
  *
- * @param cp A copy of another GMultiCriterionParaboloidIndividual2D object
+ * @param cp A copy of another GMultiCriterionParabolaIndividual object
  * @return A constant reference to this object
  */
-const GMultiCriterionParaboloidIndividual2D& GMultiCriterionParaboloidIndividual2D::operator=(const GMultiCriterionParaboloidIndividual2D& cp){
-	GMultiCriterionParaboloidIndividual2D::load_(&cp);
+const GMultiCriterionParabolaIndividual& GMultiCriterionParabolaIndividual::operator=(const GMultiCriterionParabolaIndividual& cp){
+	GMultiCriterionParabolaIndividual::load_(&cp);
 	return *this;
 }
 
 /********************************************************************************************/
 /**
- * Loads the data of another GMultiCriterionParaboloidIndividual2D, camouflaged as a GObject.
+ * Loads the data of another GMultiCriterionParabolaIndividual, camouflaged as a GObject.
  *
- * @param cp A copy of another GMultiCriterionParaboloidIndividual2D, camouflaged as a GObject
+ * @param cp A copy of another GMultiCriterionParabolaIndividual, camouflaged as a GObject
  */
-void GMultiCriterionParaboloidIndividual2D::load_(const GObject* cp)
+void GMultiCriterionParabolaIndividual::load_(const GObject* cp)
 {
-	const GMultiCriterionParaboloidIndividual2D *p_load = GObject::conversion_cast<GMultiCriterionParaboloidIndividual2D>(cp);
+	const GMultiCriterionParabolaIndividual *p_load = GObject::conversion_cast<GMultiCriterionParabolaIndividual>(cp);
 
 	// Load our parent's data ...
 	GParameterSet::load_(cp);
@@ -136,8 +136,8 @@ void GMultiCriterionParaboloidIndividual2D::load_(const GObject* cp)
  *
  * @return A deep clone of this object, camouflaged as a GObject
  */
-GObject* GMultiCriterionParaboloidIndividual2D::clone_() const {
-	return new GMultiCriterionParaboloidIndividual2D(*this);
+GObject* GMultiCriterionParabolaIndividual::clone_() const {
+	return new GMultiCriterionParabolaIndividual(*this);
 }
 
 /********************************************************************************************/
@@ -146,7 +146,7 @@ GObject* GMultiCriterionParaboloidIndividual2D::clone_() const {
  * @param id The id of the target function (ignored for this function)
  * @return The value of this object
  */
-double GMultiCriterionParaboloidIndividual2D::fitnessCalculation(){
+double GMultiCriterionParabolaIndividual::fitnessCalculation(){
 	double result = 0.; // Will hold the result
 	std::vector<double> parVec; // Will hold the parameters
 
@@ -168,8 +168,8 @@ double GMultiCriterionParaboloidIndividual2D::fitnessCalculation(){
  *
  * @param cF The name of the configuration file
  */
-GMultiCriterionParaboloidIndividual2DFactory::GMultiCriterionParaboloidIndividual2DFactory(const std::string& cF)
-	: GIndividualFactoryT<GMultiCriterionParaboloidIndividual2D>(cF)
+GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFactory(const std::string& cF)
+	: GIndividualFactoryT<GMultiCriterionParabolaIndividual>(cF)
 	, nPar_(2)
 	, par_min_(-10.)
 	, par_max_(10.)
@@ -179,14 +179,14 @@ GMultiCriterionParaboloidIndividual2DFactory::GMultiCriterionParaboloidIndividua
 /**
  * The destructor
  */
-GMultiCriterionParaboloidIndividual2DFactory::~GMultiCriterionParaboloidIndividual2DFactory()
+GMultiCriterionParabolaIndividualFactory::~GMultiCriterionParabolaIndividualFactory()
 { /* nothing */ }
 
 /********************************************************************************************/
 /**
  * Allows to describe configuration options in derived classes
  */
-void GMultiCriterionParaboloidIndividual2DFactory::describeConfigurationOptions_() {
+void GMultiCriterionParabolaIndividualFactory::describeConfigurationOptions_() {
 	gpb.registerParameter("nPar", nPar_, nPar_);
 	gpb.registerParameter("par_min", par_min_, par_min_);
 	gpb.registerParameter("par_max", par_max_, par_max_);
@@ -201,8 +201,8 @@ void GMultiCriterionParaboloidIndividual2DFactory::describeConfigurationOptions_
  * @param id The id of the individual to be created
  * @return An individual of the desired type
  */
-boost::shared_ptr<GMultiCriterionParaboloidIndividual2D> GMultiCriterionParaboloidIndividual2DFactory::getIndividual_(const std::size_t& id) {
-	return boost::shared_ptr<GMultiCriterionParaboloidIndividual2D>(new GMultiCriterionParaboloidIndividual2D(nPar_, par_min_, par_max_));
+boost::shared_ptr<GMultiCriterionParabolaIndividual> GMultiCriterionParabolaIndividualFactory::getIndividual_(const std::size_t& id) {
+	return boost::shared_ptr<GMultiCriterionParabolaIndividual>(new GMultiCriterionParabolaIndividual(nPar_, par_min_, par_max_));
 }
 
 /********************************************************************************************/

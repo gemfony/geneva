@@ -1,5 +1,5 @@
 /**
- * @file GMultiCriterionParaboloid2D.hpp
+ * @file GMultiCriterionParabola.hpp
  */
 
 /*
@@ -65,21 +65,21 @@ namespace Geneva
  * This individual searches for the minimum of a 2-dimensional parabola.
  * It is part of an introductory example, used in the Geneva manual.
  */
-class GMultiCriterionParaboloid2D :public GParameterSet
+class GMultiCriterionParabola :public GParameterSet
 {
 public:
 	/** @brief The standard constructor */
-	GMultiCriterionParaboloid2D(const std::size_t&, const double&, const double&);
+	GMultiCriterionParabola(const std::size_t&, const double&, const double&);
 	/** @brief A standard copy constructor */
-	GMultiCriterionParaboloid2D(const GMultiCriterionParaboloid2D&);
+	GMultiCriterionParabola(const GMultiCriterionParabola&);
 	/** @brief The destructor */
-	virtual ~GMultiCriterionParaboloid2D();
+	virtual ~GMultiCriterionParabola();
 
 	/** @brief A standard assignment operator */
-	const GMultiCriterionParaboloid2D& operator=(const GMultiCriterionParaboloid2D&);
+	const GMultiCriterionParabola& operator=(const GMultiCriterionParabola&);
 
 protected:
-	/** @brief Loads the data of another GMultiCriterionParaboloid2D */
+	/** @brief Loads the data of another GMultiCriterionParabola */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const;
@@ -89,7 +89,7 @@ protected:
 
 private:
 	/** @brief The default constructor. Intentionally private. */
-	GMultiCriterionParaboloid2D();
+	GMultiCriterionParabola();
 
 	/** @brief Make the class accessible to Boost.Serialization */
 	friend class boost::serialization::access;
@@ -118,22 +118,22 @@ private:
 ////////////////////////////////////////////////////////////////////
 /******************************************************************/
 /**
- * A factory for GMultiCriterionParaboloid2D objects
+ * A factory for GMultiCriterionParabola objects
  */
-class GMultiCriterionParaboloid2DFactory
-	:public GIndividualFactoryT<GMultiCriterionParaboloid2D>
+class GMultiCriterionParabolaFactory
+	:public GIndividualFactoryT<GMultiCriterionParabola>
 {
 public:
 	/** @brief The standard constructor for this class */
-	GMultiCriterionParaboloid2DFactory(const std::string&);
+	GMultiCriterionParabolaFactory(const std::string&);
 	/** @brief The destructor */
-	virtual ~GMultiCriterionParaboloid2DFactory();
+	virtual ~GMultiCriterionParabolaFactory();
 
 protected:
 	/** @brief Allows to describe configuration options of this class */
 	virtual void describeConfigurationOptions_();
 	/** @brief Creates individuals of the desired type */
-	virtual boost::shared_ptr<GMultiCriterionParaboloid2D> getIndividual_(const std::size_t&);
+	virtual boost::shared_ptr<GMultiCriterionParabola> getIndividual_(const std::size_t&);
 
 private:
 	std::size_t nPar_;
@@ -147,6 +147,6 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMultiCriterionParaboloid2D)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMultiCriterionParabola)
 
 #endif /* GPARABOLOIDINDIVIDUAL_HPP_ */

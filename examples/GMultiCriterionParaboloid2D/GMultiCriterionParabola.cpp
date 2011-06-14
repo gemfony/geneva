@@ -41,12 +41,12 @@
 #include <geneva/Go.hpp>
 
 // The individual that should be optimized
-#include "GMultiCriterionParaboloidIndividual2D.hpp"
+#include "GMultiCriterionParabolaIndividual.hpp"
 
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Go go(argc, argv, "GMultiCriterionParaboloid2D.cfg");
+	Go go(argc, argv, "GMultiCriterionParabola.cfg");
 
 	//---------------------------------------------------------------------
 	// Client mode (networked)
@@ -60,14 +60,14 @@ int main(int argc, char **argv) {
 
 	// Create a factory for GMultiCriterionParaboloidIndividual2D objects and perform
 	// any necessary initial work.
-	GMultiCriterionParaboloidIndividual2DFactory gpi("./GMultiCriterionParaboloidIndividual2D.cfg");
+	GMultiCriterionParabolaIndividualFactory gpi("./GMultiCriterionParabolaIndividual.cfg");
 	gpi.init();
 
 	// Retrieve an individual from the factory and make it known to the optimizer
 	go.push_back(gpi());
 
 	// Perform the actual optimization
-	boost::shared_ptr<GMultiCriterionParaboloidIndividual2D> bestIndividual_ptr = go.optimize<GMultiCriterionParaboloidIndividual2D>();
+	boost::shared_ptr<GMultiCriterionParabolaIndividual> bestIndividual_ptr = go.optimize<GMultiCriterionParabolaIndividual>();
 
 	// Do something with the best result
 
