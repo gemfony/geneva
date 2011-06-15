@@ -38,7 +38,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/Go.hpp>
+#include <geneva/Geneva.hpp>
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -46,6 +46,7 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
+	Geneva::init();
 	Go go(argc, argv, "G01Optimizer.cfg");
 
 	//---------------------------------------------------------------------
@@ -72,6 +73,8 @@ int main(int argc, char **argv) {
 	// Tell the evaluation program to perform any necessary final work
 	gfi.finalize();
 
+	// Terminate
+	Geneva::finalize();
 	std::cout << "Done ..." << std::endl;
 	return 0;
 }

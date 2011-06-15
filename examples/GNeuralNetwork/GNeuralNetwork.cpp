@@ -43,13 +43,7 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include <courtier/GAsioHelperFunctions.hpp>
-#include <courtier/GAsioTCPClientT.hpp>
-#include <courtier/GAsioTCPConsumerT.hpp>
-#include <geneva/GBrokerEA.hpp>
-#include <geneva/GEvolutionaryAlgorithm.hpp>
-#include <geneva/GIndividual.hpp>
-#include <geneva/GMultiThreadedEA.hpp>
+#include <geneva/Geneva.hpp>
 
 // The individual that should be optimized
 #include <geneva-individuals/GNeuralNetworkIndividual.hpp>
@@ -223,6 +217,9 @@ int main(int argc, char **argv){
   { exit(1); }
 
   //***************************************************************************
+  // Initialize Geneva
+  Geneva::init();
+
   // Random numbers are our most valuable good. Set the number of threads
   GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
   GRANDOMFACTORY->setArraySize(arraySize);
@@ -387,6 +384,9 @@ int main(int argc, char **argv){
   }
   break;
   }
+
+  // Terminate Geneva
+  Geneva::finalize();
 
   // We are done. Leave ...
   std::cout << "Done ..." << std::endl;

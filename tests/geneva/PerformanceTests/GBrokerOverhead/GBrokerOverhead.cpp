@@ -49,11 +49,6 @@
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
 
-using namespace Gem::Tests;
-using namespace Gem::Geneva;
-using namespace Gem::Courtier;
-using namespace Gem::Hap;
-
 /************************************************************************************************/
 /**
  * The main function.

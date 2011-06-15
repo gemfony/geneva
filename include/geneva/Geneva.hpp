@@ -48,12 +48,24 @@
 #endif
 
 // Geneva headers go here
-#include "hap/GRandomFactory.hpp"
-#include "courtier/GBrokerT.hpp"
-#include "geneva/GIndividual.hpp"
-#include "courtier/GBoostThreadConsumerT.hpp"
-#include "geneva/GMultiThreadedEA.hpp"
-#include "geneva/GBrokerEA.hpp"
+#include <hap/GRandomFactory.hpp>
+#include <geneva/GIndividual.hpp>
+#include <courtier/GAsioHelperFunctions.hpp>
+#include <courtier/GBrokerT.hpp>
+#include <courtier/GAsioTCPClientT.hpp>
+#include <courtier/GAsioTCPConsumerT.hpp>
+#include <courtier/GBoostThreadConsumerT.hpp>
+#include <geneva/GEvolutionaryAlgorithm.hpp>
+#include <geneva/GMultiThreadedEA.hpp>
+#include <geneva/GMultiThreadedGD.hpp>
+#include <geneva/GMultiThreadedSwarm.hpp>
+#include <geneva/GBrokerEA.hpp>
+#include <geneva/GBrokerGD.hpp>
+#include <geneva/GBrokerSwarm.hpp>
+#include <geneva/GIndividual.hpp>
+#include <geneva/GMultiThreadedEA.hpp>
+#include <geneva/GDoubleObject.hpp>
+#include <geneva/Go.hpp>
 
 namespace Gem {
 namespace Geneva {
@@ -99,3 +111,8 @@ public:
 } /* Gem */
 
 #endif /* GENEVA_HPP_ */
+
+using namespace Gem::Tests;
+using namespace Gem::Geneva;
+using namespace Gem::Courtier;
+using namespace Gem::Hap;
