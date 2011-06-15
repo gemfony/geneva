@@ -125,6 +125,11 @@ public:
 	/** @brief The destructor */
 	~GRandomFactory();
 
+	/** @brief Initialization code for the GRandomFactory */
+	void init();
+	/** @brief Finalization code for the GRandomFactory */
+	void finalize();
+
 	/** @brief Sets the number of producer threads for this factory. */
 	void setNProducerThreads(const boost::uint16_t&);
 	/** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
@@ -162,6 +167,7 @@ private:
 	/** @brief The production of [0,1[ random numbers takes place here */
 	void producer01(boost::uint32_t seed);
 
+	bool finalized_;
 	std::size_t arraySize_;
 	bool threadsHaveBeenStarted_;
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
@@ -173,8 +179,8 @@ private:
 	static boost::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
 
-	boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threadsHaveBeenStarted_ variable
-	mutable boost::mutex arraySizeMutex_; ///< Regulates access to the arraySize_ variable
+	mutable boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threadsHaveBeenStarted_ variable
+	mutable boost::shared_mutex arraySizeMutex_; ///< Regulates access to the arraySize_ variable
 	mutable boost::mutex seedingMutex_; ///< Regulates start-up of the seeding process
 
 	mutable boost::shared_ptr<GSeedManager> seedManager_ptr_; ///< Manages seed creation
@@ -187,8 +193,9 @@ private:
 /**
  * A single, global random number factory is created as a singleton.
  */
-typedef Gem::Common::GSingletonT<Gem::Hap::GRandomFactory> grfactory;
-#define GRANDOMFACTORY grfactory::getInstance()
+#define GRANDOMFACTORY      Gem::Common::GSingletonT<Gem::Hap::GRandomFactory>::Instance(0)
+#define RESETGRANDOMFACTORY Gem::Common::GSingletonT<Gem::Hap::GRandomFactory>::Instance(1)
+
 
 #endif /* GRANDOMFACTORY_HPP_ */
 

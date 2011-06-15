@@ -41,11 +41,7 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "courtier/GBoostThreadConsumerT.hpp"
-#include "geneva/GEvolutionaryAlgorithm.hpp"
-#include "geneva/GMultiThreadedEA.hpp"
-#include "geneva/GBrokerEA.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/Geneva.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -120,6 +116,9 @@ int main(int argc, char **argv){
 		      df))
     { exit(1); }
 
+  // Initialize the Geneva library
+  Geneva::init();
+
   // Random numbers are our most valuable good. Set the number of threads
   GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
   GRANDOMFACTORY->setArraySize(arraySize);
@@ -159,6 +158,7 @@ int main(int argc, char **argv){
   switch (parallelizationMode) {
     //-----------------------------------------------------------------------------------------------------
   case 0: // Serial execution
+	std::cout << "Using serial execution." << std::endl;
     // Create an empty population
     pop_ptr = boost::shared_ptr<GEvolutionaryAlgorithm>(new GEvolutionaryAlgorithm());
     break;
@@ -166,6 +166,7 @@ int main(int argc, char **argv){
     //-----------------------------------------------------------------------------------------------------
   case 1: // Multi-threaded execution
     {
+      std::cout << "Using plain multithreaded execution." << std::endl;
       // Create the multi-threaded population
       boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
 
@@ -180,6 +181,7 @@ int main(int argc, char **argv){
     //-----------------------------------------------------------------------------------------------------
   case 2: // Execution with multi-threaded consumer
     {
+    	std::cout << "Using the GBoostThreadConsumerT consumer." << std::endl;
 		// Create a consumer and make it known to the global broker
 		boost::shared_ptr< GBoostThreadConsumerT<GIndividual> > gbtc(new GBoostThreadConsumerT<GIndividual>());
 		gbtc->setMaxThreads(nEvaluationThreads);
@@ -216,6 +218,8 @@ int main(int argc, char **argv){
   pop_ptr->optimize();
 
   //--------------------------------------------------------------------------------------------
+  // Shut down the Geneva library collection
+  Geneva::finalize();
 
   std::cout << "Done ..." << std::endl;
   return 0;

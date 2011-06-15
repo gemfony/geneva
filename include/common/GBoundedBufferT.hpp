@@ -227,11 +227,6 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_full_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_full, this))) {
-			/*
-#ifdef DEBUG
-			std::cout << "Push timeout" << std::endl;
-#endif
-			 */
 			throw Gem::Common::condition_time_out();
 		}
 		container_.push_front(item);
@@ -253,11 +248,6 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_full_.timed_wait(lock, timeout, boost::bind(&GBoundedBufferT<value_type>::is_not_full, this))) {
-			/*
-#ifdef DEBUG
-			std::cout << "Push timeout" << std::endl;
-#endif
-			 */
 			return false;
 		}
 		container_.push_front(item);
@@ -428,9 +418,9 @@ protected:
 
 	const std::size_t capacity_; ///< The maximum allowed size of the container
 	container_type container_; ///< The actual data store
-	boost::mutex mutex_; ///< Used for synchronization of access to the container
-	boost::condition_variable not_empty_; ///< Used for synchronization of access to the container
-	boost::condition_variable not_full_; ///< Used for synchronization of access to the container
+	mutable boost::mutex mutex_; ///< Used for synchronization of access to the container
+	mutable boost::condition_variable not_empty_; ///< Used for synchronization of access to the container
+	mutable boost::condition_variable not_full_; ///< Used for synchronization of access to the container
 
 private:
 	/***************************************************************/

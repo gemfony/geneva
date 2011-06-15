@@ -107,11 +107,16 @@ public:
 	 * The default constructor.
 	 */
 	GBrokerT()
-		: lastId_(0)
+		: finalized_(false)
+		, discardedItemsCounter_(0)
+		, lastId_(0)
 		, currentGetPosition_(RawBuffers_.begin())
 		, buffersPresentRaw_(false)
 		, buffersPresentProcessed_(false)
-	{ /* nothing */}
+	{
+		// Let the audience know
+		std::cout << "The broker has started up." << std::endl;
+	}
 
 	/**********************************************************************************/
 	/**
@@ -120,12 +125,50 @@ public:
 	 */
 	virtual ~GBrokerT()
 	{
+		// Make sure the finalization code is executed
+		// (if this hasn't happened already). Calling
+		// finalize() multiple times is safe.
+		finalize();
+
+		// Let the audience know
+		std::cout << "The broker has now been shut down." << std::endl;
+	}
+
+	/**********************************************************************************/
+	/**
+	 * Initializes the broker. This function does nothing. Its only purpose is to control
+	 * initialization of the factory in the singleton.
+	 */
+	void init() { /* nothing */ }
+
+	/**********************************************************************************/
+	/**
+	 * Shuts the broker down, together with all consumers.
+	 */
+	void finalize() {
+		// Only allow one finalization action to be carried out
+		if(finalized_) return;
+
+		// Shut down all consumers
 		std::vector<boost::shared_ptr<GConsumer> >::iterator it;
 		for(it=consumerCollection_.begin(); it!=consumerCollection_.end(); ++it) {
 			(*it)->shutdown();
 		}
 
+		// Wait for their threads to terminate
 		consumerThreads_.join_all();
+
+		// Clear raw and processed buffers and the consumer lists
+		RawBuffers_.clear(); // Somehow that gets rid of the Boost 1.46 crash
+		ProcessedBuffers_.clear();
+		consumerCollection_.clear();
+
+		// Let the audience know about lost items
+		boost::mutex::scoped_lock discardedLock(discardedMutex_);
+		std::cout << "The broker lost " << discardedItemsCounter_ << " items during the optimization." << std::endl;
+
+		// Make sure this function does not execute code a second time
+		finalized_ = true;
 	}
 
 	/**********************************************************************************/
@@ -321,9 +364,11 @@ public:
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 * @param timeout Time after which the function should time out
 	 */
-	void put(const Gem::Common::PORTIDTYPE& id, const boost::shared_ptr<carrier_type> & p,
-			 const boost::posix_time::time_duration& timeout)
-	{
+	void put(
+			const Gem::Common::PORTIDTYPE& id
+			, const boost::shared_ptr<carrier_type> & p
+			, const boost::posix_time::time_duration& timeout
+	) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
@@ -332,15 +377,24 @@ public:
 		while(!buffersPresentProcessed_) readyToGoProcessed_.wait(processedLock);
 
 		// Cross-check that the id is indeed available and retrieve the buffer
-		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end())
-		currentBuffer = ProcessedBuffers_[id];
+		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end()) {
+			currentBuffer = ProcessedBuffers_[id];
+			// Make the mutex available again
+			processedLock.unlock();
+		} else {
+			// Make the mutex available again
+			processedLock.unlock();
+			boost::mutex::scoped_lock discardedLock(discardedMutex_);
+			discardedItemsCounter_++; // Make it known that we lost an item
+			return; // Will also unlock the mutex
+		}
 
-		// Make the mutex available again
-		processedLock.unlock();
-
-		// Add p to the correct buffer, if it is a valid pointer
+		// Add p to the correct buffer, which we now assume to be valid
 		// NOTE: In the case of a flooded queue, this will lead to the item being discarded
-		if(currentBuffer) currentBuffer->push_front(p, timeout);
+		if(!currentBuffer->push_front_bool(p, timeout)) {
+			boost::mutex::scoped_lock discardedLock(discardedMutex_);
+			discardedItemsCounter_++; // Make it known that we lost an item
+		}
 	}
 
 private:
@@ -348,11 +402,16 @@ private:
 	GBrokerT(const GBrokerT<carrier_type>&); ///< Intentionally left undefined
 	const GBrokerT& operator=(const GBrokerT<carrier_type>&); ///< Intentionally left undefined
 
-	boost::mutex RawBuffersMutex_; ///< Regulates access to the RawBuffers_ collection
-	boost::mutex ProcessedBuffersMutex_; ///< Regulates access to the ProcessedBuffers_ collection
+	bool finalized_; ///< Indicates whether the finalization code has already been executed
 
-	boost::condition_variable readyToGoRaw_; ///< The get function will block until this condition variable is set
-	boost::condition_variable readyToGoProcessed_; ///< The put function will block until this condition variable is set
+	mutable boost::mutex RawBuffersMutex_; ///< Regulates access to the RawBuffers_ collection
+	mutable boost::mutex ProcessedBuffersMutex_; ///< Regulates access to the ProcessedBuffers_ collection
+
+	mutable boost::condition_variable readyToGoRaw_; ///< The get function will block until this condition variable is set
+	mutable boost::condition_variable readyToGoProcessed_; ///< The put function will block until this condition variable is set
+
+	mutable boost::mutex discardedMutex_; ///< Allows to keep track of the number of discarded items
+	std::size_t discardedItemsCounter_; ///< Counts the number of discarded items
 
 	BufferPtrList RawBuffers_; ///< Holds GBoundedBufferWithIdT objects with raw items
 	BufferPtrMap ProcessedBuffers_; ///< Holds GBoundedBufferWithIdT objects for processed items
@@ -372,7 +431,8 @@ private:
  * and only one Broker object exists that is constructed before main begins. All
  * external communication should refer to GBROKER(T).
  */
-#define GBROKER(T) Gem::Common::GSingletonT<Gem::Courtier::GBrokerT< T > >::getInstance()
+#define GBROKER(T)      Gem::Common::GSingletonT<Gem::Courtier::GBrokerT< T > >::Instance(0)
+#define RESETGBROKER(T) Gem::Common::GSingletonT<Gem::Courtier::GBrokerT< T > >::Instance(1)
 
 /**************************************************************************************/
 

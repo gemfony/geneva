@@ -29,6 +29,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GEAPersonalityTraits.hpp
 	GEvaluator.hpp
 	GEvolutionaryAlgorithm.hpp
+	Geneva.hpp
 	GenevaHelperFunctionsT.hpp
 	GFPBiGaussAdaptorT.hpp
 	GFPGaussAdaptorT.hpp

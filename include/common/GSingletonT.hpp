@@ -96,20 +96,32 @@ public:
 	 * of T and returns it to the caller. Subsequent calls to this function
 	 * will return the stored copy of the shared_ptr. Other classes can store
 	 * the pointer, so that T doesn't get deleted while it is still needed.
+	 *
+	 * @param mode Determines the mode in which this function is called
 	 */
-	static boost::shared_ptr<T> getInstance() {
+	static boost::shared_ptr<T> Instance(const std::size_t& mode) {
 		static boost::shared_ptr<T> p;
 		static boost::mutex creation_mutex;
 
-		// Several callers can reach the next line simultaneously. Hence, if
-		// p is empty, we need to ask again if it is empty after we have acquired the lock
-		if(!p) {
-			// Prevent concurrent "first" access
-			boost::mutex::scoped_lock lk(creation_mutex);
-			if(!p) p = Gem::Common::TFactory_GSingletonT<T>();
+		switch(mode) {
+		case 0:
+			// Several callers can reach the next line simultaneously. Hence, if
+			// p is empty, we need to ask again if it is empty after we have acquired the lock
+			if(!p) {
+				// Prevent concurrent "first" access
+				boost::mutex::scoped_lock lk(creation_mutex);
+				if(!p) p = Gem::Common::TFactory_GSingletonT<T>();
+			}
+
+			return p;
+			break;
+
+		case 1:
+			p.reset();
+			break;
 		}
 
-		return p;
+		return boost::shared_ptr<T>(); // Make the compiler happy
 	}
 
 	/*******************************************************************/

@@ -11,6 +11,8 @@ The main changes for this release include:
    Geneva's Evolutionary Algorithms
  - Added the ability to individuals to store secondary evaluation criteria in
    addition the main criterion.
+ - Added initialization and finalization code, taking care of proper termination
+   of the singletons.
  - Added a mechanism to deposit data at a remote site, so it doesn't need 
    to be (de-)serialized in each iteration. Note that, if you use this feature 
    together with  check-pointing, you need to make sure that un-serialized data 

@@ -196,16 +196,7 @@ public:
 	            boost::shared_ptr<processable_type> p = Gem::Common::sharedPtrFromString<processable_type>(itemString, serializationMode_);
 
 	            Gem::Common::PORTIDTYPE id = boost::lexical_cast<Gem::Common::PORTIDTYPE>(portid);
-	            try {
-	                GBROKER(processable_type)->put(id, p, timeout);
-	            }
-	            catch(Gem::Common::condition_time_out &gucto){
-	            	/* nothing we can do */
-#ifdef DEBUG
-	            	std::cerr << "GAsioServerSessionT<processable_type>::processRequest(): Had to discard an item" << std::endl
-	            			  << "Because the queue didn't accept the item in time." << std::endl;
-#endif
-	            }
+	            GBROKER(processable_type)->put(id, p, timeout);
 	        }
 	        else {
 	            std::ostringstream information;

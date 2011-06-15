@@ -100,12 +100,13 @@ public:
 		: Gem::Courtier::GConsumer()
 		, maxThreads_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTGBTCMAXTHREADS)))
 		, stop_(false)
+		, broker_(GBROKER(processable_type))
 	{ /* nothing */ }
 
 	/***************************************************************/
 	/**
-	* Standard destructor. Nothing - our thread is interrupted by the
-	* broker, and GConsumer<processable_type>::process() catches the exception.
+	* Standard destructor. Nothing - our threads receive the stop
+	* signal from the broker and shouldn't exist at this point anymore.
 	*/
 	~GBoostThreadConsumerT()
 	{ /* nothing */ }
@@ -154,7 +155,7 @@ public:
 	* process() then waits for them to join.
 	*/
 	void shutdown() {
-		boost::mutex::scoped_lock stopLock(stopMutex_);
+		boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
 		stop_=true;
 	}
 
@@ -165,9 +166,9 @@ private:
 
 	std::size_t maxThreads_; ///< The maximum number of allowed threads in the pool
 	Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
-
-	boost::mutex stopMutex_;
-	bool stop_; ///< Set to true if we are expected to stop
+	mutable boost::shared_mutex stopMutex_;
+	mutable bool stop_; ///< Set to true if we are expected to stop
+	boost::shared_ptr<GBrokerT<processable_type> > broker_; ///< A shortcut to the broker so we do not have to go through the singleton
 
 	/***************************************************************/
 	/**
@@ -186,22 +187,18 @@ private:
 			while(true){
 				// Have we been asked to stop ?
 				{
-					boost::mutex::scoped_lock stopLock(stopMutex_);
+					boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
 					if(stop_) break;
-				}
+				} // explicit scope -- the lock will be destroyed here
 
 				try{
-					id = GBROKER(processable_type)->get(p, timeout);
+					id = broker_->get(p, timeout);
 				}
 				catch(Gem::Common::condition_time_out &) { continue; }
 
 				if(p){
 					p->process();
-
-					try{
-						GBROKER(processable_type)->put(id, p, timeout);
-					}
-					catch(Gem::Common::condition_time_out &) { continue; }
+					broker_->put(id, p, timeout);
 				}
 			}
 		}

@@ -50,7 +50,8 @@ boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
  * creates a predefined number of threads.
  */
 GRandomFactory::GRandomFactory()
-	: arraySize_(DEFAULTARRAYSIZE)
+	: finalized_(false)
+	, arraySize_(DEFAULTARRAYSIZE)
 	, threadsHaveBeenStarted_(false)
 	, n01Threads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
 	, g01_ (boost::shared_ptr<Gem::Common::GBoundedBufferT<boost::shared_array<double> > >(new Gem::Common::GBoundedBufferT<boost::shared_array<double> > (DEFAULTFACTORYBUFFERSIZE)))
@@ -66,16 +67,46 @@ GRandomFactory::GRandomFactory()
 	else {
 		multiple_call_trap_++;
 	}
+
+	// Let the audience know
+	std::cout << "The random factory has started up." << std::endl;
 }
 
 /*************************************************************************/
 /**
- * The destructor. All threads are given the interrupt signal. Then
- * we wait for them to join us.
+ * The destructor. All work is done in the finalize() function.
  */
 GRandomFactory::~GRandomFactory() {
+	// Make sure the finalization code is executed
+	// (if this hasn't happened already). Calling
+	// finalize() multiple times is safe.
+	finalize();
+
+	// Let the audience know
+	std::cout << "The random factory has now been shut down." << std::endl;
+}
+
+/*************************************************************************/
+/**
+ * Initializes the factory. This function does nothing at this time. Its
+ * only purpose is to control initialization of the factory in the singleton.
+ */
+void GRandomFactory::init() { /* nothing */ }
+
+/*************************************************************************/
+/**
+ * Finalization code for the GRandomFactory. All threads are given the
+ * interrupt signal. Then we wait for them to join us. This function will
+ * only once perform useful work and will return immediately when called a
+ * second time. It can thus be called as often as you wish.
+ */
+void GRandomFactory::finalize() {
+	// Only allow one finalization action to be carried out
+	if(finalized_) return;
+
 	producer_threads_01_.interrupt_all(); // doesn't throw
 	producer_threads_01_.join_all();
+	finalized_ = true; // Let the audience know
 }
 
 /*************************************************************************/
@@ -97,7 +128,7 @@ void GRandomFactory::setArraySize(const std::size_t& arraySize) {
 	}
 
 	{ // explicit scope
-		boost::mutex::scoped_lock lk(arraySizeMutex_);
+		boost::unique_lock<boost::shared_mutex> lock(arraySizeMutex_);
 		arraySize_ = arraySize;
 	} // mutex gets destroyed here
 }
@@ -113,7 +144,7 @@ std::size_t GRandomFactory::getCurrentArraySize() const {
 	std::size_t result;
 
 	{ // explicit scope
-		boost::mutex::scoped_lock lk(arraySizeMutex_);
+		boost::shared_lock<boost::shared_mutex> lock(arraySizeMutex_);
 		result = arraySize_;
 	} // mutex gets destroyed here
 
@@ -330,7 +361,7 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 
 			{
 				// Retrieve the current array size.
-				boost::mutex::scoped_lock lk(arraySizeMutex_);
+				boost::shared_lock<boost::shared_mutex> lock(arraySizeMutex_);
 				localArraySize = arraySize_;
 			}
 
