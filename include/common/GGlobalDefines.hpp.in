@@ -75,4 +75,9 @@
 /** std::pow(x,2) is less efficient than direct multiplication */
 #define GSQUARED(X) (X) * (X)
 
+// Some Boost versions prevent proper termination of Geneva in conjunction with gcc. Tag these.
+#if defined __GNUC__ && (BOOST_VERSION == 104400 || BOOST_VERSION == 104500 || BOOST_VERSION == 104600 || BOOST_VERSION == 104601)
+#define FORCETERMINATION
+#endif
+
 #endif /* GGLOBALDEFINES_HPP_ */

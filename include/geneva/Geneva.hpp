@@ -33,6 +33,7 @@
  */
 
 // Standard headers go here
+#include <cstdlib>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -71,8 +72,12 @@ namespace Gem {
 namespace Geneva {
 
 /****************************************************************************************/
+/** @brief A termination handler */
+void GTerminate();
+
+/****************************************************************************************/
 /**
- * This class serves as a hold-all for functions govnering the overall running and progress
+ * This class serves as a hold-all for functions governing the overall running and progress
  * of optimizations carried out with Geneva. Most notably, this class holds the startup
  * and finalization code.
  */
@@ -100,6 +105,11 @@ public:
 
 		GRANDOMFACTORY->finalize();
 		RESETGRANDOMFACTORY;
+
+#ifdef FORCETERMINATION // Defined in GGlobalDefines.hpp.in
+		std::set_terminate(GTerminate);
+		std::terminate();
+#endif /* FORCETERMINATION */
 	}
 
 	/************************************************************************************/

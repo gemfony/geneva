@@ -20,6 +20,7 @@ SET ( OPTIMIZATIONSOURCES
 	GDoubleObject
 	GDoubleObjectCollection
 	GEAPersonalityTraits
+	Geneva
 	GEvaluator
 	GenevaHelperFunctionsT
 	GEvolutionaryAlgorithm
