@@ -359,7 +359,7 @@ protected:
 private:
 	GAsioServerSessionT(); ///< Intentionally left undefined
 	GAsioServerSessionT(const GAsioServerSessionT<processable_type>&); ///< Intentionally left undefined
-	const GAsioServerSessionT& operator=(const GAsioServerSessionT<processable_type>&); ///< Intentionally left undefined
+	const GAsioServerSessionT<processable_type>& operator=(const GAsioServerSessionT<processable_type>&); ///< Intentionally left undefined
 
 	boost::asio::ip::tcp::socket socket_; ///< The underlying socket
 	Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
@@ -503,6 +503,7 @@ private:
 	  Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
 
 	  GAsioTCPConsumerT(); ///< Default constructor intentionally private and undefined
+	  const GAsioTCPConsumerT<processable_type>& operator=(const GAsioTCPConsumerT<processable_type>&); ///< Intentionally left undefined
 };
 
 /*********************************************************************/

@@ -10,6 +10,7 @@ SET ( COMMUNICATIONINCLUDES
 	GBufferPortT.hpp
 	GCourtierEnums.hpp
 	GConsumer.hpp
+	GSerialConsumerT.hpp
 )
 
 INSTALL ( FILES ${COMMUNICATIONINCLUDES} DESTINATION include/courtier

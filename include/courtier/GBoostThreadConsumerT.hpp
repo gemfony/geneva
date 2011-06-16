@@ -145,7 +145,7 @@ public:
 	* Termination of the threads is triggered by a call to GConsumer::shutdown().
 	*/
 	void process() {
-		gtg_.create_threads(boost::bind(&GBoostThreadConsumerT::processItems,this), maxThreads_);
+		gtg_.create_threads(boost::bind(&GBoostThreadConsumerT<processable_type>::processItems,this), maxThreads_);
 		gtg_.join_all();
 	}
 
@@ -161,8 +161,8 @@ public:
 
 
 private:
-	GBoostThreadConsumerT(const GBoostThreadConsumerT&); ///< Intentionally left undefined
-	const GBoostThreadConsumerT& operator=(const GBoostThreadConsumerT&); ///< Intentionally left undefined
+	GBoostThreadConsumerT(const GBoostThreadConsumerT<processable_type>&); ///< Intentionally left undefined
+	const GBoostThreadConsumerT<processable_type>& operator=(const GBoostThreadConsumerT<processable_type>&); ///< Intentionally left undefined
 
 	std::size_t maxThreads_; ///< The maximum number of allowed threads in the pool
 	Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
@@ -173,10 +173,8 @@ private:
 	/***************************************************************/
 	/**
 	* The function that gets new items from the broker, processes them
-	* and returns them when finished. Note that we explicitly disallow lazy
-	* evaluation, so we are sure that value calculation takes place in this
-	* class. As this function is the main execution point of a thread, we
-	* need to catch all exceptions.
+	* and returns them when finished. As this function is the main
+	* execution point of a thread, we need to catch all exceptions.
 	*/
 	void processItems(){
 		try{
@@ -208,25 +206,24 @@ private:
 		}
 		catch(std::exception& e) {
 			std::ostringstream error;
-			error << "In GBoostThreadConsumerT::processItems(): Caught std::exception with message" << std::endl
+			error << "In GBoostThreadConsumerT<processable_type>::processItems(): Caught std::exception with message" << std::endl
 			      << e.what() << std::endl;
 			std::cerr << error.str();
 			std::terminate();
 		}
 		catch(boost::exception& e){
 			std::ostringstream error;
-		    error << "In GBoostThreadConsumerT::processItems(): Caught boost::exception with message" << std::endl;
+		    error << "In GBoostThreadConsumerT<processable_type>::processItems(): Caught boost::exception with message" << std::endl;
 		    std::cerr << error.str();
 		    std::terminate();
 		}
 		catch(...) {
 			std::ostringstream error;
-			error << "In GBoostThreadConsumerT::processItems(): Caught unknown exception." << std::endl;
+			error << "In GBoostThreadConsumerT<processable_type>::processItems(): Caught unknown exception." << std::endl;
 			std::cerr << error.str();
 			std::terminate();
 		}
 	}
-
 };
 
 /***************************************************************/

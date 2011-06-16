@@ -7,12 +7,18 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
 * Version 0.9.2, yet unnamed, release-date unknown
 
 The main changes for this release include:
- - Added a preliminary version of multi-criterion ("pareto front") optimization to 
+ - Added a first version of multi-criterion ("pareto front") optimization to 
    Geneva's Evolutionary Algorithms
  - Added the ability to individuals to store secondary evaluation criteria in
    addition the main criterion.
  - Added initialization and finalization code, taking care of proper termination
    of the singletons.
+ - Added a serial consumer, so all execution modes can now be handled independently
+   from the optimization algorithms
+ - Added explicit initialization and finalization code so we know when
+   objects get constructed or destroyed in the presence of singletons
+ - Added forced termination code if the library is linked with Boost versions 
+   affected by the termination problem in conjunction with gcc
  - Added a mechanism to deposit data at a remote site, so it doesn't need 
    to be (de-)serialized in each iteration. Note that, if you use this feature 
    together with  check-pointing, you need to make sure that un-serialized data 
@@ -20,7 +26,7 @@ The main changes for this release include:
  - Removed the publicly visible "waitFactor", instead users now need to provide
    the expected number of compute unites participating in a distributed optimization.
  - Scripts now reside in their own subdirectory
- - Removed the GINDIVIDUALBROKER macro
+ - Removed the GINDIVIDUALBROKER macro for clarity reasons
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.1, "Route Cockroft" - February 12, 2011
