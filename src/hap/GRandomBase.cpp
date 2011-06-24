@@ -75,7 +75,9 @@ GRandomBase::result_type GRandomBase::operator()() {
 
 /****************************************************************************/
 /**
- * Returns the minimum value returned by evenRandom()
+ * Returns the minimum value returned by evenRandom(). This
+ * makes it possible to use GRandomBase as a generator for Boost's random
+ * distributions.
  *
  * @return The minimum value returned by evenRandom()
  */
@@ -85,7 +87,9 @@ GRandomBase::result_type GRandomBase::min() const {
 
 /****************************************************************************/
 /**
- * Returns the maximum value returned by evenRandom()
+ * Returns the maximum value returned by evenRandom(). This
+ * makes it possible to use GRandomBase as a generator for Boost's random
+ * distributions.
  *
  * @return The maximum value returned by evenRandom()
  */

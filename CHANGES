@@ -27,6 +27,7 @@ The main changes for this release include:
    the expected number of compute unites participating in a distributed optimization.
  - Scripts now reside in their own subdirectory
  - Removed the GINDIVIDUALBROKER macro for clarity reasons
+ - Adapted to Boost 1.47
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.1, "Route Cockroft" - February 12, 2011

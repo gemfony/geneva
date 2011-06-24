@@ -114,6 +114,20 @@ public:
 	/** @brief Returns the maximum value returned by evenRandom() */
 	result_type max() const;
 
+	/************************************************************************/
+	/**
+	 * Returns the precision of the values returned by operator(). This
+	 * makes it possible to use GRandomBase as a generator for Boost's random
+	 * distributions.
+	 *
+	 * @return The precision of the values returned by GRandomBase::operator()
+	 */
+	static std::size_t precision() {
+		return 	std::numeric_limits<GRandomBase::result_type>::digits;
+	}
+
+	/************************************************************************/
+
 	/** @brief This function returns true with a probability "probability", otherwise false */
 	bool weighted_bool(const double&);
 	/** @brief This function produces boolean values with a 50% likelihood each for true and false */
