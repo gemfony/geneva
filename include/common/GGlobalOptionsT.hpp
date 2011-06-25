@@ -158,6 +158,6 @@ private:
 
 // Specialization for string options
 typedef Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<std::string> > GStringOptions;
-#define GSTRINGOPTIONS GStringOptions::getInstance()
+#define GSTRINGOPTIONS GStringOptions::Instance(0)
 
 #endif /* GGLOBALOPTIONST_HPP_ */
