@@ -72,6 +72,8 @@ Go::Go()
 	, eaRecombinationScheme_(GO_DEF_EARECOMBINATIONSCHEME)
 	, eaSortingScheme_(GO_DEF_EASORTINGSCHEME)
 	, eaTrackParentRelations_(GO_DEF_EATRACKPARENTRELATIONS)
+	, eaGrowthRate_(GO_DEF_EAGROWTHRATE)
+	, eaMaxPopSize_(GO_DEF_EAMAXPOPSIZE)
 	, swarmNNeighborhoods_(GO_DEF_SWARMNNEIGHBORHOODS)
 	, swarmNNeighborhoodMembers_(GO_DEF_SWARMNNEIGHBORHOODMEMBERS)
 	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
@@ -131,6 +133,8 @@ Go::Go(int argc, char **argv, const std::string& configFilename)
 	, eaRecombinationScheme_(GO_DEF_EARECOMBINATIONSCHEME)
 	, eaSortingScheme_(GO_DEF_EASORTINGSCHEME)
 	, eaTrackParentRelations_(GO_DEF_EATRACKPARENTRELATIONS)
+	, eaGrowthRate_(GO_DEF_EAGROWTHRATE)
+	, eaMaxPopSize_(GO_DEF_EAMAXPOPSIZE)
 	, swarmNNeighborhoods_(GO_DEF_SWARMNNEIGHBORHOODS)
 	, swarmNNeighborhoodMembers_(GO_DEF_SWARMNNEIGHBORHOODMEMBERS)
 	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
@@ -216,6 +220,8 @@ Go::Go(
 	, eaRecombinationScheme_(GO_DEF_EARECOMBINATIONSCHEME)
 	, eaSortingScheme_(GO_DEF_EASORTINGSCHEME)
 	, eaTrackParentRelations_(GO_DEF_EATRACKPARENTRELATIONS)
+	, eaGrowthRate_(GO_DEF_EAGROWTHRATE)
+	, eaMaxPopSize_(GO_DEF_EAMAXPOPSIZE)
 	, swarmNNeighborhoods_(GO_DEF_SWARMNNEIGHBORHOODS)
 	, swarmNNeighborhoodMembers_(GO_DEF_SWARMNNEIGHBORHOODMEMBERS)
 	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
@@ -273,6 +279,8 @@ Go::Go(const Go& cp)
 	, eaRecombinationScheme_(cp.eaRecombinationScheme_)
 	, eaSortingScheme_(cp.eaSortingScheme_)
 	, eaTrackParentRelations_(cp.eaTrackParentRelations_)
+	, eaGrowthRate_(cp.eaGrowthRate_)
+	, eaMaxPopSize_(cp.eaMaxPopSize_)
 	, swarmNNeighborhoods_(cp.swarmNNeighborhoods_)
 	, swarmNNeighborhoodMembers_(cp.swarmNNeighborhoodMembers_)
 	, swarmRandomFillUp_(cp.swarmRandomFillUp_)
@@ -410,6 +418,8 @@ boost::optional<std::string> Go::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go", eaRecombinationScheme_, p_load->eaRecombinationScheme_, "eaRecombinationScheme_", "p_load->eaRecombinationScheme_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", eaSortingScheme_, p_load->eaSortingScheme_, "eaSortingScheme_", "p_load->eaSortingScheme_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", eaTrackParentRelations_, p_load->eaTrackParentRelations_, "eaTrackParentRelations_", "p_load->eaTrackParentRelations_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", eaGrowthRate_, p_load->eaGrowthRate_, "eaGrowthRate_", "p_load->eaGrowthRate_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", eaMaxPopSize_, p_load->eaMaxPopSize_, "eaMaxPopSize_", "p_load->eaMaxPopSize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmNNeighborhoods_, p_load->swarmNNeighborhoods_, "swarmNNeighborhoods_", "p_load->swarmNNeighborhoods_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmNNeighborhoodMembers_, p_load->swarmNNeighborhoodMembers_, "swarmNNeighborhoodMembers_", "p_load->swarmNNeighborhoodMembers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmRandomFillUp_, p_load->swarmRandomFillUp_, "swarmRandomFillUp_", "p_load->swarmRandomFillUp_", e , limit));
@@ -471,6 +481,8 @@ void Go::load_(const GObject *cp) {
 	eaRecombinationScheme_ = p_load->eaRecombinationScheme_;
 	eaSortingScheme_ = p_load->eaSortingScheme_;
 	eaTrackParentRelations_ = p_load->eaTrackParentRelations_;
+	eaGrowthRate_ = p_load->eaMaxPopSize_;
+	eaMaxPopSize_ = p_load->eaMaxPopSize_;
 	swarmNNeighborhoods_ = p_load->swarmNNeighborhoods_;
 	swarmNNeighborhoodMembers_ = p_load->swarmNNeighborhoodMembers_;
 	swarmRandomFillUp_ = p_load->swarmRandomFillUp_;
@@ -1165,6 +1177,46 @@ bool Go::getEATrackParentRelations() const {
 
 /**************************************************************************************/
 /**
+ * Allows to set the growth rate of evolutionary algorithms
+ *
+ * @param growthRate The amount of individuals to be added in each iteration
+ */
+void Go::setEAGrowthRate(const std::size_t& eaGrowthRate) {
+	eaGrowthRate_ = eaGrowthRate;
+}
+
+/**************************************************************************************/
+/**
+ * Returns the growth rate of evolutionary algorithms
+ *
+ * @return The growth rate of evolutionary algorithms
+ */
+std::size_t Go::getEAGrowthRate() const {
+	return eaGrowthRate_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the maximum population size of population growth is enabled
+ *
+ * @param eaMaxPopSize The maximum population size of population growth is enabled
+ */
+void Go::setEAMaxPopSize(const std::size_t& eaMaxPopSize) {
+	eaMaxPopSize_ = eaMaxPopSize;
+}
+
+/**************************************************************************************/
+/**
+ * Returns the maximum population size allowed if growth is enabled
+ *
+ * @return The maximum population size allowed
+ */
+std::size_t Go::getEAMaxPopSize() const {
+	return eaMaxPopSize_;
+}
+
+/**************************************************************************************/
+/**
  * Allows to set the number of neighborhoods in a swarm algorithm
  *
  * @param swarmNNeighborhoods The number of neighborhoods in a swarm algorithm
@@ -1503,6 +1555,8 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 		("eaRecombinationScheme", po::value<recoScheme>(&eaRecombinationScheme_)->default_value(GO_DEF_EARECOMBINATIONSCHEME))
 		("eaSortingScheme", po::value<sortingMode>(&eaSortingScheme_)->default_value(GO_DEF_EASORTINGSCHEME))
 		("eaTrackParentRelations", po::value<bool>(&eaTrackParentRelations_)->default_value(GO_DEF_EATRACKPARENTRELATIONS))
+		("eaGrowthRate", po::value<std::size_t>(&eaGrowthRate_)->default_value(GO_DEF_EAGROWTHRATE))
+		("eaMaxPopSize", po::value<std::size_t>(&eaMaxPopSize_)->default_value(GO_DEF_EAMAXPOPSIZE))
 		("swarmNNeighborhoods", po::value<std::size_t>(&swarmNNeighborhoods_)->default_value(GO_DEF_SWARMNNEIGHBORHOODS))
 		("swarmNNeighborhoodMembers", po::value<std::size_t>(&swarmNNeighborhoodMembers_)->default_value(GO_DEF_SWARMNNEIGHBORHOODMEMBERS))
 		("swarmRandomFillUp", po::value<bool>(&swarmRandomFillUp_)->default_value(GO_DEF_SWARMRANDOMFILLUP))
@@ -1549,6 +1603,8 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 					  << "eaRecombinationScheme = " << eaRecombinationScheme_ << std::endl
 					  << "eaSortingScheme = " << eaSortingScheme_ << std::endl
 					  << "eaTrackParentRelations = " << eaTrackParentRelations_ << std::endl
+					  << "eaGrowthRate = " << eaGrowthRate_ << std::endl
+					  << "eaMaxPopSize = " << eaMaxPopSize_ << std::endl
 					  << "swarmNNeighborhoods = " << swarmNNeighborhoods_ << std::endl
 					  << "swarmNNeighborhoodMembers = " << swarmNNeighborhoodMembers_ << std::endl
 					  << "swarmRandomFillUp = " << swarmRandomFillUp_ << std::endl

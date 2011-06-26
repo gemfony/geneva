@@ -54,6 +54,8 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
 	, smode_(DEFAULTSMODE)
 	, defaultNChildren_(0)
 	, oneTimeMuCommaNu_(false)
+	, growthRate_(0)
+	, maxPopulationSize_(0)
 	, t0_(SA_T0)
 	, t_(t0_)
 	, alpha_(SA_ALPHA)
@@ -85,6 +87,8 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
 	, smode_(cp.smode_)
 	, defaultNChildren_(cp.defaultNChildren_)
 	, oneTimeMuCommaNu_(cp.oneTimeMuCommaNu_)
+	, growthRate_(cp.growthRate_)
+	, maxPopulationSize_(cp.maxPopulationSize_)
 	, t0_(cp.t0_)
 	, t_(cp.t_)
 	, alpha_(cp.alpha_)
@@ -141,6 +145,8 @@ void GEvolutionaryAlgorithm::load_(const GObject * cp)
 	smode_ = p_load->smode_;
 	defaultNChildren_ = p_load->defaultNChildren_;
 	oneTimeMuCommaNu_ = p_load->oneTimeMuCommaNu_;
+	maxPopulationSize_ = p_load->maxPopulationSize_;
+	growthRate_ = p_load->growthRate_;
 	t0_ = p_load->t0_;
 	t_ = p_load->t_;
 	alpha_ = p_load->alpha_;
@@ -228,6 +234,8 @@ boost::optional<std::string> GEvolutionaryAlgorithm::checkRelationshipWith(const
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", smode_, p_load->smode_, "smode_", "p_load->smode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", defaultNChildren_, p_load->defaultNChildren_, "defaultNChildren_", "p_load->defaultNChildren_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", oneTimeMuCommaNu_, p_load->oneTimeMuCommaNu_, "oneTimeMuCommaNu_", "p_load->oneTimeMuCommaNu_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", maxPopulationSize_, p_load->maxPopulationSize_, "maxPopulationSize_", "p_load->maxPopulationSize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", growthRate_, p_load->growthRate_, "growthRate_", "p_load->growthRate_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", t0_, p_load->t0_, "t0_", "p_load->t0_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", t_, p_load->t_, "t_", "p_load->t_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", alpha_, p_load->alpha_, "alpha_", "p_load->alpha_", e , limit));
@@ -466,6 +474,41 @@ std::size_t GEvolutionaryAlgorithm::getNProcessableItems() const {
 
 /************************************************************************************************************/
 /**
+ * Adds the option to increase the population by a given amount per iteration
+ *
+ * @param growthRate The amount of individuals to be added in each iteration
+ * @param maxPopulationSize The maximum allowed size of the population
+ */
+std::size_t GEvolutionaryAlgorithm::setPopulationGrowth(
+		const std::size_t& growthRate
+		, const std::size_t& maxPopulationSize
+) {
+	growthRate_ = growthRate;
+	maxPopulationSize_ = maxPopulationSize;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to retrieve the growth rate of the population
+ *
+ * @return The growth rate of the population per iteration
+ */
+std::size_t GEvolutionaryAlgorithm::getGrowthRate() const {
+	return growthRate_;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to retrieve the maximum population size when growth is enabled
+ *
+ * @return The maximum population size allowed, when growth is enabled
+ */
+std::size_t GEvolutionaryAlgorithm::getMaxPopulationSize() const {
+	return maxPopulationSize_;
+}
+
+/************************************************************************************************************/
+/**
  * Specifies the default size of the population plus the number of parents.
  * The population will be filled with additional individuals later, as required --
  * see GEvolutionaryAlgorithm::adjustPopulation() . Also, all error checking is done in
@@ -487,6 +530,11 @@ void GEvolutionaryAlgorithm::setDefaultPopulationSize(const std::size_t& popSize
  * @return The value of the best individual found
  */
 double GEvolutionaryAlgorithm::cycleLogic() {
+	// If this is not the first iteration, check whether we need to increase the population
+	if(this->getIteration() != 0) {
+		performScheduledPopulationGrowth();
+	}
+
 	// create new children from parents
 	recombine();
 	// adapt children and calculate their (and possibly their parent's) values
@@ -658,6 +706,20 @@ void GEvolutionaryAlgorithm::adjustPopulation() {
 		for(it=data.begin()+this_sz; it!=data.end(); ++it) {
 			(*it)->randomInit();
 		}
+	}
+}
+
+/************************************************************************************************************/
+/**
+ * Increases the population size if requested by the user. This will happen until the population size exceeds
+ * a predefined value, set with setPopulationGrowth() .
+ */
+void GEvolutionaryAlgorithm::performScheduledPopulationGrowth() {
+	if(growthRate_ != 0 && this->size() < maxPopulationSize_) {
+		// Set a new default population size
+		this->setDefaultPopulationSize(this->size() + growthRate_, this->getNParents());
+		// Add missing items as copies of the last individual in the list
+		this->resize_clone(getDefaultPopulationSize(), data[0]);
 	}
 }
 

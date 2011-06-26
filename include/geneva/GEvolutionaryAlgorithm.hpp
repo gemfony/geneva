@@ -111,6 +111,8 @@ class GEvolutionaryAlgorithm
 		   & BOOST_SERIALIZATION_NVP(smode_)
 		   & BOOST_SERIALIZATION_NVP(defaultNChildren_)
 		   & BOOST_SERIALIZATION_NVP(oneTimeMuCommaNu_)
+		   & BOOST_SERIALIZATION_NVP(growthRate_)
+		   & BOOST_SERIALIZATION_NVP(maxPopulationSize_)
 		   & BOOST_SERIALIZATION_NVP(logOldParents_)
 		   & BOOST_SERIALIZATION_NVP(t0_)
 		   & BOOST_SERIALIZATION_NVP(t_)
@@ -175,6 +177,13 @@ public:
 
 	/** @brief Retrieves the number of processable items for the current iteration */
 	virtual std::size_t getNProcessableItems() const;
+
+	/** @brief Adds the option to increase the population by a given amount per iteration */
+	std::size_t setPopulationGrowth(const std::size_t&, const std::size_t&);
+	/** @brief Allows to retrieve the growth rate of the population */
+	std::size_t getGrowthRate() const;
+	/** @brief Allows to retrieve the maximum population size when growth is enabled */
+	std::size_t getMaxPopulationSize() const;
 
 	//------------------------------------------------------------------------------------------
 	// Settings specific to micro-training
@@ -323,6 +332,8 @@ public:
 #endif /* DEBUG */
 	}
 
+	/**************************************************************************************************/
+
 protected:
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
@@ -357,6 +368,8 @@ protected:
 
 	/** @brief Resizes the population to the desired level and does some error checks */
 	virtual void adjustPopulation();
+	/** @brief Increases the population size if requested by the user */
+	void performScheduledPopulationGrowth();
 
 private:
 	/**********************************************************************************/
@@ -412,6 +425,8 @@ private:
 	sortingMode smode_; ///< The chosen sorting scheme
 	std::size_t defaultNChildren_; ///< Expected number of children
 	bool oneTimeMuCommaNu_; ///< Specifies whether a one-time selection scheme of MUCOMMANU_SINGLEEVAL should be used
+	std::size_t growthRate_; ///< Specifies the amount of individuals added per iteration
+	std::size_t maxPopulationSize_; ///< Specifies the maximum amount of individuals in the population if growth is enabled
 
 	double t0_; ///< The start temperature, used in simulated annealing
 	double t_; ///< The current temperature, used in simulated annealing

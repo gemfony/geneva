@@ -98,6 +98,8 @@ const std::size_t GO_DEF_EANPARENTS=1;
 const recoScheme GO_DEF_EARECOMBINATIONSCHEME=VALUERECOMBINE;
 const sortingMode GO_DEF_EASORTINGSCHEME=MUCOMMANU_SINGLEEVAL;
 const bool GO_DEF_EATRACKPARENTRELATIONS=false;
+const std::size_t GO_DEF_EAGROWTHRATE=0;
+const std::size_t GO_DEF_EAMAXPOPSIZE=0;
 const std::size_t GO_DEF_SWARMNNEIGHBORHOODS=5;
 const std::size_t GO_DEF_SWARMNNEIGHBORHOODMEMBERS=10;
 const bool GO_DEF_SWARMRANDOMFILLUP=1;
@@ -161,6 +163,8 @@ class Go
 	     & BOOST_SERIALIZATION_NVP(eaRecombinationScheme_)
 	     & BOOST_SERIALIZATION_NVP(eaSortingScheme_)
 	     & BOOST_SERIALIZATION_NVP(eaTrackParentRelations_)
+	     & BOOST_SERIALIZATION_NVP(eaGrowthRate_)
+	     & BOOST_SERIALIZATION_NVP(eaMaxPopSize_)
 	     & BOOST_SERIALIZATION_NVP(swarmNNeighborhoods_)
 	     & BOOST_SERIALIZATION_NVP(swarmNNeighborhoodMembers_)
 	     & BOOST_SERIALIZATION_NVP(swarmRandomFillUp_)
@@ -317,6 +321,12 @@ public:
 
 	void setEATrackParentRelations(const bool&);
 	bool getEATrackParentRelations() const;
+
+	void setEAGrowthRate(const std::size_t&);
+	std::size_t getEAGrowthRate() const;
+
+	void setEAMaxPopSize(const std::size_t&);
+	std::size_t getEAMaxPopSize() const;
 
 	void setSwarmNNeighborhoods(const std::size_t&);
 	std::size_t getSwarmNNeighborhoods() const;
@@ -490,8 +500,8 @@ public:
 	       << "# text-mode (0), xml-mode (1) or binary-mode (2)" << std::endl
 	       << "serializationMode = " << GO_DEF_SERIALIZATIONMODE << std::endl
 	       << std::endl
-	       << "# Specifies how long the server should wait for arrivals. 1 means:" << std::endl
-	       << "# \"wait the same amount it has taken the first answer to return\"" << std::endl
+	       << "# Influences for how long the server should wait for arrivals" << std::endl
+           << "# in networked mode" << std::endl
 	       << "nProcessingUnits = " << GO_DEF_NPROCUNITS << std::endl
 	       << std::endl
 	       << "# Indicates the maximum number of iterations in the optimization" << std::endl
@@ -533,6 +543,13 @@ public:
 	       << "# Indicates whether the algorithm should track relationships" << std::endl
 	       << "# between old parents and new children" << std::endl
 	       << "eaTrackParentRelations = " << GO_DEF_EATRACKPARENTRELATIONS << std::endl
+	       << std::endl
+	       << "# The amount of individuals to be added in each iteration. Set to 0" << std::endl
+	       << "# to disable growth" << std::endl
+	       << "eaGrowthRate = " << GO_DEF_EAGROWTHRATE << std::endl
+	       << std::endl
+	       << "# The maximum allowed size of the population if growth is enabled" << std::endl
+	       << "eaMaxPopSize = " << GO_DEF_EAMAXPOPSIZE << std::endl
 	       << std::endl
 	       << std::endl
 	       << "#######################################################" << std::endl
@@ -662,6 +679,7 @@ private:
 		ea_ptr->setRecombinationMethod(eaRecombinationScheme_);
 		ea_ptr->setSortingScheme(eaSortingScheme_);
 		ea_ptr->setLogOldParents(eaTrackParentRelations_);
+		ea_ptr->setPopulationGrowth(eaGrowthRate_, eaMaxPopSize_);
 
 		// Set some general population settings
 		ea_ptr->setMaxIteration(maxIterations_);
@@ -1007,6 +1025,8 @@ private:
     recoScheme eaRecombinationScheme_; ///< The recombination scheme in EA
     sortingMode eaSortingScheme_; ///< The sorting scheme in EA (MUCOMMANU_SINGLEEVAL etc.)
     bool eaTrackParentRelations_; ///< Whether relations between children and parents should be tracked in EA
+    std::size_t eaGrowthRate_; ///< The growth rate of the population per iteration
+    std::size_t eaMaxPopSize_; ///< The maximum population size of population growth is enabled
 
     // SWARM parameters
     std::size_t swarmNNeighborhoods_; ///< The number of neighborhoods in a swarm algorithm

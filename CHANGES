@@ -27,6 +27,11 @@ The main changes for this release include:
    the expected number of compute unites participating in a distributed optimization.
  - Scripts now reside in their own subdirectory
  - Removed the GINDIVIDUALBROKER macro for clarity reasons
+ - Added an option that allows evolutionary algorithm population to grow up
+   to a user-defined limit, so one can start with small populations and still have
+   good coverage of the parameter space close to the optimum. This is meant to 
+   shorten optimization runs in multi-threaded mode, if the population size is much
+   larger than the number of available compute units
  - Adapted to Boost 1.47
 
 //------------------------------------------------------------------------------------------------------
