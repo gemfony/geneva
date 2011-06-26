@@ -1916,6 +1916,8 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaCycleInformation(G
 		result << "  evaluation" << i << ".push_back(" <<  currentEvaluation << ");" << (isDirty?" // dirty flag is set":"") << std::endl;
 	}
 
+	result << std::endl; // Improves readability of the output data
+
 #ifdef DEBUG
 	// If growth is enabled for the population and we are in DEBUG mode, let the audience know about the current size
 	if(ea->getGrowthRate() > 0 && ea->getMaxPopulationSize() >= ea->size()) {
@@ -1923,8 +1925,6 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaCycleInformation(G
 	}
 
 #endif /* DEBUG */
-
-	result << std::endl; // Improves readability of the output data
 
 	return result.str();
 }
