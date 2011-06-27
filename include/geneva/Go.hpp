@@ -109,7 +109,7 @@ const float GO_DEF_SWARMCCGLOBAL=2.;
 const float GO_DEF_SWARMCCDELTA=0.4;
 const updateRule GO_DEF_SWARMUPDATERULE=CLASSIC;
 const std::size_t GO_DEF_GDNSTARTINGPOINTS=1;
-const float GO_DEF_GDFINITESTEP=0.01;
+const float GO_DEF_GDFINITESTEP=0.0000001;
 const float GO_DEF_GDSTEPSIZE=0.1;
 
 /**************************************************************************************/
