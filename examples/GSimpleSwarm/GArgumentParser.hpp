@@ -133,7 +133,6 @@ namespace Gem
 		   , double& maxVar
 		   , demoFunction& df
 		   , double& cLocal
-		   , double& cGlobal
 		   , double& cDelta
 		   , updateRule& ur
 		   , boost::uint16_t& xDim

@@ -64,21 +64,20 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	, local_bests_(nNeighborhoods_)
 	, c_personal_(DEFAULTCPERSONAL)
 	, c_local_(DEFAULTCLOCAL)
-	, c_global_(DEFAULTCGLOBAL)
 	, c_delta_(DEFAULTCDELTA)
-	, ur_(DEFAULTUPDATERULE)
+	, updateRule_(DEFAULTUPDATERULE)
 	, randomFillUp_(true)
 {
 	GOptimizationAlgorithmT<GParameterSet>::setOptimizationAlgorithm(SWARM);
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
-	// Initialize with 0. adjustPopulation() will later take care to fill the population with individuals as needed.
-	// and set the array to the correct values
+	// Initialize the number of neighborhood members with 0. adjustPopulation() will later take care to fill the
+	// population with individuals as needed and set the array to the correct values.
 	for(std::size_t i=0; i<nNeighborhoods_; i++) {
 		nNeighborhoodMembers_[i] = 0;
 	}
 
-	// Register the default optimization monitor
+	// Register the default optimization monitor. This can be overridden by the user.
 	this->registerOptimizationMonitor(
 			boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
 					new GSwarmOptimizationMonitor()
@@ -101,9 +100,8 @@ GSwarm::GSwarm(const GSwarm& cp)
 	, local_bests_(nNeighborhoods_) // We copy the smart pointers over later
 	, c_personal_(cp.c_personal_)
 	, c_local_(cp.c_local_)
-	, c_global_(cp.c_global_)
 	, c_delta_(cp.c_delta_)
-	, ur_(cp.ur_)
+	, updateRule_(cp.updateRule_)
 	, randomFillUp_(cp.randomFillUp_)
 {
 	// Note that this setting might differ from nCPIndividuals, as it is not guaranteed
@@ -167,9 +165,8 @@ void GSwarm::load_(const GObject *cp)
 	defaultNNeighborhoodMembers_ = p_load->defaultNNeighborhoodMembers_;
 	c_personal_ = p_load->c_personal_;
 	c_local_ = p_load->c_local_;
-	c_global_ = p_load->c_global_;
 	c_delta_ = p_load->c_delta_;
-	ur_ = p_load->ur_;
+	updateRule_ = p_load->updateRule_;
 	randomFillUp_ = p_load->randomFillUp_;
 
 	// We start from scratch if the number of neighborhoods or the alleged number of members in them differ
@@ -195,12 +192,18 @@ void GSwarm::load_(const GObject *cp)
 		}
 	}
 	else { // We now assume that we can just load local bests in each position.
-		// Copying only makes sense of the foreign GSwarm object's iteration is > 0.
+		// Copying only makes sense if the foreign GSwarm object's iteration is > 0.
 		// Note that getIteration() will return the foreign iteration, as that value
 		// has already been copied.
 		if(getIteration() > 0) {
 			for(std::size_t i=0; i<nNeighborhoods_; i++) {
-				local_bests_[i]->GObject::load(p_load->local_bests_[i]);
+				// We might be in a situation where the boost::shared_ptr which usually
+				// holds the local bests has not yet been initialized
+				if(local_bests_[i]) {
+					local_bests_[i]->GObject::load(p_load->local_bests_[i]);
+				} else {
+					local_bests_[i] = p_load->local_bests_[i]->clone<GParameterSet>();
+				}
 			}
 		} else {
 			for(std::size_t i=0; i<nNeighborhoods_; i++) {
@@ -210,10 +213,14 @@ void GSwarm::load_(const GObject *cp)
 	}
 
 	// Copy the global best over
-	if(currentIteration == 0 && p_load->getIteration() > 0) { // cp has a global best, we don't
-		global_best_ = p_load->GObject::clone<GParameterSet>();
+	if(p_load->getIteration() > 0) { // cp has a global best, we don't
+		if(global_best_) { // If we already have a global best, just load the other objects global best
+			global_best_->GObject::load(p_load->global_best_);
+		} else {
+			global_best_ = p_load->GObject::clone<GParameterSet>();
+		}
 	}
-	else if(currentIteration > 0 && p_load->getIteration() == 0) { // cp does not have a global best
+	else if(p_load->getIteration() == 0) { // cp does not have a global best
 		global_best_.reset(); // empty the smart pointer
 	}
 	// else {} // We do not need to do anything if both iterations are 0 as there is no global best at all
@@ -293,9 +300,8 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", global_best_, p_load->global_best_, "global_best_", "p_load->global_best_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_personal_, p_load->c_personal_, "c_personal_", "p_load->c_personal_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_local_, p_load->c_local_, "c_local_", "p_load->c_local_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_global_, p_load->c_global_, "c_global_", "p_load->c_global_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_delta_, p_load->c_delta_, "c_delta_", "p_load->c_delta_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", ur_, p_load->ur_, "ur_", "p_load->ur_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", updateRule_, p_load->updateRule_, "updateRule_", "p_load->updateRule_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", randomFillUp_, p_load->randomFillUp_, "randomFillUp_", "p_load->randomFillUp_", e , limit));
 
 	// The next checks only makes sense if the number of neighborhoods are equal
@@ -410,25 +416,33 @@ void GSwarm::finalize() {
 
 /************************************************************************************************************/
 /**
- * Helper function that checks the content of two nNeighborhoodMembers_ arrays. Note that this private function
- * assumes that both arrays contain nNeighborhoods_ entries.
+ * Helper function that checks the content of two nNeighborhoodMembers_ arrays.
  *
  * @param one The first array used for the check
  * @param two The second array used for the check
  * @return A boolean indicating whether both arrays are equal
  */
-bool GSwarm::nNeighborhoodMembersEqual(const std::vector<std::size_t> &one, const std::vector<std::size_t>& two) const {
-	if(one.size() != two.size()) return false;
-	for(std::size_t i=0; i<one.size(); i++) {
-		if(one[i] != two[i]) return false;
+bool GSwarm::nNeighborhoodMembersEqual(
+		const std::vector<std::size_t> &one
+		, const std::vector<std::size_t>& two
+) const {
+	if(one.size() != two.size()) {
+		return false;
 	}
-	return true;
+
+	for(std::size_t i=0; i<one.size(); i++) {
+		if(one[i] != two[i]) {
+			return false;
+		}
+	}
+
+	return true; // Make the compiler happy
 }
 
 /************************************************************************************************************/
 /**
  * Helper function that returns the id of the first individual of a neighborhood. "NI" stands
- * for NeighborhoodIndividual. "neighborhood" is assumed to be a counter, starting at 0 and assuming
+ * for NeighborhoodIndividual. "neighborhood" is assumed to be a counter, starting at 0, with
  * a maximum value of (nNeighborhoods_-1).
  *
  * @param neighborhood The id of the neighborhood for which the id of the first individual should be calculated
@@ -447,7 +461,10 @@ std::size_t GSwarm::getFirstNIPos(const std::size_t& neighborhood) const {
  * @param neighborhood The id of the neighborhood for which the id of the first individual should be calculated
  * @return The position of the first individual of a neighborhood
  */
-std::size_t GSwarm::getFirstNIPosVec(const std::size_t& neighborhood, const std::vector<std::size_t>& vec) const {
+std::size_t GSwarm::getFirstNIPosVec(
+		const std::size_t& neighborhood
+		, const std::vector<std::size_t>& vec
+) const {
 #ifdef DEBUG
 	if(neighborhood >= nNeighborhoods_) {
 		raiseException(
@@ -473,14 +490,12 @@ std::size_t GSwarm::getFirstNIPosVec(const std::size_t& neighborhood, const std:
 /************************************************************************************************************/
 /**
  * Helper function that helps to determine the end of a neighborhood. "NI" stands
- * for NeighborhoodIndividual. "neighborhood" is assumed to be a counter, starting at 0 and assuming
- * a maximum value of (nNeighborhoods_-1). The position returned is that right after the last individual,
- * as is common in C++ .
+ * for NeighborhoodIndividual. "neighborhood" is assumed to be a counter, starting at 0, with a maximum
+ * value of (nNeighborhoods_-1). The position returned is that right after the last individual, as is common
+ * in C++ .
  *
  * @param neighborhood The id of the neighborhood for which the id of the last individual should be calculated
  * @return The position of the individual right after the last of a neighborhood
- *
- * TODO: ATTENTION: Does this work for the last neighborhood ? The id returned does not exist ...
  */
 std::size_t GSwarm::getLastNIPos(const std::size_t& neighborhood) const {
 #ifdef DEBUG
@@ -540,10 +555,11 @@ void GSwarm::updatePersonalBestIfBetter(
 	}
 #endif /* DEBUG */
 
-	if(GOptimizationAlgorithmT<GParameterSet>::isBetter(
-			p_inner->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBestQuality()
-			, p_outer->fitness(0)
-		)
+	if(GOptimizationAlgorithmT<GParameterSet>::isBetter
+			(
+					p_inner->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBestQuality()
+					, p_outer->fitness(0)
+			)
 	) {
 		p_outer->getPersonalityTraits<GSwarmPersonalityTraits>()->registerPersonalBest(p_inner);
 	}
@@ -558,7 +574,7 @@ void GSwarm::updatePersonalBestIfBetter(
  * @return The value of the best individual found
  */
 double GSwarm::cycleLogic() {
-	// Modifies the individual's parameters, then triggers the fitness calculation of all individuals
+	// Modifies the individuals' parameters, then triggers the fitness calculation of all individuals
 	// and identifies the local and global bests. This function can be overloaded in derived classes
 	// so that part of the modification and/or fitness calculation are performed in parallel.
 	swarmLogic();
@@ -620,7 +636,6 @@ void GSwarm::swarmLogic() {
 				, neighborhood
 				, (*current)
 				, iteration>0?(local_bests_[neighborhood]->clone<GParameterSet>()):boost::shared_ptr<GParameterSet>()
-				, iteration>0?global_best_->clone<GParameterSet>():boost::shared_ptr<GParameterSet>()
 #ifdef DEBUG
 				, iteration>0?velocities_.at(offset):boost::shared_ptr<GParameterSet>()
 #else
@@ -629,7 +644,6 @@ void GSwarm::swarmLogic() {
 				, boost::make_tuple(
 					getCPersonal()
 					, getCLocal()
-					, getCGlobal()
 					, getCDelta()
 				  )
 			);
@@ -655,9 +669,8 @@ void GSwarm::updateSwarm(
 	  , const std::size_t& neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
 	  , boost::shared_ptr<GParameterSet> local_best_tmp
-	  , boost::shared_ptr<GParameterSet> global_best_tmp
 	  , boost::shared_ptr<GParameterSet> velocity
-	  , boost::tuple<double, double, double, double> constants
+	  , boost::tuple<double, double, double> constants
 ){
 	if(iteration > 0 && !ind->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
 		// Update the swarm positions:
@@ -665,7 +678,6 @@ void GSwarm::updateSwarm(
 		  neighborhood
 		  , ind
 		  , local_best_tmp
-		  , global_best_tmp
 		  , velocity
 		  , constants
 		);
@@ -726,15 +738,13 @@ void GSwarm::updatePositions(
 	  const std::size_t& neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
 	  , boost::shared_ptr<GParameterSet> local_best_tmp
-	  , boost::shared_ptr<GParameterSet> global_best_tmp
 	  , boost::shared_ptr<GParameterSet> velocity
-	  , boost::tuple<double, double, double, double> constants
+	  , boost::tuple<double, double, double> constants
 ) {
 	// Extract the constants from the tuple
 	double cPersonal = constants.get<0>();
 	double cLocal = constants.get<1>();
-	double cGlobal = constants.get<2>();
-	double cDelta = constants.get<3>();
+	double cDelta = constants.get<2>();
 
 #ifdef DEBUG
 	// Do some error checking
@@ -766,13 +776,6 @@ void GSwarm::updatePositions(
 		);
 	}
 
-	if(!global_best_tmp) {
-		raiseException(
-				"In GSwarm::updatePositions():" << std::endl
-				<< "Found empty individual \"global_best_tmp\""
-		);
-	}
-
 	if(!velocity) {
 		raiseException(
 				"In GSwarm::updatePositions():" << std::endl
@@ -785,35 +788,30 @@ void GSwarm::updatePositions(
 	// Subtract the current individual
 	personal_best_tmp->fpSubtract(ind);
 	local_best_tmp->fpSubtract(ind);
-	global_best_tmp->fpSubtract(ind);
 
-	switch(ur_) {
+	switch(updateRule_) {
 	case CLASSIC:
 		// Multiply each floating point value with a random fp number in the range [0,1[
 		personal_best_tmp->fpMultiplyByRandom();
 		local_best_tmp->fpMultiplyByRandom();
-		global_best_tmp->fpMultiplyByRandom();
 		break;
 	case LINEAR:
 		// Multiply local_best_tmp and global_best_tmp with a single [0,1[ random number each
 		personal_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
 		local_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
-		global_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
 		break;
 	}
 
 	// Multiply each floating point value with a fixed, configurable constant value
 	personal_best_tmp->fpMultiplyBy(cPersonal);
 	local_best_tmp->fpMultiplyBy(cLocal);
-	global_best_tmp->fpMultiplyBy(cGlobal);
 
 	// Multiply the last iterations velocity with a fixed, configurable constant value
 	velocity->fpMultiplyBy(cDelta);
 
-	// Add the personal, local and global tmps
+	// Add the personal abd local temporaries
 	velocity->fpAdd(personal_best_tmp);
 	velocity->fpAdd(local_best_tmp);
-	velocity->fpAdd(global_best_tmp);
 
 	// Add the velocity to the current individual
 	ind->fpAdd(velocity);
@@ -825,13 +823,23 @@ void GSwarm::updatePositions(
  * and that the local and global bests have been initialized (possibly with dummy values). This should have
  * happened in the adjustPopulation() function. It also assumes that all individuals have already been evaluated.
  *
- * TODO: Add a Debug-check whether there are any individuals that have not yet been evaluated
- *
  * @return The best evaluation found in this iteration
  */
 double GSwarm::findBests() {
 	std::size_t bestCurrentLocalId = 0;
 	double bestCurrentLocalFitness = getWorstCase();
+
+#ifdef DEBUG
+	GSwarm::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		if((*it)->isDirty()) {
+			raiseException(
+					"In GSwarm::findBests(): Error!" << std::endl
+					<< "Found individual whose dirty flag is set." << std::endl
+			);
+		}
+	}
+#endif /* DEBUG */
 
 	// Sort all neighborhoods according to their fitness
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
@@ -963,9 +971,7 @@ void GSwarm::adjustPopulation() {
 		fillUpNeighborhood1();
 	}
 	else if(currentSize==nNeighborhoods) {
-		// Fill in remaining items in each neighborhood. This will
-		// also take care of the above case, where only one individual
-		// has been added.
+		// Fill in remaining items in each neighborhood.
 		fillUpNeighborhood1();
 	}
 	else if(currentSize == defaultPopSize) {
@@ -1110,22 +1116,6 @@ double GSwarm::getCLocal() const {
 
 /************************************************************************************************************/
 /**
- * Allows to set a static multiplier for global distances
- */
-void GSwarm::setCGlobal(const double& c_global) {
-	c_global_ = c_global;
-}
-
-/************************************************************************************************************/
-/**
- * Allows to retrieve the static multiplier for local distances
- */
-double GSwarm::getCGlobal() const {
-	return c_global_;
-}
-
-/************************************************************************************************************/
-/**
  * Allows to set a static multiplier for deltas
  */
 void GSwarm::setCDelta(const double& c_delta) {
@@ -1177,7 +1167,7 @@ std::size_t GSwarm::getCurrentNNeighborhoodMembers(const std::size_t& neighborho
  * @param ur The desired update rule
  */
 void GSwarm::setUpdateRule(const updateRule& ur) {
-	ur_ = ur;
+	updateRule_ = ur;
 }
 
 /************************************************************************************************************/
@@ -1187,7 +1177,7 @@ void GSwarm::setUpdateRule(const updateRule& ur) {
  * @return The current update rule
  */
 updateRule GSwarm::getUpdateRule() const {
-	return ur_;
+	return updateRule_;
 }
 
 /************************************************************************************************************/

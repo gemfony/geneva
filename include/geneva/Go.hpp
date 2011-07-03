@@ -105,7 +105,6 @@ const std::size_t GO_DEF_SWARMNNEIGHBORHOODMEMBERS=10;
 const bool GO_DEF_SWARMRANDOMFILLUP=1;
 const float GO_DEF_SWARMCPERSONAL=0.05;
 const float GO_DEF_SWARMCLOCAL=2.;
-const float GO_DEF_SWARMCCGLOBAL=2.;
 const float GO_DEF_SWARMCCDELTA=0.4;
 const updateRule GO_DEF_SWARMUPDATERULE=CLASSIC;
 const std::size_t GO_DEF_GDNSTARTINGPOINTS=1;
@@ -170,7 +169,6 @@ class Go
 	     & BOOST_SERIALIZATION_NVP(swarmRandomFillUp_)
 	     & BOOST_SERIALIZATION_NVP(swarmCPersonal_)
 	     & BOOST_SERIALIZATION_NVP(swarmCLocal_)
-	     & BOOST_SERIALIZATION_NVP(swarmCGlobal_)
 	     & BOOST_SERIALIZATION_NVP(swarmCDelta_)
 	     & BOOST_SERIALIZATION_NVP(swarmUpdateRule_)
 	     & BOOST_SERIALIZATION_NVP(gdNStartingPoints_)
@@ -342,9 +340,6 @@ public:
 
 	void setSwarmCLocal(const float&);
 	float getSwarmCLocal() const;
-
-	void setSwarmCGlobal(const float&);
-	float getSwarmCGlobal() const;
 
 	void setSwarmCDelta(const float&);
 	float getSwarmCDelta() const;
@@ -571,9 +566,6 @@ public:
 	       << std::endl
 	       << "# A multiplicative factor for local updates" << std::endl
 	       << "swarmCLocal = " << GO_DEF_SWARMCLOCAL << std::endl
-	       << std::endl
-	       << "# A multiplicative factor for global updates" << std::endl
-	       << "swarmCGlobal = " << GO_DEF_SWARMCCGLOBAL << std::endl
 	       << std::endl
 	       << "# A multiplicative factor for velocities" << std::endl
 	       << "swarmCDelta = " << GO_DEF_SWARMCCDELTA << std::endl
@@ -806,7 +798,6 @@ private:
 		}
 		swarm_ptr->setCPersonal(swarmCPersonal_);
 		swarm_ptr->setCLocal(swarmCLocal_);
-		swarm_ptr->setCGlobal(swarmCGlobal_);
 		swarm_ptr->setCDelta(swarmCDelta_);
 		swarm_ptr->setUpdateRule(swarmUpdateRule_);
 
@@ -1034,7 +1025,6 @@ private:
     bool swarmRandomFillUp_; ///< Specifies whether neighborhoods are filled up with random values
     float swarmCPersonal_; ///< A factor for multiplication of personal bests
     float swarmCLocal_; ///< A factor for multiplication of local bests
-	float swarmCGlobal_; ///< A factor for multiplication of global bests
 	float swarmCDelta_; ///< A factor for multiplication of deltas
 	updateRule swarmUpdateRule_; ///< Specifies how the parameters are updated
 

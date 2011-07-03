@@ -43,7 +43,10 @@ namespace Geneva {
 /**
  * A standard constructor. No local, dynamically allocated data, hence this function is empty.
  */
-GMultiThreadedSwarm::GMultiThreadedSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
+GMultiThreadedSwarm::GMultiThreadedSwarm(
+		const std::size_t& nNeighborhoods
+		, const std::size_t& nNeighborhoodMembers
+)
    : GSwarm(nNeighborhoods, nNeighborhoodMembers)
    , nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM)))
    , tp_(nThreads_)
@@ -265,7 +268,6 @@ void GMultiThreadedSwarm::swarmLogic() {
 						, neighborhood
 						, *current
 						, iteration>0?(local_bests_[neighborhood]->clone<GParameterSet>()):boost::shared_ptr<GParameterSet>()
-						, iteration>0?global_best_->clone<GParameterSet>():boost::shared_ptr<GParameterSet>()
 		#ifdef DEBUG
 						, iteration>0?velocities_.at(offset):boost::shared_ptr<GParameterSet>()
 		#else
@@ -274,7 +276,6 @@ void GMultiThreadedSwarm::swarmLogic() {
 						, boost::make_tuple(
 							getCPersonal()
 							, getCLocal()
-							, getCGlobal()
 							, getCDelta()
 						)
 					)
@@ -293,7 +294,7 @@ void GMultiThreadedSwarm::swarmLogic() {
 /**
  * Sets the number of threads for this population. If nThreads is set
  * to 0, an attempt will be made to set the number of threads to the
- * number of hardware threading units (e.g. number of cores or hyperthreading
+ * number of hardware threading units (e.g. number of cores or hyper-threading
  * units).
  *
  * @param nThreads The number of threads this class uses

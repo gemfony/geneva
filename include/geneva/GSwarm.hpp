@@ -91,9 +91,8 @@ class GSwarm
 		   & BOOST_SERIALIZATION_NVP(local_bests_)
 		   & BOOST_SERIALIZATION_NVP(c_personal_)
 		   & BOOST_SERIALIZATION_NVP(c_local_)
-		   & BOOST_SERIALIZATION_NVP(c_global_)
 		   & BOOST_SERIALIZATION_NVP(c_delta_)
-		   & BOOST_SERIALIZATION_NVP(ur_)
+		   & BOOST_SERIALIZATION_NVP(updateRule_)
 		   & BOOST_SERIALIZATION_NVP(randomFillUp_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -136,11 +135,6 @@ public:
 	void setCLocal(const double&);
 	/** @brief Allows to retrieve the static multiplier for local distances */
 	double getCLocal() const;
-
-	/** @brief Allows to set a static multiplier for global distances */
-	void setCGlobal(const double&);
-	/** @brief Allows to retrieve the static multiplier for local distances */
-	double getCGlobal() const;
 
 	/** @brief Allows to set a static multiplier for deltas */
 	void setCDelta(const double&);
@@ -279,8 +273,7 @@ protected:
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
-		  , boost::shared_ptr<GParameterSet>
-		  , boost::tuple<double, double, double, double>
+		  , boost::tuple<double, double, double>
 	);
 
 	/** @brief Triggers the fitness calculation */
@@ -297,8 +290,7 @@ protected:
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
-		  , boost::shared_ptr<GParameterSet>
-	      , boost::tuple<double, double, double, double>
+	      , boost::tuple<double, double, double>
 	);
 
     /** @brief Checks whether each neighborhood has at least the default size */
@@ -314,10 +306,9 @@ protected:
 
 	double c_personal_; ///< A factor for multiplication of personal bests
 	double c_local_; ///< A factor for multiplication of local bests
-	double c_global_; ///< A factor for multiplication of global bests
 	double c_delta_; ///< A factor for multiplication of deltas
 
-	updateRule ur_; ///< Specifies how the parameters are updated
+	updateRule updateRule_; ///< Specifies how the parameters are updated
 	bool randomFillUp_; ///< Specifies whether neighborhoods are filled up with random values
 
 	/** @brief The default constructor. Intentionally protected, as it is only needed for de-serialization purposes. */

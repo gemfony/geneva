@@ -143,7 +143,6 @@ namespace Gem
 	   , double& maxVar
 	   , demoFunction& df
 	   , double& cLocal
-	   , double& cGlobal
 	   , double& cDelta
 	   , updateRule& ur
 	   , boost::uint16_t& xDim
@@ -197,8 +196,6 @@ namespace Gem
 		  ("evalFunction",po::value<boost::uint16_t>(&evalFunction),
 		   "The id of the evaluation function.")
 		  ("cLocal", po::value<double>(&cLocal)->default_value(DEFAULTCLOCALAP),
-		   "A constant to be multiplied with the local direction vector")
-		  ("cGlobal", po::value<double>(&cGlobal)->default_value(DEFAULTCGLOBALAP),
 		   "A constant to be multiplied with the local direction vector")
 		  ("cDelta", po::value<double>(&cDelta)->default_value(DEFAULTCDELTAAP),
 		   "A constant to be multiplied with the old velocity vector")
@@ -257,7 +254,6 @@ namespace Gem
 					<< "maxVar = " << maxVar << std::endl
 					<< std::endl << "evalFunction = " << df << std::endl
 					<< "cLocal = " << cLocal << std::endl
-					<< "cGlobal = " << cGlobal << std::endl
 					<< "cDelta = " << cDelta << std::endl
 					<< "updateRule = " << ur << std::endl
 					<< "xDim = " << xDim << std::endl

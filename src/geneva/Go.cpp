@@ -79,7 +79,6 @@ Go::Go()
 	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
 	, swarmCPersonal_(GO_DEF_SWARMCPERSONAL)
 	, swarmCLocal_(GO_DEF_SWARMCLOCAL)
-	, swarmCGlobal_(GO_DEF_SWARMCCGLOBAL)
 	, swarmCDelta_(GO_DEF_SWARMCCDELTA)
 	, swarmUpdateRule_(GO_DEF_SWARMUPDATERULE)
 	, gdNStartingPoints_(GO_DEF_GDNSTARTINGPOINTS)
@@ -140,7 +139,6 @@ Go::Go(int argc, char **argv, const std::string& configFilename)
 	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
 	, swarmCPersonal_(GO_DEF_SWARMCPERSONAL)
 	, swarmCLocal_(GO_DEF_SWARMCLOCAL)
-	, swarmCGlobal_(GO_DEF_SWARMCCGLOBAL)
 	, swarmCDelta_(GO_DEF_SWARMCCDELTA)
 	, swarmUpdateRule_(GO_DEF_SWARMUPDATERULE)
 	, gdNStartingPoints_(GO_DEF_GDNSTARTINGPOINTS)
@@ -227,7 +225,6 @@ Go::Go(
 	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
 	, swarmCPersonal_(GO_DEF_SWARMCPERSONAL)
 	, swarmCLocal_(GO_DEF_SWARMCLOCAL)
-	, swarmCGlobal_(GO_DEF_SWARMCCGLOBAL)
 	, swarmCDelta_(GO_DEF_SWARMCCDELTA)
 	, swarmUpdateRule_(GO_DEF_SWARMUPDATERULE)
 	, gdNStartingPoints_(GO_DEF_GDNSTARTINGPOINTS)
@@ -286,7 +283,6 @@ Go::Go(const Go& cp)
 	, swarmRandomFillUp_(cp.swarmRandomFillUp_)
 	, swarmCPersonal_(cp.swarmCPersonal_)
 	, swarmCLocal_(cp.swarmCLocal_)
-	, swarmCGlobal_(cp.swarmCGlobal_)
 	, swarmCDelta_(cp.swarmCDelta_)
 	, swarmUpdateRule_(cp.swarmUpdateRule_)
 	, gdNStartingPoints_(cp.gdNStartingPoints_)
@@ -425,7 +421,6 @@ boost::optional<std::string> Go::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmRandomFillUp_, p_load->swarmRandomFillUp_, "swarmRandomFillUp_", "p_load->swarmRandomFillUp_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmCPersonal_, p_load->swarmCPersonal_, "swarmCPersonal_", "p_load->swarmCPersonal_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmCLocal_, p_load->swarmCLocal_, "swarmCLocal_", "p_load->swarmCLocal_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go", swarmCGlobal_, p_load->swarmCGlobal_, "swarmCGlobal_", "p_load->swarmCGlobal_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmCDelta_, p_load->swarmCDelta_, "swarmCDelta_", "p_load->swarmCDelta_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmUpdateRule_, p_load->swarmUpdateRule_, "swarmUpdateRule_", "p_load->swarmUpdateRule_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", gdNStartingPoints_, p_load->gdNStartingPoints_, "gdNStartingPoints_", "p_load->gdNStartingPoints_", e , limit));
@@ -488,7 +483,6 @@ void Go::load_(const GObject *cp) {
 	swarmRandomFillUp_ = p_load->swarmRandomFillUp_;
 	swarmCPersonal_ = p_load->swarmCPersonal_;
 	swarmCLocal_ = p_load->swarmCLocal_;
-	swarmCGlobal_ = p_load->swarmCGlobal_;
 	swarmCDelta_ = p_load->swarmCDelta_;
 	swarmUpdateRule_ = p_load->swarmUpdateRule_;
 	gdNStartingPoints_ = p_load->gdNStartingPoints_;
@@ -1319,26 +1313,6 @@ float Go::getSwarmCLocal() const {
 
 /**************************************************************************************/
 /**
- * Allows to set the desired value of the swarm algorithm's CGlobal parameter
- *
- * @param swarmCGlobal The desired value of the swarm algorithm's CGlobal parameter
- */
-void Go::setSwarmCGlobal(const float& swarmCGlobal) {
-	swarmCGlobal_ = swarmCGlobal;
-}
-
-/**************************************************************************************/
-/**
- * Allows to retrieve the current value of the swarm algorithm's CGlobal parameter
- *
- * @return The current value of the swarm algorithm's CGlobal parameter
- */
-float Go::getSwarmCGlobal() const {
-	return swarmCGlobal_;
-}
-
-/**************************************************************************************/
-/**
  * Allows to set the desired value of the swarm algorithm's CDelta parameter
  *
  * @param swarmCDelta The desired valuze of the swarm algorithm's CDelta parameter
@@ -1562,7 +1536,6 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 		("swarmRandomFillUp", po::value<bool>(&swarmRandomFillUp_)->default_value(GO_DEF_SWARMRANDOMFILLUP))
 		("swarmCPersonal", po::value<float>(&swarmCPersonal_)->default_value(GO_DEF_SWARMCPERSONAL))
 		("swarmCLocal", po::value<float>(&swarmCLocal_)->default_value(GO_DEF_SWARMCLOCAL))
-		("swarmCGlobal", po::value<float>(&swarmCGlobal_)->default_value(GO_DEF_SWARMCCGLOBAL))
 		("swarmCDelta", po::value<float>(&swarmCDelta_)->default_value(GO_DEF_SWARMCCDELTA))
 		("swarmUpdateRule", po::value<updateRule>(&swarmUpdateRule_)->default_value(GO_DEF_SWARMUPDATERULE))
 		("gdNStartingPoints", po::value<std::size_t>(&gdNStartingPoints_)->default_value(GO_DEF_GDNSTARTINGPOINTS))
@@ -1610,7 +1583,6 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 					  << "swarmRandomFillUp = " << swarmRandomFillUp_ << std::endl
 					  << "swarmCPersonal = " << swarmCPersonal_ << std::endl
 					  << "swarmCLocal = " << swarmCLocal_ << std::endl
-					  << "swarmCGlobal = " << swarmCGlobal_ << std::endl
 					  << "swarmCDelta = " << swarmCDelta_ << std::endl
 					  << "swarmUpdateRule = " << swarmUpdateRule_ << std::endl
 					  << "gdNStartingPoints = " << gdNStartingPoints_ << std::endl

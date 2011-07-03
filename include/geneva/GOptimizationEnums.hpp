@@ -260,9 +260,8 @@ const boost::logic::tribool DEFAULTADAPTIONMODE = boost::logic::indeterminate; /
 
 /**********************************************************************************************/
 
-const double DEFAULTCPERSONAL = 0.05; ///< Default multiplier for personal distances (swarm)
+const double DEFAULTCPERSONAL = 2.; ///< Default multiplier for personal distances (swarm)
 const double DEFAULTCLOCAL = 2.; ///< Default multiplier for local distances (swarm)
-const double DEFAULTCGLOBAL = 2.; ///< Default multiplier for global distances (swarm)
 const double DEFAULTCDELTA = 0.4; ///< Default multiplier for deltas (swarm)
 
 /**********************************************************************************************/

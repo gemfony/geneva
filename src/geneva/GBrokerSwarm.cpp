@@ -300,7 +300,7 @@ bool GBrokerSwarm::updateIndividualsAndIntegrate(
 		// Make it known to the individual that it is now part of a new iteration
 		p->setParentAlgIteration(iteration);
 
-		// Add to the population
+		// Add to the population. This will effectively increase the last neighborhood
 		this->push_back(p);
 
 		// Update the counter
