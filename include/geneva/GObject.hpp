@@ -181,7 +181,7 @@ public:
 	void fromFile(const std::string&, const Gem::Common::serializationMode&);
 
 	/** @brief Returns an XML description of the derivative it is called for */
-	std::string report();
+	std::string report() const;
 
 	/** @brief Creates a clone of this object, storing it in a boost::shared_ptr<GObject> */
 	boost::shared_ptr<GObject> clone() const;

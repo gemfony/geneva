@@ -113,10 +113,7 @@ public:
 		, currentGetPosition_(RawBuffers_.begin())
 		, buffersPresentRaw_(false)
 		, buffersPresentProcessed_(false)
-	{
-		// Let the audience know
-		std::cout << "The broker has started up." << std::endl;
-	}
+	{ /* nothing */ }
 
 	/**********************************************************************************/
 	/**
@@ -129,9 +126,6 @@ public:
 		// (if this hasn't happened already). Calling
 		// finalize() multiple times is safe.
 		finalize();
-
-		// Let the audience know
-		std::cout << "The broker has now been shut down." << std::endl;
 	}
 
 	/**********************************************************************************/
@@ -165,7 +159,6 @@ public:
 
 		// Let the audience know about lost items
 		boost::mutex::scoped_lock discardedLock(discardedMutex_);
-		std::cout << "The broker lost " << discardedItemsCounter_ << " items during the optimization." << std::endl;
 
 		// Make sure this function does not execute code a second time
 		finalized_ = true;

@@ -729,6 +729,11 @@ void GSwarm::updatePositions(
 	boost::shared_ptr<GParameterSet> personal_best_tmp =
 			ind->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBest()->clone<GParameterSet>();
 
+	std::vector<double> indVec, persBestVec, nbrhoodBestVec, persBestVecSubtr, nbrhoodBestVecSubtr;
+	ind->streamline(indVec);
+	personal_best_tmp->streamline(persBestVec);
+	neighborhood_best_tmp->streamline(nbrhoodBestVec);
+
 	// Further error checks
 #ifdef DEBUG
 	if(!personal_best_tmp) {
@@ -757,6 +762,19 @@ void GSwarm::updatePositions(
 	// Subtract the current individual
 	personal_best_tmp->fpSubtract(ind);
 	neighborhood_best_tmp->fpSubtract(ind);
+
+	personal_best_tmp->streamline(persBestVecSubtr);
+	neighborhood_best_tmp->streamline(nbrhoodBestVecSubtr);
+
+	if(indVec.size() != persBestVec.size() || indVec.size() != nbrhoodBestVec.size() || indVec.size() != persBestVecSubtr.size() || indVec.size() != nbrhoodBestVecSubtr.size()) {
+		raiseException("Invalid sizes!" << std::endl);
+	}
+
+    for(std::size_t i=0; i<indVec.size(); i++) {
+    	if(persBestVecSubtr[i] != persBestVec[i]-indVec[i]  || nbrhoodBestVecSubtr[i] != nbrhoodBestVec[i]-indVec[i]) {
+    		raiseException("Invalid subtraction" << std::endl);
+    	}
+    }
 
 	switch(updateRule_) {
 	case CLASSIC:

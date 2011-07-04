@@ -119,7 +119,7 @@ boost::optional<std::string> GObject::checkRelationshipWith(const GObject& cp,
  *
  * @return An XML description of the GObject-derivative the function is called for
  */
-std::string GObject::report() {
+std::string GObject::report() const {
 	return toString(Gem::Common::SERIALIZATIONMODE_XML);
 }
 

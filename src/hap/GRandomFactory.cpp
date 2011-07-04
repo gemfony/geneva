@@ -67,9 +67,6 @@ GRandomFactory::GRandomFactory()
 	else {
 		multiple_call_trap_++;
 	}
-
-	// Let the audience know
-	std::cout << "The random factory has started up." << std::endl;
 }
 
 /*************************************************************************/
@@ -81,9 +78,6 @@ GRandomFactory::~GRandomFactory() {
 	// (if this hasn't happened already). Calling
 	// finalize() multiple times is safe.
 	finalize();
-
-	// Let the audience know
-	std::cout << "The random factory has now been shut down." << std::endl;
 }
 
 /*************************************************************************/
