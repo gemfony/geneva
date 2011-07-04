@@ -91,8 +91,6 @@ class progressMonitor
 	  	 & BOOST_SERIALIZATION_NVP(yDimProgress_)
 	  	 & BOOST_SERIALIZATION_NVP(df_)
 	  	 & BOOST_SERIALIZATION_NVP(followProgress_)
-	  	 & BOOST_SERIALIZATION_NVP(trackParentRelations_)
-	  	 & BOOST_SERIALIZATION_NVP(drawArrows_)
 	  	 & BOOST_SERIALIZATION_NVP(snapshotBaseName_)
 	  	 & BOOST_SERIALIZATION_NVP(minX_)
 	  	 & BOOST_SERIALIZATION_NVP(maxX_)
@@ -115,8 +113,6 @@ public:
 		, yDimProgress_(DEFAULTYDIMPROGRESS)
 		, df_(df)
 		, followProgress_(false)
-		, trackParentRelations_(false)
-		, drawArrows_(false)
 		, snapshotBaseName_("GSwarmAlgorithmSnapshot")
 		, minX_(-10.)
 		, maxX_( 10.)
@@ -137,8 +133,6 @@ public:
 		, yDimProgress_(cp.yDimProgress_)
 		, df_(cp.df_)
 		, followProgress_(cp.followProgress_)
-		, trackParentRelations_(cp.trackParentRelations_)
-		, drawArrows_(cp.drawArrows_)
 		, snapshotBaseName_(cp.snapshotBaseName_)
 		, minX_(cp.minX_)
 		, maxX_(cp.maxX_)
@@ -222,13 +216,11 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "progressMonitor", yDimProgress_, p_load->yDimProgress_, "yDimProgress_", "p_load->yDimProgress_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "progressMonitor", df_, p_load->df_, "df_", "p_load->df_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "progressMonitor", followProgress_, p_load->followProgress_, "followProgress_", "p_load->followProgress_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", trackParentRelations_, p_load->trackParentRelations_, "trackParentRelations_", "p_load->trackParentRelations_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", drawArrows_, p_load->drawArrows_, "drawArrows_", "p_load->drawArrows_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "progressMonitor", snapshotBaseName_, p_load->snapshotBaseName_, "snapshotBaseName_", "p_load->snapshotBaseName_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "progressMonitor", minX_, p_load->minX_, "minX_", "p_load->minX_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "progressMonitor", maxX_, p_load->maxX_, "maxX_", "p_load->maxX_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "progressMonitor", minY_, p_load->minY_, "minY_", "p_load->minY_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", xDimProgress_, p_load->xDimProgress_, "xDimProgress_", "p_load->xDimProgress_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "progressMonitor", maxY_, p_load->maxY_, "maxY_", "p_load->maxY_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "progressMonitor", outputPath_, p_load->outputPath_, "outputPath_", "p_load->outputPath_", e , limit));
 
 		return evaluateDiscrepancies("progressMonitor", caller, deviations, e);
@@ -298,6 +290,10 @@ public:
 			// Draw lines where the global optima are
 			std::vector<double> f_x_mins = GFunctionIndividual::getXMin(df_);
 			std::vector<double> f_y_mins = GFunctionIndividual::getYMin(df_);
+
+			ofs << "  //============================================================" << std::endl
+			    << "  // Minima and maxima" << std::endl
+			    << std::endl;
 			for(std::size_t i=0; i<f_x_mins.size(); i++) {
 				ofs << "  TLine *tlx" << i << " = new TLine(" << f_x_mins[i] << ", " << minY_ << ", " << f_x_mins[i] << ", " << maxY_ << ");" << std::endl
 					<< "  tlx" << i << "->SetLineStyle(5);" << std::endl
@@ -310,6 +306,10 @@ public:
 					<< "  tly" << i << "->SetLineColor(45);" << std::endl
 					<< "  tly" << i << "->Draw();" << std::endl;
 			}
+			ofs << std::endl
+			    << "  //============================================================" << std::endl
+				<< "  // Neighborhood bests" << std::endl
+				<< std::endl;
 
 			// Extract the locally best individuals and mark them in the plot
 			for(std::size_t neighborhood=0; neighborhood<swarm->getNNeighborhoods(); neighborhood++) {
@@ -326,8 +326,19 @@ public:
 						<< "  lbest" << neighborhood << "->SetMarkerSize(1.3);" << std::endl
 						<< "  lbest" << neighborhood << "->Draw();" << std::endl
 						<< std::endl;
+				} else { // Mark entries as being outside of the drawing area
+					ofs << "  // TMarker *lbest" << neighborhood << " = new TMarker(" << x_local_best << ", " << y_local_best << ", 22); /* Marker outside of drawing area! */" << std::endl
+						<< "  // lbest" << neighborhood << "->SetMarkerColor(4);" << std::endl
+						<< "  // lbest" << neighborhood << "->SetMarkerSize(1.3);" << std::endl
+						<< "  // lbest" << neighborhood << "->Draw();" << std::endl
+						<< std::endl;
 				}
 			}
+
+			ofs << std::endl
+				<< "  //============================================================" << std::endl
+				<< "  // Global best" << std::endl
+				<< std::endl;
 
 			// Extract the coordinates of the globally best individual and mark them in the plot
 			double x_global_best = g_best_ptr->at<GDoubleCollection>(0)->at(0);
@@ -340,9 +351,21 @@ public:
 					<< "  gbest->SetMarkerSize(1.8);" << std::endl
 					<< "  gbest->Draw();" << std::endl
 					<< std::endl;
+			} else {
+				ofs << "  // TMarker *gbest = new TMarker(" << x_global_best << ", " << y_global_best << ", 8); /* Marker outside of drawing area! */" << std::endl
+					<< "  // gbest->SetMarkerColor(2);" << std::endl
+					<< "  // gbest->SetMarkerSize(1.8);" << std::endl
+					<< "  // gbest->Draw();" << std::endl
+					<< std::endl;
 			}
 
+
 			// Loop over all individuals in this iteration and output their parameters
+			ofs << std::endl
+				<< "  //============================================================" << std::endl
+				<< "  // Individuals" << std::endl
+				<< std::endl;
+
 			GSwarm::iterator it;
 			std::size_t particle = 0;
 			for(it=swarm->begin(); it!=swarm->end(); ++it, ++particle) {
@@ -366,10 +389,18 @@ public:
 						<< "  txt_" << particle << "->SetTextSize(0.013);" << std::endl
 						<< "  txt_" << particle << "->Draw();" << std::endl
 						<< std::endl;
+				} else {
+					ofs << "  // TText txt_" << particle << "(" << x_ref[0] << ", " << x_ref[1] << ", \"" << (*it)->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() << "\"); /* Marker outside of drawing area! */" << std::endl
+						<< "  // txt_" << particle << "->SetTextSize(0.013);" << std::endl
+						<< "  // txt_" << particle << "->Draw();" << std::endl
+						<< std::endl;
 				}
 			}
 
 			ofs << std::endl
+				<< "  //============================================================" << std::endl
+				<< "  // Plotting" << std::endl
+				<< std::endl
 				<< "  cc->Print(\"" << (snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".jpg") << "\");" << std::endl
 				<< "}" << std::endl;
 
@@ -434,47 +465,6 @@ public:
 	 */
 	bool getFollowProgress() const {
 		return followProgress_;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Specifies whether the relationship between children and parents should be monitored in
-	 * snapshots.
-	 *
-	 * @param trackParentRelations Specifies whether relationships between children and parents should be tracked
-	 */
-	void setTrackParentRelations(const bool& trackParentRelations) {
-		trackParentRelations_ = trackParentRelations;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Retrieves the current value of the trackParentRelations_ flag.
-	 *
-	 * @return The current value of the trackParentRelations_ flag
-	 */
-	bool getTrackParentRelations() const {
-		return trackParentRelations_;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Specifies whether arrows should be drawn from old parents to their children
-	 *
-	 * @param A boolean indicating whether arrows should be drawn from old parents to their children
-	 */
-	void setDrawArrows(const bool& drawArrows) {
-		drawArrows_ = drawArrows;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Retrieves the current value of the drawArrows_
-	 *
-	 * @return The current value of the drawArrows_ flag
-	 */
-	bool getDrawArrows() const {
-		return drawArrows_;
 	}
 
 	/*********************************************************************************************/
@@ -602,8 +592,6 @@ protected:
 		yDimProgress_ = p_load->yDimProgress_;
 		df_ = p_load->df_;
 		followProgress_ = p_load->followProgress_;
-		trackParentRelations_ = p_load->trackParentRelations_;
-		drawArrows_ = p_load->drawArrows_;
 		snapshotBaseName_ = p_load->snapshotBaseName_;
 		minX_ = p_load->minX_;
 		maxX_ = p_load->maxX_;
@@ -620,8 +608,6 @@ private:
 	boost::uint16_t yDimProgress_; ///< The dimension of the canvas in y-direction
 	demoFunction df_; ///< The id of the evaluation function
 	bool followProgress_; ///< Indicates whether a snapshot of the current individuals should be taken whenever the infoFunction is called
-	bool trackParentRelations_; ///< Indicates whether the relationship to parent individuals should be monitored in snapshots
-	bool drawArrows_; ///< Indicates whether arrows should be drawn from old parents to their children
 	std::string snapshotBaseName_; ///< The base name of the snapshot file
 	double minX_, maxX_; ///< Minimal and maximal x values for snapshots
 	double minY_, maxY_; ///< Minimal and maximal y values for snapshots

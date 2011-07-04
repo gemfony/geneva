@@ -61,10 +61,10 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	, nNeighborhoods_(nNeighborhoods?nNeighborhoods:1)
 	, defaultNNeighborhoodMembers_((nNeighborhoodMembers<=1)?2:nNeighborhoodMembers)
 	, nNeighborhoodMembers_(nNeighborhoods_)
-	, local_bests_(nNeighborhoods_)
+	, neighborhood_bests_(nNeighborhoods_)
 	, c_personal_(DEFAULTCPERSONAL)
-	, c_local_(DEFAULTCLOCAL)
-	, c_delta_(DEFAULTCDELTA)
+	, c_neighborhood_(DEFAULTCNEIGHBORHOOD)
+	, c_velocity_(DEFAULTCNEIGHBORHOOD)
 	, updateRule_(DEFAULTUPDATERULE)
 	, randomFillUp_(true)
 {
@@ -97,10 +97,10 @@ GSwarm::GSwarm(const GSwarm& cp)
 	, defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
 	, nNeighborhoodMembers_(cp.nNeighborhoodMembers_)
 	, global_best_((cp.getIteration()>0)?(cp.global_best_)->clone<GParameterSet>():boost::shared_ptr<GParameterSet>())
-	, local_bests_(nNeighborhoods_) // We copy the smart pointers over later
+	, neighborhood_bests_(nNeighborhoods_) // We copy the smart pointers over later
 	, c_personal_(cp.c_personal_)
-	, c_local_(cp.c_local_)
-	, c_delta_(cp.c_delta_)
+	, c_neighborhood_(cp.c_neighborhood_)
+	, c_velocity_(cp.c_velocity_)
 	, updateRule_(cp.updateRule_)
 	, randomFillUp_(cp.randomFillUp_)
 {
@@ -111,10 +111,10 @@ GSwarm::GSwarm(const GSwarm& cp)
 	// inside of the "optimize()" call.
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
-	// Clone cp's locally best individuals
+	// Clone cp's best individuals in each neighborhood
 	if(cp.getIteration()>0) {
 		for(std::size_t i=0; i<nNeighborhoods_; i++) {
-			local_bests_[i] = cp.local_bests_[i]->clone<GParameterSet>();
+			neighborhood_bests_[i] = cp.neighborhood_bests_[i]->clone<GParameterSet>();
 		}
 	}
 
@@ -164,8 +164,8 @@ void GSwarm::load_(const GObject *cp)
 	// ... and then our own data
 	defaultNNeighborhoodMembers_ = p_load->defaultNNeighborhoodMembers_;
 	c_personal_ = p_load->c_personal_;
-	c_local_ = p_load->c_local_;
-	c_delta_ = p_load->c_delta_;
+	c_neighborhood_ = p_load->c_neighborhood_;
+	c_velocity_ = p_load->c_velocity_;
 	updateRule_ = p_load->updateRule_;
 	randomFillUp_ = p_load->randomFillUp_;
 
@@ -174,40 +174,40 @@ void GSwarm::load_(const GObject *cp)
 		nNeighborhoods_ = p_load->nNeighborhoods_;
 
 		nNeighborhoodMembers_.clear();
-		local_bests_.clear();
+		neighborhood_bests_.clear();
 
 		nNeighborhoodMembers_.resize(nNeighborhoods_);
-		local_bests_.resize(nNeighborhoods_);
+		neighborhood_bests_.resize(nNeighborhoods_);
 
-		// Copy the local bests and number of neighborhood members over
+		// Copy the neighborhood bests and number of neighborhood members over
 		for(std::size_t i=0; i<nNeighborhoods_; i++) {
 			nNeighborhoodMembers_[i] = p_load->nNeighborhoodMembers_[i];
 			// The following only makes sense if this is not the first iteration. Note that
 			// getIteration will return the "foreign" GSwarm object's iteration, as it has
 			// already been copied.
 			if(getIteration() > 0) {
-				local_bests_[i] = p_load->local_bests_[i]->clone<GParameterSet>();
+				neighborhood_bests_[i] = p_load->neighborhood_bests_[i]->clone<GParameterSet>();
 			}
-			// we do not need to reset the local_bests_, as that array has just been created
+			// we do not need to reset the neighborhood_bests_, as that array has just been created
 		}
 	}
-	else { // We now assume that we can just load local bests in each position.
+	else { // We now assume that we can just load neighborhood bests in each position.
 		// Copying only makes sense if the foreign GSwarm object's iteration is > 0.
 		// Note that getIteration() will return the foreign iteration, as that value
 		// has already been copied.
 		if(getIteration() > 0) {
 			for(std::size_t i=0; i<nNeighborhoods_; i++) {
 				// We might be in a situation where the boost::shared_ptr which usually
-				// holds the local bests has not yet been initialized
-				if(local_bests_[i]) {
-					local_bests_[i]->GObject::load(p_load->local_bests_[i]);
+				// holds the neighborhood bests has not yet been initialized
+				if(neighborhood_bests_[i]) {
+					neighborhood_bests_[i]->GObject::load(p_load->neighborhood_bests_[i]);
 				} else {
-					local_bests_[i] = p_load->local_bests_[i]->clone<GParameterSet>();
+					neighborhood_bests_[i] = p_load->neighborhood_bests_[i]->clone<GParameterSet>();
 				}
 			}
 		} else {
 			for(std::size_t i=0; i<nNeighborhoods_; i++) {
-				local_bests_[i].reset();
+				neighborhood_bests_[i].reset();
 			}
 		}
 	}
@@ -299,21 +299,21 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", defaultNNeighborhoodMembers_, p_load->defaultNNeighborhoodMembers_, "defaultNNeighborhoodMembers_", "p_load->defaultNNeighborhoodMembers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", global_best_, p_load->global_best_, "global_best_", "p_load->global_best_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_personal_, p_load->c_personal_, "c_personal_", "p_load->c_personal_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_local_, p_load->c_local_, "c_local_", "p_load->c_local_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_delta_, p_load->c_delta_, "c_delta_", "p_load->c_delta_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_neighborhood_, p_load->c_neighborhood_, "c_neighborhood_", "p_load->c_neighborhood_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_velocity_, p_load->c_velocity_, "c_velocity_", "p_load->c_velocity_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", updateRule_, p_load->updateRule_, "updateRule_", "p_load->updateRule_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", randomFillUp_, p_load->randomFillUp_, "randomFillUp_", "p_load->randomFillUp_", e , limit));
 
 	// The next checks only makes sense if the number of neighborhoods are equal
 	if(nNeighborhoods_ == p_load->nNeighborhoods_) {
 		for(std::size_t i=0; i<nNeighborhoods_; i++) {
-			std::string local = "nNeighborhoodMembers_[" + boost::lexical_cast<std::string>(i) + "]";
+			std::string nbh = "nNeighborhoodMembers_[" + boost::lexical_cast<std::string>(i) + "]";
 			std::string remote = "(p_load->nNeighborhoodMembers_)[" + boost::lexical_cast<std::string>(i) + "]";
-			deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoodMembers_[i], (p_load->nNeighborhoodMembers_)[i], local, remote, e , limit));
+			deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoodMembers_[i], (p_load->nNeighborhoodMembers_)[i], nbh, remote, e , limit));
 
-			// No local bests have been assigned yet in iteration 0
+			// No neighborhood bests have been assigned yet in iteration 0
 			if(getIteration() > 0) {
-				deviations.push_back(checkExpectation(withMessages, "GSwarm", local_bests_[i], p_load->local_bests_[i], local, remote, e , limit));
+				deviations.push_back(checkExpectation(withMessages, "GSwarm", neighborhood_bests_[i], p_load->neighborhood_bests_[i], nbh, remote, e , limit));
 			}
 		}
 	}
@@ -575,12 +575,12 @@ void GSwarm::updatePersonalBestIfBetter(
  */
 double GSwarm::cycleLogic() {
 	// Modifies the individuals' parameters, then triggers the fitness calculation of all individuals
-	// and identifies the local and global bests. This function can be overloaded in derived classes
-	// so that part of the modification and/or fitness calculation are performed in parallel.
+	// and identifies the personal, neighborhood and global bests. This function can be overloaded in
+	// derived classes, so that part of the modification and/or fitness calculation are performed in parallel.
 	swarmLogic();
 
-	// Search for the locally and globally best individuals in all neighborhoods and
-	// update the list of locally best solutions, if necessary
+	// Search for the personal, neighborhood and globally best individuals and
+	// update the lists of best solutions, if necessary
 	double bestLocalFitness = findBests();
 
 	// Makes sure that each neighborhood has the right size before the next cycle starts
@@ -603,10 +603,10 @@ void GSwarm::swarmLogic() {
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
 #ifdef DEBUG
 		if(iteration > 0) {
-			if(!local_bests_[neighborhood]) {
+			if(!neighborhood_bests_[neighborhood]) {
 				raiseException(
 						"In GSwarm::swarmLogic():" << std::endl
-						<< "local_bests[" << neighborhood << "] is empty."
+						<< "neighborhood_bests_[" << neighborhood << "] is empty."
 				);
 			}
 
@@ -630,12 +630,12 @@ void GSwarm::swarmLogic() {
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
 			GSwarm::iterator current = start + offset;
 
-			// Note: global/local bests and velocities haven't been determined yet in iteration 0 and are not needed there
-			updateSwarm (
+			// Note: global/neighborhood bests and velocities haven't been determined yet in iteration 0 and are not needed there
+			updateSwarmIndividual (
 				iteration
 				, neighborhood
 				, (*current)
-				, iteration>0?(local_bests_[neighborhood]->clone<GParameterSet>()):boost::shared_ptr<GParameterSet>()
+				, iteration>0?(neighborhood_bests_[neighborhood]->clone<GParameterSet>()):boost::shared_ptr<GParameterSet>()
 #ifdef DEBUG
 				, iteration>0?velocities_.at(offset):boost::shared_ptr<GParameterSet>()
 #else
@@ -643,8 +643,8 @@ void GSwarm::swarmLogic() {
 #endif /* DEBUG */
 				, boost::make_tuple(
 					getCPersonal()
-					, getCLocal()
-					, getCDelta()
+					, getCNeighborhood()
+					, getCVelocity()
 				  )
 			);
 
@@ -659,16 +659,16 @@ void GSwarm::swarmLogic() {
  *
  * @param neighborhood The neighborhood that has been assigned to the individual
  * @param ind The individual whose position should be updated
- * @param local_best_tmp The locally best dataset of the individual's neighborhood
+ * @param neighborhood_best_tmp The best dataset of the individual's neighborhood
  * @param global_best_tmp The globally best individual so far
  * @param velocity A velocity vector
  * @param constants A boost::tuple holding the various constants needed for the position update
  */
-void GSwarm::updateSwarm(
+void GSwarm::updateSwarmIndividual(
 	  const boost::uint32_t& iteration
 	  , const std::size_t& neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
-	  , boost::shared_ptr<GParameterSet> local_best_tmp
+	  , boost::shared_ptr<GParameterSet> neighborhood_best_tmp
 	  , boost::shared_ptr<GParameterSet> velocity
 	  , boost::tuple<double, double, double> constants
 ){
@@ -677,7 +677,7 @@ void GSwarm::updateSwarm(
 		updatePositions(
 		  neighborhood
 		  , ind
-		  , local_best_tmp
+		  , neighborhood_best_tmp
 		  , velocity
 		  , constants
 		);
@@ -689,6 +689,101 @@ void GSwarm::updateSwarm(
 		, neighborhood
 		, ind
 	);
+}
+
+/************************************************************************************************************/
+/**
+ * Update the individual's positions. Note that we use a boost::tuple as an argument,
+ * so that we do not have to pass too many parameters (problematic with boost::bind).
+ *
+ * @param neighborhood The neighborhood that has been assigned to the individual
+ * @param ind The individual whose position should be updated
+ * @param neighborhood_best_tmp The best dataset of the individual's neighborhood
+ * @param global_best_tmp The globally best individual so far
+ * @param velocity A velocity vector
+ * @param constants A boost::tuple holding the various constants needed for the position update
+ */
+void GSwarm::updatePositions(
+	  const std::size_t& neighborhood
+	  , boost::shared_ptr<GParameterSet> ind
+	  , boost::shared_ptr<GParameterSet> neighborhood_best_tmp
+	  , boost::shared_ptr<GParameterSet> velocity
+	  , boost::tuple<double, double, double> constants
+) {
+	// Extract the constants from the tuple
+	double cPersonal = constants.get<0>();
+	double cNeighborhood = constants.get<1>();
+	double cVelocity = constants.get<2>();
+
+#ifdef DEBUG
+	// Do some error checking
+	if(!ind) {
+		raiseException(
+				"In GSwarm::updatePositions():" << std::endl
+				<< "Found empty individual \"ind\""
+		);
+	}
+#endif /* DEBUG */
+
+	// Extract the personal best
+	boost::shared_ptr<GParameterSet> personal_best_tmp =
+			ind->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBest()->clone<GParameterSet>();
+
+	// Further error checks
+#ifdef DEBUG
+	if(!personal_best_tmp) {
+		raiseException(
+				"In GSwarm::updatePositions():" << std::endl
+				<< "Found empty individual \"personal_best_tmp\""
+		);
+	}
+
+	if(!neighborhood_best_tmp) {
+		raiseException(
+				"In GSwarm::updatePositions():" << std::endl
+				<< "Found empty individual \"neighborhood_best_tmp\""
+		);
+	}
+
+	if(!velocity) {
+		raiseException(
+				"In GSwarm::updatePositions():" << std::endl
+				<< "Found empty individual \"velocity\""
+		);
+	}
+
+#endif /* DEBUG */
+
+	// Subtract the current individual
+	personal_best_tmp->fpSubtract(ind);
+	neighborhood_best_tmp->fpSubtract(ind);
+
+	switch(updateRule_) {
+	case CLASSIC:
+		// Multiply each floating point value with a random fp number in the range [0,1[
+		personal_best_tmp->fpMultiplyByRandom();
+		neighborhood_best_tmp->fpMultiplyByRandom();
+		break;
+	case LINEAR:
+		// Multiply neighborhood_best_tmp and global_best_tmp with a single [0,1[ random number each
+		personal_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
+		neighborhood_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
+		break;
+	}
+
+	// Multiply each floating point value with a fixed, configurable constant value
+	personal_best_tmp->fpMultiplyBy(cPersonal);
+	neighborhood_best_tmp->fpMultiplyBy(cNeighborhood);
+
+	// Multiply the last iterations velocity with a fixed, configurable constant value
+	velocity->fpMultiplyBy(cVelocity);
+
+	// Add the personal and neighborhood temporaries
+	velocity->fpAdd(personal_best_tmp);
+	velocity->fpAdd(neighborhood_best_tmp);
+
+	// Add the velocity to the current individual
+	ind->fpAdd(velocity);
 }
 
 /************************************************************************************************************/
@@ -724,103 +819,8 @@ void GSwarm::updateFitness(
 
 /************************************************************************************************************/
 /**
- * Update the individual's positions. Note that we use a boost::tuple as an argument,
- * so that we do not have to pass too many parameters (problematic with boost::bind).
- *
- * @param neighborhood The neighborhood that has been assigned to the individual
- * @param ind The individual whose position should be updated
- * @param local_best_tmp The locally best dataset of the individual's neighborhood
- * @param global_best_tmp The globally best individual so far
- * @param velocity A velocity vector
- * @param constants A boost::tuple holding the various constants needed for the position update
- */
-void GSwarm::updatePositions(
-	  const std::size_t& neighborhood
-	  , boost::shared_ptr<GParameterSet> ind
-	  , boost::shared_ptr<GParameterSet> local_best_tmp
-	  , boost::shared_ptr<GParameterSet> velocity
-	  , boost::tuple<double, double, double> constants
-) {
-	// Extract the constants from the tuple
-	double cPersonal = constants.get<0>();
-	double cLocal = constants.get<1>();
-	double cDelta = constants.get<2>();
-
-#ifdef DEBUG
-	// Do some error checking
-	if(!ind) {
-		raiseException(
-				"In GSwarm::updatePositions():" << std::endl
-				<< "Found empty individual \"ind\""
-		);
-	}
-#endif /* DEBUG */
-
-	// Extract the personal best
-	boost::shared_ptr<GParameterSet> personal_best_tmp =
-			ind->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBest()->clone<GParameterSet>();
-
-	// Further error checks
-#ifdef DEBUG
-	if(!personal_best_tmp) {
-		raiseException(
-				"In GSwarm::updatePositions():" << std::endl
-				<< "Found empty individual \"personal_best_tmp\""
-		);
-	}
-
-	if(!local_best_tmp) {
-		raiseException(
-				"In GSwarm::updatePositions():" << std::endl
-				<< "Found empty individual \"local_best_tmp\""
-		);
-	}
-
-	if(!velocity) {
-		raiseException(
-				"In GSwarm::updatePositions():" << std::endl
-				<< "Found empty individual \"velocity\""
-		);
-	}
-
-#endif /* DEBUG */
-
-	// Subtract the current individual
-	personal_best_tmp->fpSubtract(ind);
-	local_best_tmp->fpSubtract(ind);
-
-	switch(updateRule_) {
-	case CLASSIC:
-		// Multiply each floating point value with a random fp number in the range [0,1[
-		personal_best_tmp->fpMultiplyByRandom();
-		local_best_tmp->fpMultiplyByRandom();
-		break;
-	case LINEAR:
-		// Multiply local_best_tmp and global_best_tmp with a single [0,1[ random number each
-		personal_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
-		local_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
-		break;
-	}
-
-	// Multiply each floating point value with a fixed, configurable constant value
-	personal_best_tmp->fpMultiplyBy(cPersonal);
-	local_best_tmp->fpMultiplyBy(cLocal);
-
-	// Multiply the last iterations velocity with a fixed, configurable constant value
-	velocity->fpMultiplyBy(cDelta);
-
-	// Add the personal abd local temporaries
-	velocity->fpAdd(personal_best_tmp);
-	velocity->fpAdd(local_best_tmp);
-
-	// Add the velocity to the current individual
-	ind->fpAdd(velocity);
-}
-
-/************************************************************************************************************/
-/**
  * Updates the best individuals found. This function assumes that the population already contains individuals
- * and that the local and global bests have been initialized (possibly with dummy values). This should have
+ * and that the neighborhood and global bests have been initialized (possibly with dummy values). This should have
  * happened in the adjustPopulation() function. It also assumes that all individuals have already been evaluated.
  *
  * @return The best evaluation found in this iteration
@@ -860,33 +860,35 @@ double GSwarm::findBests() {
 		// Check whether the best individual of the neighborhood is better than
 		// the best individual found so far in this neighborhood
 		if(getIteration() == 0) {
-			local_bests_[neighborhood] = (*(this->begin() + firstCounter))->clone<GParameterSet>();
+			neighborhood_bests_[neighborhood] = (*(this->begin() + firstCounter))->clone<GParameterSet>();
 		}
 		else {
-			if(isBetter((*(this->begin() + firstCounter))->fitness(0), local_bests_[neighborhood]->fitness(0))) {
-				local_bests_[neighborhood]->load(*(this->begin() + firstCounter));
+			if(isBetter((*(this->begin() + firstCounter))->fitness(0), neighborhood_bests_[neighborhood]->fitness(0))) {
+				neighborhood_bests_[neighborhood]->load(*(this->begin() + firstCounter));
 			}
-		}
-
-		// Find out which is the "best local best"
-		if(isBetter((*(this->begin() + firstCounter))->fitness(0), bestCurrentLocalFitness)) {
-			bestCurrentLocalFitness = (*(this->begin() + firstCounter))->fitness(0);
-			bestCurrentLocalId = neighborhood;
 		}
 	}
 
-	// Compare the best local individual with the global best and update
-	// the global best, if necessary. Initialize it in the first generation.
+	// Identify the best individuals of each neighborbood
+	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+		if(isBetter(neighborhood_bests_[neighborhood]->fitness(0), bestCurrentLocalFitness)) {
+			bestCurrentLocalId = neighborhood;
+			bestCurrentLocalFitness = neighborhood_bests_[neighborhood]->fitness(0);
+		}
+	}
+
+	// Compare the best neighborhood individual with the globally best indivdual and
+	// update it, if necessary. Initialize it in the first generation.
 	if(getIteration() == 0) {
-		global_best_= local_bests_[bestCurrentLocalId]->clone<GParameterSet>();
+		global_best_= neighborhood_bests_[bestCurrentLocalId]->clone<GParameterSet>();
 	}
 	else {
 		if(isBetter(bestCurrentLocalFitness, global_best_->fitness(0))) {
-			global_best_->load(local_bests_[bestCurrentLocalId]);
+			global_best_->load(neighborhood_bests_[bestCurrentLocalId]);
 		}
 	}
 
-	return bestCurrentLocalFitness;
+	return global_best_->fitness(0);
 }
 
 /************************************************************************************************************/
@@ -1022,7 +1024,7 @@ void GSwarm::adjustPopulation() {
 	}
 #endif /* DEBUG */
 
-	// We do not initialize the local and global bests here, as this requires the value of
+	// We do not initialize the neighborhood and global bests here, as this requires the value of
 	// all individuals to be calculated.
 }
 
@@ -1085,6 +1087,8 @@ bool GSwarm::neighborhoodsHaveNominalValues() const {
 /************************************************************************************************************/
 /**
  * Allows to set a static multiplier for personal distances.
+ *
+ * @param c_personal A static multiplier for personal distances
  */
 void GSwarm::setCPersonal(const double& c_personal) {
 	c_personal_ = c_personal;
@@ -1092,7 +1096,9 @@ void GSwarm::setCPersonal(const double& c_personal) {
 
 /************************************************************************************************************/
 /**
- * Allows to retrieve the static multiplier for local distances
+ * Allows to retrieve the static multiplier for personal distances
+ *
+ * @return The static multiplier for personal distances
  */
 double GSwarm::getCPersonal() const {
 	return c_personal_;
@@ -1100,34 +1106,42 @@ double GSwarm::getCPersonal() const {
 
 /************************************************************************************************************/
 /**
- * Allows to set a static multiplier for local distances.
+ * Allows to set a static multiplier for neighborhood distances.
+ *
+ * @param c_neighborhood A static multiplier for neighborhood distances
  */
-void GSwarm::setCLocal(const double& c_local) {
-	c_local_ = c_local;
+void GSwarm::setCNeighborhood(const double& c_neighborhood) {
+	c_neighborhood_ = c_neighborhood;
 }
 
 /************************************************************************************************************/
 /**
- * Allows to retrieve the static multiplier for local distances
+ * Allows to retrieve the static multiplier for neighborhood distances
+ *
+ * @return A static multiplier for neighborhood distances
  */
-double GSwarm::getCLocal() const {
-	return c_local_;
+double GSwarm::getCNeighborhood() const {
+	return c_neighborhood_;
 }
 
 /************************************************************************************************************/
 /**
- * Allows to set a static multiplier for deltas
+ * Allows to set a static multiplier for velocities
+ *
+ * @param c_velocity A static multiplier for velocities
  */
-void GSwarm::setCDelta(const double& c_delta) {
-	c_delta_ = c_delta;
+void GSwarm::setCVelocity(const double& c_velocity) {
+	c_velocity_ = c_velocity;
 }
 
 /************************************************************************************************************/
 /**
- * Allows to retrieve the static multiplier for deltas
+ * Allows to retrieve the static multiplier for velocities
+ *
+ * @return The static multiplier for velocities
  */
-double GSwarm::getCDelta() const {
-	return c_delta_;
+double GSwarm::getCVelocity() const {
+	return c_velocity_;
 }
 
 /************************************************************************************************************/

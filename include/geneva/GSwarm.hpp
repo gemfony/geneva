@@ -88,10 +88,10 @@ class GSwarm
 		   & BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_)
 		   & BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
 		   & BOOST_SERIALIZATION_NVP(global_best_)
-		   & BOOST_SERIALIZATION_NVP(local_bests_)
+		   & BOOST_SERIALIZATION_NVP(neighborhood_bests_)
 		   & BOOST_SERIALIZATION_NVP(c_personal_)
-		   & BOOST_SERIALIZATION_NVP(c_local_)
-		   & BOOST_SERIALIZATION_NVP(c_delta_)
+		   & BOOST_SERIALIZATION_NVP(c_neighborhood_)
+		   & BOOST_SERIALIZATION_NVP(c_velocity_)
 		   & BOOST_SERIALIZATION_NVP(updateRule_)
 		   & BOOST_SERIALIZATION_NVP(randomFillUp_);
 	}
@@ -131,15 +131,15 @@ public:
 	/** @brief Allows to retrieve the static multiplier for personal distances */
 	double getCPersonal() const;
 
-	/** @brief Allows to set a static multiplier for local distances */
-	void setCLocal(const double&);
-	/** @brief Allows to retrieve the static multiplier for local distances */
-	double getCLocal() const;
+	/** @brief Allows to set a static multiplier for neighborhood distances */
+	void setCNeighborhood(const double&);
+	/** @brief Allows to retrieve the static multiplier for neighborhood distances */
+	double getCNeighborhood() const;
 
-	/** @brief Allows to set a static multiplier for deltas */
-	void setCDelta(const double&);
-	/** @brief Allows to retrieve the static multiplier for deltas */
-	double getCDelta() const;
+	/** @brief Allows to set a static multiplier for velocities */
+	void setCVelocity(const double&);
+	/** @brief Allows to retrieve the static multiplier for velocities */
+	double getCVelocity() const;
 
 	/** @brief Retrieves the number of neighborhoods */
 	std::size_t getNNeighborhoods() const;
@@ -213,14 +213,14 @@ public:
 		}
 
 		// Check that pointer actually points somewhere
-		if(!local_bests_[neighborhood]) {
+		if(!neighborhood_bests_[neighborhood]) {
 			raiseException(
 					"In GSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
-					<< "Tried to access uninitialized locally best individual."
+					<< "Tried to access uninitialized best individual in neighborhood."
 			);
 		}
 
-		boost::shared_ptr<parameterset_type> p = boost::dynamic_pointer_cast<parameterset_type>(local_bests_[neighborhood]);
+		boost::shared_ptr<parameterset_type> p = boost::dynamic_pointer_cast<parameterset_type>(neighborhood_bests_[neighborhood]);
 
 		if(p) return p;
 		else {
@@ -229,7 +229,7 @@ public:
 			);
 		}
 #else
-		return boost::static_pointer_cast<parameterset_type>(local_bests_[neighborhood]);
+		return boost::static_pointer_cast<parameterset_type>(neighborhood_bests_[neighborhood]);
 #endif /* DEBUG */
 	}
 
@@ -284,7 +284,7 @@ protected:
 	);
 
 	/** @brief Updates the individual's position and performs the fitness calculation */
-	void updateSwarm (
+	void updateSwarmIndividual (
 		  const boost::uint32_t&
 		  , const std::size_t&
 		  , boost::shared_ptr<GParameterSet>
@@ -301,12 +301,12 @@ protected:
 	std::vector<std::size_t> nNeighborhoodMembers_; ///< The current number of individuals belonging to each neighborhood
 
 	boost::shared_ptr<GParameterSet> global_best_; ///< The globally best individual
-	std::vector<boost::shared_ptr<GParameterSet> > local_bests_; ///< The collection of best individuals from each neighborhood
+	std::vector<boost::shared_ptr<GParameterSet> > neighborhood_bests_; ///< The collection of best individuals from each neighborhood
 	std::vector<boost::shared_ptr<GParameterSet> > velocities_; ///< Holds velocities, as calculated in the previous iteration
 
 	double c_personal_; ///< A factor for multiplication of personal bests
-	double c_local_; ///< A factor for multiplication of local bests
-	double c_delta_; ///< A factor for multiplication of deltas
+	double c_neighborhood_; ///< A factor for multiplication of neighborhood bests
+	double c_velocity_; ///< A factor for multiplication of velocities
 
 	updateRule updateRule_; ///< Specifies how the parameters are updated
 	bool randomFillUp_; ///< Specifies whether neighborhoods are filled up with random values

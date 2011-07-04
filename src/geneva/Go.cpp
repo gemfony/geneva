@@ -78,8 +78,8 @@ Go::Go()
 	, swarmNNeighborhoodMembers_(GO_DEF_SWARMNNEIGHBORHOODMEMBERS)
 	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
 	, swarmCPersonal_(GO_DEF_SWARMCPERSONAL)
-	, swarmCLocal_(GO_DEF_SWARMCLOCAL)
-	, swarmCDelta_(GO_DEF_SWARMCCDELTA)
+	, swarmCNeighborhood_(GO_DEF_SWARMCNEIGHBORHOOD)
+	, swarmCVelocity_(GO_DEF_SWARMCVELOCITY)
 	, swarmUpdateRule_(GO_DEF_SWARMUPDATERULE)
 	, gdNStartingPoints_(GO_DEF_GDNSTARTINGPOINTS)
 	, gdFiniteStep_(GO_DEF_GDFINITESTEP)
@@ -138,8 +138,8 @@ Go::Go(int argc, char **argv, const std::string& configFilename)
 	, swarmNNeighborhoodMembers_(GO_DEF_SWARMNNEIGHBORHOODMEMBERS)
 	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
 	, swarmCPersonal_(GO_DEF_SWARMCPERSONAL)
-	, swarmCLocal_(GO_DEF_SWARMCLOCAL)
-	, swarmCDelta_(GO_DEF_SWARMCCDELTA)
+	, swarmCNeighborhood_(GO_DEF_SWARMCNEIGHBORHOOD)
+	, swarmCVelocity_(GO_DEF_SWARMCVELOCITY)
 	, swarmUpdateRule_(GO_DEF_SWARMUPDATERULE)
 	, gdNStartingPoints_(GO_DEF_GDNSTARTINGPOINTS)
 	, gdFiniteStep_(GO_DEF_GDFINITESTEP)
@@ -224,8 +224,8 @@ Go::Go(
 	, swarmNNeighborhoodMembers_(GO_DEF_SWARMNNEIGHBORHOODMEMBERS)
 	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
 	, swarmCPersonal_(GO_DEF_SWARMCPERSONAL)
-	, swarmCLocal_(GO_DEF_SWARMCLOCAL)
-	, swarmCDelta_(GO_DEF_SWARMCCDELTA)
+	, swarmCNeighborhood_(GO_DEF_SWARMCNEIGHBORHOOD)
+	, swarmCVelocity_(GO_DEF_SWARMCVELOCITY)
 	, swarmUpdateRule_(GO_DEF_SWARMUPDATERULE)
 	, gdNStartingPoints_(GO_DEF_GDNSTARTINGPOINTS)
 	, gdFiniteStep_(GO_DEF_GDFINITESTEP)
@@ -282,8 +282,8 @@ Go::Go(const Go& cp)
 	, swarmNNeighborhoodMembers_(cp.swarmNNeighborhoodMembers_)
 	, swarmRandomFillUp_(cp.swarmRandomFillUp_)
 	, swarmCPersonal_(cp.swarmCPersonal_)
-	, swarmCLocal_(cp.swarmCLocal_)
-	, swarmCDelta_(cp.swarmCDelta_)
+	, swarmCNeighborhood_(cp.swarmCNeighborhood_)
+	, swarmCVelocity_(cp.swarmCVelocity_)
 	, swarmUpdateRule_(cp.swarmUpdateRule_)
 	, gdNStartingPoints_(cp.gdNStartingPoints_)
 	, gdFiniteStep_(cp.gdFiniteStep_)
@@ -420,8 +420,8 @@ boost::optional<std::string> Go::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmNNeighborhoodMembers_, p_load->swarmNNeighborhoodMembers_, "swarmNNeighborhoodMembers_", "p_load->swarmNNeighborhoodMembers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmRandomFillUp_, p_load->swarmRandomFillUp_, "swarmRandomFillUp_", "p_load->swarmRandomFillUp_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmCPersonal_, p_load->swarmCPersonal_, "swarmCPersonal_", "p_load->swarmCPersonal_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go", swarmCLocal_, p_load->swarmCLocal_, "swarmCLocal_", "p_load->swarmCLocal_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go", swarmCDelta_, p_load->swarmCDelta_, "swarmCDelta_", "p_load->swarmCDelta_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", swarmCNeighborhood_, p_load->swarmCNeighborhood_, "swarmCNeighborhood_", "p_load->swarmCNeighborhood_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", swarmCVelocity_, p_load->swarmCVelocity_, "swarmCVelocity_", "p_load->swarmCVelocity_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", swarmUpdateRule_, p_load->swarmUpdateRule_, "swarmUpdateRule_", "p_load->swarmUpdateRule_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", gdNStartingPoints_, p_load->gdNStartingPoints_, "gdNStartingPoints_", "p_load->gdNStartingPoints_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", gdFiniteStep_, p_load->gdFiniteStep_, "gdFiniteStep_", "p_load->gdFiniteStep_", e , limit));
@@ -482,8 +482,8 @@ void Go::load_(const GObject *cp) {
 	swarmNNeighborhoodMembers_ = p_load->swarmNNeighborhoodMembers_;
 	swarmRandomFillUp_ = p_load->swarmRandomFillUp_;
 	swarmCPersonal_ = p_load->swarmCPersonal_;
-	swarmCLocal_ = p_load->swarmCLocal_;
-	swarmCDelta_ = p_load->swarmCDelta_;
+	swarmCNeighborhood_ = p_load->swarmCNeighborhood_;
+	swarmCVelocity_ = p_load->swarmCVelocity_;
 	swarmUpdateRule_ = p_load->swarmUpdateRule_;
 	gdNStartingPoints_ = p_load->gdNStartingPoints_;
 	gdFiniteStep_ = p_load->gdFiniteStep_;
@@ -1295,10 +1295,10 @@ float Go::getSwarmCPersonal() const {
 /**
  * Allows to set the desired value of the swarm algorithm's CLocal parameter
  *
- * @param swarmCLocal The desired value of the swarm algorithm's CLocal parameter
+ * @param swarmCNeighborhood The desired value of the swarm algorithm's CLocal parameter
  */
-void Go::setSwarmCLocal(const float& swarmCLocal) {
-	swarmCLocal_ = swarmCLocal;
+void Go::setSwarmCNeighborhood(const float& swarmCNeighborhood) {
+	swarmCNeighborhood_ = swarmCNeighborhood;
 }
 
 /**************************************************************************************/
@@ -1307,28 +1307,28 @@ void Go::setSwarmCLocal(const float& swarmCLocal) {
  *
  * @return The current value of the swarm algorithm's CLocal parameter
  */
-float Go::getSwarmCLocal() const {
-	return swarmCLocal_;
+float Go::getSwarmCNeighborhood() const {
+	return swarmCNeighborhood_;
 }
 
 /**************************************************************************************/
 /**
- * Allows to set the desired value of the swarm algorithm's CDelta parameter
+ * Allows to set the desired value of the swarm algorithm's CVelocity parameter
  *
- * @param swarmCDelta The desired valuze of the swarm algorithm's CDelta parameter
+ * @param swarmCVelocity The desired value of the swarm algorithm's CVelocity parameter
  */
-void Go::setSwarmCDelta(const float& swarmCDelta) {
-	swarmCDelta_ = swarmCDelta;
+void Go::setSwarmCVelocity(const float& swarmCVelocity) {
+	swarmCVelocity_ = swarmCVelocity;
 }
 
 /**************************************************************************************/
 /**
- * Allows to retrieve the current value of the swarm algorithm's CDelta parameter
+ * Allows to retrieve the current value of the swarm algorithm's CVelocity parameter
  *
- * @return The current value of the swarm algorithm's CDelta parameter
+ * @return The current value of the swarm algorithm's CVelocity parameter
  */
-float Go::getSwarmCDelta() const {
-	return swarmCDelta_;
+float Go::getSwarmCVelocity() const {
+	return swarmCVelocity_;
 }
 
 /**************************************************************************************/
@@ -1535,8 +1535,8 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 		("swarmNNeighborhoodMembers", po::value<std::size_t>(&swarmNNeighborhoodMembers_)->default_value(GO_DEF_SWARMNNEIGHBORHOODMEMBERS))
 		("swarmRandomFillUp", po::value<bool>(&swarmRandomFillUp_)->default_value(GO_DEF_SWARMRANDOMFILLUP))
 		("swarmCPersonal", po::value<float>(&swarmCPersonal_)->default_value(GO_DEF_SWARMCPERSONAL))
-		("swarmCLocal", po::value<float>(&swarmCLocal_)->default_value(GO_DEF_SWARMCLOCAL))
-		("swarmCDelta", po::value<float>(&swarmCDelta_)->default_value(GO_DEF_SWARMCCDELTA))
+		("swarmCNeighborhood", po::value<float>(&swarmCNeighborhood_)->default_value(GO_DEF_SWARMCNEIGHBORHOOD))
+		("swarmCVelocity", po::value<float>(&swarmCVelocity_)->default_value(GO_DEF_SWARMCVELOCITY))
 		("swarmUpdateRule", po::value<updateRule>(&swarmUpdateRule_)->default_value(GO_DEF_SWARMUPDATERULE))
 		("gdNStartingPoints", po::value<std::size_t>(&gdNStartingPoints_)->default_value(GO_DEF_GDNSTARTINGPOINTS))
 		("gdFiniteStep", po::value<float>(&gdFiniteStep_)->default_value(GO_DEF_GDFINITESTEP))
@@ -1582,8 +1582,8 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 					  << "swarmNNeighborhoodMembers = " << swarmNNeighborhoodMembers_ << std::endl
 					  << "swarmRandomFillUp = " << swarmRandomFillUp_ << std::endl
 					  << "swarmCPersonal = " << swarmCPersonal_ << std::endl
-					  << "swarmCLocal = " << swarmCLocal_ << std::endl
-					  << "swarmCDelta = " << swarmCDelta_ << std::endl
+					  << "swarmCNeighborhood = " << swarmCNeighborhood_ << std::endl
+					  << "swarmCVelocity = " << swarmCVelocity_ << std::endl
 					  << "swarmUpdateRule = " << swarmUpdateRule_ << std::endl
 					  << "gdNStartingPoints = " << gdNStartingPoints_ << std::endl
 					  << "gdFiniteStep = " << gdFiniteStep_ << std::endl

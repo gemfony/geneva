@@ -1011,7 +1011,7 @@ protected:
 	 *
 	 * @param newValue The new value
 	 * @param oldValue The old value
-	 * @return true of newValue is better than oldValue, otherwise false.
+	 * @return true if newValue is better than oldValue, otherwise false.
 	 */
 	bool isBetter(double newValue, const double& oldValue) const {
 		if(this->getMaxMode()) {

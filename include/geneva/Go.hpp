@@ -104,8 +104,8 @@ const std::size_t GO_DEF_SWARMNNEIGHBORHOODS=5;
 const std::size_t GO_DEF_SWARMNNEIGHBORHOODMEMBERS=10;
 const bool GO_DEF_SWARMRANDOMFILLUP=1;
 const float GO_DEF_SWARMCPERSONAL=0.05;
-const float GO_DEF_SWARMCLOCAL=2.;
-const float GO_DEF_SWARMCCDELTA=0.4;
+const float GO_DEF_SWARMCNEIGHBORHOOD=2.;
+const float GO_DEF_SWARMCVELOCITY=0.4;
 const updateRule GO_DEF_SWARMUPDATERULE=CLASSIC;
 const std::size_t GO_DEF_GDNSTARTINGPOINTS=1;
 const float GO_DEF_GDFINITESTEP=0.0000001;
@@ -168,8 +168,8 @@ class Go
 	     & BOOST_SERIALIZATION_NVP(swarmNNeighborhoodMembers_)
 	     & BOOST_SERIALIZATION_NVP(swarmRandomFillUp_)
 	     & BOOST_SERIALIZATION_NVP(swarmCPersonal_)
-	     & BOOST_SERIALIZATION_NVP(swarmCLocal_)
-	     & BOOST_SERIALIZATION_NVP(swarmCDelta_)
+	     & BOOST_SERIALIZATION_NVP(swarmCNeighborhood_)
+	     & BOOST_SERIALIZATION_NVP(swarmCVelocity_)
 	     & BOOST_SERIALIZATION_NVP(swarmUpdateRule_)
 	     & BOOST_SERIALIZATION_NVP(gdNStartingPoints_)
 	     & BOOST_SERIALIZATION_NVP(gdFiniteStep_)
@@ -338,11 +338,11 @@ public:
 	void setSwarmCPersonal(const float&);
 	float getSwarmCPersonal() const;
 
-	void setSwarmCLocal(const float&);
-	float getSwarmCLocal() const;
+	void setSwarmCNeighborhood(const float&);
+	float getSwarmCNeighborhood() const;
 
-	void setSwarmCDelta(const float&);
-	float getSwarmCDelta() const;
+	void setSwarmCVelocity(const float&);
+	float getSwarmCVelocity() const;
 
 	void setSwarmUpdateRule(const updateRule&);
 	updateRule getSwarmUpdateRule() const;
@@ -565,10 +565,10 @@ public:
 	       << "swarmCPersonal = " << GO_DEF_SWARMCPERSONAL << std::endl
 	       << std::endl
 	       << "# A multiplicative factor for local updates" << std::endl
-	       << "swarmCLocal = " << GO_DEF_SWARMCLOCAL << std::endl
+	       << "swarmCNeighborhood = " << GO_DEF_SWARMCNEIGHBORHOOD << std::endl
 	       << std::endl
 	       << "# A multiplicative factor for velocities" << std::endl
-	       << "swarmCDelta = " << GO_DEF_SWARMCCDELTA << std::endl
+	       << "swarmCVelocity = " << GO_DEF_SWARMCVELOCITY << std::endl
 	       << std::endl
 	       << "# Indicates whether the linear (0) or classic (1)" << std::endl
 	       << "# update rule should be used" << std::endl
@@ -797,8 +797,8 @@ private:
 			swarm_ptr->setNeighborhoodsEqualFillUp();
 		}
 		swarm_ptr->setCPersonal(swarmCPersonal_);
-		swarm_ptr->setCLocal(swarmCLocal_);
-		swarm_ptr->setCDelta(swarmCDelta_);
+		swarm_ptr->setCNeighborhood(swarmCNeighborhood_);
+		swarm_ptr->setCVelocity(swarmCVelocity_);
 		swarm_ptr->setUpdateRule(swarmUpdateRule_);
 
 		// Set some general population settings
@@ -1024,8 +1024,8 @@ private:
     std::size_t swarmNNeighborhoodMembers_; ///< The number of members in each neighborhood
     bool swarmRandomFillUp_; ///< Specifies whether neighborhoods are filled up with random values
     float swarmCPersonal_; ///< A factor for multiplication of personal bests
-    float swarmCLocal_; ///< A factor for multiplication of local bests
-	float swarmCDelta_; ///< A factor for multiplication of deltas
+    float swarmCNeighborhood_; ///< A factor for multiplication of local bests
+	float swarmCVelocity_; ///< A factor for multiplication of velocities
 	updateRule swarmUpdateRule_; ///< Specifies how the parameters are updated
 
     // Gradient descent parameters

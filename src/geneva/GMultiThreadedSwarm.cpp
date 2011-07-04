@@ -238,10 +238,10 @@ void GMultiThreadedSwarm::swarmLogic() {
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
 #ifdef DEBUG
 		if(getIteration() > 0) {
-			if(!local_bests_[neighborhood]) {
+			if(!neighborhood_bests_[neighborhood]) {
 				raiseException(
 						"In GMultiThreadedSwarm::swarmLogic():" << std::endl
-						<< "local_bests[" << neighborhood << "] is empty."
+						<< "neighborhood_bests_[" << neighborhood << "] is empty."
 				);
 			}
 
@@ -258,16 +258,16 @@ void GMultiThreadedSwarm::swarmLogic() {
 			GMultiThreadedSwarm::iterator current = start + offset;
 
 			// Schedule position update and fitness calculation as a thread
-			// Note: global/local bests and velocities haven't been determined yet in iteration 0 and are not needed there
+			// Note: global/neighborhood bests and velocities haven't been determined yet in iteration 0 and are not needed there
 			tp_.schedule(
 				Gem::Common::GThreadWrapper(
 					boost::bind(
-						&GMultiThreadedSwarm::updateSwarm
+						&GMultiThreadedSwarm::updateSwarmIndividual
 						, this
 						, iteration
 						, neighborhood
 						, *current
-						, iteration>0?(local_bests_[neighborhood]->clone<GParameterSet>()):boost::shared_ptr<GParameterSet>()
+						, iteration>0?(neighborhood_bests_[neighborhood]->clone<GParameterSet>()):boost::shared_ptr<GParameterSet>()
 		#ifdef DEBUG
 						, iteration>0?velocities_.at(offset):boost::shared_ptr<GParameterSet>()
 		#else
@@ -275,8 +275,8 @@ void GMultiThreadedSwarm::swarmLogic() {
 		#endif /* DEBUG */
 						, boost::make_tuple(
 							getCPersonal()
-							, getCLocal()
-							, getCDelta()
+							, getCNeighborhood()
+							, getCVelocity()
 						)
 					)
 				)

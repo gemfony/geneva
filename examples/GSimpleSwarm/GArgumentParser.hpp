@@ -95,9 +95,10 @@ namespace Gem
     const double DEFAULTMAXVAR=10.;
     const std::size_t DEFAULTNNEIGHBORHOODSAP=5;
     const std::size_t DEFAULTNNEIGHBORHOODMEMBERSAP=20;
-    const double DEFAULTCLOCALAP=2.;
+    const double DEFAULTCPERSONALAP=2.;
+    const double DEFAULTCNEIGHBORHOODAP=2.;
     const double DEFAULTCGLOBALAP=2.;
-    const double DEFAULTCDELTAAP=0.4;
+    const double DEFAULTCVELOCITYAP=0.4;
     const boost::uint16_t DEFAULTXDIMAP=1024;
     const boost::uint16_t DEFAULTYDIMAP=1024;
     const bool DEFAULTFOLLOWPROGRESS=false;
@@ -132,8 +133,9 @@ namespace Gem
 		   , double& minVar
 		   , double& maxVar
 		   , demoFunction& df
-		   , double& cLocal
-		   , double& cDelta
+		   , double& cPersonal
+		   , double& cNeighborhood
+		   , double& cVelocity
 		   , updateRule& ur
 		   , boost::uint16_t& xDim
 		   , boost::uint16_t& yDim

@@ -82,8 +82,9 @@ int main(int argc, char **argv){
 	std::size_t nNeighborhoods;
 	std::size_t nNeighborhoodMembers;
 	demoFunction df;
-	double cLocal;
-	double cDelta;
+	double cPersonal;
+	double cNeighborhood;
+	double cVelocity;
 	updateRule ur;
 	boost::uint16_t xDim;
 	boost::uint16_t yDim;
@@ -116,8 +117,9 @@ int main(int argc, char **argv){
 			, minVar
 			, maxVar
 			, df
-			, cLocal
-			, cDelta
+			, cPersonal
+			, cNeighborhood
+			, cVelocity
 			, ur
 			, xDim
 			, yDim
@@ -254,8 +256,9 @@ int main(int argc, char **argv){
 	pop_ptr->setMaxIteration(maxIterations);
 	pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
 	pop_ptr->setReportIteration(reportIteration);
-	pop_ptr->setCLocal(cLocal);
-	pop_ptr->setCDelta(cDelta);
+	pop_ptr->setCPersonal(cPersonal);
+	pop_ptr->setCNeighborhood(cNeighborhood);
+	pop_ptr->setCVelocity(cVelocity);
 	pop_ptr->setUpdateRule(ur);
 	pop_ptr->registerOptimizationMonitor(pm_ptr);
 

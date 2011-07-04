@@ -142,8 +142,9 @@ namespace Gem
 	   , double& minVar
 	   , double& maxVar
 	   , demoFunction& df
-	   , double& cLocal
-	   , double& cDelta
+	   , double& cPersonal
+	   , double& cNeighborhood
+	   , double& cVelocity
 	   , updateRule& ur
 	   , boost::uint16_t& xDim
 	   , boost::uint16_t& yDim
@@ -195,9 +196,11 @@ namespace Gem
 		   "The upper boundary for all variables")
 		  ("evalFunction",po::value<boost::uint16_t>(&evalFunction),
 		   "The id of the evaluation function.")
-		  ("cLocal", po::value<double>(&cLocal)->default_value(DEFAULTCLOCALAP),
-		   "A constant to be multiplied with the local direction vector")
-		  ("cDelta", po::value<double>(&cDelta)->default_value(DEFAULTCDELTAAP),
+		  ("cPersonal", po::value<double>(&cPersonal)->default_value(DEFAULTCPERSONALAP),
+		   "A constant to be multiplied with the personal direction vector")
+		  ("cNeighborhood", po::value<double>(&cNeighborhood)->default_value(DEFAULTCNEIGHBORHOODAP),
+		   "A constant to be multiplied with the neighborhood direction vector")
+		  ("cVelocity", po::value<double>(&cVelocity)->default_value(DEFAULTCVELOCITYAP),
 		   "A constant to be multiplied with the old velocity vector")
 		  ("ur", po::value<updateRule>(&ur)->default_value(DEFAULTUPDATERULE),
 		   "Use linear (0) or classical (1) update rule")
@@ -253,8 +256,9 @@ namespace Gem
 					<< "minVar = " << minVar << std::endl
 					<< "maxVar = " << maxVar << std::endl
 					<< std::endl << "evalFunction = " << df << std::endl
-					<< "cLocal = " << cLocal << std::endl
-					<< "cDelta = " << cDelta << std::endl
+					<< "cPersonal = " << cPersonal << std::endl
+					<< "cNeighborhood = " << cNeighborhood << std::endl
+					<< "cVelocity = " << cVelocity << std::endl
 					<< "updateRule = " << ur << std::endl
 					<< "xDim = " << xDim << std::endl
 					<< "yDim = " << yDim << std::endl
