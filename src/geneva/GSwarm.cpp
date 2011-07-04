@@ -711,9 +711,9 @@ void GSwarm::updatePositions(
 	  , boost::tuple<double, double, double> constants
 ) {
 	// Extract the constants from the tuple
-	double cPersonal = constants.get<0>();
+	double cPersonal     = constants.get<0>();
 	double cNeighborhood = constants.get<1>();
-	double cVelocity = constants.get<2>();
+	double cVelocity     = constants.get<2>();
 
 #ifdef DEBUG
 	// Do some error checking
@@ -728,11 +728,6 @@ void GSwarm::updatePositions(
 	// Extract the personal best
 	boost::shared_ptr<GParameterSet> personal_best_tmp =
 			ind->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBest()->clone<GParameterSet>();
-
-	std::vector<double> indVec, persBestVec, nbrhoodBestVec, persBestVecSubtr, nbrhoodBestVecSubtr;
-	ind->streamline(indVec);
-	personal_best_tmp->streamline(persBestVec);
-	neighborhood_best_tmp->streamline(nbrhoodBestVec);
 
 	// Further error checks
 #ifdef DEBUG
@@ -763,19 +758,6 @@ void GSwarm::updatePositions(
 	personal_best_tmp->fpSubtract(ind);
 	neighborhood_best_tmp->fpSubtract(ind);
 
-	personal_best_tmp->streamline(persBestVecSubtr);
-	neighborhood_best_tmp->streamline(nbrhoodBestVecSubtr);
-
-	if(indVec.size() != persBestVec.size() || indVec.size() != nbrhoodBestVec.size() || indVec.size() != persBestVecSubtr.size() || indVec.size() != nbrhoodBestVecSubtr.size()) {
-		raiseException("Invalid sizes!" << std::endl);
-	}
-
-    for(std::size_t i=0; i<indVec.size(); i++) {
-    	if(persBestVecSubtr[i] != persBestVec[i]-indVec[i]  || nbrhoodBestVecSubtr[i] != nbrhoodBestVec[i]-indVec[i]) {
-    		raiseException("Invalid subtraction" << std::endl);
-    	}
-    }
-
 	switch(updateRule_) {
 	case CLASSIC:
 		// Multiply each floating point value with a random fp number in the range [0,1[
@@ -793,7 +775,7 @@ void GSwarm::updatePositions(
 	personal_best_tmp->fpMultiplyBy(cPersonal);
 	neighborhood_best_tmp->fpMultiplyBy(cNeighborhood);
 
-	// Multiply the last iterations velocity with a fixed, configurable constant value
+	// Multiply the last iteration's velocity with a configurable constant value
 	velocity->fpMultiplyBy(cVelocity);
 
 	// Add the personal and neighborhood temporaries
