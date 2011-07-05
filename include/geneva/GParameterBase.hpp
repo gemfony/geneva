@@ -139,13 +139,40 @@ public:
 	}
 
 	/**************************************************************************************/
-
 	/** @brief Attach parameters of type double to the vector */
 	virtual void doubleStreamline(std::vector<double>&) const;
 	/** @brief Attach parameters of type boost::int32_t to the vector */
 	virtual void int32Streamline(std::vector<boost::int32_t>&) const;
 	/** @brief Attach parameters of type bool to the vector */
 	virtual void booleanStreamline(std::vector<bool>&) const;
+
+	/**************************************************************************************/
+	/**
+	 * Allows to add all boundaries if parameters of a specific type to the vectors. This
+	 * function is a trap, needed to catch streamlining attempts with unsupported types.
+	 * Use the supplied specializations instead.
+	 *
+	 * @oaram lBndVec The vector with lower boundaries of parameters
+	 * @oaram uBndVec The vector with upper boundaries of parameters
+	 */
+	template <typename par_type>
+	void boundaries(
+			std::vector<par_type>& lBndVec
+			, std::vector<par_type>& uBndVec
+	) const	{
+		raiseException(
+				"In GParameterBase::boundaries(std::vector<>&)" << std::endl
+				<< "Function called for unsupported type!"
+		);
+	}
+
+	/**************************************************************************************/
+	/** @brief Attach boundaries of type double to the vectors */
+	virtual void doubleBoundaries(std::vector<double>&, std::vector<double>&) const;
+	/** @brief Attach boundaries of type boost::int32_t to the vectors */
+	virtual void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&) const;
+	/** @brief Attach boundaries of type bool to the vectors */
+	virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&) const;
 
 	/**************************************************************************************/
 	/**
@@ -300,6 +327,10 @@ public:
 template <>	void GParameterBase::streamline<double>(std::vector<double>&) const;
 template <>	void GParameterBase::streamline<boost::int32_t>(std::vector<boost::int32_t>&) const;
 template <>	void GParameterBase::streamline<bool>(std::vector<bool>&) const;
+
+template <>	void GParameterBase::boundaries<double>(std::vector<double>&, std::vector<double>&) const;
+template <>	void GParameterBase::boundaries<boost::int32_t>(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&) const;
+template <>	void GParameterBase::boundaries<bool>(std::vector<bool>&, std::vector<bool>&) const;
 
 template <>	std::size_t GParameterBase::countParameters<double>() const;
 template <>	std::size_t GParameterBase::countParameters<boost::int32_t>() const;

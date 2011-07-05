@@ -223,19 +223,54 @@ public:
 	 */
 
 	/**********************************************************************/
+	/**
+	 * Loops over all GParameterBase objects. Each object will add the
+	 * values of its parameters to the vector, if they comply with the
+	 * type of the parameters to be stored in the vector.
+	 *
+	 * @param parVec The vector to which the parameters will be added
+	 */
 
 	template <typename par_type>
 	void streamline(std::vector<par_type>& parVec) const {
 		// Make sure the vector is clean
 		parVec.clear();
 
-		// Loop over all GParameterBase objects. Each object
-		// will add the values of its parameters to the vector,
-		// if they comply with the type of the parameters to
-		// be stored in the vector.
+		// Loop over all GParameterBase objects.
 		GParameterSet::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
 			(*cit)->streamline<par_type>(parVec);
+		}
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * So far untested.
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/**********************************************************************/
+	/**
+	 * Loops over all GParameterBase objects. Each object will add the
+	 * lower and upper boundaries of its parameters to the vector, if
+	 * they comply with the type of the parameters to be stored in the
+	 * vector.
+	 *
+	 * @param lBndVec The vector to which the lower boundaries will be added
+	 * @param uBndVec The vector to which the upper boundaries will be added
+	 */
+	template <typename par_type>
+	void boundaries(
+			std::vector<par_type>& lBndVec
+			, std::vector<par_type>& uBndVec
+	) const {
+		// Make sure the vectors are clean
+		lBndVec.clear();
+		uBndVec.clear();
+
+		// Loop over all GParameterBase objects.
+		GParameterSet::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			(*cit)->boundaries<par_type>(lBndVec, uBndVec);
 		}
 	}
 

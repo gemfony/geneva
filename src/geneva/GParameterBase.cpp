@@ -413,7 +413,9 @@ void GParameterBase::fpSubtract(boost::shared_ptr<GParameterBase> p)
  * @oaram parVec The vector to which the items should be added
  */
 template <>
-void GParameterBase::streamline<double>(std::vector<double>& parVec) const {
+void GParameterBase::streamline<double>(
+		std::vector<double>& parVec
+) const {
 	this->doubleStreamline(parVec);
 }
 
@@ -424,7 +426,9 @@ void GParameterBase::streamline<double>(std::vector<double>& parVec) const {
  * @oaram parVec The vector to which the items should be added
  */
 template <>
-void GParameterBase::streamline<boost::int32_t>(std::vector<boost::int32_t>& parVec) const {
+void GParameterBase::streamline<boost::int32_t>(
+		std::vector<boost::int32_t>& parVec
+) const {
 	this->int32Streamline(parVec);
 }
 
@@ -435,7 +439,9 @@ void GParameterBase::streamline<boost::int32_t>(std::vector<boost::int32_t>& par
  * @oaram parVec The vector to which the items should be added
  */
 template <>
-void GParameterBase::streamline<bool>(std::vector<bool>& parVec) const {
+void GParameterBase::streamline<bool>(
+		std::vector<bool>& parVec
+) const {
 	this->booleanStreamline(parVec);
 }
 
@@ -445,8 +451,11 @@ void GParameterBase::streamline<bool>(std::vector<bool>& parVec) const {
  * default. Parameter types based on doubles need to overload this function and do
  * the actual work.
  */
-void GParameterBase::doubleStreamline(std::vector<double>& parVec) const
-{ /* do nothing by default */ }
+void GParameterBase::doubleStreamline(
+		std::vector<double>& parVec
+) const {
+	/* do nothing by default */
+}
 
 /* ----------------------------------------------------------------------------------
  * So far untested
@@ -459,8 +468,11 @@ void GParameterBase::doubleStreamline(std::vector<double>& parVec) const
  * default. Parameter types based on boost::int32_t need to overload this function and do
  * the actual work.
  */
-void GParameterBase::int32Streamline(std::vector<boost::int32_t>& parVec) const
-{ /* do nothing by default */ }
+void GParameterBase::int32Streamline(
+		std::vector<boost::int32_t>& parVec
+) const {
+	/* do nothing by default */
+}
 
 /* ----------------------------------------------------------------------------------
  * So far untested
@@ -473,13 +485,103 @@ void GParameterBase::int32Streamline(std::vector<boost::int32_t>& parVec) const
  * default. Parameter types based on bool need to overload this function and do
  * the actual work.
  */
-void GParameterBase::booleanStreamline(std::vector<bool>& parVec) const
-{ /* do nothing by default */ }
+void GParameterBase::booleanStreamline(
+		std::vector<bool>& parVec
+) const {
+	/* do nothing by default */
+}
 
 /* ----------------------------------------------------------------------------------
  * So far untested
  * ----------------------------------------------------------------------------------
  */
+
+/**********************************************************************************/
+/**
+ * Allows to retrieve the values of lower and upper boundaries of type double
+ *
+ * @param lBndVec A vector of lower double parameter boundaries
+ * @param uBndVec A vector of upper double parameter boundaries
+ */
+template <>
+void GParameterBase::boundaries<double>(
+		std::vector<double>& lBndVec
+		, std::vector<double>& uBndVec
+) const {
+	this->doubleBoundaries(lBndVec, uBndVec);
+}
+
+/**********************************************************************************/
+/**
+ * Allows to retrieve the values of lower and upper boundaries of type boost::int32_t
+ *
+ * @param lBndVec A vector of lower boost::int32_t parameter boundaries
+ * @param uBndVec A vector of upper boost::int32_t parameter boundaries
+ */
+template <>
+void GParameterBase::boundaries<boost::int32_t>(
+		std::vector<boost::int32_t>& lBndVec
+		, std::vector<boost::int32_t>& uBndVec
+) const {
+	this->int32Boundaries(lBndVec, uBndVec);
+}
+
+/**********************************************************************************/
+/**
+ * Allows to retrieve the values of lower and upper boundaries of type bool
+ *
+ * @param lBndVec A vector of lower bool parameter boundaries
+ * @param uBndVec A vector of upper bool parameter boundaries
+ */
+template <>
+void GParameterBase::boundaries<bool>(
+		std::vector<bool>& lBndVec
+		, std::vector<bool>& uBndVec
+) const {
+	this->booleanBoundaries(lBndVec, uBndVec);
+}
+
+/**********************************************************************************/
+/**
+ * Attach boundaries of type double to the vectors
+ *
+ * @param lBndVec A vector of lower double parameter boundaries
+ * @param uBndVec A vector of upper double parameter boundaries
+ */
+void GParameterBase::doubleBoundaries(
+		std::vector<double>& lBndVec
+		, std::vector<double>& uBndVec
+) const {
+	/* do nothing by default */
+}
+
+/**********************************************************************************/
+/**
+ * Attach boundaries of type boost::int32_t to the vectors
+ *
+ * @param lBndVec A vector of lower boost::int32_t parameter boundaries
+ * @param uBndVec A vector of upper boost::int32_t parameter boundaries
+ */
+void GParameterBase::int32Boundaries(
+		std::vector<boost::int32_t>& lBndVec
+		, std::vector<boost::int32_t>& uBndVec
+) const {
+	/* do nothing by default */
+}
+
+/**********************************************************************************/
+/**
+ * Attach boundaries of type bool to the vectors
+ *
+ * @param lBndVec A vector of lower bool parameter boundaries
+ * @param uBndVec A vector of upper bool parameter boundaries
+ */
+void GParameterBase::booleanBoundaries(
+		std::vector<bool>& lBndVec
+		, std::vector<bool>& uBndVec
+) const {
+	/* do nothing by default */
+}
 
 /**********************************************************************************/
 /**
