@@ -173,13 +173,14 @@ bool GConstrainedInt32Object::operator!=(const GConstrainedInt32Object& cp) cons
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GConstrainedInt32Object::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+boost::optional<std::string> GConstrainedInt32Object::checkRelationshipWith (
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
     using namespace Gem::Common;
 
 	// Check for a possible self-assignment
@@ -205,6 +206,21 @@ boost::optional<std::string> GConstrainedInt32Object::checkRelationshipWith(cons
  */
 void GConstrainedInt32Object::int32Streamline(std::vector<boost::int32_t>& parVec) const {
 	parVec.push_back(this->value());
+}
+
+/*******************************************************************************************/
+/**
+ * Attach boundaries of type boost::int32_t to the vectors.
+ *
+ * @param lBndVec A vector of lower boost::int32_t parameter boundaries
+ * @param uBndVec A vector of upper boost::int32_t parameter boundaries
+ */
+void GConstrainedInt32Object::int32Boundaries(
+		std::vector<boost::int32_t>& lBndVec
+		, std::vector<boost::int32_t>& uBndVec
+) const {
+	lBndVec.push_back(this->getLowerBoundary());
+	uBndVec.push_back(this->getUpperBoundary());
 }
 
 /*******************************************************************************************/

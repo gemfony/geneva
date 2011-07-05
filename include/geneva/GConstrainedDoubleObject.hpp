@@ -104,6 +104,8 @@ public:
 
 	/** @brief Attach our local value to the vector. */
 	virtual void doubleStreamline(std::vector<double>&) const;
+	/** @brief Attach boundaries of type double to the vectors */
+	virtual void doubleBoundaries(std::vector<double>&, std::vector<double>&) const;
 	/** @brief Tell the audience that we own a double value */
 	virtual std::size_t countDoubleParameters() const;
 	/** @brief Assigns part of a value vector to the parameter */

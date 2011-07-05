@@ -103,6 +103,8 @@ public:
 
 	/** @brief Attach our local value to the vector. */
 	virtual void int32Streamline(std::vector<boost::int32_t>&) const;
+	/** @brief Attach boundaries of type boost::int32_t to the vectors */
+	virtual void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&) const;
 	/** @brief Tell the audience that we own a boost::int32_t value */
 	virtual std::size_t countInt32Parameters() const;
 	/** @brief Assigns part of a value vector to the parameter */

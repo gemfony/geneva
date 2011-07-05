@@ -191,6 +191,22 @@ void GDoubleObject::doubleStreamline(std::vector<double>& parVec) const {
 
 /*******************************************************************************************/
 /**
+ * Attach boundaries of type double to the vectors. Since this is an unbounded type,
+ * we use the initialization boundaries as a replacement.
+ *
+ * @param lBndVec A vector of lower double parameter boundaries
+ * @param uBndVec A vector of upper double parameter boundaries
+ */
+void GDoubleObject::doubleBoundaries(
+		std::vector<double>& lBndVec
+		, std::vector<double>& uBndVec
+) const {
+	lBndVec.push_back(this->getLowerInitBoundary());
+	uBndVec.push_back(this->getUpperInitBoundary());
+}
+
+/*******************************************************************************************/
+/**
  * Tell the audience that we own a double value
  *
  * @return The number 1, as we own a single double parameter

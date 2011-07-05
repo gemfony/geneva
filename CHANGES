@@ -33,6 +33,8 @@ The main changes for this release include:
    shorten optimization runs in multi-threaded mode, if the population size is much
    larger than the number of available compute units
  - Updated gradient descents and swarms
+ - Added a means to recursively extract lower and upper boundaries and initialization 
+   ranges from GParameterBase-derivatives
  - Adapted to Boost 1.47
 
 //------------------------------------------------------------------------------------------------------

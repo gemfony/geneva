@@ -254,6 +254,24 @@ namespace Geneva
 
   /**********************************************************************/
   /**
+   * Attach boundaries of type bool to the vectors
+   *
+   * @param lBndVec A vector of lower bool parameter boundaries
+   * @param uBndVec A vector of upper bool parameter boundaries
+   */
+  void GBooleanCollection::booleanBoundaries(
+  		std::vector<bool>& lBndVec
+  		, std::vector<bool>& uBndVec
+  ) const {
+	  GBooleanCollection::const_iterator cit;
+	  for(cit=this->begin(); cit!=this->end(); ++cit) {
+		  lBndVec.push_back(false);
+		  uBndVec.push_back(true);
+	  }
+  }
+
+  /**********************************************************************/
+  /**
    * Tell the audience that we own a number of bool values
    *
    * @return The number of bool parameters

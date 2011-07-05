@@ -64,9 +64,14 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	, neighborhood_bests_(nNeighborhoods_)
 	, c_personal_(DEFAULTCPERSONAL)
 	, c_neighborhood_(DEFAULTCNEIGHBORHOOD)
+	, c_global_(DEFAULTCGLOBAL)
 	, c_velocity_(DEFAULTCNEIGHBORHOOD)
 	, updateRule_(DEFAULTUPDATERULE)
 	, randomFillUp_(true)
+	, dblLowerParameterBoundaries_()
+	, dblUpperParameterBoundaries_()
+	, dblVelVecMax_()
+	, velocityRangePercentage_(DEFAULTVELOCITYRANGEPERCENTAGE)
 {
 	GOptimizationAlgorithmT<GParameterSet>::setOptimizationAlgorithm(SWARM);
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
@@ -100,9 +105,14 @@ GSwarm::GSwarm(const GSwarm& cp)
 	, neighborhood_bests_(nNeighborhoods_) // We copy the smart pointers over later
 	, c_personal_(cp.c_personal_)
 	, c_neighborhood_(cp.c_neighborhood_)
+	, c_global_(cp.c_global_)
 	, c_velocity_(cp.c_velocity_)
 	, updateRule_(cp.updateRule_)
 	, randomFillUp_(cp.randomFillUp_)
+	, dblLowerParameterBoundaries_(cp.dblLowerParameterBoundaries_)
+	, dblUpperParameterBoundaries_(cp.dblUpperParameterBoundaries_)
+	, dblVelVecMax_(cp.dblVelVecMax_)
+	, velocityRangePercentage_(cp.velocityRangePercentage_)
 {
 	// Note that this setting might differ from nCPIndividuals, as it is not guaranteed
 	// that cp has, at the time of copying, all individuals present in each neighborhood.
@@ -165,9 +175,16 @@ void GSwarm::load_(const GObject *cp)
 	defaultNNeighborhoodMembers_ = p_load->defaultNNeighborhoodMembers_;
 	c_personal_ = p_load->c_personal_;
 	c_neighborhood_ = p_load->c_neighborhood_;
+	c_global_ = p_load->c_global_;
 	c_velocity_ = p_load->c_velocity_;
 	updateRule_ = p_load->updateRule_;
 	randomFillUp_ = p_load->randomFillUp_;
+
+	dblLowerParameterBoundaries_ = p_load->dblLowerParameterBoundaries_;
+	dblUpperParameterBoundaries_ = p_load->dblUpperParameterBoundaries_;
+	dblVelVecMax_ = p_load->dblVelVecMax_;
+
+	velocityRangePercentage_ = p_load->velocityRangePercentage_;
 
 	// We start from scratch if the number of neighborhoods or the alleged number of members in them differ
 	if(nNeighborhoods_!=p_load->nNeighborhoods_ || !nNeighborhoodMembersEqual(nNeighborhoodMembers_, p_load->nNeighborhoodMembers_)) {
@@ -300,9 +317,14 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", global_best_, p_load->global_best_, "global_best_", "p_load->global_best_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_personal_, p_load->c_personal_, "c_personal_", "p_load->c_personal_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_neighborhood_, p_load->c_neighborhood_, "c_neighborhood_", "p_load->c_neighborhood_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_global_, p_load->c_global_, "c_global_", "p_load->c_global_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_velocity_, p_load->c_velocity_, "c_velocity_", "p_load->c_velocity_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", updateRule_, p_load->updateRule_, "updateRule_", "p_load->updateRule_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", randomFillUp_, p_load->randomFillUp_, "randomFillUp_", "p_load->randomFillUp_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_, "dblLowerParameterBoundaries_", "p_load->dblLowerParameterBoundaries_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_, "dblUpperParameterBoundaries_", "p_load->dblUpperParameterBoundaries_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", dblVelVecMax_, p_load->dblVelVecMax_, "dblVelVecMax_", "p_load->dblVelVecMax_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", velocityRangePercentage_, p_load->velocityRangePercentage_, "velocityRangePercentage_", "p_load->velocityRangePercentage_", e , limit));
 
 	// The next checks only makes sense if the number of neighborhoods are equal
 	if(nNeighborhoods_ == p_load->nNeighborhoods_) {
@@ -375,43 +397,6 @@ void GSwarm::saveCheckpoint() const {
  */
 void GSwarm::loadCheckpoint(const std::string& cpFile) {
 	this->fromFile(cpFile, getCheckpointSerializationMode());
-}
-
-/************************************************************************************************************/
-/**
- * This function does some preparatory work and tagging required by swarm algorithms. It is called
- * from within GOptimizationAlgorithmT<GParameterSet>::optimize(), immediately before the actual optimization cycle starts.
- */
-void GSwarm::init() {
-	// To be performed before any other action
-	GOptimizationAlgorithmT<GParameterSet>::init();
-
-	// Create copies of our individuals in the velocities_ vector.
-	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		// Create a copy of the current individual. Note that, if you happen
-		// to have assigned anything else than a GParameterSet derivative to
-		// the swarm, then the following line will throw in DEBUG mode or return
-		// undefined results in RELEASE mode
-		boost::shared_ptr<GParameterSet> p((*it)->clone<GParameterSet>());
-		// Assign the value 0. to all floating point parameters
-		p->fpFixedValueInit(0.f);
-		// Add the zero-initialized individual to the velocity array.
-		// The necessary downcast will be handled by
-		velocities_.push_back(p);
-	}
-}
-
-/************************************************************************************************************/
-/**
- * Does any necessary finalization work
- */
-void GSwarm::finalize() {
-	// Remove remaining velocity individuals. The boost::shared_ptr<GParameterSet>s
-	// will take care of deleting the GParameterSet objects.
-	velocities_.clear();
-
-	// Last action
-	GOptimizationAlgorithmT<GParameterSet>::finalize();
 }
 
 /************************************************************************************************************/
@@ -567,6 +552,98 @@ void GSwarm::updatePersonalBestIfBetter(
 
 /************************************************************************************************************/
 /**
+ * This function does some preparatory work and tagging required by swarm algorithms. It is called
+ * from within GOptimizationAlgorithmT<GParameterSet>::optimize(), immediately before the actual optimization cycle starts.
+ */
+void GSwarm::init() {
+	// To be performed before any other action
+	GOptimizationAlgorithmT<GParameterSet>::init();
+}
+
+/************************************************************************************************************/
+/**
+ * Does any necessary finalization work
+ */
+void GSwarm::finalize() {
+	// Remove remaining velocity individuals. The boost::shared_ptr<GParameterSet>s
+	// will take care of deleting the GParameterSet objects.
+	velocities_.clear();
+
+	// Last action
+	GOptimizationAlgorithmT<GParameterSet>::finalize();
+}
+
+/************************************************************************************************************/
+/**
+ * Initialization work relating directly to the optimization algorithm. Here we extract the individual
+ * parameter boundaries. Note that we assume that the number of parameters is equal for all individuals
+ * and does not change over time.
+ */
+void GSwarm::optimizationInit() {
+	// Always call the parent class'es init function first
+	GOptimizationAlgorithmT<GParameterSet>::optimizationInit();
+
+	// Extract the boundaries of all parameters
+	this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_);
+
+#ifdef DEBUG
+	// Size matters!
+	if(dblLowerParameterBoundaries_.size() != dblUpperParameterBoundaries_.size()) {
+		raiseException(
+				"In GSwarm::optimizationInit(): Error!" << std::endl
+				<< "Found invalid sizes: "
+				<< dblLowerParameterBoundaries_.size() << " / " << dblUpperParameterBoundaries_.size() << std::endl
+		);
+	}
+#endif /* DEBUG */
+
+	// Calculate the allowed maximum values of the velocities
+	double l = getVelocityRangePercentage();
+	dblVelVecMax_.clear();
+	for(std::size_t i=0; i<dblLowerParameterBoundaries_.size(); i++) {
+		dblVelVecMax_.push_back(l * (dblUpperParameterBoundaries_[i] - dblLowerParameterBoundaries_[i]));
+	}
+
+	// Create copies of our individuals in the velocities_ vector.
+	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
+		// Create a copy of the current individual. Note that, if you happen
+		// to have assigned anything else than a GParameterSet derivative to
+		// the swarm, then the following line will throw in DEBUG mode or return
+		// undefined results in RELEASE mode
+		boost::shared_ptr<GParameterSet> p((*it)->clone<GParameterSet>());
+
+		// Extract the parameter vector
+		std::vector<double> velVec;
+		p->streamline(velVec);
+
+#ifdef DEBUG
+		// Check that the number of parameters equals those in the velocity boundaries
+		if(velVec.size() != dblLowerParameterBoundaries_.size() || velVec.size() != dblVelVecMax_.size()) {
+			raiseException(
+					"In GSwarm::optimizationInit(): Error! (2)" << std::endl
+					<< "Found invalid sizes: " << velVec.size()
+					<< " / " << dblLowerParameterBoundaries_.size() << std::endl
+					<< " / " << dblVelVecMax_.size() << std::endl
+			);
+		}
+#endif /* DEBUG */
+
+		// Randomly initialize the velocities
+		for(std::size_t i=0; i<velVec.size(); i++) {
+			double range = dblVelVecMax_[i];
+			velVec[i] = gr.uniform_real<double>(-range, range);
+		}
+
+		// Load the array into the velocity object
+		p->assignValueVector<double>(velVec);
+
+		// Add the initialized velocity to the array.
+		velocities_.push_back(p);
+	}
+}
+
+/************************************************************************************************************/
+/**
  * This function implements the logic that constitutes each cycle of a swarm algorithm. The
  * function is called by GOptimizationAlgorithmT<GParameterSet>::optimize() for each iteration of
  * the optimization,
@@ -631,21 +708,23 @@ void GSwarm::swarmLogic() {
 			GSwarm::iterator current = start + offset;
 
 			// Note: global/neighborhood bests and velocities haven't been determined yet in iteration 0 and are not needed there
-			updateSwarmIndividual (
+			if(iteration > 0 && !(*current)->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
+				// Update the swarm positions:
+				updatePositions(
+					neighborhood
+					, (*current)
+					, iteration>0?(neighborhood_bests_[neighborhood]):(boost::shared_ptr<GParameterSet>())
+					, iteration>0?(global_best_):(boost::shared_ptr<GParameterSet>())
+					, iteration>0?(velocities_[offset]):(boost::shared_ptr<GParameterSet>())
+					, boost::make_tuple(getCPersonal(), getCNeighborhood(), getCGlobal(), getCVelocity())
+				);
+			}
+
+			// Update the fitness
+			updateFitness(
 				iteration
 				, neighborhood
 				, (*current)
-				, iteration>0?(neighborhood_bests_[neighborhood]->clone<GParameterSet>()):boost::shared_ptr<GParameterSet>()
-#ifdef DEBUG
-				, iteration>0?velocities_.at(offset):boost::shared_ptr<GParameterSet>()
-#else
-				, iteration>0?velocities_[offset]:boost::shared_ptr<GParameterSet>()
-#endif /* DEBUG */
-				, boost::make_tuple(
-					getCPersonal()
-					, getCNeighborhood()
-					, getCVelocity()
-				  )
 			);
 
 			offset++;
@@ -655,50 +734,12 @@ void GSwarm::swarmLogic() {
 
 /************************************************************************************************************/
 /**
- * Updates the individual's position and performs the fitness calculation
- *
- * @param neighborhood The neighborhood that has been assigned to the individual
- * @param ind The individual whose position should be updated
- * @param neighborhood_best_tmp The best dataset of the individual's neighborhood
- * @param global_best_tmp The globally best individual so far
- * @param velocity A velocity vector
- * @param constants A boost::tuple holding the various constants needed for the position update
- */
-void GSwarm::updateSwarmIndividual(
-	  const boost::uint32_t& iteration
-	  , const std::size_t& neighborhood
-	  , boost::shared_ptr<GParameterSet> ind
-	  , boost::shared_ptr<GParameterSet> neighborhood_best_tmp
-	  , boost::shared_ptr<GParameterSet> velocity
-	  , boost::tuple<double, double, double> constants
-){
-	if(iteration > 0 && !ind->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
-		// Update the swarm positions:
-		updatePositions(
-		  neighborhood
-		  , ind
-		  , neighborhood_best_tmp
-		  , velocity
-		  , constants
-		);
-	}
-
-	// Update the fitness
-	updateFitness(
-		iteration
-		, neighborhood
-		, ind
-	);
-}
-
-/************************************************************************************************************/
-/**
  * Update the individual's positions. Note that we use a boost::tuple as an argument,
  * so that we do not have to pass too many parameters (problematic with boost::bind).
  *
  * @param neighborhood The neighborhood that has been assigned to the individual
  * @param ind The individual whose position should be updated
- * @param neighborhood_best_tmp The best dataset of the individual's neighborhood
+ * @param neighborhood_best_tmp The best data set of the individual's neighborhood
  * @param global_best_tmp The globally best individual so far
  * @param velocity A velocity vector
  * @param constants A boost::tuple holding the various constants needed for the position update
@@ -706,14 +747,16 @@ void GSwarm::updateSwarmIndividual(
 void GSwarm::updatePositions(
 	  const std::size_t& neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
-	  , boost::shared_ptr<GParameterSet> neighborhood_best_tmp
+	  , boost::shared_ptr<GParameterSet> neighborhood_best
+	  , boost::shared_ptr<GParameterSet> global_best
 	  , boost::shared_ptr<GParameterSet> velocity
-	  , boost::tuple<double, double, double> constants
+	  , boost::tuple<double, double, double, double> constants
 ) {
 	// Extract the constants from the tuple
 	double cPersonal     = constants.get<0>();
 	double cNeighborhood = constants.get<1>();
-	double cVelocity     = constants.get<2>();
+	double cGlobal       = constants.get<2>();
+	double cVelocity     = constants.get<3>();
 
 #ifdef DEBUG
 	// Do some error checking
@@ -726,22 +769,28 @@ void GSwarm::updatePositions(
 #endif /* DEBUG */
 
 	// Extract the personal best
-	boost::shared_ptr<GParameterSet> personal_best_tmp =
-			ind->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBest()->clone<GParameterSet>();
+	boost::shared_ptr<GParameterSet> personal_best = ind->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBest();
 
 	// Further error checks
 #ifdef DEBUG
-	if(!personal_best_tmp) {
+	if(!personal_best) {
 		raiseException(
 				"In GSwarm::updatePositions():" << std::endl
-				<< "Found empty individual \"personal_best_tmp\""
+				<< "Found empty individual \"personal_best\""
 		);
 	}
 
-	if(!neighborhood_best_tmp) {
+	if(!neighborhood_best) {
 		raiseException(
 				"In GSwarm::updatePositions():" << std::endl
-				<< "Found empty individual \"neighborhood_best_tmp\""
+				<< "Found empty individual \"neighborhood_best\""
+		);
+	}
+
+	if(!global_best) {
+		raiseException(
+				"In GSwarm::updatePositions():" << std::endl
+				<< "Found empty individual \"global_best\""
 		);
 	}
 
@@ -754,36 +803,128 @@ void GSwarm::updatePositions(
 
 #endif /* DEBUG */
 
-	// Subtract the current individual
-	personal_best_tmp->fpSubtract(ind);
-	neighborhood_best_tmp->fpSubtract(ind);
+	// Extract the vectors for the individual, the personal, neighborhood and global bests,
+	// as well as the velocity
+	std::vector <double> indVec, personalBestVec, nbhBestVec, glbBestVec, velVec;
+	ind->streamline(indVec);
+	personal_best->streamline(personalBestVec);
+	neighborhood_best->streamline(nbhBestVec);
+	global_best->streamline(glbBestVec);
+	velocity->streamline(velVec);
+
+	// Subtract the individual vector from the personal, neighborhood and global bests
+	Gem::Common::subtractVec<double>(personalBestVec, indVec);
+	Gem::Common::subtractVec<double>(nbhBestVec, indVec);
+	Gem::Common::subtractVec<double>(glbBestVec, indVec);
 
 	switch(updateRule_) {
 	case CLASSIC:
-		// Multiply each floating point value with a random fp number in the range [0,1[
-		personal_best_tmp->fpMultiplyByRandom();
-		neighborhood_best_tmp->fpMultiplyByRandom();
+		// Multiply each floating point value with a random fp number in the range [0,1[ times a constant
+		for(std::size_t i=0; i<personalBestVec.size(); i++) {
+			personalBestVec[i] *= (cPersonal * gr.uniform_01<double>());
+			nbhBestVec[i] *= (cNeighborhood * gr.uniform_01<double>());
+			glbBestVec[i] *= (cGlobal * gr.uniform_01<double>());
+		}
 		break;
+
 	case LINEAR:
-		// Multiply neighborhood_best_tmp and global_best_tmp with a single [0,1[ random number each
-		personal_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
-		neighborhood_best_tmp->fpMultiplyBy(gr.uniform_01<double>());
+		// Multiply each position with the same random floating point number times a constant
+		Gem::Common::multVecConst<double>(personalBestVec, cPersonal * gr.uniform_01<double>());
+		Gem::Common::multVecConst<double>(nbhBestVec, cNeighborhood * gr.uniform_01<double>());
+		Gem::Common::multVecConst<double>(glbBestVec, cGlobal * gr.uniform_01<double>());
+		break;
+
+	default:
+		{
+			raiseException(
+					"GSwarm::updatePositions(): Error!" << std::endl
+					<< "Invalid update rule requested: " << updateRule_ << std::endl
+			);
+		}
 		break;
 	}
 
-	// Multiply each floating point value with a fixed, configurable constant value
-	personal_best_tmp->fpMultiplyBy(cPersonal);
-	neighborhood_best_tmp->fpMultiplyBy(cNeighborhood);
+	// Scale the velocity
+	Gem::Common::multVecConst<double>(velVec, cVelocity);
 
-	// Multiply the last iteration's velocity with a configurable constant value
-	velocity->fpMultiplyBy(cVelocity);
+	// Add the personal and neighborhood parameters to the velocity
+	Gem::Common::addVec<double>(velVec, personalBestVec);
+	Gem::Common::addVec<double>(velVec, nbhBestVec);
 
-	// Add the personal and neighborhood temporaries
-	velocity->fpAdd(personal_best_tmp);
-	velocity->fpAdd(neighborhood_best_tmp);
+	// Adding a velocity component towards the global best only
+	// makes sense if there is more than one neighborhood
+	if(getNNeighborhoods() > 1) {
+		Gem::Common::addVec<double>(velVec, glbBestVec);
+	}
 
-	// Add the velocity to the current individual
-	ind->fpAdd(velocity);
+	// Prune the velocity vector so that we can
+	// be sure it is inside of the allowed range
+	pruneVelocity(velVec);
+
+	// Add the velocity parameters to the individual's parameters
+	Gem::Common::addVec<double>(indVec, velVec);
+
+	// Update the velocity individual
+	velocity->assignValueVector<double>(velVec);
+
+	// Update the candidate solution
+	ind->assignValueVector<double>(indVec);
+}
+
+/************************************************************************************************************/
+/**
+ * Adjusts the velocity vector so that its parameters don't exceed the allowed value range.
+ *
+ * @param velVec the velocity vector to be adjusted
+ */
+void GSwarm::pruneVelocity(std::vector<double>& velVec) {
+#ifdef DEBUG
+	if(velVec.size() != dblVelVecMax_.size()) {
+		raiseException(
+				"In GSwarm::pruneVelocity(): Error!" << std::endl
+				<< "Found invalid vector sizes: " << velVec.size() << " / " << dblVelVecMax_.size() << std::endl
+		);
+	}
+
+#endif
+
+	// Find the parameter that exceeds the allowed range by the largest percentage
+	double currentPercentage = 0.;
+	double maxPercentage = 0.;
+	bool overflowFound=false;
+	for(std::size_t i=0; i<velVec.size(); i++) {
+#ifdef DEBUG
+		if(dblVelVecMax_[i] <= 0.) {
+			raiseException(
+					"In GSwarm::pruneVelocity(): Error!" << std::endl
+					<< "Found invalid max value: " << dblVelVecMax_[i] << std::endl
+			);
+		}
+#endif /* DEBUG */
+
+		if(fabs(velVec[i]) > dblVelVecMax_[i]) {
+			overflowFound=true;
+			currentPercentage = fabs(velVec[i])/dblVelVecMax_[i];
+			if(currentPercentage > maxPercentage) {
+				maxPercentage = currentPercentage;
+			}
+		}
+	}
+
+	if(overflowFound) {
+		// Scale all velocity entries by maxPercentage
+		for(std::size_t i=0; i<velVec.size(); i++) {
+#ifdef DEBUG
+			if(maxPercentage <= 0.) {
+				raiseException(
+						"In GSwarm::pruneVelocity(): Error!" << std::endl
+						<< "Invalid maxPercentage: " << maxPercentage << std::endl
+				);
+			}
+#endif
+			velVec[i] /= maxPercentage;
+		}
+	}
 }
 
 /************************************************************************************************************/
@@ -1126,6 +1267,26 @@ double GSwarm::getCNeighborhood() const {
 
 /************************************************************************************************************/
 /**
+ * Allows to set a static multiplier for global distances
+ *
+ * @param c_global A static multiplier for global distances
+ */
+void GSwarm::setCGlobal(const double& c_global) {
+	c_global_ = c_global;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to retrieve the static multiplier for global distances
+ *
+ * @return The static multiplier for global distances
+ */
+double GSwarm::getCGlobal() const {
+	return c_global_;
+}
+
+/************************************************************************************************************/
+/**
  * Allows to set a static multiplier for velocities
  *
  * @param c_velocity A static multiplier for velocities
@@ -1142,6 +1303,34 @@ void GSwarm::setCVelocity(const double& c_velocity) {
  */
 double GSwarm::getCVelocity() const {
 	return c_velocity_;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to set the velocity range percentage
+ *
+ * @param velocityRangePercentage The velocity range percentage
+ */
+void GSwarm::setVelocityRangePercentage(const double& velocityRangePercentage) {
+	// Do some error checking
+	if(velocityRangePercentage <= 0. || velocityRangePercentage > 1.) {
+		raiseException(
+				"In GSwarm::setVelocityRangePercentage()" << std::endl
+				<< "Invalid velocityRangePercentage: " << velocityRangePercentage << std::endl
+		);
+	}
+
+	velocityRangePercentage_ = velocityRangePercentage;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to retrieve the velocity range percentage
+ *
+ * @return The velocity range percentage
+ */
+double GSwarm::getVelocityRangePercentage() const {
+	return velocityRangePercentage_;
 }
 
 /************************************************************************************************************/

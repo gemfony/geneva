@@ -97,7 +97,7 @@ namespace Gem
     const std::size_t DEFAULTNNEIGHBORHOODMEMBERSAP=20;
     const double DEFAULTCPERSONALAP=2.;
     const double DEFAULTCNEIGHBORHOODAP=2.;
-    const double DEFAULTCGLOBALAP=2.;
+    const double DEFAULTCGLOBALAP=1.;
     const double DEFAULTCVELOCITYAP=0.4;
     const boost::uint16_t DEFAULTXDIMAP=1024;
     const boost::uint16_t DEFAULTYDIMAP=1024;
@@ -135,6 +135,7 @@ namespace Gem
 		   , demoFunction& df
 		   , double& cPersonal
 		   , double& cNeighborhood
+		   , double& cGlobal
 		   , double& cVelocity
 		   , updateRule& ur
 		   , boost::uint16_t& xDim

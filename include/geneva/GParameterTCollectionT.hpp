@@ -349,6 +349,8 @@ public:
 	/**
 	 * Attach parameters of type double to the vector. This function distributes this task to
 	 * objects contained in the container.
+	 *
+	 * @param parVec The vector to which the double parameters will be attached
 	 */
 	virtual void doubleStreamline(std::vector<double>& parVec) const {
 		typename GParameterTCollectionT<T>::const_iterator cit;
@@ -366,6 +368,8 @@ public:
 	/**
 	 * Attach parameters of type boost::int32_t to the vector. This function distributes this task
 	 * to objects contained in the container.
+	 *
+	 * @param parVec The vector to which the boost::int32_t parameters will be attached
 	 */
 	virtual void int32Streamline(std::vector<boost::int32_t>& parVec) const {
 		typename GParameterTCollectionT<T>::const_iterator cit;
@@ -383,6 +387,8 @@ public:
 	/**
 	 * Attach parameters of type bool to the vector.  This function distributes this task
 	 * to objects contained in the container.
+	 *
+	 * @param parVec The vector to which the boolean parameters will be attached
 	 */
 	virtual void booleanStreamline(std::vector<bool>& parVec) const {
 		typename GParameterTCollectionT<T>::const_iterator cit;
@@ -395,6 +401,60 @@ public:
 	 * So far untested
 	 * ----------------------------------------------------------------------------------
 	 */
+
+	/*******************************************************************************************/
+	/**
+	 * Attach boundaries of type double to the vectors
+	 *
+	 * @param lBndVec A vector of lower double parameter boundaries
+	 * @param uBndVec A vector of upper double parameter boundaries
+	 */
+	virtual void doubleBoundaries(
+			std::vector<double>& lBndVec
+			, std::vector<double>& uBndVec
+	) const {
+		typename GParameterTCollectionT<T>::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			(*cit)->doubleBoundaries(lBndVec, uBndVec);
+		}
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Attach boundaries of type boost::int32_t to the vectors
+	 *
+	 * @param lBndVec A vector of lower boost::int32_t parameter boundaries
+	 * @param uBndVec A vector of upper boost::int32_t parameter boundaries
+	 */
+	virtual void int32Boundaries(
+			std::vector<boost::int32_t>& lBndVec
+			, std::vector<boost::int32_t>& uBndVec
+	) const {
+		typename GParameterTCollectionT<T>::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			(*cit)->int32Boundaries(lBndVec, uBndVec);
+		}
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Attach boundaries of type bool to the vectors. This function has been added for
+	 * completeness - at the very least it can give an indication of the number of boolean
+	 * parameters. Note, though, that there is a function that lets you count these parameters
+	 * directly.
+	 *
+	 * @param lBndVec A vector of lower bool parameter boundaries
+	 * @param uBndVec A vector of upper bool parameter boundaries
+	 */
+	virtual void booleanBoundaries(
+			std::vector<bool>& lBndVec
+			, std::vector<bool>& uBndVec
+	) const {
+		typename GParameterTCollectionT<T>::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			(*cit)->booleanBoundaries(lBndVec, uBndVec);
+		}
+	}
 
 	/*******************************************************************************************/
 	/**

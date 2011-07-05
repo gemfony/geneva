@@ -170,6 +170,25 @@ void GConstrainedDoubleCollection::doubleStreamline(std::vector<double>& parVec)
 
 /*******************************************************************************************/
 /**
+ * Attach boundaries of type double to the vectors.
+ *
+ * @param lBndVec A vector of lower double parameter boundaries
+ * @param uBndVec A vector of upper double parameter boundaries
+ */
+void GConstrainedDoubleCollection::doubleBoundaries(
+		std::vector<double>& lBndVec
+		, std::vector<double>& uBndVec
+) const {
+	// Add a lower and upper boundary to the vectors
+	// for each variable in the collection
+	for(std::size_t pos = 0; pos < this->size(); pos++) {
+		lBndVec.push_back(this->getLowerBoundary());
+		uBndVec.push_back(this->getUpperBoundary());
+	}
+}
+
+/*******************************************************************************************/
+/**
  * Tell the audience that we own a number of double values
  *
  * @return The number of double parameters

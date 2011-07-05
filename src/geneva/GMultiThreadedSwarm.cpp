@@ -235,6 +235,7 @@ void GMultiThreadedSwarm::swarmLogic() {
 	GMultiThreadedSwarm::iterator start = this->begin();
 	boost::uint32_t iteration = getIteration();
 
+	// First update all positions
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
 #ifdef DEBUG
 		if(getIteration() > 0) {
@@ -257,27 +258,40 @@ void GMultiThreadedSwarm::swarmLogic() {
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
 			GMultiThreadedSwarm::iterator current = start + offset;
 
-			// Schedule position update and fitness calculation as a thread
 			// Note: global/neighborhood bests and velocities haven't been determined yet in iteration 0 and are not needed there
+			if(iteration > 0 && !(*current)->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
+				// Update the swarm positions:
+				updatePositions(
+					neighborhood
+					, (*current)
+					, iteration>0?(neighborhood_bests_[neighborhood]):(boost::shared_ptr<GParameterSet>())
+					, iteration>0?(global_best_):(boost::shared_ptr<GParameterSet>())
+					, iteration>0?(velocities_[offset]):(boost::shared_ptr<GParameterSet>())
+					, boost::make_tuple(getCPersonal(), getCNeighborhood(), getCGlobal(), getCVelocity())
+				);
+			}
+
+			offset++;
+		}
+	}
+
+	// Reset the offset
+	offset = 0;
+
+	// Then start the evaluation threads
+	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
+			GMultiThreadedSwarm::iterator current = start + offset;
+
+			// Schedule the fitness calculation as a thread
 			tp_.schedule(
 				Gem::Common::GThreadWrapper(
 					boost::bind(
-						&GMultiThreadedSwarm::updateSwarmIndividual
+					    &GMultiThreadedSwarm::updateFitness
 						, this
 						, iteration
 						, neighborhood
-						, *current
-						, iteration>0?(neighborhood_bests_[neighborhood]->clone<GParameterSet>()):boost::shared_ptr<GParameterSet>()
-		#ifdef DEBUG
-						, iteration>0?velocities_.at(offset):boost::shared_ptr<GParameterSet>()
-		#else
-						, iteration>0?velocities_[offset]:boost::shared_ptr<GParameterSet>()
-		#endif /* DEBUG */
-						, boost::make_tuple(
-							getCPersonal()
-							, getCNeighborhood()
-							, getCVelocity()
-						)
+						, (*current)
 					)
 				)
 			);

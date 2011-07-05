@@ -236,6 +236,23 @@ void GBooleanObject::booleanStreamline(std::vector<bool>& parVec) const {
 
 /*******************************************************************************************/
 /**
+ * Attach boundaries of type bool to the vectors. This function has been added for
+ * completeness reasons only.
+ *
+ * @param lBndVec A vector of lower bool parameter boundaries
+ * @param uBndVec A vector of upper bool parameter boundaries
+ */
+void GBooleanObject::booleanBoundaries(
+		std::vector<bool>& lBndVec
+		, std::vector<bool>& uBndVec
+) const {
+	lBndVec.push_back(false);
+	uBndVec.push_back(true);
+}
+
+
+/*******************************************************************************************/
+/**
  * Tell the audience that we own a bool value
  *
  * @return The number 1, as we own a single boolean value

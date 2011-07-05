@@ -84,6 +84,7 @@ int main(int argc, char **argv){
 	demoFunction df;
 	double cPersonal;
 	double cNeighborhood;
+	double cGlobal;
 	double cVelocity;
 	updateRule ur;
 	boost::uint16_t xDim;
@@ -119,6 +120,7 @@ int main(int argc, char **argv){
 			, df
 			, cPersonal
 			, cNeighborhood
+			, cGlobal
 			, cVelocity
 			, ur
 			, xDim
@@ -257,6 +259,7 @@ int main(int argc, char **argv){
 	pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
 	pop_ptr->setReportIteration(reportIteration);
 	pop_ptr->setCPersonal(cPersonal);
+	pop_ptr->setCGlobal(cGlobal);
 	pop_ptr->setCNeighborhood(cNeighborhood);
 	pop_ptr->setCVelocity(cVelocity);
 	pop_ptr->setUpdateRule(ur);

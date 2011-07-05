@@ -109,6 +109,8 @@ namespace Geneva
 
 	/** @brief Attach our local values to the vector. */
 	virtual void booleanStreamline(std::vector<bool>&) const;
+	/** @brief Attach boundaries of type bool to the vectors */
+	virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&) const;
 	/** @brief Tell the audience that we own a number of boolean values */
 	virtual std::size_t countBoolParameters() const;
 	/** @brief Assigns part of a value vector to the parameter */

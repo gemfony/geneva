@@ -260,9 +260,11 @@ const boost::logic::tribool DEFAULTADAPTIONMODE = boost::logic::indeterminate; /
 
 /**********************************************************************************************/
 
-const double DEFAULTCPERSONAL = 2.; ///< Default multiplier for personal distances (swarm)
-const double DEFAULTCNEIGHBORHOOD = 2.; ///< Default multiplier for neighborhood distances (swarm)
-const double DEFAULTCVELOCITY = 0.4; ///< Default multiplier for velocities (swarm)
+const double DEFAULTCPERSONAL = 1.49; ///< Default multiplier for personal distances (swarm)
+const double DEFAULTCNEIGHBORHOOD = 1.49; ///< Default multiplier for neighborhood distances (swarm)
+const double DEFAULTCGLOBAL = 1.; ///< Default multiplier for global distances (swarm)
+const double DEFAULTCVELOCITY = 0.72; ///< Default multiplier for velocities (swarm)
+const double DEFAULTVELOCITYRANGEPERCENTAGE = 0.15; ///< Default percentage of velocity range used for initialization of velocities
 
 /**********************************************************************************************/
 /**

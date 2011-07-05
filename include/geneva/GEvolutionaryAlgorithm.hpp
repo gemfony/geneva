@@ -179,7 +179,7 @@ public:
 	virtual std::size_t getNProcessableItems() const;
 
 	/** @brief Adds the option to increase the population by a given amount per iteration */
-	std::size_t setPopulationGrowth(const std::size_t&, const std::size_t&);
+	void setPopulationGrowth(const std::size_t&, const std::size_t&);
 	/** @brief Allows to retrieve the growth rate of the population */
 	std::size_t getGrowthRate() const;
 	/** @brief Allows to retrieve the maximum population size when growth is enabled */

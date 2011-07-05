@@ -144,6 +144,7 @@ namespace Gem
 	   , demoFunction& df
 	   , double& cPersonal
 	   , double& cNeighborhood
+	   , double& cGlobal
 	   , double& cVelocity
 	   , updateRule& ur
 	   , boost::uint16_t& xDim
@@ -200,6 +201,8 @@ namespace Gem
 		   "A constant to be multiplied with the personal direction vector")
 		  ("cNeighborhood", po::value<double>(&cNeighborhood)->default_value(DEFAULTCNEIGHBORHOODAP),
 		   "A constant to be multiplied with the neighborhood direction vector")
+		  ("cGlobal", po::value<double>(&cGlobal)->default_value(DEFAULTCGLOBALAP),
+		   "A constant to be multiplied with the global direction vector")
 		  ("cVelocity", po::value<double>(&cVelocity)->default_value(DEFAULTCVELOCITYAP),
 		   "A constant to be multiplied with the old velocity vector")
 		  ("ur", po::value<updateRule>(&ur)->default_value(DEFAULTUPDATERULE),
@@ -258,6 +261,7 @@ namespace Gem
 					<< std::endl << "evalFunction = " << df << std::endl
 					<< "cPersonal = " << cPersonal << std::endl
 					<< "cNeighborhood = " << cNeighborhood << std::endl
+					<< "cGlobal = " << cGlobal << std::endl
 					<< "cVelocity = " << cVelocity << std::endl
 					<< "updateRule = " << ur << std::endl
 					<< "xDim = " << xDim << std::endl

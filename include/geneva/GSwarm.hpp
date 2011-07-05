@@ -91,9 +91,14 @@ class GSwarm
 		   & BOOST_SERIALIZATION_NVP(neighborhood_bests_)
 		   & BOOST_SERIALIZATION_NVP(c_personal_)
 		   & BOOST_SERIALIZATION_NVP(c_neighborhood_)
+		   & BOOST_SERIALIZATION_NVP(c_global_)
 		   & BOOST_SERIALIZATION_NVP(c_velocity_)
 		   & BOOST_SERIALIZATION_NVP(updateRule_)
-		   & BOOST_SERIALIZATION_NVP(randomFillUp_);
+		   & BOOST_SERIALIZATION_NVP(randomFillUp_)
+		   & BOOST_SERIALIZATION_NVP(dblLowerParameterBoundaries_)
+		   & BOOST_SERIALIZATION_NVP(dblUpperParameterBoundaries_)
+		   & BOOST_SERIALIZATION_NVP(dblVelVecMax_)
+		   & BOOST_SERIALIZATION_NVP(velocityRangePercentage_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -136,10 +141,20 @@ public:
 	/** @brief Allows to retrieve the static multiplier for neighborhood distances */
 	double getCNeighborhood() const;
 
+	/** @brief Allows to set a static multiplier for global distances */
+	void setCGlobal(const double&);
+	/** @brief Allows to retrieve the static multiplier for global distances */
+	double getCGlobal() const;
+
 	/** @brief Allows to set a static multiplier for velocities */
 	void setCVelocity(const double&);
 	/** @brief Allows to retrieve the static multiplier for velocities */
 	double getCVelocity() const;
+
+	/** @brief Allows to set the velocity range percentage */
+	void setVelocityRangePercentage(const double&);
+	/** @brief Allows to retrieve the velocity range percentage */
+	double getVelocityRangePercentage() const;
 
 	/** @brief Retrieves the number of neighborhoods */
 	std::size_t getNNeighborhoods() const;
@@ -240,10 +255,13 @@ protected:
 	virtual GObject *clone_() const;
 	/** @brief Allows to set the personality type of the individuals */
 	virtual void setIndividualPersonalities();
-	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	virtual double cycleLogic();
+
 	/** @brief Does some preparatory work before the optimization starts */
 	virtual void init();
+	/** @brief Initialization work relating directly to the optimization algorithm */
+	virtual void optimizationInit();
+	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
+	virtual double cycleLogic();
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
 
@@ -272,8 +290,9 @@ protected:
 		  const std::size_t&
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
+	  	  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
-		  , boost::tuple<double, double, double>
+		  , boost::tuple<double, double, double, double>
 	);
 
 	/** @brief Triggers the fitness calculation */
@@ -283,18 +302,11 @@ protected:
 			, boost::shared_ptr<GParameterSet>
 	);
 
-	/** @brief Updates the individual's position and performs the fitness calculation */
-	void updateSwarmIndividual (
-		  const boost::uint32_t&
-		  , const std::size_t&
-		  , boost::shared_ptr<GParameterSet>
-		  , boost::shared_ptr<GParameterSet>
-		  , boost::shared_ptr<GParameterSet>
-	      , boost::tuple<double, double, double>
-	);
-
     /** @brief Checks whether each neighborhood has at least the default size */
     bool neighborhoodsHaveNominalValues() const;
+
+    /** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
+    void pruneVelocity(std::vector<double>&);
 
 	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
 	std::size_t defaultNNeighborhoodMembers_; ///< The desired number of individuals belonging to each neighborhood
@@ -304,12 +316,19 @@ protected:
 	std::vector<boost::shared_ptr<GParameterSet> > neighborhood_bests_; ///< The collection of best individuals from each neighborhood
 	std::vector<boost::shared_ptr<GParameterSet> > velocities_; ///< Holds velocities, as calculated in the previous iteration
 
-	double c_personal_; ///< A factor for multiplication of personal bests
-	double c_neighborhood_; ///< A factor for multiplication of neighborhood bests
+	double c_personal_; ///< A factor for multiplication of personal best distances
+	double c_neighborhood_; ///< A factor for multiplication of neighborhood best distances
+	double c_global_; ///< A factor for multiplication of global best distances
 	double c_velocity_; ///< A factor for multiplication of velocities
 
 	updateRule updateRule_; ///< Specifies how the parameters are updated
 	bool randomFillUp_; ///< Specifies whether neighborhoods are filled up with random values
+
+	std::vector<double> dblLowerParameterBoundaries_; ///< Holds lower boundaries of double parameters
+	std::vector<double> dblUpperParameterBoundaries_; ///< Holds upper boundaries of double parameters
+	std::vector<double> dblVelVecMax_; ///< Holds the maximum allowed values of double-type velocities
+
+	double velocityRangePercentage_; ///< Indicates the percentage of a value range used for the initialization of the velocity
 
 	/** @brief The default constructor. Intentionally protected, as it is only needed for de-serialization purposes. */
 	GSwarm();

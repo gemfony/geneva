@@ -104,6 +104,8 @@ public:
 
 	/** @brief Attach our local value to the vector. */
 	virtual void booleanStreamline(std::vector<bool>&) const;
+	/** @brief Attach boundaries of type bool to the vectors */
+	virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&) const;
 	/** @brief Tell the audience that we own a boost::int32_t value */
 	virtual std::size_t countBoolParameters() const;
 	/** @brief Assigns part of a value vector to the parameter */

@@ -136,13 +136,14 @@ bool GDoubleCollection::operator!=(const GDoubleCollection& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GDoubleCollection::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+boost::optional<std::string> GDoubleCollection::checkRelationshipWith(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
     using namespace Gem::Common;
 
     // Check that we are not accidently assigning this object to itself
@@ -175,6 +176,26 @@ void GDoubleCollection::doubleStreamline(std::vector<double>& parVec) const {
 
 /*******************************************************************************************/
 /**
+ * Attach boundaries of type double to the vectors
+ *
+ * @param lBndVec A vector of lower double parameter boundaries
+ * @param uBndVec A vector of upper double parameter boundaries
+ */
+void GDoubleCollection::doubleBoundaries(
+		std::vector<double>& lBndVec
+		, std::vector<double>& uBndVec
+) const {
+	// Add as man lower and upper boundaries to the vector as
+	// there are variables
+	GDoubleCollection::const_iterator cit;
+	for(cit=this->begin(); cit!=this->end(); ++cit) {
+		lBndVec.push_back(this->getLowerInitBoundary());
+		uBndVec.push_back(this->getUpperInitBoundary());
+	}
+}
+
+/*******************************************************************************************/
+/**
  * Tell the audience that we own a number of double values
  *
  * @return The number of double parameters
@@ -190,7 +211,10 @@ std::size_t GDoubleCollection::countDoubleParameters() const {
  * @param parVec The vector from which the data should be taken
  * @param pos The position inside of the vector from which the data is extracted in each turn of the loop
  */
-void GDoubleCollection::assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
+void GDoubleCollection::assignDoubleValueVector(
+		const std::vector<double>& parVec
+		, std::size_t& pos
+) {
 	  for(GDoubleCollection::iterator it=this->begin(); it!=this->end(); ++it) {
 #ifdef DEBUG
 		  // Do we have a valid position ?

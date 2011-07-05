@@ -154,6 +154,93 @@ void copySmartPointerVector(
 }
 
 /**************************************************************************************************/
+/**
+ * Takes two std::vector<> and subtracts each position of the second vector from the
+ * corresponding position of the first vector. Note that we assume here that T understands
+ * the operator-= . Note that after this function has been called, a will have changed.
+ *
+ * @param a The vector from whose elements numbers will be subtracted
+ * @param b The vector whose elements will be subtracted from the elements of a
+ */
+template <typename T>
+void subtractVec (
+		std::vector<T>& a
+		, const std::vector<T>& b
+) {
+#ifdef DEBUG
+	// Do some error checking
+	if(a.size() != b.size()) {
+		raiseException(
+				"In subtractVec(std::vector<T>, const std::vector<T>&): Error!" << std::endl
+				<< "Found invalid sizes: " << a.size() << " / " << b.size() << std::endl
+		);
+	}
+#endif /* DEBUG */
+
+	typename std::vector<T>::iterator it_a;
+	typename std::vector<T>::const_iterator cit_b;
+
+	// Subtract the elements
+	for(it_a=a.begin(), cit_b=b.begin(); it_a != a.end(); ++it_a, ++cit_b) {
+		(*it_a) -= (*cit_b);
+	}
+}
+
+/**************************************************************************************************/
+/**
+ * Takes two std::vector<> and adds each position of the second vector to the
+ * corresponding position of the first vector. Note that we assume here that T understands
+ * the operator+= . Note that after this function has been called, a will have changed.
+ *
+ * @param a The vector to whose elements numbers will be added
+ * @param b The vector whose elements will be added to the elements of a
+ */
+template <typename T>
+void addVec (
+		std::vector<T>& a
+		, const std::vector<T>& b
+) {
+#ifdef DEBUG
+	// Do some error checking
+	if(a.size() != b.size()) {
+		raiseException(
+				"In addVec(std::vector<T>, const std::vector<T>&): Error!" << std::endl
+				<< "Found invalid sizes: " << a.size() << " / " << b.size() << std::endl
+		);
+	}
+#endif /* DEBUG */
+
+	typename std::vector<T>::iterator it_a;
+	typename std::vector<T>::const_iterator cit_b;
+
+	// Subtract the elements
+	for(it_a=a.begin(), cit_b=b.begin(); it_a != a.end(); ++it_a, ++cit_b) {
+		(*it_a) += (*cit_b);
+	}
+}
+
+/**************************************************************************************************/
+/**
+ * Multiplies each position of a std::vector<> with a constant. Note that we assume here that
+ * T understands the operator*= . Note that after this function has been called, a will have changed.
+ *
+ * @param a The vector to whose elements numbers will be added
+ * @param c The constant which will be multiplied with each position of a
+ */
+template <typename T>
+void multVecConst (
+		std::vector<T>& a
+		, const T& c
+) {
+	typename std::vector<T>::iterator it_a;
+
+	// Subtract the elements
+	for(it_a=a.begin(); it_a != a.end(); ++it_a) {
+		(*it_a) *= c;
+	}
+}
+
+/**************************************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

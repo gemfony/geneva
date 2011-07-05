@@ -446,9 +446,9 @@ bool GEvolutionaryAlgorithm::oldParentsLogged() const {
 
 /************************************************************************************************************/
 /**
- * Retrieve the number of processable items in the current iteration.
+ * Retrieve the number of processible items in the current iteration.
  *
- * @return The number of processable items in the current iteration
+ * @return The number of processible items in the current iteration
  */
 std::size_t GEvolutionaryAlgorithm::getNProcessableItems() const {
 	if(getIteration()==this->getOffset()) { // usually this means iteration == 0
@@ -479,7 +479,7 @@ std::size_t GEvolutionaryAlgorithm::getNProcessableItems() const {
  * @param growthRate The amount of individuals to be added in each iteration
  * @param maxPopulationSize The maximum allowed size of the population
  */
-std::size_t GEvolutionaryAlgorithm::setPopulationGrowth(
+void GEvolutionaryAlgorithm::setPopulationGrowth(
 		const std::size_t& growthRate
 		, const std::size_t& maxPopulationSize
 ) {
