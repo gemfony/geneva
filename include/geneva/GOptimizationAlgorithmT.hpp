@@ -48,10 +48,10 @@
 /**************************************************************************************/
 
 // Geneva headers go here
+#include "courtier/GBrokerConnectorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GIndividual.hpp"
-
 #include "geneva/GParameterSet.hpp"
 
 namespace Gem {
@@ -396,29 +396,29 @@ public:
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GMutableSetT<ind_type>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithmT<ind_type>", y_name, withMessages));
+		GMutableSetT<ind_type>::checkRelationshipWith(cp, e, limit, caller, y_name, withMessages);
 
 		// ... and then our local data
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", iteration_, p_load->iteration_, "iteration_", "p_load->iteration_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", offset_, p_load->offset_, "offset_", "p_load->offset_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maxIteration_, p_load->maxIteration_, "maxIteration_", "p_load->maxIteration_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maxStallIteration_, p_load->maxStallIteration_, "maxStallIteration_", "p_load->maxStallIteration_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", reportIteration_, p_load->reportIteration_, "reportIteration_", "p_load->reportIteration_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", defaultPopulationSize_, p_load->defaultPopulationSize_, "defaultPopulationSize_", "p_load->defaultPopulationSize_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", bestCurrentFitness_, p_load->bestCurrentFitness_, "bestCurrentFitness_", "p_load->bestCurrentFitness_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", stallCounter_, p_load->stallCounter_, "stallCounter_", "p_load->stallCounter_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", cpInterval_, p_load->cpInterval_, "cpInterval_", "p_load->cpInterval_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", cpBaseName_, p_load->cpBaseName_, "cpBaseName_", "p_load->cpBaseName_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", cpDirectory_, p_load->cpDirectory_, "cpDirectory_", "p_load->cpDirectory_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", cpSerMode_, p_load->cpSerMode_, "cpSerMode_", "p_load->cpSerMode_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", qualityThreshold_, p_load->qualityThreshold_, "qualityThreshold_", "p_load->qualityThreshold_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", hasQualityThreshold_, p_load->hasQualityThreshold_, "hasQualityThreshold_", "p_load->hasQualityThreshold_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maxDuration_, p_load->maxDuration_, "maxDuration_", "p_load->maxDuration_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", emitTerminationReason_, p_load->emitTerminationReason_, "emitTerminationReason_", "p_load->emitTerminationReason_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", halted_, p_load->halted_, "halted_", "p_load->halted_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", optAlg_, p_load->optAlg_, "optAlg_", "p_load->optAlg_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", optimizationMonitor_ptr_, p_load->optimizationMonitor_ptr_, "optimizationMonitor_ptr_", "p_load->optimizationMonitor_ptr_", e , limit));
+		EXPECTATIONCHECK(iteration_);
+		EXPECTATIONCHECK(offset_);
+		EXPECTATIONCHECK(maxIteration_);
+		EXPECTATIONCHECK(maxStallIteration_);
+		EXPECTATIONCHECK(reportIteration_);
+		EXPECTATIONCHECK(defaultPopulationSize_);
+		EXPECTATIONCHECK(bestPastFitness_);
+		EXPECTATIONCHECK(bestCurrentFitness_);
+		EXPECTATIONCHECK(stallCounter_);
+		EXPECTATIONCHECK(cpInterval_);
+		EXPECTATIONCHECK(cpBaseName_);
+		EXPECTATIONCHECK(cpDirectory_);
+		EXPECTATIONCHECK(cpSerMode_);
+		EXPECTATIONCHECK(qualityThreshold_);
+		EXPECTATIONCHECK(hasQualityThreshold_);
+		EXPECTATIONCHECK(maxDuration_);
+		EXPECTATIONCHECK(emitTerminationReason_);
+		EXPECTATIONCHECK(halted_);
+		EXPECTATIONCHECK(optAlg_);
+		EXPECTATIONCHECK(optimizationMonitor_ptr_);
 
 		return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
 	}
@@ -1327,6 +1327,8 @@ private:
 	personality optAlg_; ///< Allows to identify the actual optimization algorithm built on top of this class
 	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual> gbc_;
+
 #ifdef GENEVATESTING
 public:
 	/**************************************************************************************/
@@ -1487,11 +1489,11 @@ public:
 	        std::vector<boost::optional<std::string> > deviations;
 
 	    	// Check our parent class'es data ...
-	    	deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GOptimizationMonitorT", y_name, withMessages));
+	    	GObject::checkRelationshipWith(cp, e, limit, caller, y_name, withMessages);
 
 	    	// ... and then our local data
-			deviations.push_back(checkExpectation(withMessages, "GOptimizationMonitorT<ind_type>", quiet_, p_load->quiet_, "quiet_", "p_load->quiet_", e , limit));
-			deviations.push_back(checkExpectation(withMessages, "GOptimizationMonitorT<ind_type>", resultFile_, p_load->resultFile_, "resultFile_", "p_load->resultFile_", e , limit));
+			EXPECTATIONCHECK(quiet_);
+			EXPECTATIONCHECK(resultFile_);
 
 	    	return evaluateDiscrepancies("GOptimizationMonitorT", caller, deviations, e);
 	    }
@@ -1723,6 +1725,7 @@ namespace boost {
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::GOptimizationMonitorT);
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT);
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>);
 
 /******************************************************************************************/
 

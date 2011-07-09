@@ -39,3 +39,4 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::GOptimizationMonitorT);
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>);

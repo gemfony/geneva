@@ -66,10 +66,41 @@ namespace Courtier {
  */
 const std::size_t COMMANDLENGTH=64;
 
+/**********************************************************************************************/
 /**
- * The default assumed number of processing units
+ * The default factor applied to the turn-around time
+ * of the first item in the current iteration. Used to
+ * find a suitable timeout-value for following individuals.
+ * Used in conjunction with optimization algorithms that
+ * communicate via the "courtier" broker infrastructure.
  */
-const std::size_t DEFAULTNPROCESSINGUNITS=1;
+const double DEFAULTMINBROKERWAITFACTOR = 1.;
+const double DEFAULTBROKERWAITFACTOR = DEFAULTMINBROKERWAITFACTOR;
+const double DEFAULTMAXBROKERWAITFACTOR = 10.;
+const double DEFAULTBROKERWAITFACTORINCREMENT = 0.5;
+const double DEFAULTMINRETURNPERCENTAGE = 1.0;
+const double DEFAULTMINPERCENTAGEOFTIMEOUT = 0.7;
+
+/**********************************************************************************************/
+/**
+ * A 0 time period . timedHalt will not trigger if this duration is set
+ */
+const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration
+
+/**********************************************************************************************/
+/**
+ * The default allowed time in seconds for the first individual
+ * in generation 0 to return. Set it to 0 to disable this timeout.
+ * Used in conjunction with optimization algorithms that
+ * communicate via the "courtier" broker infrastructure.
+ */
+const std::string DEFAULTBROKERFIRSTTIMEOUT = EMPTYDURATION;
+
+/**********************************************************************************************/
+/**
+ * The default maximum duration of the calculation.
+ */
+const std::string DEFAULTDURATION = EMPTYDURATION;
 
 /**********************************************************************************************/
 

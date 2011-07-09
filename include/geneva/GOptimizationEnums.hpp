@@ -141,6 +141,31 @@ const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration
 
 /**********************************************************************************************/
 /**
+ * The default factor applied to the turn-around time
+ * of the first item in the current iteration. Used to
+ * find a suitable timeout-value for following individuals.
+ * Used in conjunction with optimization algorithms that
+ * communicate via the "courtier" broker infrastructure.
+ */
+const boost::uint32_t DEFAULTBROKERWAITFACTOR = 0;
+
+/**********************************************************************************************/
+/**
+ * The default number of processing units
+ */
+const boost::uint32_t DEFAULTNPROCESSINGUNITS = 0;
+
+/**********************************************************************************************/
+/**
+ * The default allowed time in seconds for the first individual
+ * in generation 0 to return. Set it to 0 to disable this timeout.
+ * Used in conjunction with optimization algorithms that
+ * communicate via the "courtier" broker infrastructure.
+ */
+const std::string DEFAULTBROKERFIRSTTIMEOUT = EMPTYDURATION;
+
+/**********************************************************************************************/
+/**
  * The default maximum duration of the calculation.
  */
 const std::string DEFAULTDURATION = EMPTYDURATION;
@@ -278,30 +303,6 @@ enum updateRule {
 /**********************************************************************************************/
 
 const updateRule DEFAULTUPDATERULE = CLASSIC; ///< The default update rule in swarms
-
-/**********************************************************************************************/
-/**
- * The default factor applied to the turn-around time
- * of the first individual in the first generation. Used to
- * find a suitable timeout-value for following individuals.
- * Used in conjunction with optimization algorithms that
- * communicate via the "courtier" broker infrastructure.
- */
-const boost::uint32_t DEFAULTBROKERWAITFACTOR = 0;
-
-/**
- * The default number of processing units
- */
-const boost::uint32_t DEFAULTNPROCESSINGUNITS = 0;
-
-/**********************************************************************************************/
-/**
- * The default allowed time in seconds for the first individual
- * in generation 0 to return. Set it to 0 to disable this timeout.
- * Used in conjunction with optimization algorithms that
- * communicate via the "courtier" broker infrastructure.
- */
-const std::string DEFAULTBROKERFIRSTTIMEOUT = EMPTYDURATION;
 
 /**********************************************************************************************/
 

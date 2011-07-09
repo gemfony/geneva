@@ -178,7 +178,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
  * @return The best achieved fitness
  */
 double GBrokerEA::cycleLogic() {
-	// Let the connector know how many processable items are available
+	// Let the connector know how many processible items are available
 	GBrokerConnector::setBCNProcessableItems(GEvolutionaryAlgorithm::getNProcessableItems());
 
 	// Let the GBrokerConnector know that we are starting a new iteration

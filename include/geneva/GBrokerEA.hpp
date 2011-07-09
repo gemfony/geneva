@@ -60,7 +60,7 @@ namespace Geneva
   /**********************************************************************************/
   /**
    * This population handles evolutionary algorithm-based optimization in environments
-   * where communication between client and communication is handled through Geneva's
+   * where communication between client and server is handled through Geneva's
    * broker infrastructure (libcourtier).
    * Note that serialization of this class makes sense only for backup-purposes,
    * in order to allow later, manual recovery. A broker object needs to be registered,
@@ -70,6 +70,7 @@ namespace Geneva
    */
   class GBrokerEA
     : public GEvolutionaryAlgorithm
+    //, public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
     , public GBrokerConnector
   {
     ///////////////////////////////////////////////////////////////////////

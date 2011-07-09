@@ -66,13 +66,16 @@
 namespace Gem {
 namespace Common {
 
-/*
- * The functions in this file help to check whether "Plain Old Data" components meet a given set of
- * expections, such as equality, inequality or floating point similarity.
- *
- * A separate namespace POD has been chosen in order to better distinguish these functions from the
- * similarly named member functions in the Geneva classes.
- */
+///**************************************************************************************************/
+///*
+// * This class helps to check whether whether "Plain Old Data" components meet a given set of
+// * criteria, such as equality, inequality or floating point similarity.
+// */
+//class GExpectationChecks {
+//public:
+//private:
+//};
+
 
 /*************************************************************************************************/
 /**
@@ -478,6 +481,12 @@ boost::optional<std::string> evaluateDiscrepancies(
 		const std::vector<boost::optional<std::string> >&,
 		const Gem::Common::expectation&
 );
+
+/*************************************************************************************************/
+/*
+ * This define facilitates calls to the checkExpectation() function
+ */
+#define EXPECTATIONCHECK(x) deviations.push_back(checkExpectation( withMessages , caller , x , p_load->x , #x , "p_load->"#x , e, limit ))
 
 /*************************************************************************************************/
 
