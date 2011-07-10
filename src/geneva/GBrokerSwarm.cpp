@@ -48,7 +48,7 @@ namespace Geneva
  */
 GBrokerSwarm::GBrokerSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
 	: GSwarm(nNeighborhoods, nNeighborhoodMembers)
-	, GBrokerConnector()
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -59,7 +59,7 @@ GBrokerSwarm::GBrokerSwarm(const std::size_t& nNeighborhoods, const std::size_t&
  */
 GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm& cp)
 	: GSwarm(cp)
-	, GBrokerConnector(cp)
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -94,7 +94,7 @@ void GBrokerSwarm::load_(const GObject * cp) {
 
 	// Load the parent classes' data ...
 	GSwarm::load_(cp);
-	GBrokerConnector::load(p_load);
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
 
 	// no local data
 }
@@ -166,7 +166,7 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GSwarm::checkRelationshipWith(cp, e, limit, "GBrokerSwarm", y_name, withMessages));
-	deviations.push_back(GBrokerConnector::checkRelationshipWith(*p_load, e, limit, "GBrokerSwarm", y_name, withMessages));
+	deviations.push_back(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerSwarm", y_name, withMessages));
 
 	// no local data ...
 	return evaluateDiscrepancies("GBrokerSwarm", caller, deviations, e);
@@ -179,11 +179,8 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
  * @return The best achieved fitness
  */
 double GBrokerSwarm::cycleLogic() {
-	// Let the connector know how many processable items are available
-	GBrokerConnector::setBCNProcessableItems(GSwarm::getNProcessableItems());
-
-	// Let the GBrokerConnector know that we are starting a new iteration
-	GBrokerConnector::markNewIteration();
+	// Let the GBrokerConnectorT know that we are starting a new iteration
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::markNewIteration();
 
 	// Start the actual optimization cycle
 	return GSwarm::cycleLogic();
@@ -198,7 +195,7 @@ void GBrokerSwarm::init() {
 	GSwarm::init();
 
 	// Connect to the broker
-	GBrokerConnector::init();
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -233,7 +230,7 @@ void GBrokerSwarm::finalize() {
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
 	// Invalidate our local broker connection
-	GBrokerConnector::finalize();
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::finalize();
 
 	// GSwarm sees exactly the environment it would when called from its own class
 	GSwarm::finalize();
@@ -258,7 +255,7 @@ void GBrokerSwarm::updateFitness(
 	// after having passed the broker (i.e. usually on a remote machine)
 	ind->getPersonalityTraits()->setCommand("evaluate");
 
-	GBrokerConnector::submit(ind);
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::submit(ind);
 }
 
 /************************************************************************************************************/
@@ -288,9 +285,6 @@ bool GBrokerSwarm::updateIndividualsAndIntegrate(
 	if(p->getParentAlgIteration() == iteration) {
 		// Add the individual to our list.
 		this->push_back(p);
-
-		// Give the GBrokerConnector the opportunity to perform logging
-		GBrokerConnector::log();
 
 		// Update the counter.
 		nReceivedCurrent++;
@@ -360,7 +354,7 @@ void GBrokerSwarm::swarmLogic() {
 	// Individuals from older iterations will also be accepted in this loop.
 	while(true) {
 		// Note: the following call will throw if a timeout has been reached.
-		p = GBrokerConnector::retrieveFirstItem<GParameterSet>();
+		p = Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveFirstItem<GParameterSet>();
 
 		// If it is from the current iteration, break the loop, otherwise
 		// continue until the first item of the current iteration has been
@@ -373,8 +367,8 @@ void GBrokerSwarm::swarmLogic() {
 	bool complete=false;
 
 	// Retrieve items as long as the population is not complete and
-	// GBrokerConnector returns valid items
-	while(!complete && (p=GBrokerConnector::retrieveItem<GParameterSet>())) {
+	// GBrokerConnectorT returns valid items
+	while(!complete && (p=Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveItem<GParameterSet>())) {
 		// Integrate the individual into the population and update variables
 		updateIndividualsAndIntegrate(p, nReceivedCurrent, nReceivedOlder, iteration);
 

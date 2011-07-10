@@ -50,7 +50,6 @@
 #include "courtier/GBufferPortT.hpp"
 #include "geneva/GEAPersonalityTraits.hpp"
 #include "geneva/GEvolutionaryAlgorithm.hpp"
-#include "geneva/GBrokerConnector.hpp"
 #include "geneva/GIndividual.hpp"
 
 namespace Gem
@@ -70,8 +69,7 @@ namespace Geneva
    */
   class GBrokerEA
     : public GEvolutionaryAlgorithm
-    //, public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
-    , public GBrokerConnector
+    , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
   {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -81,7 +79,7 @@ namespace Geneva
       using boost::serialization::make_nvp;
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GEvolutionaryAlgorithm)
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBrokerConnector);
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>);
     }
     ///////////////////////////////////////////////////////////////////////
 

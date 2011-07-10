@@ -656,7 +656,6 @@ private:
 
 			// Create the actual broker population
 			boost::shared_ptr<GBrokerEA> eaBroker_ptr(new GBrokerEA());
-			eaBroker_ptr->setNProcessingUnits(nProcessingUnits_);
 
 			// Assignment to the base pointer
 			ea_ptr = eaBroker_ptr;
@@ -779,7 +778,6 @@ private:
 
 			// Create the actual broker population
 			boost::shared_ptr<GBrokerSwarm> swarmBroker_ptr(new GBrokerSwarm(swarmNNeighborhoods_, swarmNNeighborhoodMembers_));
-			swarmBroker_ptr->setNProcessingUnits(nProcessingUnits_);
 
 			// Assignment to the base pointer
 			swarm_ptr = swarmBroker_ptr;
@@ -905,7 +903,6 @@ private:
 
 			// Create the actual broker population
 			boost::shared_ptr<GBrokerGD> gdBroker_ptr(new GBrokerGD(gdNStartingPoints_, gdFiniteStep_, gdStepSize_));
-			gdBroker_ptr->setNProcessingUnits(nProcessingUnits_);
 
 			// Assignment to the base pointer
 			gd_ptr = gdBroker_ptr;

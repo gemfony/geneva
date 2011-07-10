@@ -50,7 +50,6 @@
 #include "courtier/GBufferPortT.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
 #include "geneva/GSwarm.hpp"
-#include "geneva/GBrokerConnector.hpp"
 
 namespace Gem
 {
@@ -64,7 +63,7 @@ namespace Geneva
  */
 class GBrokerSwarm
   : public GSwarm
-  , public GBrokerConnector
+  , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -74,7 +73,7 @@ class GBrokerSwarm
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSwarm)
-		   & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBrokerConnector);
+		   & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBrokerConnectorT<Gem::Geneva::GIndividual>);
 	}
 	///////////////////////////////////////////////////////////////////////
 

@@ -396,7 +396,7 @@ public:
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		GMutableSetT<ind_type>::checkRelationshipWith(cp, e, limit, caller, y_name, withMessages);
+	    deviations.push_back(GMutableSetT<ind_type>::checkRelationshipWith(cp, e, limit, caller, y_name, withMessages));
 
 		// ... and then our local data
 		EXPECTATIONCHECK(iteration_);
@@ -1317,7 +1317,7 @@ private:
 	boost::int32_t cpInterval_; ///< Number of generations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	std::string cpBaseName_; ///< The base name of the checkpoint file
 	std::string cpDirectory_; ///< The directory where checkpoint files should be stored
-	Gem::Common::serializationMode cpSerMode_; ///< Determines whether checkpointing should be done in text-, XML, or binary mode
+	Gem::Common::serializationMode cpSerMode_; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
 	double qualityThreshold_; ///< A threshold beyond which optimization is expected to stop
 	bool hasQualityThreshold_; ///< Specifies whether a qualityThreshold has been set
 	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization
@@ -1326,8 +1326,6 @@ private:
 	bool halted_; ///< Set to true when halt() has returned "true"
 	personality optAlg_; ///< Allows to identify the actual optimization algorithm built on top of this class
 	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
-
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual> gbc_;
 
 #ifdef GENEVATESTING
 public:
@@ -1489,7 +1487,7 @@ public:
 	        std::vector<boost::optional<std::string> > deviations;
 
 	    	// Check our parent class'es data ...
-	    	GObject::checkRelationshipWith(cp, e, limit, caller, y_name, withMessages);
+	        deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, caller, y_name, withMessages));
 
 	    	// ... and then our local data
 			EXPECTATIONCHECK(quiet_);
@@ -1726,6 +1724,7 @@ namespace boost {
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::GOptimizationMonitorT);
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT);
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>);
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>);
 
 /******************************************************************************************/
 

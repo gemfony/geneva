@@ -5,7 +5,6 @@ SET ( OPTIMIZATIONSOURCES
 	GBooleanCollection
 	GBooleanObject
 	GBooleanObjectCollection
-	GBrokerConnector
 	GBrokerEA
 	GBrokerGD
 	GBrokerSwarm

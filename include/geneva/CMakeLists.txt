@@ -6,7 +6,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GBooleanCollection.hpp
 	GBooleanObject.hpp
 	GBooleanObjectCollection.hpp
-	GBrokerConnector.hpp
 	GBrokerEA.hpp
 	GBrokerGD.hpp
 	GBrokerSwarm.hpp

@@ -47,7 +47,7 @@ namespace Geneva
  */
 GBrokerEA::GBrokerEA()
 	: GEvolutionaryAlgorithm()
-	, GBrokerConnector()
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -58,7 +58,7 @@ GBrokerEA::GBrokerEA()
  */
 GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	: GEvolutionaryAlgorithm(cp)
-	, GBrokerConnector(cp)
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -93,7 +93,7 @@ void GBrokerEA::load_(const GObject * cp) {
 
 	// Load the parent classes' data ...
 	GEvolutionaryAlgorithm::load_(cp);
-	GBrokerConnector::load(p_load);
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
 
 	// no local data
 }
@@ -165,7 +165,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GEvolutionaryAlgorithm::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
-	deviations.push_back(GBrokerConnector::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
+	deviations.push_back(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
 
 	// no local data ...
 	return evaluateDiscrepancies("GBrokerEA", caller, deviations, e);
@@ -178,11 +178,8 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
  * @return The best achieved fitness
  */
 double GBrokerEA::cycleLogic() {
-	// Let the connector know how many processible items are available
-	GBrokerConnector::setBCNProcessableItems(GEvolutionaryAlgorithm::getNProcessableItems());
-
-	// Let the GBrokerConnector know that we are starting a new iteration
-	GBrokerConnector::markNewIteration();
+	// Let the GBrokerConnectorT know that we are starting a new iteration
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::markNewIteration();
 
 	// Start the actual optimization cycle
 	return GEvolutionaryAlgorithm::cycleLogic();
@@ -215,7 +212,7 @@ void GBrokerEA::init() {
 	GEvolutionaryAlgorithm::init();
 
 	// Connect to the broker
-	GBrokerConnector::init();
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -250,7 +247,7 @@ void GBrokerEA::finalize() {
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
 	// Invalidate our local broker connection
-	GBrokerConnector::finalize();
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::finalize();
 
 	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
 	GEvolutionaryAlgorithm::finalize();
@@ -279,7 +276,7 @@ void GBrokerEA::adaptChildren() {
 	// This is the same for all sorting modes
 	for(rit=data.rbegin(); rit!=data.rbegin()+nc; ++rit) {
 		(*rit)->getPersonalityTraits()->setCommand("adapt");
-		GBrokerConnector::submit(*rit);
+		Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::submit(*rit);
 	}
 
 	// We can remove children, so only parents remain in the population
@@ -298,7 +295,7 @@ void GBrokerEA::adaptChildren() {
 			// Note that we only have parents left in this iteration
 			for(rit=data.rbegin(); rit!=data.rend(); ++rit) {
 				(*rit)->getPersonalityTraits()->setCommand("evaluate");
-				GBrokerConnector::submit(*rit);
+				Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::submit(*rit);
 			}
 
 			// Next we clear the population. We do not loose anything,
@@ -330,7 +327,7 @@ void GBrokerEA::adaptChildren() {
 	// genuine parents are in the population than have originally been sent away.
 	while(true) {
 		// Note: the following call will throw if a timeout has been reached.
-		p = GBrokerConnector::retrieveFirstItem<GIndividual>();
+		p = Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveFirstItem();
 
 		// If it is from the current iteration, break the loop, otherwise
 		// continue until the first item of the current iteration has been
@@ -338,9 +335,6 @@ void GBrokerEA::adaptChildren() {
 		if(p->getParentAlgIteration() == iteration) {
 			// Add the individual to our list.
 			this->push_back(p);
-
-			// Give the GBrokerConnector the opportunity to perform logging
-			GBrokerConnector::log();
 
 			// Update the counter.
 			if(p->getPersonalityTraits<GEAPersonalityTraits>()->isParent()) nReceivedParent++;
@@ -369,14 +363,11 @@ void GBrokerEA::adaptChildren() {
 	bool complete=false;
 
 	// retrieveItem will return an empty pointer, if a timeout has been reached
-	while(!complete && (p=GBrokerConnector::retrieveItem<GIndividual>())) {
+	while(!complete && (p=Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveItem())) {
 		// Count the number of items received.
 		if(p->getParentAlgIteration() == iteration) { // First count items of the current iteration
 			// Add the individual to our list.
 			this->push_back(p);
-
-			// Give the GBrokerConnector the opportunity to perform logging
-			GBrokerConnector::log();
 
 			// Update the counter
 			if(p->getPersonalityTraits<GEAPersonalityTraits>()->isParent()) nReceivedParent++;

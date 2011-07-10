@@ -106,6 +106,8 @@ class GBrokerConnectorT
       	 & BOOST_SERIALIZATION_NVP(maxWaitFactor_)
     	 & BOOST_SERIALIZATION_NVP(waitFactorIncrement_)
     	 & BOOST_SERIALIZATION_NVP(boundlessWait_)
+		 & BOOST_SERIALIZATION_NVP(allItemsReturned_)
+		 & BOOST_SERIALIZATION_NVP(percentOfTimeoutNeeded_)
 		 & BOOST_SERIALIZATION_NVP(firstTimeOut_)
 		 & BOOST_SERIALIZATION_NVP(doLogging_);
     }
@@ -124,6 +126,8 @@ public:
 		, maxWaitFactor_(DEFAULTMAXBROKERWAITFACTOR)
 		, waitFactorIncrement_(DEFAULTBROKERWAITFACTORINCREMENT)
     	, boundlessWait_(false)
+        , allItemsReturned_(true)
+    	, percentOfTimeoutNeeded_(0.)
         , firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTBROKERFIRSTTIMEOUT))
         , doLogging_(false)
     { /* nothing */ }
@@ -140,6 +144,8 @@ public:
 		, maxWaitFactor_(cp.maxWaitFactor_)
 		, waitFactorIncrement_(cp.waitFactorIncrement_)
     	, boundlessWait_(cp.boundlessWait_)
+    	, allItemsReturned_(true)
+		, percentOfTimeoutNeeded_(0.)
     	, firstTimeOut_(cp.firstTimeOut_)
     	, doLogging_(cp.doLogging_)
     { /* nothing */ }
@@ -176,6 +182,8 @@ public:
 		maxWaitFactor_ = cp->maxWaitFactor_;
 		waitFactorIncrement_ = cp->waitFactorIncrement_;
 		boundlessWait_ = cp->boundlessWait_;
+    	allItemsReturned_ = cp->allItemsReturned_;
+		percentOfTimeoutNeeded_ = cp->percentOfTimeoutNeeded_;
     	firstTimeOut_ = cp->firstTimeOut_;
     	doLogging_ = cp->doLogging_;
     }
@@ -238,6 +246,8 @@ public:
     	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", maxWaitFactor_, cp.maxWaitFactor_, "maxWaitFactor_", "cp.maxWaitFactor_", e , limit));
     	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", waitFactorIncrement_, cp.waitFactorIncrement_, "waitFactorIncrement_", "cp.waitFactorIncrement_", e , limit));
     	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", boundlessWait_, cp.boundlessWait_, "boundlessWait_", "cp.boundlessWait_", e , limit));
+    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", allItemsReturned_, cp.allItemsReturned_, "allItemsReturned_", "cp.allItemsReturned_", e , limit));
+    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", percentOfTimeoutNeeded_, cp.percentOfTimeoutNeeded_, "percentOfTimeoutNeeded_", "cp.percentOfTimeoutNeeded_", e , limit));
     	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", firstTimeOut_, cp.firstTimeOut_, "firstTimeOut_", "cp.firstTimeOut_", e , limit));
     	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
 
@@ -330,24 +340,14 @@ public:
 
     /**********************************************************************************/
     /**
-     * Instructs GBrokerConnector to performing logging activities, if logging
-     * has been activated.
-     */
-    void log() {
-    	// Log arrival times if requested by the user
-    	if(doLogging_) {
-    		arrivalTimes_.back().push_back((boost::posix_time::microsec_clock::local_time()-iterationStartTime_).total_milliseconds());
-    	}
-    }
-
-    /**********************************************************************************/
-    /**
-     * Allows to retrieve the logging results
+     * Allows to retrieve the logging results. Note that this function also resets
+     * the local arrivalTimes_ vector.
      *
-     * @return A vector containing the logging results
+     * @param arrivalTimes A vector containing the logging results
      */
-    std::vector<std::vector<boost::uint32_t> > getLoggingResults() const {
-    	return arrivalTimes_;
+    void getLoggingResults(std::vector<std::vector<boost::uint32_t> >& arrivalTimes) const {
+    	arrivalTimes = arrivalTimes_;
+    	arrivalTimes_.clear();
     }
 
     /**********************************************************************************/
@@ -370,6 +370,16 @@ public:
      */
     bool getBoundlessWait() const {
     	return boundlessWait_;
+    }
+
+    /**********************************************************************************/
+    /**
+     * Allows to check whether all items have returned before the timeout of an iteration
+     *
+     * @return A boolean indicating whether all items have returned before the timeout of an iteration
+     */
+    bool getAllItemsReturned() const {
+    	return allItemsReturned_;
     }
 
     /**********************************************************************************/
@@ -400,38 +410,39 @@ public:
      * Allows to perform any work necessary to be repeated in each new iteration. In
      * particular, this function adjusts the waitFactor_ variable, so that it fits
      * the current load pattern of the computing resources behind the broker.
-     *
-     * @param allItemsReturnedBeforeTimeout Indicates whether all work items have returned before the timeout
-     * @param percentOfTimeoutNeeded The percentage of the timeout interval that was needed for all items to return
-     */
-    void markNewIteration(
-    		const bool allItemsReturnedBeforeTimeout = true
-    		, const double& percentOfTimeoutNeeded = 1.
-    ) {
+ 	 */
+    void markNewIteration() {
     	// If logging is enabled, add a std::vector<boost::uint32_t> for the current iteration to arrivalTimes_
     	if(doLogging_) arrivalTimes_.push_back(std::vector<boost::uint32_t>());
 
-    	// Increment or decrement the waitFactor_ variable, based on the current load of the system
-    	// Over the course of a few iterations, waitFactor_ should adjust itself into the correct range
-    	if(!allItemsReturnedBeforeTimeout) {
-    		if(waitFactor_ < maxWaitFactor_) {
-    			waitFactor_ += waitFactorIncrement_;
+    	// Adapting the wait factor only makes sense if we haven't been ordered to wait endlessly anyway
+    	if(!boundlessWait_) {
+			// Increment or decrement the waitFactor_ variable, based on the current load of the system
+			// Over the course of a few iterations, waitFactor_ should adjust itself into the correct range
+			if(!allItemsReturned_) {
+				if(waitFactor_ < maxWaitFactor_) {
+					waitFactor_ += waitFactorIncrement_;
 
-    			// Make sure we do not accidently slip above the maximum allowed wait factor
-    			if(waitFactor_ > maxWaitFactor_) {
-    				waitFactor_ = maxWaitFactor_;
-    			}
-    		}
-    	} else if(percentOfTimeoutNeeded < DEFAULTMINPERCENTAGEOFTIMEOUT) {
-    		if(waitFactor_ > minWaitFactor_) {
-    			waitFactor_ -= waitFactorIncrement_;
+					// Make sure we do not accidently slip above the maximum allowed wait factor
+					if(waitFactor_ > maxWaitFactor_) {
+						waitFactor_ = maxWaitFactor_;
+					}
+				}
+			} else if(percentOfTimeoutNeeded_ < DEFAULTMINPERCENTAGEOFTIMEOUT) {
+				if(waitFactor_ > minWaitFactor_) {
+					waitFactor_ -= waitFactorIncrement_;
 
-    			// Make sure we do not accidently slip below the minimum wait factor
-    			if(waitFactor_ < minWaitFactor_) {
-    				waitFactor_ = minWaitFactor_;
-    			}
-    		}
+					// Make sure we do not accidently slip below the minimum wait factor
+					if(waitFactor_ < minWaitFactor_) {
+						waitFactor_ = minWaitFactor_;
+					}
+				}
+			}
     	}
+
+		// Reset the allItemsReturned_ variable. We assume that all items
+    	// will return before the timeout in the next iteration
+		allItemsReturned_ = true;
 
     	// Set the start time of the new iteration so we calculate a correct
     	// Return time for the first individual, regardless of whether older
@@ -441,11 +452,11 @@ public:
 
     /**********************************************************************************/
     /**
-     * Resets the iteration's start time to the current time. This is useful when there
-     * is a need for re-submission of individuals, such as in gradient descents.
+     * Prolongs the timeout. This is useful when there is a need for re-submission of
+     * individuals, such as in gradient descents.
      */
-    void resetIterationStartTime() {
-    	iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
+    void prolongTimeout() {
+    	maxAllowedElapsed_ += totalElapsedFirst_ * (waitFactor_ + 1);
     }
 
     /**********************************************************************************/
@@ -504,6 +515,11 @@ public:
 		totalElapsedFirst_ = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
 		maxAllowedElapsed_ = totalElapsedFirst_ * (waitFactor_ + 1);
 
+    	// Log arrival times if requested by the user
+    	if(doLogging_) {
+    		arrivalTimes_.back().push_back(totalElapsedFirst_.total_milliseconds());
+    	}
+
 		return p;
 	}
 
@@ -544,6 +560,11 @@ public:
 		totalElapsedFirst_ = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
 		maxAllowedElapsed_ = totalElapsedFirst_ * (waitFactor_ + 1);
 
+    	// Log arrival times if requested by the user
+    	if(doLogging_) {
+    		arrivalTimes_.back().push_back(totalElapsedFirst_.total_milliseconds());
+    	}
+
 		// Convert the item to the target type. Note that there is a specialization
 		// of this function in case target_type == T
 #ifdef DEBUG
@@ -575,17 +596,51 @@ public:
 		// Will hold retrieved items
 		boost::shared_ptr<T> p;
 
-		if(!boundlessWait_) { // Have we been asked to consider a possible time-out ?
-			// Calculate how much time has elapsed since the start of the iteration
-			boost::posix_time::time_duration currentElapsed = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
+		// Will hold the elapsed time since the start of this iteration
+		boost::posix_time::time_duration currentElapsed;
 
-			if((maxAllowedElapsed_ < currentElapsed) || !CurrentBufferPort_->pop_back_processed_bool(&p, maxAllowedElapsed_-currentElapsed)) {
+		if(boundlessWait_) { // Wait indefinitely for the next item
+			CurrentBufferPort_->pop_back_processed(&p);
+		} else { // Observe a timeout
+			// Calculate how much time has elapsed since the start of the iteration
+			currentElapsed = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
+
+			// Have we already exceeded the timeout ? Or was it impossible to retrieve an item in the remaining time before the timeout ?
+			if((currentElapsed > maxAllowedElapsed_) || !CurrentBufferPort_->pop_back_processed_bool(&p, maxAllowedElapsed_-currentElapsed)) {
+				// We ran into a timeout before the start of a new iteration was signaled.
+				// This is interpreted as a situation where not all items have returned.
+				allItemsReturned_ = false;
 				p.reset();
 				return p; // will be empty
+			} else { // o.k., p now holds a valid pointer
+#ifdef DEBUG
+				if(maxAllowedElapsed_.total_microseconds() == 0) {
+					raiseException(
+							"In GBrokerConnectorT<T>::retrieveItem(): Error!" << std::endl
+							<< "maxAllowedElapsed_ is 0" << std::endl
+					);
+				}
+#endif
+
+				// Make a note of the current percentage of the maximum timeout (needed for the waitFactor calculation).
+				// This variable will be updated for every call to retrieveItem<>. When the start of a new iteration is
+				// signaled by "markNewIteration()", it will hold the latest percentage.
+				percentOfTimeoutNeeded_ = double(currentElapsed.total_microseconds()) / double(maxAllowedElapsed_.total_microseconds());
+#ifdef DEBUG
+				if(percentOfTimeoutNeeded_ > 1. || percentOfTimeoutNeeded_ < 0) {
+					raiseException(
+							"In GBrokerConnectorT<T>::retrieveItem(): Error!" << std::endl
+							<< "Invalid percentage of time out: " << percentOfTimeoutNeeded_ << std::endl
+					);
+				}
+#endif /* DEBUG */
 			}
-		} else {// Wait indefinitely for the next item
-			CurrentBufferPort_->pop_back_processed(&p);
 		}
+
+    	// Log arrival times if requested by the user
+    	if(doLogging_) {
+    		arrivalTimes_.back().push_back(currentElapsed.total_milliseconds());
+    	}
 
 		return p;
 	}
@@ -605,17 +660,50 @@ public:
 		boost::shared_ptr<T> p;
 		// Will hold converted items
 		boost::shared_ptr<target_type> p_converted;
+		// Will hold the elapsed time since the start of this iteration
+		boost::posix_time::time_duration currentElapsed;
 
-		if(!boundlessWait_) { // Have we been asked to consider a possible time-out ?
-			// Calculate how much time has elapsed since the start of the iteration
-			boost::posix_time::time_duration currentElapsed = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
-
-			if((maxAllowedElapsed_ < currentElapsed) || !CurrentBufferPort_->pop_back_processed_bool(&p, maxAllowedElapsed_-currentElapsed)) {
-				return p_converted; // will be empty
-			}
-		} else {// Wait indefinitely for the next item
+		if(boundlessWait_) { // Wait indefinitely for the next item
 			CurrentBufferPort_->pop_back_processed(&p);
+		} else { // Observe a timeout
+			// Calculate how much time has elapsed since the start of the iteration
+			currentElapsed = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
+
+			// Have we already exceeded the timeout ? Or was it impossible to retrieve an item in the remaining time before the timeout ?
+			if((currentElapsed > maxAllowedElapsed_) || !CurrentBufferPort_->pop_back_processed_bool(&p, maxAllowedElapsed_-currentElapsed)) {
+				// We ran into a timeout before the start of a new iteration was signaled.
+				// This is interpreted as a situation where not all items have returned.
+				allItemsReturned_ = false;
+				return p_converted; // will be empty
+			} else { // o.k., p now holds a valid pointer
+#ifdef DEBUG
+				if(maxAllowedElapsed_.total_microseconds() == 0) {
+					raiseException(
+							"In GBrokerConnectorT<T>::retrieveItem<target_type>(): Error!" << std::endl
+							<< "maxAllowedElapsed_ is 0" << std::endl
+					);
+				}
+#endif
+
+				// Make a note of the current percentage of the maximum timeout (needed for the waitFactor calculation).
+				// This variable will be updated for every call to retrieveItem<>. When the start of a new iteration is
+				// signaled by "markNewIteration()", it will hold the latest percentage.
+				percentOfTimeoutNeeded_ = double(currentElapsed.total_microseconds()) / double(maxAllowedElapsed_.total_microseconds());
+#ifdef DEBUG
+				if(percentOfTimeoutNeeded_ > 1. || percentOfTimeoutNeeded_ < 0) {
+					raiseException(
+							"In GBrokerConnectorT<T>::retrieveItem(): Error!" << std::endl
+							<< "Invalid percentage of time out: " << percentOfTimeoutNeeded_ << std::endl
+					);
+				}
+#endif /* DEBUG */
+			}
 		}
+
+    	// Log arrival times if requested by the user
+    	if(doLogging_) {
+    		arrivalTimes_.back().push_back(currentElapsed.total_milliseconds());
+    	}
 
 		// If we have reached this point, we should have a valid p. Convert to the target type.
 #ifdef DEBUG
@@ -646,6 +734,9 @@ private:
 	double maxWaitFactor_; ///< The maximum allowed wait factor
 	double waitFactorIncrement_; ///< The amount by which the waitFactor_ may be incremented or decremented
 	bool boundlessWait_; ///< Indicates whether the retrieveItem call should wait for an unlimited amount of time
+
+	bool allItemsReturned_; ///< Indicates whether all items have returned before the timeout
+	double percentOfTimeoutNeeded_; ///< Makes a note what percentage of the maximum timeout was needed in one iteration
 
     boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
     boost::posix_time::ptime iterationStartTime_; ///< Temporary that holds the start time for the retrieval of items in a given iteration

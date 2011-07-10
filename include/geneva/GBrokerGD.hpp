@@ -51,7 +51,6 @@
 #include "common/GThreadWrapper.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GGradientDescent.hpp"
-#include "geneva/GBrokerConnector.hpp"
 #include "geneva/GIndividual.hpp"
 
 #ifdef GENEVATESTING
@@ -67,7 +66,7 @@ namespace Geneva {
  */
 class GBrokerGD
 	: public GGradientDescent
-	, public GBrokerConnector
+	, public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -77,7 +76,7 @@ class GBrokerGD
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GGradientDescent)
-		   & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBrokerConnector);
+		   & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBrokerConnectorT<Gem::Geneva::GIndividual>);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -133,7 +132,8 @@ private:
      */
     struct indPositionComp {
     	bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
-    		return x->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition() < y->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition();
+    		return x->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition()
+    			   < y->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition();
     	}
     };
 

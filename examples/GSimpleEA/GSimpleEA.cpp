@@ -251,7 +251,6 @@ int main(int argc, char **argv){
 
 	  // Create the actual broker population
 	  boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
-	  popBroker_ptr->setNProcessingUnits(nProcessingUnits);
 
 	  // Assignment to the base pointer
 	  pop_ptr = popBroker_ptr;
