@@ -721,7 +721,7 @@ void GSwarm::swarmLogic() {
 			}
 
 			// Update the fitness
-			updateFitness(
+			updateIndividualFitness(
 				iteration
 				, neighborhood
 				, (*current)
@@ -936,7 +936,7 @@ void GSwarm::pruneVelocity(std::vector<double>& velVec) {
  * @param neighborhood The neighborhood the individual is in
  * @param ind The individual for which the fitness calculation should be performed
  */
-void GSwarm::updateFitness(
+void GSwarm::updateIndividualFitness(
 	  const boost::uint32_t& iteration
 	  , const std::size_t& neighborhood
 	  , boost::shared_ptr<GParameterSet> ind

@@ -241,7 +241,7 @@ void GBrokerSwarm::finalize() {
  * @param neighborhood The neighborhood the individual is in
  * @param ind The individual for which the fitness calculation should be performed
  */
-void GBrokerSwarm::updateFitness(
+void GBrokerSwarm::updateIndividualFitness(
 		const boost::uint32_t& iteration
 		, const std::size_t& neighborhood
 		, boost::shared_ptr<GParameterSet> ind
@@ -330,7 +330,7 @@ void GBrokerSwarm::swarmLogic() {
 	}
 
 	//--------------------------------------------------------------------------------
-	// This function will call the overloaded GBrokerSwarm::updateFitness() function,
+	// This function will call the overloaded GBrokerSwarm::updateIndividualFitness() function,
 	// so that all individuals are submitted to the broker. Position updates will be
 	// applied locally in the server.
 	GSwarm::swarmLogic();

@@ -287,7 +287,7 @@ void GMultiThreadedSwarm::swarmLogic() {
 			tp_.schedule(
 				Gem::Common::GThreadWrapper(
 					boost::bind(
-					    &GMultiThreadedSwarm::updateFitness
+					    &GMultiThreadedSwarm::updateIndividualFitness
 						, this
 						, iteration
 						, neighborhood

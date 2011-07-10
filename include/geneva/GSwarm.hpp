@@ -296,7 +296,7 @@ protected:
 	);
 
 	/** @brief Triggers the fitness calculation */
-	virtual void updateFitness(
+	virtual void updateIndividualFitness(
 			const boost::uint32_t&
 			, const std::size_t&
 			, boost::shared_ptr<GParameterSet>
