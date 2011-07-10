@@ -124,11 +124,12 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
 
+	/** @brief Update iteration counters */
+	virtual void markIteration();
+	/** @brief Performs necessary initialization work */
 	virtual void init();
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
-	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	virtual double cycleLogic();
 
 	/** @brief Triggers fitness calculation of a number of individuals */
 	virtual double doFitnessCalculation(const std::size_t&);

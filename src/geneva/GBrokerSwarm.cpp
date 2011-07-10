@@ -174,16 +174,14 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
 
 /************************************************************************************************************/
 /**
- * The actual business logic to be performed during each iteration.
- *
- * @return The best achieved fitness
+ * Update the iteration counters
  */
-double GBrokerSwarm::cycleLogic() {
-	// Let the GBrokerConnectorT know that we are starting a new iteration
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::markNewIteration();
+void GBrokerSwarm::markIteration() {
+	// Execute the parent classes markIteration() call
+	GSwarm::markIteration();
 
-	// Start the actual optimization cycle
-	return GSwarm::cycleLogic();
+	// Let the GBrokerConnectorT know that we are starting a new iteration
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::markNewIteration(this->getIteration());
 }
 
 /************************************************************************************************************/
@@ -282,7 +280,7 @@ bool GBrokerSwarm::updateIndividualsAndIntegrate(
 		updatePersonalBestIfBetter(p, p);
 	}
 
-	if(p->getParentAlgIteration() == iteration) {
+	if(p->getAssignedIteration() == iteration) {
 		// Add the individual to our list.
 		this->push_back(p);
 
@@ -292,7 +290,7 @@ bool GBrokerSwarm::updateIndividualsAndIntegrate(
 		return true;
 	} else {
 		// Make it known to the individual that it is now part of a new iteration
-		p->setParentAlgIteration(iteration);
+		p->setAssignedIteration(iteration);
 
 		// Add to the population. This will effectively increase the last neighborhood
 		this->push_back(p);

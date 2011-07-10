@@ -103,6 +103,15 @@ const std::string DEFAULTBROKERFIRSTTIMEOUT = EMPTYDURATION;
 const std::string DEFAULTDURATION = EMPTYDURATION;
 
 /**********************************************************************************************/
+/**
+ * Needed by the broker
+ */
+const bool ACCEPTOLDERITEMS = true;
+const bool REJECTOLDERITEMS = false;
+const bool UPDATEITERATION  = true;
+const bool LEAVEITERATIONUNTOUCHED = false;
+
+/**********************************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */

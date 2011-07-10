@@ -54,7 +54,7 @@ GIndividual::GIndividual()
 	, serverMode_(false)
 	, processingCycles_(1)
 	, maximize_(false)
-	, parentAlgIteration_(0)
+	, assignedIteration_(0)
 	, pers_(NONE)
 { /* nothing */ }
 
@@ -77,7 +77,7 @@ GIndividual::GIndividual(const GIndividual& cp)
 	, serverMode_(cp.serverMode_)
 	, processingCycles_(cp.processingCycles_)
 	, maximize_(cp.maximize_)
-	, parentAlgIteration_(cp.parentAlgIteration_)
+	, assignedIteration_(cp.assignedIteration_)
 	, pers_(cp.pers_)
 {
 	// We need to take care of the personality pointer manually
@@ -159,7 +159,7 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", processingCycles_, p_load->processingCycles_, "processingCycles_", "p_load->processingCycles_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", parentAlgIteration_, p_load->parentAlgIteration_, "parentAlgIteration_", "p_load->parentAlgIteration_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", assignedIteration_, p_load->assignedIteration_, "assignedIteration_", "p_load->assignedIteration_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", pers_, p_load->pers_, "pers_", "p_load->pers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", pt_ptr_, p_load->pt_ptr_, "pt_ptr_", "p_load->pt_ptr_", e , limit));
 
@@ -188,7 +188,7 @@ void GIndividual::load_(const GObject* cp) {
 	serverMode_ = p_load->serverMode_;
 	processingCycles_ = p_load->processingCycles_;
 	maximize_ = p_load->maximize_;
-	parentAlgIteration_ = p_load->parentAlgIteration_;
+	assignedIteration_ = p_load->assignedIteration_;
 	setPersonality(p_load->pers_);
 	if(pers_ != NONE) pt_ptr_->GObject::load(p_load->pt_ptr_);
 }
@@ -744,7 +744,7 @@ bool GIndividual::process(){
 	case EA: // Evolutionary Algorithm
 		{
 			if(getPersonalityTraits()->getCommand() == "adapt") {
-				if(processingCycles_ == 1 || getParentAlgIteration() == 0) {
+				if(processingCycles_ == 1 || getAssignedIteration() == 0) {
 					adaptAndEvaluate();
 					gotUsefulResult = true;
 				}
@@ -910,8 +910,8 @@ boost::uint32_t GIndividual::getProcessingCycles() const {
  *
  * @param parentAlgIteration The current iteration of the optimization algorithm
  */
-void GIndividual::setParentAlgIteration(const boost::uint32_t& parentAlgIteration) {
-	parentAlgIteration_ = parentAlgIteration;
+void GIndividual::setAssignedIteration(const boost::uint32_t& parentAlgIteration) {
+	assignedIteration_ = parentAlgIteration;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -925,8 +925,8 @@ void GIndividual::setParentAlgIteration(const boost::uint32_t& parentAlgIteratio
  *
  * @return The parent optimization algorithm's current iteration
  */
-boost::uint32_t GIndividual::getParentAlgIteration() const {
-	return parentAlgIteration_;
+boost::uint32_t GIndividual::getAssignedIteration() const {
+	return assignedIteration_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1119,11 +1119,11 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
 
 		for(boost::uint32_t i=1; i<10; i++) {
-			BOOST_CHECK_NO_THROW(p_test->setParentAlgIteration(i));
+			BOOST_CHECK_NO_THROW(p_test->setAssignedIteration(i));
 			BOOST_CHECK_MESSAGE(
-					p_test->getParentAlgIteration() == i
+					p_test->getAssignedIteration() == i
 					,  "\n"
-					<< "p_test->getParentAlgIteration() = " << p_test->getParentAlgIteration() << "\n"
+					<< "p_test->getAssignedIteration() = " << p_test->getAssignedIteration() << "\n"
 					<< "i = " << i << "\n"
 			);
 		}

@@ -102,7 +102,7 @@ class GIndividual
 	     & BOOST_SERIALIZATION_NVP(serverMode_)
 	     & BOOST_SERIALIZATION_NVP(processingCycles_)
 	     & BOOST_SERIALIZATION_NVP(maximize_)
-	     & BOOST_SERIALIZATION_NVP(parentAlgIteration_)
+	     & BOOST_SERIALIZATION_NVP(assignedIteration_)
 	     & BOOST_SERIALIZATION_NVP(pers_)
 	     & BOOST_SERIALIZATION_NVP(pt_ptr_);
 	}
@@ -172,9 +172,9 @@ public:
 	bool getMaxMode() const;
 
 	/** @brief Allows to set the current iteration of the parent optimization algorithm. */
-	void setParentAlgIteration(const boost::uint32_t&);
+	void setAssignedIteration(const boost::uint32_t&);
 	/** @brief Gives access to the parent optimization algorithm's iteration */
-	boost::uint32_t getParentAlgIteration() const;
+	boost::uint32_t getAssignedIteration() const;
 
 	/** @brief Allows to set the globally best known fitness */
 	void setBestKnownFitness(const double&);
@@ -307,7 +307,7 @@ private:
     /** @brief Indicates whether we are running in maximization or minimization mode */
     bool maximize_;
     /** @brief The iteration of the parent algorithm's optimization cycle */
-    boost::uint32_t parentAlgIteration_;
+    boost::uint32_t assignedIteration_;
     /** @brief Indicates the optimization algorithm the individual takes part in */
     personality pers_;
     /** @brief Holds the actual personality information */

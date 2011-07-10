@@ -102,8 +102,8 @@ namespace Geneva
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	virtual double cycleLogic();
+	/** @brief Update iteration counters */
+	virtual void markIteration();
 	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
 	virtual void init();
 	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
@@ -117,6 +117,8 @@ namespace Geneva
 
     /** @brief Adapts all children in sequence */
     virtual void adaptChildren();
+    /** @brief Adapts all children in sequence */
+    virtual void adaptChildrenX();
     /** @brief Selects new parents */
     virtual void select();
 
@@ -135,6 +137,41 @@ namespace Geneva
     		return x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GEAPersonalityTraits>()->isParent();
     	}
     };
+
+    /*********************************************************************************/
+    /**
+     * This simple operator helps to identify individuals that are parents from an
+     * older iteration
+     */
+    class isOldParent {
+    public:
+    	isOldParent(const boost::uint32_t current_iteration)
+    		: current_iteration_(current_iteration)
+    	{ /* nothing */ }
+
+    	isOldParent(const isOldParent& cp)
+    		: current_iteration_(cp.current_iteration_)
+    	{ /* nothing */ }
+
+    	bool operator()(boost::shared_ptr<GIndividual> x) {
+    		if(x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() && x->getAssignedIteration() != current_iteration_) {
+    			return true;
+    		} else {
+    			return false;
+    		}
+    	}
+
+    private:
+    	isOldParent(); // Intentionally private and undefined
+
+    	boost::uint32_t current_iteration_;
+    };
+
+    /*********************************************************************************/
+    /** @brief Mark the commands each individual has to work on */
+    std::pair<std::size_t, std::size_t> markCommands();
+    /** @brief Fixes the population after a job submission */
+    void fixAfterJobSubmission();
 
     /*********************************************************************************/
 

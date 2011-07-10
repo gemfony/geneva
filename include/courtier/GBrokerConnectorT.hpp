@@ -121,7 +121,8 @@ public:
      * The default constructor
      */
     GBrokerConnectorT()
-        : waitFactor_(DEFAULTBROKERWAITFACTOR)
+        : iteration_(0)
+        , waitFactor_(DEFAULTBROKERWAITFACTOR)
 		, minWaitFactor_(DEFAULTMINBROKERWAITFACTOR)
 		, maxWaitFactor_(DEFAULTMAXBROKERWAITFACTOR)
 		, waitFactorIncrement_(DEFAULTBROKERWAITFACTORINCREMENT)
@@ -139,7 +140,8 @@ public:
      * @param cp A copy of another GBrokerConnector object
      */
     GBrokerConnectorT(const GBrokerConnectorT<T>& cp)
-    	: waitFactor_(cp.waitFactor_)
+    	: iteration_(cp.iteration_)
+    	, waitFactor_(cp.waitFactor_)
 		, minWaitFactor_(cp.minWaitFactor_)
 		, maxWaitFactor_(cp.maxWaitFactor_)
 		, waitFactorIncrement_(cp.waitFactorIncrement_)
@@ -177,6 +179,7 @@ public:
      * @param cp A constant pointer to another GBrokerConnector object
      */
     void load(GBrokerConnectorT<T> const * const cp) {
+    	iteration_ = cp->iteration_;
     	waitFactor_ = cp->waitFactor_;
 		minWaitFactor_ = cp->minWaitFactor_;
 		maxWaitFactor_ = cp->maxWaitFactor_;
@@ -241,6 +244,7 @@ public:
         std::vector<boost::optional<std::string> > deviations;
 
     	// Check the local local data
+        deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", iteration_, cp.iteration_, "iteration_", "cp.iteration_", e , limit));
     	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", waitFactor_, cp.waitFactor_, "waitFactor_", "cp.waitFactor_", e , limit));
     	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", minWaitFactor_, cp.minWaitFactor_, "minWaitFactor_", "cp.minWaitFactor_", e , limit));
     	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", maxWaitFactor_, cp.maxWaitFactor_, "maxWaitFactor_", "cp.maxWaitFactor_", e , limit));
@@ -384,6 +388,16 @@ public:
 
     /**********************************************************************************/
     /**
+     * Allows to retrieve the iteration currently being worked on
+     *
+     * @return The iteration currently being worked on
+     */
+    std::size_t getAssignedIteration() const {
+    	return iteration_;
+    }
+
+    /**********************************************************************************/
+    /**
      * Performs necessary initialization work after a new compute run. In particular it
      * creates a buffer port and registers it with the broker, so communication with
      * external consumers can occur.
@@ -410,8 +424,10 @@ public:
      * Allows to perform any work necessary to be repeated in each new iteration. In
      * particular, this function adjusts the waitFactor_ variable, so that it fits
      * the current load pattern of the computing resources behind the broker.
+     *
+     * @param iteration The new iteration being worked on
  	 */
-    void markNewIteration() {
+    void markNewIteration(const boost::uint32_t& iteration) {
     	// If logging is enabled, add a std::vector<boost::uint32_t> for the current iteration to arrivalTimes_
     	if(doLogging_) arrivalTimes_.push_back(std::vector<boost::uint32_t>());
 
@@ -444,10 +460,159 @@ public:
     	// will return before the timeout in the next iteration
 		allItemsReturned_ = true;
 
+		// Register the new iteration id
+		iteration_ = iteration;
+
     	// Set the start time of the new iteration so we calculate a correct
     	// Return time for the first individual, regardless of whether older
     	// individuals have returned first.
     	iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
+    }
+
+    /**********************************************************************************/
+    /**
+     * Retrieves the current waitFactor_ variable.
+     *
+     * @return The value of the waitFactor_ variable
+     */
+    boost::uint32_t getWaitFactor() const  {
+    	return waitFactor_;
+    }
+
+    /**********************************************************************************/
+    /**
+     * Submits and retrieves a set of work items. After the work has been performed,
+     * the items contained in the workItems vector may have been changed. Note that
+     * it is not guaranteed by this function that all submitted items are still contained
+     * in the vector after the call. It is also possible that returned items do not
+     * belong to the current iteration. You will thus have to post-process the vector.
+     * Note that it is impossible to submit items that are not derived from T.
+     *
+     * @param workItems A vector with work items to be evaluated beyond the broker
+     * @param start The id of first item to be worked on in the vector
+     * @param end The id beyond the last item to be worked on in the vector
+     * @param acceptOlderItems A boolean indicating whether older items should be accepted
+     * @param updateIteration A boolean indicating whether the iteration of older items should be updated
+     */
+    template <typename work_item>
+    void workOn(
+    	std::vector<boost::shared_ptr<work_item> >& workItems
+    	, const std::size_t& start
+    	, const std::size_t& end
+    	, const bool& acceptOlderItems = true
+    	, const bool& updateIteration = true
+    	, typename boost::enable_if<boost::is_base_of<T, work_item> >::type* dummy = 0
+    ) {
+    	std::size_t expectedNumber = end - start; // The expected number of work items from the current iteration
+    	std::size_t nReceivedCurrent = 0; // The number of items of this iteration received so far
+    	std::size_t nReceivedOlder = 0; // The number of items from older iterations received so far
+
+#ifdef DEBUG
+    	// Do some error checking
+    	if(end <= start) {
+    		raiseException(
+    				"In GBrokerConnectorT<T>::workOn(): Error!" << std::endl
+    				<< "Invalid start or end-values: " << start << " / " << end << std::endl
+    		);
+    	}
+
+    	if(end > workItems.size()) {
+    		raiseException(
+    				"In GBrokerConnectorT<T>::workOn(): Error!" << std::endl
+    				<< "Last id " << end << " exceeds size of vector " << workItems.size() << std::endl
+    		);
+    	}
+#endif /* DEBUG*/
+
+    	//-------------------------------------------------------------------------------
+    	// First submit all items
+
+    	typename std::vector<boost::shared_ptr<work_item> >::iterator it;
+    	for(it=workItems.begin()+start; it!=workItems.begin()+end; ++it) {
+    		this->submit(*it);
+    	}
+
+    	// Remove the submitted items, we do not need them anymore
+    	workItems.erase(workItems.begin()+start, workItems.begin()+end);
+
+    	//-------------------------------------------------------------------------------
+    	// Now wait for item of the current iteration to return from its journey
+
+    	boost::shared_ptr<work_item> p; // Will hold returned items
+
+    	// First wait for the first work item of the current iteration to return.
+    	// Items from older iterations will also be accepted in this loop. Their
+    	// arrival will not terminate this loop, though.
+    	while(true) {
+    		// Note: the following call will throw if a timeout has been reached.
+    		p = retrieveFirstItem<work_item>();
+
+    		// If it is from the current iteration, break the loop, otherwise continue,
+			// until the first item of the current iteration has been received.
+    		if(p->getAssignedIteration() == iteration_) {
+    			// Add the item to the workItems vector at the start of the range
+    			workItems.insert(workItems.begin()+start, p);
+
+    			// Update the counter
+    			nReceivedCurrent++;
+    			break;
+    		} else {
+    			if(acceptOlderItems) {
+    				// Update the iteration if requested by the user
+    				if(updateIteration) {
+    					p->setAssignedIteration(iteration_);
+    				}
+
+    				// Add the item to the workItems vector at the start of the range
+    				workItems.insert(workItems.begin()+start, p);
+    			} else {
+    				p.reset();
+    			}
+
+    			// Update the counter
+    			nReceivedOlder++;
+    		}
+    	}
+
+    	// retrieveItem will return an empty pointer, if a timeout has been reached
+    	while(nReceivedCurrent!=expectedNumber && (p=retrieveItem<work_item>())) {
+			// Update the counters and insert items
+    		if(p->getAssignedIteration() == iteration_) {
+    			// Add the item to the workItems vector at the start of the range
+    			workItems.insert(workItems.begin()+start, p);
+    			nReceivedCurrent++;
+    		} else {
+    			if(acceptOlderItems) {
+    				// Update the iteration if requested by the user
+    				if(updateIteration) {
+    					p->setAssignedIteration(iteration_);
+    				}
+
+    				// Add the item to the workItems vector at the start of the range
+    				workItems.insert(workItems.begin()+start, p);
+    			} else {
+    				p.reset();
+    			}
+
+    			// Update the counter
+    			nReceivedOlder++;
+    		}
+    	}
+
+    	//-------------------------------------------------------------------------------
+    	// Emit some information in DEBUG mode
+#if DEBUG
+    	if(nReceivedCurrent != expectedNumber) {
+    		std::ostringstream information;
+    		information
+    				<< std::endl
+    				<< "In iteration " << iteration_ << ":" << std::endl
+    				<< "nReceivedCurrent = " << nReceivedCurrent << std::endl
+    				<< "expectedNumber   = " << expectedNumber << std::endl
+    				<< "nReivedOlder     = " << nReceivedOlder << std::endl;
+    		std::cout << information.str();
+    	}
+#endif /* DEBUG */
     }
 
     /**********************************************************************************/
@@ -467,16 +632,6 @@ public:
      */
     void submit(boost::shared_ptr<T> gi) {
     	CurrentBufferPort_->push_front_orig(gi);
-    }
-
-    /**********************************************************************************/
-    /**
-     * Retrieves the current waitFactor_ variable.
-     *
-     * @return The value of the waitFactor_ variable
-     */
-    boost::uint32_t getWaitFactor() const  {
-    	return waitFactor_;
     }
 
     /**********************************************************************************/
@@ -729,6 +884,7 @@ public:
 
     /**********************************************************************************/
 private:
+	boost::uint32_t iteration_; ///< Records the iteration currently being worked on
 	double waitFactor_; ///< Affects the timeout for returning individuals
 	double minWaitFactor_; ///< The minimum allowed wait factor
 	double maxWaitFactor_; ///< The maximum allowed wait factor

@@ -1111,6 +1111,18 @@ protected:
 	/** @brief Resizes the population to the desired level and does some error checks */
 	virtual void adjustPopulation() = 0;
 
+	/**************************************************************************************/
+	/**
+	 * Lets individuals know about the current iteration of the optimization
+	 * cycle.
+	 */
+	virtual void markIteration() {
+		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->setAssignedIteration(iteration_);
+		}
+	}
+
 private:
 	/**************************************************************************************/
 	/**
@@ -1268,18 +1280,6 @@ private:
 		}
 
 		this->setMaxMode_(localMaxMode);
-	}
-
-	/**************************************************************************************/
-	/**
-	 * Lets individuals know about the current iteration of the optimization
-	 * cycle.
-	 */
-	void markIteration() {
-		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->setParentAlgIteration(iteration_);
-		}
 	}
 
 	/**************************************************************************************/

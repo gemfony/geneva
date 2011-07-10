@@ -173,16 +173,14 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
 
 /************************************************************************************************************/
 /**
- * The actual business logic to be performed during each iteration.
- *
- * @return The best achieved fitness
+ * Update the iteration counters
  */
-double GBrokerEA::cycleLogic() {
-	// Let the GBrokerConnectorT know that we are starting a new iteration
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::markNewIteration();
+void GBrokerEA::markIteration() {
+	// Execute the parent classes markIteration() call
+	GEvolutionaryAlgorithm::markIteration();
 
-	// Start the actual optimization cycle
-	return GEvolutionaryAlgorithm::cycleLogic();
+	// Let the GBrokerConnectorT know that we are starting a new iteration
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::markNewIteration(this->getIteration());
 }
 
 /************************************************************************************************************/
@@ -255,6 +253,122 @@ void GBrokerEA::finalize() {
 
 /************************************************************************************************************/
 /**
+ * We submit individuals  to the broker and wait for processed items. In the first iteration, in the case of
+ * the MUPLUSNU_SINGLEEVAL sorting strategy, also the fitness of the parents is calculated. The type of
+ * command intended to be executed on the individuals is stored in the individual.
+ */
+void GBrokerEA::adaptChildren() {
+	using namespace Gem::Courtier;
+
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	std::size_t np = getNParents(), nc=data.size()-np;
+	boost::uint32_t iteration=getIteration();
+
+	//--------------------------------------------------------------------------------
+	// Start by marking the work to be done in the individuals.
+	// "range" will hold the start- and end-points of the range
+	// to be worked on
+	std::pair<std::size_t, std::size_t> range = markCommands();
+
+	//--------------------------------------------------------------------------------
+	// Now submit work items and wait for results.
+	GBrokerConnectorT<GIndividual>::workOn(data, range.first, range.second, ACCEPTOLDERITEMS, LEAVEITERATIONUNTOUCHED);
+
+	//--------------------------------------------------------------------------------
+	// Now fix the population
+	fixAfterJobSubmission();
+}
+
+/************************************************************************************************************/
+/**
+ * Mark the commands each individual has to work on.
+ *
+ * @return A std::pair holding the start- and end-points for the job submission
+ */
+std::pair<std::size_t, std::size_t> GBrokerEA::markCommands() {
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	std::size_t np = getNParents(), nc=data.size()-np;
+	boost::uint32_t iteration=getIteration();
+
+	std::size_t start = np; // Where the evaluation starts
+	std::size_t end = data.size(); // Where the evaluation ends
+
+	//--------------------------------------------------------------------------------
+	// Start by marking the work to be done
+
+	// In iteration 0, depending on the selection mode, parents
+	if(iteration==0) {
+		switch(getSortingScheme()) {
+		case SA:
+		case MUPLUSNU_SINGLEEVAL:
+		case MUPLUSNU_PARETO:
+		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
+		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
+			start = 0; // We want to evaluate parents as well
+
+			// Note that we only have parents left in this iteration
+			for(it=data.begin(); it!=data.begin() + np; ++it) {
+				(*it)->getPersonalityTraits()->setCommand("evaluate");
+			}
+			break;
+
+		case MUCOMMANU_SINGLEEVAL:
+			break;
+		}
+	}
+
+	// Mark children. This is the same for all sorting modes. The "adapt" command
+	// comprises both mutation and evaluation
+	for(it=data.begin() + np; it!=data.end(); ++it) {
+		(*it)->getPersonalityTraits()->setCommand("adapt");
+	}
+
+	return std::make_pair(start, end);
+}
+
+/************************************************************************************************************/
+/**
+ * Fixes the population after a job submission
+ */
+void GBrokerEA::fixAfterJobSubmission() {
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	std::size_t np = getNParents(), nc=data.size()-np;
+	boost::uint32_t iteration=getIteration();
+
+	// Remove parents from older iterations -- we do not want them. Note that "remove_if"
+	// simply moves items not satisfying the predicate to the end of the list. We thus need
+	// to explicitly erase these items. remove_if returns the iterator position right after
+	// the last item not satisfying the predicate.
+	data.erase(std::remove_if(data.begin(), data.end(), isOldParent(iteration)), data.end());
+
+	// Make it known to remaining old individuals that they are now part of a new iteration
+	std::for_each(data.begin(), data.end(), boost::bind(&GIndividual::setAssignedIteration, _1, iteration));
+
+	// Make sure that parents are at the beginning of the array.
+	sort(data.begin(), data.end(), indParentComp());
+
+	// Add missing individuals, as clones of the last item
+	if(data.size() < getDefaultPopulationSize()){
+		std::size_t fixSize= getDefaultPopulationSize() - data.size();
+		for(std::size_t i=0; i<fixSize; i++){
+			// This function will create a clone of its argument
+			this->push_back_clone(data.back());
+		}
+	}
+
+	// Mark the first nParents_ individuals as parents in iteration 0. We want to have a "sane" population.
+	if(iteration==0){
+		for(it=this->begin(); it!=this->begin() + np; ++it) {
+			(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent();
+		}
+	}
+
+	// We care for too many returned individuals in the select() function. Older
+	// individuals might nevertheless have a better quality. We do not want to loose them.
+}
+
+/************************************************************************************************************/
+/**
  * Starting from the end of the children's list, we submit individuals  to the
  * broker. In the first generation, in the case of the MUPLUSNU_SINGLEEVAL sorting strategy,
  * also the fitness of the parents is calculated. The type of command intended to
@@ -262,7 +376,7 @@ void GBrokerEA::finalize() {
  * then waits for the first individual to come back. The time frame for all other
  * individuals to come back is a multiple of this time frame.
  */
-void GBrokerEA::adaptChildren() {
+void GBrokerEA::adaptChildrenX() {
 	using namespace boost::posix_time;
 
 	std::vector<boost::shared_ptr<GIndividual> >::reverse_iterator rit;
@@ -332,7 +446,7 @@ void GBrokerEA::adaptChildren() {
 		// If it is from the current iteration, break the loop, otherwise
 		// continue until the first item of the current iteration has been
 		// received.
-		if(p->getParentAlgIteration() == iteration) {
+		if(p->getAssignedIteration() == iteration) {
 			// Add the individual to our list.
 			this->push_back(p);
 
@@ -344,7 +458,7 @@ void GBrokerEA::adaptChildren() {
 		} else {
 			if(!p->getPersonalityTraits<GEAPersonalityTraits>()->isParent()){
 				// Make it known to the individual that it is now part of a new iteration
-				p->setParentAlgIteration(iteration);
+				p->setAssignedIteration(iteration);
 
 				// Add the individual to our list.
 				this->push_back(p);
@@ -365,7 +479,7 @@ void GBrokerEA::adaptChildren() {
 	// retrieveItem will return an empty pointer, if a timeout has been reached
 	while(!complete && (p=Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveItem())) {
 		// Count the number of items received.
-		if(p->getParentAlgIteration() == iteration) { // First count items of the current iteration
+		if(p->getAssignedIteration() == iteration) { // First count items of the current iteration
 			// Add the individual to our list.
 			this->push_back(p);
 
@@ -375,7 +489,7 @@ void GBrokerEA::adaptChildren() {
 		} else { // Now count items of older iterations
 			if(!p->getPersonalityTraits<GEAPersonalityTraits>()->isParent()){  // Parents from older iterations will be ignored, as there is no else clause
 				// Make it known to the individual that it is now part of a new iteration
-				p->setParentAlgIteration(iteration);
+				p->setAssignedIteration(iteration);
 
 				// Add the individual to our list.
 				this->push_back(p);
@@ -401,6 +515,7 @@ void GBrokerEA::adaptChildren() {
 
 	// If parents have been evaluated, make sure they are at the beginning of the array.
 	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU_SINGLEEVAL || getSortingScheme()==MUNU1PRETAIN)){
+#ifdef DEBUG
 		// Have any individuals returned at all ?
 		if(data.size()==0) { // No way out ...
 			raiseException(
@@ -408,6 +523,7 @@ void GBrokerEA::adaptChildren() {
 					<< "Population is empty when it shouldn't be."
 			);
 		}
+#endif /* DEBUG */
 
 		// Sort according to parent/child tag. We do not know in what order individuals have returned.
 		// Hence we need to sort them. Parents need to be in front, children in the back.

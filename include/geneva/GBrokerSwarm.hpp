@@ -110,8 +110,8 @@ protected:
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone_() const;
 
-	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	virtual double cycleLogic();
+	/** @brief Update iteration counters */
+	virtual void markIteration();
 	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
 	virtual void init();
 	/** @brief Performs any necessary finalization work after the end of the optimization cycle */

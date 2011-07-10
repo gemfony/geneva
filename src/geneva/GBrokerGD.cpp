@@ -200,16 +200,14 @@ std::size_t GBrokerGD::getResubmissions() const {
 
 /************************************************************************************************************/
 /**
- * The actual business logic to be performed during each iteration.
- *
- * @return The best achieved fitness
+ * Update the iteration counters
  */
-double GBrokerGD::cycleLogic() {
-	// Let the GBrokerConnector know that we are starting a new iteration
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::markNewIteration();
+void GBrokerGD::markIteration() {
+	// Execute the parent classes markIteration() call
+	GGradientDescent::markIteration();
 
-	// Start the actual optimization cycle
-	return GGradientDescent::cycleLogic();
+	// Let the GBrokerConnectorT know that we are starting a new iteration
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::markNewIteration(this->getIteration());
 }
 
 /************************************************************************************************************/
@@ -358,7 +356,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 				= Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveFirstItem<
 						GParameterSet>();
 
-		if (p->getParentAlgIteration() == iteration) {
+		if (p->getAssignedIteration() == iteration) {
 			// Store the individual locally
 			gps_vec.push_back(p);
 
@@ -382,12 +380,10 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	// Wait for all submitted individuals to return. Unlike many other optimization algorithms,
 	// gradient descents cannot cope easily with missing responses. The only option is to resubmit
 	// items that didn't return before a given deadline.
-	resubmissions_ = 0; // Reset the number of resubmissions in this iteration
+	resubmissions_ = 0; // Reset the number of re-submissions in this iteration
 	while (!complete) {
-		if (p
-				= Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveItem<
-						GParameterSet>()) { // Did we receive a valid item ?
-			if (p->getParentAlgIteration() == iteration) {
+		if (p = Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveItem<GParameterSet>()) { // Did we receive a valid item ?
+			if (p->getAssignedIteration() == iteration) {
 				// Check that the item hasn't already been received. This may happen if we have resubmitted
 				// items after a timeout, but the original item has returned after the timeout.
 				std::vector<boost::shared_ptr<GParameterSet> >::iterator it;

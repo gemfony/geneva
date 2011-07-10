@@ -465,7 +465,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Allow just multiple processing cycles, with an iteration > 0
 		BOOST_CHECK_NO_THROW(p_test->setProcessingCycles(5));
-		BOOST_CHECK_NO_THROW(p_test->setParentAlgIteration(3));
+		BOOST_CHECK_NO_THROW(p_test->setAssignedIteration(3));
 		BOOST_CHECK_NO_THROW(p_test->process());
 
 		// Check that p_test and p_test_orig differ
@@ -921,7 +921,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 		// Allow just multiple processing cycles, with an iteration > 0
 		BOOST_CHECK_NO_THROW(p_test->setProcessingCycles(5));
-		BOOST_CHECK_NO_THROW(p_test->setParentAlgIteration(3));
+		BOOST_CHECK_NO_THROW(p_test->setAssignedIteration(3));
 
 		// Calling the process function should throw when the process() function is called
 		// on a dirty individual that allows multiple processing cycles
