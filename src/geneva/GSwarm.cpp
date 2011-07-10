@@ -156,8 +156,6 @@ const GSwarm& GSwarm::operator=(const GSwarm& cp) {
  * Loads the data of another GSwarm object, camouflaged as a GObject.
  *
  * @param cp A pointer to another GSwarm object, camouflaged as a GObject
- *
- * TODO: Add checks in DEBUG mode whether the smart pointers being cloned or copied actually point somewhere
  */
 void GSwarm::load_(const GObject *cp)
 {
@@ -710,7 +708,7 @@ void GSwarm::swarmLogic() {
 			// Note: global/neighborhood bests and velocities haven't been determined yet in iteration 0 and are not needed there
 			if(iteration > 0 && !(*current)->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
 				// Update the swarm positions:
-				updatePositions(
+				updateIndividualPositions(
 					neighborhood
 					, (*current)
 					, iteration>0?(neighborhood_bests_[neighborhood]):(boost::shared_ptr<GParameterSet>())
@@ -744,7 +742,7 @@ void GSwarm::swarmLogic() {
  * @param velocity A velocity vector
  * @param constants A boost::tuple holding the various constants needed for the position update
  */
-void GSwarm::updatePositions(
+void GSwarm::updateIndividualPositions(
 	  const std::size_t& neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
 	  , boost::shared_ptr<GParameterSet> neighborhood_best
@@ -762,7 +760,7 @@ void GSwarm::updatePositions(
 	// Do some error checking
 	if(!ind) {
 		raiseException(
-				"In GSwarm::updatePositions():" << std::endl
+				"In GSwarm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"ind\""
 		);
 	}
@@ -775,28 +773,28 @@ void GSwarm::updatePositions(
 #ifdef DEBUG
 	if(!personal_best) {
 		raiseException(
-				"In GSwarm::updatePositions():" << std::endl
+				"In GSwarm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"personal_best\""
 		);
 	}
 
 	if(!neighborhood_best) {
 		raiseException(
-				"In GSwarm::updatePositions():" << std::endl
+				"In GSwarm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"neighborhood_best\""
 		);
 	}
 
 	if(!global_best) {
 		raiseException(
-				"In GSwarm::updatePositions():" << std::endl
+				"In GSwarm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"global_best\""
 		);
 	}
 
 	if(!velocity) {
 		raiseException(
-				"In GSwarm::updatePositions():" << std::endl
+				"In GSwarm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"velocity\""
 		);
 	}
@@ -837,7 +835,7 @@ void GSwarm::updatePositions(
 	default:
 		{
 			raiseException(
-					"GSwarm::updatePositions(): Error!" << std::endl
+					"GSwarm::updateIndividualPositions(): Error!" << std::endl
 					<< "Invalid update rule requested: " << updateRule_ << std::endl
 			);
 		}
@@ -956,6 +954,14 @@ void GSwarm::updateIndividualFitness(
 	} else {
 		updatePersonalBestIfBetter(ind, ind);
 	}
+}
+
+/************************************************************************************************************/
+/**
+ * Updates the fitness of all individuals
+ */
+void GSwarm::updateFitness() {
+
 }
 
 /************************************************************************************************************/

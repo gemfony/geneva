@@ -286,7 +286,7 @@ protected:
 	std::size_t getLastNIPos(const std::size_t&) const;
 
 	/** @brief Triggers an update of the individuals' positions */
-	void updatePositions(
+	void updateIndividualPositions(
 		  const std::size_t&
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>
@@ -301,6 +301,9 @@ protected:
 			, const std::size_t&
 			, boost::shared_ptr<GParameterSet>
 	);
+
+	/** @brief Updates the fitness of all individuals */
+	virtual void updateFitness();
 
     /** @brief Checks whether each neighborhood has at least the default size */
     bool neighborhoodsHaveNominalValues() const;

@@ -261,7 +261,7 @@ void GMultiThreadedSwarm::swarmLogic() {
 			// Note: global/neighborhood bests and velocities haven't been determined yet in iteration 0 and are not needed there
 			if(iteration > 0 && !(*current)->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
 				// Update the swarm positions:
-				updatePositions(
+				updateIndividualPositions(
 					neighborhood
 					, (*current)
 					, iteration>0?(neighborhood_bests_[neighborhood]):(boost::shared_ptr<GParameterSet>())
