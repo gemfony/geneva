@@ -44,35 +44,43 @@ namespace Geneva {
  * The default constructor
  */
 GBrokerGD::GBrokerGD() :
-	GGradientDescent(),
-			Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>() { /* nothing */
-}
+	GGradientDescent()
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
+	, resubmissions_(0)
+	, maxResubmissions_(DEFAULTMAXGDRESUBMISSIONS)
+{ /* nothing */ }
 
 /************************************************************************************************************/
 /**
  * Initialization with the number of starting points and the size of the finite step
  */
-GBrokerGD::GBrokerGD(const std::size_t& nStartingPoints,
-		const float& finiteStep, const float& stepSize) :
-	GGradientDescent(nStartingPoints, finiteStep, stepSize),
-			Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>() { /* nothing */
-}
+GBrokerGD::GBrokerGD(
+		const std::size_t& nStartingPoints
+		, const float& finiteStep, const float& stepSize
+)
+	: GGradientDescent(nStartingPoints, finiteStep, stepSize)
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
+	, resubmissions_(0)
+	, maxResubmissions_(DEFAULTMAXGDRESUBMISSIONS)
+{ /* nothing */ }
 
 /************************************************************************************************************/
 /**
  * A standard copy constructor
  */
-GBrokerGD::GBrokerGD(const GBrokerGD& cp) :
-	GGradientDescent(cp),
-			Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp) { /* nothing */
-}
+GBrokerGD::GBrokerGD(const GBrokerGD& cp)
+	: GGradientDescent(cp)
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
+	, resubmissions_(cp.resubmissions_)
+	, maxResubmissions_(cp.maxResubmissions_)
+{ /* nothing */ }
 
 /************************************************************************************************************/
 /**
  * The destructor.
  */
-GBrokerGD::~GBrokerGD() { /* nothing */
-}
+GBrokerGD::~GBrokerGD()
+{ /* nothing */ }
 
 /************************************************************************************************************/
 /**
@@ -93,7 +101,8 @@ const GBrokerGD& GBrokerGD::operator=(const GBrokerGD& cp) {
  * @param  cp A constant reference to another GBrokerGD object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBrokerGD::operator==(const GBrokerGD& cp) const {
+bool GBrokerGD::operator==(const GBrokerGD& cp) const
+{
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0., "GBrokerGD::operator==",
@@ -107,7 +116,8 @@ bool GBrokerGD::operator==(const GBrokerGD& cp) const {
  * @param  cp A constant reference to another GBrokerGD object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBrokerGD::operator!=(const GBrokerGD& cp) const {
+bool GBrokerGD::operator!=(const GBrokerGD& cp) const
+{
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,
@@ -128,9 +138,13 @@ bool GBrokerGD::operator!=(const GBrokerGD& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GBrokerGD::checkRelationshipWith(
-		const GObject& cp, const Gem::Common::expectation& e,
-		const double& limit, const std::string& caller,
-		const std::string& y_name, const bool& withMessages) const {
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
@@ -147,8 +161,41 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 			Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::checkRelationshipWith(
 					*p_load, e, limit, "GBrokerGD", y_name, withMessages));
 
-	// no local data ...
+	// and then our local data
+	deviations.push_back(checkExpectation(withMessages, "GBrokerGD", resubmissions_, p_load->resubmissions_, "resubmissions_", "p_load->resubmissions_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GBrokerGD", maxResubmissions_, p_load->maxResubmissions_, "maxResubmissions_", "p_load->maxResubmissions_", e , limit));
+
 	return evaluateDiscrepancies("GBrokerGD", caller, deviations, e);
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to set the maximum allowed number of re-submissions
+ *
+ * @param maxResubmissions The maximum allowed number of re-submissions
+ */
+void GBrokerGD::setMaxResubmissions(const std::size_t maxResubmissions) {
+	maxResubmissions_ = maxResubmissions;
+}
+
+/************************************************************************************************************/
+/**
+ * Returns the maximum allowed number of re-submissions
+ *
+ * @return The maximum allowed number of re-submissions
+ */
+std::size_t GBrokerGD::getMaxResubmissions() const {
+	return maxResubmissions_;
+}
+
+/************************************************************************************************************/
+/**
+ * Returns the number of re-submissions in the current iteration
+ *
+ * @return The number of re-submissions in the current iteration
+ */
+std::size_t GBrokerGD::getResubmissions() const {
+	return resubmissions_;
 }
 
 /************************************************************************************************************/
@@ -177,6 +224,10 @@ void GBrokerGD::load_(const GObject *cp) {
 	// Load the parent classes' data ...
 	GGradientDescent::load_(cp);
 	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
+
+	// ... and then our local data
+	resubmissions_ = p_load->resubmissions_;
+	maxResubmissions_ = p_load->maxResubmissions_;
 }
 
 /************************************************************************************************************/
@@ -331,6 +382,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	// Wait for all submitted individuals to return. Unlike many other optimization algorithms,
 	// gradient descents cannot cope easily with missing responses. The only option is to resubmit
 	// items that didn't return before a given deadline.
+	resubmissions_ = 0; // Reset the number of resubmissions in this iteration
 	while (!complete) {
 		if (p
 				= Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveItem<
@@ -369,6 +421,15 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 				nReceivedOlder++;
 			}
 		} else { // We have encountered a time out. Check which items are missing and resubmit
+			// Have we exceeded the maximum number of re-submissions ? Throw!
+			if(resubmissions_ >= maxResubmissions_) {
+				raiseException(
+						"In GBrokerGD::doFitnessCalculation(const std::size_t&): Error!" << std::endl
+						<< "Reached the maximum number of resubmissions: " << resubmissions_ << " / " << maxResubmissions_ << std::endl
+						<< "Terminating ..." << std::endl
+				);
+			}
+
 			// Sort the vector according to the expected position in the population
 			std::sort(gps_vec.begin(), gps_vec.end(), indPositionComp());
 
@@ -400,6 +461,9 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 				Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::submit(
 						this->at(missingItems[m]));
 			}
+
+			// Update the resubmission counter
+			resubmissions_++;
 		}
 	}
 

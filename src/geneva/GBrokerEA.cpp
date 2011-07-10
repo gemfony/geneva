@@ -307,9 +307,9 @@ void GBrokerEA::adaptChildren() {
 			break; // nothing
 		}
 		//--------------------------------------------------------------
-		// If we are running in SA, MUPLUSNU_SINGLEEVAL or MUNU1PRETAIN mode, we now have an empty population,
-		// as parents have been sent away for evaluation. If this is the MUCOMMANU_SINGLEEVAL mode, parents
-		// do not participate in the sorting and can be ignored.
+		// If we are running in SA, MUPLUSNU_SINGLEEVAL, MUNU1PRETAIN or one of the pareto modes, we now have
+		// an empty population, as parents have been sent away for evaluation. If this is the MUCOMMANU_SINGLEEVAL
+		// mode, parents do not participate in the sorting and can be ignored.
 	}
 
 	//--------------------------------------------------------------------------------

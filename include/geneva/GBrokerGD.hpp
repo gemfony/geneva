@@ -76,7 +76,9 @@ class GBrokerGD
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GGradientDescent)
-		   & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBrokerConnectorT<Gem::Geneva::GIndividual>);
+		   & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBrokerConnectorT<Gem::Geneva::GIndividual>)
+		   & BOOST_SERIALIZATION_NVP(resubmissions_)
+		   & BOOST_SERIALIZATION_NVP(maxResubmissions_);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -109,6 +111,13 @@ public:
 			, const bool&
 	) const;
 
+	/** @brief Allows to set the maximum allowed number of resubmissions */
+	void setMaxResubmissions(const std::size_t maxResubmissions);
+	/** @brief Returns the maximum allowed number of resubmissions */
+	std::size_t getMaxResubmissions() const;
+	/** @brief Returns the number of resubmissions in the current iteration */
+	std::size_t getResubmissions() const;
+
 protected:
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
@@ -140,6 +149,8 @@ private:
     /*********************************************************************************/
 
     std::vector<bool> sm_value_; ///< Internal storage for server mode flags
+    std::size_t resubmissions_; ///< The number of re-submissions in the current iteration
+    std::size_t maxResubmissions_; ///< The maximum number of allowed re-submissions in an iteration
 
 #ifdef GENEVATESTING
 public:
