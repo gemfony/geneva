@@ -1,5 +1,5 @@
 /**
- * @file GEnums.cpp
+ * @file GOptimizationEnums.cpp
  */
 
 /*

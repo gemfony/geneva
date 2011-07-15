@@ -46,7 +46,7 @@ namespace Geneva
  * The default constructor
  */
 GBrokerEA::GBrokerEA()
-	: GEvolutionaryAlgorithm()
+	: GSerialEA()
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 { /* nothing */ }
 
@@ -57,7 +57,7 @@ GBrokerEA::GBrokerEA()
  * @param cp A copy of another GBrokerEA object
  */
 GBrokerEA::GBrokerEA(const GBrokerEA& cp)
-	: GEvolutionaryAlgorithm(cp)
+	: GSerialEA(cp)
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
 { /* nothing */ }
 
@@ -92,7 +92,7 @@ void GBrokerEA::load_(const GObject * cp) {
 	const GBrokerEA *p_load = conversion_cast<GBrokerEA>(cp);
 
 	// Load the parent classes' data ...
-	GEvolutionaryAlgorithm::load_(cp);
+	GSerialEA::load_(cp);
 	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
 
 	// no local data
@@ -164,7 +164,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent classes' data ...
-	deviations.push_back(GEvolutionaryAlgorithm::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
+	deviations.push_back(GSerialEA::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
 	deviations.push_back(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
 
 	// no local data ...
@@ -194,8 +194,8 @@ void GBrokerEA::init() {
 		}
 	}
 
-	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
-	GEvolutionaryAlgorithm::init();
+	// GSerialEA sees exactly the environment it would when called from its own class
+	GSerialEA::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -229,8 +229,8 @@ void GBrokerEA::finalize() {
 	}
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
-	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
-	GEvolutionaryAlgorithm::finalize();
+	// GSerialEA sees exactly the environment it would when called from its own class
+	GSerialEA::finalize();
 }
 
 /************************************************************************************************************/
@@ -365,7 +365,7 @@ void GBrokerEA::select() {
 	// Great - we are at least at the default level and are
 	// ready to call the actual select() function. This will
 	// automatically take care of the selection modes.
-	GEvolutionaryAlgorithm::select();
+	GSerialEA::select();
 
 	////////////////////////////////////////////////////////////
 	// At this point we have a sorted list of individuals and can take care of
@@ -387,7 +387,7 @@ bool GBrokerEA::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GEvolutionaryAlgorithm::modify_GUnitTests()) result = true;
+	if(GSerialEA::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -398,7 +398,7 @@ bool GBrokerEA::modify_GUnitTests() {
  */
 void GBrokerEA::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests();
+	GSerialEA::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
@@ -407,7 +407,7 @@ void GBrokerEA::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GBrokerEA::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests();
+	GSerialEA::specificTestsFailuresExpected_GUnitTests();
 }
 
 /************************************************************************************************************/

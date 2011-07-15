@@ -291,7 +291,7 @@ Go::Go(const Go& cp)
 {
 	//--------------------------------------------
 	// Copy the optimization monitors over (if any)
-	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GEAOptimizationMonitor>(cp.ea_om_ptr_, ea_om_ptr_);
+	copyGenevaSmartPointer<GSerialEA::GEAOptimizationMonitor>(cp.ea_om_ptr_, ea_om_ptr_);
 	copyGenevaSmartPointer<GSerialSwarm::GSwarmOptimizationMonitor>(cp.swarm_om_ptr_, swarm_om_ptr_);
 	copyGenevaSmartPointer<GGradientDescent::GGDOptimizationMonitor>(cp.gd_om_ptr_, gd_om_ptr_);
 
@@ -453,7 +453,7 @@ void Go::load_(const GObject *cp) {
 	configFilename_ = p_load->configFilename_;
 	verbose_ = p_load->verbose_;
 
-	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GEAOptimizationMonitor>(p_load->ea_om_ptr_, ea_om_ptr_);
+	copyGenevaSmartPointer<GSerialEA::GEAOptimizationMonitor>(p_load->ea_om_ptr_, ea_om_ptr_);
 	copyGenevaSmartPointer<GSerialSwarm::GSwarmOptimizationMonitor>(p_load->swarm_om_ptr_, swarm_om_ptr_);
 	copyGenevaSmartPointer<GGradientDescent::GGDOptimizationMonitor>(p_load->gd_om_ptr_, gd_om_ptr_);
 
@@ -509,7 +509,7 @@ GObject *Go::clone_() const {
  *
  * @param ea_om_ptr A pointer to an optimization monitor specific for evolutionary algorithms
  */
-void Go::registerOptimizationMonitor(boost::shared_ptr<GEvolutionaryAlgorithm::GEAOptimizationMonitor> ea_om_ptr) {
+void Go::registerOptimizationMonitor(boost::shared_ptr<GSerialEA::GEAOptimizationMonitor> ea_om_ptr) {
 	if(!ea_om_ptr) {
 		raiseException(
 				"In Go::registerOptimizationMonitor():" << std::endl
@@ -517,7 +517,7 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GEvolutionaryAlgorithm::G
 		);
 	}
 
-	ea_om_ptr_ = ea_om_ptr->clone<GEvolutionaryAlgorithm::GEAOptimizationMonitor>();
+	ea_om_ptr_ = ea_om_ptr->clone<GSerialEA::GEAOptimizationMonitor>();
 }
 
 /**************************************************************************************/

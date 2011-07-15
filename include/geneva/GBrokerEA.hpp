@@ -49,7 +49,7 @@
 #include "common/GExceptions.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "geneva/GEAPersonalityTraits.hpp"
-#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GSerialEA.hpp"
 #include "geneva/GIndividual.hpp"
 
 namespace Gem
@@ -68,7 +68,7 @@ namespace Geneva
    * it is itself usually not shipped over a network connection.
    */
   class GBrokerEA
-    : public GEvolutionaryAlgorithm
+    : public GSerialEA
     , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
   {
     ///////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ namespace Geneva
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GEvolutionaryAlgorithm)
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSerialEA)
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>);
     }
     ///////////////////////////////////////////////////////////////////////

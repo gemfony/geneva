@@ -60,7 +60,7 @@ using namespace boost::unit_test;
 #include "geneva/GInt32Collection.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GBooleanCollection.hpp"
-#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GSerialEA.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GEAPersonalityTraits.hpp"
 #include "geneva/GGDPersonalityTraits.hpp"
@@ -124,7 +124,7 @@ public:
 		collection_types;
 
 		typedef boost::mpl::list<
-			GEvolutionaryAlgorithm
+			GSerialEA
 			, GMultiThreadedEA
 			, GSerialSwarm
 			, GMultiThreadedSwarm
@@ -145,7 +145,7 @@ public:
 		typedef boost::mpl::list<
 			GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT
 			, GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
-			, GEvolutionaryAlgorithm::GEAOptimizationMonitor
+			, GSerialEA::GEAOptimizationMonitor
 			, GSerialSwarm::GSwarmOptimizationMonitor
 			, GGradientDescent::GGDOptimizationMonitor
 		>

@@ -52,7 +52,7 @@
 #include "common/GThreadWrapper.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GIndividual.hpp"
-#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GSerialEA.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -62,12 +62,12 @@ const boost::uint16_t DEFAULTBOOSTTHREADSEA = 2;
 
 /********************************************************************/
 /**
- * A multi-threaded population based on GEvolutionaryAlgorithm. This version
+ * A multi-threaded population based on GSerialEA. This version
  * uses the Boost.Threads library and a thread-pool library from
  * http://threadpool.sf.net .
  */
 class GMultiThreadedEA
-	: public Geneva::GEvolutionaryAlgorithm
+	: public Geneva::GSerialEA
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -76,7 +76,7 @@ class GMultiThreadedEA
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GEvolutionaryAlgorithm)
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSerialEA)
 		   & BOOST_SERIALIZATION_NVP(nThreads_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -116,7 +116,7 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
 
-	/** @brief Overloaded version from GEvolutionaryAlgorithm,
+	/** @brief Overloaded version from GSerialEA,
 	 * core of the Boost-thread implementation */
 	virtual void adaptChildren();
 

@@ -1,5 +1,5 @@
 /**
- * @file GEvolutionaryAlgorithm.hpp
+ * @file GSerialEA.hpp
  */
 
 /*
@@ -78,8 +78,8 @@ const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
 
 /*********************************************************************************/
 /**
- * The GEvolutionaryAlgorithm class adds the notion of parents and children to
- * the GOptimizationAlgorithm class. The evolutionary adaptation is realized
+ * The GSerialEA class adds the notion of parents and children to
+ * the GOptimizationAlgorithmT class. The evolutionary adaptation is realized
  * through the cycle of adaption, evaluation, and sorting, as defined in this
  * class.
  *
@@ -94,7 +94,7 @@ const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
  * starts. Note that this class will enforce a minimum, default number of children,
  * as implied by the population size and the number of parents set at the beginning.
  */
-class GEvolutionaryAlgorithm
+class GSerialEA
 	:public GOptimizationAlgorithmT<GIndividual>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -123,19 +123,19 @@ class GEvolutionaryAlgorithm
 
 public:
 	/** @brief The default constructor */
-	GEvolutionaryAlgorithm();
+	GSerialEA();
 	/** @brief A standard copy constructor */
-	GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm&);
+	GSerialEA(const GSerialEA&);
 	/** @brief The destructor */
-	virtual ~GEvolutionaryAlgorithm();
+	virtual ~GSerialEA();
 
 	/** @brief A standard assignment operator */
-	const GEvolutionaryAlgorithm& operator=(const GEvolutionaryAlgorithm&);
+	const GSerialEA& operator=(const GSerialEA&);
 
-	/** @brief Checks for equality with another GEvolutionaryAlgorithm object */
-	bool operator==(const GEvolutionaryAlgorithm&) const;
-	/** @brief Checks for inequality with another GEvolutionaryAlgorithm object */
-	bool operator!=(const GEvolutionaryAlgorithm&) const;
+	/** @brief Checks for equality with another GSerialEA object */
+	bool operator==(const GSerialEA&) const;
+	/** @brief Checks for inequality with another GSerialEA object */
+	bool operator!=(const GSerialEA&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
@@ -221,7 +221,7 @@ public:
 #ifdef DEBUG
 		if(data.empty()) {
 			raiseException(
-					"In GEvolutionaryAlgorithm::getBestIndividual<individual_type>() :" << std::endl
+					"In GSerialEA::getBestIndividual<individual_type>() :" << std::endl
 					<< "Tried to access individual at position 0 even though population is empty."
 			);
 		}
@@ -248,7 +248,7 @@ public:
 		// Check that the parent id is in a valid range
 		if(parentId >= this->getNParents()) {
 			raiseException(
-					"In GEvolutionaryAlgorithm::getParentIndividual<>() : Error" << std::endl
+					"In GSerialEA::getParentIndividual<>() : Error" << std::endl
 					<< "Requested parent id which does not exist: " << parentId << " / " << this->getNParents()
 			);
 		}
@@ -259,7 +259,7 @@ public:
 		// Check that the pointer actually points somewhere
 		if(!parent_ptr) {
 			raiseException(
-					"In GEvolutionaryAlgorithm::getParentIndividual<>() : Error" << std::endl
+					"In GSerialEA::getParentIndividual<>() : Error" << std::endl
 					<< "Tried to access uninitialized parent individual."
 			);
 		}
@@ -269,7 +269,7 @@ public:
 		if(converted_parent_pointer) return converted_parent_pointer;
 		else {
 			raiseException(
-					"In GEvolutionaryAlgorithm::getParentIndividual<>(): Conversion error"
+					"In GSerialEA::getParentIndividual<>(): Conversion error"
 			);
 		}
 #else
@@ -295,7 +295,7 @@ public:
 		// Check that we have indeed logged parents
 		if(!logOldParents_) {
 			raiseException(
-					"In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Error" << std::endl
+					"In GSerialEA::getOldParentIndividual<>() : Error" << std::endl
 					<< "Requested logged parent individual when no logging is done"
 			);
 		}
@@ -303,7 +303,7 @@ public:
 		// Check that the parent id is in a valid range
 		if(parentId >= oldParents_.size()) {
 			raiseException(
-					"In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Error" << std::endl
+					"In GSerialEA::getOldParentIndividual<>() : Error" << std::endl
 					<< "Requested parent id which does not exist: " << parentId << " / " << oldParents_.size()
 			);
 		}
@@ -314,7 +314,7 @@ public:
 		// Check that the pointer actually points somewhere
 		if(!parent_ptr) {
 			raiseException(
-					"In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Error" << std::endl
+					"In GSerialEA::getOldParentIndividual<>() : Error" << std::endl
 					<< "Tried to access uninitialized parent individual."
 			);
 		}
@@ -324,7 +324,7 @@ public:
 		if(converted_parent_pointer) return converted_parent_pointer;
 		else {
 			raiseException(
-					"In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Conversion error"
+					"In GSerialEA::getOldParentIndividual<>() : Conversion error"
 			);
 		}
 #else
@@ -512,11 +512,11 @@ public:
 
 	protected:
 	    /** @brief A function that is called once before the optimization starts */
-	    virtual std::string eaFirstInformation(GEvolutionaryAlgorithm * const);
+	    virtual std::string eaFirstInformation(GSerialEA * const);
 	    /** @brief A function that is called during each optimization cycle */
-	    virtual std::string eaCycleInformation(GEvolutionaryAlgorithm * const);
+	    virtual std::string eaCycleInformation(GSerialEA * const);
 	    /** @brief A function that is called once at the end of the optimization cycle */
-	    virtual std::string eaLastInformation(GEvolutionaryAlgorithm * const);
+	    virtual std::string eaLastInformation(GSerialEA * const);
 
 	    /** @brief A function that is called once before the optimization starts */
 	    virtual std::string firstInformation(GOptimizationAlgorithmT<GIndividual> * const);
@@ -558,7 +558,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithm)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithm::GEAOptimizationMonitor)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialEA)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialEA::GEAOptimizationMonitor)
 
 #endif /* GEVOLUTIONARYALGORITHM_HPP_ */

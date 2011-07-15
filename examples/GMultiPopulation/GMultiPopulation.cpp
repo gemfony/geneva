@@ -165,13 +165,13 @@ int main(int argc, char **argv){
   //***************************************************************************
 
   // Create the first set of parent populations.
-  std::vector<boost::shared_ptr<GEvolutionaryAlgorithm> > parentPopulations;
+  std::vector<boost::shared_ptr<GSerialEA> > parentPopulations;
   for(std::size_t psuper = 0; psuper<nParentsSuper; psuper++) {
 	  // This smart pointer holds a parent population. Note that it can be useful
 	  // not to parallelize on the level of sub-populations. Using a GBrokerEA here
 	  // will likely lead to failure.
-	  boost::shared_ptr<GEvolutionaryAlgorithm> sub_pop_ptr
-		  = boost::shared_ptr<GEvolutionaryAlgorithm>(new GEvolutionaryAlgorithm());
+	  boost::shared_ptr<GSerialEA> sub_pop_ptr
+		  = boost::shared_ptr<GSerialEA>(new GSerialEA());
 
 	  // Create the first set of parent individuals. Initialization of parameters is done randomly.
 	  for(std::size_t psub = 0 ; psub<nParentsSub; psub++) {
@@ -211,14 +211,14 @@ int main(int argc, char **argv){
   // We can now start creating populations. We refer to them through the base class
 
   // This smart pointer will hold the different population types
-  boost::shared_ptr<GEvolutionaryAlgorithm> super_pop_ptr;
+  boost::shared_ptr<GSerialEA> super_pop_ptr;
 
   // Create the actual populations
   switch (parallelizationMode) {
     //-----------------------------------------------------------------------------------------------------
   case 0: // Serial execution
     // Create an empty population
-    super_pop_ptr = boost::shared_ptr<GEvolutionaryAlgorithm>(new GEvolutionaryAlgorithm());
+    super_pop_ptr = boost::shared_ptr<GSerialEA>(new GSerialEA());
     break;
 
     //-----------------------------------------------------------------------------------------------------

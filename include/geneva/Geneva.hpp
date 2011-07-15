@@ -56,7 +56,7 @@
 #include <courtier/GAsioTCPClientT.hpp>
 #include <courtier/GAsioTCPConsumerT.hpp>
 #include <courtier/GBoostThreadConsumerT.hpp>
-#include <geneva/GEvolutionaryAlgorithm.hpp>
+#include <geneva/GSerialEA.hpp>
 #include <geneva/GMultiThreadedEA.hpp>
 #include <geneva/GMultiThreadedGD.hpp>
 #include <geneva/GMultiThreadedSwarm.hpp>

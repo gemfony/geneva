@@ -49,7 +49,7 @@
 #include <courtier/GAsioTCPClientT.hpp>
 #include <courtier/GAsioTCPConsumerT.hpp>
 #include <geneva/GBrokerEA.hpp>
-#include <geneva/GEvolutionaryAlgorithm.hpp>
+#include <geneva/GSerialEA.hpp>
 #include <geneva/GIndividual.hpp>
 #include <geneva/GDoubleCollection.hpp>
 #include "geneva/GOptimizationEnums.hpp"
@@ -78,7 +78,7 @@ const boost::uint16_t DEFAULTYDIMPROGRESS=1024;
  * fitness as a function of the current iteration.
  */
 class progressMonitor
-	: public GEvolutionaryAlgorithm::GEAOptimizationMonitor
+	: public GSerialEA::GEAOptimizationMonitor
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -87,7 +87,7 @@ class progressMonitor
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GEvolutionaryAlgorithm_GEAOptimizationMonitor", boost::serialization::base_object<GEvolutionaryAlgorithm::GEAOptimizationMonitor>(*this))
+	  ar & make_nvp("GSerialEA_GEAOptimizationMonitor", boost::serialization::base_object<GSerialEA::GEAOptimizationMonitor>(*this))
 	  	 & BOOST_SERIALIZATION_NVP(xDimProgress_)
 	  	 & BOOST_SERIALIZATION_NVP(yDimProgress_)
 	  	 & BOOST_SERIALIZATION_NVP(df_)
@@ -133,7 +133,7 @@ public:
 	 * @oaram cp A copy of another progressMonitor object
 	 */
 	progressMonitor(const progressMonitor& cp)
-		: GEvolutionaryAlgorithm::GEAOptimizationMonitor(cp)
+		: GSerialEA::GEAOptimizationMonitor(cp)
 		, xDimProgress_(cp.xDimProgress_)
 		, yDimProgress_(cp.yDimProgress_)
 		, df_(cp.df_)
@@ -216,7 +216,7 @@ public:
 		std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GEvolutionaryAlgorithm::GEAOptimizationMonitor::checkRelationshipWith(cp, e, limit, "progressMonitor", y_name, withMessages));
+		deviations.push_back(GSerialEA::GEAOptimizationMonitor::checkRelationshipWith(cp, e, limit, "progressMonitor", y_name, withMessages));
 
 		// ... and then our local data.
 		deviations.push_back(checkExpectation(withMessages, "progressMonitor", xDimProgress_, p_load->xDimProgress_, "xDimProgress_", "p_load->xDimProgress_", e , limit));
@@ -238,13 +238,13 @@ public:
 	/**********************************************************************************/
 	/**
 	 * A function that is called during each optimization cycle, acting on evolutionary
-	 * algorithms. It writes out a snapshot of the GEvolutionaryAlgorithm object we've
+	 * algorithms. It writes out a snapshot of the GSerialEA object we've
 	 * been given for the current iteration. In the way it is implemented here, this
 	 * function only makes sense for two-dimensional optimization problems. It is thus
 	 * used for illustration purposes only.
 	 *
 	 */
-	virtual std::string eaCycleInformation(GEvolutionaryAlgorithm * const ea) {
+	virtual std::string eaCycleInformation(GSerialEA * const ea) {
 		if(followProgress_) {
 			boost::uint32_t iteration = ea->getIteration();
 			std::string outputFileName = snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".C";
@@ -336,7 +336,7 @@ public:
 			}
 
 			// Loop over all individuals in this iteration and output their parameters
-			GEvolutionaryAlgorithm::iterator it;
+			GSerialEA::iterator it;
 			std::size_t cind = 0;
 			for(it=ea->begin() + nParents; it!=ea->end(); ++it) {
 				// Retrieve the data members
@@ -459,7 +459,7 @@ public:
 		//-----------------------------------------------------------------------------------------
 
 		// Make sure the usual iteration work is performed
-		return GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaCycleInformation(ea);
+		return GSerialEA::GEAOptimizationMonitor::eaCycleInformation(ea);
 	}
 
 	/*********************************************************************************************/
@@ -674,7 +674,7 @@ protected:
 		const progressMonitor *p_load = conversion_cast<progressMonitor>(cp);
 
 		// First load the parent class'es data ...
-		GEvolutionaryAlgorithm::GEAOptimizationMonitor::load_(cp);
+		GSerialEA::GEAOptimizationMonitor::load_(cp);
 
 		// ... and then our own data
 		xDimProgress_ = p_load->xDimProgress_;

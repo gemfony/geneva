@@ -45,7 +45,7 @@ namespace Geneva {
  * hence this function is empty.
  */
 GMultiThreadedEA::GMultiThreadedEA()
-   : GEvolutionaryAlgorithm()
+   : GSerialEA()
    , nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA)))
    , tp_(nThreads_)
 { /* nothing */ }
@@ -58,7 +58,7 @@ GMultiThreadedEA::GMultiThreadedEA()
  * @param cp Reference to another GMultiThreadedEA object
  */
 GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
-   : GEvolutionaryAlgorithm(cp)
+   : GSerialEA(cp)
    , nThreads_(cp.nThreads_)
    , tp_(nThreads_) // Make sure we initialize the threadpool
 { /* nothing */ }
@@ -96,7 +96,7 @@ void GMultiThreadedEA::load_(const GObject *cp) {
 	const GMultiThreadedEA *p_load = this->conversion_cast<GMultiThreadedEA>(cp);
 
 	// First load our parent class'es data ...
-	GEvolutionaryAlgorithm::load_(cp);
+	GSerialEA::load_(cp);
 
 	// ... and then our own
 	if(nThreads_ != p_load->nThreads_) {
@@ -173,7 +173,7 @@ boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(const GObje
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GEvolutionaryAlgorithm::checkRelationshipWith(cp, e, limit, "GMultiThreadedEA", y_name, withMessages));
+	deviations.push_back(GSerialEA::checkRelationshipWith(cp, e, limit, "GMultiThreadedEA", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GMultiThreadedEA", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
@@ -186,8 +186,8 @@ boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(const GObje
  * Necessary initialization work before the start of the optimization
  */
 void GMultiThreadedEA::init() {
-	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
-	GEvolutionaryAlgorithm::init();
+	// GSerialEA sees exactly the environment it would when called from its own class
+	GSerialEA::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -221,19 +221,19 @@ void GMultiThreadedEA::finalize() {
 	}
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
-	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
-	GEvolutionaryAlgorithm::finalize();
+	// GSerialEA sees exactly the environment it would when called from its own class
+	GSerialEA::finalize();
 }
 
 /************************************************************************************************************/
 /**
- * An overloaded version of GEvolutionaryAlgorithm::adaptChildren() . Adaption
+ * An overloaded version of GSerialEA::adaptChildren() . Adaption
  * and evaluation of children is handled by threads in a thread pool. The maximum
  * number of threads is DEFAULTBOOSTTHREADSEA (possibly 2) and can be overridden
  * with the GMultiThreadedEA::setMaxThreads() function.
  */
 void GMultiThreadedEA::adaptChildren() {
-	std::size_t nParents = GEvolutionaryAlgorithm::getNParents();
+	std::size_t nParents = GSerialEA::getNParents();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	// We start with the parents, if this is iteration 0. Their
@@ -241,7 +241,7 @@ void GMultiThreadedEA::adaptChildren() {
 	// or MUNU1PRETAIN selection model.
 	// Make sure we also evaluate the parents in the first iteration, if needed.
 	// This is only applicable to the MUPLUSNU_SINGLEEVAL and MUNU1PRETAIN modes.
-	if(GEvolutionaryAlgorithm::getIteration()==0) {
+	if(GSerialEA::getIteration()==0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case SA:
@@ -274,7 +274,7 @@ void GMultiThreadedEA::adaptChildren() {
 	tp_.wait();
 
 	// Restart the server mode for parents
-	if(GEvolutionaryAlgorithm::getIteration() == 0) {
+	if(GSerialEA::getIteration() == 0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case SA:
@@ -340,7 +340,7 @@ bool GMultiThreadedEA::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GEvolutionaryAlgorithm::modify_GUnitTests()) result = true;
+	if(GSerialEA::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -351,7 +351,7 @@ bool GMultiThreadedEA::modify_GUnitTests() {
  */
 void GMultiThreadedEA::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests();
+	GSerialEA::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
@@ -360,7 +360,7 @@ void GMultiThreadedEA::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GMultiThreadedEA::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests();
+	GSerialEA::specificTestsFailuresExpected_GUnitTests();
 }
 
 /************************************************************************************************************/

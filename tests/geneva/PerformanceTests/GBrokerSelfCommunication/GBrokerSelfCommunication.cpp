@@ -51,7 +51,7 @@
 #include "hap/GRandomT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
 #include "courtier/GAsioTCPClientT.hpp"
-#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GSerialEA.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"

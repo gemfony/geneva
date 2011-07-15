@@ -1,5 +1,5 @@
 /**
- * @file GEvolutionaryAlgorithm.cpp
+ * @file GSerialEA.cpp
  */
 
 /*
@@ -31,10 +31,10 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.com .
  */
-#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GSerialEA.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithm)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithm::GEAOptimizationMonitor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialEA)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialEA::GEAOptimizationMonitor)
 
 namespace Gem {
 namespace Geneva {
@@ -46,7 +46,7 @@ namespace Geneva {
  * to provide constructors for each and every use case. Instead, you should set
  * vital parameters, such as the population size or the parent individuals by hand.
  */
-GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
+GSerialEA::GSerialEA()
 	: GOptimizationAlgorithmT<Gem::Geneva::GIndividual>()
 	, nParents_(0)
 	, microTrainingInterval_(DEFAULTMICROTRAININGINTERVAL)
@@ -77,9 +77,9 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
  * is not copied from the other object. We assume that a new optimization run will
  * be started.
  *
- * @param cp Another GEvolutionaryAlgorithm object
+ * @param cp Another GSerialEA object
  */
-GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
+GSerialEA::GSerialEA(const GSerialEA& cp)
 	: GOptimizationAlgorithmT<Gem::Geneva::GIndividual>(cp)
 	, nParents_(cp.nParents_)
 	, microTrainingInterval_(cp.microTrainingInterval_)
@@ -110,30 +110,30 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
 /**
  * The standard destructor. All work is done in the parent class.
  */
-GEvolutionaryAlgorithm::~GEvolutionaryAlgorithm()
+GSerialEA::~GSerialEA()
 { /* nothing */ }
 
 /************************************************************************************************************/
 /**
  * The standard assignment operator.
  *
- * @param cp Another GEvolutionaryAlgorithm object
+ * @param cp Another GSerialEA object
  * @return A constant reference to this object
  */
-const GEvolutionaryAlgorithm& GEvolutionaryAlgorithm::operator=(const GEvolutionaryAlgorithm& cp) {
-	GEvolutionaryAlgorithm::load_(&cp);
+const GSerialEA& GSerialEA::operator=(const GSerialEA& cp) {
+	GSerialEA::load_(&cp);
 	return *this;
 }
 
 /************************************************************************************************************/
 /**
- * Loads the data of another GEvolutionaryAlgorithm object, camouflaged as a GObject.
+ * Loads the data of another GSerialEA object, camouflaged as a GObject.
  *
- * @param cp A pointer to another GEvolutionaryAlgorithm object, camouflaged as a GObject
+ * @param cp A pointer to another GSerialEA object, camouflaged as a GObject
  */
-void GEvolutionaryAlgorithm::load_(const GObject * cp)
+void GSerialEA::load_(const GObject * cp)
 {
-	const GEvolutionaryAlgorithm *p_load = conversion_cast<GEvolutionaryAlgorithm>(cp);
+	const GSerialEA *p_load = conversion_cast<GSerialEA>(cp);
 
 	// First load the parent class'es data ...
 	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::load_(cp);
@@ -166,34 +166,34 @@ void GEvolutionaryAlgorithm::load_(const GObject * cp)
  *
  * @return A deep copy of this object, camouflaged as a pointer to a GObject
  */
-GObject *GEvolutionaryAlgorithm::clone_() const  {
-	return new GEvolutionaryAlgorithm(*this);
+GObject *GSerialEA::clone_() const  {
+	return new GSerialEA(*this);
 }
 
 /************************************************************************************************************/
 /**
- * Checks for equality with another GEvolutionaryAlgorithm object
+ * Checks for equality with another GSerialEA object
  *
- * @param  cp A constant reference to another GEvolutionaryAlgorithm object
+ * @param  cp A constant reference to another GSerialEA object
  * @return A boolean indicating whether both objects are equal
  */
-bool GEvolutionaryAlgorithm::operator==(const GEvolutionaryAlgorithm& cp) const {
+bool GSerialEA::operator==(const GSerialEA& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GEvolutionaryAlgorithm::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialEA::operator==","cp", CE_SILENT);
 }
 
 /************************************************************************************************************/
 /**
- * Checks for inequality with another GEvolutionaryAlgorithm object
+ * Checks for inequality with another GSerialEA object
  *
- * @param  cp A constant reference to another GEvolutionaryAlgorithm object
+ * @param  cp A constant reference to another GSerialEA object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GEvolutionaryAlgorithm::operator!=(const GEvolutionaryAlgorithm& cp) const {
+bool GSerialEA::operator!=(const GSerialEA& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GEvolutionaryAlgorithm::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialEA::operator!=","cp", CE_SILENT);
 }
 
 /************************************************************************************************************/
@@ -209,7 +209,7 @@ bool GEvolutionaryAlgorithm::operator!=(const GEvolutionaryAlgorithm& cp) const 
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GEvolutionaryAlgorithm::checkRelationshipWith(const GObject& cp,
+boost::optional<std::string> GSerialEA::checkRelationshipWith(const GObject& cp,
 		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
@@ -219,38 +219,38 @@ boost::optional<std::string> GEvolutionaryAlgorithm::checkRelationshipWith(const
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GEvolutionaryAlgorithm *p_load = GObject::conversion_cast<GEvolutionaryAlgorithm>(&cp);
+	const GSerialEA *p_load = GObject::conversion_cast<GSerialEA>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::checkRelationshipWith(cp, e, limit, "GEvolutionaryAlgorithm", y_name, withMessages));
+	deviations.push_back(GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::checkRelationshipWith(cp, e, limit, "GSerialEA", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", nParents_, p_load->nParents_, "nParents_", "p_load->nParents_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", microTrainingInterval_, p_load->microTrainingInterval_, "microTrainingInterval_", "p_load->microTrainingInterval_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", recombinationMethod_, p_load->recombinationMethod_, "recombinationMethod_", "p_load->recombinationMethod_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", smode_, p_load->smode_, "smode_", "p_load->smode_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", defaultNChildren_, p_load->defaultNChildren_, "defaultNChildren_", "p_load->defaultNChildren_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", oneTimeMuCommaNu_, p_load->oneTimeMuCommaNu_, "oneTimeMuCommaNu_", "p_load->oneTimeMuCommaNu_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", maxPopulationSize_, p_load->maxPopulationSize_, "maxPopulationSize_", "p_load->maxPopulationSize_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", growthRate_, p_load->growthRate_, "growthRate_", "p_load->growthRate_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", t0_, p_load->t0_, "t0_", "p_load->t0_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", t_, p_load->t_, "t_", "p_load->t_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", alpha_, p_load->alpha_, "alpha_", "p_load->alpha_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", logOldParents_, p_load->logOldParents_, "logOldParents_", "p_load->logOldParents_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", oldParents_, p_load->oldParents_, "oldParents_", "p_load->oldParents_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", nParents_, p_load->nParents_, "nParents_", "p_load->nParents_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", microTrainingInterval_, p_load->microTrainingInterval_, "microTrainingInterval_", "p_load->microTrainingInterval_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", recombinationMethod_, p_load->recombinationMethod_, "recombinationMethod_", "p_load->recombinationMethod_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", smode_, p_load->smode_, "smode_", "p_load->smode_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", defaultNChildren_, p_load->defaultNChildren_, "defaultNChildren_", "p_load->defaultNChildren_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", oneTimeMuCommaNu_, p_load->oneTimeMuCommaNu_, "oneTimeMuCommaNu_", "p_load->oneTimeMuCommaNu_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", maxPopulationSize_, p_load->maxPopulationSize_, "maxPopulationSize_", "p_load->maxPopulationSize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", growthRate_, p_load->growthRate_, "growthRate_", "p_load->growthRate_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", t0_, p_load->t0_, "t0_", "p_load->t0_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", t_, p_load->t_, "t_", "p_load->t_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", alpha_, p_load->alpha_, "alpha_", "p_load->alpha_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", logOldParents_, p_load->logOldParents_, "logOldParents_", "p_load->logOldParents_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA", oldParents_, p_load->oldParents_, "oldParents_", "p_load->oldParents_", e , limit));
 
-	return evaluateDiscrepancies("GEvolutionaryAlgorithm", caller, deviations, e);
+	return evaluateDiscrepancies("GSerialEA", caller, deviations, e);
 }
 
 /************************************************************************************************************/
 /**
  * Sets the individual's personality types to EA
  */
-void GEvolutionaryAlgorithm::setIndividualPersonalities() {
-	GEvolutionaryAlgorithm::iterator it;
+void GSerialEA::setIndividualPersonalities() {
+	GSerialEA::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(EA);
 }
 
@@ -261,7 +261,7 @@ void GEvolutionaryAlgorithm::setIndividualPersonalities() {
  * parents may decrease, it is important to ensure that the next generation's parents
  * are chosen from children with new structure.
  */
-void GEvolutionaryAlgorithm::setOneTimeMuCommaNu() {
+void GSerialEA::setOneTimeMuCommaNu() {
 	oneTimeMuCommaNu_ = true;
 }
 
@@ -271,10 +271,10 @@ void GEvolutionaryAlgorithm::setOneTimeMuCommaNu() {
  *
  * @return A boolean indicating whether an update was performed
  */
-bool GEvolutionaryAlgorithm::updateParentStructure() {
+bool GSerialEA::updateParentStructure() {
 	bool updatePerformed=false;
 
-	GEvolutionaryAlgorithm::iterator it;
+	GSerialEA::iterator it;
 	for(it=this->begin(); it!=this->begin() + nParents_; ++it) {
 		if((*it)->updateOnStall()) updatePerformed = true;
 	}
@@ -290,17 +290,17 @@ bool GEvolutionaryAlgorithm::updateParentStructure() {
  * copying of the individual's data takes place here, as we are dealing with
  * boost::shared_ptr objects.
  */
-void GEvolutionaryAlgorithm::saveCheckpoint() const {
+void GSerialEA::saveCheckpoint() const {
 	// Copy the nParents best individuals to a vector
 	std::vector<boost::shared_ptr<Gem::Geneva::GIndividual> > bestIndividuals;
-	GEvolutionaryAlgorithm::const_iterator it;
+	GSerialEA::const_iterator it;
 	for(it=this->begin(); it!=this->begin() + getNParents(); ++it)
 		bestIndividuals.push_back(*it);
 
 #ifdef DEBUG // Cross check so we do not accidently trigger value calculation
 	if(this->at(0)->isDirty()) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::saveCheckpoint():" << std::endl
+				"In GSerialEA::saveCheckpoint():" << std::endl
 				<< "Error: class member has the dirty flag set"
 		);
 	}
@@ -315,7 +315,7 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 	std::ofstream checkpointStream(outputFile.c_str());
 	if(!checkpointStream) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::saveCheckpoint()" << std::endl
+				"In GSerialEA::saveCheckpoint()" << std::endl
 				<< "Error: Could not open output file" << outputFile.c_str()
 		);
 	}
@@ -356,14 +356,14 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
  * but only the best individuals of a former optimization run, as these contain the
  * "real" information.
  */
-void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
+void GSerialEA::loadCheckpoint(const std::string& cpFile) {
 	// Create a vector to hold the best individuals
 	std::vector<boost::shared_ptr<Gem::Geneva::GIndividual> > bestIndividuals;
 
 	// Check that the file indeed exists
 	if(!boost::filesystem::exists(cpFile)) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::loadCheckpoint(const std::string&)" << std::endl
+				"In GSerialEA::loadCheckpoint(const std::string&)" << std::endl
 				<< "Got invalid checkpoint file name " << cpFile
 		);
 	}
@@ -372,7 +372,7 @@ void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 	std::ifstream checkpointStream(cpFile.c_str());
 	if(!checkpointStream) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::loadCheckpoint(const std::string&)" << std::endl
+				"In GSerialEA::loadCheckpoint(const std::string&)" << std::endl
 				<< "Error: Could not open input file"
 		);
 	}
@@ -430,7 +430,7 @@ void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
  *
  * @param logOldParents The desired new value of the logOldParents_ flag
  */
-void GEvolutionaryAlgorithm::setLogOldParents(const bool& logOldParents) {
+void GSerialEA::setLogOldParents(const bool& logOldParents) {
 	logOldParents_ = logOldParents;
 }
 
@@ -440,7 +440,7 @@ void GEvolutionaryAlgorithm::setLogOldParents(const bool& logOldParents) {
  *
  * @return The current value of the logOldParents_ flag
  */
-bool GEvolutionaryAlgorithm::oldParentsLogged() const {
+bool GSerialEA::oldParentsLogged() const {
 	return logOldParents_;
 }
 
@@ -450,7 +450,7 @@ bool GEvolutionaryAlgorithm::oldParentsLogged() const {
  *
  * @return The number of processible items in the current iteration
  */
-std::size_t GEvolutionaryAlgorithm::getNProcessableItems() const {
+std::size_t GSerialEA::getNProcessableItems() const {
 	if(getIteration()==this->getOffset()) { // usually this means iteration == 0
 		switch(getSortingScheme()) {
 		case MUPLUSNU_PARETO:
@@ -479,7 +479,7 @@ std::size_t GEvolutionaryAlgorithm::getNProcessableItems() const {
  * @param growthRate The amount of individuals to be added in each iteration
  * @param maxPopulationSize The maximum allowed size of the population
  */
-void GEvolutionaryAlgorithm::setPopulationGrowth(
+void GSerialEA::setPopulationGrowth(
 		const std::size_t& growthRate
 		, const std::size_t& maxPopulationSize
 ) {
@@ -493,7 +493,7 @@ void GEvolutionaryAlgorithm::setPopulationGrowth(
  *
  * @return The growth rate of the population per iteration
  */
-std::size_t GEvolutionaryAlgorithm::getGrowthRate() const {
+std::size_t GSerialEA::getGrowthRate() const {
 	return growthRate_;
 }
 
@@ -503,7 +503,7 @@ std::size_t GEvolutionaryAlgorithm::getGrowthRate() const {
  *
  * @return The maximum population size allowed, when growth is enabled
  */
-std::size_t GEvolutionaryAlgorithm::getMaxPopulationSize() const {
+std::size_t GSerialEA::getMaxPopulationSize() const {
 	return maxPopulationSize_;
 }
 
@@ -511,13 +511,13 @@ std::size_t GEvolutionaryAlgorithm::getMaxPopulationSize() const {
 /**
  * Specifies the default size of the population plus the number of parents.
  * The population will be filled with additional individuals later, as required --
- * see GEvolutionaryAlgorithm::adjustPopulation() . Also, all error checking is done in
+ * see GSerialEA::adjustPopulation() . Also, all error checking is done in
  * that function.
  *
  * @param popSize The desired size of the population
  * @param nParents The desired number of parents
  */
-void GEvolutionaryAlgorithm::setDefaultPopulationSize(const std::size_t& popSize, const std::size_t& nParents) {
+void GSerialEA::setDefaultPopulationSize(const std::size_t& popSize, const std::size_t& nParents) {
 	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::setDefaultPopulationSize(popSize);
 	nParents_ = nParents;
 }
@@ -529,7 +529,7 @@ void GEvolutionaryAlgorithm::setDefaultPopulationSize(const std::size_t& popSize
  *
  * @return The value of the best individual found
  */
-double GEvolutionaryAlgorithm::cycleLogic() {
+double GSerialEA::cycleLogic() {
 	// If this is not the first iteration, check whether we need to increase the population
 	if(this->getIteration() != 0) {
 		performScheduledPopulationGrowth();
@@ -545,7 +545,7 @@ double GEvolutionaryAlgorithm::cycleLogic() {
 		// Make sure we are dealing with an empty vector
 		oldParents_.clear();
 		// Attach copies of the current parent individuals
-		GEvolutionaryAlgorithm::iterator it;
+		GSerialEA::iterator it;
 		for(it=this->begin(); it!= this->begin() + nParents_; ++it) {
 			oldParents_.push_back((*it)->clone<GIndividual>());
 		}
@@ -572,7 +572,7 @@ double GEvolutionaryAlgorithm::cycleLogic() {
 #ifdef DEBUG
 	if(isDirty) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::cycleLogic(): Found dirty individual when it should not be"
+				"In GSerialEA::cycleLogic(): Found dirty individual when it should not be"
 		);
 	}
 #endif /* DEBUG */
@@ -587,7 +587,7 @@ double GEvolutionaryAlgorithm::cycleLogic() {
  * tagging. It is called from within GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::optimize(), before the
  * actual optimization cycle starts.
  */
-void GEvolutionaryAlgorithm::init() {
+void GSerialEA::init() {
 	// To be performed before any other action
 	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::init();
 
@@ -607,7 +607,7 @@ void GEvolutionaryAlgorithm::init() {
 	if(((smode_==MUCOMMANU_SINGLEEVAL || smode_==MUNU1PRETAIN || smode_==SA) && (popSize < 2*nParents_)) || (smode_==MUPLUSNU_SINGLEEVAL && popSize<=nParents_))
 	{
 		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::init() :" << std::endl
+		error << "In GSerialEA::init() :" << std::endl
 			  << "Requested size of population is too small :" << popSize << " " << nParents_ << std::endl
 		      << "Sorting scheme is ";
 
@@ -653,7 +653,7 @@ void GEvolutionaryAlgorithm::init() {
 /**
  * Does any necessary finalization work
  */
-void GEvolutionaryAlgorithm::finalize() {
+void GSerialEA::finalize() {
 	// Last action
 	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::finalize();
 }
@@ -666,11 +666,11 @@ void GEvolutionaryAlgorithm::finalize() {
  * been added will not be replaced. This function is called once before the optimization
  * cycle from within GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::optimize()
  */
-void GEvolutionaryAlgorithm::adjustPopulation() {
+void GSerialEA::adjustPopulation() {
 	// Has the population size been set at all ?
 	if(getDefaultPopulationSize() == 0) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::adjustPopulation() :" << std::endl
+				"In GSerialEA::adjustPopulation() :" << std::endl
 				<< "The population size is 0." << std::endl
 				<< "Did you call GOptimizationAlgorithmT<Gem::Geneva::GIndividual>:setDefaultPopulationSize() ?"
 		);
@@ -680,7 +680,7 @@ void GEvolutionaryAlgorithm::adjustPopulation() {
 	std::size_t this_sz = data.size();
 	if(this_sz == 0) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::adjustPopulation() :" << std::endl
+				"In GSerialEA::adjustPopulation() :" << std::endl
 				<< "size of population is 0. Did you add any individuals?" << std::endl
 				<< "We need at least one local individual"
 		);
@@ -691,7 +691,7 @@ void GEvolutionaryAlgorithm::adjustPopulation() {
 	for(it=data.begin(); it!=data.end(); ++it) {
 		if(!(*it)) { // shared_ptr can be implicitly converted to bool
 			raiseException(
-					"In GEvolutionaryAlgorithm::adjustPopulation() :" << std::endl
+					"In GSerialEA::adjustPopulation() :" << std::endl
 					<< "Found empty smart pointer."
 			);
 		}
@@ -714,7 +714,7 @@ void GEvolutionaryAlgorithm::adjustPopulation() {
  * Increases the population size if requested by the user. This will happen until the population size exceeds
  * a predefined value, set with setPopulationGrowth() .
  */
-void GEvolutionaryAlgorithm::performScheduledPopulationGrowth() {
+void GSerialEA::performScheduledPopulationGrowth() {
 	if(growthRate_ != 0 && this->size() < maxPopulationSize_) {
 		// Set a new default population size
 		this->setDefaultPopulationSize(this->size() + growthRate_, this->getNParents());
@@ -730,7 +730,7 @@ void GEvolutionaryAlgorithm::performScheduledPopulationGrowth() {
  *
  * @param mti The desired new value of the mircoTrainingInterval_ variable
  */
-void GEvolutionaryAlgorithm::setMicroTrainingInterval(const boost::uint32_t& mti) {
+void GSerialEA::setMicroTrainingInterval(const boost::uint32_t& mti) {
 	microTrainingInterval_ = mti;
 }
 
@@ -740,7 +740,7 @@ void GEvolutionaryAlgorithm::setMicroTrainingInterval(const boost::uint32_t& mti
  *
  * @return The current value of the mircoTrainingInterval_ variable
  */
-boost::uint32_t GEvolutionaryAlgorithm::getMicroTrainingInterval() const {
+boost::uint32_t GSerialEA::getMicroTrainingInterval() const {
 	return microTrainingInterval_;
 }
 
@@ -753,7 +753,7 @@ boost::uint32_t GEvolutionaryAlgorithm::getMicroTrainingInterval() const {
  *
  * @return The number of parents in the population
  */
-std::size_t GEvolutionaryAlgorithm::getNParents() const {
+std::size_t GSerialEA::getNParents() const {
 	return std::min(data.size(), nParents_);
 }
 
@@ -764,7 +764,7 @@ std::size_t GEvolutionaryAlgorithm::getNParents() const {
  *
  * @return The number of children in the population
  */
-std::size_t GEvolutionaryAlgorithm::getNChildren() const {
+std::size_t GSerialEA::getNChildren() const {
 	if(data.size() <= nParents_) {
 		// This will happen, when only the default population size has been set,
 		// but no individuals have been added yet
@@ -784,18 +784,18 @@ std::size_t GEvolutionaryAlgorithm::getNChildren() const {
  *
  * @param smode The desired sorting scheme
  */
-void GEvolutionaryAlgorithm::setSortingScheme(const sortingMode& smode) {
+void GSerialEA::setSortingScheme(const sortingMode& smode) {
 	smode_=smode;
 }
 
 /************************************************************************************************************/
 /**
  * Retrieves information about the current sorting scheme (see
- * GEvolutionaryAlgorithm::setSortingScheme() for further information).
+ * GSerialEA::setSortingScheme() for further information).
  *
  * @return The current sorting scheme
  */
-sortingMode GEvolutionaryAlgorithm::getSortingScheme() const {
+sortingMode GSerialEA::getSortingScheme() const {
 	return smode_;
 }
 
@@ -809,7 +809,7 @@ sortingMode GEvolutionaryAlgorithm::getSortingScheme() const {
  * present. If individuals can get lost in your setting, you must add mechanisms
  * to "repair" the population.
  */
-void GEvolutionaryAlgorithm::recombine()
+void GSerialEA::recombine()
 {
 #ifdef DEBUG
 	// We require at this stage that at least the default number of
@@ -817,7 +817,7 @@ void GEvolutionaryAlgorithm::recombine()
 	// you must add mechanisms to "repair" the population.
 	if((data.size()-nParents_) < defaultNChildren_){
 		raiseException(
-				"In GEvolutionaryAlgorithm::recombine():" << std::endl
+				"In GSerialEA::recombine():" << std::endl
 				<< "Too few children. Got " << data.size()-nParents_ << "," << std::endl
 				<< "but was expecting at least " << defaultNChildren_
 		);
@@ -839,7 +839,7 @@ void GEvolutionaryAlgorithm::recombine()
  * This function assigns a new value to each child individual according to the chosen
  * recombination scheme.
  */
-void GEvolutionaryAlgorithm::doRecombine() {
+void GSerialEA::doRecombine() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	switch(recombinationMethod_){
@@ -914,7 +914,7 @@ void GEvolutionaryAlgorithm::doRecombine() {
  *
  * @param pos The position of the individual for which a new value should be chosen
  */
-void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& child) {
+void GSerialEA::randomRecombine(boost::shared_ptr<GIndividual>& child) {
 	std::size_t parent_pos;
 
 	if(nParents_==1) {
@@ -947,7 +947,7 @@ void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& chi
  * @param pos The child individual for which a parent should be chosen
  * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
  */
-void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, const std::vector<double>& threshold) {
+void GSerialEA::valueRecombine(boost::shared_ptr<GIndividual>& p, const std::vector<double>& threshold) {
 	bool done=false;
 	double randTest = gr.uniform_01<double>(); // get the test value
 
@@ -965,7 +965,7 @@ void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, c
 
 	if(!done) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::valueRecombine():" << std::endl
+				"In GSerialEA::valueRecombine():" << std::endl
 				<< "Could not recombine."
 		);
 	}
@@ -977,7 +977,7 @@ void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, c
  * calculation, so this function needs to be overloaded for optimization in a
  * network context.
  */
-void GEvolutionaryAlgorithm::adaptChildren()
+void GSerialEA::adaptChildren()
 {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
@@ -1013,7 +1013,7 @@ void GEvolutionaryAlgorithm::adaptChildren()
 /**
  * Choose new parents, based on the selection scheme set by the user.
  */
-void GEvolutionaryAlgorithm::select()
+void GSerialEA::select()
 {
 #ifdef DEBUG
 	// We require at this stage that at least the default number of
@@ -1021,7 +1021,7 @@ void GEvolutionaryAlgorithm::select()
 	// you must add mechanisms to "repair" the population.
 	if((data.size()-nParents_) < defaultNChildren_){
 		raiseException(
-				"In GEvolutionaryAlgorithm::select():" << std::endl
+				"In GSerialEA::select():" << std::endl
 				<< "Too few children. Got " << data.size()-nParents_ << "," << std::endl
 				<< "but was expecting at least " << defaultNChildren_
 		);
@@ -1075,7 +1075,7 @@ void GEvolutionaryAlgorithm::select()
  * are sorted -- only the nParents best individuals are identified. The quality of the population can only
  * increase, but the optimization will stall more easily in MUPLUSNU_SINGLEEVAL mode.
  */
-void GEvolutionaryAlgorithm::sortMuplusnuMode() {
+void GSerialEA::sortMuplusnuMode() {
 	// Only partially sort the arrays
 	if(this->getMaxMode()){
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
@@ -1093,7 +1093,7 @@ void GEvolutionaryAlgorithm::sortMuplusnuMode() {
  * of the population may decrease occasionally from generation to generation, but the
  * optimization is less likely to stall.
  */
-void GEvolutionaryAlgorithm::sortMucommanuMode() {
+void GSerialEA::sortMucommanuMode() {
 	// Only sort the children
 	if(this->getMaxMode()){
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
@@ -1116,7 +1116,7 @@ void GEvolutionaryAlgorithm::sortMucommanuMode() {
  * mode, if only one parent is available, or if this is the first generation (so we
  * do not accidentally trigger value calculation).
  */
-void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
+void GSerialEA::sortMunu1pretainMode() {
 	if(nParents_==1 || getIteration()==0) { // Falls back to MUPLUSNU_SINGLEEVAL mode
 		sortMuplusnuMode();
 	} else {
@@ -1149,8 +1149,8 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
  * mode). This is used in conjunction with multi-criterion optimization. See e.g.
  * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
  */
-void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
-	GEvolutionaryAlgorithm::iterator it, it_cmp;
+void GSerialEA::sortMuPlusNuParetoMode() {
+	GSerialEA::iterator it, it_cmp;
 
 	// We fall back to the single-eval MUPLUSNU mode if there is just one evaluation criterion
 	it=this->begin();
@@ -1235,8 +1235,8 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
  * mode). This is used in conjunction with multi-criterion optimization. See e.g.
  * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
  */
-void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
-	GEvolutionaryAlgorithm::iterator it, it_cmp;
+void GSerialEA::sortMuCommaNuParetoMode() {
+	GSerialEA::iterator it, it_cmp;
 
 	// We fall back to the single-eval MUCOMMANU mode if there is just one evaluation criterion
 	it=this->begin();
@@ -1333,7 +1333,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
  * @param b The individual that is assumed to be dominated
  * @return A boolean indicating whether the first individual dominates the second
  */
-bool GEvolutionaryAlgorithm::aDominatesB(
+bool GSerialEA::aDominatesB(
 		boost::shared_ptr<GIndividual> a
 		, boost::shared_ptr<GIndividual>b) const
 {
@@ -1343,7 +1343,7 @@ bool GEvolutionaryAlgorithm::aDominatesB(
 	std::size_t nCriteriaB = b->getNumberOfFitnessCriteria();
 	if(nCriteriaA != nCriteriaB) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::aDominatesB(): Error!" << std::endl
+				"In GSerialEA::aDominatesB(): Error!" << std::endl
 				<< "Number of fitness criteria differ: " << nCriteriaA << " / " << nCriteriaB << std::endl
 		);
 	}
@@ -1360,7 +1360,7 @@ bool GEvolutionaryAlgorithm::aDominatesB(
 /**
  * Performs a simulated annealing style sorting and selection
  */
-void GEvolutionaryAlgorithm::sortSAMode() {
+void GSerialEA::sortSAMode() {
 	// Position the nParents best children of the population right behind the parents
 	if(this->getMaxMode()){
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
@@ -1406,7 +1406,7 @@ void GEvolutionaryAlgorithm::sortSAMode() {
  * @param qChild The fitness of the child
  * @return A double value in the range [0,1[, representing the likelihood for the child to replace the parent
  */
-double GEvolutionaryAlgorithm::saProb(const double& qParent, const double& qChild) {
+double GSerialEA::saProb(const double& qParent, const double& qChild) {
 	// We do not have to do anything if the child is better than the parent
 	if(isBetter(qChild, qParent)) {
 		return 2.;
@@ -1426,7 +1426,7 @@ double GEvolutionaryAlgorithm::saProb(const double& qParent, const double& qChil
 /**
  * Updates the temperature. This function is used for simulated annealing.
  */
-void GEvolutionaryAlgorithm::updateTemperature() {
+void GSerialEA::updateTemperature() {
 	t_ *= alpha_;
 }
 
@@ -1436,10 +1436,10 @@ void GEvolutionaryAlgorithm::updateTemperature() {
  *
  * @param alpha The degradation speed of the temperature
  */
-void GEvolutionaryAlgorithm::setTDegradationStrength(const double& alpha) {
+void GSerialEA::setTDegradationStrength(const double& alpha) {
 	if(alpha <=0.) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::setTDegradationStrength(const double&):" << std::endl
+				"In GSerialEA::setTDegradationStrength(const double&):" << std::endl
 				<< "Got negative alpha: " << alpha
 		);
 	}
@@ -1453,7 +1453,7 @@ void GEvolutionaryAlgorithm::setTDegradationStrength(const double& alpha) {
  *
  * @return The temperature degradation strength
  */
-double GEvolutionaryAlgorithm::getTDegradationStrength() const {
+double GSerialEA::getTDegradationStrength() const {
 	return alpha_;
 }
 
@@ -1463,10 +1463,10 @@ double GEvolutionaryAlgorithm::getTDegradationStrength() const {
  *
  * @param t0 The start temperature
  */
-void GEvolutionaryAlgorithm::setT0(const double& t0) {
+void GSerialEA::setT0(const double& t0) {
 	if(t0 <=0.) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::setT0(const double&):" << std::endl
+				"In GSerialEA::setT0(const double&):" << std::endl
 				<< "Got negative start temperature: " << t0
 		);
 	}
@@ -1480,7 +1480,7 @@ void GEvolutionaryAlgorithm::setT0(const double& t0) {
  *
  * @return The start temperature
  */
-double GEvolutionaryAlgorithm::getT0() const {
+double GSerialEA::getT0() const {
 	return t0_;
 }
 
@@ -1490,7 +1490,7 @@ double GEvolutionaryAlgorithm::getT0() const {
  *
  * @return The current temperature
  */
-double GEvolutionaryAlgorithm::getT() const {
+double GSerialEA::getT() const {
 	return t_;
 }
 
@@ -1498,7 +1498,7 @@ double GEvolutionaryAlgorithm::getT() const {
 /**
  * This helper function marks parents as parents and children as children.
  */
-void GEvolutionaryAlgorithm::markParents() {
+void GSerialEA::markParents() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.begin()+nParents_; ++it){
 		(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent();
@@ -1509,7 +1509,7 @@ void GEvolutionaryAlgorithm::markParents() {
 /**
  * This helper function marks children as children
  */
-void GEvolutionaryAlgorithm::markChildren() {
+void GSerialEA::markChildren() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin()+nParents_; it!=data.end(); ++it){
 		(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsChild();
@@ -1521,7 +1521,7 @@ void GEvolutionaryAlgorithm::markChildren() {
  * This helper function lets all individuals know about their position in the
  * population.
  */
-void GEvolutionaryAlgorithm::markIndividualPositions() {
+void GSerialEA::markIndividualPositions() {
 	std::size_t pos = 0;
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it) (*it)->getPersonalityTraits<GEAPersonalityTraits>()->setPopulationPosition(pos++);
@@ -1536,7 +1536,7 @@ void GEvolutionaryAlgorithm::markIndividualPositions() {
  *
  * @return The defaultNChildren_ parameter
  */
-std::size_t GEvolutionaryAlgorithm::getDefaultNChildren() const {
+std::size_t GSerialEA::getDefaultNChildren() const {
 	return defaultNChildren_;
 }
 
@@ -1547,7 +1547,7 @@ std::size_t GEvolutionaryAlgorithm::getDefaultNChildren() const {
  *
  * @param recombinationMethod The desired recombination method
  */
-void GEvolutionaryAlgorithm::setRecombinationMethod(const recoScheme& recombinationMethod) {
+void GSerialEA::setRecombinationMethod(const recoScheme& recombinationMethod) {
 	recombinationMethod_ = recombinationMethod;
 }
 
@@ -1557,7 +1557,7 @@ void GEvolutionaryAlgorithm::setRecombinationMethod(const recoScheme& recombinat
  *
  * @return The value of the recombinationMethod_ variable
  */
-recoScheme GEvolutionaryAlgorithm::getRecombinationMethod() const {
+recoScheme GSerialEA::getRecombinationMethod() const {
 	return recombinationMethod_;
 }
 
@@ -1568,7 +1568,7 @@ recoScheme GEvolutionaryAlgorithm::getRecombinationMethod() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GEvolutionaryAlgorithm::modify_GUnitTests() {
+bool GSerialEA::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -1583,7 +1583,7 @@ bool GEvolutionaryAlgorithm::modify_GUnitTests() {
  *
  * @param nIndividuals The number of individuals that should be added to the collection
  */
-void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t& nIndividuals) {
+void GSerialEA::fillWithObjects(const std::size_t& nIndividuals) {
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
@@ -1600,12 +1600,12 @@ void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t& nIndividuals) {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
+void GSerialEA::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		boost::shared_ptr<GEvolutionaryAlgorithm> p_test = this->clone<GEvolutionaryAlgorithm>();
+		boost::shared_ptr<GSerialEA> p_test = this->clone<GSerialEA>();
 
 		// Fill p_test with individuals
 		p_test->fillWithObjects();
@@ -1617,7 +1617,7 @@ void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Check setting and retrieval of the population size and number of parents/childs
-		boost::shared_ptr<GEvolutionaryAlgorithm> p_test = this->clone<GEvolutionaryAlgorithm>();
+		boost::shared_ptr<GSerialEA> p_test = this->clone<GSerialEA>();
 
 		// Set the default population size and number of children to different numbers
 		for(std::size_t nChildren=5; nChildren<10; nChildren++) {
@@ -1656,7 +1656,7 @@ void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests() {
+void GSerialEA::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::specificTestsFailuresExpected_GUnitTests();
 }
@@ -1668,7 +1668,7 @@ void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests() {
 /**
  * The default constructor
  */
-GEvolutionaryAlgorithm::GEAOptimizationMonitor::GEAOptimizationMonitor()
+GSerialEA::GEAOptimizationMonitor::GEAOptimizationMonitor()
 	: xDim_(DEFAULTXDIMOM)
 	, yDim_(DEFAULTYDIMOM)
 	, nMonitorInds_(0)
@@ -1680,7 +1680,7 @@ GEvolutionaryAlgorithm::GEAOptimizationMonitor::GEAOptimizationMonitor()
  *
  * @param cp A copy of another GEAOptimizationMonitor object
  */
-GEvolutionaryAlgorithm::GEAOptimizationMonitor::GEAOptimizationMonitor(const GEvolutionaryAlgorithm::GEAOptimizationMonitor& cp)
+GSerialEA::GEAOptimizationMonitor::GEAOptimizationMonitor(const GSerialEA::GEAOptimizationMonitor& cp)
 	: GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT(cp)
 	, xDim_(cp.xDim_)
 	, yDim_(cp.yDim_)
@@ -1691,7 +1691,7 @@ GEvolutionaryAlgorithm::GEAOptimizationMonitor::GEAOptimizationMonitor(const GEv
 /**
  * The destructor
  */
-GEvolutionaryAlgorithm::GEAOptimizationMonitor::~GEAOptimizationMonitor()
+GSerialEA::GEAOptimizationMonitor::~GEAOptimizationMonitor()
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -1701,8 +1701,8 @@ GEvolutionaryAlgorithm::GEAOptimizationMonitor::~GEAOptimizationMonitor()
  * @param cp A copy of another GEAOptimizationMonitor object
  * @return A constant reference to this object
  */
-const GEvolutionaryAlgorithm::GEAOptimizationMonitor& GEvolutionaryAlgorithm::GEAOptimizationMonitor::operator=(const GEvolutionaryAlgorithm::GEAOptimizationMonitor& cp){
-	GEvolutionaryAlgorithm::GEAOptimizationMonitor::load_(&cp);
+const GSerialEA::GEAOptimizationMonitor& GSerialEA::GEAOptimizationMonitor::operator=(const GSerialEA::GEAOptimizationMonitor& cp){
+	GSerialEA::GEAOptimizationMonitor::load_(&cp);
 	return *this;
 }
 
@@ -1713,10 +1713,10 @@ const GEvolutionaryAlgorithm::GEAOptimizationMonitor& GEvolutionaryAlgorithm::GE
  * @param  cp A constant reference to another GEAOptimizationMonitor object
  * @return A boolean indicating whether both objects are equal
  */
-bool GEvolutionaryAlgorithm::GEAOptimizationMonitor::operator==(const GEvolutionaryAlgorithm::GEAOptimizationMonitor& cp) const {
+bool GSerialEA::GEAOptimizationMonitor::operator==(const GSerialEA::GEAOptimizationMonitor& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GEvolutionaryAlgorithm::GEAOptimizationMonitor::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialEA::GEAOptimizationMonitor::operator==","cp", CE_SILENT);
 }
 
 /**********************************************************************************/
@@ -1726,10 +1726,10 @@ bool GEvolutionaryAlgorithm::GEAOptimizationMonitor::operator==(const GEvolution
  * @param  cp A constant reference to another GEAOptimizationMonitor object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GEvolutionaryAlgorithm::GEAOptimizationMonitor::operator!=(const GEvolutionaryAlgorithm::GEAOptimizationMonitor& cp) const {
+bool GSerialEA::GEAOptimizationMonitor::operator!=(const GSerialEA::GEAOptimizationMonitor& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GEvolutionaryAlgorithm::GEAOptimizationMonitor::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialEA::GEAOptimizationMonitor::operator!=","cp", CE_SILENT);
 }
 
 /**********************************************************************************/
@@ -1745,7 +1745,7 @@ bool GEvolutionaryAlgorithm::GEAOptimizationMonitor::operator!=(const GEvolution
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GEvolutionaryAlgorithm::GEAOptimizationMonitor::checkRelationshipWith(
+boost::optional<std::string> GSerialEA::GEAOptimizationMonitor::checkRelationshipWith(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -1756,20 +1756,20 @@ boost::optional<std::string> GEvolutionaryAlgorithm::GEAOptimizationMonitor::che
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GEvolutionaryAlgorithm::GEAOptimizationMonitor *p_load = GObject::conversion_cast<GEvolutionaryAlgorithm::GEAOptimizationMonitor >(&cp);
+	const GSerialEA::GEAOptimizationMonitor *p_load = GObject::conversion_cast<GSerialEA::GEAOptimizationMonitor >(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GEvolutionaryAlgorithm::GEAOptimizationMonitor", y_name, withMessages));
+	deviations.push_back(GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GSerialEA::GEAOptimizationMonitor", y_name, withMessages));
 
 	// ... and then our local data.
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm::GEAOptimizationMonitor", xDim_, p_load->xDim_, "xDim_", "p_load->xDim_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm::GEAOptimizationMonitor", yDim_, p_load->yDim_, "yDim_", "p_load->yDim_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm::GEAOptimizationMonitor", nMonitorInds_, p_load->nMonitorInds_, "nMonitorInds_", "p_load->nMonitorInds_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA::GEAOptimizationMonitor", xDim_, p_load->xDim_, "xDim_", "p_load->xDim_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA::GEAOptimizationMonitor", yDim_, p_load->yDim_, "yDim_", "p_load->yDim_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialEA::GEAOptimizationMonitor", nMonitorInds_, p_load->nMonitorInds_, "nMonitorInds_", "p_load->nMonitorInds_", e , limit));
 
-	return evaluateDiscrepancies("GEvolutionaryAlgorithm::GEAOptimizationMonitor", caller, deviations, e);
+	return evaluateDiscrepancies("GSerialEA::GEAOptimizationMonitor", caller, deviations, e);
 }
 
 /**********************************************************************************/
@@ -1779,7 +1779,7 @@ boost::optional<std::string> GEvolutionaryAlgorithm::GEAOptimizationMonitor::che
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  * @return A string containing information to written to the output file (if any)
  */
-std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GIndividual> * const goa) {
+std::string GSerialEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GIndividual> * const goa) {
 	// This should always be the first statement in a custom optimization monitor
 	std::cout << GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::firstInformation(goa);
 
@@ -1787,12 +1787,12 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::firstInformation(GOp
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != EA) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::GEAOptimizationMonitor::firstInformation():" << std::endl
+				"In GSerialEA::GEAOptimizationMonitor::firstInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
 		);
 	}
 #endif /* DEBUG */
-	GEvolutionaryAlgorithm * const ea = static_cast<GEvolutionaryAlgorithm * const>(goa);
+	GSerialEA * const ea = static_cast<GSerialEA * const>(goa);
 
 	// Determine a suitable number of monitored individuals, if it hasn't already
 	// been set externally. We allow a maximum of 3 monitored individuals by default
@@ -1814,7 +1814,7 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::firstInformation(GOp
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  * @return A string containing information to written to the output file (if any)
  */
-std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GIndividual> * const goa) {
+std::string GSerialEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GIndividual> * const goa) {
 	// Let the audience know what the parent has to say
 	std::cout << GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::cycleInformation(goa);
 
@@ -1822,12 +1822,12 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::cycleInformation(GOp
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != EA) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::GEAOptimizationMonitor::cycleInformation():" << std::endl
+				"In GSerialEA::GEAOptimizationMonitor::cycleInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
 		);
 	}
 #endif /* DEBUG */
-	GEvolutionaryAlgorithm * const ea = static_cast<GEvolutionaryAlgorithm * const>(goa);
+	GSerialEA * const ea = static_cast<GSerialEA * const>(goa);
 
 	return eaCycleInformation(ea);
 }
@@ -1839,17 +1839,17 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::cycleInformation(GOp
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  * @return A string containing information to written to the output file (if any)
  */
-std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GIndividual> * const goa) {
+std::string GSerialEA::GEAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GIndividual> * const goa) {
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != EA) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::GEAOptimizationMonitor::lastInformation():" << std::endl
+				"In GSerialEA::GEAOptimizationMonitor::lastInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
 		);
 	}
 #endif /* DEBUG */
-	GEvolutionaryAlgorithm * const ea = static_cast<GEvolutionaryAlgorithm * const>(goa);
+	GSerialEA * const ea = static_cast<GSerialEA * const>(goa);
 
 	// Do the actual information gathering
 	std::ostringstream result;
@@ -1866,7 +1866,7 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::lastInformation(GOpt
  * A function that is called once before the optimization starts, acting on evolutionary
  * algorithms
  */
-std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaFirstInformation(GEvolutionaryAlgorithm * const ea) {
+std::string GSerialEA::GEAOptimizationMonitor::eaFirstInformation(GSerialEA * const ea) {
 	std::ostringstream result;
 
 	// Output the header to the summary stream
@@ -1893,7 +1893,7 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaFirstInformation(G
  * algorithms
  *
  */
-std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaCycleInformation(GEvolutionaryAlgorithm * const ea) {
+std::string GSerialEA::GEAOptimizationMonitor::eaCycleInformation(GSerialEA * const ea) {
 	std::ostringstream result;
 
 	bool isDirty = false;
@@ -1935,7 +1935,7 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaCycleInformation(G
  * on evolutionary algorithms
  *
  */
-std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaLastInformation(GEvolutionaryAlgorithm * const ea) {
+std::string GSerialEA::GEAOptimizationMonitor::eaLastInformation(GSerialEA * const ea) {
 	std::ostringstream result;
 
 	// Output final print logic to the stream
@@ -1979,7 +1979,7 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaLastInformation(GE
  * @param xDim The desired dimension of the canvas in x-direction
  * @param yDim The desired dimension of the canvas in y-direction
  */
-void GEvolutionaryAlgorithm::GEAOptimizationMonitor::setDims(const boost::uint16_t& xDim, const boost::uint16_t& yDim) {
+void GSerialEA::GEAOptimizationMonitor::setDims(const boost::uint16_t& xDim, const boost::uint16_t& yDim) {
 	xDim_ = xDim;
 	yDim_ = yDim;
 }
@@ -1990,7 +1990,7 @@ void GEvolutionaryAlgorithm::GEAOptimizationMonitor::setDims(const boost::uint16
  *
  * @return The dimension of the canvas in x-direction
  */
-boost::uint16_t GEvolutionaryAlgorithm::GEAOptimizationMonitor::getXDim() const {
+boost::uint16_t GSerialEA::GEAOptimizationMonitor::getXDim() const {
 	return xDim_;
 }
 
@@ -2000,7 +2000,7 @@ boost::uint16_t GEvolutionaryAlgorithm::GEAOptimizationMonitor::getXDim() const 
  *
  * @return The dimension of the canvas in y-direction
  */
-boost::uint16_t GEvolutionaryAlgorithm::GEAOptimizationMonitor::getYDim() const {
+boost::uint16_t GSerialEA::GEAOptimizationMonitor::getYDim() const {
 	return yDim_;
 }
 
@@ -2010,10 +2010,10 @@ boost::uint16_t GEvolutionaryAlgorithm::GEAOptimizationMonitor::getYDim() const 
  *
  * @oaram nMonitorInds The number of individuals in the population that should be monitored
  */
-void GEvolutionaryAlgorithm::GEAOptimizationMonitor::setNMonitorIndividuals(const std::size_t& nMonitorInds) {
+void GSerialEA::GEAOptimizationMonitor::setNMonitorIndividuals(const std::size_t& nMonitorInds) {
 	if(nMonitorInds == 0) {
 		raiseException(
-				"In GEvolutionaryAlgorithm::GEAOptimizationMonitor::setNMonitorIndividuals():" << std::endl
+				"In GSerialEA::GEAOptimizationMonitor::setNMonitorIndividuals():" << std::endl
 				<< "Number of monitored individuals is set to 0."
 		);
 	}
@@ -2027,7 +2027,7 @@ void GEvolutionaryAlgorithm::GEAOptimizationMonitor::setNMonitorIndividuals(cons
  *
  * @return The number of individuals in the population being monitored
  */
-std::size_t GEvolutionaryAlgorithm::GEAOptimizationMonitor::getNMonitorIndividuals() const {
+std::size_t GSerialEA::GEAOptimizationMonitor::getNMonitorIndividuals() const {
 	return nMonitorInds_;
 }
 
@@ -2035,10 +2035,10 @@ std::size_t GEvolutionaryAlgorithm::GEAOptimizationMonitor::getNMonitorIndividua
 /**
  * Loads the data of another object
  *
- * cp A pointer to another GEvolutionaryAlgorithm::GEAOptimizationMonitor object, camouflaged as a GObject
+ * cp A pointer to another GSerialEA::GEAOptimizationMonitor object, camouflaged as a GObject
  */
-void GEvolutionaryAlgorithm::GEAOptimizationMonitor::load_(const GObject* cp) {
-	const GEvolutionaryAlgorithm::GEAOptimizationMonitor *p_load = conversion_cast<GEvolutionaryAlgorithm::GEAOptimizationMonitor>(cp);
+void GSerialEA::GEAOptimizationMonitor::load_(const GObject* cp) {
+	const GSerialEA::GEAOptimizationMonitor *p_load = conversion_cast<GSerialEA::GEAOptimizationMonitor>(cp);
 
 	// Load the parent classes' data ...
 	GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::load_(cp);
@@ -2055,8 +2055,8 @@ void GEvolutionaryAlgorithm::GEAOptimizationMonitor::load_(const GObject* cp) {
  *
  * @return A deep clone of this object
  */
-GObject* GEvolutionaryAlgorithm::GEAOptimizationMonitor::clone_() const {
-	return new GEvolutionaryAlgorithm::GEAOptimizationMonitor(*this);
+GObject* GSerialEA::GEAOptimizationMonitor::clone_() const {
+	return new GSerialEA::GEAOptimizationMonitor(*this);
 }
 
 #ifdef GENEVATESTING
@@ -2064,7 +2064,7 @@ GObject* GEvolutionaryAlgorithm::GEAOptimizationMonitor::clone_() const {
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
-bool GEvolutionaryAlgorithm::GEAOptimizationMonitor::modify_GUnitTests() {
+bool GSerialEA::GEAOptimizationMonitor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -2077,7 +2077,7 @@ bool GEvolutionaryAlgorithm::GEAOptimizationMonitor::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GEvolutionaryAlgorithm::GEAOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
+void GSerialEA::GEAOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
 }
@@ -2086,7 +2086,7 @@ void GEvolutionaryAlgorithm::GEAOptimizationMonitor::specificTestsNoFailureExpec
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GEvolutionaryAlgorithm::GEAOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
+void GSerialEA::GEAOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
 }

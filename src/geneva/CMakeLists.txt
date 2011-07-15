@@ -22,7 +22,6 @@ SET ( OPTIMIZATIONSOURCES
 	Geneva
 	GEvaluator
 	GenevaHelperFunctionsT
-	GEvolutionaryAlgorithm
 	GGDPersonalityTraits
 	GGradientDescent
 	GIndividual
@@ -43,6 +42,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterObjectCollection
 	GParameterSet
 	GPersonalityTraits
+	GSerialEA
 	GSerialSwarm
 	GSwarmPersonalityTraits
 )

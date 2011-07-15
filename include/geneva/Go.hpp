@@ -54,7 +54,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GSerialEA.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GBrokerEA.hpp"
 #include "geneva/GSerialSwarm.hpp"
@@ -219,7 +219,7 @@ public:
 	) const;
 
 	/** @brief Allows to specify an optimization monitor to be used with evolutionary algorithms */
-	void registerOptimizationMonitor(boost::shared_ptr<GEvolutionaryAlgorithm::GEAOptimizationMonitor>);
+	void registerOptimizationMonitor(boost::shared_ptr<GSerialEA::GEAOptimizationMonitor>);
 	/** @brief Allows to specify an optimization monitor to be used with swarm algorithms */
 	void registerOptimizationMonitor(boost::shared_ptr<GSerialSwarm::GSwarmOptimizationMonitor>);
 	/** @brief Allows to specify an optimization monitor to be used with gradient descents */
@@ -617,14 +617,14 @@ private:
 	template <typename ind_type>
 	boost::shared_ptr<ind_type> eaOptimize(const boost::uint32_t& offset = 0) {
 		// This smart pointer will hold the different types of evolutionary algorithms
-		boost::shared_ptr<GEvolutionaryAlgorithm> ea_ptr;
+		boost::shared_ptr<GSerialEA> ea_ptr;
 
 		switch(parMode_) {
 		//----------------------------------------------------------------------------------
 		case SERIAL:
 		{
 			// Create an empty population
-			ea_ptr = boost::shared_ptr<GEvolutionaryAlgorithm>(new GEvolutionaryAlgorithm());
+			ea_ptr = boost::shared_ptr<GSerialEA>(new GSerialEA());
 		}
 		break;
 
@@ -982,7 +982,7 @@ private:
 	std::string configFilename_; ///< Indicates where the configuration file is stored
 	bool verbose_; ///< Whether additional information should be emitted, e.g. when parsing configuration files
 
-	boost::shared_ptr<GEvolutionaryAlgorithm::GEAOptimizationMonitor> ea_om_ptr_; ///< Holds a specific optimization monitor used for evolutionary algorithms
+	boost::shared_ptr<GSerialEA::GEAOptimizationMonitor> ea_om_ptr_; ///< Holds a specific optimization monitor used for evolutionary algorithms
 	boost::shared_ptr<GSerialSwarm::GSwarmOptimizationMonitor> swarm_om_ptr_; ///< Holds a specific optimization monitor used for swarm algorithms
 	boost::shared_ptr<GGradientDescent::GGDOptimizationMonitor> gd_om_ptr_; ///< Holds a specific optimization monitor used for gradient descents
 
