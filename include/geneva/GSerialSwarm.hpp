@@ -1,5 +1,5 @@
 /**
- * @file GSwarm.hpp
+ * @file GSerialSwarm.hpp
  */
 
 /*
@@ -66,14 +66,14 @@ const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 20;
 
 /*********************************************************************************/
 /**
- * The GSwarm class implements a swarm optimization algorithm, based on the infrastructure
+ * The GSerialSwarm class implements a swarm optimization algorithm, based on the infrastructure
  * provided by the GOptimizationAlgorithmT class. Its population is based on a constant number
  * of neighborhoods, whose amount of members is allowed to vary. This happens so that late
  * arrivals in case of networked execution can still be integrated into later iterations.
  *
  * TODO: Mark checkpoints so the serialization mode can be determined automatically (e.g. using file extension ??)
  */
-class GSwarm
+class GSerialSwarm
 	:public GOptimizationAlgorithmT<GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -104,19 +104,19 @@ class GSwarm
 
 public:
 	/** @brief The default constructor */
-	GSwarm(const std::size_t&, const std::size_t&);
+	GSerialSwarm(const std::size_t&, const std::size_t&);
 	/** @brief A standard copy constructor */
-	GSwarm(const GSwarm&);
+	GSerialSwarm(const GSerialSwarm&);
 	/** @brief The destructor */
-	virtual ~GSwarm();
+	virtual ~GSerialSwarm();
 
 	/** @brief A standard assignment operator */
-	const GSwarm& operator=(const GSwarm&);
+	const GSerialSwarm& operator=(const GSerialSwarm&);
 
-	/** @brief Checks for equality with another GSwarm object */
-	bool operator==(const GSwarm&) const;
-	/** @brief Checks for inequality with another GSwarm object */
-	bool operator!=(const GSwarm&) const;
+	/** @brief Checks for equality with another GSerialSwarm object */
+	bool operator==(const GSerialSwarm&) const;
+	/** @brief Checks for inequality with another GSerialSwarm object */
+	bool operator!=(const GSerialSwarm&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
@@ -195,7 +195,7 @@ public:
 		// Check that global_best_ actually points somewhere
 		if(!global_best_) {
 			raiseException(
-					"In GSwarm::getBestIndividual<>() : Error" << std::endl
+					"In GSerialSwarm::getBestIndividual<>() : Error" << std::endl
 					<< "Tried to access uninitialized globally best individual."
 			);
 		}
@@ -222,7 +222,7 @@ public:
 		// Check that the neighborhood is in a valid range
 		if(neighborhood >= nNeighborhoods_) {
 			raiseException(
-					"In GSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
+					"In GSerialSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
 					<< "Requested neighborhood which does not exist: " << neighborhood << " / " << nNeighborhoods_
 			);
 		}
@@ -230,7 +230,7 @@ public:
 		// Check that pointer actually points somewhere
 		if(!neighborhood_bests_[neighborhood]) {
 			raiseException(
-					"In GSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
+					"In GSerialSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
 					<< "Tried to access uninitialized best individual in neighborhood."
 			);
 		}
@@ -240,7 +240,7 @@ public:
 		if(p) return p;
 		else {
 			raiseException(
-					"In GSwarm::getBestNeighborhoodIndividual<>() : Conversion error"
+					"In GSerialSwarm::getBestNeighborhoodIndividual<>() : Conversion error"
 			);
 		}
 #else
@@ -331,7 +331,7 @@ protected:
 	double velocityRangePercentage_; ///< Indicates the percentage of a value range used for the initialization of the velocity
 
 	/** @brief The default constructor. Intentionally protected, as it is only needed for de-serialization purposes. */
-	GSwarm();
+	GSerialSwarm();
 
 	/** Updates the personal best of an individual */
 	void updatePersonalBest(boost::shared_ptr<GParameterSet>);
@@ -422,11 +422,11 @@ public:
 	    virtual std::string lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
 
 	    /** @brief A function that is called once before the optimization starts */
-	    virtual std::string swarmFirstInformation(GSwarm * const);
+	    virtual std::string swarmFirstInformation(GSerialSwarm * const);
 	    /** @brief A function that is called during each optimization cycle */
-	    virtual std::string swarmCycleInformation(GSwarm * const);
+	    virtual std::string swarmCycleInformation(GSerialSwarm * const);
 	    /** @brief A function that is called once at the end of the optimization cycle */
-	    virtual std::string swarmLastInformation(GSwarm * const);
+	    virtual std::string swarmLastInformation(GSerialSwarm * const);
 
 	    /** @brief Loads the data of another object */
 	    virtual void load_(const GObject*);
@@ -466,14 +466,14 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 /** @brief We need to provide a specialization of the factory function that creates objects of this type. */
-template <> boost::shared_ptr<Gem::Geneva::GSwarm> TFactory_GUnitTests<Gem::Geneva::GSwarm>();
+template <> boost::shared_ptr<Gem::Geneva::GSerialSwarm> TFactory_GUnitTests<Gem::Geneva::GSerialSwarm>();
 
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 #endif /* GENEVATESTING */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSwarm)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSwarm::GSwarmOptimizationMonitor)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialSwarm)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialSwarm::GSwarmOptimizationMonitor)
 
 #endif /* GSWARM_HPP_ */

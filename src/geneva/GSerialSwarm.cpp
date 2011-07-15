@@ -1,5 +1,5 @@
 /**
- * @file GSwarm.cpp
+ * @file GSerialSwarm.cpp
  */
 
 /*
@@ -31,10 +31,10 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.com .
  */
-#include "geneva/GSwarm.hpp"
+#include "geneva/GSerialSwarm.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSwarm)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSwarm::GSwarmOptimizationMonitor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialSwarm)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialSwarm::GSwarmOptimizationMonitor)
 
 namespace Gem {
 namespace Geneva {
@@ -45,7 +45,7 @@ namespace Geneva {
  * only needed for de-serialization purposes. The id of the optimization algorithm will be set when the
  * parent class is de-serialized.
  */
-GSwarm::GSwarm()
+GSerialSwarm::GSerialSwarm()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -56,7 +56,7 @@ GSwarm::GSwarm()
  * @param nNeighborhoods The desired number of neighborhoods (hardwired to >= 1)
  * @oaram nNeighborhoodMembers The default number of individuals in each neighborhood (hardwired to >= 2)
  */
-GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
+GSerialSwarm::GSerialSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
 	: GOptimizationAlgorithmT<GParameterSet>()
 	, nNeighborhoods_(nNeighborhoods?nNeighborhoods:1)
 	, defaultNNeighborhoodMembers_((nNeighborhoodMembers<=1)?2:nNeighborhoodMembers)
@@ -94,9 +94,9 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 /**
  * A standard copy constructor.
  *
- * @param cp Another GSwarm object
+ * @param cp Another GSerialSwarm object
  */
-GSwarm::GSwarm(const GSwarm& cp)
+GSerialSwarm::GSerialSwarm(const GSerialSwarm& cp)
 	: GOptimizationAlgorithmT<GParameterSet>(cp)
 	, nNeighborhoods_(cp.nNeighborhoods_)
 	, defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
@@ -136,34 +136,34 @@ GSwarm::GSwarm(const GSwarm& cp)
 /**
  * The standard destructor. Most work is done in the parent class.
  */
-GSwarm::~GSwarm()
+GSerialSwarm::~GSerialSwarm()
 { /* nothing */ }
 
 /************************************************************************************************************/
 /**
  * The standard assignment operator.
  *
- * @param cp Another GSwarm object
+ * @param cp Another GSerialSwarm object
  * @return A constant reference to this object
  */
-const GSwarm& GSwarm::operator=(const GSwarm& cp) {
-	GSwarm::load_(&cp);
+const GSerialSwarm& GSerialSwarm::operator=(const GSerialSwarm& cp) {
+	GSerialSwarm::load_(&cp);
 	return *this;
 }
 
 /************************************************************************************************************/
 /**
- * Loads the data of another GSwarm object, camouflaged as a GObject.
+ * Loads the data of another GSerialSwarm object, camouflaged as a GObject.
  *
- * @param cp A pointer to another GSwarm object, camouflaged as a GObject
+ * @param cp A pointer to another GSerialSwarm object, camouflaged as a GObject
  */
-void GSwarm::load_(const GObject *cp)
+void GSerialSwarm::load_(const GObject *cp)
 {
 	// Make a note of the current iteration (needed for a check below).
 	// The information would otherwise be lost after the load call below
 	boost::uint32_t currentIteration = this->getIteration();
 
-	const GSwarm *p_load = this->conversion_cast<GSwarm>(cp);
+	const GSerialSwarm *p_load = this->conversion_cast<GSerialSwarm>(cp);
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
@@ -198,7 +198,7 @@ void GSwarm::load_(const GObject *cp)
 		for(std::size_t i=0; i<nNeighborhoods_; i++) {
 			nNeighborhoodMembers_[i] = p_load->nNeighborhoodMembers_[i];
 			// The following only makes sense if this is not the first iteration. Note that
-			// getIteration will return the "foreign" GSwarm object's iteration, as it has
+			// getIteration will return the "foreign" GSerialSwarm object's iteration, as it has
 			// already been copied.
 			if(getIteration() > 0) {
 				neighborhood_bests_[i] = p_load->neighborhood_bests_[i]->clone<GParameterSet>();
@@ -207,7 +207,7 @@ void GSwarm::load_(const GObject *cp)
 		}
 	}
 	else { // We now assume that we can just load neighborhood bests in each position.
-		// Copying only makes sense if the foreign GSwarm object's iteration is > 0.
+		// Copying only makes sense if the foreign GSerialSwarm object's iteration is > 0.
 		// Note that getIteration() will return the foreign iteration, as that value
 		// has already been copied.
 		if(getIteration() > 0) {
@@ -247,34 +247,34 @@ void GSwarm::load_(const GObject *cp)
  *
  * @return A deep copy of this object, camouflaged as a pointer to a GObject
  */
-GObject *GSwarm::clone_() const  {
-	return new GSwarm(*this);
+GObject *GSerialSwarm::clone_() const  {
+	return new GSerialSwarm(*this);
 }
 
 /************************************************************************************************************/
 /**
- * Checks for equality with another GSwarm object
+ * Checks for equality with another GSerialSwarm object
  *
- * @param  cp A constant reference to another GSwarm object
+ * @param  cp A constant reference to another GSerialSwarm object
  * @return A boolean indicating whether both objects are equal
  */
-bool GSwarm::operator==(const GSwarm& cp) const {
+bool GSerialSwarm::operator==(const GSerialSwarm& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSwarm::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialSwarm::operator==","cp", CE_SILENT);
 }
 
 /************************************************************************************************************/
 /**
- * Checks for inequality with another GSwarm object
+ * Checks for inequality with another GSerialSwarm object
  *
- * @param  cp A constant reference to another GSwarm object
+ * @param  cp A constant reference to another GSerialSwarm object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GSwarm::operator!=(const GSwarm& cp) const {
+bool GSerialSwarm::operator!=(const GSerialSwarm& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSwarm::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialSwarm::operator!=","cp", CE_SILENT);
 }
 
 /************************************************************************************************************/
@@ -290,7 +290,7 @@ bool GSwarm::operator!=(const GSwarm& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GSwarm::checkRelationshipWith(
+boost::optional<std::string> GSerialSwarm::checkRelationshipWith(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -301,7 +301,7 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GSwarm *p_load = GObject::conversion_cast<GSwarm>(&cp);
+	const GSerialSwarm *p_load = GObject::conversion_cast<GSerialSwarm>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -310,43 +310,43 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(
 	deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithmT<GParameterSet>", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoods_, p_load->nNeighborhoods_, "nNeighborhoods_", "p_load->nNeighborhoods_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", defaultNNeighborhoodMembers_, p_load->defaultNNeighborhoodMembers_, "defaultNNeighborhoodMembers_", "p_load->defaultNNeighborhoodMembers_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", global_best_, p_load->global_best_, "global_best_", "p_load->global_best_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_personal_, p_load->c_personal_, "c_personal_", "p_load->c_personal_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_neighborhood_, p_load->c_neighborhood_, "c_neighborhood_", "p_load->c_neighborhood_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_global_, p_load->c_global_, "c_global_", "p_load->c_global_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_velocity_, p_load->c_velocity_, "c_velocity_", "p_load->c_velocity_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", updateRule_, p_load->updateRule_, "updateRule_", "p_load->updateRule_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", randomFillUp_, p_load->randomFillUp_, "randomFillUp_", "p_load->randomFillUp_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_, "dblLowerParameterBoundaries_", "p_load->dblLowerParameterBoundaries_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_, "dblUpperParameterBoundaries_", "p_load->dblUpperParameterBoundaries_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", dblVelVecMax_, p_load->dblVelVecMax_, "dblVelVecMax_", "p_load->dblVelVecMax_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", velocityRangePercentage_, p_load->velocityRangePercentage_, "velocityRangePercentage_", "p_load->velocityRangePercentage_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", nNeighborhoods_, p_load->nNeighborhoods_, "nNeighborhoods_", "p_load->nNeighborhoods_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", defaultNNeighborhoodMembers_, p_load->defaultNNeighborhoodMembers_, "defaultNNeighborhoodMembers_", "p_load->defaultNNeighborhoodMembers_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", global_best_, p_load->global_best_, "global_best_", "p_load->global_best_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", c_personal_, p_load->c_personal_, "c_personal_", "p_load->c_personal_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", c_neighborhood_, p_load->c_neighborhood_, "c_neighborhood_", "p_load->c_neighborhood_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", c_global_, p_load->c_global_, "c_global_", "p_load->c_global_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", c_velocity_, p_load->c_velocity_, "c_velocity_", "p_load->c_velocity_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", updateRule_, p_load->updateRule_, "updateRule_", "p_load->updateRule_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", randomFillUp_, p_load->randomFillUp_, "randomFillUp_", "p_load->randomFillUp_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_, "dblLowerParameterBoundaries_", "p_load->dblLowerParameterBoundaries_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_, "dblUpperParameterBoundaries_", "p_load->dblUpperParameterBoundaries_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", dblVelVecMax_, p_load->dblVelVecMax_, "dblVelVecMax_", "p_load->dblVelVecMax_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", velocityRangePercentage_, p_load->velocityRangePercentage_, "velocityRangePercentage_", "p_load->velocityRangePercentage_", e , limit));
 
 	// The next checks only makes sense if the number of neighborhoods are equal
 	if(nNeighborhoods_ == p_load->nNeighborhoods_) {
 		for(std::size_t i=0; i<nNeighborhoods_; i++) {
 			std::string nbh = "nNeighborhoodMembers_[" + boost::lexical_cast<std::string>(i) + "]";
 			std::string remote = "(p_load->nNeighborhoodMembers_)[" + boost::lexical_cast<std::string>(i) + "]";
-			deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoodMembers_[i], (p_load->nNeighborhoodMembers_)[i], nbh, remote, e , limit));
+			deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", nNeighborhoodMembers_[i], (p_load->nNeighborhoodMembers_)[i], nbh, remote, e , limit));
 
 			// No neighborhood bests have been assigned yet in iteration 0
 			if(getIteration() > 0) {
-				deviations.push_back(checkExpectation(withMessages, "GSwarm", neighborhood_bests_[i], p_load->neighborhood_bests_[i], nbh, remote, e , limit));
+				deviations.push_back(checkExpectation(withMessages, "GSerialSwarm", neighborhood_bests_[i], p_load->neighborhood_bests_[i], nbh, remote, e , limit));
 			}
 		}
 	}
 
-	return evaluateDiscrepancies("GSwarm", caller, deviations, e);
+	return evaluateDiscrepancies("GSerialSwarm", caller, deviations, e);
 }
 
 /************************************************************************************************************/
 /**
  * Sets the individual's personality types to Swarm
  */
-void GSwarm::setIndividualPersonalities() {
-	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
+void GSerialSwarm::setIndividualPersonalities() {
+	for(GSerialSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
 		(*it)->setPersonality(SWARM);
 	}
 }
@@ -357,12 +357,12 @@ void GSwarm::setIndividualPersonalities() {
  * and the fitness to the base name. The entire object is saved. The function will
  * throw if no global best has been established yet.
  */
-void GSwarm::saveCheckpoint() const {
+void GSerialSwarm::saveCheckpoint() const {
 #ifdef DEBUG
 	// Check that the global best has been initialized
 	if(!global_best_) {
 		raiseException(
-				"In GSwarm::saveCheckpoint():" << std::endl
+				"In GSerialSwarm::saveCheckpoint():" << std::endl
 				<< "global_best_ has not yet been initialized!"
 		);
 	}
@@ -374,7 +374,7 @@ void GSwarm::saveCheckpoint() const {
 #ifdef DEBUG
 	if(isDirty) {
 		raiseException(
-				"In GSwarm::saveCheckpoint():" << std::endl
+				"In GSerialSwarm::saveCheckpoint():" << std::endl
 				<< "global_best_ has dirty flag set!"
 		);
 	}
@@ -393,7 +393,7 @@ void GSwarm::saveCheckpoint() const {
  *
  * @param cpFile The name of the file the checkpoint should be loaded from
  */
-void GSwarm::loadCheckpoint(const std::string& cpFile) {
+void GSerialSwarm::loadCheckpoint(const std::string& cpFile) {
 	this->fromFile(cpFile, getCheckpointSerializationMode());
 }
 
@@ -405,7 +405,7 @@ void GSwarm::loadCheckpoint(const std::string& cpFile) {
  * @param two The second array used for the check
  * @return A boolean indicating whether both arrays are equal
  */
-bool GSwarm::nNeighborhoodMembersEqual(
+bool GSerialSwarm::nNeighborhoodMembersEqual(
 		const std::vector<std::size_t> &one
 		, const std::vector<std::size_t>& two
 ) const {
@@ -431,7 +431,7 @@ bool GSwarm::nNeighborhoodMembersEqual(
  * @param neighborhood The id of the neighborhood for which the id of the first individual should be calculated
  * @return The position of the first individual of a neighborhood
  */
-std::size_t GSwarm::getFirstNIPos(const std::size_t& neighborhood) const {
+std::size_t GSerialSwarm::getFirstNIPos(const std::size_t& neighborhood) const {
 	return getFirstNIPosVec(neighborhood, nNeighborhoodMembers_);
 }
 
@@ -444,14 +444,14 @@ std::size_t GSwarm::getFirstNIPos(const std::size_t& neighborhood) const {
  * @param neighborhood The id of the neighborhood for which the id of the first individual should be calculated
  * @return The position of the first individual of a neighborhood
  */
-std::size_t GSwarm::getFirstNIPosVec(
+std::size_t GSerialSwarm::getFirstNIPosVec(
 		const std::size_t& neighborhood
 		, const std::vector<std::size_t>& vec
 ) const {
 #ifdef DEBUG
 	if(neighborhood >= nNeighborhoods_) {
 		raiseException(
-				"In GSwarm::getFirstNIPosVec():" << std::endl
+				"In GSerialSwarm::getFirstNIPosVec():" << std::endl
 				<< "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
 				<< "The number of neighborhoods is " << nNeighborhoods_ << "," << std::endl
 				<< "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "."
@@ -480,11 +480,11 @@ std::size_t GSwarm::getFirstNIPosVec(
  * @param neighborhood The id of the neighborhood for which the id of the last individual should be calculated
  * @return The position of the individual right after the last of a neighborhood
  */
-std::size_t GSwarm::getLastNIPos(const std::size_t& neighborhood) const {
+std::size_t GSerialSwarm::getLastNIPos(const std::size_t& neighborhood) const {
 #ifdef DEBUG
 	if(neighborhood >= nNeighborhoods_) {
 		raiseException(
-				"In GSwarm::getLastNIPos():" << std::endl
+				"In GSerialSwarm::getLastNIPos():" << std::endl
 				<< "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
 				<< "The number of neighborhoods is " << nNeighborhoods_ << " ." << std::endl
 				<< "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "."
@@ -501,13 +501,13 @@ std::size_t GSwarm::getLastNIPos(const std::size_t& neighborhood) const {
  *
  * @param p A pointer to the GParameterSet object to be updated
  */
-void GSwarm::updatePersonalBest(
+void GSerialSwarm::updatePersonalBest(
 		boost::shared_ptr<GParameterSet> p
 ) {
 #ifdef DEBUG
 	if(p->isDirty()) {
 		raiseException(
-				"In GSwarm::updatePersonalBest():" << std::endl
+				"In GSerialSwarm::updatePersonalBest():" << std::endl
 				<< "p has its dirty flag set: " << p->isDirty() << std::endl
 		);
 	}
@@ -522,13 +522,13 @@ void GSwarm::updatePersonalBest(
  *
  * @param p A pointer to the GParameterSet object to be updated
  */
-void GSwarm::updatePersonalBestIfBetter(
+void GSerialSwarm::updatePersonalBestIfBetter(
 		boost::shared_ptr<GParameterSet> p
 ) {
 #ifdef DEBUG
 	if(p->isDirty()) {
 		raiseException(
-				"In GSwarm::updatePersonalBestIfBetter():" << std::endl
+				"In GSerialSwarm::updatePersonalBestIfBetter():" << std::endl
 				<< "p has the dirty flag set:" << p->isDirty() << std::endl
 		);
 	}
@@ -549,7 +549,7 @@ void GSwarm::updatePersonalBestIfBetter(
  * This function does some preparatory work and tagging required by swarm algorithms. It is called
  * from within GOptimizationAlgorithmT<GParameterSet>::optimize(), immediately before the actual optimization cycle starts.
  */
-void GSwarm::init() {
+void GSerialSwarm::init() {
 	// To be performed before any other action
 	GOptimizationAlgorithmT<GParameterSet>::init();
 }
@@ -558,7 +558,7 @@ void GSwarm::init() {
 /**
  * Does any necessary finalization work
  */
-void GSwarm::finalize() {
+void GSerialSwarm::finalize() {
 	// Remove remaining velocity individuals. The boost::shared_ptr<GParameterSet>s
 	// will take care of deleting the GParameterSet objects.
 	velocities_.clear();
@@ -573,7 +573,7 @@ void GSwarm::finalize() {
  * parameter boundaries. Note that we assume that the number of parameters is equal for all individuals
  * and does not change over time.
  */
-void GSwarm::optimizationInit() {
+void GSerialSwarm::optimizationInit() {
 	// Always call the parent class'es init function first
 	GOptimizationAlgorithmT<GParameterSet>::optimizationInit();
 
@@ -584,7 +584,7 @@ void GSwarm::optimizationInit() {
 	// Size matters!
 	if(dblLowerParameterBoundaries_.size() != dblUpperParameterBoundaries_.size()) {
 		raiseException(
-				"In GSwarm::optimizationInit(): Error!" << std::endl
+				"In GSerialSwarm::optimizationInit(): Error!" << std::endl
 				<< "Found invalid sizes: "
 				<< dblLowerParameterBoundaries_.size() << " / " << dblUpperParameterBoundaries_.size() << std::endl
 		);
@@ -599,7 +599,7 @@ void GSwarm::optimizationInit() {
 	}
 
 	// Create copies of our individuals in the velocities_ vector.
-	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
+	for(GSerialSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
 		// Create a copy of the current individual. Note that, if you happen
 		// to have assigned anything else than a GParameterSet derivative to
 		// the swarm, then the following line will throw in DEBUG mode or return
@@ -614,7 +614,7 @@ void GSwarm::optimizationInit() {
 		// Check that the number of parameters equals those in the velocity boundaries
 		if(velVec.size() != dblLowerParameterBoundaries_.size() || velVec.size() != dblVelVecMax_.size()) {
 			raiseException(
-					"In GSwarm::optimizationInit(): Error! (2)" << std::endl
+					"In GSerialSwarm::optimizationInit(): Error! (2)" << std::endl
 					<< "Found invalid sizes: " << velVec.size()
 					<< " / " << dblLowerParameterBoundaries_.size() << std::endl
 					<< " / " << dblVelVecMax_.size() << std::endl
@@ -644,7 +644,7 @@ void GSwarm::optimizationInit() {
  *
  * @return The value of the best individual found
  */
-double GSwarm::cycleLogic() {
+double GSerialSwarm::cycleLogic() {
 	// First update the positions
 	updatePositions();
 
@@ -666,9 +666,9 @@ double GSwarm::cycleLogic() {
 /**
  * Triggers an update of all individual's positions
  */
-void GSwarm::updatePositions() {
+void GSerialSwarm::updatePositions() {
 	std::size_t offset = 0;
-	GSwarm::iterator start = this->begin();
+	GSerialSwarm::iterator start = this->begin();
 	boost::uint32_t iteration = getIteration();
 
 	// First update all positions
@@ -677,14 +677,14 @@ void GSwarm::updatePositions() {
 		if(iteration > 0) {
 			if(!neighborhood_bests_[neighborhood]) {
 				raiseException(
-						"In GSwarm::updatePositions():" << std::endl
+						"In GSerialSwarm::updatePositions():" << std::endl
 						<< "neighborhood_bests_[" << neighborhood << "] is empty."
 				);
 			}
 
 			if(neighborhood==0 && !global_best_) { // Only check for the first neighborhood
 				raiseException(
-						"In GSwarm::updatePositions():" << std::endl
+						"In GSerialSwarm::updatePositions():" << std::endl
 						<< "global_best_ is empty."
 				);
 			}
@@ -692,7 +692,7 @@ void GSwarm::updatePositions() {
 #endif /* DEBUG */
 
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
-			GSwarm::iterator current = start + offset;
+			GSerialSwarm::iterator current = start + offset;
 
 			// Note: global/neighborhood bests and velocities haven't been determined yet in iteration 0 and are not needed there
 			if(iteration > 0 && !(*current)->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
@@ -724,7 +724,7 @@ void GSwarm::updatePositions() {
  * @param velocity A velocity vector
  * @param constants A boost::tuple holding the various constants needed for the position update
  */
-void GSwarm::updateIndividualPositions(
+void GSerialSwarm::updateIndividualPositions(
 	  const std::size_t& neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
 	  , boost::shared_ptr<GParameterSet> neighborhood_best
@@ -742,7 +742,7 @@ void GSwarm::updateIndividualPositions(
 	// Do some error checking
 	if(!ind) {
 		raiseException(
-				"In GSwarm::updateIndividualPositions():" << std::endl
+				"In GSerialSwarm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"ind\""
 		);
 	}
@@ -755,28 +755,28 @@ void GSwarm::updateIndividualPositions(
 #ifdef DEBUG
 	if(!personal_best) {
 		raiseException(
-				"In GSwarm::updateIndividualPositions():" << std::endl
+				"In GSerialSwarm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"personal_best\""
 		);
 	}
 
 	if(!neighborhood_best) {
 		raiseException(
-				"In GSwarm::updateIndividualPositions():" << std::endl
+				"In GSerialSwarm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"neighborhood_best\""
 		);
 	}
 
 	if(!global_best) {
 		raiseException(
-				"In GSwarm::updateIndividualPositions():" << std::endl
+				"In GSerialSwarm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"global_best\""
 		);
 	}
 
 	if(!velocity) {
 		raiseException(
-				"In GSwarm::updateIndividualPositions():" << std::endl
+				"In GSerialSwarm::updateIndividualPositions():" << std::endl
 				<< "Found empty individual \"velocity\""
 		);
 	}
@@ -817,7 +817,7 @@ void GSwarm::updateIndividualPositions(
 	default:
 		{
 			raiseException(
-					"GSwarm::updateIndividualPositions(): Error!" << std::endl
+					"GSerialSwarm::updateIndividualPositions(): Error!" << std::endl
 					<< "Invalid update rule requested: " << updateRule_ << std::endl
 			);
 		}
@@ -857,11 +857,11 @@ void GSwarm::updateIndividualPositions(
  *
  * @param velVec the velocity vector to be adjusted
  */
-void GSwarm::pruneVelocity(std::vector<double>& velVec) {
+void GSerialSwarm::pruneVelocity(std::vector<double>& velVec) {
 #ifdef DEBUG
 	if(velVec.size() != dblVelVecMax_.size()) {
 		raiseException(
-				"In GSwarm::pruneVelocity(): Error!" << std::endl
+				"In GSerialSwarm::pruneVelocity(): Error!" << std::endl
 				<< "Found invalid vector sizes: " << velVec.size() << " / " << dblVelVecMax_.size() << std::endl
 		);
 	}
@@ -876,7 +876,7 @@ void GSwarm::pruneVelocity(std::vector<double>& velVec) {
 #ifdef DEBUG
 		if(dblVelVecMax_[i] <= 0.) {
 			raiseException(
-					"In GSwarm::pruneVelocity(): Error!" << std::endl
+					"In GSerialSwarm::pruneVelocity(): Error!" << std::endl
 					<< "Found invalid max value: " << dblVelVecMax_[i] << std::endl
 			);
 		}
@@ -897,7 +897,7 @@ void GSwarm::pruneVelocity(std::vector<double>& velVec) {
 #ifdef DEBUG
 			if(maxPercentage <= 0.) {
 				raiseException(
-						"In GSwarm::pruneVelocity(): Error!" << std::endl
+						"In GSerialSwarm::pruneVelocity(): Error!" << std::endl
 						<< "Invalid maxPercentage: " << maxPercentage << std::endl
 				);
 			}
@@ -916,7 +916,7 @@ void GSwarm::pruneVelocity(std::vector<double>& velVec) {
  * @param neighborhood The neighborhood the individual is in
  * @param ind The individual for which the fitness calculation should be performed
  */
-void GSwarm::updateIndividualFitness(
+void GSerialSwarm::updateIndividualFitness(
 	  const boost::uint32_t& iteration
 	  , const std::size_t& neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
@@ -944,15 +944,15 @@ void GSwarm::updateIndividualFitness(
 /**
  * Updates the fitness of all individuals
  */
-void GSwarm::updateFitness() {
+void GSerialSwarm::updateFitness() {
 	std::size_t offset = 0;
-	GSwarm::iterator start = this->begin();
+	GSerialSwarm::iterator start = this->begin();
 	boost::uint32_t iteration = getIteration();
 
 	// Then start the evaluation threads
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
-			GSwarm::iterator current = start + offset;
+			GSerialSwarm::iterator current = start + offset;
 
 			// Update the fitness
 			updateIndividualFitness(
@@ -974,16 +974,16 @@ void GSwarm::updateFitness() {
  *
  * @return The best evaluation found in this iteration
  */
-double GSwarm::findBests() {
+double GSerialSwarm::findBests() {
 	std::size_t bestCurrentLocalId = 0;
 	double bestCurrentLocalFitness = getWorstCase();
 
 #ifdef DEBUG
-	GSwarm::iterator it;
+	GSerialSwarm::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
 		if((*it)->isDirty()) {
 			raiseException(
-					"In GSwarm::findBests(): Error!" << std::endl
+					"In GSerialSwarm::findBests(): Error!" << std::endl
 					<< "Found individual whose dirty flag is set." << std::endl
 			);
 		}
@@ -1048,7 +1048,7 @@ double GSwarm::findBests() {
  * This function repairs the population by adding or removing missing or surplus items. It is meant to be
  * re-implemented by derived classes, such as GBrokerSwarm.
  */
-void GSwarm::adjustNeighborhoods()
+void GSerialSwarm::adjustNeighborhoods()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -1056,14 +1056,14 @@ void GSwarm::adjustNeighborhoods()
  * Resizes the population to the desired level and does some error checks. This function implements
  * the purely virtual function GOptimizationAlgorithmT<GParameterSet>::adjustPopulation() .
  */
-void GSwarm::adjustPopulation() {
+void GSerialSwarm::adjustPopulation() {
 	const std::size_t currentSize = this->size();
 	const std::size_t defaultPopSize = getDefaultPopulationSize();
 	const std::size_t nNeighborhoods = getNNeighborhoods();
 
 	if(currentSize==0) {
 		raiseException(
-				"In GSwarm::adjustPopulation() :" << std::endl
+				"In GSerialSwarm::adjustPopulation() :" << std::endl
 				<< "No individuals found in the population." << std::endl
 				<< "You need to add at least one individual before" << std::endl
 				<< "the call to optimize()."
@@ -1126,7 +1126,7 @@ void GSwarm::adjustPopulation() {
 	// indeed have at least the required number of individuals
 	if(this->size() < defaultPopSize) {
 		raiseException(
-				"In GSwarm::adjustPopulation() :" << std::endl
+				"In GSerialSwarm::adjustPopulation() :" << std::endl
 				<< "Expected at least a population size of " << defaultPopSize << std::endl
 				<< "but found a size of " << this->size() << ", which is too small."
 		);
@@ -1141,11 +1141,11 @@ void GSwarm::adjustPopulation() {
 /**
  * Small helper function that helps to fill up a neighborhood, if there is just one entry in it.
  */
-void GSwarm::fillUpNeighborhood1() {
+void GSerialSwarm::fillUpNeighborhood1() {
 	// Do some error checking
 	if(this->size() != nNeighborhoods_) {
 		raiseException(
-				"In GSwarm::fillUpNeighborhood1():" << std::endl
+				"In GSerialSwarm::fillUpNeighborhood1():" << std::endl
 				<< "Invalid size: " << this->size() << " Expected " << nNeighborhoods_
 		);
 	}
@@ -1165,7 +1165,7 @@ void GSwarm::fillUpNeighborhood1() {
 #ifdef DEBUG
 				if(!(*(this->begin()+n+1))) {
 					raiseException(
-							"In GSwarm::fillUpNeighborhood1():" << std::endl
+							"In GSerialSwarm::fillUpNeighborhood1():" << std::endl
 							<< "Found empty position " << n
 					);
 				}
@@ -1186,7 +1186,7 @@ void GSwarm::fillUpNeighborhood1() {
  *
  * @param c_personal A static multiplier for personal distances
  */
-void GSwarm::setCPersonal(const double& c_personal) {
+void GSerialSwarm::setCPersonal(const double& c_personal) {
 	c_personal_ = c_personal;
 }
 
@@ -1196,7 +1196,7 @@ void GSwarm::setCPersonal(const double& c_personal) {
  *
  * @return The static multiplier for personal distances
  */
-double GSwarm::getCPersonal() const {
+double GSerialSwarm::getCPersonal() const {
 	return c_personal_;
 }
 
@@ -1206,7 +1206,7 @@ double GSwarm::getCPersonal() const {
  *
  * @param c_neighborhood A static multiplier for neighborhood distances
  */
-void GSwarm::setCNeighborhood(const double& c_neighborhood) {
+void GSerialSwarm::setCNeighborhood(const double& c_neighborhood) {
 	c_neighborhood_ = c_neighborhood;
 }
 
@@ -1216,7 +1216,7 @@ void GSwarm::setCNeighborhood(const double& c_neighborhood) {
  *
  * @return A static multiplier for neighborhood distances
  */
-double GSwarm::getCNeighborhood() const {
+double GSerialSwarm::getCNeighborhood() const {
 	return c_neighborhood_;
 }
 
@@ -1226,7 +1226,7 @@ double GSwarm::getCNeighborhood() const {
  *
  * @param c_global A static multiplier for global distances
  */
-void GSwarm::setCGlobal(const double& c_global) {
+void GSerialSwarm::setCGlobal(const double& c_global) {
 	c_global_ = c_global;
 }
 
@@ -1236,7 +1236,7 @@ void GSwarm::setCGlobal(const double& c_global) {
  *
  * @return The static multiplier for global distances
  */
-double GSwarm::getCGlobal() const {
+double GSerialSwarm::getCGlobal() const {
 	return c_global_;
 }
 
@@ -1246,7 +1246,7 @@ double GSwarm::getCGlobal() const {
  *
  * @param c_velocity A static multiplier for velocities
  */
-void GSwarm::setCVelocity(const double& c_velocity) {
+void GSerialSwarm::setCVelocity(const double& c_velocity) {
 	c_velocity_ = c_velocity;
 }
 
@@ -1256,7 +1256,7 @@ void GSwarm::setCVelocity(const double& c_velocity) {
  *
  * @return The static multiplier for velocities
  */
-double GSwarm::getCVelocity() const {
+double GSerialSwarm::getCVelocity() const {
 	return c_velocity_;
 }
 
@@ -1266,11 +1266,11 @@ double GSwarm::getCVelocity() const {
  *
  * @param velocityRangePercentage The velocity range percentage
  */
-void GSwarm::setVelocityRangePercentage(const double& velocityRangePercentage) {
+void GSerialSwarm::setVelocityRangePercentage(const double& velocityRangePercentage) {
 	// Do some error checking
 	if(velocityRangePercentage <= 0. || velocityRangePercentage > 1.) {
 		raiseException(
-				"In GSwarm::setVelocityRangePercentage()" << std::endl
+				"In GSerialSwarm::setVelocityRangePercentage()" << std::endl
 				<< "Invalid velocityRangePercentage: " << velocityRangePercentage << std::endl
 		);
 	}
@@ -1284,7 +1284,7 @@ void GSwarm::setVelocityRangePercentage(const double& velocityRangePercentage) {
  *
  * @return The velocity range percentage
  */
-double GSwarm::getVelocityRangePercentage() const {
+double GSerialSwarm::getVelocityRangePercentage() const {
 	return velocityRangePercentage_;
 }
 
@@ -1294,7 +1294,7 @@ double GSwarm::getVelocityRangePercentage() const {
  *
  * @return The number of neighborhoods in the population
  */
-std::size_t GSwarm::getNNeighborhoods() const {
+std::size_t GSerialSwarm::getNNeighborhoods() const {
 	return nNeighborhoods_;
 }
 
@@ -1304,7 +1304,7 @@ std::size_t GSwarm::getNNeighborhoods() const {
  *
  * @return The default number of individuals in each neighborhood
  */
-std::size_t GSwarm::getDefaultNNeighborhoodMembers() const {
+std::size_t GSerialSwarm::getDefaultNNeighborhoodMembers() const {
 	return defaultNNeighborhoodMembers_;
 }
 
@@ -1314,7 +1314,7 @@ std::size_t GSwarm::getDefaultNNeighborhoodMembers() const {
  *
  * @return The current number of individuals in a given neighborhood
  */
-std::size_t GSwarm::getCurrentNNeighborhoodMembers(const std::size_t& neighborhood) const {
+std::size_t GSerialSwarm::getCurrentNNeighborhoodMembers(const std::size_t& neighborhood) const {
 	return nNeighborhoodMembers_[neighborhood];
 }
 
@@ -1324,7 +1324,7 @@ std::size_t GSwarm::getCurrentNNeighborhoodMembers(const std::size_t& neighborho
  *
  * @param ur The desired update rule
  */
-void GSwarm::setUpdateRule(const updateRule& ur) {
+void GSerialSwarm::setUpdateRule(const updateRule& ur) {
 	updateRule_ = ur;
 }
 
@@ -1334,7 +1334,7 @@ void GSwarm::setUpdateRule(const updateRule& ur) {
  *
  * @return The current update rule
  */
-updateRule GSwarm::getUpdateRule() const {
+updateRule GSerialSwarm::getUpdateRule() const {
 	return updateRule_;
 }
 
@@ -1342,7 +1342,7 @@ updateRule GSwarm::getUpdateRule() const {
 /**
  * All individuals automatically added to a neighborhood will have equal value
  */
-void GSwarm::setNeighborhoodsEqualFillUp() {
+void GSerialSwarm::setNeighborhoodsEqualFillUp() {
 	randomFillUp_=false;
 }
 
@@ -1350,7 +1350,7 @@ void GSwarm::setNeighborhoodsEqualFillUp() {
 /**
  * All individuals automatically added to a neighborhood will have a random value
  */
-void GSwarm::setNeighborhoodsRandomFillUp() {
+void GSerialSwarm::setNeighborhoodsRandomFillUp() {
 	randomFillUp_=true;
 }
 
@@ -1360,7 +1360,7 @@ void GSwarm::setNeighborhoodsRandomFillUp() {
  *
  * @return A boolean indicating whether neighborhoods are filled up with random values
  */
-bool GSwarm::neighborhoodsFilledUpRandomly() const {
+bool GSerialSwarm::neighborhoodsFilledUpRandomly() const {
 	return randomFillUp_;
 }
 
@@ -1370,7 +1370,7 @@ bool GSwarm::neighborhoodsFilledUpRandomly() const {
  *
  * @return The number of processable items in the current iteration
  */
-std::size_t GSwarm::getNProcessableItems() const {
+std::size_t GSerialSwarm::getNProcessableItems() const {
 	return this->size(); // All items in the population are updated in each iteration and need to be processed
 }
 
@@ -1382,7 +1382,7 @@ std::size_t GSwarm::getNProcessableItems() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GSwarm::modify_GUnitTests() {
+bool GSerialSwarm::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -1395,7 +1395,7 @@ bool GSwarm::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GSwarm::specificTestsNoFailureExpected_GUnitTests() {
+void GSerialSwarm::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests();
 }
@@ -1404,7 +1404,7 @@ void GSwarm::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GSwarm::specificTestsFailuresExpected_GUnitTests() {
+void GSerialSwarm::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::specificTestsFailuresExpected_GUnitTests();
 }
@@ -1416,7 +1416,7 @@ void GSwarm::specificTestsFailuresExpected_GUnitTests() {
 /**
  * The default constructor
  */
-GSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor()
+GSerialSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor()
 	: xDim_(DEFAULTXDIMOM)
 	, yDim_(DEFAULTYDIMOM)
 { /* nothing */ }
@@ -1427,7 +1427,7 @@ GSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor()
  *
  * @param cp A copy of another GSwarmOptimizationMonitor object
  */
-GSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor(const GSwarm::GSwarmOptimizationMonitor& cp)
+GSerialSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor(const GSerialSwarm::GSwarmOptimizationMonitor& cp)
 	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
 	, xDim_(cp.xDim_)
 	, yDim_(cp.yDim_)
@@ -1437,7 +1437,7 @@ GSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor(const GSwarm::GSwar
 /**
  * The destructor
  */
-GSwarm::GSwarmOptimizationMonitor::~GSwarmOptimizationMonitor()
+GSerialSwarm::GSwarmOptimizationMonitor::~GSwarmOptimizationMonitor()
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -1447,8 +1447,8 @@ GSwarm::GSwarmOptimizationMonitor::~GSwarmOptimizationMonitor()
  * @param cp A copy of another GSwarmOptimizationMonitor object
  * @return A constant reference to this object
  */
-const GSwarm::GSwarmOptimizationMonitor& GSwarm::GSwarmOptimizationMonitor::operator=(const GSwarm::GSwarmOptimizationMonitor& cp){
-	GSwarm::GSwarmOptimizationMonitor::load_(&cp);
+const GSerialSwarm::GSwarmOptimizationMonitor& GSerialSwarm::GSwarmOptimizationMonitor::operator=(const GSerialSwarm::GSwarmOptimizationMonitor& cp){
+	GSerialSwarm::GSwarmOptimizationMonitor::load_(&cp);
 	return *this;
 }
 
@@ -1459,10 +1459,10 @@ const GSwarm::GSwarmOptimizationMonitor& GSwarm::GSwarmOptimizationMonitor::oper
  * @param  cp A constant reference to another GSwarmOptimizationMonitor object
  * @return A boolean indicating whether both objects are equal
  */
-bool GSwarm::GSwarmOptimizationMonitor::operator==(const GSwarm::GSwarmOptimizationMonitor& cp) const {
+bool GSerialSwarm::GSwarmOptimizationMonitor::operator==(const GSerialSwarm::GSwarmOptimizationMonitor& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSwarm::GSwarmOptimizationMonitor::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialSwarm::GSwarmOptimizationMonitor::operator==","cp", CE_SILENT);
 }
 
 /**********************************************************************************/
@@ -1472,10 +1472,10 @@ bool GSwarm::GSwarmOptimizationMonitor::operator==(const GSwarm::GSwarmOptimizat
  * @param  cp A constant reference to another GSwarmOptimizationMonitor object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GSwarm::GSwarmOptimizationMonitor::operator!=(const GSwarm::GSwarmOptimizationMonitor& cp) const {
+bool GSerialSwarm::GSwarmOptimizationMonitor::operator!=(const GSerialSwarm::GSwarmOptimizationMonitor& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSwarm::GSwarmOptimizationMonitor::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialSwarm::GSwarmOptimizationMonitor::operator!=","cp", CE_SILENT);
 }
 
 /**********************************************************************************/
@@ -1491,7 +1491,7 @@ bool GSwarm::GSwarmOptimizationMonitor::operator!=(const GSwarm::GSwarmOptimizat
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GSwarm::GSwarmOptimizationMonitor::checkRelationshipWith(
+boost::optional<std::string> GSerialSwarm::GSwarmOptimizationMonitor::checkRelationshipWith(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -1502,19 +1502,19 @@ boost::optional<std::string> GSwarm::GSwarmOptimizationMonitor::checkRelationshi
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GSwarm::GSwarmOptimizationMonitor *p_load = GObject::conversion_cast<GSwarm::GSwarmOptimizationMonitor >(&cp);
+	const GSerialSwarm::GSwarmOptimizationMonitor *p_load = GObject::conversion_cast<GSerialSwarm::GSwarmOptimizationMonitor >(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GSwarm::GSwarmOptimizationMonitor", y_name, withMessages));
+	deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GSerialSwarm::GSwarmOptimizationMonitor", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GSwarm::GSwarmOptimizationMonitor", xDim_, p_load->xDim_, "xDim_", "p_load->xDim_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm::GSwarmOptimizationMonitor", yDim_, p_load->yDim_, "yDim_", "p_load->yDim_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm::GSwarmOptimizationMonitor", xDim_, p_load->xDim_, "xDim_", "p_load->xDim_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialSwarm::GSwarmOptimizationMonitor", yDim_, p_load->yDim_, "yDim_", "p_load->yDim_", e , limit));
 
-	return evaluateDiscrepancies("GSwarm::GSwarmOptimizationMonitor", caller, deviations, e);
+	return evaluateDiscrepancies("GSerialSwarm::GSwarmOptimizationMonitor", caller, deviations, e);
 }
 
 /**********************************************************************************/
@@ -1524,7 +1524,7 @@ boost::optional<std::string> GSwarm::GSwarmOptimizationMonitor::checkRelationshi
  * @param xDim The desired dimension of the canvas in x-direction
  * @param yDim The desired dimension of the canvas in y-direction
  */
-void GSwarm::GSwarmOptimizationMonitor::setDims(const boost::uint16_t& xDim, const boost::uint16_t& yDim) {
+void GSerialSwarm::GSwarmOptimizationMonitor::setDims(const boost::uint16_t& xDim, const boost::uint16_t& yDim) {
 	xDim_ = xDim;
 	yDim_ = yDim;
 }
@@ -1535,7 +1535,7 @@ void GSwarm::GSwarmOptimizationMonitor::setDims(const boost::uint16_t& xDim, con
  *
  * @return The dimension of the canvas in x-direction
  */
-boost::uint16_t GSwarm::GSwarmOptimizationMonitor::getXDim() const {
+boost::uint16_t GSerialSwarm::GSwarmOptimizationMonitor::getXDim() const {
 	return xDim_;
 }
 
@@ -1545,7 +1545,7 @@ boost::uint16_t GSwarm::GSwarmOptimizationMonitor::getXDim() const {
  *
  * @return The dimension of the canvas in y-direction
  */
-boost::uint16_t GSwarm::GSwarmOptimizationMonitor::getYDim() const {
+boost::uint16_t GSerialSwarm::GSwarmOptimizationMonitor::getYDim() const {
 	return yDim_;
 }
 
@@ -1556,7 +1556,7 @@ boost::uint16_t GSwarm::GSwarmOptimizationMonitor::getYDim() const {
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  * @return A string containing information to written to the output file (if any)
  */
-std::string GSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+std::string GSerialSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 	// This should always be the first statement in a custom optimization monitor
 	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::firstInformation(goa);
 
@@ -1564,12 +1564,12 @@ std::string GSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizationAlg
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != SWARM) {
 		raiseException(
-				"In GSwarm::GSwarmOptimizationMonitor::firstInformation():" << std::endl
+				"In GSerialSwarm::GSwarmOptimizationMonitor::firstInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
 		);
 	}
 #endif /* DEBUG */
-	GSwarm * const swarm = static_cast<GSwarm * const>(goa);
+	GSerialSwarm * const swarm = static_cast<GSerialSwarm * const>(goa);
 
 	// Output the header to the summary stream
 	return swarmFirstInformation(swarm);
@@ -1584,7 +1584,7 @@ std::string GSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizationAlg
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  * @return A string containing information to written to the output file (if any)
  */
-std::string GSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+std::string GSerialSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 	// Let the audience know what the parent has to say
 	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::cycleInformation(goa);
 
@@ -1592,12 +1592,12 @@ std::string GSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizationAlg
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != SWARM) {
 		raiseException(
-				"In GSwarm::GSwarmOptimizationMonitor::cycleInformation():" << std::endl
+				"In GSerialSwarm::GSwarmOptimizationMonitor::cycleInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
 		);
 	}
 #endif /* DEBUG */
-	GSwarm * const swarm = static_cast<GSwarm * const>(goa);
+	GSerialSwarm * const swarm = static_cast<GSerialSwarm * const>(goa);
 
 	return swarmCycleInformation(swarm);
 }
@@ -1609,18 +1609,18 @@ std::string GSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizationAlg
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  * @return A string containing information to written to the output file (if any)
  */
-std::string GSwarm::GSwarmOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+std::string GSerialSwarm::GSwarmOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != SWARM) {
 		raiseException(
-				"In GSwarm::GSwarmOptimizationMonitor::lastInformation():" << std::endl
+				"In GSerialSwarm::GSwarmOptimizationMonitor::lastInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
 		);
 	}
 #endif /* DEBUG */
-	GSwarm * const swarm = static_cast<GSwarm * const>(goa);
+	GSerialSwarm * const swarm = static_cast<GSerialSwarm * const>(goa);
 
 	// Do the actual information gathering
 	std::ostringstream result;
@@ -1639,7 +1639,7 @@ std::string GSwarm::GSwarmOptimizationMonitor::lastInformation(GOptimizationAlgo
  *
  * @param swarm The object for which information should be collected
  */
-std::string GSwarm::GSwarmOptimizationMonitor::swarmFirstInformation(GSwarm * const swarm) {
+std::string GSerialSwarm::GSwarmOptimizationMonitor::swarmFirstInformation(GSerialSwarm * const swarm) {
 	std::ostringstream result;
 
 	// Output the header to the summary stream
@@ -1661,7 +1661,7 @@ std::string GSwarm::GSwarmOptimizationMonitor::swarmFirstInformation(GSwarm * co
  *
  * @param swarm The object for which information should be collected
  */
-std::string GSwarm::GSwarmOptimizationMonitor::swarmCycleInformation(GSwarm * const swarm) {
+std::string GSerialSwarm::GSwarmOptimizationMonitor::swarmCycleInformation(GSerialSwarm * const swarm) {
 	std::ostringstream result;
 	bool isDirty = false;
 	double currentEvaluation = 0.;
@@ -1690,7 +1690,7 @@ std::string GSwarm::GSwarmOptimizationMonitor::swarmCycleInformation(GSwarm * co
  *
  * @param swarm The object for which information should be collected
  */
-std::string GSwarm::GSwarmOptimizationMonitor::swarmLastInformation(GSwarm * const swarm) {
+std::string GSerialSwarm::GSwarmOptimizationMonitor::swarmLastInformation(GSerialSwarm * const swarm) {
 	std::ostringstream result;
 
 	// Output final print logic to the stream
@@ -1724,8 +1724,8 @@ std::string GSwarm::GSwarmOptimizationMonitor::swarmLastInformation(GSwarm * con
  *
  * cp A pointer to another GSwarmOptimizationMonitor object, camouflaged as a GObject
  */
-void GSwarm::GSwarmOptimizationMonitor::load_(const GObject* cp) {
-	const GSwarm::GSwarmOptimizationMonitor *p_load = conversion_cast<GSwarm::GSwarmOptimizationMonitor>(cp);
+void GSerialSwarm::GSwarmOptimizationMonitor::load_(const GObject* cp) {
+	const GSerialSwarm::GSwarmOptimizationMonitor *p_load = conversion_cast<GSerialSwarm::GSwarmOptimizationMonitor>(cp);
 
 	// Load the parent classes' data ...
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);
@@ -1741,8 +1741,8 @@ void GSwarm::GSwarmOptimizationMonitor::load_(const GObject* cp) {
  *
  * @return A deep clone of this object
  */
-GObject* GSwarm::GSwarmOptimizationMonitor::clone_() const {
-	return new GSwarm::GSwarmOptimizationMonitor(*this);
+GObject* GSerialSwarm::GSwarmOptimizationMonitor::clone_() const {
+	return new GSerialSwarm::GSwarmOptimizationMonitor(*this);
 }
 
 #ifdef GENEVATESTING
@@ -1750,7 +1750,7 @@ GObject* GSwarm::GSwarmOptimizationMonitor::clone_() const {
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
-bool GSwarm::GSwarmOptimizationMonitor::modify_GUnitTests() {
+bool GSerialSwarm::GSwarmOptimizationMonitor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -1763,7 +1763,7 @@ bool GSwarm::GSwarmOptimizationMonitor::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GSwarm::GSwarmOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
+void GSerialSwarm::GSwarmOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
 }
@@ -1772,7 +1772,7 @@ void GSwarm::GSwarmOptimizationMonitor::specificTestsNoFailureExpected_GUnitTest
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GSwarm::GSwarmOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
+void GSerialSwarm::GSwarmOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
 }
@@ -1789,16 +1789,16 @@ void GSwarm::GSwarmOptimizationMonitor::specificTestsFailuresExpected_GUnitTests
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 /**
- * As Gem::Geneva::GSwarm has a protected default constructor, we need to provide a
+ * As Gem::Geneva::GSerialSwarm has a protected default constructor, we need to provide a
  * specialization of the factory function that creates objects of this type.
  */
 template <>
-boost::shared_ptr<Gem::Geneva::GSwarm> TFactory_GUnitTests<Gem::Geneva::GSwarm>() {
+boost::shared_ptr<Gem::Geneva::GSerialSwarm> TFactory_GUnitTests<Gem::Geneva::GSerialSwarm>() {
 	using namespace Gem::Tests;
 	const std::size_t NNEIGHBORHOODS=2;
 	const std::size_t NNEIGHBORHOODMEMBERS=3;
-	boost::shared_ptr<Gem::Geneva::GSwarm> p;
-	BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSwarm>(new Gem::Geneva::GSwarm(NNEIGHBORHOODS, NNEIGHBORHOODMEMBERS)));
+	boost::shared_ptr<Gem::Geneva::GSerialSwarm> p;
+	BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSerialSwarm>(new Gem::Geneva::GSerialSwarm(NNEIGHBORHOODS, NNEIGHBORHOODMEMBERS)));
 	for(std::size_t i=0; i<NNEIGHBORHOODS*NNEIGHBORHOODMEMBERS; i++) {
 		p->push_back(boost::shared_ptr<GTestIndividual1>(new GTestIndividual1()));
 	}

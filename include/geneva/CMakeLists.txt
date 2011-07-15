@@ -70,9 +70,9 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterTCollectionT.hpp
 	GPersonalityTraits.hpp
 	GRateableI.hpp
+	GSerialSwarm.hpp
 	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp
-	GSwarm.hpp
 	GSwarmPersonalityTraits.hpp
 )
 

@@ -66,7 +66,7 @@ class GTestIndividual1; // forward declaration, needed for test purposes
 namespace Gem {
 namespace Geneva {
 
-class GSwarm; // forward declaration
+class GSerialSwarm; // forward declaration
 
 /**************************************************************************************************/
 /**
@@ -83,7 +83,7 @@ class GIndividual
 	, public GRateableI
 	, public GObject
 {
-	friend class GSwarm; ///< Needed so GSwarm can set the dirty flag
+	friend class GSerialSwarm; ///< Needed so GSerialSwarm can set the dirty flag
 	friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
 	///////////////////////////////////////////////////////////////////////

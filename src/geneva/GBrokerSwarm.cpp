@@ -47,7 +47,7 @@ namespace Geneva
  * The default constructor
  */
 GBrokerSwarm::GBrokerSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
-	: GSwarm(nNeighborhoods, nNeighborhoodMembers)
+	: GSerialSwarm(nNeighborhoods, nNeighborhoodMembers)
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 { /* nothing */ }
 
@@ -58,7 +58,7 @@ GBrokerSwarm::GBrokerSwarm(const std::size_t& nNeighborhoods, const std::size_t&
  * @param cp A copy of another GBrokerSwarm object
  */
 GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm& cp)
-	: GSwarm(cp)
+	: GSerialSwarm(cp)
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 { /* nothing */ }
 
@@ -93,7 +93,7 @@ void GBrokerSwarm::load_(const GObject * cp) {
 	const GBrokerSwarm *p_load = conversion_cast<GBrokerSwarm>(cp);
 
 	// Load the parent classes' data ...
-	GSwarm::load_(cp);
+	GSerialSwarm::load_(cp);
 	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
 
 	// no local data
@@ -165,7 +165,7 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent classes' data ...
-	deviations.push_back(GSwarm::checkRelationshipWith(cp, e, limit, "GBrokerSwarm", y_name, withMessages));
+	deviations.push_back(GSerialSwarm::checkRelationshipWith(cp, e, limit, "GBrokerSwarm", y_name, withMessages));
 	deviations.push_back(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerSwarm", y_name, withMessages));
 
 	// local variables only represent temporary values needed inside of a single iteration. No checks are done on these values
@@ -178,8 +178,8 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
  * Performs any necessary initialization work before the start of the optimization cycle
  */
 void GBrokerSwarm::init() {
-	// GSwarm sees exactly the environment it would when called from its own class
-	GSwarm::init();
+	// GSerialSwarm sees exactly the environment it would when called from its own class
+	GSerialSwarm::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -213,8 +213,8 @@ void GBrokerSwarm::finalize() {
 	}
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
-	// GSwarm sees exactly the environment it would when called from its own class
-	GSwarm::finalize();
+	// GSerialSwarm sees exactly the environment it would when called from its own class
+	GSerialSwarm::finalize();
 }
 
 /************************************************************************************************************/
@@ -255,7 +255,7 @@ void GBrokerSwarm::updatePositions() {
 		}
 	}
 
-	GSwarm::updatePositions();
+	GSerialSwarm::updatePositions();
 }
 
 /************************************************************************************************************/
@@ -432,7 +432,7 @@ bool GBrokerSwarm::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GSwarm::modify_GUnitTests()) result = true;
+	if(GSerialSwarm::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -443,7 +443,7 @@ bool GBrokerSwarm::modify_GUnitTests() {
  */
 void GBrokerSwarm::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GSwarm::specificTestsNoFailureExpected_GUnitTests();
+	GSerialSwarm::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
@@ -452,7 +452,7 @@ void GBrokerSwarm::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GBrokerSwarm::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GSwarm::specificTestsFailuresExpected_GUnitTests();
+	GSerialSwarm::specificTestsFailuresExpected_GUnitTests();
 }
 
 /************************************************************************************************************/

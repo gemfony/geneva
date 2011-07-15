@@ -1423,7 +1423,7 @@ public:
 	    /**
 	     * The standard assignment operator.
 	     *
-	     * @param cp Another GSwarm object
+	     * @param cp Another GOptimizationMonitorT<ind_type> object
 	     * @return A constant reference to this object
 	     */
 	    const GOptimizationMonitorT& operator=(const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) {

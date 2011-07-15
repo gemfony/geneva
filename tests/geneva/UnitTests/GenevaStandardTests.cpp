@@ -65,7 +65,7 @@ using namespace boost::unit_test;
 #include "geneva/GEAPersonalityTraits.hpp"
 #include "geneva/GGDPersonalityTraits.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
-#include "geneva/GSwarm.hpp"
+#include "geneva/GSerialSwarm.hpp"
 #include "geneva/GMultiThreadedSwarm.hpp"
 #include "geneva/GGradientDescent.hpp"
 #include "geneva/GMultiThreadedGD.hpp"
@@ -126,7 +126,7 @@ public:
 		typedef boost::mpl::list<
 			GEvolutionaryAlgorithm
 			, GMultiThreadedEA
-			, GSwarm
+			, GSerialSwarm
 			, GMultiThreadedSwarm
 			, GGradientDescent
 			, GMultiThreadedGD
@@ -146,7 +146,7 @@ public:
 			GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT
 			, GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
 			, GEvolutionaryAlgorithm::GEAOptimizationMonitor
-			, GSwarm::GSwarmOptimizationMonitor
+			, GSerialSwarm::GSwarmOptimizationMonitor
 			, GGradientDescent::GGDOptimizationMonitor
 		>
 		monitor_types;

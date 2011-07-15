@@ -50,7 +50,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "common/GThreadWrapper.hpp"
-#include "geneva/GSwarm.hpp"
+#include "geneva/GSerialSwarm.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GObject.hpp"
 
@@ -62,11 +62,11 @@ const boost::uint16_t DEFAULTBOOSTTHREADSSWARM = 2;
 
 /********************************************************************/
 /**
- * A multi-threaded swarm based on GSwarm. This version uses the
+ * A multi-threaded swarm based on GSerialSwarm. This version uses the
  * Boost.Threads library and a thread-pool library from http://threadpool.sf.net .
  */
 class GMultiThreadedSwarm
-	: public GSwarm
+	: public GSerialSwarm
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -75,7 +75,7 @@ class GMultiThreadedSwarm
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSwarm)
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSerialSwarm)
 		   & BOOST_SERIALIZATION_NVP(nThreads_);
 	}
 	///////////////////////////////////////////////////////////////////////
