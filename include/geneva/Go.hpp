@@ -60,7 +60,7 @@
 #include "geneva/GSerialSwarm.hpp"
 #include "geneva/GMultiThreadedSwarm.hpp"
 #include "geneva/GBrokerSwarm.hpp"
-#include "geneva/GGradientDescent.hpp"
+#include "geneva/GSerialGD.hpp"
 #include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GBrokerGD.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
@@ -223,7 +223,7 @@ public:
 	/** @brief Allows to specify an optimization monitor to be used with swarm algorithms */
 	void registerOptimizationMonitor(boost::shared_ptr<GSerialSwarm::GSwarmOptimizationMonitor>);
 	/** @brief Allows to specify an optimization monitor to be used with gradient descents */
-	void registerOptimizationMonitor(boost::shared_ptr<GGradientDescent::GGDOptimizationMonitor>);
+	void registerOptimizationMonitor(boost::shared_ptr<GSerialGD::GGDOptimizationMonitor>);
 
 	/** @brief Triggers execution of the client loop */
 	bool clientRun();
@@ -864,14 +864,14 @@ private:
 	template <typename ind_type>
 	boost::shared_ptr<ind_type> gdOptimize(const boost::uint32_t& offset = 0) {
 		// This smart pointer will hold the different types of evolutionary algorithms
-		boost::shared_ptr<GGradientDescent> gd_ptr;
+		boost::shared_ptr<GSerialGD> gd_ptr;
 
 		switch(parMode_) {
 		//----------------------------------------------------------------------------------
 		case SERIAL:
 		{
 			// Create an empty population
-			gd_ptr = boost::shared_ptr<GGradientDescent>(new GGradientDescent(gdNStartingPoints_, gdFiniteStep_, gdStepSize_));
+			gd_ptr = boost::shared_ptr<GSerialGD>(new GSerialGD(gdNStartingPoints_, gdFiniteStep_, gdStepSize_));
 		}
 		break;
 
@@ -984,7 +984,7 @@ private:
 
 	boost::shared_ptr<GSerialEA::GEAOptimizationMonitor> ea_om_ptr_; ///< Holds a specific optimization monitor used for evolutionary algorithms
 	boost::shared_ptr<GSerialSwarm::GSwarmOptimizationMonitor> swarm_om_ptr_; ///< Holds a specific optimization monitor used for swarm algorithms
-	boost::shared_ptr<GGradientDescent::GGDOptimizationMonitor> gd_om_ptr_; ///< Holds a specific optimization monitor used for gradient descents
+	boost::shared_ptr<GSerialGD::GGDOptimizationMonitor> gd_om_ptr_; ///< Holds a specific optimization monitor used for gradient descents
 
 	//----------------------------------------------------------------------------------------------------------------
 	// These parameters can be read from a configuration file

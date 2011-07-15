@@ -23,7 +23,6 @@ SET ( OPTIMIZATIONSOURCES
 	GEvaluator
 	GenevaHelperFunctionsT
 	GGDPersonalityTraits
-	GGradientDescent
 	GIndividual
 	GInt32Collection
 	GInt32FlipAdaptor
@@ -43,6 +42,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterSet
 	GPersonalityTraits
 	GSerialEA
+	GSerialGD
 	GSerialSwarm
 	GSwarmPersonalityTraits
 )

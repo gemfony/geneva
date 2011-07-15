@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GBrokerGD::GBrokerGD() :
-	GGradientDescent()
+	GSerialGD()
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 	, maxResubmissions_(DEFAULTMAXGDRESUBMISSIONS)
 { /* nothing */ }
@@ -57,7 +57,7 @@ GBrokerGD::GBrokerGD(
 		const std::size_t& nStartingPoints
 		, const float& finiteStep, const float& stepSize
 )
-	: GGradientDescent(nStartingPoints, finiteStep, stepSize)
+	: GSerialGD(nStartingPoints, finiteStep, stepSize)
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 	, maxResubmissions_(DEFAULTMAXGDRESUBMISSIONS)
 { /* nothing */ }
@@ -67,7 +67,7 @@ GBrokerGD::GBrokerGD(
  * A standard copy constructor
  */
 GBrokerGD::GBrokerGD(const GBrokerGD& cp)
-	: GGradientDescent(cp)
+	: GSerialGD(cp)
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
 	, maxResubmissions_(cp.maxResubmissions_)
 { /* nothing */ }
@@ -152,7 +152,7 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(
-			GGradientDescent::checkRelationshipWith(cp, e, limit, "GBrokerGD",
+			GSerialGD::checkRelationshipWith(cp, e, limit, "GBrokerGD",
 					y_name, withMessages));
 	deviations.push_back(
 			Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::checkRelationshipWith(
@@ -194,7 +194,7 @@ void GBrokerGD::load_(const GObject *cp) {
 	const GBrokerGD *p_load = conversion_cast<GBrokerGD> (cp);
 
 	// Load the parent classes' data ...
-	GGradientDescent::load_(cp);
+	GSerialGD::load_(cp);
 	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
 
 	// ... and then our local data
@@ -217,7 +217,7 @@ GObject *GBrokerGD::clone_() const {
  */
 void GBrokerGD::init() {
 	// GGradientDesccent sees exactly the environment it would when called from its own class
-	GGradientDescent::init();
+	GSerialGD::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -251,14 +251,14 @@ void GBrokerGD::finalize() {
 	}
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
-	// GGradientDescent sees exactly the environment it would when called from its own class
-	GGradientDescent::finalize();
+	// GSerialGD sees exactly the environment it would when called from its own class
+	GSerialGD::finalize();
 }
 
 /************************************************************************************************************/
 /**
  * Triggers fitness calculation of a number of individuals. This function performs the same task as done
- * in GGradientDescent, albeit by delegating work to the broker. Items are evaluated up to a maximum position
+ * in GSerialGD, albeit by delegating work to the broker. Items are evaluated up to a maximum position
  * in the vector. Note that we always start the evaluation with the first item in the vector.
  *
  * @param finalPos The position in the vector up to which the fitness calculation should be performed
@@ -344,7 +344,7 @@ bool GBrokerGD::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GGradientDescent::modify_GUnitTests()) result = true;
+	if(GSerialGD::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -355,7 +355,7 @@ bool GBrokerGD::modify_GUnitTests() {
  */
 void GBrokerGD::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GGradientDescent::specificTestsNoFailureExpected_GUnitTests();
+	GSerialGD::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
@@ -364,7 +364,7 @@ void GBrokerGD::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GBrokerGD::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GGradientDescent::specificTestsFailuresExpected_GUnitTests();
+	GSerialGD::specificTestsFailuresExpected_GUnitTests();
 }
 
 /************************************************************************************************************/

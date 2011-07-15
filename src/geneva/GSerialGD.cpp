@@ -1,5 +1,5 @@
 /**
- * @file GGradientDescent.cpp
+ * @file GSerialGD.cpp
  */
 
 /*
@@ -32,10 +32,10 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GGradientDescent.hpp"
+#include "geneva/GSerialGD.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GGradientDescent)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GGradientDescent::GGDOptimizationMonitor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialGD)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialGD::GGDOptimizationMonitor)
 
 namespace Gem {
 namespace Geneva {
@@ -44,7 +44,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GGradientDescent::GGradientDescent()
+GSerialGD::GSerialGD()
 	: GOptimizationAlgorithmT<GParameterSet>()
 	, nStartingPoints_(DEFAULTGDSTARTINGPOINTS)
 	, nFPParmsFirst_(0)
@@ -69,7 +69,7 @@ GGradientDescent::GGradientDescent()
  * @param finiteStep The desired size of the incremental adaption process
  * @param stepSize The size of the multiplicative factor of the adaption process
  */
-GGradientDescent::GGradientDescent(
+GSerialGD::GSerialGD(
 		const std::size_t& nStartingPoints
 		, const float& finiteStep
 		, const float& stepSize
@@ -96,7 +96,7 @@ GGradientDescent::GGradientDescent(
  *
  * @param cp A copy of another GRadientDescent object
  */
-GGradientDescent::GGradientDescent(const GGradientDescent& cp)
+GSerialGD::GSerialGD(const GSerialGD& cp)
 	: GOptimizationAlgorithmT<GParameterSet>(cp)
 	, nStartingPoints_(cp.nStartingPoints_)
 	, nFPParmsFirst_(cp.nFPParmsFirst_)
@@ -111,7 +111,7 @@ GGradientDescent::GGradientDescent(const GGradientDescent& cp)
 /**
  * The destructor
  */
-GGradientDescent::~GGradientDescent()
+GSerialGD::~GSerialGD()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -120,7 +120,7 @@ GGradientDescent::~GGradientDescent()
  *
  * @return The number of simultaneous starting points of the gradient descent
  */
-std::size_t GGradientDescent::getNStartingPoints() const {
+std::size_t GSerialGD::getNStartingPoints() const {
 	return nStartingPoints_;
 }
 
@@ -130,11 +130,11 @@ std::size_t GGradientDescent::getNStartingPoints() const {
  *
  * @param nStartingPoints The desired number of starting points for the gradient descent
  */
-void GGradientDescent::setNStartingPoints(const std::size_t& nStartingPoints) {
+void GSerialGD::setNStartingPoints(const std::size_t& nStartingPoints) {
 	// Do some error checking
 	if(nStartingPoints == 0) {
 		raiseException(
-				"In GGradientDescent::setNStartingPoints(const std::size_t&):" << std::endl
+				"In GSerialGD::setNStartingPoints(const std::size_t&):" << std::endl
 				<< "Got invalid number of starting points."
 		);
 	}
@@ -148,11 +148,11 @@ void GGradientDescent::setNStartingPoints(const std::size_t& nStartingPoints) {
  *
  * @param finiteStep The desired size of the adaption
  */
-void GGradientDescent::setFiniteStep(const float& finiteStep) {
+void GSerialGD::setFiniteStep(const float& finiteStep) {
 	// Do some error checking
 	if(finiteStep <= 0.) {
 		raiseException(
-				"In GGradientDescent::setFiniteStep(const float&):" << std::endl
+				"In GSerialGD::setFiniteStep(const float&):" << std::endl
 				<< "Got invalid finite step size: " << finiteStep
 		);
 	}
@@ -166,7 +166,7 @@ void GGradientDescent::setFiniteStep(const float& finiteStep) {
  *
  * @return The current finite step size
  */
-float GGradientDescent::getFiniteStep() const {
+float GSerialGD::getFiniteStep() const {
 	return finiteStep_;
 }
 
@@ -176,11 +176,11 @@ float GGradientDescent::getFiniteStep() const {
  *
  * @param stepSize A multiplicative factor for the adaption process
  */
-void GGradientDescent::setStepSize(const float& stepSize) {
+void GSerialGD::setStepSize(const float& stepSize) {
 	// Do some error checking
 	if(stepSize <= 0.) {
 		raiseException(
-				"In GGradientDescent::setStepSize(const float&):" << std::endl
+				"In GSerialGD::setStepSize(const float&):" << std::endl
 				<< "Got invalid step size: " << stepSize
 		);
 	}
@@ -194,7 +194,7 @@ void GGradientDescent::setStepSize(const float& stepSize) {
  *
  * @return The current valze of the step size
  */
-float GGradientDescent::getStepSize() const {
+float GSerialGD::getStepSize() const {
 	return stepSize_;
 }
 
@@ -204,7 +204,7 @@ float GGradientDescent::getStepSize() const {
  *
  * @return The number of processable items in the current iteration
  */
-std::size_t GGradientDescent::getNProcessableItems() const {
+std::size_t GSerialGD::getNProcessableItems() const {
 	return this->size(); // Evaluation always needs to be done for the entire population
 }
 
@@ -215,33 +215,33 @@ std::size_t GGradientDescent::getNProcessableItems() const {
  *
  * @param cp A copy of another GRadientDescent object
  */
-const GGradientDescent& GGradientDescent::operator=(const GGradientDescent& cp) {
-	GGradientDescent::load_(&cp);
+const GSerialGD& GSerialGD::operator=(const GSerialGD& cp) {
+	GSerialGD::load_(&cp);
 	return *this;
 }
 
 /************************************************************************************************************/
 /**
- * Checks for equality with another GGradientDescent object
+ * Checks for equality with another GSerialGD object
  *
  * @param cp A copy of another GRadientDescent object
  */
-bool GGradientDescent::operator==(const GGradientDescent& cp) const {
+bool GSerialGD::operator==(const GSerialGD& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GGradientDescent::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialGD::operator==","cp", CE_SILENT);
 }
 
 /************************************************************************************************************/
 /**
- * Checks for inequality with another GGradientDescent object
+ * Checks for inequality with another GSerialGD object
  *
  * @param cp A copy of another GRadientDescent object
  */
-bool GGradientDescent::operator!=(const GGradientDescent& cp) const {
+bool GSerialGD::operator!=(const GSerialGD& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GGradientDescent::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialGD::operator!=","cp", CE_SILENT);
 }
 
 /************************************************************************************************************/
@@ -256,7 +256,7 @@ bool GGradientDescent::operator!=(const GGradientDescent& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GGradientDescent::checkRelationshipWith(
+boost::optional<std::string> GSerialGD::checkRelationshipWith(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -267,7 +267,7 @@ boost::optional<std::string> GGradientDescent::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GGradientDescent *p_load = GObject::conversion_cast<GGradientDescent>(&cp);
+	const GSerialGD *p_load = GObject::conversion_cast<GSerialGD>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -276,12 +276,12 @@ boost::optional<std::string> GGradientDescent::checkRelationshipWith(
     deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithmT<GParameterSet>", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GGradientDescent", nStartingPoints_, p_load->nStartingPoints_, "nStartingPoints_", "p_load->nStartingPoints_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GGradientDescent", nFPParmsFirst_, p_load->nFPParmsFirst_, "nFPParmsFirst_", "p_load->nFPParmsFirst_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GGradientDescent", finiteStep_, p_load->finiteStep_, "finiteStep_", "p_load->finiteStep_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GGradientDescent", stepSize_, p_load->stepSize_, "stepSize_", "p_load->stepSize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialGD", nStartingPoints_, p_load->nStartingPoints_, "nStartingPoints_", "p_load->nStartingPoints_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialGD", nFPParmsFirst_, p_load->nFPParmsFirst_, "nFPParmsFirst_", "p_load->nFPParmsFirst_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialGD", finiteStep_, p_load->finiteStep_, "finiteStep_", "p_load->finiteStep_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSerialGD", stepSize_, p_load->stepSize_, "stepSize_", "p_load->stepSize_", e , limit));
 
-	return evaluateDiscrepancies("GGradientDescent", caller, deviations, e);
+	return evaluateDiscrepancies("GSerialGD", caller, deviations, e);
 }
 
 /************************************************************************************************************/
@@ -290,14 +290,14 @@ boost::optional<std::string> GGradientDescent::checkRelationshipWith(
  *
  * @param cpFile The name of the file the checkpoint should be loaded from
  */
-void GGradientDescent::loadCheckpoint(const std::string& cpFile) {
+void GSerialGD::loadCheckpoint(const std::string& cpFile) {
 	// Create a vector to hold the best individuals
 	std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
 
 	// Check that the file indeed exists
 	if(!boost::filesystem::exists(cpFile)) {
 		raiseException(
-				"In GGradientDescent::loadCheckpoint(const std::string&)" << std::endl
+				"In GSerialGD::loadCheckpoint(const std::string&)" << std::endl
 				<< "Got invalid checkpoint file name " << cpFile
 		);
 	}
@@ -306,7 +306,7 @@ void GGradientDescent::loadCheckpoint(const std::string& cpFile) {
 	std::ifstream checkpointStream(cpFile.c_str());
 	if(!checkpointStream) {
 		raiseException(
-				"In GGradientDescent::loadCheckpoint(const std::string&)" << std::endl
+				"In GSerialGD::loadCheckpoint(const std::string&)" << std::endl
 				<< "Error: Could not open input file"
 		);
 	}
@@ -362,14 +362,14 @@ void GGradientDescent::loadCheckpoint(const std::string& cpFile) {
 /**
  * Loads the data of another population
  *
- * @param cp A pointer to another GGradientDescent object, camouflaged as a GObject
+ * @param cp A pointer to another GSerialGD object, camouflaged as a GObject
  */
-void GGradientDescent::load_(const GObject *cp) {
+void GSerialGD::load_(const GObject *cp) {
 	// Make a note of the current iteration (needed for a check below).
 	// The information would otherwise be lost after the load call below
 	boost::uint32_t currentIteration = this->getIteration();
 
-	const GGradientDescent *p_load = this->conversion_cast<GGradientDescent>(cp);
+	const GSerialGD *p_load = this->conversion_cast<GSerialGD>(cp);
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
@@ -388,16 +388,16 @@ void GGradientDescent::load_(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a pointer to a GObject
  */
-GObject *GGradientDescent::clone_() const {
-	return new GGradientDescent(*this);
+GObject *GSerialGD::clone_() const {
+	return new GSerialGD(*this);
 }
 
 /************************************************************************************************************/
 /**
  * Sets the individual's personality types to GradientDescent
  */
-void GGradientDescent::setIndividualPersonalities() {
-	for(GGradientDescent::iterator it=this->begin(); it!=this->end(); ++it) {
+void GSerialGD::setIndividualPersonalities() {
+	for(GSerialGD::iterator it=this->begin(); it!=this->end(); ++it) {
 		(*it)->setPersonality(GD);
 	}
 }
@@ -408,7 +408,7 @@ void GGradientDescent::setIndividualPersonalities() {
  *
  * @return The value of the best individual found
  */
-double GGradientDescent::cycleLogic() {
+double GSerialGD::cycleLogic() {
 	if(this->getIteration() > this->getOffset()) {
 		// Update the parameters of the parent individuals. This
 		// only makes sense once the individuals have been evaluated
@@ -428,7 +428,7 @@ double GGradientDescent::cycleLogic() {
 /**
  * Updates the individual parameters of children
  */
-void GGradientDescent::updateChildParameters() {
+void GSerialGD::updateChildParameters() {
 	// Loop over all starting points
 	for(std::size_t i=0; i<nStartingPoints_; i++) {
 		// Extract the fp vector
@@ -465,7 +465,7 @@ void GGradientDescent::updateChildParameters() {
 /**
  * Performs a step of the parent individuals
  */
-void GGradientDescent::updateParentIndividuals() {
+void GSerialGD::updateParentIndividuals() {
 	for(std::size_t i=0; i<nStartingPoints_; i++) {
 		// Extract the fp vector
 		std::vector<double> parmVec;
@@ -475,7 +475,7 @@ void GGradientDescent::updateParentIndividuals() {
 		// Make sure the parents are clean
 		if(this->at(i)->isDirty()) {
 			raiseException(
-					"In GGradientDescent::updateParentIndividuals():" << std::endl
+					"In GSerialGD::updateParentIndividuals():" << std::endl
 					<< "Found individual in position " << i << " with active dirty flag"
 			);
 		}
@@ -519,7 +519,7 @@ void GGradientDescent::updateParentIndividuals() {
 /**
  * Does some preparatory work before the optimization starts
  */
-void GGradientDescent::init() {
+void GSerialGD::init() {
 	// To be performed before any other action
 	GOptimizationAlgorithmT<GParameterSet>::init();
 
@@ -531,7 +531,7 @@ void GGradientDescent::init() {
 /**
  * Does any necessary finalization work
  */
-void GGradientDescent::finalize() {
+void GSerialGD::finalize() {
 	// Last action
 	GOptimizationAlgorithmT<GParameterSet>::finalize();
 }
@@ -542,7 +542,7 @@ void GGradientDescent::finalize() {
  * to be re-evaluated at the end of the optimization cycle, before the connection to the broker is cut.
  * doFitnessCalculation is overloaded in GBrokerGD.
  */
-// void GGradientDescent::optimizationFinalize() {
+// void GSerialGD::optimizationFinalize() {
 	// Make sure the fitness of the parent individuals is calculated in the final iteration
 //	checkpoint(ifProgress(doFitnessCalculation(nStartingPoints_)));
 // }
@@ -555,20 +555,20 @@ void GGradientDescent::finalize() {
  * @param finalPos The position in the vector up to which the fitness calculation should be performed
  * @return The best fitness found amongst all parents
  */
-double GGradientDescent::doFitnessCalculation(const std::size_t& finalPos) {
+double GSerialGD::doFitnessCalculation(const std::size_t& finalPos) {
 	double bestFitness = getWorstCase(); // Holds the best fitness found so far
 
 #ifdef DEBUG
 	if(finalPos > this->size()) {
 		raiseException(
-				"In GGradientDescent::doFitnessCalculation(const std::size_t&):" << std::endl
+				"In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
 				<< "Got invalid final position: " << finalPos << "/" << this->size()
 		);
 	}
 
 	if(finalPos < nStartingPoints_) {
 		raiseException(
-				"In GGradientDescent::doFitnessCalculation(const std::size_t&):" << std::endl
+				"In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
 				<< "We require finalPos to be at least " << nStartingPoints_ << ", but got " << finalPos
 		);
 	}
@@ -581,7 +581,7 @@ double GGradientDescent::doFitnessCalculation(const std::size_t& finalPos) {
 		// Make sure the evaluated individuals have the dirty flag set
 		if(!this->at(i)->isDirty()) {
 			raiseException(
-					"In GGradientDescent::doFitnessCalculation(const std::size_t&):" << std::endl
+					"In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
 					<< "Found individual in position " << i << " whose dirty flag isn't set"
 			);
 		}
@@ -604,7 +604,7 @@ double GGradientDescent::doFitnessCalculation(const std::size_t& finalPos) {
 /**
  * Resizes the population to the desired level and does some error checks.
  */
-void GGradientDescent::adjustPopulation() {
+void GSerialGD::adjustPopulation() {
 	// Check how many individuals we already have
 	std::size_t nStart = this->size();
 
@@ -613,7 +613,7 @@ void GGradientDescent::adjustPopulation() {
 	// We need at least one individual
 	if(nStart == 0) {
 		raiseException(
-				"In GGradientDescent::adjustPopulation():" << std::endl
+				"In GSerialGD::adjustPopulation():" << std::endl
 				<< "You didn't add any individuals to the collection. We need at least one."
 		);
 	}
@@ -624,7 +624,7 @@ void GGradientDescent::adjustPopulation() {
 	// Check that the first individual has floating point parameters (double for the moment)
 	if(nFPParmsFirst_ == 0) {
 		raiseException(
-				"In GGradientDescent::adjustPopulation():" << std::endl
+				"In GSerialGD::adjustPopulation():" << std::endl
 				<< "No floating point parameters in individual."
 		);
 	}
@@ -633,7 +633,7 @@ void GGradientDescent::adjustPopulation() {
 	for(std::size_t i=1; i<this->size(); i++) {
 		if(this->at(i)->countParameters<double>() != nFPParmsFirst_) {
 			raiseException(
-					"In GGradientDescent::adjustPopulation():" << std::endl
+					"In GSerialGD::adjustPopulation():" << std::endl
 					<< "Found individual in position " <<  i << " with different" << std::endl
 					<< "number of floating point parameters than the first one: " << this->at(i)->countParameters<double>() << "/" << nFPParmsFirst_
 			);
@@ -669,7 +669,7 @@ void GGradientDescent::adjustPopulation() {
 #ifdef DEBUG
 	if(this->size() != nStartingPoints_*(nFPParmsFirst_ + 1)) {
 		raiseException(
-				"In GGradientDescent::adjustPopulation():" << std::endl
+				"In GSerialGD::adjustPopulation():" << std::endl
 				<< "Population size is " << this->size() << std::endl
 				<< "but expected " << nStartingPoints_*(nFPParmsFirst_ + 1)
 		);
@@ -681,10 +681,10 @@ void GGradientDescent::adjustPopulation() {
 /**
  * Saves the state of the class to disc.
  */
-void GGradientDescent::saveCheckpoint() const {
+void GSerialGD::saveCheckpoint() const {
 	// Copy the parent individuals to a vector
 	std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
-	GGradientDescent::const_iterator it;
+	GSerialGD::const_iterator it;
 	for(it=this->begin(); it!=this->begin() + nStartingPoints_; ++it) {
 		bestIndividuals.push_back(*it);
 	}
@@ -702,7 +702,7 @@ void GGradientDescent::saveCheckpoint() const {
 	std::ofstream checkpointStream(outputFile.c_str());
 	if(!checkpointStream) {
 		raiseException(
-				"In GGradientDescent::saveCheckpoint()" << std::endl
+				"In GSerialGD::saveCheckpoint()" << std::endl
 				<< "Error: Could not open output file " << outputFile.c_str()
 		);
 	}
@@ -742,7 +742,7 @@ void GGradientDescent::saveCheckpoint() const {
  * This helper function lets all individuals know about their position in the
  * population.
  */
-void GGradientDescent::markIndividualPositions() {
+void GSerialGD::markIndividualPositions() {
 	for(std::size_t pos=0; pos<this->size(); pos++) {
 		this->at(pos)->getPersonalityTraits<GGDPersonalityTraits>()->setPopulationPosition(pos);
 	}
@@ -753,7 +753,7 @@ void GGradientDescent::markIndividualPositions() {
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
-bool GGradientDescent::modify_GUnitTests() {
+bool GSerialGD::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -766,7 +766,7 @@ bool GGradientDescent::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GGradientDescent::specificTestsNoFailureExpected_GUnitTests() {
+void GSerialGD::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests();
 }
@@ -775,7 +775,7 @@ void GGradientDescent::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GGradientDescent::specificTestsFailuresExpected_GUnitTests() {
+void GSerialGD::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::specificTestsFailuresExpected_GUnitTests();
 }
@@ -785,7 +785,7 @@ void GGradientDescent::specificTestsFailuresExpected_GUnitTests() {
 /**
  * The default constructor
  */
-GGradientDescent::GGDOptimizationMonitor::GGDOptimizationMonitor()
+GSerialGD::GGDOptimizationMonitor::GGDOptimizationMonitor()
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -794,7 +794,7 @@ GGradientDescent::GGDOptimizationMonitor::GGDOptimizationMonitor()
  *
  * @param cp A copy of another GGDOptimizationMonitor object
  */
-GGradientDescent::GGDOptimizationMonitor::GGDOptimizationMonitor(const GGradientDescent::GGDOptimizationMonitor& cp)
+GSerialGD::GGDOptimizationMonitor::GGDOptimizationMonitor(const GSerialGD::GGDOptimizationMonitor& cp)
 	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
   { /* nothing */ }
 
@@ -802,7 +802,7 @@ GGradientDescent::GGDOptimizationMonitor::GGDOptimizationMonitor(const GGradient
 /**
  * The destructor
  */
-GGradientDescent::GGDOptimizationMonitor::~GGDOptimizationMonitor()
+GSerialGD::GGDOptimizationMonitor::~GGDOptimizationMonitor()
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -812,8 +812,8 @@ GGradientDescent::GGDOptimizationMonitor::~GGDOptimizationMonitor()
  * @param cp A copy of another GGDOptimizationMonitor object
  * @return A constant reference to this object
  */
-const GGradientDescent::GGDOptimizationMonitor& GGradientDescent::GGDOptimizationMonitor::operator=(const GGradientDescent::GGDOptimizationMonitor& cp){
-	GGradientDescent::GGDOptimizationMonitor::load_(&cp);
+const GSerialGD::GGDOptimizationMonitor& GSerialGD::GGDOptimizationMonitor::operator=(const GSerialGD::GGDOptimizationMonitor& cp){
+	GSerialGD::GGDOptimizationMonitor::load_(&cp);
 	return *this;
 }
 
@@ -824,10 +824,10 @@ const GGradientDescent::GGDOptimizationMonitor& GGradientDescent::GGDOptimizatio
  * @param  cp A constant reference to another GGDOptimizationMonitor object
  * @return A boolean indicating whether both objects are equal
  */
-bool GGradientDescent::GGDOptimizationMonitor::operator==(const GGradientDescent::GGDOptimizationMonitor& cp) const {
+bool GSerialGD::GGDOptimizationMonitor::operator==(const GSerialGD::GGDOptimizationMonitor& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GGradientDescent::GGDOptimizationMonitor::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialGD::GGDOptimizationMonitor::operator==","cp", CE_SILENT);
 }
 
 /**********************************************************************************/
@@ -837,10 +837,10 @@ bool GGradientDescent::GGDOptimizationMonitor::operator==(const GGradientDescent
  * @param  cp A constant reference to another GGDOptimizationMonitor object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GGradientDescent::GGDOptimizationMonitor::operator!=(const GGradientDescent::GGDOptimizationMonitor& cp) const {
+bool GSerialGD::GGDOptimizationMonitor::operator!=(const GSerialGD::GGDOptimizationMonitor& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GGradientDescent::GGDOptimizationMonitor::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialGD::GGDOptimizationMonitor::operator!=","cp", CE_SILENT);
 }
 
 /**********************************************************************************/
@@ -856,7 +856,7 @@ bool GGradientDescent::GGDOptimizationMonitor::operator!=(const GGradientDescent
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GGradientDescent::GGDOptimizationMonitor::checkRelationshipWith(
+boost::optional<std::string> GSerialGD::GGDOptimizationMonitor::checkRelationshipWith(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -867,17 +867,17 @@ boost::optional<std::string> GGradientDescent::GGDOptimizationMonitor::checkRela
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GGradientDescent::GGDOptimizationMonitor *p_load = GObject::conversion_cast<GGradientDescent::GGDOptimizationMonitor >(&cp);
+	const GSerialGD::GGDOptimizationMonitor *p_load = GObject::conversion_cast<GSerialGD::GGDOptimizationMonitor >(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GGradientDescent::GGDOptimizationMonitor", y_name, withMessages));
+	deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GSerialGD::GGDOptimizationMonitor", y_name, withMessages));
 
 	// ... there is no local data
 
-	return evaluateDiscrepancies("GGradientDescent::GGDOptimizationMonitor", caller, deviations, e);
+	return evaluateDiscrepancies("GSerialGD::GGDOptimizationMonitor", caller, deviations, e);
 }
 
 /**********************************************************************************/
@@ -887,7 +887,7 @@ boost::optional<std::string> GGradientDescent::GGDOptimizationMonitor::checkRela
  * @param xDim The desired dimension of the canvas in x-direction
  * @param yDim The desired dimension of the canvas in y-direction
  */
-void GGradientDescent::GGDOptimizationMonitor::setDims(const boost::uint16_t& xDim, const boost::uint16_t& yDim) {
+void GSerialGD::GGDOptimizationMonitor::setDims(const boost::uint16_t& xDim, const boost::uint16_t& yDim) {
 	xDim_ = xDim;
 	yDim_ = yDim;
 }
@@ -898,7 +898,7 @@ void GGradientDescent::GGDOptimizationMonitor::setDims(const boost::uint16_t& xD
  *
  * @return The dimension of the canvas in x-direction
  */
-boost::uint16_t GGradientDescent::GGDOptimizationMonitor::getXDim() const {
+boost::uint16_t GSerialGD::GGDOptimizationMonitor::getXDim() const {
 	return xDim_;
 }
 
@@ -908,7 +908,7 @@ boost::uint16_t GGradientDescent::GGDOptimizationMonitor::getXDim() const {
  *
  * @return The dimension of the canvas in y-direction
  */
-boost::uint16_t GGradientDescent::GGDOptimizationMonitor::getYDim() const {
+boost::uint16_t GSerialGD::GGDOptimizationMonitor::getYDim() const {
 	return yDim_;
 }
 
@@ -919,7 +919,7 @@ boost::uint16_t GGradientDescent::GGDOptimizationMonitor::getYDim() const {
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  * @return A string containing information to written to the output file (if any)
  */
-std::string GGradientDescent::GGDOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+std::string GSerialGD::GGDOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 	// This should always be the first statement in a custom optimization monitor
 	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::firstInformation(goa);
 
@@ -927,12 +927,12 @@ std::string GGradientDescent::GGDOptimizationMonitor::firstInformation(GOptimiza
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != GD) {
 		raiseException(
-				"In GGradientDescent::GGDOptimizationMonitor::firstInformation():" << std::endl
+				"In GSerialGD::GGDOptimizationMonitor::firstInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
 		);
 	}
 #endif /* DEBUG */
-	GGradientDescent * const gd = static_cast<GGradientDescent * const>(goa);
+	GSerialGD * const gd = static_cast<GSerialGD * const>(goa);
 
 	// Output the header to the summary stream
 	return gdFirstInformation(gd);
@@ -947,7 +947,7 @@ std::string GGradientDescent::GGDOptimizationMonitor::firstInformation(GOptimiza
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  * @return A string containing information to written to the output file (if any)
  */
-std::string GGradientDescent::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+std::string GSerialGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 	// Let the audience know what the parent has to say
 	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::cycleInformation(goa);
 
@@ -955,12 +955,12 @@ std::string GGradientDescent::GGDOptimizationMonitor::cycleInformation(GOptimiza
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != GD) {
 		raiseException(
-				"In GGradientDescent::GGDOptimizationMonitor::cycleInformation():" << std::endl
+				"In GSerialGD::GGDOptimizationMonitor::cycleInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
 		);
 	}
 #endif /* DEBUG */
-	GGradientDescent * const gd = static_cast<GGradientDescent * const>(goa);
+	GSerialGD * const gd = static_cast<GSerialGD * const>(goa);
 
 	return gdCycleInformation(gd);
 }
@@ -972,18 +972,18 @@ std::string GGradientDescent::GGDOptimizationMonitor::cycleInformation(GOptimiza
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  * @return A string containing information to written to the output file (if any)
  */
-std::string GGradientDescent::GGDOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+std::string GSerialGD::GGDOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != GD) {
 		raiseException(
-				"In GGradientDescent::GGDOptimizationMonitor::lastInformation():" << std::endl
+				"In GSerialGD::GGDOptimizationMonitor::lastInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
 		);
 	}
 #endif /* DEBUG */
-	GGradientDescent * const gd = static_cast<GGradientDescent * const>(goa);
+	GSerialGD * const gd = static_cast<GSerialGD * const>(goa);
 
 	// Do the actual information gathering
 	std::ostringstream result;
@@ -1002,7 +1002,7 @@ std::string GGradientDescent::GGDOptimizationMonitor::lastInformation(GOptimizat
  *
  * @param gd The object for which information should be collected
  */
-std::string GGradientDescent::GGDOptimizationMonitor::gdFirstInformation(GGradientDescent * const gd) {
+std::string GSerialGD::GGDOptimizationMonitor::gdFirstInformation(GSerialGD * const gd) {
 	std::ostringstream result;
 
 	// Output the header to the summary stream
@@ -1024,7 +1024,7 @@ std::string GGradientDescent::GGDOptimizationMonitor::gdFirstInformation(GGradie
  *
  * @param gd The object for which information should be collected
  */
-std::string GGradientDescent::GGDOptimizationMonitor::gdCycleInformation(GGradientDescent * const gd) {
+std::string GSerialGD::GGDOptimizationMonitor::gdCycleInformation(GSerialGD * const gd) {
 	std::ostringstream result;
 	bool isDirty = false;
 	double currentEvaluation = 0.;
@@ -1043,7 +1043,7 @@ std::string GGradientDescent::GGDOptimizationMonitor::gdCycleInformation(GGradie
  *
  * @param gd The object for which information should be collected
  */
-std::string GGradientDescent::GGDOptimizationMonitor::gdLastInformation(GGradientDescent * const gd) {
+std::string GSerialGD::GGDOptimizationMonitor::gdLastInformation(GSerialGD * const gd) {
 	std::ostringstream result;
 
 	// Output final print logic to the stream
@@ -1077,8 +1077,8 @@ std::string GGradientDescent::GGDOptimizationMonitor::gdLastInformation(GGradien
  *
  * cp A pointer to another GGDOptimizationMonitor object, camouflaged as a GObject
  */
-void GGradientDescent::GGDOptimizationMonitor::load_(const GObject* cp) {
-	const GGradientDescent::GGDOptimizationMonitor *p_load = conversion_cast<GGradientDescent::GGDOptimizationMonitor>(cp);
+void GSerialGD::GGDOptimizationMonitor::load_(const GObject* cp) {
+	const GSerialGD::GGDOptimizationMonitor *p_load = conversion_cast<GSerialGD::GGDOptimizationMonitor>(cp);
 
 	// Load the parent classes' data ...
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);
@@ -1092,8 +1092,8 @@ void GGradientDescent::GGDOptimizationMonitor::load_(const GObject* cp) {
  *
  * @return A deep clone of this object
  */
-GObject* GGradientDescent::GGDOptimizationMonitor::clone_() const {
-	return new GGradientDescent::GGDOptimizationMonitor(*this);
+GObject* GSerialGD::GGDOptimizationMonitor::clone_() const {
+	return new GSerialGD::GGDOptimizationMonitor(*this);
 }
 
 #ifdef GENEVATESTING
@@ -1101,7 +1101,7 @@ GObject* GGradientDescent::GGDOptimizationMonitor::clone_() const {
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
-bool GGradientDescent::GGDOptimizationMonitor::modify_GUnitTests() {
+bool GSerialGD::GGDOptimizationMonitor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -1114,7 +1114,7 @@ bool GGradientDescent::GGDOptimizationMonitor::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GGradientDescent::GGDOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
+void GSerialGD::GGDOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
 }
@@ -1123,7 +1123,7 @@ void GGradientDescent::GGDOptimizationMonitor::specificTestsNoFailureExpected_GU
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GGradientDescent::GGDOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
+void GSerialGD::GGDOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
 }
@@ -1138,12 +1138,12 @@ void GGradientDescent::GGDOptimizationMonitor::specificTestsFailuresExpected_GUn
 /************************************************************************************************************/
 #ifdef GENEVATESTING
 /**
- * A factory function that emits a GGradientDescent object
+ * A factory function that emits a GSerialGD object
  */
-template <> boost::shared_ptr<Gem::Geneva::GGradientDescent> TFactory_GUnitTests<Gem::Geneva::GGradientDescent>() {
+template <> boost::shared_ptr<Gem::Geneva::GSerialGD> TFactory_GUnitTests<Gem::Geneva::GSerialGD>() {
 	using namespace Gem::Tests;
-	boost::shared_ptr<Gem::Geneva::GGradientDescent> p;
-	BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GGradientDescent>(new Gem::Geneva::GGradientDescent()));
+	boost::shared_ptr<Gem::Geneva::GSerialGD> p;
+	BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSerialGD>(new Gem::Geneva::GSerialGD()));
 	p->push_back(boost::shared_ptr<GTestIndividual1>(new GTestIndividual1()));
 	return p;
 }

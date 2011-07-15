@@ -38,7 +38,7 @@ The main changes for this release include:
  - Moved a lot of the Broker-Populations functionality into the GBrokerConnector,
    thus making it more generic and the population classes easier to understand
  - Renamed the former serial GSwarm class to the more logical GSerialSwarm; Similarly
-   GEvolutionaryAlgorithm -> GSerialEA; 
+   GEvolutionaryAlgorithm -> GSerialEA; GGradientDescent -> GSerialGD
  - Adapted to Boost 1.47
 
 //------------------------------------------------------------------------------------------------------

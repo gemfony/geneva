@@ -1,5 +1,5 @@
 /**
- * @file GGradientDescent.hpp
+ * @file GSerialGD.hpp
  */
 
 /*
@@ -68,10 +68,10 @@ const double DEFAULTSTEPSIZE=0.1;
 
 /*********************************************************************************/
 /**
- * The GGradientDescent class implements a steepest descent algorithm. It is possible
+ * The GSerialGD class implements a steepest descent algorithm. It is possible
  * to search for optima starting from several positions simultaneously.
  */
-class GGradientDescent
+class GSerialGD
 	:public GOptimizationAlgorithmT<GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -92,21 +92,21 @@ class GGradientDescent
 
 public:
 	/** @brief The default constructor */
-	GGradientDescent();
+	GSerialGD();
 	/** @brief Initialization with the number of starting points and the size of the finite step */
-	GGradientDescent(const std::size_t&, const float&, const float&);
+	GSerialGD(const std::size_t&, const float&, const float&);
 	/** @brief A standard copy constructor */
-	GGradientDescent(const GGradientDescent&);
+	GSerialGD(const GSerialGD&);
 	/** @brief The destructor */
-	virtual ~GGradientDescent();
+	virtual ~GSerialGD();
 
 	/** @brief A standard assignment operator */
-	const GGradientDescent& operator=(const GGradientDescent&);
+	const GSerialGD& operator=(const GSerialGD&);
 
-	/** @brief Checks for equality with another GGradientDescent object */
-	bool operator==(const GGradientDescent&) const;
-	/** @brief Checks for inequality with another GGradientDescent object */
-	bool operator!=(const GGradientDescent&) const;
+	/** @brief Checks for equality with another GSerialGD object */
+	bool operator==(const GSerialGD&) const;
+	/** @brief Checks for inequality with another GSerialGD object */
+	bool operator!=(const GSerialGD&) const;
 
 	/** @brief Sets the individual's personality types to GradientDescent */
 	void setIndividualPersonalities();
@@ -158,7 +158,7 @@ public:
 		// Check that data is present at all
 		if(data.size() < nStartingPoints_) {
 			raiseException(
-					"In GGradientDescent::getBestIndividual<parameterset_type>() : Error!" << std::endl
+					"In GSerialGD::getBestIndividual<parameterset_type>() : Error!" << std::endl
 					<< "Population has fewer individuals than starting points: " << data.size() << " / " << nStartingPoints_
 			);
 		}
@@ -167,7 +167,7 @@ public:
 		for(std::size_t i=0; i<nStartingPoints_; i++) {
 			if(data.at(i)->isDirty()) {
 				raiseException(
-						"In GGradientDescent::getBestIndividual<parameterset_type>() : Error!" << std::endl
+						"In GSerialGD::getBestIndividual<parameterset_type>() : Error!" << std::endl
 						<< "Found dirty parent at position : " << i
 				);
 			}
@@ -298,11 +298,11 @@ public:
 	    virtual std::string lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
 
 	    /** @brief A function that is called once before the optimization starts */
-	    virtual std::string gdFirstInformation(GGradientDescent * const);
+	    virtual std::string gdFirstInformation(GSerialGD * const);
 	    /** @brief A function that is called during each optimization cycle */
-	    virtual std::string gdCycleInformation(GGradientDescent * const);
+	    virtual std::string gdCycleInformation(GSerialGD * const);
 	    /** @brief A function that is called once at the end of the optimization cycle */
-	    virtual std::string gdLastInformation(GGradientDescent * const);
+	    virtual std::string gdLastInformation(GSerialGD * const);
 
 	    /** @brief Loads the data of another object */
 	    virtual void load_(const GObject*);
@@ -342,14 +342,14 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 /** @brief We need to provide a specialization of the factory function that creates objects of this type. */
-template <> boost::shared_ptr<Gem::Geneva::GGradientDescent> TFactory_GUnitTests<Gem::Geneva::GGradientDescent>();
+template <> boost::shared_ptr<Gem::Geneva::GSerialGD> TFactory_GUnitTests<Gem::Geneva::GSerialGD>();
 
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 #endif /* GENEVATESTING */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GGradientDescent)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GGradientDescent::GGDOptimizationMonitor)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialGD)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialGD::GGDOptimizationMonitor)
 
 #endif /* GGRADIENTDESCENT_HPP_ */

@@ -50,7 +50,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "common/GThreadWrapper.hpp"
-#include "geneva/GGradientDescent.hpp"
+#include "geneva/GSerialGD.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GObject.hpp"
 
@@ -67,10 +67,10 @@ const boost::uint16_t DEFAULTBOOSTTHREADSGD = 2;
 
 /*********************************************************************************/
 /**
- * A multi-threaded version of the GGradientDescent class
+ * A multi-threaded version of the GSerialGD class
  */
 class GMultiThreadedGD
-	:public GGradientDescent
+	:public GSerialGD
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -79,7 +79,7 @@ class GMultiThreadedGD
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GGradientDescent)
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSerialGD)
 		   & BOOST_SERIALIZATION_NVP(nThreads_);
 	}
 

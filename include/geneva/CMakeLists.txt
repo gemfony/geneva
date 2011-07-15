@@ -70,6 +70,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GPersonalityTraits.hpp
 	GRateableI.hpp
 	GSerialEA.hpp
+	GSerialGD.hpp
 	GSerialSwarm.hpp
 	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp

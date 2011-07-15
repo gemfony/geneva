@@ -50,7 +50,7 @@
 #include "common/GHelperFunctions.hpp"
 #include "common/GThreadWrapper.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GGradientDescent.hpp"
+#include "geneva/GSerialGD.hpp"
 #include "geneva/GIndividual.hpp"
 
 #ifdef GENEVATESTING
@@ -62,10 +62,10 @@ namespace Geneva {
 
 /*********************************************************************************/
 /**
- * A networked version of the GGradientDescent class
+ * A networked version of the GSerialGD class
  */
 class GBrokerGD
-	: public GGradientDescent
+	: public GSerialGD
 	, public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ class GBrokerGD
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GGradientDescent)
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSerialGD)
 		   & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBrokerConnectorT<Gem::Geneva::GIndividual>)
 		   & BOOST_SERIALIZATION_NVP(maxResubmissions_);
 	}
