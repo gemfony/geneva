@@ -225,58 +225,15 @@ void GMultiThreadedSwarm::finalize() {
 	GSwarm::finalize();
 }
 
+
 /************************************************************************************************************/
 /**
- * Updates the fitness of all individuals. This is an overloaded version of the parent class'es function
- * which enqueues tasks in the thread pool.
+ * Updates the fitness of all individuals
  */
-void GMultiThreadedSwarm::swarmLogic() {
+void GMultiThreadedSwarm::updateFitness() {
 	std::size_t offset = 0;
-	GMultiThreadedSwarm::iterator start = this->begin();
+	GSwarm::iterator start = this->begin();
 	boost::uint32_t iteration = getIteration();
-
-	// First update all positions
-	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
-#ifdef DEBUG
-		if(getIteration() > 0) {
-			if(!neighborhood_bests_[neighborhood]) {
-				raiseException(
-						"In GMultiThreadedSwarm::swarmLogic():" << std::endl
-						<< "neighborhood_bests_[" << neighborhood << "] is empty."
-				);
-			}
-
-			if(neighborhood==0 && !global_best_) { // Only check for the first neighborhood
-				raiseException(
-						"In GMultiThreadedSwarm::swarmLogic():" << std::endl
-						<< "global_best_ is empty."
-				);
-			}
-		}
-#endif /* DEBUG */
-
-		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
-			GMultiThreadedSwarm::iterator current = start + offset;
-
-			// Note: global/neighborhood bests and velocities haven't been determined yet in iteration 0 and are not needed there
-			if(iteration > 0 && !(*current)->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
-				// Update the swarm positions:
-				updateIndividualPositions(
-					neighborhood
-					, (*current)
-					, iteration>0?(neighborhood_bests_[neighborhood]):(boost::shared_ptr<GParameterSet>())
-					, iteration>0?(global_best_):(boost::shared_ptr<GParameterSet>())
-					, iteration>0?(velocities_[offset]):(boost::shared_ptr<GParameterSet>())
-					, boost::make_tuple(getCPersonal(), getCNeighborhood(), getCGlobal(), getCVelocity())
-				);
-			}
-
-			offset++;
-		}
-	}
-
-	// Reset the offset
-	offset = 0;
 
 	// Then start the evaluation threads
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {

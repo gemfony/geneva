@@ -77,7 +77,6 @@ class GBrokerGD
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GGradientDescent)
 		   & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBrokerConnectorT<Gem::Geneva::GIndividual>)
-		   & BOOST_SERIALIZATION_NVP(resubmissions_)
 		   & BOOST_SERIALIZATION_NVP(maxResubmissions_);
 	}
 
@@ -115,8 +114,6 @@ public:
 	void setMaxResubmissions(const std::size_t maxResubmissions);
 	/** @brief Returns the maximum allowed number of resubmissions */
 	std::size_t getMaxResubmissions() const;
-	/** @brief Returns the number of resubmissions in the current iteration */
-	std::size_t getResubmissions() const;
 
 protected:
 	/** @brief Loads the data of another population */
@@ -124,8 +121,6 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
 
-	/** @brief Update iteration counters */
-	virtual void markIteration();
 	/** @brief Performs necessary initialization work */
 	virtual void init();
 	/** @brief Does any necessary finalization work */

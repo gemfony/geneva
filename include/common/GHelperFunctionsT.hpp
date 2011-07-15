@@ -241,6 +241,27 @@ void multVecConst (
 }
 
 /**************************************************************************************************/
+/**
+ * Assigns a constant value to each position of the vector. Note that we assume here that
+ * T understands the operator*= . Note that after this function has been called, a will have changed.
+ *
+ * @param a The vector to whose elements c will be assigned
+ * @param c The constant which will be assigned each position of a
+ */
+template <typename T>
+void assignVecConst (
+		std::vector<T>& a
+		, const T& c
+) {
+	typename std::vector<T>::iterator it_a;
+
+	// Assign c to each element
+	for(it_a=a.begin(); it_a != a.end(); ++it_a) {
+		(*it_a) = c;
+	}
+}
+
+/**************************************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

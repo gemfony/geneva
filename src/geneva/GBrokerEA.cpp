@@ -173,18 +173,6 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
 
 /************************************************************************************************************/
 /**
- * Update the iteration counters
- */
-void GBrokerEA::markIteration() {
-	// Execute the parent classes markIteration() call
-	GEvolutionaryAlgorithm::markIteration();
-
-	// Let the GBrokerConnectorT know that we are starting a new iteration
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::markNewIteration(this->getIteration());
-}
-
-/************************************************************************************************************/
-/**
  * Performs any necessary initialization work before the start of the optimization cycle
  */
 void GBrokerEA::init() {
@@ -208,9 +196,6 @@ void GBrokerEA::init() {
 
 	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
 	GEvolutionaryAlgorithm::init();
-
-	// Connect to the broker
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -244,9 +229,6 @@ void GBrokerEA::finalize() {
 	}
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
-	// Invalidate our local broker connection
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::finalize();
-
 	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
 	GEvolutionaryAlgorithm::finalize();
 }
@@ -272,7 +254,12 @@ void GBrokerEA::adaptChildren() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
-	GBrokerConnectorT<GIndividual>::workOn(data, range.first, range.second, ACCEPTOLDERITEMS, LEAVEITERATIONUNTOUCHED);
+	GBrokerConnectorT<GIndividual>::workOn(
+			data
+			, range.first
+			, range.second
+			, ACCEPTOLDERITEMS
+	);
 
 	//--------------------------------------------------------------------------------
 	// Now fix the population
@@ -365,234 +352,6 @@ void GBrokerEA::fixAfterJobSubmission() {
 
 	// We care for too many returned individuals in the select() function. Older
 	// individuals might nevertheless have a better quality. We do not want to loose them.
-}
-
-/************************************************************************************************************/
-/**
- * Starting from the end of the children's list, we submit individuals  to the
- * broker. In the first generation, in the case of the MUPLUSNU_SINGLEEVAL sorting strategy,
- * also the fitness of the parents is calculated. The type of command intended to
- * be executed on the individuals is stored in the individual. The function
- * then waits for the first individual to come back. The time frame for all other
- * individuals to come back is a multiple of this time frame.
- */
-void GBrokerEA::adaptChildrenX() {
-	using namespace boost::posix_time;
-
-	std::vector<boost::shared_ptr<GIndividual> >::reverse_iterator rit;
-	std::size_t np = getNParents(), nc=data.size()-np;
-	boost::uint32_t iteration=getIteration();
-
-	//--------------------------------------------------------------------------------
-	// First we send all individuals abroad
-
-	// Start with the children from the back of the population
-	// This is the same for all sorting modes
-	for(rit=data.rbegin(); rit!=data.rbegin()+nc; ++rit) {
-		(*rit)->getPersonalityTraits()->setCommand("adapt");
-		Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::submit(*rit);
-	}
-
-	// We can remove children, so only parents remain in the population
-	data.resize(np);
-
-	// Make sure we also evaluate the parents in the first iteration, if needed.
-	// This is only applicable to the SA, MUPLUSNU_SINGLEEVAL and MUNU1PRETAIN modes.
-	if(iteration==0) {
-		switch(getSortingScheme()) {
-		//--------------------------------------------------------------
-		case SA:
-		case MUPLUSNU_SINGLEEVAL:
-		case MUPLUSNU_PARETO:
-		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
-		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
-			// Note that we only have parents left in this iteration
-			for(rit=data.rbegin(); rit!=data.rend(); ++rit) {
-				(*rit)->getPersonalityTraits()->setCommand("evaluate");
-				Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::submit(*rit);
-			}
-
-			// Next we clear the population. We do not loose anything,
-			// as at least one shared_ptr to our individuals remains
-			data.clear();
-			break;
-
-		case MUCOMMANU_SINGLEEVAL:
-			break; // nothing
-		}
-		//--------------------------------------------------------------
-		// If we are running in SA, MUPLUSNU_SINGLEEVAL, MUNU1PRETAIN or one of the pareto modes, we now have
-		// an empty population, as parents have been sent away for evaluation. If this is the MUCOMMANU_SINGLEEVAL
-		// mode, parents do not participate in the sorting and can be ignored.
-	}
-
-	//--------------------------------------------------------------------------------
-	// We can now wait for the individuals to return from their journey.
-	std::size_t nReceivedParent       = 0;
-	std::size_t nReceivedChildCurrent = 0;
-	std::size_t nReceivedChildOlder   = 0;
-
-	// Will hold returned items
-	boost::shared_ptr<GIndividual> p;
-
-	// First wait for the first individual of the current iteration to arrive.
-	// Individuals from older iterations will also be accepted in this loop,
-	// unless they are parents. Note that we can thus have a situation where less
-	// genuine parents are in the population than have originally been sent away.
-	while(true) {
-		// Note: the following call will throw if a timeout has been reached.
-		p = Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveFirstItem();
-
-		// If it is from the current iteration, break the loop, otherwise
-		// continue until the first item of the current iteration has been
-		// received.
-		if(p->getAssignedIteration() == iteration) {
-			// Add the individual to our list.
-			this->push_back(p);
-
-			// Update the counter.
-			if(p->getPersonalityTraits<GEAPersonalityTraits>()->isParent()) nReceivedParent++;
-			else nReceivedChildCurrent++;
-
-			break;
-		} else {
-			if(!p->getPersonalityTraits<GEAPersonalityTraits>()->isParent()){
-				// Make it known to the individual that it is now part of a new iteration
-				p->setAssignedIteration(iteration);
-
-				// Add the individual to our list.
-				this->push_back(p);
-
-				// Update the counter
-				nReceivedChildOlder++;
-			}
-			else { // We do not accept parents from older iterations
-				p.reset();
-			}
-		}
-	}
-
-	//--------------------------------------------------------------------------------
-	// Wait for further arrivals until the population is complete or a timeout has been reached.
-	bool complete=false;
-
-	// retrieveItem will return an empty pointer, if a timeout has been reached
-	while(!complete && (p=Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveItem())) {
-		// Count the number of items received.
-		if(p->getAssignedIteration() == iteration) { // First count items of the current iteration
-			// Add the individual to our list.
-			this->push_back(p);
-
-			// Update the counter
-			if(p->getPersonalityTraits<GEAPersonalityTraits>()->isParent()) nReceivedParent++;
-			else nReceivedChildCurrent++;
-		} else { // Now count items of older iterations
-			if(!p->getPersonalityTraits<GEAPersonalityTraits>()->isParent()){  // Parents from older iterations will be ignored, as there is no else clause
-				// Make it known to the individual that it is now part of a new iteration
-				p->setAssignedIteration(iteration);
-
-				// Add the individual to our list.
-				this->push_back(p);
-
-				// Update the counter
-				nReceivedChildOlder++;
-			}
-		}
-
-		// Mark as complete, if a full set of children (and parents in iteration 0 / MUPLUSNU_SINGLEEVAL / MUNU1PRETAIN)
-		// of the current iteration has returned. Older individuals may return in the next iterations, unless
-		// they are parents.
-		if(iteration == 0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU_SINGLEEVAL || getSortingScheme()==MUNU1PRETAIN)) {
-			if(nReceivedParent+nReceivedChildCurrent==np+getDefaultNChildren()) {
-				complete=true;
-			}
-		} else {
-			if(nReceivedChildCurrent>=getDefaultNChildren()) { // Note the >=
-				complete=true;
-			}
-		}
-	}
-
-	// If parents have been evaluated, make sure they are at the beginning of the array.
-	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU_SINGLEEVAL || getSortingScheme()==MUNU1PRETAIN)){
-#ifdef DEBUG
-		// Have any individuals returned at all ?
-		if(data.size()==0) { // No way out ...
-			raiseException(
-					"In GBrokerEA::adaptChildren() :" << std::endl
-					<< "Population is empty when it shouldn't be."
-			);
-		}
-#endif /* DEBUG */
-
-		// Sort according to parent/child tag. We do not know in what order individuals have returned.
-		// Hence we need to sort them. Parents need to be in front, children in the back.
-		sort(data.begin(), data.end(), indParentComp());
-	}
-
-	//--------------------------------------------------------------------------------
-	// We are done, if a full set of individuals has returned.
-	// The population size is at least at nominal values.
-	if(complete) return;
-
-	//--------------------------------------------------------------------------------
-	// O.k., so we are missing individuals from the current population.
-	// Do some fixing, if necessary and let the audience know in DEBUG mode.
-
-#ifdef DEBUG
-	std::ostringstream information;
-	information << "Note that in GBrokerEA::adaptChildren()" << std::endl
-				<< "some individuals of the current population did not return" << std::endl
-				<< "in iteration " << iteration << "." << std::endl;
-
-	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU_SINGLEEVAL || getSortingScheme()==MUNU1PRETAIN)){
-		information << "We have received " << nReceivedParent << " parents." << std::endl
-			        << "where " << np << " parents were expected." << std::endl;
-	}
-
-	information << nReceivedChildCurrent << " children of the current population returned" << std::endl
-			    << "plus " << nReceivedChildOlder << " older children," << std::endl
-			    << "where the default number of children is " << getDefaultNChildren() << "." << std::endl
-			    << "The current size of the population is now " << this->size() << std::endl
-			    << "where a minimal size of " << getDefaultPopulationSize() << " is needed." << std::endl;
-#endif /* DEBUG*/
-
-
-	if(data.size() < np+getDefaultNChildren()){
-		std::size_t fixSize=np+getDefaultNChildren() - data.size();
-
-#ifdef DEBUG
-		information << fixSize << " individuals thus need to be added to the population." << std::endl
-					<< "Note that children may still return in later iterations." << std::endl;
-#endif /* DEBUG */
-
-		for(std::size_t i=0; i<fixSize; i++){
-			// This function will create a clone of its argument
-			this->push_back_clone(data.back());
-		}
-	}
-
-#ifdef DEBUG
-	std::cout << information.str();
-#endif /* DEBUG */
-
-	// Mark the first nParents_ individuals as parents, if they aren't parents yet. We want
-	// to have a "sane" population.
-	if(iteration==0 && (getSortingScheme()==SA || getSortingScheme()==MUPLUSNU_SINGLEEVAL || getSortingScheme()==MUNU1PRETAIN)){
-		GEvolutionaryAlgorithm::iterator it;
-		for(it=this->begin(); it!=this->begin() + getNParents(); ++it) {
-			if(!(*it)->getPersonalityTraits<GEAPersonalityTraits>()->isParent()) {
-				(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent();
-			}
-		}
-	}
-
-	// We care for too many returned individuals in the select() function. Older
-	// individuals might nevertheless have a better quality. We do not want to loose them.
-
-	// We might theoretically at this point have a population that (in iteration 0 / MUPLUSNU_SINGLEEVAL / MUNU1PRETAIN)
-	// consists of only parents. This is not a problem, as the entire population will get sorted
-	// in this case, and new parents and children will be tagged after the select function.
 }
 
 /************************************************************************************************************/

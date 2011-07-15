@@ -46,7 +46,6 @@ namespace Geneva {
 GBrokerGD::GBrokerGD() :
 	GGradientDescent()
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
-	, resubmissions_(0)
 	, maxResubmissions_(DEFAULTMAXGDRESUBMISSIONS)
 { /* nothing */ }
 
@@ -60,7 +59,6 @@ GBrokerGD::GBrokerGD(
 )
 	: GGradientDescent(nStartingPoints, finiteStep, stepSize)
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
-	, resubmissions_(0)
 	, maxResubmissions_(DEFAULTMAXGDRESUBMISSIONS)
 { /* nothing */ }
 
@@ -71,7 +69,6 @@ GBrokerGD::GBrokerGD(
 GBrokerGD::GBrokerGD(const GBrokerGD& cp)
 	: GGradientDescent(cp)
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
-	, resubmissions_(cp.resubmissions_)
 	, maxResubmissions_(cp.maxResubmissions_)
 { /* nothing */ }
 
@@ -162,7 +159,6 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 					*p_load, e, limit, "GBrokerGD", y_name, withMessages));
 
 	// and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GBrokerGD", resubmissions_, p_load->resubmissions_, "resubmissions_", "p_load->resubmissions_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBrokerGD", maxResubmissions_, p_load->maxResubmissions_, "maxResubmissions_", "p_load->maxResubmissions_", e , limit));
 
 	return evaluateDiscrepancies("GBrokerGD", caller, deviations, e);
@@ -190,28 +186,6 @@ std::size_t GBrokerGD::getMaxResubmissions() const {
 
 /************************************************************************************************************/
 /**
- * Returns the number of re-submissions in the current iteration
- *
- * @return The number of re-submissions in the current iteration
- */
-std::size_t GBrokerGD::getResubmissions() const {
-	return resubmissions_;
-}
-
-/************************************************************************************************************/
-/**
- * Update the iteration counters
- */
-void GBrokerGD::markIteration() {
-	// Execute the parent classes markIteration() call
-	GGradientDescent::markIteration();
-
-	// Let the GBrokerConnectorT know that we are starting a new iteration
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::markNewIteration(this->getIteration());
-}
-
-/************************************************************************************************************/
-/**
  * Loads the data from another GBrokerGD object.
  *
  * @param vp Pointer to another GBrokerGD object, camouflaged as a GObject
@@ -224,7 +198,6 @@ void GBrokerGD::load_(const GObject *cp) {
 	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
 
 	// ... and then our local data
-	resubmissions_ = p_load->resubmissions_;
 	maxResubmissions_ = p_load->maxResubmissions_;
 }
 
@@ -245,9 +218,6 @@ GObject *GBrokerGD::clone_() const {
 void GBrokerGD::init() {
 	// GGradientDesccent sees exactly the environment it would when called from its own class
 	GGradientDescent::init();
-
-	// Connect to the broker
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -280,9 +250,6 @@ void GBrokerGD::finalize() {
 		(*it)->setServerMode(*b_it);
 	}
 	sm_value_.clear(); // Make sure we have no "left-overs"
-
-	// Invalidate our local broker connection
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::finalize();
 
 	// GGradientDescent sees exactly the environment it would when called from its own class
 	GGradientDescent::finalize();
@@ -318,7 +285,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	}
 #endif
 
-	// Trigger value calculation for all individuals (including parents)
+	// Signal evaluation for all individuals (including parents)
 	for (std::size_t i = 0; i < finalPos; i++) {
 #ifdef DEBUG
 		// Make sure the evaluated individuals have the dirty flag set
@@ -333,158 +300,25 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 		// Let the individual know that it should perform the "evaluate" command
 		// after having passed the broker (i.e. usually on a remote machine)
 		this->at(i)->getPersonalityTraits()->setCommand("evaluate");
-
-		Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::submit(
-				this->at(i));
 	}
 
 	//--------------------------------------------------------------------------------
-	// We can now wait for the individuals to return from their journey.
-	std::size_t nReceivedCurrent = 0;
-	std::size_t nReceivedOlder = 0;
-	boost::shared_ptr < GParameterSet > p; // Will hold returned items
+	// Submit all work items and wait for their return
+	complete = Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::workOnSubmissionOnly(
+			data
+			, 0
+			, finalPos
+			, maxResubmissions_
+	);
 
-	// As we might be forced to resubmit individuals, we cannot clear our own vector
-	// but need to store returning items in its own vector.
-	std::vector < boost::shared_ptr<GParameterSet> > gps_vec;
-
-	// First wait for the first individual of the current iteration to arrive.
-	while (true) {
-		// Retrieve the item from the server. Note that this call
-		// may throw if a timeout for the first item has been set.
-		p
-				= Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveFirstItem<
-						GParameterSet>();
-
-		if (p->getAssignedIteration() == iteration) {
-			// Store the individual locally
-			gps_vec.push_back(p);
-
-			// Update the counter.
-			nReceivedCurrent++;
-
-			// Mark as complete, if all submitted individuals have returned
-			if (nReceivedCurrent == finalPos)
-				complete = true;
-
-			// Leave the loop
-			break;
-		} else {
-			// We just update the counter so we can do some statistics.
-			// Individuals from older iterations will simply be discarded,
-			// as they have no significance in a gradient descent
-			nReceivedOlder++;
-		}
-	}
-
-	// Wait for all submitted individuals to return. Unlike many other optimization algorithms,
-	// gradient descents cannot cope easily with missing responses. The only option is to resubmit
-	// items that didn't return before a given deadline.
-	resubmissions_ = 0; // Reset the number of re-submissions in this iteration
-	while (!complete) {
-		if (p = Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveItem<GParameterSet>()) { // Did we receive a valid item ?
-			if (p->getAssignedIteration() == iteration) {
-				// Check that the item hasn't already been received. This may happen if we have resubmitted
-				// items after a timeout, but the original item has returned after the timeout.
-				std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-				bool itemIsUnique = true;
-				for (it = gps_vec.begin(); it != gps_vec.end(); ++it) {
-					if ((*it)->getPersonalityTraits<GGDPersonalityTraits> ()->getPopulationPosition()
-							== p->getPersonalityTraits<GGDPersonalityTraits> ()->getPopulationPosition()) {
-						itemIsUnique = false;
-						break; // Leave the for-loop
-					}
-				}
-
-				// We can retrieve the next item (and discard this one) if the item is already present
-				if (itemIsUnique) {
-					// Store the individual locally
-					gps_vec.push_back(p);
-
-					// Update the counter.
-					nReceivedCurrent++;
-
-					// Mark as complete, if all submitted individuals have returned
-					if (nReceivedCurrent == finalPos) {
-						complete = true;
-						break; // Leave the while loop
-					}
-				}
-			} else {
-				// We just update the counter so we can do some statistics.
-				// Individuals from older iterations will simply be discarded,
-				// as they have no significance in a gradient descent
-				nReceivedOlder++;
-			}
-		} else { // We have encountered a time out. Check which items are missing and resubmit
-			// Have we exceeded the maximum number of re-submissions ? Throw!
-			if(resubmissions_ >= maxResubmissions_) {
-				raiseException(
-						"In GBrokerGD::doFitnessCalculation(const std::size_t&): Error!" << std::endl
-						<< "Reached the maximum number of resubmissions: " << resubmissions_ << " / " << maxResubmissions_ << std::endl
-						<< "Terminating ..." << std::endl
-				);
-			}
-
-			// Sort the vector according to the expected position in the population
-			std::sort(gps_vec.begin(), gps_vec.end(), indPositionComp());
-
-			// Create a list of missing items
-			std::vector < std::size_t > missingItems;
-			std::size_t gps_start_pos = 0;
-			for (std::size_t pos = 0; pos < finalPos; pos++) {
-				bool found = false;
-				for (std::size_t gps_pos = gps_start_pos; gps_pos
-						< gps_vec.size(); gps_pos++) {
-					if (gps_vec[gps_pos]->getPersonalityTraits<
-							GGDPersonalityTraits> ()->getPopulationPosition()
-							== pos) {
-						found = true;
-						gps_start_pos = gps_pos + 1; // We can start searching in the next position in the next iteration
-						break;
-					}
-				}
-
-				if (!found)
-					missingItems.push_back(pos);
-			}
-
-			// Make sure we do not immediately run into a timeout after re-submission
-			Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::prolongTimeout();
-
-			// Resubmit the corresponding individuals
-			for (std::size_t m = 0; m < missingItems.size(); m++) {
-				Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::submit(
-						this->at(missingItems[m]));
-			}
-
-			// Update the resubmission counter
-			resubmissions_++;
-		}
-	}
-
-#ifdef DEBUG
-	// Check that we are indeed complete
-	if(gps_vec.size() != this->size()) {
+	if(!complete) {
 		raiseException(
-				"In GBrokerGD::doFitnessCalculation():" << std::endl
-				<< "Found invalid size of retrieved item vector: " << gps_vec.size() << std::endl
-				<< "Should be " << this->size()
+				"In GBrokerGD::doFitnessCalculation(): Error!" << std::endl
+				<< "No complete set of items received after " << maxResubmissions_ << " resubmissions" << std::endl
 		);
 	}
-#endif /* DEBUG */
 
-	// Sort the vector according to the expected position in the population
-	std::sort(gps_vec.begin(), gps_vec.end(), indPositionComp());
-
-	// Transfer the individuals into our own collection
-	GBrokerGD::iterator it;
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator pit;
-	for (it = this->begin(), pit = gps_vec.begin(); it != this->end(); ++it, ++pit) {
-		(*it) = (*pit); // This will get rid of the old individuals
-	}
-	gps_vec.clear();
-
+	//--------------------------------------------------------------------------------
 	// Retrieve information about the best fitness found
 	double bestFitness = getWorstCase(); // Holds the best fitness found so far
 	double fitnessFound = 0.;

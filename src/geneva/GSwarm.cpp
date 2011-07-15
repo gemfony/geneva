@@ -499,52 +499,48 @@ std::size_t GSwarm::getLastNIPos(const std::size_t& neighborhood) const {
 /**
  * Updates the personal best of an individual
  *
- * @param p_outer A pointer to the GParameterSet object to be updated
- * @param p_inner A pointer to the GParameterSet object serving as the personal best
+ * @param p A pointer to the GParameterSet object to be updated
  */
 void GSwarm::updatePersonalBest(
-		boost::shared_ptr<GParameterSet> p_outer
-		, boost::shared_ptr<GParameterSet> p_inner
+		boost::shared_ptr<GParameterSet> p
 ) {
 #ifdef DEBUG
-	if(p_outer->isDirty() || p_inner->isDirty()) {
+	if(p->isDirty()) {
 		raiseException(
 				"In GSwarm::updatePersonalBest():" << std::endl
-				<< "p_inner and/or p_outer has dirty flag set:" << p_outer->isDirty() << " / " << p_inner->isDirty()
+				<< "p has its dirty flag set: " << p->isDirty() << std::endl
 		);
 	}
 #endif /* DEBUG */
 
-	p_outer->getPersonalityTraits<GSwarmPersonalityTraits>()->registerPersonalBest(p_inner);
+	p->getPersonalityTraits<GSwarmPersonalityTraits>()->registerPersonalBest(p);
 }
 
 /************************************************************************************************************/
 /**
  * Updates the personal best of an individual, if a better solution was found
  *
- * @param p_outer A pointer to the GParameterSet object to be updated
- * @param p_inner A pointer to the GParameterSet object serving as the personal best
+ * @param p A pointer to the GParameterSet object to be updated
  */
 void GSwarm::updatePersonalBestIfBetter(
-		boost::shared_ptr<GParameterSet> p_outer
-		, boost::shared_ptr<GParameterSet> p_inner
+		boost::shared_ptr<GParameterSet> p
 ) {
 #ifdef DEBUG
-	if(p_outer->isDirty() || p_inner->isDirty()) {
+	if(p->isDirty()) {
 		raiseException(
 				"In GSwarm::updatePersonalBestIfBetter():" << std::endl
-				<< "p_inner and/or p_outer has dirty flag set:" << p_outer->isDirty() << " / " << p_inner->isDirty()
+				<< "p has the dirty flag set:" << p->isDirty() << std::endl
 		);
 	}
 #endif /* DEBUG */
 
 	if(GOptimizationAlgorithmT<GParameterSet>::isBetter
 			(
-					p_inner->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBestQuality()
-					, p_outer->fitness(0)
+					p->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBestQuality()
+					, p->fitness(0)
 			)
 	) {
-		p_outer->getPersonalityTraits<GSwarmPersonalityTraits>()->registerPersonalBest(p_inner);
+		p->getPersonalityTraits<GSwarmPersonalityTraits>()->registerPersonalBest(p);
 	}
 }
 
@@ -649,10 +645,11 @@ void GSwarm::optimizationInit() {
  * @return The value of the best individual found
  */
 double GSwarm::cycleLogic() {
-	// Modifies the individuals' parameters, then triggers the fitness calculation of all individuals
-	// and identifies the personal, neighborhood and global bests. This function can be overloaded in
-	// derived classes, so that part of the modification and/or fitness calculation are performed in parallel.
-	swarmLogic();
+	// First update the positions
+	updatePositions();
+
+	// Now update each individual's fitness
+	updateFitness();
 
 	// Search for the personal, neighborhood and globally best individuals and
 	// update the lists of best solutions, if necessary
@@ -667,38 +664,30 @@ double GSwarm::cycleLogic() {
 
 /************************************************************************************************************/
 /**
- * Modifies the particle positions, then triggers fitness calculation for all individuals. This function can
- * be overloaded by derived classes so the fitness calculation can be performed in parallel.
+ * Triggers an update of all individual's positions
  */
-void GSwarm::swarmLogic() {
+void GSwarm::updatePositions() {
 	std::size_t offset = 0;
 	GSwarm::iterator start = this->begin();
 	boost::uint32_t iteration = getIteration();
 
+	// First update all positions
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
 #ifdef DEBUG
 		if(iteration > 0) {
 			if(!neighborhood_bests_[neighborhood]) {
 				raiseException(
-						"In GSwarm::swarmLogic():" << std::endl
+						"In GSwarm::updatePositions():" << std::endl
 						<< "neighborhood_bests_[" << neighborhood << "] is empty."
 				);
 			}
 
 			if(neighborhood==0 && !global_best_) { // Only check for the first neighborhood
 				raiseException(
-						"In GSwarm::swarmLogic():" << std::endl
+						"In GSwarm::updatePositions():" << std::endl
 						<< "global_best_ is empty."
 				);
 			}
-		}
-
-		if(nNeighborhoodMembers_[neighborhood] != defaultNNeighborhoodMembers_) {
-			raiseException(
-					"In GSwarm::swarmLogic():" << std::endl
-					<< "nNeighborhoodMembers_[" << neighborhood << "] should be " << defaultNNeighborhoodMembers_ << std::endl
-					<< "but has value " << nNeighborhoodMembers_[neighborhood] << " instead"
-			);
 		}
 #endif /* DEBUG */
 
@@ -717,13 +706,6 @@ void GSwarm::swarmLogic() {
 					, boost::make_tuple(getCPersonal(), getCNeighborhood(), getCGlobal(), getCVelocity())
 				);
 			}
-
-			// Update the fitness
-			updateIndividualFitness(
-				iteration
-				, neighborhood
-				, (*current)
-			);
 
 			offset++;
 		}
@@ -948,11 +930,13 @@ void GSwarm::updateIndividualFitness(
 	ind->fitness(0);
 	ind->setServerMode(originalServerMode);
 
-	// Update the personal best
+	// Update the personal best . This update is not performed in
+	// findBests() for performance reasons. This function can be
+	// executed in parallel in its own thread.
 	if(iteration == 0) {
-		updatePersonalBest(ind, ind);
+		updatePersonalBest(ind);
 	} else {
-		updatePersonalBestIfBetter(ind, ind);
+		updatePersonalBestIfBetter(ind);
 	}
 }
 
@@ -961,7 +945,25 @@ void GSwarm::updateIndividualFitness(
  * Updates the fitness of all individuals
  */
 void GSwarm::updateFitness() {
+	std::size_t offset = 0;
+	GSwarm::iterator start = this->begin();
+	boost::uint32_t iteration = getIteration();
 
+	// Then start the evaluation threads
+	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
+			GSwarm::iterator current = start + offset;
+
+			// Update the fitness
+			updateIndividualFitness(
+				iteration
+				, neighborhood
+				, (*current)
+			);
+
+			offset++;
+		}
+	}
 }
 
 /************************************************************************************************************/
@@ -988,11 +990,14 @@ double GSwarm::findBests() {
 	}
 #endif /* DEBUG */
 
+	// NOTE: The personal bests are updated in the updateIndividualFitness() function for performance
+	// reasons. This way, the update can happen in parallel when running in multi-threaded mode
+
 	// Sort all neighborhoods according to their fitness
-	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+	for(std::size_t n=0; n<nNeighborhoods_; n++) {
 		// identify the first and last id of the individuals in the current neighborhood
-		std::size_t firstCounter = getFirstNIPos(neighborhood);
-		std::size_t lastCounter = getLastNIPos(neighborhood);
+		std::size_t firstCounter = getFirstNIPos(n);
+		std::size_t lastCounter = getLastNIPos(n);
 
 		// Only partially sort the arrays
 		if(this->getMaxMode() == true){
@@ -1007,20 +1012,20 @@ double GSwarm::findBests() {
 		// Check whether the best individual of the neighborhood is better than
 		// the best individual found so far in this neighborhood
 		if(getIteration() == 0) {
-			neighborhood_bests_[neighborhood] = (*(this->begin() + firstCounter))->clone<GParameterSet>();
+			neighborhood_bests_[n] = (*(this->begin() + firstCounter))->clone<GParameterSet>();
 		}
 		else {
-			if(isBetter((*(this->begin() + firstCounter))->fitness(0), neighborhood_bests_[neighborhood]->fitness(0))) {
-				neighborhood_bests_[neighborhood]->load(*(this->begin() + firstCounter));
+			if(isBetter((*(this->begin() + firstCounter))->fitness(0), neighborhood_bests_[n]->fitness(0))) {
+				neighborhood_bests_[n]->load(*(this->begin() + firstCounter));
 			}
 		}
 	}
 
-	// Identify the best individuals of each neighborbood
-	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
-		if(isBetter(neighborhood_bests_[neighborhood]->fitness(0), bestCurrentLocalFitness)) {
-			bestCurrentLocalId = neighborhood;
-			bestCurrentLocalFitness = neighborhood_bests_[neighborhood]->fitness(0);
+	// Identify the best individuals among all neighborhood bests
+	for(std::size_t n=0; n<nNeighborhoods_; n++) {
+		if(isBetter(neighborhood_bests_[n]->fitness(0), bestCurrentLocalFitness)) {
+			bestCurrentLocalId = n;
+			bestCurrentLocalFitness = neighborhood_bests_[n]->fitness(0);
 		}
 	}
 
@@ -1040,54 +1045,11 @@ double GSwarm::findBests() {
 
 /************************************************************************************************************/
 /**
- * This function repairs the population by adding or removing missing or surplus items. It assumes that
- * the entries in each neighborhood are sorted by fitness. This function relies on the information found
- * in the nNeighborhoodMembers_ array, i.e. the current number of individuals in each neighborhood, as
- * well as the default number of individuals in each neighborhood. The function also assumes that the
- * neighborhoods have been sorted, so that the worst individuals can be found at the end of the range. It
- * will then remove the worst items only. Newly added items will start randomly initialized, as the optimization
- * procedure is already running and it makes sense to search new areas of the parameter space.
+ * This function repairs the population by adding or removing missing or surplus items. It is meant to be
+ * re-implemented by derived classes, such as GBrokerSwarm.
  */
-void GSwarm::adjustNeighborhoods() {
-	// Loop over all neighborhoods
-	for(std::size_t n=0; n<nNeighborhoods_; n++) {
-		// We need to remove surplus items
-		if(nNeighborhoodMembers_[n] > defaultNNeighborhoodMembers_) {
-			// Find out, how many surplus items there are
-			std::size_t nSurplus = nNeighborhoodMembers_[n] - defaultNNeighborhoodMembers_;
-
-			// Remove a corresponding amount of items from the position (n+1)*defaultNNeighborhoodMembers_
-			for(std::size_t i=0; i<nSurplus; i++) {
-				this->erase(this->begin() + (n+1)*defaultNNeighborhoodMembers_);
-			}
-		}
-		// Some items need to be added. Note that this implies cloning
-		// one of the existing individuals, and random initialization.
-		else if (nNeighborhoodMembers_[n] < defaultNNeighborhoodMembers_) {
-			// Find out, how many missing items there are
-			std::size_t nMissing = nNeighborhoodMembers_[n] - defaultNNeighborhoodMembers_;
-
-#ifdef DEBUG
-			// This number shouldn't equal the default number of entries
-			if(nMissing == defaultNNeighborhoodMembers_) {
-				raiseException(
-						"In GSwarm::adjustNeighborhoods():" << std::endl
-						<< "Found no entries in the neighborhood."
-				);
-			}
-#endif /* DEBUG */
-
-			// Insert items at the position n*defaultNNeighborhoodMembers_ (i.e. at the beginning of the range).
-			// We use the first item of the range as a template, then randomly initialize the data item.
-			this->insert(this->begin() + n*defaultNNeighborhoodMembers_, (*(this->begin() + n*defaultNNeighborhoodMembers_))->clone<GParameterSet>());
-			(*(this->begin() + n*defaultNNeighborhoodMembers_))->randomInit();
-			(*(this->begin() + n*defaultNNeighborhoodMembers_))->getPersonalityTraits<GSwarmPersonalityTraits>()->setNoPositionUpdate();
-		}
-
-		// Update the number of entries in this neighborhood
-		nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
-	}
-}
+void GSwarm::adjustNeighborhoods()
+{ /* nothing */ }
 
 /************************************************************************************************************/
 /**
@@ -1216,19 +1178,6 @@ void GSwarm::fillUpNeighborhood1() {
 		// Update the number of individuals in each neighborhood
 		nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
 	}
-}
-
-/************************************************************************************************************/
-/**
- * Checks whether each neighborhood has at least the default size
- *
- * @return A boolean which indicates whether all neighborhoods have at least the default size
- */
-bool GSwarm::neighborhoodsHaveNominalValues() const {
-	for(std::size_t n=0; n<nNeighborhoods_; n++) {
-		if(nNeighborhoodMembers_[n] < defaultNNeighborhoodMembers_) return false;
-	}
-	return true;
 }
 
 /************************************************************************************************************/

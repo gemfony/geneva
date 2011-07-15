@@ -35,6 +35,8 @@ The main changes for this release include:
    ranges from GParameterBase-derivatives
  - Moved the GBrokerConnector to the courtier library, making it a template class and
    thus independent of the optimization code
+ - Moving a lot of the Broker-Populations functionality into the GBrokerConnector,
+   thus making it more generic and the population classes easier to understand
  - Adapted to Boost 1.47
 
 //------------------------------------------------------------------------------------------------------

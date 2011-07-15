@@ -271,8 +271,6 @@ protected:
 	/** @brief Saves the state of the class to disc. */
 	virtual void saveCheckpoint() const;
 
-	/** @brief Updates the positions and/or fitness of all individuals */
-	virtual void swarmLogic();
 	/** @brief Updates the best individuals found */
 	virtual double findBests();
 	/** @brief Adjusts each neighborhood so it has the correct size */
@@ -285,7 +283,7 @@ protected:
 	/** @brief Helper function that returns the id of the last individual of a neighborhood */
 	std::size_t getLastNIPos(const std::size_t&) const;
 
-	/** @brief Triggers an update of the individuals' positions */
+	/** @brief Triggers an update of an individual's positions */
 	void updateIndividualPositions(
 		  const std::size_t&
 		  , boost::shared_ptr<GParameterSet>
@@ -294,6 +292,9 @@ protected:
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::tuple<double, double, double, double>
 	);
+
+	/** @brief Triggers an update of all individual's positions */
+	virtual void updatePositions();
 
 	/** @brief Triggers the fitness calculation */
 	virtual void updateIndividualFitness(
@@ -304,10 +305,6 @@ protected:
 
 	/** @brief Updates the fitness of all individuals */
 	virtual void updateFitness();
-
-    /** @brief Checks whether each neighborhood has at least the default size */
-    bool neighborhoodsHaveNominalValues() const;
-
     /** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
     void pruneVelocity(std::vector<double>&);
 
@@ -337,9 +334,9 @@ protected:
 	GSwarm();
 
 	/** Updates the personal best of an individual */
-	void updatePersonalBest(boost::shared_ptr<GParameterSet>, boost::shared_ptr<GParameterSet>);
+	void updatePersonalBest(boost::shared_ptr<GParameterSet>);
 	/** Updates the personal best of an individual, if a better solution was found */
-	void updatePersonalBestIfBetter(boost::shared_ptr<GParameterSet>, boost::shared_ptr<GParameterSet>);
+	void updatePersonalBestIfBetter(boost::shared_ptr<GParameterSet>);
 
 private:
 	/**************************************************************************************************/

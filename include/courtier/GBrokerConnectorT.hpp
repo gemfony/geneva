@@ -74,6 +74,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GPODExpectationChecksT.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
@@ -121,17 +122,20 @@ public:
      * The default constructor
      */
     GBrokerConnectorT()
-        : iteration_(0)
-        , waitFactor_(DEFAULTBROKERWAITFACTOR)
+        : waitFactor_(DEFAULTBROKERWAITFACTOR)
 		, minWaitFactor_(DEFAULTMINBROKERWAITFACTOR)
 		, maxWaitFactor_(DEFAULTMAXBROKERWAITFACTOR)
 		, waitFactorIncrement_(DEFAULTBROKERWAITFACTORINCREMENT)
     	, boundlessWait_(false)
         , allItemsReturned_(true)
     	, percentOfTimeoutNeeded_(0.)
+    	, submission_counter_(0)
         , firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTBROKERFIRSTTIMEOUT))
         , doLogging_(false)
-    { /* nothing */ }
+    	, CurrentBufferPort_(new Gem::Courtier::GBufferPortT<boost::shared_ptr<T> >())
+    {
+    	GBROKER(T)->enrol(CurrentBufferPort_);
+    }
 
     /**********************************************************************************/
     /**
@@ -140,17 +144,20 @@ public:
      * @param cp A copy of another GBrokerConnector object
      */
     GBrokerConnectorT(const GBrokerConnectorT<T>& cp)
-    	: iteration_(cp.iteration_)
-    	, waitFactor_(cp.waitFactor_)
+    	: waitFactor_(cp.waitFactor_)
 		, minWaitFactor_(cp.minWaitFactor_)
 		, maxWaitFactor_(cp.maxWaitFactor_)
 		, waitFactorIncrement_(cp.waitFactorIncrement_)
     	, boundlessWait_(cp.boundlessWait_)
     	, allItemsReturned_(true)
 		, percentOfTimeoutNeeded_(0.)
+    	, submission_counter_(0) // start new
     	, firstTimeOut_(cp.firstTimeOut_)
     	, doLogging_(cp.doLogging_)
-    { /* nothing */ }
+    	, CurrentBufferPort_(new Gem::Courtier::GBufferPortT<boost::shared_ptr<T> >())
+    {
+    	GBROKER(T)->enrol(CurrentBufferPort_);
+    }
 
     /**********************************************************************************/
     /**
@@ -158,7 +165,9 @@ public:
      * this function is empty.
      */
     virtual ~GBrokerConnectorT()
-    { /* nothing */}
+    {
+    	CurrentBufferPort_.reset();
+    }
 
     /**********************************************************************************/
     /**
@@ -179,7 +188,6 @@ public:
      * @param cp A constant pointer to another GBrokerConnector object
      */
     void load(GBrokerConnectorT<T> const * const cp) {
-    	iteration_ = cp->iteration_;
     	waitFactor_ = cp->waitFactor_;
 		minWaitFactor_ = cp->minWaitFactor_;
 		maxWaitFactor_ = cp->maxWaitFactor_;
@@ -187,6 +195,7 @@ public:
 		boundlessWait_ = cp->boundlessWait_;
     	allItemsReturned_ = cp->allItemsReturned_;
 		percentOfTimeoutNeeded_ = cp->percentOfTimeoutNeeded_;
+		// We do not copy the submission_counter_
     	firstTimeOut_ = cp->firstTimeOut_;
     	doLogging_ = cp->doLogging_;
     }
@@ -244,7 +253,6 @@ public:
         std::vector<boost::optional<std::string> > deviations;
 
     	// Check the local local data
-        deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", iteration_, cp.iteration_, "iteration_", "cp.iteration_", e , limit));
     	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", waitFactor_, cp.waitFactor_, "waitFactor_", "cp.waitFactor_", e , limit));
     	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", minWaitFactor_, cp.minWaitFactor_, "minWaitFactor_", "cp.minWaitFactor_", e , limit));
     	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", maxWaitFactor_, cp.maxWaitFactor_, "maxWaitFactor_", "cp.maxWaitFactor_", e , limit));
@@ -323,7 +331,7 @@ public:
     /**********************************************************************************/
     /**
      * Allows to specify whether logging of arrival times of processed items should be
-     * done. Note that only arrival times of items of the current iteration are logged.
+     * done. Note that only arrival times of items of the current submission are logged.
      * This also allows to find out how many items did not return before the deadline.
      *
      * @param dl A boolean whether logging of arrival times of items should be done
@@ -388,53 +396,18 @@ public:
 
     /**********************************************************************************/
     /**
-     * Allows to retrieve the iteration currently being worked on
-     *
-     * @return The iteration currently being worked on
-     */
-    std::size_t getAssignedIteration() const {
-    	return iteration_;
-    }
-
-    /**********************************************************************************/
-    /**
-     * Performs necessary initialization work after a new compute run. In particular it
-     * creates a buffer port and registers it with the broker, so communication with
-     * external consumers can occur.
-     */
-    void init() {
-    	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<boost::shared_ptr<T> >());
-    	GBROKER(T)->enrol(CurrentBufferPort_);
-    }
-
-    /**********************************************************************************/
-    /**
-     * Performs necessary finalization work after an optimization run
-     */
-    void finalize() {
-    	// Remove the GBufferPortT object. The broker only holds shared_ptr's to the
-    	// two objects contained therein, which are not invalidated, but become unique.
-    	// This is a selection criterion which lets the broker remove surplus buffer
-    	// twins.
-    	CurrentBufferPort_.reset();
-    }
-
-    /**********************************************************************************/
-    /**
-     * Allows to perform any work necessary to be repeated in each new iteration. In
+     * Allows to perform any work necessary to be repeated for each new submission. In
      * particular, this function adjusts the waitFactor_ variable, so that it fits
      * the current load pattern of the computing resources behind the broker.
-     *
-     * @param iteration The new iteration being worked on
  	 */
-    void markNewIteration(const boost::uint32_t& iteration) {
-    	// If logging is enabled, add a std::vector<boost::uint32_t> for the current iteration to arrivalTimes_
+    void markNewSubmission() {
+    	// If logging is enabled, add a std::vector<boost::uint32_t> for the current submission to arrivalTimes_
     	if(doLogging_) arrivalTimes_.push_back(std::vector<boost::uint32_t>());
 
     	// Adapting the wait factor only makes sense if we haven't been ordered to wait endlessly anyway
-    	if(!boundlessWait_) {
+    	if(!boundlessWait_ && submission_counter_ > 0) {
 			// Increment or decrement the waitFactor_ variable, based on the current load of the system
-			// Over the course of a few iterations, waitFactor_ should adjust itself into the correct range
+			// Over the course of a few submission, waitFactor_ should adjust itself into the correct range
 			if(!allItemsReturned_) {
 				if(waitFactor_ < maxWaitFactor_) {
 					waitFactor_ += waitFactorIncrement_;
@@ -460,9 +433,6 @@ public:
     	// will return before the timeout in the next iteration
 		allItemsReturned_ = true;
 
-		// Register the new iteration id
-		iteration_ = iteration;
-
     	// Set the start time of the new iteration so we calculate a correct
     	// Return time for the first individual, regardless of whether older
     	// individuals have returned first.
@@ -485,30 +455,39 @@ public:
      * the items contained in the workItems vector may have been changed. Note that
      * it is not guaranteed by this function that all submitted items are still contained
      * in the vector after the call. It is also possible that returned items do not
-     * belong to the current iteration. You will thus have to post-process the vector.
+     * belong to the current submission cycle. You will thus have to post-process the vector.
      * Note that it is impossible to submit items that are not derived from T.
      *
      * @param workItems A vector with work items to be evaluated beyond the broker
      * @param start The id of first item to be worked on in the vector
      * @param end The id beyond the last item to be worked on in the vector
      * @param acceptOlderItems A boolean indicating whether older items should be accepted
-     * @param updateIteration A boolean indicating whether the iteration of older items should be updated
+     * @return A boolean indicating whether all expected items have returned
      */
     template <typename work_item>
-    void workOn(
+    bool workOn(
     	std::vector<boost::shared_ptr<work_item> >& workItems
     	, const std::size_t& start
     	, const std::size_t& end
     	, const bool& acceptOlderItems = true
-    	, const bool& updateIteration = true
     	, typename boost::enable_if<boost::is_base_of<T, work_item> >::type* dummy = 0
     ) {
     	std::size_t expectedNumber = end - start; // The expected number of work items from the current iteration
     	std::size_t nReceivedCurrent = 0; // The number of items of this iteration received so far
     	std::size_t nReceivedOlder = 0; // The number of items from older iterations received so far
 
+    	// Signal a new job submission
+    	markNewSubmission();
+
 #ifdef DEBUG
     	// Do some error checking
+    	if(workItems.empty()) {
+    		raiseException(
+    				"In GBrokerConnectorT<T>::workOn(): Error!" << std::endl
+    				<< "workItems_ vector is empty." << std::endl
+    		);
+    	}
+
     	if(end <= start) {
     		raiseException(
     				"In GBrokerConnectorT<T>::workOn(): Error!" << std::endl
@@ -526,9 +505,11 @@ public:
 
     	//-------------------------------------------------------------------------------
     	// First submit all items
-
     	typename std::vector<boost::shared_ptr<work_item> >::iterator it;
+    	POSITIONTYPE pos_cnt = start;
     	for(it=workItems.begin()+start; it!=workItems.begin()+end; ++it) {
+    		(*it)->setCourtierId(std::make_pair<SUBMISSIONCOUNTERTYPE, POSITIONTYPE>(submission_counter_, pos_cnt));
+    		pos_cnt++;
     		this->submit(*it);
     	}
 
@@ -536,7 +517,7 @@ public:
     	workItems.erase(workItems.begin()+start, workItems.begin()+end);
 
     	//-------------------------------------------------------------------------------
-    	// Now wait for item of the current iteration to return from its journey
+    	// Now wait for the first item of the current iteration to return from its journey
 
     	boost::shared_ptr<work_item> p; // Will hold returned items
 
@@ -549,20 +530,14 @@ public:
 
     		// If it is from the current iteration, break the loop, otherwise continue,
 			// until the first item of the current iteration has been received.
-    		if(p->getAssignedIteration() == iteration_) {
+    		if(submission_counter_ == (p->getCourtierId()).first) {
     			// Add the item to the workItems vector at the start of the range
     			workItems.insert(workItems.begin()+start, p);
-
     			// Update the counter
     			nReceivedCurrent++;
     			break;
     		} else {
     			if(acceptOlderItems) {
-    				// Update the iteration if requested by the user
-    				if(updateIteration) {
-    					p->setAssignedIteration(iteration_);
-    				}
-
     				// Add the item to the workItems vector at the start of the range
     				workItems.insert(workItems.begin()+start, p);
     			} else {
@@ -574,25 +549,161 @@ public:
     		}
     	}
 
-    	// retrieveItem will return an empty pointer, if a timeout has been reached
+    	// Now wait for further arrivals for a predefined amount of time.
+    	// retrieveItem will return an empty pointer, if the timeout has been reached
     	while(nReceivedCurrent!=expectedNumber && (p=retrieveItem<work_item>())) {
 			// Update the counters and insert items
-    		if(p->getAssignedIteration() == iteration_) {
+    		if(submission_counter_ == (p->getCourtierId()).first) {
     			// Add the item to the workItems vector at the start of the range
     			workItems.insert(workItems.begin()+start, p);
+    			// Update the counter
     			nReceivedCurrent++;
     		} else {
     			if(acceptOlderItems) {
-    				// Update the iteration if requested by the user
-    				if(updateIteration) {
-    					p->setAssignedIteration(iteration_);
-    				}
-
     				// Add the item to the workItems vector at the start of the range
     				workItems.insert(workItems.begin()+start, p);
     			} else {
     				p.reset();
     			}
+
+    			// Update the counter
+    			nReceivedOlder++;
+    		}
+    	}
+
+    	// Determine whether we have received a complete set of work items
+    	bool complete = false;
+    	if(nReceivedCurrent == expectedNumber) {
+    		complete = true;
+    	}
+
+    	//-------------------------------------------------------------------------------
+    	// Emit some information in DEBUG mode
+#if DEBUG
+    	if(!complete) {
+    		std::ostringstream information;
+    		information
+    				<< std::endl
+    				<< "Incomplete sumission " << submission_counter_ << ":" << std::endl
+    				<< "nReceivedCurrent = " << nReceivedCurrent << std::endl
+    				<< "expectedNumber   = " << expectedNumber << std::endl
+    				<< "nReivedOlder     = " << nReceivedOlder << std::endl;
+    		std::cout << information.str();
+    	}
+#endif /* DEBUG */
+
+    	// Update the submission counter
+    	submission_counter_++;
+
+    	return complete;
+    }
+
+    /**********************************************************************************/
+    /**
+     * Submits and retrieves a set of work items. If some items didn't return inside
+     * of the allowed time frame, the function will resubmit them up to a configurable
+     * number of times. Items from older iterations will be discarded. After the work
+     * has been performed, the items contained in the workItems vector may have been
+     * changed. The workItems vector will remain unchanged if we didn't receive all items
+     * back. Note that it is impossible to submit items that are not derived from T.
+     *
+     * @param workItems A vector with work items to be evaluated beyond the broker
+     * @param start The id of first item to be worked on in the vector
+     * @param end The id beyond the last item to be worked on in the vector
+     * @param maxResubmissions The maximum allowed number of re-submissions of missing items
+     * @return A boolean indicating whether all expected items have returned
+     */
+    template <typename work_item>
+    bool workOnSubmissionOnly(
+		std::vector<boost::shared_ptr<work_item> >& workItems
+		, const std::size_t& start
+		, const std::size_t& end
+		, const std::size_t& maxResubmissions
+		, typename boost::enable_if<boost::is_base_of<T, work_item> >::type* dummy = 0
+    ) {
+    	std::size_t expectedNumber = end - start; // The expected number of work items from the current iteration
+    	std::size_t nReceivedCurrent = 0; // The number of items of this iteration received so far
+    	std::size_t nReceivedOlder = 0; // The number of items from older iterations received so far
+
+    	std::vector<boost::shared_ptr<work_item> > returnedItems; // Holds work items that have returned from processing
+
+    	// Signal a new submission
+    	markNewSubmission();
+
+#ifdef DEBUG
+    	// Do some error checking
+    	if(workItems.empty()) {
+    		raiseException(
+    				"In GBrokerConnectorT<T>::workOnSameIteration(): Error!" << std::endl
+    				<< "workItems_ vector is empty." << std::endl
+    		);
+    	}
+
+    	if(end <= start) {
+    		raiseException(
+    				"In GBrokerConnectorT<T>::workOnSameIteration(): Error!" << std::endl
+    				<< "Invalid start or end-values: " << start << " / " << end << std::endl
+    		);
+    	}
+
+    	if(end > workItems.size()) {
+    		raiseException(
+    				"In GBrokerConnectorT<T>::workOnSameIteration(): Error!" << std::endl
+    				<< "Last id " << end << " exceeds size of vector " << workItems.size() << std::endl
+    		);
+    	}
+#endif /* DEBUG*/
+
+    	//-------------------------------------------------------------------------------
+    	// First submit all items
+    	typename std::vector<boost::shared_ptr<work_item> >::iterator it;
+    	POSITIONTYPE pos_cnt = start;
+    	for(it=workItems.begin()+start; it!=workItems.begin()+end; ++it) {
+    		(*it)->setCourtierId(std::make_pair<SUBMISSIONCOUNTERTYPE,POSITIONTYPE>(submission_counter_, pos_cnt));
+    		pos_cnt++;
+    		this->submit(*it);
+    	}
+
+    	// Create a vector of size workItems.size() with flags indicating whether
+    	// items have returned or whether this is a position that has never been submitted
+    	std::vector<std::size_t> returnedItemPos(workItems.size());
+    	// Initialize with 2s
+    	Gem::Common::assignVecConst(returnedItemPos, std::size_t(2));
+    	// Initialize positions of items that have been submitted with 0s
+    	for(std::size_t i=0; i<expectedNumber; i++) {
+    		returnedItemPos[start+i] = std::size_t(0);
+    	}
+
+       	//-------------------------------------------------------------------------------
+    	// Now wait for the first item of the current iteration to return from its journey
+
+    	boost::shared_ptr<work_item> p; // Will hold returned items
+       	bool complete = false; // Indicates whether we have received all items back
+    	// First wait for the first work item of the current iteration to return.
+    	// Items from older iterations will also be accepted in this loop. Their
+    	// arrival will not terminate this loop, though.
+    	while(true) {
+    		// Note: the following call will throw if a timeout has been reached.
+    		p = retrieveFirstItem<work_item>();
+
+    		// If it is from the current iteration, break the loop, otherwise continue,
+    		// until the first item of the current iteration has been received.
+    		if(submission_counter_ == (p->getCourtierId()).first) {
+    			// Make a note about this items return in the returnedItemPos vector
+    			returnedItemPos[(p->getCourtierId()).second] = 1;
+
+    			// Add the item to the list of returned objects
+    			returnedItems.push_back(p);
+
+    			// Update the counter and check whether we have received all items back
+    			if(expectedNumber == ++nReceivedCurrent) {
+    				complete = true;
+    			}
+
+    			break;
+    		} else {
+    			// Reject items from previous iterations
+    			p.reset();
 
     			// Update the counter
     			nReceivedOlder++;
@@ -600,19 +711,85 @@ public:
     	}
 
     	//-------------------------------------------------------------------------------
-    	// Emit some information in DEBUG mode
-#if DEBUG
-    	if(nReceivedCurrent != expectedNumber) {
-    		std::ostringstream information;
-    		information
-    				<< std::endl
-    				<< "In iteration " << iteration_ << ":" << std::endl
-    				<< "nReceivedCurrent = " << nReceivedCurrent << std::endl
-    				<< "expectedNumber   = " << expectedNumber << std::endl
-    				<< "nReivedOlder     = " << nReceivedOlder << std::endl;
-    		std::cout << information.str();
+    	// Wait for further arrivals. Resubmit items, when we run into a timeout
+    	std::size_t retry_counter = 0;
+    	while(!complete && retry_counter++ < maxResubmissions) {
+    		if (p = retrieveItem<work_item>()) { // Did we receive a valid item ?
+    			// Check whether the received item hasn't been added already or comes from an older submission
+    			if(1 == returnedItemPos[(p->getCourtierId()).second] || submission_counter_ != (p->getCourtierId()).first) {
+    				p.reset();
+    			} else {
+        			// Make a note about this items return in the returnedItemPos vector
+        			returnedItemPos[(p->getCourtierId()).second] = 1;
+
+        			// Add the item to the list of returned objects
+        			returnedItems.push_back(p);
+
+
+        			// Update the counter and check whether we have received all items back
+        			if(expectedNumber == ++nReceivedCurrent) {
+        				complete = true;
+        			}
+    			}
+
+    		} else { // O.k., so we ran into a timeout
+    			// Resubmit all items which have not been marked as "returned"
+    			for(std::size_t i=0; i<returnedItemPos.size(); i++) {
+    				if(0 == returnedItemPos[i]) {
+    					this->submit(workItems[i]);
+    				}
+    			}
+
+    			// Make sure we do not immediately run into a timeout
+    			prolongTimeout();
+
+    			// Make it known that we have done a re-submission
+    			retry_counter++;
+    		}
     	}
+
+    	// Sort received items according to their position
+    	if(complete) {
+#ifdef DEBUG
+    		if(returnedItems.size() != expectedNumber) {
+    			raiseException(
+    					"In workOnSubmissionOnly(): Error!" << std::endl
+    					<< "Expected " << expectedNumber << " items to have returned" << std::endl
+    					<< "but received " << returnedItems.size() << std::endl
+    			);
+    		}
+
+    		for(std::size_t i=0; i<returnedItems.size(); i++) {
+    			if((returnedItems[i]->getCourtierId()).second != start+i){
+    				raiseException(
+    						"In workOnSubmissionOnly(): Error!" << std::endl
+							<< "Expected item with position id " << (returnedItems[i]->getCourtierId()).second << std::endl
+							<< "to have id " << start+i << " instead." << std::endl
+    				);
+    			}
+    		}
 #endif /* DEBUG */
+
+    		std::sort(returnedItems.begin(), returnedItems.end(), courtierPosComp<work_item>());
+
+
+        	// Insert returned items back into the workItems vector. As this only
+    		// happens when all items have been received back, the workItems vector
+    		// will remain untouched in case of a problem.
+        	for(std::size_t i=0; i<returnedItems.size(); i++) {
+        		workItems[start+i] = returnedItems[i];
+        	}
+    	}
+
+    	// Get rid of the returnItems items
+    	returnedItems.clear();
+
+    	// Update the submission counter
+    	submission_counter_++;
+
+    	// Let the audience know whether we were able to retrieve all items back
+    	// with the number of allowed re-submissions
+    	return complete;
     }
 
     /**********************************************************************************/
@@ -779,7 +956,7 @@ public:
 
 				// Make a note of the current percentage of the maximum timeout (needed for the waitFactor calculation).
 				// This variable will be updated for every call to retrieveItem<>. When the start of a new iteration is
-				// signaled by "markNewIteration()", it will hold the latest percentage.
+				// signaled by "markNewSubmission()", it will hold the latest percentage.
 				percentOfTimeoutNeeded_ = double(currentElapsed.total_microseconds()) / double(maxAllowedElapsed_.total_microseconds());
 #ifdef DEBUG
 				if(percentOfTimeoutNeeded_ > 1. || percentOfTimeoutNeeded_ < 0) {
@@ -842,7 +1019,7 @@ public:
 
 				// Make a note of the current percentage of the maximum timeout (needed for the waitFactor calculation).
 				// This variable will be updated for every call to retrieveItem<>. When the start of a new iteration is
-				// signaled by "markNewIteration()", it will hold the latest percentage.
+				// signaled by "markNewSubmission()", it will hold the latest percentage.
 				percentOfTimeoutNeeded_ = double(currentElapsed.total_microseconds()) / double(maxAllowedElapsed_.total_microseconds());
 #ifdef DEBUG
 				if(percentOfTimeoutNeeded_ > 1. || percentOfTimeoutNeeded_ < 0) {
@@ -882,9 +1059,21 @@ public:
 #endif /* DEBUG */
 	}
 
-    /**********************************************************************************/
 private:
-	boost::uint32_t iteration_; ///< Records the iteration currently being worked on
+    /*********************************************************************************/
+    /**
+     * A simple comparison operator that helps to sort individuals according to their
+     * position in the population. Smaller position numbers will end up in front.
+     */
+	template <typename work_item>
+    struct courtierPosComp {
+    	bool operator()(boost::shared_ptr<work_item> x, boost::shared_ptr<work_item> y) {
+    		return (x->getCourtierId()).second < (y->getCourtierId()).second;
+    	}
+    };
+
+    /**********************************************************************************/
+
 	double waitFactor_; ///< Affects the timeout for returning individuals
 	double minWaitFactor_; ///< The minimum allowed wait factor
 	double maxWaitFactor_; ///< The maximum allowed wait factor
@@ -893,6 +1082,8 @@ private:
 
 	bool allItemsReturned_; ///< Indicates whether all items have returned before the timeout
 	double percentOfTimeoutNeeded_; ///< Makes a note what percentage of the maximum timeout was needed in one iteration
+
+	SUBMISSIONCOUNTERTYPE submission_counter_; ///< Counts the number of submissions initiated by this object. NOTE: not serialized!
 
     boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
     boost::posix_time::ptime iterationStartTime_; ///< Temporary that holds the start time for the retrieval of items in a given iteration

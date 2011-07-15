@@ -168,20 +168,9 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
 	deviations.push_back(GSwarm::checkRelationshipWith(cp, e, limit, "GBrokerSwarm", y_name, withMessages));
 	deviations.push_back(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerSwarm", y_name, withMessages));
 
-	// no local data ...
+	// local variables only represent temporary values needed inside of a single iteration. No checks are done on these values
+
 	return evaluateDiscrepancies("GBrokerSwarm", caller, deviations, e);
-}
-
-/************************************************************************************************************/
-/**
- * Update the iteration counters
- */
-void GBrokerSwarm::markIteration() {
-	// Execute the parent classes markIteration() call
-	GSwarm::markIteration();
-
-	// Let the GBrokerConnectorT know that we are starting a new iteration
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::markNewIteration(this->getIteration());
 }
 
 /************************************************************************************************************/
@@ -191,9 +180,6 @@ void GBrokerSwarm::markIteration() {
 void GBrokerSwarm::init() {
 	// GSwarm sees exactly the environment it would when called from its own class
 	GSwarm::init();
-
-	// Connect to the broker
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -227,271 +213,212 @@ void GBrokerSwarm::finalize() {
 	}
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
-	// Invalidate our local broker connection
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::finalize();
-
 	// GSwarm sees exactly the environment it would when called from its own class
 	GSwarm::finalize();
 }
 
 /************************************************************************************************************/
 /**
- * Triggers the fitness calculation of a GParameterSet-derivative, using Geneva's broker infrastructure.
- *
- * @param neighborhood The neighborhood the individual is in
- * @param ind The individual for which the fitness calculation should be performed
+ * Creates a copy of the last iteration's individuals, if iteration > 0, then performs the standard position
+ * update using GSwam::updatePositions(). We use the old individuals to fill in missing returns in
+ * adjustNeighborhoods. This doesn't make sense for iteration 0 though, as individuals have not generally
+ * been evaluated then, and we do not want to fill up with "dirty" individuals.
  */
-void GBrokerSwarm::updateIndividualFitness(
-		const boost::uint32_t& iteration
-		, const std::size_t& neighborhood
-		, boost::shared_ptr<GParameterSet> ind
-) {
-	// Let the individual know in which neighborhood it is
-	ind->getPersonalityTraits<GSwarmPersonalityTraits>()->setNeighborhood(neighborhood);
+void GBrokerSwarm::updatePositions() {
+#ifdef DEBUG
+	// Check that all neighborhoods have the default size
+	for(std::size_t n=0; n<nNeighborhoods_; n++) {
+		if(nNeighborhoodMembers_[n] != defaultNNeighborhoodMembers_) {
+			raiseException(
+					"In GBrokerSwarm::updatePositions(): Error!" << std::endl
+					<< "nNeighborhoodMembers_[" << n << "] has invalid size " << nNeighborhoodMembers_[n] << std::endl
+					<< "but expected size " << defaultNNeighborhoodMembers_ << std::endl
+			);
+		}
 
-	// Let the individual know that it should perform the "evaluate" command
-	// after having passed the broker (i.e. usually on a remote machine)
-	ind->getPersonalityTraits()->setCommand("evaluate");
+		if(this->size() != nNeighborhoods_*defaultNNeighborhoodMembers_) {
+			raiseException(
+					"In GBrokerSwarm::updatePositions(): Error!" << std::endl
+					<< "The population has an incorrect size of " << this->size() << ", expected " << nNeighborhoods_*defaultNNeighborhoodMembers_ << std::endl
+			);
+		}
+	}
+#endif
 
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::submit(ind);
+	oldIndividuals_.clear();
+	if(getIteration() > 0) {
+		GBrokerSwarm::iterator it;
+
+		// Clone the individuals and copy them over
+		for(it=this->begin(); it!=this->end(); ++it) {
+			oldIndividuals_.push_back((*it)->clone<GParameterSet>());
+		}
+	}
+
+	GSwarm::updatePositions();
 }
 
 /************************************************************************************************************/
 /**
- * Makes individuals aware of the current iteration and integrates them into the population.
- * The return value can be used to break the loop, if the individual is the first one to
- * return in an iteration.
- *
- * @param p The individual that should be integrated into the population
- * @param nReceivedCurrent This variable will be incremented if the individual is part of the current iteration
- * @param nReceivedOlder This variable will be incremented if the individual is part of an older iteration
- * @return A boolean which indicates whether the individual is part of the current iteration
+ * Triggers the fitness calculation of all individuals
  */
-bool GBrokerSwarm::updateIndividualsAndIntegrate(
-		boost::shared_ptr<GParameterSet> p
-	  , std::size_t& nReceivedCurrent
-	  , std::size_t& nReceivedOlder
-	  , const boost::uint32_t& iteration
-) {
-	// Update the personal best
-	if(iteration == 0) {
-		updatePersonalBest(p, p);
-	} else {
-		updatePersonalBestIfBetter(p, p);
-	}
+void GBrokerSwarm::updateFitness() {
+	using namespace Gem::Courtier;
 
-	if(p->getAssignedIteration() == iteration) {
-		// Add the individual to our list.
-		this->push_back(p);
-
-		// Update the counter.
-		nReceivedCurrent++;
-
-		return true;
-	} else {
-		// Make it known to the individual that it is now part of a new iteration
-		p->setAssignedIteration(iteration);
-
-		// Add to the population. This will effectively increase the last neighborhood
-		this->push_back(p);
-
-		// Update the counter
-		nReceivedOlder++;
-
-		return false;
-	}
-}
-
-/************************************************************************************************************/
-/**
- * Modifies the particle positions, then triggers fitness calculation for all individuals. This function
- * submits individuals to Geneva's broker infrastructure and then integrates evaluated items, when they
- * come back.
- */
-void GBrokerSwarm::swarmLogic() {
 	boost::uint32_t iteration = getIteration();
 	GBrokerSwarm::iterator it;
-	std::vector<std::size_t> nNeighborhoodMembersCp;
 
 	//--------------------------------------------------------------------------------
-	// Create a copy of the last iteration's individuals and the number of individuals
-	// in each neighborhood, if iteration > 0 . We use this to fill in missing returns.
-	// This doesn't make sense for iteration 0 though, as individuals have not generally
-	// been evaluated then, and we do not want to fill up with "dirty" individuals.
-	std::vector<boost::shared_ptr<GParameterSet> > oldIndividuals;
-	if(iteration > 0) {
-		// Copy the individuals over
-		for(it=this->begin(); it!=this->end(); ++it) {
-			oldIndividuals.push_back((*it)->clone<GParameterSet>());
+	// Let all individual know that they should perform the "evaluate" command
+	// after having passed the broker (i.e. usually on a remote machine)
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)->getPersonalityTraits()->setCommand("evaluate");
+	}
+
+	//--------------------------------------------------------------------------------
+	// Now submit work items and wait for results
+	GBrokerConnectorT<GIndividual>::workOn(
+			data
+			, 0
+			, data.size()
+			, ACCEPTOLDERITEMS
+	);
+
+	// Update the personal best of all individuals. Also update the iteration
+	// of older individuals (they will keep their old neighborhood id)
+	for(it=this->begin(); it!=this->end(); ++it) {
+		// Update the personal best
+		if(iteration == 0) {
+			updatePersonalBest(*it);
+		} else {
+			updatePersonalBestIfBetter(*it);
 		}
 
-		// Store the current amount of individuals in each neighborhood
-		nNeighborhoodMembersCp = nNeighborhoodMembers_;
-	}
-
-	//--------------------------------------------------------------------------------
-	// This function will call the overloaded GBrokerSwarm::updateIndividualFitness() function,
-	// so that all individuals are submitted to the broker. Position updates will be
-	// applied locally in the server.
-	GSwarm::swarmLogic();
-
-	//--------------------------------------------------------------------------------
-	// We can now clear the local data vector. Individuals will be added to it as
-	// they return from their journey.
-	this->clear();
-
-	//--------------------------------------------------------------------------------
-	// We can now wait for the individuals to return from their journey.
-	std::size_t nReceivedCurrent = 0;
-	std::size_t nReceivedOlder   = 0;
-
-	// Will hold returned items
-	boost::shared_ptr<GParameterSet> p;
-
-	// First wait for the first individual of the current iteration to arrive.
-	// Individuals from older iterations will also be accepted in this loop.
-	while(true) {
-		// Note: the following call will throw if a timeout has been reached.
-		p = Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveFirstItem<GParameterSet>();
-
-		// If it is from the current iteration, break the loop, otherwise
-		// continue until the first item of the current iteration has been
-		// received.
-		if(updateIndividualsAndIntegrate(p, nReceivedCurrent, nReceivedOlder, iteration)) break;
-	}
-
-	//--------------------------------------------------------------------------------
-	// Wait for further arrivals until the population is complete or a timeout has been reached.
-	bool complete=false;
-
-	// Retrieve items as long as the population is not complete and
-	// GBrokerConnectorT returns valid items
-	while(!complete && (p=Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::retrieveItem<GParameterSet>())) {
-		// Integrate the individual into the population and update variables
-		updateIndividualsAndIntegrate(p, nReceivedCurrent, nReceivedOlder, iteration);
-
-		// Mark as complete, if a full set of individuals of the current iteration has returned.
-		// Older individuals may return in the next iterations and will be taken into account.
-		// The loop will terminate if the population has been found to be complete.
-		if(nReceivedCurrent == getDefaultPopulationSize()) {
-			complete = true;
+		if((*it)->getAssignedIteration() != iteration) {
+			(*it)->setAssignedIteration(iteration);
 		}
 	}
 
-	//--------------------------------------------------------------------------------
-	// We now need to sort the individuals according to their neighborhoods, so that
-	// individuals of the same neighborhood are in adjacent areas.
+	// Sort according to the individuals' neighborhoods
 	sort(data.begin(), data.end(), indNeighborhoodComp());
 
-	// Now update the number of items in each neighborhood
-	for(std::size_t i=0; i<getNNeighborhoods(); i++) { // First reset the number of members of each neighborhood
-		nNeighborhoodMembers_[i] = 0;
-	}
-	for(it=this->begin(); it!=this->end(); ++it) { // Update the number of individuals in each neighborhood
+	// Now update the number of items in each neighborhood: First reset the number of members of each neighborhood
+	Gem::Common::assignVecConst(nNeighborhoodMembers_, (std::size_t)0);
+	// Then update the number of individuals in each neighborhood
+	for(it=this->begin(); it!=this->end(); ++it) {
 		nNeighborhoodMembers_[(*it)->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood()] += 1;
 	}
 
-	//--------------------------------------------------------------------------------
-	// We are done, if a full set of individuals of the current iteration has returned
-	// ("complete", which implies that each neighborhood has at least the correct number
-	// of entries), or at the very least each neighborhood is at least at nominal values.
-	// The population size might be larger than the default values (due to older individuals
-	// having returned). Each neighborhood will be adjusted in a later function
-	// (GSwarm::adjustNeighborhoods(), called from GSwarm::cycleLogic()), if necessary.
-	if(complete || neighborhoodsHaveNominalValues()) {
-		oldIndividuals.clear(); // Get rid of the copies
-		return;
+	// The population will be fixed in the overloaded GBrokerSwarm::adjustNeighborhoods() function
+}
+
+/************************************************************************************************************/
+/**
+ * Fixes the population after a job submission, possibly using stored copies of the previous iteration.
+ */
+void GBrokerSwarm::adjustNeighborhoods() {
+	std::size_t firstNIPos; // Will hold the expected first position of a neighborhood
+	boost::uint32_t iteration = getIteration();
+
+#ifdef DEBUG
+	// Check that oldIndividuals_ has the desired size in iterations other than the first
+	if(iteration > 0 && oldIndividuals_.size() != defaultNNeighborhoodMembers_*nNeighborhoods_) {
+		raiseException(
+				"In GBrokerSwarm::adjustNeighborhoods(): Error!" << std::endl
+				<< "oldIndividuals_ has incorrect size! Expected" << std::endl
+				<< "defaultNNeighborhoodMembers_*nNeighborhoods_ = " << defaultNNeighborhoodMembers_*nNeighborhoods_ << std::endl
+				<< "but found " << oldIndividuals_.size()
+		);
 	}
+#endif /* DEBUG */
 
-	//--------------------------------------------------------------------------------
-	// O.k., so some individuals are missing in this iteration. Do some fixing
-	if(iteration > 0) { // The most likely case
-		GBrokerSwarm::iterator insert_it = this->begin();
-		std::vector<boost::shared_ptr<GParameterSet> >::iterator remove_it = oldIndividuals.begin();
+	// Add missing items to neighborhoods that are too small. We use stored copies from the
+	// last iteration to fill in the missing items, or add random items in the first iteration.
+	// Neighborhoods with too many items are pruned. findBests() has sorted each neighborhood
+	// according to its fitness, so we know that the best items are in the front position of each
+	// neighborhood. We thus simply remove items at the end of neighborhoods that are too large.
+	for(std::size_t n=0; n<nNeighborhoods_; n++) { // Loop over all neighborhoods
+		// Calculate the desired position of our own first individual in this neighborhood
+		// As we start with the first neighborhood and add or remove surplus or missing items,
+		// getFirstNIPos() will return a valid position.
+		firstNIPos = getFirstNIPos(n);
 
-		// Loop over all neighborhoods
-		for(std::size_t n=0; n<nNeighborhoods_; n++) {
-			// Find out, how many items are missing (if at all), add as required
-			if(nNeighborhoodMembers_[n] < defaultNNeighborhoodMembers_) {
-				std::size_t nMissing = defaultNNeighborhoodMembers_ - nNeighborhoodMembers_[n];
+		if(nNeighborhoodMembers_[n] == defaultNNeighborhoodMembers_) {
+			continue;
+		} else if(nNeighborhoodMembers_[n] > defaultNNeighborhoodMembers_) { // Remove surplus items from the end of the neighborhood
+			// Find out, how many surplus items there are
+			std::size_t nSurplus = nNeighborhoodMembers_[n] - defaultNNeighborhoodMembers_;
 
-				// Copy the nMissing best individuals from the past iteration over. We
-				// assume that the best individuals can be found at the front of each neighborhood
-				std::size_t firstOldPos;
-				std::size_t firstNIPos;
+			// Remove nSurplus items from the position (n+1)*defaultNNeighborhoodMembers_
+			data.erase(
+					data.begin()   +  (n+1)*defaultNNeighborhoodMembers_
+					, data.begin() + ((n+1)*defaultNNeighborhoodMembers_ + nSurplus)
+			);
+		} else { // nNeighborhoodMembers_[n] < defaultNNeighborhoodMembers_
+			// The number of missing items
+			std::size_t nMissing = defaultNNeighborhoodMembers_ - nNeighborhoodMembers_[n];
 
+			if(iteration > 0) { // The most likely case
+				// Copy the best items of this neighborhood over from the oldIndividuals_ vector.
+				// Each neighborhood there should have been sorted according to the individuals
+				// fitness, with the best individuals in the front of each neighborhood.
+				for(std::size_t i=0; i<nMissing; i++) {
+					data.insert(data.begin() + firstNIPos, *(oldIndividuals_.begin() + firstNIPos + i));
+				}
+			} else { // iteration == 0
+#ifdef DEBUG
+				// At least one individual must have returned.
+				if(this->empty()) {
+					raiseException(
+							"In GBrokerSwarm::adjustNeighborhoods(): Error!" << std::endl
+							<< "No items found in the population. Cannot fix." << std::endl
+					);
+				}
+#endif
+
+				// Fill up with random items.
 				for(std::size_t nM = 0; nM < nMissing; nM++) {
-					// Calculate the position of oldIndividual's first individual in this neighborhood
-					firstOldPos = getFirstNIPosVec(n, nNeighborhoodMembersCp);
+					// Insert a clone of the first individual of the collection
+					data.insert(data.begin() + firstNIPos, (this->front())->clone<GParameterSet>());
 
-					// Calculate the position of our own first individual in this neighborhood
-					firstNIPos = getFirstNIPos(n);
+					// Randomly initialize the item and prevent position updates
+					(*(data.begin() + firstNIPos))->randomInit();
+					(*(data.begin() + firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->setNoPositionUpdate();
 
-					// Insert into main data vector
-					this->insert(insert_it+firstNIPos, *(remove_it + firstOldPos));
-
-#ifdef DEBUG
-					if((*(insert_it+firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() != n) {
-						raiseException(
-								"In GBrokerSwarm::swarmLogic():" << std::endl
-								<< "Found invalid neighborhood in copy: " << (*(insert_it+firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() << "/" << n
-						);
-					}
-#endif /* DEBUG */
-
-					// Remove entry from the copy
-					oldIndividuals.erase(remove_it + firstOldPos);
-
-					// Update the counters
-					nNeighborhoodMembers_[n] += 1;
-#ifdef DEBUG
-					if(nNeighborhoodMembersCp[n] <= 0) {
-						raiseException(
-								"In GBrokerSwarm::swarmLogic():" << std::endl
-								<< "Found copy of neighborhood without entries."
-						);
-					}
-#endif /* DEBUG */
-					nNeighborhoodMembersCp[n] -= 1;
+					// Set the neighborhood as required
+					(*(data.begin() + firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->setNeighborhood(n);
 				}
 			}
 		}
 
-		// Get rid of the information about old individuals
-		nNeighborhoodMembersCp.clear();
-		oldIndividuals.clear();
-	} else { // iteration == 0: Fill up with random items
-		// At least one individual must have returned. Otherwise getFirstItem() would
-		// have thrown an exception. We can thus safely create copies of the first
-		// individual in the collection and re-initialize them randomly.
-
-		// The start of the collection
-		GBrokerSwarm::iterator insert_it = this->begin();
-
-		// Loop over all neighborhoods. Find out, how many items are missing, add as required
-		for(std::size_t n=0; n<nNeighborhoods_; n++) {
-			std::size_t nMissing = defaultNNeighborhoodMembers_ - nNeighborhoodMembers_[n];
-
-			std::size_t firstNIPos;
-			for(std::size_t nM = 0; nM < nMissing; nM++) {
-				// Calculate the position of our own first individual in this neighborhood
-				firstNIPos = getFirstNIPos(n);
-
-				// Insert a clone of the first individual of the collection
-				this->insert(insert_it + firstNIPos, (this->front())->clone<GParameterSet>());
-
-				// Randomly initialize the item and prevent position updates
-				(*(insert_it + firstNIPos))->randomInit();
-				(*(insert_it + firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->setNoPositionUpdate();
-
-				// Set the neighborhood as required
-				(*(insert_it + firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->setNeighborhood(n);
-
-				// Update the counter
-				nNeighborhoodMembers_[n] += 1;
-			}
-		}
+		// Finally adjust the number of entries in this neighborhood
+		nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
 	}
+
+#ifdef DEBUG
+	// Check that the population has the expected size
+	if(this->size() != nNeighborhoods_*defaultNNeighborhoodMembers_) {
+		raiseException(
+				"In GBrokerSwarm::adjustNeighborhoods(): Error!" << std::endl
+				<< "The population has an incorrect size of " << this->size() << ", expected " << nNeighborhoods_*defaultNNeighborhoodMembers_ << std::endl
+		);
+	}
+#endif
+
+	oldIndividuals_.clear(); // Get rid of the copies
+}
+
+/************************************************************************************************************/
+/**
+ * Checks whether each neighborhood has the default size
+ *
+ * @return A boolean which indicates whether all neighborhoods have the default size
+ */
+bool GBrokerSwarm::neighborhoodsHaveNominalValues() const {
+	for(std::size_t n=0; n<nNeighborhoods_; n++) {
+		if(nNeighborhoodMembers_[n] == defaultNNeighborhoodMembers_) return false;
+	}
+	return true;
 }
 
 #ifdef GENEVATESTING

@@ -47,6 +47,7 @@
 
 
 // Geneva header files go here
+#include "courtier/GCourtierEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -104,7 +105,8 @@ class GIndividual
 	     & BOOST_SERIALIZATION_NVP(maximize_)
 	     & BOOST_SERIALIZATION_NVP(assignedIteration_)
 	     & BOOST_SERIALIZATION_NVP(pers_)
-	     & BOOST_SERIALIZATION_NVP(pt_ptr_);
+	     & BOOST_SERIALIZATION_NVP(pt_ptr_)
+	     & BOOST_SERIALIZATION_NVP(id_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -249,6 +251,11 @@ public:
 	/** @brief Resets the current personality to NONE */
 	void resetPersonality();
 
+	/** @brief Allows the courtier library to associate an id with the individual */
+	void setCourtierId(const std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2>&);
+	/** @brief Allows to retrieve the courtier-id associated with this individual */
+	std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> getCourtierId() const;
+
 	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
 	virtual void updateRNGs();
 	/** @brief Restores local random number generators contained in this object's GParameterBase-derivatives */
@@ -312,6 +319,8 @@ private:
     personality pers_;
     /** @brief Holds the actual personality information */
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
+    /** @brief A two-part id that can be assigned to this individual */
+    std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> id_;
 
 	/**************************************************************************************************/
 #ifdef GENEVATESTING

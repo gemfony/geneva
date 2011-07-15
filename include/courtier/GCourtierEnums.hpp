@@ -32,8 +32,6 @@
  * http://www.gemfony.com .
  */
 
-
-
 // Standard headers go here
 #include <string>
 #include <ostream>
@@ -110,6 +108,16 @@ const bool ACCEPTOLDERITEMS = true;
 const bool REJECTOLDERITEMS = false;
 const bool UPDATEITERATION  = true;
 const bool LEAVEITERATIONUNTOUCHED = false;
+
+/**********************************************************************************************/
+/**
+ * These two typedefs allow to steer the types of ids assigned to objects submitted to the broker
+ */
+typedef boost::uint64_t ID_TYPE_1;
+typedef std::size_t     ID_TYPE_2;
+
+typedef ID_TYPE_1 SUBMISSIONCOUNTERTYPE;
+typedef ID_TYPE_2 POSITIONTYPE;
 
 /**********************************************************************************************/
 

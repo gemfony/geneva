@@ -253,7 +253,7 @@ bool GEAPersonalityTraits::setIsChild() {
  *
  * @param popPos The new position of this individual in the population
  */
-void GEAPersonalityTraits::setPopulationPosition(std::size_t popPos) {
+void GEAPersonalityTraits::setPopulationPosition(const std::size_t& popPos) {
 	popPos_ = popPos;
 }
 

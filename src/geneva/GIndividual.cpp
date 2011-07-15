@@ -639,6 +639,26 @@ personality GIndividual::getPersonality() const {
 
 /************************************************************************************************************/
 /**
+ * Allows the courtier library to associate an id with the individual
+ *
+ * @param id An id associated with this individual by the broker
+ */
+void GIndividual::setCourtierId(const std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2>& id) {
+	id_ = id;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to retrieve the id associated with the individual
+ *
+ * @return The id associated with this individual by the broker
+ */
+std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> GIndividual::getCourtierId() const {
+	return id_;
+}
+
+/************************************************************************************************************/
+/**
  * This function returns the current personality traits base pointer. Note that there
  * is another version of the same command that does on-the-fly conversion of the
  * personality traits to the derived class.

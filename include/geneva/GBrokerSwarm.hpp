@@ -110,27 +110,20 @@ protected:
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone_() const;
 
-	/** @brief Update iteration counters */
-	virtual void markIteration();
 	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
 	virtual void init();
 	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
 	virtual void finalize();
-	/** @brief Triggers the fitness calculation */
-	virtual void updateIndividualFitness(
-			const boost::uint32_t&
-			, const std::size_t&
-			, boost::shared_ptr<GParameterSet>
-	);
-    /** @brief Updates the positions and/or fitness of all individuals, using the broker infrastructure */
-	virtual void swarmLogic();
-	/** @brief Updates and integrates individuals into the population after their return */
-	bool updateIndividualsAndIntegrate(
-			boost::shared_ptr<GParameterSet>
-		  , std::size_t&
-		  , std::size_t&
-		  , const boost::uint32_t&
-	);
+
+	/** @brief Updates all individual's positions */
+	virtual void updatePositions();
+	/** @brief Triggers the fitness calculation of all individuals */
+	virtual void updateFitness();
+
+    /** @brief Fixes the population after a job submission */
+    virtual void adjustNeighborhoods();
+    /** @brief Checks whether each neighborhood has the default size */
+    bool neighborhoodsHaveNominalValues() const;
 
 	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes. */
 	GBrokerSwarm(){}
@@ -139,6 +132,7 @@ protected:
 private:
 	/*********************************************************************************/
 	std::vector<bool> sm_value_; ///< Internal storage for server mode flags
+	std::vector<boost::shared_ptr<GParameterSet> > oldIndividuals_; ///< A temporary copy of the last iteration's individuals
 
     /*********************************************************************************/
     /**
