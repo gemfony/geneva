@@ -67,7 +67,6 @@
 
 // Geneva headers go here
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "hap/GRandomT.hpp"
 #include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GBaseClientT.hpp"
 #include "courtier/GCourtierEnums.hpp"
@@ -195,80 +194,11 @@ public:
 protected:
 	/**********************************************************************/
 	/**
-	 * Performs initialization work, such as the retrieval and setting of a
-	 * seed for the GRandomFactory
+	 * Performs initialization work.
 	 *
 	 * @return A boolean indicating whether initialization was successful
 	 */
-	bool init() {
-		try {
-			// Try to make a connection
-			if(!tryConnect()) {
-				std::ostringstream warning;
-				warning << "In GAsioTCPClientT<processable_type>::init(): Warning" << std::endl
-				        << "Could not connect to server. Shutting down now." << std::endl;
-
-				std::cerr << warning.str();
-
-				return shutdown(false);
-			}
-
-			// Let the server know we want an initial seed
-			boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("getSeed", Gem::Courtier::COMMANDLENGTH)));
-
-			// Read answer. The seed should have been sent by the server
-			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
-
-			// Remove all leading or trailing white spaces from the command
-			std::string inboundSeedString = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
-			boost::uint32_t seed = boost::lexical_cast<boost::uint32_t>(inboundSeedString);
-
-			std::cout << "Received seed " << seed << " from the server" << std::endl;
-
-			// Set the seed of the global factory
-			if(!(GRANDOMFACTORY->setStartSeed(seed))) {
-				std::cerr << "In GAsioTCPClientT<processable_type>::init(): Warning" << std::endl
-						  << "Seed (" << seed << ") has already been set." << std::endl;
-			}
-
-			return shutdown(true);
-		}
-		// Any system error (except for those where a connection attempt failed) is considered
-		// fatal and leads to the termination, by returning false.
-		catch (boost::system::system_error& bse) {
-			{ // Make sure we do not hide the next error declaration (avoid a warning message)
-				std::ostringstream error;
-				error << "In GAsioTCPClientT<processable_type>::init():" << std::endl
-					  << "Caught boost::system::system_error exception." << std::endl
-					  << "Leaving now." << std::endl;
-
-				std::cerr << error.str();
-			}
-
-			try {
-				return shutdown(false);
-			} catch (...) {
-				std::ostringstream error;
-				error << "In GAsioTCPClientT<processable_type>::init():" << std::endl
-					  << "Cannot shutdown gracefully as shutdown command" << std::endl
-					  << "threw inside of catch statement." << std::endl;
-
-				std::cerr << error.str();
-
-				std::terminate();
-			}
-		}
-
-		// This part of the function should never be reached. Let the audience know, then terminate.
-		std::ostringstream error;
-		error << "In GAsioTCPClientT<processable_type>::init() :" << std::endl
-			  << "In a part of the function that should never have been reached!" << std::endl;
-		std::cerr << error.str();
-
-		std::terminate();
-
-		return false; // Make the compiler happy
-	}
+	bool init() { return true; }
 
 	/**********************************************************************/
 	/**

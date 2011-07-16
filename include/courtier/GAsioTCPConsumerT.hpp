@@ -75,8 +75,6 @@
 #include "common/GThreadGroup.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GHelperFunctions.hpp"
-#include "hap/GRandomT.hpp"
-#include "hap/GRandomFactory.hpp"
 #include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
@@ -148,16 +146,7 @@ public:
 	    // Every client transmission starts with a command
 	    std::string command = getSingleCommand();
 
-	    if(command == "getSeed") {
-	        boost::uint32_t seed = GRANDOMFACTORY->getSeed();
-
-	#ifdef DEBUG
-	        std::cout << "Sending seed " << seed << std::endl;
-	#endif
-
-	        this->sendSingleCommand(boost::lexical_cast<std::string>(seed));
-	    }
-	    else if (command == "ready") {
+	    if (command == "ready") {
 	        // Retrieve an item from the broker and submit it to the client.
 	        try{
 	            boost::shared_ptr<processable_type> p;
