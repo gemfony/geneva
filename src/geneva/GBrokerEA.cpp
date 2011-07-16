@@ -47,7 +47,7 @@ namespace Geneva
  */
 GBrokerEA::GBrokerEA()
 	: GSerialEA()
-	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
+	, broker_connector_()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -58,7 +58,7 @@ GBrokerEA::GBrokerEA()
  */
 GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	: GSerialEA(cp)
-	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
+	, broker_connector_(cp.broker_connector_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -93,9 +93,9 @@ void GBrokerEA::load_(const GObject * cp) {
 
 	// Load the parent classes' data ...
 	GSerialEA::load_(cp);
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
 
-	// no local data
+	// and then our local data
+	broker_connector_.load(&(p_load->broker_connector_));
 }
 
 /************************************************************************************************************/
@@ -165,9 +165,10 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GSerialEA::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
-	deviations.push_back(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
 
-	// no local data ...
+	// ... and then our local data
+	deviations.push_back(broker_connector_.checkRelationshipWith(p_load->broker_connector_, e, limit, "GBrokerEA", y_name, withMessages));
+
 	return evaluateDiscrepancies("GBrokerEA", caller, deviations, e);
 }
 
@@ -254,7 +255,7 @@ void GBrokerEA::adaptChildren() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
-	GBrokerConnectorT<GIndividual>::workOn(
+	broker_connector_.workOn(
 			data
 			, range.first
 			, range.second

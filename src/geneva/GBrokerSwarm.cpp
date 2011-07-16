@@ -48,7 +48,7 @@ namespace Geneva
  */
 GBrokerSwarm::GBrokerSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
 	: GSerialSwarm(nNeighborhoods, nNeighborhoodMembers)
-	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
+	, broker_connector_()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -59,7 +59,7 @@ GBrokerSwarm::GBrokerSwarm(const std::size_t& nNeighborhoods, const std::size_t&
  */
 GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm& cp)
 	: GSerialSwarm(cp)
-	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
+	, broker_connector_(cp.broker_connector_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -94,9 +94,9 @@ void GBrokerSwarm::load_(const GObject * cp) {
 
 	// Load the parent classes' data ...
 	GSerialSwarm::load_(cp);
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
 
-	// no local data
+	// and then our local data
+	broker_connector_.load(&(p_load->broker_connector_));
 }
 
 /************************************************************************************************************/
@@ -166,9 +166,9 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GSerialSwarm::checkRelationshipWith(cp, e, limit, "GBrokerSwarm", y_name, withMessages));
-	deviations.push_back(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerSwarm", y_name, withMessages));
 
-	// local variables only represent temporary values needed inside of a single iteration. No checks are done on these values
+	// and then our local data
+	deviations.push_back(broker_connector_.checkRelationshipWith(p_load->broker_connector_, e, limit, "GBrokerSwarm", y_name, withMessages));
 
 	return evaluateDiscrepancies("GBrokerSwarm", caller, deviations, e);
 }
@@ -277,7 +277,7 @@ void GBrokerSwarm::updateFitness() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results
-	GBrokerConnectorT<GIndividual>::workOn(
+	broker_connector_.workOn(
 			data
 			, 0
 			, data.size()

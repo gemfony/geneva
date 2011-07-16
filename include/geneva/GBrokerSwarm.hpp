@@ -63,7 +63,6 @@ namespace Geneva
  */
 class GBrokerSwarm
   : public GSerialSwarm
-  , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -73,7 +72,7 @@ class GBrokerSwarm
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSerialSwarm)
-		   & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBrokerConnectorT<Gem::Geneva::GIndividual>);
+		   & BOOST_SERIALIZATION_NVP(broker_connector_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -133,6 +132,7 @@ private:
 	/*********************************************************************************/
 	std::vector<bool> sm_value_; ///< Internal storage for server mode flags
 	std::vector<boost::shared_ptr<GParameterSet> > oldIndividuals_; ///< A temporary copy of the last iteration's individuals
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual> broker_connector_; ///< Connects this object to the broker
 
     /*********************************************************************************/
     /**

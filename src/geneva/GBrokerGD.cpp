@@ -45,8 +45,8 @@ namespace Geneva {
  */
 GBrokerGD::GBrokerGD() :
 	GSerialGD()
-	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 	, maxResubmissions_(DEFAULTMAXGDRESUBMISSIONS)
+	, broker_connector_()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -58,8 +58,8 @@ GBrokerGD::GBrokerGD(
 		, const float& finiteStep, const float& stepSize
 )
 	: GSerialGD(nStartingPoints, finiteStep, stepSize)
-	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 	, maxResubmissions_(DEFAULTMAXGDRESUBMISSIONS)
+    , broker_connector_()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -68,8 +68,8 @@ GBrokerGD::GBrokerGD(
  */
 GBrokerGD::GBrokerGD(const GBrokerGD& cp)
 	: GSerialGD(cp)
-	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
 	, maxResubmissions_(cp.maxResubmissions_)
+	, broker_connector_(cp.broker_connector_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -152,14 +152,11 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(
-			GSerialGD::checkRelationshipWith(cp, e, limit, "GBrokerGD",
-					y_name, withMessages));
-	deviations.push_back(
-			Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::checkRelationshipWith(
-					*p_load, e, limit, "GBrokerGD", y_name, withMessages));
+			GSerialGD::checkRelationshipWith(cp, e, limit, "GBrokerGD",	y_name, withMessages));
 
 	// and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GBrokerGD", maxResubmissions_, p_load->maxResubmissions_, "maxResubmissions_", "p_load->maxResubmissions_", e , limit));
+	deviations.push_back(broker_connector_.checkRelationshipWith(p_load->broker_connector_, e, limit, "GBrokerGD", y_name, withMessages));
 
 	return evaluateDiscrepancies("GBrokerGD", caller, deviations, e);
 }
@@ -195,10 +192,10 @@ void GBrokerGD::load_(const GObject *cp) {
 
 	// Load the parent classes' data ...
 	GSerialGD::load_(cp);
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
 
 	// ... and then our local data
 	maxResubmissions_ = p_load->maxResubmissions_;
+	broker_connector_.load(&(p_load->broker_connector_));
 }
 
 /************************************************************************************************************/
@@ -304,7 +301,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
-	complete = Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::workOnSubmissionOnly(
+	complete = broker_connector_.workOnSubmissionOnly(
 			data
 			, 0
 			, finalPos
