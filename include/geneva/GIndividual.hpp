@@ -47,7 +47,7 @@
 
 
 // Geneva header files go here
-#include "courtier/GCourtierEnums.hpp"
+#include "courtier/GSubmissionContainer.hpp"
 #include "common/GExceptions.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -82,6 +82,7 @@ class GIndividual
 	: public GMutableI
 	, public GRateableI
 	, public GObject
+	, public Gem::Courtier::GSubmissionContainer
 {
 	friend class GSerialSwarm; ///< Needed so GSerialSwarm can set the dirty flag
 	friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
@@ -94,6 +95,7 @@ class GIndividual
 	  using boost::serialization::make_nvp;
 
 	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+	  	 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Courtier::GSubmissionContainer)
 	     & BOOST_SERIALIZATION_NVP(currentFitness_)
 	     & BOOST_SERIALIZATION_NVP(currentSecondaryFitness_)
 	     & BOOST_SERIALIZATION_NVP(bestPastFitness_)
@@ -105,8 +107,7 @@ class GIndividual
 	     & BOOST_SERIALIZATION_NVP(maximize_)
 	     & BOOST_SERIALIZATION_NVP(assignedIteration_)
 	     & BOOST_SERIALIZATION_NVP(pers_)
-	     & BOOST_SERIALIZATION_NVP(pt_ptr_)
-	     & BOOST_SERIALIZATION_NVP(id_);
+	     & BOOST_SERIALIZATION_NVP(pt_ptr_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -144,7 +145,7 @@ public:
 	virtual double adaptAndEvaluate();
 
 	/** @brief Do the required processing for this object */
-	bool process();
+	virtual bool process();
 	/** @brief Allows to instruct this individual to perform multiple process operations in one go. */
 	void setProcessingCycles(const boost::uint32_t&);
 	/** @brief Retrieves the number of allowed processing cycles */
@@ -251,11 +252,6 @@ public:
 	/** @brief Resets the current personality to NONE */
 	void resetPersonality();
 
-	/** @brief Allows the courtier library to associate an id with the individual */
-	void setCourtierId(const std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2>&);
-	/** @brief Allows to retrieve the courtier-id associated with this individual */
-	std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> getCourtierId() const;
-
 	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
 	virtual void updateRNGs();
 	/** @brief Restores local random number generators contained in this object's GParameterBase-derivatives */
@@ -319,8 +315,6 @@ private:
     personality pers_;
     /** @brief Holds the actual personality information */
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
-    /** @brief A two-part id that can be assigned to this individual */
-    std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> id_;
 
 	/**************************************************************************************************/
 #ifdef GENEVATESTING

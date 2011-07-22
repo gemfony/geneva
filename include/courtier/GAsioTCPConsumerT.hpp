@@ -375,14 +375,16 @@ public:
 	   *
 	   * @param port The port where the server should wait for new connections
 	   * @param listenerThreads The number of threads used to wait for incoming connections
+	   * @param sm The desired serialization mode
 	   */
 	  GAsioTCPConsumerT(
 			const unsigned short& port
 			, const std::size_t& listenerThreads = 0
+			, const Gem::Common::serializationMode& sm = Gem::Common::SERIALIZATIONMODE_BINARY
 	  )
 			: listenerThreads_(listenerThreads>0?listenerThreads:Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
 			, acceptor_(io_service_)
-			, serializationMode_(Gem::Common::SERIALIZATIONMODE_TEXT)
+			, serializationMode_(sm)
 	  {
 		  // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
 		  boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
@@ -413,16 +415,12 @@ public:
 	  /**
 	   * Starts the actual processing loops
 	   */
-	  void process() {
+	  void startProcessing() {
 		  // Create a number of threads responsible for the io_service_ objects
-		  Gem::Common::GThreadGroup tg;
-		  tg.create_threads(
+		  gtg_.create_threads(
 				  boost::bind(&boost::asio::io_service::run, &io_service_)
 		  	  	  , listenerThreads_
 		  );
-
-		  // Wait for the threads in the group to exit
-		  tg.join_all();
 	  }
 
 	  /*********************************************************************/
@@ -430,29 +428,22 @@ public:
 	   * Make sure the consumer shuts down gracefully
 	   */
 	  void shutdown() {
+		  // Terminate he
 		  io_service_.stop();
+
+		  // Wait for the threads in the group to exit
+		  gtg_.join_all();
 	  }
 
 	  /*********************************************************************/
 	  /**
-	   * Retrieves the current serialization mode
+	   * Retrieves the serialization mode. Note that the only way to set the
+	   * mode is via the constructor.
 	   *
 	   * @return The current serialization mode
 	   */
 	  Gem::Common::serializationMode getSerializationMode() const  {
 		  return serializationMode_;
-	  }
-
-	  /*********************************************************************/
-	  /**
-	   * Sets the serialization mode. The only allowed values of the enum serializationMode are
-	   * Gem::Common::SERIALIZATIONMODE_BINARY, Gem::Common::SERIALIZATIONMODE_TEXT and Gem::Common::SERIALIZATIONMODE_XML.
-	   * The compiler does the error-checking for us.
-	   *
-	   * @param ser The new serialization mode
-	   */
-	  void setSerializationMode(const Gem::Common::serializationMode& ser)  {
-		  serializationMode_ = ser;
 	  }
 
 private:
@@ -490,6 +481,7 @@ private:
 	  std::size_t listenerThreads_;  ///< The number of threads used to listen for incoming connections through io_servce::run()
 	  boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
 	  Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
+	  Gem::Common::GThreadGroup gtg_;
 
 	  GAsioTCPConsumerT(); ///< Default constructor intentionally private and undefined
 	  const GAsioTCPConsumerT<processable_type>& operator=(const GAsioTCPConsumerT<processable_type>&); ///< Intentionally left undefined

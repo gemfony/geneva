@@ -38,6 +38,22 @@
 #include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/variant.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
 
 #ifndef GSUBMISSIONCONTAINERBASE_HPP_
 #define GSUBMISSIONCONTAINERBASE_HPP_
@@ -58,17 +74,30 @@ namespace Courtier {
 /**
  * This class can serve as a base class for items to be submitted through the broker. You need to
  * re-implement the purely virtual functions in derived classes. Note that it is mandatory for
- * derived classes to be serializable in order to benefit from networked execution.
+ * derived classes to be serializable and to trigger serialization of this class.
  */
 class GSubmissionContainer {
-	// Add serialization code here
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & BOOST_SERIALIZATION_NVP(id_);
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
+	/** @brief The default constructor */
 	GSubmissionContainer();
+	/** @brief The copy constructor */
 	GSubmissionContainer(const GSubmissionContainer&);
+	/** @brief The destructor */
 	virtual ~GSubmissionContainer();
 
-	virtual void process() = 0;
+	/** @brief Allows derived classes to specify the tasks to be performed for this object */
+	virtual bool process() = 0;
 
 	/** @brief Allows the courtier library to associate an id with the container */
 	void setCourtierId(const std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2>&);
@@ -80,8 +109,17 @@ private:
     std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> id_;
 };
 
+/**********************************************************************************************/
 
-} /* Courtier */
-} /* Gem */
+} /* namespace Courtier */
+} /* namespace Gem */
+
+/**************************************************************************************************/
+/**
+ * @brief Needed for Boost.Serialization
+ */
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Courtier::GSubmissionContainer)
+
+/**************************************************************************************************/
 
 #endif /* GSUBMISSIONCONTAINERBASE_HPP_ */

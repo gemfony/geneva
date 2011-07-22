@@ -144,9 +144,8 @@ public:
 	* Starts the worker threads and then waits for their termination.
 	* Termination of the threads is triggered by a call to GConsumer::shutdown().
 	*/
-	void process() {
+	void startProcessing() {
 		gtg_.create_threads(boost::bind(&GBoostThreadConsumerT<processable_type>::processItems,this), maxThreads_);
-		gtg_.join_all();
 	}
 
 	/***************************************************************/
@@ -155,8 +154,12 @@ public:
 	* process() then waits for them to join.
 	*/
 	void shutdown() {
-		boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
-		stop_=true;
+		{
+			boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
+			stop_=true;
+		}
+
+		gtg_.join_all();
 	}
 
 

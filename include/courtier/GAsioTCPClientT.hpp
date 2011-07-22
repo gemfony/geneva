@@ -194,14 +194,6 @@ public:
 protected:
 	/**********************************************************************/
 	/**
-	 * Performs initialization work.
-	 *
-	 * @return A boolean indicating whether initialization was successful
-	 */
-	bool init() { return true; }
-
-	/**********************************************************************/
-	/**
 	 * Retrieve work items from the server.
 	 *
 	 * @param item Holds the string representation of the work item, if successful
@@ -219,7 +211,7 @@ protected:
 
 				std::cerr << warning.str();
 
-				return shutdown(false);
+				return continueCalculation(false);
 			}
 
 			// Let the server know we want work
@@ -262,7 +254,7 @@ protected:
 				stalls_ = 0;
 
 				// Close sockets, return true
-				return shutdown(true);
+				return continueCalculation(true);
 			}
 			else { // Received no work. Try again a number of times
 				// We will usually only allow a given number of timeouts / stalls
@@ -274,14 +266,14 @@ protected:
 						  << inboundCommandString << std::endl
 						  << "Leaving now." << std::endl;
 
-					return shutdown(false);
+					return continueCalculation(false);
 				}
 
 				// We can continue. But let's wait a short time (0.05 seconds) first.
 				usleep(50000);
 
 				// Indicate that we want to continue
-				return shutdown(true);
+				return continueCalculation(true);
 			}
 		}
 		// Any system error (except for those where a connection attempt failed) is considered
@@ -299,11 +291,11 @@ protected:
 			}
 
 			try {
-				return shutdown(false);
+				return continueCalculation(false);
 			} catch (...) {
 				std::ostringstream error;
 				error << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
-					  << "Cannot shutdown gracefully as shutdown command" << std::endl
+					  << "Cannot shutdown gracefully as continueCalculation command" << std::endl
 					  << "threw inside of catch statement." << std::endl;
 
 				std::cerr << error.str();
@@ -357,7 +349,7 @@ protected:
 
 				std::cerr << warning.str();
 
-				return shutdown(false);
+				return continueCalculation(false);
 			}
 
 			// And write the serialized data to the socket. We use
@@ -366,7 +358,7 @@ protected:
 			boost::asio::write(socket_, buffers);
 
 			// Make sure we don't leave any open sockets lying around.
-			return shutdown(true);
+			return continueCalculation(true);
 		}
 		// Any system error (except for those where a connection attempt failed) is considered
 		// fatal and leads to the termination, by returning false.
@@ -383,11 +375,11 @@ protected:
 			}
 
 			try {
-				return shutdown(false);
+				return continueCalculation(false);
 			} catch (...) {
 				std::ostringstream error;
 				error << "In GAsioTCPClientT<processable_type>::retrieve:" << std::endl
-					  << "Cannot shutdown gracefully as shutdown command" << std::endl
+					  << "Cannot shutdown gracefully as continueCalculation command" << std::endl
 					  << "threw inside of catch statement." << std::endl;
 
 				std::cerr << error.str();
@@ -415,7 +407,7 @@ private:
 	 * @param returnCode The return code to be emitted
 	 * @return The return code
 	 */
-	bool shutdown(const bool& returnCode){
+	bool continueCalculation(const bool& returnCode){
 		// Make sure we don't leave any open sockets lying around.
 		socket_.close();
 		return returnCode;

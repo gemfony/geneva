@@ -249,7 +249,7 @@ public:
 	 */
 	void enrol(boost::shared_ptr<GConsumer> gc) {
 		consumerCollection_.push_back(gc);
-		consumerThreads_.create_thread(boost::bind(&GConsumer::process, gc));
+		consumerThreads_.create_thread(boost::bind(&GConsumer::startProcessing, gc));
 	}
 
 	/**********************************************************************************/

@@ -195,7 +195,7 @@ int main(int argc, char **argv){
 	case 2: // Networked execution (server-side)
 	{
 		// Create a network consumer and enrol it with the broker
-		boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
+		boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port, 0, Gem::Common::SERIALIZATIONMODE_BINARY));
 		GBROKER(Gem::Geneva::GIndividual)->enrol(gatc);
 
 		// Create the actual broker population

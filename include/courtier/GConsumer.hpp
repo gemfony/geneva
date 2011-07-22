@@ -95,7 +95,7 @@ public:
 	virtual ~GConsumer();
 
 	/** @brief The actual business logic */
-	virtual void process() = 0;
+	virtual void startProcessing() = 0;
 	/** @brief To be called from GConsumer::process() */
 	virtual void shutdown() = 0;
 

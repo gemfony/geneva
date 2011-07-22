@@ -10,5 +10,5 @@ ADD_DEPENDENCIES ( "geneva-tests-performance"
 )
 
 ADD_SUBDIRECTORY ( GBrokerOverhead )
-ADD_SUBDIRECTORY ( GBrokerSelfCommunication )
+# ADD_SUBDIRECTORY ( GBrokerSelfCommunication )
 ADD_SUBDIRECTORY ( GParallelisationOverhead )
