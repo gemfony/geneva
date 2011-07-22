@@ -798,7 +798,7 @@ public:
      * individuals, such as in gradient descents.
      */
     void prolongTimeout() {
-    	maxAllowedElapsed_ += totalElapsedFirst_ * (waitFactor_ + 1);
+    	maxAllowedElapsed_ += boost::posix_time::microseconds(boost::numeric_cast<long>(double(totalElapsedFirst_.total_microseconds()) * (waitFactor_ + 1.)));
     }
 
     /**********************************************************************************/
@@ -845,7 +845,7 @@ public:
 		// Record the elapsed time and calculate the time for which other individuals are
 		// allowed to return
 		totalElapsedFirst_ = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
-		maxAllowedElapsed_ = totalElapsedFirst_ * (waitFactor_ + 1);
+		maxAllowedElapsed_ = boost::posix_time::microseconds(boost::numeric_cast<long>(double(totalElapsedFirst_.total_microseconds()) * (waitFactor_ + 1.)));
 
     	// Log arrival times if requested by the user
     	if(doLogging_) {
@@ -890,7 +890,7 @@ public:
 		// Record the elapsed time and calculate the time for which other individuals are
 		// allowed to return
 		totalElapsedFirst_ = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
-		maxAllowedElapsed_ = totalElapsedFirst_ * (waitFactor_ + 1);
+		maxAllowedElapsed_ = boost::posix_time::microseconds(boost::numeric_cast<long>(double(totalElapsedFirst_.total_microseconds()) * (waitFactor_ + 1.)));
 
     	// Log arrival times if requested by the user
     	if(doLogging_) {

@@ -33,7 +33,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GFPGaussAdaptorT.hpp
 	GFPNumCollectionT.hpp
 	GGDPersonalityTraits.hpp
-	GGradientDescent.hpp
 	GIndividual.hpp
 	GInt32Collection.hpp
 	GInt32FlipAdaptor.hpp
