@@ -144,7 +144,7 @@ class GObject
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive & ar, const unsigned int)  {
+    void serialize(Archive &, const unsigned int)  {
       using boost::serialization::make_nvp;
 
       // No local data

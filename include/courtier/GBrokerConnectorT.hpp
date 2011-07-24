@@ -357,9 +357,9 @@ public:
      *
      * @param arrivalTimes A vector containing the logging results
      */
-    void getLoggingResults(std::vector<std::vector<boost::uint32_t> >& arrivalTimes) const {
+    void getLoggingResults(std::vector<std::vector<boost::uint32_t> >& arrivalTimes) {
     	arrivalTimes = arrivalTimes_;
-    	arrivalTimes_.clear();
+    	arrivalTimes_.clear(); // Cannot declare this function as "const" because of this call
     }
 
     /**********************************************************************************/
