@@ -33,6 +33,8 @@
  */
 
 // Standard headers go here
+#include <vector>
+#include <iostream>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -52,22 +54,54 @@
 #include "hap/GRandomT.hpp"
 
 namespace Gem {
-namespace Tests {
 namespace Courtier {
+namespace Tests {
 
 /**********************************************************************************************/
 /**
  *
  */
 class GRandomNumberContainer
+	:public Gem::Courtier::GSubmissionContainer
 {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Courtier::GSubmissionContainer)
+	  	 & BOOST_SERIALIZATION_NVP(randomNumbers_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The standard constructor -- Initialization with an amount of random numbers */
+	GRandomNumberContainer(const std::size_t&);
+	/** @brief The copy constructor */
+	GRandomNumberContainer(const GRandomNumberContainer&);
+	/** @brief The destructor */
+	virtual ~GRandomNumberContainer();
+
+	/** @brief Allows to specify the tasks to be performed for this object */
+	virtual bool process();
+	/** @brief Prints out this objects random number container */
+	void print();
+
+private:
+	/** @brief The default constructor -- only needed for de-serialization purposes */
+	GRandomNumberContainer();
+
+	std::vector<double> randomNumbers_; ///< Holds the payload of this object
 };
 
 /**********************************************************************************************/
 
-} /* namespace Courtier */
 } /* namespace Tests */
+} /* namespace Courtier */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::Tests::GRandomNumberContainer);
 
 #endif /* GRANDOMNUMBERCONTAINER_HPP_ */
