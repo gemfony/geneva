@@ -86,13 +86,10 @@
 #include <boost/thread/condition.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/progress.hpp>
 #include <boost/bind.hpp>
 #include <boost/utility.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/date_time.hpp>
-#include <boost/function.hpp>
-#include <boost/ref.hpp>
 
 #ifndef GBOUNDEDBUFFERT_HPP_
 #define GBOUNDEDBUFFERT_HPP_
