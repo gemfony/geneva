@@ -5,6 +5,7 @@ SET (EXECUTABLENAME GBrokerSelfCommunication)
 SET (${EXECUTABLENAME}_SRCS
 	GArgumentParser
 	GBrokerSelfCommunication
+	GBrokerSelfCommunicationEnums
 	GRandomNumberContainer
 )
 

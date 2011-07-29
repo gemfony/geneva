@@ -7,4 +7,4 @@ ADD_DEPENDENCIES ( "courtier-tests-performance"
 	GBrokerSelfCommunication
 )
 
-# ADD_SUBDIRECTORY ( GBrokerSelfCommunication )
+ADD_SUBDIRECTORY ( GBrokerSelfCommunication )

@@ -47,7 +47,7 @@
 
 
 // Geneva header files go here
-#include "courtier/GSubmissionContainer.hpp"
+#include "courtier/GSubmissionContainerT.hpp"
 #include "common/GExceptions.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -82,7 +82,7 @@ class GIndividual
 	: public GMutableI
 	, public GRateableI
 	, public GObject
-	, public Gem::Courtier::GSubmissionContainer
+	, public Gem::Courtier::GSubmissionContainerT<GIndividual>
 {
 	friend class GSerialSwarm; ///< Needed so GSerialSwarm can set the dirty flag
 	friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
@@ -95,7 +95,7 @@ class GIndividual
 	  using boost::serialization::make_nvp;
 
 	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-	  	 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Courtier::GSubmissionContainer)
+	  	 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Courtier::GSubmissionContainerT<GIndividual>)
 	     & BOOST_SERIALIZATION_NVP(currentFitness_)
 	     & BOOST_SERIALIZATION_NVP(currentSecondaryFitness_)
 	     & BOOST_SERIALIZATION_NVP(bestPastFitness_)

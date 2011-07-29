@@ -40,6 +40,22 @@
 #include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/variant.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
 
 #ifndef GRANDOMNUMBERCONTAINER_HPP_
 #define GRANDOMNUMBERCONTAINER_HPP_
@@ -50,7 +66,7 @@
 #endif
 
 // Geneva headers go here
-#include "courtier/GSubmissionContainer.hpp"
+#include "courtier/GSubmissionContainerT.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem {
@@ -62,7 +78,7 @@ namespace Tests {
  *
  */
 class GRandomNumberContainer
-	:public Gem::Courtier::GSubmissionContainer
+	:public Gem::Courtier::GSubmissionContainerT<GRandomNumberContainer>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -71,7 +87,7 @@ class GRandomNumberContainer
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Courtier::GSubmissionContainer)
+	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Courtier::GSubmissionContainerT<GRandomNumberContainer>)
 	  	 & BOOST_SERIALIZATION_NVP(randomNumbers_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -93,7 +109,7 @@ private:
 	/** @brief The default constructor -- only needed for de-serialization purposes */
 	GRandomNumberContainer();
 
-	std::vector<double> randomNumbers_; ///< Holds the payload of this object
+	std::vector<double> randomNumbers_; ///< Holds the pay-load of this object
 };
 
 /**********************************************************************************************/

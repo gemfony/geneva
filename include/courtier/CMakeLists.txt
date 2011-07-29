@@ -12,7 +12,7 @@ SET ( COMMUNICATIONINCLUDES
 	GCourtierEnums.hpp
 	GConsumer.hpp
 	GSerialConsumerT.hpp
-	GSubmissionContainer.hpp
+	GSubmissionContainerT.hpp
 )
 
 INSTALL ( FILES ${COMMUNICATIONINCLUDES} DESTINATION include/courtier

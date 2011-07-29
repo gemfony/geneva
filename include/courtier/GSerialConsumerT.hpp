@@ -91,7 +91,7 @@ public:
 	 * execution point of a thread started by the broker, we need to
 	 * catch all exceptions.
 	 */
-	void process() {
+	void startProcessing() {
 		try{
 			boost::shared_ptr<processable_type> p;
 			Gem::Common::PORTIDTYPE id;

@@ -1,0 +1,4 @@
+This test submits random number containers to a broker, where they are
+distributed to compute nodes. Processing is either done directly in 
+threads. Alternatively, clients are started inside of threads and communicate 
+via local networking.

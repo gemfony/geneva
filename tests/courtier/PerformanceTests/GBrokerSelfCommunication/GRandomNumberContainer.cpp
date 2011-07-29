@@ -54,7 +54,7 @@ GRandomNumberContainer::GRandomNumberContainer()
  * @param nrnr The desired amount of random numbers to be added to the randomNumbers_ vector
  */
 GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr) {
-	Gem::Hap::GRandomT<Gem::Hap::RANDOMFACTORY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr;
 	for(std::size_t i=0; i<nrnr; i++) {
 		randomNumbers_.push_back(gr.uniform_01<double>());
 	}
@@ -63,9 +63,11 @@ GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr) {
 /********************************************************************************************/
 /**
  * The copy constructor
+ *
+ * @param cp A copy of another GRandomNumberContainer object
  */
 GRandomNumberContainer::GRandomNumberContainer(const GRandomNumberContainer& cp)
-	: Gem::Courtier::GSubmissionContainer(cp)
+	: Gem::Courtier::GSubmissionContainerT<GRandomNumberContainer>(cp)
 	, randomNumbers_(cp.randomNumbers_)
 { /* nothing */ }
 
@@ -82,10 +84,11 @@ GRandomNumberContainer::~GRandomNumberContainer() {
  * Allows to specify the tasks to be performed for this object. We simply sort the array of
  * random numbers.
  *
- * @return A boolean which indicates whether a useful result ws obtained
+ * @return A boolean which indicates whether a useful result was obtained
  */
 bool GRandomNumberContainer::process() {
 	std::sort(randomNumbers_.begin(), randomNumbers_.end());
+	std::cout << "finished sorting the container" << std::endl;
 	return true;
 }
 

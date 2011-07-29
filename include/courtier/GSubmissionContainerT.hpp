@@ -1,5 +1,5 @@
 /**
- * @file GSubmissionContainer.hpp
+ * @file GSubmissionContainerT.hpp
  */
 
 /*
@@ -76,7 +76,8 @@ namespace Courtier {
  * re-implement the purely virtual functions in derived classes. Note that it is mandatory for
  * derived classes to be serializable and to trigger serialization of this class.
  */
-class GSubmissionContainer {
+template <typename submission_type>
+class GSubmissionContainerT {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -89,22 +90,70 @@ class GSubmissionContainer {
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief The default constructor */
-	GSubmissionContainer();
-	/** @brief The copy constructor */
-	GSubmissionContainer(const GSubmissionContainer&);
-	/** @brief The destructor */
-	virtual ~GSubmissionContainer();
+	/**********************************************************************************/
+	/**
+	 * The default constructor
+	 */
+	GSubmissionContainerT()
+	{ /* nothing */ }
 
+	/**********************************************************************************/
+	/**
+	 * The copy constructor
+	 *
+	 * @param cp A copy of another GSubmissionContainer object
+	 */
+	GSubmissionContainerT(const GSubmissionContainerT<submission_type>& cp) : id_(cp.id_)
+	{ /* nothing */ }
+
+
+	/**********************************************************************************/
+	/**
+	 * The destructor
+	 */
+	virtual ~GSubmissionContainerT()
+	{ /* nothing */ }
+
+	/**********************************************************************************/
 	/** @brief Allows derived classes to specify the tasks to be performed for this object */
 	virtual bool process() = 0;
 
-	/** @brief Allows the courtier library to associate an id with the container */
-	void setCourtierId(const std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2>&);
-	/** @brief Allows to retrieve the courtier-id associated with this container */
-	std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> getCourtierId() const;
+	/**********************************************************************************/
+	/**
+	 * Loads user-specified data. This function can be overloaded by derived classes. It
+	 * is mainly intended to provide a mechanism to "deposit" an item at a remote site
+	 * that holds otherwise constant data. That data then does not need to be serialized
+	 * but can be loaded whenever a new work item arrives and has been de-serialized. Note
+	 * that, if your individuals do not serialize important parts of an object, you need
+	 * to make sure that constant data is loaded after reloading a checkpoint.
+	 *
+	 * @param cD_ptr A pointer to the object whose data should be loaded
+	 */
+	virtual void loadConstantData(boost::shared_ptr<submission_type> cD_ptr)
+	{ /* nothing */ }
+
+	/**********************************************************************************/
+	/**
+	 * Allows the courtier library to associate an id with the container
+	 *
+	 * @param id An id that allows the broker connector to identify this object
+	 */
+	void setCourtierId(const std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2>& id) {
+		id_ = id;
+	}
+
+	/**********************************************************************************/
+	/**
+	 * Allows to retrieve the courtier-id associated with this container
+	 *
+	 * @return An id that allows the broker connector to identify this object
+	 */
+	std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> getCourtierId() const {
+		return id_;
+	}
 
 private:
+	/**********************************************************************************/
     /** @brief A two-part id that can be assigned to this container object */
     std::pair<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> id_;
 };
@@ -115,10 +164,16 @@ private:
 } /* namespace Gem */
 
 /**************************************************************************************************/
-/**
- * @brief Needed for Boost.Serialization
- */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Courtier::GSubmissionContainer)
+/** @brief Mark this class as abstract. This is the content of
+ * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
+namespace boost {
+	namespace serialization {
+		template<typename submission_type>
+		struct is_abstract<Gem::Courtier::GSubmissionContainerT<submission_type> > : public boost::true_type {};
+		template<typename submission_type>
+		struct is_abstract< const Gem::Courtier::GSubmissionContainerT<submission_type> > : public boost::true_type {};
+	}
+}
 
 /**************************************************************************************************/
 
