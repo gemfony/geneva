@@ -55,19 +55,39 @@ using namespace Gem::Common::Testing;
 GBoundedBufferT<double> buffer;
 
 /**
- * A counter for dropped items
+ * A counter for dropped items inside of the producers
  */
-std::vector<std::size_t> droppedCounter;
+std::vector<std::size_t> producerDroppedCounter;
+
+/**
+ * A counter for dropped items inside of the consumers
+ */
+std::vector<std::size_t> consumerDroppedCounter;
+
+/**
+ * The sum of each comsumer reception
+ */
+std::vector<double> consumerSum;
 
 /**
  * An id to be assigned to each producer
  */
-std::size_t idCounter;
+std::size_t producerIdCounter;
+
+/**
+ * An id to be assigned to each consumer
+ */
+std::size_t consumerIdCounter;
 
 /**
  * A mutex that protects "everything producer"
  */
 boost::mutex producerMutex;
+
+/**
+ * A mutex that protects "everything consumer"
+ */
+boost::mutex consumerMutex;
 
 /*****************************************************************/
 /**
@@ -75,6 +95,8 @@ boost::mutex producerMutex;
  * a global queue
  *
  * @param nItems The amount of random numbers to be produced
+ * @param timeout The timeout after which an item should be dropped
+ * @param maxRandomDelay The maximum random delay in between two submissions
  */
 void producer(
 		const std::size_t& nItems
@@ -93,7 +115,7 @@ void producer(
 	// Find out about the id of this producer
 	{
 		boost::mutex::scoped_lock lk(producerMutex);
-		id = idCounter++;
+		id = producerIdCounter++;
 	}
 
 	if(maxRandomDelay.total_microseconds() == 0) {
@@ -124,25 +146,106 @@ void producer(
 		}
 	}
 
-	// Update the drop counter
+	// Update the drop counter and sums
 	{ // Explicit scope
 		boost::mutex::scoped_lock lk(producerMutex);
-		droppedCounter.at(id) = nDropped;
+		producerDroppedCounter.at(id) = nDropped;
 	}
 }
 
 /*****************************************************************/
+/**
+ * This function consumes random numbers from the global buffer
+ * and keeps track of failures
+ *
+ * @param nItems The maximum number of items after which the consumer should stop
+ * @param timeout The timeout after which a new attempt for retrieval should be started
+ * @param maxNumberOfTimeouts The maximum number of timeouts after which consummation should be stopped
+ * @param maxRandomDelay The maximum random delay in between two retrievals
+ */
+void consumer(
+		const std::size_t& nItems
+		, const boost::date_time& timeout
+		, const std::size_t& maxNumberOfTimeouts
+		, const boost::date_time& maxRandomDelay
+) {
+	s td::size_t id = 0;
+	std::size_t nDropped = 0;
+	double *item;
+	double sum = 0.;
 
+	// A random number generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr;
 
+	// Find out about the maximum random delay in microseconds
+	long maxRandomDelayMS = maxRandomDelay.total_microseconds();
+
+	// Find out about the id of this producer
+	{
+		boost::mutex::scoped_lock lk(consumerMutex);
+		id = consumerIdCounter++;
+	}
+
+	if(maxRandomDelay.total_microseconds() == 0) {
+		if(timeout.total_microseconds() == 0) {
+			for(std::size_t i=0; i<nItems; i++) {
+				buffer.pop_back(item);
+				sum += *item;
+			}
+		} else { // We use a timeout for push_fronts
+			for(std::size_t i=0; i<nItems; i++) {
+				if(!pop_back_bool(item, timeout)) {
+					if(nDropped++ > maxNumberOfTimeouts) break;
+				} else {
+					sum += *item;
+				}
+			}
+		}
+	} else { // We use a random delay in between submissions
+		if(timeout.total_microseconds() == 0) {
+			for(std::size_t i=0; i<nItems; i++) {
+				boost::this_thread::sleep(gr.uniform_int(long(0),maxRandomDelayMS));
+				buffer.pop_back(item);
+				sum += *item;
+			}
+		} else {
+			for(std::size_t i=0; i<nItems; i++) {
+				boost::this_thread::sleep(gr.uniform_int(long(0),maxRandomDelayMS));
+				if(!pop_back_bool(item, timeout)) {
+					if(nDropped++ > maxNumberOfTimeouts) break;
+				} else {
+					sum += *item;
+				}
+			}
+		}
+	}
+
+	// Update the drop counter
+	{ // Explicit scope
+		boost::mutex::scoped_lock lk(consumerMutex);
+		consumerDroppedCounter.at(id) = nDropped;
+		consumerSum.at(id) = sum;
+	}
+}
+
+/*****************************************************************/
+/**
+ * This program tests the performance and reliability of the
+ * GBoundedBufferT class by producing and consuming many double
+ * values from within concurrent threads.
+ */
 int main(int argc, char**argv) {
 	// Read the program options
 
 	// Initialize the counters
-	idCounter = 0;
-	droppedCounter.resize(nProducers);
+	producerIdCounter = 0;
+	consumerIdCounter = 0;
+	producerDroppedCounter.resize(nProducers);
+	consumerDroppedCounter.resize(nConsumers);
+	consumerSum.resize(nConsumers);
 
 	// Initialize the counter with 0s
 	for(std::size_t i=0; i<nProducers; i++) {
-		droppedCounter[i] = 0;
+		producerDroppedCounter[i] = 0;
 	}
 }
