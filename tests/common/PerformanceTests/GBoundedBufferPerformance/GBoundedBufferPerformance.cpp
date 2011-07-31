@@ -169,9 +169,9 @@ void consumer(
 		, const std::size_t& maxNumberOfTimeouts
 		, const boost::date_time& maxRandomDelay
 ) {
-	s td::size_t id = 0;
+	std::size_t id = 0;
 	std::size_t nDropped = 0;
-	double *item;
+	double item;
 	double sum = 0.;
 
 	// A random number generator
@@ -190,14 +190,14 @@ void consumer(
 		if(timeout.total_microseconds() == 0) {
 			for(std::size_t i=0; i<nItems; i++) {
 				buffer.pop_back(item);
-				sum += *item;
+				sum += item;
 			}
 		} else { // We use a timeout for push_fronts
 			for(std::size_t i=0; i<nItems; i++) {
 				if(!pop_back_bool(item, timeout)) {
 					if(nDropped++ > maxNumberOfTimeouts) break;
 				} else {
-					sum += *item;
+					sum += item;
 				}
 			}
 		}
@@ -206,7 +206,7 @@ void consumer(
 			for(std::size_t i=0; i<nItems; i++) {
 				boost::this_thread::sleep(gr.uniform_int(long(0),maxRandomDelayMS));
 				buffer.pop_back(item);
-				sum += *item;
+				sum += item;
 			}
 		} else {
 			for(std::size_t i=0; i<nItems; i++) {
@@ -214,7 +214,7 @@ void consumer(
 				if(!pop_back_bool(item, timeout)) {
 					if(nDropped++ > maxNumberOfTimeouts) break;
 				} else {
-					sum += *item;
+					sum += item;
 				}
 			}
 		}

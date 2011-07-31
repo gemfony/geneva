@@ -259,13 +259,13 @@ public:
 	 * function will block if no items are available and will continue
 	 * once items become available again.
 	 *
-	 * @param pItem Pointer to a single item that was removed from the end of the buffer
+	 * @param item Reference to a single item that was removed from the end of the buffer
 	 */
-	void pop_back(value_type* pItem)
+	void pop_back(value_type& item)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		not_empty_.wait(lock, boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this));
-		*pItem = container_.back();
+		item = container_.back();
 		container_.pop_back();
 		lock.unlock();
 		not_full_.notify_one();
@@ -277,16 +277,16 @@ public:
 	 * will time out after a given amount of time. This function was
 	 * added to Jan Gaspar's original implementation.
 	 *
-	 * @param pItem Pointer to a single item that was removed from the end of the buffer
+	 * @param item Reference to a single item that was removed from the end of the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
-	void pop_back(value_type* pItem, const boost::posix_time::time_duration& timeout)
+	void pop_back(value_type& item, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this))) {
 			throw Gem::Common::condition_time_out();
 		}
-		(*pItem) = container_.back();
+		item = container_.back();
 		container_.pop_back();
 		lock.unlock();
 		not_full_.notify_one();
@@ -299,17 +299,17 @@ public:
 	 * in this case. "true" will be returned if an item could be retrieved
 	 * successfully.
 	 *
-	 * @param pItem Pointer to a single item that was removed from the end of the buffer
+	 * @param item Reference to a single item that was removed from the end of the buffer
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item has been successfully retrieved
 	 */
-	bool pop_back_bool(value_type* pItem, const boost::posix_time::time_duration& timeout)
+	bool pop_back_bool(value_type& item, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this))) {
 			return false;
 		}
-		(*pItem) = container_.back(); // Assign the item at the back of the container
+		item = container_.back(); // Assign the item at the back of the container
 		container_.pop_back(); // Remove it from the container
 		lock.unlock();
 		not_full_.notify_one();

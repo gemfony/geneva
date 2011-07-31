@@ -312,7 +312,7 @@ boost::shared_array<double> GRandomFactory::new01Container() {
 	boost::shared_array<double> result; // empty
 
 	try {
-		g01_->pop_back(&result, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
+		g01_->pop_back(result, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
 	} catch (Gem::Common::condition_time_out&) {
 		// nothing - our way of signaling a time out
 		// is to return an empty boost::shared_ptr

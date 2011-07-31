@@ -99,7 +99,7 @@ GSeedManager::~GSeedManager() {
  */
 seed_type GSeedManager::getSeed() {
 	seed_type seed;
-	seedQueue_.pop_back(&seed);
+	seedQueue_.pop_back(seed);
 	return seed;
 }
 
@@ -114,7 +114,7 @@ seed_type GSeedManager::getSeed() {
  */
 seed_type GSeedManager::getSeed(const boost::posix_time::time_duration& timeout) {
 	seed_type seed;
-	seedQueue_.pop_back(&seed, timeout);
+	seedQueue_.pop_back(seed, timeout);
 	return seed;
 }
 

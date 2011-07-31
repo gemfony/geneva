@@ -828,7 +828,7 @@ public:
 			// We cannot continue in this case. It is recommended to set firstTimeOut_
 			// to a rather high value or to alternatively disable it completely by setting it
 			// to EMPTYDURATION.
-			if(!CurrentBufferPort_->pop_back_processed_bool(&p, firstTimeOut_)) {
+			if(!CurrentBufferPort_->pop_back_processed_bool(p, firstTimeOut_)) {
 				raiseException(
 						"In GBrokerConnectorT<T>::retrieveFirstItem():" << std::endl
 						<< "Timeout for first item reached." << std::endl
@@ -838,7 +838,7 @@ public:
 			}
 		}
 		else { // Wait indefinitely for the first item to return
-			CurrentBufferPort_->pop_back_processed(&p);
+			CurrentBufferPort_->pop_back_processed(p);
 		}
 
 		// At this point we have received the first individual of the current generation back.
@@ -873,7 +873,7 @@ public:
 			// We cannot continue in this case. It is recommended to set firstTimeOut_
 			// to a rather high value or to alternatively disable it completely by setting it
 			// to EMPTYDURATION.
-			if(!CurrentBufferPort_->pop_back_processed_bool(&p, firstTimeOut_)) {
+			if(!CurrentBufferPort_->pop_back_processed_bool(p, firstTimeOut_)) {
 				raiseException(
 						"In GBrokerConnectorT<T>::retrieveFirstItem<target_type>():" << std::endl
 						<< "Timeout for first item reached." << std::endl
@@ -883,7 +883,7 @@ public:
 			}
 		}
 		else { // Wait indefinitely for the first item to return
-			CurrentBufferPort_->pop_back_processed(&p);
+			CurrentBufferPort_->pop_back_processed(p);
 		}
 
 		// At this point we have received the first individual of the current generation back.
@@ -932,13 +932,13 @@ public:
 		boost::posix_time::time_duration currentElapsed;
 
 		if(boundlessWait_) { // Wait indefinitely for the next item
-			CurrentBufferPort_->pop_back_processed(&p);
+			CurrentBufferPort_->pop_back_processed(p);
 		} else { // Observe a timeout
 			// Calculate how much time has elapsed since the start of the iteration
 			currentElapsed = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
 
 			// Have we already exceeded the timeout ? Or was it impossible to retrieve an item in the remaining time before the timeout ?
-			if((currentElapsed > maxAllowedElapsed_) || !CurrentBufferPort_->pop_back_processed_bool(&p, maxAllowedElapsed_-currentElapsed)) {
+			if((currentElapsed > maxAllowedElapsed_) || !CurrentBufferPort_->pop_back_processed_bool(p, maxAllowedElapsed_-currentElapsed)) {
 				// We ran into a timeout before the start of a new iteration was signaled.
 				// This is interpreted as a situation where not all items have returned.
 				allItemsReturned_ = false;
@@ -996,13 +996,13 @@ public:
 		boost::posix_time::time_duration currentElapsed;
 
 		if(boundlessWait_) { // Wait indefinitely for the next item
-			CurrentBufferPort_->pop_back_processed(&p);
+			CurrentBufferPort_->pop_back_processed(p);
 		} else { // Observe a timeout
 			// Calculate how much time has elapsed since the start of the iteration
 			currentElapsed = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
 
 			// Have we already exceeded the timeout ? Or was it impossible to retrieve an item in the remaining time before the timeout ?
-			if((currentElapsed > maxAllowedElapsed_) || !CurrentBufferPort_->pop_back_processed_bool(&p, maxAllowedElapsed_-currentElapsed)) {
+			if((currentElapsed > maxAllowedElapsed_) || !CurrentBufferPort_->pop_back_processed_bool(p, maxAllowedElapsed_-currentElapsed)) {
 				// We ran into a timeout before the start of a new iteration was signaled.
 				// This is interpreted as a situation where not all items have returned.
 				allItemsReturned_ = false;

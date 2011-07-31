@@ -277,7 +277,7 @@ public:
 		}
 
 		// Retrieve the item. This function is thread-safe.
-		currentBuffer->pop_back(&p);
+		currentBuffer->pop_back(p);
 
 		// Return the id. The function is const, hence we should be
 		// able to call it in a multi-threaded environment.
@@ -310,7 +310,7 @@ public:
 		}
 
 		// Retrieve the item. This function is thread-safe.
-		currentBuffer->pop_back(&p, timeout);
+		currentBuffer->pop_back(p, timeout);
 
 		// Return the id. The function is const, hence we should be
 		// able to call it in a multi-threaded environment.
