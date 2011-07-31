@@ -48,7 +48,6 @@ bool parseCommandLine(
 	  , std::string& resultFile
 	  , std::size_t& nProducers
 	  , std::size_t& nConsumers
-	  , std::size_t& nItems
 	  , long& timeoutMS
 	  , long& maxRandomDelayMS
 	  , std::size_t& maxNTimeouts
@@ -64,8 +63,6 @@ bool parseCommandLine(
 	   "The number of producers of items")
 	  ("nConsumers,c", po::value<std::size_t>(&nConsumers)->default_value(DEFAULTNCONSUMERSAP),
 	   "The number of consumers of items")
-	  ("nItems,i", po::value<std::size_t>(&nItems)->default_value(DEFAULTNITEMSAP),
-	   "The number of items to be created by each producer")
 	  ("timeoutMS,t", po::value<long>(&timeoutMS)->default_value(DEFAULTTIMEOUTMS),
 	   "The duration of the timeout in microseconds")
 	  ("maxRandomDelayMS,m", po::value<long>(&maxRandomDelayMS)->default_value(DEFAULTMAXRANDOMDELAYMS),
@@ -89,7 +86,6 @@ bool parseCommandLine(
 			<< "resultFile = " << resultFile << std::endl
 			<< "nProducers = " << nProducers << std::endl
 			<< "nConsumers = " << nConsumers << std::endl
-			<< "nItems = " << nItems << std::endl
 			<< "timeoutMS = " << timeoutMS << std::endl
 			<< "maxRandomDelayMS = " << maxRandomDelayMS << std::endl
 			<< "maxNTimeouts = " << maxNTimeouts << std::endl

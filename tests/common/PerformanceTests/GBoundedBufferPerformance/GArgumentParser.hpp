@@ -65,7 +65,6 @@ namespace po = boost::program_options;
 const std::string DEFAULTRESULTFILEAP = "result.C";
 const std::size_t DEFAULTNPRODUCERSAP = 4;
 const std::size_t DEFAULTNCONSUMERSAP = 4;
-const std::size_t DEFAULTNITEMSAP = 1000000;
 const long DEFAULTTIMEOUTMS = 10000; // 0.01 s
 const long DEFAULTMAXRANDOMDELAYMS = 0; // 0.01
 const std::size_t DEFAULTMAXNTIMEOUTS = 100;
@@ -78,7 +77,6 @@ bool parseCommandLine(
 	  , std::string& resultFile
 	  , std::size_t& nProducers
 	  , std::size_t& nConsumers
-	  , std::size_t& nItems
 	  , long& timeoutMS
 	  , long& maxRandomDelayMS
 	  , std::size_t& maxNTimeouts
