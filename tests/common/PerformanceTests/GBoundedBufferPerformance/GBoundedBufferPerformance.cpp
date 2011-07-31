@@ -36,9 +36,11 @@
 
 // Boost headers go here
 #include <boost/cstdint.hpp>
+#include <boost/bind.hpp>
 #include <boost/date_time.hpp>
 
 // Geneva headers go here
+#include "common/GThreadGroup.hpp"
 #include "common/GBoundedBufferT.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -46,7 +48,7 @@
 #include "GArgumentParser.hpp"
 
 using namespace Gem::Common;
-using namespace Gem::Common::Testing;
+using namespace Gem::Common::Tests;
 
 /*****************************************************************/
 /**
@@ -55,14 +57,19 @@ using namespace Gem::Common::Testing;
 GBoundedBufferT<double> buffer;
 
 /**
+ * A barrier on which all threads have to wait
+ */
+boost::shared_ptr<boost::barrier> sync_ptr;
+
+/**
  * A counter for dropped items inside of the producers
  */
 std::vector<std::size_t> producerDroppedCounter;
 
 /**
- * A counter for dropped items inside of the consumers
+ * The sum of all producer submissions
  */
-std::vector<std::size_t> consumerDroppedCounter;
+std::vector<double> producerSum;
 
 /**
  * The sum of each comsumer reception
@@ -99,15 +106,14 @@ boost::mutex consumerMutex;
  * @param maxRandomDelay The maximum random delay in between two submissions
  */
 void producer(
-		const std::size_t& nItems
-		, const boost::date_time& timeout
-		, const boost::date_time& maxRandomDelay
+		std::size_t nItems
+		, boost::posix_time::time_duration timeout
+		, boost::posix_time::time_duration maxRandomDelay
 ) {
 	std::size_t id = 0;
 	std::size_t nDropped = 0;
 
-	// A random number generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr; // A random number proxy
 
 	// Find out about the maximum random delay in microseconds
 	long maxRandomDelayMS = maxRandomDelay.total_microseconds();
@@ -118,6 +124,8 @@ void producer(
 		id = producerIdCounter++;
 	}
 
+	sync_ptr->wait(); // Do not start before all threads have reached the wait()
+
 	if(maxRandomDelay.total_microseconds() == 0) {
 		if(timeout.total_microseconds() == 0) {
 			for(std::size_t i=0; i<nItems; i++) {
@@ -125,7 +133,7 @@ void producer(
 			}
 		} else { // We use a timeout for push_fronts
 			for(std::size_t i=0; i<nItems; i++) {
-				if(!push_front_bool(gr.uniform_01<double>(), timeout)) {
+				if(!buffer.push_front_bool(gr.uniform_01<double>(), timeout)) {
 					nDropped++;
 				}
 			}
@@ -133,15 +141,23 @@ void producer(
 	} else { // We use a random delay in between submissions
 		if(timeout.total_microseconds() == 0) {
 			for(std::size_t i=0; i<nItems; i++) {
-				boost::this_thread::sleep(gr.uniform_int(long(0),maxRandomDelayMS));
 				buffer.push_front(gr.uniform_01<double>());
+				boost::this_thread::sleep(
+					boost::posix_time::microseconds(
+						gr.uniform_int(long(0), maxRandomDelayMS)
+					)
+				);
 			}
 		} else {
 			for(std::size_t i=0; i<nItems; i++) {
-				boost::this_thread::sleep(gr.uniform_int(long(0),maxRandomDelayMS));
 				if(!buffer.push_front_bool(gr.uniform_01<double>(), timeout)) {
 					nDropped++;
 				}
+				boost::this_thread::sleep(
+					boost::posix_time::microseconds(
+						gr.uniform_int(long(0), maxRandomDelayMS)
+					)
+				);
 			}
 		}
 	}
@@ -150,6 +166,8 @@ void producer(
 	{ // Explicit scope
 		boost::mutex::scoped_lock lk(producerMutex);
 		producerDroppedCounter.at(id) = nDropped;
+
+		std::cout << "Producer " << id << " dropped " << nDropped << " of " << nItems << " items" << std::endl;
 	}
 }
 
@@ -158,27 +176,30 @@ void producer(
  * This function consumes random numbers from the global buffer
  * and keeps track of failures
  *
- * @param nItems The maximum number of items after which the consumer should stop
  * @param timeout The timeout after which a new attempt for retrieval should be started
  * @param maxNumberOfTimeouts The maximum number of timeouts after which consummation should be stopped
  * @param maxRandomDelay The maximum random delay in between two retrievals
  */
 void consumer(
-		const std::size_t& nItems
-		, const boost::date_time& timeout
-		, const std::size_t& maxNumberOfTimeouts
-		, const boost::date_time& maxRandomDelay
+		boost::posix_time::time_duration timeout
+		, std::size_t maxNumberOfTimeouts
+		, boost::posix_time::time_duration maxRandomDelay
 ) {
 	std::size_t id = 0;
 	std::size_t nDropped = 0;
 	double item;
 	double sum = 0.;
-
-	// A random number generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr;
+	bool maxTimeoutsReached = false;
 
 	// Find out about the maximum random delay in microseconds
 	long maxRandomDelayMS = maxRandomDelay.total_microseconds();
+
+	// Find out about the timeout in microseconds
+	long timeoutMS = timeout.total_microseconds();
+	if(timeoutMS == 0) {
+		std::cerr << "In consumer(): Error! Got timeout of 0" << std::endl;
+		std::terminate();
+	}
 
 	// Find out about the id of this producer
 	{
@@ -186,45 +207,43 @@ void consumer(
 		id = consumerIdCounter++;
 	}
 
+	sync_ptr->wait(); // Do not start before all threads have reached the wait()
+
 	if(maxRandomDelay.total_microseconds() == 0) {
-		if(timeout.total_microseconds() == 0) {
-			for(std::size_t i=0; i<nItems; i++) {
-				buffer.pop_back(item);
+		while(true) {
+			if(buffer.pop_back_bool(item, timeout)) {
 				sum += item;
-			}
-		} else { // We use a timeout for push_fronts
-			for(std::size_t i=0; i<nItems; i++) {
-				if(!pop_back_bool(item, timeout)) {
-					if(nDropped++ > maxNumberOfTimeouts) break;
-				} else {
-					sum += item;
-				}
+			} else {
+				if(nDropped++ > maxNumberOfTimeouts) break;
 			}
 		}
 	} else { // We use a random delay in between submissions
-		if(timeout.total_microseconds() == 0) {
-			for(std::size_t i=0; i<nItems; i++) {
-				boost::this_thread::sleep(gr.uniform_int(long(0),maxRandomDelayMS));
-				buffer.pop_back(item);
+		Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr; // A random number generator
+
+		while(true) {
+			if(buffer.pop_back_bool(item, timeout)) {
 				sum += item;
-			}
-		} else {
-			for(std::size_t i=0; i<nItems; i++) {
-				boost::this_thread::sleep(gr.uniform_int(long(0),maxRandomDelayMS));
-				if(!pop_back_bool(item, timeout)) {
-					if(nDropped++ > maxNumberOfTimeouts) break;
-				} else {
-					sum += item;
+			} else {
+				if(nDropped++ > maxNumberOfTimeouts) {
+					maxTimeoutsReached = true;
+					break;
 				}
 			}
+			boost::this_thread::sleep(
+				boost::posix_time::microseconds(
+					gr.uniform_int(long(0), maxRandomDelayMS)
+				)
+			);
 		}
 	}
 
-	// Update the drop counter
+	// Update the counters
 	{ // Explicit scope
 		boost::mutex::scoped_lock lk(consumerMutex);
-		consumerDroppedCounter.at(id) = nDropped;
 		consumerSum.at(id) = sum;
+		if(maxTimeoutsReached) {
+			std::cout << "Consumer " << id << " has reached " << maxNumberOfTimeouts << " timeouts" << std::endl;
+		}
 	}
 }
 
@@ -235,17 +254,71 @@ void consumer(
  * values from within concurrent threads.
  */
 int main(int argc, char**argv) {
-	// Read the program options
+	Gem::Common::GThreadGroup producer_gtg;
+	Gem::Common::GThreadGroup consumer_gtg;
 
-	// Initialize the counters
+	std::string resultFile;
+	std::size_t nProducers, nConsumers;
+	std::size_t nItems;
+	long timeoutMS;
+	long maxRandomDelayMS;
+	std::size_t maxNTimeouts;
+
+	// Read the program options
+	if(!parseCommandLine(
+			argc, argv
+			, resultFile
+			, nProducers
+			, nConsumers
+			, nItems
+			, timeoutMS
+			, maxRandomDelayMS
+			, maxNTimeouts
+		)
+	)
+	{ exit(1); }
+
+	// Initialize the counters and vectors
 	producerIdCounter = 0;
 	consumerIdCounter = 0;
 	producerDroppedCounter.resize(nProducers);
-	consumerDroppedCounter.resize(nConsumers);
+	producerSum.resize(nProducers);
 	consumerSum.resize(nConsumers);
 
-	// Initialize the counter with 0s
+	// Initialize the producer counters with 0s
 	for(std::size_t i=0; i<nProducers; i++) {
 		producerDroppedCounter[i] = 0;
+		producerSum[i] = 0.;
 	}
+	// Initialize the consumer counters with 0
+	for(std::size_t i=0; i<nConsumers; i++) {
+		consumerSum[i] = 0.;
+	}
+
+	// Initialize the global barrier so all threads start at a predefined time
+	sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(nProducers + nConsumers));
+
+	// Start the threads
+	producer_gtg.create_threads(
+		boost::bind(
+			producer
+			, nItems
+			, boost::posix_time::microseconds(timeoutMS)
+			, boost::posix_time::microseconds(maxRandomDelayMS)
+		)
+		, nProducers
+	);
+
+	consumer_gtg.create_threads(
+		boost::bind(
+			consumer
+			, boost::posix_time::microseconds(timeoutMS)
+			, maxNTimeouts
+			, boost::posix_time::microseconds(maxRandomDelayMS)
+		)
+		, nConsumers);
+
+	// Wait for all threads to finish
+	producer_gtg.join_all();
+	consumer_gtg.join_all();
 }

@@ -11,4 +11,4 @@ ADD_DEPENDENCIES ( "common-tests"
 )
 
 #ADD_SUBDIRECTORY ( UnitTests )
-#ADD_SUBDIRECTORY ( PerformanceTests )
+ADD_SUBDIRECTORY ( PerformanceTests )

@@ -32,12 +32,59 @@
  * http://www.gemfony.com .
  */
 
+// Standard headers go here
+#include <iostream>
+#include <fstream>
+
+// Boost headers go here
+#include <boost/version.hpp>
+
+#if BOOST_VERSION < 104000
+#error "Error: Boost should at least have version 1.40 !"
+#endif /* BOOST_VERSION */
+
+#include <boost/cstdint.hpp>
+#include <boost/program_options.hpp>
+
 #ifndef GARGUMENTPARSER_HPP_
 #define GARGUMENTPARSER_HPP_
+
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
 namespace Gem {
 namespace Common {
 namespace Tests {
+
+namespace po = boost::program_options;
+
+/********************************************************************************************/
+// Default settings
+const std::string DEFAULTRESULTFILEAP = "result.C";
+const std::size_t DEFAULTNPRODUCERSAP = 4;
+const std::size_t DEFAULTNCONSUMERSAP = 4;
+const std::size_t DEFAULTNITEMSAP = 1000000;
+const long DEFAULTTIMEOUTMS = 10000; // 0.01 s
+const long DEFAULTMAXRANDOMDELAYMS = 0; // 0.01
+const std::size_t DEFAULTMAXNTIMEOUTS = 100;
+
+/********************************************************************************************/
+
+bool parseCommandLine(
+		int argc
+	  , char **argv
+	  , std::string& resultFile
+	  , std::size_t& nProducers
+	  , std::size_t& nConsumers
+	  , std::size_t& nItems
+	  , long& timeoutMS
+	  , long& maxRandomDelayMS
+	  , std::size_t& maxNTimeouts
+);
+
+/********************************************************************************************/
 
 } /* namespace Tests */
 } /* namespace Common */
