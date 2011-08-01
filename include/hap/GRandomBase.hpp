@@ -337,7 +337,8 @@ public:
 #endif /* DEBUG */
 
 		// A uniform distribution in the desired range. Note that boost::uniform_int produces
-		// random numbers up to and including its upper limit.
+		// random numbers up to and including its upper limit. Note that ui is a distribution
+		// only. The actual generator is provided by this class (see variate_generator).
 		boost::uniform_int<int_type> ui(min, max);
 
 		// A generator that binds together our own random number generator and a uniform_int distribution
@@ -358,7 +359,7 @@ public:
 			  const int_type& max
 			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
 	) {
-		return uniform_int<int_type>(0, max);
+		return this->uniform_int<int_type>(0, max);
 	}
 
 	/*************************************************************************/
@@ -382,7 +383,8 @@ public:
 #endif /* DEBUG */
 
 		// A uniform distribution in the desired range. Note that boost::uniform_int produces
-		// random numbers up to and including its upper limit.
+		// random numbers up to and including its upper limit. Note that ui is a distribution
+		// only. The actual generator is provided by this class (see variate_generator).
 		boost::uniform_smallint<int_type> ui(min, max);
 
 		// A generator that binds together our own random number generator and a uniform_smallint distribution
@@ -409,7 +411,7 @@ public:
 		assert(max >= 0);
 #endif /* DEBUG */
 
-		return uniform_smallint<int_type>(0, max);
+		return this->uniform_smallint<int_type>(0, max);
 	}
 
 protected:

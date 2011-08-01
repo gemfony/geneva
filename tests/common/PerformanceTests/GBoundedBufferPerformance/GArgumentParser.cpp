@@ -47,10 +47,10 @@ bool parseCommandLine(
 	  , char **argv
 	  , std::string& resultFile
 	  , std::size_t& nProducers
+	  , std::size_t& nItems
 	  , std::size_t& nConsumers
 	  , long& timeoutMS
 	  , long& maxRandomDelayMS
-	  , std::size_t& maxNTimeouts
 ) {
   try{
 	// Check the command line options. Uses the Boost program options library.
@@ -61,14 +61,14 @@ bool parseCommandLine(
 	   "The name of the file holding the test results")
 	  ("nProducers,p", po::value<std::size_t>(&nProducers)->default_value(DEFAULTNPRODUCERSAP),
 	   "The number of producers of items")
+	  ("nItems,i", po::value<std::size_t>(&nItems)->default_value(DEFAULTNITEMS),
+	   "The number of items to be created by each producer")
 	  ("nConsumers,c", po::value<std::size_t>(&nConsumers)->default_value(DEFAULTNCONSUMERSAP),
 	   "The number of consumers of items")
 	  ("timeoutMS,t", po::value<long>(&timeoutMS)->default_value(DEFAULTTIMEOUTMS),
 	   "The duration of the timeout in microseconds")
 	  ("maxRandomDelayMS,m", po::value<long>(&maxRandomDelayMS)->default_value(DEFAULTMAXRANDOMDELAYMS),
 	   "The maximum size of random delays in microseconds")
-	  ("maxNTimeouts,n", po::value<std::size_t>(&maxNTimeouts)->default_value(DEFAULTMAXNTIMEOUTS),
-	   "The maximum number of consumer timeouts")
 	  ;
 
 	po::variables_map vm;
@@ -85,10 +85,10 @@ bool parseCommandLine(
 			<< "Running with the following command line options:" << std::endl
 			<< "resultFile = " << resultFile << std::endl
 			<< "nProducers = " << nProducers << std::endl
+			<< "nItems = " << nItems << std::endl
 			<< "nConsumers = " << nConsumers << std::endl
 			<< "timeoutMS = " << timeoutMS << std::endl
 			<< "maxRandomDelayMS = " << maxRandomDelayMS << std::endl
-			<< "maxNTimeouts = " << maxNTimeouts << std::endl
 			<< std::endl;
   }
   catch(...){

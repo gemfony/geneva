@@ -67,7 +67,7 @@ const std::size_t DEFAULTNPRODUCERSAP = 4;
 const std::size_t DEFAULTNCONSUMERSAP = 4;
 const long DEFAULTTIMEOUTMS = 10000; // 0.01 s
 const long DEFAULTMAXRANDOMDELAYMS = 0; // 0.01
-const std::size_t DEFAULTMAXNTIMEOUTS = 100;
+const std::size_t DEFAULTNITEMS = 1000000;
 
 /********************************************************************************************/
 
@@ -76,10 +76,10 @@ bool parseCommandLine(
 	  , char **argv
 	  , std::string& resultFile
 	  , std::size_t& nProducers
+	  , std::size_t& nItems
 	  , std::size_t& nConsumers
 	  , long& timeoutMS
 	  , long& maxRandomDelayMS
-	  , std::size_t& maxNTimeouts
 );
 
 /********************************************************************************************/

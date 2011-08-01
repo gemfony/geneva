@@ -167,8 +167,7 @@ private:
 
 #ifdef DEBUG
 			if(nRetries) {
-				std::cout << "Info: Had to try " << nRetries+1 << " times to" << std::endl
-						  << "retrieve a valid random number container." << std::endl;
+				std::cout << "Info: Had to try " << nRetries+1 << " times to retrieve a valid random number container." << std::endl;
 			}
 #endif /* DEBUG */
 
