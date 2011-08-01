@@ -293,7 +293,7 @@ public:
 	 * @param timeout Time after which the function should time out
 	 * @return A key that uniquely identifies the origin of p
 	 */
-	Gem::Common::PORTIDTYPE get(boost::shared_ptr<carrier_type> & p, const boost::posix_time::time_duration& timeout) {
+	Gem::Common::PORTIDTYPE get(boost::shared_ptr<carrier_type> & p, boost::posix_time::time_duration timeout) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 
 		// Locks access to our internal data until we have a copy of a buffer.
@@ -326,7 +326,7 @@ public:
 	 * @param key A key that uniquely identifies the origin of p
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 */
-	void put(const Gem::Common::PORTIDTYPE& id, const boost::shared_ptr<carrier_type> & p) {
+	void put(Gem::Common::PORTIDTYPE id, boost::shared_ptr<carrier_type> p) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
@@ -358,9 +358,9 @@ public:
 	 * @param timeout Time after which the function should time out
 	 */
 	void put(
-			const Gem::Common::PORTIDTYPE& id
-			, const boost::shared_ptr<carrier_type> & p
-			, const boost::posix_time::time_duration& timeout
+			Gem::Common::PORTIDTYPE id
+			, boost::shared_ptr<carrier_type> p
+			, boost::posix_time::time_duration timeout
 	) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 

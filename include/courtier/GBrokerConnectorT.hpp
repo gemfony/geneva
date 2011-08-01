@@ -584,10 +584,10 @@ public:
     		std::ostringstream information;
     		information
     				<< std::endl
-    				<< "Incomplete sumission " << submission_counter_ << ":" << std::endl
+    				<< "Incomplete submission " << submission_counter_ << ":" << std::endl
     				<< "nReceivedCurrent = " << nReceivedCurrent << std::endl
     				<< "expectedNumber   = " << expectedNumber << std::endl
-    				<< "nReivedOlder     = " << nReceivedOlder << std::endl;
+    				<< "nReceivedOlder   = " << nReceivedOlder << std::endl;
     		std::cout << information.str();
     	}
 #endif /* DEBUG */

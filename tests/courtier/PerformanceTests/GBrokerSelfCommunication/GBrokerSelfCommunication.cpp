@@ -57,8 +57,8 @@ boost::mutex producer_counter_mutex;
 using namespace Gem::Courtier;
 using namespace Gem::Courtier::Tests;
 
-#define WORKLOAD GRandomNumberContainer
-// #define WORKLOAD GSimpleContainer
+// #define WORKLOAD GRandomNumberContainer
+#define WORKLOAD GSimpleContainer
 
 /********************************************************************************/
 
