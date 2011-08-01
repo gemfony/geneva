@@ -38,6 +38,7 @@
 #include <boost/cstdint.hpp>
 #include <boost/bind.hpp>
 #include <boost/date_time.hpp>
+#include <boost/shared_ptr.hpp>
 
 // Geneva headers go here
 #include "common/GThreadGroup.hpp"
@@ -54,7 +55,7 @@ using namespace Gem::Common::Tests;
 /**
  * The global thread-safe queue
  */
-GBoundedBufferT<double> buffer;
+GBoundedBufferT<boost::shared_ptr<double> > buffer;
 
 /**
  * A barrier on which all threads have to wait
@@ -128,6 +129,7 @@ void producer(
 ) {
 	std::size_t id = 0;
 	std::size_t nDropped = 0;
+	std::vector<std::size_t> droppedIteration;
 	double sum = 0, var = 0.;
 
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr; // A random number proxy
@@ -148,15 +150,16 @@ void producer(
 			for(std::size_t i=0; i<nItems; i++) {
 				var = gr.uniform_01<double>();
 				sum += var;
-				buffer.push_front(var);
+				buffer.push_front(boost::shared_ptr<double>(new double(var)));
 			}
 		} else { // We use a timeout for push_fronts
 			for(std::size_t i=0; i<nItems; i++) {
 				var = gr.uniform_01<double>();
-				if(buffer.push_front_bool(var, timeout)) {
+				if(buffer.push_front_bool(boost::shared_ptr<double>(new double(var)), timeout)) {
 					sum += var;
 				} else {
 					nDropped++;
+					droppedIteration.push_back(i);
 				}
 			}
 		}
@@ -165,7 +168,7 @@ void producer(
 			for(std::size_t i=0; i<nItems; i++) {
 				var = gr.uniform_01<double>();
 				sum += var;
-				buffer.push_front(var);
+				buffer.push_front(boost::shared_ptr<double>(new double(var)));
 				boost::this_thread::sleep(
 					boost::posix_time::microseconds(
 						gr.uniform_int(long(0), maxRandomDelayMS)
@@ -175,10 +178,11 @@ void producer(
 		} else {
 			for(std::size_t i=0; i<nItems; i++) {
 				var = gr.uniform_01<double>();
-				if(buffer.push_front_bool(var, timeout)) {
+				if(buffer.push_front_bool(boost::shared_ptr<double>(new double(var)), timeout)) {
 					sum += var;
 				} else {
 					nDropped++;
+					droppedIteration.push_back(i);
 				}
 				boost::this_thread::sleep(
 					boost::posix_time::microseconds(
@@ -196,7 +200,10 @@ void producer(
 		producerSum.at(id) = sum;
 		std::cout << "Producer " << id << " has produced a total of " << sum;
 		if(nDropped > 0) {
-			std::cout << " and has dropped " << nDropped << " of " << nItems << " items";
+			std::cout << " and has dropped " << nDropped << " of " << nItems << " items in iteration ";
+			for(std::vector<std::size_t>::iterator it = droppedIteration.begin(); it!=droppedIteration.end(); ++it) {
+				std::cout << *it << " ";
+			}
 		}
 		std::cout << "." << std::endl;
 	}
@@ -216,7 +223,9 @@ void consumer(
 ) {
 	std::size_t id = 0;
 	std::size_t nDropped = 0;
-	double item;
+	std::size_t iteration = 0;
+	std::vector<std::size_t> droppedIteration;
+	boost::shared_ptr<double> item;
 	double sum = 0.;
 	bool stopExecution = false;
 	bool maxTimeoutsReached = false;
@@ -242,7 +251,7 @@ void consumer(
 	if(maxRandomDelay.total_microseconds() == 0) {
 		while(true) {
 			if(buffer.pop_back_bool(item, timeout)) {
-				sum += item;
+				sum += *item;
 			} else {
 				// We ran into a timeout; Check whether we've been asked to stop, otherwise count
 				{
@@ -252,15 +261,20 @@ void consumer(
 				}
 
 				if(stopExecution) break;
-				else nDropped++;
+				else {
+					droppedIteration.push_back(iteration);
+					nDropped++;
+				}
 			}
+
+			iteration++;
 		}
 	} else { // We use a random delay in-between submissions
 		Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr; // A random number generator
 
 		while(true) {
 			if(buffer.pop_back_bool(item, timeout)) {
-				sum += item;
+				sum += *item;
 			} else {
 				// We ran into a timeout; Check whether we've been asked to stop, otherwise count
 				{
@@ -270,13 +284,18 @@ void consumer(
 				}
 
 				if(stopExecution) break;
-				else nDropped++;
+				else {
+					droppedIteration.push_back(iteration);
+					nDropped++;
+				}
 			}
 			boost::this_thread::sleep(
 				boost::posix_time::microseconds(
 					gr.uniform_int(long(0), maxRandomDelayMS)
 				)
 			);
+
+			iteration++;
 		}
 	}
 
@@ -288,7 +307,11 @@ void consumer(
 
 		std::cout << "Consumer " << id << " has consumed a total of " << sum;
 		if(nDropped > 0) {
-			std::cout << " and has dropped " << nDropped << " items";
+			std::cout << " and has dropped " << nDropped << " items in iteration " << std::endl;
+			for(std::vector<std::size_t>::iterator it = droppedIteration.begin(); it!=droppedIteration.end(); ++it) {
+				std::cout << *it << " ";
+			}
+			std::cout << "of " << iteration << " iterations";
 		}
 		std::cout << "." << std::endl;
 	}

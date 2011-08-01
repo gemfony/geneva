@@ -1,5 +1,5 @@
 /**
- * @file GRandomNumberContainer.hpp
+ * @file GSimpleContainer.hpp
  */
 
 /*
@@ -57,8 +57,8 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 
-#ifndef GRANDOMNUMBERCONTAINER_HPP_
-#define GRANDOMNUMBERCONTAINER_HPP_
+#ifndef GSIMPLECONTAINER_HPP_
+#define GSIMPLECONTAINER_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -75,10 +75,10 @@ namespace Tests {
 
 /**********************************************************************************************/
 /**
- *
+ * This class implements the simplest-possible container object, used for tests of the courtier lib.
  */
-class GRandomNumberContainer
-	:public Gem::Courtier::GSubmissionContainerT<GRandomNumberContainer>
+class GSimpleContainer
+	:public Gem::Courtier::GSubmissionContainerT<GSimpleContainer>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -87,18 +87,18 @@ class GRandomNumberContainer
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Courtier::GSubmissionContainerT<GRandomNumberContainer>)
-	  	 & BOOST_SERIALIZATION_NVP(randomNumbers_);
+	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Courtier::GSubmissionContainerT<GSimpleContainer>)
+	  	 & BOOST_SERIALIZATION_NVP(storedNumber_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The standard constructor -- Initialization with an amount of random numbers */
-	GRandomNumberContainer(const std::size_t&);
+	GSimpleContainer(const std::size_t&);
 	/** @brief The copy constructor */
-	GRandomNumberContainer(const GRandomNumberContainer&);
+	GSimpleContainer(const GSimpleContainer&);
 	/** @brief The destructor */
-	virtual ~GRandomNumberContainer();
+	virtual ~GSimpleContainer();
 
 	/** @brief Allows to specify the tasks to be performed for this object */
 	virtual bool process();
@@ -107,9 +107,9 @@ public:
 
 private:
 	/** @brief The default constructor -- only needed for de-serialization purposes */
-	GRandomNumberContainer();
+	GSimpleContainer();
 
-	std::vector<double> randomNumbers_; ///< Holds the pay-load of this object
+	std::size_t storedNumber_; ///< Holds the pay-load of this object
 };
 
 /**********************************************************************************************/
@@ -118,6 +118,6 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::Tests::GRandomNumberContainer);
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::Tests::GSimpleContainer);
 
-#endif /* GRANDOMNUMBERCONTAINER_HPP_ */
+#endif /* GSIMPLECONTAINER_HPP_ */

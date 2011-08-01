@@ -1,13 +1,11 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME GBrokerSelfCommunication)
+SET (EXECUTABLENAME GBufferPortTTest)
 
 SET (${EXECUTABLENAME}_SRCS
 	GArgumentParser
-	GBrokerSelfCommunication
-	GBrokerSelfCommunicationEnums
+	GBufferPortTTest
 	../../Misc/GRandomNumberContainer
-	../../Misc/GSimpleContainer
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

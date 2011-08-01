@@ -124,7 +124,7 @@ public:
 	 *
 	 * @param item A raw object that needs to be processed
 	 */
-	inline void push_front_orig(T item) {
+	void push_front_orig(T item) {
 		original_->push_front(item);
 	}
 
@@ -137,7 +137,7 @@ public:
 	 * @param item An item to be added to the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
-	inline void push_front_orig(T item, const boost::posix_time::time_duration& timeout) {
+	void push_front_orig(T item, const boost::posix_time::time_duration& timeout) {
 		original_->push_front(item, timeout);
 	}
 
@@ -150,7 +150,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item could be submitted
 	 */
-	inline bool push_front_orig_bool(T item, const boost::posix_time::time_duration& timeout) {
+	bool push_front_orig_bool(T item, const boost::posix_time::time_duration& timeout) {
 		return original_->push_front_bool(item, timeout);
 	}
 
@@ -161,7 +161,7 @@ public:
 	 *
 	 * @param item A reference to the item to be retrieved
 	 */
-	inline void pop_back_orig(T& item) {
+	void pop_back_orig(T& item) {
 		original_->pop_back(item);
 	}
 
@@ -174,7 +174,7 @@ public:
 	 * @param item The item that was retrieved from the queue
 	 * @param timeout duration until a timeout occurs
 	 */
-	inline void pop_back_orig(T& item, const boost::posix_time::time_duration& timeout) {
+	void pop_back_orig(T& item, const boost::posix_time::time_duration& timeout) {
 		original_->pop_back(item, timeout);
 	}
 
@@ -188,7 +188,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item could be retrieved
 	 */
-	inline bool pop_back_orig_bool(T& item, const boost::posix_time::time_duration& timeout) {
+	bool pop_back_orig_bool(T& item, const boost::posix_time::time_duration& timeout) {
 		return original_->pop_back_bool(item, timeout);
 	}
 
@@ -198,7 +198,7 @@ public:
 	 *
 	 * @param item A raw object that needs to be processed
 	 */
-	inline void push_front_processed(T item) {
+	void push_front_processed(T item) {
 		processed_->push_front(item);
 	}
 
@@ -211,7 +211,7 @@ public:
 	 * @param item An item to be added to the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
-	inline void push_front_processed(T item, const boost::posix_time::time_duration& timeout) {
+	void push_front_processed(T item, const boost::posix_time::time_duration& timeout) {
 		processed_->push_front(item, timeout);
 	}
 
@@ -224,7 +224,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item could be submitted
 	 */
-	inline bool push_front_processed_bool(T item, const boost::posix_time::time_duration& timeout) {
+	bool push_front_processed_bool(T item, const boost::posix_time::time_duration& timeout) {
 		return processed_->push_front_bool(item, timeout);
 	}
 
@@ -235,7 +235,7 @@ public:
 	 *
 	 * @param The item that was retrieved from the queue
 	 */
-	inline void pop_back_processed(T& item) {
+	void pop_back_processed(T& item) {
 		processed_->pop_back(item);
 	}
 
@@ -247,7 +247,7 @@ public:
 	 * @param item The item that was retrieved from the queue
 	 * @param timeout duration until a timeout occurs
 	 */
-	inline void pop_back_processed(T& item, const boost::posix_time::time_duration& timeout) {
+	void pop_back_processed(T& item, const boost::posix_time::time_duration& timeout) {
 		processed_->pop_back(item, timeout);
 	}
 
@@ -261,7 +261,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item could be retrieved
 	 */
-	inline bool pop_back_processed_bool(T& item, const boost::posix_time::time_duration& timeout) {
+	bool pop_back_processed_bool(T& item, const boost::posix_time::time_duration& timeout) {
 		return processed_->pop_back_bool(item, timeout);
 	}
 

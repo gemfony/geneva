@@ -1,5 +1,5 @@
 /**
- * @file GBrokerSelfCommunication.cpp
+ * @file GBufferPortTTest.cpp
  */
 
 /*
@@ -38,17 +38,11 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
-#include "courtier/GBrokerT.hpp"
-#include "courtier/GBrokerConnectorT.hpp"
-#include "courtier/GAsioTCPConsumerT.hpp"
-#include "courtier/GAsioTCPClientT.hpp"
-#include "courtier/GBoostThreadConsumerT.hpp"
-#include "courtier/GSerialConsumerT.hpp"
+#include "courtier/GBufferPortT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GThreadGroup.hpp"
 
 #include "GRandomNumberContainer.hpp"
-#include "GSimpleContainer.hpp"
 #include "GArgumentParser.hpp"
 
 std::size_t producer_counter;
@@ -57,17 +51,21 @@ boost::mutex producer_counter_mutex;
 using namespace Gem::Courtier;
 using namespace Gem::Courtier::Tests;
 
-#define WORKLOAD GRandomNumberContainer
-// #define WORKLOAD GSimpleContainer
+/********************************************************************************/
+/**
+ * A global buffer port, to/from which GRandomNumberContainer objects are
+ * written/read. We store smart pointers instead of the objects themselves.
+ */
+GBufferPortT<boost::shared_ptr<GRandomNumberContainer> > bufferport;
 
 /********************************************************************************/
-
+/*
+ * This function produces a number of work items, submits them to the buffer port
+ * and then waits for sorted returns.
+ */
 void producer(
 	const boost::uint32_t& nProductionCycles
-	, const boost::uint32_t& nContainerObjects
 	, const std::size_t& nContainerEntries
-	, const bool& completeReturnRequired
-	, const std::size_t& maxResubmissions
 ) {
 	std::size_t id;
 
@@ -76,50 +74,12 @@ void producer(
 		id = producer_counter++;
 	}
 
-	// Holds the broker object
-	Gem::Courtier::GBrokerConnectorT<WORKLOAD> brokerConnector;
-
-	// Will hold the WORKLOAD objects
-	std::vector<boost::shared_ptr<WORKLOAD> > data(nContainerObjects);
-
 	// Start the loop
 	boost::uint32_t cycleCounter = 0;
 	while(cycleCounter++ < nProductionCycles) {
-		// Fill a std::vector<> with WORKLOAD objects
+		// Submit the GRandomNumberContainer objects
 		for(std::size_t i=0; i<nContainerObjects; i++) {
-			data[i] = boost::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries));
-		}
-
-		// Submit the container to the broker
-		if(completeReturnRequired) {
-			bool complete = brokerConnector.workOnSubmissionOnly(
-					data
-					, 0
-					, data.size()
-					, maxResubmissions
-			);
-
-			if(!complete) {
-				raiseException(
-						"In producer(): Error!" << std::endl
-						<< "No complete set of items received after " << maxResubmissions << " resubmissions" << std::endl
-				);
-			}
-
-			// Check that the container is at its default size
-			if(data.size() != nContainerObjects) {
-				raiseException(
-						"In producer(): Error!" << std::endl
-						<< "No complete set of items received despite request for a complete return" << std::endl
-				);
-			}
-		} else {
-			brokerConnector.workOn(
-					data
-					, 0
-					, data.size()
-					, ACCEPTOLDERITEMS
-			);
+			bufferport.push_front_orig(boost::shared_ptr<GRandomNumberContainer>(new GRandomNumberContainer(nContainerEntries)));
 		}
 	}
 
@@ -174,12 +134,12 @@ int main(int argc, char **argv) {
 
 	//--------------------------------------------------------------------------------
 	// Initialize the broker
-	GBROKER(WORKLOAD)->init();
+	GBROKER(GRandomNumberContainer)->init();
 
 	//--------------------------------------------------------------------------------
 	// If we are in (networked) client mode, start the client code
 	if((executionMode==Gem::Courtier::Tests::NETWORKING || executionMode==Gem::Courtier::Tests::THREAEDANDNETWORKING) && !serverMode) {
-		boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
+		boost::shared_ptr<GAsioTCPClientT<GRandomNumberContainer> > p(new GAsioTCPClientT<GRandomNumberContainer>(ip, boost::lexical_cast<std::string>(port)));
 
 		p->setMaxStalls(0); // An infinite number of stalled data retrievals
 		p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
@@ -210,66 +170,66 @@ int main(int argc, char **argv) {
 	case Gem::Courtier::Tests::SERIAL:
 		{
 			// Create a serial consumer and enrol it with the broker
-			boost::shared_ptr<GSerialConsumerT<WORKLOAD> > gatc(new GSerialConsumerT<WORKLOAD>());
-			GBROKER(WORKLOAD)->enrol(gatc);
+			boost::shared_ptr<GSerialConsumerT<GRandomNumberContainer> > gatc(new GSerialConsumerT<GRandomNumberContainer>());
+			GBROKER(GRandomNumberContainer)->enrol(gatc);
 		}
 		break;
 
 	case Gem::Courtier::Tests::INTERNALNETWORKING:
 		{
 			// Start the workers
-			boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
+			boost::shared_ptr<GAsioTCPClientT<GRandomNumberContainer> > p(new GAsioTCPClientT<GRandomNumberContainer>("localhost", "10000"));
 			worker_gtg.create_threads(
-				boost::bind(&GAsioTCPClientT<WORKLOAD>::run,p)
+				boost::bind(&GAsioTCPClientT<GRandomNumberContainer>::run,p)
 				, nWorkers
 			);
 
 			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
-			GBROKER(WORKLOAD)->enrol(gatc);
+			boost::shared_ptr<GAsioTCPConsumerT<GRandomNumberContainer> > gatc(new GAsioTCPConsumerT<GRandomNumberContainer>((unsigned short)10000));
+			GBROKER(GRandomNumberContainer)->enrol(gatc);
 		}
 		break;
 
 	case Gem::Courtier::Tests::NETWORKING:
 		{
 			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>(port));
-			GBROKER(WORKLOAD)->enrol(gatc);
+			boost::shared_ptr<GAsioTCPConsumerT<GRandomNumberContainer> > gatc(new GAsioTCPConsumerT<GRandomNumberContainer>(port));
+			GBROKER(GRandomNumberContainer)->enrol(gatc);
 		}
 		break;
 
 	case Gem::Courtier::Tests::MULTITHREADING:
 		{
 			// Create a consumer and make it known to the global broker
-			boost::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
-			GBROKER(WORKLOAD)->enrol(gbtc);
+			boost::shared_ptr< GBoostThreadConsumerT<GRandomNumberContainer> > gbtc(new GBoostThreadConsumerT<GRandomNumberContainer>());
+			GBROKER(GRandomNumberContainer)->enrol(gbtc);
 		}
 		break;
 
 	case Gem::Courtier::Tests::THREADANDINTERNALNETWORKING:
 		{
 			// Start the workers
-			boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
+			boost::shared_ptr<GAsioTCPClientT<GRandomNumberContainer> > p(new GAsioTCPClientT<GRandomNumberContainer>("localhost", "10000"));
 			worker_gtg.create_threads(
-				boost::bind(&GAsioTCPClientT<WORKLOAD>::run,p)
+				boost::bind(&GAsioTCPClientT<GRandomNumberContainer>::run,p)
 				, nWorkers
 			);
 
-			boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
-			boost::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
+			boost::shared_ptr<GAsioTCPConsumerT<GRandomNumberContainer> > gatc(new GAsioTCPConsumerT<GRandomNumberContainer>((unsigned short)10000));
+			boost::shared_ptr< GBoostThreadConsumerT<GRandomNumberContainer> > gbtc(new GBoostThreadConsumerT<GRandomNumberContainer>());
 
-			GBROKER(WORKLOAD)->enrol(gatc);
-			GBROKER(WORKLOAD)->enrol(gbtc);
+			GBROKER(GRandomNumberContainer)->enrol(gatc);
+			GBROKER(GRandomNumberContainer)->enrol(gbtc);
 		}
 		break;
 
 	case Gem::Courtier::Tests::THREAEDANDNETWORKING:
 		{
-			boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>(port));
-			boost::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
+			boost::shared_ptr<GAsioTCPConsumerT<GRandomNumberContainer> > gatc(new GAsioTCPConsumerT<GRandomNumberContainer>(port));
+			boost::shared_ptr< GBoostThreadConsumerT<GRandomNumberContainer> > gbtc(new GBoostThreadConsumerT<GRandomNumberContainer>());
 
-			GBROKER(WORKLOAD)->enrol(gatc);
-			GBROKER(WORKLOAD)->enrol(gbtc);
+			GBROKER(GRandomNumberContainer)->enrol(gatc);
+			GBROKER(GRandomNumberContainer)->enrol(gbtc);
 		}
 		break;
 
@@ -292,5 +252,5 @@ int main(int argc, char **argv) {
 	std::cout << "All threads have joined" << std::endl;
 
 	// Terminate the broker
-	GBROKER(WORKLOAD)->finalize();
+	GBROKER(GRandomNumberContainer)->finalize();
 }

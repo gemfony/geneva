@@ -88,7 +88,6 @@ GRandomNumberContainer::~GRandomNumberContainer() {
  */
 bool GRandomNumberContainer::process() {
 	std::sort(randomNumbers_.begin(), randomNumbers_.end());
-	std::cout << "finished sorting the container" << std::endl;
 	return true;
 }
 

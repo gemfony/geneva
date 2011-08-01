@@ -1,0 +1,3 @@
+This test submits random number containers to the buffer port from multiple 
+threads, processes them at the remote end with various threads and returns the
+processed items.
