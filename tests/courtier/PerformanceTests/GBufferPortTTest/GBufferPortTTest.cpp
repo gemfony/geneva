@@ -37,220 +37,264 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
+#include <boost/date_time.hpp>
 
 #include "courtier/GBufferPortT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GThreadGroup.hpp"
 
+#include "GSimpleContainer.hpp"
 #include "GRandomNumberContainer.hpp"
+
+// #define WORKLOAD GSimpleContainer
+#define WORKLOAD GRandomNumberContainer
+
 #include "GArgumentParser.hpp"
 
+/**
+ * Some synchronization primitives
+ */
 std::size_t producer_counter;
-boost::mutex producer_counter_mutex;
+boost::mutex producer_mutex;
+
+std::size_t processor_counter;
+boost::mutex processor_mutex;
+
+boost::mutex output_mutex;
+
+/**
+ * A barrier on which all threads have to wait
+ */
+boost::shared_ptr<boost::barrier> sync_ptr;
 
 using namespace Gem::Courtier;
 using namespace Gem::Courtier::Tests;
 
 /********************************************************************************/
 /**
- * A global buffer port, to/from which GRandomNumberContainer objects are
- * written/read. We store smart pointers instead of the objects themselves.
+ * A global buffer port, to/from which WORKLOAD or GSimpleContainer
+ * objects are written/read. We store smart pointers instead of the objects themselves.
  */
-GBufferPortT<boost::shared_ptr<GRandomNumberContainer> > bufferport;
+GBufferPortT<boost::shared_ptr<WORKLOAD> > bufferport;
 
 /********************************************************************************/
 /*
  * This function produces a number of work items, submits them to the buffer port
- * and then waits for sorted returns.
+ * and then waits for processed items to return.
  */
 void producer(
-	const boost::uint32_t& nProductionCycles
-	, const std::size_t& nContainerEntries
+	boost::uint32_t nProductionCycles
+	, std::size_t nContainerEntries
+	, boost::posix_time::time_duration putTimeout
+	, boost::posix_time::time_duration getTimeout
+	, std::size_t maxPutTimeouts
+	, std::size_t maxGetTimeouts
 ) {
 	std::size_t id;
 
 	{ // Assign a counter to this producer
-		boost::mutex::scoped_lock lk(producer_counter_mutex);
+		boost::mutex::scoped_lock lk(producer_mutex);
 		id = producer_counter++;
 	}
 
-	// Start the loop
+	// Initialize the counters
+	std::size_t putTimeouts = 0;
+	std::size_t getTimeouts = 0;
 	boost::uint32_t cycleCounter = 0;
-	while(cycleCounter++ < nProductionCycles) {
-		// Submit the GRandomNumberContainer objects
-		for(std::size_t i=0; i<nContainerObjects; i++) {
-			bufferport.push_front_orig(boost::shared_ptr<GRandomNumberContainer>(new GRandomNumberContainer(nContainerEntries)));
+
+	// Find out about the number of microseconds in timeouts
+	long putTimeoutMS = putTimeout.total_microseconds();
+	long getTimeoutMS = getTimeout.total_microseconds();
+
+	// Submit all required items
+	while(cycleCounter < nProductionCycles) {
+		// Submit the WORKLOAD object
+		boost::shared_ptr<WORKLOAD> p_submit(new WORKLOAD(nContainerEntries));
+		if(putTimeoutMS > 0) {
+			while(!bufferport.push_front_orig_bool(p_submit, putTimeout)) {
+				if(putTimeouts++ > maxPutTimeouts) {
+					raiseException("In producer: Exceeded allowed number " << maxPutTimeouts << " of put timeouts in iteration " << cycleCounter << std::endl);
+				}
+			}
+		} else { // putTimeoutMS == 0
+			bufferport.push_front_orig(p_submit);
 		}
+
+		cycleCounter++;
 	}
 
-	std::cout << "Producer " << id << " has finished producing" << std::endl;
+	sync_ptr->wait(); // Do not start before all threads have reached this wait()
+
+	// Retrieve the items back. We assume that a single worker is located at the
+	// other end so that we retrieve all items back
+	boost::uint32_t nReceived = 0;
+	boost::shared_ptr<WORKLOAD> p_receive;
+	while(nReceived < nProductionCycles) {
+		if(getTimeoutMS > 0) {
+			while(!bufferport.pop_back_processed_bool(p_receive, getTimeout)) {
+				if(getTimeouts++ > maxGetTimeouts) {
+					raiseException("In producer: Exceeded allowed number " << maxGetTimeouts << " of get timeouts in iteration " << cycleCounter << std::endl);
+				}
+			}
+		} else {
+			bufferport.pop_back_processed(p_receive);
+		}
+
+		// Check if we got a valid pointer
+		if(p_receive) {
+			nReceived++;
+		} else {
+			raiseException("In producer: Received invalid pointer" << std::endl);
+		}
+
+		// Clean the pointer for the next cycle
+		p_receive.reset();
+	}
+
+	{ // Output the results
+		boost::mutex::scoped_lock lk(output_mutex);
+
+		std::cout << "Producer " << id << " has finished producing";
+		if(putTimeouts > 0 || getTimeouts > 0) {
+			std::cout << " with " << putTimeouts << " put time-outs and " << getTimeouts << " get time-outs";
+		}
+		std::cout << "." << std::endl;
+	}
+}
+
+/********************************************************************************/
+/**
+ * This function processes items it takes out of the GBufferPortT
+ */
+void processor (
+	boost::uint32_t nProductionCycles
+	, std::size_t nContainerEntries
+	, boost::posix_time::time_duration putTimeout
+	, boost::posix_time::time_duration getTimeout
+	, std::size_t maxPutTimeouts
+	, std::size_t maxGetTimeouts
+) {
+	std::size_t id;
+
+	{ // Assign a counter to this processor
+		boost::mutex::scoped_lock lk(processor_mutex);
+		id = processor_counter++;
+	}
+
+	// Initialize the counters
+	std::size_t putTimeouts = 0;
+	std::size_t getTimeouts = 0;
+	boost::uint32_t cycleCounter = 0;
+
+	// Find out about the number of microseconds in timeouts
+	long putTimeoutMS = putTimeout.total_microseconds();
+	long getTimeoutMS = getTimeout.total_microseconds();
+
+	sync_ptr->wait(); // Do not start before all threads have reached this wait()
+
+	boost::shared_ptr<WORKLOAD> p;
+	while(cycleCounter < nProductionCycles) {
+		// Retrieve an item from the buffer port
+		if(getTimeoutMS > 0) {
+			while(!bufferport.pop_back_orig_bool(p, getTimeout)){
+				if(getTimeouts++ > maxGetTimeouts) {
+					raiseException("In processor: Exceeded allowed number " << maxGetTimeouts << " of get timeouts in cycle " << cycleCounter << std::endl);
+				}
+			}
+		} else {
+			bufferport.pop_back_orig(p);
+		}
+
+		// Check that we have received a valid item
+		if(p) {
+			p->process();
+		} else {
+			raiseException("In processor: Received invalid pointer" << std::endl);
+		}
+
+		// Submit the processed item to the buffer port
+		if(putTimeoutMS > 0) {
+			while(!bufferport.push_front_processed_bool(p, putTimeout)) {
+				if(putTimeouts++ > maxPutTimeouts) {
+					raiseException("In processor: Exceeded allowed number " << maxPutTimeouts << " of put timeouts in cycle " << cycleCounter << std::endl);
+				}
+			}
+		} else {
+			bufferport.push_front_processed(p);
+		}
+
+		p.reset(); // Clear the pointer
+		cycleCounter++;
+	}
+
+	{ // Output the results
+		boost::mutex::scoped_lock lk(output_mutex);
+
+		std::cout << "Processor " << id << " has finished processing";
+		if(putTimeouts > 0 || getTimeouts > 0) {
+			std::cout << " with " << putTimeouts << " put time-outs and " << getTimeouts << " get time-outs";
+		}
+		std::cout << "." << std::endl;
+	}
 }
 
 /********************************************************************************/
 
 int main(int argc, char **argv) {
-	std::string configFile;
-	bool serverMode;
-	std::string ip;
-	unsigned short port;
-	Gem::Common::serializationMode serMode;
-	boost::uint32_t nProducers;
-  	boost::uint32_t nProductionCycles;
-  	bool completeReturnRequired;
-  	std::size_t maxResubmissions;
-	boost::uint32_t nContainerObjects;
+	boost::uint32_t nProductionCycles;
 	std::size_t nContainerEntries;
-	boost::uint32_t nWorkers;
-	GBSCModes executionMode;
-
-	// Initialize the global producer counter
-	producer_counter = 0;
-
-	// Some thread groups needed for producers and workers
-	Gem::Common::GThreadGroup producer_gtg;
-	Gem::Common::GThreadGroup worker_gtg;
+	long putTimeoutMS;
+	long getTimeoutMS;
+	std::size_t maxPutTimeouts;
+	std::size_t maxGetTimeouts;
 
 	//--------------------------------------------------------------------------------
 	// Find out about our configuration options
 	if(!parseCommandLine(
 			argc, argv
-			, configFile
-			, executionMode
-			, serverMode
-			, ip
-			, port
-			, serMode
-			, completeReturnRequired
-		) || !parseConfigFile(
-			configFile
-			, nProducers
 			, nProductionCycles
-			, nContainerObjects
 			, nContainerEntries
-			, maxResubmissions
-			, nWorkers
-		)
-	){ exit(1); }
+			, putTimeoutMS
+			, getTimeoutMS
+			, maxPutTimeouts
+			, maxGetTimeouts
+	))
+	{ exit(1); }
 
 	//--------------------------------------------------------------------------------
-	// Initialize the broker
-	GBROKER(GRandomNumberContainer)->init();
+	// Initialize the global barrier so all threads start at a predefined time
+	sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(1+1));
 
 	//--------------------------------------------------------------------------------
-	// If we are in (networked) client mode, start the client code
-	if((executionMode==Gem::Courtier::Tests::NETWORKING || executionMode==Gem::Courtier::Tests::THREAEDANDNETWORKING) && !serverMode) {
-		boost::shared_ptr<GAsioTCPClientT<GRandomNumberContainer> > p(new GAsioTCPClientT<GRandomNumberContainer>(ip, boost::lexical_cast<std::string>(port)));
+	// Start the producer and consumer threads
+	boost::thread producer_thread(
+			boost::bind(
+					producer
+					, nProductionCycles
+					, nContainerEntries
+					, boost::posix_time::microseconds(putTimeoutMS)
+					, boost::posix_time::microseconds(getTimeoutMS)
+					, maxPutTimeouts
+					, maxGetTimeouts
+			)
+	);
 
-		p->setMaxStalls(0); // An infinite number of stalled data retrievals
-		p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
-
-		// Start the actual processing loop
-		p->run();
-
-		return 0;
-	}
-
-	//--------------------------------------------------------------------------------
-	// Create the required number of producer threads
-	producer_gtg.create_threads(
-		boost::bind(
-			producer
-			, nProductionCycles
-			, nContainerObjects
-			, nContainerEntries
-			, completeReturnRequired
-			, maxResubmissions
-		)
-	    , nProducers
+	boost::thread processor_thread(
+			boost::bind(
+					processor
+					, nProductionCycles
+					, nContainerEntries
+					, boost::posix_time::microseconds(putTimeoutMS)
+					, boost::posix_time::microseconds(getTimeoutMS)
+					, maxPutTimeouts
+					, maxGetTimeouts
+			)
 	);
 
 	//--------------------------------------------------------------------------------
-	// Add the desired consumers to the broker
-	switch(executionMode) {
-	case Gem::Courtier::Tests::SERIAL:
-		{
-			// Create a serial consumer and enrol it with the broker
-			boost::shared_ptr<GSerialConsumerT<GRandomNumberContainer> > gatc(new GSerialConsumerT<GRandomNumberContainer>());
-			GBROKER(GRandomNumberContainer)->enrol(gatc);
-		}
-		break;
-
-	case Gem::Courtier::Tests::INTERNALNETWORKING:
-		{
-			// Start the workers
-			boost::shared_ptr<GAsioTCPClientT<GRandomNumberContainer> > p(new GAsioTCPClientT<GRandomNumberContainer>("localhost", "10000"));
-			worker_gtg.create_threads(
-				boost::bind(&GAsioTCPClientT<GRandomNumberContainer>::run,p)
-				, nWorkers
-			);
-
-			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<GAsioTCPConsumerT<GRandomNumberContainer> > gatc(new GAsioTCPConsumerT<GRandomNumberContainer>((unsigned short)10000));
-			GBROKER(GRandomNumberContainer)->enrol(gatc);
-		}
-		break;
-
-	case Gem::Courtier::Tests::NETWORKING:
-		{
-			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<GAsioTCPConsumerT<GRandomNumberContainer> > gatc(new GAsioTCPConsumerT<GRandomNumberContainer>(port));
-			GBROKER(GRandomNumberContainer)->enrol(gatc);
-		}
-		break;
-
-	case Gem::Courtier::Tests::MULTITHREADING:
-		{
-			// Create a consumer and make it known to the global broker
-			boost::shared_ptr< GBoostThreadConsumerT<GRandomNumberContainer> > gbtc(new GBoostThreadConsumerT<GRandomNumberContainer>());
-			GBROKER(GRandomNumberContainer)->enrol(gbtc);
-		}
-		break;
-
-	case Gem::Courtier::Tests::THREADANDINTERNALNETWORKING:
-		{
-			// Start the workers
-			boost::shared_ptr<GAsioTCPClientT<GRandomNumberContainer> > p(new GAsioTCPClientT<GRandomNumberContainer>("localhost", "10000"));
-			worker_gtg.create_threads(
-				boost::bind(&GAsioTCPClientT<GRandomNumberContainer>::run,p)
-				, nWorkers
-			);
-
-			boost::shared_ptr<GAsioTCPConsumerT<GRandomNumberContainer> > gatc(new GAsioTCPConsumerT<GRandomNumberContainer>((unsigned short)10000));
-			boost::shared_ptr< GBoostThreadConsumerT<GRandomNumberContainer> > gbtc(new GBoostThreadConsumerT<GRandomNumberContainer>());
-
-			GBROKER(GRandomNumberContainer)->enrol(gatc);
-			GBROKER(GRandomNumberContainer)->enrol(gbtc);
-		}
-		break;
-
-	case Gem::Courtier::Tests::THREAEDANDNETWORKING:
-		{
-			boost::shared_ptr<GAsioTCPConsumerT<GRandomNumberContainer> > gatc(new GAsioTCPConsumerT<GRandomNumberContainer>(port));
-			boost::shared_ptr< GBoostThreadConsumerT<GRandomNumberContainer> > gbtc(new GBoostThreadConsumerT<GRandomNumberContainer>());
-
-			GBROKER(GRandomNumberContainer)->enrol(gatc);
-			GBROKER(GRandomNumberContainer)->enrol(gbtc);
-		}
-		break;
-
-	default:
-		{
-			raiseException(
-					"Error: Invalid execution mode requested: " << executionMode << std::endl
-			);
-		}
-		break;
-	};
+	// Wait for both threads to terminate
+	producer_thread.join();
+	processor_thread.join();
 
 	//--------------------------------------------------------------------------------
-	// Wait for all threads to finish
-	producer_gtg.join_all();
-
-	if(executionMode == Gem::Courtier::Tests::INTERNALNETWORKING || executionMode == Gem::Courtier::Tests::THREADANDINTERNALNETWORKING)
-	worker_gtg.join_all();
-
-	std::cout << "All threads have joined" << std::endl;
-
-	// Terminate the broker
-	GBROKER(GRandomNumberContainer)->finalize();
 }

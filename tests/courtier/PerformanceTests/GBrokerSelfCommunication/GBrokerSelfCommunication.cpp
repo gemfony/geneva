@@ -63,11 +63,11 @@ using namespace Gem::Courtier::Tests;
 /********************************************************************************/
 
 void producer(
-	const boost::uint32_t& nProductionCycles
-	, const boost::uint32_t& nContainerObjects
-	, const std::size_t& nContainerEntries
-	, const bool& completeReturnRequired
-	, const std::size_t& maxResubmissions
+	boost::uint32_t nProductionCycles
+	, boost::uint32_t nContainerObjects
+	, std::size_t nContainerEntries
+	, bool completeReturnRequired
+	, std::size_t maxResubmissions
 ) {
 	std::size_t id;
 

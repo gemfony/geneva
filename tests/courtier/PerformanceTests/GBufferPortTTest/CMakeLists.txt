@@ -6,6 +6,7 @@ SET (${EXECUTABLENAME}_SRCS
 	GArgumentParser
 	GBufferPortTTest
 	../../Misc/GRandomNumberContainer
+	../../Misc/GSimpleContainer
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

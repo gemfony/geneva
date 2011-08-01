@@ -56,8 +56,6 @@
 #endif
 
 // Geneva headers go here
-#include "GBrokerSelfCommunicationEnums.hpp"
-#include "common/GCommonEnums.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -67,44 +65,24 @@ namespace po = boost::program_options;
 
 /********************************************************************************************/
 // Default settings
-const boost::uint32_t DEFAULTNPRODUCERSAP = 5;
 const boost::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 10000;
-const bool DEFAULTCOMPLETERETURNREQUIREDAP = false;
-const std::size_t DEFAULTMAXRESUBMISSIONSAP = 5;
-const boost::uint32_t DEFAULTNCONTAINEROBJECTSAP = 100;
 const std::size_t DEFAULTNCONTAINERENTRIESAP = 100;
-const boost::uint32_t DEFAULTNWORKERSAP = 4;
-const GBSCModes DEFAULTEXECUTIONMODEAP = Gem::Courtier::Tests::MULTITHREADING;
-const unsigned short DEFAULTPORTAP=10000;
-const std::string DEFAULTIPAP="localhost";
-const std::string DEFAULTCONFIGFILEAP="./GBrokerSelfCommunication.cfg";
-const boost::uint16_t DEFAULTPARALLELIZATIONMODEAP=0;
-const Gem::Common::serializationMode DEFAULTSERMODEAP=Gem::Common::SERIALIZATIONMODE_BINARY;
+const long DEFAULTPUTTIMEOUTMSAP = 1000;
+const long DEFAULTGETTIMEOUTMSAP = 1000;
+const std::size_t DEFAULTMAXPUTTIMEOUTS = 100;
+const std::size_t DEFAULTMAXGETTIMEOUTS = 100;
 
 /********************************************************************************************/
 
 bool parseCommandLine(
-		int
-	  , char **
-	  , std::string& configFile
-	  , GBSCModes&
-	  , bool&
-	  , std::string&
-	  , unsigned short&
-	  , Gem::Common::serializationMode&
-	  , bool&
-);
-
-/********************************************************************************************/
-
-bool parseConfigFile(
-		const std::string&
-	  , boost::uint32_t&
-	  , boost::uint32_t&
-	  , boost::uint32_t&
-	  , std::size_t&
-	  , std::size_t&
-	  , boost::uint32_t&
+	int
+  , char **
+  , boost::uint32_t& nProductionCycles
+  , std::size_t& nContainerEntries
+  , long& putTimeoutMS
+  , long& getTimeoutMS
+  , std::size_t& maxPutTimeouts
+  , std::size_t& maxGetTimeouts
 );
 
 /********************************************************************************************/
