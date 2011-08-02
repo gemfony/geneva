@@ -551,12 +551,20 @@ private:
 
 		result
 		    << "  TGraph *entries = new TGraph(" << entries_.size() << ", entryTimes, currentEntries);" << std::endl
+		    << "  entries->SetTitle(\"buffer size\");" << std::endl
 		    << std::endl
 		    << "  cc->cd(1);" << std::endl
-			<< "  gets->Draw();" << std::endl
+		    << "  puts->GetXaxis()->SetTitle(\"microseconds\");" << std::endl
+		    << "  puts->GetYaxis()->SetTitle(\"number of submissions\");" << std::endl
+		    << "  puts->Draw();" << std::endl
 			<< "  cc->cd(2);" << std::endl
-			<< "  puts->Draw();" << std::endl
+		    << "  gets->GetXaxis()->SetTitle(\"microseconds\");" << std::endl
+		    << "  gets->GetYaxis()->SetTitle(\"number of retrievals\");" << std::endl
+			<< "  gets->Draw();" << std::endl
 			<< "  cc->cd(3);" << std::endl
+			<< "  entries->GetXaxis()->SetTitle(\"microseconds\");" << std::endl
+			<< "  entries->GetYaxis()->SetTitle(\"number of entries\");" << std::endl
+		    << "  entries->GetXaxis()->SetLimits(0., double(" << totalMicroseconds << "));" << std::endl
 			<< "  entries->Draw(\"AP\");" << std::endl
 			<< "  cc->cd();" << std::endl
 			<< "}" << std::endl;
