@@ -51,6 +51,8 @@ bool parseCommandLine(
 	  , std::size_t& nConsumers
 	  , long& timeoutMS
 	  , long& maxRandomDelayMS
+	  , long& startDelayMS
+	  , bool& startAtOnce
 ) {
   try{
 	// Check the command line options. Uses the Boost program options library.
@@ -69,6 +71,10 @@ bool parseCommandLine(
 	   "The duration of the timeout in microseconds")
 	  ("maxRandomDelayMS,m", po::value<long>(&maxRandomDelayMS)->default_value(DEFAULTMAXRANDOMDELAYMS),
 	   "The maximum size of random delays in microseconds")
+	  ("startDelayMS,s", po::value<long>(&startDelayMS)->default_value(DEFAULTSTARTDELAY),
+	   "A delay between the start of the producer and the consumer")
+	  ("startAtOnce,o", po::value<bool>(&startAtOnce)->default_value(DEFAULTSTARTATONCE),
+	   "Indicates whether all threads should be started at once (if false, each producers and consumers will start simultaneously)")
 	  ;
 
 	po::variables_map vm;
@@ -89,6 +95,8 @@ bool parseCommandLine(
 			<< "nConsumers = " << nConsumers << std::endl
 			<< "timeoutMS = " << timeoutMS << std::endl
 			<< "maxRandomDelayMS = " << maxRandomDelayMS << std::endl
+			<< "startDelayMS = " << startDelayMS << std::endl
+			<< "startAtOnce = " << startAtOnce << std::endl
 			<< std::endl;
   }
   catch(...){

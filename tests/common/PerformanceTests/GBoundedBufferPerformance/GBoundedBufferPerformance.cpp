@@ -32,6 +32,9 @@
  * http://www.gemfony.com .
  */
 
+// Force the bounded buffer to emit data
+#define BENCHMARKBOUNDEDBUFFER
+
 // Standard headers go here
 
 // Boost headers go here
@@ -60,7 +63,17 @@ GBoundedBufferT<boost::shared_ptr<double> > buffer;
 /**
  * A barrier on which all threads have to wait
  */
-boost::shared_ptr<boost::barrier> sync_ptr;
+boost::shared_ptr<boost::barrier> all_sync_ptr;
+
+/**
+ * A barrier on which only producers need to wait
+ */
+boost::shared_ptr<boost::barrier> producer_sync_ptr;
+
+/**
+ * A barrier on which only consumers need to wait
+ */
+boost::shared_ptr<boost::barrier> consumer_sync_ptr;
 
 /**
  * A counter for dropped items inside of the producers
@@ -126,6 +139,7 @@ void producer(
 	std::size_t nItems
 	, boost::posix_time::time_duration timeout
 	, boost::posix_time::time_duration maxRandomDelay
+	, bool startAtOnce
 ) {
 	std::size_t id = 0;
 	std::size_t nDropped = 0;
@@ -143,7 +157,8 @@ void producer(
 		id = producerIdCounter++;
 	}
 
-	sync_ptr->wait(); // Do not start before all threads have reached the wait()
+	if(startAtOnce) all_sync_ptr->wait(); // Do not start before all threads have reached the wait()
+	else producer_sync_ptr->wait(); // Just wait for all producers to reach this point
 
 	if(maxRandomDelay.total_microseconds() == 0) {
 		if(timeout.total_microseconds() == 0) {
@@ -220,6 +235,7 @@ void producer(
 void consumer(
 	boost::posix_time::time_duration timeout
 	, boost::posix_time::time_duration maxRandomDelay
+	, bool startAtOnce
 ) {
 	std::size_t id = 0;
 	std::size_t nDropped = 0;
@@ -246,7 +262,8 @@ void consumer(
 		id = consumerIdCounter++;
 	}
 
-	sync_ptr->wait(); // Do not start before all threads have reached the wait()
+	if(startAtOnce) all_sync_ptr->wait(); // Do not start before all threads have reached the wait()
+	else consumer_sync_ptr->wait(); // Just wait for all consumers to reach this point
 
 	if(maxRandomDelay.total_microseconds() == 0) {
 		while(true) {
@@ -332,6 +349,8 @@ int main(int argc, char**argv) {
 	long timeoutMS;
 	long maxRandomDelayMS;
 	std::size_t nItems = 0;
+	long startDelayMS;
+	bool startAtOnce;
 
 	// Read the program options
 	if(!parseCommandLine(
@@ -342,6 +361,8 @@ int main(int argc, char**argv) {
 			, nConsumers
 			, timeoutMS
 			, maxRandomDelayMS
+			, startDelayMS
+			, startAtOnce
 		)
 	)
 	{ exit(1); }
@@ -370,10 +391,12 @@ int main(int argc, char**argv) {
 	}
 
 	// Initialize the global barrier so all threads start at a predefined time
-	sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(nProducers + nConsumers));
+	all_sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(nProducers + nConsumers));
+	producer_sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(nProducers));
+	consumer_sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(nConsumers));
 
 	// Note the start time
-	boost::posix_time::ptime startTime = boost::posix_time::second_clock::local_time();
+	boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
 
 	// Start the threads
 	producer_gtg.create_threads(
@@ -382,15 +405,21 @@ int main(int argc, char**argv) {
 			, nItems
 			, boost::posix_time::microseconds(timeoutMS)
 			, boost::posix_time::microseconds(maxRandomDelayMS)
+		    , startAtOnce
 		)
 		, nProducers
 	);
+
+	if(!startAtOnce && startDelayMS > 0) {
+		boost::this_thread::sleep(boost::posix_time::microseconds(startDelayMS));
+	}
 
 	consumer_gtg.create_threads(
 		boost::bind(
 			consumer
 			, boost::posix_time::microseconds(timeoutMS)
 			, boost::posix_time::microseconds(maxRandomDelayMS)
+		    , startAtOnce
 		)
 		, nConsumers);
 
@@ -407,7 +436,7 @@ int main(int argc, char**argv) {
 	consumer_gtg.join_all();
 
 	// Note the termination time
-	boost::posix_time::ptime endTime = boost::posix_time::second_clock::local_time();
+	boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
 
 	// Calculate the time it is taken to reach this point
 	boost::posix_time::time_duration dur = endTime - startTime;

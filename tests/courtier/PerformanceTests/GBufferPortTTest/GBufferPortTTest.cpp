@@ -32,6 +32,9 @@
  * http://www.gemfony.com .
  */
 
+// Force the bounded buffer to emit data
+#define BENCHMARKBOUNDEDBUFFER
+
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -98,13 +101,15 @@ void producer(
 	}
 
 	// Initialize the counters
-	std::size_t putTimeouts = 0;
-	std::size_t getTimeouts = 0;
+	std::size_t putTimeouts = 0, totalPutTimeouts = 0, highestPutTimeouts = 0;
+	std::size_t getTimeouts = 0, totalGetTimeouts = 0, highestGetTimeouts = 0;
 	boost::uint32_t cycleCounter = 0;
 
 	// Find out about the number of microseconds in timeouts
 	long putTimeoutMS = putTimeout.total_microseconds();
 	long getTimeoutMS = getTimeout.total_microseconds();
+
+	sync_ptr->wait(); // Do not start before all threads have reached this wait()
 
 	// Submit all required items
 	while(cycleCounter < nProductionCycles) {
@@ -116,14 +121,15 @@ void producer(
 					raiseException("In producer: Exceeded allowed number " << maxPutTimeouts << " of put timeouts in iteration " << cycleCounter << std::endl);
 				}
 			}
+			totalPutTimeouts += putTimeouts;
+			if(putTimeouts > highestPutTimeouts) highestPutTimeouts = putTimeouts;
+			putTimeouts = 0; // Reset the counter -- we have received a valid item
 		} else { // putTimeoutMS == 0
 			bufferport.push_front_orig(p_submit);
 		}
 
 		cycleCounter++;
 	}
-
-	sync_ptr->wait(); // Do not start before all threads have reached this wait()
 
 	// Retrieve the items back. We assume that a single worker is located at the
 	// other end so that we retrieve all items back
@@ -136,6 +142,9 @@ void producer(
 					raiseException("In producer: Exceeded allowed number " << maxGetTimeouts << " of get timeouts in iteration " << cycleCounter << std::endl);
 				}
 			}
+			totalGetTimeouts += getTimeouts;
+			if(getTimeouts > highestGetTimeouts) highestGetTimeouts = getTimeouts;
+			getTimeouts = 0; // Reset the counter -- we have successfully sent the item
 		} else {
 			bufferport.pop_back_processed(p_receive);
 		}
@@ -156,7 +165,7 @@ void producer(
 
 		std::cout << "Producer " << id << " has finished producing";
 		if(putTimeouts > 0 || getTimeouts > 0) {
-			std::cout << " with " << putTimeouts << " put time-outs and " << getTimeouts << " get time-outs";
+			std::cout << " with " << totalPutTimeouts << " put time-outs (max " << highestPutTimeouts << ") and " << totalGetTimeouts << " get time-outs (max " << highestGetTimeouts << ")";
 		}
 		std::cout << "." << std::endl;
 	}
@@ -182,8 +191,8 @@ void processor (
 	}
 
 	// Initialize the counters
-	std::size_t putTimeouts = 0;
-	std::size_t getTimeouts = 0;
+	std::size_t putTimeouts = 0, totalPutTimeouts = 0, highestPutTimeouts = 0;
+	std::size_t getTimeouts = 0, totalGetTimeouts = 0, highestGetTimeouts = 0;
 	boost::uint32_t cycleCounter = 0;
 
 	// Find out about the number of microseconds in timeouts
@@ -201,6 +210,9 @@ void processor (
 					raiseException("In processor: Exceeded allowed number " << maxGetTimeouts << " of get timeouts in cycle " << cycleCounter << std::endl);
 				}
 			}
+			totalGetTimeouts += getTimeouts;
+			if(getTimeouts > highestGetTimeouts) highestGetTimeouts = getTimeouts;
+			getTimeouts = 0; // Reset the counter, we have received a valid item
 		} else {
 			bufferport.pop_back_orig(p);
 		}
@@ -219,6 +231,9 @@ void processor (
 					raiseException("In processor: Exceeded allowed number " << maxPutTimeouts << " of put timeouts in cycle " << cycleCounter << std::endl);
 				}
 			}
+			totalPutTimeouts += putTimeouts;
+			if(putTimeouts > highestPutTimeouts) highestPutTimeouts = putTimeouts;
+			putTimeouts = 0; // Reset the counter, we have received a valid item
 		} else {
 			bufferport.push_front_processed(p);
 		}
@@ -232,7 +247,7 @@ void processor (
 
 		std::cout << "Processor " << id << " has finished processing";
 		if(putTimeouts > 0 || getTimeouts > 0) {
-			std::cout << " with " << putTimeouts << " put time-outs and " << getTimeouts << " get time-outs";
+			std::cout << " with " << totalPutTimeouts << " put time-outs (max " << highestPutTimeouts << ") and " << totalGetTimeouts << " get time-outs (max " << highestGetTimeouts << ")";
 		}
 		std::cout << "." << std::endl;
 	}

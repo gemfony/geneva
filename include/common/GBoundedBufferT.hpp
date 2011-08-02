@@ -72,6 +72,7 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <deque>
 #include <list>
 #include <algorithm>
@@ -86,6 +87,7 @@
 #include <boost/thread/condition.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/utility.hpp>
 #include <boost/cstdint.hpp>
@@ -152,7 +154,14 @@ public:
 	 */
 	GBoundedBufferT()
 		: capacity_(DEFAULTBUFFERSIZE)
-	{ /* nothing */}
+#ifdef BENCHMARKBOUNDEDBUFFER
+		, name_("no name")
+#endif /* BENCHMARKBOUNDEDBUFFER */
+	{
+#ifdef BENCHMARKBOUNDEDBUFFER
+		startTime_ = boost::posix_time::microsec_clock::local_time();
+#endif /* BENCHMARKBOUNDEDBUFFER */
+	}
 
 	/***************************************************************/
 	/**
@@ -163,7 +172,14 @@ public:
 	 */
 	explicit GBoundedBufferT(const std::size_t& capacity)
 		: capacity_(capacity?capacity:1)
-	{ /* nothing */}
+#ifdef BENCHMARKBOUNDEDBUFFER
+		, name_("no name")
+#endif /* BENCHMARKBOUNDEDBUFFER */
+	{
+#ifdef BENCHMARKBOUNDEDBUFFER
+		startTime_ = boost::posix_time::microsec_clock::local_time();
+#endif /* BENCHMARKBOUNDEDBUFFER */
+	}
 
 	/***************************************************************/
 	/**
@@ -190,6 +206,14 @@ public:
 			std::cerr << "Caught unknown exception in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl;
 			std::terminate();
 		}
+
+#ifdef BENCHMARKBOUNDEDBUFFER
+		// Find out when this object got destroyed
+		endTime_ = boost::posix_time::microsec_clock::local_time();
+
+		// Write out results
+		emitPutAndGetTimes();
+#endif /* BENCHMARKBOUNDEDBUFFER */
 	}
 
 	/***************************************************************/
@@ -207,6 +231,14 @@ public:
 		// deal with spurious wakeups
 		not_full_.wait(lock, boost::bind(&GBoundedBufferT<value_type>::is_not_full, this));
 		container_.push_front(item);
+
+#ifdef BENCHMARKBOUNDEDBUFFER
+		// Update the puts_ vector
+		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
+		puts_.push_back(currentTime);
+		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
+#endif /* BENCHMARKBOUNDEDBUFFER */
+
 		lock.unlock();
 		not_empty_.notify_one();
 	}
@@ -227,6 +259,14 @@ public:
 			throw Gem::Common::condition_time_out();
 		}
 		container_.push_front(item);
+
+#ifdef BENCHMARKBOUNDEDBUFFER
+		// Update the puts_ vector
+		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
+		puts_.push_back(currentTime);
+		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
+#endif /* BENCHMARKBOUNDEDBUFFER */
+
 		lock.unlock();
 		not_empty_.notify_one();
 	}
@@ -248,6 +288,14 @@ public:
 			return false;
 		}
 		container_.push_front(item);
+
+#ifdef BENCHMARKBOUNDEDBUFFER
+		// Update the puts_ vector
+		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
+		puts_.push_back(currentTime);
+		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
+#endif /* BENCHMARKBOUNDEDBUFFER */
+
 		lock.unlock();
 		not_empty_.notify_one();
 		return true;
@@ -267,6 +315,14 @@ public:
 		not_empty_.wait(lock, boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this));
 		item = container_.back();
 		container_.pop_back();
+
+#ifdef BENCHMARKBOUNDEDBUFFER
+		// Update the gets_ vector
+		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
+		gets_.push_back(currentTime);
+		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
+#endif /* BENCHMARKBOUNDEDBUFFER */
+
 		lock.unlock();
 		not_full_.notify_one();
 	}
@@ -288,6 +344,14 @@ public:
 		}
 		item = container_.back();
 		container_.pop_back();
+
+#ifdef BENCHMARKBOUNDEDBUFFER
+		// Update the gets_ vector
+		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
+		gets_.push_back(currentTime);
+		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
+#endif /* BENCHMARKBOUNDEDBUFFER */
+
 		lock.unlock();
 		not_full_.notify_one();
 	}
@@ -311,6 +375,14 @@ public:
 		}
 		item = container_.back(); // Assign the item at the back of the container
 		container_.pop_back(); // Remove it from the container
+
+#ifdef BENCHMARKBOUNDEDBUFFER
+		// Update the gets_ vector
+		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
+		gets_.push_back(currentTime);
+		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
+#endif /* BENCHMARKBOUNDEDBUFFER */
+
 		lock.unlock();
 		not_full_.notify_one();
 		return true;
@@ -373,6 +445,30 @@ public:
 		return (container_.size() > 0);
 	}
 
+#ifdef BENCHMARKBOUNDEDBUFFER
+	/***************************************************************/
+	/**
+	 * Allows to assign a name to this object
+	 *
+	 * @param name The name to be assigned to this object
+	 */
+	void setName(const std::string& name) {
+		name_ = name;
+	}
+
+	/***************************************************************/
+	/**
+	 * Allows to retrieve this object's name
+	 *
+	 * @return The assigned name of this object
+	 */
+	std::string getName() const {
+		return name_;
+	}
+
+	/***************************************************************/
+#endif /* BENCHMARKBOUNDEDBUFFER */
+
 protected:
 	/***************************************************************
 	 * We want to be able to add custom producer threads. Hence the
@@ -413,6 +509,71 @@ private:
 	/***************************************************************/
 	GBoundedBufferT(const GBoundedBufferT&); ///< Disabled copy constructor
 	GBoundedBufferT& operator = (const GBoundedBufferT&); ///< Disabled assign operator
+
+#ifdef BENCHMARKBOUNDEDBUFFER
+	/***************************************************************/
+	/**
+	 * Writes out put- and get times. You can evaluate the results using
+	 * the root analysis framework (see http://root.cern.ch)
+	 */
+	void emitPutAndGetTimes() {
+		long totalMicroseconds = (endTime_ - startTime_).total_microseconds();
+
+		std::ofstream result((boost::lexical_cast<std::string>(this) + "-result.C").c_str());
+
+		result
+			<< "{" << std::endl
+			<< "  gROOT->Reset();" << std::endl
+			<< "  gStyle->SetOptStat(0);" << std::endl
+			<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,1200);" << std::endl
+			<< "  cc->Divide(1,3);"
+			<< std::endl
+			<< "  TH1F *gets = new TH1F(\"gets\", \"timing of pop_back calls (" << name_ << " / " << startTime_ << ")\", 1000, 0, " << totalMicroseconds << ");" << std::endl
+			<< "  TH1F *puts = new TH1F(\"puts\", \"timing of push_front calls (" << name_ << " / " << startTime_ <<")\", 1000, 0, " << totalMicroseconds << ");" << std::endl
+			<< "  Int_t currentEntries[" << entries_.size() << "];" << std::endl
+			<< "  Int_t entryTimes[" << entries_.size() << "];" << std::endl
+			<< std::endl;
+
+		for(std::size_t i=0; i<gets_.size(); i++) {
+			result << "  gets->Fill(" << gets_[i] << ");" << std::endl;
+		}
+		result << std::endl;
+
+		for(std::size_t i=0; i<puts_.size(); i++) {
+			result << "  puts->Fill(" << puts_[i] << ");" << std::endl;
+		}
+		result << std::endl;
+
+		for(std::size_t i=0; i<entries_.size(); i++) {
+			result << "  currentEntries[" << i << "] = " << entries_[i].first << ";" << std::endl
+				   << "  entryTimes[" << i << "] = " << entries_[i].second << ";" << std::endl;
+		}
+
+		result
+		    << "  TGraph *entries = new TGraph(" << entries_.size() << ", entryTimes, currentEntries);" << std::endl
+		    << std::endl
+		    << "  cc->cd(1);" << std::endl
+			<< "  gets->Draw();" << std::endl
+			<< "  cc->cd(2);" << std::endl
+			<< "  puts->Draw();" << std::endl
+			<< "  cc->cd(3);" << std::endl
+			<< "  entries->Draw(\"AP\");" << std::endl
+			<< "  cc->cd();" << std::endl
+			<< "}" << std::endl;
+
+		result.close();
+	}
+	/***************************************************************/
+
+	std::string name_; ///< A name to be assigned to this object
+
+	boost::posix_time::ptime startTime_; ///< Holds information about the construction time of this object
+	boost::posix_time::ptime endTime_; ///< Holds information about the destruction time of this object
+	std::vector<std::pair<std::size_t, long> > entries_;
+
+	std::vector<long> gets_, puts_; ///< Holds information about submission- and retrieval-times
+
+#endif /* BENCHMARKBOUNDEDBUFFER */
 };
 
 } /* namespace Common */

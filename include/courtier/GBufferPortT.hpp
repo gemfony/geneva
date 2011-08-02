@@ -85,7 +85,12 @@ public:
 	GBufferPortT()
 		: original_(new Gem::Common::GBoundedBufferWithIdT<T>())
 		, processed_(new Gem::Common::GBoundedBufferWithIdT<T>())
-	{ /* nothing */	}
+	{
+#ifdef BENCHMARKBOUNDEDBUFFER
+		original_->setName("raw buffer");
+		processed_->setName("processed buffer");
+#endif /* BENCHMARKBOUNDEDBUFFER */
+	}
 
 	/*****************************************************************************/
 	/**
@@ -96,7 +101,12 @@ public:
 	explicit GBufferPortT(const std::size_t& size)
 	   : original_(new Gem::Common::GBoundedBufferWithIdT<T>(size))
 	   , processed_(new Gem::Common::GBoundedBufferWithIdT<T>(size))
-	{ /* nothing */ }
+	{
+#ifdef BENCHMARKBOUNDEDBUFFER
+		original_->setName("raw buffer");
+		processed_->setName("processed buffer");
+#endif /* BENCHMARKBOUNDEDBUFFER */
+	}
 
 	/*****************************************************************************/
 	/**

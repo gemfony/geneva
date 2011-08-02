@@ -67,7 +67,9 @@ const std::size_t DEFAULTNPRODUCERSAP = 4;
 const std::size_t DEFAULTNCONSUMERSAP = 4;
 const long DEFAULTTIMEOUTMS = 10000; // 0.01 s
 const long DEFAULTMAXRANDOMDELAYMS = 0; // 0.01
-const std::size_t DEFAULTNITEMS = 1000000;
+const std::size_t DEFAULTNITEMS = 10000;
+const long DEFAULTSTARTDELAY = 1000000;
+const bool DEFAULTSTARTATONCE = true;
 
 /********************************************************************************************/
 
@@ -80,6 +82,8 @@ bool parseCommandLine(
 	  , std::size_t& nConsumers
 	  , long& timeoutMS
 	  , long& maxRandomDelayMS
+	  , long& startDelayMS
+	  , bool& startAtOnce
 );
 
 /********************************************************************************************/
