@@ -42,6 +42,7 @@
 #include <string>
 #include <utility>
 #include <limits>
+#include <stdexcept>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -82,6 +83,10 @@
 namespace Gem {
 namespace Courtier {
 
+/***********************************************************************************/
+/** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
+class buffer_not_present: public std::exception {};
+
 /**************************************************************************************/
 
 /** @brief The maximum allowed port id. Note that, if we have no 64 bit integer types,
@@ -108,7 +113,6 @@ public:
 	 */
 	GBrokerT()
 		: finalized_(false)
-		, discardedItemsCounter_(0)
 		, lastId_(0)
 		, currentGetPosition_(RawBuffers_.begin())
 		, buffersPresentRaw_(false)
@@ -156,9 +160,6 @@ public:
 		RawBuffers_.clear(); // Somehow that gets rid of the Boost 1.46 crash
 		ProcessedBuffers_.clear();
 		consumerCollection_.clear();
-
-		// Let the audience know about lost items
-		boost::mutex::scoped_lock discardedLock(discardedMutex_);
 
 		// Make sure this function does not execute code a second time
 		finalized_ = true;
@@ -319,14 +320,54 @@ public:
 
 	/**********************************************************************************/
 	/**
+	 * Retrieves a "raw" item from a GBufferPortT, observing a timeout. The function
+	 * will indicate failure to retrieve a valid item by returning a boolean.
+	 *
+	 * @param id A key that identifies the origin of p
+	 * @param p Holds the retrieved "raw" item
+	 * @param timeout Time after which the function should time out
+	 * @return A boolean that indicates whether the item retrieval was successful
+	 */
+	bool get(
+			Gem::Common::PORTIDTYPE& id
+			, boost::shared_ptr<carrier_type> & p
+			, boost::posix_time::time_duration timeout
+	) {
+		GBoundedBufferWithIdT_Ptr currentBuffer;
+
+		// Locks access to our internal data until we have a copy of a buffer.
+		// This will prevent the buffer from being removed, as the use count
+		// is increased. Also fixes the iterator.
+		{
+			boost::mutex::scoped_lock rawLock(RawBuffersMutex_);
+
+			// Do not let execution start before the first buffer has been enrolled
+			while(!buffersPresentRaw_) readyToGoRaw_.wait(rawLock);
+
+			currentBuffer = *currentGetPosition_;
+			id = currentBuffer->getId();
+			if(++currentGetPosition_ == RawBuffers_.end()) {
+				currentGetPosition_ = RawBuffers_.begin();
+			}
+		}
+
+		// Retrieve the item. This function is thread-safe.
+		return currentBuffer->pop_back_bool(p, timeout);
+	}
+
+	/**********************************************************************************/
+	/**
 	 * Puts a processed item into the processed queue. Note that the item will simply
 	 * be discarded if no target queue with the required id exists. The function will
 	 * block otherwise, until it is again possible to submit the item.
 	 *
-	 * @param key A key that uniquely identifies the origin of p
+	 * @param id A key that uniquely identifies the origin of p
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 */
-	void put(Gem::Common::PORTIDTYPE id, boost::shared_ptr<carrier_type> p) {
+	void put(
+			Gem::Common::PORTIDTYPE id
+			, boost::shared_ptr<carrier_type> p
+	) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
@@ -341,34 +382,38 @@ public:
 		// function could block.
 		processedLock.unlock();
 
-		// Add p to the correct buffer, if it is a valid pointer
+		// Add p to the correct buffer, if it is a valid pointer.
 		if(currentBuffer) currentBuffer->push_front(p);
 	}
 
 	/**********************************************************************************/
 	/**
-	 * Puts a processed item into the processed queue, observing a timeout. Note that
-	 * the item will simply be discarded if no target queue with the required id exists.
-	 * An exception will be thrown when the timeout has been reached. Note that if the
-	 * timeout is reached in the last line of this function, the item will simply be
-	 * discarded.
+	 * Puts a processed item into the processed queue, observing a timeout. The function
+	 * will throw a Gem::Courtier::buffer_not_present exception if the requested buffer
+	 * isn't present. The function will return false if no item could be added to the buffer
+	 * inside if the allowed time limits.
 	 *
-	 * @param key A key that uniquely identifies the origin of p
-	 * @param p Holds the "raw" item to be submitted to the processed queue
+	 * @param id A key that uniquely identifies the origin of p
+	 * @param p Holds the item to be submitted to the processed queue
 	 * @param timeout Time after which the function should time out
+	 * @param A boolean indicating whether the item could be added to the queue in time
 	 */
-	void put(
+	bool put(
 			Gem::Common::PORTIDTYPE id
 			, boost::shared_ptr<carrier_type> p
 			, boost::posix_time::time_duration timeout
 	) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 
+		//-----------------------------------------------------------------------------
+		// Make sure processing can start (impossible, before any buffer
+		// port objects have been added)
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
 
 		// Do not let execution start before the first buffer has been enrolled
 		while(!buffersPresentProcessed_) readyToGoProcessed_.wait(processedLock);
 
+		//-----------------------------------------------------------------------------
 		// Cross-check that the id is indeed available and retrieve the buffer
 		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end()) {
 			currentBuffer = ProcessedBuffers_[id];
@@ -377,17 +422,17 @@ public:
 		} else {
 			// Make the mutex available again
 			processedLock.unlock();
-			boost::mutex::scoped_lock discardedLock(discardedMutex_);
-			discardedItemsCounter_++; // Make it known that we lost an item
-			return; // Will also unlock the mutex
+
+			throw Gem::Courtier::buffer_not_present();
+			return false; // Make the compiler happy
 		}
 
-		// Add p to the correct buffer, which we now assume to be valid
-		// NOTE: In the case of a flooded queue, this will lead to the item being discarded
-		if(!currentBuffer->push_front_bool(p, timeout)) {
-			boost::mutex::scoped_lock discardedLock(discardedMutex_);
-			discardedItemsCounter_++; // Make it known that we lost an item
-		}
+		//-----------------------------------------------------------------------------
+		// Add p to the correct buffer, which we now assume to be valid. If this
+		// cannot be done in time, let the audience know by returning false
+		return currentBuffer->push_front_bool(p, timeout);
+
+		//-----------------------------------------------------------------------------
 	}
 
 private:
@@ -402,9 +447,6 @@ private:
 
 	mutable boost::condition_variable readyToGoRaw_; ///< The get function will block until this condition variable is set
 	mutable boost::condition_variable readyToGoProcessed_; ///< The put function will block until this condition variable is set
-
-	mutable boost::mutex discardedMutex_; ///< Allows to keep track of the number of discarded items
-	std::size_t discardedItemsCounter_; ///< Counts the number of discarded items
 
 	BufferPtrList RawBuffers_; ///< Holds GBoundedBufferWithIdT objects with raw items
 	BufferPtrMap ProcessedBuffers_; ///< Holds GBoundedBufferWithIdT objects for processed items

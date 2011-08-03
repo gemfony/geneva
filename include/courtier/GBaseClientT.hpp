@@ -264,6 +264,12 @@ protected:
 		// generally happen through the same type that was used for serialization.
 		boost::shared_ptr<processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
 
+		// Check if we have received a valid target. Leave the function if this is not the case
+		if(!target) {
+			// This means that process() will be called again
+			return true;
+		}
+
 		// If we have a model for the item to be parallelized, load its data into the target
 		if(additionalDataTemplate_) target->loadConstantData(additionalDataTemplate_);
 

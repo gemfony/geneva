@@ -157,6 +157,7 @@ public:
 		{
 			boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
 			stop_=true;
+			lock.unlock();
 		}
 
 		gtg_.join_all();
@@ -189,17 +190,43 @@ private:
 				// Have we been asked to stop ?
 				{
 					boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
-					if(stop_) break;
-				} // explicit scope -- the lock will be destroyed here
-
-				try{
-					id = broker_->get(p, timeout);
+					if(stop_) {
+						lock.unlock();
+						break;
+					}
 				}
-				catch(Gem::Common::condition_time_out &) { continue; }
 
-				if(p){
-					p->process();
-					broker_->put(id, p, timeout);
+				// If we didn't get a valid item, start again with the while loop
+				if(!broker_->get(id, p, timeout)) {
+					continue;
+				}
+
+#ifdef DEBUG
+				// Check that we indeed got a valid item
+				if(!p) { // We didn't get a valid item after all
+					raiseException(
+						"In GSerialConsumerT<T>::startProcessing(): Error!" << std::endl
+						<< "Got empty item when it shouldn't be empty!" << std::endl
+					);
+				}
+#endif /* DEBUG */
+
+				// Do the actual work
+				p->process();
+
+				// Return the item to the broker. The item will be discarded
+				// if the requested target queue cannot be found.
+				try {
+					while(!broker_->put(id, p, timeout)){
+						// Terminate if we have been asked to stop
+						boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
+						if(stop_) {
+							lock.unlock();
+							break;
+						}
+					}
+				} catch (Gem::Courtier::buffer_not_present&) {
+					continue;
 				}
 			}
 		}

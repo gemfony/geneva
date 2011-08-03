@@ -79,15 +79,18 @@ void producer(
 	// Holds the broker object
 	Gem::Courtier::GBrokerConnectorT<WORKLOAD> brokerConnector;
 
-	// Will hold the WORKLOAD objects
-	std::vector<boost::shared_ptr<WORKLOAD> > data(nContainerObjects);
+	// Will hold the data items
+	std::vector<boost::shared_ptr<WORKLOAD> > data;
 
 	// Start the loop
 	boost::uint32_t cycleCounter = 0;
 	while(cycleCounter++ < nProductionCycles) {
+		// Clear the data vector
+		data.clear();
+
 		// Fill a std::vector<> with WORKLOAD objects
 		for(std::size_t i=0; i<nContainerObjects; i++) {
-			data[i] = boost::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries));
+			data.push_back(boost::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
 		}
 
 		// Submit the container to the broker
@@ -114,16 +117,19 @@ void producer(
 				);
 			}
 		} else {
+			std::cout << id << ": doing complete submission of size " << data.size() << std::endl;
 			brokerConnector.workOn(
 					data
 					, 0
 					, data.size()
 					, ACCEPTOLDERITEMS
 			);
+			std::cout << id << ": submission finished with size " << data.size() << std::endl;
 		}
 	}
 
-	std::cout << "Producer " << id << " has finished producing" << std::endl;
+	std::cout << "Producer " << id << " has finished producing" << std::endl
+			  << std::endl;
 }
 
 /********************************************************************************/
@@ -209,6 +215,8 @@ int main(int argc, char **argv) {
 	switch(executionMode) {
 	case Gem::Courtier::Tests::SERIAL:
 		{
+			std::cout << "Using a serial consumer" << std::endl;
+
 			// Create a serial consumer and enrol it with the broker
 			boost::shared_ptr<GSerialConsumerT<WORKLOAD> > gatc(new GSerialConsumerT<WORKLOAD>());
 			GBROKER(WORKLOAD)->enrol(gatc);
@@ -217,6 +225,8 @@ int main(int argc, char **argv) {
 
 	case Gem::Courtier::Tests::INTERNALNETWORKING:
 		{
+			std::cout << "Using internal networking" << std::endl;
+
 			// Start the workers
 			boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
 			worker_gtg.create_threads(
@@ -232,6 +242,8 @@ int main(int argc, char **argv) {
 
 	case Gem::Courtier::Tests::NETWORKING:
 		{
+			std::cout << "Using networked mode" << std::endl;
+
 			// Create a network consumer and enrol it with the broker
 			boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>(port));
 			GBROKER(WORKLOAD)->enrol(gatc);
@@ -240,6 +252,8 @@ int main(int argc, char **argv) {
 
 	case Gem::Courtier::Tests::MULTITHREADING:
 		{
+			std::cout << "Using the multithreaded mode" << std::endl;
+
 			// Create a consumer and make it known to the global broker
 			boost::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
 			GBROKER(WORKLOAD)->enrol(gbtc);
@@ -248,6 +262,8 @@ int main(int argc, char **argv) {
 
 	case Gem::Courtier::Tests::THREADANDINTERNALNETWORKING:
 		{
+			std::cout << "Using multithreading and internal networking" << std::endl;
+
 			// Start the workers
 			boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
 			worker_gtg.create_threads(
@@ -265,6 +281,8 @@ int main(int argc, char **argv) {
 
 	case Gem::Courtier::Tests::THREAEDANDNETWORKING:
 		{
+			std::cout << "Using multithreading and the networked mode" << std::endl;
+
 			boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>(port));
 			boost::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
 

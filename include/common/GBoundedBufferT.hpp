@@ -80,6 +80,7 @@
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
+#include "common/GExceptions.hpp"
 
 // Boost headers go here
 
@@ -313,6 +314,15 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		not_empty_.wait(lock, boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this));
+
+#ifdef DEBUG
+		if(container_.empty()) {
+			raiseException(
+				"In GBoundedBufferT<T>::pop_back(item): Container is empty when it shouldn't be!" << std::endl
+			);
+		}
+#endif /* DEBUG */
+
 		item = container_.back();
 		container_.pop_back();
 
@@ -342,6 +352,15 @@ public:
 		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this))) {
 			throw Gem::Common::condition_time_out();
 		}
+
+#ifdef DEBUG
+		if(container_.empty()) {
+			raiseException(
+				"In GBoundedBufferT<T>::pop_back(item,timeout): Container is empty when it shouldn't be!" << std::endl
+			);
+		}
+#endif /* DEBUG */
+
 		item = container_.back();
 		container_.pop_back();
 
@@ -373,6 +392,15 @@ public:
 		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this))) {
 			return false;
 		}
+
+#ifdef DEBUG
+		if(container_.empty()) {
+			raiseException(
+				"In GBoundedBufferT<T>::pop_back_bool(item,timeout): Container is empty when it shouldn't be!" << std::endl
+			);
+		}
+#endif /* DEBUG */
+
 		item = container_.back(); // Assign the item at the back of the container
 		container_.pop_back(); // Remove it from the container
 

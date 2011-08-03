@@ -857,13 +857,11 @@ void GSerialEA::doRecombine() {
 		// Recombination according to the parents' fitness only makes sense if
 		// we have at least 2 parents. We do the recombination manually otherwise
 		if(nParents_==1) {
-			std::size_t p_pos = 0;
 			for(it=data.begin()+1; it!= data.end(); ++it) {
 				(*it)->GObject::load(*(data.begin()));
-				(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setParentId(p_pos++);
+				(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setParentId(0);
 			}
-		}
-		else {
+		} else {
 			// TODO: Check whether it is sufficient to do this only once
 
 			// Calculate a vector of recombination likelihoods for all parents
@@ -1006,7 +1004,9 @@ void GSerialEA::adaptChildren()
 
 	// Next we perform the adaption of each child individual in
 	// sequence. Note that this can also trigger fitness calculation.
-	for(it=data.begin()+nParents_; it!=data.end(); ++it) (*it)->adapt();
+	for(it=data.begin()+nParents_; it!=data.end(); ++it) {
+		(*it)->adapt();
+	}
 }
 
 /************************************************************************************************************/
