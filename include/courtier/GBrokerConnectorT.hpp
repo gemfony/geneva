@@ -665,7 +665,7 @@ public:
     	}
 
     	// Create a vector of size workItems.size() with flags indicating whether
-    	// items have returned or whether this is a position that has never been submitted
+    	// items have returned or whether this is a position that is not intended for submission
     	std::vector<std::size_t> returnedItemPos(workItems.size());
     	// Initialize with 2s
     	Gem::Common::assignVecConst(returnedItemPos, std::size_t(2));
@@ -713,8 +713,9 @@ public:
     	//-------------------------------------------------------------------------------
     	// Wait for further arrivals. Resubmit items, when we run into a timeout
     	std::size_t retry_counter = 0;
-    	while(!complete && retry_counter++ < maxResubmissions) {
-    		if (p = retrieveItem<work_item>()) { // Did we receive a valid item ?
+    	while(!complete && retry_counter < maxResubmissions) {
+    		p = retrieveItem<work_item>();
+    		if (p) { // Did we receive a valid item ?
     			// Check whether the received item hasn't been added already or comes from an older submission
     			if(1 == returnedItemPos[(p->getCourtierId()).second] || submission_counter_ != (p->getCourtierId()).first) {
     				p.reset();
@@ -731,7 +732,6 @@ public:
         				complete = true;
         			}
     			}
-
     		} else { // O.k., so we ran into a timeout
     			// Resubmit all items which have not been marked as "returned"
     			for(std::size_t i=0; i<returnedItemPos.size(); i++) {
@@ -758,7 +758,11 @@ public:
     					<< "but received " << returnedItems.size() << std::endl
     			);
     		}
+#endif /* DEBUG */
 
+    		std::sort(returnedItems.begin(), returnedItems.end(), courtierPosComp<work_item>());
+
+#ifdef DEBUG
     		for(std::size_t i=0; i<returnedItems.size(); i++) {
     			if((returnedItems[i]->getCourtierId()).second != start+i){
     				raiseException(
@@ -769,9 +773,6 @@ public:
     			}
     		}
 #endif /* DEBUG */
-
-    		std::sort(returnedItems.begin(), returnedItems.end(), courtierPosComp<work_item>());
-
 
         	// Insert returned items back into the workItems vector. As this only
     		// happens when all items have been received back, the workItems vector
