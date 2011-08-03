@@ -11,6 +11,7 @@ SET ( COMMUNICATIONINCLUDES
 	GBufferPortT.hpp
 	GCourtierEnums.hpp
 	GConsumer.hpp
+	GRemoteConsumerT.hpp
 	GSerialConsumerT.hpp
 	GSubmissionContainerT.hpp
 )
