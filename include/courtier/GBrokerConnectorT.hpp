@@ -412,6 +412,8 @@ public:
 				if(waitFactor_ < maxWaitFactor_) {
 					waitFactor_ += waitFactorIncrement_;
 
+					// std::cout << "Increased wait factor to " << waitFactor_ << std::endl;
+
 					// Make sure we do not accidently slip above the maximum allowed wait factor
 					if(waitFactor_ > maxWaitFactor_) {
 						waitFactor_ = maxWaitFactor_;
@@ -420,6 +422,8 @@ public:
 			} else if(percentOfTimeoutNeeded_ < DEFAULTMINPERCENTAGEOFTIMEOUT) {
 				if(waitFactor_ > minWaitFactor_) {
 					waitFactor_ -= waitFactorIncrement_;
+
+					// std::cout << "Decreased wait factor to " << waitFactor_ << std::endl;
 
 					// Make sure we do not accidently slip below the minimum wait factor
 					if(waitFactor_ < minWaitFactor_) {

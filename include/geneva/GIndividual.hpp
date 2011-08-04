@@ -95,7 +95,7 @@ class GIndividual
 	  using boost::serialization::make_nvp;
 
 	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-	  	 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Courtier::GSubmissionContainerT<GIndividual>)
+	     & make_nvp("GSubmissionContainerT_GIndividual", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GIndividual> >(*this))
 	     & BOOST_SERIALIZATION_NVP(currentFitness_)
 	     & BOOST_SERIALIZATION_NVP(currentSecondaryFitness_)
 	     & BOOST_SERIALIZATION_NVP(bestPastFitness_)
