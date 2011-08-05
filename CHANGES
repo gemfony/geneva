@@ -5,45 +5,49 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
  - MPI Consumer/Client
 
 //------------------------------------------------------------------------------------------------------
-* Version 0.9.2, yet unnamed, release-date unknown
+* Version 0.9.2, "Route de Meyrin" - February 4, 2011
 
 The main changes for this release include:
- - Added the ability to individuals to store secondary evaluation criteria in
-   addition the main criterion.
- - Added a first version of multi-criterion ("pareto front") optimization to 
-   Geneva's Evolutionary Algorithms
- - Added a serial consumer, so all execution modes can now be handled independently
-   from the optimization algorithms
+ - Added the ability to individuals to store secondary evaluation
+   criteria in addition the main criterion.
+ - Added a first version of multi-criterion ("pareto front")
+   optimization to Geneva's Evolutionary Algorithms.
+ - Added a serial consumer, so all execution modes can now be handled
+   independently from the optimization algorithms.
  - Added explicit initialization and finalization code so we know when
-   objects get constructed or destroyed in the presence of singletons
- - Added forced termination code if the library is linked with Boost versions 
-   affected by the termination problem in conjunction with gcc
- - Added a mechanism to deposit data at a remote site, so it doesn't need 
-   to be (de-)serialized in each iteration. Note that, if you use this feature 
-   together with  check-pointing, you need to make sure that un-serialized data 
-   is loaded.
- - Replaced the publicly visible waitFactor by minimum and maximum values for
-   the waitFactor variable. It will now be updated automatically
- - Scripts now reside in their own subdirectory
- - Removed the GINDIVIDUALBROKER macro for clarity reasons
- - Added an option that allows evolutionary algorithm population to grow up
-   to a user-defined limit, so one can start with small populations and still have
-   good coverage of the parameter space close to the optimum. This is meant to 
-   shorten optimization runs in multi-threaded mode, if the population size is much
-   larger than the number of available compute units
- - Renovated gradient descents and swarms
- - Added a means to recursively extract lower and upper boundaries and initialization 
-   ranges from GParameterBase-derivatives
- - Moved the GBrokerConnector to the courtier library, making it a template class and
-   thus independent of the optimization code
- - Moved a lot of the Broker-Populations functionality into the GBrokerConnector,
-   thus making it more generic and the population classes easier to understand
- - Removed remaining dependencies of the courtier lib on the core optimization 
-   framework
- - Added individual tests for the common and courtier libs
- - Renamed the former serial GSwarm class to the more logical GSerialSwarm; Similarly
-   GEvolutionaryAlgorithm -> GSerialEA; GGradientDescent -> GSerialGD
- - Adapted to Boost 1.47
+   objects get constructed or destroyed in the presence of singletons.
+ - Added forced termination code if the library is linked with Boost
+   versions affected by the termination problem in conjunction with gcc.
+ - Added a mechanism to deposit data at a remote site, so it doesn't
+   need to be (de-)serialized in each iteration. Note that, if you use
+   this feature together with check-pointing, you need to make sure
+   that un-serialized data is loaded.
+ - Replaced the publicly visible waitFactor by minimum and maximum
+   values for the waitFactor variable. It will now be updated
+   automatically.
+ - Renamed the former serial GSwarm class to the more logical
+   GSerialSwarm, similarly GEvolutionaryAlgorithm -> GSerialEA, and
+   GGradientDescent -> GSerialGD.
+ - Added an option that allows an evolutionary algorithm population
+   to grow up to a user-defined limit, so one can start with small
+   populations and still have good coverage of the parameter space
+   close to the optimum. This is meant to shorten optimization runs
+   in multi-threaded mode, if the population size is much larger than
+   the number of available compute units.
+ - Renovated gradient descents and swarms.
+ - Added a means to recursively extract lower and upper boundaries
+   and initialization ranges from GParameterBase-derivatives.
+ - Moved the GBrokerConnector to the courtier library, making it a
+   template class and thus independent of the optimization code.
+ - Removed the GINDIVIDUALBROKER macro for clarity reasons.
+ - Moved much of the Broker-Populations functionality into the
+   GBrokerConnector, thus making it more generic and the population
+   classes easier to understand.
+ - Removed remaining dependencies of the courtier lib on the core
+   optimization framework.
+ - Moved scripts to their own subdirectory.
+ - Added individual tests for the common and courtier libs.
+ - Adapted to Boost 1.47.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.1, "Route Cockroft" - February 12, 2011
