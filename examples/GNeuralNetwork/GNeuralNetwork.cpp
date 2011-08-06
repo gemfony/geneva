@@ -367,7 +367,7 @@ int main(int argc, char **argv){
   case Gem::Geneva::SIGMOID:
   {
 	  boost::shared_ptr<GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> > best_ptr
-		  = pop_ptr->getBestIndividual<GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >();
+		  = pop_ptr->GOptimizationAlgorithmI::getBestIndividual<GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >();
 	  best_ptr->writeTrainedNetwork(resultProgram);
 	  best_ptr->writeVisualizationFile(visualizationFile);
   }
@@ -376,7 +376,7 @@ int main(int argc, char **argv){
   case Gem::Geneva::RBF:
   {
 	  boost::shared_ptr<GNeuralNetworkIndividual<Gem::Geneva::RBF> > best_ptr
-		  = pop_ptr->getBestIndividual<GNeuralNetworkIndividual<Gem::Geneva::RBF> >();
+		  = pop_ptr->GOptimizationAlgorithmI::getBestIndividual<GNeuralNetworkIndividual<Gem::Geneva::RBF> >();
 	  best_ptr->writeTrainedNetwork(resultProgram);
 	  best_ptr->writeVisualizationFile(visualizationFile);
   }

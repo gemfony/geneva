@@ -720,7 +720,7 @@ private:
 		}
 
 		// Retrieve the best individual found
-		boost::shared_ptr<ind_type> result = ea_ptr->getBestIndividual<ind_type>();
+		boost::shared_ptr<ind_type> result = ea_ptr->GOptimizationAlgorithmI::getBestIndividual<ind_type>();
 
 		// Adapt the local offset_ variable in case we intend to start another optimization run
 		offset_ = ea_ptr->getIteration() + 1;
@@ -850,7 +850,7 @@ private:
 		}
 
 		// Retrieve the best individual found
-		boost::shared_ptr<ind_type> result = swarm_ptr->getBestIndividual<ind_type>();
+		boost::shared_ptr<ind_type> result = swarm_ptr->GOptimizationAlgorithmI::getBestIndividual<ind_type>();
 
 		// Adapt the local offset_ variable in case we intend to start another optimization run
 		offset_ = swarm_ptr->getIteration() + 1;
@@ -971,7 +971,7 @@ private:
 		}
 
 		// Retrieve the best individual found
-		boost::shared_ptr<ind_type> result = gd_ptr->getBestIndividual<ind_type>();
+		boost::shared_ptr<ind_type> result = gd_ptr->GOptimizationAlgorithmI::getBestIndividual<ind_type>();
 
 		// Adapt the local offset_ variable in case we intend to start another optimization run
 		offset_ = gd_ptr->getIteration() + 1;

@@ -141,50 +141,6 @@ public:
 	/** @brief Retrieves the number of processable items for the current iteration */
 	virtual std::size_t getNProcessableItems() const;
 
-	/**************************************************************************************************/
-	/**
-	 * Retrieves the best individual of the population and casts it to the desired type.
-	 * Note that this function will only be accessible to the compiler if individual_type is a derivative
-	 * of GIndividual, thanks to the magic of Boost's enable_if and Type Traits libraries. The returned
-	 * individual is a clone, so you can act on it freely.
-	 *
-	 * @return A converted shared_ptr to the best individual of the population
-	 */
-	template <typename parameterset_type>
-	inline boost::shared_ptr<parameterset_type> getBestIndividual(
-			typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
-	){
-#ifdef DEBUG
-		// Check that data is present at all
-		if(data.size() < nStartingPoints_) {
-			raiseException(
-					"In GSerialGD::getBestIndividual<parameterset_type>() : Error!" << std::endl
-					<< "Population has fewer individuals than starting points: " << data.size() << " / " << nStartingPoints_
-			);
-		}
-
-		// Check that no parent is in "dirty" state
-		for(std::size_t i=0; i<nStartingPoints_; i++) {
-			if(data.at(i)->isDirty()) {
-				raiseException(
-						"In GSerialGD::getBestIndividual<parameterset_type>() : Error!" << std::endl
-						<< "Found dirty parent at position : " << i
-				);
-			}
-		}
-#endif /* DEBUG */
-
-		// Loop over all "parent" individuals and find out which one is the best
-		std::size_t pos_best=0;
-		for(std::size_t i=1; i<nStartingPoints_; i++) {
-			if(isBetter(data.at(i)->fitness(0), data.at(i-1)->fitness(0))) {
-				pos_best=i;
-			}
-		}
-
-		return data[pos_best]->clone<parameterset_type>();
-	}
-
 protected:
 	/**************************************************************************************************/
 	/** @brief Loads the data of another population */
@@ -213,6 +169,9 @@ protected:
 	virtual void updateChildParameters();
 	/** @brief Performs a step of the parent individuals */
 	virtual void updateParentIndividuals();
+
+	/** @brief Retrieves the best individual found */
+	virtual boost::shared_ptr<GIndividual> getBestIndividual();
 
 private:
 	/**************************************************************************************************/

@@ -267,7 +267,7 @@ public:
 			}
 
 			// Retrieve the globally best individual for later use
-			boost::shared_ptr<GParameterSet> g_best_ptr = ea->getBestIndividual<GParameterSet>();
+			boost::shared_ptr<GParameterSet> g_best_ptr = ea->GOptimizationAlgorithmI::getBestIndividual<GParameterSet>();
 			// Extract the fitness
 			bool isDirty;
 			double global_best_fitness = g_best_ptr->getCachedFitness(isDirty);

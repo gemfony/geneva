@@ -517,6 +517,50 @@ void GSerialGD::updateParentIndividuals() {
 
 /************************************************************************************************************/
 /**
+ * Retrieves the best individual of the population and returns it in Gem::Geneva::GIndividual format.
+ * Note that this protected function will return the item itself. Direct usage of this function should
+ * be avoided even by derived classes. We suggest to use the function
+ * GOptimizationAlgorithmI::getBestIndividual<individual_type>() instead, which internally uses
+ * this function and returns copies of the best individual, converted to the desired target type.
+ *
+ * @return A shared_ptr to the best individual of the population
+ */
+boost::shared_ptr<GIndividual> GSerialGD::getBestIndividual(){
+#ifdef DEBUG
+	// Check that data is present at all
+	if(data.size() < nStartingPoints_) {
+		raiseException(
+				"In GSerialGD::getBestIndividual() : Error!" << std::endl
+				<< "Population has fewer individuals than starting points: " << data.size() << " / " << nStartingPoints_
+		);
+	}
+
+	// Check that no parent is in "dirty" state
+	for(std::size_t i=0; i<nStartingPoints_; i++) {
+		if(data.at(i)->isDirty()) {
+			raiseException(
+					"In GSerialGD::getBestIndividual() : Error!" << std::endl
+					<< "Found dirty parent at position : " << i
+			);
+		}
+	}
+#endif /* DEBUG */
+
+	// Loop over all "parent" individuals and find out which one is the best
+	std::size_t pos_best=0;
+	for(std::size_t i=1; i<nStartingPoints_; i++) {
+		if(isBetter(data.at(i)->fitness(0), data.at(i-1)->fitness(0))) {
+			pos_best=i;
+		}
+	}
+
+	// There will be an implicit downcast here, as data holds
+	// boost::shared_ptr<GParameterSet> objects
+	return data[pos_best];
+}
+
+/************************************************************************************************************/
+/**
  * Does some preparatory work before the optimization starts
  */
 void GSerialGD::init() {

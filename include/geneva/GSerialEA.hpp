@@ -207,31 +207,6 @@ public:
 
 	/**************************************************************************************************/
 	/**
-	 * Retrieves the best individual of the population and casts it to the desired type.
-	 * Note that this function will only be accessible to the compiler if individual_type is a derivative
-	 * of GIndividual, thanks to the magic of Boost's enable_if and Type Traits libraries. The returned
-	 * object is a clone of the original, so you can act on it freely.
-	 *
-	 * @return A converted shared_ptr to a clone of the best (i.e. first) individual of the population
-	 */
-	template <typename individual_type>
-	inline boost::shared_ptr<individual_type> getBestIndividual(
-			typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
-	){
-#ifdef DEBUG
-		if(data.empty()) {
-			raiseException(
-					"In GSerialEA::getBestIndividual<individual_type>() :" << std::endl
-					<< "Tried to access individual at position 0 even though population is empty."
-			);
-		}
-#endif /* DEBUG */
-
-		return data[0]->clone<individual_type>();
-	}
-
-	/**************************************************************************************************/
-	/**
 	 * Retrieves a specific parent individual and casts it to the desired type. Note that this
 	 * function will only be accessible to the compiler if individual_type is a derivative of GIndividual,
 	 * thanks to the magic of Boost's enable_if and Type Traits libraries.
@@ -370,6 +345,9 @@ protected:
 	virtual void adjustPopulation();
 	/** @brief Increases the population size if requested by the user */
 	void performScheduledPopulationGrowth();
+
+	/** @brief Retrieves the best individual found */
+	virtual boost::shared_ptr<GIndividual> getBestIndividual();
 
 private:
 	/**********************************************************************************/

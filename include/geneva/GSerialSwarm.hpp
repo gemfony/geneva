@@ -180,32 +180,6 @@ public:
 
 	/**************************************************************************************************/
 	/**
-	 * Retrieves the best individual of the population and casts it to the desired type. Note that this
-	 * function will only be accessible to the compiler if parameterset_type is a derivative of GParameterSet,
-	 * thanks to the magic of Boost's enable_if and Type Traits libraries. The returned individual is a clone,
-	 * so you can act on it freely.
-	 *
-	 * @return A converted shared_ptr to a copy of the best individual of the population
-	 */
-	template <typename parameterset_type>
-	inline boost::shared_ptr<parameterset_type> getBestIndividual(
-			typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
-	){
-#ifdef DEBUG
-		// Check that global_best_ actually points somewhere
-		if(!global_best_) {
-			raiseException(
-					"In GSerialSwarm::getBestIndividual<>() : Error" << std::endl
-					<< "Tried to access uninitialized globally best individual."
-			);
-		}
-#endif /* DEBUG */
-
-		return global_best_->clone<parameterset_type>();
-	}
-
-	/**************************************************************************************************/
-	/**
 	 * Retrieves the best individual of a neighborhood and casts it to the desired type. Note that this
 	 * function will only be accessible to the compiler if parameterset_type is a derivative of GParameterSet,
 	 * thanks to the magic of Boost's enable_if and Type Traits libraries.
@@ -337,6 +311,9 @@ protected:
 	void updatePersonalBest(boost::shared_ptr<GParameterSet>);
 	/** Updates the personal best of an individual, if a better solution was found */
 	void updatePersonalBestIfBetter(boost::shared_ptr<GParameterSet>);
+
+	/** @brief Retrieves the best individual found */
+	virtual boost::shared_ptr<GIndividual> getBestIndividual();
 
 private:
 	/**************************************************************************************************/

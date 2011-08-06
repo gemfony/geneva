@@ -66,16 +66,16 @@ namespace Geneva {
 class GEvolutionaryAlgorithm
 	: public GMutableSetT<GIndividual>
 {
-		///////////////////////////////////////////////////////////////////////
-		friend class boost::serialization::access;
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-		template<typename Archive>
-		void serialize(Archive & ar, const unsigned int){
-		  using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
 
-		  ar & make_nvp("GMutableSetT_GParameterSet", boost::serialization::base_object<GMutableSetT<GIndividual> >(*this));
-		}
-		///////////////////////////////////////////////////////////////////////
+	  ar & make_nvp("GMutableSetT_GParameterSet", boost::serialization::base_object<GMutableSetT<GIndividual> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */

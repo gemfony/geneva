@@ -725,6 +725,28 @@ void GSerialEA::performScheduledPopulationGrowth() {
 
 /************************************************************************************************************/
 /**
+ * Retrieves the  best individual found. Note that this protected function will return the item itself.
+ * Direct usage of this function should be avoided even by derived classes. We suggest to use the
+ * function GOptimizationAlgorithmI::getBestIndividual<individual_type>() instead, which internally uses
+ * this function and returns copies of the best individual, converted to the desired target type.
+ *
+ * @return The best individual found
+ */
+boost::shared_ptr<GIndividual> GSerialEA::getBestIndividual() {
+#ifdef DEBUG
+		if(data.empty()) {
+			raiseException(
+					"In GSerialEA::getBestIndividual() :" << std::endl
+					<< "Tried to access individual at position 0 even though population is empty."
+			);
+		}
+#endif /* DEBUG */
+
+	return data[0];
+}
+
+/************************************************************************************************************/
+/**
  * Set the interval in which micro training should be performed. Set the
  * interval to 0 in order to prevent micro training.
  *

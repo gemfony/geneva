@@ -51,6 +51,7 @@
 #include "courtier/GBrokerConnectorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
+#include "geneva/GOptimizationAlgorithmI.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GParameterSet.hpp"
 
@@ -87,7 +88,8 @@ const Gem::Common::serializationMode DEFAULTCPSERMODE = Gem::Common::SERIALIZATI
  */
 template <typename ind_type = Gem::Geneva::GIndividual>
 class GOptimizationAlgorithmT
-	:public GMutableSetT<ind_type>
+	: public GMutableSetT<ind_type>
+	, public GOptimizationAlgorithmI
 {
 public:
 	// Forward declaration, as this class is only defined at the end of this file
@@ -101,6 +103,7 @@ private:
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<ind_type> >(*this))
+	     & make_nvp("GOptimizationAlgorithmI", boost::serialization::base_object<GOptimizationAlgorithmI>(*this))
 	     & BOOST_SERIALIZATION_NVP(iteration_)
 	     & BOOST_SERIALIZATION_NVP(offset_)
 	     & BOOST_SERIALIZATION_NVP(maxIteration_)
@@ -432,7 +435,7 @@ public:
 	 *
 	 * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
 	 */
-	virtual void optimize(const boost::uint32_t& offset = 0) {
+	virtual void optimize(const boost::uint32_t& offset) {
 		// Check that we are dealing with an "authorized" optimization algorithm
 		if(this->getOptimizationAlgorithm() == NONE) {
 			raiseException(
@@ -517,6 +520,15 @@ public:
 		// Remove information particular to evolutionary algorithms from the individuals
 		resetIndividualPersonalities();
 	}
+
+	/**************************************************************************************/
+	/**
+	 * A little convenience function that helps to avoid having to specify explicit scopes
+	 */
+	virtual void optimize() {
+		GOptimizationAlgorithmI::optimize();
+	}
+
 
 	/**************************************************************************************/
 	/**
@@ -981,7 +993,7 @@ protected:
 	virtual double fitnessCalculation() {
 		bool dirty = false;
 
-		this->optimize();
+		GOptimizationAlgorithmI::optimize();
 
 		double val = this->at(0)->getCachedFitness(dirty);
 		// is this the current fitness ? We should at this stage never

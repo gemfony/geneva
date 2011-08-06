@@ -546,6 +546,30 @@ void GSerialSwarm::updatePersonalBestIfBetter(
 
 /************************************************************************************************************/
 /**
+ * Retrieves the best individual of the population. Note that this protected function will return the item
+ * itself. Direct usage of this function should be avoided even by derived classes. We suggest to use the
+ * function GOptimizationAlgorithmI::getBestIndividual<individual_type>() instead, which internally uses
+ * this function and returns copies of the best individual, converted to the desired target type.
+ *
+ * @return A converted shared_ptr to a copy of the best individual of the population
+ */
+boost::shared_ptr<GIndividual> GSerialSwarm::getBestIndividual(){
+#ifdef DEBUG
+	// Check that global_best_ actually points somewhere
+	if(!global_best_) {
+		raiseException(
+				"In GSerialSwarm::getBestIndividual() : Error" << std::endl
+				<< "Tried to access uninitialized globally best individual."
+		);
+	}
+#endif /* DEBUG */
+
+	// There will be an implicit downcast here as swarms hold boost::shared_ptr<GParameterSet> objects
+	return global_best_;
+}
+
+/************************************************************************************************************/
+/**
  * This function does some preparatory work and tagging required by swarm algorithms. It is called
  * from within GOptimizationAlgorithmT<GParameterSet>::optimize(), immediately before the actual optimization cycle starts.
  */
@@ -1672,7 +1696,7 @@ std::string GSerialSwarm::GSwarmOptimizationMonitor::swarmCycleInformation(GSeri
 	result << "  iteration.push_back(" << iteration << ");" << std::endl;
 
 	// Get access to the best inidividual
-	boost::shared_ptr<GParameterSet> gsi_ptr = swarm->getBestIndividual<GParameterSet>();
+	boost::shared_ptr<GParameterSet> gsi_ptr = swarm->GOptimizationAlgorithmI::getBestIndividual<GParameterSet>();
 
 	// Retrieve the fitness of this individual
 	currentEvaluation = gsi_ptr->getCachedFitness(isDirty);
