@@ -58,7 +58,7 @@ SET ( OPTIMIZATIONINCLUDES
 	Go.hpp
 	GObject.hpp
 	GObjectExpectationChecksT.hpp
-	GOptimizationAlgorithmI.hpp
+	GOptimizableI.hpp
 	GOptimizationAlgorithmT.hpp
 	GOptimizationEnums.hpp
 	GParameterBase.hpp

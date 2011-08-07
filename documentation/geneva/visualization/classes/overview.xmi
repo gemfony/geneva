@@ -812,7 +812,7 @@
       <UML:Generalization discriminator="" visibility="public" isSpecification="false" namespace="Logical View" child="wYW0xK68fcVp" xmi.id="V53EXKaiZKB3" parent="a6FeL6SCImdr" name=""/>
       <UML:Generalization discriminator="" visibility="public" isSpecification="false" namespace="Logical View" child="wL3df8BKIjLE" xmi.id="Oomy8xziOZGn" parent="wYW0xK68fcVp" name=""/>
       <UML:Generalization discriminator="" visibility="public" isSpecification="false" namespace="Logical View" child="wYW0xK68fcVp" xmi.id="5niRKxFFeErH" parent="a6FeL6SCImdr" name=""/>
-      <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="KdhaCq0ThxUv" name="GOptimizationAlgorithmI"/>
+      <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="KdhaCq0ThxUv" name="GOptimizableI"/>
       <UML:Generalization discriminator="" visibility="public" isSpecification="false" namespace="Logical View" child="Paf4F7cCjydH" xmi.id="BKlMgtfHaFTO" parent="KdhaCq0ThxUv" name=""/>
      </UML:Namespace.ownedElement>
      <XMI.extension xmi.extender="umbrello">

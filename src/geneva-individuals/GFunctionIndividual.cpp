@@ -371,27 +371,27 @@ GFunctionIndividualFactory::~GFunctionIndividualFactory()
  * Allows to describe configuration options in derived classes
  */
 void GFunctionIndividualFactory::describeConfigurationOptions_() {
-	gpb.registerParameter("adProb", adProb, adProb);
-	gpb.registerParameter("adaptionThreshold", adaptionThreshold, adaptionThreshold);
-	gpb.registerParameter("useBiGaussian", useBiGaussian, useBiGaussian);
-	gpb.registerParameter("sigma1", sigma1, sigma1);
-	gpb.registerParameter("sigmaSigma1", sigmaSigma1, sigmaSigma1);
-	gpb.registerParameter("minSigma1", minSigma1, minSigma1);
-	gpb.registerParameter("maxSigma1", maxSigma1, maxSigma1);
-	gpb.registerParameter("sigma2", sigma2, sigma2);
-	gpb.registerParameter("sigmaSigma2", sigmaSigma2, sigmaSigma2);
-	gpb.registerParameter("minSigma2", minSigma2, minSigma2);
-	gpb.registerParameter("maxSigma2", maxSigma2, maxSigma2);
-	gpb.registerParameter("delta", delta, delta);
-	gpb.registerParameter("sigmaDelta", sigmaDelta, sigmaDelta);
-	gpb.registerParameter("minDelta", minDelta, minDelta);
-	gpb.registerParameter("maxDelta", maxDelta, maxDelta);
-	gpb.registerParameter("parDim", parDim, parDim);
-	gpb.registerParameter("minVar", minVar, minVar);
-	gpb.registerParameter("maxVar", maxVar,  maxVar);
-	gpb.registerParameter("useConstrainedDoubleCollection", useConstrainedDoubleCollection,  useConstrainedDoubleCollection);
-	gpb.registerParameter("processingCycles", processingCycles, processingCycles);
-	gpb.registerParameter("evalFunction", evalFunction, evalFunction);
+	gpb.registerFileParameter("adProb", adProb, adProb);
+	gpb.registerFileParameter("adaptionThreshold", adaptionThreshold, adaptionThreshold);
+	gpb.registerFileParameter("useBiGaussian", useBiGaussian, useBiGaussian);
+	gpb.registerFileParameter("sigma1", sigma1, sigma1);
+	gpb.registerFileParameter("sigmaSigma1", sigmaSigma1, sigmaSigma1);
+	gpb.registerFileParameter("minSigma1", minSigma1, minSigma1);
+	gpb.registerFileParameter("maxSigma1", maxSigma1, maxSigma1);
+	gpb.registerFileParameter("sigma2", sigma2, sigma2);
+	gpb.registerFileParameter("sigmaSigma2", sigmaSigma2, sigmaSigma2);
+	gpb.registerFileParameter("minSigma2", minSigma2, minSigma2);
+	gpb.registerFileParameter("maxSigma2", maxSigma2, maxSigma2);
+	gpb.registerFileParameter("delta", delta, delta);
+	gpb.registerFileParameter("sigmaDelta", sigmaDelta, sigmaDelta);
+	gpb.registerFileParameter("minDelta", minDelta, minDelta);
+	gpb.registerFileParameter("maxDelta", maxDelta, maxDelta);
+	gpb.registerFileParameter("parDim", parDim, parDim);
+	gpb.registerFileParameter("minVar", minVar, minVar);
+	gpb.registerFileParameter("maxVar", maxVar,  maxVar);
+	gpb.registerFileParameter("useConstrainedDoubleCollection", useConstrainedDoubleCollection,  useConstrainedDoubleCollection);
+	gpb.registerFileParameter("processingCycles", processingCycles, processingCycles);
+	gpb.registerFileParameter("evalFunction", evalFunction, evalFunction);
 }
 
 /********************************************************************************************/

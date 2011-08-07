@@ -520,7 +520,7 @@ void GSerialGD::updateParentIndividuals() {
  * Retrieves the best individual of the population and returns it in Gem::Geneva::GIndividual format.
  * Note that this protected function will return the item itself. Direct usage of this function should
  * be avoided even by derived classes. We suggest to use the function
- * GOptimizationAlgorithmI::getBestIndividual<individual_type>() instead, which internally uses
+ * GOptimizableI::getBestIndividual<individual_type>() instead, which internally uses
  * this function and returns copies of the best individual, converted to the desired target type.
  *
  * @return A shared_ptr to the best individual of the population

@@ -1,5 +1,5 @@
 /**
- * @file GOptimizationAlgorithmI.hpp
+ * @file GOptimizableI.hpp
  */
 
 /*
@@ -56,7 +56,7 @@ namespace Geneva {
  * This class specifies the interface that needs to be implemented by optimization
  * algorithms.
  */
-class GOptimizationAlgorithmI
+class GOptimizableI
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -70,11 +70,11 @@ class GOptimizationAlgorithmI
 
 public:
 	/** @brief The default constructor */
-	GOptimizationAlgorithmI() { /* nothing */ }
+	GOptimizableI() { /* nothing */ }
 	/** @brief The destructor */
-	virtual ~GOptimizationAlgorithmI() { /* nothing */ }
+	virtual ~GOptimizableI() { /* nothing */ }
 
-	/** @brief Perform the actual optimization cycle, starting to count iterations a given offset */
+	/** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
 	virtual void optimize(const boost::uint32_t& offset) = 0;
 
     /**********************************************************************************/
@@ -115,6 +115,6 @@ protected:
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GOptimizationAlgorithmI)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GOptimizableI)
 
 #endif /* GOPTIMIZATIONALGORITHMI_HPP_ */

@@ -65,7 +65,7 @@ bool GParserBuilder::parse()
 		std::ifstream ifs(configurationFile_.c_str());
 		if (!ifs.good()) {
 			std::cerr << "Error accessing configuration file " << configurationFile_ << std::endl;
-			exit(1);
+			return false;
 		}
 
 		po::store(po::parse_config_file(ifs, config_), vm);
@@ -85,6 +85,61 @@ bool GParserBuilder::parse()
 	}
 
     return result;
+}
+
+/**************************************************************************************/
+/**
+ * Writes out a configuration file. If no argument is given, the configuration file
+ * will be written to the stored file name.
+ *
+ * @param fileName The name of the configuration file to be written
+ * @param header A descriptive comment to be output at the top of the configuration file
+ */
+void GParserBuilder::writeConfigFile(
+		const std::string& fileName
+		, const std::string& header
+) const {
+	// Open the required configuration file
+	std::string localConfigFile;
+	if(fileName == "") {
+		localConfigFile = fileName;
+	} else {
+		localConfigFile = configurationFile_;
+	}
+	std::ofstream ofs(localConfigFile.c_str());
+	if (!ofs.good()) {
+		raiseException(
+			"In GParserBuilder::writeConfigFile(): Error writing the configuration file " << localConfigFile << std::endl
+		);
+	}
+
+	// Do some error checking
+	if(variables_.size() == 0) {
+		raiseException(
+			"In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
+		);
+	}
+	if(variables_.size() != defaultValues_.size() || variables_.size() != comments_.size()) {
+		raiseException(
+			"In GParserBuilder::writeConfigFile(): Invalid vector sizes found: " << variables_.size() << "/" << defaultValues_.size() << "/" << comments_.size() << std::endl
+		);
+	}
+
+	// Output the header
+	ofs << "################################################################" << std::endl
+		<< "# " << header << std::endl
+		<< "# File creation date: " << boost::posix_time::second_clock::local_time() << std::endl
+		<< "################################################################" << std::endl
+		<< std::endl;
+
+	for(std::size_t var = 0; var < variables_.size(); var++) {
+		ofs << "# " << comments_.at(var) << std::endl
+			<< "# default value: " << defaultValues_.at(var) << std::endl
+			<< variables_.at(var) << " = " << defaultValues_.at(var) << std::endl;
+	}
+
+	// Close the file handle
+	ofs.close();
 }
 
 /**************************************************************************************/

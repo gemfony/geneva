@@ -369,13 +369,13 @@ void GDelayIndividualFactory::init_() {
  * Allows to describe configuration options of GDelayIndividual objects
  */
 void GDelayIndividualFactory::describeConfigurationOptions_() {
-	gpb.registerParameter("processingCycles", processingCycles_, processingCycles_);
-	gpb.registerParameter("nVariables", nVariables_, nVariables_);
-	gpb.registerParameter("delays", delays_, std::string(""));
-	gpb.registerParameter("resultFile", resultFile_, resultFile_);
-	gpb.registerParameter("shortResultFile", shortResultFile_, shortResultFile_);
-	gpb.registerParameter("interMeasurementDelay", interMeasurementDelay_, interMeasurementDelay_);
-	gpb.registerParameter("nMeasurements", nMeasurements_, nMeasurements_);
+	gpb.registerFileParameter("processingCycles", processingCycles_, processingCycles_);
+	gpb.registerFileParameter("nVariables", nVariables_, nVariables_);
+	gpb.registerFileParameter("delays", delays_, std::string(""));
+	gpb.registerFileParameter("resultFile", resultFile_, resultFile_);
+	gpb.registerFileParameter("shortResultFile", shortResultFile_, shortResultFile_);
+	gpb.registerFileParameter("interMeasurementDelay", interMeasurementDelay_, interMeasurementDelay_);
+	gpb.registerFileParameter("nMeasurements", nMeasurements_, nMeasurements_);
 }
 
 /********************************************************************************************/

@@ -727,7 +727,7 @@ void GSerialEA::performScheduledPopulationGrowth() {
 /**
  * Retrieves the  best individual found. Note that this protected function will return the item itself.
  * Direct usage of this function should be avoided even by derived classes. We suggest to use the
- * function GOptimizationAlgorithmI::getBestIndividual<individual_type>() instead, which internally uses
+ * function GOptimizableI::getBestIndividual<individual_type>() instead, which internally uses
  * this function and returns copies of the best individual, converted to the desired target type.
  *
  * @return The best individual found

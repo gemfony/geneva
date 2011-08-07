@@ -54,6 +54,7 @@
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GBrokerEA.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
+#include "geneva/GOptimizableI.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -65,6 +66,7 @@ namespace Geneva {
  */
 class GEvolutionaryAlgorithm
 	: public GMutableSetT<GIndividual>
+	, public GOptimizableI
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -103,61 +105,15 @@ public:
 			, const bool&
 	) const;
 
+	/** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
+	virtual void optimize(const boost::uint32_t& offset);
+
 	/** @brief Allows to specify an optimization monitor to be used with evolutionary algorithms */
 	void registerOptimizationMonitor(boost::shared_ptr<GSerialEA::GEAOptimizationMonitor>);
 
-	/** @brief Allows to randomly initialize parameter members. Unused in this wrapper object */
-	virtual void randomInit();
-	/** @brief Triggers fitness calculation (i.e. optimization) for this object */
-	virtual double fitnessCalculation();
-
-	/**************************************************************************************/
-	// The following is a trivial list of getters and setters
-	void setPersonality(const personality&);
-	personality getPersonality() const;
-
-	void setParallelizationMode(const parMode&);
-	parMode getParallelizationMode() const;
-
-	void setConfigFileName(const std::string&);
-	std::string getConfigFileName() const;
-
-	void setMaxIterations(const boost::uint32_t&);
-	boost::uint32_t getMaxIterations() const;
-
-	void setMaxStallIteration(const boost::uint32_t&);
-	boost::uint32_t getMaxStallIteration() const;
-
-	void setMaxMinutes(const long&);
-	long getMaxMinutes() const;
-
-	void setReportIteration(const boost::uint32_t&);
-	boost::uint32_t getReportIteration() const;
-
-	void setOffset(const boost::uint32_t&);
-	boost::uint32_t getOffset() const;
-
-	void setEAPopulationSize(const std::size_t&);
-	std::size_t getEAPopulationSize() const;
-
-	void setEANParents(const std::size_t&);
-	std::size_t getEANParents() const;
-
-	void setEARecombinationScheme(const recoScheme&);
-	recoScheme getEARecombinationScheme() const;
-
-	void setEASortingScheme(const sortingMode&);
-	sortingMode getEASortingScheme() const;
-
-	void setEATrackParentRelations(const bool&);
-	bool getEATrackParentRelations() const;
-
-	void setEAGrowthRate(const std::size_t&);
-	std::size_t getEAGrowthRate() const;
-
-	void setEAMaxPopSize(const std::size_t&);
-	std::size_t getEAMaxPopSize() const;
-
+protected:
+	/** @brief Retrieves the best individual found */
+	virtual boost::shared_ptr<GIndividual> getBestIndividual();
 
 private:
 };

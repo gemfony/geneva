@@ -232,9 +232,9 @@ void GMultiCriterionParabolaIndividualFactory::init_() {
  * Allows to describe configuration options in derived classes
  */
 void GMultiCriterionParabolaIndividualFactory::describeConfigurationOptions_() {
-	gpb.registerParameter("par_min", par_min_, par_min_);
-	gpb.registerParameter("par_max", par_max_, par_max_);
-	gpb.registerParameter("minima", minima_string_, std::string(""));
+	gpb.registerFileParameter("par_min", par_min_, par_min_);
+	gpb.registerFileParameter("par_max", par_max_, par_max_);
+	gpb.registerFileParameter("minima", minima_string_, std::string(""));
 }
 
 /********************************************************************************************/

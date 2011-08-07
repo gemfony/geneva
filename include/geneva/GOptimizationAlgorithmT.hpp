@@ -51,7 +51,7 @@
 #include "courtier/GBrokerConnectorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
-#include "geneva/GOptimizationAlgorithmI.hpp"
+#include "geneva/GOptimizableI.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GParameterSet.hpp"
 
@@ -89,7 +89,7 @@ const Gem::Common::serializationMode DEFAULTCPSERMODE = Gem::Common::SERIALIZATI
 template <typename ind_type = Gem::Geneva::GIndividual>
 class GOptimizationAlgorithmT
 	: public GMutableSetT<ind_type>
-	, public GOptimizationAlgorithmI
+	, public GOptimizableI
 {
 public:
 	// Forward declaration, as this class is only defined at the end of this file
@@ -103,7 +103,7 @@ private:
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<ind_type> >(*this))
-	     & make_nvp("GOptimizationAlgorithmI", boost::serialization::base_object<GOptimizationAlgorithmI>(*this))
+	     & make_nvp("GOptimizableI", boost::serialization::base_object<GOptimizableI>(*this))
 	     & BOOST_SERIALIZATION_NVP(iteration_)
 	     & BOOST_SERIALIZATION_NVP(offset_)
 	     & BOOST_SERIALIZATION_NVP(maxIteration_)
@@ -526,7 +526,7 @@ public:
 	 * A little convenience function that helps to avoid having to specify explicit scopes
 	 */
 	virtual void optimize() {
-		GOptimizationAlgorithmI::optimize();
+		GOptimizableI::optimize();
 	}
 
 
@@ -993,7 +993,7 @@ protected:
 	virtual double fitnessCalculation() {
 		bool dirty = false;
 
-		GOptimizationAlgorithmI::optimize();
+		GOptimizableI::optimize();
 
 		double val = this->at(0)->getCachedFitness(dirty);
 		// is this the current fitness ? We should at this stage never

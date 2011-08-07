@@ -548,7 +548,7 @@ void GSerialSwarm::updatePersonalBestIfBetter(
 /**
  * Retrieves the best individual of the population. Note that this protected function will return the item
  * itself. Direct usage of this function should be avoided even by derived classes. We suggest to use the
- * function GOptimizationAlgorithmI::getBestIndividual<individual_type>() instead, which internally uses
+ * function GOptimizableI::getBestIndividual<individual_type>() instead, which internally uses
  * this function and returns copies of the best individual, converted to the desired target type.
  *
  * @return A converted shared_ptr to a copy of the best individual of the population
@@ -1696,7 +1696,7 @@ std::string GSerialSwarm::GSwarmOptimizationMonitor::swarmCycleInformation(GSeri
 	result << "  iteration.push_back(" << iteration << ");" << std::endl;
 
 	// Get access to the best inidividual
-	boost::shared_ptr<GParameterSet> gsi_ptr = swarm->GOptimizationAlgorithmI::getBestIndividual<GParameterSet>();
+	boost::shared_ptr<GParameterSet> gsi_ptr = swarm->GOptimizableI::getBestIndividual<GParameterSet>();
 
 	// Retrieve the fitness of this individual
 	currentEvaluation = gsi_ptr->getCachedFitness(isDirty);

@@ -187,9 +187,9 @@ GParaboloidIndividualFactory::~GParaboloidIndividualFactory()
  * Allows to describe configuration options in derived classes
  */
 void GParaboloidIndividualFactory::describeConfigurationOptions_() {
-	gpb.registerParameter("nPar", nPar_, nPar_);
-	gpb.registerParameter("par_min", par_min_, par_min_);
-	gpb.registerParameter("par_max", par_max_, par_max_);
+	gpb.registerFileParameter("nPar", nPar_, nPar_);
+	gpb.registerFileParameter("par_min", par_min_, par_min_);
+	gpb.registerFileParameter("par_max", par_max_, par_max_);
 }
 
 /********************************************************************************************/
