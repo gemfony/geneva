@@ -132,9 +132,12 @@ void GParserBuilder::writeConfigFile(
 		<< "################################################################" << std::endl
 		<< std::endl;
 
-	for(std::size_t var = 0; var < variables_.size(); var++) {
-		ofs << "# " << comments_.at(var) << std::endl
-			<< "# default value: " << defaultValues_.at(var) << std::endl
+	// Output variables and values. Note that we output the newest additions first
+	for(std::size_t var = variables_.size()-1; var >= 0 ; var--) {
+		if(comments_.at(var) != "") { // Only output useful comments
+			ofs << "# " << comments_.at(var) << std::endl;
+		}
+		ofs << "# default value: " << defaultValues_.at(var) << std::endl
 			<< variables_.at(var) << " = " << defaultValues_.at(var) << std::endl;
 	}
 
