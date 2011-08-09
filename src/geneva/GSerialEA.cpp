@@ -783,6 +783,95 @@ void GSerialEA::addConfigurationOptions (
 		, comment2
 	);
 
+	comment = ""; // Reset the comment string
+	comment += "The recombination method. Options;";
+	comment += "0: default;";
+	comment += "1: random selection from available parents;";
+	comment += "2: selection according to the parent's value;";
+	if(showOrigin) comment += "[source: GSerialEA]";
+	gpb.registerFileParameter<recoScheme>(
+		"recombinationMethod" // The name of the variable
+		, this->recombinationMethod_ // The variable to which results should be written
+		, DEFAULTRECOMBINE // The default value
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "The sorting scheme. Options;";
+	comment += "0: MUPLUSNU mode with a single evaluation criterion;";
+	comment += "1: MUCOMMANU mode with a single evaluation criterion;";
+	comment += "2: MUCOMMANU mode with single evaluation criterion,;";
+	comment += "   the best parent of the last iteration is retained;";
+	comment += "   unless a better individual has been found;";
+    comment += "3: Simulated Annealing (implemented through a special sorting scheme;";
+    comment += "4: MUPLUSNU mode for multiple evaluation criteria, pareto selection;";
+    comment += "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection;";
+	if(showOrigin) comment += "[source: GSerialEA]";
+	gpb.registerFileParameter<sortingMode>(
+		"sortingMethod" // The name of the variable
+		, this->smode_ // The variable to which results should be written
+		, DEFAULTSMODE // The default value
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "Specifies the number of individuals added per iteration;";
+	if(showOrigin) comment += "[source: GSerialEA]";
+	gpb.registerFileParameter<std::size_t>(
+		"growthRate" // The name of the variable
+		, this->growthRate_ // The variable to which results should be written
+		, 0 // The default value
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "Specifies the maximum amount of individuals in the population if growth is enabled;";
+	if(showOrigin) comment += "[source: GSerialEA]";
+	gpb.registerFileParameter<std::size_t>(
+		"maxPopulationSize" // The name of the variable
+		, this->maxPopulationSize_ // The variable to which results should be written
+		, 0 // The default value
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "The start temperature used in simulated annealing;";
+	if(showOrigin) comment += "[source: GSerialEA]";
+	gpb.registerFileParameter<double>(
+		"t0" // The name of the variable
+		, this->t0_ // The variable to which results should be written
+		, SA_T0 // The default value
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "A constant used in the cooling schedule in simulated annealing;";
+	if(showOrigin) comment += "[source: GSerialEA]";
+	gpb.registerFileParameter<double>(
+		"alpha" // The name of the variable
+		, this->alpha_ // The variable to which results should be written
+		, SA_ALPHA // The default value
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "If set, a copy of the old parent individuals will be kept and;";
+	comment += "the id of the parent individual will be recorded;";
+	if(showOrigin) comment += "[source: GSerialEA]";
+	gpb.registerFileParameter<bool>(
+		"logOldParents" // The name of the variable
+		, this->logOldParents_ // The variable to which results should be written
+		, DEFAULTMARKOLDPARENTS // The default value
+		, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
+		, comment
+	);
+
 	// Call our parent class'es function
 	GOptimizationAlgorithmT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 }
