@@ -148,7 +148,7 @@ public:
 	) const;
 
 	/** @brief Sets the default population size and number of parents */
-	void setDefaultPopulationSize(const std::size_t&, const std::size_t&);
+	void setDefaultPopulationSize(std::size_t, std::size_t);
 
 	/** @brief Retrieve the number of parents in this population */
 	std::size_t getNParents() const;
@@ -158,12 +158,12 @@ public:
 	std::size_t getDefaultNChildren() const;
 
 	/** @brief Set the sorting scheme for this population */
-	void setSortingScheme(const sortingMode&);
+	void setSortingScheme(sortingMode);
 	/** @brief Retrieve the current sorting scheme for this population */
 	sortingMode getSortingScheme() const;
 
 	/** @brief Specify, what recombination mode should be used */
-	void setRecombinationMethod(const recoScheme&);
+	void setRecombinationMethod(recoScheme);
 	/** @brief Find out, what recombination mode is being used */
 	recoScheme getRecombinationMethod() const;
 

@@ -517,7 +517,7 @@ std::size_t GSerialEA::getMaxPopulationSize() const {
  * @param popSize The desired size of the population
  * @param nParents The desired number of parents
  */
-void GSerialEA::setDefaultPopulationSize(const std::size_t& popSize, const std::size_t& nParents) {
+void GSerialEA::setDefaultPopulationSize(std::size_t popSize, std::size_t nParents) {
 	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::setDefaultPopulationSize(popSize);
 	nParents_ = nParents;
 }
@@ -791,8 +791,12 @@ void GSerialEA::addConfigurationOptions (
 	if(showOrigin) comment += "[source: GSerialEA]";
 	gpb.registerFileParameter<recoScheme>(
 		"recombinationMethod" // The name of the variable
-		, this->recombinationMethod_ // The variable to which results should be written
 		, DEFAULTRECOMBINE // The default value
+		, boost::bind(
+			&GSerialEA::setRecombinationMethod
+			, this
+			, _1
+		  )
 		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 		, comment
 	);
@@ -810,8 +814,12 @@ void GSerialEA::addConfigurationOptions (
 	if(showOrigin) comment += "[source: GSerialEA]";
 	gpb.registerFileParameter<sortingMode>(
 		"sortingMethod" // The name of the variable
-		, this->smode_ // The variable to which results should be written
 		, DEFAULTSMODE // The default value
+		, boost::bind(
+			&GSerialEA::setSortingScheme
+			, this
+			, _1
+		  )
 		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 		, comment
 	);
@@ -937,7 +945,7 @@ std::size_t GSerialEA::getNChildren() const {
  *
  * @param smode The desired sorting scheme
  */
-void GSerialEA::setSortingScheme(const sortingMode& smode) {
+void GSerialEA::setSortingScheme(sortingMode smode) {
 	smode_=smode;
 }
 
@@ -1700,7 +1708,7 @@ std::size_t GSerialEA::getDefaultNChildren() const {
  *
  * @param recombinationMethod The desired recombination method
  */
-void GSerialEA::setRecombinationMethod(const recoScheme& recombinationMethod) {
+void GSerialEA::setRecombinationMethod(recoScheme recombinationMethod) {
 	recombinationMethod_ = recombinationMethod;
 }
 
