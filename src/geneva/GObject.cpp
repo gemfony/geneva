@@ -384,6 +384,20 @@ bool GObject::mayBeSerialized() const {
 	return mayBeSerialized_;
 }
 
+/**************************************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ * @param showOrigin Makes the function indicate the origin of parameters in comments
+ */
+void GObject::addConfigurationOptions(
+	Gem::Common::GParserBuilder& gpb
+	, const bool& showOrigin
+) {
+	// No local data, no relevant parent classes, hence nothing to do
+}
+
 #ifdef GENEVATESTING
 /**************************************************************************************************/
 /**

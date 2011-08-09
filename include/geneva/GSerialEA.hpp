@@ -349,6 +349,12 @@ protected:
 	/** @brief Retrieves the best individual found */
 	virtual boost::shared_ptr<GIndividual> getBestIndividual();
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
+
 private:
 	/**********************************************************************************/
     /**

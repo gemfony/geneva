@@ -61,6 +61,13 @@ namespace Common {
 
 /**********************************************************************************************/
 /**
+ * Used in parameter definitions (GParserBuilder)
+ */
+const bool VAR_IS_ESSENTIAL = true;
+const bool VAR_IS_SECONDARY = false;
+
+/**********************************************************************************************/
+/**
  * Needed for the serialization of boost::logic::tribool
  */
 enum triboolStates {

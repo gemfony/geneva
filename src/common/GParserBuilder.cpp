@@ -39,32 +39,39 @@ namespace Common {
 
 /**************************************************************************************/
 /**
- * The standard constructor, initializes the name of the configuration file
+ * The default constructor
  *
  * @param configurationFile The name of the configuration file
  */
-GParserBuilder::GParserBuilder(const std::string& configurationFile)
-	: configurationFile_(configurationFile)
-	, config_(configurationFile_.c_str())
+GParserBuilder::GParserBuilder()
+{ /* nothing */ }
+
+/**************************************************************************************/
+/**
+ * The destructor
+ */
+GParserBuilder::~GParserBuilder()
 { /* nothing */ }
 
 /**************************************************************************************/
 /**
  * Tries to parse a given configuration file for a set of options
  *
+ * @param configFile The name of the configuration file to be parsed
  * @return A boolean indicating whether parsing was successful
  */
-bool GParserBuilder::parse()
+bool GParserBuilder::parseConfigFile(const std::string& configFile)
 {
     namespace po = boost::program_options;
 
 	bool result = false;
 
 	try {
+		// Do the actual parsing
 		po::variables_map vm;
-		std::ifstream ifs(configurationFile_.c_str());
+		std::ifstream ifs(configFile.c_str());
 		if (!ifs.good()) {
-			std::cerr << "Error accessing configuration file " << configurationFile_ << std::endl;
+			std::cerr << "Error accessing configuration file " << configFile << std::endl;
 			return false;
 		}
 
@@ -72,15 +79,22 @@ bool GParserBuilder::parse()
 		po::notify(vm);
 
 		ifs.close();
+
+		// Execute all stored call-back functions
+		std::vector<boost::shared_ptr<GParsableI> >::iterator it;
+		for(it=many_.begin(); it!=many_.end(); ++it) {
+			(*it)->executeCallBackFunction();
+		}
+
 		result = true;
 	}
 	catch(const po::error& e) {
-		std::cerr << "Error parsing the configuration file " << configurationFile_ << ":" << std::endl
+		std::cerr << "Error parsing the configuration file " << configFile << ":" << std::endl
 				  << e.what() << std::endl;
 		result=false;
 	}
 	catch(...) {
-		std::cerr << "Unknown error while parsing the configuration file " << configurationFile_ << std::endl;
+		std::cerr << "Unknown error while parsing the configuration file " << configFile << std::endl;
 		result=false;
 	}
 
@@ -94,11 +108,17 @@ bool GParserBuilder::parse()
  *
  * @param fileName The name of the configuration file to be written
  * @param header A descriptive comment to be output at the top of the configuration file
+ * @param writeAll A boolean parameter that indicates whether all or only essential parameters should be written
  */
 void GParserBuilder::writeConfigFile(
 		const std::string& fileName
 		, const std::string& header
+		, bool writeAll
 ) const {
+	// Needed for the separation of comment strings
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	boost::char_separator<char> semicolon_sep(";");
+
 	// Open the required configuration file
 	std::string localConfigFile;
 	if(fileName == "") {
@@ -119,23 +139,37 @@ void GParserBuilder::writeConfigFile(
 			"In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
 		);
 	}
-	if(variables_.size() != defaultValues_.size() || variables_.size() != comments_.size()) {
+	if(variables_.size() != defaultValues_.size() || variables_.size() != comments_.size() || variables_.size() != isEssential_.size()) {
 		raiseException(
-			"In GParserBuilder::writeConfigFile(): Invalid vector sizes found: " << variables_.size() << "/" << defaultValues_.size() << "/" << comments_.size() << std::endl
+			"In GParserBuilder::writeConfigFile(): Invalid vector sizes found: " << variables_.size() << "/" << defaultValues_.size() << "/" << comments_.size() << "/" << isEssential_.size() << std::endl
 		);
 	}
 
 	// Output the header
-	ofs << "################################################################" << std::endl
-		<< "# " << header << std::endl
-		<< "# File creation date: " << boost::posix_time::second_clock::local_time() << std::endl
+	ofs << "################################################################" << std::endl;
+	if(header != "") {
+		// Break the header into individual tokens
+		tokenizer headerTokenizer(header, semicolon_sep);
+		for(tokenizer::iterator h=headerTokenizer.begin(); h!=headerTokenizer.end(); ++h) {
+			ofs << "# " << *h << std::endl;
+		}
+	}
+	ofs << "# File creation date: " << boost::posix_time::second_clock::local_time() << std::endl
 		<< "################################################################" << std::endl
 		<< std::endl;
 
-	// Output variables and values. Note that we output the newest additions first
-	for(std::size_t var = variables_.size()-1; var >= 0 ; var--) {
+	// Output variables and values
+	for(std::size_t var = 0; var < variables_.size(); var++) {
+		// Only write out this variable if it is either essential or it
+		// has been requested to write out all parameters
+		if(!writeAll && !isEssential_.at(var)) continue;
+
 		if(comments_.at(var) != "") { // Only output useful comments
-			ofs << "# " << comments_.at(var) << std::endl;
+			// Break the comment into individual lines after each semicolon
+			tokenizer sleepTokenizer(comments_.at(var), semicolon_sep);
+			for(tokenizer::iterator c=sleepTokenizer.begin(); c!=sleepTokenizer.end(); ++c) {
+				ofs << "# " << *c << std::endl;
+			}
 		}
 		ofs << "# default value: " << defaultValues_.at(var) << std::endl
 			<< variables_.at(var) << " = " << defaultValues_.at(var) << std::endl;

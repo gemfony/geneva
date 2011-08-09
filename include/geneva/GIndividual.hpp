@@ -289,6 +289,9 @@ protected:
 	/** @brief Combines secondary evaluation results by calculation the square root of the weighed squared sum */
 	double weighedSquaredSumCombiner(const std::vector<double>&) const;
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+
 private:
 	/**************************************************************************************************/
 	/** @brief Holds this object's internal, primary fitness */

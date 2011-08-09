@@ -747,6 +747,48 @@ boost::shared_ptr<GIndividual> GSerialEA::getBestIndividual() {
 
 /************************************************************************************************************/
 /**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ * @param showOrigin Makes the function indicate the origin of parameters in comments
+ */
+void GSerialEA::addConfigurationOptions (
+	Gem::Common::GParserBuilder& gpb
+	, const bool& showOrigin
+) {
+	std::string comment;
+	std::string comment1;
+	std::string comment2;
+
+	// Add local data
+	comment1 = ""; // Reset the first comment string
+	comment2 = ""; // Reset the second comment string
+	comment1 += "The total size of the population;";
+	if(showOrigin) comment1 += "[source: GSerialEA]";
+	comment2 += "The number of parents in the population;";
+	if(showOrigin) comment1 += "[source: GSerialEA]";
+	gpb.registerFileParameter<std::size_t, std::size_t>(
+		"populationSize" // The name of the first variable
+		, "nParents" // The name of the second variable
+		, DEFAULTEAPOPULATIONSIZE
+		, DEFAULTEANPARENTS
+		, boost::bind(
+			&GSerialEA::setDefaultPopulationSize
+			, this
+			, _1
+			, _2
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment1
+		, comment2
+	);
+
+	// Call our parent class'es function
+	GOptimizationAlgorithmT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+}
+
+/************************************************************************************************************/
+/**
  * Set the interval in which micro training should be performed. Set the
  * interval to 0 in order to prevent micro training.
  *

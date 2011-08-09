@@ -322,6 +322,9 @@ protected:
 	/* @brief The actual adaption operations. */
 	virtual void customAdaptions();
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+
 private:
 	explicit GParameterSet(const float&); ///< Intentionally private and undefined
 

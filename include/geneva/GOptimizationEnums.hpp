@@ -63,6 +63,17 @@ namespace Geneva {
 
 /**********************************************************************************************/
 /**
+ * The default population size in evolutionary algorithms
+ */
+const std::size_t DEFAULTEAPOPULATIONSIZE = 100;
+
+/**
+ * The default number of parents in evolutionary algorithms
+ */
+const std::size_t DEFAULTEANPARENTS = 1;
+
+/**********************************************************************************************/
+/**
  * The default name of the output file of the optimization monitor base class
  */
 const std::string DEFAULTRESULTFILEOM = "./result.C";
@@ -117,6 +128,34 @@ const boost::uint32_t DEFAULTCHECKPOINTIT = 0;
 
 /**********************************************************************************************/
 /**
+ * The default base name used for check-pointing. Derivatives of this
+ * class can build distinguished filenames from this e.g. by adding
+ * the current generation.
+ */
+const std::string DEFAULTCPBASENAME = "geneva.cp";
+
+/**********************************************************************************************/
+/**
+ * The default directory used for check-pointing. We choose a directory
+ * that will always exist.
+ */
+const std::string DEFAULTCPDIR = "./checkpoints/";
+
+/**********************************************************************************************/
+/**
+ * The default serialization mode used for check-pointing
+ */
+const Gem::Common::serializationMode DEFAULTCPSERMODE = Gem::Common::SERIALIZATIONMODE_BINARY;
+
+
+/**********************************************************************************************/
+/**
+ * The default offset for a new optimization run
+ */
+const boost::uint32_t DEFAULTOFFSET = 0;
+
+/**********************************************************************************************/
+/**
  * The default maximum number of iterations
  */
 const boost::uint32_t DEFAULTMAXIT = 1000;
@@ -125,7 +164,7 @@ const boost::uint32_t DEFAULTMAXIT = 1000;
 /**
  * The default maximum number of iterations without improvement. 0 means: ignore
  */
-const boost::uint32_t DEFAULMAXTSTALLIT = 0;
+const boost::uint32_t DEFAULTMAXSTALLIT = 0;
 
 /**********************************************************************************************/
 /**

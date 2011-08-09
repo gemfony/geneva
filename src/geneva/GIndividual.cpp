@@ -563,6 +563,34 @@ double GIndividual::weighedSquaredSumCombiner(const std::vector<double>& weights
 
 /************************************************************************************************************/
 /**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ * @param showOrigin Makes the function indicate the origin of parameters in comments
+ */
+void GIndividual::addConfigurationOptions (
+	Gem::Common::GParserBuilder& gpb
+	, const bool& showOrigin
+) {
+	// Add local data
+	std::string comment;
+	comment += "Indicates whether the individual's objective function;";
+	comment += "should be maximized (1) or minimized (0)";
+	if(showOrigin) comment += "[source: GIndividual]";
+	gpb.registerFileParameter(
+		"maximize" // The name of the variable
+		, this->maximize_ // The variable to which results should be written
+		, Gem::Geneva::MINIMIZE // The default value
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	// Call our parent class'es function
+	GObject::addConfigurationOptions(gpb, showOrigin);
+}
+
+/************************************************************************************************************/
+/**
  * Sets the current personality of this individual
  *
  * TODO: Remove this dependency on GXXPersonalityTraits

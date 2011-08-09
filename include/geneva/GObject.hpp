@@ -119,6 +119,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GSerializableI.hpp"
+#include "common/GParserBuilder.hpp"
 #include "common/thirdparty/boost/threadpool.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
@@ -366,6 +367,9 @@ protected:
 	 */
 
 	/**************************************************************************************************/
+
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
 
 private:
 	bool mayBeSerialized_; ///< Indicates whether derivatives may be serialized.

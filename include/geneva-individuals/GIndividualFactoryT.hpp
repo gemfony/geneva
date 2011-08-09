@@ -67,7 +67,8 @@ namespace Geneva
  * independently.
  */
 template <typename ind_type>
-class GIndividualFactoryT :private boost::noncopyable
+class GIndividualFactoryT
+	:private boost::noncopyable
 {
 public:
 	/***************************************************************************************/
@@ -81,7 +82,7 @@ public:
 		, id_(std::size_t(0))
 		, initialized_(false)
 		, finalized_(false)
-		, gpb(configFile_)
+		, gpb()
 	{ /* nothing */ }
 
 	/***************************************************************************************/
@@ -131,7 +132,7 @@ public:
 			this->describeConfigurationOptions_();
 
 			// Read the configuration parameters from file
-			if(!gpb.parse()) {
+			if(!gpb.parseConfigFile(configFile_)) {
 				raiseException(
 						"In GIndividualFactoryT<ind_type>::init(): Error!" << std::endl
 						<< "Could not parse configuration file " << configFile_
