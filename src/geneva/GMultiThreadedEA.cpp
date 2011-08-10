@@ -45,7 +45,7 @@ namespace Geneva {
  * hence this function is empty.
  */
 GMultiThreadedEA::GMultiThreadedEA()
-   : GSerialEA()
+   : GBaseEA()
    , nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA)))
    , tp_(nThreads_)
 { /* nothing */ }
@@ -58,7 +58,7 @@ GMultiThreadedEA::GMultiThreadedEA()
  * @param cp Reference to another GMultiThreadedEA object
  */
 GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
-   : GSerialEA(cp)
+   : GBaseEA(cp)
    , nThreads_(cp.nThreads_)
    , tp_(nThreads_) // Make sure we initialize the threadpool
 { /* nothing */ }
@@ -96,7 +96,7 @@ void GMultiThreadedEA::load_(const GObject *cp) {
 	const GMultiThreadedEA *p_load = this->conversion_cast<GMultiThreadedEA>(cp);
 
 	// First load our parent class'es data ...
-	GSerialEA::load_(cp);
+	GBaseEA::load_(cp);
 
 	// ... and then our own
 	if(nThreads_ != p_load->nThreads_) {
@@ -173,7 +173,7 @@ boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(const GObje
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GSerialEA::checkRelationshipWith(cp, e, limit, "GMultiThreadedEA", y_name, withMessages));
+	deviations.push_back(GBaseEA::checkRelationshipWith(cp, e, limit, "GMultiThreadedEA", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GMultiThreadedEA", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
@@ -186,8 +186,8 @@ boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(const GObje
  * Necessary initialization work before the start of the optimization
  */
 void GMultiThreadedEA::init() {
-	// GSerialEA sees exactly the environment it would when called from its own class
-	GSerialEA::init();
+	// GBaseEA sees exactly the environment it would when called from its own class
+	GBaseEA::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -221,19 +221,19 @@ void GMultiThreadedEA::finalize() {
 	}
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
-	// GSerialEA sees exactly the environment it would when called from its own class
-	GSerialEA::finalize();
+	// GBaseEA sees exactly the environment it would when called from its own class
+	GBaseEA::finalize();
 }
 
 /************************************************************************************************************/
 /**
- * An overloaded version of GSerialEA::adaptChildren() . Adaption
+ * An overloaded version of GBaseEA::adaptChildren() . Adaption
  * and evaluation of children is handled by threads in a thread pool. The maximum
  * number of threads is DEFAULTBOOSTTHREADSEA (possibly 2) and can be overridden
  * with the GMultiThreadedEA::setMaxThreads() function.
  */
 void GMultiThreadedEA::adaptChildren() {
-	std::size_t nParents = GSerialEA::getNParents();
+	std::size_t nParents = GBaseEA::getNParents();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	// We start with the parents, if this is iteration 0. Their
@@ -241,7 +241,7 @@ void GMultiThreadedEA::adaptChildren() {
 	// or MUNU1PRETAIN selection model.
 	// Make sure we also evaluate the parents in the first iteration, if needed.
 	// This is only applicable to the MUPLUSNU_SINGLEEVAL and MUNU1PRETAIN modes.
-	if(GSerialEA::getIteration()==0) {
+	if(GBaseEA::getIteration()==0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case SA:
@@ -274,7 +274,7 @@ void GMultiThreadedEA::adaptChildren() {
 	tp_.wait();
 
 	// Restart the server mode for parents
-	if(GSerialEA::getIteration() == 0) {
+	if(GBaseEA::getIteration() == 0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case SA:
@@ -301,6 +301,39 @@ void GMultiThreadedEA::adaptChildren() {
 
 /************************************************************************************************************/
 /**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ * @param showOrigin Makes the function indicate the origin of parameters in comments
+ */
+void GMultiThreadedEA::addConfigurationOptions (
+	Gem::Common::GParserBuilder& gpb
+	, const bool& showOrigin
+) {
+	std::string comment;
+
+	// Add local data
+	comment = ""; // Reset the comment string
+	comment += "The number of threads used to simultaneously process individuals;";
+	if(showOrigin) comment += "[GMultiThreadedEA]";
+	gpb.registerFileParameter<boost::uint8_t>(
+		"nProcessingThreads" // The name of the variable
+		, 0 // The default value
+		, boost::bind(
+			&GMultiThreadedEA::setNThreads
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	// Call our parent class'es function
+	GBaseEA::addConfigurationOptions(gpb, showOrigin);
+}
+
+/************************************************************************************************************/
+/**
  * Sets the number of threads for this population. If nThreads is set
  * to 0, an attempt will be made to set the number of threads to the
  * number of hardware threading units (e.g. number of cores or hyperthreading
@@ -308,7 +341,7 @@ void GMultiThreadedEA::adaptChildren() {
  *
  * @param nThreads The number of threads this class uses
  */
-void GMultiThreadedEA::setNThreads(const boost::uint8_t& nThreads) {
+void GMultiThreadedEA::setNThreads(boost::uint8_t nThreads) {
 	if(nThreads == 0) {
 		nThreads_ = boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA));
 	}
@@ -340,7 +373,7 @@ bool GMultiThreadedEA::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GSerialEA::modify_GUnitTests()) result = true;
+	if(GBaseEA::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -351,7 +384,7 @@ bool GMultiThreadedEA::modify_GUnitTests() {
  */
 void GMultiThreadedEA::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GSerialEA::specificTestsNoFailureExpected_GUnitTests();
+	GBaseEA::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
@@ -360,7 +393,7 @@ void GMultiThreadedEA::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GMultiThreadedEA::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GSerialEA::specificTestsFailuresExpected_GUnitTests();
+	GBaseEA::specificTestsFailuresExpected_GUnitTests();
 }
 
 /************************************************************************************************************/

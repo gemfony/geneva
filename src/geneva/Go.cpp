@@ -509,7 +509,7 @@ GObject *Go::clone_() const {
  *
  * @param ea_om_ptr A pointer to an optimization monitor specific for evolutionary algorithms
  */
-void Go::registerOptimizationMonitor(boost::shared_ptr<GSerialEA::GEAOptimizationMonitor> ea_om_ptr) {
+void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseEA::GEAOptimizationMonitor> ea_om_ptr) {
 	if(!ea_om_ptr) {
 		raiseException(
 				"In Go::registerOptimizationMonitor():" << std::endl

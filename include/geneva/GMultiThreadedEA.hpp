@@ -52,7 +52,7 @@
 #include "common/GThreadWrapper.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GIndividual.hpp"
-#include "geneva/GSerialEA.hpp"
+#include "geneva/GBaseEA.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -62,12 +62,12 @@ const boost::uint16_t DEFAULTBOOSTTHREADSEA = 2;
 
 /********************************************************************/
 /**
- * A multi-threaded population based on GSerialEA. This version
+ * A multi-threaded population based on GBaseEA. This version
  * uses the Boost.Threads library and a thread-pool library from
  * http://threadpool.sf.net .
  */
 class GMultiThreadedEA
-	: public Geneva::GSerialEA
+	: public Geneva::GBaseEA
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -76,7 +76,7 @@ class GMultiThreadedEA
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSerialEA)
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseEA)
 		   & BOOST_SERIALIZATION_NVP(nThreads_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ public:
 	virtual void finalize();
 
 	/** @brief Sets the maximum number of threads */
-	void setNThreads(const boost::uint8_t&);
+	void setNThreads(boost::uint8_t);
 	/** @brief Retrieves the maximum number of threads */
 	uint8_t getNThreads() const ;
 
@@ -116,9 +116,15 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
 
-	/** @brief Overloaded version from GSerialEA,
+	/** @brief Overloaded version from GBaseEA,
 	 * core of the Boost-thread implementation */
 	virtual void adaptChildren();
+
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
 
 private:
 	boost::uint8_t nThreads_; ///< The number of threads

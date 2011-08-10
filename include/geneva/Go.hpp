@@ -219,7 +219,7 @@ public:
 	) const;
 
 	/** @brief Allows to specify an optimization monitor to be used with evolutionary algorithms */
-	void registerOptimizationMonitor(boost::shared_ptr<GSerialEA::GEAOptimizationMonitor>);
+	void registerOptimizationMonitor(boost::shared_ptr<GBaseEA::GEAOptimizationMonitor>);
 	/** @brief Allows to specify an optimization monitor to be used with swarm algorithms */
 	void registerOptimizationMonitor(boost::shared_ptr<GSerialSwarm::GSwarmOptimizationMonitor>);
 	/** @brief Allows to specify an optimization monitor to be used with gradient descents */
@@ -617,7 +617,7 @@ private:
 	template <typename ind_type>
 	boost::shared_ptr<ind_type> eaOptimize(const boost::uint32_t& offset = 0) {
 		// This smart pointer will hold the different types of evolutionary algorithms
-		boost::shared_ptr<GSerialEA> ea_ptr;
+		boost::shared_ptr<GBaseEA> ea_ptr;
 
 		switch(parMode_) {
 		//----------------------------------------------------------------------------------
@@ -994,7 +994,7 @@ private:
 	std::string configFilename_; ///< Indicates where the configuration file is stored
 	bool verbose_; ///< Whether additional information should be emitted, e.g. when parsing configuration files
 
-	boost::shared_ptr<GSerialEA::GEAOptimizationMonitor> ea_om_ptr_; ///< Holds a specific optimization monitor used for evolutionary algorithms
+	boost::shared_ptr<GBaseEA::GEAOptimizationMonitor> ea_om_ptr_; ///< Holds a specific optimization monitor used for evolutionary algorithms
 	boost::shared_ptr<GSerialSwarm::GSwarmOptimizationMonitor> swarm_om_ptr_; ///< Holds a specific optimization monitor used for swarm algorithms
 	boost::shared_ptr<GSerialGD::GGDOptimizationMonitor> gd_om_ptr_; ///< Holds a specific optimization monitor used for gradient descents
 

@@ -184,6 +184,11 @@ public:
 	/** @brief Returns an XML description of the derivative it is called for */
 	std::string report() const;
 
+	/** @brief Writes a configuration file to disk */
+	void writeConfigFile(const std::string&, const std::string&);
+	/** @brief Reads a configuration file from disk */
+	void readConfigFile(const std::string&);
+
 	/** @brief Creates a clone of this object, storing it in a boost::shared_ptr<GObject> */
 	boost::shared_ptr<GObject> clone() const;
 

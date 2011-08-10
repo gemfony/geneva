@@ -299,7 +299,7 @@ int main(int argc, char **argv){
   // We can now start creating populations. We refer to them through the base class
 
   // This smart pointer will hold the different population types
-  boost::shared_ptr<GSerialEA> pop_ptr;
+  boost::shared_ptr<GBaseEA> pop_ptr;
 
   // Create the actual populations
   switch (parallelizationMode) {

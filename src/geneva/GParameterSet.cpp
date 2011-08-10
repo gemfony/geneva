@@ -560,7 +560,24 @@ void GParameterSet::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
-	// No local data
+	std::string comment;
+
+	// Add local data
+	comment = ""; // Reset the comment string
+	comment += "Specifies whether the individual should be maximized (1) or minimized (0);";
+	comment += "Note that minimization is the by far most common option.;";
+	if(showOrigin) comment += "[GParameterset]";
+	gpb.registerFileParameter<boost::uint32_t>(
+		"maximize" // The name of the variable
+		, false // The default value
+		, boost::bind(
+			&GParameterSet::setMaxMode
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
+		, comment
+	);
 
 	// Call our parent class'es function
 	GMutableSetT<Gem::Geneva::GParameterBase>::addConfigurationOptions(gpb, showOrigin);

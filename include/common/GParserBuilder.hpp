@@ -352,6 +352,11 @@ public:
 
 		// Store one and two for later usage
 		many_.push_back(singleParm_ptr);
+
+		variables_.push_back(optionName);
+		defaultValues_.push_back(boost::lexical_cast<std::string>(def_val));
+		isEssential_.push_back(isEssential);
+		comments_.push_back(comment);
 	}
 
 	/********************************************************************/
@@ -386,12 +391,21 @@ public:
 
 		// Store one and two for later usage
 		many_.push_back(combParm_ptr);
+
+		variables_.push_back(optionName1);
+		defaultValues_.push_back(boost::lexical_cast<std::string>(def_val1));
+		isEssential_.push_back(isEssential);
+		comments_.push_back(comment1);
+
+		variables_.push_back(optionName2);
+		defaultValues_.push_back(boost::lexical_cast<std::string>(def_val2));
+		isEssential_.push_back(isEssential);
+		comments_.push_back(comment2);
 	}
 
 private:
 	/********************************************************************/
 
-	std::string configurationFile_; ///< The name and path of the configuration file to be parsed
 	boost::program_options::options_description config_; ///< Will hold a description of the program options
 	std::vector<std::string> variables_; ///< The names of the variables to be parsed
 	std::vector<std::string> defaultValues_; ///< The default values associated with each variable

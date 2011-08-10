@@ -49,7 +49,7 @@
 #include "common/GExceptions.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "geneva/GEAPersonalityTraits.hpp"
-#include "geneva/GSerialEA.hpp"
+#include "geneva/GBaseEA.hpp"
 #include "geneva/GIndividual.hpp"
 
 namespace Gem
@@ -68,7 +68,7 @@ namespace Geneva
    * it is itself usually not shipped over a network connection.
    */
   class GBrokerEA
-    : public GSerialEA
+    : public GBaseEA
   {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -77,7 +77,7 @@ namespace Geneva
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSerialEA)
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseEA)
 		 & BOOST_SERIALIZATION_NVP(broker_connector_);
     }
     ///////////////////////////////////////////////////////////////////////
@@ -101,11 +101,6 @@ namespace Geneva
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
-	virtual void init();
-	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
-	virtual void finalize();
-
   protected:
     /** @brief Loads the data of another GTransfer Population */
     virtual void load_(const GObject *);
@@ -116,6 +111,17 @@ namespace Geneva
     virtual void adaptChildren();
     /** @brief Selects new parents */
     virtual void select();
+
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
+
+	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
+	virtual void init();
+	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
+	virtual void finalize();
 
   private:
     /*********************************************************************************/

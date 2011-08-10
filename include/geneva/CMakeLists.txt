@@ -2,6 +2,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( OPTIMIZATIONINCLUDES
 	GAdaptorT.hpp
+	GBaseEA.hpp
+	GBaseGD.hpp
 	GBooleanAdaptor.hpp
 	GBooleanCollection.hpp
 	GBooleanObject.hpp

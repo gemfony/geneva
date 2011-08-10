@@ -573,17 +573,9 @@ void GIndividual::addConfigurationOptions (
 	, const bool& showOrigin
 ) {
 	// Add local data
-	std::string comment;
-	comment += "Indicates whether the individual's objective function;";
-	comment += "should be maximized (1) or minimized (0)";
-	if(showOrigin) comment += "[source: GIndividual]";
-	gpb.registerFileParameter(
-		"maximize" // The name of the variable
-		, this->maximize_ // The variable to which results should be written
-		, Gem::Geneva::MINIMIZE // The default value
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	// maximize_ will be set in GParameterSet, as it has a different
+	// meaning for optimization algorithms that also derive indirectly
+	// from this class.
 
 	// Call our parent class'es function
 	GObject::addConfigurationOptions(gpb, showOrigin);

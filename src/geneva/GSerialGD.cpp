@@ -130,7 +130,7 @@ std::size_t GSerialGD::getNStartingPoints() const {
  *
  * @param nStartingPoints The desired number of starting points for the gradient descent
  */
-void GSerialGD::setNStartingPoints(const std::size_t& nStartingPoints) {
+void GSerialGD::setNStartingPoints(std::size_t nStartingPoints) {
 	// Do some error checking
 	if(nStartingPoints == 0) {
 		raiseException(
@@ -148,7 +148,7 @@ void GSerialGD::setNStartingPoints(const std::size_t& nStartingPoints) {
  *
  * @param finiteStep The desired size of the adaption
  */
-void GSerialGD::setFiniteStep(const float& finiteStep) {
+void GSerialGD::setFiniteStep(float finiteStep) {
 	// Do some error checking
 	if(finiteStep <= 0.) {
 		raiseException(
@@ -176,7 +176,7 @@ float GSerialGD::getFiniteStep() const {
  *
  * @param stepSize A multiplicative factor for the adaption process
  */
-void GSerialGD::setStepSize(const float& stepSize) {
+void GSerialGD::setStepSize(float stepSize) {
 	// Do some error checking
 	if(stepSize <= 0.) {
 		raiseException(
@@ -557,6 +557,72 @@ boost::shared_ptr<GIndividual> GSerialGD::getBestIndividual(){
 	// There will be an implicit downcast here, as data holds
 	// boost::shared_ptr<GParameterSet> objects
 	return data[pos_best];
+}
+
+/************************************************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ * @param showOrigin Makes the function indicate the origin of parameters in comments
+ */
+void GSerialGD::addConfigurationOptions (
+	Gem::Common::GParserBuilder& gpb
+	, const bool& showOrigin
+) {
+	std::string comment;
+	std::string comment1;
+	std::string comment2;
+
+	// Add local data
+	comment = ""; // Reset the comment string
+	comment += "The number of simultaneous gradient descents;";
+	if(showOrigin) comment += "[GSerialGD]";
+	gpb.registerFileParameter<std::size_t>(
+		"nStartingPoints" // The name of the variable
+		, DEFAULTGDSTARTINGPOINTS // The default value
+		, boost::bind(
+			&GSerialGD::setNStartingPoints
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "The size of the adjustment in the difference quotient;";
+	if(showOrigin) comment += "[GSerialGD]";
+	gpb.registerFileParameter<float>(
+		"finiteStep" // The name of the variable
+		, DEFAULTFINITESTEP // The default value
+		, boost::bind(
+			&GSerialGD::setFiniteStep
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "The size of each step into the;";
+	comment += "direction of steepest descent.;";
+	if(showOrigin) comment += "[GSerialGD]";
+	gpb.registerFileParameter<float>(
+		"stepSize" // The name of the variable
+		, DEFAULTSTEPSIZE // The default value
+		, boost::bind(
+			&GSerialGD::setStepSize
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	// Call our parent class'es function
+	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

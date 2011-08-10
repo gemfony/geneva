@@ -319,6 +319,43 @@ void GObject::fromFile(const std::string& fileName, const Gem::Common::serializa
 
 /**************************************************************************************************/
 /**
+ * Writes a configuration file to disk
+ *
+ * @param configFile The name of the configuration file to be written
+ * @param header A header to be prepended to the configuration file
+ */
+void GObject::writeConfigFile(const std::string& configFile, const std::string& header) {
+	// This class will handle the interaction with configuration files
+	Gem::Common::GParserBuilder gpb;
+
+	// Recursively add configuration options to gpb,
+	// starting with the most derived class
+	addConfigurationOptions(gpb, true);
+
+	// Write out the configuration file
+	gpb.writeConfigFile(configFile, header, true);
+}
+
+/**************************************************************************************************/
+/**
+ * Reads a configuration file from disk
+ *
+ * @param configFile The name of the configuration file to be parsed
+ */
+void GObject::readConfigFile(const std::string& configFile) {
+	// This class will handle the interaction with configuration files
+	Gem::Common::GParserBuilder gpb;
+
+	// Recursively add configuration options to gpb,
+	// starting with the most derived class
+	addConfigurationOptions(gpb, true);
+
+	// Read in the configuration file
+	gpb.parseConfigFile(configFile);
+}
+
+/**************************************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A pointer to another GObject object

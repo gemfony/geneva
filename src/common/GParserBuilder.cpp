@@ -111,7 +111,7 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile)
  * @param writeAll A boolean parameter that indicates whether all or only essential parameters should be written
  */
 void GParserBuilder::writeConfigFile(
-		const std::string& fileName
+		const std::string& configFile
 		, const std::string& header
 		, bool writeAll
 ) const {
@@ -120,16 +120,10 @@ void GParserBuilder::writeConfigFile(
 	boost::char_separator<char> semicolon_sep(";");
 
 	// Open the required configuration file
-	std::string localConfigFile;
-	if(fileName == "") {
-		localConfigFile = fileName;
-	} else {
-		localConfigFile = configurationFile_;
-	}
-	std::ofstream ofs(localConfigFile.c_str());
+	std::ofstream ofs(configFile.c_str());
 	if (!ofs.good()) {
 		raiseException(
-			"In GParserBuilder::writeConfigFile(): Error writing the configuration file " << localConfigFile << std::endl
+			"In GParserBuilder::writeConfigFile(): Error writing the configuration file " << configFile << std::endl
 		);
 	}
 
@@ -172,7 +166,8 @@ void GParserBuilder::writeConfigFile(
 			}
 		}
 		ofs << "# default value: " << defaultValues_.at(var) << std::endl
-			<< variables_.at(var) << " = " << defaultValues_.at(var) << std::endl;
+			<< variables_.at(var) << " = " << defaultValues_.at(var) << std::endl
+			<< std::endl;
 	}
 
 	// Close the file handle

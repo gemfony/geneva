@@ -132,27 +132,27 @@ public:
 	virtual void loadCheckpoint(const std::string&);
 
 	/** @brief Allows to set a static multiplier for personal distances */
-	void setCPersonal(const double&);
+	void setCPersonal(double);
 	/** @brief Allows to retrieve the static multiplier for personal distances */
 	double getCPersonal() const;
 
 	/** @brief Allows to set a static multiplier for neighborhood distances */
-	void setCNeighborhood(const double&);
+	void setCNeighborhood(double);
 	/** @brief Allows to retrieve the static multiplier for neighborhood distances */
 	double getCNeighborhood() const;
 
 	/** @brief Allows to set a static multiplier for global distances */
-	void setCGlobal(const double&);
+	void setCGlobal(double);
 	/** @brief Allows to retrieve the static multiplier for global distances */
 	double getCGlobal() const;
 
 	/** @brief Allows to set a static multiplier for velocities */
-	void setCVelocity(const double&);
+	void setCVelocity(double);
 	/** @brief Allows to retrieve the static multiplier for velocities */
 	double getCVelocity() const;
 
 	/** @brief Allows to set the velocity range percentage */
-	void setVelocityRangePercentage(const double&);
+	void setVelocityRangePercentage(double);
 	/** @brief Allows to retrieve the velocity range percentage */
 	double getVelocityRangePercentage() const;
 
@@ -164,14 +164,14 @@ public:
 	std::size_t getCurrentNNeighborhoodMembers(const std::size_t&) const;
 
 	/** @brief Allows to specify the update rule to be used by the swarm */
-	void setUpdateRule(const updateRule&);
+	void setUpdateRule(updateRule);
 	/** @brief Allows to retrieve the update rule currently used by the swarm */
 	updateRule getUpdateRule() const;
 
 	/** @brief All individuals automatically added to a neighborhood will have equal value */
 	void setNeighborhoodsEqualFillUp();
 	/** @brief All individuals automatically added to a neighborhood will have a random value */
-	void setNeighborhoodsRandomFillUp();
+	void setNeighborhoodsRandomFillUp(bool = true);
 	/** @brief Allows to check whether neighborhoods are filled up with random individuals */
 	bool neighborhoodsFilledUpRandomly() const;
 
@@ -314,6 +314,12 @@ protected:
 
 	/** @brief Retrieves the best individual found */
 	virtual boost::shared_ptr<GIndividual> getBestIndividual();
+
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
 
 private:
 	/**************************************************************************************************/

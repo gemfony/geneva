@@ -65,7 +65,7 @@ GSerialSwarm::GSerialSwarm(const std::size_t& nNeighborhoods, const std::size_t&
 	, c_personal_(DEFAULTCPERSONAL)
 	, c_neighborhood_(DEFAULTCNEIGHBORHOOD)
 	, c_global_(DEFAULTCGLOBAL)
-	, c_velocity_(DEFAULTCNEIGHBORHOOD)
+	, c_velocity_(DEFAULTCVELOCITY)
 	, updateRule_(DEFAULTUPDATERULE)
 	, randomFillUp_(true)
 	, dblLowerParameterBoundaries_()
@@ -567,6 +567,134 @@ boost::shared_ptr<GIndividual> GSerialSwarm::getBestIndividual(){
 	// There will be an implicit downcast here as swarms hold boost::shared_ptr<GParameterSet> objects
 	return global_best_;
 }
+
+/************************************************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ * @param showOrigin Makes the function indicate the origin of parameters in comments
+ */
+void GSerialSwarm::addConfigurationOptions (
+	Gem::Common::GParserBuilder& gpb
+	, const bool& showOrigin
+) {
+	std::string comment;
+	std::string comment1;
+	std::string comment2;
+
+	// Add local data
+	comment = ""; // Reset the comment string
+	comment += "A constant to be multiplied with the personal direction vector;";
+	if(showOrigin) comment += "[GSerialSwarm]";
+	gpb.registerFileParameter<double>(
+		"cPersonal" // The name of the variable
+		, DEFAULTCPERSONAL // The default value
+		, boost::bind(
+			&GSerialSwarm::setCPersonal
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "A constant to be multiplied with the neighborhood direction vector;";
+	if(showOrigin) comment += "[GSerialSwarm]";
+	gpb.registerFileParameter<double>(
+		"cNeighborhood" // The name of the variable
+		, DEFAULTCNEIGHBORHOOD // The default value
+		, boost::bind(
+			&GSerialSwarm::setCNeighborhood
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "A constant to be multiplied with the global direction vector;";
+	if(showOrigin) comment += "[GSerialSwarm]";
+	gpb.registerFileParameter<double>(
+		"cGlobal" // The name of the variable
+		, DEFAULTCGLOBAL // The default value
+		, boost::bind(
+			&GSerialSwarm::setCGlobal
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "A constant to be multiplied with the old velocity vector;";
+	if(showOrigin) comment += "[GSerialSwarm]";
+	gpb.registerFileParameter<double>(
+		"cVelocity" // The name of the variable
+		, DEFAULTCVELOCITY // The default value
+		, boost::bind(
+			&GSerialSwarm::setCVelocity
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "Sets the velocity-range percentage;";
+	if(showOrigin) comment += "[GSerialSwarm]";
+	gpb.registerFileParameter<double>(
+		"velocityRangePercentage" // The name of the variable
+		, DEFAULTVELOCITYRANGEPERCENTAGE // The default value
+		, boost::bind(
+			&GSerialSwarm::setVelocityRangePercentage
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "Specifies whether a linear (0) or classical (1);";
+	comment += "update rule should be used;";
+	if(showOrigin) comment += "[GSerialSwarm]";
+	gpb.registerFileParameter<updateRule>(
+		"updateRule" // The name of the variable
+		, DEFAULTUPDATERULE // The default value
+		, boost::bind(
+			&GSerialSwarm::setUpdateRule
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	comment = ""; // Reset the comment string
+	comment += "Specifies whether neighborhoods should be filled up;";
+	comment += "randomly or start with equal values;";
+	if(showOrigin) comment += "[GSerialSwarm]";
+	gpb.registerFileParameter<bool>(
+		"randomFillUp" // The name of the variable
+		, true // The default value
+		, boost::bind(
+			&GSerialSwarm::setNeighborhoodsRandomFillUp
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	// Call our parent class'es function
+	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+}
+
 
 /************************************************************************************************************/
 /**
@@ -1210,7 +1338,7 @@ void GSerialSwarm::fillUpNeighborhood1() {
  *
  * @param c_personal A static multiplier for personal distances
  */
-void GSerialSwarm::setCPersonal(const double& c_personal) {
+void GSerialSwarm::setCPersonal(double c_personal) {
 	c_personal_ = c_personal;
 }
 
@@ -1230,7 +1358,7 @@ double GSerialSwarm::getCPersonal() const {
  *
  * @param c_neighborhood A static multiplier for neighborhood distances
  */
-void GSerialSwarm::setCNeighborhood(const double& c_neighborhood) {
+void GSerialSwarm::setCNeighborhood(double c_neighborhood) {
 	c_neighborhood_ = c_neighborhood;
 }
 
@@ -1250,7 +1378,7 @@ double GSerialSwarm::getCNeighborhood() const {
  *
  * @param c_global A static multiplier for global distances
  */
-void GSerialSwarm::setCGlobal(const double& c_global) {
+void GSerialSwarm::setCGlobal(double c_global) {
 	c_global_ = c_global;
 }
 
@@ -1270,7 +1398,7 @@ double GSerialSwarm::getCGlobal() const {
  *
  * @param c_velocity A static multiplier for velocities
  */
-void GSerialSwarm::setCVelocity(const double& c_velocity) {
+void GSerialSwarm::setCVelocity(double c_velocity) {
 	c_velocity_ = c_velocity;
 }
 
@@ -1290,7 +1418,7 @@ double GSerialSwarm::getCVelocity() const {
  *
  * @param velocityRangePercentage The velocity range percentage
  */
-void GSerialSwarm::setVelocityRangePercentage(const double& velocityRangePercentage) {
+void GSerialSwarm::setVelocityRangePercentage(double velocityRangePercentage) {
 	// Do some error checking
 	if(velocityRangePercentage <= 0. || velocityRangePercentage > 1.) {
 		raiseException(
@@ -1348,7 +1476,7 @@ std::size_t GSerialSwarm::getCurrentNNeighborhoodMembers(const std::size_t& neig
  *
  * @param ur The desired update rule
  */
-void GSerialSwarm::setUpdateRule(const updateRule& ur) {
+void GSerialSwarm::setUpdateRule(updateRule ur) {
 	updateRule_ = ur;
 }
 
@@ -1374,8 +1502,8 @@ void GSerialSwarm::setNeighborhoodsEqualFillUp() {
 /**
  * All individuals automatically added to a neighborhood will have a random value
  */
-void GSerialSwarm::setNeighborhoodsRandomFillUp() {
-	randomFillUp_=true;
+void GSerialSwarm::setNeighborhoodsRandomFillUp(bool randomFillUp) {
+	randomFillUp_=randomFillUp;
 }
 
 /************************************************************************************************************/

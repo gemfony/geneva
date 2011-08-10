@@ -46,7 +46,7 @@ namespace Geneva
  * The default constructor
  */
 GBrokerEA::GBrokerEA()
-	: GSerialEA()
+	: GBaseEA()
 	, broker_connector_()
 { /* nothing */ }
 
@@ -57,7 +57,7 @@ GBrokerEA::GBrokerEA()
  * @param cp A copy of another GBrokerEA object
  */
 GBrokerEA::GBrokerEA(const GBrokerEA& cp)
-	: GSerialEA(cp)
+	: GBaseEA(cp)
 	, broker_connector_(cp.broker_connector_)
 { /* nothing */ }
 
@@ -92,7 +92,7 @@ void GBrokerEA::load_(const GObject * cp) {
 	const GBrokerEA *p_load = conversion_cast<GBrokerEA>(cp);
 
 	// Load the parent classes' data ...
-	GSerialEA::load_(cp);
+	GBaseEA::load_(cp);
 
 	// and then our local data
 	broker_connector_.load(&(p_load->broker_connector_));
@@ -164,7 +164,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent classes' data ...
-	deviations.push_back(GSerialEA::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
+	deviations.push_back(GBaseEA::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(broker_connector_.checkRelationshipWith(p_load->broker_connector_, e, limit, "GBrokerEA", y_name, withMessages));
@@ -195,8 +195,8 @@ void GBrokerEA::init() {
 		}
 	}
 
-	// GSerialEA sees exactly the environment it would when called from its own class
-	GSerialEA::init();
+	// GBaseEA sees exactly the environment it would when called from its own class
+	GBaseEA::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -230,8 +230,8 @@ void GBrokerEA::finalize() {
 	}
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
-	// GSerialEA sees exactly the environment it would when called from its own class
-	GSerialEA::finalize();
+	// GBaseEA sees exactly the environment it would when called from its own class
+	GBaseEA::finalize();
 }
 
 /************************************************************************************************************/
@@ -366,7 +366,7 @@ void GBrokerEA::select() {
 	// Great - we are at least at the default level and are
 	// ready to call the actual select() function. This will
 	// automatically take care of the selection modes.
-	GSerialEA::select();
+	GBaseEA::select();
 
 	////////////////////////////////////////////////////////////
 	// At this point we have a sorted list of individuals and can take care of
@@ -375,6 +375,23 @@ void GBrokerEA::select() {
 	data.resize(getNParents() + getDefaultNChildren());
 
 	// Everything should be back to normal ...
+}
+
+/************************************************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ * @param showOrigin Makes the function indicate the origin of parameters in comments
+ */
+void GBrokerEA::addConfigurationOptions (
+	Gem::Common::GParserBuilder& gpb
+	, const bool& showOrigin
+) {
+	// no local data
+
+	// Call our parent class'es function
+	GBaseEA::addConfigurationOptions(gpb, showOrigin);
 }
 
 #ifdef GENEVATESTING
@@ -388,7 +405,7 @@ bool GBrokerEA::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GSerialEA::modify_GUnitTests()) result = true;
+	if(GBaseEA::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -399,7 +416,7 @@ bool GBrokerEA::modify_GUnitTests() {
  */
 void GBrokerEA::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GSerialEA::specificTestsNoFailureExpected_GUnitTests();
+	GBaseEA::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
@@ -408,7 +425,7 @@ void GBrokerEA::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GBrokerEA::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GSerialEA::specificTestsFailuresExpected_GUnitTests();
+	GBaseEA::specificTestsFailuresExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
