@@ -47,7 +47,7 @@ namespace Geneva
  */
 GBrokerEA::GBrokerEA()
 	: GBaseEA()
-	, broker_connector_()
+	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -58,7 +58,7 @@ GBrokerEA::GBrokerEA()
  */
 GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	: GBaseEA(cp)
-	, broker_connector_(cp.broker_connector_)
+	, Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -93,9 +93,9 @@ void GBrokerEA::load_(const GObject * cp) {
 
 	// Load the parent classes' data ...
 	GBaseEA::load_(cp);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::load(p_load);
 
-	// and then our local data
-	broker_connector_.load(&(p_load->broker_connector_));
+	// no local data
 }
 
 /************************************************************************************************************/
@@ -156,6 +156,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
 		const bool& withMessages
 ) const {
     using namespace Gem::Common;
+    using namespace Gem::Courtier;
 
 	// Check that we are indeed dealing with a GParamterBase reference
 	const GBrokerEA *p_load = GObject::conversion_cast<GBrokerEA>(&cp);
@@ -165,9 +166,9 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GBaseEA::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
+	deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
 
-	// ... and then our local data
-	deviations.push_back(broker_connector_.checkRelationshipWith(p_load->broker_connector_, e, limit, "GBrokerEA", y_name, withMessages));
+	// ... no local data
 
 	return evaluateDiscrepancies("GBrokerEA", caller, deviations, e);
 }
@@ -255,7 +256,7 @@ void GBrokerEA::adaptChildren() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
-	broker_connector_.workOn(
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
 			data
 			, range.first
 			, range.second
@@ -392,6 +393,7 @@ void GBrokerEA::addConfigurationOptions (
 
 	// Call our parent class'es function
 	GBaseEA::addConfigurationOptions(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 }
 
 #ifdef GENEVATESTING

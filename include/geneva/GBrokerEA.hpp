@@ -52,6 +52,8 @@
 #include "geneva/GBaseEA.hpp"
 #include "geneva/GIndividual.hpp"
 
+// TODO Move GBrokerConnectorT include to this class
+
 namespace Gem
 {
 namespace Geneva
@@ -69,6 +71,7 @@ namespace Geneva
    */
   class GBrokerEA
     : public GBaseEA
+    , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
   {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -78,7 +81,7 @@ namespace Geneva
       using boost::serialization::make_nvp;
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseEA)
-		 & BOOST_SERIALIZATION_NVP(broker_connector_);
+         & make_nvp("GBrokerConnectorT_GIndividual", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -175,8 +178,6 @@ namespace Geneva
     void fixAfterJobSubmission();
 
     /*********************************************************************************/
-
-    Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual> broker_connector_; ///< Holds the broker object
 
 #ifdef GENEVATESTING
   public:
