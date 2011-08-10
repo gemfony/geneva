@@ -75,6 +75,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GPODExpectationChecksT.hpp"
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GParserBuilder.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
@@ -274,7 +275,7 @@ public:
      *
      * @param firstTimeOut The maximum allowed time until the first individual returns
      */
-    void setFirstTimeOut(const boost::posix_time::time_duration& firstTimeOut) {
+    void setFirstTimeOut(boost::posix_time::time_duration firstTimeOut) {
     	firstTimeOut_ = firstTimeOut;
     }
 
@@ -295,7 +296,7 @@ public:
      * @param minWaitFactor The minimum wait factor
      * @param maxWaitFactor The maximum wait factor
      */
-    void setWaitFactorExtremes(const double& minWaitFactor, const double& maxWaitFactor) {
+    void setWaitFactorExtremes(double minWaitFactor, double maxWaitFactor) {
     	// Do some error checking
     	if(minWaitFactor < 0. || minWaitFactor >= maxWaitFactor) {
     		raiseException(
@@ -336,7 +337,7 @@ public:
      *
      * @param dl A boolean whether logging of arrival times of items should be done
      */
-    void doLogging(const bool& dl = true) {
+    void doLogging(bool dl = true) {
     	doLogging_ = dl;
     }
 
@@ -369,7 +370,7 @@ public:
      *
      * @param boundlessWait Indicates whether the waiting time for processed items should be unlimited
      */
-    void setBoundlessWait(const bool& boundlessWait) {
+    void setBoundlessWait(bool boundlessWait) {
     	boundlessWait_ = boundlessWait;
     }
 
@@ -396,61 +397,41 @@ public:
 
     /**********************************************************************************/
     /**
-     * Allows to perform any work necessary to be repeated for each new submission. In
-     * particular, this function adjusts the waitFactor_ variable, so that it fits
-     * the current load pattern of the computing resources behind the broker.
- 	 */
-    void markNewSubmission() {
-    	// If logging is enabled, add a std::vector<boost::uint32_t> for the current submission to arrivalTimes_
-    	if(doLogging_) arrivalTimes_.push_back(std::vector<boost::uint32_t>());
-
-    	// Adapting the wait factor only makes sense if we haven't been ordered to wait endlessly anyway
-    	if(!boundlessWait_ && submission_counter_ > 0) {
-			// Increment or decrement the waitFactor_ variable, based on the current load of the system
-			// Over the course of a few submission, waitFactor_ should adjust itself into the correct range
-			if(!allItemsReturned_) {
-				if(waitFactor_ < maxWaitFactor_) {
-					waitFactor_ += waitFactorIncrement_;
-
-					// std::cout << "Increased wait factor to " << waitFactor_ << std::endl;
-
-					// Make sure we do not accidently slip above the maximum allowed wait factor
-					if(waitFactor_ > maxWaitFactor_) {
-						waitFactor_ = maxWaitFactor_;
-					}
-				}
-			} else if(percentOfTimeoutNeeded_ < DEFAULTMINPERCENTAGEOFTIMEOUT) {
-				if(waitFactor_ > minWaitFactor_) {
-					waitFactor_ -= waitFactorIncrement_;
-
-					// std::cout << "Decreased wait factor to " << waitFactor_ << std::endl;
-
-					// Make sure we do not accidently slip below the minimum wait factor
-					if(waitFactor_ < minWaitFactor_) {
-						waitFactor_ = minWaitFactor_;
-					}
-				}
-			}
-    	}
-
-		// Reset the allItemsReturned_ variable. We assume that all items
-    	// will return before the timeout in the next iteration
-		allItemsReturned_ = true;
-
-    	// Set the start time of the new iteration so we calculate a correct
-    	// Return time for the first individual, regardless of whether older
-    	// individuals have returned first.
-    	iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
-    }
-
-    /**********************************************************************************/
-    /**
      * Retrieves the current waitFactor_ variable.
      *
      * @return The value of the waitFactor_ variable
      */
     boost::uint32_t getWaitFactor() const  {
     	return waitFactor_;
+    }
+
+    /**********************************************************************************/
+    /**
+     * Allows to set the amount by which the waitFactor is incremented or decremented
+     * during automatic adaption
+     *
+     * @param wfi The desired amount by which the wait factor gets incremented or decremented
+     */
+    void setWaitFactorIncrement(double wfi) {
+    	if(wfi <= 0.) {
+    		raiseException(
+    			"In GBrokerConnectorT<T>::setWaitFactorIncrement(): Error!" << std::endl
+    			<< "Received invalid wait factor increment: " << wfi << std::endl
+    		);
+    	}
+
+    	waitFactorIncrement_ = wfi;
+    }
+
+    /**********************************************************************************/
+    /**
+     * Allows to retrieve the amount by which the waitFactor is incremented or decremented
+     * during automatic adaption
+     *
+     * @return The amount by which the wait factor gets incremented or decremented
+     */
+    double getWaitFactorIncrement() const {
+    	return waitFactorIncrement_;
     }
 
     /**********************************************************************************/
@@ -797,6 +778,164 @@ public:
     	return complete;
     }
 
+protected:
+	/*********************************************************************************/
+	/**
+	 * Adds local configuration options to a GParserBuilder object
+	 *
+	 * @param gpb The GParserBuilder object to which configuration options should be added
+	 * @param showOrigin Makes the function indicate the origin of parameters in comments
+	 */
+	void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	) {
+		std::string comment;
+		std::string comment1;
+		std::string comment2;
+
+		// add local data
+		comment = ""; // Reset the comment string
+		comment += "The timeout for the retrieval of an;";
+		comment += "iteration's first timeout;";
+		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
+		gpb.registerFileParameter<boost::posix_time::time_duration>(
+			"firstTimeOut" // The name of the variable
+			, boost::posix_time::duration_from_string(DEFAULTBROKERFIRSTTIMEOUT) // The default value
+			, boost::bind(
+				&GBrokerConnectorT<T>::setFirstTimeOut
+				, this
+				, _1
+			  )
+			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
+			, comment
+		);
+
+		comment1 = ""; // Reset the first comment string
+		comment1 += "The lower boundary for the adaption;";
+		comment1 += "of the waitFactor variable;";
+		comment2 = ""; // Reset the second comment string
+		comment2 += "The upper boundary for the adaption;";
+		comment2 += "of the waitFactor variable;";
+		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
+		gpb.registerFileParameter<double, double>(
+			"minWaitFactor" // The name of the first variable
+			, "maxWaitFactor" // The name of the second variable
+			, DEFAULTMINBROKERWAITFACTOR // The first default value
+			, DEFAULTMAXBROKERWAITFACTOR // The second default value
+			, boost::bind(
+				&GBrokerConnectorT<T>::setWaitFactorExtremes
+				, this
+				, _1
+				, _2
+			  )
+			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+			, comment1
+			, comment2
+		);
+
+		comment = ""; // Reset the comment string
+		comment += "Activates (1) or de-activates (0) logging;";
+		comment += "iteration's first timeout;";
+		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
+		gpb.registerFileParameter<bool>(
+			"doLogging" // The name of the variable
+			, false // The default value
+			, boost::bind(
+				&GBrokerConnectorT<T>::doLogging
+				, this
+				, _1
+			  )
+			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
+			, comment
+		);
+
+		comment = ""; // Reset the comment string
+		comment += "Indicates that the broker connector should wait endlessly;";
+		comment += "for further arrivals of individuals in an iteration;";
+		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
+		gpb.registerFileParameter<bool>(
+			"boundlessWait" // The name of the variable
+			, false // The default value
+			, boost::bind(
+				&GBrokerConnectorT<T>::setBoundlessWait
+				, this
+				, _1
+			  )
+			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+			, comment
+		);
+
+		comment =  ""; // 	Reset the comment string
+		comment += "Specifies the amount by which the wait factor gets;";
+		comment += "incremented or decremented during automatic adaption;";
+		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
+		gpb.registerFileParameter<double>(
+			"waitFactorIncrement" // The name of the variable
+			, DEFAULTBROKERWAITFACTORINCREMENT // The default value
+			, boost::bind (
+				&GBrokerConnectorT<T>::setWaitFactorIncrement
+				, this
+				, _1
+			  )
+			, Gem::Common::VAR_IS_SECONDARY // Alternative:VAR_IS_ESSENTIAL
+			, comment
+		);
+
+		// no parent class
+	}
+
+private:
+
+	/**********************************************************************************/
+    /**
+     * Allows to perform any work necessary to be repeated for each new submission. In
+     * particular, this function adjusts the waitFactor_ variable, so that it fits
+     * the current load pattern of the computing resources behind the broker.
+ 	 */
+    void markNewSubmission() {
+    	// If logging is enabled, add a std::vector<boost::uint32_t> for the current submission to arrivalTimes_
+    	if(doLogging_) arrivalTimes_.push_back(std::vector<boost::uint32_t>());
+
+    	// Adapting the wait factor only makes sense if we haven't been ordered to wait endlessly anyway
+    	if(!boundlessWait_ && submission_counter_ > 0) {
+			// Increment or decrement the waitFactor_ variable, based on the current load of the system
+			// Over the course of a few submission, waitFactor_ should adjust itself into the correct range
+			if(!allItemsReturned_) {
+				if(waitFactor_ < maxWaitFactor_) {
+					waitFactor_ += waitFactorIncrement_;
+
+					// std::cout << "Increased wait factor to " << waitFactor_ << std::endl;
+
+					// Make sure we do not accidently slip above the maximum allowed wait factor
+					if(waitFactor_ > maxWaitFactor_) {
+						waitFactor_ = maxWaitFactor_;
+					}
+				}
+			} else if(percentOfTimeoutNeeded_ < DEFAULTMINPERCENTAGEOFTIMEOUT) {
+				if(waitFactor_ > minWaitFactor_) {
+					waitFactor_ -= waitFactorIncrement_;
+
+					// std::cout << "Decreased wait factor to " << waitFactor_ << std::endl;
+
+					// Make sure we do not accidently slip below the minimum wait factor
+					if(waitFactor_ < minWaitFactor_) {
+						waitFactor_ = minWaitFactor_;
+					}
+				}
+			}
+    	}
+
+		// Reset the allItemsReturned_ variable. We assume that all items
+    	// will return before the timeout in the next iteration
+		allItemsReturned_ = true;
+
+    	// Set the start time of the new iteration so we calculate a correct
+    	// Return time for the first individual, regardless of whether older
+    	// individuals have returned first.
+    	iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
+    }
+
     /**********************************************************************************/
     /**
      * Prolongs the timeout. This is useful when there is a need for re-submission of
@@ -1064,8 +1203,7 @@ public:
 #endif /* DEBUG */
 	}
 
-private:
-    /*********************************************************************************/
+	/*********************************************************************************/
     /**
      * A simple comparison operator that helps to sort individuals according to their
      * position in the population. Smaller position numbers will end up in front.
