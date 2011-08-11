@@ -56,12 +56,15 @@
 #include <courtier/GAsioTCPClientT.hpp>
 #include <courtier/GAsioTCPConsumerT.hpp>
 #include <courtier/GBoostThreadConsumerT.hpp>
+#include <geneva/GBaseEA.hpp>
 #include <geneva/GSerialEA.hpp>
 #include <geneva/GMultiThreadedEA.hpp>
-#include <geneva/GMultiThreadedGD.hpp>
-#include <geneva/GMultiThreadedSwarm.hpp>
 #include <geneva/GBrokerEA.hpp>
+#include <geneva/GBaseGD.hpp>
+#include <geneva/GMultiThreadedGD.hpp>
 #include <geneva/GBrokerGD.hpp>
+#include <geneva/GSerialSwarm.hpp>
+#include <geneva/GMultiThreadedSwarm.hpp>
 #include <geneva/GBrokerSwarm.hpp>
 #include <geneva/GIndividual.hpp>
 #include <geneva/GMultiThreadedEA.hpp>

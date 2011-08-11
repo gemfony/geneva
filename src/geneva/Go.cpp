@@ -517,7 +517,7 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseEA::GEAOptimizationM
 		);
 	}
 
-	ea_om_ptr_ = ea_om_ptr->clone<GSerialEA::GEAOptimizationMonitor>();
+	ea_om_ptr_ = ea_om_ptr->clone<GBaseEA::GEAOptimizationMonitor>();
 }
 
 /**************************************************************************************/
@@ -545,7 +545,7 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GSerialSwarm::GSwarmOptim
  *
  * @param gd_om_ptr A pointer to an optimization monitor specific for gradient descents
  */
-void Go::registerOptimizationMonitor(boost::shared_ptr<GSerialGD::GGDOptimizationMonitor> gd_om_ptr) {
+void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseGD::GGDOptimizationMonitor> gd_om_ptr) {
 	if(!gd_om_ptr) {
 		raiseException(
 				"In Go::registerOptimizationMonitor():" << std::endl
@@ -553,7 +553,7 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GSerialGD::GGDOptimizatio
 		);
 	}
 
-	gd_om_ptr_ = gd_om_ptr->clone<GSerialGD::GGDOptimizationMonitor>();
+	gd_om_ptr_ = gd_om_ptr->clone<GBaseGD::GGDOptimizationMonitor>();
 }
 
 /**************************************************************************************/

@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GMultiThreadedGD::GMultiThreadedGD()
-	: GSerialGD()
+	: GBaseGD()
 	, nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD)))
 	, tp_(nThreads_)
 { /* nothing */ }
@@ -58,7 +58,7 @@ GMultiThreadedGD::GMultiThreadedGD (
 		, const float& finiteStep
 		, const float& stepSize
 )
-	: GSerialGD(nStartingPoints, finiteStep, stepSize)
+	: GBaseGD(nStartingPoints, finiteStep, stepSize)
 	, nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD)))
 	, tp_(nThreads_)
 { /* nothing */ }
@@ -68,7 +68,7 @@ GMultiThreadedGD::GMultiThreadedGD (
  * A standard copy constructor
  */
 GMultiThreadedGD::GMultiThreadedGD(const GMultiThreadedGD& cp)
-	: GSerialGD(cp)
+	: GBaseGD(cp)
 	, nThreads_(cp.nThreads_)
 	, tp_(nThreads_) // Make sure we initialize the threadpool appropriately
 { /* nothing */ }
@@ -151,7 +151,7 @@ boost::optional<std::string> GMultiThreadedGD::checkRelationshipWith(
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GSerialGD::checkRelationshipWith(cp, e, limit, "GMultiThreadedGD", y_name, withMessages));
+	deviations.push_back(GBaseGD::checkRelationshipWith(cp, e, limit, "GMultiThreadedGD", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GMultiThreadedGD", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
@@ -200,7 +200,7 @@ void GMultiThreadedGD::load_(const GObject *cp) {
 	const GMultiThreadedGD *p_load = this->conversion_cast<GMultiThreadedGD>(cp);
 
 	// First load our parent class'es data ...
-	GSerialGD::load_(cp);
+	GBaseGD::load_(cp);
 
 	// ... and then our own
 	if(nThreads_ != p_load->nThreads_) {
@@ -225,8 +225,8 @@ GObject *GMultiThreadedGD::clone_() const  {
  * Necessary initialization work before the start of the optimization
  */
 void GMultiThreadedGD::init() {
-	// GSerialGD sees exactly the environment it would when called from its own class
-	GSerialGD::init();
+	// GBaseGD sees exactly the environment it would when called from its own class
+	GBaseGD::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -260,8 +260,8 @@ void GMultiThreadedGD::finalize() {
 	}
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
-	// GSerialGD sees exactly the environment it would when called from its own class
-	GSerialGD::finalize();
+	// GBaseGD sees exactly the environment it would when called from its own class
+	GBaseGD::finalize();
 }
 
 /************************************************************************************************************/
@@ -295,13 +295,13 @@ void GMultiThreadedGD::addConfigurationOptions (
 	);
 
 	// Call our parent class'es function
-	GSerialGD::addConfigurationOptions(gpb, showOrigin);
+	GBaseGD::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
 /**
  * Triggers fitness calculation of a number of individuals. This function performs the same task as done
- * in GSerialGD, albeit multi-threaded.
+ * in GBaseGD, albeit multi-threaded.
  *
  * @param finalPos The position in the vector up to which the fitness calculation should be performed
  * @return The best fitness found amongst all parents
@@ -384,7 +384,7 @@ bool GMultiThreadedGD::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GSerialGD::modify_GUnitTests()) result = true;
+	if(GBaseGD::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -395,7 +395,7 @@ bool GMultiThreadedGD::modify_GUnitTests() {
  */
 void GMultiThreadedGD::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GSerialGD::specificTestsNoFailureExpected_GUnitTests();
+	GBaseGD::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
@@ -404,7 +404,7 @@ void GMultiThreadedGD::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GMultiThreadedGD::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GSerialGD::specificTestsFailuresExpected_GUnitTests();
+	GBaseGD::specificTestsFailuresExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
