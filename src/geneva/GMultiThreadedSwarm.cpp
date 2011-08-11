@@ -225,6 +225,39 @@ void GMultiThreadedSwarm::finalize() {
 	GSerialSwarm::finalize();
 }
 
+/************************************************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ * @param showOrigin Makes the function indicate the origin of parameters in comments
+ */
+void GMultiThreadedSwarm::addConfigurationOptions (
+	Gem::Common::GParserBuilder& gpb
+	, const bool& showOrigin
+) {
+	std::string comment;
+
+	// add local data
+	comment = ""; // Reset the comment string
+	comment += "The number of evaluation threads;";
+	comment += "0 means: determine automatically;";
+	if(showOrigin) comment += "[GMultiThreadedSwarm]";
+	gpb.registerFileParameter<boost::uint8_t>(
+		"nEvaluationThreads" // The name of the variable
+		, 0 // The default value
+		, boost::bind(
+			&GMultiThreadedSwarm::setNThreads
+			, this
+			, _1
+		)
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	// Call our parent class'es function
+	GSerialSwarm::addConfigurationOptions(gpb, showOrigin);
+}
 
 /************************************************************************************************************/
 /**
@@ -270,7 +303,7 @@ void GMultiThreadedSwarm::updateFitness() {
  *
  * @param nThreads The number of threads this class uses
  */
-void GMultiThreadedSwarm::setNThreads(const boost::uint8_t& nThreads) {
+void GMultiThreadedSwarm::setNThreads(boost::uint8_t nThreads) {
 	if(nThreads == 0) {
 		nThreads_ = boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM));
 	}

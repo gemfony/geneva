@@ -66,6 +66,7 @@ namespace Geneva {
  */
 class GBrokerGD
 	: public GSerialGD
+	, public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -75,7 +76,7 @@ class GBrokerGD
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSerialGD)
-		   & BOOST_SERIALIZATION_NVP(broker_connector_)
+		   & make_nvp("GBrokerConnectorT_GIndividual", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this));
 		   & BOOST_SERIALIZATION_NVP(maxResubmissions_);
 	}
 
@@ -110,7 +111,7 @@ public:
 	) const;
 
 	/** @brief Allows to set the maximum allowed number of resubmissions */
-	void setMaxResubmissions(const std::size_t maxResubmissions);
+	void setMaxResubmissions(std::size_t maxResubmissions);
 	/** @brief Returns the maximum allowed number of resubmissions */
 	std::size_t getMaxResubmissions() const;
 
@@ -124,6 +125,12 @@ protected:
 	virtual void init();
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
+
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
 
 	/** @brief Triggers fitness calculation of a number of individuals */
 	virtual double doFitnessCalculation(const std::size_t&);
@@ -146,7 +153,6 @@ private:
     std::vector<bool> sm_value_; ///< Internal storage for server mode flags
     std::size_t resubmissions_; ///< The number of re-submissions in the current iteration
     std::size_t maxResubmissions_; ///< The maximum number of allowed re-submissions in an iteration
-    Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual> broker_connector_; /// Connects this object to the broker
 
 #ifdef GENEVATESTING
 public:

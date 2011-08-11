@@ -106,7 +106,7 @@ public:
 	) const;
 
 	/** @brief Sets the maximum number of threads */
-	void setNThreads(const boost::uint8_t&);
+	void setNThreads(boost::uint8_t);
 	/** @brief Retrieves the maximum number of threads */
 	boost::uint8_t getNThreads() const ;
 
@@ -120,6 +120,12 @@ protected:
 	virtual void init();
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
+
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
 
 	/** @brief Updates the fitness of all individuals */
 	virtual void updateFitness();

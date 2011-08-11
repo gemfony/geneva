@@ -48,7 +48,7 @@ namespace Geneva
  */
 GBrokerSwarm::GBrokerSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
 	: GSerialSwarm(nNeighborhoods, nNeighborhoodMembers)
-	, broker_connector_()
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -59,7 +59,7 @@ GBrokerSwarm::GBrokerSwarm(const std::size_t& nNeighborhoods, const std::size_t&
  */
 GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm& cp)
 	: GSerialSwarm(cp)
-	, broker_connector_(cp.broker_connector_)
+    , Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -94,9 +94,9 @@ void GBrokerSwarm::load_(const GObject * cp) {
 
 	// Load the parent classes' data ...
 	GSerialSwarm::load_(cp);
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
 
-	// and then our local data
-	broker_connector_.load(&(p_load->broker_connector_));
+	// no local data
 }
 
 /************************************************************************************************************/
@@ -157,6 +157,7 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
 		, const bool& withMessages
 ) const {
     using namespace Gem::Common;
+    using namespace Gem::Courtier;
 
 	// Check that we are indeed dealing with a GParamterBase reference
 	const GBrokerSwarm *p_load = GObject::conversion_cast<GBrokerSwarm>(&cp);
@@ -166,9 +167,9 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GSerialSwarm::checkRelationshipWith(cp, e, limit, "GBrokerSwarm", y_name, withMessages));
+	deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerSwarm", y_name, withMessages));
 
-	// and then our local data
-	deviations.push_back(broker_connector_.checkRelationshipWith(p_load->broker_connector_, e, limit, "GBrokerSwarm", y_name, withMessages));
+	// no local data
 
 	return evaluateDiscrepancies("GBrokerSwarm", caller, deviations, e);
 }
@@ -215,6 +216,26 @@ void GBrokerSwarm::finalize() {
 
 	// GSerialSwarm sees exactly the environment it would when called from its own class
 	GSerialSwarm::finalize();
+}
+
+/************************************************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ * @param showOrigin Makes the function indicate the origin of parameters in comments
+ */
+void GBrokerSwarm::addConfigurationOptions (
+	Gem::Common::GParserBuilder& gpb
+	, const bool& showOrigin
+) {
+	std::string comment;
+
+	// no local data
+
+	// Call our parent class'es function
+	GSerialSwarm::addConfigurationOptions(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -277,7 +298,7 @@ void GBrokerSwarm::updateFitness() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results
-	broker_connector_.workOn(
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
 			data
 			, 0
 			, data.size()

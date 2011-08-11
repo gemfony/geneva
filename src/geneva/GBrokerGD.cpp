@@ -45,8 +45,8 @@ namespace Geneva {
  */
 GBrokerGD::GBrokerGD() :
 	GSerialGD()
+	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
 	, maxResubmissions_(DEFAULTMAXGDRESUBMISSIONS)
-	, broker_connector_()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -58,8 +58,8 @@ GBrokerGD::GBrokerGD(
 		, const float& finiteStep, const float& stepSize
 )
 	: GSerialGD(nStartingPoints, finiteStep, stepSize)
+	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
 	, maxResubmissions_(DEFAULTMAXGDRESUBMISSIONS)
-    , broker_connector_()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -68,8 +68,8 @@ GBrokerGD::GBrokerGD(
  */
 GBrokerGD::GBrokerGD(const GBrokerGD& cp)
 	: GSerialGD(cp)
+	, Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
 	, maxResubmissions_(cp.maxResubmissions_)
-	, broker_connector_(cp.broker_connector_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -151,12 +151,11 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 	std::vector < boost::optional<std::string> > deviations;
 
 	// Check our parent classes' data ...
-	deviations.push_back(
-			GSerialGD::checkRelationshipWith(cp, e, limit, "GBrokerGD",	y_name, withMessages));
+	deviations.push_back(GSerialGD::checkRelationshipWith(cp, e, limit, "GBrokerGD",	y_name, withMessages));
+	deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerGD", y_name, withMessages));
 
 	// and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GBrokerGD", maxResubmissions_, p_load->maxResubmissions_, "maxResubmissions_", "p_load->maxResubmissions_", e , limit));
-	deviations.push_back(broker_connector_.checkRelationshipWith(p_load->broker_connector_, e, limit, "GBrokerGD", y_name, withMessages));
 
 	return evaluateDiscrepancies("GBrokerGD", caller, deviations, e);
 }
@@ -167,7 +166,7 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
  *
  * @param maxResubmissions The maximum allowed number of re-submissions
  */
-void GBrokerGD::setMaxResubmissions(const std::size_t maxResubmissions) {
+void GBrokerGD::setMaxResubmissions(std::size_t maxResubmissions) {
 	maxResubmissions_ = maxResubmissions;
 }
 
@@ -192,10 +191,10 @@ void GBrokerGD::load_(const GObject *cp) {
 
 	// Load the parent classes' data ...
 	GSerialGD::load_(cp);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::load(p_load);
 
 	// ... and then our local data
 	maxResubmissions_ = p_load->maxResubmissions_;
-	broker_connector_.load(&(p_load->broker_connector_));
 }
 
 /************************************************************************************************************/
@@ -254,6 +253,40 @@ void GBrokerGD::finalize() {
 
 /************************************************************************************************************/
 /**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ * @param showOrigin Makes the function indicate the origin of parameters in comments
+ */
+void GBrokerGD::addConfigurationOptions (
+	Gem::Common::GParserBuilder& gpb
+	, const bool& showOrigin
+) {
+	std::string comment;
+
+	// add local data
+	comment = ""; // Reset the comment string
+	comment += "The maximum number of allowed re-submissions in an iteration;";
+	if(showOrigin) comment += "[GBrokerGD]";
+	gpb.registerFileParameter<std::size_t>(
+		"maxResubmissions" // The name of the variable
+		, DEFAULTMAXGDRESUBMISSIONS // The default value
+		, boost::bind(
+			&GBrokerGD::setMaxResubmissions
+			, this
+			, _1
+		)
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+
+	// Call our parent class'es function
+	GSerialGD::addConfigurationOptions(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+}
+
+/************************************************************************************************************/
+/**
  * Triggers fitness calculation of a number of individuals. This function performs the same task as done
  * in GSerialGD, albeit by delegating work to the broker. Items are evaluated up to a maximum position
  * in the vector. Note that we always start the evaluation with the first item in the vector.
@@ -301,7 +334,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
-	complete = broker_connector_.workOnSubmissionOnly(
+	complete = Gem::Courtier::GBrokerConnectorT<GIndividual>::workOnSubmissionOnly(
 			data
 			, 0
 			, finalPos
