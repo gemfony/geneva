@@ -49,7 +49,7 @@
 #include "common/GExceptions.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
-#include "geneva/GSerialSwarm.hpp"
+#include "geneva/GBaseSwarm.hpp"
 
 namespace Gem
 {
@@ -62,7 +62,7 @@ namespace Geneva
  * tasks to remote clients, using Geneva's broker infrastructure.
  */
 class GBrokerSwarm
-  : public GSerialSwarm
+  : public GBaseSwarm
   , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ class GBrokerSwarm
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSerialSwarm)
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSwarm)
 		   & make_nvp("GBrokerConnectorT_GIndividual", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////

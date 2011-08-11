@@ -63,6 +63,7 @@
 #include <geneva/GBaseGD.hpp>
 #include <geneva/GMultiThreadedGD.hpp>
 #include <geneva/GBrokerGD.hpp>
+#include <geneva/GBaseSwarm.hpp>
 #include <geneva/GSerialSwarm.hpp>
 #include <geneva/GMultiThreadedSwarm.hpp>
 #include <geneva/GBrokerSwarm.hpp>

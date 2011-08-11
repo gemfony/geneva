@@ -4,6 +4,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GAdaptorT.hpp
 	GBaseEA.hpp
 	GBaseGD.hpp
+	GBaseSwarm.hpp
 	GBooleanAdaptor.hpp
 	GBooleanCollection.hpp
 	GBooleanObject.hpp

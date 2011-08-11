@@ -291,9 +291,9 @@ Go::Go(const Go& cp)
 {
 	//--------------------------------------------
 	// Copy the optimization monitors over (if any)
-	copyGenevaSmartPointer<GSerialEA::GEAOptimizationMonitor>(cp.ea_om_ptr_, ea_om_ptr_);
-	copyGenevaSmartPointer<GSerialSwarm::GSwarmOptimizationMonitor>(cp.swarm_om_ptr_, swarm_om_ptr_);
-	copyGenevaSmartPointer<GSerialGD::GGDOptimizationMonitor>(cp.gd_om_ptr_, gd_om_ptr_);
+	copyGenevaSmartPointer<GBaseEA::GEAOptimizationMonitor>(cp.ea_om_ptr_, ea_om_ptr_);
+	copyGenevaSmartPointer<GBaseSwarm::GSwarmOptimizationMonitor>(cp.swarm_om_ptr_, swarm_om_ptr_);
+	copyGenevaSmartPointer<GBaseGD::GGDOptimizationMonitor>(cp.gd_om_ptr_, gd_om_ptr_);
 
 	// Copy the best individual over (if any)
 	copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
@@ -453,9 +453,9 @@ void Go::load_(const GObject *cp) {
 	configFilename_ = p_load->configFilename_;
 	verbose_ = p_load->verbose_;
 
-	copyGenevaSmartPointer<GSerialEA::GEAOptimizationMonitor>(p_load->ea_om_ptr_, ea_om_ptr_);
-	copyGenevaSmartPointer<GSerialSwarm::GSwarmOptimizationMonitor>(p_load->swarm_om_ptr_, swarm_om_ptr_);
-	copyGenevaSmartPointer<GSerialGD::GGDOptimizationMonitor>(p_load->gd_om_ptr_, gd_om_ptr_);
+	copyGenevaSmartPointer<GBaseEA::GEAOptimizationMonitor>(p_load->ea_om_ptr_, ea_om_ptr_);
+	copyGenevaSmartPointer<GBaseSwarm::GSwarmOptimizationMonitor>(p_load->swarm_om_ptr_, swarm_om_ptr_);
+	copyGenevaSmartPointer<GBaseGD::GGDOptimizationMonitor>(p_load->gd_om_ptr_, gd_om_ptr_);
 
 	copyBestOnly_ = p_load->copyBestOnly_;
 	maxStalledDataTransfers_ = p_load->maxStalledDataTransfers_;
@@ -527,7 +527,7 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseEA::GEAOptimizationM
  *
  * @param swarm_om_ptr A pointer to an optimization monitor specific for swarm algorithms
  */
-void Go::registerOptimizationMonitor(boost::shared_ptr<GSerialSwarm::GSwarmOptimizationMonitor> swarm_om_ptr) {
+void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseSwarm::GSwarmOptimizationMonitor> swarm_om_ptr) {
 	if(!swarm_om_ptr) {
 		raiseException(
 				"In Go::registerOptimizationMonitor():" << std::endl
@@ -535,7 +535,7 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GSerialSwarm::GSwarmOptim
 		);
 	}
 
-	swarm_om_ptr_ = swarm_om_ptr->clone<GSerialSwarm::GSwarmOptimizationMonitor>();
+	swarm_om_ptr_ = swarm_om_ptr->clone<GBaseSwarm::GSwarmOptimizationMonitor>();
 }
 
 /**************************************************************************************/

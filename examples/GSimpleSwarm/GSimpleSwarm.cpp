@@ -167,7 +167,7 @@ int main(int argc, char **argv){
 	// We can now start creating populations. We refer to them through the base class
 
 	// This smart pointer will hold the different population types
-	boost::shared_ptr<GSerialSwarm> pop_ptr;
+	boost::shared_ptr<GBaseSwarm> pop_ptr;
 
 	// Create the actual populations
 	switch (parallelizationMode) {

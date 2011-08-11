@@ -57,6 +57,7 @@
 #include "geneva/GSerialEA.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GBrokerEA.hpp"
+#include "geneva/GBaseSwarm.hpp"
 #include "geneva/GSerialSwarm.hpp"
 #include "geneva/GMultiThreadedSwarm.hpp"
 #include "geneva/GBrokerSwarm.hpp"
@@ -221,7 +222,7 @@ public:
 	/** @brief Allows to specify an optimization monitor to be used with evolutionary algorithms */
 	void registerOptimizationMonitor(boost::shared_ptr<GBaseEA::GEAOptimizationMonitor>);
 	/** @brief Allows to specify an optimization monitor to be used with swarm algorithms */
-	void registerOptimizationMonitor(boost::shared_ptr<GSerialSwarm::GSwarmOptimizationMonitor>);
+	void registerOptimizationMonitor(boost::shared_ptr<GBaseSwarm::GSwarmOptimizationMonitor>);
 	/** @brief Allows to specify an optimization monitor to be used with gradient descents */
 	void registerOptimizationMonitor(boost::shared_ptr<GBaseGD::GGDOptimizationMonitor>);
 
@@ -742,7 +743,7 @@ private:
 	template <typename ind_type>
 	boost::shared_ptr<ind_type> swarmOptimize(const boost::uint32_t& offset = 0) {
 		// This smart pointer will hold the different types of evolutionary algorithms
-		boost::shared_ptr<GSerialSwarm> swarm_ptr;
+		boost::shared_ptr<GBaseSwarm> swarm_ptr;
 
 		switch(parMode_) {
 		//----------------------------------------------------------------------------------
@@ -995,7 +996,7 @@ private:
 	bool verbose_; ///< Whether additional information should be emitted, e.g. when parsing configuration files
 
 	boost::shared_ptr<GBaseEA::GEAOptimizationMonitor> ea_om_ptr_; ///< Holds a specific optimization monitor used for evolutionary algorithms
-	boost::shared_ptr<GSerialSwarm::GSwarmOptimizationMonitor> swarm_om_ptr_; ///< Holds a specific optimization monitor used for swarm algorithms
+	boost::shared_ptr<GBaseSwarm::GSwarmOptimizationMonitor> swarm_om_ptr_; ///< Holds a specific optimization monitor used for swarm algorithms
 	boost::shared_ptr<GBaseGD::GGDOptimizationMonitor> gd_om_ptr_; ///< Holds a specific optimization monitor used for gradient descents
 
 	//----------------------------------------------------------------------------------------------------------------

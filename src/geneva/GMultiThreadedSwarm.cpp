@@ -47,7 +47,7 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(
 		const std::size_t& nNeighborhoods
 		, const std::size_t& nNeighborhoodMembers
 )
-   : GSerialSwarm(nNeighborhoods, nNeighborhoodMembers)
+   : GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
    , nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM)))
    , tp_(nThreads_)
 { /* nothing */ }
@@ -59,7 +59,7 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(
  * @param cp Reference to another GMultiThreadedEA object
  */
 GMultiThreadedSwarm::GMultiThreadedSwarm(const GMultiThreadedSwarm& cp)
-   : GSerialSwarm(cp)
+   : GBaseSwarm(cp)
    , nThreads_(cp.nThreads_)
    , tp_(nThreads_) // Make sure we initialize the threadpool appropriately
 { /* nothing */ }
@@ -97,7 +97,7 @@ void GMultiThreadedSwarm::load_(const GObject *cp) {
 	const GMultiThreadedSwarm *p_load = this->conversion_cast<GMultiThreadedSwarm>(cp);
 
 	// First load our parent class'es data ...
-	GSerialSwarm::load_(cp);
+	GBaseSwarm::load_(cp);
 
 	// ... and then our own
 	if(nThreads_ != p_load->nThreads_) {
@@ -163,7 +163,7 @@ boost::optional<std::string> GMultiThreadedSwarm::checkRelationshipWith(
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GSerialSwarm::checkRelationshipWith(cp, e, limit, "GMultiThreadedSwarm", y_name, withMessages));
+	deviations.push_back(GBaseSwarm::checkRelationshipWith(cp, e, limit, "GMultiThreadedSwarm", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GMultiThreadedSwarm", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
@@ -186,8 +186,8 @@ GObject *GMultiThreadedSwarm::clone_() const  {
  * Necessary initialization work before the start of the optimization
  */
 void GMultiThreadedSwarm::init() {
-	// GSerialSwarm sees exactly the environment it would when called from its own class
-	GSerialSwarm::init();
+	// GBaseSwarm sees exactly the environment it would when called from its own class
+	GBaseSwarm::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -221,8 +221,8 @@ void GMultiThreadedSwarm::finalize() {
 	}
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
-	// GSerialSwarm sees exactly the environment it would when called from its own class
-	GSerialSwarm::finalize();
+	// GBaseSwarm sees exactly the environment it would when called from its own class
+	GBaseSwarm::finalize();
 }
 
 /************************************************************************************************************/
@@ -256,7 +256,7 @@ void GMultiThreadedSwarm::addConfigurationOptions (
 	);
 
 	// Call our parent class'es function
-	GSerialSwarm::addConfigurationOptions(gpb, showOrigin);
+	GBaseSwarm::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -265,7 +265,7 @@ void GMultiThreadedSwarm::addConfigurationOptions (
  */
 void GMultiThreadedSwarm::updateFitness() {
 	std::size_t offset = 0;
-	GSerialSwarm::iterator start = this->begin();
+	GBaseSwarm::iterator start = this->begin();
 	boost::uint32_t iteration = getIteration();
 
 	// Then start the evaluation threads
@@ -335,7 +335,7 @@ bool GMultiThreadedSwarm::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GSerialSwarm::modify_GUnitTests()) result = true;
+	if(GBaseSwarm::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -346,7 +346,7 @@ bool GMultiThreadedSwarm::modify_GUnitTests() {
  */
 void GMultiThreadedSwarm::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GSerialSwarm::specificTestsNoFailureExpected_GUnitTests();
+	GBaseSwarm::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
@@ -355,7 +355,7 @@ void GMultiThreadedSwarm::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GMultiThreadedSwarm::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GSerialSwarm::specificTestsFailuresExpected_GUnitTests();
+	GBaseSwarm::specificTestsFailuresExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
