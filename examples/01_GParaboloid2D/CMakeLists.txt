@@ -4,7 +4,6 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
-INCLUDE("PCHSupport")
 
 # Check Geneva dirs
 IF(NOT DEFINED GENEVA_ROOT)
@@ -65,8 +64,6 @@ SET ( ${EXECUTABLENAME}_SRCS
 SET ( CONFIGFILE
 	GParaboloid2D.cfg
 )
-
-ADD_PCH_RULE( GParaboloidIndividual2D.hpp ${EXECUTABLENAME}_SRCS )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}

@@ -51,7 +51,6 @@ if [ $# -eq 0 ]; then
 	BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
 	BUILDMODE="Release"                       # Release or Debug
 	BUILDTESTCODE="0"                         # Whether to build Geneva with testing code
-	BUILDPCH="0"                              # Whether to use pre-compiled headers if possible
 	VERBOSEMAKEFILE="0"                       # Whether compilation information should be emitted
 	INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
 elif [ $# -eq 1 ]; then
@@ -111,12 +110,6 @@ if [ ! "${BUILDTESTCODE}" = "0" -a ! "${BUILDTESTCODE}" = "1" ]; then
 	exit
 fi
 
-if [ ! "${BUILDPCH}" = "0" -a ! "${BUILDPCH}" = "1" ]; then
-	echo "Error: Variable BUILDPCH must be 0 or 1. Got ${BUILDPCH}"
-	echo "Leaving"
-	exit
-fi
-
 if [ ! "${VERBOSEMAKEFILE}" = "0" -a ! "${VERBOSEMAKEFILE}" = "1" ]; then
 	echo "Error: Variable VERBOSEMAKEFILE must be 0 or 1. Got ${VERBOSEMAKEFILE}"
 	echo "Leaving"
@@ -136,7 +129,7 @@ fi
 
 ####################################################################
 # Do the actual call to cmake
-CONFIGURE="${CMAKE} -DBoost_NO_SYSTEM_PATHS=1 -DBOOST_ROOT=${BOOSTROOT} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DGENEVA_BUILD_TYPE=${BUILDMODE} -DBUILDTESTCODE=${BUILDTESTCODE} -DBUILDPCH=${BUILDPCH} -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
+CONFIGURE="${CMAKE} -DBoost_NO_SYSTEM_PATHS=1 -DBOOST_ROOT=${BOOSTROOT} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DGENEVA_BUILD_TYPE=${BUILDMODE} -DBUILDTESTCODE=${BUILDTESTCODE} -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
 
 if [ "x$CEXTRAFLAGS" != "x" ]; then
 	CONFIGURE="${CONFIGURE} ${CEXTRAFLAGS}"

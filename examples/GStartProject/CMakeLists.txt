@@ -4,7 +4,6 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
-INCLUDE("PCHSupport")
 
 # Check Geneva dirs
 IF(NOT DEFINED GENEVA_ROOT)
@@ -82,10 +81,6 @@ SET ( ${EXECUTABLENAME}_SRCS
 SET ( CONFIGFILE
 	GStartProject.cfg
 )
-
-ADD_PCH_RULE( GArgumentParser.hpp  ${EXECUTABLENAME}_SRCS )
-ADD_PCH_RULE( GInfoFunction.hpp    ${EXECUTABLENAME}_SRCS )
-ADD_PCH_RULE( GStartIndividual.hpp ${EXECUTABLENAME}_SRCS )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
