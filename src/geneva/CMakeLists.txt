@@ -24,6 +24,7 @@ SET ( OPTIMIZATIONSOURCES
 	GEAPersonalityTraits
 	Geneva
 	GEvaluator
+	# GEvolutionaryAlgorithm
 	GenevaHelperFunctionsT
 	GGDPersonalityTraits
 	GIndividual
@@ -36,6 +37,7 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedGD
 	GMultiThreadedSwarm
 	Go
+	# Go2
 	GObject
 	GOptimizationAlgorithmT
 	GOptimizationEnums

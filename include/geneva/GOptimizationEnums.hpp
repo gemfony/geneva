@@ -222,8 +222,13 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
 enum parMode {
 	SERIAL = 0
 	, MULTITHREADED = 1
-	, ASIONETWORKED = 2
+	, BROKERAGE = 2
 };
+
+/**
+ * The default parallelization mode of optimization algorithms
+ */
+const parMode DEFAULTPARALLELIZATIONMODE = MULTITHREADED;
 
 /**********************************************************************************************/
 /**

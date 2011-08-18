@@ -644,7 +644,7 @@ private:
 		break;
 
 		//----------------------------------------------------------------------------------
-		case ASIONETWORKED:
+		case BROKERAGE:
 		{
 			if(!consumerInitialized_) {
 				// Create a network consumer and enrol it with the broker
@@ -770,7 +770,7 @@ private:
 
 		//----------------------------------------------------------------------------------
 
-		case ASIONETWORKED:
+		case BROKERAGE:
 		{
 			if(!consumerInitialized_) {
 				// Create a network consumer and enrol it with the broker
@@ -899,7 +899,7 @@ private:
 		break;
 
 		//----------------------------------------------------------------------------------
-		case ASIONETWORKED:
+		case BROKERAGE:
 		{
 			if(!consumerInitialized_) {
 				// Create a network consumer and enrol it with the broker

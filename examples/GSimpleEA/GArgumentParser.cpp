@@ -56,7 +56,7 @@ bool parseCommandLine(
 		po::options_description desc("Usage: evaluator [options]");
 		desc.add_options()("help,h", "emit help message")("configFile,c",
 				po::value<std::string>(&configFile)->default_value(DEFAULTCONFIGFILE),
-				"The name of the configuration file holding further configuration options")("parallelizationMode,p", po::value<boost::uint16_t>(&parallelizationMode)->default_value(DEFAULTPARALLELIZATIONMODE),
+				"The name of the configuration file holding further configuration options")("parallelizationMode,p", po::value<boost::uint16_t>(&parallelizationMode)->default_value(DEFAULTPARALLELIZATIONMODEAP),
 				"Whether or not to run this optimization in serial mode (0), multi-threaded (1) or networked (2) mode")(
 				"serverMode,s",
 				"Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")(

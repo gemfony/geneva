@@ -59,7 +59,7 @@ bool parseCommandLine(
 				"The name of the configuration file holding further configuration options")(
 				"parallelizationMode,p",
 				po::value<boost::uint16_t>(&parallelizationMode)->default_value(
-						DEFAULTPARALLELIZATIONMODE),
+						DEFAULTPARALLELIZATIONMODEAP),
 				"Whether or not to run this optimization in serial mode (0), multi-threaded (1) or networked (2) mode")(
 				"serverMode,s",
 				"Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")(

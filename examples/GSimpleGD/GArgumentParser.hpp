@@ -81,7 +81,7 @@ namespace Gem
     const long DEFAULTMAXMINUTES=10;
     const boost::uint32_t DEFAULTREPORTITERATION=1;
     const bool DEFAULTVERBOSE=true;
-    const bool DEFAULTPARALLELIZATIONMODE=1;
+    const bool DEFAULTPARALLELIZATIONMODEAP=1;
     const std::size_t DEFAULTARRAYSIZE=1000;
     const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
     const unsigned short DEFAULTPORT=10000;

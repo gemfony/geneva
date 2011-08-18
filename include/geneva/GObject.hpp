@@ -64,6 +64,7 @@
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/limits.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/logic/tribool_io.hpp>
 #include <boost/mpl/assert.hpp>
