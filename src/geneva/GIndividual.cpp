@@ -55,7 +55,7 @@ GIndividual::GIndividual()
 	, processingCycles_(1)
 	, maximize_(false)
 	, assignedIteration_(0)
-	, pers_(NONE)
+	, pers_(PERSONALITY_NONE)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -82,7 +82,7 @@ GIndividual::GIndividual(const GIndividual& cp)
 {
 	// We need to take care of the personality pointer manually
 	setPersonality(pers_); // this call will also make sure that a suitable personality object is being created
-	if(pers_ != NONE) pt_ptr_->GObject::load(cp.pt_ptr_);
+	if(pers_ != PERSONALITY_NONE) pt_ptr_->GObject::load(cp.pt_ptr_);
 }
 
 /************************************************************************************************************/
@@ -190,7 +190,7 @@ void GIndividual::load_(const GObject* cp) {
 	maximize_ = p_load->maximize_;
 	assignedIteration_ = p_load->assignedIteration_;
 	setPersonality(p_load->pers_);
-	if(pers_ != NONE) pt_ptr_->GObject::load(p_load->pt_ptr_);
+	if(pers_ != PERSONALITY_NONE) pt_ptr_->GObject::load(p_load->pt_ptr_);
 }
 
 /************************************************************************************************************/
@@ -599,7 +599,7 @@ personality GIndividual::setPersonality(const personality& pers) {
 
 	// Create suitable personality objects
 	switch(pers) {
-	case NONE:
+	case PERSONALITY_NONE:
 		pt_ptr_.reset();
 		break;
 
@@ -631,10 +631,10 @@ personality GIndividual::setPersonality(const personality& pers) {
 
 /************************************************************************************************************/
 /**
- * Resets the current personality to NONE
+ * Resets the current personality to PERSONALITY_NONE
  */
 void GIndividual::resetPersonality() {
-	setPersonality(NONE);
+	setPersonality(PERSONALITY_NONE);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1190,20 +1190,20 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		// Reset the personality type
 		BOOST_CHECK_NO_THROW(p_test->resetPersonality());
 		BOOST_CHECK_MESSAGE(
-				p_test->getPersonality() == NONE
+				p_test->getPersonality() == PERSONALITY_NONE
 				,  "\n"
 				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
-				<< "expected NONE\n"
+				<< "expected PERSONALITY_NONE\n"
 		);
 
 		// Set the personality type to EA
 		personality previous;
 		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(EA));
 		BOOST_CHECK_MESSAGE(
-				previous == NONE
+				previous == PERSONALITY_NONE
 				,  "\n"
 				<< "previous = " << previous << "\n"
-				<< "expected NONE"
+				<< "expected PERSONALITY_NONE"
 		);
 		BOOST_CHECK_MESSAGE(
 				p_test->getPersonality() == EA
@@ -1275,8 +1275,8 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_pt);
 		p_pt.reset();
 
-		// Set the personality type to NONE
-		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(NONE));
+		// Set the personality type to PERSONALITY_NONE
+		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_NONE));
 		BOOST_CHECK_MESSAGE(
 				previous == SWARM
 				,  "\n"
@@ -1284,10 +1284,10 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 				<< "expected SWARM"
 		);
 		BOOST_CHECK_MESSAGE(
-				p_test->getPersonality() == NONE
+				p_test->getPersonality() == PERSONALITY_NONE
 				,  "\n"
 				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
-				<< "expected NONE\n"
+				<< "expected PERSONALITY_NONE\n"
 		);
 	}
 
@@ -1311,7 +1311,7 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 	{ // Test that retrieval of an EA personality traits object from an uninitialized pointer throws in DEBUG mode
 		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
 
-		// Make sure the personality type is set to NONE
+		// Make sure the personality type is set to PERSONALITY_NONE
 		BOOST_CHECK_NO_THROW(p_test->resetPersonality());
 
 		// Trying to retrieve an EA personality object should throw
@@ -1340,7 +1340,7 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 	{ // Test that retrieval of a personality traits base object from an individual without personality throws
 		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
 
-		// Make sure the personality type is set to NONE
+		// Make sure the personality type is set to PERSONALITY_NONE
 		BOOST_CHECK_NO_THROW(p_test->resetPersonality());
 
 		// Trying to retrieve an EA personality object should throw

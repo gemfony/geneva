@@ -128,6 +128,9 @@ public:
 			, const bool&
 	) const;
 
+	/** @brief Returns information about the type of optimization algorithm */
+	virtual personality getOptimizationAlgorithm() const;
+
 	/** @brief Loads a checkpoint from disk */
 	virtual void loadCheckpoint(const std::string&);
 

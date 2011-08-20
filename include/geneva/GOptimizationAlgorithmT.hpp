@@ -81,6 +81,7 @@ private:
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
+
 	  ar & make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<ind_type> >(*this))
 	     & make_nvp("GOptimizableI", boost::serialization::base_object<GOptimizableI>(*this))
 	     & BOOST_SERIALIZATION_NVP(iteration_)
@@ -101,7 +102,6 @@ private:
 	     & BOOST_SERIALIZATION_NVP(maxDuration_)
 	     & BOOST_SERIALIZATION_NVP(emitTerminationReason_)
 	     & BOOST_SERIALIZATION_NVP(halted_)
-	     & BOOST_SERIALIZATION_NVP(optAlg_)
 	     & BOOST_SERIALIZATION_NVP(optimizationMonitor_ptr_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -131,7 +131,6 @@ public:
 		, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
 		, emitTerminationReason_(false)
 		, halted_(false)
-		, optAlg_(NONE)
 		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
 	{ /* nothing */ }
 
@@ -161,7 +160,6 @@ public:
 		, maxDuration_(cp.maxDuration_)
 		, emitTerminationReason_(cp.emitTerminationReason_)
 		, halted_(cp.halted_)
-		, optAlg_(cp.optAlg_)
 		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>())
 	{ /* nothing */ }
 
@@ -399,7 +397,6 @@ public:
 		EXPECTATIONCHECK(maxDuration_);
 		EXPECTATIONCHECK(emitTerminationReason_);
 		EXPECTATIONCHECK(halted_);
-		EXPECTATIONCHECK(optAlg_);
 		EXPECTATIONCHECK(optimizationMonitor_ptr_);
 
 		return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
@@ -416,7 +413,7 @@ public:
 	 */
 	virtual void optimize(const boost::uint32_t& offset) {
 		// Check that we are dealing with an "authorized" optimization algorithm
-		if(this->getOptimizationAlgorithm() == NONE) {
+		if(this->getOptimizationAlgorithm() == PERSONALITY_NONE) {
 			raiseException(
 					"In GOptimizationAlgorithmT<T>::optimize():" << std::endl
 					<< "The id of the optimization algorithm hasn't been set."
@@ -845,16 +842,6 @@ public:
 
 	/**************************************************************************************/
 	/**
-	 * Allows to retrieve information about the optimization algorithm currently being used
-	 *
-	 * @return The id of the optimization algorithm currently being used
-	 */
-	personality getOptimizationAlgorithm() const {
-		return optAlg_;
-	}
-
-	/**************************************************************************************/
-	/**
 	 * Gives access to the current optimization monitor
 	 *
 	 * @return A boost::shared_ptr to the current optimization monitor
@@ -896,23 +883,12 @@ protected:
 		maxDuration_ = p_load->maxDuration_;
 		emitTerminationReason_ = p_load->emitTerminationReason_;
 		halted_ = p_load->halted_;
-		optAlg_ = p_load->optAlg_;
 		this->optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 	}
 
 	/**************************************************************************************/
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
-
-	/**************************************************************************************/
-	/**
-	 * This function allows derived classes to set the id of the algorithm being used
-	 *
-	 * @param optAlg The id of the optimization algorithm being used.
-	 */
-	void setOptimizationAlgorithm(const personality& optAlg) {
-		optAlg_ = optAlg;
-	}
 
 	/**************************************************************************************/
 	/** @brief Allows derived classes to set the personality type of the individuals */
@@ -1491,7 +1467,6 @@ private:
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_; ///< Set to true when halt() has returned "true"
-	personality optAlg_; ///< Allows to identify the actual optimization algorithm built on top of this class
 	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 
 #ifdef GENEVATESTING

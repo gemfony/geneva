@@ -897,7 +897,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 	{ // Check that the process function throws if no personality has been assigned
 		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
 
-		// Reset the personality (sets it to NONE)
+		// Reset the personality (sets it to PERSONALITY_NONE)
 		BOOST_CHECK_NO_THROW(p_test->resetPersonality());
 
 		// Calling the process function should throw when no personality has been assigned

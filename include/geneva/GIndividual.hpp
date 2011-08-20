@@ -249,7 +249,7 @@ public:
 
 	/** @brief Sets the current personality of this individual */
 	personality setPersonality(const personality&);
-	/** @brief Resets the current personality to NONE */
+	/** @brief Resets the current personality to PERSONALITY_NONE */
 	void resetPersonality();
 
 	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */

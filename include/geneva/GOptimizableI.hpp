@@ -85,6 +85,22 @@ public:
 		optimize(0);
 	}
 
+	/**************************************************************************************/
+	/**
+	 * Starts the optimization cycle and returns the best individual found, converted to
+	 * the desired target type.
+	 *
+	 * @param offset An offset for the iteration counter
+	 * @return The best individual found during the optimization process, converted to the desired type
+	 */
+	template <typename individual_type>
+	boost::shared_ptr<individual_type> optimize(
+			const boost::uint32_t& offset = 0
+	) {
+		this->optimize(offset);
+		return this->getBestIndividual<individual_type>();
+	}
+
 	/**********************************************************************************/
 	/**
 	 * Retrieves the best individual and converts it to a given target type. Note that
@@ -98,6 +114,17 @@ public:
 		typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
 	) {
 		return getBestIndividual()->clone<individual_type>();
+	}
+
+	/**********************************************************************************/
+	/**
+	 * Returns information about the type of optimization algorithm. This function needs
+	 * to be overloaded by the actual algorithms to return the correct type.
+	 *
+	 * @return The type of optimization algorithm
+	 */
+	virtual personality getOptimizationAlgorithm() const {
+		return PERSONALITY_NONE;
 	}
 
 protected:

@@ -33,10 +33,8 @@
  */
 
 // Standard header files go here
-#include <vector>
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 
 #ifndef GO2_HPP_
 #define GO2_HPP_
@@ -48,35 +46,88 @@
 
 
 // Geneva headers go here
-#include "geneva/GOptimizableI.hpp"
-#include "geneva/GMutableSetT.hpp"
-#include "geneva/GParameterSet.hpp"
-#include "geneva/GStdPtrVectorInterfaceT.hpp"
+#include "common/GExceptions.hpp"
+#include "hap/GRandomFactory.hpp"
+#include "hap/GRandomT.hpp"
+#include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GAsioTCPClientT.hpp"
-
-// TODO: Add all common Geneva headers here
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GBoostThreadConsumerT.hpp"
+#include "courtier/GBrokerT.hpp"
+#include "geneva/GBaseEA.hpp"
+#include "geneva/GBaseSwarm.hpp"
+#include "geneva/GBrokerEA.hpp"
+#include "geneva/GBrokerGD.hpp"
+#include "geneva/GBrokerSwarm.hpp"
+#include "geneva/GDoubleObject.hpp"
+#include "geneva/Geneva.hpp"
+#include "geneva/GenevaHelperFunctionsT.hpp"
+#include "geneva/GIndividual.hpp"
+#include "geneva/GMultiThreadedEA.hpp"
+#include "geneva/GMultiThreadedGD.hpp"
+#include "geneva/GMultiThreadedSwarm.hpp"
+#include "geneva/GMutableSetT.hpp"
+#include "geneva/GOptimizableI.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GParameterSet.hpp"
+#include "geneva/GSerialEA.hpp"
+#include "geneva/GSerialGD.hpp"
+#include "geneva/GSerialSwarm.hpp"
 
 namespace Gem {
 namespace Geneva {
 
 /**************************************************************************************/
+// Default values for the variables used by the optimizer
+const std::string GO2_DEF_DEFAULTCONFIGFILE="go2.cfg";
+const bool GO2_DEF_SERVERMODE=true;
+const parMode GO2_DEF_DEFAULPARALLELIZATIONMODE=MULTITHREADED;
+const Gem::Common::serializationMode GO2_DEF_SERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
+const std::string GO2_DEF_IP="localhost";
+const unsigned int GO2_DEF_PORT=10000;
+const bool GO2_DEF_DEFAULTVERBOSE=false;
+const bool GO2_DEF_COPYBESTONLY=true;
+const boost::uint16_t GO2_DEF_MAXSTALLED=0;
+const boost::uint16_t GO2_DEF_MAXCONNATT=100;
+const bool GO2_DEF_RETURNREGARDLESS=true;
+const boost::uint16_t GO2_DEF_NPRODUCERTHREADS=0;
+const std::size_t GO2_DEF_ARRAYSIZE=1000;
+const boost::uint32_t GO2_DEF_OFFSET=0;
+const bool GO2_DEF_CONSUMERINITIALIZED=false;
+
+/**************************************************************************************/
 /**
- * This class allows to aggregate different optimization algorithms and to treat
- * all execution modes (multi-threaded, networked, ...) alike.
+ * This class allows to "chain" a number of optimization algorithms so that a given
+ * set of individuals can be optimized using more than one algorithm in sequence. The
+ * class also hides the details of client/server mode, consumer initialization, etc.
  */
-template <typename ind_type = GParameterSet>
 class Go2
-	: public GMutableSetT<ind_type>
+	: public GMutableSetT<GParameterSet>
+	, public GOptimizableI
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GMutableSetT_GParameterSet", boost::serialization::base_object<GMutableSetT<GParameterSet> >(*this));
-		 // & BOOST_SERIALIZATION_NVP(pers_);
+	  ar & make_nvp("GMutableSetT_GParameterSet", boost::serialization::base_object<GMutableSetT<GParameterSet> >(*this))
+	     & BOOST_SERIALIZATION_NVP(serverMode_)
+	     & BOOST_SERIALIZATION_NVP(serializationMode_)
+	     & BOOST_SERIALIZATION_NVP(ip_)
+	     & BOOST_SERIALIZATION_NVP(port_)
+	     & BOOST_SERIALIZATION_NVP(configFilename_)
+	     & BOOST_SERIALIZATION_NVP(verbose_)
+	     & BOOST_SERIALIZATION_NVP(copyBestOnly_)
+	     & BOOST_SERIALIZATION_NVP(maxStalledDataTransfers_)
+	     & BOOST_SERIALIZATION_NVP(maxConnectionAttempts_)
+	     & BOOST_SERIALIZATION_NVP(returnRegardless_)
+	     & BOOST_SERIALIZATION_NVP(nProducerThreads_)
+	     & BOOST_SERIALIZATION_NVP(arraySize_)
+	     & BOOST_SERIALIZATION_NVP(offset_)
+	     & BOOST_SERIALIZATION_NVP(bestIndividual_)
+	     & BOOST_SERIALIZATION_NVP(algorithms_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -87,9 +138,7 @@ public:
 	Go2(int, char **, const std::string& = GO2_DEF_DEFAULTCONFIGFILE);
 	/** @brief A constructor that is given the usual command line parameters, then loads the rest of the data from a config file */
 	Go2(
-		const personality& pers
-		, const parMode&
-		, const bool&
+		const bool&
 		, const Gem::Common::serializationMode&
 		, const std::string&
 		, const unsigned short&
@@ -105,9 +154,9 @@ public:
 	/** @brief Standard assignment operator */
 	const Go2& operator=(const Go2&);
 
-	/** @brief Checks for equality with another Go object */
+	/** @brief Checks for equality with another Go2 object */
 	bool operator==(const Go2&) const;
-	/** @brief Checks for inequality with another Go object */
+	/** @brief Checks for inequality with another Go2 object */
 	bool operator!=(const Go2&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
@@ -129,7 +178,7 @@ public:
 	bool clientMode() const;
 
 	/* @brief Specifies whether only the best individuals of a population should be copied */
-	void setCopyBestIndividualsOnly(bool);
+	void setCopyBestIndividualsOnly(const bool&);
 	/** @brief Checks whether only the best individuals are copied */
 	bool onlyBestIndividualsAreCopied() const;
 
@@ -138,81 +187,114 @@ public:
 	/** @brief Triggers fitness calculation (i.e. optimization) for this object */
 	virtual double fitnessCalculation();
 
-	/** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
-	void parseCommandLine(int, char **);
-
-	/** @brief Adds a solver to the chain of algorithms */
-	void addSolver(boost::shared_ptr<GOptimizableI>);
-	/** @brief Adds a solver to the chain of algorithms */
+	/** @brief Allows to add an optimization algorithm to the chain */
+	void addAlgorithm(boost::shared_ptr<GOptimizableI>);
+	/** @brief Makes it easier to add algorithms */
 	Go2& operator+=(boost::shared_ptr<GOptimizableI>);
 
-	/** @brief Start the optimization cycle and retrieve the best solution */
-	boost::shared_ptr<ind_type> optimize();
+	/** @brief Perform the actual optimization cycle */
+	virtual void optimize(const boost::uint32_t& = 0);
+	/** @brief Retrieves the best individual found */
+	virtual boost::shared_ptr<GIndividual> getBestIndividual();
 
+	/**************************************************************************************/
+	// The following is a trivial list of getters and setters
 	void setServerMode(const bool&);
 	bool getServerMode() const;
 
-	void setMaxStalledDataTransfers(boost::uint32_t);
+	void setSerializationMode(const Gem::Common::serializationMode&);
+	Gem::Common::serializationMode getSerializationMode() const;
+
+	void setServerIp(const std::string&);
+	std::string getServerIp() const;
+
+	void setServerPort(const unsigned short&);
+	unsigned short getServerPort() const;
+
+	void setConfigFileName(const std::string&);
+	std::string getConfigFileName() const;
+
+	void setVerbosity(const bool&);
+	bool getVerbosity() const;
+
+	void setMaxStalledDataTransfers(const boost::uint32_t&);
 	boost::uint32_t getMaxStalledDataTransfers() const;
 
-	void setMaxConnectionAttempts(boost::uint32_t);
+	void setMaxConnectionAttempts(const boost::uint32_t&);
 	boost::uint32_t getMaxConnectionAttempts() const;
 
-	void setReturnRegardless(bool);
+	void setReturnRegardless(const bool&);
 	bool getReturnRegardless() const;
 
-	void setNProducerThreads(boost::uint16_t);
+	void setNProducerThreads(const boost::uint16_t&);
 	boost::uint16_t getNProducerThreads() const;
 
-	void setNEvaluationThreads(boost::uint16_t);
-	boost::uint16_t getNEvaluationThreads() const;
+	void setArraySize(const std::size_t&);
+	std::size_t getArraySize() const;
+
+	void setOffset(const boost::uint32_t&);
+	boost::uint32_t getOffset() const;
+
+	/**************************************************************************************/
+	/** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
+	void parseCommandLine(int, char **);
 
 	/************************************************************************************/
 	/**
-	 * Initialization code for the Geneva library collection. Most notably, we enforce
-	 * the initialization of various singletons needed for Geneva.
+	 * Initialization code for the Geneva library collection.
 	 */
 	static void init() {
-		GRANDOMFACTORY->init();
-		GBROKER(Gem::Geneva::GIndividual)->init();
+		Geneva::init();
 	}
 
 	/************************************************************************************/
 	/**
-	 * Finalization code for the Geneva library collection. Most notably, we enforce
-	 * shutdown of various singleton services needed for Geneva. Note that we shut down
-	 * in reverse order to the startup procedure.
+	 * Finalization code for the Geneva library collection.
 	 */
 	static void finalize() {
-		GBROKER(Gem::Geneva::GIndividual)->finalize();
-		RESETGBROKER(Gem::Geneva::GIndividual);
-
-		GRANDOMFACTORY->finalize();
-		RESETGRANDOMFACTORY;
-
-#ifdef FORCETERMINATION // Defined in GGlobalDefines.hpp.in
-		std::set_terminate(GTerminate);
-		std::terminate();
-#endif /* FORCETERMINATION */
+		Geneva::finalize();
 	}
 
 	/************************************************************************************/
 
 protected:
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+	/** @brief Loads the data of another Go2 object */
+	virtual void load_(const GObject *);
+	/** @brief Creates a deep clone of this object */
+	virtual GObject *clone_() const;
 
 private:
-	std::vector<boost::shared_ptr<GOptimizableI> > algorithms_; ///< Holds pointers to the actual optimization algorithms
-
+	/**********************************************************************/
+	// These parameters can enter the object through the constructor
 	bool serverMode_; ///< Specifies whether this object is in server (true) or client (false) mode
+	Gem::Common::serializationMode serializationMode_; ///< Indicates whether serialization should be done in Text, XML or Binary form
+    std::string ip_; ///< Where the server can be reached
+    unsigned short port_; ///< The port on which the server answers
+	std::string configFilename_; ///< Indicates where the configuration file is stored
+	bool verbose_; ///< Whether additional information should be emitted, e.g. when parsing configuration files
 
-	boost::uint32_t maxStalledDataTransfers_; ///< Specifies how often a client may try to unsuccessfully retrieve data from the server (0 means endless)
-	boost::uint32_t maxConnectionAttempts_; ///< Specifies how often a client may try to connect unsuccessfully to the server (0 means endless)
-	bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
+	//----------------------------------------------------------------------------------------------------------------
+	// These parameters can be read from a configuration file
 
-	boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
-    boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multi-threaded execution
+	// Steering parameters of the optimizer
+	bool copyBestOnly_;
+
+	// General parameters
+    boost::uint32_t maxStalledDataTransfers_; ///< Specifies how often a client may try to unsuccessfully retrieve data from the server (0 means endless)
+    boost::uint32_t maxConnectionAttempts_; ///< Specifies how often a client may try to connect unsuccessfully to the server (0 means endless)
+    bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
+    boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
+    std::size_t arraySize_; ///< The size of the random number packages being transferred to the proxy RNGs
+    boost::uint32_t offset_; ///< The offset to be used when starting a new optimization run
+    boost::uint32_t iterationsConsumed_; ///< The number of successive iterations performed by this object so far
+    bool consumerInitialized_; ///< Determines whether a consumer has already been started. Note that this variable will not be serialized
+
+    //----------------------------------------------------------------------------------------------------------------
+    boost::shared_ptr<GParameterSet> bestIndividual_; ///< The best individual found during an optimization
+
+    //----------------------------------------------------------------------------------------------------------------
+    // The list of "chained" optimization algorithms
+    std::vector<boost::shared_ptr<GOmtimizableI> > algorithms_;
 };
 
 /**************************************************************************************/

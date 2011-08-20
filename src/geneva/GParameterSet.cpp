@@ -189,7 +189,7 @@ double GParameterSet::fitnessCalculation() {
  */
 bool GParameterSet::updateOnStall() {
 	switch (getPersonality()) {
-	case NONE:
+	case PERSONALITY_NONE:
 	case GD:
 	case SWARM:
 		break;

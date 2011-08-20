@@ -60,8 +60,6 @@ GBaseEA::GBaseEA()
 	, alpha_(SA_ALPHA)
 	, logOldParents_(DEFAULTMARKOLDPARENTS)
 {
-	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::setOptimizationAlgorithm(EA);
-
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
 			boost::shared_ptr<GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT>(
@@ -232,6 +230,17 @@ boost::optional<std::string> GBaseEA::checkRelationshipWith(const GObject& cp,
 	deviations.push_back(checkExpectation(withMessages, "GBaseEA", oldParents_, p_load->oldParents_, "oldParents_", "p_load->oldParents_", e , limit));
 
 	return evaluateDiscrepancies("GBaseEA", caller, deviations, e);
+}
+
+/************************************************************************************************************/
+/**
+ * Returns information about the type of optimization algorithm. This function needs
+ * to be overloaded by the actual algorithms to return the correct type.
+ *
+ * @return The type of optimization algorithm
+ */
+personality GBaseEA::getOptimizationAlgorithm() const {
+	return EA;
 }
 
 /************************************************************************************************************/

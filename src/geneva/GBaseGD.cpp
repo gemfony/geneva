@@ -50,8 +50,6 @@ GBaseGD::GBaseGD()
 	, finiteStep_(DEFAULTFINITESTEP)
 	, stepSize_(DEFAULTSTEPSIZE)
 {
-	GOptimizationAlgorithmT<GParameterSet>::setOptimizationAlgorithm(GD);
-
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
 			boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
@@ -79,8 +77,6 @@ GBaseGD::GBaseGD(
 	, finiteStep_(finiteStep)
 	, stepSize_(stepSize)
 {
-	GOptimizationAlgorithmT<GParameterSet>::setOptimizationAlgorithm(GD);
-
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
 			boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
@@ -112,6 +108,17 @@ GBaseGD::GBaseGD(const GBaseGD& cp)
  */
 GBaseGD::~GBaseGD()
 { /* nothing */ }
+
+/************************************************************************************************************/
+/**
+ * Returns information about the type of optimization algorithm. This function needs
+ * to be overloaded by the actual algorithms to return the correct type.
+ *
+ * @return The type of optimization algorithm
+ */
+personality GBaseGD::getOptimizationAlgorithm() const {
+	return GD;
+}
 
 /************************************************************************************************************/
 /**

@@ -151,7 +151,6 @@ class Go
 	     & BOOST_SERIALIZATION_NVP(nProducerThreads_)
 	     & BOOST_SERIALIZATION_NVP(arraySize_)
 	     & BOOST_SERIALIZATION_NVP(nEvaluationThreads_)
-	     & BOOST_SERIALIZATION_NVP(serializationMode_)
 	     & BOOST_SERIALIZATION_NVP(nProcessingUnits_)
 	     & BOOST_SERIALIZATION_NVP(maxIterations_)
 	     & BOOST_SERIALIZATION_NVP(maxStallIteration_)
@@ -422,7 +421,7 @@ public:
 			result = gdOptimize<ind_type>(offset);
 			break;
 
-		case NONE:
+		case PERSONALITY_NONE:
 			{
 				raiseException(
 						"In Go::optimize():" << std::endl

@@ -108,9 +108,6 @@ public:
 	/** @brief Checks for inequality with another GBaseGD object */
 	bool operator!=(const GBaseGD&) const;
 
-	/** @brief Sets the individual's personality types to GradientDescent */
-	void setIndividualPersonalities();
-
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
 			const GObject&
@@ -121,7 +118,14 @@ public:
 			, const bool&
 	) const;
 
+	/** @brief Loads a checkpoint */
 	virtual void loadCheckpoint(const std::string&);
+
+	/** @brief Returns information about the type of optimization algorithm */
+	virtual personality getOptimizationAlgorithm() const;
+
+	/** @brief Sets the individual's personality types to GradientDescent */
+	void setIndividualPersonalities();
 
 	/** @brief Retrieves the number of starting points of the algorithm */
 	std::size_t getNStartingPoints() const;

@@ -24,7 +24,6 @@ SET ( OPTIMIZATIONSOURCES
 	GEAPersonalityTraits
 	Geneva
 	GEvaluator
-	# GEvolutionaryAlgorithm
 	GenevaHelperFunctionsT
 	GGDPersonalityTraits
 	GIndividual

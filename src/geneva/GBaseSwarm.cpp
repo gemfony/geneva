@@ -72,7 +72,6 @@ GBaseSwarm::GBaseSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNe
 	, dblVelVecMax_()
 	, velocityRangePercentage_(DEFAULTVELOCITYRANGEPERCENTAGE)
 {
-	GOptimizationAlgorithmT<GParameterSet>::setOptimizationAlgorithm(SWARM);
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
 	// Initialize the number of neighborhood members with 0. adjustPopulation() will later take care to fill the
@@ -137,6 +136,18 @@ GBaseSwarm::GBaseSwarm(const GBaseSwarm& cp)
  */
 GBaseSwarm::~GBaseSwarm()
 { /* nothing */ }
+
+/************************************************************************************************************/
+/**
+ * Returns information about the type of optimization algorithm. This function needs
+ * to be overloaded by the actual algorithms to return the correct type.
+ *
+ * @return The type of optimization algorithm
+ */
+personality GBaseSwarm::getOptimizationAlgorithm() const {
+	return SWARM;
+}
+
 
 /************************************************************************************************************/
 /**

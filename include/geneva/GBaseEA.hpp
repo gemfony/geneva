@@ -157,6 +157,9 @@ public:
 	/** @brief Retrieves the defaultNChildren_ parameter */
 	std::size_t getDefaultNChildren() const;
 
+	/** @brief Returns information about the type of optimization algorithm */
+	virtual personality getOptimizationAlgorithm() const;
+
 	/** @brief Set the sorting scheme for this population */
 	void setSortingScheme(sortingMode);
 	/** @brief Retrieve the current sorting scheme for this population */

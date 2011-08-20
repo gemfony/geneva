@@ -296,7 +296,7 @@ const double SA_ALPHA = 0.95; ///< The degradation strength in simulated anneali
  * in them (see the GPersonalityTraits classes).
  */
 enum personality {
-	  NONE = 0
+	  PERSONALITY_NONE = 0
 	, EA = 1
 	, GD = 2
 	, SWARM = 3
