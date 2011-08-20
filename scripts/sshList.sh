@@ -29,21 +29,21 @@
 # http://www.gemfony.com .
 #
 ####################################################################
-# This script will use the ssh program to execute a given command 
-# on all hosts specified in a file. Note that it may be useful to use 
-# ssh-agent or to avoid specifying a passphrase during key generation 
-# in order not having to enter the passphrase for each ssh call. You 
+# This script will use the ssh program to execute a given command
+# on all hosts specified in a file. Note that it may be useful to use
+# ssh-agent to avoid specifying a passphrase during key generation
+# in order not having to enter the passphrase for each ssh call. You
 # can call this script like this:
 # ./sshList.sh -p 24 -l myUserName ./myHostFile.hcfg myCommand
 # The host file should list one name of a remote host per line. Its
-# extension MUST be ".hcfg". "myCommand" may itself be a command with 
-# arguments. The script will stop execution when one of the ssh calls 
+# extension MUST be ".hcfg". "myCommand" may itself be a command with
+# arguments. The script will stop execution when one of the ssh calls
 # fails.
 ####################################################################
 # !/bin/bash
 #
 
-# Check that the number of command line options is at least two 
+# Check that the number of command line options is at least two
 # (the name of the hosts file and the command to be executed remotely).
 if [ $# -lt 2 ]; then
 	echo "Usage: ./sshList.sh <optional ssh options> <hostFile.hcfg> <command>"
@@ -67,7 +67,7 @@ for copt in $@; do
 done
 
 if [ ${hostFileFound} -eq 0 ]; then
-    echo "Error: You need to speficy the name of a file with host names"
+    echo "Error: You need to specify the name of a file with host names"
     echo "ending in .hcfg . Leaving now ..."
     exit
 fi
