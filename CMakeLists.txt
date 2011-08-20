@@ -29,17 +29,24 @@ ENDIF()
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
-# Set the build type to Debug by default or in case GENEVA_BUILD_TYPE
-# was set to Debug. Set it to Release if GENEVA_BUILD_TYPE was set
-# accordingly. Complain in all other cases.
-IF(NOT DEFINED GENEVA_BUILD_TYPE OR GENEVA_BUILD_TYPE STREQUAL "Debug")
+# Set the build type according to the GENEVA_BUILD_TYPE value, if defined.
+# Otherwise use CMAKE_BUILD_TYPE if defined, or use build type 'Debug'
+# as default.
+IF(DEFINED GENEVA_BUILD_TYPE)
+	IF(GENEVA_BUILD_TYPE STREQUAL "Debug")
+		MESSAGE ("Setting the build type to Debug")
+		SET(CMAKE_BUILD_TYPE Debug)
+	ELSEIF(GENEVA_BUILD_TYPE STREQUAL "Release")
+		MESSAGE ("Setting the build type to Release")
+		SET(CMAKE_BUILD_TYPE Release)
+	ELSE()
+		MESSAGE (FATAL_ERROR "Unknown compilation mode " ${GENEVA_BUILD_TYPE})
+	ENDIF()
+ELSEIF(DEFINED CMAKE_BUILD_TYPE AND NOT CMAKE_BUILD_TYPE STREQUAL "")
+	MESSAGE ("Using provided value of CMAKE_BUILD_TYPE=" ${CMAKE_BUILD_TYPE})
+ELSE()
 	MESSAGE ("Setting the build type to default value Debug")
 	SET(CMAKE_BUILD_TYPE Debug)
-ELSEIF(GENEVA_BUILD_TYPE STREQUAL "Release")
-	MESSAGE ("Setting the build type to Release")
-	SET(CMAKE_BUILD_TYPE Release)
-ELSE()
-	MESSAGE (FATAL_ERROR "Unknown compilation mode " ${GENEVA_BUILD_TYPE})
 ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
