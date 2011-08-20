@@ -29,6 +29,8 @@ ENDIF()
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
+MESSAGE ("")
+
 # Set the build type according to the GENEVA_BUILD_TYPE value, if defined.
 # Otherwise use CMAKE_BUILD_TYPE if defined, or use build type 'Debug'
 # as default.
@@ -60,7 +62,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		# (and, according to the authors' opinion, irrelevant in this context) warnings
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
 	ELSE() # e.g. g++
-	    MESSAGE ("Using g++ compiler settings")
+		MESSAGE ("Using g++ compiler settings")
 		# ADD_DEFINITIONS ("-DDEBUG -pg -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
 		ADD_DEFINITIONS ("-DDEBUG -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wno-unused -ansi -pthread")
 		# ADD_DEFINITIONS ("-DDEBUG -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wno-unused -pthread -std=c++0x")
@@ -145,10 +147,6 @@ INCLUDE_DIRECTORIES (
 	${Boost_INCLUDE_DIRS}
 )
 
-MESSAGE ("=======================")
-MESSAGE ("Building with boost include file location ${Boost_INCLUDE_DIRS}")
-MESSAGE ("=======================")
-
 LINK_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/src/common
 	${PROJECT_SOURCE_DIR}/src/random
@@ -157,9 +155,11 @@ LINK_DIRECTORIES (
 	${Boost_LIBRARY_DIRS}
 )
 
-MESSAGE ("=======================")
+MESSAGE ("========================")
+MESSAGE ("Building with boost include file location ${Boost_INCLUDE_DIRS}")
+MESSAGE ("========================")
 MESSAGE ("Building with boost library location ${Boost_LIBRARY_DIRS}")
-MESSAGE ("=======================")
+MESSAGE ("========================")
 
 # The names of the libraries that will be built
 SET ( COMMON_LIBNAME            "gemfony-common" )
