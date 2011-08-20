@@ -33,7 +33,7 @@
 # allowing you to permanently specify some options you'd otherwise
 # have to provide repeatedly on the command line. Call the script
 # with a file setting the variables below. See the script directory
-# in the Geneva root directory for an example (genevaConfig.gcfg). 
+# in the Geneva root directory for an example (genevaConfig.gcfg).
 # Note that configuration files need to end with ".gcfg" .
 ####################################################################
 #!/bin/bash
@@ -136,6 +136,7 @@ if [ "x$CEXTRAFLAGS" != "x" ]; then
 fi
 
 echo -e "\nConfiguring with command: \"${CONFIGURE} ${PROJECTROOT}\"\n"
+echo -e "---------------------------------------------------------------------\n\n"
 ${CONFIGURE} ${PROJECTROOT}
 
 ####################################################################
