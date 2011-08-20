@@ -1,5 +1,5 @@
-This is a beta version of the Geneva library. As the name --
-it stands for "Grid-enabled evolutionary algorithms" -- suggests, it
+This is the Geneva optimization library. As the name suggests
+-- it stands for "Grid-enabled evolutionary algorithms" --, it
 aims to provide the necessary tools to perform parametric optimization
 in parallel on devices ranging from multi-processor machines over
 clusters all the way to Grid- and Cloud-installations.
@@ -18,14 +18,14 @@ see in Geneva.
 
 By the same token, however, we aim to remain the single largest
 contributor to the code and will only be able to accept contributions
-where an appropriate transfer of rights takes place. To users and 
-programmers wishing to contribute to this software, the terms of the 
+where an appropriate transfer of rights takes place. To users and
+programmers wishing to contribute to this software, the terms of the
 AGPL guarantee the continued availability of the code under this license.
 
-Geneva is currently in beta status. Its single largest deficiency at 
-the moment is likely a lack of documentation. We recommend to have a look 
+Geneva is currently in beta status. Its single largest deficiency at
+the moment is likely a lack of documentation. We recommend to have a look
 at the examples shipped with the code.
 
 Geneva is maintained by Gemfony scientific. To find out more about
-Gemfony and/or Geneva, visit http://www.gemfony.com or contact us 
-through info (at) gemfony (dot) com
+Gemfony and/or Geneva, visit http://www.gemfony.com or contact us
+through contact (at) gemfony (dot) com
