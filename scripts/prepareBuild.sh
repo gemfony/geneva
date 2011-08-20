@@ -42,8 +42,8 @@
 # Check variables, set variable defaults if no config file was given
 if [ $# -eq 0 ]; then
 	echo -e "\nSetting variable defaults, as no Geneva config"
-	echo -e "file was provided. See the Geneva directory for"
-	echo -e "an example (genevaConfig.gcfg).\n"
+	echo -e "file was provided. See the Geneva 'scripts' directory"
+	echo -e "for an example (genevaConfig.gcfg).\n"
 
 	CMAKE=/usr/bin/cmake                      # Where the cmake executable is located
 	BOOSTROOT="/opt/boost"                    # Where Boost is installed
@@ -72,7 +72,7 @@ elif [ $# -eq 1 ]; then
 	echo -e "\nUsing configuration file $1"
 	. $1
 else
-        echo "Reveived $# command line arguments, which is an invalid number."
+        echo "Received $# command line arguments, which is an invalid number."
         echo "You can either call this script without arguments, in which case"
 	echo "default values will be assumed for all configuration options,"
 	echo "or you can provide exactly one Geneva config file as command"
