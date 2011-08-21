@@ -486,7 +486,7 @@ public:
     				<< "Last id " << end << " exceeds size of vector " << workItems.size() << std::endl
     		);
     	}
-#endif /* DEBUG*/
+#endif /* DEBUG */
 
     	//-------------------------------------------------------------------------------
     	// First submit all items
@@ -637,7 +637,7 @@ public:
     				<< "Last id " << end << " exceeds size of vector " << workItems.size() << std::endl
     		);
     	}
-#endif /* DEBUG*/
+#endif /* DEBUG */
 
     	//-------------------------------------------------------------------------------
     	// First submit all items

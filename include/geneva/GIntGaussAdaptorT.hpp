@@ -228,35 +228,35 @@ protected:
 	virtual void customAdaptions(int_type& value) {
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
-	#if defined (DEBUG)
+#if defined (DEBUG)
 		int_type addition = boost::numeric_cast<int_type>(this->gr->normal_distribution(GNumGaussAdaptorT<int_type, double>::sigma_));
-	#else
+#else
 		int_type addition = static_cast<int_type>(this->gr->normal_distribution(GNumGaussAdaptorT<int_type, double>::sigma_));
-	#endif /* DEBUG */
+#endif /* DEBUG */
 
 		if(addition == 0) { // Enforce a minimal change of 1.
 			this->gr->uniform_bool()?(addition=1):(addition=-1);
 		}
 
-	#if defined (CHECKOVERFLOWS)
+#if defined (CHECKOVERFLOWS)
 		// Prevent over- and underflows.
 		if(value >= 0){
 			if(addition >= 0 && (std::numeric_limits<int_type>::max()-value < addition)) {
-	#ifdef DEBUG
+#ifdef DEBUG
 				std::cout << "Warning in GInt32GaussAdaptor::customAdaptions(): Had to change adaption due to overflow" << std::endl;
-	#endif
+#endif
 				addition *= -1;
 			}
 		}
 		else { // < 0
 			if(addition < 0 && (std::numeric_limits<int_type>::min()-value > addition)) {
-	#ifdef DEBUG
+#ifdef DEBUG
 				std::cout << "Warning in GInt32GaussAdaptor::customAdaptions(): Had to change adaption due to underflow" << std::endl;
-	#endif
+#endif
 				addition *= -1;
 			}
 		}
-	#endif /* CHECKOVERFLOWS  */
+#endif /* CHECKOVERFLOWS  */
 
 		value += addition;
 	}

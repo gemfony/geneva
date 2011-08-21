@@ -287,14 +287,14 @@ public:
 	 */
 	template <typename par_type>
 	void assignValueVector(const std::vector<par_type>& parVec) {
-	#ifdef DEBUG
+#ifdef DEBUG
 		if(countParameters<par_type>() != parVec.size()) {
 			raiseException(
 					"In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << std::endl
 					<< "Sizes don't match: " <<  countParameters<par_type>() << " / " << parVec.size()
 			);
 		}
-	#endif /* DEBUG */
+#endif /* DEBUG */
 
 		// Start assignment at the beginning of parVec
 		std::size_t pos = 0;
