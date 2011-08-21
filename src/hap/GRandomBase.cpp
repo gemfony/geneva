@@ -137,13 +137,13 @@ float GRandomBase::normal_distribution<float>() {
 		return fltGaussCache_;
 	}
 	else {
-#ifdef USEBOXMULLER
+#ifdef GEM_HAP_USE_BOXMULLER
 		float rnr1 = uniform_01<float>();
 		float rnr2 = uniform_01<float>();
 		dblGaussCache_ = GSqrt(GFabs(-2.f * GLog(1.f - rnr1))) * GCos(2.f * (float)M_PI	* rnr2);
 		dblGaussCacheAvailable_ = true;
 		return GSqrt(GFabs(-2.f * GLog(1.f - rnr1))) * GSin(2.f * (float)M_PI	* rnr2);
-#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
+#else // GEM_HAP_USE_BOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than GEM_HAP_USE_BOXMULLER
 		float q, u1, u2;
 		do {
 			u1 = 2.f* uniform_01<float>() - 1.f;
@@ -173,13 +173,13 @@ double GRandomBase::normal_distribution<double>() {
 		return dblGaussCache_;
 	}
 	else {
-#ifdef USEBOXMULLER
+#ifdef GEM_HAP_USE_BOXMULLER
 		double rnr1 = uniform_01<double>();
 		double rnr2 = uniform_01<double>();
 		dblGaussCache_ = GSqrt(GFabs(-2. * GLog(1. - rnr1))) * GCos(2. * M_PI	* rnr2);
 		dblGaussCacheAvailable_ = true;
 		return GSqrt(GFabs(-2. * GLog(1. - rnr1))) * GSin(2. * M_PI	* rnr2);
-#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
+#else // GEM_HAP_USE_BOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than GEM_HAP_USE_BOXMULLER
 		double q, u1, u2;
 		do {
 			u1 = 2.* uniform_01<double>() - 1.;
@@ -209,13 +209,13 @@ long double GRandomBase::normal_distribution<long double>() {
 		return ldblGaussCache_;
 	}
 	else {
-#ifdef USEBOXMULLER
+#ifdef GEM_HAP_USE_BOXMULLER
 		long double rnr1 = uniform_01<long double>();
 		long double rnr2 = uniform_01<long double>();
 		ldblGaussCache_ = GSqrt(GFabs(-2. * GLog(1.l - rnr1))) * GCos(2.l * (long double)M_PI	* rnr2);
 		ldblGaussCacheAvailable_ = true;
 		return GSqrt(GFabs(-2.l * GLog(1.l - rnr1))) * GSin(2. * (long double)M_PI	* rnr2);
-#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
+#else // GEM_HAP_USE_BOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than GEM_HAP_USE_BOXMULLER
 		long double q, u1, u2;
 		do {
 			u1 = 2.l* uniform_01<long double>() - 1.l;
