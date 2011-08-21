@@ -110,10 +110,10 @@ public:
 		GRANDOMFACTORY->finalize();
 		RESETGRANDOMFACTORY;
 
-#ifdef FORCETERMINATION // Defined in GGlobalDefines.hpp.in
+#ifdef GEM_INT_FORCE_TERMINATION // Defined in GGlobalDefines.hpp.in
 		std::set_terminate(GTerminate);
 		std::terminate();
-#endif /* FORCETERMINATION */
+#endif /* GEM_INT_FORCE_TERMINATION */
 	}
 
 	/************************************************************************************/
