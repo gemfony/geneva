@@ -125,13 +125,13 @@ FIND_PACKAGE( Boost 1.40 REQUIRED COMPONENTS
 	thread
 )
 
-# Check whether BUILDTESTCODE has been defined. If not, deactivate by default
-IF( NOT DEFINED BUILDTESTCODE)
-	SET( BUILDTESTCODE FALSE )
+# Check whether GENEVA_BUILD_TESTS has been defined. If not, deactivate by default
+IF( NOT DEFINED GENEVA_BUILD_TESTS)
+	SET( GENEVA_BUILD_TESTS FALSE )
 ENDIF()
 
 # Check whether we want to activate the test code and build tests
-IF( BUILDTESTCODE )
+IF( GENEVA_BUILD_TESTS )
 	ADD_DEFINITIONS ("-DGENEVATESTING")
 	MESSAGE ("=======================")
 	MESSAGE ("Building with test code")
@@ -175,7 +175,7 @@ ADD_SUBDIRECTORY (licenses)
 ADD_SUBDIRECTORY (scripts)
 ADD_SUBDIRECTORY (src)
 
-IF( BUILDTESTCODE )
+IF( GENEVA_BUILD_TESTS )
 	ADD_SUBDIRECTORY (tests)
 ENDIF()
 

@@ -47,7 +47,7 @@ For compiling a given example proceed as follows:
 	      -DGENEVA_ROOT=<PATH_TO_GENEVA_INSTALL_DIR> \
 	      -DGENEVA_BUILD_TYPE=[Release|Debug] \
 	      -DCMAKE_INSTALL_PREFIX=<PATH_TO_GENEVA_EXAMPLE_INSTALL_DIR> \
-	      -DCMAKE_VERBOSE_MAKEFILE=[0|1] -DBUILDTESTCODE=[0|1] \
+	      -DCMAKE_VERBOSE_MAKEFILE=[0|1] -DGENEVA_BUILD_TESTS=[0|1] \
 	      		<PATH_TO_EXAMPLE_SOURCE_DIR>
   In particular, if the Boost libraries are installed system-wide you will most
   probably only need the GENEVA_ROOT variable and you can simply try with:
