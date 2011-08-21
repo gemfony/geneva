@@ -72,15 +72,15 @@ unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
  * @param command The command to be executed
  */
 void runExternalCommand(const std::string& command) {
-#ifdef PRINTCOMMANDLINE
+#ifdef GEM_COMMON_PRINT_COMMANDLINE
 		std::cout << "Executing external command \"" << commandLine << "\" ...";
-#endif /* PRINTCOMMANDLINE */
+#endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
 	int errorCode = system(command.c_str());
 
-#ifdef PRINTCOMMANDLINE
+#ifdef GEM_COMMON_PRINT_COMMANDLINE
 		std::cout << "... done." << std::endl;
-#endif /* PRINTCOMMANDLINE */
+#endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
 	if(errorCode) {
 		raiseException(
