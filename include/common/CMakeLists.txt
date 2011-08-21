@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 #
 # Check the major/minor/patch strings configured in the top level CMakeLists file
-#   and use them to define the GENEVAVERSION variable in GGlobalDefines.hpp
+#   and use them to define the GENEVA_VERSION variable in GGlobalDefines.hpp
 #
 SET ( VERSION_PREFIX "0" )
 

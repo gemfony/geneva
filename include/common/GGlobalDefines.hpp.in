@@ -60,7 +60,7 @@
 #endif /* BOOST_VERSION */
 
 /** The current version of the Geneva library */
-#define GENEVAVERSION @GENEVA_API_VERSION@
+#define GENEVA_VERSION @GENEVA_API_VERSION@
 
 /** std::pow(x,2) is less efficient than direct multiplication */
 #define GSQUARED(X) (X) * (X)
