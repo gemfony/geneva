@@ -196,7 +196,7 @@ protected:
      * A random number generator. Note that the actual calculation is possibly
      * done in a random number server, depending on the defines you have chosen.
      */
-#ifdef USELOCALRANDOMADAPTION /* produce random numbers locally */
+#ifdef GEM_HAP_USE_LOCAL_RANDOM_ADAPTION /* produce random numbers locally */
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL> gr;
 #else /* act as a proxy, take random numbers from a factory */
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr;
