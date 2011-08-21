@@ -50,6 +50,23 @@ FIND_PACKAGE( Boost 1.40 REQUIRED COMPONENTS
 	filesystem
 )
 
+# Check whether BUILDTESTCODE has been defined. If not, deactivate by default
+IF( NOT DEFINED BUILDTESTCODE)
+	SET( BUILDTESTCODE FALSE )
+ENDIF()
+
+# Check whether we want to activate the test code and build tests
+IF( BUILDTESTCODE )
+	ADD_DEFINITIONS ("-DGENEVATESTING")
+	MESSAGE ("=======================")
+	MESSAGE ("Building with test code")
+	MESSAGE ("=======================")
+
+	FIND_PACKAGE( Boost 1.40 REQUIRED COMPONENTS
+		test_exec_monitor
+	)
+ENDIF()
+
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}
 	${GENEVA_ROOT}/include
@@ -98,6 +115,10 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${COMMON_LIBNAME}
 	${Boost_LIBRARIES}
 )
+
+IF( BUILDTESTCODE )
+#	ADD_SUBDIRECTORY (Tests)
+ENDIF()
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION examples/${PROJECT_NAME}
 	PERMISSIONS
