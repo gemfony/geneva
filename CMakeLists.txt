@@ -11,25 +11,42 @@ SET(VERSION_PATCH "3rc0")
 # it was not deployed in one of the standard system locations. Otherwise,
 # see the comments in the INSTALL file on how to set the path on the
 # command line.
-#SET (BOOST_ROOT "/opt/boost143")
-#SET (BOOST_INCLUDEDIR "/opt/boost143/include/boost")
-#SET (BOOST_LIBRARYDIR "/opt/boost143/lib")
+#SET(BOOST_ROOT "/opt/boost143")
+#SET(BOOST_INCLUDEDIR "/opt/boost143/include/boost")
+#SET(BOOST_LIBRARYDIR "/opt/boost143/lib")
 
 # Uncomment this if you want to see compiler options
-# SET(CMAKE_VERBOSE_MAKEFILE ON)
+#SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Uncomment to compile static libs
-# SET( GENEVA_STATIC TRUE )
+#SET(GENEVA_STATIC TRUE)
+
+# Uncomment to build tests
+#SET(GENEVA_BUILD_TESTS TRUE)
 
 # Change this setting to install in a different directory
-IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
-	SET(CMAKE_INSTALL_PREFIX "/opt/geneva")
-ENDIF()
+#SET(CMAKE_INSTALL_PREFIX "/opt/geneva")
 
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
+# Nice formatting
 MESSAGE ("")
+
+# Set the default install directory
+IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
+	SET( CMAKE_INSTALL_PREFIX "/opt/geneva" )
+ENDIF()
+
+# Set the library type to shared by default
+IF( NOT DEFINED GENEVA_STATIC )
+	SET( GENEVA_STATIC FALSE )
+ENDIF()
+
+# Do not build tests by default
+IF( NOT DEFINED GENEVA_BUILD_TESTS )
+	SET( GENEVA_BUILD_TESTS FALSE )
+ENDIF()
 
 # Set the build type according to the GENEVA_BUILD_TYPE value, if defined.
 # Otherwise use CMAKE_BUILD_TYPE if defined, or use build type 'Debug'
@@ -52,7 +69,6 @@ ELSE()
 ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	# Use this for debug builds.
 	MESSAGE ("======================")
 	MESSAGE ("Building in Debug mode")
 	MESSAGE ("======================")
@@ -71,7 +87,6 @@ ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 	MESSAGE ("========================")
 	MESSAGE ("Building in Release mode")
 	MESSAGE ("========================")
-	# Use this for release builds.
 	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
 		MESSAGE ("Using icpc or icc compiler settings")
 		ADD_DEFINITIONS ("-O3 -pthread")
@@ -81,21 +96,14 @@ ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 		# ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -g -O0 -pthread")
 	ENDIF()
 ENDIF()
-
 # Note: -fno-unsafe-math-optimizations -fno-finite-math-only prevent false optimization of some critical
 # code in GRandomBaseT inside uniform_real().
-
 
 # The "FOREACH IN LISTS" construct is only available starting with CMake 2.8, detect that
 # case to avoid build errors in CMake 2.6.
 IF( CMAKE_MAJOR_VERSION GREATER 1 AND CMAKE_MINOR_VERSION LESS 8 )
 	SET( OLD_CMAKE TRUE )
 	# We print a warning at end of the generation, to avoid it getting lost
-ENDIF()
-
-# Set the library type to shared by default
-IF( NOT GENEVA_STATIC )
-	SET( GENEVA_STATIC FALSE )
 ENDIF()
 
 IF( GENEVA_STATIC )
@@ -124,11 +132,6 @@ FIND_PACKAGE( Boost 1.40 REQUIRED COMPONENTS
 	system
 	thread
 )
-
-# Check whether GENEVA_BUILD_TESTS has been defined. If not, deactivate by default
-IF( NOT DEFINED GENEVA_BUILD_TESTS)
-	SET( GENEVA_BUILD_TESTS FALSE )
-ENDIF()
 
 # Check whether we want to activate the test code and build tests
 IF( GENEVA_BUILD_TESTS )
