@@ -10,6 +10,8 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
 The main changes for this release include:
  - Introduced a new interface class GOptimizableI, as the basis
    of GOptimizationAlgorithmT and various wrapper classes.
+ - Renamed 'public' cpp variables according to the library they
+   are used in, GEM_<LIB>_<VAR>.
  - Bumped the minimal Boost version to 1.41.
 
 //------------------------------------------------------------------------------------------------------
