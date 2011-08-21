@@ -36,7 +36,7 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedGD
 	GMultiThreadedSwarm
 	Go
-	# Go2
+	Go2
 	GObject
 	GOptimizationAlgorithmT
 	GOptimizationEnums

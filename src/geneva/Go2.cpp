@@ -59,8 +59,8 @@ Go2::Go2()
 	, arraySize_(GO2_DEF_ARRAYSIZE)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
-	, consumerInitialized_(GO2_DEF_CONSUMERINITIALIZED)
 	, iterationsConsumed_(0)
+	, consumerInitialized_(GO2_DEF_CONSUMERINITIALIZED)
 {
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -96,8 +96,8 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	, arraySize_(GO2_DEF_ARRAYSIZE)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
-	, consumerInitialized_(GO2_DEF_CONSUMERINITIALIZED)
 	, iterationsConsumed_(0)
+	, consumerInitialized_(GO2_DEF_CONSUMERINITIALIZED)
 {
 	//--------------------------------------------
 	// Load initial configuration options from the command line
@@ -107,10 +107,6 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	if(configFilename != GO2_DEF_DEFAULTCONFIGFILE) {
 		configFilename_ = configFilename;
 	}
-
-	//--------------------------------------------
-	// Load further configuration options from file
-	parseConfigurationFile(configFilename_);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -160,10 +156,6 @@ Go2::Go2(
 	, iterationsConsumed_(0)
 	, consumerInitialized_(GO2_DEF_CONSUMERINITIALIZED)
 {
-	//--------------------------------------------
-	// Load further configuration options from file
-	parseConfigurationFile(configFilename_);
-
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Set the number of threads. GRANDOMFACTORY is
@@ -432,7 +424,7 @@ void Go2::randomInit()
 double Go2::fitnessCalculation() {
 	bool dirty = false;
 
-	boost::shared_ptr<GParameterSet> p = this->optimize<GParameterSet>(offset_ + iterationsConsumed_);
+	boost::shared_ptr<GParameterSet> p = this->GOptimizableI::optimize<GParameterSet>(offset_ + iterationsConsumed_);
 
 	double val = p->getCachedFitness(dirty);
 	// is this the current fitness ? We should at this stage never
@@ -523,7 +515,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	// Loop over all algorithms
 	iterationsConsumed_ = offset_;
 	sorted_ = false;
-	std::vector<boost::shared_ptr<GOmtimizableI> >::iterator alg_it;
+	std::vector<boost::shared_ptr<GOptimizableI> >::iterator alg_it;
 	for(alg_it=algorithms_.begin(); alg_it!=algorithms_.end(); ++alg_it) {
 		boost::shared_ptr<GOptimizableI> p_base = (*alg_it);
 		switch(p_base->getOptimizationAlgorithm()) {
@@ -545,7 +537,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			iterationsConsumed_ = p_base->getIteration();
 
 			// Unload the individuals from the last algorithm and store them again in this object
-			std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->getBestIndividuals<GParameterSet>();
+			std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->GOptimizableI::getBestIndividuals<GParameterSet>();
 			std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
 			for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
 				this->push_back(*best_it);
@@ -571,7 +563,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			iterationsConsumed_ = p_base->getIteration();
 
 			// Unload the individuals from the last algorithm and store them again in this object
-			std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->getBestIndividuals<GParameterSet>();
+			std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->GOptimizableI::getBestIndividuals<GParameterSet>();
 			std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
 			for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
 				this->push_back(*best_it);
@@ -597,7 +589,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			iterationsConsumed_ = p_base->getIteration();
 
 			// Unload the individuals from the last algorithm and store them again in this object
-			std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->getBestIndividuals<GParameterSet>();
+			std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->GOptimizableI::getBestIndividuals<GParameterSet>();
 			std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
 			for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
 				this->push_back(*best_it);
@@ -945,6 +937,14 @@ void Go2::setOffset(const boost::uint32_t& offset) {
 
 /**************************************************************************************/
 /**
+ * Retrieval of the current iteration
+ */
+uint32_t Go2::getIteration() const {
+	return iterationsConsumed_;
+}
+
+/**************************************************************************************/
+/**
  * Allows to retrieve the current offset with which the iteration counter will start
  *
  * @return The current offset with which the iteration counter will start
@@ -994,7 +994,7 @@ void Go2::parseCommandLine(int argc, char **argv) {
 
 		// Output the configuration file, if required
 		if(vm.count("writeConfigFile")) {
-			Go2::writeConfigurationFile(configFilename_);
+			// Go2::writeConfigurationFile(configFilename_);
 			exit(0);
 		}
 

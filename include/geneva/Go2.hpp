@@ -234,6 +234,9 @@ public:
 	void setOffset(const boost::uint32_t&);
 	boost::uint32_t getOffset() const;
 
+	/** @brief Retrieval of the current iteration */
+	virtual uint32_t getIteration() const;
+
 	/**************************************************************************************/
 	/** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
 	void parseCommandLine(int, char **);
@@ -265,7 +268,7 @@ protected:
 	/** @brief Retrieves the best individual found */
 	virtual boost::shared_ptr<GIndividual> getBestIndividual();
 	/** @brief Retrieves a list of the best individuals found */
-	std::vector<boost::shared_ptr<GIndividual> > Go2::getBestIndividuals();
+	std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
 
 private:
 	/**********************************************************************/
@@ -290,16 +293,16 @@ private:
     boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
     std::size_t arraySize_; ///< The size of the random number packages being transferred to the proxy RNGs
     boost::uint32_t offset_; ///< The offset to be used when starting a new optimization run
+    bool sorted_; ///< Indicates whether local individuals have been sorted
     boost::uint32_t iterationsConsumed_; ///< The number of successive iterations performed by this object so far
     bool consumerInitialized_; ///< Determines whether a consumer has already been started. Note that this variable will not be serialized
-    bool sorted_; ///< Indicates whether local individuals have been sorted
 
     //----------------------------------------------------------------------------------------------------------------
     boost::shared_ptr<GParameterSet> bestIndividual_; ///< The best individual found during an optimization
 
     //----------------------------------------------------------------------------------------------------------------
     // The list of "chained" optimization algorithms
-    std::vector<boost::shared_ptr<GOmtimizableI> > algorithms_;
+    std::vector<boost::shared_ptr<GOptimizableI> > algorithms_;
 };
 
 /**************************************************************************************/
