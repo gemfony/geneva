@@ -84,8 +84,8 @@ private:
  * This define allows easy access to throwing exceptions.
  */
 #define raiseException(E)                                                                                \
-  {						                                                                                 \
-    std::ostringstream error;			                                                                 \
+  {                                                                                                      \
+    std::ostringstream error;                                                                            \
     error                                                                                                \
        << std::endl                                                                                      \
        << "================================================" << std::endl                                \
@@ -93,7 +93,7 @@ private:
        << "in file " << __FILE__ << std::endl                                                            \
        << "near line " << __LINE__ << " with description:" << std::endl                                  \
        << std::endl                                                                                      \
-       << E << std::endl							                                                     \
+       << E << std::endl                                                                                 \
        << std::endl                                                                                      \
        << "If you suspect that this error is due to Geneva," << std::endl                                \
        << "then please consider filing a bug via" << std::endl                                           \
