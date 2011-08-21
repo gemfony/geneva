@@ -336,7 +336,7 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 					<< "Found individual in position " << i << " whose dirty flag isn't set"
 			);
 		}
-#endif /* DEBUG*/
+#endif /* DEBUG */
 
 		// Make sure we are allowed to perform value calculation
 		this->at(i)->setServerMode(false);

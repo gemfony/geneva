@@ -325,7 +325,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 					<< "Found individual in position " << i << " whose dirty flag isn't set"
 			);
 		}
-#endif /* DEBUG*/
+#endif /* DEBUG */
 
 		// Let the individual know that it should perform the "evaluate" command
 		// after having passed the broker (i.e. usually on a remote machine)

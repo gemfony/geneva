@@ -475,7 +475,7 @@ void GBaseGD::updateParentIndividuals() {
 					<< "Found individual in position " << i << " with active dirty flag"
 			);
 		}
-#endif /* DEBUG*/
+#endif /* DEBUG */
 
 		// Retrieve the fitness of the individual again
 		double parentFitness = this->at(i)->fitness(0);

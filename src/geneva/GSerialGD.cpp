@@ -264,7 +264,7 @@ double GSerialGD::doFitnessCalculation(const std::size_t& finalPos) {
 					<< "Found individual in position " << i << " whose dirty flag isn't set"
 			);
 		}
-#endif /* DEBUG*/
+#endif /* DEBUG */
 
 		fitnessFound = this->at(i)->fitness(0);
 
