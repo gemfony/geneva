@@ -563,7 +563,7 @@ private:
 				boost::shared_ptr<GDoubleCollection> x = op_ptr->at<GDoubleCollection>(0);
 				// Store a reference for ease of access
 				const GDoubleCollection& x_ref = *x;
-	#ifdef DEBUG
+#ifdef DEBUG
 				// Check that we indeed only have two dimensions
 				if(x_ref.size() != 2) {
 					std::ostringstream error;
@@ -571,7 +571,7 @@ private:
 						  << "Found GDoubleCollection with invalid number of entries: " << x_ref.size() << std::endl;
 					throw(Gem::Common::gemfony_error_condition(error.str()));
 				}
-	#endif /* DEBUG */
+#endif /* DEBUG */
 
 				// Only draw the old parent if it is inside of the function plot
 				if(x_ref[0] > minX_ && x_ref[0] < maxX_ && x_ref[1] > minY_ && x_ref[1] < maxY_) {

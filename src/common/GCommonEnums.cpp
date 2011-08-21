@@ -104,7 +104,7 @@ std::istream& operator>>(std::istream& i, Gem::Common::serializationMode& serMod
 	serMode = boost::numeric_cast<Gem::Common::serializationMode>(tmp);
 #else
 	serMode = static_cast<Gem::Common::serializationMode>(tmp);
-#endif  /* DEBUG */
+#endif /* DEBUG */
 
 	return i;
 }
@@ -139,7 +139,7 @@ std::istream& operator>>(std::istream& i, Gem::Common::expectation& expect){
 	expect = boost::numeric_cast<Gem::Common::expectation>(tmp);
 #else
 	expect = static_cast<Gem::Common::expectation>(tmp);
-#endif  /* DEBUG */
+#endif /* DEBUG */
 
 	return i;
 }

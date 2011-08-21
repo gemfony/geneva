@@ -261,7 +261,7 @@ public:
 			// Extract the fitness
 			bool isDirty;
 			double global_best_fitness = g_best_ptr->getCachedFitness(isDirty);
-	#ifdef DEBUG
+#ifdef DEBUG
 			// Check that the dirty flag isn't set
 			if(isDirty) {
 				std::ostringstream error;
@@ -269,7 +269,7 @@ public:
 					  << "Globally best individual has dirty flag set when it shouldn't" << std::endl;
 				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
-	#endif
+#endif /* DEBUG */
 
 			// Output a ROOT header
 			ofs << "{" << std::endl
@@ -373,7 +373,7 @@ public:
 				boost::shared_ptr<GDoubleCollection> x = (*it)->at<GDoubleCollection>(0);
 				// Store a reference for ease of access
 				const GDoubleCollection& x_ref = *x;
-	#ifdef DEBUG
+#ifdef DEBUG
 				// Check that we indeed only have two dimensions
 				if(x_ref.size() != 2) {
 					std::ostringstream error;
@@ -381,7 +381,7 @@ public:
 						  << "Found GDoubleCollection with invalid number of entries: " << x_ref.size() << std::endl;
 					throw(Gem::Common::gemfony_error_condition(error.str()));
 				}
-	#endif
+#endif /* DEBUG */
 
 				// Only draw the particle if it is inside of the function plot
 				if(x_ref[0] > minX_ && x_ref[0] < maxX_ && x_ref[1] > minY_ && x_ref[1] < maxY_) {
