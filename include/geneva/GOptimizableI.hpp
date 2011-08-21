@@ -33,9 +33,10 @@
  */
 
 // Standard header files go here
+#include <vector>
 
 // Boost header files go here
-
+#include <boost/cstdint.hpp>
 
 #ifndef GOPTIMIZATIONALGORITHMI_HPP_
 #define GOPTIMIZATIONALGORITHMI_HPP_
@@ -76,6 +77,9 @@ public:
 
 	/** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
 	virtual void optimize(const boost::uint32_t& offset) = 0;
+
+	/** @brief Retrieves the current iteration of this object */
+	virtual boost::uint32_t getIteration() const = 0;
 
     /**********************************************************************************/
 	/**
@@ -118,6 +122,38 @@ public:
 
 	/**********************************************************************************/
 	/**
+	 * Retrieves a list of the best individuals and converts them to a given target type.
+	 * Note that this function will not allow you to modify the best individuals themselves
+	 * as it will return a copies to you.
+	 *
+	 * @return A list of copies of the best individuals found in the optimization run
+	 */
+	template <typename individual_type>
+	std::vector<boost::shared_ptr<individual_type> > getBestIndividuals(
+		typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
+	) {
+		std::vector<boost::shared_ptr<individual_type> > bestIndividuals;
+
+		std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+		std::vector<boost::shared_ptr<GIndividual> > bestBaseIndividuals = this->getBestIndividuals();
+
+		// Cross check that we indeed got a valid set of individuals
+		if(bestBaseIndividuals.empty()) {
+			raiseException(
+				"In GOptimizableI::getBestIndividuals(): Error!" << std::endl
+				<< "Received empty collection of best individuals." << std::endl
+			);
+		}
+
+		for(it=bestBaseIndividuals.begin(); it!=bestBaseIndividuals.end(); ++it) {
+			bestIndividuals.push_back((*it)->clone<individual_type>());
+		}
+
+		return bestIndividuals;
+	}
+
+	/**********************************************************************************/
+	/**
 	 * Returns information about the type of optimization algorithm. This function needs
 	 * to be overloaded by the actual algorithms to return the correct type.
 	 *
@@ -131,6 +167,8 @@ protected:
 	/**********************************************************************************/
 	/** @brief Retrieves the best individual found */
 	virtual boost::shared_ptr<GIndividual> getBestIndividual() = 0;
+	/** @brief Retrieves a list of the best individuals found */
+	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals() = 0;
 };
 
 /**************************************************************************************/

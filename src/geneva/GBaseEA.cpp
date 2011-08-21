@@ -745,6 +745,30 @@ boost::shared_ptr<GIndividual> GBaseEA::getBestIndividual() {
 
 /************************************************************************************************************/
 /**
+ * Retrieves a list of the best individuals found. This might just be one individual.
+ *
+ * @return A list of the best individuals found
+ */
+std::vector<boost::shared_ptr<GIndividual> > GBaseEA::getBestIndividuals() {
+	// Some error checking
+	if(nParents_ == 0) {
+		raiseException(
+			"In GBaseEA::getBestIndividuals() :" << std::endl
+			<< "no parents found" << std::endl
+		);
+	}
+
+	std::vector<boost::shared_ptr<GIndividual> > bestIndividuals;
+	GBaseEA::iterator it;
+	for(it=this->begin(); it!=this->begin()+nParents_; ++it) {
+		bestIndividuals.push_back(*it);
+	}
+
+	return bestIndividuals;
+}
+
+/************************************************************************************************************/
+/**
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added

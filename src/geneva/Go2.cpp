@@ -58,6 +58,7 @@ Go2::Go2()
 	, nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
 	, arraySize_(GO2_DEF_ARRAYSIZE)
 	, offset_(GO2_DEF_OFFSET)
+	, sorted_(false)
 	, consumerInitialized_(GO2_DEF_CONSUMERINITIALIZED)
 	, iterationsConsumed_(0)
 {
@@ -94,6 +95,7 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	, nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
 	, arraySize_(GO2_DEF_ARRAYSIZE)
 	, offset_(GO2_DEF_OFFSET)
+	, sorted_(false)
 	, consumerInitialized_(GO2_DEF_CONSUMERINITIALIZED)
 	, iterationsConsumed_(0)
 {
@@ -154,6 +156,7 @@ Go2::Go2(
 	, nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
 	, arraySize_(GO2_DEF_ARRAYSIZE)
 	, offset_(GO2_DEF_OFFSET)
+	, sorted_(false)
 	, iterationsConsumed_(0)
 	, consumerInitialized_(GO2_DEF_CONSUMERINITIALIZED)
 {
@@ -188,6 +191,7 @@ Go2::Go2(const Go2& cp)
 	, nProducerThreads_(cp.nProducerThreads_)
 	, arraySize_(cp.arraySize_)
 	, offset_(cp.offset_)
+	, sorted_(cp.sorted_)
 	, iterationsConsumed_(0)
 	, consumerInitialized_(cp.consumerInitialized_)
 {
@@ -293,6 +297,7 @@ boost::optional<std::string> Go2::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go2", nProducerThreads_, p_load->nProducerThreads_, "nProducerThreads_", "p_load->nProducerThreads_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", arraySize_, p_load->arraySize_, "arraySize_", "p_load->arraySize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", offset_, p_load->offset_, "offset_", "p_load->offset_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go2", sorted_, p_load->sorted_, "sorted_", "p_load->sorted_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", iterationsConsumed_, p_load->iterationsConsumed_, "iterationsConsumed_", "p_load->iterationsConsumed_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", consumerInitialized_, p_load->consumerInitialized_, "consumerInitialized_", "p_load->consumerInitialized_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", bestIndividual_, p_load->bestIndividual_, "bestIndividual_", "p_load->bestIndividual_", e , limit));
@@ -326,6 +331,7 @@ void Go2::load_(const GObject *cp) {
 	nProducerThreads_ = p_load->nProducerThreads_;
 	arraySize_ = p_load->arraySize_;
 	offset_ = p_load->offset_;
+	sorted_ = p_load->sorted_;
 	iterationsConsumed_ = p_load->iterationsConsumed_;
 	consumerInitialized_ = p_load->consumerInitialized_;
 
@@ -485,7 +491,7 @@ Go2& Go2::operator+=(boost::shared_ptr<GOptimizableI> alg) {
  */
 void Go2::optimize(const boost::uint32_t& offset) {
 	// Check that algorithms have indeed been registered
-	if(algithms_.empty()) {
+	if(algorithms_.empty()) {
 		raiseException(
 			"In Go2::optimize(): Error!" << std::endl
 			<< "No algorithms have been registered." << std::endl
@@ -500,54 +506,129 @@ void Go2::optimize(const boost::uint32_t& offset) {
 		)
 	}
 
-	// Add the individuals to the first algorithm
-	boost::shared_ptr<GOptimizableI> p_front_base = algorithms_.front();
-	GMutableSetT<GParameterSet>::iterator it;
-	switch(algorithms_.front()->getOptimizationAlgorithm()) {
-	case EA:
-	{
-		boost::shared_ptr<GBaseEA> p_front_derived = boost::dynamic_pointer_cast<GBaseEA>(p_front_base);
-		for(it=this->begin(); it!=this->end(); ++it) {
-			p_front_derived->push_back(*it);
+	// Retrieve the minimization/maximization mode of the first individual
+	bool maxmode = this->front()->getMaxMode();
+
+	// Check that all individuals have the same mode
+	GMutableSetT<GParameterSet>::iterator ind_it;
+	for(ind_it=this->begin()+1; ind_it!=this->end(); ++ind_it) {
+		if((*ind_it)->getMaxMode() != maxmode) {
+			raiseException(
+				"In Go2::optimize(): Error!" << std::endl
+				<< "Found inconsistent min/max modes" << std::endl
+			);
 		}
 	}
-		break;
-
-	case SWARM:
-	{
-		boost::shared_ptr<GBaseSwarm> p_front_derived = boost::dynamic_pointer_cast<GBaseSwarm>(p_front_base);
-		for(it=this->begin(); it!=this->end(); ++it) {
-			p_front_derived->push_back(*it);
-		}
-	}
-		break;
-
-	case GD:
-	{
-		boost::shared_ptr<GBaseGD> p_front_derived = boost::dynamic_pointer_cast<GBaseGD>(p_front_base);
-		for(it=this->begin(); it!=this->end(); ++it) {
-			p_front_derived->push_back(*it);
-		}
-	}
-		break;
-
-	default:
-	{
-		raiseException(
-			"In Go2::optimize(): Error!" << std::endl
-			<< "Came across invalid algorithm" << std::endl
-		);
-	}
-		break;
-
-	}
-
-	// Remove our local copies
 
 	// Loop over all algorithms
+	iterationsConsumed_ = offset_;
+	sorted_ = false;
+	std::vector<boost::shared_ptr<GOmtimizableI> >::iterator alg_it;
+	for(alg_it=algorithms_.begin(); alg_it!=algorithms_.end(); ++alg_it) {
+		boost::shared_ptr<GOptimizableI> p_base = (*alg_it);
+		switch(p_base->getOptimizationAlgorithm()) {
+		case EA:
+		{
+			// Add the individuals to the EA. Note that it needs to be converted for this purpose
+			boost::shared_ptr<GBaseEA> p_derived = boost::dynamic_pointer_cast<GBaseEA>(p_base);
+			for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {
+				p_derived->push_back(*ind_it);
+			}
 
-	// Unload the individuals from the last algorithm and
-	// store them again in this object
+			// Remove our local copies
+			this->clear();
+
+			// Do the actual optimization
+			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_ + 1);
+
+			// Make sure we start with the correct iteration in the next algorithm
+			iterationsConsumed_ = p_base->getIteration();
+
+			// Unload the individuals from the last algorithm and store them again in this object
+			std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->getBestIndividuals<GParameterSet>();
+			std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
+			for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
+				this->push_back(*best_it);
+			}
+		}
+			break;
+
+		case SWARM:
+		{
+			// Add the individuals to the Swarm. Note that it needs to be converted for this purpose
+			boost::shared_ptr<GBaseSwarm> p_derived = boost::dynamic_pointer_cast<GBaseSwarm>(p_base);
+			for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {
+				p_derived->push_back(*ind_it);
+			}
+
+			// Remove our local copies
+			this->clear();
+
+			// Do the actual optimization
+			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_ + 1);
+
+			// Make sure we start with the correct iteration in the next algorithm
+			iterationsConsumed_ = p_base->getIteration();
+
+			// Unload the individuals from the last algorithm and store them again in this object
+			std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->getBestIndividuals<GParameterSet>();
+			std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
+			for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
+				this->push_back(*best_it);
+			}
+		}
+			break;
+
+		case GD:
+		{
+			// Add the individuals to the GD. Note that it needs to be converted for this purpose
+			boost::shared_ptr<GBaseGD> p_derived = boost::dynamic_pointer_cast<GBaseGD>(p_base);
+			for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {
+				p_derived->push_back(*ind_it);
+			}
+
+			// Remove our local copies
+			this->clear();
+
+			// Do the actual optimization
+			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_ + 1);
+
+			// Make sure we start with the correct iteration in the next algorithm
+			iterationsConsumed_ = p_base->getIteration();
+
+			// Unload the individuals from the last algorithm and store them again in this object
+			std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->getBestIndividuals<GParameterSet>();
+			std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
+			for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
+				this->push_back(*best_it);
+			}
+		}
+			break;
+
+		default:
+		{
+			raiseException(
+				"In Go2::optimize(): Error!" << std::endl
+				<< "Came across invalid algorithm" << std::endl
+			);
+		}
+			break;
+
+		}
+	}
+
+	// Sort the individuals according to their fitness so we have it easier later on
+	// to extract the best individuals found.
+	if(maxmode){
+		std::sort(this->begin(), this->end(),
+				boost::bind(&GParameterSet::fitness, _1, 0) > boost::bind(&GParameterSet::fitness, _2, 0));
+	}
+	else{ // Minimization
+		std::sort(this->begin(), this->end(),
+				boost::bind(&GParameterSet::fitness, _1, 0) < boost::bind(&GParameterSet::fitness, _2, 0));
+	}
+
+	sorted_ = true;
 }
 
 /**************************************************************************************/
@@ -558,7 +639,71 @@ void Go2::optimize(const boost::uint32_t& offset) {
  * @return The best individual found
  */
 boost::shared_ptr<GIndividual> Go2::getBestIndividual() {
+	Go2::iterator it;
 
+	// Do some error checking
+	if(this->empty()) {
+		raiseException(
+			"In Go2::getBestIndividual(): Error!" << std::endl
+			<< "No individuals found"
+		);
+
+		for(it=this->begin(); it!=this->end(); ++it) {
+			if((*it)->isDirty()) {
+				raiseException(
+					"In Go2::getBestIndividual(): Error!" << std::endl
+					<< "Found individual in position " << std::distance(it,this->begin()) << " whose dirty flag is set" << std::endl
+				);
+			}
+		}
+
+		if(!sorted_) {
+			raiseException(
+				"In Go2::getBestIndividual(): Error!" << std::endl
+				<< "Tried to retrieve best individual" << std::endl
+				<< "from an unsorted population."
+			);
+		}
+	}
+
+	// Simply return the best individual. This will result in an implicit downcast
+	return this->front();
+}
+
+/**************************************************************************************/
+/**
+ * Retrieves a list of the best individuals found. This function returns  base pointers.
+ * Conversion is done through a function stored in GOptimizableI.
+ *
+ * @return The best individual found
+ */
+std::vector<boost::shared_ptr<GIndividual> > Go2::getBestIndividuals() {
+	Go2::iterator it;
+
+	// Do some error checking
+	if(this->empty()) {
+		raiseException(
+			"In Go2::getBestIndividuals(): Error!" << std::endl
+			<< "No individuals found"
+		);
+
+		for(it=this->begin(); it!=this->end(); ++it) {
+			if((*it)->isDirty()) {
+				raiseException(
+					"In Go2::getBestIndividuals(): Error!" << std::endl
+					<< "Found individual in position " << std::distance(it,this->begin()) << " whose dirty flag is set" << std::endl
+				);
+			}
+		}
+	}
+
+	std::vector<boost::shared_ptr<GIndividual> > bestIndividuals;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		// This will result in an implicit downcast
+		bestIndividuals.push_back(*it);
+	}
+
+	return bestIndividuals;
 }
 
 /**************************************************************************************/

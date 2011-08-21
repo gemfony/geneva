@@ -126,6 +126,7 @@ class Go2
 	     & BOOST_SERIALIZATION_NVP(nProducerThreads_)
 	     & BOOST_SERIALIZATION_NVP(arraySize_)
 	     & BOOST_SERIALIZATION_NVP(offset_)
+	     & BOOST_SERIALIZATION_NVP(sorted_)
 	     & BOOST_SERIALIZATION_NVP(bestIndividual_)
 	     & BOOST_SERIALIZATION_NVP(algorithms_);
 	}
@@ -194,8 +195,6 @@ public:
 
 	/** @brief Perform the actual optimization cycle */
 	virtual void optimize(const boost::uint32_t& = 0);
-	/** @brief Retrieves the best individual found */
-	virtual boost::shared_ptr<GIndividual> getBestIndividual();
 
 	/**************************************************************************************/
 	// The following is a trivial list of getters and setters
@@ -263,6 +262,11 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
 
+	/** @brief Retrieves the best individual found */
+	virtual boost::shared_ptr<GIndividual> getBestIndividual();
+	/** @brief Retrieves a list of the best individuals found */
+	std::vector<boost::shared_ptr<GIndividual> > Go2::getBestIndividuals();
+
 private:
 	/**********************************************************************/
 	// These parameters can enter the object through the constructor
@@ -288,6 +292,7 @@ private:
     boost::uint32_t offset_; ///< The offset to be used when starting a new optimization run
     boost::uint32_t iterationsConsumed_; ///< The number of successive iterations performed by this object so far
     bool consumerInitialized_; ///< Determines whether a consumer has already been started. Note that this variable will not be serialized
+    bool sorted_; ///< Indicates whether local individuals have been sorted
 
     //----------------------------------------------------------------------------------------------------------------
     boost::shared_ptr<GParameterSet> bestIndividual_; ///< The best individual found during an optimization

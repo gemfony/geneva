@@ -570,6 +570,32 @@ boost::shared_ptr<GIndividual> GBaseSwarm::getBestIndividual(){
 
 /************************************************************************************************************/
 /**
+ * Retrieves a list of the best individuals found. This might just be one individual.
+ *
+ * @return A list of the best individuals found
+ */
+std::vector<boost::shared_ptr<GIndividual> > GBaseSwarm::getBestIndividuals() {
+	// Some error checking
+	if(nNeighborhoods_ == 0) {
+		raiseException(
+			"In GBaseSwarm::getBestIndividuals() :" << std::endl
+			<< "no neighborhoods found" << std::endl
+		);
+	}
+
+	std::vector<boost::shared_ptr<GIndividual> > bestIndividuals;
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+	for(it=neighborhood_bests_.begin(); it!=neighborhood_bests_.end(); ++it) {
+		// There will be an implicit downcast here, as the vector holds
+		// boost::shared_ptr<GParameterSet> objects
+		bestIndividuals.push_back(*it);
+	}
+
+	return bestIndividuals;
+}
+
+/************************************************************************************************************/
+/**
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added

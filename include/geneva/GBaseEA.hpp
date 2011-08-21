@@ -351,6 +351,8 @@ protected:
 
 	/** @brief Retrieves the best individual found */
 	virtual boost::shared_ptr<GIndividual> getBestIndividual();
+	/** @brief Retrieves a list of the best individuals found */
+	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions (
