@@ -7,6 +7,14 @@ SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "9")
 SET(VERSION_PATCH "3rc0")
 
+###############################################################################
+#
+# User settings:
+#   you can change some settings here, but we recommend you use the
+#   'prepareBuild.sh' and sample settings file 'genevaConfig.gcfg'
+#   provided in the 'scripts' folder for building Geneva.
+#
+
 # You can hard-code the Boost paths here, if you compiled Boost yourself and
 # it was not deployed in one of the standard system locations. Otherwise,
 # see the comments in the INSTALL file on how to set the path on the
@@ -21,17 +29,22 @@ SET(VERSION_PATCH "3rc0")
 # Uncomment to compile static libs
 #SET(GENEVA_STATIC TRUE)
 
+# Uncomment to build in 'Release' mode, default is 'Debug'
+#SET(GENEVA_BUILD_TYPE Release)
+
 # Uncomment to build tests
 #SET(GENEVA_BUILD_TESTS TRUE)
 
 # Change this setting to install in a different directory
 #SET(CMAKE_INSTALL_PREFIX "/opt/geneva")
 
+#
+# End of user settings
+#
+###############################################################################
+
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
-
-# Nice formatting
-MESSAGE ("")
 
 # Set the default install directory
 IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
@@ -47,6 +60,9 @@ ENDIF()
 IF( NOT DEFINED GENEVA_BUILD_TESTS )
 	SET( GENEVA_BUILD_TESTS FALSE )
 ENDIF()
+
+# Nice formatting
+MESSAGE ("")
 
 # Set the build type according to the GENEVA_BUILD_TYPE value, if defined.
 # Otherwise use CMAKE_BUILD_TYPE if defined, or use build type 'Debug'
