@@ -10,8 +10,8 @@ SET(VERSION_PATCH "3rc0")
 ###############################################################################
 #
 # User settings:
-#   you can change some settings here, but we recommend you use the
-#   'prepareBuild.sh' and sample settings file 'genevaConfig.gcfg'
+#   you can change some settings here, but we recommend that you use the
+#   'prepareBuild.sh' script and the sample settings file 'genevaConfig.gcfg'
 #   provided in the 'scripts' folder for building Geneva.
 #
 
@@ -61,6 +61,13 @@ IF( NOT DEFINED GENEVA_BUILD_TESTS )
 	SET( GENEVA_BUILD_TESTS FALSE )
 ENDIF()
 
+# The "FOREACH IN LISTS" construct is only available starting with CMake 2.8.
+# Detect that case to avoid build errors in CMake 2.6.
+IF( CMAKE_MAJOR_VERSION GREATER 1 AND CMAKE_MINOR_VERSION LESS 8 )
+	SET( OLD_CMAKE TRUE )
+	# We print a warning at end of the generation, to avoid it getting lost
+ENDIF()
+
 # Nice formatting
 MESSAGE ("")
 
@@ -75,52 +82,43 @@ IF(DEFINED GENEVA_BUILD_TYPE)
 		MESSAGE ("Setting the build type to Release")
 		SET(CMAKE_BUILD_TYPE Release)
 	ELSE()
-		MESSAGE (FATAL_ERROR "Unknown compilation mode " ${GENEVA_BUILD_TYPE})
+		MESSAGE (FATAL_ERROR "Unknown compilation mode GENEVA_BUILD_TYPE=${GENEVA_BUILD_TYPE}")
 	ENDIF()
 ELSEIF(DEFINED CMAKE_BUILD_TYPE AND NOT CMAKE_BUILD_TYPE STREQUAL "")
-	MESSAGE ("Using provided value of CMAKE_BUILD_TYPE=" ${CMAKE_BUILD_TYPE})
+	MESSAGE ("Using provided value of CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 ELSE()
 	MESSAGE ("Setting the build type to default value Debug")
 	SET(CMAKE_BUILD_TYPE Debug)
 ENDIF()
+MESSAGE ("")
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	MESSAGE ("======================")
-	MESSAGE ("Building in Debug mode")
-	MESSAGE ("======================")
 	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
-		MESSAGE ("Using icpc or icc compiler settings")
+		SET( MSG_COMPILER "icpc/icc")
 		# Specifics for Intel compiler (tested with 10.1). Removes two rather annoying
 		# (and, according to the authors' opinion, irrelevant in this context) warnings
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
 	ELSE() # e.g. g++
-		MESSAGE ("Using g++ compiler settings")
+		SET( MSG_COMPILER "gcc")
 		# ADD_DEFINITIONS ("-DDEBUG -pg -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
 		ADD_DEFINITIONS ("-DDEBUG -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wno-unused -ansi -pthread")
 		# ADD_DEFINITIONS ("-DDEBUG -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wno-unused -pthread -std=c++0x")
 	ENDIF()
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
-	MESSAGE ("========================")
-	MESSAGE ("Building in Release mode")
-	MESSAGE ("========================")
 	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
-		MESSAGE ("Using icpc or icc compiler settings")
+		SET( MSG_COMPILER "icpc/icc")
 		ADD_DEFINITIONS ("-O3 -pthread")
 	ELSE() # e.g. g++
-		MESSAGE ("Using g++ compiler settings")
+		SET( MSG_COMPILER "gcc")
 		ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -O3 -pthread")
 		# ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -g -O0 -pthread")
 	ENDIF()
+ELSE()
+	MESSAGE (FATAL_ERROR "Unknown compilation mode CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 ENDIF()
+
 # Note: -fno-unsafe-math-optimizations -fno-finite-math-only prevent false optimization of some critical
 # code in GRandomBaseT inside uniform_real().
-
-# The "FOREACH IN LISTS" construct is only available starting with CMake 2.8, detect that
-# case to avoid build errors in CMake 2.6.
-IF( CMAKE_MAJOR_VERSION GREATER 1 AND CMAKE_MINOR_VERSION LESS 8 )
-	SET( OLD_CMAKE TRUE )
-	# We print a warning at end of the generation, to avoid it getting lost
-ENDIF()
 
 IF( GENEVA_STATIC )
 	SET (CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -lpthread")
@@ -152,10 +150,6 @@ FIND_PACKAGE( Boost 1.40 REQUIRED COMPONENTS
 # Check whether we want to activate the test code and build tests
 IF( GENEVA_BUILD_TESTS )
 	ADD_DEFINITIONS ("-DGENEVATESTING")
-	MESSAGE ("=======================")
-	MESSAGE ("Building with test code")
-	MESSAGE ("=======================")
-
 	FIND_PACKAGE( Boost 1.40 REQUIRED COMPONENTS
 		test_exec_monitor
 	)
@@ -174,18 +168,47 @@ LINK_DIRECTORIES (
 	${Boost_LIBRARY_DIRS}
 )
 
-MESSAGE ("========================")
-MESSAGE ("Building with boost include file location ${Boost_INCLUDE_DIRS}")
-MESSAGE ("========================")
-MESSAGE ("Building with boost library location ${Boost_LIBRARY_DIRS}")
-MESSAGE ("========================")
-
 # The names of the libraries that will be built
 SET ( COMMON_LIBNAME            "gemfony-common" )
 SET ( HAP_LIBNAME               "gemfony-hap" )
 SET ( COURTIER_LIBNAME          "gemfony-courtier" )
 SET ( GENEVA_LIBNAME            "gemfony-geneva" )
 SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
+
+# Custom targets for building single libraries only
+ADD_CUSTOM_TARGET( "common"       DEPENDS ${COMMON_LIBNAME}
+				COMMENT "Building only the Common library." )
+ADD_CUSTOM_TARGET( "hap"          DEPENDS ${HAP_LIBNAME}
+				COMMENT "Building only the Hap library." )
+ADD_CUSTOM_TARGET( "courtier"     DEPENDS ${COURTIER_LIBNAME}
+				COMMENT "Building only the Courtier library." )
+ADD_CUSTOM_TARGET( "geneva"       DEPENDS ${GENEVA_LIBNAME}
+				COMMENT "Building only the Geneva library." )
+
+# Print a summary of the build settings before going to the subfolders
+MESSAGE ("\n========================================")
+MESSAGE ("Building:")
+IF( GENEVA_STATIC )
+	MESSAGE ("\tstatic libraries")
+ELSE()
+	MESSAGE ("\tshared libraries")
+ENDIF()
+IF( GENEVA_BUILD_TESTS )
+	MESSAGE ("\tand test code")
+ELSE()
+	MESSAGE ("\tbut no tests")
+ENDIF()
+MESSAGE ("\tin ${CMAKE_BUILD_TYPE} mode")
+MESSAGE ("\tusing ${MSG_COMPILER} compiler settings")
+MESSAGE ("\twith Boost include file location ${Boost_INCLUDE_DIRS}")
+MESSAGE ("\twith Boost library location ${Boost_LIBRARY_DIRS}")
+MESSAGE ("\twith install prefix ${CMAKE_INSTALL_PREFIX}")
+IF( CMAKE_VERBOSE_MAKEFILE )
+	MESSAGE ("\tand verbose CMake output")
+ELSE()
+	MESSAGE ("\tand sparse CMake output")
+ENDIF()
+MESSAGE ("========================================\n")
 
 ADD_SUBDIRECTORY (CMakeModules)
 ADD_SUBDIRECTORY (examples)
@@ -197,16 +220,6 @@ ADD_SUBDIRECTORY (src)
 IF( GENEVA_BUILD_TESTS )
 	ADD_SUBDIRECTORY (tests)
 ENDIF()
-
-# Custom targets for building single libraries only
-ADD_CUSTOM_TARGET( "common"       DEPENDS ${COMMON_LIBNAME}
-				COMMENT "Building only the Common library." )
-ADD_CUSTOM_TARGET( "hap"          DEPENDS ${HAP_LIBNAME}
-				COMMENT "Building only the Hap library." )
-ADD_CUSTOM_TARGET( "courtier"     DEPENDS ${COURTIER_LIBNAME}
-				COMMENT "Building only the Courtier library." )
-ADD_CUSTOM_TARGET( "geneva"       DEPENDS ${GENEVA_LIBNAME}
-				COMMENT "Building only the Geneva library." )
 
 SET ( INFORMATIONFILES
 	AUTHORS
