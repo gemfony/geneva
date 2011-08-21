@@ -40,8 +40,8 @@ IF(NOT CMAKE_BUILD_TYPE)
 	ENDIF()
 ENDIF()
 
-# At least Boost 1.40 must be installed
-FIND_PACKAGE( Boost 1.40 REQUIRED COMPONENTS
+# At least Boost 1.41 must be installed
+FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
 	date_time
 	system
 	thread
@@ -62,7 +62,7 @@ IF( GENEVA_BUILD_TESTS )
 	MESSAGE ("Building with test code")
 	MESSAGE ("=======================")
 
-	FIND_PACKAGE( Boost 1.40 REQUIRED COMPONENTS
+	FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
 		test_exec_monitor
 	)
 ENDIF()

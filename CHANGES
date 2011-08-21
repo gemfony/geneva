@@ -8,8 +8,9 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
 * Version 0.9.3, yet unnamed, release-date unknown
 
 The main changes for this release include:
-  - Introduced a new interface class GOptimizableI, as the basis of 
-    GOptimizationAlgorithmT and various wrapper classes
+ - Introduced a new interface class GOptimizableI, as the basis
+   of GOptimizationAlgorithmT and various wrapper classes.
+ - Bumped the minimal Boost version to 1.41.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.2, "Route de Meyrin" - August 4, 2011

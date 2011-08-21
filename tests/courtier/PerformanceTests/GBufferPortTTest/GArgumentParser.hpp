@@ -39,8 +39,8 @@
 // Boost headers go here
 #include <boost/version.hpp>
 
-#if BOOST_VERSION < 104000
-#error "Error: Boost should at least have version 1.40 !"
+#if BOOST_VERSION < 104100
+#error "Error: Boost should at least have version 1.41 !"
 #endif /* BOOST_VERSION */
 
 

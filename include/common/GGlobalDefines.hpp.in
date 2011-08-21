@@ -53,21 +53,11 @@
 #include <boost/version.hpp>
 
 /** The minimum allowed version of the Boost library */
-#define MIN_BOOST_VERSION 104000
+#define MIN_BOOST_VERSION 104100
 
 #if BOOST_VERSION < MIN_BOOST_VERSION
-#error "Boost version is too old !"
-#endif /* MIN_BOOST_VERSION */
-
-/* 
- * This workaround allows us to use the old Boost 1.40 (used e.g. in Ubuntu 10.04 LTS.
- * BOOST_CLASS_EXPORT_IMPLEMENT and BOOST_CLASS_EXPORT_KEY have only been introduced
- * with Boost 1.41.
-*/
-#if BOOST_VERSION == 104000
-#define BOOST_CLASS_EXPORT_IMPLEMENT(T) BOOST_CLASS_EXPORT(T)
-#define BOOST_CLASS_EXPORT_KEY(T)
-#endif /* BOOST_VERSION == 104000 */ 
+#error "Error: Boost should at least have version 1.41 !"
+#endif /* BOOST_VERSION */
 
 /** The current version of the Geneva library */
 #define GENEVAVERSION @GENEVA_API_VERSION@
