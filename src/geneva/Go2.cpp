@@ -45,7 +45,7 @@ namespace Geneva {
  */
 Go2::Go2()
 	: GMutableSetT<GParameterSet>()
-	, serverMode_(GO2_DEF_SERVERMODE)
+	, clientMode_(GO2_DEF_CLIENTMODE)
 	, serializationMode_(GO2_DEF_SERIALIZATIONMODE)
 	, ip_(GO2_DEF_IP)
 	, port_(GO2_DEF_PORT)
@@ -82,7 +82,7 @@ Go2::Go2()
  */
 Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	: GMutableSetT<GParameterSet>()
-	, serverMode_(GO2_DEF_SERVERMODE)
+	, clientMode_(GO2_DEF_CLIENTMODE)
 	, serializationMode_(GO2_DEF_SERIALIZATIONMODE)
 	, ip_(GO2_DEF_IP)
 	, port_(GO2_DEF_PORT)
@@ -121,9 +121,7 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
  * A constructor that is given the usual command line parameters, then loads the
  * rest of the data from a config file.
  *
- * @param pers Specifies the optimization algorithm to be used by this object
- * @param pM Indicates the parallelization mode (serial, multi-threaded or networked)
- * @param serverMode Indicates whether this object should operate in server (or multithreaded + serial) or client mode
+ * @param clientMode Indicates whether this object should operate in (networked) client mode
  * @param sM Specifies whether serialization should happen in XML, Text oder Binary mode
  * @param ip Specifies the ip under which the server can be reached
  * @param port Specifies the port under which the server can be reached
@@ -131,7 +129,7 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
  * @param verbose Specifies whether additional information about parsed parameters should be emitted
  */
 Go2::Go2(
-	const bool& serverMode
+	const bool& clientMode
 	, const Gem::Common::serializationMode& sM
 	, const std::string& ip
 	, const unsigned short& port
@@ -139,7 +137,7 @@ Go2::Go2(
 	, const bool& verbose
 )
 	: GMutableSetT<GParameterSet>()
-	, serverMode_(serverMode)
+	, clientMode_(clientMode)
 	, serializationMode_(sM)
 	, ip_(ip)
 	, port_(port)
@@ -170,7 +168,7 @@ Go2::Go2(
  */
 Go2::Go2(const Go2& cp)
 	: GMutableSetT<GParameterSet>(cp)
-	, serverMode_(cp.serverMode_)
+	, clientMode_(cp.clientMode_)
 	, serializationMode_(cp.serializationMode_)
 	, ip_(cp.ip_)
 	, port_(cp.port_)
@@ -276,7 +274,7 @@ boost::optional<std::string> Go2::checkRelationshipWith(
 	deviations.push_back(GMutableSetT<GParameterSet>::checkRelationshipWith(cp, e, limit, "Go2", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "Go2", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go2", clientMode_, p_load->clientMode_, "clientMode_", "p_load->clientMode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", serializationMode_, p_load->serializationMode_, "serializationMode_", "p_load->serializationMode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", ip_, p_load->ip_, "ip_", "p_load->ip_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", port_, p_load->port_, "port_", "p_load->port_", e , limit));
@@ -310,7 +308,7 @@ void Go2::load_(const GObject *cp) {
 	GMutableSetT<GParameterSet>::load_(cp);
 
 	// and then our local data
-	serverMode_ = p_load->serverMode_;
+	clientMode_ = p_load->clientMode_;
 	serializationMode_ = p_load->serializationMode_;
 	ip_ = p_load->ip_;
 	port_ = p_load->port_;
@@ -371,7 +369,7 @@ bool Go2::clientRun() {
  * @return A boolean which indicates whether the server mode has been set for this object
  */
 bool Go2::serverMode() const {
-	return serverMode_;
+	return !clientMode_;
 }
 
 /**************************************************************************************/
@@ -381,7 +379,7 @@ bool Go2::serverMode() const {
  * @return A boolean which indicates whether the client mode has been set for this object
  */
 bool Go2::clientMode() const {
-	return !serverMode_;
+	return clientMode_;
 }
 
 /**************************************************************************************/
@@ -700,12 +698,12 @@ std::vector<boost::shared_ptr<GIndividual> > Go2::getBestIndividuals() {
 
 /**************************************************************************************/
 /**
- * Allows to mark this object as belonging to a server as opposed to a client
+ * Allows to mark this object as belonging to a client as opposed to a server
  *
- * @param serverMode Allows to mark this object as belonging to a server as opposed to a client
+ * @param serverMode Allows to mark this object as belonging to a client as opposed to a server
  */
-void Go2::setServerMode(const bool& serverMode) {
-	serverMode_ = serverMode;
+void Go2::setClientMode(bool clientMode) {
+	clientMode_ = clientMode;
 }
 
 /**************************************************************************************/
@@ -714,8 +712,8 @@ void Go2::setServerMode(const bool& serverMode) {
  *
  * @return A boolean indicating whether this object is working in server or client mode
  */
-bool Go2::getServerMode() const {
-	return serverMode_;
+bool Go2::getClientMode() const {
+	return clientMode_;
 }
 
 /**************************************************************************************/
@@ -969,8 +967,8 @@ void Go2::parseCommandLine(int argc, char **argv) {
 				("help,h", "emit help message")
 				("configFilename,c", po::value<std::string>(&configFilename_)->default_value(GO2_DEF_DEFAULTCONFIGFILE),
 				"The name of the file holding configuration information for optimization algorithms")
-				("serverMode,s",
-				"Whether to run networked execution in client or server mode. This option only gets evaluated if \"--parallelizationMode=2\" is set")
+				("clientMode,c",
+				"Makes this program behave as a networked client")
 				("ip", po::value<std::string>(&ip_)->default_value(GO2_DEF_IP),
 				"The ip of the server")
 				("port", po::value<unsigned short>(&port_)->default_value(GO2_DEF_PORT),
@@ -998,15 +996,14 @@ void Go2::parseCommandLine(int argc, char **argv) {
 			exit(0);
 		}
 
-		if (parMode_ == 2  &&  !vm.count("serverMode")) serverMode_ = false;
-		else serverMode_ = true;
+		if (vm.count("clientMode")) clientMode_ = true;
 
 		if(vm.count("verbose")) {
 			verbose_ = true;
 			std::cout << std::endl
 					<< "Running with the following command line options:" << std::endl
 					<< "configFilename = " << configFilename_ << std::endl
-					<< "serverMode = " << serverMode_ << std::endl
+					<< "clientMode = " << clientMode_ << std::endl
 					<< "ip = " << ip_ << std::endl
 					<< "port = " << port_ << std::endl
 					<< "serializationMode = " << serializationMode_ << std::endl;

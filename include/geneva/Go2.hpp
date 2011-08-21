@@ -80,7 +80,7 @@ namespace Geneva {
 /**************************************************************************************/
 // Default values for the variables used by the optimizer
 const std::string GO2_DEF_DEFAULTCONFIGFILE="go2.cfg";
-const bool GO2_DEF_SERVERMODE=true;
+const bool GO2_DEF_CLIENTMODE=false;
 const parMode GO2_DEF_DEFAULPARALLELIZATIONMODE=MULTITHREADED;
 const Gem::Common::serializationMode GO2_DEF_SERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
 const std::string GO2_DEF_IP="localhost";
@@ -113,7 +113,7 @@ class Go2
 	  using boost::serialization::make_nvp;
 
 	  ar & make_nvp("GMutableSetT_GParameterSet", boost::serialization::base_object<GMutableSetT<GParameterSet> >(*this))
-	     & BOOST_SERIALIZATION_NVP(serverMode_)
+	     & BOOST_SERIALIZATION_NVP(clientMode_)
 	     & BOOST_SERIALIZATION_NVP(serializationMode_)
 	     & BOOST_SERIALIZATION_NVP(ip_)
 	     & BOOST_SERIALIZATION_NVP(port_)
@@ -198,8 +198,8 @@ public:
 
 	/**************************************************************************************/
 	// The following is a trivial list of getters and setters
-	void setServerMode(const bool&);
-	bool getServerMode() const;
+	void setClientMode(bool);
+	bool getClientMode() const;
 
 	void setSerializationMode(const Gem::Common::serializationMode&);
 	Gem::Common::serializationMode getSerializationMode() const;
@@ -273,7 +273,7 @@ protected:
 private:
 	/**********************************************************************/
 	// These parameters can enter the object through the constructor
-	bool serverMode_; ///< Specifies whether this object is in server (true) or client (false) mode
+	bool clientMode_; ///< Specifies whether this object represents a network client
 	Gem::Common::serializationMode serializationMode_; ///< Indicates whether serialization should be done in Text, XML or Binary form
     std::string ip_; ///< Where the server can be reached
     unsigned short port_; ///< The port on which the server answers
