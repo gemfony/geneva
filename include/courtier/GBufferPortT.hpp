@@ -86,10 +86,10 @@ public:
 		: original_(new Gem::Common::GBoundedBufferWithIdT<T>())
 		, processed_(new Gem::Common::GBoundedBufferWithIdT<T>())
 	{
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		original_->setName("raw buffer");
 		processed_->setName("processed buffer");
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
 	/*****************************************************************************/
@@ -102,10 +102,10 @@ public:
 	   : original_(new Gem::Common::GBoundedBufferWithIdT<T>(size))
 	   , processed_(new Gem::Common::GBoundedBufferWithIdT<T>(size))
 	{
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		original_->setName("raw buffer");
 		processed_->setName("processed buffer");
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
 	/*****************************************************************************/

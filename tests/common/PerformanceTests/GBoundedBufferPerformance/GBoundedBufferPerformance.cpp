@@ -33,7 +33,7 @@
  */
 
 // Force the bounded buffer to emit data
-#define BENCHMARKBOUNDEDBUFFER
+#define GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 
 // Standard headers go here
 

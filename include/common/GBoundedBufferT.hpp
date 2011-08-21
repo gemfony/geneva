@@ -155,13 +155,13 @@ public:
 	 */
 	GBoundedBufferT()
 		: capacity_(DEFAULTBUFFERSIZE)
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		, name_("no name")
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	{
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		startTime_ = boost::posix_time::microsec_clock::local_time();
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
 	/***************************************************************/
@@ -173,13 +173,13 @@ public:
 	 */
 	explicit GBoundedBufferT(const std::size_t& capacity)
 		: capacity_(capacity?capacity:1)
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		, name_("no name")
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	{
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		startTime_ = boost::posix_time::microsec_clock::local_time();
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
 	/***************************************************************/
@@ -208,13 +208,13 @@ public:
 			std::terminate();
 		}
 
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Find out when this object got destroyed
 		endTime_ = boost::posix_time::microsec_clock::local_time();
 
 		// Write out results
 		emitPutAndGetTimes();
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
 	/***************************************************************/
@@ -233,12 +233,12 @@ public:
 		not_full_.wait(lock, boost::bind(&GBoundedBufferT<value_type>::is_not_full, this));
 		container_.push_front(item);
 
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the puts_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		puts_.push_back(currentTime);
 		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
 		not_empty_.notify_one();
@@ -261,12 +261,12 @@ public:
 		}
 		container_.push_front(item);
 
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the puts_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		puts_.push_back(currentTime);
 		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
 		not_empty_.notify_one();
@@ -290,12 +290,12 @@ public:
 		}
 		container_.push_front(item);
 
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the puts_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		puts_.push_back(currentTime);
 		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
 		not_empty_.notify_one();
@@ -326,12 +326,12 @@ public:
 		item = container_.back();
 		container_.pop_back();
 
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the gets_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		gets_.push_back(currentTime);
 		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
 		not_full_.notify_one();
@@ -364,12 +364,12 @@ public:
 		item = container_.back();
 		container_.pop_back();
 
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the gets_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		gets_.push_back(currentTime);
 		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
 		not_full_.notify_one();
@@ -404,12 +404,12 @@ public:
 		item = container_.back(); // Assign the item at the back of the container
 		container_.pop_back(); // Remove it from the container
 
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the gets_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		gets_.push_back(currentTime);
 		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
 		not_full_.notify_one();
@@ -473,7 +473,7 @@ public:
 		return (container_.size() > 0);
 	}
 
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 	/***************************************************************/
 	/**
 	 * Allows to assign a name to this object
@@ -495,7 +495,7 @@ public:
 	}
 
 	/***************************************************************/
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 protected:
 	/***************************************************************
@@ -538,7 +538,7 @@ private:
 	GBoundedBufferT(const GBoundedBufferT&); ///< Disabled copy constructor
 	GBoundedBufferT& operator = (const GBoundedBufferT&); ///< Disabled assign operator
 
-#ifdef BENCHMARKBOUNDEDBUFFER
+#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 	/***************************************************************/
 	/**
 	 * Writes out put- and get times. You can evaluate the results using
@@ -609,7 +609,7 @@ private:
 
 	std::vector<long> gets_, puts_; ///< Holds information about submission- and retrieval-times
 
-#endif /* BENCHMARKBOUNDEDBUFFER */
+#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 };
 
 } /* namespace Common */
