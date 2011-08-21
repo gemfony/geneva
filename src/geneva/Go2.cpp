@@ -698,6 +698,23 @@ std::vector<boost::shared_ptr<GIndividual> > Go2::getBestIndividuals() {
 
 /**************************************************************************************/
 /**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ * @param showOrigin Makes the function indicate the origin of parameters in comments
+ */
+void Go2::addConfigurationOptions (
+	Gem::Common::GParserBuilder& gpb
+	, const bool& showOrigin
+) {
+	// No local data
+
+	// Call our parent class'es function
+	GMutableSetT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+}
+
+/**************************************************************************************/
+/**
  * Allows to mark this object as belonging to a client as opposed to a server
  *
  * @param serverMode Allows to mark this object as belonging to a client as opposed to a server

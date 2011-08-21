@@ -270,6 +270,9 @@ protected:
 	/** @brief Retrieves a list of the best individuals found */
 	std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder& , const bool&);
+
 private:
 	/**********************************************************************/
 	// These parameters can enter the object through the constructor
