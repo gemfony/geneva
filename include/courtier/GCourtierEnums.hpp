@@ -111,6 +111,24 @@ const bool LEAVEITERATIONUNTOUCHED = false;
 
 /**********************************************************************************************/
 /**
+ * This enum marks different consumer modes
+ */
+enum consumerMode {
+	SERIALCONSUMER = 0
+	, MULTITHREADEDCONSUMER = 1
+	, ASIOTCPCONSUMER = 2
+};
+
+/**********************************************************************************************/
+/**
+ * This enum marks different (usually networked) client modes
+ */
+enum clientMode {
+	ASIOTCPCLIENT = 0
+};
+
+/**********************************************************************************************/
+/**
  * These two typedefs allow to steer the types of ids assigned to objects submitted to the broker
  */
 typedef boost::uint64_t ID_TYPE_1;
@@ -118,6 +136,20 @@ typedef std::size_t     ID_TYPE_2;
 
 typedef ID_TYPE_1 SUBMISSIONCOUNTERTYPE;
 typedef ID_TYPE_2 POSITIONTYPE;
+
+/**********************************************************************************************/
+
+/** @brief Puts a Gem::Courtier::consumerMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Courtier::consumerMode&);
+
+/** @brief Reads a Gem::Courtier::consumerMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Courtier::consumerMode&);
+
+/** @brief Puts a Gem::Courtier::clientMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Courtier::clientMode&);
+
+/** @brief Reads a Gem::Courtier::clientMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Courtier::clientMode&);
 
 /**********************************************************************************************/
 

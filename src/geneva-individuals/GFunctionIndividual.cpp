@@ -138,7 +138,7 @@ boost::optional<std::string> GFunctionIndividual::checkRelationshipWith(const GO
 
 	// Check that we are indeed dealing with an object of the same type and that we are not
 	// accidently trying to compare this object with itself.
-	const GFunctionIndividual *p_load = conversion_cast<GFunctionIndividual>(&cp);
+	const GFunctionIndividual *p_load = gobject_conversion<GFunctionIndividual>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -182,7 +182,7 @@ demoFunction GFunctionIndividual::getDemoFunction() const {
 void GFunctionIndividual::load_(const GObject* cp){
 	// Check that we are indeed dealing with an object of the same type and that we are not
 	// accidently trying to compare this object with itself.
-	const GFunctionIndividual *p_load = conversion_cast<GFunctionIndividual>(cp);
+	const GFunctionIndividual *p_load = gobject_conversion<GFunctionIndividual>(cp);
 
 	// Load our parent class'es data ...
 	GParameterSet::load_(cp);
@@ -415,30 +415,7 @@ boost::shared_ptr<GFunctionIndividual> GFunctionIndividualFactory::getIndividual
 	boost::shared_ptr<GFunctionIndividual> functionIndividual_ptr;
 
 	// Set up a single function individual, depending on the expected function type
-	switch(df) {
-	case PARABOLA:
-		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(PARABOLA));
-		break;
-	case BERLICH:
-		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(BERLICH));
-		break;
-	case ROSENBROCK:
-		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(ROSENBROCK));
-		break;
-	case ACKLEY:
-		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(ACKLEY));
-		break;
-	case RASTRIGIN:
-		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(RASTRIGIN));
-		break;
-	case SCHWEFEL:
-		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(SCHWEFEL));
-		break;
-	case SALOMON:
-		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(SALOMON));
-		break;
-	}
-
+	functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(df));
 
 	boost::shared_ptr<GParameterCollectionT<double> > c_ptr;
 	if(useConstrainedDoubleCollection) {

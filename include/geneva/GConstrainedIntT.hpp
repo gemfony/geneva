@@ -224,7 +224,7 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GConstrainedIntT<int_type>  *p_load = GObject::conversion_cast<GConstrainedIntT<int_type> >(&cp);
+		const GConstrainedIntT<int_type>  *p_load = GObject::gobject_conversion<GConstrainedIntT<int_type> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -315,7 +315,7 @@ protected:
 	 */
 	virtual void load_(const GObject *cp) {
 		// Convert GObject pointer to local format
-		const GConstrainedIntT<int_type> *p_load = GObject::conversion_cast<GConstrainedIntT<int_type> >(cp);
+		const GConstrainedIntT<int_type> *p_load = GObject::gobject_conversion<GConstrainedIntT<int_type> >(cp);
 
 		// Load our parent class'es data ...
 		GConstrainedNumT<int_type>::load_(cp);

@@ -176,7 +176,7 @@ std::string GOpenCLIndividual::getOpenCLTaskFile() const {
  * @param cp A copy of another GOpenCLIndividual, camouflaged as a GObject
  */
 void GOpenCLIndividual::load_(const GObject* cp){
-	const GOpenCLIndividual *p_load = GObject::conversion_cast<GOpenCLIndividual>(cp);
+	const GOpenCLIndividual *p_load = GObject::gobject_conversion<GOpenCLIndividual>(cp);
 
 	// Load our parent class'es data ...
 	GParameterSet::load_(cp);

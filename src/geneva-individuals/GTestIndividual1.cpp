@@ -137,7 +137,7 @@ boost::optional<std::string> GTestIndividual1::checkRelationshipWith(const GObje
 	using namespace Gem::Geneva;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GTestIndividual1 *p_load = conversion_cast<GTestIndividual1>(&cp);
+	const GTestIndividual1 *p_load = gobject_conversion<GTestIndividual1>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -195,7 +195,7 @@ void GTestIndividual1::load_(const GObject* cp)
 	using namespace Gem::Geneva;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GTestIndividual1 *p_load = conversion_cast<GTestIndividual1>(cp);
+	const GTestIndividual1 *p_load = gobject_conversion<GTestIndividual1>(cp);
 
 	// Load our parent's data
 	GParameterSet::load_(cp);
@@ -418,9 +418,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->fitness());
 		boost::shared_ptr<GTestIndividual1> p_test_orig = p_test->clone<GTestIndividual1>();
 
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::EA));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
 		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("adapt"));
-		BOOST_CHECK_NO_THROW(p_test_orig->setPersonality(Gem::Geneva::EA));
+		BOOST_CHECK_NO_THROW(p_test_orig->setPersonality(Gem::Geneva::PERSONALITY_EA));
 		BOOST_CHECK_NO_THROW(p_test_orig->getPersonalityTraits()->setCommand("adapt"));
 
 		// Cross check that both individuals are indeed currently equal
@@ -455,9 +455,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->fitness());
 		boost::shared_ptr<GTestIndividual1> p_test_orig = p_test->clone<GTestIndividual1>();
 
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::EA));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
 		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("adapt"));
-		BOOST_CHECK_NO_THROW(p_test_orig->setPersonality(Gem::Geneva::EA));
+		BOOST_CHECK_NO_THROW(p_test_orig->setPersonality(Gem::Geneva::PERSONALITY_EA));
 		BOOST_CHECK_NO_THROW(p_test_orig->getPersonalityTraits()->setCommand("adapt"));
 
 		// Cross check that both individuals are indeed currently equal
@@ -499,7 +499,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty());
 
 		// Tell the individual about its personality and duty
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::EA));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
 		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("evaluate"));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
@@ -524,7 +524,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty());
 
 		// Tell the individual about its personality
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::EA));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
 
 		// Set the server mode, so calling the fitness function throws
 		BOOST_CHECK_NO_THROW(p_test->setServerMode(true));
@@ -560,7 +560,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty());
 
 		// Tell the individual about its personality and duty
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::SWARM));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_SWARM));
 		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("evaluate"));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
@@ -582,7 +582,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->customUpdateOnStall() == true);
 
 		// Make this a parent individual in EA mode
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::EA));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
 		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent());
 
 		// Perform the actual update
@@ -886,7 +886,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
 
 		// Set the GD personality
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::GD));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_GD));
 
 		// Calling the process function should throw for this personality type
 		BOOST_CHECK_THROW(p_test->process(), Gem::Common::gemfony_error_condition);
@@ -911,7 +911,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		// using multiple processing cycles in an iteration > 0 should throw in DEBUG mode
 		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
 
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::EA));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
 		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("adapt"));
 
 		// Make sure the individual is dirty
@@ -943,7 +943,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK(p_test->customUpdateOnStall() == true);
 
 		// Make this a parent individual in EA mode
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::EA));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
 		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>()->setIsChild());
 
 		// Perform the actual update

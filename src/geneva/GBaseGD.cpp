@@ -117,7 +117,7 @@ GBaseGD::~GBaseGD()
  * @return The type of optimization algorithm
  */
 personality GBaseGD::getOptimizationAlgorithm() const {
-	return GD;
+	return PERSONALITY_GD;
 }
 
 /************************************************************************************************************/
@@ -214,6 +214,15 @@ std::size_t GBaseGD::getNProcessableItems() const {
 	return this->size(); // Evaluation always needs to be done for the entire population
 }
 
+/************************************************************************************************************/
+/**
+ * Returns the name of this optimization algorithm
+ *
+ * @return The name assigned to this optimization algorithm
+ */
+std::string GBaseGD::getAlgorithmName() const {
+	return std::string("Gradient Descent");
+}
 
 /************************************************************************************************************/
 /**
@@ -273,7 +282,7 @@ boost::optional<std::string> GBaseGD::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GBaseGD *p_load = GObject::conversion_cast<GBaseGD>(&cp);
+	const GBaseGD *p_load = GObject::gobject_conversion<GBaseGD>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -375,7 +384,7 @@ void GBaseGD::load_(const GObject *cp) {
 	// The information would otherwise be lost after the load call below
 	boost::uint32_t currentIteration = this->getIteration();
 
-	const GBaseGD *p_load = this->conversion_cast<GBaseGD>(cp);
+	const GBaseGD *p_load = this->gobject_conversion<GBaseGD>(cp);
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
@@ -394,7 +403,7 @@ void GBaseGD::load_(const GObject *cp) {
  */
 void GBaseGD::setIndividualPersonalities() {
 	for(GBaseGD::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->setPersonality(GD);
+		(*it)->setPersonality(PERSONALITY_GD);
 	}
 }
 
@@ -405,7 +414,7 @@ void GBaseGD::setIndividualPersonalities() {
  * @return The value of the best individual found
  */
 double GBaseGD::cycleLogic() {
-	if(this->getIteration() > this->getOffset()) {
+	if(afterFirstIteration()) {
 		// Update the parameters of the parent individuals. This
 		// only makes sense once the individuals have been evaluated
 		this->updateParentIndividuals();
@@ -415,9 +424,7 @@ double GBaseGD::cycleLogic() {
 	this->updateChildParameters();
 
 	// Trigger value calculation for all individuals (including parents)
-	double bestFitness = doFitnessCalculation(this->size());
-
-	return bestFitness;
+	return doFitnessCalculation(this->size());
 }
 
 /************************************************************************************************************/
@@ -588,7 +595,7 @@ std::vector<boost::shared_ptr<GIndividual> > GBaseGD::getBestIndividuals() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GBaseGD::addConfigurationOptions (
+void GBaseGD::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -644,7 +651,7 @@ void GBaseGD::addConfigurationOptions (
 	);
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions_(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -935,7 +942,7 @@ boost::optional<std::string> GBaseGD::GGDOptimizationMonitor::checkRelationshipW
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GBaseGD::GGDOptimizationMonitor *p_load = GObject::conversion_cast<GBaseGD::GGDOptimizationMonitor >(&cp);
+	const GBaseGD::GGDOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseGD::GGDOptimizationMonitor >(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -993,7 +1000,7 @@ std::string GBaseGD::GGDOptimizationMonitor::firstInformation(GOptimizationAlgor
 
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != GD) {
+	if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
 		raiseException(
 				"In GBaseGD::GGDOptimizationMonitor::firstInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
@@ -1021,7 +1028,7 @@ std::string GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgor
 
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != GD) {
+	if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
 		raiseException(
 				"In GBaseGD::GGDOptimizationMonitor::cycleInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
@@ -1044,7 +1051,7 @@ std::string GBaseGD::GGDOptimizationMonitor::lastInformation(GOptimizationAlgori
 
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != GD) {
+	if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
 		raiseException(
 				"In GBaseGD::GGDOptimizationMonitor::lastInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
@@ -1146,7 +1153,7 @@ std::string GBaseGD::GGDOptimizationMonitor::gdLastInformation(GBaseGD * const g
  * cp A pointer to another GGDOptimizationMonitor object, camouflaged as a GObject
  */
 void GBaseGD::GGDOptimizationMonitor::load_(const GObject* cp) {
-	const GBaseGD::GGDOptimizationMonitor *p_load = conversion_cast<GBaseGD::GGDOptimizationMonitor>(cp);
+	const GBaseGD::GGDOptimizationMonitor *p_load = gobject_conversion<GBaseGD::GGDOptimizationMonitor>(cp);
 
 	// Load the parent classes' data ...
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);

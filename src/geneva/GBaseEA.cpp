@@ -66,6 +66,9 @@ GBaseEA::GBaseEA()
 					new GEAOptimizationMonitor()
 			)
 	);
+
+	// Make sure we start with a valid population size if the user does not supply these values
+	this->setDefaultPopulationSize(100,1);
 }
 
 /************************************************************************************************************/
@@ -130,7 +133,7 @@ const GBaseEA& GBaseEA::operator=(const GBaseEA& cp) {
  */
 void GBaseEA::load_(const GObject * cp)
 {
-	const GBaseEA *p_load = conversion_cast<GBaseEA>(cp);
+	const GBaseEA *p_load = gobject_conversion<GBaseEA>(cp);
 
 	// First load the parent class'es data ...
 	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::load_(cp);
@@ -206,7 +209,7 @@ boost::optional<std::string> GBaseEA::checkRelationshipWith(const GObject& cp,
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GBaseEA *p_load = GObject::conversion_cast<GBaseEA>(&cp);
+	const GBaseEA *p_load = GObject::gobject_conversion<GBaseEA>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -240,7 +243,7 @@ boost::optional<std::string> GBaseEA::checkRelationshipWith(const GObject& cp,
  * @return The type of optimization algorithm
  */
 personality GBaseEA::getOptimizationAlgorithm() const {
-	return EA;
+	return PERSONALITY_EA;
 }
 
 /************************************************************************************************************/
@@ -249,7 +252,7 @@ personality GBaseEA::getOptimizationAlgorithm() const {
  */
 void GBaseEA::setIndividualPersonalities() {
 	GBaseEA::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(EA);
+	for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(PERSONALITY_EA);
 }
 
 /************************************************************************************************************/
@@ -299,7 +302,7 @@ void GBaseEA::saveCheckpoint() const {
 	if(this->at(0)->isDirty()) {
 		raiseException(
 				"In GBaseEA::saveCheckpoint():" << std::endl
-				<< "Error: class member has the dirty flag set"
+				<< "Error: class member in position " << std::distance(it,this->begin()) << " has the dirty flag set."
 		);
 	}
 #endif /* DEBUG */
@@ -449,7 +452,7 @@ bool GBaseEA::oldParentsLogged() const {
  * @return The number of processible items in the current iteration
  */
 std::size_t GBaseEA::getNProcessableItems() const {
-	if(getIteration()==this->getOffset()) { // usually this means iteration == 0
+	if(inFirstIteration()) { // usually this means iteration == 0
 		switch(getSortingScheme()) {
 		case MUPLUSNU_PARETO:
 		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
@@ -507,6 +510,16 @@ std::size_t GBaseEA::getMaxPopulationSize() const {
 
 /************************************************************************************************************/
 /**
+ * Returns the name of this optimization algorithm
+ *
+ * @return The name assigned to this optimization algorithm
+ */
+std::string GBaseEA::getAlgorithmName() const {
+	return std::string("Evolutionary Algorithm");
+}
+
+/************************************************************************************************************/
+/**
  * Specifies the default size of the population plus the number of parents.
  * The population will be filled with additional individuals later, as required --
  * see GBaseEA::adjustPopulation() . Also, all error checking is done in
@@ -529,7 +542,7 @@ void GBaseEA::setDefaultPopulationSize(std::size_t popSize, std::size_t nParents
  */
 double GBaseEA::cycleLogic() {
 	// If this is not the first iteration, check whether we need to increase the population
-	if(this->getIteration() != 0) {
+	if(afterFirstIteration()) {
 		performScheduledPopulationGrowth();
 	}
 
@@ -774,7 +787,7 @@ std::vector<boost::shared_ptr<GIndividual> > GBaseEA::getBestIndividuals() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GBaseEA::addConfigurationOptions (
+void GBaseEA::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -917,7 +930,7 @@ void GBaseEA::addConfigurationOptions (
 	);
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+	GOptimizationAlgorithmT<GIndividual>::addConfigurationOptions_(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -1088,12 +1101,12 @@ void GBaseEA::doRecombine() {
 			// Do the actual recombination
 			for(it=data.begin()+nParents_; it!= data.end(); ++it) {
 				// A recombination taking into account the value does not make
-				// sense in generation 0, as parents might not have a suitable
+				// sense in the first iteration, as parents might not have a suitable
 				// value. Instead, this function might accidently trigger value
 				// calculation in this case. Hence we fall back to random
 				// recombination in generation 0. No value calculation takes
 				// place there.
-				if(getIteration() == 0) randomRecombine(*it);
+				if(inFirstIteration()) randomRecombine(*it);
 				else valueRecombine(*it, threshold);
 			}
 		}
@@ -1234,6 +1247,19 @@ void GBaseEA::select()
  * increase, but the optimization will stall more easily in MUPLUSNU_SINGLEEVAL mode.
  */
 void GBaseEA::sortMuplusnuMode() {
+#ifdef DEBUG
+	// Check that we do not accidently trigger value calculation
+	GBaseEA::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		if((*it)->isDirty()) {
+			raiseException(
+				"In GBaseEA::sortMuplusnuMode(): Error!" << std::endl
+				<< "In iteration " << getIteration() << ": Found individual in position " << std::distance(it,this->begin()) << " whose dirty flag is set." << std::endl
+			);
+		}
+	}
+#endif /* DEBUG */
+
 	// Only partially sort the arrays
 	if(this->getMaxMode()){
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
@@ -1252,6 +1278,19 @@ void GBaseEA::sortMuplusnuMode() {
  * optimization is less likely to stall.
  */
 void GBaseEA::sortMucommanuMode() {
+#ifdef DEBUG
+	// Check that we do not accidently trigger value calculation
+	GBaseEA::iterator it;
+	for(it=this->begin()+nParents_; it!=this->end(); ++it) {
+		if((*it)->isDirty()) {
+			raiseException(
+				"In GBaseEA::sortMucommanuMode(): Error!" << std::endl
+				<< "In iteration " << getIteration() << ": Found individual in position " << std::distance(it,this->begin()) << " whose dirty flag is set." << std::endl
+			);
+		}
+	}
+#endif /* DEBUG */
+
 	// Only sort the children
 	if(this->getMaxMode()){
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
@@ -1275,7 +1314,7 @@ void GBaseEA::sortMucommanuMode() {
  * do not accidentally trigger value calculation).
  */
 void GBaseEA::sortMunu1pretainMode() {
-	if(nParents_==1 || getIteration()==0) { // Falls back to MUPLUSNU_SINGLEEVAL mode
+	if(nParents_==1 || inFirstIteration()) { // Falls back to MUPLUSNU_SINGLEEVAL mode
 		sortMuplusnuMode();
 	} else {
 		// Sort the children
@@ -1914,7 +1953,7 @@ boost::optional<std::string> GBaseEA::GEAOptimizationMonitor::checkRelationshipW
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GBaseEA::GEAOptimizationMonitor *p_load = GObject::conversion_cast<GBaseEA::GEAOptimizationMonitor >(&cp);
+	const GBaseEA::GEAOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseEA::GEAOptimizationMonitor >(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -1943,7 +1982,7 @@ std::string GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgor
 
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != EA) {
+	if(goa->getOptimizationAlgorithm() != PERSONALITY_EA) {
 		raiseException(
 				"In GBaseEA::GEAOptimizationMonitor::firstInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
@@ -1978,7 +2017,7 @@ std::string GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgor
 
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != EA) {
+	if(goa->getOptimizationAlgorithm() != PERSONALITY_EA) {
 		raiseException(
 				"In GBaseEA::GEAOptimizationMonitor::cycleInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
@@ -2000,7 +2039,7 @@ std::string GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgor
 std::string GBaseEA::GEAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GIndividual> * const goa) {
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != EA) {
+	if(goa->getOptimizationAlgorithm() != PERSONALITY_EA) {
 		raiseException(
 				"In GBaseEA::GEAOptimizationMonitor::lastInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
@@ -2196,7 +2235,7 @@ std::size_t GBaseEA::GEAOptimizationMonitor::getNMonitorIndividuals() const {
  * cp A pointer to another GBaseEA::GEAOptimizationMonitor object, camouflaged as a GObject
  */
 void GBaseEA::GEAOptimizationMonitor::load_(const GObject* cp) {
-	const GBaseEA::GEAOptimizationMonitor *p_load = conversion_cast<GBaseEA::GEAOptimizationMonitor>(cp);
+	const GBaseEA::GEAOptimizationMonitor *p_load = gobject_conversion<GBaseEA::GEAOptimizationMonitor>(cp);
 
 	// Load the parent classes' data ...
 	GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::load_(cp);

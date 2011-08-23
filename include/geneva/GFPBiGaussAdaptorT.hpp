@@ -143,7 +143,7 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GFPBiGaussAdaptorT<fp_type>  *p_load = GObject::conversion_cast<GFPBiGaussAdaptorT<fp_type> >(&cp);
+		const GFPBiGaussAdaptorT<fp_type>  *p_load = GObject::gobject_conversion<GFPBiGaussAdaptorT<fp_type> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -172,7 +172,7 @@ protected:
 	void load_(const GObject *cp)
 	{
 		// Convert GObject pointer to local format
-		const GFPBiGaussAdaptorT<fp_type> *p_load = GObject::conversion_cast<GFPBiGaussAdaptorT<fp_type> >(cp);
+		const GFPBiGaussAdaptorT<fp_type> *p_load = GObject::gobject_conversion<GFPBiGaussAdaptorT<fp_type> >(cp);
 
 		// Load the data of our parent class ...
 		GNumBiGaussAdaptorT<fp_type, fp_type>::load_(cp);

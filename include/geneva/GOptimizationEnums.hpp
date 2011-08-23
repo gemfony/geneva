@@ -220,15 +220,15 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
  * Specification of different parallelization modes
  */
 enum parMode {
-	SERIAL = 0
-	, MULTITHREADED = 1
-	, BROKERAGE = 2
+	PARMODE_SERIAL = 0
+	, PARMODE_MULTITHREADED = 1
+	, PARMODE_BROKERAGE = 2
 };
 
 /**
  * The default parallelization mode of optimization algorithms
  */
-const parMode DEFAULTPARALLELIZATIONMODE = MULTITHREADED;
+const parMode DEFAULTPARALLELIZATIONMODE = PARMODE_MULTITHREADED;
 
 /**********************************************************************************************/
 /**
@@ -297,9 +297,9 @@ const double SA_ALPHA = 0.95; ///< The degradation strength in simulated anneali
  */
 enum personality {
 	  PERSONALITY_NONE = 0
-	, EA = 1
-	, GD = 2
-	, SWARM = 3
+	, PERSONALITY_EA = 1
+	, PERSONALITY_GD = 2
+	, PERSONALITY_SWARM = 3
 };
 
 /**********************************************************************************************/

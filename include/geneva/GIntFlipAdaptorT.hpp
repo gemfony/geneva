@@ -140,7 +140,7 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GIntFlipAdaptorT<int_type>  *p_load = GObject::conversion_cast<GIntFlipAdaptorT<int_type> >(&cp);
+		const GIntFlipAdaptorT<int_type>  *p_load = GObject::gobject_conversion<GIntFlipAdaptorT<int_type> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;

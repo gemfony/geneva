@@ -114,7 +114,7 @@ boost::optional<std::string> GEvaluator::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GEvaluator *p_load = GObject::conversion_cast<GEvaluator>(&cp);
+	const GEvaluator *p_load = GObject::gobject_conversion<GEvaluator>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -155,7 +155,7 @@ double GEvaluator::getCachedFitness() const {
  * @param cp A copy of another GEvaluator object, camouflaged as a GObject
  */
 void GEvaluator::load_(const GObject* cp) {
-	const GEvaluator *p_load = conversion_cast<GEvaluator>(cp);
+	const GEvaluator *p_load = gobject_conversion<GEvaluator>(cp);
 
 	// Load the parent class'es data
 	GObject::load_(cp);

@@ -165,7 +165,7 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GParameterCollectionT<T>  *p_load = GObject::conversion_cast<GParameterCollectionT<T> >(&cp);
+		const GParameterCollectionT<T>  *p_load = GObject::gobject_conversion<GParameterCollectionT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -272,7 +272,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) {
 		// Convert cp into local format and check for self-assignment
-		const GParameterCollectionT<T> *p_load = GObject::conversion_cast<GParameterCollectionT<T> >(cp);
+		const GParameterCollectionT<T> *p_load = GObject::gobject_conversion<GParameterCollectionT<T> >(cp);
 
 		// Load our parent class'es data ...
 		GParameterBaseWithAdaptorsT<T>::load_(cp);

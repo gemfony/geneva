@@ -141,7 +141,7 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GIndividual *p_load = GObject::conversion_cast<GIndividual>(&cp);
+	const GIndividual *p_load = GObject::gobject_conversion<GIndividual>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -173,7 +173,7 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(
  * @param cp A copy of another GIndividual object, camouflaged as a GObject
  */
 void GIndividual::load_(const GObject* cp) {
-	const GIndividual *p_load = conversion_cast<GIndividual>(cp);
+	const GIndividual *p_load = gobject_conversion<GIndividual>(cp);
 
 	// Load the parent class'es data
 	GObject::load_(cp);
@@ -568,7 +568,7 @@ double GIndividual::weighedSquaredSumCombiner(const std::vector<double>& weights
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GIndividual::addConfigurationOptions (
+void GIndividual::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -578,7 +578,7 @@ void GIndividual::addConfigurationOptions (
 	// from this class.
 
 	// Call our parent class'es function
-	GObject::addConfigurationOptions(gpb, showOrigin);
+	GObject::addConfigurationOptions_(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -603,15 +603,15 @@ personality GIndividual::setPersonality(const personality& pers) {
 		pt_ptr_.reset();
 		break;
 
-	case EA:
+	case PERSONALITY_EA:
 		pt_ptr_ = boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits());
 		break;
 
-	case GD:
+	case PERSONALITY_GD:
 		pt_ptr_ = boost::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits());
 		break;
 
-	case SWARM:
+	case PERSONALITY_SWARM:
 		pt_ptr_ = boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits());
 		break;
 	}
@@ -761,7 +761,7 @@ bool GIndividual::process(){
 
 	switch(pers_) {
 	//-------------------------------------------------------------------------------------------------------
-	case EA: // Evolutionary Algorithm
+	case PERSONALITY_EA: // Evolutionary Algorithm
 		{
 			if(getPersonalityTraits()->getCommand() == "adapt") {
 				if(processingCycles_ == 1 || getAssignedIteration() == 0) {
@@ -830,7 +830,7 @@ bool GIndividual::process(){
 		break;
 
 	//-------------------------------------------------------------------------------------------------------
-	case SWARM:
+	case PERSONALITY_SWARM:
 		{
 			if(getPersonalityTraits()->getCommand() == "evaluate") {
 				// Trigger fitness calculation
@@ -850,7 +850,7 @@ bool GIndividual::process(){
 		break;
 
 	//-------------------------------------------------------------------------------------------------------
-	case GD:
+	case PERSONALITY_GD:
 		{
 			if(getPersonalityTraits()->getCommand() == "evaluate") {
 				// Trigger fitness calculation
@@ -1198,7 +1198,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Set the personality type to EA
 		personality previous;
-		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(EA));
+		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_EA));
 		BOOST_CHECK_MESSAGE(
 				previous == PERSONALITY_NONE
 				,  "\n"
@@ -1206,7 +1206,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 				<< "expected PERSONALITY_NONE"
 		);
 		BOOST_CHECK_MESSAGE(
-				p_test->getPersonality() == EA
+				p_test->getPersonality() == PERSONALITY_EA
 				,  "\n"
 				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
 				<< "expected EA\n"
@@ -1224,15 +1224,15 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		p_pt.reset();
 
 		// Set the personality type to GD
-		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(GD));
+		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_GD));
 		BOOST_CHECK_MESSAGE(
-				previous == EA
+				previous == PERSONALITY_EA
 				,  "\n"
 				<< "previous = " << previous << "\n"
 				<< "expected EA"
 		);
 		BOOST_CHECK_MESSAGE(
-				p_test->getPersonality() == GD
+				p_test->getPersonality() == PERSONALITY_GD
 				,  "\n"
 				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
 				<< "expected GD\n"
@@ -1250,15 +1250,15 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		p_pt.reset();
 
 		// Set the personality type to SwARM
-		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(SWARM));
+		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_SWARM));
 		BOOST_CHECK_MESSAGE(
-				previous == GD
+				previous == PERSONALITY_GD
 				,  "\n"
 				<< "previous = " << previous << "\n"
 				<< "expected GD"
 		);
 		BOOST_CHECK_MESSAGE(
-				p_test->getPersonality() == SWARM
+				p_test->getPersonality() == PERSONALITY_SWARM
 				,  "\n"
 				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
 				<< "expected SWARM\n"
@@ -1278,7 +1278,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		// Set the personality type to PERSONALITY_NONE
 		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_NONE));
 		BOOST_CHECK_MESSAGE(
-				previous == SWARM
+				previous == PERSONALITY_SWARM
 				,  "\n"
 				<< "previous = " << previous << "\n"
 				<< "expected SWARM"
@@ -1327,7 +1327,7 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
 
 		// Make sure the personality type is set to SWARM
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(SWARM));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(PERSONALITY_SWARM));
 
 		// Trying to retrieve an EA personality object should throw
 		BOOST_CHECK_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>(), Gem::Common::gemfony_error_condition);

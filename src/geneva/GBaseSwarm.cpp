@@ -99,7 +99,7 @@ GBaseSwarm::GBaseSwarm(const GBaseSwarm& cp)
 	, nNeighborhoods_(cp.nNeighborhoods_)
 	, defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
 	, nNeighborhoodMembers_(cp.nNeighborhoodMembers_)
-	, global_best_((cp.getIteration()>0)?(cp.global_best_)->clone<GParameterSet>():boost::shared_ptr<GParameterSet>())
+	, global_best_((cp.afterFirstIteration())?(cp.global_best_)->clone<GParameterSet>():boost::shared_ptr<GParameterSet>())
 	, neighborhood_bests_(nNeighborhoods_) // We copy the smart pointers over later
 	, c_personal_(cp.c_personal_)
 	, c_neighborhood_(cp.c_neighborhood_)
@@ -120,7 +120,7 @@ GBaseSwarm::GBaseSwarm(const GBaseSwarm& cp)
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
 	// Clone cp's best individuals in each neighborhood
-	if(cp.getIteration()>0) {
+	if(cp.afterFirstIteration()) {
 		for(std::size_t i=0; i<nNeighborhoods_; i++) {
 			neighborhood_bests_[i] = cp.neighborhood_bests_[i]->clone<GParameterSet>();
 		}
@@ -145,7 +145,7 @@ GBaseSwarm::~GBaseSwarm()
  * @return The type of optimization algorithm
  */
 personality GBaseSwarm::getOptimizationAlgorithm() const {
-	return SWARM;
+	return PERSONALITY_SWARM;
 }
 
 
@@ -173,7 +173,7 @@ void GBaseSwarm::load_(const GObject *cp)
 	// The information would otherwise be lost after the load call below
 	boost::uint32_t currentIteration = this->getIteration();
 
-	const GBaseSwarm *p_load = this->conversion_cast<GBaseSwarm>(cp);
+	const GBaseSwarm *p_load = this->gobject_conversion<GBaseSwarm>(cp);
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
@@ -210,17 +210,17 @@ void GBaseSwarm::load_(const GObject *cp)
 			// The following only makes sense if this is not the first iteration. Note that
 			// getIteration will return the "foreign" GBaseSwarm object's iteration, as it has
 			// already been copied.
-			if(getIteration() > 0) {
+			if(afterFirstIteration()) {
 				neighborhood_bests_[i] = p_load->neighborhood_bests_[i]->clone<GParameterSet>();
 			}
 			// we do not need to reset the neighborhood_bests_, as that array has just been created
 		}
 	}
 	else { // We now assume that we can just load neighborhood bests in each position.
-		// Copying only makes sense if the foreign GBaseSwarm object's iteration is > 0.
-		// Note that getIteration() will return the foreign iteration, as that value
-		// has already been copied.
-		if(getIteration() > 0) {
+		// Copying only makes sense if the foreign GBaseSwarm object's iteration is larger
+		// than the iteration offset. Note that getIteration() will return the foreign iteration,
+		// has that value has already been copied.
+		if(afterFirstIteration()) {
 			for(std::size_t i=0; i<nNeighborhoods_; i++) {
 				// We might be in a situation where the boost::shared_ptr which usually
 				// holds the neighborhood bests has not yet been initialized
@@ -238,14 +238,14 @@ void GBaseSwarm::load_(const GObject *cp)
 	}
 
 	// Copy the global best over
-	if(p_load->getIteration() > 0) { // cp has a global best, we don't
+	if(p_load->afterFirstIteration()) { // cp has a global best, we don't
 		if(global_best_) { // If we already have a global best, just load the other objects global best
 			global_best_->GObject::load(p_load->global_best_);
 		} else {
 			global_best_ = p_load->GObject::clone<GParameterSet>();
 		}
 	}
-	else if(p_load->getIteration() == 0) { // cp does not have a global best
+	else if(p_load->inFirstIteration()) { // cp does not have a global best
 		global_best_.reset(); // empty the smart pointer
 	}
 	// else {} // We do not need to do anything if both iterations are 0 as there is no global best at all
@@ -301,7 +301,7 @@ boost::optional<std::string> GBaseSwarm::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GBaseSwarm *p_load = GObject::conversion_cast<GBaseSwarm>(&cp);
+	const GBaseSwarm *p_load = GObject::gobject_conversion<GBaseSwarm>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -332,7 +332,7 @@ boost::optional<std::string> GBaseSwarm::checkRelationshipWith(
 			deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", nNeighborhoodMembers_[i], (p_load->nNeighborhoodMembers_)[i], nbh, remote, e , limit));
 
 			// No neighborhood bests have been assigned yet in iteration 0
-			if(getIteration() > 0) {
+			if(afterFirstIteration()) {
 				deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", neighborhood_bests_[i], p_load->neighborhood_bests_[i], nbh, remote, e , limit));
 			}
 		}
@@ -347,7 +347,7 @@ boost::optional<std::string> GBaseSwarm::checkRelationshipWith(
  */
 void GBaseSwarm::setIndividualPersonalities() {
 	for(GBaseSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->setPersonality(SWARM);
+		(*it)->setPersonality(PERSONALITY_SWARM);
 	}
 }
 
@@ -601,7 +601,7 @@ std::vector<boost::shared_ptr<GIndividual> > GBaseSwarm::getBestIndividuals() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GBaseSwarm::addConfigurationOptions (
+void GBaseSwarm::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -718,9 +718,18 @@ void GBaseSwarm::addConfigurationOptions (
 	);
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions_(gpb, showOrigin);
 }
 
+/************************************************************************************************************/
+/**
+ * Returns the name of this optimization algorithm
+ *
+ * @return The name assigned to this optimization algorithm
+ */
+std::string GBaseSwarm::getAlgorithmName() const {
+	return std::string("Swarm Algorithm");
+}
 
 /************************************************************************************************************/
 /**
@@ -845,14 +854,14 @@ double GBaseSwarm::cycleLogic() {
  * Triggers an update of all individual's positions
  */
 void GBaseSwarm::updatePositions() {
-	std::size_t offset = 0;
+	std::size_t neighborhood_offset = 0;
 	GBaseSwarm::iterator start = this->begin();
 	boost::uint32_t iteration = getIteration();
 
 	// First update all positions
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
 #ifdef DEBUG
-		if(iteration > 0) {
+		if(afterFirstIteration()) {
 			if(!neighborhood_bests_[neighborhood]) {
 				raiseException(
 						"In GBaseSwarm::updatePositions():" << std::endl
@@ -870,22 +879,27 @@ void GBaseSwarm::updatePositions() {
 #endif /* DEBUG */
 
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
-			GBaseSwarm::iterator current = start + offset;
+			GBaseSwarm::iterator current = start + neighborhood_offset;
 
-			// Note: global/neighborhood bests and velocities haven't been determined yet in iteration 0 and are not needed there
-			if(iteration > 0 && !(*current)->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
+			// Note: global/neighborhood bests and velocities haven't been determined yet in the first iteration and are not needed there
+			if(afterFirstIteration() && !(*current)->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
 				// Update the swarm positions:
 				updateIndividualPositions(
 					neighborhood
 					, (*current)
-					, iteration>0?(neighborhood_bests_[neighborhood]):(boost::shared_ptr<GParameterSet>())
-					, iteration>0?(global_best_):(boost::shared_ptr<GParameterSet>())
-					, iteration>0?(velocities_[offset]):(boost::shared_ptr<GParameterSet>())
-					, boost::make_tuple(getCPersonal(), getCNeighborhood(), getCGlobal(), getCVelocity())
+					, neighborhood_bests_[neighborhood]
+					, global_best_
+					, velocities_[neighborhood_offset]
+					, boost::make_tuple(
+						getCPersonal()
+						, getCNeighborhood()
+						, getCGlobal()
+						, getCVelocity()
+					  )
 				);
 			}
 
-			offset++;
+			neighborhood_offset++;
 		}
 	}
 }
@@ -1111,7 +1125,7 @@ void GBaseSwarm::updateIndividualFitness(
 	// Update the personal best . This update is not performed in
 	// findBests() for performance reasons. This function can be
 	// executed in parallel in its own thread.
-	if(iteration == 0) {
+	if(inFirstIteration()) {
 		updatePersonalBest(ind);
 	} else {
 		updatePersonalBestIfBetter(ind);
@@ -1163,7 +1177,7 @@ double GBaseSwarm::findBests() {
 
 		// Check whether the best individual of the neighborhood is better than
 		// the best individual found so far in this neighborhood
-		if(getIteration() == 0) {
+		if(inFirstIteration()) {
 			neighborhood_bests_[n] = (*(this->begin() + firstCounter))->clone<GParameterSet>();
 		}
 		else {
@@ -1183,7 +1197,7 @@ double GBaseSwarm::findBests() {
 
 	// Compare the best neighborhood individual with the globally best indivdual and
 	// update it, if necessary. Initialize it in the first generation.
-	if(getIteration() == 0) {
+	if(inFirstIteration()) {
 		global_best_= neighborhood_bests_[bestCurrentLocalId]->clone<GParameterSet>();
 	}
 	else {
@@ -1654,7 +1668,7 @@ boost::optional<std::string> GBaseSwarm::GSwarmOptimizationMonitor::checkRelatio
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GBaseSwarm::GSwarmOptimizationMonitor *p_load = GObject::conversion_cast<GBaseSwarm::GSwarmOptimizationMonitor >(&cp);
+	const GBaseSwarm::GSwarmOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseSwarm::GSwarmOptimizationMonitor >(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -1714,7 +1728,7 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizatio
 
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != SWARM) {
+	if(goa->getOptimizationAlgorithm() != PERSONALITY_SWARM) {
 		raiseException(
 				"In GBaseSwarm::GSwarmOptimizationMonitor::firstInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
@@ -1742,7 +1756,7 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizatio
 
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != SWARM) {
+	if(goa->getOptimizationAlgorithm() != PERSONALITY_SWARM) {
 		raiseException(
 				"In GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
@@ -1765,7 +1779,7 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::lastInformation(GOptimization
 
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != SWARM) {
+	if(goa->getOptimizationAlgorithm() != PERSONALITY_SWARM) {
 		raiseException(
 				"In GBaseSwarm::GSwarmOptimizationMonitor::lastInformation():" << std::endl
 				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
@@ -1877,7 +1891,7 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::swarmLastInformation(GBaseSwa
  * cp A pointer to another GSwarmOptimizationMonitor object, camouflaged as a GObject
  */
 void GBaseSwarm::GSwarmOptimizationMonitor::load_(const GObject* cp) {
-	const GBaseSwarm::GSwarmOptimizationMonitor *p_load = conversion_cast<GBaseSwarm::GSwarmOptimizationMonitor>(cp);
+	const GBaseSwarm::GSwarmOptimizationMonitor *p_load = gobject_conversion<GBaseSwarm::GSwarmOptimizationMonitor>(cp);
 
 	// Load the parent classes' data ...
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);

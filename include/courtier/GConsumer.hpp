@@ -34,7 +34,7 @@
 
 
 // Standard headers go here
-
+#include <string>
 #include <sstream>
 
 // Includes check for correct Boost version(s)
@@ -98,6 +98,9 @@ public:
 	virtual void startProcessing() = 0;
 	/** @brief To be called from GConsumer::process() */
 	virtual void shutdown() = 0;
+
+	/** @brief A unique identifier for a given consumer */
+	virtual std::string getConsumerName() const = 0;
 
 private:
 	GConsumer(const GConsumer&); ///< Intentionally left undefined

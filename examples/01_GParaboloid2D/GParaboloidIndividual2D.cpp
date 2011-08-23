@@ -102,7 +102,7 @@ const GParaboloidIndividual2D& GParaboloidIndividual2D::operator=(const GParabol
  */
 void GParaboloidIndividual2D::load_(const GObject* cp)
 {
-	const GParaboloidIndividual2D *p_load = GObject::conversion_cast<GParaboloidIndividual2D>(cp);
+	const GParaboloidIndividual2D *p_load = GObject::gobject_conversion<GParaboloidIndividual2D>(cp);
 
 	// Load our parent's data
 	GParameterSet::load_(cp);

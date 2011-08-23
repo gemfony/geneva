@@ -142,7 +142,7 @@ boost::optional<std::string> GConstrainedDoubleCollection::checkRelationshipWith
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GConstrainedDoubleCollection  *p_load = GObject::conversion_cast<GConstrainedDoubleCollection>(&cp);
+	const GConstrainedDoubleCollection  *p_load = GObject::gobject_conversion<GConstrainedDoubleCollection>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -233,7 +233,7 @@ void GConstrainedDoubleCollection::assignDoubleValueVector(const std::vector<dou
  */
 void GConstrainedDoubleCollection::load_(const GObject *cp){
 	// Convert cp into local format
-	const GConstrainedDoubleCollection *p_load = GObject::conversion_cast<GConstrainedDoubleCollection>(cp);
+	const GConstrainedDoubleCollection *p_load = GObject::gobject_conversion<GConstrainedDoubleCollection>(cp);
 
 	// Load our parent class'es data ...
 	GConstrainedFPNumCollectionT<double>::load_(cp);

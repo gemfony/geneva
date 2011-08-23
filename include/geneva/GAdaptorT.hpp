@@ -240,7 +240,7 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GAdaptorT<T>  *p_load = conversion_cast<GAdaptorT<T> >(&cp);
+		const GAdaptorT<T>  *p_load = gobject_conversion<GAdaptorT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -567,7 +567,7 @@ protected:
 	 */
 	virtual void load_(const GObject *cp) {
 		// Convert cp into local format
-		const GAdaptorT<T> *p_load = conversion_cast<GAdaptorT<T> >(cp);
+		const GAdaptorT<T> *p_load = gobject_conversion<GAdaptorT<T> >(cp);
 
 		// Load the parent class'es data
 		GObject::load_(cp);

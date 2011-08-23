@@ -321,10 +321,13 @@ protected:
 	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions (
+	virtual void addConfigurationOptions_ (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	);
+
+	/** @brief Returns the name of this optimization algorithm */
+	virtual std::string getAlgorithmName() const;
 
 private:
 	/**************************************************************************************************/

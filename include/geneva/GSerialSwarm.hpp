@@ -114,7 +114,7 @@ protected:
 	virtual void finalize();
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions (
+	virtual void addConfigurationOptions_ (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	);

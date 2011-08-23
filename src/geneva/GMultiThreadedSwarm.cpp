@@ -94,7 +94,7 @@ const GMultiThreadedSwarm& GMultiThreadedSwarm::operator=(const GMultiThreadedSw
  */
 void GMultiThreadedSwarm::load_(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GMultiThreadedSwarm *p_load = this->conversion_cast<GMultiThreadedSwarm>(cp);
+	const GMultiThreadedSwarm *p_load = this->gobject_conversion<GMultiThreadedSwarm>(cp);
 
 	// First load our parent class'es data ...
 	GBaseSwarm::load_(cp);
@@ -157,7 +157,7 @@ boost::optional<std::string> GMultiThreadedSwarm::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GMultiThreadedSwarm *p_load = GObject::conversion_cast<GMultiThreadedSwarm>(&cp);
+	const GMultiThreadedSwarm *p_load = GObject::gobject_conversion<GMultiThreadedSwarm>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -232,7 +232,7 @@ void GMultiThreadedSwarm::finalize() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GMultiThreadedSwarm::addConfigurationOptions (
+void GMultiThreadedSwarm::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -256,7 +256,7 @@ void GMultiThreadedSwarm::addConfigurationOptions (
 	);
 
 	// Call our parent class'es function
-	GBaseSwarm::addConfigurationOptions(gpb, showOrigin);
+	GBaseSwarm::addConfigurationOptions_(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

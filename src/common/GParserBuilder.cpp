@@ -55,7 +55,8 @@ GParserBuilder::~GParserBuilder()
 
 /**************************************************************************************/
 /**
- * Tries to parse a given configuration file for a set of options
+ * Tries to parse a given configuration file for a set of options. Note that parsing
+ * is a one-time effort.
  *
  * @param configFile The name of the configuration file to be parsed
  * @return A boolean indicating whether parsing was successful
@@ -172,6 +173,16 @@ void GParserBuilder::writeConfigFile(
 
 	// Close the file handle
 	ofs.close();
+}
+
+/**************************************************************************************/
+/**
+ * Provides information on the number of configuration options stored in this class
+ *
+ * @return The number of configuration options stored in this class
+ */
+std::size_t GParserBuilder::numberOfOptions() const {
+	return variables_.size();
 }
 
 /**************************************************************************************/

@@ -122,7 +122,7 @@ const GMultiCriterionParabolaIndividual& GMultiCriterionParabolaIndividual::oper
  */
 void GMultiCriterionParabolaIndividual::load_(const GObject* cp)
 {
-	const GMultiCriterionParabolaIndividual *p_load = GObject::conversion_cast<GMultiCriterionParabolaIndividual>(cp);
+	const GMultiCriterionParabolaIndividual *p_load = GObject::gobject_conversion<GMultiCriterionParabolaIndividual>(cp);
 
 	// Load our parent's data ...
 	GParameterSet::load_(cp);

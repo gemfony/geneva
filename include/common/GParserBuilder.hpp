@@ -294,6 +294,9 @@ public:
 	/** @brief Writes out a configuration file */
 	void writeConfigFile(const std::string& = "", const std::string& = "", bool = true) const;
 
+	/** @brief Provides information on the number of configuration options stored in this class */
+	std::size_t numberOfOptions() const;
+
 	/********************************************************************/
 	/**
 	 * Adds a parameter with a configurable type to the collection.
@@ -411,7 +414,6 @@ private:
 	std::vector<std::string> defaultValues_; ///< The default values associated with each variable
 	std::vector<bool> isEssential_; ///< Indicates whether the corresponding variable is essential or secondary
 	std::vector<std::string> comments_; ///< Comments to be associated with each variable
-
 	std::vector<boost::shared_ptr<GParsableI> > many_; ///< Ensures the survival of the parameters
 };
 

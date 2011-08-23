@@ -506,6 +506,16 @@ public:
 		  return serializationMode_;
 	  }
 
+	  /*********************************************************************/
+	  /**
+	   * A unique identifier for a given consumer
+	   *
+	   * @return A unique identifier for a given consumer
+	   */
+	  virtual std::string getConsumerName() const {
+		  return std::string("GAsioTCPConsumerT");
+	  }
+
 private:
 	  /*********************************************************************/
 	  /**

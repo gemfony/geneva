@@ -145,6 +145,9 @@ public:
 	/** @brief Retrieves the number of processable items for the current iteration */
 	virtual std::size_t getNProcessableItems() const;
 
+	/** @brief Returns the name of this optimization algorithm */
+	virtual std::string getAlgorithmName() const;
+
 protected:
 	/**************************************************************************************************/
 	/** @brief Loads the data of another population */
@@ -180,7 +183,7 @@ protected:
 	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions (
+	virtual void addConfigurationOptions_ (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	);

@@ -136,7 +136,7 @@ boost::optional<std::string> GDelayIndividual::checkRelationshipWith(const GObje
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GDelayIndividual *p_load = Gem::Geneva::GObject::conversion_cast<GDelayIndividual>(&cp);
+	const GDelayIndividual *p_load = Gem::Geneva::GObject::gobject_conversion<GDelayIndividual>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -157,7 +157,7 @@ boost::optional<std::string> GDelayIndividual::checkRelationshipWith(const GObje
  * @param cp A copy of another GDelayIndividual, camouflaged as a GObject
  */
 void GDelayIndividual::load_(const Gem::Geneva::GObject* cp){
-	const GDelayIndividual *p_load = conversion_cast<GDelayIndividual>(cp);
+	const GDelayIndividual *p_load = gobject_conversion<GDelayIndividual>(cp);
 
 	// Load our parent class'es data ...
 	Gem::Geneva::GParameterSet::load_(cp);

@@ -85,7 +85,7 @@ const GSerialEA& GSerialEA::operator=(const GSerialEA& cp) {
  */
 void GSerialEA::load_(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GSerialEA *p_load = this->conversion_cast<GSerialEA>(cp);
+	const GSerialEA *p_load = this->gobject_conversion<GSerialEA>(cp);
 
 	// First load our parent class'es data ...
 	GBaseEA::load_(cp);
@@ -152,7 +152,7 @@ boost::optional<std::string> GSerialEA::checkRelationshipWith(const GObject& cp,
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GSerialEA *p_load = GObject::conversion_cast<GSerialEA>(&cp);
+	const GSerialEA *p_load = GObject::gobject_conversion<GSerialEA>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -194,14 +194,14 @@ void GSerialEA::finalize() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GSerialEA::addConfigurationOptions (
+void GSerialEA::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
 	// No local data
 
 	// Call our parent class'es function
-	GBaseEA::addConfigurationOptions(gpb, showOrigin);
+	GBaseEA::addConfigurationOptions_(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -214,12 +214,12 @@ void GSerialEA::adaptChildren()
 {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
-	// We start with the parents, if this is iteration 0. Their
+	// We start with the parents, if this is the first iteration. Their
 	// initial fitness needs to be determined, if this is the MUPLUSNU_SINGLEEVAL
 	// or MUNU1PRETAIN selection model.
 	// Make sure we also evaluate the parents in the first iteration, if needed.
 	// This is only applicable to the MUPLUSNU_SINGLEEVAL and MUNU1PRETAIN modes.
-	if(getIteration()==0) {
+	if(inFirstIteration()) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case SA:

@@ -249,7 +249,16 @@ public:
 	 * @param gc A pointer to a GConsumer object
 	 */
 	void enrol(boost::shared_ptr<GConsumer> gc) {
+		boost::mutex::scoped_lock consumerEnrolmentLock(consumerEnrolmentMutex_);
+
+		// Do nothing if a consumer of this type has already been registered
+		if(std::find(consumerTypesPresent_.begin(), consumerTypesPresent_.end(), gc->getConsumerName()) != consumerTypesPresent_.end()) {
+			return;
+		}
+
+		// Archive the consumer and its name, then start its thread
 		consumerCollection_.push_back(gc);
+		consumerTypesPresent_.push_back(gc->getConsumerName());
 		consumerThreads_.create_thread(boost::bind(&GConsumer::startProcessing, gc));
 	}
 
@@ -457,7 +466,9 @@ private:
 	bool buffersPresentProcessed_; ///< Set to true once the first "processed" bounded buffer has been enrolled
 
 	Gem::Common::GThreadGroup consumerThreads_; ///< Holds threads running GConsumer objects
-	std::vector<boost::shared_ptr<GConsumer> > consumerCollection_;
+	std::vector<boost::shared_ptr<GConsumer> > consumerCollection_; ///< Holds the actual consumers
+	std::vector<std::string> consumerTypesPresent_; ///< Holds identifying strings for each consumer
+	mutable boost::mutex consumerEnrolmentMutex_; ///< Protects the enrolment of consumers
 };
 
 /**************************************************************************************/

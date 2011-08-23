@@ -104,6 +104,9 @@ namespace Geneva
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
+	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
+	virtual bool usesBroker() const;
+
   protected:
     /** @brief Loads the data of another GTransfer Population */
     virtual void load_(const GObject *);
@@ -116,7 +119,7 @@ namespace Geneva
     virtual void select();
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions (
+	virtual void addConfigurationOptions_ (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	);

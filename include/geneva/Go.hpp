@@ -71,11 +71,11 @@ namespace Geneva {
 
 /**************************************************************************************/
 // Default values for the variables used by the optimizer
-const personality GO_DEF_PERSONALITY=EA;
-const parMode GO_DEF_PARALLELIZATIONMODE=MULTITHREADED;
+const personality GO_DEF_PERSONALITY=PERSONALITY_EA;
+const parMode GO_DEF_PARALLELIZATIONMODE=PARMODE_MULTITHREADED;
 const std::string GO_DEF_DEFAULTCONFIGFILE="optimizationAlgorithm.cfg";
 const bool GO_DEF_SERVERMODE=true;
-const parMode GO_DEF_DEFAULPARALLELIZATIONMODE=MULTITHREADED;
+const parMode GO_DEF_DEFAULPARALLELIZATIONMODE=PARMODE_MULTITHREADED;
 const Gem::Common::serializationMode GO_DEF_SERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
 const std::string GO_DEF_IP="localhost";
 const unsigned int GO_DEF_PORT=10000;
@@ -303,7 +303,7 @@ public:
 	boost::uint32_t getReportIteration() const;
 
 	void setOffset(const boost::uint32_t&);
-	boost::uint32_t getOffset() const;
+	boost::uint32_t getIterationOffset() const;
 
 	void setEAPopulationSize(const std::size_t&);
 	std::size_t getEAPopulationSize() const;
@@ -409,15 +409,15 @@ public:
 
 		// Which algorithm are we supposed to use ?
 		switch(pers_) {
-		case EA: // Evolutionary algorithms
+		case PERSONALITY_EA: // Evolutionary algorithms
 			result = eaOptimize<ind_type>(offset);
 			break;
 
-		case SWARM: // Swarm algorithms
+		case PERSONALITY_SWARM: // Swarm algorithms
 			result = swarmOptimize<ind_type>(offset);
 			break;
 
-		case GD: // Gradient descents
+		case PERSONALITY_GD: // Gradient descents
 			result = gdOptimize<ind_type>(offset);
 			break;
 
@@ -621,7 +621,7 @@ private:
 
 		switch(parMode_) {
 		//----------------------------------------------------------------------------------
-		case SERIAL:
+		case PARMODE_SERIAL:
 		{
 			// Create an empty population
 			ea_ptr = boost::shared_ptr<GSerialEA>(new GSerialEA());
@@ -629,7 +629,7 @@ private:
 		break;
 
 		//----------------------------------------------------------------------------------
-		case MULTITHREADED:
+		case PARMODE_MULTITHREADED:
 		{
 			// Create the multi-threaded population
 			boost::shared_ptr<GMultiThreadedEA> eaPar_ptr(new GMultiThreadedEA());
@@ -643,7 +643,7 @@ private:
 		break;
 
 		//----------------------------------------------------------------------------------
-		case BROKERAGE:
+		case PARMODE_BROKERAGE:
 		{
 			if(!consumerInitialized_) {
 				// Create a network consumer and enrol it with the broker
@@ -746,7 +746,7 @@ private:
 
 		switch(parMode_) {
 		//----------------------------------------------------------------------------------
-		case SERIAL:
+		case PARMODE_SERIAL:
 		{
 			swarm_ptr = boost::shared_ptr<GSerialSwarm>(new GSerialSwarm(swarmNNeighborhoods_, swarmNNeighborhoodMembers_));
 		}
@@ -754,7 +754,7 @@ private:
 
 		//----------------------------------------------------------------------------------
 
-		case MULTITHREADED:
+		case PARMODE_MULTITHREADED:
 		{
 			// Create the multi-threaded population
 			boost::shared_ptr<GMultiThreadedSwarm> swarmPar_ptr(new GMultiThreadedSwarm(swarmNNeighborhoods_, swarmNNeighborhoodMembers_));
@@ -769,7 +769,7 @@ private:
 
 		//----------------------------------------------------------------------------------
 
-		case BROKERAGE:
+		case PARMODE_BROKERAGE:
 		{
 			if(!consumerInitialized_) {
 				// Create a network consumer and enrol it with the broker
@@ -876,7 +876,7 @@ private:
 
 		switch(parMode_) {
 		//----------------------------------------------------------------------------------
-		case SERIAL:
+		case PARMODE_SERIAL:
 		{
 			// Create an empty population
 			gd_ptr = boost::shared_ptr<GSerialGD>(new GSerialGD(gdNStartingPoints_, gdFiniteStep_, gdStepSize_));
@@ -884,7 +884,7 @@ private:
 		break;
 
 		//----------------------------------------------------------------------------------
-		case MULTITHREADED:
+		case PARMODE_MULTITHREADED:
 		{
 		  // Create the multi-threaded population
 		  boost::shared_ptr<GMultiThreadedGD> gdPar_ptr(new GMultiThreadedGD(gdNStartingPoints_, gdFiniteStep_, gdStepSize_));
@@ -898,7 +898,7 @@ private:
 		break;
 
 		//----------------------------------------------------------------------------------
-		case BROKERAGE:
+		case PARMODE_BROKERAGE:
 		{
 			if(!consumerInitialized_) {
 				// Create a network consumer and enrol it with the broker

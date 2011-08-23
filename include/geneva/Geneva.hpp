@@ -103,7 +103,7 @@ public:
 	 * shutdown of various singleton services needed for Geneva. Note that we shut down
 	 * in reverse order to the startup procedure.
 	 */
-	static void finalize() {
+	static int finalize() {
 		GBROKER(Gem::Geneva::GIndividual)->finalize();
 		RESETGBROKER(Gem::Geneva::GIndividual);
 
@@ -114,6 +114,10 @@ public:
 		std::set_terminate(GTerminate);
 		std::terminate();
 #endif /* GEM_INT_FORCE_TERMINATION */
+
+		std::cout << "Done ..." << std::endl;
+
+		return 0;
 	}
 
 	/************************************************************************************/

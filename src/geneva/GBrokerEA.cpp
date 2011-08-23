@@ -89,7 +89,7 @@ const GBrokerEA& GBrokerEA::operator=(const GBrokerEA& cp) {
  * @param cp A pointer to another GBrokerEA object, camouflaged as a GObject
  */
 void GBrokerEA::load_(const GObject * cp) {
-	const GBrokerEA *p_load = conversion_cast<GBrokerEA>(cp);
+	const GBrokerEA *p_load = gobject_conversion<GBrokerEA>(cp);
 
 	// Load the parent classes' data ...
 	GBaseEA::load_(cp);
@@ -159,7 +159,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
     using namespace Gem::Courtier;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GBrokerEA *p_load = GObject::conversion_cast<GBrokerEA>(&cp);
+	const GBrokerEA *p_load = GObject::gobject_conversion<GBrokerEA>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -237,6 +237,17 @@ void GBrokerEA::finalize() {
 
 /************************************************************************************************************/
 /**
+ * Checks whether this algorithm communicates via the broker. This is an overload from the corresponding
+ * GOptimizableI function
+ *
+ * @return A boolean indicating whether this algorithm communicates via the broker
+ */
+bool GBrokerEA::usesBroker() const {
+	return true;
+}
+
+/************************************************************************************************************/
+/**
  * We submit individuals  to the broker and wait for processed items. In the first iteration, in the case of
  * the MUPLUSNU_SINGLEEVAL sorting strategy, also the fitness of the parents is calculated. The type of
  * command intended to be executed on the individuals is stored in the individual.
@@ -285,8 +296,8 @@ std::pair<std::size_t, std::size_t> GBrokerEA::markCommands() {
 	//--------------------------------------------------------------------------------
 	// Start by marking the work to be done
 
-	// In iteration 0, depending on the selection mode, parents
-	if(iteration==0) {
+	// In the first iteration, depending on the selection mode, parents need to be evaluated as well
+	if(inFirstIteration()) {
 		switch(getSortingScheme()) {
 		case SA:
 		case MUPLUSNU_SINGLEEVAL:
@@ -345,8 +356,8 @@ void GBrokerEA::fixAfterJobSubmission() {
 		}
 	}
 
-	// Mark the first nParents_ individuals as parents in iteration 0. We want to have a "sane" population.
-	if(iteration==0){
+	// Mark the first nParents_ individuals as parents in the first iteration. We want to have a "sane" population.
+	if(inFirstIteration()){
 		for(it=this->begin(); it!=this->begin() + np; ++it) {
 			(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent();
 		}
@@ -385,15 +396,15 @@ void GBrokerEA::select() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GBrokerEA::addConfigurationOptions (
+void GBrokerEA::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
 	// no local data
 
 	// Call our parent class'es function
-	GBaseEA::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+	GBaseEA::addConfigurationOptions_(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions_(gpb, showOrigin);
 }
 
 #ifdef GENEVATESTING

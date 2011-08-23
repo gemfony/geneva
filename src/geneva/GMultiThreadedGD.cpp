@@ -145,7 +145,7 @@ boost::optional<std::string> GMultiThreadedGD::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GMultiThreadedGD *p_load = GObject::conversion_cast<GMultiThreadedGD>(&cp);
+	const GMultiThreadedGD *p_load = GObject::gobject_conversion<GMultiThreadedGD>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -197,7 +197,7 @@ uint8_t GMultiThreadedGD::getNThreads() const  {
  */
 void GMultiThreadedGD::load_(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GMultiThreadedGD *p_load = this->conversion_cast<GMultiThreadedGD>(cp);
+	const GMultiThreadedGD *p_load = this->gobject_conversion<GMultiThreadedGD>(cp);
 
 	// First load our parent class'es data ...
 	GBaseGD::load_(cp);
@@ -271,7 +271,7 @@ void GMultiThreadedGD::finalize() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GMultiThreadedGD::addConfigurationOptions (
+void GMultiThreadedGD::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -295,7 +295,7 @@ void GMultiThreadedGD::addConfigurationOptions (
 	);
 
 	// Call our parent class'es function
-	GBaseGD::addConfigurationOptions(gpb, showOrigin);
+	GBaseGD::addConfigurationOptions_(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -330,7 +330,7 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 	for(std::size_t i=0; i<finalPos; i++) {
 #ifdef DEBUG
 		// Make sure the evaluated individuals have the dirty flag set
-		if(!this->at(i)->isDirty()) {
+		if(afterFirstIteration() && !this->at(i)->isDirty()) {
 			raiseException(
 					"In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
 					<< "Found individual in position " << i << " whose dirty flag isn't set"

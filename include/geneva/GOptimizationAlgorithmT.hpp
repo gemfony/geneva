@@ -143,7 +143,7 @@ public:
 	GOptimizationAlgorithmT(const GOptimizationAlgorithmT<ind_type>& cp)
 		: GMutableSetT<ind_type>(cp)
 		, iteration_(cp.iteration_)
-		, offset_(0)
+		, offset_(DEFAULTOFFSET)
 		, maxIteration_(cp.maxIteration_)
 		, maxStallIteration_(cp.maxStallIteration_)
 		, reportIteration_(cp.reportIteration_)
@@ -370,7 +370,7 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::conversion_cast<GOptimizationAlgorithmT<ind_type> >(&cp);
+		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -503,17 +503,6 @@ public:
 	 */
 	virtual void optimize() {
 		GOptimizableI::optimize();
-	}
-
-
-	/**************************************************************************************/
-	/**
-	 * Returns the current offset used to calculate the current iteration
-	 *
-	 * @return The current iteration offset
-	 */
-	boost::uint32_t getOffset() const {
-		return offset_;
 	}
 
 	/**************************************************************************************/
@@ -710,6 +699,16 @@ public:
 
 	/**************************************************************************************/
 	/**
+	 * Returns the current offset used to calculate the current iteration
+	 *
+	 * @return The current iteration offset
+	 */
+	boost::uint32_t getIterationOffset() const {
+		return offset_;
+	}
+
+	/**************************************************************************************/
+	/**
 	 * Sets the number of iterations after which the algorithm should
 	 * report about its inner state.
 	 *
@@ -859,7 +858,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp)
 	{
-		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::conversion_cast<GOptimizationAlgorithmT<ind_type> >(cp);
+		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(cp);
 
 		// Load the parent class'es data
 		GMutableSetT<ind_type>::load_(cp);
@@ -1098,7 +1097,7 @@ protected:
 	 * @param gpb The GParserBuilder object to which configuration options should be added
 	 * @param showOrigin Makes the function indicate the origin of parameters in comments
 	 */
-	virtual void addConfigurationOptions (
+	virtual void addConfigurationOptions_ (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	) {
@@ -1263,7 +1262,28 @@ protected:
 		);
 
 		// Call our parent class'es function
-		GMutableSetT<ind_type>::addConfigurationOptions(gpb, showOrigin);
+		GMutableSetT<ind_type>::addConfigurationOptions_(gpb, showOrigin);
+	}
+
+	/**************************************************************************************/
+	/**
+	 * A little helper function that determines whether we are currently inside of the first
+	 * iteration
+	 *
+	 * @return A boolean indicating whether we are inside of the first iteration
+	 */
+	bool inFirstIteration() const {
+		return iteration_ == offset_;
+	}
+
+	/**************************************************************************************/
+	/**
+	 * A little helper function that determines whether we are after the first iteration
+	 *
+	 * @return A boolean indicating whether we are after the first iteration
+	 */
+	bool afterFirstIteration() const {
+		return iteration_ > offset_;
 	}
 
 private:
@@ -1333,7 +1353,7 @@ private:
 	 * @return A boolean indicating whether the maximum number of iterations has been exceeded
 	 */
 	bool iterationHalt() const {
-		if(iteration_ > (maxIteration_ + offset_)) {
+		if(iteration_ >= (maxIteration_ + offset_)) {
 			if(emitTerminationReason_) {
 				std::cout << "Terminating optimization run because iteration threshold has been reached." << std::endl;
 			}
@@ -1623,7 +1643,7 @@ public:
 	        using namespace Gem::Common;
 
 	    	// Check that we are indeed dealing with a GOptimizationMonitorT reference
-	    	const GOptimizationMonitorT *p_load = GObject::conversion_cast<GOptimizationMonitorT>(&cp);
+	    	const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(&cp);
 
 	    	// Will hold possible deviations from the expectation, including explanations
 	        std::vector<boost::optional<std::string> > deviations;
@@ -1740,7 +1760,7 @@ public:
 	     */
 	    virtual std::string firstInformation(GOptimizationAlgorithmT<ind_type> * const goa) {
 	    	std::ostringstream result;
-	    	result << "Starting the optimization run" << std::endl;
+	    	result << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
 	    	return result.str();
 	    }
 
@@ -1768,7 +1788,7 @@ public:
 	     */
 	    virtual std::string lastInformation(GOptimizationAlgorithmT<ind_type> * const goa) {
 	    	std::ostringstream result;
-	    	result << "End of optimization reached" << std::endl;
+	    	result << "End of optimization reached in algorithm \""<< goa->getAlgorithmName() << "\"" << std::endl;
 	    	return result.str();
 	    }
 
@@ -1779,7 +1799,7 @@ public:
 	     * cp A pointer to another GOptimizationMonitorT object, camouflaged as a GObject
 	     */
 	    virtual void load_(const GObject* cp) {
-	    	const GOptimizationMonitorT *p_load = GObject::conversion_cast<GOptimizationMonitorT>(cp);
+	    	const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(cp);
 
 	    	// Load the parent classes' data ...
 	    	GObject::load_(cp);

@@ -177,6 +177,15 @@ public:
 		lock.unlock();
 	}
 
+	/*********************************************************************/
+	/**
+	* A unique identifier for a given consumer
+	*
+	* @return A unique identifier for a given consumer
+	*/
+	virtual std::string getConsumerName() const {
+	  return std::string("GSerialConsumerT");
+	}
 
 private:
 	GSerialConsumerT(const GSerialConsumerT<processable_type>&); ///< Intentionally left undefined

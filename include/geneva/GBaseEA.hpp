@@ -188,6 +188,9 @@ public:
 	/** @brief Allows to retrieve the maximum population size when growth is enabled */
 	std::size_t getMaxPopulationSize() const;
 
+	/** @brief Returns the name of this optimization algorithm */
+	virtual std::string getAlgorithmName() const;
+
 	//------------------------------------------------------------------------------------------
 	// Settings specific to micro-training
 	/** @brief Set the interval in which micro training should be performed */
@@ -355,7 +358,7 @@ protected:
 	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions (
+	virtual void addConfigurationOptions_ (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	);

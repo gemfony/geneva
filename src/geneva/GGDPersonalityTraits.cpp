@@ -128,7 +128,7 @@ boost::optional<std::string> GGDPersonalityTraits::checkRelationshipWith(const G
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GGDPersonalityTraits *p_load = GObject::conversion_cast<GGDPersonalityTraits>(&cp);
+	const GGDPersonalityTraits *p_load = GObject::gobject_conversion<GGDPersonalityTraits>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -161,7 +161,7 @@ GObject* GGDPersonalityTraits::clone_() const {
  * @param cp A copy of another GGDPersonalityTraits object, camouflaged as a GObject
  */
 void GGDPersonalityTraits::load_(const GObject* cp) {
-	const GGDPersonalityTraits *p_load = conversion_cast<GGDPersonalityTraits>(cp);
+	const GGDPersonalityTraits *p_load = gobject_conversion<GGDPersonalityTraits>(cp);
 
 	// Load the parent class'es data
 	GObject::load_(cp);

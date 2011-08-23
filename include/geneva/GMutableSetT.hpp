@@ -160,7 +160,7 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GMutableSetT<T> *p_load = GObject::conversion_cast<GMutableSetT<T> >(&cp);
+		const GMutableSetT<T> *p_load = GObject::gobject_conversion<GMutableSetT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -210,7 +210,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp){
 		// Convert cp into local format
-	    const GMutableSetT<T> *p_load = this->conversion_cast<GMutableSetT<T> >(cp);
+	    const GMutableSetT<T> *p_load = this->gobject_conversion<GMutableSetT<T> >(cp);
 
 	    // No local data - load the parent class'es data
 	    GIndividual::load_(cp);
@@ -240,14 +240,14 @@ protected:
 	 * @param gpb The GParserBuilder object to which configuration options should be added
 	 * @param showOrigin Makes the function indicate the origin of parameters in comments
 	 */
-	virtual void addConfigurationOptions (
+	virtual void addConfigurationOptions_ (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	) {
 		// No local data
 
 		// Call our parent class'es function
-		GIndividual::addConfigurationOptions(gpb, showOrigin);
+		GIndividual::addConfigurationOptions_(gpb, showOrigin);
 	}
 
 #ifdef GENEVATESTING

@@ -87,7 +87,7 @@ const GSerialSwarm& GSerialSwarm::operator=(const GSerialSwarm& cp) {
  */
 void GSerialSwarm::load_(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GSerialSwarm *p_load = this->conversion_cast<GSerialSwarm>(cp);
+	const GSerialSwarm *p_load = this->gobject_conversion<GSerialSwarm>(cp);
 
 	// First load our parent class'es data ...
 	GBaseSwarm::load_(cp);
@@ -145,7 +145,7 @@ boost::optional<std::string> GSerialSwarm::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GSerialSwarm *p_load = GObject::conversion_cast<GSerialSwarm>(&cp);
+	const GSerialSwarm *p_load = GObject::gobject_conversion<GSerialSwarm>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -197,14 +197,14 @@ void GSerialSwarm::finalize() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GSerialSwarm::addConfigurationOptions (
+void GSerialSwarm::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
 	// no local data
 
 	// Call our parent class'es function
-	GBaseSwarm::addConfigurationOptions(gpb, showOrigin);
+	GBaseSwarm::addConfigurationOptions_(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

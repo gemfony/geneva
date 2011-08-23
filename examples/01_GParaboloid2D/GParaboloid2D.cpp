@@ -38,7 +38,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/Geneva.hpp>
+#include "geneva/Go2.hpp"
 
 // The individual that should be optimized
 #include "GParaboloidIndividual2D.hpp"
@@ -46,22 +46,31 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Geneva::init();
-	Go go(argc, argv, "GParaboloid2D.cfg");
+	Go2::init();
+	Go2 go(argc, argv, "config/go2.cfg");
 
 	//---------------------------------------------------------------------
-	// Client mode (networked)
+	// Initialize a client, if requested
 	if(go.clientMode()) {
-		go.clientRun();
-		return 0;
+		return go.clientRun();
 	}
 
 	//---------------------------------------------------------------------
-	// Server mode, serial or multi-threaded execution
+	// Add individuals and algorithms and perform the actual optimization cycle
 
 	// Make an individual known to the optimizer
 	boost::shared_ptr<GParaboloidIndividual2D> p(new GParaboloidIndividual2D());
 	go.push_back(p);
+
+	// Create a set of algorithms ...
+	boost::shared_ptr<GMultiThreadedEA> p2(new GMultiThreadedEA());
+	boost::shared_ptr<GMultiThreadedSwarm> p3(new GMultiThreadedSwarm(5,10));
+	boost::shared_ptr<GMultiThreadedGD> p4(new GMultiThreadedGD());
+
+	GEvolutionaryAlgorithmFactory geaf("config/GEvolutionaryAlgorithm.cfg", PARMODE_MULTITHREADED);
+
+	// ... and add them to combiner
+	go & p2 & geaf() & p3 & p4;
 
 	// Perform the actual optimization
 	boost::shared_ptr<GParaboloidIndividual2D> bestIndividual_ptr = go.optimize<GParaboloidIndividual2D>();
@@ -69,7 +78,5 @@ int main(int argc, char **argv) {
 	// Do something with the best result
 
 	// Terminate
-	Geneva::finalize();
-	std::cout << "Done ..." << std::endl;
-	return 0;
+	return Go2::finalize();
 }

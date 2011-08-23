@@ -115,7 +115,7 @@ protected:
 	/** @brief Necessary clean-up work after the optimization has finished */
 	virtual void finalize();
 
-	virtual void addConfigurationOptions (
+	virtual void addConfigurationOptions_ (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	);

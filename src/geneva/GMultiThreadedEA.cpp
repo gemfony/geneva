@@ -46,7 +46,7 @@ namespace Geneva {
  */
 GMultiThreadedEA::GMultiThreadedEA()
    : GBaseEA()
-   , nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA)))
+   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA)))
    , tp_(nThreads_)
 { /* nothing */ }
 
@@ -93,7 +93,7 @@ const GMultiThreadedEA& GMultiThreadedEA::operator=(const GMultiThreadedEA& cp) 
  */
 void GMultiThreadedEA::load_(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GMultiThreadedEA *p_load = this->conversion_cast<GMultiThreadedEA>(cp);
+	const GMultiThreadedEA *p_load = this->gobject_conversion<GMultiThreadedEA>(cp);
 
 	// First load our parent class'es data ...
 	GBaseEA::load_(cp);
@@ -167,7 +167,7 @@ boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(const GObje
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GMultiThreadedEA *p_load = GObject::conversion_cast<GMultiThreadedEA>(&cp);
+	const GMultiThreadedEA *p_load = GObject::gobject_conversion<GMultiThreadedEA>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -236,12 +236,12 @@ void GMultiThreadedEA::adaptChildren() {
 	std::size_t nParents = GBaseEA::getNParents();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
-	// We start with the parents, if this is iteration 0. Their
+	// We start with the parents, if this is the first iteration. Their
 	// initial fitness needs to be determined, if this is the MUPLUSNU_SINGLEEVAL
 	// or MUNU1PRETAIN selection model.
 	// Make sure we also evaluate the parents in the first iteration, if needed.
 	// This is only applicable to the MUPLUSNU_SINGLEEVAL and MUNU1PRETAIN modes.
-	if(GBaseEA::getIteration()==0) {
+	if(inFirstIteration()) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case SA:
@@ -274,7 +274,7 @@ void GMultiThreadedEA::adaptChildren() {
 	tp_.wait();
 
 	// Restart the server mode for parents
-	if(GBaseEA::getIteration() == 0) {
+	if(inFirstIteration()) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case SA:
@@ -306,7 +306,7 @@ void GMultiThreadedEA::adaptChildren() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GMultiThreadedEA::addConfigurationOptions (
+void GMultiThreadedEA::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -316,7 +316,7 @@ void GMultiThreadedEA::addConfigurationOptions (
 	comment = ""; // Reset the comment string
 	comment += "The number of threads used to simultaneously process individuals;";
 	if(showOrigin) comment += "[GMultiThreadedEA]";
-	gpb.registerFileParameter<boost::uint8_t>(
+	gpb.registerFileParameter<boost::uint16_t>(
 		"nProcessingThreads" // The name of the variable
 		, 0 // The default value
 		, boost::bind(
@@ -329,7 +329,7 @@ void GMultiThreadedEA::addConfigurationOptions (
 	);
 
 	// Call our parent class'es function
-	GBaseEA::addConfigurationOptions(gpb, showOrigin);
+	GBaseEA::addConfigurationOptions_(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -341,9 +341,9 @@ void GMultiThreadedEA::addConfigurationOptions (
  *
  * @param nThreads The number of threads this class uses
  */
-void GMultiThreadedEA::setNThreads(boost::uint8_t nThreads) {
+void GMultiThreadedEA::setNThreads(boost::uint16_t nThreads) {
 	if(nThreads == 0) {
-		nThreads_ = boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA));
+		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA));
 	}
 	else {
 		nThreads_ = nThreads;
@@ -358,7 +358,7 @@ void GMultiThreadedEA::setNThreads(boost::uint8_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-boost::uint8_t GMultiThreadedEA::getNThreads() const  {
+boost::uint16_t GMultiThreadedEA::getNThreads() const  {
 	return nThreads_;
 }
 

@@ -210,7 +210,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const progressMonitor *p_load = GObject::conversion_cast<progressMonitor >(&cp);
+		const progressMonitor *p_load = GObject::gobject_conversion<progressMonitor >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 		std::vector<boost::optional<std::string> > deviations;
@@ -671,7 +671,7 @@ protected:
 	 */
 	void load_(const GObject * cp)
 	{
-		const progressMonitor *p_load = conversion_cast<progressMonitor>(cp);
+		const progressMonitor *p_load = gobject_conversion<progressMonitor>(cp);
 
 		// First load the parent class'es data ...
 		GSerialEA::GEAOptimizationMonitor::load_(cp);

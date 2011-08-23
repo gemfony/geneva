@@ -136,7 +136,7 @@ boost::optional<std::string> GSerialGD::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GSerialGD *p_load = GObject::conversion_cast<GSerialGD>(&cp);
+	const GSerialGD *p_load = GObject::gobject_conversion<GSerialGD>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -157,7 +157,7 @@ boost::optional<std::string> GSerialGD::checkRelationshipWith(
  */
 void GSerialGD::load_(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GSerialGD *p_load = this->conversion_cast<GSerialGD>(cp);
+	const GSerialGD *p_load = this->gobject_conversion<GSerialGD>(cp);
 
 	// First load our parent class'es data ...
 	GBaseGD::load_(cp);
@@ -181,7 +181,7 @@ GObject *GSerialGD::clone_() const  {
  */
 void GSerialGD::init() {
 	// GSerialGD sees exactly the environment it would when called from its own class
-	GSerialGD::init();
+	GBaseGD::init();
 
 	// Add local configuration code here
 }
@@ -194,7 +194,7 @@ void GSerialGD::finalize() {
 	// Add local finalization code here
 
 	// GSerialGD sees exactly the environment it would when called from its own class
-	GSerialGD::finalize();
+	GBaseGD::finalize();
 }
 
 /************************************************************************************************************/
@@ -204,14 +204,14 @@ void GSerialGD::finalize() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GSerialGD::addConfigurationOptions (
+void GSerialGD::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
 	// no local data
 
 	// Call our parent class'es function
-	GBaseGD::addConfigurationOptions(gpb, showOrigin);
+	GBaseGD::addConfigurationOptions_(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -258,10 +258,10 @@ double GSerialGD::doFitnessCalculation(const std::size_t& finalPos) {
 	for(std::size_t i=0; i<finalPos; i++) {
 #ifdef DEBUG
 		// Make sure the evaluated individuals have the dirty flag set
-		if(!this->at(i)->isDirty()) {
+		if(afterFirstIteration() && !this->at(i)->isDirty()) {
 			raiseException(
 					"In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
-					<< "Found individual in position " << i << " whose dirty flag isn't set"
+					<< "In iteration " << this->getIteration() << ": Found individual in position " << i << " whose dirty flag isn't set"
 			);
 		}
 #endif /* DEBUG */

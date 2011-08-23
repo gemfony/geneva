@@ -138,7 +138,7 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GNumFlipAdaptorT<num_type>  *p_load = GObject::conversion_cast<GNumFlipAdaptorT<num_type> >(&cp);
+		const GNumFlipAdaptorT<num_type>  *p_load = GObject::gobject_conversion<GNumFlipAdaptorT<num_type> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;

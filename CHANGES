@@ -8,7 +8,12 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
 * Version 0.9.3, yet unnamed, release-date unknown
 
 The main changes for this release include:
- - Introduced a new interface class GOptimizableI, as the basis
+ - Introduced a new wrapper class "Go2" that allows to aggregate
+   different optimization algorithms, making the best results of 
+   the first algorithms available to their successors
+ - Facilitated and centralized creation and parsing of configuration
+   options, so users may more easily configure their applications
+ - Introduced a new interface class "GOptimizableI", as the basis
    of GOptimizationAlgorithmT and various wrapper classes.
  - Renamed 'public' cpp variables according to the library they
    are used in, GEM_<LIB>_<VAR>.
@@ -241,7 +246,7 @@ The main changes for this release include:
    "mutate with a certain likelihood".
  - Added compilation warnings when using Boost 1.39 or Boost 1.41, which
    seem to have issues wrt. Geneva, possibly in the serialization library.
- - Reworked the test framework, including renovation of conversion_cast<>.
+ - Reworked the test framework, including renovation of gobject_conversion<>.
  - Reworked the clone framework to use boost::shared_ptr instead of "raw"
    GObject* pointers.
  - Reworked the load framework so that public accessible load functions

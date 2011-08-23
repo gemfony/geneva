@@ -94,12 +94,27 @@ public:
 	 * Starts the optimization cycle and returns the best individual found, converted to
 	 * the desired target type.
 	 *
+	 * @return The best individual found during the optimization process, converted to the desired type
+	 */
+	template <typename individual_type>
+	boost::shared_ptr<individual_type> optimize() {
+		this->optimize(0);
+		return this->getBestIndividual<individual_type>();
+	}
+
+
+	/**************************************************************************************/
+	/**
+	 * Starts the optimization cycle and returns the best individual found, converted to
+	 * the desired target type. This function uses a configurable offset for the iteration
+	 * counter
+	 *
 	 * @param offset An offset for the iteration counter
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
 	boost::shared_ptr<individual_type> optimize(
-			const boost::uint32_t& offset = 0
+			const boost::uint32_t& offset
 	) {
 		this->optimize(offset);
 		return this->getBestIndividual<individual_type>();
@@ -162,6 +177,13 @@ public:
 	virtual personality getOptimizationAlgorithm() const {
 		return PERSONALITY_NONE;
 	}
+
+	/**********************************************************************************/
+	/** @brief Returns a name assigned to this algorithm */
+	virtual std::string getAlgorithmName() const = 0;
+
+	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
+	virtual bool usesBroker() const { return false; }
 
 protected:
 	/**********************************************************************************/

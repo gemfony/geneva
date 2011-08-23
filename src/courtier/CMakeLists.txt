@@ -3,6 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( COMMUNICATIONSOURCES
 	GAsioHelperFunctions
 	GConsumer
+	GCourtierEnums
 )
 
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted

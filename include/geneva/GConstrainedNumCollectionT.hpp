@@ -175,7 +175,7 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GConstrainedNumCollectionT<num_type>  *p_load = GObject::conversion_cast<GConstrainedNumCollectionT<num_type> >(&cp);
+		const GConstrainedNumCollectionT<num_type>  *p_load = GObject::gobject_conversion<GConstrainedNumCollectionT<num_type> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -326,7 +326,7 @@ protected:
 	 */
 	virtual void load_(const GObject *cp){
 		// Convert cp into local format
-		const GConstrainedNumCollectionT<num_type> *p_load = GObject::conversion_cast<GConstrainedNumCollectionT<num_type> >(cp);
+		const GConstrainedNumCollectionT<num_type> *p_load = GObject::gobject_conversion<GConstrainedNumCollectionT<num_type> >(cp);
 
 		// Load our parent class'es data ...
 		GParameterCollectionT<num_type>::load_(cp);

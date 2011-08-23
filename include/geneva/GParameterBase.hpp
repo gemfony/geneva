@@ -275,7 +275,7 @@ public:
 		if(p) return p;
 		else {
 			raiseException(
-					"In boost::shared_ptr<load_type> GParameterBase::conversion_cast<load_type>() :" << std::endl
+					"In boost::shared_ptr<load_type> GParameterBase::gobject_conversion<load_type>() :" << std::endl
 					<< "Invalid conversion"
 			);
 		}

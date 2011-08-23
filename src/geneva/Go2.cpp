@@ -51,7 +51,6 @@ Go2::Go2()
 	, port_(GO2_DEF_PORT)
 	, configFilename_(GO2_DEF_DEFAULTCONFIGFILE)
 	, verbose_(GO2_DEF_DEFAULTVERBOSE)
-	, copyBestOnly_(GO2_DEF_COPYBESTONLY)
 	, maxStalledDataTransfers_(GO2_DEF_MAXSTALLED)
 	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
 	, returnRegardless_(GO2_DEF_RETURNREGARDLESS)
@@ -60,7 +59,7 @@ Go2::Go2()
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
 	, iterationsConsumed_(0)
-	, consumerInitialized_(GO2_DEF_CONSUMERINITIALIZED)
+	, consumerInitialized_(false)
 {
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -78,9 +77,8 @@ Go2::Go2()
  *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
- * @param configFileName The name of a configuration file
  */
-Go2::Go2(int argc, char **argv, const std::string& configFilename)
+Go2::Go2(int argc, char **argv)
 	: GMutableSetT<GParameterSet>()
 	, clientMode_(GO2_DEF_CLIENTMODE)
 	, serializationMode_(GO2_DEF_SERIALIZATIONMODE)
@@ -88,7 +86,6 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	, port_(GO2_DEF_PORT)
 	, configFilename_(GO2_DEF_DEFAULTCONFIGFILE)
 	, verbose_(GO2_DEF_DEFAULTVERBOSE)
-	, copyBestOnly_(GO2_DEF_COPYBESTONLY)
 	, maxStalledDataTransfers_(GO2_DEF_MAXSTALLED)
 	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
 	, returnRegardless_(GO2_DEF_RETURNREGARDLESS)
@@ -97,16 +94,11 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
 	, iterationsConsumed_(0)
-	, consumerInitialized_(GO2_DEF_CONSUMERINITIALIZED)
+	, consumerInitialized_(false)
 {
 	//--------------------------------------------
 	// Load initial configuration options from the command line
 	parseCommandLine(argc, argv);
-
-	// Update the name of the configuration file, if necessary
-	if(configFilename != GO2_DEF_DEFAULTCONFIGFILE) {
-		configFilename_ = configFilename;
-	}
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -115,6 +107,46 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
 	GRANDOMFACTORY->setArraySize(arraySize_);
 }
+
+/**************************************************************************************/
+/**
+ * A constructor that first parses the command line for relevant parameters and then
+ * loads data from a configuration file
+ *
+ * @param argc The number of command line arguments
+ * @param argv An array with the arguments
+ * @param configFilename The name of a configuration file
+ */
+Go2::Go2(int argc, char **argv, const std::string& configFilename)
+	: GMutableSetT<GParameterSet>()
+	, clientMode_(GO2_DEF_CLIENTMODE)
+	, serializationMode_(GO2_DEF_SERIALIZATIONMODE)
+	, ip_(GO2_DEF_IP)
+	, port_(GO2_DEF_PORT)
+	, configFilename_(configFilename)
+	, verbose_(GO2_DEF_DEFAULTVERBOSE)
+	, maxStalledDataTransfers_(GO2_DEF_MAXSTALLED)
+	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
+	, returnRegardless_(GO2_DEF_RETURNREGARDLESS)
+	, nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
+	, arraySize_(GO2_DEF_ARRAYSIZE)
+	, offset_(GO2_DEF_OFFSET)
+	, sorted_(false)
+	, iterationsConsumed_(0)
+	, consumerInitialized_(false)
+{
+	//--------------------------------------------
+	// Load initial configuration options from the command line
+	parseCommandLine(argc, argv);
+
+	//--------------------------------------------
+	// Random numbers are our most valuable good.
+	// Set the number of threads. GRANDOMFACTORY is
+	// a singleton that will be initialized by this call.
+	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
+	GRANDOMFACTORY->setArraySize(arraySize_);
+}
+
 
 /**************************************************************************************/
 /**
@@ -143,7 +175,6 @@ Go2::Go2(
 	, port_(port)
 	, configFilename_(configFilename)
 	, verbose_(verbose)
-	, copyBestOnly_(GO2_DEF_COPYBESTONLY)
 	, maxStalledDataTransfers_(GO2_DEF_MAXSTALLED)
 	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
 	, returnRegardless_(GO2_DEF_RETURNREGARDLESS)
@@ -152,7 +183,7 @@ Go2::Go2(
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
 	, iterationsConsumed_(0)
-	, consumerInitialized_(GO2_DEF_CONSUMERINITIALIZED)
+	, consumerInitialized_(false)
 {
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -174,7 +205,6 @@ Go2::Go2(const Go2& cp)
 	, port_(cp.port_)
 	, configFilename_(cp.configFilename_)
 	, verbose_(cp.verbose_)
-	, copyBestOnly_(cp.copyBestOnly_)
 	, maxStalledDataTransfers_(cp.maxStalledDataTransfers_)
 	, maxConnectionAttempts_(cp.maxConnectionAttempts_)
 	, returnRegardless_(cp.returnRegardless_)
@@ -265,7 +295,7 @@ boost::optional<std::string> Go2::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GOptimizationMonitorT reference
-	const Go2 *p_load = GObject::conversion_cast<Go2>(&cp);
+	const Go2 *p_load = GObject::gobject_conversion<Go2>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -280,7 +310,6 @@ boost::optional<std::string> Go2::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go2", port_, p_load->port_, "port_", "p_load->port_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", configFilename_, p_load->configFilename_, "configFilename_", "p_load->configFilename_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", verbose_, p_load->verbose_, "verbose_", "p_load->verbose_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", copyBestOnly_, p_load->copyBestOnly_, "copyBestOnly_", "p_load->copyBestOnly_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", maxStalledDataTransfers_, p_load->maxStalledDataTransfers_, "maxStalledDataTransfers_", "p_load->maxStalledDataTransfers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", maxConnectionAttempts_, p_load->maxConnectionAttempts_, "maxConnectionAttempts_", "p_load->maxConnectionAttempts_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", returnRegardless_, p_load->returnRegardless_, "returnRegardless_", "p_load->returnRegardless_", e , limit));
@@ -302,7 +331,7 @@ boost::optional<std::string> Go2::checkRelationshipWith(
  * @param cp A copy of another Go2 object, camouflaged as a GObject
  */
 void Go2::load_(const GObject *cp) {
-	const Go2 *p_load = conversion_cast<Go2>(cp);
+	const Go2 *p_load = gobject_conversion<Go2>(cp);
 
 	// First load the parent class'es data ...
 	GMutableSetT<GParameterSet>::load_(cp);
@@ -314,7 +343,6 @@ void Go2::load_(const GObject *cp) {
 	port_ = p_load->port_;
 	configFilename_ = p_load->configFilename_;
 	verbose_ = p_load->verbose_;
-	copyBestOnly_ = p_load->copyBestOnly_;
 	maxStalledDataTransfers_ = p_load->maxStalledDataTransfers_;
 	maxConnectionAttempts_ = p_load->maxConnectionAttempts_;
 	returnRegardless_ = p_load->returnRegardless_;
@@ -343,33 +371,18 @@ GObject *Go2::clone_() const {
  * Triggers execution of the client loop. Note that it is up to you to terminate
  * the program after calling this function.
  */
-bool Go2::clientRun() {
-	if(serverMode()) {
-		return false;
-	}
-	else {
-		// Instantiate the client worker
-		boost::shared_ptr<Gem::Courtier::GAsioTCPClientT<GIndividual> > p(new Gem::Courtier::GAsioTCPClientT<GIndividual>(ip_, boost::lexical_cast<std::string>(port_)));
+int Go2::clientRun() {
+	// Instantiate the client worker
+	boost::shared_ptr<Gem::Courtier::GAsioTCPClientT<GIndividual> > p(new Gem::Courtier::GAsioTCPClientT<GIndividual>(ip_, boost::lexical_cast<std::string>(port_)));
 
-		p->setMaxStalls(maxStalledDataTransfers_); // Set to 0 to allow an infinite number of stalls
-		p->setMaxConnectionAttempts(maxConnectionAttempts_); // Set to 0 to allow an infinite number of failed connection attempts
-		p->returnResultIfUnsuccessful(returnRegardless_);  // Prevent return of unsuccessful adaption attempts to the server
+	p->setMaxStalls(maxStalledDataTransfers_); // Set to 0 to allow an infinite number of stalls
+	p->setMaxConnectionAttempts(maxConnectionAttempts_); // Set to 0 to allow an infinite number of failed connection attempts
+	p->returnResultIfUnsuccessful(returnRegardless_);  // Prevent return of unsuccessful adaption attempts to the server
 
-		// Start the actual processing loop
-		p->run();
+	// Start the actual processing loop
+	p->run();
 
-		return true;
-	}
-}
-
-/**************************************************************************************/
-/**
- * Checks whether server mode has been requested for this object
- *
- * @return A boolean which indicates whether the server mode has been set for this object
- */
-bool Go2::serverMode() const {
-	return !clientMode_;
+	return 0;
 }
 
 /**************************************************************************************/
@@ -380,26 +393,6 @@ bool Go2::serverMode() const {
  */
 bool Go2::clientMode() const {
 	return clientMode_;
-}
-
-/**************************************************************************************/
-/*
- * Specifies whether only the best individuals of a population should be copied.
- *
- * @param copyBestOnly Specifies whether only the best individuals of a population are copied
- */
-void Go2::setCopyBestIndividualsOnly(const bool& copyBestOnly) {
-	copyBestOnly_ = copyBestOnly;
-}
-
-/**************************************************************************************/
-/**
- * Checks whether only the best individuals are copied
- *
- * @return A boolean indicating whether only the best individuals of a population are copied
- */
-bool Go2::onlyBestIndividualsAreCopied() const {
-	return copyBestOnly_;
 }
 
 /**************************************************************************************/
@@ -460,15 +453,13 @@ void Go2::addAlgorithm(boost::shared_ptr<GOptimizableI> alg) {
  * Makes it easier to add algorithms. The idea is to call this function like this:
  *
  * Go2 go2;
- * go2 += alg1
- *     += alg2
- *     += alg3;
+ * go2 & alg1 & alg2 & alg3;
  * go2.optimize();
  *
  * @param alg A base pointer to another optimization algorithm
  * @return A reference to this object
  */
-Go2& Go2::operator+=(boost::shared_ptr<GOptimizableI> alg) {
+Go2& Go2::operator&(boost::shared_ptr<GOptimizableI> alg) {
 	this->addAlgorithm(alg);
 	return *this;
 }
@@ -516,8 +507,23 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	std::vector<boost::shared_ptr<GOptimizableI> >::iterator alg_it;
 	for(alg_it=algorithms_.begin(); alg_it!=algorithms_.end(); ++alg_it) {
 		boost::shared_ptr<GOptimizableI> p_base = (*alg_it);
+
+		// If this is a broker-based population, check whether we need to enrol a consumer
+		if(p_base->usesBroker() && !consumerInitialized_) {
+			// Create a network consumer and enrol it with the broker
+			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(
+					port_
+					, 0 // Try to automatically determine the number of listener threads
+					, serializationMode_
+					)
+			);
+			GBROKER(Gem::Geneva::GIndividual)->enrol(gatc);
+
+			consumerInitialized_ = true;
+		}
+
 		switch(p_base->getOptimizationAlgorithm()) {
-		case EA:
+		case PERSONALITY_EA:
 		{
 			// Add the individuals to the EA. Note that it needs to be converted for this purpose
 			boost::shared_ptr<GBaseEA> p_derived = boost::dynamic_pointer_cast<GBaseEA>(p_base);
@@ -529,7 +535,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			this->clear();
 
 			// Do the actual optimization
-			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_ + 1);
+			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_);
 
 			// Make sure we start with the correct iteration in the next algorithm
 			iterationsConsumed_ = p_base->getIteration();
@@ -543,7 +549,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 		}
 			break;
 
-		case SWARM:
+		case PERSONALITY_SWARM:
 		{
 			// Add the individuals to the Swarm. Note that it needs to be converted for this purpose
 			boost::shared_ptr<GBaseSwarm> p_derived = boost::dynamic_pointer_cast<GBaseSwarm>(p_base);
@@ -555,7 +561,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			this->clear();
 
 			// Do the actual optimization
-			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_ + 1);
+			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_);
 
 			// Make sure we start with the correct iteration in the next algorithm
 			iterationsConsumed_ = p_base->getIteration();
@@ -569,7 +575,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 		}
 			break;
 
-		case GD:
+		case PERSONALITY_GD:
 		{
 			// Add the individuals to the GD. Note that it needs to be converted for this purpose
 			boost::shared_ptr<GBaseGD> p_derived = boost::dynamic_pointer_cast<GBaseGD>(p_base);
@@ -581,7 +587,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			this->clear();
 
 			// Do the actual optimization
-			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_ + 1);
+			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_);
 
 			// Make sure we start with the correct iteration in the next algorithm
 			iterationsConsumed_ = p_base->getIteration();
@@ -703,14 +709,42 @@ std::vector<boost::shared_ptr<GIndividual> > Go2::getBestIndividuals() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void Go2::addConfigurationOptions (
+void Go2::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
-	// No local data
+	using namespace Gem::Common;
+
+	// Parse the configuration file
+
+	gpb.registerFileParameter<boost::uint32_t> (
+		"maxStalledDataTransfers"
+		, maxStalledDataTransfers_
+		, GO2_DEF_MAXSTALLED
+		, VAR_IS_ESSENTIAL
+		, "Specifies how often a client may try to unsuccessfully retrieve data from the server (0 means endless)"
+	);
+
+	gpb.registerFileParameter<boost::uint32_t> (
+		"maxConnectionAttempts"
+		, maxConnectionAttempts_
+		, GO2_DEF_MAXCONNATT
+		, VAR_IS_ESSENTIAL
+		, "Specifies how often a client may try to connect unsuccessfully to the server (0 means endless)"
+	);
+
+	gpb.registerFileParameter<bool> (
+		"returnRegardless"
+		, returnRegardless_
+		, GO2_DEF_RETURNREGARDLESS
+		, VAR_IS_ESSENTIAL
+		, "Specifies whether unsuccessful processing attempts should be returned to the server"
+	);
+
+
 
 	// Call our parent class'es function
-	GMutableSetT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+	GMutableSetT<GParameterSet>::addConfigurationOptions_(gpb, showOrigin);
 }
 
 /**************************************************************************************/
@@ -789,28 +823,6 @@ void Go2::setServerPort(const unsigned short& port) {
  */
 unsigned short Go2::getServerPort() const {
 	return port_;
-}
-
-/**************************************************************************************/
-/**
- * Allows to set the name of the configuration file from which further options will
- * be read.
- *
- * @param configFilename The name of the file from which further options will be read
- */
-void Go2::setConfigFileName(const std::string& configFilename) {
-	configFilename_ = configFilename;
-}
-
-/**************************************************************************************/
-/**
- * Allows to retrieve the name of the configuration file from which further options will
- * be read
- *
- * @return The name of the configuration file from which further options will be read
- */
-std::string Go2::getConfigFileName() const {
-	return configFilename_;
 }
 
 /**************************************************************************************/
@@ -960,11 +972,21 @@ uint32_t Go2::getIteration() const {
 
 /**************************************************************************************/
 /**
+ * Returns the name of this optimization algorithm
+ *
+ * @return The name assigned to this optimization algorithm
+ */
+std::string Go2::getAlgorithmName() const {
+	return std::string("Algorithm Combiner");
+}
+
+/**************************************************************************************/
+/**
  * Allows to retrieve the current offset with which the iteration counter will start
  *
  * @return The current offset with which the iteration counter will start
  */
-boost::uint32_t Go2::getOffset() const {
+boost::uint32_t Go2::getIterationOffset() const {
 	return offset_;
 }
 
@@ -982,18 +1004,17 @@ void Go2::parseCommandLine(int argc, char **argv) {
 		po::options_description desc(usageString.c_str());
 		desc.add_options()
 				("help,h", "emit help message")
-				("configFilename,c", po::value<std::string>(&configFilename_)->default_value(GO2_DEF_DEFAULTCONFIGFILE),
+				("configFilename,f", po::value<std::string>(&configFilename_)->default_value(GO2_DEF_DEFAULTCONFIGFILE),
 				"The name of the file holding configuration information for optimization algorithms")
-				("clientMode,c",
-				"Makes this program behave as a networked client")
-				("ip", po::value<std::string>(&ip_)->default_value(GO2_DEF_IP),
+				("clientMode,c", "Makes this program behave as a networked client")
+				("ip,i", po::value<std::string>(&ip_)->default_value(GO2_DEF_IP),
 				"The ip of the server")
-				("port", po::value<unsigned short>(&port_)->default_value(GO2_DEF_PORT),
+				("port,p", po::value<unsigned short>(&port_)->default_value(GO2_DEF_PORT),
 				"The port of the server")
-				("serializationMode", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO2_DEF_SERIALIZATIONMODE),
+				("serializationMode,m", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO2_DEF_SERIALIZATIONMODE),
 				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 				("writeConfigFile,w",
-				"Instructs the program to write out a configuration file and then to exit. If the configuration option \"configFileName\" has been specified, its value will be used as the name of the file")
+				"Instructs Go2 to write out a configuration file and then to exit. If the configuration option \"configFileName\" has been specified, its value will be used as the name of the file")
 				("verbose,v", "Instructs the parsers to output information about configuration parameters")
 		;
 
@@ -1009,8 +1030,20 @@ void Go2::parseCommandLine(int argc, char **argv) {
 
 		// Output the configuration file, if required
 		if(vm.count("writeConfigFile")) {
-			// Go2::writeConfigurationFile(configFilename_);
+			std::string header = "Configuration file for the Go2 class;";
+			Go2::writeConfigFile(configFilename_, header);
 			exit(0);
+		}
+
+		// Read in the configuration file, if it exists
+		{
+			using namespace boost::filesystem;
+			if(exists(path(configFilename_))) {
+				Go2::readConfigFile(configFilename_);
+			} else {
+				std::cout << "Configuration file " << configFilename_ << " not found." << std::endl
+						  << "Using default values." << std::endl;
+			}
 		}
 
 		if (vm.count("clientMode")) clientMode_ = true;

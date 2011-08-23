@@ -106,9 +106,9 @@ public:
 	virtual void finalize();
 
 	/** @brief Sets the maximum number of threads */
-	void setNThreads(boost::uint8_t);
+	void setNThreads(boost::uint16_t);
 	/** @brief Retrieves the maximum number of threads */
-	uint8_t getNThreads() const ;
+	uint16_t getNThreads() const ;
 
 protected:
 	/** @brief Loads data from another object */
@@ -121,13 +121,13 @@ protected:
 	virtual void adaptChildren();
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions (
+	virtual void addConfigurationOptions_ (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	);
 
 private:
-	boost::uint8_t nThreads_; ///< The number of threads
+	boost::uint16_t nThreads_; ///< The number of threads
 	boost::threadpool::pool tp_; ///< A thread pool
 
 	std::vector<bool> sm_value_; ///< Internal storage for server mode flags

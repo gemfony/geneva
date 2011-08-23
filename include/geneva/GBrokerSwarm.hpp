@@ -103,6 +103,9 @@ public:
 			, const bool&
 	) const;
 
+	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
+	virtual bool usesBroker() const;
+
 protected:
     /*********************************************************************************/
 	/** @brief Loads the data of another GTransfer Population */
@@ -116,7 +119,7 @@ protected:
 	virtual void finalize();
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions (
+	virtual void addConfigurationOptions_ (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	);

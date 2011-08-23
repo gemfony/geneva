@@ -163,6 +163,15 @@ public:
 		gtg_.join_all();
 	}
 
+	/*********************************************************************/
+	/**
+	* A unique identifier for a given consumer
+	*
+	* @return A unique identifier for a given consumer
+	*/
+	virtual std::string getConsumerName() const {
+	  return std::string("GBoostThreadConsumerT");
+	}
 
 private:
 	GBoostThreadConsumerT(const GBoostThreadConsumerT<processable_type>&); ///< Intentionally left undefined

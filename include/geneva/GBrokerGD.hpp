@@ -115,6 +115,9 @@ public:
 	/** @brief Returns the maximum allowed number of resubmissions */
 	std::size_t getMaxResubmissions() const;
 
+	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
+	virtual bool usesBroker() const;
+
 protected:
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
@@ -127,7 +130,7 @@ protected:
 	virtual void finalize();
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions (
+	virtual void addConfigurationOptions_ (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	);

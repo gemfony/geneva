@@ -82,7 +82,7 @@ GParameterBase::~GParameterBase()
  */
 void GParameterBase::load_(const GObject* cp){
 	// Convert cp into local format
-	const GParameterBase *p_load = conversion_cast<GParameterBase>(cp);
+	const GParameterBase *p_load = gobject_conversion<GParameterBase>(cp);
 
 	// Load the parent class'es data
 	GObject::load_(cp);
@@ -200,7 +200,7 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GParameterBase *p_load = GObject::conversion_cast<GParameterBase>(&cp);
+	const GParameterBase *p_load = GObject::gobject_conversion<GParameterBase>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;

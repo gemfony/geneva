@@ -190,6 +190,9 @@ public:
 	/** @brief Reads a configuration file from disk */
 	void readConfigFile(const std::string&);
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
+
 	/** @brief Creates a clone of this object, storing it in a boost::shared_ptr<GObject> */
 	boost::shared_ptr<GObject> clone() const;
 
@@ -309,7 +312,7 @@ protected:
 	 * only be accessible to the compiler if GObject is a base type of load_type.
 	 */
 	template <typename load_type>
-	inline const load_type* conversion_cast (
+	inline const load_type* gobject_conversion (
 			const GObject *load_ptr
 		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
@@ -320,7 +323,7 @@ protected:
 		if(p) return p;
 		else {
 			raiseException(
-					"In const GObject* GObject::conversion_cast<load_type>() :" << std::endl
+					"In const GObject* GObject::gobject_conversion<load_type>() :" << std::endl
 					<< "Invalid conversion"
 			);
 		}
@@ -330,7 +333,7 @@ protected:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * conversion_casts are regularly performed as part of the loading process and are thus
+	 * gobject_conversions are regularly performed as part of the loading process and are thus
 	 * considered to be well tested.
 	 * ----------------------------------------------------------------------------------
 	 */
@@ -346,7 +349,7 @@ protected:
 	 * @return A boost::shared_ptr holding the converted object
 	 */
 	template <typename load_type>
-	inline boost::shared_ptr<load_type> conversion_cast (
+	inline boost::shared_ptr<load_type> gobject_conversion (
 			boost::shared_ptr<GObject> load_ptr
 		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
@@ -357,7 +360,7 @@ protected:
 		if(p) return p;
 		else {
 			raiseException(
-					"In boost::shared_ptr<load_type> GObject::conversion_cast<load_type>() :" << std::endl
+					"In boost::shared_ptr<load_type> GObject::gobject_conversion<load_type>() :" << std::endl
 					<< "Invalid conversion"
 			);
 		}
@@ -367,7 +370,7 @@ protected:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * conversion_casts are regularly performed as part of the loading process and are thus
+	 * gobject_conversions are regularly performed as part of the loading process and are thus
 	 * considered to be well tested.
 	 * ----------------------------------------------------------------------------------
 	 */
@@ -375,7 +378,7 @@ protected:
 	/**************************************************************************************************/
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+	virtual void addConfigurationOptions_(Gem::Common::GParserBuilder&, const bool&);
 
 private:
 	bool mayBeSerialized_; ///< Indicates whether derivatives may be serialized.

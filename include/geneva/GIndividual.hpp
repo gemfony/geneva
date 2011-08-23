@@ -290,7 +290,7 @@ protected:
 	double weighedSquaredSumCombiner(const std::vector<double>&) const;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+	virtual void addConfigurationOptions_(Gem::Common::GParserBuilder&, const bool&);
 
 private:
 	/**************************************************************************************************/

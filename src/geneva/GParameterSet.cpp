@@ -148,7 +148,7 @@ boost::optional<std::string> GParameterSet::checkRelationshipWith(
  */
 void GParameterSet::load_(const GObject* cp){
 	// Convert to local format
-	const GParameterSet *p_load = this->conversion_cast<GParameterSet>(cp);
+	const GParameterSet *p_load = this->gobject_conversion<GParameterSet>(cp);
 
 	// Load the parent class'es data
 	GMutableSetT<Gem::Geneva::GParameterBase>::load_(cp);
@@ -190,11 +190,11 @@ double GParameterSet::fitnessCalculation() {
 bool GParameterSet::updateOnStall() {
 	switch (getPersonality()) {
 	case PERSONALITY_NONE:
-	case GD:
-	case SWARM:
+	case PERSONALITY_GD:
+	case PERSONALITY_SWARM:
 		break;
 
-	case EA:
+	case PERSONALITY_EA:
 #ifdef DEBUG
 	{
 		// This function should only be called for parents. Check ...
@@ -556,7 +556,7 @@ void GParameterSet::customAdaptions() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GParameterSet::addConfigurationOptions (
+void GParameterSet::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -580,7 +580,7 @@ void GParameterSet::addConfigurationOptions (
 	);
 
 	// Call our parent class'es function
-	GMutableSetT<Gem::Geneva::GParameterBase>::addConfigurationOptions(gpb, showOrigin);
+	GMutableSetT<Gem::Geneva::GParameterBase>::addConfigurationOptions_(gpb, showOrigin);
 }
 
 #ifdef GENEVATESTING

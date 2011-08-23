@@ -237,7 +237,7 @@ public:
 		// Check that we are not accidently assigning this object to itself
 		selfAssignmentCheck<GStartIndividual>(&cp);
 		// Use this call instead when local data needs to be loaded:
-		// const GStartIndividual *p_load = GObject::conversion_cast<GStartIndividual>(&cp);
+		// const GStartIndividual *p_load = GObject::gobject_conversion<GStartIndividual>(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -323,7 +323,7 @@ protected:
 		// Check that we are not accidently assigning this object to itself
 		selfAssignmentCheck<GStartIndividual>(cp);
 		// Use this call instead when local data needs to be loaded:
-		// const GStartIndividual *p_load = GObject::conversion_cast<GStartIndividual>(cp);
+		// const GStartIndividual *p_load = GObject::gobject_conversion<GStartIndividual>(cp);
 
 		// Load our parent's data
 		GParameterSet::load_(cp);

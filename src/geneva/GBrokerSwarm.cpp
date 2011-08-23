@@ -90,7 +90,7 @@ const GBrokerSwarm& GBrokerSwarm::operator=(const GBrokerSwarm& cp) {
  * @param cp A pointer to another GBrokerSwarm object, camouflaged as a GObject
  */
 void GBrokerSwarm::load_(const GObject * cp) {
-	const GBrokerSwarm *p_load = conversion_cast<GBrokerSwarm>(cp);
+	const GBrokerSwarm *p_load = gobject_conversion<GBrokerSwarm>(cp);
 
 	// Load the parent classes' data ...
 	GBaseSwarm::load_(cp);
@@ -160,7 +160,7 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
     using namespace Gem::Courtier;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GBrokerSwarm *p_load = GObject::conversion_cast<GBrokerSwarm>(&cp);
+	const GBrokerSwarm *p_load = GObject::gobject_conversion<GBrokerSwarm>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -220,12 +220,23 @@ void GBrokerSwarm::finalize() {
 
 /************************************************************************************************************/
 /**
+ * Checks whether this algorithm communicates via the broker. This is an overload from the corresponding
+ * GOptimizableI function
+ *
+ * @return A boolean indicating whether this algorithm communicates via the broker
+ */
+bool GBrokerSwarm::usesBroker() const {
+	return true;
+}
+
+/************************************************************************************************************/
+/**
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GBrokerSwarm::addConfigurationOptions (
+void GBrokerSwarm::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -234,15 +245,15 @@ void GBrokerSwarm::addConfigurationOptions (
 	// no local data
 
 	// Call our parent class'es function
-	GBaseSwarm::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+	GBaseSwarm::addConfigurationOptions_(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions_(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
 /**
- * Creates a copy of the last iteration's individuals, if iteration > 0, then performs the standard position
+ * Creates a copy of the last iteration's individuals, if this is not the first iteration, then performs the standard position
  * update using GSwam::updatePositions(). We use the old individuals to fill in missing returns in
- * adjustNeighborhoods. This doesn't make sense for iteration 0 though, as individuals have not generally
+ * adjustNeighborhoods. This doesn't make sense for the first iteration though, as individuals have not generally
  * been evaluated then, and we do not want to fill up with "dirty" individuals.
  */
 void GBrokerSwarm::updatePositions() {
@@ -267,7 +278,7 @@ void GBrokerSwarm::updatePositions() {
 #endif
 
 	oldIndividuals_.clear();
-	if(getIteration() > 0) {
+	if(afterFirstIteration()) {
 		GBrokerSwarm::iterator it;
 
 		// Clone the individuals and copy them over
@@ -309,7 +320,7 @@ void GBrokerSwarm::updateFitness() {
 	// of older individuals (they will keep their old neighborhood id)
 	for(it=this->begin(); it!=this->end(); ++it) {
 		// Update the personal best
-		if(iteration == 0) {
+		if(inFirstIteration()) {
 			updatePersonalBest(*it);
 		} else {
 			updatePersonalBestIfBetter(*it);
@@ -343,7 +354,7 @@ void GBrokerSwarm::adjustNeighborhoods() {
 
 #ifdef DEBUG
 	// Check that oldIndividuals_ has the desired size in iterations other than the first
-	if(iteration > 0 && oldIndividuals_.size() != defaultNNeighborhoodMembers_*nNeighborhoods_) {
+	if(afterFirstIteration() && oldIndividuals_.size() != defaultNNeighborhoodMembers_*nNeighborhoods_) {
 		raiseException(
 				"In GBrokerSwarm::adjustNeighborhoods(): Error!" << std::endl
 				<< "oldIndividuals_ has incorrect size! Expected" << std::endl
@@ -379,14 +390,14 @@ void GBrokerSwarm::adjustNeighborhoods() {
 			// The number of missing items
 			std::size_t nMissing = defaultNNeighborhoodMembers_ - nNeighborhoodMembers_[n];
 
-			if(iteration > 0) { // The most likely case
+			if(afterFirstIteration()) { // The most likely case
 				// Copy the best items of this neighborhood over from the oldIndividuals_ vector.
 				// Each neighborhood there should have been sorted according to the individuals
 				// fitness, with the best individuals in the front of each neighborhood.
 				for(std::size_t i=0; i<nMissing; i++) {
 					data.insert(data.begin() + firstNIPos, *(oldIndividuals_.begin() + firstNIPos + i));
 				}
-			} else { // iteration == 0
+			} else { // first iteration
 #ifdef DEBUG
 				// At least one individual must have returned.
 				if(this->empty()) {

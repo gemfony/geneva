@@ -437,7 +437,7 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GNeuralNetworkIndividual *p_load = GObject::conversion_cast<GNeuralNetworkIndividual>(&cp);
+		const GNeuralNetworkIndividual *p_load = GObject::gobject_conversion<GNeuralNetworkIndividual>(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -1232,7 +1232,7 @@ protected:
 	 * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp){
-		const GNeuralNetworkIndividual *p_load = conversion_cast<GNeuralNetworkIndividual>(cp);
+		const GNeuralNetworkIndividual *p_load = gobject_conversion<GNeuralNetworkIndividual>(cp);
 
 		// Load the parent class'es data
 		GParameterSet::load_(cp);

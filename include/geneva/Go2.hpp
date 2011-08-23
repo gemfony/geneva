@@ -62,6 +62,7 @@
 #include "geneva/GDoubleObject.hpp"
 #include "geneva/Geneva.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
+#include "geneva/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GMultiThreadedGD.hpp"
@@ -79,9 +80,9 @@ namespace Geneva {
 
 /**************************************************************************************/
 // Default values for the variables used by the optimizer
-const std::string GO2_DEF_DEFAULTCONFIGFILE="go2.cfg";
+const std::string GO2_DEF_DEFAULTCONFIGFILE="config/go2.cfg";
 const bool GO2_DEF_CLIENTMODE=false;
-const parMode GO2_DEF_DEFAULPARALLELIZATIONMODE=MULTITHREADED;
+const parMode GO2_DEF_DEFAULPARALLELIZATIONMODE=PARMODE_MULTITHREADED;
 const Gem::Common::serializationMode GO2_DEF_SERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
 const std::string GO2_DEF_IP="localhost";
 const unsigned int GO2_DEF_PORT=10000;
@@ -93,13 +94,18 @@ const bool GO2_DEF_RETURNREGARDLESS=true;
 const boost::uint16_t GO2_DEF_NPRODUCERTHREADS=0;
 const std::size_t GO2_DEF_ARRAYSIZE=1000;
 const boost::uint32_t GO2_DEF_OFFSET=0;
-const bool GO2_DEF_CONSUMERINITIALIZED=false;
 
 /**************************************************************************************/
 /**
  * This class allows to "chain" a number of optimization algorithms so that a given
  * set of individuals can be optimized using more than one algorithm in sequence. The
  * class also hides the details of client/server mode, consumer initialization, etc.
+ *
+ * TODO: This class only checks that the broker hasn't been started inside of this class.
+ * If there are multiple Go2 objects, multiple consumers might get registered. In summary
+ * this means that one may only use one Go2 object inside of the same application.
+ *
+ * NOTE: This class is not currently thread-safe (nor even re-entrant)
  */
 class Go2
 	: public GMutableSetT<GParameterSet>
@@ -119,7 +125,6 @@ class Go2
 	     & BOOST_SERIALIZATION_NVP(port_)
 	     & BOOST_SERIALIZATION_NVP(configFilename_)
 	     & BOOST_SERIALIZATION_NVP(verbose_)
-	     & BOOST_SERIALIZATION_NVP(copyBestOnly_)
 	     & BOOST_SERIALIZATION_NVP(maxStalledDataTransfers_)
 	     & BOOST_SERIALIZATION_NVP(maxConnectionAttempts_)
 	     & BOOST_SERIALIZATION_NVP(returnRegardless_)
@@ -135,8 +140,10 @@ class Go2
 public:
 	/** @brief The default constructor */
 	Go2();
-	/** @brief A constructor that first parses the command line for relevant parameters and then loads data from a config file */
-	Go2(int, char **, const std::string& = GO2_DEF_DEFAULTCONFIGFILE);
+	/** @brief A constructor that first parses the command line for relevant parameters */
+	Go2(int, char **);
+	/** @brief A constructor that first parses the command line for relevant parameters and allows to specify a default config file name */
+	Go2(int, char **, const std::string&);
 	/** @brief A constructor that is given the usual command line parameters, then loads the rest of the data from a config file */
 	Go2(
 		const bool&
@@ -171,10 +178,8 @@ public:
 	) const;
 
 	/** @brief Triggers execution of the client loop */
-	bool clientRun();
+	int clientRun();
 
-	/** @brief Checks whether server mode has been requested for this object */
-	bool serverMode() const;
 	/** @brief Checks whether this object is running in client mode */
 	bool clientMode() const;
 
@@ -191,7 +196,7 @@ public:
 	/** @brief Allows to add an optimization algorithm to the chain */
 	void addAlgorithm(boost::shared_ptr<GOptimizableI>);
 	/** @brief Makes it easier to add algorithms */
-	Go2& operator+=(boost::shared_ptr<GOptimizableI>);
+	Go2& operator&(boost::shared_ptr<GOptimizableI>);
 
 	/** @brief Perform the actual optimization cycle */
 	virtual void optimize(const boost::uint32_t& = 0);
@@ -209,9 +214,6 @@ public:
 
 	void setServerPort(const unsigned short&);
 	unsigned short getServerPort() const;
-
-	void setConfigFileName(const std::string&);
-	std::string getConfigFileName() const;
 
 	void setVerbosity(const bool&);
 	bool getVerbosity() const;
@@ -232,12 +234,14 @@ public:
 	std::size_t getArraySize() const;
 
 	void setOffset(const boost::uint32_t&);
-	boost::uint32_t getOffset() const;
+	boost::uint32_t getIterationOffset() const;
 
 	/** @brief Retrieval of the current iteration */
 	virtual uint32_t getIteration() const;
 
-	/**************************************************************************************/
+	/** @brief Returns the name of this optimization algorithm */
+	virtual std::string getAlgorithmName() const;
+
 	/** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
 	void parseCommandLine(int, char **);
 
@@ -253,13 +257,42 @@ public:
 	/**
 	 * Finalization code for the Geneva library collection.
 	 */
-	static void finalize() {
-		Geneva::finalize();
+	static int finalize() {
+		return Geneva::finalize();
 	}
 
 	/************************************************************************************/
+	/**
+	 * Starts the optimization cycle and returns the best individual found, converted to
+	 * the desired target type. This is a convenience overload of the corresponding
+	 * GOptimizableI function.
+	 *
+	 * @return The best individual found during the optimization process, converted to the desired type
+	 */
+	template <typename individual_type>
+	boost::shared_ptr<individual_type> optimize() {
+		return GOptimizableI::optimize<individual_type>();
+	}
+
+	/************************************************************************************/
+	/**
+	 * Starts the optimization cycle and returns the best individual found, converted to
+	 * the desired target type. This function uses a configurable offset for the iteration
+	 * counter. This is a convenience overload of the corresponding
+	 * GOptimizableI function.
+	 *
+	 * @param offset An offset for the iteration counter
+	 * @return The best individual found during the optimization process, converted to the desired type
+	 */
+	template <typename individual_type>
+	boost::shared_ptr<individual_type> optimize(
+			const boost::uint32_t& offset
+	) {
+		return GOptimizableI::optimize<individual_type>(offset);
+	}
 
 protected:
+	/************************************************************************************/
 	/** @brief Loads the data of another Go2 object */
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
@@ -271,7 +304,7 @@ protected:
 	std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder& , const bool&);
+	virtual void addConfigurationOptions_(Gem::Common::GParserBuilder& , const bool&);
 
 private:
 	/**********************************************************************/
@@ -286,22 +319,26 @@ private:
 	//----------------------------------------------------------------------------------------------------------------
 	// These parameters can be read from a configuration file
 
-	// Steering parameters of the optimizer
-	bool copyBestOnly_;
-
+	//----------------------------------------------------------------------------------------------------------------
 	// General parameters
     boost::uint32_t maxStalledDataTransfers_; ///< Specifies how often a client may try to unsuccessfully retrieve data from the server (0 means endless)
     boost::uint32_t maxConnectionAttempts_; ///< Specifies how often a client may try to connect unsuccessfully to the server (0 means endless)
     bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
+
+    //----------------------------------------------------------------------------------------------------------------
+    // Parameters for the random number generator
     boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
     std::size_t arraySize_; ///< The size of the random number packages being transferred to the proxy RNGs
+
+    //----------------------------------------------------------------------------------------------------------------
+    // Internal parameters
     boost::uint32_t offset_; ///< The offset to be used when starting a new optimization run
     bool sorted_; ///< Indicates whether local individuals have been sorted
     boost::uint32_t iterationsConsumed_; ///< The number of successive iterations performed by this object so far
-    bool consumerInitialized_; ///< Determines whether a consumer has already been started. Note that this variable will not be serialized
+    bool consumerInitialized_; ///< Determines whether a consumer has already been initialized (this variable is not serialized)
 
     //----------------------------------------------------------------------------------------------------------------
-    boost::shared_ptr<GParameterSet> bestIndividual_; ///< The best individual found during an optimization
+    boost::shared_ptr<GParameterSet> bestIndividual_; ///< The best individual found during an optimization run
 
     //----------------------------------------------------------------------------------------------------------------
     // The list of "chained" optimization algorithms

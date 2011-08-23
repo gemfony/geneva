@@ -375,7 +375,7 @@ boost::optional<std::string> Go::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GOptimizationMonitorT reference
-	const Go *p_load = GObject::conversion_cast<Go>(&cp);
+	const Go *p_load = GObject::gobject_conversion<Go>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -438,7 +438,7 @@ boost::optional<std::string> Go::checkRelationshipWith(
  * @param cp A copy of another Go object, camouflaged as a GObject
  */
 void Go::load_(const GObject *cp) {
-	const Go *p_load = conversion_cast<Go>(cp);
+	const Go *p_load = gobject_conversion<Go>(cp);
 
 	// First load the parent class'es data ...
 	GMutableSetT<GParameterSet>::load_(cp);
@@ -1063,7 +1063,7 @@ void Go::setOffset(const boost::uint32_t& offset) {
  *
  * @return The current offset with which the iteration counter will start
  */
-boost::uint32_t Go::getOffset() const {
+boost::uint32_t Go::getIterationOffset() const {
 	return offset_;
 }
 

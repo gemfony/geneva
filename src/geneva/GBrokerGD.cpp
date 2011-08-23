@@ -145,7 +145,7 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GBrokerGD *p_load = GObject::conversion_cast<GBrokerGD>(&cp);
+	const GBrokerGD *p_load = GObject::gobject_conversion<GBrokerGD>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector < boost::optional<std::string> > deviations;
@@ -158,6 +158,17 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GBrokerGD", maxResubmissions_, p_load->maxResubmissions_, "maxResubmissions_", "p_load->maxResubmissions_", e , limit));
 
 	return evaluateDiscrepancies("GBrokerGD", caller, deviations, e);
+}
+
+/************************************************************************************************************/
+/**
+ * Checks whether this algorithm communicates via the broker. This is an overload from the corresponding
+ * GOptimizableI function
+ *
+ * @return A boolean indicating whether this algorithm communicates via the broker
+ */
+bool GBrokerGD::usesBroker() const {
+	return true;
 }
 
 /************************************************************************************************************/
@@ -187,7 +198,7 @@ std::size_t GBrokerGD::getMaxResubmissions() const {
  * @param vp Pointer to another GBrokerGD object, camouflaged as a GObject
  */
 void GBrokerGD::load_(const GObject *cp) {
-	const GBrokerGD *p_load = conversion_cast<GBrokerGD> (cp);
+	const GBrokerGD *p_load = gobject_conversion<GBrokerGD> (cp);
 
 	// Load the parent classes' data ...
 	GBaseGD::load_(cp);
@@ -258,7 +269,7 @@ void GBrokerGD::finalize() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GBrokerGD::addConfigurationOptions (
+void GBrokerGD::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -281,8 +292,8 @@ void GBrokerGD::addConfigurationOptions (
 	);
 
 	// Call our parent class'es function
-	GBaseGD::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+	GBaseGD::addConfigurationOptions_(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions_(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -319,7 +330,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	for (std::size_t i = 0; i < finalPos; i++) {
 #ifdef DEBUG
 		// Make sure the evaluated individuals have the dirty flag set
-		if(!this->at(i)->isDirty()) {
+		if(afterFirstIteration() && !this->at(i)->isDirty()) {
 			raiseException(
 					"In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
 					<< "Found individual in position " << i << " whose dirty flag isn't set"
