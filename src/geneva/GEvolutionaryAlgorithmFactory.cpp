@@ -162,9 +162,6 @@ boost::shared_ptr<GBaseEA> GEvolutionaryAlgorithmFactory::getObject_(
 	// Will hold the result
 	boost::shared_ptr<GBaseEA> target;
 
-	// Make the local configuration options known
-	target->addConfigurationOptions(gpb);
-
 	// Fill the target pointer as required
 	switch(pm_) {
 	case PARMODE_SERIAL:
@@ -179,6 +176,9 @@ boost::shared_ptr<GBaseEA> GEvolutionaryAlgorithmFactory::getObject_(
 		target = boost::shared_ptr<GBrokerEA>(new GBrokerEA());
 		break;
 	}
+
+	// Make the local configuration options known
+	target->addConfigurationOptions(gpb);
 
 	return target;
 }
