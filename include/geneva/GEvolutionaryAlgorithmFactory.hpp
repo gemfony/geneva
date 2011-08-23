@@ -48,8 +48,8 @@
 #endif
 
 // Geneva headers go here
-#include "common/GFactoryT.hpp"
 #include "courtier/GCourtierEnums.hpp"
+#include "geneva/GOptimizationAlgorithmFactoryT.hpp"
 #include "geneva/GBaseEA.hpp"
 #include "geneva/GSerialEA.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
@@ -61,15 +61,11 @@ namespace Geneva
 {
 
 /*******************************************************************************************/
-// Default settings
-const boost::uint16_t FACT_DEF_NEVALUATIONTHREADS=0;
-
-/*******************************************************************************************/
 /**
  * This class is a specialization of the GFactoryT<> class for evolutionary algorithms.
  */
 class GEvolutionaryAlgorithmFactory
-	: public Gem::Common::GFactoryT<GBaseEA>
+	: public GOptimizationAlgorithmFactoryT<GBaseEA>
 {
 public:
 	/** @brief The standard constructor */
@@ -78,8 +74,6 @@ public:
 	virtual ~GEvolutionaryAlgorithmFactory();
 
 protected:
-	/** @brief Allows to describe configuration options */
-	virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
 	/** @brief Creates individuals of this type */
 	virtual boost::shared_ptr<GBaseEA> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
 	/** @brief Allows to act on the configuration options received from the configuration file */
@@ -88,17 +82,6 @@ protected:
 private:
 	/** @brief The default constructor. Intentionally private and undefined */
 	GEvolutionaryAlgorithmFactory();
-
-	parMode pm_; ///< Holds information about the desired parallelization mode
-
-	boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
-
-    boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
-	double minWaitFactor_; ///< The minimum allowed wait factor
-	double maxWaitFactor_; ///< The maximum allowed wait factor
-	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
-	bool boundlessWait_; ///< Indicates whether the retrieveItem call should wait for an unlimited amount of time
-	double waitFactorIncrement_; ///< The amount by which the waitFactor_ may be incremented or decremented
 };
 
 /*******************************************************************************************/

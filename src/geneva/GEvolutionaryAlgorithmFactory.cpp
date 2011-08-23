@@ -46,9 +46,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string& configFile
 	, const parMode& pm
 )
-	: GFactoryT(configFile)
-	, pm_(pm)
-	, nEvaluationThreads_(FACT_DEF_NEVALUATIONTHREADS)
+	: GOptimizationAlgorithmFactoryT<GBaseEA>(configFile, pm)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -57,97 +55,6 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
  */
 GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
 { /* nothing */ }
-
-/*******************************************************************************************/
-/**
- * Allows to describe specific configuration options, as assigned to this object
- */
-void GEvolutionaryAlgorithmFactory::describeLocalOptions_(
-	Gem::Common::GParserBuilder& gpb
-) {
-	using namespace Gem::Courtier;
-
-	std::string comment;
-
-	comment = "";
-	comment += "Determines the number of threads simultaneously running;";
-	comment += "evaluations in multi-threaded mode. 0 means \"automatic\";";
-	gpb.registerFileParameter<boost::uint16_t>(
-		"nEvaluationThreads"
-		, nEvaluationThreads_
-		, FACT_DEF_NEVALUATIONTHREADS
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
-
-
-	// add local data
-	comment = ""; // Reset the comment string
-	comment += "The timeout for the retrieval of an;";
-	comment += "iteration's first timeout;";
-	gpb.registerFileParameter<boost::posix_time::time_duration>(
-		"firstTimeOut" // The name of the variable
-		, firstTimeOut_
-		, boost::posix_time::duration_from_string(DEFAULTBROKERFIRSTTIMEOUT) // The default value
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
-
-	comment = ""; // Reset the first comment string
-	comment += "The lower boundary for the adaption;";
-	comment += "of the waitFactor variable;";
-	gpb.registerFileParameter<double>(
-		"minWaitFactor" // The name of the first variable
-		, minWaitFactor_
-		, DEFAULTMINBROKERWAITFACTOR // The first default value
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
-
-	comment = ""; // Reset the second comment string
-	comment += "The upper boundary for the adaption;";
-	comment += "of the waitFactor variable;";
-	gpb.registerFileParameter<double>(
-		"maxWaitFactor" // The name of the second variable
-		, maxWaitFactor_
-		, DEFAULTMAXBROKERWAITFACTOR // The second default value
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
-
-	comment = ""; // Reset the comment string
-	comment += "Activates (1) or de-activates (0) logging;";
-	comment += "iteration's first timeout;";
-	gpb.registerFileParameter<bool>(
-		"doLogging" // The name of the variable
-		, doLogging_
-		, false // The default value
-		, Gem::Common::VAR_IS_SECONDARY
-		, comment
-	);
-
-	comment = ""; // Reset the comment string
-	comment += "Indicates that the broker connector should wait endlessly;";
-	comment += "for further arrivals of individuals in an iteration;";
-	gpb.registerFileParameter<bool>(
-		"boundlessWait" // The name of the variable
-		, boundlessWait_
-		, false // The default value
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
-
-	comment =  ""; // 	Reset the comment string
-	comment += "Specifies the amount by which the wait factor gets;";
-	comment += "incremented or decremented during automatic adaption;";
-	gpb.registerFileParameter<double>(
-		"waitFactorIncrement" // The name of the variable
-		, waitFactorIncrement_
-		, DEFAULTBROKERWAITFACTORINCREMENT // The default value
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
-}
 
 /*******************************************************************************************/
 /**
