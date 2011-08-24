@@ -1,6 +1,6 @@
 PROJECT (GStartProject)
 
-CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
@@ -43,28 +43,43 @@ ENDIF()
 # At least Boost 1.41 must be installed
 FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
 	date_time
+	filesystem
+	program_options
+	serialization
 	system
 	thread
-	serialization
-	program_options
-	filesystem
 )
-
-# Check whether GENEVA_BUILD_TESTS has been defined. If not, deactivate by default
-IF( NOT DEFINED GENEVA_BUILD_TESTS)
-	SET( GENEVA_BUILD_TESTS FALSE )
-ENDIF()
 
 # Check whether we want to activate the test code and build tests
 IF( GENEVA_BUILD_TESTS )
 	ADD_DEFINITIONS ("-DGENEVATESTING")
-	MESSAGE ("=======================")
-	MESSAGE ("Building with test code")
-	MESSAGE ("=======================")
-
 	FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
 		test_exec_monitor
 	)
+ENDIF()
+
+# Print a summary of the build settings if it was not printed already
+IF ( NOT GENEVA_INFO_MSG )
+	# Print info messages only once
+	SET ( GENEVA_INFO_MSG TRUE )
+	MESSAGE ("\n========================================")
+	MESSAGE ("Building:")
+	IF( GENEVA_BUILD_TESTS )
+		MESSAGE ("\twith test code")
+	ELSE()
+		MESSAGE ("\twithout tests")
+	ENDIF()
+	MESSAGE ("\tin ${CMAKE_BUILD_TYPE} mode")
+#	MESSAGE ("\tusing ${MSG_COMPILER} compiler settings")
+	MESSAGE ("\twith Boost include file location ${Boost_INCLUDE_DIRS}")
+	MESSAGE ("\twith Boost library location ${Boost_LIBRARY_DIRS}")
+	MESSAGE ("\twith install prefix ${CMAKE_INSTALL_PREFIX}")
+	IF( CMAKE_VERBOSE_MAKEFILE )
+		MESSAGE ("\tand verbose CMake output")
+	ELSE()
+		MESSAGE ("\tand sparse CMake output")
+	ENDIF()
+	MESSAGE ("========================================\n")
 ENDIF()
 
 INCLUDE_DIRECTORIES (

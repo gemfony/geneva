@@ -210,6 +210,9 @@ ELSE()
 ENDIF()
 MESSAGE ("========================================\n")
 
+# Set a flag to avoid repeated messages in the subfolders
+SET ( GENEVA_INFO_MSG TRUE )
+
 ADD_SUBDIRECTORY (CMakeModules)
 ADD_SUBDIRECTORY (examples)
 ADD_SUBDIRECTORY (include)
