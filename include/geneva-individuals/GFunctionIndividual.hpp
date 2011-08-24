@@ -50,13 +50,14 @@
 #endif
 
 // Geneva header files go here
-#include <geneva-individuals/GIndividualFactoryT.hpp>
-#include <geneva/GDoubleCollection.hpp>
-#include <geneva/GConstrainedDoubleCollection.hpp>
-#include <geneva/GDoubleGaussAdaptor.hpp>
-#include <geneva/GDoubleBiGaussAdaptor.hpp>
-#include <geneva/GParameterSet.hpp>
-#include <common/GParserBuilder.hpp>
+// #include <geneva-individuals/GIndividualFactoryT.hpp>
+#include "common/GFactoryT.hpp"
+#include "geneva/GDoubleCollection.hpp"
+#include "geneva/GConstrainedDoubleCollection.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GDoubleBiGaussAdaptor.hpp"
+#include "geneva/GParameterSet.hpp"
+#include "common/GParserBuilder.hpp"
 
 namespace Gem
 {
@@ -78,6 +79,37 @@ enum demoFunction {
 };
 
 const demoFunction MAXDEMOFUNCTION=SALOMON;
+
+// Make sure demoFunction can be streamed
+/** @brief Puts a Gem::Geneva::demoFunction into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::demoFunction&);
+
+/** @brief Reads a Gem::Geneva::demoFunction from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::demoFunction&);
+
+/************************************************************************************************/
+// A number of default settings for the factory
+const double GFI_DEF_ADPROB = 0.05;
+const boost::uint32_t GFI_DEF_ADAPTIONTHRESHOLD = 1;
+const bool GFI_DEF_USEBIGAUSSIAN = false;
+const double GFI_DEF_SIGMA1 = 0.5;
+const double GFI_DEF_SIGMASIGMA1 = 0.8;
+const double GFI_DEF_MINSIGMA1 = 0.001;
+const double GFI_DEF_MAXSIGMA1 = 2;
+const double GFI_DEF_SIGMA2 = 0.5;
+const double GFI_DEF_SIGMASIGMA2 = 0.8;
+const double GFI_DEF_MINSIGMA2 = 0.001;
+const double GFI_DEF_MAXSIGMA2 = 2;
+const double GFI_DEF_DELTA = 0.5;
+const double GFI_DEF_SIGMADELTA = 0.8;
+const double GFI_DEF_MINDELTA = 0.001;
+const double GFI_DEF_MAXDELTA = 2.;
+const std::size_t GFI_DEF_PARDIM = 2;
+const double GFI_DEF_MINVAR = -10.;
+const double GFI_DEF_MAXVAR = 10.;
+const bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
+const boost::uint32_t GO_DEF_PROCESSINGCYCLES = 1;
+const demoFunction GO_DEF_EVALFUNCTION = boost::numeric_cast<demoFunction>(0);
 
 /************************************************************************************************/
 /**
@@ -127,8 +159,11 @@ public:
 			const std::string&,
 			const bool&) const;
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions_(Gem::Common::GParserBuilder&, const bool&);
+
 	/** @brief Allows to set the demo function */
-	void setDemoFunction(const demoFunction&);
+	void setDemoFunction(demoFunction);
 	/** @brief Allows to retrieve the current demo function */
 	demoFunction getDemoFunction() const;
 
@@ -336,8 +371,9 @@ protected:
 	virtual double fitnessCalculation();
 
 	/********************************************************************************************/
+
 private:
-	demoFunction demoFunction_; ///< Specifies which demo function is being used
+	demoFunction demoFunction_; ///< Specifies which demo function should be used
 };
 
 /************************************************************************************************/
@@ -346,44 +382,48 @@ private:
 /**
  * A factory for GFunctionIndividual objects
  */
-class GFunctionIndividualFactory :public GIndividualFactoryT<GFunctionIndividual>
+class GFunctionIndividualFactory
+	: public Gem::Common::GFactoryT<GFunctionIndividual>
 {
 public:
-	/** @brief The standard constructor for this class */
+	/** @brief The standard constructor */
 	GFunctionIndividualFactory(const std::string&);
-	/** @brief Destructor */
+	/** @brief The destructor */
 	virtual ~GFunctionIndividualFactory();
 
 protected:
-	/** @brief Allows to describe configuration options in derived classes */
-	virtual void describeConfigurationOptions_();
-	/** @brief Creates individuals of the desired type */
-	virtual boost::shared_ptr<GFunctionIndividual> getIndividual_(const std::size_t&);
+	/** @brief Creates individuals of this type */
+	virtual boost::shared_ptr<GFunctionIndividual> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+	/** @brief Allows to describe local configuration options in derived classes */
+	virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+	/** @brief Allows to act on the configuration options received from the configuration file */
+	virtual void postProcess_(boost::shared_ptr<GFunctionIndividual>&);
 
 private:
-	double adProb;
-	boost::uint32_t adaptionThreshold;
-	bool useBiGaussian;
-	double sigma1;
-	double sigmaSigma1;
-	double minSigma1;
-	double maxSigma1;
-	double sigma2;
-	double sigmaSigma2;
-	double minSigma2;
-	double maxSigma2;
-	double delta;
-	double sigmaDelta;
-	double minDelta;
-	double maxDelta;
-	std::size_t parDim;
-	double minVar;
-	double maxVar;
-	bool useConstrainedDoubleCollection;
-	boost::uint32_t processingCycles;
-	boost::uint16_t evalFunction;
-};
+	/** @brief The default constructor. Intentionally private and undefined */
+	GFunctionIndividualFactory();
 
+	double adProb_;
+	boost::uint32_t adaptionThreshold_;
+	bool useBiGaussian_;
+	double sigma1_;
+	double sigmaSigma1_;
+	double minSigma1_;
+	double maxSigma1_;
+	double sigma2_;
+	double sigmaSigma2_;
+	double minSigma2_;
+	double maxSigma2_;
+	double delta_;
+	double sigmaDelta_;
+	double minDelta_;
+	double maxDelta_;
+	std::size_t parDim_;
+	double minVar_;
+	double maxVar_;
+	bool useConstrainedDoubleCollection_;
+	boost::uint32_t processingCycles_;
+};
 
 /************************************************************************************************/
 

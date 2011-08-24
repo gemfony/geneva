@@ -261,17 +261,28 @@ public:
 		if(cpDirectory == "empty" || cpDirectory.empty()) {
 			raiseException(
 					"In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
-					<< "Error: Invalid cpDirectory: " << cpDirectory
+					<< "Error: Invalid cpDirectory: " << cpDirectory << std::endl
 			);
 		}
 
 		cpBaseName_ = cpBaseName;
 
 		// Check that the provided directory exists
-		if(!boost::filesystem::exists(cpDirectory) || !boost::filesystem::is_directory(cpDirectory)) {
+		if(!boost::filesystem::exists(cpDirectory)) {
+			std::cerr
+				<< "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Warning!" << std::endl
+				<< "Directory " << cpDirectory << " does not exist and will be created automatically." << std::endl;
+
+			if(!boost::filesystem::create_directory(cpDirectory)) {
+				raiseException(
+					"In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Error!" << std::endl
+					<< "Could not create directory " << cpDirectory << std::endl
+				);
+			}
+		} else if(!boost::filesystem::is_directory(cpDirectory)) {
 			raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
-					<< "Error: directory does not exist: " << cpDirectory
+					"In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Error!" << std::endl
+					<< cpDirectory << " exists but is no directory." << std::endl
 			);
 		}
 

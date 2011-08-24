@@ -46,6 +46,19 @@ namespace Geneva
 /**
  * The default constructor
  */
+GBrokerSwarm::GBrokerSwarm()
+	: GBaseSwarm()
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
+{ /* nothing */ }
+
+/************************************************************************************************************/
+/**
+ * A constructor that initializes the swarm with the number of neighborhoods and the expected number of
+ * members inside of them.
+ *
+ * @param nNeighborhoods The number of neighborhoods
+ * @param nNeighborhoodMembers The expected number of members inside of them
+ */
 GBrokerSwarm::GBrokerSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
 	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()

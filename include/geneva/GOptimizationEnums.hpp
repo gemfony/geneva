@@ -340,19 +340,21 @@ const double DEFAULTCNEIGHBORHOOD = 1.49; ///< Default multiplier for neighborho
 const double DEFAULTCGLOBAL = 1.; ///< Default multiplier for global distances (swarm)
 const double DEFAULTCVELOCITY = 0.72; ///< Default multiplier for velocities (swarm)
 const double DEFAULTVELOCITYRANGEPERCENTAGE = 0.15; ///< Default percentage of velocity range used for initialization of velocities
+const std::size_t DEFAULTNNEIGHBORHOODS = 5; ///< The default size of each neighborhood in swarm algorithms
+const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 10; ///< The default number of members in each neighborhood
 
 /**********************************************************************************************/
 /**
  * Specifies different update rules in swarms
  */
 enum updateRule {
-	  LINEAR = 0
-	, CLASSIC = 1
+	  SWARM_UPDATERULE_LINEAR = 0
+	, SWARM_UPDATERULE_CLASSIC = 1
 };
 
 /**********************************************************************************************/
 
-const updateRule DEFAULTUPDATERULE = CLASSIC; ///< The default update rule in swarms
+const updateRule DEFAULTUPDATERULE = SWARM_UPDATERULE_CLASSIC; ///< The default update rule in swarms
 
 /**********************************************************************************************/
 

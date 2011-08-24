@@ -78,6 +78,8 @@ class GBrokerSwarm
 	///////////////////////////////////////////////////////////////////////
 
 public:
+	/** @brief The default constructor */
+	GBrokerSwarm();
 	/** @brief The standard constructor */
     GBrokerSwarm(const std::size_t&, const std::size_t&);
     /** @brief A standard copy constructor */
@@ -134,10 +136,6 @@ protected:
     virtual void adjustNeighborhoods();
     /** @brief Checks whether each neighborhood has the default size */
     bool neighborhoodsHaveNominalValues() const;
-
-	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes. */
-	GBrokerSwarm(){}
-
 
 private:
 	/*********************************************************************************/

@@ -43,10 +43,45 @@ namespace Geneva
 
 /********************************************************************************************/
 /**
+ * Puts a Gem::Geneva::demoFunction item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param ur the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::demoFunction& ur) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(ur);
+	o << tmp;
+	return o;
+}
+
+/********************************************************************************************/
+/**
+ * Reads a Gem::Geneva::demoFunction item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param ur The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::Geneva::demoFunction& ur) {
+	boost::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	ur = boost::numeric_cast<Gem::Geneva::demoFunction>(tmp);
+#else
+	ur = static_cast<Gem::Geneva::demoFunction>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/********************************************************************************************/
+/**
  * The default constructor
  */
 GFunctionIndividual::GFunctionIndividual()
-: demoFunction_(PARABOLA)
+	: demoFunction_(PARABOLA)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -56,7 +91,7 @@ GFunctionIndividual::GFunctionIndividual()
  * @param dF The id if the demo function
  */
 GFunctionIndividual::GFunctionIndividual(const demoFunction& dF)
-: demoFunction_(dF)
+	: demoFunction_(dF)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -66,8 +101,8 @@ GFunctionIndividual::GFunctionIndividual(const demoFunction& dF)
  * @param cp A copy of another GFunctionIndidivual
  */
 GFunctionIndividual::GFunctionIndividual(const GFunctionIndividual& cp)
-: GParameterSet(cp)
-, demoFunction_(cp.demoFunction_)
+	: GParameterSet(cp)
+	, demoFunction_(cp.demoFunction_)
 { /* nothing */	}
 
 /********************************************************************************************/
@@ -128,11 +163,11 @@ bool GFunctionIndividual::operator!=(const GFunctionIndividual& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GFunctionIndividual::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
+	const Gem::Common::expectation& e,
+	const double& limit,
+	const std::string& caller,
+	const std::string& y_name,
+	const bool& withMessages) const
 {
 	using namespace Gem::Common;
 
@@ -154,11 +189,51 @@ boost::optional<std::string> GFunctionIndividual::checkRelationshipWith(const GO
 
 /*******************************************************************************************/
 /**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ * @param showOrigin Makes the function indicate the origin of parameters in comments
+ */
+void GFunctionIndividual::addConfigurationOptions_ (
+	Gem::Common::GParserBuilder& gpb
+	, const bool& showOrigin
+) {
+	std::string comment;
+
+	// Add local data
+	comment = ""; // Reset the comment string
+	comment += "Specifies which demo function should be used:;";
+	comment += "0: Parabola;";
+	comment += "1: Berlich;";
+	comment += "2: Rosenbrock;";
+	comment += "3: Ackley;";
+	comment += "4: Rastrigin;";
+	comment += "5: Schwefel;";
+	comment += "6: Salomon;";
+	if(showOrigin) comment += "[GFunctionIndividual]";
+	gpb.registerFileParameter<demoFunction>(
+		"demoFunction" // The name of the variable
+		, GO_DEF_EVALFUNCTION // The default value
+		, boost::bind(
+			&GFunctionIndividual::setDemoFunction
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	// Call our parent class'es function
+	GParameterSet::addConfigurationOptions_(gpb, showOrigin);
+}
+
+/*******************************************************************************************/
+/**
  * Allows to set the demo function
  *
  * @param dF The id if the demo function
  */
-void GFunctionIndividual::setDemoFunction(const demoFunction& dF) {
+void GFunctionIndividual::setDemoFunction(demoFunction dF) {
 	demoFunction_ = dF;
 }
 
@@ -171,7 +246,6 @@ void GFunctionIndividual::setDemoFunction(const demoFunction& dF) {
 demoFunction GFunctionIndividual::getDemoFunction() const {
 	return demoFunction_;
 }
-
 
 /********************************************************************************************/
 /**
@@ -330,132 +404,323 @@ double GFunctionIndividual::fitnessCalculation(){
 //////////////////////////////////////////////////////////////////////////////////////////////
 /********************************************************************************************/
 /**
- * The standard constructor for this class
+ * A constructor with the ability to switch the parallelization mode. It initializes a
+ * target item as needed.
  *
- * @param cF The name of the configuration file
+ * @param configFile The name of the configuration file
  */
-GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& cF)
-	: GIndividualFactoryT<GFunctionIndividual>(cF)
-	, adProb(0.05)
-	, adaptionThreshold(1)
-	, useBiGaussian(false)
-	, sigma1(0.5)
-	, sigmaSigma1(0.8)
-	, minSigma1(0.001)
-	, maxSigma1(2.)
-	, sigma2(0.5)
-	, sigmaSigma2(0.8)
-	, minSigma2(0.001)
-	, maxSigma2(2.)
-	, delta(0.5)
-	, sigmaDelta(0.8)
-	, minDelta(0.001)
-	, maxDelta(2.)
-	, parDim(2)
-	, minVar(-30.)
-	, maxVar(30.)
-	, useConstrainedDoubleCollection(false)
-	, processingCycles(1)
-	, evalFunction(3)
+GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& configFile)
+	: Gem::Common::GFactoryT<GFunctionIndividual>(configFile)
+	, adProb_(GFI_DEF_ADPROB)
+	, adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD)
+	, useBiGaussian_(GFI_DEF_USEBIGAUSSIAN)
+	, sigma1_(GFI_DEF_SIGMA1)
+	, sigmaSigma1_(GFI_DEF_SIGMASIGMA1)
+	, minSigma1_(GFI_DEF_MINSIGMA1)
+	, maxSigma1_(GFI_DEF_MAXSIGMA1)
+	, sigma2_(GFI_DEF_SIGMA2)
+	, sigmaSigma2_(GFI_DEF_SIGMASIGMA2)
+	, minSigma2_(GFI_DEF_MINSIGMA2)
+	, maxSigma2_(GFI_DEF_MAXSIGMA2)
+	, delta_(GFI_DEF_DELTA)
+	, sigmaDelta_(GFI_DEF_SIGMADELTA)
+	, minDelta_(GFI_DEF_MINDELTA)
+	, maxDelta_(GFI_DEF_MAXDELTA)
+	, parDim_(GFI_DEF_PARDIM)
+	, minVar_(GFI_DEF_MINVAR)
+	, maxVar_(GFI_DEF_MAXVAR)
+	, useConstrainedDoubleCollection_(GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION)
+	, processingCycles_(GO_DEF_PROCESSINGCYCLES)
 { /* nothing */ }
 
 /********************************************************************************************/
 /**
- * Destructor
+ * The destructor
  */
 GFunctionIndividualFactory::~GFunctionIndividualFactory()
 { /* nothing */ }
 
 /********************************************************************************************/
 /**
- * Allows to describe configuration options in derived classes
+ * Creates items of this type
+ *
+ * @return Items of the desired type
  */
-void GFunctionIndividualFactory::describeConfigurationOptions_() {
-	gpb.registerFileParameter("adProb", adProb, adProb);
-	gpb.registerFileParameter("adaptionThreshold", adaptionThreshold, adaptionThreshold);
-	gpb.registerFileParameter("useBiGaussian", useBiGaussian, useBiGaussian);
-	gpb.registerFileParameter("sigma1", sigma1, sigma1);
-	gpb.registerFileParameter("sigmaSigma1", sigmaSigma1, sigmaSigma1);
-	gpb.registerFileParameter("minSigma1", minSigma1, minSigma1);
-	gpb.registerFileParameter("maxSigma1", maxSigma1, maxSigma1);
-	gpb.registerFileParameter("sigma2", sigma2, sigma2);
-	gpb.registerFileParameter("sigmaSigma2", sigmaSigma2, sigmaSigma2);
-	gpb.registerFileParameter("minSigma2", minSigma2, minSigma2);
-	gpb.registerFileParameter("maxSigma2", maxSigma2, maxSigma2);
-	gpb.registerFileParameter("delta", delta, delta);
-	gpb.registerFileParameter("sigmaDelta", sigmaDelta, sigmaDelta);
-	gpb.registerFileParameter("minDelta", minDelta, minDelta);
-	gpb.registerFileParameter("maxDelta", maxDelta, maxDelta);
-	gpb.registerFileParameter("parDim", parDim, parDim);
-	gpb.registerFileParameter("minVar", minVar, minVar);
-	gpb.registerFileParameter("maxVar", maxVar,  maxVar);
-	gpb.registerFileParameter("useConstrainedDoubleCollection", useConstrainedDoubleCollection,  useConstrainedDoubleCollection);
-	gpb.registerFileParameter("processingCycles", processingCycles, processingCycles);
-	gpb.registerFileParameter("evalFunction", evalFunction, evalFunction);
+boost::shared_ptr<GFunctionIndividual> GFunctionIndividualFactory::getObject_(
+	Gem::Common::GParserBuilder& gpb
+	, const std::size_t& id
+) {
+	// Will hold the result
+	boost::shared_ptr<GFunctionIndividual> target(new GFunctionIndividual());
+
+	// Make the object's local configuration options known
+	target->addConfigurationOptions(gpb);
+
+	return target;
 }
 
 /********************************************************************************************/
 /**
- * Creates individuals of the desired type. The argument "id" gives the function a means
- * of detecting how often it has been called before. The id will be incremented for each call.
- * This can e.g. be used to act differently for the first call to this function.
- *
- * @param id The id of the individual to be created
- * @return An individual of the desired type
+ * Allows to describe local configuration options for gradient descents
  */
-boost::shared_ptr<GFunctionIndividual> GFunctionIndividualFactory::getIndividual_(const std::size_t& id) {
-	// Assign the demo function
-	if(evalFunction > (boost::uint16_t)MAXDEMOFUNCTION) {
-		std::cout << "Error: Invalid evaluation function: " << evalFunction << std::endl
-				  << "Assigning parabola instead." << std::endl;
-		evalFunction = 0;
-	}
-	demoFunction df=(demoFunction)evalFunction;
+void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder& gpb) {
+	// Describe our own options
+	using namespace Gem::Courtier;
 
-	boost::shared_ptr<GFunctionIndividual> functionIndividual_ptr;
+	std::string comment;
 
-	// Set up a single function individual, depending on the expected function type
-	functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(df));
+	comment = "";
+	comment += "The probability for random adaptions of values in evolutionary algorithms;";
+	gpb.registerFileParameter<double>(
+		"adProb"
+		, adProb_
+		, GFI_DEF_ADPROB
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
 
+	comment = "";
+	comment += "The number of calls to an adaptor after which adaption takes place;";
+	gpb.registerFileParameter<boost::uint32_t>(
+		"adaptionThreshold"
+		, adaptionThreshold_
+		, GFI_DEF_ADAPTIONTHRESHOLD
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "Whether to use a double gaussion for the adaption of parmeters in ES;";
+	gpb.registerFileParameter<bool>(
+		"useBiGaussian"
+		, useBiGaussian_
+		, GFI_DEF_USEBIGAUSSIAN
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The sigma for gauss-adaption in ES;(or the sigma of the left peak of a double gaussian);";
+	gpb.registerFileParameter<double>(
+		"sigma1"
+		, sigma1_
+		, GFI_DEF_SIGMA1
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "Influences the self-adaption of gauss-mutation in ES;";
+	gpb.registerFileParameter<double>(
+		"sigmaSigma1"
+		, sigmaSigma1_
+		, GFI_DEF_SIGMASIGMA1
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The minimum amount value of sigma1;";
+	gpb.registerFileParameter<double>(
+		"minSigma1"
+		, minSigma1_
+		, GFI_DEF_MINSIGMA1
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The maximum amount value of sigma1;";
+	gpb.registerFileParameter<double>(
+		"maxSigma1"
+		, maxSigma1_
+		, GFI_DEF_MAXSIGMA1
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The sigma of the right peak of a double gaussian (if any);";
+	gpb.registerFileParameter<double>(
+		"sigma2"
+		, sigma2_
+		, GFI_DEF_SIGMA2
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "Influences the self-adaption of gauss-mutation in ES;";
+	gpb.registerFileParameter<double>(
+		"sigmaSigma2"
+		, sigmaSigma2_
+		, GFI_DEF_SIGMASIGMA2
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The minimum amount value of sigma2;";
+	gpb.registerFileParameter<double>(
+		"minSigma2"
+		, minSigma2_
+		, GFI_DEF_MINSIGMA2
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The maximum amount value of sigma2;";
+	gpb.registerFileParameter<double>(
+		"maxSigma2"
+		, maxSigma2_
+		, GFI_DEF_MAXSIGMA2
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The start distance between both peak used for bi-gaussian mutations in ES;";
+	gpb.registerFileParameter<double>(
+		"delta"
+		, delta_
+		, GFI_DEF_DELTA
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The width of the gaussian used for mutations of the delta parameter;";
+	gpb.registerFileParameter<double>(
+		"sigmaDelta"
+		, sigmaDelta_
+		, GFI_DEF_SIGMADELTA
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The minimum allowed value of delta;";
+	gpb.registerFileParameter<double>(
+		"minDelta"
+		, minDelta_
+		, GFI_DEF_MINDELTA
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The maximum allowed value of delta;";
+	gpb.registerFileParameter<double>(
+		"maxDelta"
+		, maxDelta_
+		, GFI_DEF_MAXDELTA
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The number of dimensions used for the demo function;";
+	gpb.registerFileParameter<std::size_t>(
+		"parDim"
+		, parDim_
+		, GFI_DEF_PARDIM
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The lower boundary of the initialization range for parameters;";
+	gpb.registerFileParameter<double>(
+		"minVar"
+		, minVar_
+		, GFI_DEF_MINVAR
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The upper boundary of the initialization range for parameters;";
+	gpb.registerFileParameter<double>(
+		"maxVar"
+		, maxVar_
+		, GFI_DEF_MAXVAR
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "Indicates whether a GConstrainedDoubleCollection should be used;";
+	gpb.registerFileParameter<bool>(
+		"useConstrainedDoubleCollection"
+		, useConstrainedDoubleCollection_
+		, GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "The maximum number of processing cycles without improvement;";
+	comment += "that may be used by a remote individual before it returns its result;";
+	gpb.registerFileParameter<boost::uint32_t>(
+		"processingCycles"
+		, processingCycles_
+		, GO_DEF_PROCESSINGCYCLES
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+
+	// Allow our parent class to describe its options
+	GFactoryT<GFunctionIndividual>::describeLocalOptions_(gpb);
+}
+
+/********************************************************************************************/
+/**
+ * Allows to act on the configuration options received from the configuration file. Here
+ * we can add the options described in describeLocalOptions to the object. In practice,
+ * we add the parameter objects here
+ *
+ * @param p A smart-pointer to be acted on during post-processing
+ */
+void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GFunctionIndividual>& p) {
 	boost::shared_ptr<GParameterCollectionT<double> > c_ptr;
-	if(useConstrainedDoubleCollection) {
+	if(useConstrainedDoubleCollection_) {
 		// Set up a collection with dimension values
-		boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(parDim, minVar, maxVar));
+		boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(parDim_, minVar_, maxVar_));
 		// Randomly initialize
 		gcdc_ptr->randomInit();
 		// Attach to the "parent pointer"
 		c_ptr = gcdc_ptr;
 	} else {
 		// Set up a collection with dimension values, each initialized with a random number in the range [min,max[
-		boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim, minVar, maxVar));
+		boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim_, minVar_, maxVar_));
 		// Let the GDoubleCollection know about its desired initialization range
-		gdc_ptr->setInitBoundaries(minVar, maxVar);
+		gdc_ptr->setInitBoundaries(minVar_, maxVar_);
 		// Attach to the "parent pointer"
 		c_ptr = gdc_ptr;
 	}
 
 	// Set up and register an adaptor for the collection, so it
 	// knows how to be adapted.
-	if(useBiGaussian) {
+	if(useBiGaussian_) {
 		boost::shared_ptr<GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
-		gdbga_ptr->setAllSigma1(sigma1, sigmaSigma1, minSigma1, maxSigma1);
-		gdbga_ptr->setAllSigma1(sigma2, sigmaSigma2, minSigma2, maxSigma2);
-		gdbga_ptr->setAllSigma1(delta, sigmaDelta, minDelta, maxDelta);
-		gdbga_ptr->setAdaptionThreshold(adaptionThreshold);
-		gdbga_ptr->setAdaptionProbability(adProb);
+		gdbga_ptr->setAllSigma1(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_);
+		gdbga_ptr->setAllSigma1(sigma2_, sigmaSigma2_, minSigma2_, maxSigma2_);
+		gdbga_ptr->setAllSigma1(delta_, sigmaDelta_, minDelta_, maxDelta_);
+		gdbga_ptr->setAdaptionThreshold(adaptionThreshold_);
+		gdbga_ptr->setAdaptionProbability(adProb_);
 		c_ptr->addAdaptor(gdbga_ptr);
 	} else {
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma1, sigmaSigma1, minSigma1, maxSigma1));
-		gdga_ptr->setAdaptionThreshold(adaptionThreshold);
-		gdga_ptr->setAdaptionProbability(adProb);
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_));
+		gdga_ptr->setAdaptionThreshold(adaptionThreshold_);
+		gdga_ptr->setAdaptionProbability(adProb_);
 		c_ptr->addAdaptor(gdga_ptr);
 	}
 
 	// Make the parameter collection known to this individual
-	functionIndividual_ptr->push_back(c_ptr);
-	functionIndividual_ptr->setProcessingCycles(processingCycles);
-
-	return functionIndividual_ptr;
+	p->push_back(c_ptr);
+	p->setProcessingCycles(processingCycles_);
 }
 
 /********************************************************************************************/

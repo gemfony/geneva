@@ -38,7 +38,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/Geneva.hpp>
+#include <geneva/Go2.hpp>
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -46,14 +46,13 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Geneva::init();
-	Go go(argc, argv, "G01Optimizer.cfg");
+	Go2::init();
+	Go2 go(argc, argv, "./config/go2.cfg");
 
 	//---------------------------------------------------------------------
 	// Client mode
 	if(go.clientMode()) {
-		go.clientRun();
-		return 0;
+		return go.clientRun();
 	}
 
 	//---------------------------------------------------------------------
@@ -61,20 +60,18 @@ int main(int argc, char **argv) {
 
 	// Create a factory for GFunctionIndividual objects and perform
 	// any necessary initial work.
-	GFunctionIndividualFactory gfi("./GFunctionIndividual.cfg");
-	gfi.init();
+	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.cfg");
 
 	// Make an individual known to the optimizer
 	go.push_back(gfi());
 
-	// Perform the actual optimization
-	boost::shared_ptr<GParameterSet> bestfunctionIndividual_ptr = go.optimize<GParameterSet>();
+	// Add an evolutionary algorithm in multi-threaded mode
+	GEvolutionaryAlgorithmFactory f("./config/GEvolutionaryAlgorithm.cfg", PARMODE_MULTITHREADED);
+	go & f();
 
-	// Tell the evaluation program to perform any necessary final work
-	gfi.finalize();
+	// Perform the actual optimization
+	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
 
 	// Terminate
-	Geneva::finalize();
-	std::cout << "Done ..." << std::endl;
-	return 0;
+	return Go2::finalize();
 }

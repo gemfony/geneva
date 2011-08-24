@@ -37,6 +37,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GFPGaussAdaptorT.hpp
 	GFPNumCollectionT.hpp
 	GGDPersonalityTraits.hpp
+	GGradientDescentFactory.hpp
 	GIndividual.hpp
 	GInt32Collection.hpp
 	GInt32FlipAdaptor.hpp
@@ -80,6 +81,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GSerialSwarm.hpp
 	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp
+	GSwarmAlgorithmFactoryT.hpp
 	GSwarmPersonalityTraits.hpp
 )
 

@@ -41,6 +41,9 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "geneva/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/GGradientDescentFactory.hpp"
+#include "geneva/GSwarmAlgorithmFactory.hpp"
+#include "geneva-individuals/GFunctionIndividual.hpp"
 
 /**************************************************************************************/
 /**
@@ -53,6 +56,7 @@ void parseCommandLine(
 		, char **argv
 		, unsigned int& target
 		, std::string& directory
+		, bool& check
 ) {
     namespace po = boost::program_options;
 
@@ -63,10 +67,10 @@ void parseCommandLine(
 				("help,h", "emit help message")
 				("target,t", po::value<unsigned int>(&target)->default_value(0),
 				"The id of the Geneva object to be created: (0) Evolutionary Algorithms (1) Swarm Algorithms (2)"
-				"Gradient Descents")
+				"Gradient Descents, (3) GFunctionIndividual")
 				("directory,d", po::value<std::string>(&directory)->default_value(std::string("./config/")),
 				"The name of the directory to which results should be written")
-
+				("check,c", "Check whether generated config can be read")
 		;
 
 		po::variables_map vm;
@@ -77,6 +81,12 @@ void parseCommandLine(
 		if (vm.count("help")) {
 			std::cout << desc << std::endl;
 			exit(0);
+		}
+
+		if(vm.count("check")) {
+			check = true;
+		} else {
+			check = false;
 		}
 	}
 	catch(const po::error& e) {
@@ -100,6 +110,7 @@ int main(int argc, char **argv) {
 
 	unsigned int target;
 	std::string directory;
+	bool check;
 
 	// Parse the command line
 	parseCommandLine(
@@ -107,9 +118,10 @@ int main(int argc, char **argv) {
 		, argv
 		, target
 		, directory
+		, check
 	);
 
-	// Check that the target directory exists. If not, create it
+	// Check that the target directory exists. If not, check it
 	{
 		using namespace boost::filesystem;
 
@@ -129,12 +141,86 @@ int main(int argc, char **argv) {
 	switch(target) {
 	case 0:
 		{
-			std::string header;
-			header += "Configuration file for evolutionary algorithms;";
-			header += "Created using the GEvolutionaryAlgorithmFactory;";
 			GEvolutionaryAlgorithmFactory gevaf(directory+"/GEvolutionaryAlgorithm.cfg", PARMODE_SERIAL);
-			gevaf.writeConfigFile(header);
+
+			if(check) {
+				boost::shared_ptr<GBaseEA> p = gevaf();
+				if(!p) {
+					raiseException(
+						"In GConfigurationFileCreator: Error!" << std::endl
+						<< "Could not check GBaseEA object." << std::endl
+					);
+				}
+			} else {
+				std::string header;
+				header += "Configuration file for evolutionary algorithms;";
+				header += "created using the GEvolutionaryAlgorithmFactory;";
+				gevaf.writeConfigFile(header);
+			}
 		}
 		break;
-	}
+
+	case 1:
+		{
+			GSwarmAlgorithmFactory gsaf(directory+"/GSwarmAlgorithm.cfg", PARMODE_SERIAL);
+
+			if(check) {
+				boost::shared_ptr<GBaseSwarm> p = gsaf();
+				if(!p) {
+					raiseException(
+						"In GConfigurationFileCreator: Error!" << std::endl
+						<< "Could not check GBaseSwarm object." << std::endl
+					);
+				}
+			} else {
+				std::string header;
+				header += "Configuration file for swarm algorithms;";
+				header += "created using the GSwarmAlgorithmFactory;";
+				gsaf.writeConfigFile(header);
+			}
+		}
+		break;
+
+	case 2:
+		{
+			GGradientDescentFactory ggdf(directory+"/GGradientDescent.cfg", PARMODE_SERIAL);
+
+			if(check) {
+				boost::shared_ptr<GBaseGD> p = ggdf();
+				if(!p) {
+					raiseException(
+						"In GConfigurationFileCreator: Error!" << std::endl
+						<< "Could not check GBaseGD object." << std::endl
+					);
+				}
+			} else {
+				std::string header;
+				header += "Configuration file for gradient descents;";
+				header += "created using the GGradientDescentFactory;";
+				ggdf.writeConfigFile(header);
+			}
+		}
+		break;
+
+	case 3:
+		{
+			GFunctionIndividualFactory gfif(directory+"/GFunctionIndividual.cfg");
+
+			if(check) {
+				boost::shared_ptr<GFunctionIndividual> p = gfif();
+				if(!p) {
+					raiseException(
+						"In GConfigurationFileCreator: Error!" << std::endl
+						<< "Could not check GFunctionIndividual object." << std::endl
+					);
+				}
+			} else {
+				std::string header;
+				header += "Configuration file for GFunctionIndividual objects;";
+				header += "created using the GFunctionIndividualFactory;";
+				gfif.writeConfigFile(header);
+			}
+		}
+		break;
+	};
 }

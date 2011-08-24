@@ -154,7 +154,6 @@ private:
     /*********************************************************************************/
 
     std::vector<bool> sm_value_; ///< Internal storage for server mode flags
-    std::size_t resubmissions_; ///< The number of re-submissions in the current iteration
     std::size_t maxResubmissions_; ///< The maximum number of allowed re-submissions in an iteration
 
 #ifdef GENEVATESTING

@@ -63,6 +63,7 @@
 #include "geneva/Geneva.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/GGradientDescentFactory.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GMultiThreadedGD.hpp"
@@ -74,6 +75,7 @@
 #include "geneva/GSerialEA.hpp"
 #include "geneva/GSerialGD.hpp"
 #include "geneva/GSerialSwarm.hpp"
+#include "geneva/GSwarmAlgorithmFactory.hpp"
 
 namespace Gem {
 namespace Geneva {

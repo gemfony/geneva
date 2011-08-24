@@ -78,6 +78,8 @@ class GSerialSwarm
 	///////////////////////////////////////////////////////////////////////
 
 public:
+	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
+	GSerialSwarm();
 	/** @brief The default constructor */
 	GSerialSwarm(const std::size_t&, const std::size_t&);
 	/** @brief A standard copy constructor */
@@ -121,9 +123,6 @@ protected:
 
 	/** @brief Updates the fitness of all individuals */
 	virtual void updateFitness();
-
-	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
-	GSerialSwarm(){}
 
 #ifdef GENEVATESTING
 public:

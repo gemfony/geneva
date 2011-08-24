@@ -61,8 +61,6 @@
 namespace Gem {
 namespace Geneva {
 
-const std::size_t DEFAULTNNEIGHBORHOODS = 5;
-const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 20;
 
 /*********************************************************************************/
 /**
@@ -104,6 +102,8 @@ class GBaseSwarm
 
 public:
 	/** @brief The default constructor */
+	GBaseSwarm();
+	/** @brief Initialization with neighborhood sizes and amount of individuals in each neighborhood */
 	GBaseSwarm(const std::size_t&, const std::size_t&);
 	/** @brief A standard copy constructor */
 	GBaseSwarm(const GBaseSwarm&);
@@ -127,6 +127,9 @@ public:
 			, const std::string&
 			, const bool&
 	) const;
+
+	/** @brief Sets the number of neighborhoods and the number of members in them */
+	void setDefaultPopulationSize(std::size_t, std::size_t);
 
 	/** @brief Returns information about the type of optimization algorithm */
 	virtual personality getOptimizationAlgorithm() const;
@@ -237,10 +240,13 @@ protected:
 	virtual void init();
 	/** @brief Initialization work relating directly to the optimization algorithm */
 	virtual void optimizationInit();
-	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	virtual double cycleLogic();
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
+	/** @brief Finalization work relating directly to the optimization algorithm. */
+	virtual void optimizationFinalize();
+
+	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
+	virtual double cycleLogic();
 
 	/** @brief Resizes the population to the desired level and does some error checks */
 	virtual void adjustPopulation();
@@ -306,9 +312,6 @@ protected:
 	std::vector<double> dblVelVecMax_; ///< Holds the maximum allowed values of double-type velocities
 
 	double velocityRangePercentage_; ///< Indicates the percentage of a value range used for the initialization of the velocity
-
-	/** @brief The default constructor. Intentionally protected, as it is only needed for de-serialization purposes. */
-	GBaseSwarm();
 
 	/** Updates the personal best of an individual */
 	void updatePersonalBest(boost::shared_ptr<GParameterSet>);

@@ -41,6 +41,16 @@ namespace Geneva {
 
 /************************************************************************************************************/
 /**
+ * The default constructor. No local, dynamically allocated data, hence this function is empty.
+ */
+GMultiThreadedSwarm::GMultiThreadedSwarm()
+   : GBaseSwarm()
+   , nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM)))
+   , tp_(nThreads_)
+{ /* nothing */ }
+
+/************************************************************************************************************/
+/**
  * A standard constructor. No local, dynamically allocated data, hence this function is empty.
  */
 GMultiThreadedSwarm::GMultiThreadedSwarm(

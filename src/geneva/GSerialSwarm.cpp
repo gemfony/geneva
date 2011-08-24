@@ -38,14 +38,21 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialSwarm)
 namespace Gem {
 namespace Geneva {
 
+/************************************************************************************************************/
+/**
+ * The default constructor. Intentionally empty, as it is only needed for de-serialization purposes
+ */
+GSerialSwarm::GSerialSwarm()
+	: GBaseSwarm()
+{ /* nothing */ }
 
 /************************************************************************************************************/
 /**
  * A standard constructor. No local, dynamically allocated data, hence this function is empty.
  */
 GSerialSwarm::GSerialSwarm(
-		const std::size_t& nNeighborhoods
-		, const std::size_t& nNeighborhoodMembers
+	const std::size_t& nNeighborhoods
+	, const std::size_t& nNeighborhoodMembers
 )
    : GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
 { /* nothing */ }

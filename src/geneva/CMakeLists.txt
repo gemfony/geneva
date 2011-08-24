@@ -27,6 +27,7 @@ SET ( OPTIMIZATIONSOURCES
 	GEvaluator
 	GEvolutionaryAlgorithmFactory
 	GGDPersonalityTraits
+	GGradientDescentFactory
 	GIndividual
 	GInt32Collection
 	GInt32FlipAdaptor
@@ -49,6 +50,7 @@ SET ( OPTIMIZATIONSOURCES
 	GSerialEA
 	GSerialGD
 	GSerialSwarm
+	GSwarmAlgorithmFactory
 	GSwarmPersonalityTraits
 )
 

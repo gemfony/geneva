@@ -40,6 +40,7 @@
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
 #include <boost/utility.hpp>
+#include <boost/filesystem.hpp>
 
 #ifndef GFACTORYT_HPP_
 #define GFACTORYT_HPP_
@@ -100,11 +101,18 @@ public:
 		// This function will do nothing when called more than once
 		this->init();
 
-		// Check that the configuration file actually exists
+		// Check that the configuration file actually exists. If not, create it
 		if(!boost::filesystem::exists(boost::filesystem::path(configFile_))) {
+			std::cerr
+				<< "In GFactoryT<T>::operator(): Warning!" << std::endl
+				<< "Tried to access non-existent configuration file " << configFile_ << std::endl
+				<< "The file will be created automatically for you." << std::endl;
+
+			this->writeConfigFile("configuration file for object with unknown name");
+		} else if(!boost::filesystem::is_regular_file(boost::filesystem::path(configFile_))) {
 			raiseException(
 				"In GFactoryT<T>::operator(): Error!" << std::endl
-				<< "Tried to access non-existent configuration file." << std::endl
+				<< configFile_ << " exists but is no regular file" << std::endl
 			);
 		}
 

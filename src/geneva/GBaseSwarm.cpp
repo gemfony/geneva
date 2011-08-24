@@ -40,12 +40,40 @@ namespace Geneva {
 
 /************************************************************************************************************/
 /**
- * The default constructor. Intentionally protected and thus unaccessible by the general public, as it is
- * only needed for de-serialization purposes. The id of the optimization algorithm will be set when the
- * parent class is de-serialized.
+ * The default constructor.
  */
 GBaseSwarm::GBaseSwarm()
-{ /* nothing */ }
+	: GOptimizationAlgorithmT<GParameterSet>()
+	, nNeighborhoods_(DEFAULTNNEIGHBORHOODS?DEFAULTNNEIGHBORHOODS:1)
+	, defaultNNeighborhoodMembers_((DEFAULTNNEIGHBORHOODMEMBERS<=1)?2:DEFAULTNNEIGHBORHOODMEMBERS)
+	, nNeighborhoodMembers_(nNeighborhoods_)
+	, neighborhood_bests_(nNeighborhoods_)
+	, c_personal_(DEFAULTCPERSONAL)
+	, c_neighborhood_(DEFAULTCNEIGHBORHOOD)
+	, c_global_(DEFAULTCGLOBAL)
+	, c_velocity_(DEFAULTCVELOCITY)
+	, updateRule_(DEFAULTUPDATERULE)
+	, randomFillUp_(true)
+	, dblLowerParameterBoundaries_()
+	, dblUpperParameterBoundaries_()
+	, dblVelVecMax_()
+	, velocityRangePercentage_(DEFAULTVELOCITYRANGEPERCENTAGE)
+{
+	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
+
+	// Initialize the number of neighborhood members with 0. adjustPopulation() will later take care to fill the
+	// population with individuals as needed and set the array to the correct values.
+	for(std::size_t i=0; i<nNeighborhoods_; i++) {
+		nNeighborhoodMembers_[i] = 0;
+	}
+
+	// Register the default optimization monitor. This can be overridden by the user.
+	this->registerOptimizationMonitor(
+			boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+					new GSwarmOptimizationMonitor()
+			)
+	);
+}
 
 /************************************************************************************************************/
 /**
@@ -343,6 +371,33 @@ boost::optional<std::string> GBaseSwarm::checkRelationshipWith(
 
 /************************************************************************************************************/
 /**
+ * Sets the number of neighborhoods and the default number of members in them. All work is done inside of
+ * the adjustPopulation function, inside of the GOptimizationAlgorithmT<>::optimize() function.
+ *
+ * @param nNeighborhoods The number of neighborhoods
+ * @param defaultNNeighborhoodMembers The default number of individuals in each neighborhood
+ */
+void GBaseSwarm::setDefaultPopulationSize(std::size_t nNeighborhoods, std::size_t defaultNNeighborhoodMembers) {
+	// Enforce useful settings
+	if(nNeighborhoods == 0) {
+		std::cerr << "In GBaseSwarm::setDefaultPopulationSize(): Warning!" << std::endl
+				  << "Requested number of neighborhoods is 0. Setting to 1." << std::endl;
+	}
+
+	if(defaultNNeighborhoodMembers <= 1) {
+		std::cerr << "In GBaseSwarm::setDefaultPopulationSize(): Warning!" << std::endl
+				  << "Requested number of members in each neighborhood is too small. Setting to 2." << std::endl;
+	}
+
+	nNeighborhoods_ = nNeighborhoods?nNeighborhoods:1;
+	defaultNNeighborhoodMembers_ = defaultNNeighborhoodMembers>1?defaultNNeighborhoodMembers:2;
+
+	// Update our parent class'es values
+	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
+}
+
+/************************************************************************************************************/
+/**
  * Sets the individual's personality types to Swarm
  */
 void GBaseSwarm::setIndividualPersonalities() {
@@ -610,6 +665,28 @@ void GBaseSwarm::addConfigurationOptions_ (
 	std::string comment2;
 
 	// Add local data
+	comment1 = "";
+	comment2 = "";
+	comment1 = "The desired number of neighborhoods in the population;";
+	if(showOrigin) comment1 += "[GBaseSwarm]";
+	comment2 = "The desired number of members in each neighborhood;";
+	if(showOrigin) comment2 += "[GBaseSwarm]";
+	gpb.registerFileParameter<std::size_t, std::size_t>(
+		"nNeighborhoods" // The name of the first variable
+		, "nNeighborhoodMembers" // The name of the second variable
+		, DEFAULTNNEIGHBORHOODS // The default value for the first variable
+		, DEFAULTNNEIGHBORHOODMEMBERS // The default value for the second variable
+		, boost::bind(
+			&GBaseSwarm::setDefaultPopulationSize
+			, this
+			, _1
+			, _2
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment1
+		, comment2
+	);
+
 	comment = ""; // Reset the comment string
 	comment += "A constant to be multiplied with the personal direction vector;";
 	if(showOrigin) comment += "[GBaseSwarm]";
@@ -746,10 +823,6 @@ void GBaseSwarm::init() {
  * Does any necessary finalization work
  */
 void GBaseSwarm::finalize() {
-	// Remove remaining velocity individuals. The boost::shared_ptr<GParameterSet>s
-	// will take care of deleting the GParameterSet objects.
-	velocities_.clear();
-
 	// Last action
 	GOptimizationAlgorithmT<GParameterSet>::finalize();
 }
@@ -784,6 +857,9 @@ void GBaseSwarm::optimizationInit() {
 	for(std::size_t i=0; i<dblLowerParameterBoundaries_.size(); i++) {
 		dblVelVecMax_.push_back(l * (dblUpperParameterBoundaries_[i] - dblLowerParameterBoundaries_[i]));
 	}
+
+	// Make sure the velocities_ vector is really empty
+	velocities_.clear();
 
 	// Create copies of our individuals in the velocities_ vector.
 	for(GBaseSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
@@ -821,6 +897,19 @@ void GBaseSwarm::optimizationInit() {
 		// Add the initialized velocity to the array.
 		velocities_.push_back(p);
 	}
+}
+
+/************************************************************************************************************/
+/**
+ * Finalization work relating directly to the optimization algorithm.
+ */
+void GBaseSwarm::optimizationFinalize() {
+	// Remove remaining velocity individuals. The boost::shared_ptr<GParameterSet>s
+	// will take care of deleting the GParameterSet objects.
+	velocities_.clear();
+
+	// Always call the parent class'es finalize function last
+	GOptimizationAlgorithmT<GParameterSet>::optimizationFinalize();
 }
 
 /************************************************************************************************************/
@@ -990,7 +1079,7 @@ void GBaseSwarm::updateIndividualPositions(
 	Gem::Common::subtractVec<double>(glbBestVec, indVec);
 
 	switch(updateRule_) {
-	case CLASSIC:
+	case SWARM_UPDATERULE_CLASSIC:
 		// Multiply each floating point value with a random fp number in the range [0,1[ times a constant
 		for(std::size_t i=0; i<personalBestVec.size(); i++) {
 			personalBestVec[i] *= (cPersonal * gr.uniform_01<double>());
@@ -999,7 +1088,7 @@ void GBaseSwarm::updateIndividualPositions(
 		}
 		break;
 
-	case LINEAR:
+	case SWARM_UPDATERULE_LINEAR:
 		// Multiply each position with the same random floating point number times a constant
 		Gem::Common::multVecConst<double>(personalBestVec, cPersonal * gr.uniform_01<double>());
 		Gem::Common::multVecConst<double>(nbhBestVec, cNeighborhood * gr.uniform_01<double>());
@@ -1232,7 +1321,7 @@ void GBaseSwarm::adjustPopulation() {
 				"In GBaseSwarm::adjustPopulation() :" << std::endl
 				<< "No individuals found in the population." << std::endl
 				<< "You need to add at least one individual before" << std::endl
-				<< "the call to optimize()."
+				<< "the call to this function."
 		);
 	}
 	else if(currentSize==1) {
