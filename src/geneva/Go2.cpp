@@ -50,6 +50,7 @@ Go2::Go2()
 	, ip_(GO2_DEF_IP)
 	, port_(GO2_DEF_PORT)
 	, configFilename_(GO2_DEF_DEFAULTCONFIGFILE)
+	, parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
 	, verbose_(GO2_DEF_DEFAULTVERBOSE)
 	, maxStalledDataTransfers_(GO2_DEF_MAXSTALLED)
 	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
@@ -85,6 +86,7 @@ Go2::Go2(int argc, char **argv)
 	, ip_(GO2_DEF_IP)
 	, port_(GO2_DEF_PORT)
 	, configFilename_(GO2_DEF_DEFAULTCONFIGFILE)
+	, parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
 	, verbose_(GO2_DEF_DEFAULTVERBOSE)
 	, maxStalledDataTransfers_(GO2_DEF_MAXSTALLED)
 	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
@@ -124,6 +126,7 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	, ip_(GO2_DEF_IP)
 	, port_(GO2_DEF_PORT)
 	, configFilename_(configFilename)
+	, parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
 	, verbose_(GO2_DEF_DEFAULTVERBOSE)
 	, maxStalledDataTransfers_(GO2_DEF_MAXSTALLED)
 	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
@@ -166,6 +169,7 @@ Go2::Go2(
 	, const std::string& ip
 	, const unsigned short& port
 	, const std::string& configFilename
+	, const parMode& pm
 	, const bool& verbose
 )
 	: GMutableSetT<GParameterSet>()
@@ -174,6 +178,7 @@ Go2::Go2(
 	, ip_(ip)
 	, port_(port)
 	, configFilename_(configFilename)
+	, parMode_(pm)
 	, verbose_(verbose)
 	, maxStalledDataTransfers_(GO2_DEF_MAXSTALLED)
 	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
@@ -204,6 +209,7 @@ Go2::Go2(const Go2& cp)
 	, ip_(cp.ip_)
 	, port_(cp.port_)
 	, configFilename_(cp.configFilename_)
+	, parMode_(cp.parMode_)
 	, verbose_(cp.verbose_)
 	, maxStalledDataTransfers_(cp.maxStalledDataTransfers_)
 	, maxConnectionAttempts_(cp.maxConnectionAttempts_)
@@ -309,6 +315,7 @@ boost::optional<std::string> Go2::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go2", ip_, p_load->ip_, "ip_", "p_load->ip_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", port_, p_load->port_, "port_", "p_load->port_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", configFilename_, p_load->configFilename_, "configFilename_", "p_load->configFilename_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go2", parMode_, p_load->parMode_, "parMode_", "p_load->parMode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", verbose_, p_load->verbose_, "verbose_", "p_load->verbose_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", maxStalledDataTransfers_, p_load->maxStalledDataTransfers_, "maxStalledDataTransfers_", "p_load->maxStalledDataTransfers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", maxConnectionAttempts_, p_load->maxConnectionAttempts_, "maxConnectionAttempts_", "p_load->maxConnectionAttempts_", e , limit));
@@ -342,6 +349,7 @@ void Go2::load_(const GObject *cp) {
 	ip_ = p_load->ip_;
 	port_ = p_load->port_;
 	configFilename_ = p_load->configFilename_;
+	parMode_ = p_load->parMode_;
 	verbose_ = p_load->verbose_;
 	maxStalledDataTransfers_ = p_load->maxStalledDataTransfers_;
 	maxConnectionAttempts_ = p_load->maxConnectionAttempts_;
@@ -393,6 +401,29 @@ int Go2::clientRun() {
  */
 bool Go2::clientMode() const {
 	return clientMode_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the parallelization mode used for the optimization. Note that
+ * this setting will only have an effect on algorithms that have not been explicitly
+ * added to Go2 and only to thos algorithms that have been added after the parMode_
+ * has been set.
+ *
+ * @param parMode The parallelization mode used for the optimization
+ */
+void Go2::setParallelizationMode(const parMode& parMode) {
+	parMode_ = parMode;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the parallelization mode currently used for the optimization
+ *
+ * @return The parallelization mode currently used for the optimization
+ */
+parMode Go2::getParallelizationMode() const {
+	return parMode_;
 }
 
 /**************************************************************************************/
@@ -461,6 +492,60 @@ void Go2::addAlgorithm(boost::shared_ptr<GOptimizableI> alg) {
  */
 Go2& Go2::operator&(boost::shared_ptr<GOptimizableI> alg) {
 	this->addAlgorithm(alg);
+	return *this;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to add an algorithm with unspecified parallelization mode to the chain. The
+ * mode is then set internally accordoing to the value of the parMode_ variable. This
+ * allows to dynamically change the parallelization mode e.g. with a command-line
+ * parameter.
+ *
+ * @param per The desired optimization algorithm
+ */
+void Go2::addAlgorithm(personality pers) {
+	switch(pers) {
+	case PERSONALITY_NONE:
+		{
+			raiseException(
+				"In Go2::addAlgorithm(personality): Error!" << std::endl
+				<< "Got PERSONALITY_NONE" << std::endl
+			);
+		}
+		break;
+
+	case PERSONALITY_EA:
+		{
+			GEvolutionaryAlgorithmFactory geaf("config/GEvolutionaryAlgorithm.cfg", parMode_);
+			this->addAlgorithm(geaf());
+		}
+		break;
+
+	case PERSONALITY_GD:
+		{
+			GGradientDescentFactory ggdf("config/GGradientDescent.cfg", parMode_);
+			this->addAlgorithm(ggdf());
+		}
+		break;
+
+	case PERSONALITY_SWARM:
+		{
+			GSwarmAlgorithmFactory gsaf("config/GSwarmAlgorithm.cfg", parMode_);
+			this->addAlgorithm(gsaf());
+		}
+		break;
+	}
+}
+
+/**************************************************************************************/
+/**
+ * Facilitates adding of algorithms with unspecified parallelization mode
+ *
+ * @param per The desired optimization algorithm
+ */
+Go2& Go2::operator&(personality pers) {
+	this->addAlgorithm(pers);
 	return *this;
 }
 
@@ -1006,10 +1091,12 @@ void Go2::parseCommandLine(int argc, char **argv) {
 				("help,h", "emit help message")
 				("configFilename,f", po::value<std::string>(&configFilename_)->default_value(GO2_DEF_DEFAULTCONFIGFILE),
 				"The name of the file holding configuration information for optimization algorithms")
+				("parallelizationMode,p", po::value<parMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
+				"The desired parallelization mode (this will only affect algorithms with generic parallelization mode")
 				("clientMode,c", "Makes this program behave as a networked client")
-				("ip,i", po::value<std::string>(&ip_)->default_value(GO2_DEF_IP),
+				("ip", po::value<std::string>(&ip_)->default_value(GO2_DEF_IP),
 				"The ip of the server")
-				("port,p", po::value<unsigned short>(&port_)->default_value(GO2_DEF_PORT),
+				("port", po::value<unsigned short>(&port_)->default_value(GO2_DEF_PORT),
 				"The port of the server")
 				("serializationMode,m", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO2_DEF_SERIALIZATIONMODE),
 				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")

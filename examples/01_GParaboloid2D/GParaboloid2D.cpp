@@ -67,10 +67,8 @@ int main(int argc, char **argv) {
 	boost::shared_ptr<GMultiThreadedSwarm> p3(new GMultiThreadedSwarm(5,10));
 	boost::shared_ptr<GMultiThreadedGD> p4(new GMultiThreadedGD());
 
-	GEvolutionaryAlgorithmFactory geaf("config/GEvolutionaryAlgorithm.cfg", PARMODE_MULTITHREADED);
-
-	// ... and add them to combiner
-	go & p2 & geaf() & p3 & p4;
+	// ... and add them to combiner. We use two different methods here
+	go & p2 & PERSONALITY_EA & p3 & p4;
 
 	// Perform the actual optimization
 	boost::shared_ptr<GParaboloidIndividual2D> bestIndividual_ptr = go.optimize<GParaboloidIndividual2D>();

@@ -1317,9 +1317,9 @@ protected:
 					// Loop over all nodes of the previous layer
 					nodeResult=0.;
 					for(std::size_t prevNodeCounter=0; prevNodeCounter<nPrevLayerNodes; prevNodeCounter++){
-						nodeResult += prevResults.at(prevNodeCounter) * currentLayer[nodeCounter*(nPrevLayerNodes+1)+prevNodeCounter]->value();
+						nodeResult += prevResults.at(prevNodeCounter) * (currentLayer[nodeCounter*(nPrevLayerNodes+1)+prevNodeCounter])->value();
 					}
-					nodeResult -= currentLayer[nodeCounter*(nPrevLayerNodes+1)+nPrevLayerNodes]->value();
+					nodeResult -= (currentLayer[nodeCounter*(nPrevLayerNodes+1)+nPrevLayerNodes])->value();
 					nodeResult=transfer(nodeResult);
 					currentResults.push_back(nodeResult);
 				}

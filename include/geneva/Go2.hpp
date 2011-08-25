@@ -126,6 +126,7 @@ class Go2
 	     & BOOST_SERIALIZATION_NVP(ip_)
 	     & BOOST_SERIALIZATION_NVP(port_)
 	     & BOOST_SERIALIZATION_NVP(configFilename_)
+	     & BOOST_SERIALIZATION_NVP(parMode_)
 	     & BOOST_SERIALIZATION_NVP(verbose_)
 	     & BOOST_SERIALIZATION_NVP(maxStalledDataTransfers_)
 	     & BOOST_SERIALIZATION_NVP(maxConnectionAttempts_)
@@ -153,6 +154,7 @@ public:
 		, const std::string&
 		, const unsigned short&
 		, const std::string&
+		, const parMode&
 		, const bool&
 	);
 	/** @brief A copy constructor */
@@ -185,6 +187,9 @@ public:
 	/** @brief Checks whether this object is running in client mode */
 	bool clientMode() const;
 
+	void setParallelizationMode(const parMode&);
+	parMode getParallelizationMode() const;
+
 	/* @brief Specifies whether only the best individuals of a population should be copied */
 	void setCopyBestIndividualsOnly(const bool&);
 	/** @brief Checks whether only the best individuals are copied */
@@ -199,6 +204,11 @@ public:
 	void addAlgorithm(boost::shared_ptr<GOptimizableI>);
 	/** @brief Makes it easier to add algorithms */
 	Go2& operator&(boost::shared_ptr<GOptimizableI>);
+
+	/** @brief Allows to add an algorithm with unspecified parallelization mode to the chain */
+	void addAlgorithm(personality);
+	/** @brief Facilitates adding of algorithms with unspecified parallelization mode */
+	Go2& operator&(personality);
 
 	/** @brief Perform the actual optimization cycle */
 	virtual void optimize(const boost::uint32_t& = 0);
@@ -316,6 +326,7 @@ private:
     std::string ip_; ///< Where the server can be reached
     unsigned short port_; ///< The port on which the server answers
 	std::string configFilename_; ///< Indicates where the configuration file is stored
+	parMode parMode_; ///< The desired parallelization mode for free-form algorithms
 	bool verbose_; ///< Whether additional information should be emitted, e.g. when parsing configuration files
 
 	//----------------------------------------------------------------------------------------------------------------

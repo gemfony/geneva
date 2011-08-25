@@ -37,6 +37,7 @@
 #include <sstream>
 #include <algorithm>
 #include <vector>
+#include <utility>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
