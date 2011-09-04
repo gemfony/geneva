@@ -117,6 +117,15 @@ ELSE()
 	MESSAGE (FATAL_ERROR "Unknown compilation mode CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 ENDIF()
 
+# Make gcc output its error messages on a single line, so Eclipse-CDT can parse them
+IF(CMAKE_COMPILER_IS_GNUCC)
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
+ENDIF()
+# Make g++ output its error messages on a single line, so Eclipse-CDT can parse them
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
+ENDIF()
+
 # Note: -fno-unsafe-math-optimizations -fno-finite-math-only prevent false optimization of some critical
 # code in GRandomBaseT inside uniform_real().
 

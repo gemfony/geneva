@@ -79,11 +79,11 @@ namespace Common {
  * This class specifies the interface of parseable parameters, to
  * which a callback function has been assigned
  */
-struct GParsableI
+class GParsableI
 {
 public:
+	/** @brief The destructor */
 	virtual ~GParsableI() { /* nothing */ }
-
 	/** @brief Executes a stored call-back function */
 	virtual void executeCallBackFunction() = 0;
 };
@@ -99,14 +99,6 @@ struct GSingleParsableParameter
 	, boost::noncopyable
 {
 public:
-	/********************************************************************/
-	/**
-	 * The default constructor
-	 */
-	GSingleParsableParameter()
-		: par_(parameter_type(0))
-	{ /* nothing */ }
-
 	/********************************************************************/
 	/**
 	 * Initializes the parameter
@@ -167,6 +159,7 @@ public:
 
 private:
 	/********************************************************************/
+	GSingleParsableParameter(); ///< The default constructor. Intentionally private and undefined
 	parameter_type par_; ///< Holds the individual parameter
 
 	boost::function<void(parameter_type)> callBack_; ///< Holds the call-back function
@@ -183,15 +176,6 @@ struct GCombinedParsableParameter
 	, boost::noncopyable
 {
 public:
-	/********************************************************************/
-	/**
-	 * The default constructor
-	 */
-	GCombinedParsableParameter()
-		: par1_(par_type1(0))
-		, par2_(par_type2(0))
-	{ /* nothing */ }
-
 	/********************************************************************/
 	/**
 	 * Initializes the parameters
@@ -263,10 +247,65 @@ public:
 
 private:
 	/********************************************************************/
+	GCombinedParsableParameter(); ///< The default constructor. Intentionally private and undefined
+
 	par_type1 par1_; ///< Holds the first parameter
 	par_type2 par2_; ///< Holds the second parameter
 
 	boost::function<void(par_type1, par_type2)> callBack_; ///< Holds the call-back function
+};
+
+/************************************************************************/
+/**
+ * This class wraps a reference to individual parameters. Instead of
+ * executing a stored call-back function, executeCallBackFunction will assign
+ * the parsed value to the reference.
+ */
+template <typename parameter_type>
+class GReferenceParsableParameter
+	: public GParsableI
+	, boost::noncopyable
+{
+public:
+	/********************************************************************/
+	/**
+	 * A constructor that initializes the internal reference
+	 *
+	 * @param storedReference A reference to a variable in which parsed values should be stored
+	 * @param parDef The default value of this variable
+	 */
+	GReferenceParsableParameter(
+		parameter_type& storedReference
+		, parameter_type parDef
+	)
+		: storedReference_(storedReference)
+		, par_(parDef)
+	{ /* nothing */ }
+
+	/********************************************************************/
+	/**
+	 * Assigns the stored parameter to the reference
+	 */
+	virtual void executeCallBackFunction() {
+		storedReference_ = par_;
+	}
+
+	/********************************************************************/
+	/**
+	 * Gives access to the internal parameter-storage (not the reference)
+	 *
+	 * @return A reference to the stored parameter
+	 */
+	parameter_type *getParameter() {
+		return &par_;
+	}
+
+private:
+	/********************************************************************/
+	GReferenceParsableParameter(); ///< The default constructor. Intentionally private and undefined
+
+	parameter_type& storedReference_; ///< Holds the reference to which the parsed value will be assigned
+	parameter_type par_; ///< Holds the individual parameter
 };
 
 /************************************************************************/
@@ -317,9 +356,15 @@ public:
 	) {
 	    namespace po = boost::program_options;
 
+		boost::shared_ptr<GReferenceParsableParameter<parameter_type> >
+			refParm_ptr(new GReferenceParsableParameter<parameter_type>(parameter, def_val));
+
 		config_.add_options()
 				(optionName.c_str(), po::value<parameter_type>(&parameter)->default_value(def_val), comment.c_str())
 		;
+
+		// Store for later usage
+		parameter_proxies_.push_back(refParm_ptr);
 
 		variables_.push_back(optionName);
 		defaultValues_.push_back(boost::lexical_cast<std::string>(def_val));
@@ -353,8 +398,8 @@ public:
 				(optionName.c_str(), po::value<parameter_type>(singleParm_ptr->getParameter())->default_value(def_val), comment.c_str())
 		;
 
-		// Store one and two for later usage
-		many_.push_back(singleParm_ptr);
+		// Store for later usage
+		parameter_proxies_.push_back(singleParm_ptr);
 
 		variables_.push_back(optionName);
 		defaultValues_.push_back(boost::lexical_cast<std::string>(def_val));
@@ -393,7 +438,7 @@ public:
 		;
 
 		// Store one and two for later usage
-		many_.push_back(combParm_ptr);
+		parameter_proxies_.push_back(combParm_ptr);
 
 		variables_.push_back(optionName1);
 		defaultValues_.push_back(boost::lexical_cast<std::string>(def_val1));
@@ -414,7 +459,7 @@ private:
 	std::vector<std::string> defaultValues_; ///< The default values associated with each variable
 	std::vector<bool> isEssential_; ///< Indicates whether the corresponding variable is essential or secondary
 	std::vector<std::string> comments_; ///< Comments to be associated with each variable
-	std::vector<boost::shared_ptr<GParsableI> > many_; ///< Ensures the survival of the parameters
+	std::vector<boost::shared_ptr<GParsableI> > parameter_proxies_; ///< Holds parameter proxies
 };
 
 } /* namespace Common */

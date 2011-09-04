@@ -83,7 +83,7 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile)
 
 		// Execute all stored call-back functions
 		std::vector<boost::shared_ptr<GParsableI> >::iterator it;
-		for(it=many_.begin(); it!=many_.end(); ++it) {
+		for(it=parameter_proxies_.begin(); it!=parameter_proxies_.end(); ++it) {
 			(*it)->executeCallBackFunction();
 		}
 

@@ -119,13 +119,17 @@ protected:
 		comment = ""; // Reset the comment string
 		comment += "The timeout for the retrieval of an;";
 		comment += "iteration's first timeout;";
-		gpb.registerFileParameter<boost::posix_time::time_duration>(
-			"firstTimeOut" // The name of the variable
-			, firstTimeOut_
-			, boost::posix_time::duration_from_string(DEFAULTBROKERFIRSTTIMEOUT) // The default value
-			, Gem::Common::VAR_IS_ESSENTIAL
-			, comment
-		);
+		{
+			using namespace boost::posix_time;
+			time_duration td(duration_from_string(DEFAULTBROKERFIRSTTIMEOUT));
+			gpb.registerFileParameter<boost::posix_time::time_duration>(
+				"firstTimeOut" // The name of the variable
+				, firstTimeOut_
+				, td // The default value
+				, Gem::Common::VAR_IS_ESSENTIAL
+				, comment
+			);
+		}
 
 		comment = ""; // Reset the first comment string
 		comment += "The lower boundary for the adaption;";
