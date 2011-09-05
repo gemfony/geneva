@@ -192,7 +192,7 @@ public:
 	/** @brief Triggers updates when the optimization process has stalled */
 	virtual bool updateOnStall();
 
-	/** @brief Retrieves the current personality of this object */
+	/** @brief Retrieves the current oa_personality of this object */
 	personality getPersonality() const;
 
 	/** @brief Allows to randomly initialize parameter members */
@@ -200,7 +200,7 @@ public:
 
 	/**********************************************************************/
 	/**
-	 * The function converts the local personality base pointer to the desired type
+	 * The function converts the local oa_personality base pointer to the desired type
 	 * and returns it for modification by the corresponding optimization algorithm.
 	 * The base algorithms have been declared "friend" of GParameterSet and
 	 * can thus access this function. External entities have no need to do so. Note
@@ -244,12 +244,12 @@ public:
 
 	/**************************************************************************************************/
 
-	/** @brief This function returns the current personality traits base pointer */
+	/** @brief This function returns the current oa_personality traits base pointer */
 	boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
 
-	/** @brief Sets the current personality of this individual */
+	/** @brief Sets the current oa_personality of this individual */
 	personality setPersonality(const personality&);
-	/** @brief Resets the current personality to PERSONALITY_NONE */
+	/** @brief Resets the current oa_personality to PERSONALITY_NONE */
 	void resetPersonality();
 
 	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
@@ -316,7 +316,7 @@ private:
     boost::uint32_t assignedIteration_;
     /** @brief Indicates the optimization algorithm the individual takes part in */
     personality pers_;
-    /** @brief Holds the actual personality information */
+    /** @brief Holds the actual oa_personality information */
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
 
 	/**************************************************************************************************/

@@ -108,9 +108,9 @@ public:
 	) const;
 
 	/** @brief Sets the maximum number of threads */
-	void setNThreads(boost::uint8_t);
+	void setNThreads(boost::uint16_t);
 	/** @brief Retrieves the maximum number of threads */
-	boost::uint8_t getNThreads() const ;
+	boost::uint16_t getNThreads() const ;
 
 protected:
 	/** @brief Loads the data of another population */
@@ -134,7 +134,7 @@ protected:
 
 	/**************************************************************************************************/
 private:
-	boost::uint8_t nThreads_; ///< The number of threads
+	boost::uint16_t nThreads_; ///< The number of threads
 	boost::threadpool::pool tp_; ///< A thread pool
 
 	std::vector<bool> sm_value_; ///< Internal storage for server mode flags

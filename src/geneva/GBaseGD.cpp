@@ -399,7 +399,7 @@ void GBaseGD::load_(const GObject *cp) {
 
 /************************************************************************************************************/
 /**
- * Sets the individual's personality types to GradientDescent
+ * Sets the individual's oa_personality types to GradientDescent
  */
 void GBaseGD::setIndividualPersonalities() {
 	for(GBaseGD::iterator it=this->begin(); it!=this->end(); ++it) {

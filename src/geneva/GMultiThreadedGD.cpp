@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GMultiThreadedGD::GMultiThreadedGD()
 	: GBaseGD()
-	, nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD)))
+	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD)))
 	, tp_(nThreads_)
 { /* nothing */ }
 
@@ -59,7 +59,7 @@ GMultiThreadedGD::GMultiThreadedGD (
 		, const float& stepSize
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize)
-	, nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD)))
+	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD)))
 	, tp_(nThreads_)
 { /* nothing */ }
 
@@ -168,9 +168,9 @@ boost::optional<std::string> GMultiThreadedGD::checkRelationshipWith(
  *
  * @param nThreads The number of threads this class uses
  */
-void GMultiThreadedGD::setNThreads(boost::uint8_t nThreads) {
+void GMultiThreadedGD::setNThreads(boost::uint16_t nThreads) {
 	if(nThreads == 0) {
-		nThreads_ = boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD));
+		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD));
 	}
 	else {
 		nThreads_ = nThreads;
@@ -185,7 +185,7 @@ void GMultiThreadedGD::setNThreads(boost::uint8_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-uint8_t GMultiThreadedGD::getNThreads() const  {
+uint16_t GMultiThreadedGD::getNThreads() const  {
 	return nThreads_;
 }
 
@@ -282,7 +282,7 @@ void GMultiThreadedGD::addConfigurationOptions_ (
 	comment += "The number of evaluation threads;";
 	comment += "0 means: determine automatically;";
 	if(showOrigin) comment += "[GMultiThreadedGD]";
-	gpb.registerFileParameter<boost::uint8_t>(
+	gpb.registerFileParameter<boost::uint16_t>(
 		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value
 		, boost::bind(

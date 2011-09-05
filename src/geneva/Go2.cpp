@@ -556,6 +556,13 @@ Go2& Go2::operator&(personality pers) {
  * @param offset An offset at which the first algorithm should start
  */
 void Go2::optimize(const boost::uint32_t& offset) {
+	// Add algorithms that have been specified on the command line
+	std::vector<personality>::iterator pers_it;
+	for(pers_it=optimization_algorithms_.begin(); pers_it!=optimization_algorithms_.end(); ++pers_it) {
+		this->addAlgorithm(*pers_it);
+	}
+
+
 	// Check that algorithms have indeed been registered
 	if(algorithms_.empty()) {
 		raiseException(
@@ -1084,6 +1091,8 @@ boost::uint32_t Go2::getIterationOffset() const {
 void Go2::parseCommandLine(int argc, char **argv) {
     namespace po = boost::program_options;
 
+    std::string optimization_algorithms;
+
 	try {
 		std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
 		po::options_description desc(usageString.c_str());
@@ -1093,6 +1102,8 @@ void Go2::parseCommandLine(int argc, char **argv) {
 				"The name of the file holding configuration information for optimization algorithms")
 				("parallelizationMode,p", po::value<parMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
 				"The desired parallelization mode (this will only affect algorithms with generic parallelization mode")
+				("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms)->default_value(GO2_DEF_OPTALGS),
+				"A comma-separated list of optimization algorithms. E.g. \"1,2,3\". (1) means \"Evolutionary Algorithms\", (2) means \"Gradient Descents\", (3) means \"Swarm Algorithms\"")
 				("clientMode,c", "Makes this program behave as a networked client")
 				("ip", po::value<std::string>(&ip_)->default_value(GO2_DEF_IP),
 				"The ip of the server")
@@ -1100,8 +1111,6 @@ void Go2::parseCommandLine(int argc, char **argv) {
 				"The port of the server")
 				("serializationMode,m", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO2_DEF_SERIALIZATIONMODE),
 				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-				("writeConfigFile,w",
-				"Instructs Go2 to write out a configuration file and then to exit. If the configuration option \"configFileName\" has been specified, its value will be used as the name of the file")
 				("verbose,v", "Instructs the parsers to output information about configuration parameters")
 		;
 
@@ -1115,21 +1124,31 @@ void Go2::parseCommandLine(int argc, char **argv) {
 			exit(0);
 		}
 
-		// Output the configuration file, if required
-		if(vm.count("writeConfigFile")) {
-			std::string header = "Configuration file for the Go2 class;";
-			Go2::writeConfigFile(configFilename_, header);
-			exit(0);
-		}
+		// Read in the configuration file. A file with default values
+		// will be created for you if it does not yet exist. Note that
+		// the target directory needs to exist, though.
+		readConfigFile(configFilename_);
 
-		// Read in the configuration file, if it exists
-		{
-			using namespace boost::filesystem;
-			if(exists(path(configFilename_))) {
-				Go2::readConfigFile(configFilename_);
-			} else {
-				std::cout << "Configuration file " << configFilename_ << " not found." << std::endl
-						  << "Using default values." << std::endl;
+		// Parse the list of optimization algorithms
+		if(vm.count("optimizationAlgorithms")) {
+			typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+			boost::char_separator<char> comma_sep(",");
+			tokenizer oaTokenizer(optimization_algorithms, comma_sep);
+			for(tokenizer::iterator oa=oaTokenizer.begin(); oa!=oaTokenizer.end(); ++oa) {
+				std::string alg = *oa;
+				boost::trim(alg);
+				personality num_alg = boost::lexical_cast<personality>(alg);
+
+				if(num_alg != PERSONALITY_EA && num_alg != PERSONALITY_GD && num_alg != PERSONALITY_SWARM) {
+					raiseException(
+						"In Go2::parseCommandLine(): Error!" << std::endl
+						<< "Received invalid personality " << num_alg << std::endl
+					);
+				}
+
+				if(!alg.empty()) {
+					optimization_algorithms_.push_back(num_alg);
+				}
 			}
 		}
 

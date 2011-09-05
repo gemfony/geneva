@@ -39,6 +39,103 @@ namespace Common {
 
 /**************************************************************************************/
 /**
+ * A constructor for individual items
+ */
+GParsableI::GParsableI(
+	const std::string& optionNameVar
+	, const std::string& defaultValueVar
+	, const std::string& commentVar
+	, const bool& isEssentialVar
+)
+	: optionName_(GParsableI::makeVector(optionNameVar))
+	, defaultValue_(GParsableI::makeVector(defaultValueVar))
+	, comment_(GParsableI::makeVector(commentVar))
+	, isEssential_(isEssentialVar)
+{ /* nothing */ }
+
+/**************************************************************************************/
+/**
+ * A constructor for vectors
+ */
+GParsableI::GParsableI(
+	const std::vector<std::string>& optionNameVec
+	, const std::vector<std::string>& defaultValueVec
+	, const std::vector<std::string>& commentVec
+	, const bool& isEssentialVar
+)
+	: optionName_(optionNameVec)
+	, defaultValue_(defaultValueVec)
+	, comment_(commentVec)
+	, isEssential_(isEssentialVar)
+{ /* nothing */ }
+
+/**************************************************************************************/
+/**
+ * The destructor
+ */
+GParsableI::~GParsableI()
+{ /* nothing */ }
+
+/**************************************************************************************/
+/**
+ * Retrieves the option name
+ */
+std::string GParsableI::optionName(std::size_t pos) const {
+	if(optionName_.size() <= pos) {
+		raiseException(
+			"In GParsableI::optionName(std::size_t): Error!" << std::endl
+			<< "Tried to access item at position " << pos << std::endl
+			<< "where the size of the vector is " << optionName_.size() << std::endl
+		);
+	}
+
+	return optionName_.at(pos);
+}
+
+/**************************************************************************************/
+/**
+ * Retrieves a string-representation of the default value
+ */
+std::string GParsableI::defaultValue(std::size_t pos) const {
+	if(defaultValue_.size() <= pos) {
+		raiseException(
+			"In GParsableI::defaultValue(std::size_t): Error!" << std::endl
+			<< "Tried to access item at position " << pos << std::endl
+			<< "where the size of the vector is " << defaultValue_.size() << std::endl
+		);
+	}
+
+	return defaultValue_.at(pos);
+}
+
+/**************************************************************************************/
+/**
+ * Retrieves the comment that was assigned to this variable
+ */
+std::string GParsableI::comment(std::size_t pos) const {
+	if(comment_.size() <= pos) {
+		raiseException(
+			"In GParsableI::comment_(std::size_t): Error!" << std::endl
+			<< "Tried to access item at position " << pos << std::endl
+			<< "where the size of the vector is " << comment_.size() << std::endl
+		);
+	}
+
+	return comment_.at(pos);
+}
+
+/**************************************************************************************/
+/**
+ * Checks whether this is an essential variable
+ */
+bool GParsableI::isEssential() const {
+	return isEssential_;
+}
+
+/**************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************/
+/**
  * The default constructor
  *
  * @param configurationFile The name of the configuration file
@@ -68,11 +165,39 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile)
 	bool result = false;
 
 	try {
+		// Do some error checking. Also check that the configuration file exists.
+		// If not, create a default version
+		{
+			using namespace boost::filesystem;
+
+			if(exists(configFile) && !is_regular_file(configFile)) {
+				raiseException(
+					"In GParserBuilder::parseConfigFile(): Error!" << std::endl
+					<< configFile << " exists but is no regular file." << std::endl
+				);
+			}
+
+			// We automatically create a configuration file
+			if(!exists(configFile)) {
+				std::cerr
+					<< "Note: In GParserBuilder::parseConfigFile():" << std::endl
+					<< "Configuration file " << configFile << " does not exist." << std::endl
+					<< "We will try to create a file with default values for you." << std::endl;
+
+				std::string header = "This configuration file was automatically created by GParserBuilder;";
+				this->writeConfigFile(
+					configFile
+					, header
+					, true // writeAll == true
+				);
+			}
+		}
+
 		// Do the actual parsing
 		po::variables_map vm;
 		std::ifstream ifs(configFile.c_str());
 		if (!ifs.good()) {
-			std::cerr << "Error accessing configuration file " << configFile << std::endl;
+			std::cerr << "Error opening configuration file " << configFile << std::endl;
 			return false;
 		}
 
@@ -81,13 +206,16 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile)
 
 		ifs.close();
 
-		// Execute all stored call-back functions
+		// Execute all call-back functions
 		std::vector<boost::shared_ptr<GParsableI> >::iterator it;
 		for(it=parameter_proxies_.begin(); it!=parameter_proxies_.end(); ++it) {
 			(*it)->executeCallBackFunction();
 		}
 
 		result = true;
+	}
+	catch(const gemfony_error_condition& e) {
+		throw e;
 	}
 	catch(const po::error& e) {
 		std::cerr << "Error parsing the configuration file " << configFile << ":" << std::endl
@@ -120,6 +248,35 @@ void GParserBuilder::writeConfigFile(
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> semicolon_sep(";");
 
+	// Do some error checking
+	{
+		using namespace boost::filesystem;
+
+		// Is configFile a directory ?
+		if(is_directory(configFile)) {
+			raiseException(
+				"In GParserBuilder::writeConfigFile(): Error!" << std::endl
+				<< configFile << " is a directory." << std::endl
+			);
+		}
+
+		// We do not allow to overwrite existing files
+		if(exists(configFile) && is_regular_file(configFile)) {
+			raiseException(
+				"In GParserBuilder::writeConfigFile(): Error!" << std::endl
+				<< "You have specified an existing file (" << configFile << ")." << std::endl
+			);
+		}
+
+		// Check that the target path exists and is a directory
+		if(!exists(path(configFile).remove_filename()) || !is_directory(path(configFile).remove_filename())) {
+			raiseException(
+				"In GParserBuilder::writeConfigFile(): Error!" << std::endl
+				<< "The target path " << path(configFile).remove_filename() << " does not exist or is no directory."
+			);
+		}
+	}
+
 	// Open the required configuration file
 	std::ofstream ofs(configFile.c_str());
 	if (!ofs.good()) {
@@ -129,14 +286,9 @@ void GParserBuilder::writeConfigFile(
 	}
 
 	// Do some error checking
-	if(variables_.size() == 0) {
+	if(parameter_proxies_.size() == 0) {
 		raiseException(
 			"In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
-		);
-	}
-	if(variables_.size() != defaultValues_.size() || variables_.size() != comments_.size() || variables_.size() != isEssential_.size()) {
-		raiseException(
-			"In GParserBuilder::writeConfigFile(): Invalid vector sizes found: " << variables_.size() << "/" << defaultValues_.size() << "/" << comments_.size() << "/" << isEssential_.size() << std::endl
 		);
 	}
 
@@ -154,21 +306,14 @@ void GParserBuilder::writeConfigFile(
 		<< std::endl;
 
 	// Output variables and values
-	for(std::size_t var = 0; var < variables_.size(); var++) {
-		// Only write out this variable if it is either essential or it
-		// has been requested to write out all parameters
-		if(!writeAll && !isEssential_.at(var)) continue;
+	std::vector<boost::shared_ptr<GParsableI> >::const_iterator cit;
+	for(cit=parameter_proxies_.begin(); cit!=parameter_proxies_.end(); ++cit) {
+		// Only write out the parameter(s) if they are either essential or it
+		// has been requested to write out all parameters regardless
+		if(!writeAll && !(*cit)->isEssential()) continue;
 
-		if(comments_.at(var) != "") { // Only output useful comments
-			// Break the comment into individual lines after each semicolon
-			tokenizer sleepTokenizer(comments_.at(var), semicolon_sep);
-			for(tokenizer::iterator c=sleepTokenizer.begin(); c!=sleepTokenizer.end(); ++c) {
-				ofs << "# " << *c << std::endl;
-			}
-		}
-		ofs << "# default value: " << defaultValues_.at(var) << std::endl
-			<< variables_.at(var) << " = " << defaultValues_.at(var) << std::endl
-			<< std::endl;
+		// Output the actual data of this parameter object
+		ofs << (*cit)->configData();
 	}
 
 	// Close the file handle
@@ -182,7 +327,7 @@ void GParserBuilder::writeConfigFile(
  * @return The number of configuration options stored in this class
  */
 std::size_t GParserBuilder::numberOfOptions() const {
-	return variables_.size();
+	return parameter_proxies_.size();
 }
 
 /**************************************************************************************/

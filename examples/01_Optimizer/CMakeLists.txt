@@ -102,7 +102,6 @@ SET ( ${EXECUTABLENAME}_SRCS
 
 SET ( CONFIGFILE
 	G01Optimizer.cfg
-	GFunctionIndividual.cfg
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

@@ -85,7 +85,7 @@ boost::shared_ptr<GBaseSwarm> GSwarmAlgorithmFactory::getObject_(
 	}
 
 	// Make the local configuration options known
-	target->addConfigurationOptions(gpb);
+	target->GBaseSwarm::addConfigurationOptions(gpb);
 
 	return target;
 }

@@ -398,7 +398,7 @@ void GBaseSwarm::setDefaultPopulationSize(std::size_t nNeighborhoods, std::size_
 
 /************************************************************************************************************/
 /**
- * Sets the individual's personality types to Swarm
+ * Sets the individual's oa_personality types to Swarm
  */
 void GBaseSwarm::setIndividualPersonalities() {
 	for(GBaseSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
@@ -1202,7 +1202,7 @@ void GBaseSwarm::updateIndividualFitness(
 	  , const std::size_t& neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
 ){
-	// Let the personality know in which neighborhood it is
+	// Let the oa_personality know in which neighborhood it is
 	ind->getPersonalityTraits<GSwarmPersonalityTraits>()->setNeighborhood(neighborhood);
 
 	// Trigger the fitness calculation (if necessary). Make sure

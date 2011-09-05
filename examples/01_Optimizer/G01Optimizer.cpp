@@ -47,7 +47,7 @@ using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
 	Go2::init();
-	Go2 go(argc, argv, "./config/go2.cfg");
+	Go2 go(argc, argv, "./config/Go2.cfg");
 
 	//---------------------------------------------------------------------
 	// Client mode
@@ -66,8 +66,8 @@ int main(int argc, char **argv) {
 	go.push_back(gfi());
 
 	// Add an evolutionary algorithm in multi-threaded mode
-	GEvolutionaryAlgorithmFactory f("./config/GEvolutionaryAlgorithm.cfg", PARMODE_MULTITHREADED);
-	go & f();
+	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.cfg", PARMODE_MULTITHREADED);
+	go & ea();
 
 	// Perform the actual optimization
 	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();

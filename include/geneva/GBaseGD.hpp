@@ -124,7 +124,7 @@ public:
 	/** @brief Returns information about the type of optimization algorithm */
 	virtual personality getOptimizationAlgorithm() const;
 
-	/** @brief Sets the individual's personality types to GradientDescent */
+	/** @brief Sets the individual's oa_personality types to GradientDescent */
 	void setIndividualPersonalities();
 
 	/** @brief Retrieves the number of starting points of the algorithm */

@@ -248,7 +248,7 @@ personality GBaseEA::getOptimizationAlgorithm() const {
 
 /************************************************************************************************************/
 /**
- * Sets the individual's personality types to EA
+ * Sets the individual's oa_personality types to EA
  */
 void GBaseEA::setIndividualPersonalities() {
 	GBaseEA::iterator it;

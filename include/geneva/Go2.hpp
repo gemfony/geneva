@@ -35,6 +35,7 @@
 // Standard header files go here
 
 // Boost header files go here
+#include <boost/algorithm/string.hpp>
 
 #ifndef GO2_HPP_
 #define GO2_HPP_
@@ -96,6 +97,7 @@ const bool GO2_DEF_RETURNREGARDLESS=true;
 const boost::uint16_t GO2_DEF_NPRODUCERTHREADS=0;
 const std::size_t GO2_DEF_ARRAYSIZE=1000;
 const boost::uint32_t GO2_DEF_OFFSET=0;
+const std::string GO2_DEF_OPTALGS="";
 
 /**************************************************************************************/
 /**
@@ -330,9 +332,6 @@ private:
 	bool verbose_; ///< Whether additional information should be emitted, e.g. when parsing configuration files
 
 	//----------------------------------------------------------------------------------------------------------------
-	// These parameters can be read from a configuration file
-
-	//----------------------------------------------------------------------------------------------------------------
 	// General parameters
     boost::uint32_t maxStalledDataTransfers_; ///< Specifies how often a client may try to unsuccessfully retrieve data from the server (0 means endless)
     boost::uint32_t maxConnectionAttempts_; ///< Specifies how often a client may try to connect unsuccessfully to the server (0 means endless)
@@ -342,6 +341,10 @@ private:
     // Parameters for the random number generator
     boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
     std::size_t arraySize_; ///< The size of the random number packages being transferred to the proxy RNGs
+
+    //----------------------------------------------------------------------------------------------------------------
+    // Parameters related to automatically added optimization algorithms
+    std::vector<personality> optimization_algorithms_;
 
     //----------------------------------------------------------------------------------------------------------------
     // Internal parameters

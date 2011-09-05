@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GMultiThreadedSwarm::GMultiThreadedSwarm()
    : GBaseSwarm()
-   , nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM)))
+   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM)))
    , tp_(nThreads_)
 { /* nothing */ }
 
@@ -58,7 +58,7 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(
 		, const std::size_t& nNeighborhoodMembers
 )
    : GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
-   , nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM)))
+   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM)))
    , tp_(nThreads_)
 { /* nothing */ }
 
@@ -253,7 +253,7 @@ void GMultiThreadedSwarm::addConfigurationOptions_ (
 	comment += "The number of evaluation threads;";
 	comment += "0 means: determine automatically;";
 	if(showOrigin) comment += "[GMultiThreadedSwarm]";
-	gpb.registerFileParameter<boost::uint8_t>(
+	gpb.registerFileParameter<boost::uint16_t>(
 		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value
 		, boost::bind(
@@ -313,9 +313,9 @@ void GMultiThreadedSwarm::updateFitness() {
  *
  * @param nThreads The number of threads this class uses
  */
-void GMultiThreadedSwarm::setNThreads(boost::uint8_t nThreads) {
+void GMultiThreadedSwarm::setNThreads(boost::uint16_t nThreads) {
 	if(nThreads == 0) {
-		nThreads_ = boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM));
+		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM));
 	}
 	else {
 		nThreads_ = nThreads;
@@ -330,7 +330,7 @@ void GMultiThreadedSwarm::setNThreads(boost::uint8_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-uint8_t GMultiThreadedSwarm::getNThreads() const  {
+uint16_t GMultiThreadedSwarm::getNThreads() const  {
 	return nThreads_;
 }
 
