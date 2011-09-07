@@ -73,10 +73,9 @@ const std::size_t COMMANDLENGTH=64;
  * communicate via the "courtier" broker infrastructure.
  */
 const double DEFAULTMINBROKERWAITFACTOR = 1.;
-const double DEFAULTBROKERWAITFACTOR = DEFAULTMINBROKERWAITFACTOR;
 const double DEFAULTMAXBROKERWAITFACTOR = 10.;
-const double DEFAULTBROKERWAITFACTORINCREMENT = 0.5;
-const double DEFAULTMINRETURNPERCENTAGE = 1.0;
+const double DEFAULTBROKERWAITFACTOR = DEFAULTMAXBROKERWAITFACTOR;
+const double DEFAULTBROKERWAITFACTORINCREMENT = 0.1;
 const double DEFAULTMINPERCENTAGEOFTIMEOUT = 0.7;
 
 /**********************************************************************************************/

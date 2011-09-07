@@ -927,11 +927,12 @@ private:
     	}
 
 		// Reset the allItemsReturned_ variable. We assume that all items
-    	// will return before the timeout in the next iteration
+    	// will return before the timeout in the next iteration. This assumption
+    	// may be falsified later if we run into the timeout.
 		allItemsReturned_ = true;
 
     	// Set the start time of the new iteration so we calculate a correct
-    	// Return time for the first individual, regardless of whether older
+    	// return time for the first individual, regardless of whether older
     	// individuals have returned first.
     	iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
     }
@@ -942,6 +943,7 @@ private:
      * individuals, such as in gradient descents.
      */
     void prolongTimeout() {
+    	// Update the maximum threshold
     	maxAllowedElapsed_ += boost::posix_time::microseconds(boost::numeric_cast<long>(double(totalElapsedFirst_.total_microseconds()) * (waitFactor_ + 1.)));
     }
 
@@ -985,7 +987,7 @@ private:
 			CurrentBufferPort_->pop_back_processed(p);
 		}
 
-		// At this point we have received the first individual of the current generation back.
+		// At this point we have received the first individual of the current iteration back.
 		// Record the elapsed time and calculate the time for which other individuals are
 		// allowed to return
 		totalElapsedFirst_ = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
