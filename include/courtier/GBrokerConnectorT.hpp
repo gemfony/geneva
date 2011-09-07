@@ -779,7 +779,6 @@ public:
     	return complete;
     }
 
-protected:
 	/*********************************************************************************/
 	/**
 	 * Adds local configuration options to a GParserBuilder object
@@ -787,7 +786,7 @@ protected:
 	 * @param gpb The GParserBuilder object to which configuration options should be added
 	 * @param showOrigin Makes the function indicate the origin of parameters in comments
 	 */
-	void addConfigurationOptions_ (
+	void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	) {

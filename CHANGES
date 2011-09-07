@@ -10,7 +10,11 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
 The main changes for this release include:
  - Introduced a new wrapper class "Go2" that allows to aggregate
    different optimization algorithms, making the best results of 
-   the first algorithms available to their successors
+   the first algorithms available to their successors. Algorithms can
+   now either be added in main() -- in which case the parallelization
+   mode chosen for the corresponding objects is used -- or on the 
+   command line, in which case the parallelization mode can be modified
+   on demand.
  - Facilitated and centralized creation and parsing of configuration
    options, so users may more easily configure their applications
  - Introduced a new interface class "GOptimizableI", as the basis

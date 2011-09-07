@@ -100,6 +100,11 @@ public:
 			, const bool&
 	) const;
 
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
+
 protected:
 	/** @brief Loads data from another object */
 	virtual void load_(const GObject *);
@@ -114,11 +119,6 @@ protected:
 	virtual void init();
 	/** @brief Necessary clean-up work after the optimization has finished */
 	virtual void finalize();
-
-	virtual void addConfigurationOptions_ (
-		Gem::Common::GParserBuilder& gpb
-		, const bool& showOrigin
-	);
 
 #ifdef GENEVATESTING
 public:

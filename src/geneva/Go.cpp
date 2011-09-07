@@ -181,7 +181,7 @@ Go::Go(int argc, char **argv, const std::string& configFilename)
  * @param verbose Specifies whether additional information about parsed parameters should be emitted
  */
 Go::Go(
-	const personality& pers
+	const personality_oa& pers
 	, const parMode& pM
 	, const bool& serverMode
 	, const Gem::Common::serializationMode& sM
@@ -661,7 +661,7 @@ double Go::fitnessCalculation() {
  *
  * @param pers The type of optimization algorithm to be used for the optimization
  */
-void Go::setPersonality(const personality& pers) {
+void Go::setPersonality(const personality_oa& pers) {
 	pers_ = pers;
 }
 
@@ -671,7 +671,7 @@ void Go::setPersonality(const personality& pers) {
  *
  * @return The type of optimization algorithm currently used for the optimization
  */
-personality Go::getPersonality() const {
+personality_oa Go::getPersonality() const {
 	return pers_;
 }
 
@@ -1429,7 +1429,7 @@ void Go::parseCommandLine(int argc, char **argv) {
 				("help,h", "emit help message")
 				("configFilename,c", po::value<std::string>(&configFilename_)->default_value(GO_DEF_DEFAULTCONFIGFILE),
 				"The name of the file holding configuration information for optimization algorithms")
-				("algorithm,a", po::value<personality>(&pers_)->default_value(GO_DEF_PERSONALITY),
+				("algorithm,a", po::value<personality_oa>(&pers_)->default_value(GO_DEF_PERSONALITY),
 				"The type of optimization algorithm: Evolutionary Algorithm (1), Gradient Descent (2), Swarm (3)")
 				("parallelizationMode,p", po::value<parMode>(&parMode_)->default_value(GO_DEF_DEFAULPARALLELIZATIONMODE),
 				"Whether to perform the optimization in serial mode (0), multi-threaded (1) or networked (2) mode")

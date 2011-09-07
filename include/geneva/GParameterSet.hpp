@@ -162,6 +162,9 @@ public:
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+
 	/**********************************************************************/
 	/**
 	 * This function returns a parameter set at a given position of the data set.
@@ -321,9 +324,6 @@ protected:
 	virtual double fitnessCalculation();
 	/* @brief The actual adaption operations. */
 	virtual void customAdaptions();
-
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions_(Gem::Common::GParserBuilder&, const bool&);
 
 private:
 	explicit GParameterSet(const float&); ///< Intentionally private and undefined

@@ -208,9 +208,9 @@ public:
 	Go2& operator&(boost::shared_ptr<GOptimizableI>);
 
 	/** @brief Allows to add an algorithm with unspecified parallelization mode to the chain */
-	void addAlgorithm(personality);
+	void addAlgorithm(personality_oa);
 	/** @brief Facilitates adding of algorithms with unspecified parallelization mode */
-	Go2& operator&(personality);
+	Go2& operator&(personality_oa);
 
 	/** @brief Perform the actual optimization cycle */
 	virtual void optimize(const boost::uint32_t& = 0);
@@ -305,6 +305,9 @@ public:
 		return GOptimizableI::optimize<individual_type>(offset);
 	}
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder& , const bool&);
+
 protected:
 	/************************************************************************************/
 	/** @brief Loads the data of another Go2 object */
@@ -316,9 +319,6 @@ protected:
 	virtual boost::shared_ptr<GIndividual> getBestIndividual();
 	/** @brief Retrieves a list of the best individuals found */
 	std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
-
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions_(Gem::Common::GParserBuilder& , const bool&);
 
 private:
 	/**********************************************************************/
@@ -344,7 +344,7 @@ private:
 
     //----------------------------------------------------------------------------------------------------------------
     // Parameters related to automatically added optimization algorithms
-    std::vector<personality> optimization_algorithms_;
+    std::vector<personality_oa> optimization_algorithms_;
 
     //----------------------------------------------------------------------------------------------------------------
     // Internal parameters

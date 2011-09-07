@@ -504,12 +504,12 @@ Go2& Go2::operator&(boost::shared_ptr<GOptimizableI> alg) {
  *
  * @param per The desired optimization algorithm
  */
-void Go2::addAlgorithm(personality pers) {
+void Go2::addAlgorithm(personality_oa pers) {
 	switch(pers) {
 	case PERSONALITY_NONE:
 		{
 			raiseException(
-				"In Go2::addAlgorithm(personality): Error!" << std::endl
+				"In Go2::addAlgorithm(personality_oa): Error!" << std::endl
 				<< "Got PERSONALITY_NONE" << std::endl
 			);
 		}
@@ -544,7 +544,7 @@ void Go2::addAlgorithm(personality pers) {
  *
  * @param per The desired optimization algorithm
  */
-Go2& Go2::operator&(personality pers) {
+Go2& Go2::operator&(personality_oa pers) {
 	this->addAlgorithm(pers);
 	return *this;
 }
@@ -557,7 +557,7 @@ Go2& Go2::operator&(personality pers) {
  */
 void Go2::optimize(const boost::uint32_t& offset) {
 	// Add algorithms that have been specified on the command line
-	std::vector<personality>::iterator pers_it;
+	std::vector<personality_oa>::iterator pers_it;
 	for(pers_it=optimization_algorithms_.begin(); pers_it!=optimization_algorithms_.end(); ++pers_it) {
 		this->addAlgorithm(*pers_it);
 	}
@@ -801,7 +801,7 @@ std::vector<boost::shared_ptr<GIndividual> > Go2::getBestIndividuals() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void Go2::addConfigurationOptions_ (
+void Go2::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -836,7 +836,7 @@ void Go2::addConfigurationOptions_ (
 
 
 	// Call our parent class'es function
-	GMutableSetT<GParameterSet>::addConfigurationOptions_(gpb, showOrigin);
+	GMutableSetT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /**************************************************************************************/
@@ -1137,7 +1137,7 @@ void Go2::parseCommandLine(int argc, char **argv) {
 			for(tokenizer::iterator oa=oaTokenizer.begin(); oa!=oaTokenizer.end(); ++oa) {
 				std::string alg = *oa;
 				boost::trim(alg);
-				personality num_alg = boost::lexical_cast<personality>(alg);
+				personality_oa num_alg = boost::lexical_cast<personality_oa>(alg);
 
 				if(num_alg != PERSONALITY_EA && num_alg != PERSONALITY_GD && num_alg != PERSONALITY_SWARM) {
 					raiseException(

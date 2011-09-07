@@ -172,7 +172,7 @@ GBaseSwarm::~GBaseSwarm()
  *
  * @return The type of optimization algorithm
  */
-personality GBaseSwarm::getOptimizationAlgorithm() const {
+personality_oa GBaseSwarm::getOptimizationAlgorithm() const {
 	return PERSONALITY_SWARM;
 }
 
@@ -398,7 +398,7 @@ void GBaseSwarm::setDefaultPopulationSize(std::size_t nNeighborhoods, std::size_
 
 /************************************************************************************************************/
 /**
- * Sets the individual's oa_personality types to Swarm
+ * Sets the individual's personality types to Swarm
  */
 void GBaseSwarm::setIndividualPersonalities() {
 	for(GBaseSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
@@ -656,7 +656,7 @@ std::vector<boost::shared_ptr<GIndividual> > GBaseSwarm::getBestIndividuals() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GBaseSwarm::addConfigurationOptions_ (
+void GBaseSwarm::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -795,7 +795,7 @@ void GBaseSwarm::addConfigurationOptions_ (
 	);
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions_(gpb, showOrigin);
+	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -1202,7 +1202,7 @@ void GBaseSwarm::updateIndividualFitness(
 	  , const std::size_t& neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
 ){
-	// Let the oa_personality know in which neighborhood it is
+	// Let the personality know in which neighborhood it is
 	ind->getPersonalityTraits<GSwarmPersonalityTraits>()->setNeighborhood(neighborhood);
 
 	// Trigger the fitness calculation (if necessary). Make sure

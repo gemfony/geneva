@@ -269,7 +269,7 @@ void GBrokerGD::finalize() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GBrokerGD::addConfigurationOptions_ (
+void GBrokerGD::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -292,8 +292,8 @@ void GBrokerGD::addConfigurationOptions_ (
 	);
 
 	// Call our parent class'es function
-	GBaseGD::addConfigurationOptions_(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions_(gpb, showOrigin);
+	GBaseGD::addConfigurationOptions(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

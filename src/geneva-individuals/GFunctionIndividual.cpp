@@ -194,7 +194,7 @@ boost::optional<std::string> GFunctionIndividual::checkRelationshipWith(const GO
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GFunctionIndividual::addConfigurationOptions_ (
+void GFunctionIndividual::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -224,7 +224,7 @@ void GFunctionIndividual::addConfigurationOptions_ (
 	);
 
 	// Call our parent class'es function
-	GParameterSet::addConfigurationOptions_(gpb, showOrigin);
+	GParameterSet::addConfigurationOptions(gpb, showOrigin);
 }
 
 /*******************************************************************************************/
@@ -454,7 +454,7 @@ boost::shared_ptr<GFunctionIndividual> GFunctionIndividualFactory::getObject_(
 	boost::shared_ptr<GFunctionIndividual> target(new GFunctionIndividual());
 
 	// Make the object's local configuration options known
-	target->addConfigurationOptions(gpb);
+	target->addConfigurationOptions(gpb, true);
 
 	return target;
 }

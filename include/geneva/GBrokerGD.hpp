@@ -118,6 +118,12 @@ public:
 	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
 	virtual bool usesBroker() const;
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
+
 protected:
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
@@ -128,12 +134,6 @@ protected:
 	virtual void init();
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
-
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions_ (
-		Gem::Common::GParserBuilder& gpb
-		, const bool& showOrigin
-	);
 
 	/** @brief Triggers fitness calculation of a number of individuals */
 	virtual double doFitnessCalculation(const std::size_t&);

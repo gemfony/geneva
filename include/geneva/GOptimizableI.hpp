@@ -174,7 +174,7 @@ public:
 	 *
 	 * @return The type of optimization algorithm
 	 */
-	virtual personality getOptimizationAlgorithm() const {
+	virtual personality_oa getOptimizationAlgorithm() const {
 		return PERSONALITY_NONE;
 	}
 

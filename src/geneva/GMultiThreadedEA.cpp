@@ -306,7 +306,7 @@ void GMultiThreadedEA::adaptChildren() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GMultiThreadedEA::addConfigurationOptions_ (
+void GMultiThreadedEA::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -317,7 +317,7 @@ void GMultiThreadedEA::addConfigurationOptions_ (
 	comment += "The number of threads used to simultaneously process individuals;";
 	if(showOrigin) comment += "[GMultiThreadedEA]";
 	gpb.registerFileParameter<boost::uint16_t>(
-		"nProcessingThreads" // The name of the variable
+		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value
 		, boost::bind(
 			&GMultiThreadedEA::setNThreads
@@ -329,7 +329,7 @@ void GMultiThreadedEA::addConfigurationOptions_ (
 	);
 
 	// Call our parent class'es function
-	GBaseEA::addConfigurationOptions_(gpb, showOrigin);
+	GBaseEA::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

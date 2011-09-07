@@ -158,7 +158,7 @@ public:
 	std::size_t getDefaultNChildren() const;
 
 	/** @brief Returns information about the type of optimization algorithm */
-	virtual personality getOptimizationAlgorithm() const;
+	virtual personality_oa getOptimizationAlgorithm() const;
 
 	/** @brief Set the sorting scheme for this population */
 	void setSortingScheme(sortingMode);
@@ -190,6 +190,12 @@ public:
 
 	/** @brief Returns the name of this optimization algorithm */
 	virtual std::string getAlgorithmName() const;
+
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
 
 	//------------------------------------------------------------------------------------------
 	// Settings specific to micro-training
@@ -320,7 +326,7 @@ protected:
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const = 0;
-	/** @brief Allows to set the oa_personality type of the individuals */
+	/** @brief Allows to set the personality type of the individuals */
 	virtual void setIndividualPersonalities();
 
 	/** @brief user-defined recombination scheme */
@@ -356,12 +362,6 @@ protected:
 	virtual boost::shared_ptr<GIndividual> getBestIndividual();
 	/** @brief Retrieves a list of the best individuals found */
 	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
-
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions_ (
-		Gem::Common::GParserBuilder& gpb
-		, const bool& showOrigin
-	);
 
 private:
 	/**********************************************************************************/

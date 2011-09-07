@@ -107,6 +107,12 @@ namespace Geneva
 	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
 	virtual bool usesBroker() const;
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
+
   protected:
     /** @brief Loads the data of another GTransfer Population */
     virtual void load_(const GObject *);
@@ -117,12 +123,6 @@ namespace Geneva
     virtual void adaptChildren();
     /** @brief Selects new parents */
     virtual void select();
-
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions_ (
-		Gem::Common::GParserBuilder& gpb
-		, const bool& showOrigin
-	);
 
 	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
 	virtual void init();

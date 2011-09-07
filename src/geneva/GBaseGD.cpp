@@ -116,7 +116,7 @@ GBaseGD::~GBaseGD()
  *
  * @return The type of optimization algorithm
  */
-personality GBaseGD::getOptimizationAlgorithm() const {
+personality_oa GBaseGD::getOptimizationAlgorithm() const {
 	return PERSONALITY_GD;
 }
 
@@ -399,7 +399,7 @@ void GBaseGD::load_(const GObject *cp) {
 
 /************************************************************************************************************/
 /**
- * Sets the individual's oa_personality types to GradientDescent
+ * Sets the individual's personality types to GradientDescent
  */
 void GBaseGD::setIndividualPersonalities() {
 	for(GBaseGD::iterator it=this->begin(); it!=this->end(); ++it) {
@@ -595,7 +595,7 @@ std::vector<boost::shared_ptr<GIndividual> > GBaseGD::getBestIndividuals() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GBaseGD::addConfigurationOptions_ (
+void GBaseGD::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -651,7 +651,7 @@ void GBaseGD::addConfigurationOptions_ (
 	);
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions_(gpb, showOrigin);
+	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

@@ -556,7 +556,7 @@ void GParameterSet::customAdaptions() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GParameterSet::addConfigurationOptions_ (
+void GParameterSet::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -580,7 +580,7 @@ void GParameterSet::addConfigurationOptions_ (
 	);
 
 	// Call our parent class'es function
-	GMutableSetT<Gem::Geneva::GParameterBase>::addConfigurationOptions_(gpb, showOrigin);
+	GMutableSetT<Gem::Geneva::GParameterBase>::addConfigurationOptions(gpb, showOrigin);
 }
 
 #ifdef GENEVATESTING

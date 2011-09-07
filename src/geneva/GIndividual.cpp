@@ -568,7 +568,7 @@ double GIndividual::weighedSquaredSumCombiner(const std::vector<double>& weights
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GIndividual::addConfigurationOptions_ (
+void GIndividual::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -578,7 +578,7 @@ void GIndividual::addConfigurationOptions_ (
 	// from this class.
 
 	// Call our parent class'es function
-	GObject::addConfigurationOptions_(gpb, showOrigin);
+	GObject::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -590,9 +590,9 @@ void GIndividual::addConfigurationOptions_ (
  * @param pers The desired personality of this individual
  * @return The previous personality of this individual
  */
-personality GIndividual::setPersonality(const personality& pers) {
-	// Make a note of the current (soon to be previous) personality
-	personality previous = pers_;
+personality_oa GIndividual::setPersonality(const personality_oa& pers) {
+	// Make a note of the current (soon to be previous) personality_oa
+	personality_oa previous = pers_;
 
 	// Do nothing if this particular personality type has already been set
 	if(pers_==pers && pt_ptr_)  return pers_; // A suitable personality has already been added
@@ -648,7 +648,7 @@ void GIndividual::resetPersonality() {
  *
  * @return The current personality of this object
  */
-personality GIndividual::getPersonality() const {
+personality_oa GIndividual::getPersonality() const {
 	return pers_;
 }
 
@@ -1197,7 +1197,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		);
 
 		// Set the personality type to EA
-		personality previous;
+		personality_oa previous;
 		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_EA));
 		BOOST_CHECK_MESSAGE(
 				previous == PERSONALITY_NONE
@@ -1249,7 +1249,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_pt);
 		p_pt.reset();
 
-		// Set the personality type to SwARM
+		// Set the personality type to SWARM
 		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_SWARM));
 		BOOST_CHECK_MESSAGE(
 				previous == PERSONALITY_GD

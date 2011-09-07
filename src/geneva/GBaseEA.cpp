@@ -242,13 +242,13 @@ boost::optional<std::string> GBaseEA::checkRelationshipWith(const GObject& cp,
  *
  * @return The type of optimization algorithm
  */
-personality GBaseEA::getOptimizationAlgorithm() const {
+personality_oa GBaseEA::getOptimizationAlgorithm() const {
 	return PERSONALITY_EA;
 }
 
 /************************************************************************************************************/
 /**
- * Sets the individual's oa_personality types to EA
+ * Sets the individual's personality types to EA
  */
 void GBaseEA::setIndividualPersonalities() {
 	GBaseEA::iterator it;
@@ -787,7 +787,7 @@ std::vector<boost::shared_ptr<GIndividual> > GBaseEA::getBestIndividuals() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GBaseEA::addConfigurationOptions_ (
+void GBaseEA::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -930,7 +930,7 @@ void GBaseEA::addConfigurationOptions_ (
 	);
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmT<GIndividual>::addConfigurationOptions_(gpb, showOrigin);
+	GOptimizationAlgorithmT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

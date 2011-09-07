@@ -85,7 +85,7 @@ boost::shared_ptr<GBaseEA> GEvolutionaryAlgorithmFactory::getObject_(
 	}
 
 	// Make the local configuration options known (up to the level of GBaseEA)
-	target->GBaseEA::addConfigurationOptions(gpb);
+	target->GBaseEA::addConfigurationOptions(gpb, true);
 
 	return target;
 }

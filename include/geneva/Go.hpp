@@ -71,7 +71,7 @@ namespace Geneva {
 
 /**************************************************************************************/
 // Default values for the variables used by the optimizer
-const personality GO_DEF_PERSONALITY=PERSONALITY_EA;
+const personality_oa GO_DEF_PERSONALITY=PERSONALITY_EA;
 const parMode GO_DEF_PARALLELIZATIONMODE=PARMODE_MULTITHREADED;
 const std::string GO_DEF_DEFAULTCONFIGFILE="optimizationAlgorithm.cfg";
 const bool GO_DEF_SERVERMODE=true;
@@ -185,7 +185,7 @@ public:
 	Go(int, char **, const std::string& = GO_DEF_DEFAULTCONFIGFILE);
 	/** @brief A constructor that is given the usual command line parameters, then loads the rest of the data from a config file */
 	Go(
-		const personality& pers
+		const personality_oa& pers
 		, const parMode&
 		, const bool&
 		, const Gem::Common::serializationMode&
@@ -245,8 +245,8 @@ public:
 
 	/**************************************************************************************/
 	// The following is a trivial list of getters and setters
-	void setPersonality(const personality&);
-	personality getPersonality() const;
+	void setPersonality(const personality_oa&);
+	personality_oa getPersonality() const;
 
 	void setParallelizationMode(const parMode&);
 	parMode getParallelizationMode() const;
@@ -985,7 +985,7 @@ private:
 
 	/**********************************************************************/
 	// These parameters can enter the object through the constructor
-	personality pers_; ///< Indicates which optimization algorithm should be used
+	personality_oa pers_; ///< Indicates which optimization algorithm should be used
 	parMode parMode_; ///< The chosen parallelization mode
 	bool serverMode_; ///< Specifies whether this object is in server (true) or client (false) mode
 	Gem::Common::serializationMode serializationMode_; ///< Indicates whether serialization should be done in Text, XML or Binary form

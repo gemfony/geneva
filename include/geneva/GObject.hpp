@@ -192,6 +192,8 @@ public:
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
 
 	/** @brief Creates a clone of this object, storing it in a boost::shared_ptr<GObject> */
 	boost::shared_ptr<GObject> clone() const;
@@ -376,9 +378,6 @@ protected:
 	 */
 
 	/**************************************************************************************************/
-
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions_(Gem::Common::GParserBuilder&, const bool&);
 
 private:
 	bool mayBeSerialized_; ///< Indicates whether derivatives may be serialized.

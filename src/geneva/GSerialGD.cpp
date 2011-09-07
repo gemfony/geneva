@@ -204,14 +204,14 @@ void GSerialGD::finalize() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GSerialGD::addConfigurationOptions_ (
+void GSerialGD::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
 	// no local data
 
 	// Call our parent class'es function
-	GBaseGD::addConfigurationOptions_(gpb, showOrigin);
+	GBaseGD::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

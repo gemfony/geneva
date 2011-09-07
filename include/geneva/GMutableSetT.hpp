@@ -190,6 +190,23 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
+	/**********************************************************************************/
+	/**
+	 * Adds local configuration options to a GParserBuilder object
+	 *
+	 * @param gpb The GParserBuilder object to which configuration options should be added
+	 * @param showOrigin Makes the function indicate the origin of parameters in comments
+	 */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	) {
+		// No local data
+
+		// Call our parent class'es function
+		GIndividual::addConfigurationOptions(gpb, showOrigin);
+	}
+
 protected:
 	/***********************************************************************************/
     /**
@@ -232,23 +249,6 @@ protected:
 	 * further optimizations.
 	 */
 	virtual void dummyFunction() { /* nothing */ }
-
-	/**********************************************************************************/
-	/**
-	 * Adds local configuration options to a GParserBuilder object
-	 *
-	 * @param gpb The GParserBuilder object to which configuration options should be added
-	 * @param showOrigin Makes the function indicate the origin of parameters in comments
-	 */
-	virtual void addConfigurationOptions_ (
-		Gem::Common::GParserBuilder& gpb
-		, const bool& showOrigin
-	) {
-		// No local data
-
-		// Call our parent class'es function
-		GIndividual::addConfigurationOptions_(gpb, showOrigin);
-	}
 
 #ifdef GENEVATESTING
 public:

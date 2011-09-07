@@ -122,9 +122,9 @@ public:
 	virtual void loadCheckpoint(const std::string&);
 
 	/** @brief Returns information about the type of optimization algorithm */
-	virtual personality getOptimizationAlgorithm() const;
+	virtual personality_oa getOptimizationAlgorithm() const;
 
-	/** @brief Sets the individual's oa_personality types to GradientDescent */
+	/** @brief Sets the individual's personality types to GradientDescent */
 	void setIndividualPersonalities();
 
 	/** @brief Retrieves the number of starting points of the algorithm */
@@ -147,6 +147,12 @@ public:
 
 	/** @brief Returns the name of this optimization algorithm */
 	virtual std::string getAlgorithmName() const;
+
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
 
 protected:
 	/**************************************************************************************************/
@@ -181,12 +187,6 @@ protected:
 	virtual boost::shared_ptr<GIndividual> getBestIndividual();
 	/** @brief Retrieves a list of the best individuals found */
 	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
-
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions_ (
-		Gem::Common::GParserBuilder& gpb
-		, const bool& showOrigin
-	);
 
 private:
 	/**************************************************************************************************/

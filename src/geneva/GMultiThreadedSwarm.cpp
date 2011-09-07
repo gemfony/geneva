@@ -242,7 +242,7 @@ void GMultiThreadedSwarm::finalize() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GMultiThreadedSwarm::addConfigurationOptions_ (
+void GMultiThreadedSwarm::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -266,7 +266,7 @@ void GMultiThreadedSwarm::addConfigurationOptions_ (
 	);
 
 	// Call our parent class'es function
-	GBaseSwarm::addConfigurationOptions_(gpb, showOrigin);
+	GBaseSwarm::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/
@@ -330,7 +330,7 @@ void GMultiThreadedSwarm::setNThreads(boost::uint16_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-uint16_t GMultiThreadedSwarm::getNThreads() const  {
+boost::uint16_t GMultiThreadedSwarm::getNThreads() const  {
 	return nThreads_;
 }
 

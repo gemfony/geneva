@@ -219,7 +219,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::sortingMode& smode) {
  * @param pers the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::personality& pers) {
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::personality_oa& pers) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(pers);
 	o << tmp;
 	return o;
@@ -233,14 +233,14 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::personality& pers) 
  * @param pers The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::personality& pers) {
+std::istream& operator>>(std::istream& i, Gem::Geneva::personality_oa& pers) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	pers = boost::numeric_cast<Gem::Geneva::personality>(tmp);
+	pers = boost::numeric_cast<Gem::Geneva::personality_oa>(tmp);
 #else
-	pers = static_cast<Gem::Geneva::personality>(tmp);
+	pers = static_cast<Gem::Geneva::personality_oa>(tmp);
 #endif /* DEBUG */
 
 	return i;

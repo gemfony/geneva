@@ -295,7 +295,7 @@ const double SA_ALPHA = 0.95; ///< The degradation strength in simulated anneali
  * can thus assume different personalities, resulting in different data structures to be stored
  * in them (see the GPersonalityTraits classes).
  */
-enum personality {
+enum personality_oa {
 	  PERSONALITY_NONE = 0
 	, PERSONALITY_EA = 1
 	, PERSONALITY_GD = 2
@@ -388,11 +388,11 @@ std::ostream& operator<<(std::ostream&, const Gem::Geneva::sortingMode&);
 /** @brief Reads a Gem::Geneva::sortingMode from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Geneva::sortingMode&);
 
-/** @brief Puts a Gem::Geneva::personality into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::personality&);
+/** @brief Puts a Gem::Geneva::personality_oa into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::personality_oa&);
 
-/** @brief Reads a Gem::Geneva::personality from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::personality&);
+/** @brief Reads a Gem::Geneva::personality_oa from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::personality_oa&);
 
 /** @brief Puts a Gem::Geneva::updateRule into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Geneva::updateRule&);

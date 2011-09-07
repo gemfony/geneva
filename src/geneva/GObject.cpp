@@ -330,7 +330,7 @@ void GObject::writeConfigFile(const std::string& configFile, const std::string& 
 
 	// Recursively add configuration options to gpb,
 	// starting with the most derived class
-	addConfigurationOptions_(gpb, true);
+	addConfigurationOptions(gpb, true);
 
 	// Write out the configuration file
 	gpb.writeConfigFile(configFile, header, true);
@@ -348,7 +348,7 @@ void GObject::readConfigFile(const std::string& configFile) {
 
 	// Recursively add configuration options to gpb,
 	// starting with the most derived class
-	addConfigurationOptions_(gpb, true);
+	addConfigurationOptions(gpb, true);
 
 	// Read in the configuration file
 	gpb.parseConfigFile(configFile);
@@ -428,9 +428,9 @@ bool GObject::mayBeSerialized() const {
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
 void GObject::addConfigurationOptions(
-		Gem::Common::GParserBuilder& gpb
+	Gem::Common::GParserBuilder& gpb
 ) {
-	addConfigurationOptions_(gpb, true);
+	addConfigurationOptions(gpb, true);
 }
 
 /**************************************************************************************************/
@@ -441,7 +441,7 @@ void GObject::addConfigurationOptions(
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GObject::addConfigurationOptions_(
+void GObject::addConfigurationOptions(
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {

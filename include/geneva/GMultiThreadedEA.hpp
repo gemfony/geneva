@@ -110,6 +110,12 @@ public:
 	/** @brief Retrieves the maximum number of threads */
 	uint16_t getNThreads() const ;
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
+
 protected:
 	/** @brief Loads data from another object */
 	virtual void load_(const GObject *);
@@ -119,12 +125,6 @@ protected:
 	/** @brief Overloaded version from GBaseEA,
 	 * core of the Boost-thread implementation */
 	virtual void adaptChildren();
-
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions_ (
-		Gem::Common::GParserBuilder& gpb
-		, const bool& showOrigin
-	);
 
 private:
 	boost::uint16_t nThreads_; ///< The number of threads

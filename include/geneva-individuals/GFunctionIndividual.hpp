@@ -160,7 +160,7 @@ public:
 			const bool&) const;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions_(Gem::Common::GParserBuilder&, const bool&);
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
 
 	/** @brief Allows to set the demo function */
 	void setDemoFunction(demoFunction);

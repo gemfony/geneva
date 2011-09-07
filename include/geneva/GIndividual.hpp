@@ -192,15 +192,15 @@ public:
 	/** @brief Triggers updates when the optimization process has stalled */
 	virtual bool updateOnStall();
 
-	/** @brief Retrieves the current oa_personality of this object */
-	personality getPersonality() const;
+	/** @brief Retrieves the current personality of this object */
+	personality_oa getPersonality() const;
 
 	/** @brief Allows to randomly initialize parameter members */
 	virtual void randomInit() = 0;
 
 	/**********************************************************************/
 	/**
-	 * The function converts the local oa_personality base pointer to the desired type
+	 * The function converts the local personality base pointer to the desired type
 	 * and returns it for modification by the corresponding optimization algorithm.
 	 * The base algorithms have been declared "friend" of GParameterSet and
 	 * can thus access this function. External entities have no need to do so. Note
@@ -244,12 +244,12 @@ public:
 
 	/**************************************************************************************************/
 
-	/** @brief This function returns the current oa_personality traits base pointer */
+	/** @brief This function returns the current personality traits base pointer */
 	boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
 
-	/** @brief Sets the current oa_personality of this individual */
-	personality setPersonality(const personality&);
-	/** @brief Resets the current oa_personality to PERSONALITY_NONE */
+	/** @brief Sets the current personality of this individual */
+	personality_oa setPersonality(const personality_oa&);
+	/** @brief Resets the current personality to PERSONALITY_NONE */
 	void resetPersonality();
 
 	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
@@ -258,6 +258,12 @@ public:
 	virtual void restoreRNGs();
 	/** @brief Checks whether all GParameterBase derivatives use local random number generators */
 	virtual bool localRNGsUsed() const;
+
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions(
+		Gem::Common::GParserBuilder&
+		, const bool&
+	);
 
 protected:
 	/**************************************************************************************************/
@@ -289,9 +295,6 @@ protected:
 	/** @brief Combines secondary evaluation results by calculation the square root of the weighed squared sum */
 	double weighedSquaredSumCombiner(const std::vector<double>&) const;
 
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions_(Gem::Common::GParserBuilder&, const bool&);
-
 private:
 	/**************************************************************************************************/
 	/** @brief Holds this object's internal, primary fitness */
@@ -315,8 +318,8 @@ private:
     /** @brief The iteration of the parent algorithm's optimization cycle */
     boost::uint32_t assignedIteration_;
     /** @brief Indicates the optimization algorithm the individual takes part in */
-    personality pers_;
-    /** @brief Holds the actual oa_personality information */
+    personality_oa pers_;
+    /** @brief Holds the actual personality information */
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
 
 	/**************************************************************************************************/

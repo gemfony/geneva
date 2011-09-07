@@ -860,6 +860,182 @@ public:
 		return this->optimizationMonitor_ptr_;
 	}
 
+	/**************************************************************************************/
+	/**
+	 * Adds local configuration options to a GParserBuilder object
+	 *
+	 * @param gpb The GParserBuilder object to which configuration options should be added
+	 * @param showOrigin Makes the function indicate the origin of parameters in comments
+	 */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	) {
+		std::string comment;
+		std::string comment1;
+		std::string comment2;
+
+		// Add local data
+		comment = ""; // Reset the comment string
+		comment += "The maximum allowed number of iterations;";
+		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
+		gpb.registerFileParameter<boost::uint32_t>(
+			"maxIteration" // The name of the variable
+			, DEFAULTMAXIT // The default value
+			, boost::bind(
+				&GOptimizationAlgorithmT<ind_type>::setMaxIteration
+				, this
+				, _1
+			  )
+			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+			, comment
+		);
+
+		comment = ""; // Reset the comment string
+		comment += "The maximum allowed number of iterations without improvement";
+		comment += "0 means: no constraint.;";
+		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
+		gpb.registerFileParameter<boost::uint32_t>(
+			"maxStallIteration" // The name of the variable
+			, DEFAULTMAXSTALLIT // The default value
+			, boost::bind(
+				&GOptimizationAlgorithmT<ind_type>::setMaxStallIteration
+				, this
+				, _1
+			  )
+			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+			, comment
+		);
+
+		comment = ""; // Reset the comment string
+		comment += "The number of iterations after which a report should be issued;";
+		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
+		gpb.registerFileParameter<boost::uint32_t>(
+			"reportIteration" // The name of the variable
+			, DEFAULTREPORTITER // The default value
+			, boost::bind(
+				&GOptimizationAlgorithmT<ind_type>::setReportIteration
+				, this
+				, _1
+			  )
+			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+			, comment
+		);
+
+		comment = ""; // Reset the comment string
+		comment += "The number of iterations after which a checkpoint should be written.;";
+		comment += "-1 means: Write a checkpoint file whenever an improvement was encountered;";
+		comment += " 0 means: Never emit checkpoint files.;";
+		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
+		gpb.registerFileParameter<boost::int32_t>(
+			"cpInterval" // The name of the variable
+			, DEFAULTCHECKPOINTIT // The default value
+			, boost::bind(
+				&GOptimizationAlgorithmT<ind_type>::setCheckpointInterval
+				, this
+				, _1
+			  )
+			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
+			, comment
+		);
+
+		comment1 = ""; // Reset the comment string
+		comment1 += "The directory where checkpoint files should be stored.;";
+		if(showOrigin) comment1 += "[GOptimizationAlgorithmT<ind_type>]";
+		comment2 = ""; // Reset the comment string
+		comment2 += "The significant part of the checkpoint file name.;";
+		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
+		gpb.registerFileParameter<std::string, std::string>(
+			"cpDirectory"  // The name of the first variable
+			, "cpBaseName" // The name of the second variable
+			, DEFAULTCPDIR // Default value for the first variable
+			, DEFAULTCPBASENAME // Default value for the second variable
+			, boost::bind(
+				&GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName
+				, this
+				, _1
+				, _2
+			  )
+			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
+			, comment1
+			, comment2
+		);
+
+		comment = ""; // Reset the comment string
+		comment += "Determines whether check-pointing should be done in;";
+		comment += "text- (0), XML- (1), or binary-mode (2);";
+		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
+		gpb.registerFileParameter<Gem::Common::serializationMode>(
+			"cpSerMode" // The name of the variable
+			, DEFAULTCPSERMODE // The default value
+			, boost::bind(
+				&GOptimizationAlgorithmT<ind_type>::setCheckpointSerializationMode
+				, this
+				, _1
+			  )
+			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
+			, comment
+		);
+
+		comment1 = ""; // Reset the comment string
+		comment1 += "A threshold beyond which optimization is expected to stop;";
+		comment1 += "Note that in order to activate this threshold, you also need to;";
+		comment1 += "set \"hasQualityThreshold\" to 1.;";
+		if(showOrigin) comment1 += "[GOptimizationAlgorithmT<ind_type>]";
+		comment2 = ""; // Reset the comment string
+		comment2 += "Activates (1) or de-activates (0) the qualit threshold;";
+		if(showOrigin) comment2 += "[GOptimizationAlgorithmT<ind_type>]";
+		gpb.registerFileParameter<double, bool>(
+			"qualityThreshold" // The name of the variable
+			, "qualityThresholdActive"
+			, DEFAULTQUALITYTHRESHOLD // The default value
+			, false
+			, boost::bind(
+				&GOptimizationAlgorithmT<ind_type>::setQualityThreshold
+				, this
+				, _1
+				, _2
+			  )
+			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+			, comment1
+			, comment2
+		);
+
+		comment = ""; // Reset the comment string
+		comment += "The maximum allowed time-frame for the optimization;";
+		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
+		gpb.registerFileParameter<boost::posix_time::time_duration>(
+			"maxDuration" // The name of the variable
+			, boost::posix_time::duration_from_string(DEFAULTDURATION) // The default value
+			, boost::bind(
+				&GOptimizationAlgorithmT<ind_type>::setMaxTime
+				, this
+				, _1
+			  )
+			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+			, comment
+		);
+
+		comment = ""; // Reset the comment string
+		comment += "Triggers emission (1) or omission (0) of information about reasons for termination;";
+		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
+		gpb.registerFileParameter<bool>(
+			"emitTerminationReason" // The name of the variable
+			, false // The default value
+			, boost::bind(
+				&GOptimizationAlgorithmT<ind_type>::setEmitTerminationReason
+				, this
+				, _1
+			  )
+			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
+			, comment
+		);
+
+		// Call our parent class'es function
+		GMutableSetT<ind_type>::addConfigurationOptions(gpb, showOrigin);
+	}
+
+
 protected:
 	/**************************************************************************************/
 	/**
@@ -1099,181 +1275,6 @@ protected:
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->setAssignedIteration(iteration_);
 		}
-	}
-
-	/**************************************************************************************/
-	/**
-	 * Adds local configuration options to a GParserBuilder object
-	 *
-	 * @param gpb The GParserBuilder object to which configuration options should be added
-	 * @param showOrigin Makes the function indicate the origin of parameters in comments
-	 */
-	virtual void addConfigurationOptions_ (
-		Gem::Common::GParserBuilder& gpb
-		, const bool& showOrigin
-	) {
-		std::string comment;
-		std::string comment1;
-		std::string comment2;
-
-		// Add local data
-		comment = ""; // Reset the comment string
-		comment += "The maximum allowed number of iterations;";
-		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
-		gpb.registerFileParameter<boost::uint32_t>(
-			"maxIteration" // The name of the variable
-			, DEFAULTMAXIT // The default value
-			, boost::bind(
-				&GOptimizationAlgorithmT<ind_type>::setMaxIteration
-				, this
-				, _1
-			  )
-			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-			, comment
-		);
-
-		comment = ""; // Reset the comment string
-		comment += "The maximum allowed number of iterations without improvement";
-		comment += "0 means: no constraint.;";
-		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
-		gpb.registerFileParameter<boost::uint32_t>(
-			"maxStallIteration" // The name of the variable
-			, DEFAULTMAXSTALLIT // The default value
-			, boost::bind(
-				&GOptimizationAlgorithmT<ind_type>::setMaxStallIteration
-				, this
-				, _1
-			  )
-			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-			, comment
-		);
-
-		comment = ""; // Reset the comment string
-		comment += "The number of iterations after which a report should be issued;";
-		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
-		gpb.registerFileParameter<boost::uint32_t>(
-			"reportIteration" // The name of the variable
-			, DEFAULTREPORTITER // The default value
-			, boost::bind(
-				&GOptimizationAlgorithmT<ind_type>::setReportIteration
-				, this
-				, _1
-			  )
-			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-			, comment
-		);
-
-		comment = ""; // Reset the comment string
-		comment += "The number of iterations after which a checkpoint should be written.;";
-		comment += "-1 means: Write a checkpoint file whenever an improvement was encountered;";
-		comment += " 0 means: Never emit checkpoint files.;";
-		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
-		gpb.registerFileParameter<boost::int32_t>(
-			"cpInterval" // The name of the variable
-			, DEFAULTCHECKPOINTIT // The default value
-			, boost::bind(
-				&GOptimizationAlgorithmT<ind_type>::setCheckpointInterval
-				, this
-				, _1
-			  )
-			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
-			, comment
-		);
-
-		comment1 = ""; // Reset the comment string
-		comment1 += "The directory where checkpoint files should be stored.;";
-		if(showOrigin) comment1 += "[GOptimizationAlgorithmT<ind_type>]";
-		comment2 = ""; // Reset the comment string
-		comment2 += "The significant part of the checkpoint file name.;";
-		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
-		gpb.registerFileParameter<std::string, std::string>(
-			"cpDirectory"  // The name of the first variable
-			, "cpBaseName" // The name of the second variable
-			, DEFAULTCPDIR // Default value for the first variable
-			, DEFAULTCPBASENAME // Default value for the second variable
-			, boost::bind(
-				&GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName
-				, this
-				, _1
-				, _2
-			  )
-			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
-			, comment1
-			, comment2
-		);
-
-		comment = ""; // Reset the comment string
-		comment += "Determines whether check-pointing should be done in;";
-		comment += "text- (0), XML- (1), or binary-mode (2);";
-		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
-		gpb.registerFileParameter<Gem::Common::serializationMode>(
-			"cpSerMode" // The name of the variable
-			, DEFAULTCPSERMODE // The default value
-			, boost::bind(
-				&GOptimizationAlgorithmT<ind_type>::setCheckpointSerializationMode
-				, this
-				, _1
-			  )
-			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
-			, comment
-		);
-
-		comment1 = ""; // Reset the comment string
-		comment1 += "A threshold beyond which optimization is expected to stop;";
-		comment1 += "Note that in order to activate this threshold, you also need to;";
-		comment1 += "set \"hasQualityThreshold\" to 1.;";
-		if(showOrigin) comment1 += "[GOptimizationAlgorithmT<ind_type>]";
-		comment2 = ""; // Reset the comment string
-		comment2 += "Activates (1) or de-activates (0) the qualit threshold;";
-		if(showOrigin) comment2 += "[GOptimizationAlgorithmT<ind_type>]";
-		gpb.registerFileParameter<double, bool>(
-			"qualityThreshold" // The name of the variable
-			, "qualityThresholdActive"
-			, DEFAULTQUALITYTHRESHOLD // The default value
-			, false
-			, boost::bind(
-				&GOptimizationAlgorithmT<ind_type>::setQualityThreshold
-				, this
-				, _1
-				, _2
-			  )
-			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-			, comment1
-			, comment2
-		);
-
-		comment = ""; // Reset the comment string
-		comment += "The maximum allowed time-frame for the optimization;";
-		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
-		gpb.registerFileParameter<boost::posix_time::time_duration>(
-			"maxDuration" // The name of the variable
-			, boost::posix_time::duration_from_string(DEFAULTDURATION) // The default value
-			, boost::bind(
-				&GOptimizationAlgorithmT<ind_type>::setMaxTime
-				, this
-				, _1
-			  )
-			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-			, comment
-		);
-
-		comment = ""; // Reset the comment string
-		comment += "Triggers emission (1) or omission (0) of information about reasons for termination;";
-		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
-		gpb.registerFileParameter<bool>(
-			"emitTerminationReason" // The name of the variable
-			, false // The default value
-			, boost::bind(
-				&GOptimizationAlgorithmT<ind_type>::setEmitTerminationReason
-				, this
-				, _1
-			  )
-			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
-			, comment
-		);
-
-		// Call our parent class'es function
-		GMutableSetT<ind_type>::addConfigurationOptions_(gpb, showOrigin);
 	}
 
 	/**************************************************************************************/

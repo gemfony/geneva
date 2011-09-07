@@ -108,6 +108,12 @@ public:
 	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
 	virtual bool usesBroker() const;
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
+
 protected:
     /*********************************************************************************/
 	/** @brief Loads the data of another GTransfer Population */
@@ -119,13 +125,6 @@ protected:
 	virtual void init();
 	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
 	virtual void finalize();
-
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions_ (
-		Gem::Common::GParserBuilder& gpb
-		, const bool& showOrigin
-	);
-
 
 	/** @brief Updates all individual's positions */
 	virtual void updatePositions();

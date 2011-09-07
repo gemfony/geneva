@@ -112,6 +112,12 @@ public:
 	/** @brief Retrieves the maximum number of threads */
 	boost::uint16_t getNThreads() const ;
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+		, const bool& showOrigin
+	);
+
 protected:
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
@@ -122,12 +128,6 @@ protected:
 	virtual void init();
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
-
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions_ (
-		Gem::Common::GParserBuilder& gpb
-		, const bool& showOrigin
-	);
 
 	/** @brief Updates the fitness of all individuals */
 	virtual void updateFitness();

@@ -194,14 +194,14 @@ void GSerialEA::finalize() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GSerialEA::addConfigurationOptions_ (
+void GSerialEA::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
 	// No local data
 
 	// Call our parent class'es function
-	GBaseEA::addConfigurationOptions_(gpb, showOrigin);
+	GBaseEA::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

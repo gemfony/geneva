@@ -85,7 +85,7 @@ boost::shared_ptr<GBaseGD> GGradientDescentFactory::getObject_(
 	}
 
 	// Make the local configuration options known
-	target->GBaseGD::addConfigurationOptions(gpb);
+	target->GBaseGD::addConfigurationOptions(gpb, true);
 
 	return target;
 }

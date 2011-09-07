@@ -81,7 +81,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GSerialSwarm.hpp
 	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp
-	GSwarmAlgorithmFactoryT.hpp
+	GSwarmAlgorithmFactory.hpp
 	GSwarmPersonalityTraits.hpp
 )
 
