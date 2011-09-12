@@ -263,14 +263,14 @@ void GBrokerEA::adaptChildren() {
 	// Start by marking the work to be done in the individuals.
 	// "range" will hold the start- and end-points of the range
 	// to be worked on
-	std::pair<std::size_t, std::size_t> range = markCommands();
+	boost::tuple<std::size_t, std::size_t> range = markCommands();
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
 			data
-			, range.first
-			, range.second
+			, range.get<0>()
+			, range.get<1>()
 			, ACCEPTOLDERITEMS
 	);
 
@@ -283,9 +283,9 @@ void GBrokerEA::adaptChildren() {
 /**
  * Mark the commands each individual has to work on.
  *
- * @return A std::pair holding the start- and end-points for the job submission
+ * @return A boost::tuple holding the start- and end-points for the job submission
  */
-std::pair<std::size_t, std::size_t> GBrokerEA::markCommands() {
+boost::tuple<std::size_t, std::size_t> GBrokerEA::markCommands() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	std::size_t np = getNParents(), nc=data.size()-np;
 	boost::uint32_t iteration=getIteration();
@@ -323,7 +323,7 @@ std::pair<std::size_t, std::size_t> GBrokerEA::markCommands() {
 		(*it)->getPersonalityTraits()->setCommand("adapt");
 	}
 
-	return std::make_pair(start, end);
+	return boost::make_tuple<std::size_t, std::size_t>(start, end);
 }
 
 /************************************************************************************************************/
@@ -400,11 +400,11 @@ void GBrokerEA::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
-	// no local data
-
 	// Call our parent class'es function
 	GBaseEA::addConfigurationOptions(gpb, showOrigin);
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+
+	// no local data
 }
 
 #ifdef GENEVATESTING

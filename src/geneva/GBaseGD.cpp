@@ -603,6 +603,9 @@ void GBaseGD::addConfigurationOptions (
 	std::string comment1;
 	std::string comment2;
 
+	// Call our parent class'es function
+	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+
 	// Add local data
 	comment = ""; // Reset the comment string
 	comment += "The number of simultaneous gradient descents;";
@@ -649,9 +652,6 @@ void GBaseGD::addConfigurationOptions (
 		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 		, comment
 	);
-
-	// Call our parent class'es function
-	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

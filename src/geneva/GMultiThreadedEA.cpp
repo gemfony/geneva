@@ -312,6 +312,9 @@ void GMultiThreadedEA::addConfigurationOptions (
 ) {
 	std::string comment;
 
+	// Call our parent class'es function
+	GBaseEA::addConfigurationOptions(gpb, showOrigin);
+
 	// Add local data
 	comment = ""; // Reset the comment string
 	comment += "The number of threads used to simultaneously process individuals;";
@@ -327,9 +330,6 @@ void GMultiThreadedEA::addConfigurationOptions (
 		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 		, comment
 	);
-
-	// Call our parent class'es function
-	GBaseEA::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

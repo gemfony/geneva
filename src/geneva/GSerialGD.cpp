@@ -208,10 +208,10 @@ void GSerialGD::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
-	// no local data
-
 	// Call our parent class'es function
 	GBaseGD::addConfigurationOptions(gpb, showOrigin);
+
+	// no local data
 }
 
 /************************************************************************************************************/

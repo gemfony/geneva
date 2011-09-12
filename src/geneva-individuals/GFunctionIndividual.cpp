@@ -200,6 +200,9 @@ void GFunctionIndividual::addConfigurationOptions (
 ) {
 	std::string comment;
 
+	// Call our parent class'es function
+	GParameterSet::addConfigurationOptions(gpb, showOrigin);
+
 	// Add local data
 	comment = ""; // Reset the comment string
 	comment += "Specifies which demo function should be used:;";
@@ -222,9 +225,6 @@ void GFunctionIndividual::addConfigurationOptions (
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
 	);
-
-	// Call our parent class'es function
-	GParameterSet::addConfigurationOptions(gpb, showOrigin);
 }
 
 /*******************************************************************************************/

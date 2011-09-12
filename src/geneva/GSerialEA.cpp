@@ -198,10 +198,10 @@ void GSerialEA::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
-	// No local data
-
 	// Call our parent class'es function
 	GBaseEA::addConfigurationOptions(gpb, showOrigin);
+
+	// No local data
 }
 
 /************************************************************************************************************/

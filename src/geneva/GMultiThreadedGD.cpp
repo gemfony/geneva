@@ -277,6 +277,9 @@ void GMultiThreadedGD::addConfigurationOptions (
 ) {
 	std::string comment;
 
+	// Call our parent class'es function
+	GBaseGD::addConfigurationOptions(gpb, showOrigin);
+
 	// add local data
 	comment = ""; // Reset the comment string
 	comment += "The number of evaluation threads;";
@@ -293,9 +296,6 @@ void GMultiThreadedGD::addConfigurationOptions (
 		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 		, comment
 	);
-
-	// Call our parent class'es function
-	GBaseGD::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

@@ -46,6 +46,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <boost/program_options.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time.hpp>
@@ -128,7 +130,7 @@ public:
 	}
 
 	/**
-	 * Create a std::vector<T> from a two elements
+	 * Create a std::vector<T> from two elements
 	 */
 	template <typename T>
 	static std::vector<T> makeVector(const T& item1, const T& item2) {
@@ -143,7 +145,7 @@ private:
 	GParsableI();
 
 	std::vector<std::string> optionName_; ///< The name of this parameter
-	std::vector<std::string> defaultValue_; ///< A string representation of the default value
+	std::vector<std::string> defaultValueStr_; ///< A string representation of the default value
 	std::vector<std::string> comment_; ///< A comment assigned to this parameter
 	bool isEssential_; ///< Indicates whether this is an essential variable
 };

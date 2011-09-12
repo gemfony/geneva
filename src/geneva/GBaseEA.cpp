@@ -795,6 +795,9 @@ void GBaseEA::addConfigurationOptions (
 	std::string comment1;
 	std::string comment2;
 
+	// Call our parent class'es function
+	GOptimizationAlgorithmT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+
 	// Add local data
 	comment1 = ""; // Reset the first comment string
 	comment2 = ""; // Reset the second comment string
@@ -928,9 +931,6 @@ void GBaseEA::addConfigurationOptions (
 		, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
 		, comment
 	);
-
-	// Call our parent class'es function
-	GOptimizationAlgorithmT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

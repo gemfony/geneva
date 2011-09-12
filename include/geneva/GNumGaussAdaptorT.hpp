@@ -37,6 +37,8 @@
 // Standard headers go here
 
 // Boost headers go here
+#include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_io.hpp>
 
 #ifndef GNUMGAUSSADAPTORT_HPP_
 #define GNUMGAUSSADAPTORT_HPP_
@@ -303,12 +305,12 @@ public:
 	/********************************************************************************************/
 	/**
 	 * Retrieves the allowed value range for sigma. You can retrieve the values
-	 * like this: getSigmaRange().first , getSigmaRange().second .
+	 * like this: getSigmaRange().get<0>() , getSigmaRange().get<1>() .
 	 *
 	 * @return The allowed value range for sigma
 	 */
-	std::pair<fp_type,fp_type> getSigmaRange() const  {
-		return std::make_pair(minSigma_, maxSigma_);
+	boost::tuple<fp_type,fp_type> getSigmaRange() const  {
+		return boost::make_tuple<fp_type, fp_type>(minSigma_, maxSigma_);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -493,16 +495,18 @@ public:
 				fp_type dupper = fp_type(2.)*dlower;
 
 				BOOST_CHECK_NO_THROW(p_test->setSigmaRange(dlower, dlower==fp_type(0.)?fp_type(1.):dupper));
-				std::pair<fp_type, fp_type> range;
+				typename boost::tuple<fp_type, fp_type> range;
 				BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
 
+				using namespace boost;
+
 				if(dlower == 0.) { // Account for the fact that a lower boundary of 0. will be silently changed
-					BOOST_CHECK(range.first == fp_type(DEFAULTMINSIGMA));
-					BOOST_CHECK(range.second == fp_type(1.));
+					BOOST_CHECK(range.get<0>() == boost::numeric_cast<fp_type>(DEFAULTMINSIGMA));
+					BOOST_CHECK(range.get<1>() == boost::numeric_cast<fp_type>(1.));
 				}
 				else {
-					BOOST_CHECK(range.first == dlower);
-					BOOST_CHECK(fabs(range.second - 2.*dlower) < fp_type(pow(10,-8))); // Take into account rounding errors
+					BOOST_CHECK(range.get<0>() == dlower);
+					BOOST_CHECK(fabs(range.get<1>() - 2.*dlower) < fp_type(pow(10,-8))); // Take into account rounding errors
 				}
 			}
 
@@ -545,15 +549,17 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that simultaneous setting of all "sigma-values" has an effect
+			using namespace boost;
+
 			boost::shared_ptr<GNumGaussAdaptorT<num_type, fp_type> > p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type> >();
 
 			BOOST_CHECK_NO_THROW(p_test->setAll(fp_type(0.5), fp_type(0.8), fp_type(0.), fp_type(1.)));
 			BOOST_CHECK(p_test->getSigma() == fp_type(0.5));
 			BOOST_CHECK(p_test->getSigmaAdaptionRate() == fp_type(0.8));
-			std::pair<fp_type, fp_type> range;
+			boost::tuple<fp_type, fp_type> range;
 			BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
-			BOOST_CHECK(range.first == fp_type(DEFAULTMINSIGMA));
-			BOOST_CHECK(range.second == fp_type(1.));
+			BOOST_CHECK(range.get<0>() == fp_type(DEFAULTMINSIGMA));
+			BOOST_CHECK(range.get<1>() == fp_type(1.));
 		}
 
 		//------------------------------------------------------------------------------

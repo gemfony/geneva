@@ -41,7 +41,6 @@
 #include <vector>
 #include <list>
 #include <algorithm> // for std::sort
-#include <utility> // For std::pair
 
 // Includes check for correct Boost version(s)
 #include <common/GGlobalDefines.hpp>

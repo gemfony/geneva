@@ -176,7 +176,7 @@ namespace Geneva
 
     /*********************************************************************************/
     /** @brief Mark the commands each individual has to work on */
-    std::pair<std::size_t, std::size_t> markCommands();
+    boost::tuple<std::size_t, std::size_t> markCommands();
     /** @brief Fixes the population after a job submission */
     void fixAfterJobSubmission();
 

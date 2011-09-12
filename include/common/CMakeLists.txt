@@ -47,6 +47,7 @@ SET ( GENEVACOMMONINCLUDES
 	GPODExpectationChecksT.hpp
 	GSerializableI.hpp
 	GSerializationHelperFunctionsT.hpp
+	GSerializeTupleT.hpp
 	GSingletonT.hpp
 	GThreadGroup.hpp
 	GThreadWrapper.hpp

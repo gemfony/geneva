@@ -93,6 +93,7 @@
 #include <boost/utility.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/date_time.hpp>
+#include <boost/tuple/tuple.hpp>
 
 #ifndef GBOUNDEDBUFFERT_HPP_
 #define GBOUNDEDBUFFERT_HPP_
@@ -237,7 +238,7 @@ public:
 		// Update the puts_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		puts_.push_back(currentTime);
-		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
+		entries_.push_back(boost::make_tuple<std::size_t, long>(container_.size(), currentTime));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
@@ -265,7 +266,7 @@ public:
 		// Update the puts_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		puts_.push_back(currentTime);
-		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
+		entries_.push_back(boost::make_tuple<std::size_t, long>(container_.size(), currentTime));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
@@ -294,7 +295,7 @@ public:
 		// Update the puts_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		puts_.push_back(currentTime);
-		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
+		entries_.push_back(boost::make_tuple<std::size_t, long>(container_.size(), currentTime));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
@@ -330,7 +331,7 @@ public:
 		// Update the gets_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		gets_.push_back(currentTime);
-		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
+		entries_.push_back(boost::make_tuple<std::size_t, long>(container_.size(), currentTime));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
@@ -368,7 +369,7 @@ public:
 		// Update the gets_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		gets_.push_back(currentTime);
-		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
+		entries_.push_back(boost::make_tuple<std::size_t, long>(container_.size(), currentTime));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
@@ -408,7 +409,7 @@ public:
 		// Update the gets_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		gets_.push_back(currentTime);
-		entries_.push_back(std::make_pair<std::size_t, long>(container_.size(), currentTime));
+		entries_.push_back(boost::make_tuple<std::size_t, long>(container_.size(), currentTime));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
@@ -573,8 +574,8 @@ private:
 		result << std::endl;
 
 		for(std::size_t i=0; i<entries_.size(); i++) {
-			result << "  currentEntries[" << i << "] = " << entries_[i].first << ";" << std::endl
-				   << "  entryTimes[" << i << "] = " << entries_[i].second << ";" << std::endl;
+			result << "  currentEntries[" << i << "] = " << entries_[i].get<0>() << ";" << std::endl
+				   << "  entryTimes[" << i << "] = " << entries_[i].get<1>() << ";" << std::endl;
 		}
 
 		result
@@ -605,7 +606,7 @@ private:
 
 	boost::posix_time::ptime startTime_; ///< Holds information about the construction time of this object
 	boost::posix_time::ptime endTime_; ///< Holds information about the destruction time of this object
-	std::vector<std::pair<std::size_t, long> > entries_;
+	std::vector<boost::tuple<std::size_t, long> > entries_;
 
 	std::vector<long> gets_, puts_; ///< Holds information about submission- and retrieval-times
 

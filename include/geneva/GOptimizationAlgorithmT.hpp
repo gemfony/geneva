@@ -875,6 +875,9 @@ public:
 		std::string comment1;
 		std::string comment2;
 
+		// Call our parent class'es function
+		GMutableSetT<ind_type>::addConfigurationOptions(gpb, showOrigin);
+
 		// Add local data
 		comment = ""; // Reset the comment string
 		comment += "The maximum allowed number of iterations;";
@@ -1030,9 +1033,6 @@ public:
 			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
 			, comment
 		);
-
-		// Call our parent class'es function
-		GMutableSetT<ind_type>::addConfigurationOptions(gpb, showOrigin);
 	}
 
 

@@ -572,13 +572,13 @@ void GIndividual::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
+	// Call our parent class'es function
+	GObject::addConfigurationOptions(gpb, showOrigin);
+
 	// Add local data
 	// maximize_ will be set in GParameterSet, as it has a different
 	// meaning for optimization algorithms that also derive indirectly
 	// from this class.
-
-	// Call our parent class'es function
-	GObject::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

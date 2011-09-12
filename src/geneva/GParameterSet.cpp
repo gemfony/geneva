@@ -562,6 +562,9 @@ void GParameterSet::addConfigurationOptions (
 ) {
 	std::string comment;
 
+	// Call our parent class'es function
+	GMutableSetT<Gem::Geneva::GParameterBase>::addConfigurationOptions(gpb, showOrigin);
+
 	// Add local data
 	comment = ""; // Reset the comment string
 	comment += "Specifies whether the individual should be maximized (1) or minimized (0);";
@@ -578,9 +581,6 @@ void GParameterSet::addConfigurationOptions (
 		, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
 		, comment
 	);
-
-	// Call our parent class'es function
-	GMutableSetT<Gem::Geneva::GParameterBase>::addConfigurationOptions(gpb, showOrigin);
 }
 
 #ifdef GENEVATESTING

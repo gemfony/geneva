@@ -47,7 +47,6 @@
 #include <sstream>
 #include <string>
 #include <typeinfo>
-#include <utility> // For std::pair
 #include <vector>
 
 // Includes check for correct Boost version(s)
@@ -76,6 +75,7 @@
 #include <boost/thread/condition.hpp>
 #include <boost/thread/xtime.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_io.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/utility.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -122,6 +122,7 @@
 #include "common/GSerializableI.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/thirdparty/boost/threadpool.hpp"
+#include "common/GSerializeTupleT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
 #ifdef GENEVATESTING

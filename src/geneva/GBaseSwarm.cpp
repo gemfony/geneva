@@ -664,6 +664,9 @@ void GBaseSwarm::addConfigurationOptions (
 	std::string comment1;
 	std::string comment2;
 
+	// Call our parent class'es function
+	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+
 	// Add local data
 	comment1 = "";
 	comment2 = "";
@@ -793,9 +796,6 @@ void GBaseSwarm::addConfigurationOptions (
 		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 		, comment
 	);
-
-	// Call our parent class'es function
-	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

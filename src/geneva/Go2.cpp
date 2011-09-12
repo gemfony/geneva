@@ -807,8 +807,10 @@ void Go2::addConfigurationOptions (
 ) {
 	using namespace Gem::Common;
 
-	// Parse the configuration file
+	// Call our parent class'es function
+	GMutableSetT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 
+	// Add local data
 	gpb.registerFileParameter<boost::uint32_t> (
 		"maxStalledDataTransfers"
 		, maxStalledDataTransfers_
@@ -832,11 +834,6 @@ void Go2::addConfigurationOptions (
 		, VAR_IS_ESSENTIAL
 		, "Specifies whether unsuccessful processing attempts should be returned to the server"
 	);
-
-
-
-	// Call our parent class'es function
-	GMutableSetT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /**************************************************************************************/

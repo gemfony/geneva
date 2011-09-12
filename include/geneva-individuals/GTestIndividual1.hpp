@@ -40,7 +40,6 @@
 #include <vector>
 #include <list>
 #include <algorithm> // for std::sort
-#include <utility> // For std::pair
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>

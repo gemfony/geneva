@@ -253,13 +253,11 @@ void GBrokerSwarm::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
-	std::string comment;
-
-	// no local data
-
 	// Call our parent class'es function
 	GBaseSwarm::addConfigurationOptions(gpb, showOrigin);
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+
+	// no local data
 }
 
 /************************************************************************************************************/

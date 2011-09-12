@@ -48,7 +48,7 @@ GParsableI::GParsableI(
 	, const bool& isEssentialVar
 )
 	: optionName_(GParsableI::makeVector(optionNameVar))
-	, defaultValue_(GParsableI::makeVector(defaultValueVar))
+	, defaultValueStr_(GParsableI::makeVector(defaultValueVar))
 	, comment_(GParsableI::makeVector(commentVar))
 	, isEssential_(isEssentialVar)
 { /* nothing */ }
@@ -64,7 +64,7 @@ GParsableI::GParsableI(
 	, const bool& isEssentialVar
 )
 	: optionName_(optionNameVec)
-	, defaultValue_(defaultValueVec)
+	, defaultValueStr_(defaultValueVec)
 	, comment_(commentVec)
 	, isEssential_(isEssentialVar)
 { /* nothing */ }
@@ -97,15 +97,15 @@ std::string GParsableI::optionName(std::size_t pos) const {
  * Retrieves a string-representation of the default value
  */
 std::string GParsableI::defaultValue(std::size_t pos) const {
-	if(defaultValue_.size() <= pos) {
+	if(defaultValueStr_.size() <= pos) {
 		raiseException(
 			"In GParsableI::defaultValue(std::size_t): Error!" << std::endl
 			<< "Tried to access item at position " << pos << std::endl
-			<< "where the size of the vector is " << defaultValue_.size() << std::endl
+			<< "where the size of the vector is " << defaultValueStr_.size() << std::endl
 		);
 	}
 
-	return defaultValue_.at(pos);
+	return defaultValueStr_.at(pos);
 }
 
 /**************************************************************************************/

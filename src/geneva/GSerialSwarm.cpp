@@ -208,10 +208,10 @@ void GSerialSwarm::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
-	// no local data
-
 	// Call our parent class'es function
 	GBaseSwarm::addConfigurationOptions(gpb, showOrigin);
+
+	// no local data
 }
 
 /************************************************************************************************************/

@@ -201,10 +201,10 @@ public:
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
 	) {
-		// No local data
-
 		// Call our parent class'es function
 		GIndividual::addConfigurationOptions(gpb, showOrigin);
+
+		// No local data
 	}
 
 protected:

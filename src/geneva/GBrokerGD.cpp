@@ -275,6 +275,10 @@ void GBrokerGD::addConfigurationOptions (
 ) {
 	std::string comment;
 
+	// Call our parent class'es function
+	GBaseGD::addConfigurationOptions(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+
 	// add local data
 	comment = ""; // Reset the comment string
 	comment += "The maximum number of allowed re-submissions in an iteration;";
@@ -290,10 +294,6 @@ void GBrokerGD::addConfigurationOptions (
 		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 		, comment
 	);
-
-	// Call our parent class'es function
-	GBaseGD::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /************************************************************************************************************/

@@ -494,7 +494,7 @@ public:
     	typename std::vector<boost::shared_ptr<work_item> >::iterator it;
     	POSITIONTYPE pos_cnt = start;
     	for(it=workItems.begin()+start; it!=workItems.begin()+end; ++it) {
-    		(*it)->setCourtierId(std::make_pair<SUBMISSIONCOUNTERTYPE, POSITIONTYPE>(submission_counter_, pos_cnt));
+    		(*it)->setCourtierId(boost::make_tuple<SUBMISSIONCOUNTERTYPE, POSITIONTYPE>(submission_counter_, pos_cnt));
     		pos_cnt++;
     		this->submit(*it);
     	}
@@ -511,12 +511,14 @@ public:
     	// Items from older iterations will also be accepted in this loop. Their
     	// arrival will not terminate this loop, though.
     	while(true) {
+    		using namespace boost;
+
     		// Note: the following call will throw if a timeout has been reached.
     		p = retrieveFirstItem<work_item>();
 
     		// If it is from the current iteration, break the loop, otherwise continue,
 			// until the first item of the current iteration has been received.
-    		if(submission_counter_ == (p->getCourtierId()).first) {
+    		if(submission_counter_ == (p->getCourtierId()).get<0>()) {
     			// Add the item to the workItems vector at the start of the range
     			workItems.insert(workItems.begin()+start, p);
     			// Update the counter
@@ -538,8 +540,10 @@ public:
     	// Now wait for further arrivals for a predefined amount of time.
     	// retrieveItem will return an empty pointer, if the timeout has been reached
     	while(nReceivedCurrent!=expectedNumber && (p=retrieveItem<work_item>())) {
+    		using namespace boost;
+
 			// Update the counters and insert items
-    		if(submission_counter_ == (p->getCourtierId()).first) {
+    		if(submission_counter_ == (p->getCourtierId()).get<0>()) {
     			// Add the item to the workItems vector at the start of the range
     			workItems.insert(workItems.begin()+start, p);
     			// Update the counter
@@ -645,7 +649,7 @@ public:
     	typename std::vector<boost::shared_ptr<work_item> >::iterator it;
     	POSITIONTYPE pos_cnt = start;
     	for(it=workItems.begin()+start; it!=workItems.begin()+end; ++it) {
-    		(*it)->setCourtierId(std::make_pair<SUBMISSIONCOUNTERTYPE,POSITIONTYPE>(submission_counter_, pos_cnt));
+    		(*it)->setCourtierId(boost::make_tuple<SUBMISSIONCOUNTERTYPE,POSITIONTYPE>(submission_counter_, pos_cnt));
     		pos_cnt++;
     		this->submit(*it);
     	}
@@ -669,14 +673,16 @@ public:
     	// Items from older iterations will also be accepted in this loop. Their
     	// arrival will not terminate this loop, though.
     	while(true) {
+    		using namespace boost;
+
     		// Note: the following call will throw if a timeout has been reached.
     		p = retrieveFirstItem<work_item>();
 
     		// If it is from the current iteration, break the loop, otherwise continue,
     		// until the first item of the current iteration has been received.
-    		if(submission_counter_ == (p->getCourtierId()).first) {
+    		if(submission_counter_ == (p->getCourtierId()).get<0>()) {
     			// Make a note about this items return in the returnedItemPos vector
-    			returnedItemPos[(p->getCourtierId()).second] = 1;
+    			returnedItemPos[(p->getCourtierId()).get<1>()] = 1;
 
     			// Add the item to the list of returned objects
     			returnedItems.push_back(p);
@@ -702,12 +708,14 @@ public:
     	while(!complete && retry_counter < maxResubmissions) {
     		p = retrieveItem<work_item>();
     		if (p) { // Did we receive a valid item ?
+    			using namespace boost;
+
     			// Check whether the received item hasn't been added already or comes from an older submission
-    			if(1 == returnedItemPos[(p->getCourtierId()).second] || submission_counter_ != (p->getCourtierId()).first) {
+    			if(1 == returnedItemPos[(p->getCourtierId()).get<1>()] || submission_counter_ != (p->getCourtierId()).get<0>()) {
     				p.reset();
     			} else {
         			// Make a note about this items return in the returnedItemPos vector
-        			returnedItemPos[(p->getCourtierId()).second] = 1;
+        			returnedItemPos[(p->getCourtierId()).get<1>()] = 1;
 
         			// Add the item to the list of returned objects
         			returnedItems.push_back(p);
@@ -750,10 +758,12 @@ public:
 
 #ifdef DEBUG
     		for(std::size_t i=0; i<returnedItems.size(); i++) {
-    			if((returnedItems[i]->getCourtierId()).second != start+i){
+    			using namespace boost;
+
+    			if((returnedItems[i]->getCourtierId()).get<1>() != start+i){
     				raiseException(
     						"In workOnSubmissionOnly(): Error!" << std::endl
-							<< "Expected item with position id " << (returnedItems[i]->getCourtierId()).second << std::endl
+							<< "Expected item with position id " << (returnedItems[i]->getCourtierId()).get<1>() << std::endl
 							<< "to have id " << start+i << " instead." << std::endl
     				);
     			}
@@ -793,6 +803,8 @@ public:
 		std::string comment;
 		std::string comment1;
 		std::string comment2;
+
+		// no parent class
 
 		// add local data
 		comment = ""; // Reset the comment string
@@ -881,8 +893,6 @@ public:
 			, Gem::Common::VAR_IS_SECONDARY // Alternative:VAR_IS_ESSENTIAL
 			, comment
 		);
-
-		// no parent class
 	}
 
 private:
@@ -1213,7 +1223,8 @@ private:
 	template <typename work_item>
     struct courtierPosComp {
     	bool operator()(boost::shared_ptr<work_item> x, boost::shared_ptr<work_item> y) {
-    		return (x->getCourtierId()).second < (y->getCourtierId()).second;
+    		using namespace boost;
+    		return (x->getCourtierId()).get<1>() < (y->getCourtierId()).get<1>();
     	}
     };
 

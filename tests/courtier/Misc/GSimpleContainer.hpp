@@ -66,6 +66,7 @@
 #endif
 
 // Geneva headers go here
+#include "common/GSerializeTupleT.hpp"
 #include "courtier/GSubmissionContainerT.hpp"
 #include "hap/GRandomT.hpp"
 
