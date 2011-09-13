@@ -517,21 +517,21 @@ void Go2::addAlgorithm(personality_oa pers) {
 
 	case PERSONALITY_EA:
 		{
-			GEvolutionaryAlgorithmFactory geaf("config/GEvolutionaryAlgorithm.cfg", parMode_);
+			GEvolutionaryAlgorithmFactory geaf("config/GEvolutionaryAlgorithm.json", parMode_);
 			this->addAlgorithm(geaf());
 		}
 		break;
 
 	case PERSONALITY_GD:
 		{
-			GGradientDescentFactory ggdf("config/GGradientDescent.cfg", parMode_);
+			GGradientDescentFactory ggdf("config/GGradientDescent.json", parMode_);
 			this->addAlgorithm(ggdf());
 		}
 		break;
 
 	case PERSONALITY_SWARM:
 		{
-			GSwarmAlgorithmFactory gsaf("config/GSwarmAlgorithm.cfg", parMode_);
+			GSwarmAlgorithmFactory gsaf("config/GSwarmAlgorithm.json", parMode_);
 			this->addAlgorithm(gsaf());
 		}
 		break;
@@ -1091,11 +1091,12 @@ void Go2::parseCommandLine(int argc, char **argv) {
     std::string optimization_algorithms;
 
 	try {
+		std::string configFilename = std::string("");
 		std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
 		po::options_description desc(usageString.c_str());
 		desc.add_options()
 				("help,h", "emit help message")
-				("configFilename,f", po::value<std::string>(&configFilename_)->default_value(GO2_DEF_DEFAULTCONFIGFILE),
+				("configFilename,f", po::value<std::string>(&configFilename)->default_value(GO2_DEF_DEFAULTCONFIGFILE),
 				"The name of the file holding configuration information for optimization algorithms")
 				("parallelizationMode,p", po::value<parMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
 				"The desired parallelization mode (this will only affect algorithms with generic parallelization mode")
@@ -1124,7 +1125,10 @@ void Go2::parseCommandLine(int argc, char **argv) {
 		// Read in the configuration file. A file with default values
 		// will be created for you if it does not yet exist. Note that
 		// the target directory needs to exist, though.
-		readConfigFile(configFilename_);
+		if(vm.count("configFilename")) {
+			configFilename_ = configFilename;
+			readConfigFile(configFilename_);
+		}
 
 		// Parse the list of optimization algorithms
 		if(vm.count("optimizationAlgorithms")) {

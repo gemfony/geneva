@@ -3,7 +3,6 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
 
  - Full documentation (well underway!!)
  - MPI Consumer/Client
- - JSON-based config files
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.3, yet unnamed, release-date unknown
@@ -18,6 +17,8 @@ The main changes for this release include:
    on demand.
  - Facilitated and centralized creation and parsing of configuration
    options, so users may more easily configure their applications
+ - Switched configuration files to JSON format so that it becomes possible
+   to create Java Script based GUI interfaces
  - Introduced a new interface class "GOptimizableI", as the basis
    of GOptimizationAlgorithmT and various wrapper classes.
  - Renamed 'public' cpp variables according to the library they

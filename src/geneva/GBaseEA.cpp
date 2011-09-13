@@ -804,9 +804,9 @@ void GBaseEA::addConfigurationOptions (
 	comment1 += "The total size of the population;";
 	if(showOrigin) comment1 += " [GBaseEA]";
 	comment2 += "The number of parents in the population;";
-	if(showOrigin) comment1 += "[GBaseEA]";
+	if(showOrigin) comment2 += " [GBaseEA]";
 	gpb.registerFileParameter<std::size_t, std::size_t>(
-		"populationSize" // The name of the first variable
+		"size" // The name of the first variable
 		, "nParents" // The name of the second variable
 		, DEFAULTEAPOPULATIONSIZE
 		, DEFAULTEANPARENTS
@@ -816,6 +816,7 @@ void GBaseEA::addConfigurationOptions (
 			, _1
 			, _2
 		  )
+	    , "population"
 		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 		, comment1
 		, comment2
@@ -880,6 +881,7 @@ void GBaseEA::addConfigurationOptions (
 			, _1
 			, _2
 		  )
+		, "populationGrowth"
 		, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
 		, comment1
 		, comment2

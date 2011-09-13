@@ -685,6 +685,7 @@ void GBaseSwarm::addConfigurationOptions (
 			, _1
 			, _2
 		  )
+	    , "swarmSize"
 		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 		, comment1
 		, comment2

@@ -131,6 +131,17 @@ protected:
 			);
 		}
 
+		comment = ""; // Reset the comment string
+		comment += "Indicates that the broker connector should wait endlessly;";
+		comment += "for further arrivals of individuals in an iteration;";
+		gpb.registerFileParameter<bool>(
+			"boundlessWait" // The name of the variable
+			, boundlessWait_
+			, false // The default value
+			, Gem::Common::VAR_IS_ESSENTIAL
+			, comment
+		);
+
 		comment = ""; // Reset the first comment string
 		comment += "The lower boundary for the adaption;";
 		comment += "of the waitFactor variable;";
@@ -153,28 +164,6 @@ protected:
 			, comment
 		);
 
-		comment = ""; // Reset the comment string
-		comment += "Activates (1) or de-activates (0) logging;";
-		comment += "iteration's first timeout;";
-		gpb.registerFileParameter<bool>(
-			"doLogging" // The name of the variable
-			, doLogging_
-			, false // The default value
-			, Gem::Common::VAR_IS_SECONDARY
-			, comment
-		);
-
-		comment = ""; // Reset the comment string
-		comment += "Indicates that the broker connector should wait endlessly;";
-		comment += "for further arrivals of individuals in an iteration;";
-		gpb.registerFileParameter<bool>(
-			"boundlessWait" // The name of the variable
-			, boundlessWait_
-			, false // The default value
-			, Gem::Common::VAR_IS_ESSENTIAL
-			, comment
-		);
-
 		comment =  ""; // 	Reset the comment string
 		comment += "Specifies the amount by which the wait factor gets;";
 		comment += "incremented or decremented during automatic adaption;";
@@ -183,6 +172,17 @@ protected:
 			, waitFactorIncrement_
 			, DEFAULTBROKERWAITFACTORINCREMENT // The default value
 			, Gem::Common::VAR_IS_ESSENTIAL
+			, comment
+		);
+
+		comment = ""; // Reset the comment string
+		comment += "Activates (1) or de-activates (0) logging;";
+		comment += "iteration's first timeout;";
+		gpb.registerFileParameter<bool>(
+			"doLogging" // The name of the variable
+			, doLogging_
+			, false // The default value
+			, Gem::Common::VAR_IS_SECONDARY
 			, comment
 		);
 	}

@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
 	switch(target) {
 	case 0:
 		{
-			GEvolutionaryAlgorithmFactory gevaf(directory+"/GEvolutionaryAlgorithm.cfg", PARMODE_SERIAL);
+			GEvolutionaryAlgorithmFactory gevaf(directory+"/GEvolutionaryAlgorithm.json", PARMODE_SERIAL);
 
 			if(check) {
 				boost::shared_ptr<GBaseEA> p = gevaf();
@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
 
 	case 1:
 		{
-			GSwarmAlgorithmFactory gsaf(directory+"/GSwarmAlgorithm.cfg", PARMODE_SERIAL);
+			GSwarmAlgorithmFactory gsaf(directory+"/GSwarmAlgorithm.json", PARMODE_SERIAL);
 
 			if(check) {
 				boost::shared_ptr<GBaseSwarm> p = gsaf();
@@ -183,7 +183,7 @@ int main(int argc, char **argv) {
 
 	case 2:
 		{
-			GGradientDescentFactory ggdf(directory+"/GGradientDescent.cfg", PARMODE_SERIAL);
+			GGradientDescentFactory ggdf(directory+"/GGradientDescent.json", PARMODE_SERIAL);
 
 			if(check) {
 				boost::shared_ptr<GBaseGD> p = ggdf();
@@ -204,7 +204,7 @@ int main(int argc, char **argv) {
 
 	case 3:
 		{
-			GFunctionIndividualFactory gfif(directory+"/GFunctionIndividual.cfg");
+			GFunctionIndividualFactory gfif(directory+"/GFunctionIndividual.json");
 
 			if(check) {
 				boost::shared_ptr<GFunctionIndividual> p = gfif();

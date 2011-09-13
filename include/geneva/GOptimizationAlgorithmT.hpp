@@ -959,6 +959,7 @@ public:
 				, _1
 				, _2
 			  )
+		    , "checkpointLocation"
 			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
 			, comment1
 			, comment2
@@ -989,8 +990,8 @@ public:
 		comment2 += "Activates (1) or de-activates (0) the qualit threshold;";
 		if(showOrigin) comment2 += "[GOptimizationAlgorithmT<ind_type>]";
 		gpb.registerFileParameter<double, bool>(
-			"qualityThreshold" // The name of the variable
-			, "qualityThresholdActive"
+			"threshold" // The name of the variable
+			, "thresholdActive"
 			, DEFAULTQUALITYTHRESHOLD // The default value
 			, false
 			, boost::bind(
@@ -999,6 +1000,7 @@ public:
 				, _1
 				, _2
 			  )
+		    , "qualityTermination"
 			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 			, comment1
 			, comment2

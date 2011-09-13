@@ -831,8 +831,8 @@ public:
 		comment2 += "of the waitFactor variable;";
 		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
 		gpb.registerFileParameter<double, double>(
-			"minWaitFactor" // The name of the first variable
-			, "maxWaitFactor" // The name of the second variable
+			"min" // The name of the first variable
+			, "max" // The name of the second variable
 			, DEFAULTMINBROKERWAITFACTOR // The first default value
 			, DEFAULTMAXBROKERWAITFACTOR // The second default value
 			, boost::bind(
@@ -841,24 +841,25 @@ public:
 				, _1
 				, _2
 			  )
+			, "waitFactorExtremes"
 			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 			, comment1
 			, comment2
 		);
 
-		comment = ""; // Reset the comment string
-		comment += "Activates (1) or de-activates (0) logging;";
-		comment += "iteration's first timeout;";
+		comment =  ""; // 	Reset the comment string
+		comment += "Specifies the amount by which the wait factor gets;";
+		comment += "incremented or decremented during automatic adaption;";
 		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
-		gpb.registerFileParameter<bool>(
-			"doLogging" // The name of the variable
-			, false // The default value
-			, boost::bind(
-				&GBrokerConnectorT<T>::doLogging
+		gpb.registerFileParameter<double>(
+			"waitFactorIncrement" // The name of the variable
+			, DEFAULTBROKERWAITFACTORINCREMENT // The default value
+			, boost::bind (
+				&GBrokerConnectorT<T>::setWaitFactorIncrement
 				, this
 				, _1
 			  )
-			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
+			, Gem::Common::VAR_IS_SECONDARY // Alternative:VAR_IS_ESSENTIAL
 			, comment
 		);
 
@@ -878,19 +879,19 @@ public:
 			, comment
 		);
 
-		comment =  ""; // 	Reset the comment string
-		comment += "Specifies the amount by which the wait factor gets;";
-		comment += "incremented or decremented during automatic adaption;";
+		comment = ""; // Reset the comment string
+		comment += "Activates (1) or de-activates (0) logging;";
+		comment += "iteration's first timeout;";
 		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
-		gpb.registerFileParameter<double>(
-			"waitFactorIncrement" // The name of the variable
-			, DEFAULTBROKERWAITFACTORINCREMENT // The default value
-			, boost::bind (
-				&GBrokerConnectorT<T>::setWaitFactorIncrement
+		gpb.registerFileParameter<bool>(
+			"doLogging" // The name of the variable
+			, false // The default value
+			, boost::bind(
+				&GBrokerConnectorT<T>::doLogging
 				, this
 				, _1
 			  )
-			, Gem::Common::VAR_IS_SECONDARY // Alternative:VAR_IS_ESSENTIAL
+			, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
 			, comment
 		);
 	}

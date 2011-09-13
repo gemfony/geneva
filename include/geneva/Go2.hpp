@@ -83,7 +83,7 @@ namespace Geneva {
 
 /**************************************************************************************/
 // Default values for the variables used by the optimizer
-const std::string GO2_DEF_DEFAULTCONFIGFILE="config/go2.cfg";
+const std::string GO2_DEF_DEFAULTCONFIGFILE="config/Go2.json";
 const bool GO2_DEF_CLIENTMODE=false;
 const parMode GO2_DEF_DEFAULPARALLELIZATIONMODE=PARMODE_MULTITHREADED;
 const Gem::Common::serializationMode GO2_DEF_SERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;

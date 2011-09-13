@@ -43,12 +43,10 @@ namespace Common {
  */
 GParsableI::GParsableI(
 	const std::string& optionNameVar
-	, const std::string& defaultValueVar
 	, const std::string& commentVar
 	, const bool& isEssentialVar
 )
 	: optionName_(GParsableI::makeVector(optionNameVar))
-	, defaultValueStr_(GParsableI::makeVector(defaultValueVar))
 	, comment_(GParsableI::makeVector(commentVar))
 	, isEssential_(isEssentialVar)
 { /* nothing */ }
@@ -59,12 +57,10 @@ GParsableI::GParsableI(
  */
 GParsableI::GParsableI(
 	const std::vector<std::string>& optionNameVec
-	, const std::vector<std::string>& defaultValueVec
 	, const std::vector<std::string>& commentVec
 	, const bool& isEssentialVar
 )
 	: optionName_(optionNameVec)
-	, defaultValueStr_(defaultValueVec)
 	, comment_(commentVec)
 	, isEssential_(isEssentialVar)
 { /* nothing */ }
@@ -90,22 +86,6 @@ std::string GParsableI::optionName(std::size_t pos) const {
 	}
 
 	return optionName_.at(pos);
-}
-
-/**************************************************************************************/
-/**
- * Retrieves a string-representation of the default value
- */
-std::string GParsableI::defaultValue(std::size_t pos) const {
-	if(defaultValueStr_.size() <= pos) {
-		raiseException(
-			"In GParsableI::defaultValue(std::size_t): Error!" << std::endl
-			<< "Tried to access item at position " << pos << std::endl
-			<< "where the size of the vector is " << defaultValueStr_.size() << std::endl
-		);
-	}
-
-	return defaultValueStr_.at(pos);
 }
 
 /**************************************************************************************/
@@ -160,7 +140,10 @@ GParserBuilder::~GParserBuilder()
  */
 bool GParserBuilder::parseConfigFile(const std::string& configFile)
 {
-    namespace po = boost::program_options;
+    using namespace boost::property_tree;
+    using namespace boost::filesystem;
+
+    namespace bf = boost::filesystem;
 
 	bool result = false;
 
@@ -168,15 +151,6 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile)
 		// Do some error checking. Also check that the configuration file exists.
 		// If not, create a default version
 		{
-			using namespace boost::filesystem;
-
-			if(exists(configFile) && !is_regular_file(configFile)) {
-				raiseException(
-					"In GParserBuilder::parseConfigFile(): Error!" << std::endl
-					<< configFile << " exists but is no regular file." << std::endl
-				);
-			}
-
 			// We automatically create a configuration file
 			if(!exists(configFile)) {
 				std::cerr
@@ -190,25 +164,35 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile)
 					, header
 					, true // writeAll == true
 				);
+			} else { // configFile exists
+				// Is it a regular file ?
+				if(!is_regular_file(configFile)) {
+					raiseException(
+							"In GParserBuilder::parseConfigFile(): Error!" << std::endl
+							<< configFile << " exists but is no regular file." << std::endl
+					);
+				}
+
+				// We require the file to have the json extension
+				if(!bf::path(configFile).has_extension() || bf::path(configFile).extension() != ".json") {
+					raiseException(
+						"In GParserBuilder::parseConfigFile(): Error!" << std::endl
+						<< configFile << " does not have the required extension \".json\"" << std::endl
+					);
+				}
 			}
 		}
 
+		// Create a property tree object;
+		ptree pt;
+
 		// Do the actual parsing
-		po::variables_map vm;
-		std::ifstream ifs(configFile.c_str());
-		if (!ifs.good()) {
-			std::cerr << "Error opening configuration file " << configFile << std::endl;
-			return false;
-		}
+		read_json(configFile, pt);
 
-		po::store(po::parse_config_file(ifs, config_), vm);
-		po::notify(vm);
-
-		ifs.close();
-
-		// Execute all call-back functions
+		// Load the data into our objects and execute the relevant call-back functions
 		std::vector<boost::shared_ptr<GParsableI> >::iterator it;
 		for(it=parameter_proxies_.begin(); it!=parameter_proxies_.end(); ++it) {
+			(*it)->load(pt);
 			(*it)->executeCallBackFunction();
 		}
 
@@ -217,7 +201,7 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile)
 	catch(const gemfony_error_condition& e) {
 		throw e;
 	}
-	catch(const po::error& e) {
+	catch(const std::exception& e) {
 		std::cerr << "Error parsing the configuration file " << configFile << ":" << std::endl
 				  << e.what() << std::endl;
 		result=false;
@@ -244,14 +228,17 @@ void GParserBuilder::writeConfigFile(
 		, const std::string& header
 		, bool writeAll
 ) const {
+    using namespace boost::property_tree;
+    using namespace boost::filesystem;
+
+    namespace bf = boost::filesystem;
+
 	// Needed for the separation of comment strings
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> semicolon_sep(";");
 
 	// Do some error checking
 	{
-		using namespace boost::filesystem;
-
 		// Is configFile a directory ?
 		if(is_directory(configFile)) {
 			raiseException(
@@ -269,10 +256,18 @@ void GParserBuilder::writeConfigFile(
 		}
 
 		// Check that the target path exists and is a directory
-		if(!exists(path(configFile).remove_filename()) || !is_directory(path(configFile).remove_filename())) {
+		if(!exists(bf::path(configFile).remove_filename()) || !is_directory(bf::path(configFile).remove_filename())) {
 			raiseException(
 				"In GParserBuilder::writeConfigFile(): Error!" << std::endl
-				<< "The target path " << path(configFile).remove_filename() << " does not exist or is no directory."
+				<< "The target path " << bf::path(configFile).remove_filename() << " does not exist or is no directory."
+			);
+		}
+
+		// Check that the configuration file has the required extension
+		if(!bf::path(configFile).has_extension() || bf::path(configFile).extension() != ".json") {
+			raiseException(
+				"In GParserBuilder::writeConfigFile(): Error!" << std::endl
+				<< configFile << " does not have the required extension \".json\"" << std::endl
 			);
 		}
 	}
@@ -293,17 +288,20 @@ void GParserBuilder::writeConfigFile(
 	}
 
 	// Output the header
-	ofs << "################################################################" << std::endl;
+	ofs << "//-----------------------------------------------------------------" << std::endl;
 	if(header != "") {
 		// Break the header into individual tokens
 		tokenizer headerTokenizer(header, semicolon_sep);
 		for(tokenizer::iterator h=headerTokenizer.begin(); h!=headerTokenizer.end(); ++h) {
-			ofs << "# " << *h << std::endl;
+			ofs << "// " << *h << std::endl;
 		}
 	}
-	ofs << "# File creation date: " << boost::posix_time::second_clock::local_time() << std::endl
-		<< "################################################################" << std::endl
+	ofs << "// File creation date: " << boost::posix_time::second_clock::local_time() << std::endl
+		<< "//-----------------------------------------------------------------" << std::endl
 		<< std::endl;
+
+	// Create a property tree object;
+	ptree pt;
 
 	// Output variables and values
 	std::vector<boost::shared_ptr<GParsableI> >::const_iterator cit;
@@ -312,12 +310,16 @@ void GParserBuilder::writeConfigFile(
 		// has been requested to write out all parameters regardless
 		if(!writeAll && !(*cit)->isEssential()) continue;
 
-		// Output the actual data of this parameter object
-		ofs << (*cit)->configData();
+		// Output the actual data of this parameter object to the property tree
+		(*cit)->save(pt);
 	}
+
+	// Write the configuration data to disk
+	write_json(ofs, pt);
 
 	// Close the file handle
 	ofs.close();
+
 }
 
 /**************************************************************************************/

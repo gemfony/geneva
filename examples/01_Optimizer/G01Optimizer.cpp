@@ -47,7 +47,7 @@ using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
 	Go2::init();
-	Go2 go(argc, argv, "./config/Go2.cfg");
+	Go2 go(argc, argv, "./config/Go2.json");
 
 	//---------------------------------------------------------------------
 	// Client mode
@@ -60,13 +60,13 @@ int main(int argc, char **argv) {
 
 	// Create a factory for GFunctionIndividual objects and perform
 	// any necessary initial work.
-	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.cfg");
+	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
 	// Make an individual known to the optimizer
 	go.push_back(gfi());
 
 	// Add an evolutionary algorithm in multi-threaded mode
-	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.cfg", PARMODE_MULTITHREADED);
+	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", PARMODE_MULTITHREADED);
 	go & ea();
 
 	// Perform the actual optimization

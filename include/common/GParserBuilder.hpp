@@ -48,7 +48,6 @@
 #include <boost/utility.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/program_options.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time.hpp>
 #include <boost/tokenizer.hpp>
@@ -77,6 +76,9 @@
 namespace Gem {
 namespace Common {
 
+// Forward declaration
+class GParserBuilder;
+
 /************************************************************************/
 /**
  * This class specifies the interface of parsable parameters, to
@@ -85,11 +87,13 @@ namespace Common {
  */
 class GParsableI :boost::noncopyable
 {
+	// We want GParserBuilder to be able to call our load- and save functions
+	friend class GParserBuilder;
+
 public:
 	/** @brief A constructor for individual items */
 	GParsableI(
 		const std::string&
-		, const std::string&
 		, const std::string&
 		, const bool&
 	);
@@ -97,7 +101,6 @@ public:
 	/** @brief A constructor for vectors */
 	GParsableI(
 		const std::vector<std::string>&
-		, const std::vector<std::string>&
 		, const std::vector<std::string>&
 		, const bool&
 	);
@@ -109,16 +112,12 @@ public:
 
 	/** @brief Retrieves the option name at a given position */
 	std::string optionName(std::size_t = 0) const;
-	/** @brief Retrieves a string-representation of the default value at a given position */
-	std::string defaultValue(std::size_t = 0) const;
 	/** @brief Retrieves the comment that was assigned to this variable at a given position */
 	std::string comment(std::size_t = 0) const;
 	/** @brief Checks whether this is an essential variable at a given position */
 	bool isEssential() const;
 
-	/** @brief Makes the parameter object output its data */
-	virtual std::string configData() const = 0;
-
+	/********************************************************************/
 	/**
 	 * Create a std::vector<T> from a single element
 	 */
@@ -129,6 +128,7 @@ public:
 		return result;
 	}
 
+	/********************************************************************/
 	/**
 	 * Create a std::vector<T> from two elements
 	 */
@@ -140,12 +140,19 @@ public:
 		return result;
 	}
 
+protected:
+	/********************************************************************/
+	/** @brief Loads data from a property_tree object */
+	virtual void load(const boost::property_tree::ptree&) = 0;
+	/** @brief Saves data to a property tree object */
+	virtual void save(boost::property_tree::ptree&) const = 0;
+
 private:
+	/********************************************************************/
 	/** @brief The default constructor. Intentionally private and undefined */
 	GParsableI();
 
 	std::vector<std::string> optionName_; ///< The name of this parameter
-	std::vector<std::string> defaultValueStr_; ///< A string representation of the default value
 	std::vector<std::string> comment_; ///< A comment assigned to this parameter
 	bool isEssential_; ///< Indicates whether this is an essential variable
 };
@@ -156,8 +163,11 @@ private:
  * function has been assigned.
  */
 template <typename parameter_type>
-struct GSingleParsableParameter :public GParsableI
+struct GSingleParsableParameter	:public GParsableI
 {
+	// We want GParserBuilder to be able to call our load- and save functions
+	friend class GParserBuilder;
+
 public:
 	/********************************************************************/
 	/**
@@ -171,11 +181,11 @@ public:
 	)
 		: GParsableI(
 			optionNameVar
-			, boost::lexical_cast<std::string>(defVal)
 			, commentVar
 			, isEssentialVar
 		  )
 		, par_(defVal)
+		, def_val_(defVal)
 	{ /* nothing */ }
 
 	/********************************************************************/
@@ -218,24 +228,24 @@ public:
 		callBack_ = callBack;
 	}
 
+protected:
 	/********************************************************************/
 	/**
-	 * Gives access to the parameter
+	 * Loads data from a property_tree object
 	 *
-	 * @return A reference to the stored parameter
+	 * @param pt The object from which data should be loaded
 	 */
-	parameter_type *getParameter() {
-		return &par_;
+	virtual void load(const boost::property_tree::ptree& pt) {
+		par_ = pt.get((optionName(0) + ".value").c_str(), def_val_);
 	}
 
 	/********************************************************************/
 	/**
-	 * Makes the parameter object output its data
+	 * Saves data to a property tree object, including comments.
 	 *
-	 * @return A string with the data
+	 * @param pt The object to which data should be saved
 	 */
-	virtual std::string configData() const {
-		std::ostringstream result;
+	virtual void save(boost::property_tree::ptree& pt) const {
 		// Needed for the separation of comment strings
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 		boost::char_separator<char> semicolon_sep(";");
@@ -245,21 +255,20 @@ public:
 			// Break the comment into individual lines after each semicolon
 			tokenizer commentTokenizer(comment, semicolon_sep);
 			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
-				result << "# " << *c << std::endl;
+				pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
 			}
 		}
-		result
-			<< "# default value: " << this->defaultValue(0) << std::endl
-			<< this->optionName(0) << " = " << this->defaultValue(0) << std::endl
-			<< std::endl;
 
-		return result.str();
+		pt.put((optionName(0) + ".default").c_str(), def_val_);
+		pt.put((optionName(0) + ".value").c_str(), par_);
 	}
 
 private:
 	/********************************************************************/
 	GSingleParsableParameter(); ///< The default constructor. Intentionally private and undefined
+
 	parameter_type par_; ///< Holds the individual parameter
+	parameter_type def_val_; ///< Holds the parameter's default value
 
 	boost::function<void(parameter_type)> callBack_; ///< Holds the call-back function
 };
@@ -269,31 +278,37 @@ private:
  * This class wraps combined parsable parameters, to which a callback
  * function has been assigned.
  */
-template <typename par_type1, typename par_type2>
+template <typename par_type0, typename par_type1>
 struct GCombinedParsableParameter :public GParsableI
 {
+	// We want GParserBuilder to be able to call our load- and save functions
+	friend class GParserBuilder;
+
 public:
 	/********************************************************************/
 	/**
 	 * Initializes the parameters
 	 */
 	GCombinedParsableParameter(
-		const std::string& optionNameVar1
+		const std::string& optionNameVar0
+		, const std::string& commentVar0
+		, const par_type0& defVal0
+		, const std::string& optionNameVar1
 		, const std::string& commentVar1
 		, const par_type1& defVal1
-		, const std::string& optionNameVar2
-		, const std::string& commentVar2
-		, const par_type2& defVal2
 		, const bool& isEssentialVar
+		, const std::string& combined_label
 	)
 		: GParsableI(
-			GParsableI::makeVector(optionNameVar1, optionNameVar2)
-			, GParsableI::makeVector(boost::lexical_cast<std::string>(defVal1), boost::lexical_cast<std::string>(defVal2))
-			, GParsableI::makeVector(commentVar1, commentVar2)
+			GParsableI::makeVector(optionNameVar0, optionNameVar1)
+			, GParsableI::makeVector(commentVar0, commentVar1)
 			, isEssentialVar
 		  )
+		, par0_(defVal0)
 		, par1_(defVal1)
-		, par2_(defVal2)
+		, def_val0_(defVal0)
+		, def_val1_(defVal1)
+		, combined_label_(combined_label)
 	{ /* nothing */ }
 
 	/********************************************************************/
@@ -316,7 +331,7 @@ public:
 		}
 
 		// Execute the function
-		callBack_(par1_, par2_);
+		callBack_(par0_, par1_);
 	}
 
 	/********************************************************************/
@@ -325,7 +340,7 @@ public:
 	 *
 	 * @param callBack The function to be executed
 	 */
-	void registerCallBackFunction(boost::function<void(par_type1, par_type2)> callBack) {
+	void registerCallBackFunction(boost::function<void(par_type0, par_type1)> callBack) {
 		if(!callBack) {
 			raiseException(
 				"In GCombinedParsableParameter::registerCallBackFunction(): Error" << std::endl
@@ -336,34 +351,25 @@ public:
 		callBack_ = callBack;
 	}
 
+protected:
 	/********************************************************************/
 	/**
-	 * Gives access to the first parameter
+	 * Loads data from a property_tree object
 	 *
-	 * @return A reference to the first stored parameter
+	 * @param pt The object from which data should be loaded
 	 */
-	par_type1* getParameter1() {
-		return &par1_;
+	virtual void load(const boost::property_tree::ptree& pt) {
+		par0_ = pt.get((combined_label_ + "." + optionName(0) + ".value").c_str(), def_val0_);
+		par1_ = pt.get((combined_label_ + "." + optionName(1) + ".value").c_str(), def_val1_);
 	}
 
 	/********************************************************************/
 	/**
-	 * Gives access to the second parameter
+	 * Saves data to a property tree object, including comments.
 	 *
-	 * @return A reference to the second stored parameter
+	 * @param pt The object to which data should be saved
 	 */
-	par_type2* getParameter2() {
-		return &par2_;
-	}
-
-	/********************************************************************/
-	/**
-	 * Makes the parameter object output its data
-	 *
-	 * @return A string with the data
-	 */
-	virtual std::string configData() const {
-		std::ostringstream result;
+	virtual void save(boost::property_tree::ptree& pt) const {
 		// Needed for the separation of comment strings
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 		boost::char_separator<char> semicolon_sep(";");
@@ -374,37 +380,36 @@ public:
 			// Break the comment into individual lines after each semicolon
 			tokenizer commentTokenizer(comment0, semicolon_sep);
 			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
-				result << "# " << *c << std::endl;
+				pt.add((combined_label_ + "." + optionName(0) + ".comment").c_str(), (*c).c_str());
 			}
 		}
-		result
-			<< "# default value: " << this->defaultValue(0) << std::endl
-			<< this->optionName(0) << " = " << this->defaultValue(0) << std::endl
-			<< std::endl;
+		pt.put((combined_label_ + "." + optionName(0) + ".default").c_str(), def_val0_);
+		pt.put((combined_label_ + "." + optionName(0) + ".value").c_str(), par0_);
 
 		if(comment1 != "") { // Only output useful comments
 			// Break the comment into individual lines after each semicolon
 			tokenizer commentTokenizer(comment1, semicolon_sep);
 			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
-				result << "# " << *c << std::endl;
+				pt.add((combined_label_ + "." + optionName(1) + ".comment").c_str(), (*c).c_str());
 			}
 		}
-		result
-			<< "# default value: " << this->defaultValue(1) << std::endl
-			<< this->optionName(1) << " = " << this->defaultValue(1) << std::endl
-			<< std::endl;
-
-		return result.str();
+		pt.put((combined_label_ + "." + optionName(1) + ".default").c_str(), def_val1_);
+		pt.put((combined_label_ + "." + optionName(1) + ".value").c_str(), par1_);
 	}
 
 private:
 	/********************************************************************/
 	GCombinedParsableParameter(); ///< The default constructor. Intentionally private and undefined
 
-	par_type1 par1_; ///< Holds the first parameter
-	par_type2 par2_; ///< Holds the second parameter
+	par_type0 par0_; ///< Holds the first parameter
+	par_type1 par1_; ///< Holds the second parameter
 
-	boost::function<void(par_type1, par_type2)> callBack_; ///< Holds the call-back function
+	par_type0 def_val0_; ///< Holds the default value of the first parameter
+	par_type1 def_val1_; ///< Holds the default value of the second parameter
+
+	std::string combined_label_; ///< Holds a path label for the combined JSON path
+
+	boost::function<void(par_type0, par_type1)> callBack_; ///< Holds the call-back function
 };
 
 /************************************************************************/
@@ -416,6 +421,9 @@ private:
 template <typename parameter_type>
 class GReferenceParsableParameter :public GParsableI
 {
+	// We want GParserBuilder to be able to call our load- and save functions
+	friend class GParserBuilder;
+
 public:
 	/********************************************************************/
 	/**
@@ -433,12 +441,12 @@ public:
 	)
 		: GParsableI(
 			GParsableI::makeVector(optionNameVar)
-			, GParsableI::makeVector(boost::lexical_cast<std::string>(defVal))
 			, GParsableI::makeVector(commentVar)
 			, isEssentialVar
 		  )
 		, storedReference_(storedReference)
 		, par_(defVal)
+		, def_val_(defVal)
 	{ /* nothing */ }
 
 	/********************************************************************/
@@ -449,24 +457,24 @@ public:
 		storedReference_ = par_;
 	}
 
+protected:
 	/********************************************************************/
 	/**
-	 * Gives access to the internal parameter-storage (not the reference)
+	 * Loads data from a property_tree object
 	 *
-	 * @return A reference to the stored parameter
+	 * @param pt The object from which data should be loaded
 	 */
-	parameter_type *getParameter() {
-		return &par_;
+	virtual void load(const boost::property_tree::ptree& pt) {
+		par_ = pt.get((optionName(0) + ".value").c_str(), def_val_);
 	}
 
 	/********************************************************************/
 	/**
-	 * Makes the parameter object output its data
+	 * Saves data to a property tree object, including comments.
 	 *
-	 * @return A string with the data
+	 * @param pt The object to which data should be saved
 	 */
-	virtual std::string configData() const {
-		std::ostringstream result;
+	virtual void save(boost::property_tree::ptree& pt) const {
 		// Needed for the separation of comment strings
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 		boost::char_separator<char> semicolon_sep(";");
@@ -476,15 +484,12 @@ public:
 			// Break the comment into individual lines after each semicolon
 			tokenizer commentTokenizer(comment, semicolon_sep);
 			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
-				result << "# " << *c << std::endl;
+				pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
 			}
 		}
-		result
-			<< "# default value: " << this->defaultValue(0) << std::endl
-			<< this->optionName(0) << " = " << this->defaultValue(0) << std::endl
-			<< std::endl;
 
-		return result.str();
+		pt.put((optionName(0) + ".default").c_str(), def_val_);
+		pt.put((optionName(0) + ".value").c_str(), par_);
 	}
 
 private:
@@ -493,6 +498,7 @@ private:
 
 	parameter_type& storedReference_; ///< Holds the reference to which the parsed value will be assigned
 	parameter_type par_; ///< Holds the individual parameter
+	parameter_type def_val_; ///< Holds the default value if par_
 };
 
 /************************************************************************/
@@ -537,8 +543,6 @@ public:
 		, bool isEssential = true
 		, std::string comment = ""
 	) {
-		namespace po = boost::program_options;
-
 		boost::shared_ptr<GSingleParsableParameter<parameter_type> >
 			singleParm_ptr(new GSingleParsableParameter<parameter_type>(
 					optionName
@@ -549,12 +553,6 @@ public:
 			);
 
 		singleParm_ptr->registerCallBackFunction(callBack);
-
-		// Add the variable to our configuration list
-		config_.add_options()
-				(optionName.c_str(), po::value<parameter_type>(
-						singleParm_ptr->getParameter())->default_value(def_val), comment.c_str())
-		;
 
 		// Store for later usage
 		parameter_proxies_.push_back(singleParm_ptr);
@@ -573,12 +571,11 @@ public:
 		, par_type1 def_val1
 		, par_type2 def_val2
 		, boost::function<void(par_type1, par_type2)> callBack
+		, std::string combined_label
 		, bool isEssential = true
 		, std::string comment1 = ""
 		, std::string comment2 = ""
 	) {
-		namespace po = boost::program_options;
-
 		boost::shared_ptr<GCombinedParsableParameter<par_type1, par_type2> >
 			combParm_ptr(new GCombinedParsableParameter<par_type1, par_type2>(
 					optionName1
@@ -588,16 +585,11 @@ public:
 					, comment2
 					, def_val2
 					, isEssential
+					, combined_label
 				)
 			);
 
 		combParm_ptr->registerCallBackFunction(callBack);
-
-		// Add the variables to our configuration list
-		config_.add_options()
-				(optionName1.c_str(), po::value<par_type1>(combParm_ptr->getParameter1())->default_value(def_val1), comment1.c_str())
-				(optionName2.c_str(), po::value<par_type2>(combParm_ptr->getParameter2())->default_value(def_val2), comment2.c_str())
-		;
 
 		// Store one and two for later usage
 		parameter_proxies_.push_back(combParm_ptr);
@@ -621,8 +613,6 @@ public:
 		, bool isEssential = true
 		, std::string comment = ""
 	) {
-	    namespace po = boost::program_options;
-
 		boost::shared_ptr<GReferenceParsableParameter<parameter_type> >
 			refParm_ptr(new GReferenceParsableParameter<parameter_type>(
 					parameter
@@ -633,10 +623,6 @@ public:
 				)
 			);
 
-		config_.add_options()
-				(optionName.c_str(), po::value<parameter_type>(&parameter)->default_value(def_val), comment.c_str())
-		;
-
 		// Store for later usage
 		parameter_proxies_.push_back(refParm_ptr);
 	}
@@ -644,7 +630,6 @@ public:
 private:
 	/********************************************************************/
 
-	boost::program_options::options_description config_; ///< Will hold a description of the program options
 	std::vector<boost::shared_ptr<GParsableI> > parameter_proxies_; ///< Holds parameter proxies
 };
 
