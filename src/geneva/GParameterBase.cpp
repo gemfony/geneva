@@ -316,6 +316,30 @@ void GParameterBase::randomInit() {
 
 /**********************************************************************************/
 /**
+ * Allows to identify whether we are dealing with a collection or an individual parameter.
+ * This function needs to be overloaded for parameter collections so that it returns the
+ * correct value.
+ *
+ * @return A boolean indicating whether the GParameterBase-derivative is an individual parameter
+ */
+bool GParameterBase::isIndividualParameter() const {
+	return true;
+}
+
+/**********************************************************************************/
+/**
+ * Allows to identify whether we are dealing with a collection or an individual parameter.
+ * As GParameterBase derivates can be either individual parameters or parameter collections,
+ * this function just returns the inverse of isIndividualParameter() .
+ *
+ * @return A boolean indicating whether the GParameterBase-derivative is a collection
+ */
+bool GParameterBase::isParameterCollection() const {
+	return !isIndividualParameter();
+}
+
+/**********************************************************************************/
+/**
  * Initializes double-based parameters with a given value. Allows e.g. to set all
  * floating point parameters to 0.
  *

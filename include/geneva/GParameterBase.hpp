@@ -108,6 +108,11 @@ public:
 	/** @brief Triggers random initialization of the parameter(-collection) */
 	virtual void randomInit();
 
+	/** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
+	virtual bool isIndividualParameter() const;
+	/** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
+	bool isParameterCollection() const;
+
 	/** @brief Initializes double-based parameters with a given value */
 	virtual void fpFixedValueInit(const float& val);
 	/** @brief Multiplies double-based parameters with a given value */

@@ -211,6 +211,19 @@ public:
 
 	/*******************************************************************************************/
 	/**
+	 * Allows to identify whether we are dealing with a collection or an individual parameter
+	 * (which is obviously not the case here). This function needs to be overloaded for parameter
+	 * collections so that its inverse (GParameterBase::isParameterCollection() ) returns the
+	 * correct value.
+	 *
+	 * @return A boolean indicating whether this GParameterBase-derivative is an individual parameter
+	 */
+	virtual bool isIndividualParameter() const {
+		return false;
+	}
+
+	/*******************************************************************************************/
+	/**
 	 * Initializes floating-point-based parameters with a given value. Allows e.g. to set all
 	 * floating point parameters to 0.
 	 *
