@@ -43,6 +43,7 @@
 #include "GGlobalDefines.hpp"
 
 // Boost headers go here
+#include <boost/array.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
@@ -53,6 +54,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 
 /**
  * Check that we have support for threads. This collection of classes is useless
@@ -79,6 +81,8 @@ namespace Common {
 // Forward declaration
 class GParserBuilder;
 
+/************************************************************************/
+//////////////////////////////////////////////////////////////////////////
 /************************************************************************/
 /**
  * This class specifies the interface of parsable parameters, to
@@ -157,6 +161,8 @@ private:
 	bool isEssential_; ///< Indicates whether this is an essential variable
 };
 
+/************************************************************************/
+//////////////////////////////////////////////////////////////////////////
 /************************************************************************/
 /**
  * This class wraps individual parsable parameters, to which a callback
@@ -273,6 +279,8 @@ private:
 	boost::function<void(parameter_type)> callBack_; ///< Holds the call-back function
 };
 
+/************************************************************************/
+//////////////////////////////////////////////////////////////////////////
 /************************************************************************/
 /**
  * This class wraps combined parsable parameters, to which a callback
@@ -413,6 +421,508 @@ private:
 };
 
 /************************************************************************/
+//////////////////////////////////////////////////////////////////////////
+/************************************************************************/
+/**
+ * This class wraps a std::vector of values (obviously of identical type).
+ * Note that this class does not enforce a given amount of parameters. However,
+ * there needs to be at least one default value in the def_val vector, if
+ * you plan to write out a parameter file.
+ */
+template <typename parameter_type>
+class GVectorParsableParameter :public GParsableI
+{
+	// We want GParserBuilder to be able to call our load- and save functions
+	friend class GParserBuilder;
+
+public:
+	/********************************************************************/
+	/**
+	 * Initializes the parameters
+	 */
+	GVectorParsableParameter(
+		const std::string& optionNameVar
+		, const std::string& commentVar
+		, const std::vector<parameter_type>& def_val
+		, const bool& isEssentialVar
+	)
+		: GParsableI(
+			GParsableI::makeVector(optionNameVar)
+			, GParsableI::makeVector(commentVar)
+			, isEssentialVar
+		  )
+	    , def_val_(def_val)
+		, par_() // empty
+	{ /* nothing */ }
+
+	/********************************************************************/
+	/**
+	 * The destructor
+	 */
+	virtual ~GVectorParsableParameter()
+	{ /* nothing */ }
+
+	/********************************************************************/
+	/**
+	 * Executes a stored call-back function
+	 */
+	virtual void executeCallBackFunction() {
+		if(!callBack_) {
+			raiseException(
+				"In GVectorParsableParameter::executeCallBackFunction(): Error" << std::endl
+				<< "Tried to execute call-back function without a stored function" << std::endl
+			);
+		}
+
+		// Execute the function
+		callBack_(par_);
+	}
+
+	/********************************************************************/
+	/**
+	 * Allows to register a call-back function with this object
+	 *
+	 * @param callBack The function to be executed
+	 */
+	void registerCallBackFunction(boost::function<void(std::vector<parameter_type>)> callBack) {
+		if(!callBack) {
+			raiseException(
+				"In GVectorParsableParameter::registerCallBackFunction(): Error" << std::endl
+				<< "Tried to register an empty call-back function" << std::endl
+			);
+		}
+
+		callBack_ = callBack;
+	}
+
+protected:
+	/********************************************************************/
+	/**
+	 * Loads data from a property_tree object
+	 *
+	 * @param pt The object from which data should be loaded
+	 */
+	virtual void load(const boost::property_tree::ptree& pt) {
+		using namespace boost::property_tree;
+
+		// Make sure the recipient vector is empty
+		par_.clear();
+
+	    BOOST_FOREACH(ptree::value_type &v, pt.get_child((optionName(0) + ".value").c_str()))
+			par_.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
+	}
+
+	/********************************************************************/
+	/**
+	 * Saves data to a property tree object, including comments. Default
+	 * values are taken from the def_val_ vector. Note that there needs
+	 * to be at least a single default value in it.
+	 *
+	 * @param pt The object to which data should be saved
+	 */
+	virtual void save(boost::property_tree::ptree& pt) const {
+		// Needed for the separation of comment strings
+		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+		boost::char_separator<char> semicolon_sep(";");
+		std::string comment = this->comment(0);
+
+		// Do some error checking
+		if(def_val_.empty()) {
+			raiseException(
+				"In GVectorParsableParameter::save(): Error!" << std::endl
+				<< "You need to provide at least one default value" << std::endl
+			);
+		}
+
+		// Add the comments
+		if(comment != "") { // Only output useful comments
+			// Break the comment into individual lines after each semicolon
+			tokenizer commentTokenizer(comment, semicolon_sep);
+			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
+				pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
+			}
+		}
+
+		// Add the value and default items
+		typename std::vector<parameter_type>::const_iterator it;
+		for(it=def_val_.begin(); it!=def_val_.end(); ++it) {
+			pt.add((optionName(0) + ".default.item").c_str(), *it);
+			pt.add((optionName(0) + ".value.item").c_str(), *it);
+		}
+	}
+
+private:
+	/********************************************************************/
+
+	std::vector<parameter_type> def_val_; ///< Holds default values
+	std::vector<parameter_type> par_; ///< Holds the parsed parameters
+
+	boost::function<void(std::vector<parameter_type>)> callBack_; ///< Holds the call-back function
+};
+
+/************************************************************************/
+//////////////////////////////////////////////////////////////////////////
+/************************************************************************/
+/**
+ * This class wraps a reference std::vector of values (obviously of identical type).
+ * Note that this class does not enforce a given amount of parameters. However,
+ * there needs to be at least one default value in the def_val vector, if
+ * you plan to write out a parameter file.
+ */
+template <typename parameter_type>
+class GVectorReferenceParsableParameter :public GParsableI
+{
+	// We want GParserBuilder to be able to call our load- and save functions
+	friend class GParserBuilder;
+
+public:
+	/********************************************************************/
+	/**
+	 * Initializes the parameters
+	 */
+	GVectorReferenceParsableParameter(
+		std::vector<parameter_type>& stored_reference
+		, const std::string& optionNameVar
+		, const std::string& commentVar
+		, const std::vector<parameter_type>& def_val
+		, const bool& isEssentialVar
+	)
+		: GParsableI(
+			GParsableI::makeVector(optionNameVar)
+			, GParsableI::makeVector(commentVar)
+			, isEssentialVar
+		  )
+	    , stored_reference_(stored_reference)
+		, def_val_(def_val)
+		, par_()
+	{ /* nothing */ }
+
+	/********************************************************************/
+	/**
+	 * The destructor
+	 */
+	virtual ~GVectorReferenceParsableParameter()
+	{ /* nothing */ }
+
+	/********************************************************************/
+	/**
+	 * Assigns the parsed parameters to the reference vector
+	 */
+	virtual void executeCallBackFunction() {
+		stored_reference_ = par_;
+	}
+
+protected:
+	/********************************************************************/
+	/**
+	 * Loads data from a property_tree object
+	 *
+	 * @param pt The object from which data should be loaded
+	 */
+	virtual void load(const boost::property_tree::ptree& pt) {
+		using namespace boost::property_tree;
+
+		// Make sure the recipient vector is empty
+		par_.clear();
+
+	    BOOST_FOREACH(ptree::value_type &v, pt.get_child((optionName(0) + ".value").c_str()))
+			par_.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
+	}
+
+	/********************************************************************/
+	/**
+	 * Saves data to a property tree object, including comments. Default
+	 * values are taken from the def_val_ vector. Note that there needs
+	 * to be at least a single default value in it.
+	 *
+	 * @param pt The object to which data should be saved
+	 */
+	virtual void save(boost::property_tree::ptree& pt) const {
+		// Needed for the separation of comment strings
+		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+		boost::char_separator<char> semicolon_sep(";");
+		std::string comment = this->comment(0);
+
+		// Do some error checking
+		if(def_val_.empty()) {
+			raiseException(
+				"In GVectorReferenceParsableParameter::save(): Error!" << std::endl
+				<< "You need to provide at least one default value" << std::endl
+			);
+		}
+
+		// Add the comments
+		if(comment != "") { // Only output useful comments
+			// Break the comment into individual lines after each semicolon
+			tokenizer commentTokenizer(comment, semicolon_sep);
+			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
+				pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
+			}
+		}
+
+		// Add the value and default items
+		typename std::vector<parameter_type>::const_iterator it;
+		for(it=def_val_.begin(); it!=def_val_.end(); ++it) {
+			pt.add((optionName(0) + ".default.item").c_str(), *it);
+			pt.add((optionName(0) + ".value.item").c_str(), *it);
+		}
+	}
+
+private:
+	/********************************************************************/
+
+	std::vector<parameter_type>& stored_reference_; ///< Holds a reference to the target vector
+	std::vector<parameter_type> def_val_; ///< Holds default values
+	std::vector<parameter_type> par_; ///< Holds the parsed parameters
+};
+
+/************************************************************************/
+//////////////////////////////////////////////////////////////////////////
+/************************************************************************/
+/**
+ * This class wraps a boost::array of values (obviously of identical type).
+ * This class enforces a fixed number of items in the array.
+ */
+template <typename parameter_type, std::size_t N>
+class GArrayParsableParameter :public GParsableI
+{
+	// We want GParserBuilder to be able to call our load- and save functions
+	friend class GParserBuilder;
+
+public:
+	/********************************************************************/
+	/**
+	 * Initializes the parameters
+	 */
+	GArrayParsableParameter(
+		const std::string& optionNameVar
+		, const std::string& commentVar
+		, const boost::array<parameter_type,N>& def_val
+		, const bool& isEssentialVar
+	)
+		: GParsableI(
+			GParsableI::makeVector(optionNameVar)
+			, GParsableI::makeVector(commentVar)
+			, isEssentialVar
+		  )
+	    , def_val_(def_val)
+		, par_(def_val) // Same size as def_val
+	{ /* nothing */ }
+
+	/********************************************************************/
+	/**
+	 * The destructor
+	 */
+	virtual ~GArrayParsableParameter()
+	{ /* nothing */ }
+
+	/********************************************************************/
+	/**
+	 * Executes a stored call-back function
+	 */
+	virtual void executeCallBackFunction() {
+		if(!callBack_) {
+			raiseException(
+				"In GArrayParsableParameter::executeCallBackFunction(): Error" << std::endl
+				<< "Tried to execute call-back function without a stored function" << std::endl
+			);
+		}
+
+		// Execute the function
+		callBack_(par_);
+	}
+
+	/********************************************************************/
+	/**
+	 * Allows to register a call-back function with this object
+	 *
+	 * @param callBack The function to be executed
+	 */
+	void registerCallBackFunction(boost::function<void(boost::array<parameter_type,N>)> callBack) {
+		if(!callBack) {
+			raiseException(
+				"In GArrayParsableParameter::registerCallBackFunction(): Error" << std::endl
+				<< "Tried to register an empty call-back function" << std::endl
+			);
+		}
+
+		callBack_ = callBack;
+	}
+
+protected:
+	/********************************************************************/
+	/**
+	 * Loads data from a property_tree object
+	 *
+	 * @param pt The object from which data should be loaded
+	 */
+	virtual void load(const boost::property_tree::ptree& pt) {
+		using namespace boost::property_tree;
+
+		for(std::size_t i=0; i<par_.size(); i++) {
+			par_.at(i) = pt.get((optionName(0) + "." + boost::lexical_cast<std::string>(i) + ".value").c_str(), def_val_.at(i));
+		}
+	}
+
+	/********************************************************************/
+	/**
+	 * Saves data to a property tree object, including comments. Default
+	 * values are taken from the def_val_ vector.
+	 *
+	 * @param pt The object to which data should be saved
+	 */
+	virtual void save(boost::property_tree::ptree& pt) const {
+		// Needed for the separation of comment strings
+		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+		boost::char_separator<char> semicolon_sep(";");
+		std::string comment = this->comment(0);
+
+		// Do some error checking
+		if(def_val_.empty()) {
+			raiseException(
+				"In GArrayParsableParameter::save(): Error!" << std::endl
+				<< "You need to provide at least one default value" << std::endl
+			);
+		}
+
+		// Add the comments
+		if(comment != "") { // Only output useful comments
+			// Break the comment into individual lines after each semicolon
+			tokenizer commentTokenizer(comment, semicolon_sep);
+			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
+				pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
+			}
+		}
+
+		// Add the value and default items
+		for(std::size_t i=0; i<def_val_.size(); i++) {
+			pt.add((optionName(0) + "." + boost::lexical_cast<std::string>(i) + ".default").c_str(), def_val_.at(i));
+			pt.add((optionName(0) + "." + boost::lexical_cast<std::string>(i) + ".value").c_str(), par_.at(i));
+		}
+	}
+
+private:
+	/********************************************************************/
+
+	boost::array<parameter_type,N> def_val_; ///< Holds default values
+	boost::array<parameter_type,N> par_; ///< Holds the parsed parameters
+
+	boost::function<void(boost::array<parameter_type,N>)> callBack_; ///< Holds the call-back function
+};
+
+/************************************************************************/
+//////////////////////////////////////////////////////////////////////////
+/************************************************************************/
+/**
+ * This class wraps a reference to a boost::array of values (obviously of
+ * identical type). This class enforces a fixed number of items in the array.
+ */
+template <typename parameter_type, std::size_t N>
+class GArrayReferenceParsableParameter :public GParsableI
+{
+	// We want GParserBuilder to be able to call our load- and save functions
+	friend class GParserBuilder;
+
+public:
+	/********************************************************************/
+	/**
+	 * Initializes the parameters
+	 */
+	GArrayReferenceParsableParameter(
+		boost::array<parameter_type,N>& stored_reference
+		, const std::string& optionNameVar
+		, const std::string& commentVar
+		, const boost::array<parameter_type,N>& def_val
+		, const bool& isEssentialVar
+	)
+		: GParsableI(
+			GParsableI::makeVector(optionNameVar)
+			, GParsableI::makeVector(commentVar)
+			, isEssentialVar
+		  )
+	    , stored_reference_(stored_reference)
+		, def_val_(def_val)
+		, par_(def_val)
+	{ /* nothing */ }
+
+	/********************************************************************/
+	/**
+	 * The destructor
+	 */
+	virtual ~GArrayReferenceParsableParameter()
+	{ /* nothing */ }
+
+	/********************************************************************/
+	/**
+	 * Assigns the parsed parameters to the reference vector
+	 */
+	virtual void executeCallBackFunction() {
+		stored_reference_ = par_;
+	}
+
+protected:
+	/********************************************************************/
+	/**
+	 * Loads data from a property_tree object
+	 *
+	 * @param pt The object from which data should be loaded
+	 */
+	virtual void load(const boost::property_tree::ptree& pt) {
+		using namespace boost::property_tree;
+
+		for(std::size_t i=0; i<par_.size(); i++) {
+			par_.at(i) = pt.get((optionName(0) + "." + boost::lexical_cast<std::string>(i) + ".value").c_str(), def_val_.at(i));
+		}
+	}
+
+	/********************************************************************/
+	/**
+	 * Saves data to a property tree object, including comments. Default
+	 * values are taken from the def_val_ vector.
+	 *
+	 * @param pt The object to which data should be saved
+	 */
+	virtual void save(boost::property_tree::ptree& pt) const {
+		// Needed for the separation of comment strings
+		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+		boost::char_separator<char> semicolon_sep(";");
+		std::string comment = this->comment(0);
+
+		// Do some error checking
+		if(def_val_.empty()) {
+			raiseException(
+				"In GArrayReferenceParsableParameter::save(): Error!" << std::endl
+				<< "You need to provide at least one default value" << std::endl
+			);
+		}
+
+		// Add the comments
+		if(comment != "") { // Only output useful comments
+			// Break the comment into individual lines after each semicolon
+			tokenizer commentTokenizer(comment, semicolon_sep);
+			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
+				pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
+			}
+		}
+
+		// Add the value and default items
+		for(std::size_t i=0; i<def_val_.size(); i++) {
+			pt.add((optionName(0) + "." + boost::lexical_cast<std::string>(i) + ".default").c_str(), def_val_.at(i));
+			pt.add((optionName(0) + "." + boost::lexical_cast<std::string>(i) + ".value").c_str(), par_.at(i));
+		}
+	}
+
+private:
+	/********************************************************************/
+
+	boost::array<parameter_type,N>& stored_reference_; ///< Holds a reference to the target vector
+	boost::array<parameter_type,N> def_val_; ///< Holds default values
+	boost::array<parameter_type,N> par_; ///< Holds the parsed parameters
+};
+
+/************************************************************************/
+//////////////////////////////////////////////////////////////////////////
+/************************************************************************/
 /**
  * This class wraps a reference to individual parameters. Instead of
  * executing a stored call-back function, executeCallBackFunction will assign
@@ -501,6 +1011,8 @@ private:
 	parameter_type def_val_; ///< Holds the default value if par_
 };
 
+/************************************************************************/
+//////////////////////////////////////////////////////////////////////////
 /************************************************************************/
 /**
  * This class implements a "parser builder", that allows to easily specify
@@ -627,11 +1139,113 @@ public:
 		parameter_proxies_.push_back(refParm_ptr);
 	}
 
+	/********************************************************************/
+	/**
+	 * Adds a vector of configurable type to the collection
+	 */
+	template <typename parameter_type>
+	void registerFileParameter(
+		const std::string& optionName
+		, const std::vector<parameter_type>& def_val
+		, const bool& isEssential = true
+		, const std::string& comment = ""
+	) {
+		boost::shared_ptr<GVectorParsableParameter<parameter_type> >
+			vecParm_ptr(new GVectorParsableParameter<parameter_type> (
+					optionName
+					, comment
+					, def_val
+					, isEssential
+				)
+			);
+
+		// Store for later usage
+		parameter_proxies_.push_back(vecParm_ptr);
+	}
+
+	/********************************************************************/
+	/**
+	 * Adds a reference to a vector of configurable type to the collection
+	 */
+	template <typename parameter_type>
+	void registerFileParameter(
+		const std::string& optionName
+		, std::vector<parameter_type>& stored_reference
+		, const std::vector<parameter_type>& def_val
+		, const bool& isEssential = true
+		, const std::string& comment = ""
+	) {
+		boost::shared_ptr<GVectorReferenceParsableParameter<parameter_type> >
+			vecRefParm_ptr(new GVectorReferenceParsableParameter<parameter_type> (
+					stored_reference
+					, optionName
+					, comment
+					, def_val
+					, isEssential
+				)
+			);
+
+		// Store for later usage
+		parameter_proxies_.push_back(vecRefParm_ptr);
+	}
+
+	/********************************************************************/
+	/**
+	 * Adds an array of configurable type to the collection
+	 */
+	template <typename parameter_type, std::size_t N>
+	void registerFileParameter(
+		const std::string& optionName
+		, const boost::array<parameter_type,N>& def_val
+		, const bool& isEssential = true
+		, const std::string& comment = ""
+	) {
+		boost::shared_ptr<GArrayParsableParameter<parameter_type,N> >
+			arrayParm_ptr(new GArrayParsableParameter<parameter_type,N> (
+					optionName
+					, comment
+					, def_val
+					, isEssential
+				)
+			);
+
+		// Store for later usage
+		parameter_proxies_.push_back(arrayParm_ptr);
+	}
+
+	/********************************************************************/
+	/**
+	 * Adds a reference to an array of configurable type to the collection
+	 */
+	template <typename parameter_type, std::size_t N>
+	void registerFileParameter(
+		const std::string& optionName
+		, boost::array<parameter_type,N>& stored_reference
+		, const boost::array<parameter_type,N>& def_val
+		, const bool& isEssential = true
+		, const std::string& comment = ""
+	) {
+		boost::shared_ptr<GArrayReferenceParsableParameter<parameter_type,N> >
+			arrayRefParm_ptr(new GArrayReferenceParsableParameter<parameter_type,N> (
+					stored_reference
+					, optionName
+					, comment
+					, def_val
+					, isEssential
+				)
+			);
+
+		// Store for later usage
+		parameter_proxies_.push_back(arrayRefParm_ptr);
+	}
+
 private:
 	/********************************************************************/
 
 	std::vector<boost::shared_ptr<GParsableI> > parameter_proxies_; ///< Holds parameter proxies
 };
+
+/************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
