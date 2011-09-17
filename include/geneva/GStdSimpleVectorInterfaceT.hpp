@@ -364,6 +364,56 @@ public:
 	 */
 	void getDataCopy(std::vector<T>& cp) const { cp=data; 	}  // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
+	/*****************************************************************************/
+	/**
+	 * Performs a cross-over operation at a given position. Note: We do not require
+	 * the two vectors to be of the same size
+	 *
+	 * @param cp A copy of another GStdSimpleVectorInterfaceT<T> object
+	 * @param pos The position as of which the cross-over should be performed
+	 */
+	void crossOver(GStdSimpleVectorInterfaceT<T>& cp, const std::size_t& pos) {
+		// Find out the minimum size of both vectors
+		std::size_t minSize = std::min(this->size(), cp.size());
+
+#ifdef DEBUG
+		// Do some error checking
+		if(pos >= minSize) {
+			raiseException(
+				"In GStdSimpleVectorInterfaceT::crossOver(cp,pos): Error!" << std::endl
+				<< "Invalid position " << pos << " / " << this->size() << " / " << cp.size() << std::endl
+			);
+		}
+#endif /* DEBUG */
+
+		// Swap the elements
+		for(std::size_t i=pos; i<minSize; i++) {
+			std::swap(this->at(i), cp.at(i));
+		}
+
+		// Move the elements of the longer vector over to the other
+		// and remove the elements from the other vector
+		if(this->size() > cp.size()) {
+			// Attach elements to the other vector
+			for(std::size_t i=cp.size(); i<this->size(); i++) {
+				cp.push_back(this->at(i));
+			}
+
+			// Remove the surplus elements from this vector
+			this->erase(this->begin()+minSize, this->end());
+		} else if (cp.size() > this->size()) {
+			// Attach elements to the other vector
+			for(std::size_t i=this->size(); i<cp.size(); i++) {
+				this->push_back(cp.at(i));
+			}
+
+			// Remove the surplus elements from this vector
+			cp.erase(cp.begin()+minSize, cp.end());
+		}
+
+		// Nothing to do if both vectors have the same size
+	}
+
 protected:
 	std::vector<T> data;
 
