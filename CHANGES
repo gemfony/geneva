@@ -9,22 +9,23 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
 
 The main changes for this release include:
  - Introduced a new wrapper class "Go2" that allows to aggregate
-   different optimization algorithms, making the best results of 
+   different optimization algorithms, making the best results of
    the first algorithms available to their successors. Algorithms can
    now either be added in main() -- in which case the parallelization
-   mode chosen for the corresponding objects is used -- or on the 
+   mode chosen for the corresponding objects is used -- or on the
    command line, in which case the parallelization mode can be modified
    on demand.
- - Facilitated and centralized creation and parsing of configuration
-   options, so users may more easily configure their applications
- - Switched configuration files to JSON format so that it becomes possible
-   to create Java Script based GUI interfaces
+ - Simplified and centralized creation and parsing of configuration
+   options, so users may more easily configure their applications.
+ - Switched configuration files to JSON format so that it becomes
+   possible to create JavaScript based GUI interfaces.
  - Introduced a new interface class "GOptimizableI", as the basis
    of GOptimizationAlgorithmT and various wrapper classes.
+ - Removed all std::pair in favor of boost::tuple (the future
+   std::tuple).
  - Renamed 'public' cpp variables according to the library they
    are used in, GEM_<LIB>_<VAR>.
  - Bumped the minimal Boost version to 1.41.
- - Removed all std::pair in favor of boost::tuple (the future std::tuple)
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.2, "Route de Meyrin" - August 4, 2011
