@@ -1760,7 +1760,7 @@ recoScheme GBaseEA::getRecombinationMethod() const {
 	return recombinationMethod_;
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /************************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -1861,7 +1861,7 @@ void GBaseEA::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /************************************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 /**********************************************************************************/
 /**
@@ -2258,7 +2258,7 @@ GObject* GBaseEA::GEAOptimizationMonitor::clone_() const {
 	return new GBaseEA::GEAOptimizationMonitor(*this);
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /**********************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -2291,7 +2291,7 @@ void GBaseEA::GEAOptimizationMonitor::specificTestsFailuresExpected_GUnitTests()
 }
 
 /**********************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

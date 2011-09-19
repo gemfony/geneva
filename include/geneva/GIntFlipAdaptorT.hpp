@@ -195,7 +195,7 @@ protected:
 	 */
 	virtual GObject *clone_() const = 0;
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/*******************************************************************************************/
 	/**
@@ -241,7 +241,7 @@ public:
 		GNumFlipAdaptorT<int_type>::specificTestsFailuresExpected_GUnitTests();
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 /************************************************************************************************/

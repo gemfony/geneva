@@ -202,7 +202,7 @@ void GBooleanAdaptor::customAdaptions(bool& value) {
  * ----------------------------------------------------------------------------------
  */
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 
 /*******************************************************************************************/
 /**
@@ -265,7 +265,7 @@ void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests() {
 
 /*****************************************************************************/
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

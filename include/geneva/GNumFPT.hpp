@@ -353,7 +353,7 @@ protected:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 
 	/******************************************************************/
@@ -586,7 +586,7 @@ public:
 		GNumT<fp_type>::specificTestsFailuresExpected_GUnitTests();
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 } /* namespace Geneva */

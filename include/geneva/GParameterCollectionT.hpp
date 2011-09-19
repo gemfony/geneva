@@ -306,7 +306,7 @@ protected:
 	 */
 	virtual void dummyFunction() { /* nothing */ }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/*******************************************************************************************/
 	/**
@@ -343,7 +343,7 @@ public:
 		GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();
 		GStdSimpleVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
 	}
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 /*********************************************************************************************/

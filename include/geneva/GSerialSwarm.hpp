@@ -124,7 +124,7 @@ protected:
 	/** @brief Updates the fitness of all individuals */
 	virtual void updateFitness();
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/**************************************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -133,13 +133,13 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 // Tests of this class (and parent classes)
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -151,7 +151,7 @@ template <> boost::shared_ptr<Gem::Geneva::GSerialSwarm> TFactory_GUnitTests<Gem
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialSwarm)
 

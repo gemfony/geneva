@@ -420,7 +420,7 @@ private:
 
 	fp_type upper_closed_; //< The next floating point value directly before an upper boundary
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/******************************************************************/
 	/**
@@ -455,7 +455,7 @@ public:
 		GConstrainedNumCollectionT<fp_type>::specificTestsFailuresExpected_GUnitTests();
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 };
 

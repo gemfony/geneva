@@ -233,7 +233,7 @@ Gem::Geneva::adaptorId GInt32GaussAdaptor::getAdaptorId() const {
  * ----------------------------------------------------------------------------------
  */
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -283,7 +283,7 @@ void GInt32GaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*******************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

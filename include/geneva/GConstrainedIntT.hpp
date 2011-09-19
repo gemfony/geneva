@@ -355,7 +355,7 @@ private:
 		return reverted;
 	}
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/****************************************************************************/
 	/**
@@ -572,7 +572,7 @@ public:
 		GConstrainedNumT<int_type>::specificTestsFailuresExpected_GUnitTests();
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 } /* namespace Geneva */

@@ -163,7 +163,7 @@ void GConstrainedDoubleObjectCollection::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 
 /*******************************************************************************************/
 /**
@@ -504,7 +504,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 
 /*******************************************************************************************/
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -583,7 +583,7 @@ void GParameterSet::addConfigurationOptions (
 	);
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /************************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -1024,7 +1024,7 @@ void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /************************************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

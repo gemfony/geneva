@@ -287,7 +287,7 @@ protected:
 	 */
 	mutable T val_;
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/*******************************************************************************************/
 	/**
@@ -324,7 +324,7 @@ public:
 		GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 

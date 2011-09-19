@@ -611,7 +611,7 @@ private:
 	boost::logic::tribool adaptionMode_; ///< false == never adapt; indeterminate == adapt with adProb_ probability; true == always adapt
 	double adaptAdaptionProbability_; ///< Influences the likelihood for the adaption of the adaption parameters
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/***********************************************************************************/
 	/**
@@ -1119,7 +1119,7 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 /******************************************************************************************/

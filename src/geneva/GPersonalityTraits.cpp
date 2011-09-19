@@ -140,7 +140,7 @@ void GPersonalityTraits::load_(const GObject *cp) {
 	// No local data
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /*****************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -179,7 +179,7 @@ void GPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*****************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

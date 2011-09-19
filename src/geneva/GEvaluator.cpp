@@ -188,7 +188,7 @@ double GEvaluator::fitnessCalculation(GParameterSet * const gps) const {
 
 /************************************************************************************************************/
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /************************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -222,7 +222,7 @@ void GEvaluator::specificTestsFailuresExpected_GUnitTests() {
 
 /************************************************************************************************************/
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

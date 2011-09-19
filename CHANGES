@@ -25,6 +25,7 @@ The main changes for this release include:
    std::tuple).
  - Renamed 'public' cpp variables according to the library they
    are used in, GEM_<LIB>_<VAR>.
+ - Renamed the cpp variable GENEVATESTING to GEM_TESTING.
  - Bumped the minimal Boost version to 1.41.
 
 //------------------------------------------------------------------------------------------------------

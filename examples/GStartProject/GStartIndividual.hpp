@@ -71,9 +71,9 @@
 #include <geneva/GParameterObjectCollection.hpp>
 #include <geneva/GParameterSet.hpp>
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 #include <common/GUnitTestFrameworkT.hpp>
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 namespace Gem
 {
@@ -251,7 +251,7 @@ public:
 	}
 
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 
 	/*******************************************************************************************/
 	/**
@@ -307,7 +307,7 @@ public:
 		GParameterSet::specificTestsFailuresExpected_GUnitTests();
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 
 protected:
@@ -399,7 +399,7 @@ BOOST_CLASS_EXPORT(Gem::Geneva::GStartIndividual)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 
 /**
  * As the Gem::Geneva::Gem::Geneva::GStartIndividual has a private default constructor, we need to provide a
@@ -410,7 +410,7 @@ boost::shared_ptr<Gem::Geneva::GStartIndividual> TFactory_GUnitTests<Gem::Geneva
 	return boost::shared_ptr<Gem::Geneva::GStartIndividual>(new Gem::Geneva::GStartIndividual(1000,-10.,10.));
 }
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -492,7 +492,7 @@ double GNeuralNetworkIndividual<RBF>::transfer(const double& value) const {
 /*************************************************************************************************/
 // For testing purposes
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 
 /**
  * As the Gem::Geneva::Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> has a private default constructor, we need to provide a
@@ -513,7 +513,7 @@ boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> > TFac
 	return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> >(new Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
 }
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////

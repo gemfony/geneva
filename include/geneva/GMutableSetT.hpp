@@ -250,7 +250,7 @@ protected:
 	 */
 	virtual void dummyFunction() { /* nothing */ }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/**********************************************************************************/
 	/**
@@ -308,7 +308,7 @@ public:
 	}
 
 	/**********************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 } /* namespace Geneva */

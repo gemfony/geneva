@@ -451,7 +451,7 @@ protected: // For performance reasons, so we do not have to go through access fu
 	fp_type minSigma_; ///< minimum allowed value for sigma_
 	fp_type maxSigma_; ///< maximum allowed value for sigma_
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/***********************************************************************************/
 	/**
@@ -674,7 +674,7 @@ public:
 
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 /************************************************************************************************/

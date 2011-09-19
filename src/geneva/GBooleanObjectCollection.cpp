@@ -163,7 +163,7 @@ void GBooleanObjectCollection::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 
 /*******************************************************************************************/
 /**
@@ -297,7 +297,7 @@ void GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 
 /*******************************************************************************************/
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

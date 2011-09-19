@@ -242,7 +242,7 @@ void GInt32Collection::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -325,7 +325,7 @@ void GInt32Collection::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*******************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

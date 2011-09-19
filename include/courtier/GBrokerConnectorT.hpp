@@ -1253,7 +1253,7 @@ private:
 
     GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
     /**********************************************************************************/
     /**
@@ -1284,7 +1284,7 @@ public:
 
     /**********************************************************************************/
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 /************************************************************************************************************/

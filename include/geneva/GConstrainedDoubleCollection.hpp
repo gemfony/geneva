@@ -125,7 +125,7 @@ protected:
 	/** @brief The default constructor. Intentionally protected	 */
 	GConstrainedDoubleCollection();
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/******************************************************************/
 	/** @brief Applies modifications to this object */
@@ -135,7 +135,7 @@ public:
 	/** @brief Performs self tests that are expected to fail */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 	/******************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 };
 
@@ -144,7 +144,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 // Tests of this class (and parent classes)
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,7 +156,7 @@ TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>();
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleCollection)
 

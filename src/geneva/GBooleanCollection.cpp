@@ -302,7 +302,7 @@ namespace Geneva
   }
 
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 
   /**********************************************************************/
   /**
@@ -684,7 +684,7 @@ namespace Geneva
 
   /*****************************************************************************/
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

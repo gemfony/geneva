@@ -52,7 +52,7 @@ FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
 
 # Check whether we want to activate the test code and build tests, if not done yet
 IF ( NOT GENEVA_INFO_MSG AND GENEVA_BUILD_TESTS )
-	ADD_DEFINITIONS ("-DGENEVATESTING")
+	ADD_DEFINITIONS ("-DGEM_TESTING")
 	FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
 		test_exec_monitor
 	)

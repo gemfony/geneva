@@ -366,7 +366,7 @@ private:
 	num_type lowerBoundary_; ///< The lower allowed boundary for our value
 	num_type upperBoundary_; ///< The upper allowed boundary for our value
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/******************************************************************/
 	/**
@@ -401,7 +401,7 @@ public:
 		GParameterCollectionT<num_type>::specificTestsFailuresExpected_GUnitTests();
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 };
 

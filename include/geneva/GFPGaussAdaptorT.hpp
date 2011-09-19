@@ -258,7 +258,7 @@ protected:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/*********************************************************************/
 	/**
@@ -300,7 +300,7 @@ public:
 		// Call the parent class'es function
 		GNumGaussAdaptorT<fp_type, fp_type>::specificTestsFailuresExpected_GUnitTests();
 	}
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 /*************************************************************************/

@@ -262,7 +262,7 @@ std::size_t GGDPersonalityTraits::getPopulationPosition(void) const {
  * ----------------------------------------------------------------------------------
  */
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /*****************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -343,7 +343,7 @@ void GGDPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*****************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

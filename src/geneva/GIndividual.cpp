@@ -1042,7 +1042,7 @@ bool GIndividual::localRNGsUsed() const {
 	return true;
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 
 /************************************************************************************************************/
 /**
@@ -1354,7 +1354,7 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 
 /************************************************************************************************************/
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

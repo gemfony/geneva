@@ -698,7 +698,7 @@ protected:
 	 */
 	virtual void customAdaptions(num_type&) = 0;
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/***********************************************************************************/
 	/**
@@ -746,7 +746,7 @@ public:
 		GAdaptorT<num_type>::specificTestsFailuresExpected_GUnitTests();
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 /************************************************************************************************/

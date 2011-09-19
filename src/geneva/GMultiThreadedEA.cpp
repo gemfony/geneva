@@ -362,7 +362,7 @@ boost::uint16_t GMultiThreadedEA::getNThreads() const  {
 	return nThreads_;
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /************************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -397,7 +397,7 @@ void GMultiThreadedEA::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /************************************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

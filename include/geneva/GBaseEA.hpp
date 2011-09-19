@@ -54,9 +54,9 @@
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 #include "geneva-individuals/GTestIndividual1.hpp"
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 namespace Gem {
 namespace Geneva {
@@ -427,7 +427,7 @@ private:
 	bool logOldParents_; ///< If set, a copy of the old parent individuals will be kept and the id of the parent individual will be recorded
 	std::vector<boost::shared_ptr<GIndividual> > oldParents_; ///< Holds the last generation's parents, if logOldParents_ is set
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/**************************************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -438,7 +438,7 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 public:
 	/**************************************************************************************/
@@ -527,7 +527,7 @@ public:
 		boost::uint16_t yDim_; ///< The dimension of the canvas in y-direction
 		std::size_t nMonitorInds_; ///< The number if individuals that should be monitored
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 	public:
 		/** @brief Applies modifications to this object. This is needed for testing purposes */
 		virtual bool modify_GUnitTests();
@@ -537,7 +537,7 @@ public:
 		virtual void specificTestsFailuresExpected_GUnitTests();
 
 		/**********************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 	};
 
 	/**************************************************************************************/

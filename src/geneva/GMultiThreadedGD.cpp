@@ -373,7 +373,7 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 	return bestFitness;
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /************************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -408,12 +408,12 @@ void GMultiThreadedGD::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /************************************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 // Tests of this class (and parent classes)
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -432,4 +432,4 @@ boost::shared_ptr<Gem::Geneva::GMultiThreadedGD> TFactory_GUnitTests<Gem::Geneva
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */

@@ -448,7 +448,7 @@ void GObject::addConfigurationOptions(
 	// No local data, no relevant parent classes, hence nothing to do
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /**************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -579,7 +579,7 @@ void GObject::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /**************************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

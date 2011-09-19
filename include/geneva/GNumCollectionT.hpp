@@ -309,7 +309,7 @@ private:
 	T lowerInitBoundary_; ///< The lower boundary for random initialization
 	T upperInitBoundary_; ///< The upper boundary for random initialization
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/******************************************************************/
 	/**
@@ -377,7 +377,7 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 };
 

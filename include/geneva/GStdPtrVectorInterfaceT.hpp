@@ -1007,7 +1007,7 @@ private:
 	/** @brief Intentionally left undefined */
 	bool operator!=(const std::vector<boost::shared_ptr<T> >&) const;
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	// Note to self: changes to GStdPtrVectorInterface should be minimal and not involve objects pointed to
@@ -1016,7 +1016,7 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing here yet */ }
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing here yet */ }
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 /**************************************************************************************************/

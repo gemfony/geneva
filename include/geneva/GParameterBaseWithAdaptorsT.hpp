@@ -499,7 +499,7 @@ private:
 	 */
 	boost::shared_ptr<GAdaptorT<T> > adaptor_;
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/*******************************************************************************************/
 	/**
@@ -596,7 +596,7 @@ public:
 		// Call the parent classes' functions
 		GParameterBase::specificTestsFailuresExpected_GUnitTests();
 	}
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 // Declaration of specializations for std::vector<bool>

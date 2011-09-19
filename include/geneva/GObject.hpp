@@ -98,9 +98,9 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 #include <boost/test/unit_test.hpp>
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 /** Check that we have support for threads */
 #ifndef BOOST_HAS_THREADS
@@ -125,9 +125,9 @@
 #include "common/GSerializeTupleT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 #include "common/GUnitTestFrameworkT.hpp"
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 namespace Gem {
 namespace Geneva {
@@ -388,7 +388,7 @@ private:
 	/** @brief Checks inequality with another GObject object. Intentionally left undefined, as this class is abstract */
 	bool operator!=(const GObject&) const;
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/**************************************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -397,7 +397,7 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 /**********************************************************************************************************/

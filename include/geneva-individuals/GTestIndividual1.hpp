@@ -140,7 +140,7 @@ protected:
 private:
 	bool fakeUpdateOnStall_;
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	// Note: The following functions are, in the context of GTestIndividual1,
 	// designed to mainly test parent classes
@@ -154,7 +154,7 @@ public:
 	/** @brief Performs self tests that are expected to fail. */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 } /* namespace Tests */

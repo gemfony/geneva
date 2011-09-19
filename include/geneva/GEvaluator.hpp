@@ -115,7 +115,7 @@ protected:
 private:
 	double eval_; ///< Holds the last known fitness value
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/**********************************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -126,7 +126,7 @@ public:
 	virtual void specificTestsFailuresExpected_GUnitTests();
 
 	/**********************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 /**************************************************************************************************/

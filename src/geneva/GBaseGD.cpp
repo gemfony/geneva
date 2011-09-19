@@ -823,7 +823,7 @@ void GBaseGD::markIndividualPositions() {
 	}
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /************************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -854,7 +854,7 @@ void GBaseGD::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::specificTestsFailuresExpected_GUnitTests();
 }
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 /**********************************************************************************/
 /**
@@ -1171,7 +1171,7 @@ GObject* GBaseGD::GGDOptimizationMonitor::clone_() const {
 	return new GBaseGD::GGDOptimizationMonitor(*this);
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /**********************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -1204,7 +1204,7 @@ void GBaseGD::GGDOptimizationMonitor::specificTestsFailuresExpected_GUnitTests()
 }
 
 /**********************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

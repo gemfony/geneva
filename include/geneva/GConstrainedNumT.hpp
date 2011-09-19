@@ -564,7 +564,7 @@ private:
 	T upperBoundary_; ///< The upper allowed boundary for our value
 
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/****************************************************************************/
 	/**
@@ -779,7 +779,7 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 } /* namespace Geneva */

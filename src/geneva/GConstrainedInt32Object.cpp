@@ -282,7 +282,7 @@ void GConstrainedInt32Object::randomInit_() {
  * ----------------------------------------------------------------------------------
  */
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 
 /*******************************************************************************************/
 /**
@@ -363,7 +363,7 @@ void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
 
 /*******************************************************************************************/
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

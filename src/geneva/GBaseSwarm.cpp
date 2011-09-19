@@ -1631,7 +1631,7 @@ std::size_t GBaseSwarm::getNProcessableItems() const {
 }
 
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /************************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -1666,7 +1666,7 @@ void GBaseSwarm::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /************************************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 /**********************************************************************************/
 /**
@@ -2001,7 +2001,7 @@ GObject* GBaseSwarm::GSwarmOptimizationMonitor::clone_() const {
 	return new GBaseSwarm::GSwarmOptimizationMonitor(*this);
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /**********************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -2034,7 +2034,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::specificTestsFailuresExpected_GUnitT
 }
 
 /**********************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

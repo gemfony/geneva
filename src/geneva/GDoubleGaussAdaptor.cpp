@@ -228,7 +228,7 @@ Gem::Geneva::adaptorId GDoubleGaussAdaptor::getAdaptorId() const {
  * ----------------------------------------------------------------------------------
  */
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -292,7 +292,7 @@ void GDoubleGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*******************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

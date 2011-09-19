@@ -251,7 +251,7 @@ GObject* GConstrainedDoubleCollection::clone_() const {
 	return new GConstrainedDoubleCollection(*this);
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -287,12 +287,12 @@ void GConstrainedDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 
 /*******************************************************************************************/
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
@@ -317,4 +317,4 @@ boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> TFactory_GUnitTests
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */

@@ -272,7 +272,7 @@ protected:
 		}
 	}
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/***********************************************************************************/
 	/**
@@ -316,7 +316,7 @@ public:
 		GNumBiGaussAdaptorT<fp_type, fp_type>::specificTestsFailuresExpected_GUnitTests();
 	}
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 };
 
 /************************************************************************************************/

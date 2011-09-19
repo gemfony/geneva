@@ -281,7 +281,7 @@ double GSerialGD::doFitnessCalculation(const std::size_t& finalPos) {
 
 
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /************************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -312,14 +312,14 @@ void GSerialGD::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GBaseGD::specificTestsFailuresExpected_GUnitTests();
 }
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
 
 /************************************************************************************************************/
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /**
  * A factory function that emits a GSerialGD object
  */
@@ -330,5 +330,5 @@ template <> boost::shared_ptr<Gem::Geneva::GSerialGD> TFactory_GUnitTests<Gem::G
 	p->push_back(boost::shared_ptr<GTestIndividual1>(new GTestIndividual1()));
 	return p;
 }
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 

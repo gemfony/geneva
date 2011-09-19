@@ -173,7 +173,7 @@ boost::shared_ptr<Gem::Geneva::GParameterBase> GParameterObjectCollection::at(co
 	return data.at(pos);
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -537,7 +537,7 @@ void GParameterObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*******************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

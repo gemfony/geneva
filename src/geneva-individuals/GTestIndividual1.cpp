@@ -236,7 +236,7 @@ double GTestIndividual1::fitnessCalculation(){
 	return result;
 }
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 // Note: The following code is designed to mainly test parent classes
 
 /******************************************************************/
@@ -1091,7 +1091,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 /******************************************************************/
 
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 } /* namespace Tests */
 } /* namespace Gem */

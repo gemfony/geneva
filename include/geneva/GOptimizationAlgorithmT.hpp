@@ -1503,7 +1503,7 @@ private:
 	bool halted_; ///< Set to true when halt() has returned "true"
 	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 public:
 	/**************************************************************************************/
 	/**
@@ -1539,7 +1539,7 @@ public:
 	}
 
 	/**************************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 
 
 public:
@@ -1837,7 +1837,7 @@ public:
 		std::string resultFile_; ///< Specifies where result information should be sent to
 		std::ofstream summary_; ///< The stream to which information is written (not serialized)
 
-#ifdef GENEVATESTING
+#ifdef GEM_TESTING
 	public:
 		/**********************************************************************************/
 		/**
@@ -1871,7 +1871,7 @@ public:
 		}
 
 		/**********************************************************************************/
-#endif /* GENEVATESTING */
+#endif /* GEM_TESTING */
 	};
 
 	/**************************************************************************************/
