@@ -240,6 +240,73 @@ void GParameterSet::randomInit() {
 
 /************************************************************************************************************/
 /**
+ * This function performs a cross-over with another GParameterSet object with a given likelihood.
+ * Items subject to cross-over may either be located in the GParameterSet-root or in one of the
+ * GParmeterBase-derivatives stored in this object. Hence the cross-over operation is propagated to
+ * these. A likelihood specifies how likely a cross-over will actually be performed. Note that thus more
+ * than one cross-over may occur if more than one parameter collection is stored in this object.
+ * Cross-Over will be skipped if a different composition of the other object is detected.
+ */
+void GParameterSet::crossOver(GParameterSet& cp, const double& likelihood) {
+#ifdef DEBUG
+	// Do some error checking
+	if(likelihood < 0. || likelihood > 1.) {
+		raiseException(
+			"In GParameterSet::crossOver(): Error!" << std::endl
+			<< "Received invalid likelihood: " << likelihood << std::endl
+		);
+	}
+#endif /* DEBUG */
+
+	// Check the architecture and leave, if it is different. Cross-over does not make sense
+	// if there are differences. These are only tolerated inside of parameter collections of
+	// the same type.
+	// a) We require both objects to have the same size
+	if(this->size() != cp.size()) {
+		return;
+	}
+	// b) We require both objects to have individual parameters in the same locations.
+	// We count the number of individual parameters along the way
+	std::size_t nIndividualParameters = 0;
+	for(std::size_t i=0; i<this->size(); i++) {
+		if(this->at(i)->isIndividualParameter()) {
+			if((cp.at(i))->isParameterCollection()) {
+				// This will terminate all cross-over for the entire object
+				return;
+			} else {
+				nIndividualParameters++;
+			}
+		}
+	}
+
+	// Calculate a random number in the range [0,1[ . We only cross over at the root
+	// level if this probe is below the "likelihood" threshold
+	double probe = gr.uniform_01<double>();
+	if(probe <= likelihood) {
+		// Cross over at a random position inside of the root-level's individual objects
+		// a) Determine a suitable swap-over position. swap_pos indicates the first position
+		// where a swap should be carried out. Note that swapping from position 0 onwards
+		// does not make sense. Hence we only act if there is more than one individual parameter.
+		if(nIndividualParameters > 1) {
+			std::size_t swap_pos = nIndividualParameters==2?1:gr.uniform_int<std::size_t>(1,nIndividualParameters-1);
+			std::size_t actualIndPos = 0;
+
+			for(std::size_t i=0; i<this->size(); i++) {
+				if(this->at(i)->isIndividualParameter()) {
+					if(actualIndPos >= swap_pos) {
+						std::swap((this->data).at(i), cp.data.at(i));
+					}
+					actualIndPos++;
+				}
+			}
+		}
+	}
+
+	// Now propagate the cross-over command to all contained parameter collections
+}
+
+/************************************************************************************************************/
+/**
  * Specify whether we want to work in maximization (true) or minimization
  * (false) mode. This function is protected. The idea is that GParameterSet provides a public
  * wrapper for this function, so that a user can specify whether he wants to maximize or

@@ -128,6 +128,9 @@ public:
 	/** @brief Allows to randomly initialize parameter members */
 	virtual void randomInit();
 
+	/** @brief Performs a cross-over with another GParameterSet object */
+	void crossOver(GParameterSet&, const double&);
+
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode(const bool&);
 
@@ -164,6 +167,8 @@ public:
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+
+
 
 	/**********************************************************************/
 	/**
