@@ -672,7 +672,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 
 
 	// Allow our parent class to describe its options
-	GFactoryT<GFunctionIndividual>::describeLocalOptions_(gpb);
+	Gem::Common::GFactoryT<GFunctionIndividual>::describeLocalOptions_(gpb);
 }
 
 /********************************************************************************************/

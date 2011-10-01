@@ -303,6 +303,11 @@ void GParameterSet::crossOver(GParameterSet& cp, const double& likelihood) {
 	}
 
 	// Now propagate the cross-over command to all contained parameter collections
+	for(std::size_t i=0; i<this->size(); i++) {
+		if(this->at(i)->isParameterCollection()) {
+			// this->at(i)->crossOver(cp.at(i));
+		}
+	}
 }
 
 /************************************************************************************************************/
