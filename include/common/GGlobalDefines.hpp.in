@@ -70,4 +70,9 @@
 #define GEM_INT_FORCE_TERMINATION
 #endif
 
+// Make sure we use boost filesystem v3 where available
+#if BOOST_VERSION >= 104400
+#define BOOST_FILESYSTEM_VERSION 3
+#endif /* BOOST_VERSION >= 104400 */
+
 #endif /* GGLOBALDEFINES_HPP_ */

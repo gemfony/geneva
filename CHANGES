@@ -27,6 +27,7 @@ The main changes for this release include:
    are used in, GEM_<LIB>_<VAR>.
  - Renamed the cpp variable GENEVATESTING to GEM_TESTING.
  - Bumped the minimal Boost version to 1.41.
+ - Forced Boost.Filesystem v3 for Boost >= 1.44
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.2, "Route de Meyrin" - August 4, 2011
