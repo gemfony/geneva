@@ -3,3 +3,4 @@ build
 include/common/GGlobalDefines.hpp
 .tag
 .project
+.settings
