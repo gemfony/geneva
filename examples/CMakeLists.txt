@@ -10,15 +10,15 @@ ADD_CUSTOM_TARGET( "examples"
 )
 
 ADD_SUBDIRECTORY (
+	01_GSimpleOptimizer
+)
+
+ADD_SUBDIRECTORY (
   01_GParaboloid2D
 )
 
 ADD_SUBDIRECTORY (
   02_GParaboloid
-)
-
-ADD_SUBDIRECTORY (
-	01_Optimizer
 )
 
 ADD_SUBDIRECTORY (

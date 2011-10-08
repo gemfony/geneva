@@ -1,4 +1,4 @@
-PROJECT (G01Optimizer)
+PROJECT (GSimpleOptimizer)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
@@ -94,14 +94,16 @@ LINK_DIRECTORIES (
 	${Boost_LIBRARY_DIRS}
 )
 
-SET ( EXECUTABLENAME G01Optimizer )
+SET ( EXECUTABLENAME GSimpleOptimizer )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	G01Optimizer
+	GSimpleOptimizer
 )
 
 SET ( CONFIGFILE
-	G01Optimizer.cfg
+	config/GEvolutionaryAlgorithm.json
+	config/GFunctionIndividual.json
+	config/Go2.json
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -111,7 +113,7 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 # Copy the config files to the build tree for easier testing
 IF( NOT OLD_CMAKE )
 	FOREACH ( file IN LISTS CONFIGFILE )
-		CONFIGURE_FILE ( ${file} . COPYONLY )
+		CONFIGURE_FILE ( ${file} ${file} COPYONLY )
 	ENDFOREACH ()
 ENDIF()
 
