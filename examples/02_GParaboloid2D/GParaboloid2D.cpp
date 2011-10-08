@@ -62,12 +62,8 @@ int main(int argc, char **argv) {
 	boost::shared_ptr<GParaboloidIndividual2D> p(new GParaboloidIndividual2D());
 	go.push_back(p);
 
-	// Add an evolutionary algorithm in multi-threaded mode
-	GEvolutionaryAlgorithmFactory ea(
-			"./config/GEvolutionaryAlgorithm.json"
-			, PARMODE_MULTITHREADED
-	);
-	go & ea();
+	// Add an evolutionary algorithm to the Go2 class.
+	go & PERSONALITY_EA;
 
 	// Perform the actual optimization
 	boost::shared_ptr<GParaboloidIndividual2D>
