@@ -99,7 +99,7 @@ private:
 		using boost::serialization::make_nvp;
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 	    // Add other variables here like this:
-	    // ar & BOOST_SERIALIZATION_NVP(myVar);
+	    // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
 	}
 	/**************************************************************/
 

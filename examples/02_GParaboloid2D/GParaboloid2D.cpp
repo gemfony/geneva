@@ -47,7 +47,7 @@ using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
 	Go2::init();
-	Go2 go(argc, argv, "config/go2.cfg");
+	Go2 go(argc, argv, "config/go2.json");
 
 	//---------------------------------------------------------------------
 	// Initialize a client, if requested
@@ -63,11 +63,15 @@ int main(int argc, char **argv) {
 	go.push_back(p);
 
 	// Add an evolutionary algorithm in multi-threaded mode
-	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", PARMODE_MULTITHREADED);
+	GEvolutionaryAlgorithmFactory ea(
+			"./config/GEvolutionaryAlgorithm.json"
+			, PARMODE_MULTITHREADED
+	);
 	go & ea();
 
 	// Perform the actual optimization
-	boost::shared_ptr<GParaboloidIndividual2D> bestIndividual_ptr = go.optimize<GParaboloidIndividual2D>();
+	boost::shared_ptr<GParaboloidIndividual2D>
+		bestIndividual_ptr = go.optimize<GParaboloidIndividual2D>();
 
 	// Do something with the best result
 
