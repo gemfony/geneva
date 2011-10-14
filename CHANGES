@@ -2,6 +2,8 @@
 Wishlist for version 1.0, yet unnamed, release-date unknown
 
  - Full documentation (well underway!!)
+ - A test-suite that compares the minimization capabilities of all implemented algorithms
+   in all parallelization modes
  - MPI Consumer/Client
 
 //------------------------------------------------------------------------------------------------------
