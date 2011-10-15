@@ -78,7 +78,7 @@ const boost::uint16_t DEFAULTYDIMPROGRESS=1024;
  * fitness as a function of the current iteration.
  */
 class progressMonitor
-	: public GSerialEA::GEAOptimizationMonitor
+	: public GBaseEA::GEAOptimizationMonitor
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -87,7 +87,7 @@ class progressMonitor
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GSerialEA_GEAOptimizationMonitor", boost::serialization::base_object<GSerialEA::GEAOptimizationMonitor>(*this))
+	  ar & make_nvp("GBaseEA_GEAOptimizationMonitor", boost::serialization::base_object<GBaseEA::GEAOptimizationMonitor>(*this))
 	  	 & BOOST_SERIALIZATION_NVP(xDimProgress_)
 	  	 & BOOST_SERIALIZATION_NVP(yDimProgress_)
 	  	 & BOOST_SERIALIZATION_NVP(df_)
@@ -133,7 +133,7 @@ public:
 	 * @oaram cp A copy of another progressMonitor object
 	 */
 	progressMonitor(const progressMonitor& cp)
-		: GSerialEA::GEAOptimizationMonitor(cp)
+		: GBaseEA::GEAOptimizationMonitor(cp)
 		, xDimProgress_(cp.xDimProgress_)
 		, yDimProgress_(cp.yDimProgress_)
 		, df_(cp.df_)
@@ -216,7 +216,7 @@ public:
 		std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GSerialEA::GEAOptimizationMonitor::checkRelationshipWith(cp, e, limit, "progressMonitor", y_name, withMessages));
+		deviations.push_back(GBaseEA::GEAOptimizationMonitor::checkRelationshipWith(cp, e, limit, "progressMonitor", y_name, withMessages));
 
 		// ... and then our local data.
 		deviations.push_back(checkExpectation(withMessages, "progressMonitor", xDimProgress_, p_load->xDimProgress_, "xDimProgress_", "p_load->xDimProgress_", e , limit));
@@ -238,13 +238,13 @@ public:
 	/**********************************************************************************/
 	/**
 	 * A function that is called during each optimization cycle, acting on evolutionary
-	 * algorithms. It writes out a snapshot of the GSerialEA object we've
+	 * algorithms. It writes out a snapshot of the GBaseEA object we've
 	 * been given for the current iteration. In the way it is implemented here, this
 	 * function only makes sense for two-dimensional optimization problems. It is thus
 	 * used for illustration purposes only.
 	 *
 	 */
-	virtual std::string eaCycleInformation(GSerialEA * const ea) {
+	virtual std::string eaCycleInformation(GBaseEA * const ea) {
 		if(followProgress_) {
 			boost::uint32_t iteration = ea->getIteration();
 			std::string outputFileName = snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".C";
@@ -336,7 +336,7 @@ public:
 			}
 
 			// Loop over all individuals in this iteration and output their parameters
-			GSerialEA::iterator it;
+			GBaseEA::iterator it;
 			std::size_t cind = 0;
 			for(it=ea->begin() + nParents; it!=ea->end(); ++it) {
 				// Retrieve the data members
@@ -459,7 +459,7 @@ public:
 		//-----------------------------------------------------------------------------------------
 
 		// Make sure the usual iteration work is performed
-		return GSerialEA::GEAOptimizationMonitor::eaCycleInformation(ea);
+		return GBaseEA::GEAOptimizationMonitor::eaCycleInformation(ea);
 	}
 
 	/*********************************************************************************************/
@@ -674,7 +674,7 @@ protected:
 		const progressMonitor *p_load = gobject_conversion<progressMonitor>(cp);
 
 		// First load the parent class'es data ...
-		GSerialEA::GEAOptimizationMonitor::load_(cp);
+		GBaseEA::GEAOptimizationMonitor::load_(cp);
 
 		// ... and then our own data
 		xDimProgress_ = p_load->xDimProgress_;

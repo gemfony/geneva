@@ -77,7 +77,7 @@ const boost::uint16_t DEFAULTYDIMPROGRESS=1024;
  * fitness as a function of the current iteration.
  */
 class progressMonitor
-	: public GSerialSwarm::GSwarmOptimizationMonitor
+	: public GBaseSwarm::GSwarmOptimizationMonitor
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -86,7 +86,7 @@ class progressMonitor
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GSerialSwarm_GSwarmOptimizationMonitor", boost::serialization::base_object<GSerialSwarm::GSwarmOptimizationMonitor>(*this))
+	  ar & make_nvp("GBaseSwarm_GSwarmOptimizationMonitor", boost::serialization::base_object<GBaseSwarm::GSwarmOptimizationMonitor>(*this))
 	  	 & BOOST_SERIALIZATION_NVP(xDimProgress_)
 	  	 & BOOST_SERIALIZATION_NVP(yDimProgress_)
 	  	 & BOOST_SERIALIZATION_NVP(df_)
@@ -128,7 +128,7 @@ public:
 	 * @oaram cp A copy of another progressMonitor object
 	 */
 	progressMonitor(const progressMonitor& cp)
-		: GSerialSwarm::GSwarmOptimizationMonitor(cp)
+		: GBaseSwarm::GSwarmOptimizationMonitor(cp)
 		, xDimProgress_(cp.xDimProgress_)
 		, yDimProgress_(cp.yDimProgress_)
 		, df_(cp.df_)
@@ -209,7 +209,7 @@ public:
 		std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GSerialSwarm::GSwarmOptimizationMonitor::checkRelationshipWith(cp, e, limit, "progressMonitor", y_name, withMessages));
+		deviations.push_back(GBaseSwarm::GSwarmOptimizationMonitor::checkRelationshipWith(cp, e, limit, "progressMonitor", y_name, withMessages));
 
 		// ... and then our local data.
 		deviations.push_back(checkExpectation(withMessages, "progressMonitor", xDimProgress_, p_load->xDimProgress_, "xDimProgress_", "p_load->xDimProgress_", e , limit));
@@ -229,13 +229,13 @@ public:
 	/**********************************************************************************/
 	/**
 	 * A function that is called during each optimization cycle, acting on evolutionary
-	 * algorithms. It writes out a snapshot of the GSerialSwarm object we've
+	 * algorithms. It writes out a snapshot of the GBaseSwarm object we've
 	 * been given for the current iteration. In the way it is implemented here, this
 	 * function only makes sense for two-dimensional optimization problems. It is thus
 	 * used for illustration purposes only.
 	 *
 	 */
-	virtual std::string swarmCycleInformation(GSerialSwarm * const swarm) {
+	virtual std::string swarmCycleInformation(GBaseSwarm * const swarm) {
 		if(followProgress_) {
 			boost::uint32_t iteration = swarm->getIteration();
 			std::string outputFileName = snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".C";
@@ -366,7 +366,7 @@ public:
 				<< "  // Individuals" << std::endl
 				<< std::endl;
 
-			GSerialSwarm::iterator it;
+			GBaseSwarm::iterator it;
 			std::size_t particle = 0;
 			for(it=swarm->begin(); it!=swarm->end(); ++it, ++particle) {
 				// Retrieve the data members

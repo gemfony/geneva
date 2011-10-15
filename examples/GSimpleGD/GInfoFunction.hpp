@@ -110,9 +110,9 @@ public:
 	 * INFOEND: is called once after the optimization run
 	 *
 	 * @param im The current mode in which the function is called
-	 * @param ea A pointer to a GSerialEA object for which information should be collected
+	 * @param ea A pointer to a GBaseGD object for which information should be collected
 	 */
-	void informationFunction(const infoMode& im, GSerialEA * const ea){
+	void informationFunction(const infoMode& im, GBaseGD * const ea){
 		switch(im) {
 		//---------------------------------------------------------------------------
 		case Gem::Geneva::INFOINIT:
@@ -388,13 +388,13 @@ public:
 private:
 	/*********************************************************************************************/
 	/**
-	 * Writes out a snapshot of the GSerialEA object we've been given for the current iteration. In
+	 * Writes out a snapshot of the GBaseGD object we've been given for the current iteration. In
 	 * the way it is implemented here, this function only makes sense for two-dimensional optimization
 	 * problems. It is thus used for illustration purposes only.
 	 *
-	 * @param ea A pointer to a GSerialEA object
+	 * @param ea A pointer to a GBaseGD object
 	 */
-	void takeSnapshot(GSerialEA *ea) {
+	void takeSnapshot(GBaseGD *ea) {
 		boost::uint32_t iteration = ea->getIteration();
 		std::string outputFileName = snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".C";
 		std::size_t nParents = ea->getNParents();
@@ -485,7 +485,7 @@ private:
 		}
 
 		// Loop over all individuals in this iteration and output their parameters
-		GSerialEA::iterator it;
+		GBaseGD::iterator it;
 		std::size_t cind = 0;
 		for(it=ea->begin() + nParents; it!=ea->end(); ++it) {
 			// Retrieve the data members
