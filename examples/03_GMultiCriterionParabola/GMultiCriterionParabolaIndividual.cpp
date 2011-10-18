@@ -148,7 +148,7 @@ GObject* GMultiCriterionParabolaIndividual::clone_() const {
 /********************************************************************************************/
 /**
  * The actual fitness calculation takes place here.
- * @param id The id of the target function (ignored for this function)
+ *
  * @return The value of this object
  */
 double GMultiCriterionParabolaIndividual::fitnessCalculation(){

@@ -18,11 +18,11 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-  02_GParaboloid
+	03_GMultiCriterionParabola
 )
 
 ADD_SUBDIRECTORY (
-	GMultiCriterionParabola
+  02_GParaboloid
 )
 
 ADD_SUBDIRECTORY (
