@@ -126,8 +126,6 @@ class GFunctionIndividual
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int) {
-		using boost::serialization::make_nvp;
-
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
 		   & BOOST_SERIALIZATION_NVP(demoFunction_);
 	}

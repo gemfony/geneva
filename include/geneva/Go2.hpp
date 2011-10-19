@@ -61,6 +61,7 @@
 #include "geneva/GBrokerGD.hpp"
 #include "geneva/GBrokerSwarm.hpp"
 #include "geneva/GDoubleObject.hpp"
+#include "geneva/GDoubleObjectCollection.hpp"
 #include "geneva/Geneva.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GEvolutionaryAlgorithmFactory.hpp"
