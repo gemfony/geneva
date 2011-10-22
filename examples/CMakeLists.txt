@@ -18,6 +18,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+  03_GParameterObjectUsagePatterns
+)
+
+ADD_SUBDIRECTORY (
   04_GMultiCriterionParabola
 )
 
