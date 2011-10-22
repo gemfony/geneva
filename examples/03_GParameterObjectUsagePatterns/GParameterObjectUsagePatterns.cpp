@@ -71,5 +71,57 @@ int main(int argc, char **argv) {
 		o5 = o1; // Assignment of another object
 	}
 
+	{ // Usage patterns for the GDoubleObjectCollection class
+
+	}
+
+	{ // Usage patterns for the GConstrainedDoubleObjectCollection class
+
+	}
+
+	{ // Usage patterns for the GDoubleCollection class
+
+	}
+
+	{ // Usage patterns for the GConstrainedDoubleCollection class
+
+	}
+
+	{ // Usage patterns for the GInt32Object class
+
+	}
+
+	{ // Usage patterns for the GConstrainedInt32Object class
+
+	}
+
+	{ // Usage patterns for the GInt32ObjectCollection class
+
+	}
+
+	{ // Usage patterns for the GConstrainedInt32ObjectCollection class
+
+	}
+
+	{ // Usage patterns for the GInt32Collection class
+
+	}
+
+	{ // Usage patterns for the GBooleanObject class
+
+	}
+
+	{ // Usage patterns for the GBooleanObjectCollection class
+
+	}
+
+	{ // Usage patterns for the GBooleanCollection class
+
+	}
+
+	{ // Usage patterns for the GParameterObjectCollection class
+
+	}
+
 	return 0;
 }
