@@ -252,7 +252,7 @@ int main(int argc, char **argv){
 			break;
 		};
 
-		for(std::size_t j=0; j<5; j++) double tmp=gr_ptr_seed->uniform_real<double>(1.);
+		//for(std::size_t j=0; j<5; j++) double tmp=gr_ptr_seed->uniform_real<double>(1.);
 		initCorr.push_back(gr_ptr_seed->uniform_real<double>(1.));
 	}
 
@@ -261,6 +261,7 @@ int main(int argc, char **argv){
 	// are asked for. There should be no correlation.
 	for(i=1; i<=10; i++) {
 		boost::lagged_fibonacci607 lf(boost::numeric_cast<boost::uint32_t>(i));
+		// for(int j=0; j<1000; j++) double tmp = lf();
 		initLFCorr.push_back(lf());
 	}
 
