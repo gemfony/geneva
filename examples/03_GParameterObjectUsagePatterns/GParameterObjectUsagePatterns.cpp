@@ -622,7 +622,70 @@ int main(int argc, char **argv) {
 	}
 
 	{ // Usage patterns for the GParameterObjectCollection class
+		std::cout << "GParameterObjectCollection:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GParameterObjectCollection c1; // Default constructor
+		GParameterObjectCollection c2(c1); // Copy construction
+		boost::shared_ptr<GParameterObjectCollection> p_c3(
+				new GParameterObjectCollection(c1)
+		); // Copy construction inside of smart pointer
+		// Note: Copy construction will create deep copies
+		// of all objects stored in c1
+
+		//-----------------------------------------------------
+		// Filling with objects. Note that they may have
+		// different types, but must all be derived from
+		// GParameterBase
+
+		// Create a smart pointer wrapping a GDoubleObject
+		boost::shared_ptr<GDoubleObject> p_d(new GDoubleObject());
+		// Configure GDoubleObject as required. E.g., add adaptors
+		// ...
+		// Add to the collection
+		c1.push_back(p_d);
+
+		// Create a smart pointer wrapping a GInt32Object
+		boost::shared_ptr<GInt32Object> p_i(new GInt32Object());
+		// Configure GInt32Object as required. E.g., add adaptors
+		// ...
+		// Add to the collection
+		c1.push_back(p_i);
+
+		// Create another GParameterObjectCollection object.
+		// As it is derived from GParameterBase, we can store it
+		// in GParameterObjectCollection objects and create
+		// tree-like structures in this way
+		boost::shared_ptr<GParameterObjectCollection> p_child(
+				new GParameterObjectCollection()
+		);
+		c1.push_back(p_child);
+
+		// Note: No adaptor is added to the collection itself, only
+		// to the objects contained in it (if they support this).
+
+		//-----------------------------------------------------
+		// Assignment through operator= . Note: This will create
+		// deep copies of all objects stored in c1
+		c2 = c1;
+		*p_c3 = c1;
+
+		//-----------------------------------------------------
+		// Access to parameter objects in the collection
+
+		// Direct conversion, if we know the target type
+		boost::shared_ptr<GDoubleObject> p_d2 = c1.at<GDoubleObject>(0);
+
+		// Conversion iterator -- will return all GDoubleObject items
+		// stored on this level. Note that the conversion iterator will
+		// *not* recurse into p_child .
+		GParameterObjectCollection::conversion_iterator<GDoubleObject> it_conv(c1.end());
+		for(it_conv=c1.begin(); it_conv!=c1.end(); ++it_conv) {
+			boost::shared_ptr<GDoubleObject> p_conv = *it_conv;
+			std::cout << p_conv->value() << std::endl;
+		}
+		//-----------------------------------------------------
 	}
 
 	return 0;
