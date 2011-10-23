@@ -36,6 +36,7 @@
 #include <iostream>
 
 // Boost header files go here
+#include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
 #include "geneva/Go2.hpp" // Includes all of the parameter object types
@@ -46,57 +47,367 @@ using namespace Gem::Geneva;
 int main(int argc, char **argv) {
 	{ // Usage patterns for the GDoubleObject class
 		std::cout << "GDoubleObject:" << std::endl;
+
+		//-----------------------------------------------------
+		// Construction
 		GDoubleObject o1; // Default construction
-		o1 = 1.; // Assigning a value
 		GDoubleObject o2(o1); // Copy construction
 		GDoubleObject o3(2.); // Initialization by value
 		GDoubleObject o4(0.,2.); // Random initialization in a given range
+		boost::shared_ptr<GDoubleObject> p(new GDoubleObject(0.,2.)); // Construction and access frequently happens through smart pointers
+
+		//-----------------------------------------------------
+		// Assignment, value setting and retrieval
+		o1 = 1.; // Assigning and setting a value
+		o2.setValue(2.);
+		o4 = o1; // Assignment of another object
 		std::cout << o4.value() << std::endl; // Value retrieval
+
+		//-----------------------------------------------------
+		// Boundaries
 		std::cout << o4.getLowerInitBoundary() << std::endl; // Retrieval of lower init boundary
 		std::cout << o4.getUpperInitBoundary() << std::endl; // Retrieval of upper init boundary
-		o4 = o1; // Assignment of another object
+
+		//-----------------------------------------------------
+		// Assignment of an adaptor
+		double sigma = 0.1; // "step width" of gauss mutation
+		double sigmaSigma = 0.8; // adaption of sigma
+		double minSigma = 0., maxSigma = 0.5; // allowed value range of sigma
+		double adProb = 0.05; // 5% probability for the adaption of this object when adaptor is called
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
+		gdga_ptr->setAdaptionProbability(adProb);
+		p->addAdaptor(gdga_ptr);
 	}
 
 	{ // Usage patterns for the GConstrainedDoubleObject class
 		std::cout << "GConstrainedDoubleObject:" << std::endl;
+
+		//-----------------------------------------------------
+		// Construction
 		GConstrainedDoubleObject o1; // Default construction
-		o1 = 1.; // Assigning a value
 		GConstrainedDoubleObject o2(o1); // Copy construction
 		GConstrainedDoubleObject o3(2.); // Initialization by value
 		GConstrainedDoubleObject o4(0.,2.); // Initialization of value boundaries
+		GConstrainedDoubleObject o5(1.,0.,2.); // Initialization with value and value boundaries
+		boost::shared_ptr<GConstrainedDoubleObject> p(new GConstrainedDoubleObject(0.,2.)); // Construction and access frequently happens through smart pointers
+
+		//-----------------------------------------------------
+		// Assignment, value setting and retrieval
+		o1 = 1.; // Assigning a value
+		o2.setValue(1.5);
+		o5 = o1; // Assignment of another object
+		std::cout << o4.value() << " " << o5.value() << std::endl; // Value retrieval
+
+		//-----------------------------------------------------
+		// Boundaries
 		std::cout << o4.getLowerBoundary() << std::endl; // Retrieval of lower value boundary
 		std::cout << o4.getUpperBoundary() << std::endl; // Retrieval of upper value boundary
-		GConstrainedDoubleObject o5(1.,0.,2.); // Initialization with value and value boundaries
-		std::cout << o4.value() << " " << o5.value() << std::endl; // Value retrieval; value is set to lower boundary
-		o5 = o1; // Assignment of another object
+
+		//-----------------------------------------------------
+		// Assignment of an adaptor (same as for GDoubleObject)
+		double sigma = 0.1; // "step width" of gauss mutation
+		double sigmaSigma = 0.8; // adaption of sigma
+		double minSigma = 0., maxSigma = 0.5; // allowed value range of sigma
+		double adProb = 0.05; // 5% probability for the adaption of this object when adaptor is called
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
+		gdga_ptr->setAdaptionProbability(adProb);
+		p->addAdaptor(gdga_ptr);
 	}
 
 	{ // Usage patterns for the GDoubleObjectCollection class
+		std::cout << "GDoubleObjectCollection:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GDoubleObjectCollection c1; // Default constructor
+		GDoubleObjectCollection c2(c1); // Copy construction
+		boost::shared_ptr<GDoubleObjectCollection> p_c3(new GDoubleObjectCollection(c1)); // Copy construction inside of smart pointer
+		// Note: Copy construction will create deep copies
+		// of all objects stored in c1
+
+		//-----------------------------------------------------
+		// Filling with objects
+		for(std::size_t i=0; i<10; i++) {
+			// Create a smart pointer wrapping a GDoubleObject
+			boost::shared_ptr<GDoubleObject> p(new GDoubleObject());
+			// Configure GDoubleObject as required. E.g., add adaptors
+			// ...
+			// Add to the collection
+			c1.push_back(p);
+		}
+
+		// Note: No adaptor is added to the collection itself, only
+		// to the objects contained in it.
+
+		//-----------------------------------------------------
+		// Assignment through operator= . Note: This will create
+		// deep copies of all objects stored in c1
+		c2 = c1;
+		*p_c3 = c1;
+		//-----------------------------------------------------
+		// Access to parameter objects in the collection
+		for(std::size_t i=0; i<10; i++) {
+			std::cout << p_c3->at(i)->value() << std::endl;
+			std::cout << c1[i]->value() << std::endl;
+		}
+
+		// Note: The iterator points to a smart pointer, so in order to
+		// call a function on the parameter objects we first need to
+		// dereference the iterator, then the smart pointer
+		GDoubleObjectCollection::iterator it;
+		for(it=c1.begin(); it!=c1.end(); ++it) {
+			std::cout << (*it)->value() << std::endl;
+		}
 	}
 
 	{ // Usage patterns for the GConstrainedDoubleObjectCollection class
+		std::cout << "GConstrainedDoubleObjectCollection:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GConstrainedDoubleObjectCollection c1; // Default constructor
+		GConstrainedDoubleObjectCollection c2(c1); // Copy construction
+		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_c3(new GConstrainedDoubleObjectCollection(c1)); // Copy construction inside of smart pointer
+		// Note: Copy construction will create deep copies
+		// of all objects stored in c1
+
+		//-----------------------------------------------------
+		// Filling with objects
+		for(std::size_t i=0; i<10; i++) {
+			// Create a smart pointer wrapping a GDoubleObject
+			boost::shared_ptr<GConstrainedDoubleObject> p(new GConstrainedDoubleObject());
+			// Configure GConstrainedDoubleObject as required. E.g., add adaptors
+			// ...
+			// Add to the collection
+			c1.push_back(p);
+		}
+
+		// Note: No adaptor is added to the collection itself, only
+		// to the objects contained in it.
+
+		//-----------------------------------------------------
+		// Assignment through operator= . Note: This will create
+		// deep copies of all objects stored in c1
+		c2 = c1;
+		*p_c3 = c1;
+
+		//-----------------------------------------------------
+		// Access to parameter objects in the collection
+		for(std::size_t i=0; i<10; i++) {
+			std::cout << p_c3->at(i)->value() << std::endl;
+			std::cout << c1[i]->value() << std::endl;
+		}
+
+		// Note: The iterator points to a smart pointer, so in order to
+		// call a function on the parameter objects we first need to
+		// dereference the iterator, then the smart pointer
+		GConstrainedDoubleObjectCollection::iterator it;
+		for(it=c1.begin(); it!=c1.end(); ++it) {
+			std::cout << (*it)->value() << std::endl;
+		}
 	}
 
 	{ // Usage patterns for the GDoubleCollection class
+		std::cout << "GDoubleCollection:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GDoubleCollection c1; // Default construction
+		GDoubleCollection c2(c1); // Copy construction
+		// Copy construction inside of smart pointer
+		boost::shared_ptr<GDoubleCollection> p_c3(new GDoubleCollection(c1));
+		// 100 double values, randomly initialized in the range [-3.,3[
+		GDoubleCollection c4(100, -3., 3.);
+
+		//-----------------------------------------------------
+		// Filling with objects
+		for(double d=0.; d<100.; d+=1.) {
+			c1.push_back(d);
+		}
+
+		//-----------------------------------------------------
+		// Adding an adaptor
+		double sigma = 0.1; // "step width" of gauss mutation
+		double sigmaSigma = 0.8; // adaption of sigma
+		double minSigma = 0., maxSigma = 0.5; // allowed value range of sigma
+		// 5% probability for the adaption of this object when adaptor is called
+		double adProb = 0.05;
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
+				new GDoubleGaussAdaptor(
+						sigma, sigmaSigma, minSigma, maxSigma
+				)
+	    );
+		gdga_ptr->setAdaptionProbability(adProb);
+		c1.addAdaptor(gdga_ptr);
+
+		//-----------------------------------------------------
+		// Assignment through operator= . Note: This will also create
+		// deep copies of the adaptor
+		c2=c1;
+		*p_c3 = c1;
+
+		//-----------------------------------------------------
+		// Access to parameter objects in the collection
+		for(std::size_t i=0; i<c1.size(); i++) {
+			std::cout << c1[i] << std::endl;
+			std::cout << c1.at(i) << std::endl;
+		}
+		GDoubleCollection::iterator it;
+		for(it=c1.begin(); it!=c1.end(); ++it) {
+			std::cout << *it << std::endl;
+		}
+		//-----------------------------------------------------
 	}
 
 	{ // Usage patterns for the GConstrainedDoubleCollection class
+		std::cout << "GConstrainedDoubleCollection:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		// Initialization with 100 variables and constraint [-10, 10[
+		GConstrainedDoubleCollection c1(100, -10, 200.);
+		GConstrainedDoubleCollection c2(c1); // Copy construction
+
+		// Note -- we do not currently fill in additional data items. This
+		// class is not yet at its final stage.
+
+		//-----------------------------------------------------
+		// Adding an adaptor
+		double sigma = 0.1; // "step width" of gauss mutation
+		double sigmaSigma = 0.8; // adaption of sigma
+		double minSigma = 0., maxSigma = 0.5; // allowed value range of sigma
+		// 5% probability for the adaption of this object when adaptor is called
+		double adProb = 0.05;
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
+				new GDoubleGaussAdaptor(
+						sigma, sigmaSigma, minSigma, maxSigma
+				)
+	    );
+		gdga_ptr->setAdaptionProbability(adProb);
+		c1.addAdaptor(gdga_ptr);
+
+		//-----------------------------------------------------
+		// Assignment through operator= . Note: This will also create
+		// deep copies of the adaptor
+		c2 = c1;
+
+		//-----------------------------------------------------
+		// Access to parameter objects in the collection
+		// Note: We currently recommend not to use the subscript and at()
+		// operators or iterators
+		for(std::size_t i=0; i<c1.size(); i++) {
+			c1.setValue(i, double(i));
+			std::cout << c1.value(i) << std::endl;
+		}
+		//-----------------------------------------------------
 	}
 
 	{ // Usage patterns for the GInt32Object class
+		std::cout << "GInt32Object:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GInt32Object o1; // Default construction
+		GInt32Object o2(o1); // Copy construction
+		GInt32Object o3(2); // Initialization by value
+		GInt32Object o4(0,2); // Random initialization in a given range
+		boost::shared_ptr<GInt32Object> p_o5(new GInt32Object(0,2)); // Construction and access frequently happens through smart pointers
+
+		//-----------------------------------------------------
+		// Assignment, value setting and retrieval
+		o1 = 1; // Assigning and setting a value
+		o2.setValue(2);
+		o4 = o1; // Assignment of another object
+		std::cout << o4.value() << std::endl; // Value retrieval
+
+		//-----------------------------------------------------
+		// Boundaries
+		std::cout << o4.getLowerInitBoundary() << std::endl; // Retrieval of lower init boundary
+		std::cout << o4.getUpperInitBoundary() << std::endl; // Retrieval of upper init boundary
+
+		//-----------------------------------------------------
+		// Assignment of an adaptor
+		boost::shared_ptr<GInt32FlipAdaptor> ifa_ptr(new GInt32FlipAdaptor());
+		ifa_ptr->setAdaptionProbability(0.05); // 5% probability
+		p_o5->addAdaptor(ifa_ptr);
 	}
 
 	{ // Usage patterns for the GConstrainedInt32Object class
+		std::cout << "GConstrainedInt32Object:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GConstrainedInt32Object o1; // Default construction
+		GConstrainedInt32Object o2(o1); // Copy construction
+		GConstrainedInt32Object o3(2); // Initialization by value
+		GConstrainedInt32Object o4(0,10); // Initialization of allowed initialization range
+		GConstrainedInt32Object o5(1,0,10); // Initialization with value and allowed initialization range
+		boost::shared_ptr<GConstrainedInt32Object> p_o6(new GConstrainedInt32Object(0,2)); // Construction and access frequently happens through smart pointers
+
+		//-----------------------------------------------------
+		// Assignment, value setting and retrieval
+		o1 = 1; // Assigning and setting a value
+		o2.setValue(2);
+		o4 = o1; // Assignment of another object
+		std::cout << o4.value() << std::endl; // Value retrieval
+
+		//-----------------------------------------------------
+		// Boundaries
+		std::cout << o4.getLowerBoundary() << std::endl; // Retrieval of lower init boundary
+		std::cout << o4.getUpperBoundary() << std::endl; // Retrieval of upper init boundary
+
+		//-----------------------------------------------------
+		// Assignment of an adaptor
+		boost::shared_ptr<GInt32FlipAdaptor> ifa_ptr(new GInt32FlipAdaptor());
+		ifa_ptr->setAdaptionProbability(0.05); // 5% probability
+		p_o6->addAdaptor(ifa_ptr);
 	}
 
 	{ // Usage patterns for the GInt32ObjectCollection class
+		std::cout << "GInt32ObjectCollection:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GInt32ObjectCollection c1; // Default constructor
+		GInt32ObjectCollection c2(c1); // Copy construction
+		// Copy construction inside of smart pointer
+		boost::shared_ptr<GInt32ObjectCollection> p_c3(new GInt32ObjectCollection(c1));
+		// Note: Copy construction will create deep copies
+		// of all objects stored in c1
+
+		//-----------------------------------------------------
+		// Filling with objects
+		for(std::size_t i=0; i<10; i++) {
+			// Create a smart pointer wrapping a GInt32Object
+			boost::shared_ptr<GInt32Object> p(new GInt32Object());
+			// Configure GInt32Object as required. E.g., add adaptors
+			// ...
+			// Add to the collection
+			c1.push_back(p);
+		}
+
+		// Note: No adaptor is added to the collection itself, only
+		// to the objects contained in it.
+
+		//-----------------------------------------------------
+		// Assignment through operator= . Note: This will create
+		// deep copies of all objects stored in c1
+		c2 = c1;
+		*p_c3 = c1;
+		//-----------------------------------------------------
+		// Access to parameter objects in the collection
+		for(std::size_t i=0; i<10; i++) {
+			std::cout << p_c3->at(i)->value() << std::endl;
+			std::cout << c1[i]->value() << std::endl;
+		}
+
+		// Note: The iterator points to a smart pointer, so in order to
+		// call a function on the parameter objects we first need to
+		// dereference the iterator, then the smart pointer
+		GInt32ObjectCollection::iterator it;
+		for(it=c1.begin(); it!=c1.end(); ++it) {
+			std::cout << (*it)->value() << std::endl;
+		}
 	}
 
 	{ // Usage patterns for the GConstrainedInt32ObjectCollection class
