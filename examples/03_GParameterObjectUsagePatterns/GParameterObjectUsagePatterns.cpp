@@ -394,6 +394,7 @@ int main(int argc, char **argv) {
 		// deep copies of all objects stored in c1
 		c2 = c1;
 		*p_c3 = c1;
+
 		//-----------------------------------------------------
 		// Access to parameter objects in the collection
 		for(std::size_t i=0; i<10; i++) {
@@ -411,11 +412,95 @@ int main(int argc, char **argv) {
 	}
 
 	{ // Usage patterns for the GConstrainedInt32ObjectCollection class
+		std::cout << "GConstrainedInt32ObjectCollection:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GConstrainedInt32ObjectCollection c1; // Default constructor
+		GConstrainedInt32ObjectCollection c2(c1); // Copy construction
+		// Copy construction inside of smart pointer
+		boost::shared_ptr<GConstrainedInt32ObjectCollection>
+		    p_c3(new GConstrainedInt32ObjectCollection(c1));
+		// Note: Copy construction will create deep copies
+		// of all objects stored in c1
+
+		//-----------------------------------------------------
+		// Filling with objects
+		for(std::size_t i=0; i<10; i++) {
+			// Create a smart pointer wrapping a GConstrainedInt32Object
+			boost::shared_ptr<GConstrainedInt32Object> p(new GConstrainedInt32Object());
+			// Configure GConstrainedInt32Object as required. E.g., add adaptors
+			// ...
+			// Add to the collection
+			c1.push_back(p);
+		}
+
+		// Note: No adaptor is added to the collection itself, only
+		// to the objects contained in it.
+
+		//-----------------------------------------------------
+		// Assignment through operator= . Note: This will create
+		// deep copies of all objects stored in c1
+		c2 = c1;
+		*p_c3 = c1;
+
+		//-----------------------------------------------------
+		// Access to parameter objects in the collection
+		for(std::size_t i=0; i<10; i++) {
+			std::cout << p_c3->at(i)->value() << std::endl;
+			std::cout << c1[i]->value() << std::endl;
+		}
+
+		// Note: The iterator points to a smart pointer, so in order to
+		// call a function on the parameter objects we first need to
+		// dereference the iterator, then the smart pointer
+		GConstrainedInt32ObjectCollection::iterator it;
+		for(it=c1.begin(); it!=c1.end(); ++it) {
+			std::cout << (*it)->value() << std::endl;
+		}
 	}
 
 	{ // Usage patterns for the GInt32Collection class
+		std::cout << "GInt32Collection:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GInt32Collection c1; // Default construction
+		GInt32Collection c2(c1); // Copy construction
+		// Copy construction inside of smart pointer
+		boost::shared_ptr<GInt32Collection> p_c3(new GInt32Collection(c1));
+		// 100 boost::int32_t values, with an initialization range of [-3,3]
+		GInt32Collection c4(100, -3, 3);
+
+		//-----------------------------------------------------
+		// Filling with data
+		for(boost::int32_t i=0.; i<100; i++) {
+			c1.push_back(i);
+		}
+
+		//-----------------------------------------------------
+		// Adding an adaptor
+		boost::shared_ptr<GInt32FlipAdaptor> ifa_ptr(new GInt32FlipAdaptor());
+		ifa_ptr->setAdaptionProbability(0.05); // 5% probability
+		c1.addAdaptor(ifa_ptr);
+
+		//-----------------------------------------------------
+		// Assignment through operator= . Note: This will also create
+		// deep copies of the adaptor
+		c2=c1;
+		*p_c3 = c1;
+
+		//-----------------------------------------------------
+		// Access to parameter objects in the collection
+		for(std::size_t i=0; i<c1.size(); i++) {
+			std::cout << c1[i] << std::endl;
+			std::cout << c1.at(i) << std::endl;
+		}
+		GInt32Collection::iterator it;
+		for(it=c1.begin(); it!=c1.end(); ++it) {
+			std::cout << *it << std::endl;
+		}
+		//-----------------------------------------------------
 	}
 
 	{ // Usage patterns for the GBooleanObject class
