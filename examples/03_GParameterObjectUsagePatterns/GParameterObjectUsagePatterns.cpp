@@ -504,15 +504,121 @@ int main(int argc, char **argv) {
 	}
 
 	{ // Usage patterns for the GBooleanObject class
+		std::cout << "GBooleanObject:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GBooleanObject o1; // Default construction
+		GBooleanObject o2(o1); // Copy construction
+		GBooleanObject o3(true); // Initialization by value
+		// Construction and access frequently happens through smart pointers
+		boost::shared_ptr<GBooleanObject> p(new GBooleanObject(true));
+
+		//-----------------------------------------------------
+		// Assignment, value setting and retrieval
+		o1 = false; // Assigning and setting a value
+		o2.setValue(false);
+		o3 = o1; // Assignment of another object
+		// Value retrieval and value emission
+		std::cout << (o3.value()?true:false) << std::endl;
+
+		//-----------------------------------------------------
+		// Assignment of an adaptor
+		boost::shared_ptr<GBooleanAdaptor> bad_ptr(new GBooleanAdaptor());
+		bad_ptr->setAdaptionProbability(0.05); // 5% adaption probability
+		p->addAdaptor(bad_ptr);
 	}
 
 	{ // Usage patterns for the GBooleanObjectCollection class
+		std::cout << "GBooleanObjectCollection:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GBooleanObjectCollection c1; // Default constructor
+		GBooleanObjectCollection c2(c1); // Copy construction
+		boost::shared_ptr<GBooleanObjectCollection> p_c3(
+				new GBooleanObjectCollection(c1)
+		); // Copy construction inside of smart pointer
+		// Note: Copy construction will create deep copies
+		// of all objects stored in c1
+
+		//-----------------------------------------------------
+		// Filling with objects
+		for(std::size_t i=0; i<10; i++) {
+			// Create a smart pointer wrapping a GBooleanObject
+			boost::shared_ptr<GBooleanObject> p(new GBooleanObject());
+			// Configure GBooleanObject as required. E.g., add adaptors
+			// ...
+			// Add to the collection
+			c1.push_back(p);
+		}
+
+		// Note: No adaptor is added to the collection itself, only
+		// to the objects contained in it.
+
+		//-----------------------------------------------------
+		// Assignment through operator= . Note: This will create
+		// deep copies of all objects stored in c1
+		c2 = c1;
+		*p_c3 = c1;
+		//-----------------------------------------------------
+		// Access to parameter objects in the collection
+		for(std::size_t i=0; i<10; i++) {
+			std::cout << p_c3->at(i)->value() << std::endl;
+			std::cout << c1[i]->value() << std::endl;
+		}
+
+		// Note: The iterator points to a smart pointer, so in order to
+		// call a function on the parameter objects we first need to
+		// dereference the iterator, then the smart pointer
+		GBooleanObjectCollection::iterator it;
+		for(it=c1.begin(); it!=c1.end(); ++it) {
+			std::cout << (*it)->value() << std::endl;
+		}
 	}
 
 	{ // Usage patterns for the GBooleanCollection class
+		std::cout << "GBooleanCollection:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GBooleanCollection c1; // Default construction
+		GBooleanCollection c2(c1); // Copy construction
+		GBooleanCollection c3(100); // Initialization with 100 random booleans
+		// Initialization with 100 random booleans, of which 25% have a true value
+		GBooleanCollection c4(100, 0.25);
+		// Copy construction inside of smart pointer
+		boost::shared_ptr<GBooleanCollection> p_c5(new GBooleanCollection(c1));
+
+		//-----------------------------------------------------
+		// Filling with data
+		for(std::size_t i=0; i<100; i++) {
+			c1.push_back(i%2==0?true:false);
+		}
+
+		//-----------------------------------------------------
+		// Adding an adaptor
+		boost::shared_ptr<GBooleanAdaptor> bad_ptr(new GBooleanAdaptor());
+		bad_ptr->setAdaptionProbability(0.05); // 5% adaption probability
+		p_c5->addAdaptor(bad_ptr);
+
+		//-----------------------------------------------------
+		// Assignment through operator= . Note: This will also create
+		// deep copies of the adaptor
+		c2=c1;
+		*p_c5 = c1;
+
+		//-----------------------------------------------------
+		// Access to parameter objects in the collection
+		for(std::size_t i=0; i<c1.size(); i++) {
+			std::cout << (c1[i]?"true":"false") << std::endl;
+			std::cout << (c1.at(i)?"true":"false") << std::endl;
+		}
+		GBooleanCollection::iterator it;
+		for(it=c1.begin(); it!=c1.end(); ++it) {
+			std::cout << (*it?"true":"false") << std::endl;
+		}
+		//-----------------------------------------------------
 	}
 
 	{ // Usage patterns for the GParameterObjectCollection class
