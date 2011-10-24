@@ -331,7 +331,13 @@ const double DEFAULTBITADPROB = 0.05; // 5 percent adaption probability for bits
 const double DEFAULTADPROB = 1.0; // 100 percent adaption probability for all other cases
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD = 1; // Adaption parameters should be adapted whenever an adaption takes place
 const double DEFAULTADAPTADAPTIONPROB = 0.; // 0 percent probability for the adaption of adaption parameters
+
+/**********************************************************************************************/
+// Adaption modes
 const boost::logic::tribool DEFAULTADAPTIONMODE = boost::logic::indeterminate; // Adapt should happen with a given probability
+const boost::logic::tribool ADAPTALWAYS = true; // Always adapt, independent of probability settings
+const boost::logic::tribool ADAPTWITHPROB = boost::logic::indeterminate; // Adapt according to the set probability
+const boost::logic::tribool ADAPTNEVER = false; // Never adapt (effectively disables the adaptor)
 
 /**********************************************************************************************/
 

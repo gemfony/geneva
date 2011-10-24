@@ -37,6 +37,8 @@
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/tuple/tuple.hpp>
 
 // Geneva header files go here
 #include "geneva/Go2.hpp" // Includes all of the parameter object types
@@ -45,6 +47,9 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
+	//============================================================================
+	// Parameter Types
+
 	{ // Usage patterns for the GDoubleObject class
 		std::cout << "GDoubleObject:" << std::endl;
 
@@ -687,6 +692,77 @@ int main(int argc, char **argv) {
 		}
 		//-----------------------------------------------------
 	}
+
+	//============================================================================
+	// Adaptors
+
+	{ // GDoubleGaussAdaptor
+		std::cout << "GDoubleGaussAdaptor:" << std::endl;
+
+		//-----------------------------------------------------
+		// Construction
+		GDoubleGaussAdaptor a1; // Default construction
+		GDoubleGaussAdaptor a2(a1); // Copy construction
+
+		double adProb=0.05; // A 5% probability that adaption actually takes place
+		GDoubleGaussAdaptor a3(0.05); // Construction with adaption probability
+
+		double sigma=0.2, sigmaSigma=0.8, minSigma=0., maxSigma=2.;
+		GDoubleGaussAdaptor a4(sigma, sigmaSigma, minSigma, maxSigma); //Construction with specific mutation parameters
+
+		GDoubleGaussAdaptor a5(sigma, sigmaSigma, minSigma, maxSigma, adProb); //Construction with specific mutation parameters
+
+		boost::shared_ptr<GDoubleGaussAdaptor> p_a6(new GDoubleGaussAdaptor()); // Construction inside of a smart pointer
+
+		//-----------------------------------------------------
+		// Assignment
+		a3 = a1;
+		*p_a6 = a1;
+
+		//-----------------------------------------------------
+		// Setting and retrieval of specific configuration parameters
+		a1.setSigma(sigma);
+		double sigma2 = a1.getSigma();
+
+		a1.setSigmaRange(minSigma, maxSigma);
+		boost::tuple<double,double> t = a1.getSigmaRange();
+		std::cout << t.get<0>() << " " << t.get<1>() << std::endl;
+
+		a1.setSigmaAdaptionRate(sigmaSigma);
+		double adaptionRate = a1.getSigmaAdaptionRate();
+
+		a1.setAll(sigma, sigmaSigma, minSigma, maxSigma);
+
+		a1.setAdaptionProbability(adProb);
+		double adProb2 = a1.getAdaptionProbability();
+
+		boost::uint32_t adaptionThreshold = 1;
+		a1.setAdaptionThreshold(adaptionThreshold);
+		adaptionThreshold = a1.getAdaptionThreshold();
+
+		a1.setAdaptionMode(ADAPTALWAYS); // Always adapt, irrespective of probability
+		a2.setAdaptionMode(ADAPTWITHPROB); // Adapt according to the adaption probability
+		a3.setAdaptionMode(ADAPTNEVER); // Temporarily disable the adaptor
+		boost::logic::tribool adaptionMode = a1.getAdaptionMode();
+	}
+
+	{ // GDoubleBiGaussAdaptor
+
+	}
+
+	{ // GInt32GaussAdaptor
+
+	}
+
+	{ // GInt32FlipAdaptor
+
+	}
+
+	{ // GBooleanAdaptor
+
+	}
+
+	//============================================================================
 
 	return 0;
 }
