@@ -733,6 +733,8 @@ int main(int argc, char **argv) {
 
 		a1.setAll(sigma, sigmaSigma, minSigma, maxSigma);
 
+		//-----------------------------------------------------
+		// Parameters common to all adaptors
 		a1.setAdaptionProbability(adProb);
 		double adProb2 = a1.getAdaptionProbability();
 
@@ -747,7 +749,103 @@ int main(int argc, char **argv) {
 	}
 
 	{ // GDoubleBiGaussAdaptor
+		std::cout << "GDoubleBiGaussAdaptor:" << std::endl;
 
+		//-----------------------------------------------------
+		// Construction
+		GDoubleBiGaussAdaptor a1; // Default construction
+		GDoubleBiGaussAdaptor a2(a1); // Copy construction
+
+		double adProb=0.05; // A 5% probability that adaption actually takes place
+		GDoubleBiGaussAdaptor a3(0.05); // Construction with adaption probability
+
+		// Construction inside of a smart pointer
+		boost::shared_ptr<GDoubleBiGaussAdaptor> p_a4(new GDoubleBiGaussAdaptor());
+
+		//-----------------------------------------------------
+		// Assignment
+		a3 = a1;
+		*p_a4 = a1;
+
+		//-----------------------------------------------------
+		// Setting and retrieval of specific configuration parameters
+
+		// sigma1 and sigma2 may differ
+		a1.setUseSymmetricSigmas(false);
+		bool useSymmetricSigmas = a1.getUseSymmetricSigmas();
+
+		// Set/get sigma1 and sigma2
+		a1.setSigma1(0.1);
+		a1.setSigma2(0.2);
+		double sigma1 = a1.getSigma1(), sigma2 = a1.getSigma2();
+
+		// Set/get the allowed value range of sigma1 and sigma2
+		a1.setSigma1Range(0.001,2.);
+		a1.setSigma2Range(0.001,2.);
+		boost::tuple<double,double> sigma1Range = a1.getSigma1Range();
+		boost::tuple<double,double> sigma2Range = a1.getSigma2Range();
+
+		// Set/get the adaption rate of sigma1 and sigma2
+		a1.setSigma1AdaptionRate(0.8);
+		a1.setSigma2AdaptionRate(0.8);
+		double sigma1AdaptionRate = a1.getSigma1AdaptionRate();
+		double sigma2AdaptionRate = a1.getSigma2AdaptionRate();
+
+		// Set all sigma1 and sigma2 parameters at once. Note: We use
+		// the lower/upper boundaries extracted above.
+		a1.setAllSigma1(
+				sigma1
+				, sigma1AdaptionRate
+				, sigma1Range.get<0>()
+				, sigma1Range.get<1>()
+		);
+		a1.setAllSigma2(
+				sigma2
+				, sigma2AdaptionRate
+				, sigma2Range.get<0>()
+				, sigma2Range.get<1>()
+		);
+
+		// Set the initial distance between both peaks
+		// and retieve the current value
+		a1.setDelta(1.5);
+		double delta = a1.getDelta();
+
+		// Set/get the lower and upper boundaries of delta
+		a1.setDeltaRange(0.,5.);
+		boost::tuple<double,double> deltaRange = a1.getDeltaRange();
+
+		// Set/get the adaption rate of delta
+		a1.setDeltaAdaptionRate(0.8);
+		double deltaAdaptionRate = a1.getDeltaAdaptionRate();
+
+		// Set all delta parameters at once. Note: We use the
+		// lower and upper boundaries that were extracted above
+		a1.setAllDelta(
+			delta
+			, deltaAdaptionRate
+			, deltaRange.get<0>()
+			, deltaRange.get<1>()
+		);
+
+		//-----------------------------------------------------
+		// Parameters common to all adaptors
+		a1.setAdaptionProbability(adProb);
+		double adProb2 = a1.getAdaptionProbability();
+
+		boost::uint32_t adaptionThreshold = 1;
+		a1.setAdaptionThreshold(adaptionThreshold);
+		adaptionThreshold = a1.getAdaptionThreshold();
+
+		// Always adapt, irrespective of probability
+		a1.setAdaptionMode(ADAPTALWAYS);
+		// Adapt according to the adaption probability
+		a2.setAdaptionMode(ADAPTWITHPROB);
+		// Temporarily disable the adaptor
+		a3.setAdaptionMode(ADAPTNEVER);
+		boost::logic::tribool adaptionMode = a1.getAdaptionMode();
+
+		//-----------------------------------------------------
 	}
 
 	{ // GInt32GaussAdaptor

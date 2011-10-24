@@ -605,7 +605,7 @@ public:
 protected:
 	/********************************************************************************************/
 	// For performance reasons, so we do not have to go through access functions
-	bool useSymmetricSigmas_; ///< Determines whether the sigmas of both gaussians should be the sam
+	bool useSymmetricSigmas_; ///< Determines whether the sigmas of both gaussians should be the same
 	fp_type sigma1_; ///< The width of the first gaussian used to adapt values
 	fp_type sigmaSigma1_; ///< affects sigma1_ adaption
 	fp_type minSigma1_; ///< minimum allowed value for sigma1_
