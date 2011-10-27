@@ -849,15 +849,121 @@ int main(int argc, char **argv) {
 	}
 
 	{ // GInt32GaussAdaptor
+		//-----------------------------------------------------
+		// Construction
+		GInt32GaussAdaptor a1; // Default construction
+		GInt32GaussAdaptor a2(a1); // Copy construction
 
+		double adProb=0.05; // A 5% probability that adaption actually takes place
+		GInt32GaussAdaptor a3(0.05); // Construction with adaption probability
+
+		double sigma=10., sigmaSigma=0.8, minSigma=0., maxSigma=20.;
+		GInt32GaussAdaptor a4(sigma, sigmaSigma, minSigma, maxSigma); //Construction with specific mutation parameters
+
+		GInt32GaussAdaptor a5(sigma, sigmaSigma, minSigma, maxSigma, adProb); //Construction with specific mutation parameters
+
+		boost::shared_ptr<GInt32GaussAdaptor> p_a6(new GInt32GaussAdaptor()); // Construction inside of a smart pointer
+
+		//-----------------------------------------------------
+		// Assignment
+		a3 = a1;
+		*p_a6 = a1;
+
+		//-----------------------------------------------------
+		// Setting and retrieval of specific configuration parameters
+		a1.setSigma(sigma);
+		double sigma2 = a1.getSigma();
+
+		a1.setSigmaRange(minSigma, maxSigma);
+		boost::tuple<double,double> t = a1.getSigmaRange();
+		std::cout << t.get<0>() << " " << t.get<1>() << std::endl;
+
+		a1.setSigmaAdaptionRate(sigmaSigma);
+		double adaptionRate = a1.getSigmaAdaptionRate();
+
+		a1.setAll(sigma, sigmaSigma, minSigma, maxSigma);
+
+		//-----------------------------------------------------
+		// Parameters common to all adaptors
+		a1.setAdaptionProbability(adProb);
+		double adProb2 = a1.getAdaptionProbability();
+
+		boost::uint32_t adaptionThreshold = 1;
+		a1.setAdaptionThreshold(adaptionThreshold);
+		adaptionThreshold = a1.getAdaptionThreshold();
+
+		a1.setAdaptionMode(ADAPTALWAYS); // Always adapt, irrespective of probability
+		a2.setAdaptionMode(ADAPTWITHPROB); // Adapt according to the adaption probability
+		a3.setAdaptionMode(ADAPTNEVER); // Temporarily disable the adaptor
+		boost::logic::tribool adaptionMode = a1.getAdaptionMode();
+
+		//-----------------------------------------------------
 	}
 
 	{ // GInt32FlipAdaptor
+		//-----------------------------------------------------
+		// Construction
+		GInt32FlipAdaptor a1; // Default construction
+		GInt32FlipAdaptor a2(a1); // Copy construction
 
+		double adProb=0.05; // A 5% probability that adaption actually takes place
+		GInt32FlipAdaptor a3(0.05); // Construction with adaption probability
+
+		boost::shared_ptr<GInt32FlipAdaptor> p_a4(new GInt32FlipAdaptor()); // Construction inside of a smart pointer
+
+		//-----------------------------------------------------
+		// Assignment
+		a3 = a1;
+		*p_a4 = a1;
+
+		//-----------------------------------------------------
+		// Parameters common to all adaptors
+		a1.setAdaptionProbability(adProb);
+		double adProb2 = a1.getAdaptionProbability();
+
+		boost::uint32_t adaptionThreshold = 1;
+		a1.setAdaptionThreshold(adaptionThreshold);
+		adaptionThreshold = a1.getAdaptionThreshold();
+
+		a1.setAdaptionMode(ADAPTALWAYS); // Always adapt, irrespective of probability
+		a2.setAdaptionMode(ADAPTWITHPROB); // Adapt according to the adaption probability
+		a3.setAdaptionMode(ADAPTNEVER); // Temporarily disable the adaptor
+		boost::logic::tribool adaptionMode = a1.getAdaptionMode();
+
+		//-----------------------------------------------------
 	}
 
 	{ // GBooleanAdaptor
+		//-----------------------------------------------------
+		// Construction
+		GBooleanAdaptor a1; // Default construction
+		GBooleanAdaptor a2(a1); // Copy construction
 
+		double adProb=0.05; // A 5% probability that adaption actually takes place
+		GBooleanAdaptor a3(0.05); // Construction with adaption probability
+
+		boost::shared_ptr<GBooleanAdaptor> p_a4(new GBooleanAdaptor()); // Construction inside of a smart pointer
+
+		//-----------------------------------------------------
+		// Assignment
+		a3 = a1;
+		*p_a4 = a1;
+
+		//-----------------------------------------------------
+		// Parameters common to all adaptors
+		a1.setAdaptionProbability(adProb);
+		double adProb2 = a1.getAdaptionProbability();
+
+		boost::uint32_t adaptionThreshold = 1;
+		a1.setAdaptionThreshold(adaptionThreshold);
+		adaptionThreshold = a1.getAdaptionThreshold();
+
+		a1.setAdaptionMode(ADAPTALWAYS); // Always adapt, irrespective of probability
+		a2.setAdaptionMode(ADAPTWITHPROB); // Adapt according to the adaption probability
+		a3.setAdaptionMode(ADAPTNEVER); // Temporarily disable the adaptor
+		boost::logic::tribool adaptionMode = a1.getAdaptionMode();
+
+		//-----------------------------------------------------
 	}
 
 	//============================================================================
