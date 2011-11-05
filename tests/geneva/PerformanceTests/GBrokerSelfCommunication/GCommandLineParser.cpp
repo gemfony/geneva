@@ -51,7 +51,7 @@ bool parseCommandLine(int argc, char **argv,
 					  boost::uint32_t& maxGenerations,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
-					  recoScheme& rScheme,
+					  duplicationScheme& rScheme,
 					  Gem::Common::serializationMode& serMode,
 					  bool& verbose)
 {
@@ -103,13 +103,13 @@ bool parseCommandLine(int argc, char **argv,
 			return false;
 		}
 
-		// Workaround for assigment problem with recoScheme
-		if(recombinationScheme==(boost::uint16_t)VALUERECOMBINE)
-			rScheme=VALUERECOMBINE;
-		else if(recombinationScheme==(boost::uint16_t)RANDOMRECOMBINE)
-			rScheme=RANDOMRECOMBINE;
-		else if(recombinationScheme==(boost::uint16_t)DEFAULTRECOMBINE)
-			rScheme=DEFAULTRECOMBINE;
+		// Workaround for assigment problem with duplicationScheme
+		if(recombinationScheme==(boost::uint16_t)VALUEDUPLICATIONSCHEME)
+			rScheme=VALUEDUPLICATIONSCHEME;
+		else if(recombinationScheme==(boost::uint16_t)RANDOMDUPLICATIONSCHEME)
+			rScheme=RANDOMDUPLICATIONSCHEME;
+		else if(recombinationScheme==(boost::uint16_t)DEFAULTDUPLICATIONSCHEME)
+			rScheme=DEFAULTDUPLICATIONSCHEME;
 		else {
 			std::cout << "Error: Invalid recombination scheme: " << recombinationScheme << std::endl;
 			return false;

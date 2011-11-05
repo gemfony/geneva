@@ -166,9 +166,9 @@ public:
 	sortingMode getSortingScheme() const;
 
 	/** @brief Specify, what recombination mode should be used */
-	void setRecombinationMethod(recoScheme);
+	void setRecombinationMethod(duplicationScheme);
 	/** @brief Find out, what recombination mode is being used */
-	recoScheme getRecombinationMethod() const;
+	duplicationScheme getRecombinationMethod() const;
 
 	/** @brief Loads a checkpoint from disk */
 	virtual void loadCheckpoint(const std::string&);
@@ -385,9 +385,9 @@ private:
 	/** @brief Saves the state of the class to disc. Private, as we do not want to accidently trigger value calculation  */
 	virtual void saveCheckpoint() const;
 
-	/** @brief Implements the RANDOMRECOMBINE recombination scheme */
+	/** @brief Implements the RANDOMDUPLICATIONSCHEME recombination scheme */
 	void randomRecombine(boost::shared_ptr<GIndividual>&);
-	/** @brief Implements the VALUERECOMBINE recombination scheme */
+	/** @brief Implements the VALUEDUPLICATIONSCHEME recombination scheme */
 	void valueRecombine(boost::shared_ptr<GIndividual>&, const std::vector<double>&);
 
 	/** @brief Selection, MUPLUSNU_SINGLEEVAL style */
@@ -413,7 +413,7 @@ private:
 
 	std::size_t nParents_; ///< The number of parents
 	boost::uint32_t microTrainingInterval_; ///< The number of iterations without improvements after which a micro training should be started
-	recoScheme recombinationMethod_; ///< The chosen recombination method
+	duplicationScheme recombinationMethod_; ///< The chosen recombination method
 	sortingMode smode_; ///< The chosen sorting scheme
 	std::size_t defaultNChildren_; ///< Expected number of children
 	bool oneTimeMuCommaNu_; ///< Specifies whether a one-time selection scheme of MUCOMMANU_SINGLEEVAL should be used

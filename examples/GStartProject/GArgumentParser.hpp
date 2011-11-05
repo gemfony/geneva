@@ -77,7 +77,7 @@ namespace Gem
     const boost::uint32_t DEFAULTMAXITERATIONS=2000;
     const long DEFAULTMAXMINUTES=10;
     const boost::uint32_t DEFAULTREPORTITERATION=1;
-    const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
+    const duplicationScheme DEFAULTRSCHEME=VALUEDUPLICATIONSCHEME;
     const bool DEFAULTVERBOSE=true;
     const bool DEFAULTPARALLELIZATIONMODEAP=1;
     const std::size_t DEFAULTARRAYSIZE=1000;
@@ -118,7 +118,7 @@ namespace Gem
 		  , boost::uint32_t& maxIterations
 		  , long& maxMinutes
 		  , boost::uint32_t& reportIteration
-		  , recoScheme& rScheme
+		  , duplicationScheme& rScheme
 		  , sortingMode& smode
 		  , std::size_t& arraySize
 		  , boost::uint32_t& processingCycles

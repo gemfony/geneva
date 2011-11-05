@@ -81,14 +81,14 @@ namespace Gem
     const long DEFAULTMAXMINUTESSUPER=0;
     const boost::uint32_t DEFAULTREPORTITERATIONSUPER=1;
     const sortingMode DEFAULTSORTINGSCHEMESUPER=MUPLUSNU_SINGLEEVAL;
-    const recoScheme DEFAULTRSCHEMESUPER=VALUERECOMBINE;
+    const duplicationScheme DEFAULTRSCHEMESUPER=VALUEDUPLICATIONSCHEME;
     const std::size_t DEFAULTPOPULATIONSIZESUB=100;
     const std::size_t DEFAULTNPARENTSSUB=5; // Allow to explore the parameter space from many starting points
     const boost::uint32_t DEFAULTMAXITERATIONSSUB=100;
     const long DEFAULTMAXMINUTESSUB=0;
     const boost::uint32_t DEFAULTREPORTITERATIONSUB=0;
     const sortingMode DEFAULTSORTINGSCHEMESUB=MUPLUSNU_SINGLEEVAL;
-    const recoScheme DEFAULTRSCHEMESUB=VALUERECOMBINE;
+    const duplicationScheme DEFAULTRSCHEMESUB=VALUEDUPLICATIONSCHEME;
     const bool DEFAULTVERBOSE=true;
     const bool DEFAULTPARALLELIZATIONMODEAP=1;
     const std::size_t DEFAULTARRAYSIZE=1000;
@@ -130,14 +130,14 @@ namespace Gem
 		  , boost::uint32_t& maxIterationsSuper
 		  , long& maxMinutesSuper
 		  , boost::uint32_t& reportIterationSuper
-		  , recoScheme& rSchemeSuper
+		  , duplicationScheme& rSchemeSuper
 		  , sortingMode& smodeSuper
 		  , std::size_t& populationSizeSub
 		  , std::size_t& nParentsSub
 		  , boost::uint32_t& maxIterationsSub
 		  , long& maxMinutesSub
 		  , boost::uint32_t& reportIterationSub
-		  , recoScheme& rSchemeSub
+		  , duplicationScheme& rSchemeSub
 		  , sortingMode& smodeSub
 		  , std::size_t& arraySize
 		  , boost::uint32_t& processingCycles

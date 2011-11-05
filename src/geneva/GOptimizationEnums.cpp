@@ -73,13 +73,13 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::parMode& pm) {
 
 /*********************************************************************/
 /**
- * Puts a Gem::Geneva::recoScheme item into a stream
+ * Puts a Gem::Geneva::duplicationScheme item into a stream
  *
  * @param o The ostream the item should be added to
  * @param rc the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::recoScheme& rc) {
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::duplicationScheme& rc) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(rc);
 	o << tmp;
 	return o;
@@ -87,20 +87,20 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::recoScheme& rc) {
 
 /*********************************************************************/
 /**
- * Reads a Gem::Geneva::recoScheme item from a stream
+ * Reads a Gem::Geneva::duplicationScheme item from a stream
  *
  * @param i The stream the item should be read from
  * @param rc The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::recoScheme& rc) {
+std::istream& operator>>(std::istream& i, Gem::Geneva::duplicationScheme& rc) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	rc = boost::numeric_cast<Gem::Geneva::recoScheme>(tmp);
+	rc = boost::numeric_cast<Gem::Geneva::duplicationScheme>(tmp);
 #else
-	rc = static_cast<Gem::Geneva::recoScheme>(tmp);
+	rc = static_cast<Gem::Geneva::duplicationScheme>(tmp);
 #endif /* DEBUG */
 
 	return i;

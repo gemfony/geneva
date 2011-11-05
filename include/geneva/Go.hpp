@@ -96,7 +96,7 @@ const boost::uint32_t GO_DEF_OFFSET=0;
 const bool GO_DEF_CONSUMERINITIALIZED=false;
 const std::size_t GO_DEF_EAPOPULATIONSIZE=100;
 const std::size_t GO_DEF_EANPARENTS=1;
-const recoScheme GO_DEF_EARECOMBINATIONSCHEME=VALUERECOMBINE;
+const duplicationScheme GO_DEF_EARECOMBINATIONSCHEME=VALUEDUPLICATIONSCHEME;
 const sortingMode GO_DEF_EASORTINGSCHEME=MUCOMMANU_SINGLEEVAL;
 const bool GO_DEF_EATRACKPARENTRELATIONS=false;
 const std::size_t GO_DEF_EAGROWTHRATE=0;
@@ -311,8 +311,8 @@ public:
 	void setEANParents(const std::size_t&);
 	std::size_t getEANParents() const;
 
-	void setEARecombinationScheme(const recoScheme&);
-	recoScheme getEARecombinationScheme() const;
+	void setEARecombinationScheme(const duplicationScheme&);
+	duplicationScheme getEARecombinationScheme() const;
 
 	void setEASortingScheme(const sortingMode&);
 	sortingMode getEASortingScheme() const;
@@ -1022,7 +1022,7 @@ private:
     // EA parameters
     std::size_t eaPopulationSize_; ///< The desired size of EA populations
     std::size_t eaNParents_; ///< The number of parents in an EA population
-    recoScheme eaRecombinationScheme_; ///< The recombination scheme in EA
+    duplicationScheme eaRecombinationScheme_; ///< The recombination scheme in EA
     sortingMode eaSortingScheme_; ///< The sorting scheme in EA (MUCOMMANU_SINGLEEVAL etc.)
     bool eaTrackParentRelations_; ///< Whether relations between children and parents should be tracked in EA
     std::size_t eaGrowthRate_; ///< The growth rate of the population per iteration

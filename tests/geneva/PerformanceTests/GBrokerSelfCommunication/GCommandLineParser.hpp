@@ -77,7 +77,7 @@ const std::size_t DEFAULTNPARENTS=5;
 const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
 const long DEFAULTMAXMINUTES=5;
 const boost::uint32_t DEFAULTREPORTGENERATION=1;
-const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
+const duplicationScheme DEFAULTRSCHEME=VALUEDUPLICATIONSCHEME;
 const bool DEFAULTVERBOSE=true;
 const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
 
@@ -91,7 +91,7 @@ bool parseCommandLine(int argc, char **argv,
 					  boost::uint32_t& maxGenerations,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
-					  recoScheme& rScheme,
+					  duplicationScheme& rScheme,
 					  Gem::Common::serializationMode& serMode,
 					  bool& verbose);
 

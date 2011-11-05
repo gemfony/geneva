@@ -132,14 +132,14 @@ namespace Gem
 		  , boost::uint32_t& maxIterationsSuper
 		  , long& maxMinutesSuper
 		  , boost::uint32_t& reportIterationSuper
-		  , recoScheme& rSchemeSuper
+		  , duplicationScheme& rSchemeSuper
 		  , sortingMode& smodeSuper
 		  , std::size_t& populationSizeSub
 		  , std::size_t& nParentsSub
 		  , boost::uint32_t& maxIterationsSub
 		  , long& maxMinutesSub
 		  , boost::uint32_t& reportIterationSub
-		  , recoScheme& rSchemeSub
+		  , duplicationScheme& rSchemeSub
 		  , sortingMode& smodeSub
 		  , std::size_t& arraySize
 		  , boost::uint32_t& processingCycles
@@ -270,24 +270,24 @@ namespace Gem
 	}
 
 	// Workaround for assigment problem with rSchemeSuper
-	if(recombinationSchemeSuper==(boost::uint16_t)VALUERECOMBINE)
-	  rSchemeSuper=VALUERECOMBINE;
-	else if(recombinationSchemeSuper==(boost::uint16_t)RANDOMRECOMBINE)
-	  rSchemeSuper=RANDOMRECOMBINE;
-	else if(recombinationSchemeSuper==(boost::uint16_t)DEFAULTRECOMBINE)
-	  rSchemeSuper=DEFAULTRECOMBINE;
+	if(recombinationSchemeSuper==(boost::uint16_t)VALUEDUPLICATIONSCHEME)
+	  rSchemeSuper=VALUEDUPLICATIONSCHEME;
+	else if(recombinationSchemeSuper==(boost::uint16_t)RANDOMDUPLICATIONSCHEME)
+	  rSchemeSuper=RANDOMDUPLICATIONSCHEME;
+	else if(recombinationSchemeSuper==(boost::uint16_t)DEFAULTDUPLICATIONSCHEME)
+	  rSchemeSuper=DEFAULTDUPLICATIONSCHEME;
 	else {
 	  std::cout << "Error: Invalid recombination scheme in super-population: " << recombinationSchemeSuper << std::endl;
 	  return false;
 	}
 
 	// Workaround for assigment problem with rSchemeSub
-	if(recombinationSchemeSub==(boost::uint16_t)VALUERECOMBINE)
-	  rSchemeSub=VALUERECOMBINE;
-	else if(recombinationSchemeSub==(boost::uint16_t)RANDOMRECOMBINE)
-	  rSchemeSub=RANDOMRECOMBINE;
-	else if(recombinationSchemeSub==(boost::uint16_t)DEFAULTRECOMBINE)
-	  rSchemeSub=DEFAULTRECOMBINE;
+	if(recombinationSchemeSub==(boost::uint16_t)VALUEDUPLICATIONSCHEME)
+	  rSchemeSub=VALUEDUPLICATIONSCHEME;
+	else if(recombinationSchemeSub==(boost::uint16_t)RANDOMDUPLICATIONSCHEME)
+	  rSchemeSub=RANDOMDUPLICATIONSCHEME;
+	else if(recombinationSchemeSub==(boost::uint16_t)DEFAULTDUPLICATIONSCHEME)
+	  rSchemeSub=DEFAULTDUPLICATIONSCHEME;
 	else {
 	  std::cout << "Error: Invalid recombination scheme in sub-population: " << recombinationSchemeSub << std::endl;
 	  return false;

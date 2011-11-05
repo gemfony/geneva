@@ -49,7 +49,7 @@ GBaseEA::GBaseEA()
 	: GOptimizationAlgorithmT<Gem::Geneva::GIndividual>()
 	, nParents_(0)
 	, microTrainingInterval_(DEFAULTMICROTRAININGINTERVAL)
-	, recombinationMethod_(DEFAULTRECOMBINE)
+	, recombinationMethod_(DEFAULTDUPLICATIONSCHEME)
 	, smode_(DEFAULTSMODE)
 	, defaultNChildren_(0)
 	, oneTimeMuCommaNu_(false)
@@ -828,9 +828,9 @@ void GBaseEA::addConfigurationOptions (
 	comment += "1: random selection from available parents;";
 	comment += "2: selection according to the parent's value;";
 	if(showOrigin) comment += "[GBaseEA]";
-	gpb.registerFileParameter<recoScheme>(
+	gpb.registerFileParameter<duplicationScheme>(
 		"recombinationMethod" // The name of the variable
-		, DEFAULTRECOMBINE // The default value
+		, DEFAULTDUPLICATIONSCHEME // The default value
 		, boost::bind(
 			&GBaseEA::setRecombinationMethod
 			, this
@@ -1055,8 +1055,8 @@ void GBaseEA::doRecombine() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	switch(recombinationMethod_){
-	case DEFAULTRECOMBINE: // we want the RANDOMRECOMBINE behavior
-	case RANDOMRECOMBINE:
+	case DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
+	case RANDOMDUPLICATIONSCHEME:
 	{
 		std::size_t child_id=0;
 		for(it=data.begin()+nParents_; it!= data.end(); ++it) {
@@ -1065,7 +1065,7 @@ void GBaseEA::doRecombine() {
 	}
 		break;
 
-	case VALUERECOMBINE:
+	case VALUEDUPLICATIONSCHEME:
 		// Recombination according to the parents' fitness only makes sense if
 		// we have at least 2 parents. We do the recombination manually otherwise
 		if(nParents_==1) {
@@ -1119,7 +1119,7 @@ void GBaseEA::doRecombine() {
 
 /************************************************************************************************************/
 /**
- * This function implements the RANDOMRECOMBINE scheme. This functions uses BOOST's
+ * This function implements the RANDOMDUPLICATIONSCHEME scheme. This functions uses BOOST's
  * numeric_cast function for safe conversion between std::size_t and uint16_t.
  *
  * @param pos The position of the individual for which a new value should be chosen
@@ -1148,7 +1148,7 @@ void GBaseEA::randomRecombine(boost::shared_ptr<GIndividual>& child) {
 
 /************************************************************************************************************/
 /**
- * This function implements the VALUERECOMBINE scheme. The range [0.,1.[ is divided
+ * This function implements the VALUEDUPLICATIONSCHEME scheme. The range [0.,1.[ is divided
  * into nParents_ sub-areas with different size (the largest for the first parent,
  * the smallest for the last). Parents are chosen for recombination according to a
  * random number evenly distributed between 0 and 1. This way parents with higher
@@ -1746,7 +1746,7 @@ std::size_t GBaseEA::getDefaultNChildren() const {
  *
  * @param recombinationMethod The desired recombination method
  */
-void GBaseEA::setRecombinationMethod(recoScheme recombinationMethod) {
+void GBaseEA::setRecombinationMethod(duplicationScheme recombinationMethod) {
 	recombinationMethod_ = recombinationMethod;
 }
 
@@ -1756,7 +1756,7 @@ void GBaseEA::setRecombinationMethod(recoScheme recombinationMethod) {
  *
  * @return The value of the recombinationMethod_ variable
  */
-recoScheme GBaseEA::getRecombinationMethod() const {
+duplicationScheme GBaseEA::getRecombinationMethod() const {
 	return recombinationMethod_;
 }
 

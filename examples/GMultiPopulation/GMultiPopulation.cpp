@@ -71,14 +71,14 @@ int main(int argc, char **argv){
   boost::uint32_t maxIterationsSuper;
   long maxMinutesSuper;
   boost::uint32_t reportIterationSuper;
-  recoScheme rSchemeSuper;
+  duplicationScheme rSchemeSuper;
   sortingMode smodeSuper;
   std::size_t populationSizeSub;
   std::size_t nParentsSub;
   boost::uint32_t maxIterationsSub;
   long maxMinutesSub;
   boost::uint32_t reportIterationSub;
-  recoScheme rSchemeSub;
+  duplicationScheme rSchemeSub;
   sortingMode smodeSub;
   std::size_t arraySize;
   std::size_t parDim;

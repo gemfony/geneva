@@ -87,7 +87,7 @@ int main(int argc, char **argv){
 	boost::uint32_t maxGenerations=2000, reportGeneration=1;
 	long maxMinutes=10;
 	bool verbose=true;
-	recoScheme rScheme=VALUERECOMBINE;
+	duplicationScheme rScheme=VALUEDUPLICATIONSCHEME;
 	Gem::Common::serializationMode serMode;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////

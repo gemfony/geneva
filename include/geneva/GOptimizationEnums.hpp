@@ -232,15 +232,15 @@ const parMode DEFAULTPARALLELIZATIONMODE = PARMODE_MULTITHREADED;
 
 /**********************************************************************************************/
 /**
- * Currently three types of recombination schemes are supported:
- * - DEFAULTRECOMBINE defaults to RANDOMRECOMBINE
- * - RANDOMRECOMBINE chooses the parents to be replicated randomly from all parents
- * - VALUERECOMBINE prefers parents with a higher fitness
+ * Currently three types of duplication schemes are supported:
+ * - DEFAULTDUPLICATIONSCHEME defaults to RANDOMDUPLICATIONSCHEME
+ * - RANDOMDUPLICATIONSCHEME chooses the parents to be replicated randomly from all parents
+ * - VALUEDUPLICATIONSCHEME prefers parents with a higher fitness
  */
-enum recoScheme {
-	  DEFAULTRECOMBINE = 0
-	, RANDOMRECOMBINE = 1
-	, VALUERECOMBINE = 2
+enum duplicationScheme {
+	  DEFAULTDUPLICATIONSCHEME = 0
+	, RANDOMDUPLICATIONSCHEME = 1
+	, VALUEDUPLICATIONSCHEME = 2
 };
 
 /**********************************************************************************************/
@@ -370,11 +370,11 @@ std::ostream& operator<<(std::ostream&, const Gem::Geneva::parMode&);
 /** @brief Reads a Gem::Geneva::parMode item from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Geneva::parMode&);
 
-/** @brief Puts a Gem::Geneva::recoScheme into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::recoScheme&);
+/** @brief Puts a Gem::Geneva::duplicationScheme into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::duplicationScheme&);
 
-/** @brief Reads a Gem::Geneva::recoScheme item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::recoScheme&);
+/** @brief Reads a Gem::Geneva::duplicationScheme item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::duplicationScheme&);
 
 /** @brief Puts a Gem::Geneva::infoMode into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Geneva::infoMode&);

@@ -1113,7 +1113,7 @@ std::size_t Go::getEANParents() const {
  *
  * @param eaRecombinationScheme The recombination scheme used in evolutionary algorithms
  */
-void Go::setEARecombinationScheme(const recoScheme& eaRecombinationScheme) {
+void Go::setEARecombinationScheme(const duplicationScheme& eaRecombinationScheme) {
 	eaRecombinationScheme_ = eaRecombinationScheme;
 }
 
@@ -1123,7 +1123,7 @@ void Go::setEARecombinationScheme(const recoScheme& eaRecombinationScheme) {
  *
  * @return The recombination scheme used in evolutionary algorithms
  */
-recoScheme Go::getEARecombinationScheme() const {
+duplicationScheme Go::getEARecombinationScheme() const {
 	return eaRecombinationScheme_;
 }
 
@@ -1526,7 +1526,7 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 		("offset", po::value<boost::uint32_t>(&offset_)->default_value(GO_DEF_OFFSET))
 		("eaPopulationSize", po::value<std::size_t>(&eaPopulationSize_)->default_value(GO_DEF_EAPOPULATIONSIZE))
 		("eaNParents", po::value<std::size_t>(&eaNParents_)->default_value(GO_DEF_EANPARENTS))
-		("eaRecombinationScheme", po::value<recoScheme>(&eaRecombinationScheme_)->default_value(GO_DEF_EARECOMBINATIONSCHEME))
+		("eaRecombinationScheme", po::value<duplicationScheme>(&eaRecombinationScheme_)->default_value(GO_DEF_EARECOMBINATIONSCHEME))
 		("eaSortingScheme", po::value<sortingMode>(&eaSortingScheme_)->default_value(GO_DEF_EASORTINGSCHEME))
 		("eaTrackParentRelations", po::value<bool>(&eaTrackParentRelations_)->default_value(GO_DEF_EATRACKPARENTRELATIONS))
 		("eaGrowthRate", po::value<std::size_t>(&eaGrowthRate_)->default_value(GO_DEF_EAGROWTHRATE))

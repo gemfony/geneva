@@ -197,7 +197,7 @@ namespace Gem
 			, boost::uint32_t& maxIterations
 			, long& maxMinutes
 			, boost::uint32_t& reportIteration
-			, recoScheme& rScheme
+			, duplicationScheme& rScheme
 			, sortingMode& smode
 			, std::size_t& arraySize
 			, boost::uint32_t& processingCycles
@@ -298,12 +298,12 @@ namespace Gem
 	}
 
 	// Workaround for assigment problem with rScheme
-	if(recombinationScheme==(boost::uint16_t)VALUERECOMBINE)
-	  rScheme=VALUERECOMBINE;
-	else if(recombinationScheme==(boost::uint16_t)RANDOMRECOMBINE)
-	  rScheme=RANDOMRECOMBINE;
-	else if(recombinationScheme==(boost::uint16_t)DEFAULTRECOMBINE)
-	  rScheme=DEFAULTRECOMBINE;
+	if(recombinationScheme==(boost::uint16_t)VALUEDUPLICATIONSCHEME)
+	  rScheme=VALUEDUPLICATIONSCHEME;
+	else if(recombinationScheme==(boost::uint16_t)RANDOMDUPLICATIONSCHEME)
+	  rScheme=RANDOMDUPLICATIONSCHEME;
+	else if(recombinationScheme==(boost::uint16_t)DEFAULTDUPLICATIONSCHEME)
+	  rScheme=DEFAULTDUPLICATIONSCHEME;
 	else {
 	  std::cout << "Error: Invalid recombination scheme in population: " << recombinationScheme << std::endl;
 	  return false;

@@ -75,7 +75,7 @@ int main(int argc, char **argv){
   boost::uint32_t maxIterations;
   long maxMinutes;
   boost::uint32_t reportIteration;
-  recoScheme rScheme;
+  duplicationScheme rScheme;
   std::size_t arraySize;
   std::size_t parDim;
   double minVar;

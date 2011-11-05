@@ -30,6 +30,8 @@ The main changes for this release include:
  - Renamed the cpp variable GENEVATESTING to GEM_TESTING.
  - Bumped the minimal Boost version to 1.41.
  - Forced Boost.Filesystem v3 for Boost >= 1.44
+ - Some renaming of variables. E.g.: Renamed "recoSchemes" to the 
+   more appropriate duplicationScheme, dito for this enums constants
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.2, "Route de Meyrin" - August 4, 2011
