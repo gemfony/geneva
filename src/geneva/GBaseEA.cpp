@@ -456,9 +456,9 @@ std::size_t GBaseEA::getNProcessableItems() const {
 		switch(getSortingScheme()) {
 		case MUPLUSNU_PARETO:
 		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
-		case SA:
+		case SA_SINGLEEVAL:
 		case MUPLUSNU_SINGLEEVAL:
-		case MUNU1PRETAIN: // same procedure for all three nodes
+		case MUNU1PRETAIN_SINGLEEVAL: // same procedure for all three nodes
 			return this->size(); // parents and children need to be processed
 			break;
 		case MUCOMMANU_SINGLEEVAL:
@@ -611,11 +611,11 @@ void GBaseEA::init() {
 
 	// In MUCOMMANU_SINGLEEVAL mode we want to have at least as many children as parents,
 	// whereas MUPLUSNU_SINGLEEVAL only requires the population size to be larger than the
-	// number of parents. NUNU1PRETAIN has the same requirements as MUCOMMANU_SINGLEEVAL and SA,
+	// number of parents. NUNU1PRETAIN has the same requirements as MUCOMMANU_SINGLEEVAL and SA_SINGLEEVAL,
 	// as it is theoretically possible that all children are better than the former
 	// parents, so that the first parent individual will be replaced.
 	std::size_t popSize = getPopulationSize();
-	if(((smode_==MUCOMMANU_SINGLEEVAL || smode_==MUNU1PRETAIN || smode_==SA) && (popSize < 2*nParents_)) || (smode_==MUPLUSNU_SINGLEEVAL && popSize<=nParents_))
+	if(((smode_==MUCOMMANU_SINGLEEVAL || smode_==MUNU1PRETAIN_SINGLEEVAL || smode_==SA_SINGLEEVAL) && (popSize < 2*nParents_)) || (smode_==MUPLUSNU_SINGLEEVAL && popSize<=nParents_))
 	{
 		std::ostringstream error;
 		error << "In GBaseEA::init() :" << std::endl
@@ -629,10 +629,10 @@ void GBaseEA::init() {
 		case MUCOMMANU_SINGLEEVAL:
 			error << "MUCOMMANU_SINGLEEVAL" << std::endl;
 			break;
-		case MUNU1PRETAIN:
+		case MUNU1PRETAIN_SINGLEEVAL:
 			error << "MUNU1PRETAIN" << std::endl;
 			break;
-		case SA:
+		case SA_SINGLEEVAL:
 			error << "SA" << std::endl;
 			break;
 		case MUPLUSNU_PARETO:
@@ -990,9 +990,9 @@ std::size_t GBaseEA::getNChildren() const {
 /**
  * Sets the sorting scheme. In MUPLUSNU_SINGLEEVAL, new parents will be selected from the entire
  * population, including the old parents. In MUCOMMANU_SINGLEEVAL new parents will be selected
- * from children only. MUNU1PRETAIN means that the best parent of the last generation
+ * from children only. MUNU1PRETAIN_SINGLEEVAL means that the best parent of the last generation
  * will also become a new parent (unless a better child was found). All other parents are
- * selected from children only. SA is the selection scheme used in simulated annealing.
+ * selected from children only. SA_SINGLEEVAL is the selection scheme used in simulated annealing.
  *
  * @param smode The desired sorting scheme
  */
@@ -1212,7 +1212,7 @@ void GBaseEA::select()
 		break;
 
 	//----------------------------------------------------------------------------
-	case MUNU1PRETAIN:
+	case MUNU1PRETAIN_SINGLEEVAL:
 		if(oneTimeMuCommaNu_) {
 			sortMucommanuMode();
 			oneTimeMuCommaNu_=false;
@@ -1225,7 +1225,7 @@ void GBaseEA::select()
 		sortMucommanuMode();
 		break;
 	//----------------------------------------------------------------------------
-	case SA:
+	case SA_SINGLEEVAL:
 		sortSAMode();
 		break;
 	//----------------------------------------------------------------------------
@@ -1307,7 +1307,7 @@ void GBaseEA::sortMucommanuMode() {
 
 /************************************************************************************************************/
 /**
- * Selection, MUNU1PRETAIN style. This is a hybrid between MUPLUSNU_SINGLEEVAL and MUCOMMANU_SINGLEEVAL
+ * Selection, MUNU1PRETAIN_SINGLEEVAL style. This is a hybrid between MUPLUSNU_SINGLEEVAL and MUCOMMANU_SINGLEEVAL
  * mode. If a better child was found than the best parent of the last generation,
  * all former parents are replaced. If no better child was found than the best
  * parent of the last generation, then this parent stays in place. All other parents

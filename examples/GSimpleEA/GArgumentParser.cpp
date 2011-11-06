@@ -287,8 +287,8 @@ bool parseConfigFile(
 			smode = MUPLUSNU_SINGLEEVAL;
 		else if (sortingScheme == (boost::uint16_t) MUCOMMANU_SINGLEEVAL)
 			smode = MUCOMMANU_SINGLEEVAL;
-		else if (sortingScheme == (boost::uint16_t) MUNU1PRETAIN)
-			smode = MUNU1PRETAIN;
+		else if (sortingScheme == (boost::uint16_t) MUNU1PRETAIN_SINGLEEVAL)
+			smode = MUNU1PRETAIN_SINGLEEVAL;
 		else {
 			std::cout << "Error: Invalid sorting scheme in population: " << sortingScheme << std::endl;
 			return false;

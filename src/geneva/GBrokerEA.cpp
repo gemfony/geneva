@@ -299,11 +299,11 @@ boost::tuple<std::size_t, std::size_t> GBrokerEA::markCommands() {
 	// In the first iteration, depending on the selection mode, parents need to be evaluated as well
 	if(inFirstIteration()) {
 		switch(getSortingScheme()) {
-		case SA:
+		case SA_SINGLEEVAL:
 		case MUPLUSNU_SINGLEEVAL:
 		case MUPLUSNU_PARETO:
 		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
-		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
+		case MUNU1PRETAIN_SINGLEEVAL: // same procedure. We do not know which parent is best
 			start = 0; // We want to evaluate parents as well
 
 			// Note that we only have parents left in this iteration

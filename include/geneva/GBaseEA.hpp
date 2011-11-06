@@ -394,7 +394,7 @@ private:
 	void sortMuplusnuMode();
 	/** @brief Selection, MUCOMMANU_SINGLEEVAL style */
 	void sortMucommanuMode();
-	/** @brief Selection, MUNU1PRETAIN style */
+	/** @brief Selection, MUNU1PRETAIN_SINGLEEVAL style */
 	void sortMunu1pretainMode();
 
 	/** Performs a simulated annealing style sorting and selection */

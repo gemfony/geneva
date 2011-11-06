@@ -238,17 +238,17 @@ void GMultiThreadedEA::adaptChildren() {
 
 	// We start with the parents, if this is the first iteration. Their
 	// initial fitness needs to be determined, if this is the MUPLUSNU_SINGLEEVAL
-	// or MUNU1PRETAIN selection model.
+	// or MUNU1PRETAIN_SINGLEEVAL selection model.
 	// Make sure we also evaluate the parents in the first iteration, if needed.
-	// This is only applicable to the MUPLUSNU_SINGLEEVAL and MUNU1PRETAIN modes.
+	// This is only applicable to the MUPLUSNU_SINGLEEVAL and MUNU1PRETAIN_SINGLEEVAL modes.
 	if(inFirstIteration()) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
-		case SA:
+		case SA_SINGLEEVAL:
 		case MUPLUSNU_SINGLEEVAL:
 		case MUPLUSNU_PARETO:
 		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
-		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
+		case MUNU1PRETAIN_SINGLEEVAL: // same procedure. We do not know which parent is best
 			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
 				// Make re-evaluation accessible
 				(*it)->setServerMode(false);
@@ -277,11 +277,11 @@ void GMultiThreadedEA::adaptChildren() {
 	if(inFirstIteration()) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
-		case SA:
+		case SA_SINGLEEVAL:
 		case MUPLUSNU_SINGLEEVAL:
 		case MUPLUSNU_PARETO:
 		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
-		case MUNU1PRETAIN: // same procedure
+		case MUNU1PRETAIN_SINGLEEVAL: // same procedure
 			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
 				// Make re-evaluation impossible
 				(*it)->setServerMode(true);
