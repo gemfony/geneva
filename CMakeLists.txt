@@ -5,7 +5,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 # Set the library/package version
 SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "9")
-SET(VERSION_PATCH "3")
+SET(VERSION_PATCH "4rc0")
 
 ###############################################################################
 #
