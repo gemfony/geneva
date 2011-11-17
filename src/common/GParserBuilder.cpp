@@ -174,7 +174,11 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile)
 				}
 
 				// We require the file to have the json extension
+#if BOOST_VERSION>104300
 				if(!bf::path(configFile).has_extension() || bf::path(configFile).extension() != ".json") {
+#else
+					if(bf::path(configFile).extension() != ".json") { // This is a hack
+#endif
 					raiseException(
 						"In GParserBuilder::parseConfigFile(): Error!" << std::endl
 						<< configFile << " does not have the required extension \".json\"" << std::endl
@@ -264,7 +268,11 @@ void GParserBuilder::writeConfigFile(
 		}
 
 		// Check that the configuration file has the required extension
+#if BOOST_VERSION>104300
 		if(!bf::path(configFile).has_extension() || bf::path(configFile).extension() != ".json") {
+#else
+		if(bf::path(configFile).extension() != ".json") { // This is a hack
+#endif
 			raiseException(
 				"In GParserBuilder::writeConfigFile(): Error!" << std::endl
 				<< configFile << " does not have the required extension \".json\"" << std::endl

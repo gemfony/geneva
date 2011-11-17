@@ -74,6 +74,7 @@
 
 // Geneva header files go here
 #include <common/GExceptions.hpp>
+#include <common/GCommonEnums.hpp>
 
 namespace Gem {
 namespace Common {
@@ -508,8 +509,10 @@ protected:
 		// Make sure the recipient vector is empty
 		par_.clear();
 
-	    BOOST_FOREACH(ptree::value_type &v, pt.get_child((optionName(0) + ".value").c_str()))
-			par_.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
+		std::string ppath = optionName(0) + ".value";
+	    BOOST_FOREACH(ptree::value_type const &v, pt.get_child(ppath.c_str())) {
+		   par_.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
+	    }
 	}
 
 	/********************************************************************/
@@ -625,7 +628,8 @@ protected:
 		// Make sure the recipient vector is empty
 		par_.clear();
 
-	    BOOST_FOREACH(ptree::value_type &v, pt.get_child((optionName(0) + ".value").c_str()))
+		std::string ppath = optionName(0) + ".value";
+	    BOOST_FOREACH(ptree::value_type const &v, pt.get_child(ppath.c_str()))
 			par_.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
 	}
 
@@ -1141,12 +1145,14 @@ public:
 
 	/********************************************************************/
 	/**
-	 * Adds a vector of configurable type to the collection
+	 * Adds a vector of configurable type to the collection, using a
+	 * call-back function
 	 */
 	template <typename parameter_type>
 	void registerFileParameter(
 		const std::string& optionName
 		, const std::vector<parameter_type>& def_val
+		, boost::function<void(std::vector<parameter_type>)> callBack
 		, const bool& isEssential = true
 		, const std::string& comment = ""
 	) {
@@ -1158,6 +1164,8 @@ public:
 					, isEssential
 				)
 			);
+
+		vecParm_ptr->registerCallBackFunction(callBack);
 
 		// Store for later usage
 		parameter_proxies_.push_back(vecParm_ptr);
@@ -1191,12 +1199,15 @@ public:
 
 	/********************************************************************/
 	/**
-	 * Adds an array of configurable type to the collection
+	 * Adds an array of configurable type but fixed size to the collection.
+	 * This allows to make sure that a given amount of configuration options
+	 * must be available.
 	 */
 	template <typename parameter_type, std::size_t N>
 	void registerFileParameter(
 		const std::string& optionName
 		, const boost::array<parameter_type,N>& def_val
+		, boost::function<void(boost::array<parameter_type,N>)> callBack
 		, const bool& isEssential = true
 		, const std::string& comment = ""
 	) {
@@ -1209,13 +1220,17 @@ public:
 				)
 			);
 
+		// Register the call back function
+		arrayParm_ptr->registerCallBackFunction(callBack);
+
 		// Store for later usage
 		parameter_proxies_.push_back(arrayParm_ptr);
 	}
 
 	/********************************************************************/
 	/**
-	 * Adds a reference to an array of configurable type to the collection
+	 * Adds a reference to an array of configurable type but fixed size
+	 * to the collection
 	 */
 	template <typename parameter_type, std::size_t N>
 	void registerFileParameter(
