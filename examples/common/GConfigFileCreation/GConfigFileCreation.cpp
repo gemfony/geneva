@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
 	);
 
 	//----------------------------------------------------------------
-	// Example 2: Registering a function of function object as call-back
+	// Example 2: Registering a function or function object as call-back
 	// that expects two parameters. This is meant for parameters that
 	// only make sense when set together. Example: Lower and upper boundaries
 	// of a random number generator.
