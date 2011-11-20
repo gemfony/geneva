@@ -34,25 +34,25 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-  06_GParaboloid
+	06_GSimpleGD
 )
 
 ADD_SUBDIRECTORY (
-	GMultiPopulation
+	06_GSimpleSwarm
 )
 
 ADD_SUBDIRECTORY (
-	GSimpleGD
+  07_GParaboloid
 )
 
 ADD_SUBDIRECTORY (
-	GSimpleSwarm
+  08_GMultiPopulation
 )
 
 ADD_SUBDIRECTORY (
-	GNeuralNetwork
+  09_GNeuralNetwork
 )
 
 ADD_SUBDIRECTORY (
-	GStartProject
+  10_GStartProject
 )
