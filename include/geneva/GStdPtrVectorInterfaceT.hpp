@@ -359,6 +359,15 @@ public:
 	 */
 
 	/**************************************************************************************************/
+	/**
+	 * Clones an object at a given position and convert it to a given target type
+	 */
+	template <typename target_type>
+	boost::shared_ptr<target_type> clone_at(std::size_t pos) const {
+		return (data.at(pos))->GObject::clone<target_type>();
+	}
+
+	/**************************************************************************************************/
 	// Modifying functions
 
 	// Exchange of two data sets

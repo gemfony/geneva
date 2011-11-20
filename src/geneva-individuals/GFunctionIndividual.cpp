@@ -304,7 +304,7 @@ double GFunctionIndividual::fitnessCalculation(){
 
 	//-----------------------------------------------------------
 	// A "noisy" parabola, i.e. a parabola with a very large number of overlaid local optima
-	case BERLICH:
+	case NOISYPARABOLA:
 	{
 		double xsquared = 0.;
 		for(std::size_t i=0; i<parameterSize; i++){

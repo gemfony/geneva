@@ -1,0 +1,25 @@
+//-----------------------------------------------------------------
+// This configuration file was automatically created by GParserBuilder
+// File creation date: 2011-Oct-08 17:16:33
+//-----------------------------------------------------------------
+
+{
+    "maxStalledDataTransfers":
+    {
+        "comment": "Specifies how often a client may try to unsuccessfully retrieve data from the server (0 means endless)",
+        "default": "0",
+        "value": "0"
+    },
+    "maxConnectionAttempts":
+    {
+        "comment": "Specifies how often a client may try to connect unsuccessfully to the server (0 means endless)",
+        "default": "100",
+        "value": "100"
+    },
+    "returnRegardless":
+    {
+        "comment": "Specifies whether unsuccessful processing attempts should be returned to the server",
+        "default": "true",
+        "value": "true"
+    }
+}

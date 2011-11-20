@@ -565,10 +565,10 @@ void Go2::optimize(const boost::uint32_t& offset) {
 
 	// Check that algorithms have indeed been registered
 	if(algorithms_.empty()) {
-		raiseException(
-			"In Go2::optimize(): Error!" << std::endl
-			<< "No algorithms have been registered." << std::endl
-		);
+		std::cerr << "No algorithms have been registered." << std::endl
+				  << "Adding Evolutionary Algorithm with" << std::endl
+				  << "default settings" << std::endl;
+		this->addAlgorithm(PERSONALITY_EA);
 	}
 
 	// Check that individuals have been registered
@@ -576,6 +576,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 		raiseException(
 			"In Go2::optimize(): Error!" << std::endl
 			<< "No individuals have been registered." << std::endl
+			<< "No way to continue." << std::endl
 		)
 	}
 

@@ -1,5 +1,5 @@
 /**
- * @file GFunctionIndividual.hpp
+ * @file GFMinIndividual.hpp
  */
 
 /*
@@ -43,8 +43,8 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>
 
-#ifndef GFUNCTIONINDIVIDUAL_HPP_
-#define GFUNCTIONINDIVIDUAL_HPP_
+#ifndef GFMININDIVIDUAL_HPP_
+#define GFMININDIVIDUAL_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -69,55 +69,36 @@ namespace Geneva
 /**
  * This enum denotes the possible demo function types
  */
-enum demoFunction {
+enum targetFunction {
 	  PARABOLA=0
 	, NOISYPARABOLA=1
-	, ROSENBROCK=2
-	, ACKLEY=3
-	, RASTRIGIN=4
-	, SCHWEFEL=5
-	, SALOMON=6
 };
 
-const demoFunction MAXDEMOFUNCTION=SALOMON;
+// Make sure targetFunction can be streamed
+/** @brief Puts a Gem::Geneva::targetFunction into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::targetFunction&);
 
-// Make sure demoFunction can be streamed
-/** @brief Puts a Gem::Geneva::demoFunction into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::demoFunction&);
-
-/** @brief Reads a Gem::Geneva::demoFunction from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::demoFunction&);
+/** @brief Reads a Gem::Geneva::targetFunction from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::targetFunction&);
 
 /************************************************************************************************/
 // A number of default settings for the factory
 const double GFI_DEF_ADPROB = 0.05;
-const boost::uint32_t GFI_DEF_ADAPTIONTHRESHOLD = 1;
-const bool GFI_DEF_USEBIGAUSSIAN = false;
-const double GFI_DEF_SIGMA1 = 0.5;
-const double GFI_DEF_SIGMASIGMA1 = 0.8;
-const double GFI_DEF_MINSIGMA1 = 0.001;
-const double GFI_DEF_MAXSIGMA1 = 2;
-const double GFI_DEF_SIGMA2 = 0.5;
-const double GFI_DEF_SIGMASIGMA2 = 0.8;
-const double GFI_DEF_MINSIGMA2 = 0.001;
-const double GFI_DEF_MAXSIGMA2 = 2;
-const double GFI_DEF_DELTA = 0.5;
-const double GFI_DEF_SIGMADELTA = 0.8;
-const double GFI_DEF_MINDELTA = 0.001;
-const double GFI_DEF_MAXDELTA = 2.;
+const double GFI_DEF_SIGMA = 0.5;
+const double GFI_DEF_SIGMASIGMA = 0.8;
+const double GFI_DEF_MINSIGMA = 0.001;
+const double GFI_DEF_MAXSIGMA = 2;
 const std::size_t GFI_DEF_PARDIM = 2;
 const double GFI_DEF_MINVAR = -10.;
 const double GFI_DEF_MAXVAR = 10.;
-const bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
-const boost::uint32_t GO_DEF_PROCESSINGCYCLES = 1;
-const demoFunction GO_DEF_EVALFUNCTION = boost::numeric_cast<demoFunction>(0);
+const targetFunction GO_DEF_TARGETFUNCTION = boost::numeric_cast<targetFunction>(0);
 
 /************************************************************************************************/
 /**
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GFunctionIndividual
+class GFMinIndividual
 	: public GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
@@ -126,116 +107,51 @@ class GFunctionIndividual
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		   & BOOST_SERIALIZATION_NVP(demoFunction_);
+		   & BOOST_SERIALIZATION_NVP(targetFunction_);
 	}
 
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GFunctionIndividual();
-	/** @brief Initialization with the desired demo function */
-	GFunctionIndividual(const demoFunction&);
+	GFMinIndividual();
 	/** @brief A standard copy constructor */
-	GFunctionIndividual(const GFunctionIndividual&);
+	GFMinIndividual(const GFMinIndividual&);
 	/** @brief The standard destructor */
-	~GFunctionIndividual();
+	~GFMinIndividual();
 
 	/** @brief A standard assignment operator */
-	const GFunctionIndividual& operator=(const GFunctionIndividual&);
-
-	/** @brief Checks for equality with another GFunctionIndividual object */
-	bool operator==(const GFunctionIndividual&) const;
-	/** @brief Checks for inequality with another GFunctionIndividual object */
-	bool operator!=(const GFunctionIndividual& cp) const;
-
-	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled. */
-	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&,
-			const Gem::Common::expectation&,
-			const double&,
-			const std::string&,
-			const std::string&,
-			const bool&) const;
+	const GFMinIndividual& operator=(const GFMinIndividual&);
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
 
 	/** @brief Allows to set the demo function */
-	void setDemoFunction(demoFunction);
+	void setTargetFunction(targetFunction);
 	/** @brief Allows to retrieve the current demo function */
-	demoFunction getDemoFunction() const;
+	targetFunction getTargetFunction() const;
 
-	/*******************************************************************************************/
-	/**
-	 * A factory function that returns a function individual of the desired type.
-	 *
-	 * @param df The id of the desired function individual
-	 * @return A function individual of the desired type
-	 */
-	static boost::shared_ptr<GFunctionIndividual> getFunctionIndividual(const demoFunction& df) {
-		// Set up a single function individual, depending on the expected function type
-		switch(df) {
-		case PARABOLA:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(PARABOLA));
-			break;
-		case NOISYPARABOLA:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(NOISYPARABOLA));
-			break;
-		case ROSENBROCK:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(ROSENBROCK));
-			break;
-		case ACKLEY:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(ACKLEY));
-			break;
-		case RASTRIGIN:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(RASTRIGIN));
-			break;
-		case SCHWEFEL:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(SCHWEFEL));
-			break;
-		case SALOMON:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(SALOMON));
-			break;
-		}
-
-		// Make the compiler happy
-		return boost::shared_ptr<GFunctionIndividual>();
-	}
+	/** @brief Retrieves the average value of the sigma used in Gauss adaptors */
+	double getAverageSigma() const;
 
 	/*******************************************************************************************/
 	/**
 	 * This function converts the function id to a string representation. This is a convenience
 	 * function that is mostly used in GArgumentParser.cpp of various Geneva examples.
 	 *
-	 * @param df The id of the desired function individual
+	 * @param tF The id of the desired function individual
 	 * @return A string representing the name of the current function
 	 */
-	static std::string getStringRepresentation(const demoFunction& df) {
+	static std::string getStringRepresentation(const targetFunction& tF) {
 		std::string result;
 
 		// Set up a single function individual, depending on the expected function type
-		switch(df) {
+		switch(tF) {
 		case PARABOLA:
 			result="Parabola";
 			break;
 		case NOISYPARABOLA:
-			result="Berlich noisy parabola";
-			break;
-		case ROSENBROCK:
-			result="Rosenbrock";
-			break;
-		case ACKLEY:
-			result="Ackley";
-			break;
-		case RASTRIGIN:
-			result="Rastrigin";
-			break;
-		case SCHWEFEL:
-			result="Schwefel";
-			break;
-		case SALOMON:
-			result="Salomon";
+			result="\"Noisy\" Parabola";
 			break;
 		}
 
@@ -247,34 +163,19 @@ public:
 	 * Retrieves a string in ROOT format (see http://root.cern.ch) of the 2D version of a
 	 * given function.
 	 *
-	 * @param df The id of the desired function individual
+	 * @param tF The id of the desired function individual
 	 * @return A string suitable for plotting a 2D version of this function with the ROOT analysis framework
 	 */
-	static std::string get2DROOTFunction(const demoFunction& df) {
+	static std::string get2DROOTFunction(const targetFunction& tF) {
 		std::string result;
 
 		// Set up a single function individual, depending on the expected function type
-		switch(df) {
+		switch(tF) {
 		case PARABOLA:
 			result="x^2 + y^2";
 			break;
 		case NOISYPARABOLA:
 			result="(cos(x^2 + y^2) + 2.) * (x^2 + y^2)";
-			break;
-		case ROSENBROCK:
-			result="100.*(x^2 - y)^2 + (1 - x)^2";
-			break;
-		case ACKLEY:
-			result="exp(-0.2)*sqrt(x^2 + y^2) + 3.*(cos(2.*x) + sin(2.*y))";
-			break;
-		case RASTRIGIN:
-			result="20.+(x^2 - 10.*cos(2*pi*x)) + (y^2 - 10.*cos(2*pi*y))";
-			break;
-		case SCHWEFEL:
-			result="-0.5*(x*sin(sqrt(abs(x))) + y*sin(sqrt(abs(y))))";
-			break;
-		case SALOMON:
-			result="-cos(2.*pi*sqrt(x^2 + y^2)) + 0.1*sqrt(x^2 + y^2) + 1.";
 			break;
 		}
 
@@ -285,35 +186,18 @@ public:
 	/**
 	 * Retrieves the minimum x-value(s) of a given (2D) demo function
 	 *
-	 * @param df The id of the desired function individual
+	 * @param tF The id of the desired function individual
 	 * @return The x-coordinate(s) of the global optimium in 2D
 	 */
-	static std::vector<double> getXMin(const demoFunction& df) {
+	static std::vector<double> getXMin(const targetFunction& tF) {
 		std::vector<double> result;
 
 		// Set up a single function individual, depending on the expected function type
-		switch(df) {
+		switch(tF) {
 		case PARABOLA:
 			result.push_back(0.);
 			break;
 		case NOISYPARABOLA:
-			result.push_back(0.);
-			break;
-		case ROSENBROCK:
-			result.push_back(1.);
-			break;
-		case ACKLEY:
-			// two global optima
-			result.push_back(-1.5096201);
-			result.push_back( 1.5096201);
-			break;
-		case RASTRIGIN:
-			result.push_back(0.);
-			break;
-		case SCHWEFEL:
-			result.push_back(420.968746);
-			break;
-		case SALOMON:
 			result.push_back(0.);
 			break;
 		}
@@ -325,33 +209,18 @@ public:
 	/**
 	 * Retrieves the minimum y-value(s) of a given (2D) demo function
 	 *
-	 * @param df The id of the desired function individual
+	 * @param tF The id of the desired function individual
 	 * @return The y-coordinate(s) of the global optimium in 2D
 	 */
-	static std::vector<double> getYMin(const demoFunction& df) {
+	static std::vector<double> getYMin(const targetFunction& tF) {
 		std::vector<double> result;
 
 		// Set up a single function individual, depending on the expected function type
-		switch(df) {
+		switch(tF) {
 		case PARABOLA:
 			result.push_back(0.);
 			break;
 		case NOISYPARABOLA:
-			result.push_back(0.);
-			break;
-		case ROSENBROCK:
-			result.push_back(1.);
-			break;
-		case ACKLEY:
-			result.push_back(-0.7548651);
-			break;
-		case RASTRIGIN:
-			result.push_back(0.);
-			break;
-		case SCHWEFEL:
-			result.push_back(420.968746);
-			break;
-		case SALOMON:
 			result.push_back(0.);
 			break;
 		}
@@ -361,7 +230,7 @@ public:
 
 protected:
 	/********************************************************************************************/
-	/** @brief Loads the data of another GFunctionIndividual */
+	/** @brief Loads the data of another GFMinIndividual */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const;
@@ -372,56 +241,72 @@ protected:
 	/********************************************************************************************/
 
 private:
-	demoFunction demoFunction_; ///< Specifies which demo function should be used
+	targetFunction targetFunction_; ///< Specifies which demo function should be used
+
+	/********************************************************************************************/
+	/** A simple n-dimensional parabole */
+	static double parabola(const std::vector<double>& parVec) {
+		double result = 0.;
+
+		std::vector<double>::const_iterator cit;
+		for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
+			result *= (*cit) * (*cit);
+		}
+
+		return result;
+	}
+
+	/********************************************************************************************/
+	/** A "noisy" parabola */
+	static double noisyParabola(const std::vector<double>& parVec) {
+		double xsquared = 0.;
+
+		std::vector<double>::const_iterator cit;
+		for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
+			xsquared *= (*cit) * (*cit);
+		}
+
+		return (cos(xsquared) + 2.) * xsquared;
+	}
+
+	/********************************************************************************************/
 };
 
 /************************************************************************************************/
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /************************************************************************************************/
 /**
- * A factory for GFunctionIndividual objects
+ * A factory for GFMinIndividual objects
  */
-class GFunctionIndividualFactory
-	: public Gem::Common::GFactoryT<GFunctionIndividual>
+class GFMinIndividualFactory
+	: public Gem::Common::GFactoryT<GFMinIndividual>
 {
 public:
 	/** @brief The standard constructor */
-	GFunctionIndividualFactory(const std::string&);
+	GFMinIndividualFactory(const std::string&);
 	/** @brief The destructor */
-	virtual ~GFunctionIndividualFactory();
+	virtual ~GFMinIndividualFactory();
 
 protected:
 	/** @brief Creates individuals of this type */
-	virtual boost::shared_ptr<GFunctionIndividual> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+	virtual boost::shared_ptr<GFMinIndividual> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
 	/** @brief Allows to describe local configuration options in derived classes */
 	virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(boost::shared_ptr<GFunctionIndividual>&);
+	virtual void postProcess_(boost::shared_ptr<GFMinIndividual>&);
 
 private:
 	/** @brief The default constructor. Intentionally private and undefined */
-	GFunctionIndividualFactory();
+	GFMinIndividualFactory();
 
 	double adProb_;
-	boost::uint32_t adaptionThreshold_;
-	bool useBiGaussian_;
-	double sigma1_;
-	double sigmaSigma1_;
-	double minSigma1_;
-	double maxSigma1_;
-	double sigma2_;
-	double sigmaSigma2_;
-	double minSigma2_;
-	double maxSigma2_;
-	double delta_;
-	double sigmaDelta_;
-	double minDelta_;
-	double maxDelta_;
+	double sigma_;
+	double sigmaSigma_;
+	double minSigma_;
+	double maxSigma_;
 	std::size_t parDim_;
 	double minVar_;
 	double maxVar_;
-	bool useConstrainedDoubleCollection_;
-	boost::uint32_t processingCycles_;
 };
 
 /************************************************************************************************/
@@ -429,6 +314,6 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividual)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFMinIndividual)
 
-#endif /* GFUNCTIONINDIVIDUAL_HPP_ */
+#endif /* GFMININDIVIDUAL_HPP_ */

@@ -1,5 +1,5 @@
 /**
- * @file GParaboloid.cpp
+ * @file GFunctionMinimizer.cpp
  */
 
 /*
@@ -38,42 +38,57 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/Geneva.hpp>
+#include <geneva/Go2.hpp>
 
 // The individual that should be optimized
-#include "GParaboloidIndividual.hpp"
+#include "GFMinIndividual.hpp"
+#include "GSigmaMonitor.hpp"
 
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Geneva::init();
-	Go go(argc, argv, "GParaboloid.cfg");
+	Go2::init();
+	Go2 go(argc, argv, "./config/Go2.json");
 
 	//---------------------------------------------------------------------
-	// Client mode (networked)
+	// Client mode
 	if(go.clientMode()) {
-		go.clientRun();
-		return 0;
+		return go.clientRun();
 	}
 
 	//---------------------------------------------------------------------
 	// Server mode, serial or multi-threaded execution
 
-	// Create a factory for GParaboloidIndividual objects and perform
+	// Create a factory for GFMinIndividual objects and perform
 	// any necessary initial work.
-	GParaboloidIndividualFactory gpi("./GParaboloidIndividual.cfg");
-	gpi.init();
+	GFMinIndividualFactory gfi("./config/GFMinIndividual.json");
+	gfi.init();
 
 	// Retrieve an individual from the factory and make it known to the optimizer
-	go.push_back(gpi());
+	go.push_back(gfi());
+
+	// Create an optimization monitor
+	boost::shared_ptr<GSigmaMonitor> mon_ptr(new GSigmaMonitor("./sigmaProgress.C"));
+
+	// Create an evolutionary algorithm in multi-threaded mode
+	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", PARMODE_MULTITHREADED);
+	boost::shared_ptr<GBaseEA> ea_ptr = ea();
+
+	// Register the monitor with the algorithm
+	ea_ptr->registerOptimizationMonitor(mon_ptr);
+
+	// Add the algorithm to the Go2 object
+	go & ea_ptr;
 
 	// Perform the actual optimization
-	boost::shared_ptr<GParaboloidIndividual> bestIndividual_ptr = go.optimize<GParaboloidIndividual>();
+	boost::shared_ptr<GFMinIndividual> bestIndividual_ptr = go.optimize<GFMinIndividual>();
+
+	// Write out the result of the optimization monitor
+	mon_ptr->writeResult();
 
 	// Do something with the best result
+    // [...]
 
 	// Terminate
-	Geneva::finalize();
-	std::cout << "Done ..." << std::endl;
-	return 0;
+	return Go2::finalize();
 }
