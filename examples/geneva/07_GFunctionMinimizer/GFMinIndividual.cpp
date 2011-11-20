@@ -46,11 +46,11 @@ namespace Geneva
  * Puts a Gem::Geneva::targetFunction item into a stream
  *
  * @param o The ostream the item should be added to
- * @param ur the item to be added to the stream
+ * @param tF the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::targetFunction& ur) {
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(ur);
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::targetFunction& tF) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(tF);
 	o << tmp;
 	return o;
 }
@@ -60,17 +60,17 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::targetFunction& ur)
  * Reads a Gem::Geneva::targetFunction item from a stream
  *
  * @param i The stream the item should be read from
- * @param ur The item read from the stream
+ * @param tF The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::targetFunction& ur) {
+std::istream& operator>>(std::istream& i, Gem::Geneva::targetFunction& tF) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	ur = boost::numeric_cast<Gem::Geneva::targetFunction>(tmp);
+	tF = boost::numeric_cast<Gem::Geneva::targetFunction>(tmp);
 #else
-	ur = static_cast<Gem::Geneva::targetFunction>(tmp);
+	tF = static_cast<Gem::Geneva::targetFunction>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -237,14 +237,14 @@ double GFMinIndividual::fitnessCalculation(){
 	//-----------------------------------------------------------
 	// A simple, multi-dimensional parabola
 	case PARABOLA:
-		return parabola(parVec);
+		return GFMinIndividual::parabola(parVec);
 		break;
 
 	//-----------------------------------------------------------
 	// A "noisy" parabola, i.e. a parabola with a very large
 	// number of overlaid local optima
 	case NOISYPARABOLA:
-		return noisyParabola(parVec);
+		return GFMinIndividual::noisyParabola(parVec);
 		break;
 	//-----------------------------------------------------------
 	};

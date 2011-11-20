@@ -244,13 +244,13 @@ private:
 	targetFunction targetFunction_; ///< Specifies which demo function should be used
 
 	/********************************************************************************************/
-	/** A simple n-dimensional parabole */
+	/** A simple n-dimensional parabola */
 	static double parabola(const std::vector<double>& parVec) {
 		double result = 0.;
 
 		std::vector<double>::const_iterator cit;
 		for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
-			result *= (*cit) * (*cit);
+			result += (*cit) * (*cit);
 		}
 
 		return result;
@@ -263,7 +263,7 @@ private:
 
 		std::vector<double>::const_iterator cit;
 		for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
-			xsquared *= (*cit) * (*cit);
+			xsquared += (*cit) * (*cit);
 		}
 
 		return (cos(xsquared) + 2.) * xsquared;

@@ -83,9 +83,6 @@ int main(int argc, char **argv) {
 	// Perform the actual optimization
 	boost::shared_ptr<GFMinIndividual> bestIndividual_ptr = go.optimize<GFMinIndividual>();
 
-	// Write out the result of the optimization monitor
-	mon_ptr->writeResult();
-
 	// Do something with the best result
     // [...]
 

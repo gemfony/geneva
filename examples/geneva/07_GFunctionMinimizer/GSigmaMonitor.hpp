@@ -94,6 +94,55 @@ public:
 	virtual ~GSigmaMonitor()
 	{ /* nothing */ }
 
+protected:
+	/********************************************************************************************/
+    /**
+     * A function that is called once before the optimization starts
+     *
+     * @param cp A constant pointer to the evolutionary algorithm that is calling us
+     */
+    virtual std::string eaFirstInformation(GBaseEA * const ea) {
+    	// We just call the parent classes eaFirstInformation function,
+    	// as we do not want to change its actions
+    	return GBaseEA::GEAOptimizationMonitor::eaFirstInformation(ea);
+    }
+
+	/********************************************************************************************/
+    /**
+     * A function that is called during each optimization cycle. The function first collects
+     * the requested data, then calls the parent class'es eaCycleInformation() function, as
+     * we do not want to change its actions.
+     *
+     * @param cp A constant pointer to the evolutionary algorithm that is calling us
+     */
+    virtual std::string eaCycleInformation(GBaseEA * const ea) {
+    	// Extract the requested data. First retrieve the best individual.
+    	// It can always be found in the first position with evolutionary algorithms
+    	boost::shared_ptr<GFMinIndividual> p = ea->clone_at<GFMinIndividual>(0);
+
+    	// Retrieve the average sigma value and add it to our local storage
+    	bestSigma_.push_back(p->getAverageSigma());
+
+    	//---------------------------------------------------------
+    	// Call our parent class'es function
+    	return GBaseEA::GEAOptimizationMonitor::eaCycleInformation(ea);
+    }
+
+	/********************************************************************************************/
+    /**
+     * A function that is called once at the end of the optimization cycle
+     *
+     * @param cp A constant pointer to the evolutionary algorithm that is calling us
+     */
+    virtual std::string eaLastInformation(GBaseEA * const ea) {
+    	// Write out the result
+    	this->writeResult();
+
+    	// We just call the parent classes eaLastInformation function,
+    	// as we do not want to change its actions
+    	return GBaseEA::GEAOptimizationMonitor::eaLastInformation(ea);
+    }
+
 	/********************************************************************************************/
 	/**
 	 * Writes out a ROOT script with the results to a file
@@ -143,60 +192,17 @@ public:
 		<< "  sGraph->GetYaxis()->SetTitleOffset(1.1);" << std::endl
 		<< "  sGraph->GetYaxis()->SetTitle(\"Average Sigma\");" << std::endl
 		<< std::endl
+		<< "  // Set the y-axis to a logarithmic scale" << std::endl
+		<< "  cc->SetLogy();"
+		<< std::endl
 		<< "  // Do the actual drawing" << std::endl
-		<< "  sGraph->Draw(\"AP\");" << std::endl
+		<< "  sGraph->Draw(\"ALP\");" << std::endl
 		<< "  cc->cd();" << std::endl
 		<< "}" << std::endl;
 
 		// Clean up
 		result.close();
 	}
-
-protected:
-	/********************************************************************************************/
-    /**
-     * A function that is called once before the optimization starts
-     *
-     * @param cp A constant pointer to the evolutionary algorithm that is calling us
-     */
-    virtual std::string eaFirstInformation(GBaseEA * const ea) {
-    	// We just call the parent classes eaFirstInformation function,
-    	// as we do not want to change its actions
-    	return GBaseEA::GEAOptimizationMonitor::eaFirstInformation(ea);
-    }
-
-	/********************************************************************************************/
-    /**
-     * A function that is called during each optimization cycle. The function first collects
-     * the requested data, then calls the parent class'es eaCycleInformation() function, as
-     * we do not want to change its actions.
-     *
-     * @param cp A constant pointer to the evolutionary algorithm that is calling us
-     */
-    virtual std::string eaCycleInformation(GBaseEA * const ea) {
-    	// Extract the requested data. First retrieve the best individual.
-    	// It can always be found in the first position with evolutionary algorithms
-    	boost::shared_ptr<GFMinIndividual> p = ea->clone_at<GFMinIndividual>(0);
-
-    	// Retrieve the average sigma value and add it to our local storage
-    	bestSigma_.push_back(p->getAverageSigma());
-
-    	//---------------------------------------------------------
-    	// Call our parent class'es function
-    	return GBaseEA::GEAOptimizationMonitor::eaCycleInformation(ea);
-    }
-
-	/********************************************************************************************/
-    /**
-     * A function that is called once at the end of the optimization cycle
-     *
-     * @param cp A constant pointer to the evolutionary algorithm that is calling us
-     */
-    virtual std::string eaLastInformation(GBaseEA * const ea) {
-    	// We just call the parent classes eaLastInformation function,
-    	// as we do not want to change its actions
-    	return GBaseEA::GEAOptimizationMonitor::eaLastInformation(ea);
-    }
 
 	/********************************************************************************************/
     /**
