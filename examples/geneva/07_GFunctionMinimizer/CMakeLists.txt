@@ -93,7 +93,7 @@ LINK_DIRECTORIES (
 	${Boost_LIBRARY_DIRS}
 )
 
-SET ( EXECUTABLENAME GParaboloid )
+SET ( EXECUTABLENAME GFunctionMinimizer )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	GFunctionMinimizer
@@ -102,7 +102,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 
 SET ( CONFIGFILES
 	config/GEvolutionaryAlgorithm.json
-	# config/GFunctionIndividual.json
+	config/GFunctionIndividual.json
 	config/Go2.json
 )
 
@@ -113,7 +113,7 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 # Copy the config files to the build tree for easier testing
 IF( NOT OLD_CMAKE )
 	FOREACH ( file IN LISTS CONFIGFILES )
-		CONFIGURE_FILE ( ${file} . COPYONLY )
+		CONFIGURE_FILE ( ${file} ${file} . COPYONLY )
 	ENDFOREACH ()
 ENDIF()
 
