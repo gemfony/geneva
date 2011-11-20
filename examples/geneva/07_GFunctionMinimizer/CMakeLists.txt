@@ -102,7 +102,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 
 SET ( CONFIGFILES
 	config/GEvolutionaryAlgorithm.json
-	config/GFunctionIndividual.json
+	config/GFMinIndividual.json
 	config/Go2.json
 )
 
