@@ -192,6 +192,9 @@ protected:
 		<< "  sGraph->GetYaxis()->SetTitleOffset(1.1);" << std::endl
 		<< "  sGraph->GetYaxis()->SetTitle(\"Average Sigma\");" << std::endl
 		<< std::endl
+		<< "  // Set the line color to red"
+		<< "  sGraph->SetLineColor(2);" << std::endl
+		<< std::endl
 		<< "  // Set the y-axis to a logarithmic scale" << std::endl
 		<< "  cc->SetLogy();"
 		<< std::endl
