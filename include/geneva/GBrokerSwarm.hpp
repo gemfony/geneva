@@ -138,7 +138,7 @@ protected:
 
 private:
 	/*********************************************************************************/
-	std::vector<bool> sm_value_; ///< Internal storage for server mode flags
+	bool serverMode_; ///< Indicates whether an individual runs in server mode
 	std::vector<boost::shared_ptr<GParameterSet> > oldIndividuals_; ///< A temporary copy of the last iteration's individuals
 
     /*********************************************************************************/

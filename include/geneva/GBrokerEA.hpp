@@ -131,7 +131,8 @@ namespace Geneva
 
   private:
     /*********************************************************************************/
-    std::vector<bool> sm_value_; ///< Internal storage for server mode flags
+
+	bool serverMode_; ///< Indicates whether an individual runs in server mode
 
     /*********************************************************************************/
     /**

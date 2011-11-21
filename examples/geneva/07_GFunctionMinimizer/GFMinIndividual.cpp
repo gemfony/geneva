@@ -237,20 +237,50 @@ double GFMinIndividual::fitnessCalculation(){
 	//-----------------------------------------------------------
 	// A simple, multi-dimensional parabola
 	case PARABOLA:
-		return GFMinIndividual::parabola(parVec);
+		return parabola(parVec);
 		break;
 
 	//-----------------------------------------------------------
 	// A "noisy" parabola, i.e. a parabola with a very large
 	// number of overlaid local optima
 	case NOISYPARABOLA:
-		return GFMinIndividual::noisyParabola(parVec);
+		return noisyParabola(parVec);
 		break;
 	//-----------------------------------------------------------
 	};
 
 	// Make the compiler happy
 	return 0.;
+}
+
+/********************************************************************************************/
+/**
+ * A simple n-dimensional parabola
+ */
+double GFMinIndividual::parabola(const std::vector<double>& parVec) const {
+	double result = 0.;
+
+	std::vector<double>::const_iterator cit;
+	for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
+		result += (*cit) * (*cit);
+	}
+
+	return result;
+}
+
+/********************************************************************************************/
+/**
+ * A "noisy" parabola
+ */
+double GFMinIndividual::noisyParabola(const std::vector<double>& parVec) const {
+	double xsquared = 0.;
+
+	std::vector<double>::const_iterator cit;
+	for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
+		xsquared += (*cit) * (*cit);
+	}
+
+	return (cos(xsquared) + 2.) * xsquared;
 }
 
 /********************************************************************************************/

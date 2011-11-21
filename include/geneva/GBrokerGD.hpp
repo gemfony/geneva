@@ -153,7 +153,7 @@ private:
 
     /*********************************************************************************/
 
-    std::vector<bool> sm_value_; ///< Internal storage for server mode flags
+    bool serverMode_; ///< Indicates whether an individual runs in server mode
     std::size_t maxResubmissions_; ///< The maximum number of allowed re-submissions in an iteration
 
 #ifdef GEM_TESTING

@@ -243,7 +243,6 @@ private:
 
 	std::vector<double> bestSigma_; ///< Holds the best sigma value of each iteration
 	std::string fileName_;
-	bool uses2DFunction_;
 };
 
 /************************************************************************************************/

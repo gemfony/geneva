@@ -52,7 +52,7 @@ GMultiThreadedEA::GMultiThreadedEA()
 
 /************************************************************************************************************/
 /**
- * A standard copy constructor. Note that we do not copy sm_value_ as
+ * A standard copy constructor. Note that we do not copy serverMode_ as
  * it is used for internal caching only.
  *
  * @param cp Reference to another GMultiThreadedEA object
@@ -105,7 +105,7 @@ void GMultiThreadedEA::load_(const GObject *cp) {
 		tp_.size_controller().resize(nThreads_);
 	}
 
-	// Note that we do not copy sm_value_ as it is used for internal caching only
+	// Note that we do not copy serverMode_ as it is used for internal caching only
 }
 
 /************************************************************************************************************/
@@ -191,11 +191,23 @@ void GMultiThreadedEA::init() {
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
-	sm_value_.clear(); // Make sure we do not have "left-overs"
+	// The function will throw if not all individuals have the same server mode flag.
+
 	// Set the server mode and store the original flag
+	bool first = true;
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it){
-		sm_value_.push_back((*it)->setServerMode(true));
+		if(first){
+			serverMode_ = (*it)->getServerMode();
+			first = false;
+		}
+
+		if(serverMode_ != (*it)->setServerMode(true)) {
+			raiseException(
+				"In GMultiThreadedEA::init():" << std::endl
+				<< "Not all server mode flags have the same value!"
+			);
+		}
 	}
 }
 
@@ -204,22 +216,11 @@ void GMultiThreadedEA::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GMultiThreadedEA::finalize() {
-#ifdef DEBUG
-	if(data.size() != sm_value_.size()) {
-		raiseException(
-				"In GMultiThreadedEA::finalize():" << std::endl
-				<< "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size()
-		);
-	}
-#endif /* DEBUG */
-
 	// Restore the original values
-	std::vector<bool>::iterator b_it;
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=data.begin(), b_it=sm_value_.begin(); it!=data.end(); ++it, ++b_it) {
-		(*it)->setServerMode(*b_it);
+	for(it=data.begin(); it!=data.end(); ++it) {
+		(*it)->setServerMode(serverMode_);
 	}
-	sm_value_.clear(); // Make sure we have no "left-overs"
 
 	// GBaseEA sees exactly the environment it would when called from its own class
 	GBaseEA::finalize();

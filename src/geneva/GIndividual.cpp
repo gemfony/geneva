@@ -403,6 +403,16 @@ bool GIndividual::serverMode() const {
 
 /************************************************************************************************************/
 /**
+ * Checks whether the server mode is set
+ *
+ * @return The current value of the serverMode_ variable
+ */
+bool GIndividual::getServerMode() const {
+	return serverMode();
+}
+
+/************************************************************************************************************/
+/**
  * Checks whether the dirty flag is set
  *
  * @return The value of the dirtyFlag_ variable

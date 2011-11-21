@@ -166,6 +166,8 @@ public:
 	/** @brief (De-)activates the server mode */
 	bool setServerMode(const bool&);
 	/** @brief Checks whether the server mode is set */
+	bool getServerMode() const ;
+	/** @brief Checks whether the server mode is set */
 	bool serverMode() const ;
 
 	/** @brief Check whether the dirty flag is set */

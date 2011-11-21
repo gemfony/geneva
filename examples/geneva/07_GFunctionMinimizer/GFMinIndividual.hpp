@@ -118,7 +118,7 @@ public:
 	/** @brief A standard copy constructor */
 	GFMinIndividual(const GFMinIndividual&);
 	/** @brief The standard destructor */
-	~GFMinIndividual();
+	virtual ~GFMinIndividual();
 
 	/** @brief A standard assignment operator */
 	const GFMinIndividual& operator=(const GFMinIndividual&);
@@ -133,100 +133,6 @@ public:
 
 	/** @brief Retrieves the average value of the sigma used in Gauss adaptors */
 	double getAverageSigma() const;
-
-	/*******************************************************************************************/
-	/**
-	 * This function converts the function id to a string representation. This is a convenience
-	 * function that is mostly used in GArgumentParser.cpp of various Geneva examples.
-	 *
-	 * @param tF The id of the desired function individual
-	 * @return A string representing the name of the current function
-	 */
-	static std::string getStringRepresentation(const targetFunction& tF) {
-		std::string result;
-
-		// Set up a single function individual, depending on the expected function type
-		switch(tF) {
-		case PARABOLA:
-			result="Parabola";
-			break;
-		case NOISYPARABOLA:
-			result="\"Noisy\" Parabola";
-			break;
-		}
-
-		return result;
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Retrieves a string in ROOT format (see http://root.cern.ch) of the 2D version of a
-	 * given function.
-	 *
-	 * @param tF The id of the desired function individual
-	 * @return A string suitable for plotting a 2D version of this function with the ROOT analysis framework
-	 */
-	static std::string get2DROOTFunction(const targetFunction& tF) {
-		std::string result;
-
-		// Set up a single function individual, depending on the expected function type
-		switch(tF) {
-		case PARABOLA:
-			result="x^2 + y^2";
-			break;
-		case NOISYPARABOLA:
-			result="(cos(x^2 + y^2) + 2.) * (x^2 + y^2)";
-			break;
-		}
-
-		return result;
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Retrieves the minimum x-value(s) of a given (2D) demo function
-	 *
-	 * @param tF The id of the desired function individual
-	 * @return The x-coordinate(s) of the global optimium in 2D
-	 */
-	static std::vector<double> getXMin(const targetFunction& tF) {
-		std::vector<double> result;
-
-		// Set up a single function individual, depending on the expected function type
-		switch(tF) {
-		case PARABOLA:
-			result.push_back(0.);
-			break;
-		case NOISYPARABOLA:
-			result.push_back(0.);
-			break;
-		}
-
-		return result;
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Retrieves the minimum y-value(s) of a given (2D) demo function
-	 *
-	 * @param tF The id of the desired function individual
-	 * @return The y-coordinate(s) of the global optimium in 2D
-	 */
-	static std::vector<double> getYMin(const targetFunction& tF) {
-		std::vector<double> result;
-
-		// Set up a single function individual, depending on the expected function type
-		switch(tF) {
-		case PARABOLA:
-			result.push_back(0.);
-			break;
-		case NOISYPARABOLA:
-			result.push_back(0.);
-			break;
-		}
-
-		return result;
-	}
 
 protected:
 	/********************************************************************************************/
@@ -244,30 +150,10 @@ private:
 	targetFunction targetFunction_; ///< Specifies which demo function should be used
 
 	/********************************************************************************************/
-	/** A simple n-dimensional parabola */
-	static double parabola(const std::vector<double>& parVec) {
-		double result = 0.;
-
-		std::vector<double>::const_iterator cit;
-		for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
-			result += (*cit) * (*cit);
-		}
-
-		return result;
-	}
-
-	/********************************************************************************************/
-	/** A "noisy" parabola */
-	static double noisyParabola(const std::vector<double>& parVec) {
-		double xsquared = 0.;
-
-		std::vector<double>::const_iterator cit;
-		for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
-			xsquared += (*cit) * (*cit);
-		}
-
-		return (cos(xsquared) + 2.) * xsquared;
-	}
+	/** @brief A simple n-dimensional parabola */
+	double parabola(const std::vector<double>& parVec) const;
+	/** @brief A "noisy" parabola */
+	double noisyParabola(const std::vector<double>& parVec) const;
 
 	/********************************************************************************************/
 };

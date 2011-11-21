@@ -230,11 +230,23 @@ void GMultiThreadedGD::init() {
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
-	sm_value_.clear(); // Make sure we do not have "left-overs"
+	// The function will throw if not all individuals have the same server mode flag.
+
 	// Set the server mode and store the original flag
+	bool first = true;
 	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it){
-		sm_value_.push_back((*it)->setServerMode(true));
+		if(first){
+			serverMode_ = (*it)->getServerMode();
+			first = false;
+		}
+
+		if(serverMode_ != (*it)->setServerMode(true)) {
+			raiseException(
+				"In GMultiThreadedGD::init():" << std::endl
+				<< "Not all server mode flags have the same value!"
+			);
+		}
 	}
 }
 
@@ -243,22 +255,11 @@ void GMultiThreadedGD::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GMultiThreadedGD::finalize() {
-#ifdef DEBUG
-	if(data.size() != sm_value_.size()) {
-		raiseException(
-				"In GMultiThreadedGD::finalize():" << std::endl
-				<< "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size()
-		);
-	}
-#endif /* DEBUG */
-
 	// Restore the original values
-	std::vector<bool>::iterator b_it;
 	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-	for(it=data.begin(), b_it=sm_value_.begin(); it!=data.end(); ++it, ++b_it) {
-		(*it)->setServerMode(*b_it);
+	for(it=data.begin(); it!=data.end(); ++it) {
+		(*it)->setServerMode(serverMode_);
 	}
-	sm_value_.clear(); // Make sure we have no "left-overs"
 
 	// GBaseGD sees exactly the environment it would when called from its own class
 	GBaseGD::finalize();

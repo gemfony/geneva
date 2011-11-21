@@ -141,7 +141,7 @@ private:
 	boost::uint16_t nThreads_; ///< The number of threads
 	boost::threadpool::pool tp_; ///< A thread pool
 
-	std::vector<bool> sm_value_; ///< Internal storage for server mode flags
+	bool serverMode_; ///< Indicates whether an individual runs in server mode
 
 #ifdef GEM_TESTING
 public:
