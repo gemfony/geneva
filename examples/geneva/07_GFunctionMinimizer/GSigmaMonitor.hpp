@@ -200,7 +200,6 @@ protected:
 		<< std::endl
 		<< "  // Do the actual drawing" << std::endl
 		<< "  sGraph->Draw(\"ALP\");" << std::endl
-		<< "  cc->cd();" << std::endl
 		<< "}" << std::endl;
 
 		// Clean up
