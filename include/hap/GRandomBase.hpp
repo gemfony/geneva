@@ -57,7 +57,6 @@
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>
-#include <boost/pool/detail/singleton.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
