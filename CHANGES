@@ -1,16 +1,16 @@
 //------------------------------------------------------------------------------------------------------
 Wishlist for version 1.1, yet unnamed, release-date unknown
 
- - A test-suite that compares the minimization capabilities of all implemented algorithms
-   in all parallelization modes
- - MPI Consumer/Client
+ - A test-suite that compares the minimization capabilities of all
+   implemented algorithms in all parallelization modes.
+ - MPI Consumer/Client.
 
 //-----------------------------------------------------------------------------------------------------
-* Version 0.9.9, yet unnamed, release-date unknown
+* Version 0.9.9, "Route d'Annemasse" - December 17, 2011
 
 The main changes for this release include:
- - Full documentation available at http://www.gemfony.com 
-   (go to Infopool -> Manuals)
+ - Full documentation available at http://www.gemfony.com
+   (go to Infopool -> Manuals).
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.3, "Route de Bonneville" - November 10, 2011
