@@ -18,6 +18,10 @@ You will also need the Boost libraries (see http://www.boost.org) in version
 the Appendix "Compiling Boost" below for more details. We currently recommend
 Boost 1.43 .
 
+If you wish to build from the source code version control tree you will also
+need the Bazaar version control tools. This is not needed if you only intend
+to build the official releases from the provided tarballs.
+
 To build the Geneva library use one of the two procedures enumerated below.
 In case you encounter any bugs or issues please let us know through the Geneva
 bugtracker:
