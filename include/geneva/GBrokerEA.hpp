@@ -48,6 +48,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "courtier/GBufferPortT.hpp"
+#include "courtier/GBrokerConnectorT.hpp"
 #include "geneva/GEAPersonalityTraits.hpp"
 #include "geneva/GBaseEA.hpp"
 #include "geneva/GIndividual.hpp"
