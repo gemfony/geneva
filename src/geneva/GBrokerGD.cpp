@@ -143,6 +143,7 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 		, const bool& withMessages
 ) const {
 	using namespace Gem::Common;
+	using namespace Gem::Courtier;
 
 	// Check that we are indeed dealing with a GParamterBase reference
 	const GBrokerGD *p_load = GObject::gobject_conversion<GBrokerGD>(&cp);
