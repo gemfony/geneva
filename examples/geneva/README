@@ -2,17 +2,8 @@ Geneva library - Examples
 =========================
 
 This directory contains some examples of how to use the Geneva library.
-
-Note that there is a complete example, including tests, which you can use
-as a starting point for your own optimization programs. This example is
-called "GStartProject".
-
-
-The list of examples includes several simple ones:
-
-- GMultiPopulation:   a multi-population use example.
-- GSimpleEA:          an evolutionary algorithm optimization example.
-- GSimpleSwarm:       a swarm-based optimization example.
+Examples starting with 01-08 are explained in the Geneva manual (see
+http://www.gemfony.com/fileadmin/documentation/geneva-manual.pdf )
 
 You will also find here some more complete programs, which are intended
 as starting points for your own work and might, in some cases, also be
@@ -20,20 +11,18 @@ used directly without adaption. These are:
 
 - GNeuralNetwork:     an implementation of feed forward neural networks,
                       which are trained with Geneva.
-- GStartProject:      a framework meant as a starting point for your own
-                      Geneva-based optimization program.
 
 Please check each directory for further information. Where no README file
 is available, the main source code file (named similar to the directory it
 is in) will have further information.
-
 
 Compilation
 ===========
 
 All the examples in this folder are compiled when building the whole Geneva
 tree. However, you can also give any of these examples a try by compiling it
-in a stand-alone way.
+"stand-alone", provided the correct version of the Geneva library is available
+on your system.
 
 For compiling a given example proceed as follows:
 
