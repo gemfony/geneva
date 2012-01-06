@@ -10,6 +10,10 @@ SET (${EXECUTABLENAME}_SRCS
 	../../Misc/GSimpleContainer
 )
 
+SET ( CONFIGFILES
+	GBrokerSelfCommunication.cfg
+)
+
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
@@ -33,3 +37,10 @@ INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION tests/courtier/PerformanceTests/
 	GROUP_READ GROUP_EXECUTE
 	WORLD_READ WORLD_EXECUTE
 )
+
+# Copy the config files to the build tree for easier testing
+IF( NOT OLD_CMAKE )
+	FOREACH ( file IN LISTS CONFIGFILES )
+		CONFIGURE_FILE ( ${file} ${file} . COPYONLY )
+	ENDFOREACH ()
+ENDIF()
