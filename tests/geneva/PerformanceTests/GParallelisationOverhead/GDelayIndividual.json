@@ -1,0 +1,42 @@
+//-----------------------------------------------------------------
+// This configuration file was automatically created by GParserBuilder
+// File creation date: 2012-Jan-06 22:33:05
+//-----------------------------------------------------------------
+
+{
+    "processingCycles":
+    {
+        "default": "1",
+        "value": "1"
+    },
+    "nVariables":
+    {
+        "default": "100",
+        "value": "10"
+    },
+    "delays":
+    {
+        "default": "0/1 0/10 0/100 0/500 1/0 2/0 3/0 4/0 5/0 6/0 7/0 8/0 9/0 10/0 15/0 20/0 25/0 30/0 40/0 50/0 60/0",
+        "value": "0/1 0/10 0/100 0/500"
+    },
+    "resultFile":
+    {
+        "default": "networkResults.C",
+        "value": "networkResults.C"
+    },
+    "shortResultFile":
+    {
+        "default": "shortDelayResults.txt",
+        "value": "shortDelayResults.txt"
+    },
+    "interMeasurementDelay":
+    {
+        "default": "20",
+        "value": "20"
+    },
+    "nMeasurements":
+    {
+        "default": "10",
+        "value": "10"
+    }
+}

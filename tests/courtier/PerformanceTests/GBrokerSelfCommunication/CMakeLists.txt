@@ -14,6 +14,13 @@ SET ( CONFIGFILES
 	GBrokerSelfCommunication.cfg
 )
 
+# Copy the config files to the build tree for easier testing
+IF( NOT OLD_CMAKE )
+	FOREACH ( file IN LISTS CONFIGFILES )
+		CONFIGURE_FILE ( ${file} ${file} . COPYONLY )
+	ENDFOREACH ()
+ENDIF()
+
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
@@ -38,9 +45,10 @@ INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION tests/courtier/PerformanceTests/
 	WORLD_READ WORLD_EXECUTE
 )
 
-# Copy the config files to the build tree for easier testing
-IF( NOT OLD_CMAKE )
-	FOREACH ( file IN LISTS CONFIGFILES )
-		CONFIGURE_FILE ( ${file} ${file} . COPYONLY )
-	ENDFOREACH ()
-ENDIF()
+INSTALL ( FILES ${CONFIGURATIONFILES} DESTINATION tests/courtier/PerformanceTests/${EXECUTABLENAME}
+	PERMISSIONS
+	OWNER_READ OWNER_WRITE
+	GROUP_READ
+	WORLD_READ
+)
+

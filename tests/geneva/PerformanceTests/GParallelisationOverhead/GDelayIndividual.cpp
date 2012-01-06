@@ -369,9 +369,12 @@ void GDelayIndividualFactory::init_() {
  * Allows to describe configuration options of GDelayIndividual objects
  */
 void GDelayIndividualFactory::describeConfigurationOptions_() {
+	// Default values for the delay string
+	std::string default_delays = "0/1 0/10 0/100 0/500 1/0 2/0 3/0 4/0 5/0 6/0 7/0 8/0 9/0 10/0 15/0 20/0 25/0 30/0 40/0 50/0 60/0";
+
 	gpb.registerFileParameter("processingCycles", processingCycles_, processingCycles_);
 	gpb.registerFileParameter("nVariables", nVariables_, nVariables_);
-	gpb.registerFileParameter("delays", delays_, std::string(""));
+	gpb.registerFileParameter("delays", delays_, default_delays);
 	gpb.registerFileParameter("resultFile", resultFile_, resultFile_);
 	gpb.registerFileParameter("shortResultFile", shortResultFile_, shortResultFile_);
 	gpb.registerFileParameter("interMeasurementDelay", interMeasurementDelay_, interMeasurementDelay_);

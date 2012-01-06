@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 
 	// Create a factory for GFunctionIndividual objects and perform
 	// any necessary initial work.
-	GDelayIndividualFactory gdif("./GDelayIndividual.cfg");
+	GDelayIndividualFactory gdif("./GDelayIndividual.json");
 	gdif.init();
 
 	//---------------------------------------------------------------------

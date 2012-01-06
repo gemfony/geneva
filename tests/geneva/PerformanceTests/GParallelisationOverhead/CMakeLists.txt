@@ -9,7 +9,7 @@ SET (${EXECUTABLENAME}_SRCS
 
 SET (CONFIGURATIONFILES
     GParallelisationOverhead.cfg
-    GDelayIndividual.cfg
+    GDelayIndividual.json
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
