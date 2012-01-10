@@ -438,7 +438,7 @@ int main(int argc, char**argv) {
 	// Note the termination time
 	boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
 
-	// Calculate the time it is taken to reach this point
+	// Calculate the time it has taken to reach this point
 	boost::posix_time::time_duration dur = endTime - startTime;
 
 	// Find out the number of submissions per second

@@ -38,6 +38,7 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
+#include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GBrokerConnectorT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
@@ -61,12 +62,15 @@ using namespace Gem::Courtier::Tests;
 #define WORKLOAD GSimpleContainer
 
 /********************************************************************************/
-
-void producer(
+/**
+ * Produces work items and submits them through the broker connector in different,
+ * user-selectable modes, then retrieves them back.
+ */
+void connectorProducer(
 	boost::uint32_t nProductionCycles
 	, boost::uint32_t nContainerObjects
 	, std::size_t nContainerEntries
-	, bool completeReturnRequired
+	, submissionReturnMode srm
 	, std::size_t maxResubmissions
 ) {
 	std::size_t id;
@@ -76,8 +80,9 @@ void producer(
 		id = producer_counter++;
 	}
 
-	// Holds the broker object
+	// Holds the broker connector (i.e. the entity that connects us to the broker)
 	Gem::Courtier::GBrokerConnectorT<WORKLOAD> brokerConnector;
+	brokerConnector.setMaxResubmissions(maxResubmissions);
 
 	// Will hold the data items
 	std::vector<boost::shared_ptr<WORKLOAD> > data;
@@ -93,30 +98,10 @@ void producer(
 			data.push_back(boost::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
 		}
 
-		// Submit the container to the broker
-		if(completeReturnRequired) {
-			bool complete = brokerConnector.workOnSubmissionOnly(
-					data
-					, 0
-					, data.size()
-					, maxResubmissions
-			);
-
-			if(!complete) {
-				raiseException(
-						"In producer(): Error!" << std::endl
-						<< "No complete set of items received after " << maxResubmissions << " resubmissions" << std::endl
-				);
-			}
-
-			// Check that the container is at its default size
-			if(data.size() != nContainerObjects) {
-				raiseException(
-						"In producer(): Error!" << std::endl
-						<< "No complete set of items received despite request for a complete return" << std::endl
-				);
-			}
-		} else {
+		switch(srm) {
+		//-------------------------------------------------------------------------------------------
+		case ACCEPTOLDERITEMS:
+		{
 			std::cout << id << ": doing complete submission of size " << data.size() << std::endl;
 			brokerConnector.workOn(
 					data
@@ -124,12 +109,115 @@ void producer(
 					, data.size()
 					, ACCEPTOLDERITEMS
 			);
+			std::cout << id << ": submission finished with size " << data.size() << ", accepting older items." << std::endl;
+		}
+			break;
+
+		//-------------------------------------------------------------------------------------------
+		case REJECTOLDERITEMS:
+		{
+			std::cout << id << ": doing complete submission of size " << data.size() << ", rejecting older items." << std::endl;
+			brokerConnector.workOn(
+					data
+					, 0
+					, data.size()
+					, REJECTOLDERITEMS
+			);
 			std::cout << id << ": submission finished with size " << data.size() << std::endl;
+		}
+			break;
+
+		//-------------------------------------------------------------------------------------------
+		case EXPECTFULLRETURN:
+		{
+			bool complete = brokerConnector.workOn(
+					data
+					, 0
+					, data.size()
+					, EXPECTFULLRETURN
+			);
+
+			if(!complete) {
+				raiseException(
+						"In connectorProducer(): Error!" << std::endl
+						<< "No complete set of items received after " << maxResubmissions << " resubmissions" << std::endl
+				);
+			}
+
+			// Check that the container is at its default size
+			if(data.size() != nContainerObjects) {
+				raiseException(
+						"In connectorProducer(): Error!" << std::endl
+						<< "No complete set of items received despite request for a complete return" << std::endl
+				);
+			}
+		}
+			break;
+
+		//-------------------------------------------------------------------------------------------
+		default:
+		{
+			raiseException(
+				"In connectorProducer(): Error!" << std::endl
+				<< "Got invalid srm mode: " << srm << std::endl
+			);
+		}
+			break;
+
+		//-------------------------------------------------------------------------------------------
 		}
 	}
 
-	std::cout << "Producer " << id << " has finished producing" << std::endl
-			  << std::endl;
+	std::cout << "connectorProducer " << id << " has finished producing" << std::endl << std::endl;
+}
+
+/********************************************************************************/
+/**
+ * Produces work items and submits them directly to the broker, then retrieves
+ * them back. By bypassing the broker connector, we can detect differences
+ * between both modes.
+ */
+void brokerProducer(
+	boost::uint32_t nProductionCycles
+	, boost::uint32_t nContainerObjects
+	, std::size_t nContainerEntries
+) {
+	std::size_t id;
+	typedef boost::shared_ptr<Gem::Courtier::GBufferPortT<boost::shared_ptr<WORKLOAD> > > GBufferPortT_ptr;
+
+	{ // Assign a counter to this producer
+		boost::mutex::scoped_lock lk(producer_counter_mutex);
+		id = producer_counter++;
+	}
+
+	// Create a buffer port and register it with the broker
+	GBufferPortT_ptr CurrentBufferPort_(new Gem::Courtier::GBufferPortT<boost::shared_ptr<WORKLOAD> >());
+	GBROKER(WORKLOAD)->enrol(CurrentBufferPort_);
+
+	// Start the loop
+	boost::uint32_t cycleCounter = 0;
+	while(cycleCounter++ < nProductionCycles) {
+		// Submit the required number of items directly to the broker
+		for(std::size_t i=0; i<nContainerObjects; i++) {
+			CurrentBufferPort_->push_front_orig(boost::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
+		}
+
+		// Wait for all items to return
+		boost::shared_ptr<WORKLOAD> p;
+		for(std::size_t i=0; i<nContainerObjects; i++) {
+			CurrentBufferPort_->pop_back_processed(p);
+			if(!p) {
+				raiseException(
+					"In brokerProducer: " << "got invalid item" << std::endl
+				);
+			}
+		}
+	}
+
+	// Get rid of the buffer port object
+	CurrentBufferPort_.reset();
+
+	std::cout << "brokerProducer " << id << " has finished producing" << std::endl << std::endl;
 }
 
 /********************************************************************************/
@@ -142,18 +230,19 @@ int main(int argc, char **argv) {
 	Gem::Common::serializationMode serMode;
 	boost::uint32_t nProducers;
   	boost::uint32_t nProductionCycles;
-  	bool completeReturnRequired;
+  	submissionReturnMode srm;
   	std::size_t maxResubmissions;
 	boost::uint32_t nContainerObjects;
 	std::size_t nContainerEntries;
 	boost::uint32_t nWorkers;
 	GBSCModes executionMode;
+	bool useDirectBrokerConnection;
 
 	// Initialize the global producer counter
 	producer_counter = 0;
 
 	// Some thread groups needed for producers and workers
-	Gem::Common::GThreadGroup producer_gtg;
+	Gem::Common::GThreadGroup connectorProducer_gtg;
 	Gem::Common::GThreadGroup worker_gtg;
 
 	//--------------------------------------------------------------------------------
@@ -166,7 +255,8 @@ int main(int argc, char **argv) {
 			, ip
 			, port
 			, serMode
-			, completeReturnRequired
+			, srm
+			, useDirectBrokerConnection
 		) || !parseConfigFile(
 			configFile
 			, nProducers
@@ -197,18 +287,30 @@ int main(int argc, char **argv) {
 	}
 
 	//--------------------------------------------------------------------------------
-	// Create the required number of producer threads
-	producer_gtg.create_threads(
-		boost::bind(
-			producer
-			, nProductionCycles
-			, nContainerObjects
-			, nContainerEntries
-			, completeReturnRequired
-			, maxResubmissions
-		)
-	    , nProducers
-	);
+	// Create the required number of connectorProducer threads
+	if(useDirectBrokerConnection) {
+		connectorProducer_gtg.create_threads(
+			boost::bind(
+				brokerProducer
+				, nProductionCycles
+				, nContainerObjects
+				, nContainerEntries
+			)
+		    , nProducers
+		);
+	} else {
+		connectorProducer_gtg.create_threads(
+			boost::bind(
+				connectorProducer
+				, nProductionCycles
+				, nContainerObjects
+				, nContainerEntries
+				, srm
+				, maxResubmissions
+			)
+		    , nProducers
+		);
+	}
 
 	//--------------------------------------------------------------------------------
 	// Add the desired consumers to the broker
@@ -302,7 +404,7 @@ int main(int argc, char **argv) {
 
 	//--------------------------------------------------------------------------------
 	// Wait for all threads to finish
-	producer_gtg.join_all();
+	connectorProducer_gtg.join_all();
 
 	if(executionMode == Gem::Courtier::Tests::INTERNALNETWORKING || executionMode == Gem::Courtier::Tests::THREADANDINTERNALNETWORKING)
 	worker_gtg.join_all();

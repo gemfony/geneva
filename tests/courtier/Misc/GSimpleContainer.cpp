@@ -49,7 +49,7 @@ GSimpleContainer::GSimpleContainer()
 
 /********************************************************************************************/
 /**
- * The standard constructor -- Initialization with a single number
+ * The standard constructor -- Initialization with a single number (can e.g. be used as an id).
  *
  * @param snr The number to be stored in the object
  */
@@ -88,7 +88,7 @@ bool GSimpleContainer::process() {
 
 /********************************************************************************************/
 /**
- * Prints out this functions random number container
+ * Prints out this functions stored number
  */
 void GSimpleContainer::print() {
 	std::cout << "storedNumber_ = " << storedNumber_ << std::endl;

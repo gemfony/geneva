@@ -57,6 +57,7 @@
 
 // Geneva headers go here
 #include "GBrokerSelfCommunicationEnums.hpp"
+#include "courtier/GCourtierEnums.hpp"
 #include "common/GCommonEnums.hpp"
 
 namespace Gem {
@@ -69,7 +70,7 @@ namespace po = boost::program_options;
 // Default settings
 const boost::uint32_t DEFAULTNPRODUCERSAP = 5;
 const boost::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 10000;
-const bool DEFAULTCOMPLETERETURNREQUIREDAP = false;
+const submissionReturnMode DEFAULTSRMAP = ACCEPTOLDERITEMS;
 const std::size_t DEFAULTMAXRESUBMISSIONSAP = 5;
 const boost::uint32_t DEFAULTNCONTAINEROBJECTSAP = 100;
 const std::size_t DEFAULTNCONTAINERENTRIESAP = 100;
@@ -80,6 +81,7 @@ const std::string DEFAULTIPAP="localhost";
 const std::string DEFAULTCONFIGFILEAP="./GBrokerSelfCommunication.cfg";
 const boost::uint16_t DEFAULTPARALLELIZATIONMODEAP=0;
 const Gem::Common::serializationMode DEFAULTSERMODEAP=Gem::Common::SERIALIZATIONMODE_BINARY;
+const bool DEFAULTUSEDIRECTBROKERCONNECTIONAP = false;
 
 /********************************************************************************************/
 
@@ -92,6 +94,7 @@ bool parseCommandLine(
 	  , std::string&
 	  , unsigned short&
 	  , Gem::Common::serializationMode&
+	  , submissionReturnMode&
 	  , bool&
 );
 

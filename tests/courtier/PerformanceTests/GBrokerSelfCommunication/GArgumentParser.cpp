@@ -50,7 +50,8 @@ bool parseCommandLine(
 	  , std::string& ip
 	  , unsigned short& port
 	  , Gem::Common::serializationMode& serMode
-	  , bool& completeReturnRequired
+	  , submissionReturnMode& srm
+	  , bool& useDirectBrokerConnection
 ) {
   try{
 	// Check the command line options. Uses the Boost program options library.
@@ -66,7 +67,12 @@ bool parseCommandLine(
 	  ("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORTAP), "The port of the server")
 	  ("serMode", po::value<Gem::Common::serializationMode>(&serMode)->default_value(DEFAULTSERMODEAP),
 	   "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-	  ("completeReturnRequired,f","Whether all submitted items are are required to return")
+	  ("srm,f", po::value<submissionReturnMode>(&srm)->default_value(DEFAULTSRMAP),
+	   "Whether items from older iterations may return and an incomplete return is acceptable (0), the "
+	   "same but without the permission for older items to return (0) ir whether a complete return of"
+	   "a given submission\'s items is required")
+	  ("useDirectBrokerConnection,u", po::value<bool>(&useDirectBrokerConnection)->default_value(DEFAULTUSEDIRECTBROKERCONNECTIONAP),
+	   "Indicates whether producers should connect directly to the broker or through the broker connector object")
 	  ;
 
 	po::variables_map vm;
@@ -82,18 +88,13 @@ bool parseCommandLine(
 	serverMode=false;
 	if (vm.count("executionMode")) {
 		if(executionMode > Gem::Courtier::Tests::MAXGBSCMODES) {
-			std::cout << "Error: Received invalied GBSC mode: " << executionMode << std::endl;
+			std::cout << "Error: Received invalid GBSC mode: " << executionMode << std::endl;
 			return false;
 		}
 
 		if(executionMode == Gem::Courtier::Tests::NETWORKING || executionMode == Gem::Courtier::Tests::THREAEDANDNETWORKING) {
 			if(vm.count("serverMode")) serverMode = true;
 		}
-	}
-
-	completeReturnRequired = false;
-	if (vm.count("completeReturnRequired")) {
-		completeReturnRequired = true;
 	}
 
 	std::string parModeString;
@@ -138,7 +139,8 @@ bool parseCommandLine(
 			<< "ip = " << ip << std::endl
 			<< "port = " << port << std::endl
 			<< "serMode = " << serMode << std::endl
-			<< "completeReturnRequired = " << (completeReturnRequired?"true":"false") << std::endl
+			<< "srm = " << srm << std::endl
+			<< "useDirectBrokerConnection = " << useDirectBrokerConnection << std::endl
 			<< std::endl;
   }
   catch(...){

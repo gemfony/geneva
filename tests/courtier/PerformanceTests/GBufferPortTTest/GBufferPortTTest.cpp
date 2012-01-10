@@ -49,8 +49,8 @@
 #include "GSimpleContainer.hpp"
 #include "GRandomNumberContainer.hpp"
 
-// #define WORKLOAD GSimpleContainer
-#define WORKLOAD GRandomNumberContainer
+#define WORKLOAD GSimpleContainer
+// #define WORKLOAD GRandomNumberContainer
 
 #include "GArgumentParser.hpp"
 
@@ -75,8 +75,8 @@ using namespace Gem::Courtier::Tests;
 
 /********************************************************************************/
 /**
- * A global buffer port, to/from which WORKLOAD or GSimpleContainer
- * objects are written/read. We store smart pointers instead of the objects themselves.
+ * A global buffer port, to/from which WORKLOAD objects are written/read. We store
+ * smart pointers instead of the objects themselves.
  */
 GBufferPortT<boost::shared_ptr<WORKLOAD> > bufferport;
 
@@ -117,8 +117,8 @@ void producer(
 		boost::shared_ptr<WORKLOAD> p_submit(new WORKLOAD(nContainerEntries));
 		if(putTimeoutMS > 0) {
 			while(!bufferport.push_front_orig_bool(p_submit, putTimeout)) {
-				if(putTimeouts++ > maxPutTimeouts) {
-					raiseException("In producer: Exceeded allowed number " << maxPutTimeouts << " of put timeouts in iteration " << cycleCounter << std::endl);
+				if(++putTimeouts >= maxPutTimeouts) {
+					raiseException("In producer: Exceeded allowed number \"" << maxPutTimeouts << "\" of put timeouts in iteration " << cycleCounter << std::endl);
 				}
 			}
 			totalPutTimeouts += putTimeouts;
@@ -138,8 +138,8 @@ void producer(
 	while(nReceived < nProductionCycles) {
 		if(getTimeoutMS > 0) {
 			while(!bufferport.pop_back_processed_bool(p_receive, getTimeout)) {
-				if(getTimeouts++ > maxGetTimeouts) {
-					raiseException("In producer: Exceeded allowed number " << maxGetTimeouts << " of get timeouts in iteration " << cycleCounter << std::endl);
+				if(++getTimeouts >= maxGetTimeouts) {
+					raiseException("In producer: Exceeded allowed number \"" << maxGetTimeouts << "\" of get timeouts in iteration " << cycleCounter << std::endl);
 				}
 			}
 			totalGetTimeouts += getTimeouts;
@@ -206,8 +206,8 @@ void processor (
 		// Retrieve an item from the buffer port
 		if(getTimeoutMS > 0) {
 			while(!bufferport.pop_back_orig_bool(p, getTimeout)){
-				if(getTimeouts++ > maxGetTimeouts) {
-					raiseException("In processor: Exceeded allowed number " << maxGetTimeouts << " of get timeouts in cycle " << cycleCounter << std::endl);
+				if(++getTimeouts >= maxGetTimeouts) {
+					raiseException("In processor: Exceeded allowed number \"" << maxGetTimeouts << "\" of get timeouts in cycle " << cycleCounter << std::endl);
 				}
 			}
 			totalGetTimeouts += getTimeouts;
@@ -227,13 +227,13 @@ void processor (
 		// Submit the processed item to the buffer port
 		if(putTimeoutMS > 0) {
 			while(!bufferport.push_front_processed_bool(p, putTimeout)) {
-				if(putTimeouts++ > maxPutTimeouts) {
-					raiseException("In processor: Exceeded allowed number " << maxPutTimeouts << " of put timeouts in cycle " << cycleCounter << std::endl);
+				if(++putTimeouts >= maxPutTimeouts) {
+					raiseException("In processor: Exceeded allowed number \"" << maxPutTimeouts << "\" of put timeouts in cycle " << cycleCounter << std::endl);
 				}
 			}
 			totalPutTimeouts += putTimeouts;
 			if(putTimeouts > highestPutTimeouts) highestPutTimeouts = putTimeouts;
-			putTimeouts = 0; // Reset the counter, we have received a valid item
+			putTimeouts = 0; // Reset the counter, we have submitted a valid item
 		} else {
 			bufferport.push_front_processed(p);
 		}

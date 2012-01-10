@@ -46,7 +46,6 @@ namespace Geneva {
 GBrokerGD::GBrokerGD() :
 	GBaseGD()
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
-	, maxResubmissions_(DEFAULTMAXGDRESUBMISSIONS)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -59,7 +58,6 @@ GBrokerGD::GBrokerGD(
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize)
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
-	, maxResubmissions_(DEFAULTMAXGDRESUBMISSIONS)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -69,7 +67,6 @@ GBrokerGD::GBrokerGD(
 GBrokerGD::GBrokerGD(const GBrokerGD& cp)
 	: GBaseGD(cp)
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
-	, maxResubmissions_(cp.maxResubmissions_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -155,8 +152,7 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 	deviations.push_back(GBaseGD::checkRelationshipWith(cp, e, limit, "GBrokerGD",	y_name, withMessages));
 	deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerGD", y_name, withMessages));
 
-	// and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GBrokerGD", maxResubmissions_, p_load->maxResubmissions_, "maxResubmissions_", "p_load->maxResubmissions_", e , limit));
+	// no local data
 
 	return evaluateDiscrepancies("GBrokerGD", caller, deviations, e);
 }
@@ -174,26 +170,6 @@ bool GBrokerGD::usesBroker() const {
 
 /************************************************************************************************************/
 /**
- * Allows to set the maximum allowed number of re-submissions
- *
- * @param maxResubmissions The maximum allowed number of re-submissions
- */
-void GBrokerGD::setMaxResubmissions(std::size_t maxResubmissions) {
-	maxResubmissions_ = maxResubmissions;
-}
-
-/************************************************************************************************************/
-/**
- * Returns the maximum allowed number of re-submissions
- *
- * @return The maximum allowed number of re-submissions
- */
-std::size_t GBrokerGD::getMaxResubmissions() const {
-	return maxResubmissions_;
-}
-
-/************************************************************************************************************/
-/**
  * Loads the data from another GBrokerGD object.
  *
  * @param vp Pointer to another GBrokerGD object, camouflaged as a GObject
@@ -205,8 +181,7 @@ void GBrokerGD::load_(const GObject *cp) {
 	GBaseGD::load_(cp);
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::load(p_load);
 
-	// ... and then our local data
-	maxResubmissions_ = p_load->maxResubmissions_;
+	// ... no local data
 }
 
 /************************************************************************************************************/
@@ -281,21 +256,7 @@ void GBrokerGD::addConfigurationOptions (
 	GBaseGD::addConfigurationOptions(gpb, showOrigin);
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 
-	// add local data
-	comment = ""; // Reset the comment string
-	comment += "The maximum number of allowed re-submissions in an iteration;";
-	if(showOrigin) comment += "[GBrokerGD]";
-	gpb.registerFileParameter<std::size_t>(
-		"maxResubmissions" // The name of the variable
-		, DEFAULTMAXGDRESUBMISSIONS // The default value
-		, boost::bind(
-			&GBrokerGD::setMaxResubmissions
-			, this
-			, _1
-		)
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	// no local data
 }
 
 /************************************************************************************************************/
@@ -308,6 +269,8 @@ void GBrokerGD::addConfigurationOptions (
  * @return The best fitness found amongst all parents
  */
 double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
+	using namespace Gem::Courtier;
+
 	std::size_t nStartingPoints = this->getNStartingPoints();
 	boost::uint32_t iteration = getIteration();
 	bool complete = false;
@@ -347,17 +310,17 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
-	complete = Gem::Courtier::GBrokerConnectorT<GIndividual>::workOnSubmissionOnly(
+	complete = GBrokerConnectorT<GIndividual>::workOn(
 			data
 			, 0
 			, finalPos
-			, maxResubmissions_
+			, EXPECTFULLRETURN
 	);
 
 	if(!complete) {
 		raiseException(
 				"In GBrokerGD::doFitnessCalculation(): Error!" << std::endl
-				<< "No complete set of items received after " << maxResubmissions_ << " resubmissions" << std::endl
+				<< "No complete set of items received" << std::endl
 		);
 	}
 

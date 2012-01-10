@@ -101,12 +101,15 @@ const std::string DEFAULTDURATION = EMPTYDURATION;
 
 /**********************************************************************************************/
 /**
- * Needed by the broker
+ * Needed by the broker connector
  */
-const bool ACCEPTOLDERITEMS = true;
-const bool REJECTOLDERITEMS = false;
-const bool UPDATEITERATION  = true;
-const bool LEAVEITERATIONUNTOUCHED = false;
+enum submissionReturnMode {
+	ACCEPTOLDERITEMS = 0
+	, REJECTOLDERITEMS = 1
+	, EXPECTFULLRETURN = 2
+};
+
+const std::size_t DEFAULTMAXRESUBMISSIONS = 5;
 
 /**********************************************************************************************/
 /**
@@ -137,6 +140,12 @@ typedef ID_TYPE_1 SUBMISSIONCOUNTERTYPE;
 typedef ID_TYPE_2 POSITIONTYPE;
 
 /**********************************************************************************************/
+
+/** @brief Puts a Gem::Courtier::submissionReturnMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Courtier::submissionReturnMode&);
+
+/** @brief Reads a Gem::Courtier::submissionReturnMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Courtier::submissionReturnMode&);
 
 /** @brief Puts a Gem::Courtier::consumerMode into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Courtier::consumerMode&);

@@ -77,8 +77,7 @@ class GBrokerGD
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseGD)
-		   & make_nvp("GBrokerConnectorT_GIndividual", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this))
-		   & BOOST_SERIALIZATION_NVP(maxResubmissions_);
+		   & make_nvp("GBrokerConnectorT_GIndividual", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this));
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -110,11 +109,6 @@ public:
 			, const std::string&
 			, const bool&
 	) const;
-
-	/** @brief Allows to set the maximum allowed number of resubmissions */
-	void setMaxResubmissions(std::size_t maxResubmissions);
-	/** @brief Returns the maximum allowed number of resubmissions */
-	std::size_t getMaxResubmissions() const;
 
 	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
 	virtual bool usesBroker() const;
@@ -155,7 +149,6 @@ private:
     /*********************************************************************************/
 
     bool serverMode_; ///< Indicates whether an individual runs in server mode
-    std::size_t maxResubmissions_; ///< The maximum number of allowed re-submissions in an iteration
 
 #ifdef GEM_TESTING
 public:

@@ -1,3 +1,44 @@
-This test submits random number containers to the buffer port from multiple 
-threads, processes them at the remote end with various threads and returns the
-processed items.
+This test submits random number containers to the buffer port from a single
+thread, processes them at the remote end inside another thread and returns the
+processed items to the originating thread.
+
+This behaviour mimics what happens inside of the courtier broker:
+- A producer registeres its own buffer port with the broker
+- The producer submits items to the buffer port
+- The broker extracts items from the buffer port upon request from a consumer
+- The broker hands back items to the buffer port as soon as they have been received back from a consumer
+- The producer extracts the processed items from the buffer port
+
+Note that the main file defines GEM_COMMON_BENCHMARK_BOUNDED_BUFFER . This forces the bounded buffer from
+the commin lib to emit data in the format of the ROOT analysis framework (see http://root.cern.ch, look out
+for .C files after the program has run).
+
+Note that, for large amount of items you will practically always receive messages like this:
+
+================================================
+ERROR
+in file /home/rberlich/geneva-workspace/Geneva/tests/courtier/PerformanceTests/GBufferPortTTest/GBufferPortTTest.cpp
+near line 231 with description:
+
+In processor: Exceeded allowed number 100 of put timeouts in cycle 10000
+
+
+If you suspect that this error is due to Geneva,
+then please consider filing a bug via
+http://www.gemfony.com (link "Bug Reports") or
+through http://www.launchpad.net/geneva
+
+We appreciate your help!
+The Geneva team
+================================================
+
+The reason for this is that the capacity of the queue has been exceeded too often. This happens, as the producer
+keeps producing items up to the maximum count you've specified. It will only start extracting items from the
+buffer port when all items have been submitted. This mimics the behavioud of the Geneva optimization library, where
+work items (candidate solutions to be evaluated) are submitted by a population for a potentially very long calculation. 
+Only when all items have been submitted will it start to wait for returns. This is generally not a problem, as the
+amount of submissions in this context is usually much smaller than the size of the queue, so all items can pretty
+much be submitted simultaneously. In the context of this test this means that the processor will soon have submitted 
+more than 10000 items back to the buffer port, at which time it will start to run into timeouts. 
+
+In a real-life context, this would lead to the items being submitted to be discarded.

@@ -429,6 +429,7 @@ public:
 			processedLock.unlock();
 		} else {
 			// Make the mutex available again
+			std::cerr << "Did not find buffer with id " << id << std::endl;
 			processedLock.unlock();
 
 			throw Gem::Courtier::buffer_not_present();
