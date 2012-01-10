@@ -786,28 +786,23 @@ private:
     	//-------------------------------------------------------------------------------
     	// Emit some information in DEBUG mode
 #if DEBUG
+    	std::ostringstream information;
     	if(!complete) {
-    		std::ostringstream information;
-    		information
-    				<< std::endl
-    				<< "Incomplete submission " << submission_counter_ << ":" << std::endl
-    				<< "nReceivedCurrent = " << nReceivedCurrent << std::endl
-    				<< "expectedNumber   = " << expectedNumber << std::endl
-    				<< "nReceivedOlder   = " << nReceivedOlder << std::endl
-    				<< "waitFactor = " << waitFactor_ << std::endl;
-    		std::cout << information.str();
+    		information	<< std::endl
+    			<< "Incomplete submission " << submission_counter_ << ":" << std::endl;
     	} else {
     		std::ostringstream information;
-    		information
-    				<< std::endl
-    				<< "Complete submission_ " << submission_counter_ << ":" << std::endl
-    				<< "nReceivedCurrent = " << nReceivedCurrent << std::endl
-    				<< "expectedNumber   = " << expectedNumber << std::endl
-    				<< "nReceivedOlder   = " << nReceivedOlder << std::endl
-    				<< "waitFactor = " << waitFactor_ << std::endl;
-    		std::cout << information.str();
+    		information	<< std::endl
+    			<< "Complete submission_ " << submission_counter_ << ":" << std::endl;
     	}
+    	information
+			<< "nReceivedCurrent = " << nReceivedCurrent << std::endl
+			<< "expectedNumber   = " << expectedNumber << std::endl
+			<< "nReceivedOlder   = " << nReceivedOlder << std::endl
+			<< "waitFactor = " << waitFactor_ << std::endl;
+    	std::cout << information.str();
 #endif /* DEBUG */
+    	//-------------------------------------------------------------------------------
 
     	// Update the submission counter
     	submission_counter_++;
