@@ -39,11 +39,13 @@
 
 // Geneva header files go here
 #include <geneva/Go2.hpp>
+#include "GOptimizationBenchmarkConfig.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
+using namespace Gem::Tests;
 
 int main(int argc, char **argv) {
 	Go2::init();
@@ -58,6 +60,9 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------
 	// Server mode, serial or multi-threaded execution
 
+	// Load benchmark configuration options
+	GOptimizationBenchmarkConfig gbc("./config/GOptimizationBenchmark.json");
+
 	// Create a factory for GFunctionIndividual objects and perform
 	// any necessary initial work.
 	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
@@ -67,7 +72,7 @@ int main(int argc, char **argv) {
 
 	// Optimization algorithms are added on the command line
 
-	// Perform the actual optimization
+	// Perform the actual optimization and extract the best individual
 	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
 
 	// Terminate

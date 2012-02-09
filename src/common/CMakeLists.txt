@@ -7,6 +7,7 @@ SET ( COMMONSOURCES
 	GMathHelperFunctions
 	GParserBuilder
 	GPODExpectationChecksT
+	GROOTProducer
 	GThreadGroup
 	GThreadWrapper
 )

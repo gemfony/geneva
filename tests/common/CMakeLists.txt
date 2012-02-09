@@ -7,8 +7,10 @@ ADD_CUSTOM_TARGET ( "common-tests"
 ADD_DEPENDENCIES ( "common-tests"
 	${COMMON_LIBNAME}
 	#"courtier-tests-unit"
+	"common-tests-manual"
 	"common-tests-performance"
 )
 
 #ADD_SUBDIRECTORY ( UnitTests )
+ADD_SUBDIRECTORY ( ManualTests )
 ADD_SUBDIRECTORY ( PerformanceTests )

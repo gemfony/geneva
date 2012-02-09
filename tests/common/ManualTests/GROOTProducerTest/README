@@ -1,0 +1,3 @@
+This directory contains a manual test / usage demo of the GROOTProducer class,
+which lets you produce root plots in a more intuitive way than was possible 
+before in Geneva.
