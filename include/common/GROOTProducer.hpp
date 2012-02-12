@@ -138,8 +138,8 @@ public:
 
 		// Make sure the data can be converted to doubles
 		try {
-			x=boost::lexical_cast<double>(boost::get<0>(point));
-			y=boost::lexical_cast<double>(boost::get<1>(point));
+			x=boost::numeric_cast<double>(boost::get<0>(point));
+			y=boost::numeric_cast<double>(boost::get<1>(point));
 		}
 		catch(boost::bad_lexical_cast &e) {
 			raiseException(

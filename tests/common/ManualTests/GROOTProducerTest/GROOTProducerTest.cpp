@@ -34,25 +34,43 @@
 
 // Standard headers go here
 #include <cmath>
+#include <iostream>
 
 // Boost headers go here
+#include <boost/shared_ptr.hpp>
 
 // Geneva headers go here
-#include "common/GROOTProducer.hpp"
+#include "common/GPlotDesigner.hpp"
+
+using namespace Gem::Common;
 
 int main(int argc, char** argv) {
-	Gem::Common::GROOTProducer grp(1,2); // one column of 2 plots
-	grp.setCanvasName("sincos");
+	boost::shared_ptr<GGraph2D> gsin_ptr(new GGraph2D());
+	boost::shared_ptr<GGraph2D> gcos_ptr(new GGraph2D());
+
+	gsin_ptr->setPlotMode(Gem::Common::SCATTER);
+	gsin_ptr->setPlotLabel("A sinus function");
+	gsin_ptr->setXAxisLabel("x");
+	gsin_ptr->setYAxisLabel("sin(x)");
+
+	gcos_ptr->setPlotMode(Gem::Common::SCATTER);
+	gcos_ptr->setPlotLabel("A cosinus function");
+	gcos_ptr->setXAxisLabel("x");
+	gcos_ptr->setYAxisLabel("cos(x)");
 
 	for(std::size_t i=0; i<1000; i++) {
-		grp & boost::tuple<std::size_t, double>(i, sin(2*M_PI*double(i)/1000.));
+		(*gsin_ptr) & boost::tuple<std::size_t, double>(i, sin(2*M_PI*double(i)/1000.));
 	}
-	grp.completeSubCanvas("x", "sin(x)", "sinus");
 
 	for(std::size_t i=0; i<1000; i++) {
-		grp & boost::tuple<std::size_t, double>(i, cos(2*M_PI*double(i)/1000.));
+		(*gcos_ptr) & boost::tuple<std::size_t, double>(i, cos(2*M_PI*double(i)/1000.));
 	}
-	grp.completeSubCanvas("x", "cos(x)", "cosinus");
 
-	grp.writeResult("result.C");
+	GPlotDesigner gpd(2,1);
+	gpd.setCanvasLabel("Sinus and cosinus");
+
+	gpd.registerPlotter(gsin_ptr);
+	gpd.registerPlotter(gcos_ptr);
+
+	std::cout << gpd.plot();
 }

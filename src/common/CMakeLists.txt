@@ -6,6 +6,7 @@ SET ( COMMONSOURCES
 	GMainLoop
 	GMathHelperFunctions
 	GParserBuilder
+	GPlotDesigner
 	GPODExpectationChecksT
 	GROOTProducer
 	GThreadGroup

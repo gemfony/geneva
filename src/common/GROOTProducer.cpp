@@ -136,44 +136,45 @@ bool GROOTProducer::completeSubCanvas(
 	, const std::string& yAxisName
 	, const std::string& subCanvasName
 ){
-	// Set up suitable arrays for the header
-	std::string arrayBaseName =
-			"array_" + boost::lexical_cast<std::string>(currentSubCanvas_);
+	if(!measuredData_.empty()) {
+		// Set up suitable arrays for the header
+		std::string arrayBaseName =
+				"array_" + boost::lexical_cast<std::string>(currentSubCanvas_);
 
-	std::string xArrayName = "x_" + arrayBaseName;
-	std::string yArrayName = "y_" + arrayBaseName;
+		std::string xArrayName = "x_" + arrayBaseName;
+		std::string yArrayName = "y_" + arrayBaseName;
 
-	headerData_ << "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(measuredData_.size()) << "];" << std::endl
+		headerData_ << "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(measuredData_.size()) << "];" << std::endl
 				<< "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(measuredData_.size()) << "];" << std::endl
 				<< std::endl;
 
-	// Fill data from the tuples into the arrays
-	std::vector<boost::tuple<double, double> >::iterator it;
-	std::size_t posCounter = 0;
-	for(it=measuredData_.begin(); it!=measuredData_.end(); ++it) {
-		tupleData_
+		// Fill data from the tuples into the arrays
+		std::vector<boost::tuple<double, double> >::iterator it;
+		std::size_t posCounter = 0;
+		for(it=measuredData_.begin(); it!=measuredData_.end(); ++it) {
+			tupleData_
 			<< "  " << xArrayName << "[" << posCounter << "] = " << it->get<0>() << ";" << std::endl
 			<< "  " << yArrayName << "[" << posCounter << "] = " << it->get<1>() << ";" << std::endl;
 
-		posCounter++;
-	}
-	tupleData_ << std::endl;
+			posCounter++;
+		}
+		tupleData_ << std::endl;
 
-	// Clear the tuple vector for the next iteration
-	measuredData_.clear();
+		std::string graphName =
+				(subCanvasName == "")?(std::string("graph_") + boost::lexical_cast<std::string>(currentSubCanvas_)):subCanvasName;
 
-	std::string graphName =
-		(subCanvasName == "")?(std::string("graph_") + boost::lexical_cast<std::string>(currentSubCanvas_)):subCanvasName;
-
-	// Fill the data in our tuple-vector into a ROOT TGraph object
-	footerData_ << std::endl
-				<< "  " << (canvasName_==""?"cc":canvasName_) << "->cd(" << currentSubCanvas_ << ");" << std::endl
+		// Fill the data in our tuple-vector into a ROOT TGraph object
+		footerData_ << std::endl
+				<< "  " << (canvasName_==""?"cc":canvasName_) << "->cd(" << currentSubCanvas_+1 << ");" << std::endl
 				<< "  TGraph *" << graphName << " = new TGraph(" << measuredData_.size() <<", " << xArrayName << ", " << yArrayName << ");" << std::endl
 				<< "  " << graphName << "->GetXaxis()->SetTitle(\"" << ((xAxisName=="")?("x"):xAxisName) << "\");" << std::endl
-				<< "  " << graphName << "->SetTitleOffset(1.1);" << std::endl
 				<< "  " << graphName << "->GetYaxis()->SetTitle(\"" << ((yAxisName=="")?("y"):yAxisName) << "\");" << std::endl
 				<< "  " << graphName << "->Draw(\""<< ((pM_==SCATTER)?("AP"):("APL")) << "\");" << std::endl
 				<< std::endl;
+
+		// Clear the tuple vector for the next iteration
+		measuredData_.clear();
+	}
 
 	// Switch to the next canvas
 	if(++currentSubCanvas_ >= boost::numeric_cast<std::size_t>(c_x_div_*c_y_div_)) {
@@ -186,9 +187,9 @@ bool GROOTProducer::completeSubCanvas(
 
 /*****************************************************************************/
 /**
- * Allows to add external data (such as tuple-data) to the current sub canvas.
- * No test is done of the data added here -- everything is added verbatim. No data
- * will be added once the canvas is complete. Note that you have to switch the
+ * Allows to add external data (such as tuple-data or a function plot) to the current
+ * sub canvas. No test is done of the data added here -- everything is added verbatim.
+ * No data will be added once the canvas is complete. Note that you have to switch the
  * sub-canvas manually, otherwise the external data will end up in the current plot.
  *
  * @param extHeader The command needed to set up the plot in extPlot
@@ -223,7 +224,7 @@ std::string GROOTProducer::getResult() const {
 		<<    tupleData_.str()
 		<<    footerData_.str()
 		<< std::endl
-		<< "  " << (canvasName_==""?"cc":canvasName_) << "->cd(0);" << std::endl
+		<< "  " << (canvasName_==""?"cc":canvasName_) << "->cd();" << std::endl
 		<< "}" << std::endl;
 
 	return result.str();
