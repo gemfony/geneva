@@ -44,7 +44,7 @@ namespace Common {
  * The default constructor
  */
 GBasePlotter::GBasePlotter()
-	: drawingArguments_("APL")
+	: drawingArguments_("")
 	, x_axis_label_("x")
 	, y_axis_label_("y")
 	, z_axis_label_("z")
@@ -204,7 +204,6 @@ std::size_t GBasePlotter::id() const {
 	return id_;
 }
 
-
 /*****************************************************************************/
 /**
  * Sets the id of the object
@@ -359,12 +358,371 @@ std::string GGraph2D::footerData() const {
 		footer_data << "// " + dsMarker_ << std::endl;
 	}
 
+	// Check whether custom drawing arguments have been set or whether one
+	// of our generic choices has been selected
+	std::string dA = "";
+	if(drawingArguments() != "") {
+		dA = drawingArguments();
+	} else {
+		if(pM_ == SCATTER) {
+			dA = "AP";
+		} else {
+			dA = "APL";
+		}
+	}
+
 	// Fill the data in our tuple-vector into a ROOT TGraph object
 	footer_data
 		<< "  TGraph *" << graphName << " = new TGraph(" << data_.size() <<", " << xArrayName << ", " << yArrayName << ");" << std::endl
 		<< "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-		<< "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-		<< "  " << graphName << "->Draw(\""<< ((pM_==SCATTER)?("AP"):("APL")) << "\");" << std::endl
+		<< "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl;
+
+	if(plot_label_ != "") {
+		footer_data
+			<< "  " << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	}  else {
+		footer_data
+			<< "  " << graphName << "->SetTitle(\" \");" << std::endl;
+	}
+
+	footer_data
+		<< "  " << graphName << "->Draw(\""<< dA << "\");" << std::endl
+		<< std::endl;
+
+	return footer_data.str();
+}
+
+
+
+/*****************************************************************************/
+///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * The standard constructor
+ *
+ * @param fD A descriptor for the function to be plotted
+ */
+GFunctionPlotter1D::GFunctionPlotter1D(
+		const std::string& fD
+		, const boost::tuple<double,double>& xExtremes
+)
+	: functionDescription_(fD)
+	, xExtremes_(xExtremes)
+	, nSamplesX_(DEFNSAMPLES)
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * A copy constructor
+ *
+ * @param cp A reference to another GFunctionPlotter1D object
+ */
+GFunctionPlotter1D::GFunctionPlotter1D(const GFunctionPlotter1D& cp)
+	: GBasePlotter(cp)
+	, functionDescription_(cp.functionDescription_)
+	, xExtremes_(cp.xExtremes_)
+	, nSamplesX_(cp.nSamplesX_)
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * The destructor
+ */
+GFunctionPlotter1D::~GFunctionPlotter1D()
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * The assignment operator
+ *
+ * @param cp A reference to another GFunctionPlotter1D object
+ */
+GFunctionPlotter1D & GFunctionPlotter1D::operator=(const GFunctionPlotter1D& cp) {
+	// Copy our parent class'es data
+	GBasePlotter::operator=(cp);
+
+	// and then our local data
+	functionDescription_ = cp.functionDescription_;
+	xExtremes_ = cp.xExtremes_;
+	nSamplesX_ = cp.nSamplesX_;
+
+	return *this;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to set the number of sampling points of the function on the x-axis
+ *
+ * @param nSamplesX The number of sampling points of the function on the x-axis
+ */
+void GFunctionPlotter1D::setNSamplesX(std::size_t nSamplesX) {
+	nSamplesX_ = nSamplesX;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve specific header settings for this plot
+ *
+ * @return The code to be added to the plot header for this function
+ */
+std::string GFunctionPlotter1D::headerData() const {
+	// Check the extreme values for consistency
+	if(boost::get<0>(xExtremes_) >= boost::get<1>(xExtremes_)) {
+		raiseException(
+			"In GFunctionPlotter1D::headerData(): Error!" << std::endl
+			<< "lower boundary >= upper boundary: " << boost::get<0>(xExtremes_) << " / " << boost::get<1>(xExtremes_) << std::endl
+		);
+	}
+
+	std::ostringstream result;
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		comment = "// " + dsMarker_;
+	}
+
+	std::string functionName = "func_" + boost::lexical_cast<std::string>(id());
+	result << "  TF1 *" << functionName << " = new TF1(\"" << functionName << "\", \"" << functionDescription_ << "\"," << boost::get<0>(xExtremes_) << ", " << boost::get<1>(xExtremes_) << ");" << (comment!=""?comment:"") << std::endl;
+
+	return result.str();
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves the actual data sets
+ *
+ * @return The code to be added to the plot's data section for this function
+ */
+std::string GFunctionPlotter1D::bodyData() const {
+	// No data needs to be added for a function plotter
+	return std::string();
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves specific draw commands for this plot
+ *
+ * @return The draw command to be added to the plot's data for this function
+ */
+std::string GFunctionPlotter1D::footerData() const {
+	std::ostringstream footer_data;
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		comment = "// " + dsMarker_;
+	}
+
+	std::string functionName = "func_" + boost::lexical_cast<std::string>(id());
+	footer_data
+		<< "  " << functionName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+		<< "  " << functionName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	    << "  " << functionName << "->SetNpx(" << nSamplesX_ << ");" << std::endl;
+
+	if(plot_label_ != "") {
+		footer_data
+			<< "  " << functionName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	} else {
+		footer_data
+			<< "  " << functionName << "->SetTitle(\" \");" << std::endl;
+	}
+
+	std::string dA;
+	if(drawingArguments() == "") {
+		dA = "";
+	} else {
+		dA = "\"" + drawingArguments() + "\"";
+	}
+
+	footer_data
+		<< "  " << functionName << "->Draw(" << dA << ");" << (comment!=""?comment:"") << std::endl
+		<< std::endl;
+
+	return footer_data.str();
+}
+
+/*****************************************************************************/
+///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * The standard constructor
+ *
+ * @param fD A descriptor for the function to be plotted
+ */
+GFunctionPlotter2D::GFunctionPlotter2D(
+		const std::string& fD
+		, const boost::tuple<double,double>& xExtremes
+		, const boost::tuple<double,double>& yExtremes
+)
+	: functionDescription_(fD)
+	, xExtremes_(xExtremes)
+	, yExtremes_(yExtremes)
+	, nSamplesX_(DEFNSAMPLES)
+	, nSamplesY_(DEFNSAMPLES)
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * A copy constructor
+ *
+ * @param cp A reference to another GFunctionPlotter2D object
+ */
+GFunctionPlotter2D::GFunctionPlotter2D(const GFunctionPlotter2D& cp)
+	: GBasePlotter(cp)
+	, functionDescription_(cp.functionDescription_)
+	, xExtremes_(cp.xExtremes_)
+	, yExtremes_(cp.yExtremes_)
+	, nSamplesX_(cp.nSamplesX_)
+	, nSamplesY_(cp.nSamplesY_)
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * The destructor
+ */
+GFunctionPlotter2D::~GFunctionPlotter2D()
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * The assignment operator
+ *
+ * @param cp A reference to another GFunctionPlotter2D object
+ */
+GFunctionPlotter2D & GFunctionPlotter2D::operator=(const GFunctionPlotter2D& cp) {
+	// Copy our parent class'es data
+	GBasePlotter::operator=(cp);
+
+	// and then our local data
+	functionDescription_ = cp.functionDescription_;
+	xExtremes_ = cp.xExtremes_;
+	yExtremes_ = cp.yExtremes_;
+	nSamplesX_ = cp.nSamplesX_;
+	nSamplesY_ = cp.nSamplesY_;
+
+	return *this;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to set the number of sampling points of the function on the x-axis
+ *
+ * @param nSamplesX The number of sampling points of the function on the x-axis
+ */
+void GFunctionPlotter2D::setNSamplesX(std::size_t nSamplesX) {
+	nSamplesX_ = nSamplesX;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to set the number of sampling points of the function on the y-axis
+ *
+ * @param nSamplesY The number of sampling points of the function on the y-axis
+ */
+void GFunctionPlotter2D::setNSamplesY(std::size_t nSamplesY) {
+	nSamplesY_ = nSamplesY;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve specific header settings for this plot
+ *
+ * @return The code to be added to the plot header for this function
+ */
+std::string GFunctionPlotter2D::headerData() const {
+	// Check the extreme values for consistency
+	if(boost::get<0>(xExtremes_) >= boost::get<1>(xExtremes_)) {
+		raiseException(
+			"In GFunctionPlotter2D::headerData(): Error!" << std::endl
+			<< "lower boundary(x) >= upper boundary(x): " << boost::get<0>(xExtremes_) << " / " << boost::get<1>(xExtremes_) << std::endl
+		);
+	}
+
+	if(boost::get<0>(yExtremes_) >= boost::get<1>(yExtremes_)) {
+		raiseException(
+			"In GFunctionPlotter2D::headerData(): Error!" << std::endl
+			<< "lower boundary(y) >= upper boundary(y): " << boost::get<0>(yExtremes_) << " / " << boost::get<1>(yExtremes_) << std::endl
+		);
+	}
+
+	std::ostringstream result;
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		comment = "// " + dsMarker_;
+	}
+
+	std::string functionName = "func_" + boost::lexical_cast<std::string>(id());
+	result
+		<< "  TF2 *"
+		<< functionName
+		<< " = new TF2(\""
+		<< functionName << "\", \""
+		<< functionDescription_
+		<< "\","
+		<< boost::get<0>(xExtremes_)
+		<< ", "
+		<< boost::get<1>(xExtremes_)
+		<< ", "
+		<< boost::get<0>(yExtremes_)
+		<< ", "
+		<< boost::get<1>(yExtremes_)
+		<< ");"
+		<< (comment!=""?comment:"")
+		<< std::endl;
+
+	return result.str();
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves the actual data sets
+ *
+ * @return The code to be added to the plot's data section for this function
+ */
+std::string GFunctionPlotter2D::bodyData() const {
+	// No data needs to be added for a function plotter
+	return std::string();
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves specific draw commands for this plot
+ *
+ * @return The draw command to be added to the plot's data for this function
+ */
+std::string GFunctionPlotter2D::footerData() const {
+	std::ostringstream footer_data;
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		comment = "// " + dsMarker_;
+	}
+
+	std::string functionName = "func_" + boost::lexical_cast<std::string>(id());
+	footer_data
+		<< "  " << functionName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+		<< "  " << functionName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+		<< "  " << functionName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
+	    << "  " << functionName << "->SetNpx(" << nSamplesX_ << ");" << std::endl
+	    << "  " << functionName << "->SetNpy(" << nSamplesY_ << ");" << std::endl;
+
+	if(plot_label_ != "") {
+		footer_data
+			<< "  " << functionName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	} else {
+		footer_data
+			<< "  " << functionName << "->SetTitle(\" \");" << std::endl;
+	}
+
+	std::string dA;
+	if(drawingArguments() == "") {
+		dA = "";
+	} else {
+		dA = "\"" + drawingArguments() + "\"";
+	}
+
+	footer_data
+		<< "  " << functionName << "->Draw(" << dA << ");" << (comment!=""?comment:"") << std::endl
 		<< std::endl;
 
 	return footer_data.str();
@@ -380,14 +738,28 @@ std::string GGraph2D::footerData() const {
  * @param c_y_div The number of plots in y-direction
  */
 GPlotDesigner::GPlotDesigner(
-	const std::size_t& c_x_div, const std::size_t& c_y_div
+	const std::string& canvasLabel
+	, const std::size_t& c_x_div
+	, const std::size_t& c_y_div
 )
 	: c_x_div_(c_x_div)
 	, c_y_div_(c_y_div)
 	, c_x_dim_(DEFCXDIM)
 	, c_y_dim_(DEFCYDIM)
-	, canvasLabel_("GPlotDesigner")
+	, canvasLabel_(canvasLabel)
 { /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * Writes the plot to a file
+ *
+ * @param fileName The name of the file to which the data can be written
+ */
+void GPlotDesigner::writeToFile(const std::string& fileName) {
+	std::ofstream result(fileName.c_str());
+	result << plot();
+	result.close();
+}
 
 /*****************************************************************************/
 /*
@@ -438,16 +810,17 @@ std::string GPlotDesigner::plot() const {
 	nPlots = 0;
 	for(it=plotters_.begin(); it!=plotters_.end(); ++it) {
 		if(nPlots < maxPlots) {
-			result << "  graphPad->cd(" << nPlots+1 << ");" << std::endl /* cd starts at 1 */
-			       << (*it)->footerData()
-				   << std::endl;
+			result
+				<< "  graphPad->cd(" << nPlots+1 << ");" << std::endl /* cd starts at 1 */
+				<< (*it)->footerData()
+				<< std::endl;
 
 			nPlots++;
 		}
 	}
 
 	result
-	    << "  graphPad->cd()" << std::endl
+	    << "  graphPad->cd();" << std::endl
 		<< "  cc->cd();" << std::endl
 		<< "}" << std::endl;
 
@@ -463,7 +836,9 @@ std::string GPlotDesigner::staticHeader() const {
 
 	result
 	  << "  gROOT->Reset();" << std::endl
-	  << "  gStyle->SetOptTitle(0);" << std::endl
+	  << "  gStyle->SetCanvasColor(0);" << std::endl
+	  << "  gStyle->SetStatBorderSize(1);" << std::endl
+	  << std::endl
 	  << "  TCanvas *cc = new TCanvas(\"cc\", \"cc\",0,0,"<< c_x_dim_ << "," << c_y_dim_ << ");" << std::endl
 	  << std::endl
 	  << "  TPaveLabel* canvasTitle = new TPaveLabel(0.2,0.95,0.8,0.99, \"" << canvasLabel_ << "\");" << std::endl
@@ -493,16 +868,6 @@ void GPlotDesigner::registerPlotter(boost::shared_ptr<GBasePlotter> plotter_ptr)
 			<< "Got empty plotter" << std::endl
 		);
 	}
-}
-
-/*****************************************************************************/
-/**
- * Allows to assign a global title to the entire canvas
- *
- * @param canvasLabel A title to be assigned to the canvas
- */
-void GPlotDesigner::setCanvasLabel(std::string canvasLabel) {
-	canvasLabel_ = canvasLabel;
 }
 
 /*****************************************************************************/

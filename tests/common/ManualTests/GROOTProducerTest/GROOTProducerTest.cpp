@@ -45,32 +45,61 @@
 using namespace Gem::Common;
 
 int main(int argc, char** argv) {
-	boost::shared_ptr<GGraph2D> gsin_ptr(new GGraph2D());
-	boost::shared_ptr<GGraph2D> gcos_ptr(new GGraph2D());
+	boost::tuple<double,double> minMaxX(-M_PI,M_PI);
+	boost::tuple<double,double> minMaxY(-M_PI,M_PI);
 
+	boost::shared_ptr<GGraph2D> gsin_ptr(new GGraph2D());
 	gsin_ptr->setPlotMode(Gem::Common::SCATTER);
-	gsin_ptr->setPlotLabel("A sinus function");
+	gsin_ptr->setPlotLabel("A sine function, plotted through TGraph");
 	gsin_ptr->setXAxisLabel("x");
 	gsin_ptr->setYAxisLabel("sin(x)");
 
+	boost::shared_ptr<GGraph2D> gcos_ptr(new GGraph2D());
 	gcos_ptr->setPlotMode(Gem::Common::SCATTER);
-	gcos_ptr->setPlotLabel("A cosinus function");
+	gcos_ptr->setPlotLabel("A cosine function, plotted through TGraph");
 	gcos_ptr->setXAxisLabel("x");
 	gcos_ptr->setYAxisLabel("cos(x)");
 
 	for(std::size_t i=0; i<1000; i++) {
-		(*gsin_ptr) & boost::tuple<std::size_t, double>(i, sin(2*M_PI*double(i)/1000.));
+		double x = 2*M_PI*double(i)/1000. - M_PI;
+
+		(*gsin_ptr) & boost::tuple<double, double>(x, sin(x));
+		(*gcos_ptr) & boost::tuple<double, double>(x, cos(x));
 	}
 
-	for(std::size_t i=0; i<1000; i++) {
-		(*gcos_ptr) & boost::tuple<std::size_t, double>(i, cos(2*M_PI*double(i)/1000.));
-	}
+	boost::shared_ptr<GFunctionPlotter1D> gsin_plotter_1D_ptr(new GFunctionPlotter1D("sin(x)", minMaxX));
+	gsin_plotter_1D_ptr->setPlotLabel("A sine function, plotted through TF1");
+	gsin_plotter_1D_ptr->setXAxisLabel("x");
+	gsin_plotter_1D_ptr->setYAxisLabel("sin(x)");
 
-	GPlotDesigner gpd(2,1);
-	gpd.setCanvasLabel("Sinus and cosinus");
+	boost::shared_ptr<GFunctionPlotter1D> gcos_plotter_1D_ptr(new GFunctionPlotter1D("cos(x)", minMaxX));
+	gcos_plotter_1D_ptr->setPlotLabel("A cosine function, plotted through TF1");
+	gcos_plotter_1D_ptr->setXAxisLabel("x");
+	gcos_plotter_1D_ptr->setYAxisLabel("cos(x)");
 
+	boost::shared_ptr<GFunctionPlotter2D> schwefel_plotter_2D_ptr(new GFunctionPlotter2D("-0.5*(x*sin(sqrt(abs(x))) + y*sin(sqrt(abs(y))))", minMaxX, minMaxY));
+	schwefel_plotter_2D_ptr->setPlotLabel("The Schwefel function");
+	schwefel_plotter_2D_ptr->setXAxisLabel("x");
+	schwefel_plotter_2D_ptr->setYAxisLabel("y");
+	schwefel_plotter_2D_ptr->setYAxisLabel("Schwefel function");
+	schwefel_plotter_2D_ptr->setDrawingArguments("surf1");
+
+	boost::shared_ptr<GFunctionPlotter2D> noisyParabola_plotter_2D_ptr(new GFunctionPlotter2D("(cos(x^2+y^2) + 2)*(x^2+y^2)", minMaxX, minMaxY));
+	noisyParabola_plotter_2D_ptr->setPlotLabel("The noisy parabola");
+	noisyParabola_plotter_2D_ptr->setXAxisLabel("x");
+	noisyParabola_plotter_2D_ptr->setYAxisLabel("y");
+	noisyParabola_plotter_2D_ptr->setYAxisLabel("Noisy parabola");
+	noisyParabola_plotter_2D_ptr->setDrawingArguments("surf1");
+
+	GPlotDesigner gpd("Sine and cosine and 2D-function", 2,3);
+
+	gpd.setCanvasDimensions(1200,1400);
 	gpd.registerPlotter(gsin_ptr);
 	gpd.registerPlotter(gcos_ptr);
+	gpd.registerPlotter(gsin_plotter_1D_ptr);
+	gpd.registerPlotter(gcos_plotter_1D_ptr);
+	gpd.registerPlotter(schwefel_plotter_2D_ptr);
+	gpd.registerPlotter(noisyParabola_plotter_2D_ptr);
 
-	std::cout << gpd.plot();
+	gpd.writeToFile("result.C");
 }

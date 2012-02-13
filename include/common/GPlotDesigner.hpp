@@ -72,11 +72,13 @@ enum graphPlotMode {
 
 //Some default values
 
-const boost::uint32_t DEFCXDIM = 1024;
-const boost::uint32_t DEFCYDIM =  768;
+const boost::uint32_t DEFCXDIM    = 1024;
+const boost::uint32_t DEFCYDIM    =  768;
 
-const boost::uint32_t DEFCXDIV =    1;
-const boost::uint32_t DEFCYDIV =    1;
+const boost::uint32_t DEFCXDIV    =    1;
+const boost::uint32_t DEFCYDIV    =    1;
+
+const std::size_t     DEFNSAMPLES = 100;
 
 const graphPlotMode        DEFPLOTMODE = CURVE;
 
@@ -383,11 +385,92 @@ private:
 /**
  * A wrapper for the ROOT TF1 1d-function plotter
  */
+class GFunctionPlotter1D
+	: public GBasePlotter
+{
+public:
+	/** @brief The standard constructor */
+	GFunctionPlotter1D(
+			const std::string&
+			, const boost::tuple<double,double>&
+	);
+
+	/** @brief A copy constructor */
+	GFunctionPlotter1D(const GFunctionPlotter1D&);
+
+	/** @brief The destructor */
+	~GFunctionPlotter1D();
+
+	/** @brief The assignment operator */
+	GFunctionPlotter1D &operator=(const GFunctionPlotter1D&);
+
+	/** @brief Allows to set the number of sampling points in x-direction */
+	void setNSamplesX(std::size_t);
+
+	/** @brief Retrieve specific header settings for this plot */
+	virtual std::string headerData() const;
+	/** @brief Retrieves the actual data sets */
+	virtual std::string bodyData() const;
+	/** @brief Retrieves specific draw commands for this plot */
+	virtual std::string footerData() const;
+
+private:
+	GFunctionPlotter1D(); ///< The default constructor -- intentionally private and undefined
+
+	std::string functionDescription_;
+
+	boost::tuple<double,double> xExtremes_; ///< Minimum and maximum values for the x-axis
+	std::size_t nSamplesX_; ///< The number of sampling points of the function
+};
 
 /*********************************************************************************/
 /**
  * A wrapper for the ROOT TF2 2d-function plotter
  */
+class GFunctionPlotter2D
+	: public GBasePlotter
+{
+public:
+	/** @brief The standard constructor */
+	GFunctionPlotter2D(
+			const std::string&
+			, const boost::tuple<double,double>&
+			, const boost::tuple<double,double>&
+	);
+
+	/** @brief A copy constructor */
+	GFunctionPlotter2D(const GFunctionPlotter2D&);
+
+	/** @brief The destructor */
+	~GFunctionPlotter2D();
+
+	/** @brief The assignment operator */
+	GFunctionPlotter2D &operator=(const GFunctionPlotter2D&);
+
+	/** @brief Allows to set the number of sampling points in x-direction */
+	void setNSamplesX(std::size_t);
+	/** @brief Allows to set the number of sampling points in y-direction */
+	void setNSamplesY(std::size_t);
+
+	/** @brief Retrieve specific header settings for this plot */
+	virtual std::string headerData() const;
+	/** @brief Retrieves the actual data sets */
+	virtual std::string bodyData() const;
+	/** @brief Retrieves specific draw commands for this plot */
+	virtual std::string footerData() const;
+
+private:
+	GFunctionPlotter2D(); ///< The default constructor -- intentionally private and undefined
+
+	std::string functionDescription_;
+
+	boost::tuple<double,double> xExtremes_; ///< Minimum and maximum values for the x-axis
+	boost::tuple<double,double> yExtremes_; ///< Minimum and maximum values for the y-axis
+
+	std::size_t nSamplesX_; ///< The number of sampling points of the function
+	std::size_t nSamplesY_; ///< The number of sampling points of the function
+};
+
 
 /*********************************************************************************/
 /**
@@ -404,16 +487,19 @@ class GPlotDesigner
 {
 public:
 	/** @brief The standard constructor */
-	GPlotDesigner(const std::size_t&, const std::size_t&);
+	GPlotDesigner(
+			const std::string&
+			, const std::size_t&
+			, const std::size_t&
+	);
 
 	/* @brief Emits the overall plot */
 	std::string plot() const;
+	/** @brief Writes the plot to a file */
+	void writeToFile(const std::string&);
 
 	/** @brief Allows to add a new plotter object */
 	void registerPlotter(boost::shared_ptr<GBasePlotter>);
-
-	/** @brief Allows to assign a global title to the entire canvas */
-	void setCanvasLabel(std::string);
 
 	/** @brief Set the dimensions of the output canvas */
 	void setCanvasDimensions(const boost::uint32_t&, const boost::uint32_t&);
