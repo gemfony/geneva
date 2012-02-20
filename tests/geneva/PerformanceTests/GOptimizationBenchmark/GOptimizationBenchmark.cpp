@@ -38,6 +38,8 @@
 // Boost header files go here
 
 // Geneva header files go here
+#include <common/GHelperFunctionsT.hpp>
+#include <common/GPlotDesigner.hpp>
 #include <geneva/Go2.hpp>
 #include "GOptimizationBenchmarkConfig.hpp"
 
@@ -45,16 +47,19 @@
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
+using namespace Gem::Common;
 using namespace Gem::Tests;
 
 int main(int argc, char **argv) {
 	Go2::init();
-	Go2 go(argc, argv, "./config/Go2.json");
 
 	//---------------------------------------------------------------------
 	// Client mode
-	if(go.clientMode()) {
-		return go.clientRun();
+	{
+		Go2 go(argc, argv, "./config/Go2.json");
+		if(go.clientMode()) {
+			return go.clientRun();
+		}
 	}
 
 	//---------------------------------------------------------------------
@@ -63,17 +68,98 @@ int main(int argc, char **argv) {
 	// Load benchmark configuration options
 	GOptimizationBenchmarkConfig gbc("./config/GOptimizationBenchmark.json");
 
-	// Create a factory for GFunctionIndividual objects and perform
-	// any necessary initial work.
-	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+	// Loop over all dimensions and the number of tests in each dimension
+	std::size_t nTests = gbc.getNTests();
+	std::vector<boost::tuple<double,double,double,double> > resultVec; // Will hold the results for each dimension
+	std::vector<boost::uint32_t> dimVec = gbc.getParDim(); // Will hold the dimensions for each test row
+	std::vector<boost::uint32_t>::iterator it;
+	std::string functionName;
+	std::string functionCode;
+	boost::tuple<double,double> varBoundaries;
+	for(it=dimVec.begin(); it!=dimVec.end(); ++it) {
+		std::cout << "Starting measurement with dimension " << *it << std::endl;
 
-	// Make an individual known to the optimizer
-	go.push_back(gfi());
+		// Create a factory for GFunctionIndividual objects
+		GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
-	// Optimization algorithms are added on the command line
+		// Set the appropriate dimension of the function individuals
+		gfi.setParDim(*it);
 
-	// Perform the actual optimization and extract the best individual
-	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
+		// Individual test results go here
+		std::vector<double> bestResult;
+
+		// Run the desired number of tests
+		for(std::size_t test=0; test<nTests; test++) {
+			Go2 go(argc, argv, "./config/Go2.json");
+
+			// Retrieve an individual from the factory
+			boost::shared_ptr<GFunctionIndividual> g = gfi();
+
+			if(g->getParameterSize() != *it) {
+				raiseException(
+					"In main(): parameter size of individual != requested size: " << g->getParameterSize() << " / " << *it << std::endl
+				);
+			}
+
+			// Make an individual known to the optimizer
+			go.push_back(g);
+
+			// Perform the actual optimization and extract the best individual
+			boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
+
+			// Extract the function name in the first test row
+			if(it==dimVec.begin() && test==0) {
+				functionName = GFunctionIndividual::getStringRepresentation(p->getDemoFunction());
+				functionCode = GFunctionIndividual::get2DROOTFunction(p->getDemoFunction());
+				varBoundaries = gfi.getVarBoundaries();
+			}
+
+			// Add the fitness to the result vector
+			bestResult.push_back(p->fitness());
+			std::cout << "Best result has fitness " << p->fitness() << std::endl;
+		}
+
+		// Post process the vector, extracting mean and sigma
+		boost::tuple<double,double> resultY = GStandardDeviation<double>(bestResult);
+
+		std::cout << std::endl
+				  << "mean = " << boost::get<0>(resultY) << std::endl
+				  << "sigma = " << boost::get<1>(resultY) << std::endl
+				  << std::endl;
+
+		boost::tuple<double,double,double,double> result(double(*it), 0., boost::get<0>(resultY), boost::get<1>(resultY));
+
+		resultVec.push_back(result);
+	}
+
+	//-------------------------------------------------------------------------
+	// Create plots from the result vector
+
+	// Create a 2d-representation of the chosen function; We use the same boundaries in x- and y-direction
+	boost::shared_ptr<GFunctionPlotter2D> optFunction_ptr(new GFunctionPlotter2D(functionCode, varBoundaries, varBoundaries));
+	optFunction_ptr->setPlotLabel("2D Representation of the test function");
+
+
+	boost::shared_ptr<GGraph2ED> gopt_ptr(new GGraph2ED());
+	gopt_ptr->setPlotMode(CURVE);
+	gopt_ptr->setPlotLabel("Measurements");
+	gopt_ptr->setXAxisLabel("Best Result");
+	gopt_ptr->setYAxisLabel("Function Dimension");
+
+	// Add the data to the plot
+	(*gopt_ptr) & resultVec;
+
+	// Create the canvas
+	std::string canvasLabel = "Optimization benchmarks for function " + functionName;
+	GPlotDesigner gpd(canvasLabel, 1,2);
+	gpd.setCanvasDimensions(1200,1400);
+
+	// Register the two plots
+	gpd.registerPlotter(optFunction_ptr);
+	gpd.registerPlotter(gopt_ptr);
+
+	// Emit the result file
+	gpd.writeToFile(gbc.getResultFileName());
 
 	// Terminate
 	return Go2::finalize();

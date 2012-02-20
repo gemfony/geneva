@@ -1,5 +1,5 @@
 /**
- * @file GROOTProducerTest.hpp
+ * @file GPlotDesignerTest.hpp
  */
 
 /*

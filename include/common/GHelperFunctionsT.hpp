@@ -19,9 +19,9 @@
  * Geneva is free software: you can redistribute and/or modify it under
  * the terms of version 3 of the GNU Affero General Public License,
  * or, at your option, under the terms of version 2 of the GNU General
- * Public License, as published by the Free Software Foundation.
  *
  * NOTE THAT THIS DUAL-LICENSING OPTION DOES NOT APPLY TO ANY OTHER FILES OF THE
+ * Public License, as published by the Free Software Foundation.
  * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
  *
  * Geneva is distributed in the hope that it will be useful,
@@ -51,12 +51,17 @@
 
 // Boost headers go here
 
+#include <boost/cast.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/date_time.hpp>
 #include <boost/variant.hpp>
 #include <boost/limits.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/type_traits.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/utility/enable_if.hpp>
 
 #ifndef GHELPERFUNCTIONST_HPP_
 #define GHELPERFUNCTIONST_HPP_
@@ -67,11 +72,153 @@
 #endif
 
 // Our own headers go here
+#include "common/GExceptions.hpp"
 
 namespace Gem
 {
 namespace Common
 {
+
+/**************************************************************************************************/
+/**
+ * Calculates the mean value from a std::vector of floating point values
+ *
+ * @param parVec The vector of values for which the mean should be calculated
+ * @return The mean value of parVec
+ */
+template <typename T>
+T GMean(
+	const std::vector<T>& parVec
+	, typename boost::enable_if<boost::is_floating_point<T> >::type* dummy = 0
+) {
+	T mean = 0.;
+
+#ifdef DEBUG
+	if(parVec.empty()) {
+		raiseException(
+			"In T GMean(const std::vector<T>&): Error!" << std::endl
+			<< "parVec has size 0" << std::endl
+		);
+	}
+#endif /* DEBUG */
+
+	typename std::vector<T>::const_iterator cit;
+	for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
+		mean += *cit;
+	}
+
+	return mean/boost::numeric_cast<T>(parVec.size());
+}
+
+
+/**************************************************************************************************/
+/**
+ * Calculates the mean and standard deviation for a std::vector of floating point values
+ *
+ * @param parVec The vector of values for which the standard deviation should be calculated
+ * @return A boost::tuple holding the mean value and the standard deviation of the values stored in parVec
+ */
+template <typename T>
+boost::tuple<T,T> GStandardDeviation(
+	const std::vector<T>& parVec
+	, typename boost::enable_if<boost::is_floating_point<T> >::type* dummy = 0
+) {
+	T mean = GMean(parVec), sigma = 0.;
+
+#ifdef DEBUG
+	if(parVec.size() == 0) {
+		raiseException(
+			"In boost::tuple<T,T> GStandardDeviation(const std::vector<T>&): Error!" << std::endl
+			<< "parVec is empty" << std::endl
+		);
+	}
+#endif /* DEBUG */
+
+	// It is easy if the size is 1
+	if(parVec.size() == 1) {
+		return boost::tuple<T,T>(parVec.at(0), 0.);
+	}
+
+	typename std::vector<T>::const_iterator cit;
+	for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
+		sigma += GSQUARED(*cit - mean);
+
+	}
+	sigma /= parVec.size() - 1;
+	sigma = sqrt(sigma);
+
+	return boost::tuple<T,T>(mean, sigma);
+}
+
+/**************************************************************************************************/
+/**
+ * Calculates the mean and standard deviation for each row of a "matrix" made up from several
+ * std:vector<T> objects of equal size. E.g., if you have 5 std::vector<double> of size 10, you will
+ * get back a std::vector<boost::tuple<double, double> >, of size 10, holding the mean and standard
+ * deviation of the corresponding positions in the 5 vectors.
+ *
+ * @param parVec The vectors for which the standard deviations should be calculated
+ * @param result A std::vector holdung tuples with the mean and sigma values for each row
+ */
+template <typename T>
+void GVecStandardDeviation(
+	const std::vector<std::vector<T> > & parVec
+	, std::vector<boost::tuple<T,T> > & result
+	, typename boost::enable_if<boost::is_floating_point<T> >::type* dummy = 0
+) {
+
+#ifdef DEBUG
+	// Check that there are entries in the vector
+	if(parVec.size() == 0) {
+		raiseException(
+			"In void GVecStandardDeviation(): Error!" << std::endl
+			<< "parVec is empty" << std::endl
+		);
+	}
+
+	// Check that the first entry has at least one component
+	if(parVec.at(0).empty()) {
+		raiseException(
+			"In void GVecStandardDeviation(): Error!" << std::endl
+			<< "parVec has empty component" << std::endl
+		);
+	}
+
+	// Check that all entries have the same size
+	if(parVec.size() > 1) {
+		std::size_t sizeFirst = parVec.at(0).size();
+		for(std::size_t pos=1; pos<parVec.size(); pos++) {
+			if(parVec.at(pos).size() != sizeFirst) {
+				raiseException(
+					"In void GVecStandardDeviation(): Error!" << std::endl
+					<< "Found parVec component of different size: " << sizeFirst << " / " << " / " << pos << " / " << parVec.at(pos).size() << std::endl
+				);
+			}
+		}
+	}
+
+	// Now we know that there is at least one component with at least one entry,
+	// and that all components have the same size. This is sufficient to calculate
+	// the mean and standard deviation for each row of the "matrix" (made up from
+	// the vectors,
+#endif /* DEBUG */
+
+	// Make sure our result vector is empty
+	result.clear();
+
+	typename std::vector<std::vector<T> >::const_iterator cit;
+	for(std::size_t pos=0; pos<parVec.at(0).size(); pos++) {
+		std::vector<T> indPar;
+
+		// Extract the individual parameters
+		for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
+			indPar.push_back(cit->at(pos));
+		}
+
+		// Calculate the mean and standard deviation
+		result.push_back(GStandardDeviation(indPar));
+	}
+}
 
 /**************************************************************************************************/
 /**

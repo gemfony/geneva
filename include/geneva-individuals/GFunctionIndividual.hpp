@@ -166,6 +166,9 @@ public:
 	/** @brief Allows to retrieve the current demo function */
 	demoFunction getDemoFunction() const;
 
+	/** @brief Allows to cross check the parameter size */
+	std::size_t getParameterSize() const;
+
 	/*******************************************************************************************/
 	/**
 	 * A factory function that returns a function individual of the desired type.
@@ -390,6 +393,11 @@ public:
 	/** @brief The destructor */
 	virtual ~GFunctionIndividualFactory();
 
+	/** @brief (Re-)Set the dimension of the function */
+	void setParDim(std::size_t);
+	/** @brief Extract the minimum and maximum boundaries of the variables */
+	boost::tuple<double,double> getVarBoundaries() const;
+
 protected:
 	/** @brief Creates individuals of this type */
 	virtual boost::shared_ptr<GFunctionIndividual> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
@@ -418,6 +426,7 @@ private:
 	double minDelta_;
 	double maxDelta_;
 	std::size_t parDim_;
+	std::size_t parDimLocal_;
 	double minVar_;
 	double maxVar_;
 	bool useConstrainedDoubleCollection_;

@@ -219,7 +219,8 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Allows to add data
+	 * Allows to add data of arbitrary type, provided it can be converted
+	 * safely to the target type.
 	 *
 	 * @param x_undet The data item to be added to the collection
 	 */
@@ -235,7 +236,7 @@ public:
 		}
 		catch(bad_numeric_cast &e) {
 			raiseException(
-				"In GDataCollector1T::operator&(): Error!" << std::endl
+				"In GDataCollector1T::operator&(const T&): Error!" << std::endl
 				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 				<< "with the message " << std::endl
 				<< e.what() << std::endl
@@ -244,6 +245,64 @@ public:
 
 		// Add the converted data to our collection
 		data_.push_back(x);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Allows to add data of type "x_type
+	 *
+	 * @param x The data item to be added to the collection
+	 */
+	void operator&(const x_type& x) {
+		// Add the data item to our collection
+		data_.push_back(x);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Allows to add a collection of data items of undetermined type in one go,
+	 * provided the type can be converted safely into the target type
+	 *
+	 * @param x_vec_undet A collection of data items of undetermined type, to be added to the collection
+	 */
+	template <typename x_type_undet>
+	void operator&(const std::vector<x_type_undet>& x_vec_undet) {
+		using boost::numeric::bad_numeric_cast;
+
+		x_type x = x_type(0);
+
+		typename std::vector<x_type_undet>::const_iterator cit;
+		for(cit=x_vec_undet.begin(); cit!=x_vec_undet.end(); ++cit) {
+			// Make sure the data can be converted to doubles
+			try {
+				x=boost::numeric_cast<x_type>(*cit);
+			}
+			catch(bad_numeric_cast &e) {
+				raiseException(
+					"In GDataCollector1T::operator&(const std::vector<T>&): Error!" << std::endl
+					<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+					<< "with the message " << std::endl
+					<< e.what() << std::endl
+				);
+			}
+
+			// Add the converted data to our collection
+			data_.push_back(x);
+		}
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Allows to add a collection of data items of type x_type to our data_ vector.
+	 *
+	 * @param x_vec A vector of data items to be added to the data_ vector
+	 */
+	void operator&(const std::vector<x_type>& x_vec) {
+		typename std::vector<x_type>::const_iterator cit;
+		for(cit=x_vec.begin(); cit!=x_vec.end(); ++cit) {
+			// Add the data item to our collection
+			data_.push_back(*cit);
+		}
 	}
 
 protected:
@@ -302,7 +361,8 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Allows to add data to the collection in an intuitive way.
+	 * Allows to add data of undetermined type to the collection in an intuitive way,
+	 * provided that it can be converted safely to the target type.
 	 *
 	 * @param point_undet The data item to be added to the collection
 	 */
@@ -320,7 +380,7 @@ public:
 		}
 		catch(bad_numeric_cast &e) {
 			raiseException(
-				"In GDataCollector2T::operator&(): Error!" << std::endl
+				"In GDataCollector2T::operator&(const boost::tuple<S,T>&): Error!" << std::endl
 				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 				<< "with the message " << std::endl
 				<< e.what() << std::endl
@@ -330,16 +390,235 @@ public:
 		data_.push_back(boost::tuple<x_type,y_type>(x,y));
 	}
 
+	/*****************************************************************************/
+	/**
+	 * Allows to add data of type boost::tuple<x_type, x_type> to the collection in
+	 * an intuitive way.
+	 *
+	 * @param point The data item to be added to the collection
+	 */
+	void operator&(const boost::tuple<x_type,y_type>& point) {
+		// Add the data item to the collection
+		data_.push_back(point);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Allows to add a collection of data items of undetermined type to the
+	 * collection in an intuitive way, provided they can be converted safely
+	 * to the target type.
+	 *
+	 * @param point_vec_undet The collection of data items to be added to the collection
+	 */
+	template <typename x_type_undet, typename y_type_undet>
+	void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet> >& point_vec_undet) {
+		using boost::numeric::bad_numeric_cast;
+
+		x_type x = x_type(0);
+		y_type y = y_type(0);
+
+		typename std::vector<boost::tuple<x_type_undet,y_type_undet> >::const_iterator cit;
+		for(cit=point_vec_undet.begin(); cit!=point_vec_undet.end(); ++cit) {
+			// Make sure the data can be converted to doubles
+			try {
+				x=boost::numeric_cast<x_type>(boost::get<0>(*cit));
+				y=boost::numeric_cast<y_type>(boost::get<1>(*cit));
+			}
+			catch(bad_numeric_cast &e) {
+				raiseException(
+					"In GDataCollector2T::operator&(const std::vector<boost::tuple<S,T> >&): Error!" << std::endl
+					<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+					<< "with the message " << std::endl
+					<< e.what() << std::endl
+				);
+			}
+
+			data_.push_back(boost::tuple<x_type,y_type>(x,y));
+		}
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Allows to add a collection of data items of type boost::tuple<x_type, y_type>
+	 * to the collection in an intuitive way, provided they can be converted safely
+	 * to the target type.
+	 *
+	 * @param point_vec The collection of data items to be added to the collection
+	 */
+	void operator&(const std::vector<boost::tuple<x_type,y_type> >& point_vec) {
+		typename std::vector<boost::tuple<x_type,y_type> >::const_iterator cit;
+		for(cit=point_vec.begin(); cit!=point_vec.end(); ++cit) {
+			// Add the data item to the collection
+			data_.push_back(*cit);
+		}
+	}
+
 protected:
 	/*****************************************************************************/
 
 	std::vector<boost::tuple<x_type, y_type> > data_; ///< Holds the actual data
 };
 
+/*********************************************************************************/
+/**
+ * A data collector for 2-d data of user-defined type, with the ability to
+ * additionally specify an error component for both dimensions.
+ */
+template <typename x_type, typename y_type>
+class GDataCollector2ET :public GBasePlotter
+{
+public:
+	/*****************************************************************************/
+	/**
+	 * The default constructor
+	 */
+	GDataCollector2ET()
+		: GBasePlotter()
+		, data_()
+	{ /* nothing */ }
+
+	/*****************************************************************************/
+	/**
+	 * A copy constructor
+	 *
+	 * @param cp A copy of another GDataCollector1T<x_type> object
+	 */
+	GDataCollector2ET(const GDataCollector2ET<x_type, y_type>& cp)
+		: GBasePlotter(cp)
+		, data_(cp.data_)
+	{ /* nothing */ }
+
+	/*****************************************************************************/
+	/**
+	 * The destructor
+	 */
+	virtual ~GDataCollector2ET() {
+		data_.clear();
+	}
+
+	/*****************************************************************************/
+	/**
+	 * The assignment operator
+	 */
+	void operator=(const GDataCollector2ET<x_type, y_type>& cp) {
+		// Assign our parent class'es data
+		GBasePlotter::operator=(cp);
+
+		// and then our own
+		data_ = cp.data_;
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Allows to add data of undetermined type to the collection in an intuitive way,
+	 * provided that it can be converted safely to the target type.
+	 *
+	 * @param point_undet The data item to be added to the collection
+	 */
+	template <typename x_type_undet, typename y_type_undet>
+	void operator&(const boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>& point_undet) {
+		using boost::numeric::bad_numeric_cast;
+
+		x_type x  = x_type(0);
+		x_type ex = x_type(0);
+		y_type y  = y_type(0);
+		y_type ey = y_type(0);
+
+		// Make sure the data can be converted to doubles
+		try {
+			x =boost::numeric_cast<x_type>(boost::get<0>(point_undet));
+			ex=boost::numeric_cast<x_type>(boost::get<1>(point_undet));
+			y =boost::numeric_cast<y_type>(boost::get<2>(point_undet));
+			ey=boost::numeric_cast<y_type>(boost::get<3>(point_undet));
+		}
+		catch(bad_numeric_cast &e) {
+			raiseException(
+				"In GDataCollector2ET::operator&(const boost::tuple<S,S,T,T>&): Error!" << std::endl
+				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+				<< "with the message " << std::endl
+				<< e.what() << std::endl
+			);
+		}
+
+		data_.push_back(boost::tuple<x_type,x_type,y_type,y_type>(x,ex,y,ey));
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Allows to add data of type boost::tuple<x_type, x_type> to the collection in
+	 * an intuitive way.
+	 *
+	 * @param point The data item to be added to the collection
+	 */
+	void operator&(const boost::tuple<x_type,x_type,y_type,y_type>& point) {
+		// Add the data item to the collection
+		data_.push_back(point);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Allows to add a collection of data items of undetermined type to the
+	 * collection in an intuitive way, provided they can be converted safely
+	 * to the target type.
+	 *
+	 * @param point_vec_undet The collection of data items to be added to the collection
+	 */
+	template <typename x_type_undet, typename y_type_undet>
+	void operator&(const std::vector<boost::tuple<x_type_undet,x_type_undet,y_type_undet,y_type_undet> >& point_vec_undet) {
+		using boost::numeric::bad_numeric_cast;
+
+		x_type x  = x_type(0);
+		x_type ex = x_type(0);
+		y_type y  = y_type(0);
+		y_type ey = y_type(0);
+
+		typename std::vector<boost::tuple<x_type_undet,x_type_undet,y_type_undet,y_type_undet> >::const_iterator cit;
+		for(cit=point_vec_undet.begin(); cit!=point_vec_undet.end(); ++cit) {
+			// Make sure the data can be converted to doubles
+			try {
+				x  = boost::numeric_cast<x_type>(boost::get<0>(*cit));
+				ex = boost::numeric_cast<x_type>(boost::get<1>(*cit));
+				y  = boost::numeric_cast<y_type>(boost::get<2>(*cit));
+				ey = boost::numeric_cast<y_type>(boost::get<3>(*cit));
+			}
+			catch(bad_numeric_cast &e) {
+				raiseException(
+					"In GDataCollector2ET::operator&(const std::vector<boost::tuple<S,S,T,T> >&): Error!" << std::endl
+					<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+					<< "with the message " << std::endl
+					<< e.what() << std::endl
+				);
+			}
+
+			data_.push_back(boost::tuple<x_type,x_type,y_type,y_type>(x,ex,y,ey));
+		}
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Allows to add a collection of data items of type boost::tuple<x_type, x_type, y_type, y_type>
+	 * to the collection in an intuitive way, provided they can be converted safely
+	 * to the target type.
+	 *
+	 * @param point_vec The collection of data items to be added to the collection
+	 */
+	void operator&(const std::vector<boost::tuple<x_type,x_type,y_type,y_type> >& point_vec) {
+		typename std::vector<boost::tuple<x_type,x_type,y_type,y_type> >::const_iterator cit;
+		for(cit=point_vec.begin(); cit!=point_vec.end(); ++cit) {
+			// Add the data item to the collection
+			data_.push_back(*cit);
+		}
+	}
+
+protected:
+	/*****************************************************************************/
+
+	std::vector<boost::tuple<x_type, x_type, y_type, y_type> > data_; ///< Holds the actual data
+};
 
 /*********************************************************************************/
 /**
- * A wrapper for a ROOT TGraph object (2d data and curve-like structures)
+ * A wrapper for the ROOT TGraph class (2d data and curve-like structures)
  */
 class GGraph2D : public GDataCollector2T<double,double> {
 public:
@@ -353,7 +632,41 @@ public:
 	~GGraph2D();
 
 	/** @brief The assignment operator */
-	GGraph2D &operator=(const GGraph2D&);
+	const GGraph2D &operator=(const GGraph2D&);
+
+	/** @brief Determines whether a scatter plot or a curve is created */
+	void setPlotMode(graphPlotMode);
+	/** @brief Allows to retrieve the current plotting mode */
+	graphPlotMode getPlotMode() const;
+
+	/** @brief Retrieve specific header settings for this plot */
+	virtual std::string headerData() const;
+	/** @brief Retrieves the actual data sets */
+	virtual std::string bodyData() const;
+	/** @brief Retrieves specific draw commands for this plot */
+	virtual std::string footerData() const;
+
+private:
+	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
+};
+
+/*********************************************************************************/
+/**
+ * A wrapper for the ROOT TGraphErrors class (2d data and curve-like structures)
+ */
+class GGraph2ED : public GDataCollector2ET<double,double> {
+public:
+	/** @brief The default constructor */
+	GGraph2ED();
+
+	/** @brief A copy constructor */
+	GGraph2ED(const GGraph2ED&);
+
+	/** @brief The destructor */
+	~GGraph2ED();
+
+	/** @brief The assignment operator */
+	const GGraph2ED &operator=(const GGraph2ED&);
 
 	/** @brief Determines whether a scatter plot or a curve is created */
 	void setPlotMode(graphPlotMode);
@@ -375,11 +688,136 @@ private:
 /**
  * A wrapper for ROOT's TH1D class (1-d double data)
  */
+class GHistogram1D : public GDataCollector1T<double> {
+public:
+	/** @brief The default constructor */
+	GHistogram1D(
+		const std::size_t&
+		, const double&
+		, const double&
+	);
+	/** @brief A copy constructor */
+	GHistogram1D(const GHistogram1D&);
+
+	/** @brief The destructor */
+	~GHistogram1D();
+
+	/** @brief The assignment operator */
+	const GHistogram1D &operator=(const GHistogram1D&);
+
+	/** @brief Retrieve specific header settings for this plot */
+	virtual std::string headerData() const;
+	/** @brief Retrieves the actual data sets */
+	virtual std::string bodyData() const;
+	/** @brief Retrieves specific draw commands for this plot */
+	virtual std::string footerData() const;
+
+	/** @brief Retrieve the number of bins in x-direction */
+	std::size_t getNBinsX() const;
+
+	/** @brief Retrieve the lower boundary of the plot */
+	double getMinX() const;
+	/** @brief Retrieve the upper boundary of the plot */
+	double getMaxX() const;
+
+private:
+	GHistogram1D(); ///< The default constructor -- intentionally private and undefined
+
+	std::size_t nBinsX_; ///< The number of bins in the histogram
+
+	double minX_; ///< The lower boundary of the histogram
+	double maxX_; ///< The upper boundary of the histogram
+};
+
+/*********************************************************************************/
+/**
+ * An enum for 2D-drawing options
+ */
+enum tddropt {
+	TDEMPTY = 0
+	, SURFONE = 1
+	, SURFTWOZ = 2
+	, SURFTHREE = 3
+	, SURFFOUR = 4
+	, CONTZ = 5
+	, CONTONE = 6
+	, CONTTWO = 7
+	, CONTTHREE = 8
+	, TEXT = 9
+	, SCAT = 10
+	, BOX = 11
+	, ARR = 12
+	, COLZ = 13
+	, LEGO = 14
+	, LEGOONE = 15
+	, SURFONEPOL = 16
+	, SURFONECYL = 17
+};
 
 /*********************************************************************************/
 /**
  * A wrapper for ROOT's TH2D class (2-d double data)
  */
+class GHistogram2D : public GDataCollector2T<double, double> {
+public:
+	/** @brief The default constructor */
+	GHistogram2D(
+		const std::size_t&
+		, const std::size_t&
+		, const double&
+		, const double&
+		, const double&
+		, const double&
+	);
+	/** @brief A copy constructor */
+	GHistogram2D(const GHistogram2D&);
+
+	/** @brief The destructor */
+	~GHistogram2D();
+
+	/** @brief The assignment operator */
+	const GHistogram2D &operator=(const GHistogram2D&);
+
+	/** @brief Retrieve specific header settings for this plot */
+	virtual std::string headerData() const;
+	/** @brief Retrieves the actual data sets */
+	virtual std::string bodyData() const;
+	/** @brief Retrieves specific draw commands for this plot */
+	virtual std::string footerData() const;
+
+	/** @brief Retrieve the number of bins in x-direction */
+	std::size_t getNBinsX() const;
+	/** @brief Retrieve the number of bins in y-direction */
+	std::size_t getNBinsY() const;
+
+	/** @brief Retrieve the lower boundary of the plot in x-direction */
+	double getMinX() const;
+	/** @brief Retrieve the upper boundary of the plot in x-direction */
+	double getMaxX() const;
+	/** @brief Retrieve the lower boundary of the plot in y-direction */
+	double getMinY() const;
+	/** @brief Retrieve the upper boundary of the plot in y-direction */
+	double getMaxY() const;
+
+	/** @brief Allows to specify 2d-drawing options */
+	void set2DOpt(tddropt);
+	/** @brief Allows to retrieve 2d-drawing options */
+	tddropt get2DOpt() const;
+
+
+private:
+	GHistogram2D(); ///< The default constructor -- intentionally private and undefined
+
+	std::size_t nBinsX_; ///< The number of bins in the x-direction of the histogram
+	std::size_t nBinsY_; ///< The number of bins in the y-direction of the histogram
+
+	double minX_; ///< The lower boundary of the histogram in x-direction
+	double maxX_; ///< The upper boundary of the histogram in x-direction
+	double minY_; ///< The lower boundary of the histogram in y-direction
+	double maxY_; ///< The upper boundary of the histogram in y-direction
+
+	tddropt dropt_; ///< The drawing options for 2-d histograms
+};
 
 /*********************************************************************************/
 /**
@@ -402,7 +840,7 @@ public:
 	~GFunctionPlotter1D();
 
 	/** @brief The assignment operator */
-	GFunctionPlotter1D &operator=(const GFunctionPlotter1D&);
+	const GFunctionPlotter1D &operator=(const GFunctionPlotter1D&);
 
 	/** @brief Allows to set the number of sampling points in x-direction */
 	void setNSamplesX(std::size_t);
@@ -445,7 +883,7 @@ public:
 	~GFunctionPlotter2D();
 
 	/** @brief The assignment operator */
-	GFunctionPlotter2D &operator=(const GFunctionPlotter2D&);
+	const GFunctionPlotter2D &operator=(const GFunctionPlotter2D&);
 
 	/** @brief Allows to set the number of sampling points in x-direction */
 	void setNSamplesX(std::size_t);
@@ -474,8 +912,37 @@ private:
 
 /*********************************************************************************/
 /**
- * A provider of free-form ROOT plots
+ * This class allows to add free-form root-data to the master plot
  */
+class GFreeFormPlotter : public GBasePlotter
+{
+public:
+	/** @brief The default constructor */
+	GFreeFormPlotter();
+	/** @brief A copy constructor */
+	GFreeFormPlotter(const GFreeFormPlotter&);
+	/** @brief The destructor */
+	virtual ~GFreeFormPlotter();
+
+	/** @brief The assignment operator */
+	const GFreeFormPlotter& operator=(const GFreeFormPlotter&);
+
+	/** @brief Retrieve specific header settings for this plot */
+	virtual std::string headerData() const;
+	/** @brief Retrieves the actual data sets */
+	virtual std::string bodyData() const;
+	/** @brief Retrieves specific draw commands for this plot */
+	virtual std::string footerData() const;
+
+	void setHeaderData(const std::string&);
+	void setBodyData(const std::string&);
+	void setFooterData(const std::string&);
+
+private:
+	std::string headerData_; ///< The data to be written into the master plot's header
+	std::string bodyData_; ///< The data to be written into the master plot's body
+	std::string footerData_; ///< The data to be written into the master plot's footer
+};
 
 /*********************************************************************************/
 /**

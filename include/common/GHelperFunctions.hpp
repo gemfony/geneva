@@ -52,6 +52,7 @@
 // Boost headers go here
 #include <boost/thread.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/tuple/tuple.hpp>
 
 #ifndef GHELPERFUNCTIONS_HPP_
 #define GHELPERFUNCTIONS_HPP_
@@ -69,6 +70,10 @@ namespace Gem
 {
 namespace Common
 {
+
+/**************************************************************************************************/
+/** @brief Calculates the mean and the standard deviation for a vector of doubles */
+boost::tuple<double,double> getStandardDeviation(const std::vector<double>&);
 
 /**************************************************************************************************/
 /** @brief This function tries to determine a suitable number of threads for the current architecture */

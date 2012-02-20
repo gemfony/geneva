@@ -249,6 +249,19 @@ demoFunction GFunctionIndividual::getDemoFunction() const {
 
 /********************************************************************************************/
 /**
+ * Allows to cross check the parameter size
+ *
+ * @return The number of doubles stored in this object
+ */
+std::size_t GFunctionIndividual::getParameterSize() const {
+	// Retrieve the parameters
+	std::vector<double> parVec;
+	this->streamline(parVec);
+	return parVec.size();
+}
+
+/********************************************************************************************/
+/**
  * Loads the data of another GFunctionIndividual, camouflaged as a GObject
  *
  * @param cp A copy of another GFunctionIndividual, camouflaged as a GObject
@@ -427,6 +440,7 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& config
 	, minDelta_(GFI_DEF_MINDELTA)
 	, maxDelta_(GFI_DEF_MAXDELTA)
 	, parDim_(GFI_DEF_PARDIM)
+	, parDimLocal_(0)
 	, minVar_(GFI_DEF_MINVAR)
 	, maxVar_(GFI_DEF_MAXVAR)
 	, useConstrainedDoubleCollection_(GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION)
@@ -439,6 +453,29 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& config
  */
 GFunctionIndividualFactory::~GFunctionIndividualFactory()
 { /* nothing */ }
+
+/********************************************************************************************/
+/**
+ * (Re-)Set the dimension of the function
+ */
+void GFunctionIndividualFactory::setParDim(std::size_t parDim) {
+	if(parDim == 0) {
+		raiseException(
+			"In GFunctionIndividualFactory::setParDim(): Error!" << std::endl
+			<< "Dimension of the function is set to 0" << std::endl
+		);
+	}
+
+	parDimLocal_ = parDim;
+}
+
+/********************************************************************************************/
+/**
+ * Extract the minimum and maximum boundaries of the variables
+ */
+boost::tuple<double,double> GFunctionIndividualFactory::getVarBoundaries() const {
+	return boost::tuple<double,double>(minVar_, maxVar_);
+}
 
 /********************************************************************************************/
 /**
@@ -687,14 +724,14 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GFunctionIndivid
 	boost::shared_ptr<GParameterCollectionT<double> > c_ptr;
 	if(useConstrainedDoubleCollection_) {
 		// Set up a collection with dimension values
-		boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(parDim_, minVar_, maxVar_));
+		boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(parDimLocal_?parDimLocal_:parDim_, minVar_, maxVar_));
 		// Randomly initialize
 		gcdc_ptr->randomInit();
 		// Attach to the "parent pointer"
 		c_ptr = gcdc_ptr;
 	} else {
 		// Set up a collection with dimension values, each initialized with a random number in the range [min,max[
-		boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim_, minVar_, maxVar_));
+		boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDimLocal_?parDimLocal_:parDim_, minVar_, maxVar_));
 		// Let the GDoubleCollection know about its desired initialization range
 		gdc_ptr->setInitBoundaries(minVar_, maxVar_);
 		// Attach to the "parent pointer"

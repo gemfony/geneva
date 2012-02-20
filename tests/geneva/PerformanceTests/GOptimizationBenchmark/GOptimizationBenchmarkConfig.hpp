@@ -54,6 +54,8 @@
 namespace Gem {
 namespace Tests {
 
+const std::size_t DEFNOPTBENCHTESTS=10;
+
 /*********************************************************************************/
 /**
  * A class that parses configuration options for the GOptimizationBenchmark test
@@ -68,17 +70,18 @@ public:
 	 * @param resultFile The name of a file to which results should be written
 	 */
 	explicit GOptimizationBenchmarkConfig(const std::string& configFile)
-	: resultFile_("result.C")
-	, parDim_(0)
+		: nTests_(DEFNOPTBENCHTESTS)
+		, parDim_(0)
+		, resultFile_("result.C")
 	{
 		using namespace Gem::Common;
 
 		gpb_.registerFileParameter(
-			"resultFile"
-			, resultFile_
-			, resultFile_
+			"nTests"
+			, nTests_
+			, nTests_
 			, VAR_IS_ESSENTIAL
-			, "The name of a file to which results of the;benchmark should be written"
+			, "The number of tests to be performed for each dimension"
 		);
 
 		// Set up a vector of default values
@@ -99,10 +102,18 @@ public:
 
 		gpb_.registerFileParameter(
 			"dimension"
-			, def_pardim
 			, parDim_
+			, def_pardim
 			, VAR_IS_ESSENTIAL
-			, "Dimensions of the parameterspace to be tested"
+			, "Dimensions of the parameter space to be tested"
+		);
+
+		gpb_.registerFileParameter(
+			"resultFile"
+			, resultFile_
+			, resultFile_
+			, VAR_IS_ESSENTIAL
+			, "The name of a file to which results of the;benchmark should be written"
 		);
 
 		// Read in the configuration file
@@ -129,6 +140,16 @@ public:
 		return parDim_;
 	}
 
+	/*****************************************************************************/
+	/**
+	 * Retrieve the number of tests to be performed for each dimension
+	 *
+	 * @return The number of tests to be performed for each dimension
+	 */
+	std::size_t getNTests() const {
+		return nTests_;
+	}
+
 private:
 	/*****************************************************************************/
 
@@ -136,8 +157,9 @@ private:
 
 	Gem::Common::GParserBuilder gpb_; ///< Handles the actual parsing
 
-	std::string resultFile_; ///< The name of a file to which results should be written
+	std::size_t nTests_; ///< The number of tests to be performed for each dimension
 	std::vector<boost::uint32_t> parDim_;
+	std::string resultFile_; ///< The name of a file to which results should be written
 };
 
 /*********************************************************************************/

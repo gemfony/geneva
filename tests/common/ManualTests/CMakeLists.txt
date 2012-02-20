@@ -4,7 +4,7 @@ ADD_CUSTOM_TARGET ( "common-tests-manual" )
 
 ADD_DEPENDENCIES ( "common-tests-manual"
 	# Add all the available tests targets (EXECUTABLENAMEs) here
-	GROOTProducerTest
+	GPlotDesignerTest
 )
 
-ADD_SUBDIRECTORY ( GROOTProducerTest )
+ADD_SUBDIRECTORY ( GPlotDesignerTest )

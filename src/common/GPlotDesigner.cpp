@@ -244,7 +244,7 @@ GGraph2D::~GGraph2D()
 /**
  * The assignment operator
  */
-GGraph2D & GGraph2D::operator=(const GGraph2D& cp) {
+const GGraph2D & GGraph2D::operator=(const GGraph2D& cp) {
 	// Copy our parent class'es data
 	GDataCollector2T<double,double>::operator=(cp);
 
@@ -295,7 +295,7 @@ std::string GGraph2D::headerData() const {
 
 	header_data
 		<< "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << (comment!=""?comment:"") << std::endl
-		<< "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << (comment!=""?comment:"") << std::endl
+		<< "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
 		<< std::endl;
 
 	return header_data.str();
@@ -392,7 +392,684 @@ std::string GGraph2D::footerData() const {
 	return footer_data.str();
 }
 
+/*****************************************************************************/
+///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * The default constructor
+ */
+GGraph2ED::GGraph2ED()
+	: pM_(DEFPLOTMODE)
+{ /* nothing */ }
 
+/*****************************************************************************/
+/**
+ * A copy constructor
+ */
+GGraph2ED::GGraph2ED(const GGraph2ED& cp)
+	: GDataCollector2ET<double,double>(cp)
+	, pM_(cp.pM_)
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * The destructor
+ */
+GGraph2ED::~GGraph2ED()
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * The assignment operator
+ */
+const GGraph2ED & GGraph2ED::operator=(const GGraph2ED& cp) {
+	// Copy our parent class'es data
+	GDataCollector2ET<double,double>::operator=(cp);
+
+	// and then our own
+	pM_ = cp.pM_;
+
+	return *this;
+}
+
+/*****************************************************************************/
+/**
+ * Determines whether a scatter plot or a curve is created
+ *
+ * @param pM The desired plot mode
+ */
+void GGraph2ED::setPlotMode(graphPlotMode pM) {
+	pM_ = pM;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to retrieve the current plotting mode
+ *
+ * @return The current plot mode
+ */
+graphPlotMode GGraph2ED::getPlotMode() const {
+	return pM_;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve specific header settings for this plot
+ */
+std::string GGraph2ED::headerData() const {
+	std::ostringstream header_data;
+
+	// Set up suitable arrays for the header
+	std::string arrayBaseName =
+			"array_" + boost::lexical_cast<std::string>(id());
+
+	std::string  xArrayName = "x_" + arrayBaseName;
+	std::string exArrayName = "ex_" + arrayBaseName;
+	std::string  yArrayName = "y_" + arrayBaseName;
+	std::string eyArrayName = "ey_" + arrayBaseName;
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		comment = "// " + dsMarker_;
+	}
+
+	header_data
+		<< "  double " <<  xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << (comment!=""?comment:"") << std::endl
+		<< "  double " << exArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+		<< "  double " <<  yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+		<< "  double " << eyArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+		<< std::endl;
+
+	return header_data.str();
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves the actual data sets
+ */
+std::string GGraph2ED::bodyData() const {
+	std::ostringstream body_data;
+
+	// Set up suitable arrays for the header
+	std::string arrayBaseName =
+			"array_" + boost::lexical_cast<std::string>(id());
+
+	std::string  xArrayName = "x_" + arrayBaseName;
+	std::string exArrayName = "ex_" + arrayBaseName;
+	std::string  yArrayName = "y_" + arrayBaseName;
+	std::string eyArrayName = "ey_" + arrayBaseName;
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		body_data << "// " + dsMarker_ << std::endl;
+	}
+
+	// Fill data from the tuples into the arrays
+	std::vector<boost::tuple<double, double, double, double> >::const_iterator it;
+	std::size_t posCounter = 0;
+
+	for(it=data_.begin(); it!=data_.end(); ++it) {
+		body_data
+			<< "  " <<  xArrayName << "[" << posCounter << "] = " << it->get<0>() << ";" << std::endl
+			<< "  " << exArrayName << "[" << posCounter << "] = " << it->get<1>() << ";" << std::endl
+			<< "  " <<  yArrayName << "[" << posCounter << "] = " << it->get<2>() << ";" << std::endl
+			<< "  " << eyArrayName << "[" << posCounter << "] = " << it->get<3>() << ";" << std::endl;
+
+		posCounter++;
+	}
+
+	body_data << std::endl;
+
+	return body_data.str();
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves specific draw commands for this plot
+ */
+std::string GGraph2ED::footerData() const {
+	std::ostringstream footer_data;
+
+	// Set up suitable arrays for the header
+	std::string arrayBaseName =
+			"array_" + boost::lexical_cast<std::string>(id());
+
+	std::string  xArrayName = "x_" + arrayBaseName;
+	std::string exArrayName = "ex_" + arrayBaseName;
+	std::string  yArrayName = "y_" + arrayBaseName;
+	std::string eyArrayName = "ey_" + arrayBaseName;
+
+	std::string graphName = std::string("graph_") + boost::lexical_cast<std::string>(id());
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		footer_data << "// " + dsMarker_ << std::endl;
+	}
+
+	// Check whether custom drawing arguments have been set or whether one
+	// of our generic choices has been selected
+	std::string dA = "";
+	if(drawingArguments() != "") {
+		dA = drawingArguments();
+	} else {
+		if(pM_ == SCATTER) {
+			dA = "AP";
+		} else {
+			dA = "APL";
+		}
+	}
+
+	// Fill the data in our tuple-vector into a ROOT TGraphErrors object
+	footer_data
+		<< "  TGraphErrors *" << graphName << " = new TGraphErrors(" << data_.size() <<", " << xArrayName << ", " << yArrayName << ", " << exArrayName << " ," << eyArrayName << ");" << std::endl
+		<< "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+		<< "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl;
+
+	if(plot_label_ != "") {
+		footer_data
+			<< "  " << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	}  else {
+		footer_data
+			<< "  " << graphName << "->SetTitle(\" \");" << std::endl;
+	}
+
+	footer_data
+		<< "  " << graphName << "->Draw(\""<< dA << "\");" << std::endl
+		<< std::endl;
+
+	return footer_data.str();
+}
+
+/*****************************************************************************/
+///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * The default constructor
+ */
+GHistogram1D::GHistogram1D(
+	const std::size_t& nBinsX
+	, const double& minX
+	, const double& maxX
+)
+	: nBinsX_(nBinsX)
+	, minX_(minX)
+	, maxX_(maxX)
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * A copy constructor
+ *
+ * @param cp a copy of another GHistogram1D object
+ */
+GHistogram1D::GHistogram1D(const GHistogram1D& cp)
+	: GDataCollector1T<double>(cp)
+	, nBinsX_(cp.nBinsX_)
+	, minX_(cp. minX_)
+	, maxX_(cp.maxX_)
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * The destructor
+ */
+GHistogram1D::~GHistogram1D()
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * The assignment operator
+ *
+ * @param cp A copy of another GHistogram1D object
+ */
+const GHistogram1D &GHistogram1D::operator=(const GHistogram1D& cp) {
+	// Copy our parent class'es data ...
+	GDataCollector1T<double>::operator=(cp);
+
+	// ... and then our local data
+	nBinsX_ = cp.nBinsX_;
+	minX_ = cp. minX_;
+	maxX_ = cp.maxX_;
+
+	return *this;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve specific header settings for this plot
+ */
+std::string GHistogram1D::headerData() const {
+	std::ostringstream header_data;
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		comment = "// " + dsMarker_;
+	}
+
+	std::string histName = "hist_" + boost::lexical_cast<std::string>(id());
+
+	header_data
+		<< "  TH1D *" << histName << " = new TH1D(\"" << histName << "\", \"" << histName << "\"," << nBinsX_ << ", " << minX_ << ", " << maxX_ << ");" << (comment!=""?comment:"") << std::endl
+		<< std::endl;
+
+	return header_data.str();
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves the actual data sets
+ */
+std::string GHistogram1D::bodyData() const {
+	std::ostringstream body_data;
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		comment = "// " + dsMarker_;
+	} else {
+		comment = "";
+	}
+
+	std::string histName = "hist_" + boost::lexical_cast<std::string>(id());
+
+	std::vector<double>::const_iterator it;
+	std::size_t posCounter = 0;
+	for(it=data_.begin(); it!=data_.end(); ++it) {
+		body_data
+			<< "  " << histName << "->Fill(" << *it << ");" << (posCounter==0?comment:("")) << std::endl;
+		posCounter++;
+	}
+
+	body_data << std::endl;
+
+	return body_data.str();
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves specific draw commands for this plot
+ */
+std::string GHistogram1D::footerData() const {
+	std::ostringstream footer_data;
+
+	std::string histName = "hist_" + boost::lexical_cast<std::string>(id());
+
+	if(plot_label_ != "") {
+		footer_data
+			<< "  " << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	}  else {
+		footer_data
+			<< "  " << histName << "->SetTitle(\" \");" << std::endl;
+	}
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		footer_data << "// " + dsMarker_ << std::endl;
+	}
+
+	// Check whether custom drawing arguments have been set
+	std::string dA = "";
+	if(drawingArguments() != "") {
+		dA = drawingArguments();
+	}
+
+	footer_data
+	    << "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	    << "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+		<< "  " << histName << "->Draw(\""<< dA << "\");" << std::endl
+		<< std::endl;
+
+	return footer_data.str();
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve the number of bins in x-direction
+ *
+ * @return The number of bins in x-direction
+ */
+std::size_t GHistogram1D::getNBinsX() const {
+	return nBinsX_;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve the lower boundary of the plot
+ *
+ * @return The lower boundary of the plot
+ */
+double GHistogram1D::getMinX() const {
+	return minX_;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve the upper boundary of the plot
+ *
+ * @return The upper boundary of the plot
+ */
+double GHistogram1D::getMaxX() const {
+	return maxX_;
+}
+
+/*****************************************************************************/
+///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * The default constructor
+ */
+GHistogram2D::GHistogram2D(
+	const std::size_t& nBinsX
+	, const std::size_t& nBinsY
+	, const double& minX
+	, const double& maxX
+	, const double& minY
+	, const double& maxY
+)
+	: nBinsX_(nBinsX)
+	, nBinsY_(nBinsY)
+	, minX_(minX)
+	, maxX_(maxX)
+	, minY_(minY)
+	, maxY_(maxY)
+	, dropt_(TDEMPTY)
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * A copy constructor
+ *
+ * @param cp a copy of another GHistogram2D object
+ */
+GHistogram2D::GHistogram2D(const GHistogram2D& cp)
+	: GDataCollector2T<double, double>(cp)
+	, nBinsX_(cp.nBinsX_)
+	, nBinsY_(cp.nBinsY_)
+	, minX_(cp. minX_)
+	, maxX_(cp.maxX_)
+	, minY_(cp. minY_)
+	, maxY_(cp.maxY_)
+	, dropt_(cp.dropt_)
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * The destructor
+ */
+GHistogram2D::~GHistogram2D()
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * The assignment operator
+ *
+ * @param cp A copy of another GHistogram2D object
+ */
+const GHistogram2D &GHistogram2D::operator=(const GHistogram2D& cp) {
+	// Copy our parent class'es data ...
+	GDataCollector2T<double,double>::operator=(cp);
+
+	// ... and then our local data
+	nBinsX_ = cp.nBinsX_;
+	nBinsY_ = cp.nBinsY_;
+	minX_ = cp. minX_;
+	maxX_ = cp.maxX_;
+	minY_ = cp. minY_;
+	maxY_ = cp.maxY_;
+	dropt_ = cp.dropt_;
+
+	return *this;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve specific header settings for this plot
+ */
+std::string GHistogram2D::headerData() const {
+	std::ostringstream header_data;
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		comment = "// " + dsMarker_;
+	}
+
+	std::string histName = "hist_" + boost::lexical_cast<std::string>(id());
+
+	header_data
+		<< "  TH2D *"
+		<< histName
+		<< " = new TH2D(\""
+		<< histName
+		<< "\", \""
+		<< histName
+		<< "\","
+		<< nBinsX_
+		<< ", "
+		<< minX_
+		<< ", "
+		<< maxX_
+		<< ","
+		<< nBinsY_
+		<< ", "
+		<< minY_
+		<< ", "
+		<< maxY_
+		<< ");"
+		<< (comment!=""?comment:"")
+		<< std::endl
+		<< std::endl;
+
+	return header_data.str();
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves the actual data sets
+ */
+std::string GHistogram2D::bodyData() const {
+	std::ostringstream body_data;
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		comment = "// " + dsMarker_;
+	} else {
+		comment = "";
+	}
+
+	std::string histName = "hist_" + boost::lexical_cast<std::string>(id());
+
+	std::vector<boost::tuple<double,double> >::const_iterator it;
+	std::size_t posCounter = 0;
+	for(it=data_.begin(); it!=data_.end(); ++it) {
+		body_data
+			<< "  " << histName << "->Fill(" << boost::get<0>(*it) << ", " << boost::get<1>(*it) << ");" << (posCounter==0?comment:("")) << std::endl;
+		posCounter++;
+	}
+
+	body_data << std::endl;
+
+	return body_data.str();
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves specific draw commands for this plot
+ */
+std::string GHistogram2D::footerData() const {
+	std::ostringstream footer_data;
+
+	std::string histName = "hist_" + boost::lexical_cast<std::string>(id());
+
+	if(plot_label_ != "") {
+		footer_data
+			<< "  " << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	}  else {
+		footer_data
+			<< "  " << histName << "->SetTitle(\" \");" << std::endl;
+	}
+
+	std::string comment;
+	if(dsMarker_ != "") {
+		footer_data << "// " + dsMarker_ << std::endl;
+	}
+
+	// Check whether custom drawing arguments have been set
+	std::string dA = "";
+	if(drawingArguments() != "") {
+		dA = drawingArguments();
+	} else {
+		switch(dropt_) {
+		case TDEMPTY:
+			dA = "";
+			break;
+
+		case SURFONE:
+			dA = "SURF1";
+			break;
+
+		case SURFTWOZ:
+			dA = "SURF2Z";
+			break;
+
+		case SURFTHREE:
+			dA = "SURF3";
+			break;
+
+		case SURFFOUR:
+			dA = "SURF4";
+			break;
+
+		case CONTZ:
+			dA = "CONTZ";
+			break;
+
+		case CONTONE:
+			dA = "CONT1";
+			break;
+
+		case CONTTWO:
+			dA = "CONT2";
+			break;
+
+		case CONTTHREE:
+			dA = "CONT3";
+			break;
+
+		case TEXT:
+			dA = "TEXT";
+			break;
+
+		case SCAT:
+			dA = "SCAT";
+			break;
+
+		case BOX:
+			dA = "BOX";
+			break;
+
+		case ARR:
+			dA = "ARR";
+			break;
+
+		case COLZ:
+			dA = "COLZ";
+			break;
+
+		case LEGO:
+			dA = "LEGO";
+			break;
+
+		case LEGOONE:
+			dA = "LEGO1";
+			break;
+
+		case SURFONEPOL:
+			dA = "SURF1POL";
+			break;
+
+		case SURFONECYL:
+			dA = "SURF1CYL";
+			break;
+
+		default:
+		{
+			raiseException(
+				"In GHistogram2D::footerData(): Error!" << std::endl
+				<< "Encountered unknown drawing option " << dropt_ << std::endl
+			);
+		}
+		break;
+
+		}
+	}
+
+	footer_data
+	    << "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	    << "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+		<< "  " << histName << "->Draw(\""<< dA << "\");" << std::endl
+		<< std::endl;
+
+	return footer_data.str();
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve the number of bins in x-direction
+ *
+ * @return The number of bins in x-direction
+ */
+std::size_t GHistogram2D::getNBinsX() const {
+	return nBinsX_;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve the number of bins in y-direction
+ *
+ * @return The number of bins in y-direction
+ */
+std::size_t GHistogram2D::getNBinsY() const {
+	return nBinsY_;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve the lower boundary of the plot in x-direction
+ *
+ * @return The lower boundary of the plot in x-direction
+ */
+double GHistogram2D::getMinX() const {
+	return minX_;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve the upper boundary of the plot in x-direction
+ *
+ * @return The upper boundary of the plot in x-direction
+ */
+double GHistogram2D::getMaxX() const {
+	return maxX_;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve the lower boundary of the plot in y-direction
+ *
+ * @return The lower boundary of the plot in y-direction
+ */
+double GHistogram2D::getMinY() const {
+	return minY_;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve the upper boundary of the plot in y-direction
+ *
+ * @return The upper boundary of the plot in y-direction
+ */
+double GHistogram2D::getMaxY() const {
+	return maxY_;
+}
 
 /*****************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////
@@ -437,7 +1114,7 @@ GFunctionPlotter1D::~GFunctionPlotter1D()
  *
  * @param cp A reference to another GFunctionPlotter1D object
  */
-GFunctionPlotter1D & GFunctionPlotter1D::operator=(const GFunctionPlotter1D& cp) {
+const GFunctionPlotter1D & GFunctionPlotter1D::operator=(const GFunctionPlotter1D& cp) {
 	// Copy our parent class'es data
 	GBasePlotter::operator=(cp);
 
@@ -588,7 +1265,7 @@ GFunctionPlotter2D::~GFunctionPlotter2D()
  *
  * @param cp A reference to another GFunctionPlotter2D object
  */
-GFunctionPlotter2D & GFunctionPlotter2D::operator=(const GFunctionPlotter2D& cp) {
+const GFunctionPlotter2D & GFunctionPlotter2D::operator=(const GFunctionPlotter2D& cp) {
 	// Copy our parent class'es data
 	GBasePlotter::operator=(cp);
 
@@ -728,6 +1405,112 @@ std::string GFunctionPlotter2D::footerData() const {
 	return footer_data.str();
 }
 
+
+/*****************************************************************************/
+///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * The default constructor
+ */
+GFreeFormPlotter::GFreeFormPlotter()
+	: headerData_("")
+	, bodyData_("")
+	, footerData_("")
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * A copy constructor
+ *
+ * @param cp A copy of another GFreeFormPlotter object
+ */
+GFreeFormPlotter::GFreeFormPlotter(const GFreeFormPlotter& cp)
+	: GBasePlotter(cp)
+	, headerData_(cp.headerData_)
+	, bodyData_(cp.bodyData_)
+	, footerData_(cp.footerData_)
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * The destructor
+ */
+GFreeFormPlotter::~GFreeFormPlotter()
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * The assignment operator
+ *
+ * @param cp A copy of another GFreeFormPlotter object
+ */
+const GFreeFormPlotter& GFreeFormPlotter::operator=(const GFreeFormPlotter& cp)
+{
+	// Copy our parent class'es data ...
+	GBasePlotter::operator=(cp);
+
+	// ... and then our local data
+	headerData_ = cp.headerData_;
+	bodyData_ = cp.bodyData_;
+	footerData_ = cp.footerData_;
+
+	return *this;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieve specific header settings for this plot
+ *
+ * @return A string holding the header data
+ */
+std::string GFreeFormPlotter::headerData() const {
+	return headerData_;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves the actual data sets
+ *
+ * @return A string holding the body data
+ */
+std::string GFreeFormPlotter::bodyData() const {
+	return bodyData_;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves specific draw commands for this plot
+ *
+ * @return A string holding the footer data
+ */
+std::string GFreeFormPlotter::footerData() const {
+	return footerData_;
+}
+
+/*****************************************************************************/
+/**
+ *
+ */
+void GFreeFormPlotter::setHeaderData(const std::string& hD) {
+	headerData_ = hD;
+}
+
+/*****************************************************************************/
+/**
+ *
+ */
+void GFreeFormPlotter::setBodyData(const std::string& bD){
+	bodyData_ = bD;
+}
+
+/*****************************************************************************/
+/**
+ *
+ */
+void GFreeFormPlotter::setFooterData(const std::string& fD) {
+	footerData_ = fD;
+}
+
 /*****************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////
 /*****************************************************************************/
@@ -779,7 +1562,12 @@ std::string GPlotDesigner::plot() const {
 
 	result
 		<< "{" << std::endl
-		<<    staticHeader();
+		<<    staticHeader()
+		<< std::endl;
+
+	// Plot all body sections up to the maximum allowed number
+	result << "  //===================  Header Section ====================" << std::endl
+		   << std::endl;
 
 	// Plot all headers up to the maximum allowed number
 	std::size_t nPlots = 0;
