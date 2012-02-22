@@ -81,7 +81,7 @@ int main(int argc, char **argv){
 	boost::uint32_t nProcessingUnits;
 	std::size_t nNeighborhoods;
 	std::size_t nNeighborhoodMembers;
-	demoFunction df;
+	solverFunction df;
 	double cPersonal;
 	double cNeighborhood;
 	double cGlobal;

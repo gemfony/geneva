@@ -69,7 +69,7 @@ namespace Geneva
 /**
  * This enum denotes the possible demo function types
  */
-enum demoFunction {
+enum solverFunction {
 	  PARABOLA=0
 	, NOISYPARABOLA=1
 	, ROSENBROCK=2
@@ -79,14 +79,14 @@ enum demoFunction {
 	, SALOMON=6
 };
 
-const demoFunction MAXDEMOFUNCTION=SALOMON;
+const solverFunction MAXDEMOFUNCTION=SALOMON;
 
-// Make sure demoFunction can be streamed
-/** @brief Puts a Gem::Geneva::demoFunction into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::demoFunction&);
+// Make sure solverFunction can be streamed
+/** @brief Puts a Gem::Geneva::solverFunction into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::solverFunction&);
 
-/** @brief Reads a Gem::Geneva::demoFunction from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::demoFunction&);
+/** @brief Reads a Gem::Geneva::solverFunction from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::solverFunction&);
 
 /************************************************************************************************/
 // A number of default settings for the factory
@@ -110,7 +110,7 @@ const double GFI_DEF_MINVAR = -10.;
 const double GFI_DEF_MAXVAR = 10.;
 const bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
 const boost::uint32_t GO_DEF_PROCESSINGCYCLES = 1;
-const demoFunction GO_DEF_EVALFUNCTION = boost::numeric_cast<demoFunction>(0);
+const solverFunction GO_DEF_EVALFUNCTION = boost::numeric_cast<solverFunction>(0);
 
 /************************************************************************************************/
 /**
@@ -135,7 +135,7 @@ public:
 	/** @brief The default constructor */
 	GFunctionIndividual();
 	/** @brief Initialization with the desired demo function */
-	GFunctionIndividual(const demoFunction&);
+	GFunctionIndividual(const solverFunction&);
 	/** @brief A standard copy constructor */
 	GFunctionIndividual(const GFunctionIndividual&);
 	/** @brief The standard destructor */
@@ -162,9 +162,9 @@ public:
 	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
 
 	/** @brief Allows to set the demo function */
-	void setDemoFunction(demoFunction);
+	void setDemoFunction(solverFunction);
 	/** @brief Allows to retrieve the current demo function */
-	demoFunction getDemoFunction() const;
+	solverFunction getDemoFunction() const;
 
 	/** @brief Allows to cross check the parameter size */
 	std::size_t getParameterSize() const;
@@ -176,7 +176,7 @@ public:
 	 * @param df The id of the desired function individual
 	 * @return A function individual of the desired type
 	 */
-	static boost::shared_ptr<GFunctionIndividual> getFunctionIndividual(const demoFunction& df) {
+	static boost::shared_ptr<GFunctionIndividual> getFunctionIndividual(const solverFunction& df) {
 		// Set up a single function individual, depending on the expected function type
 		switch(df) {
 		case PARABOLA:
@@ -214,7 +214,7 @@ public:
 	 * @param df The id of the desired function individual
 	 * @return A string representing the name of the current function
 	 */
-	static std::string getStringRepresentation(const demoFunction& df) {
+	static std::string getStringRepresentation(const solverFunction& df) {
 		std::string result;
 
 		// Set up a single function individual, depending on the expected function type
@@ -253,7 +253,7 @@ public:
 	 * @param df The id of the desired function individual
 	 * @return A string suitable for plotting a 2D version of this function with the ROOT analysis framework
 	 */
-	static std::string get2DROOTFunction(const demoFunction& df) {
+	static std::string get2DROOTFunction(const solverFunction& df) {
 		std::string result;
 
 		// Set up a single function individual, depending on the expected function type
@@ -291,7 +291,7 @@ public:
 	 * @param df The id of the desired function individual
 	 * @return The x-coordinate(s) of the global optimium in 2D
 	 */
-	static std::vector<double> getXMin(const demoFunction& df) {
+	static std::vector<double> getXMin(const solverFunction& df) {
 		std::vector<double> result;
 
 		// Set up a single function individual, depending on the expected function type
@@ -331,7 +331,7 @@ public:
 	 * @param df The id of the desired function individual
 	 * @return The y-coordinate(s) of the global optimium in 2D
 	 */
-	static std::vector<double> getYMin(const demoFunction& df) {
+	static std::vector<double> getYMin(const solverFunction& df) {
 		std::vector<double> result;
 
 		// Set up a single function individual, depending on the expected function type
@@ -375,7 +375,7 @@ protected:
 	/********************************************************************************************/
 
 private:
-	demoFunction demoFunction_; ///< Specifies which demo function should be used
+	solverFunction demoFunction_; ///< Specifies which demo function should be used
 };
 
 /************************************************************************************************/

@@ -108,7 +108,7 @@ public:
 	 * @param df The id of the evaluation function
 	 * @param summary The stream to which information should be written
 	 */
-	progressMonitor(const Gem::Geneva::demoFunction& df)
+	progressMonitor(const Gem::Geneva::solverFunction& df)
 		: xDimProgress_(DEFAULTXDIMPROGRESS)
 		, yDimProgress_(DEFAULTYDIMPROGRESS)
 		, df_(df)
@@ -606,7 +606,7 @@ private:
 
 	boost::uint16_t xDimProgress_; ///< The dimension of the canvas in x-direction
 	boost::uint16_t yDimProgress_; ///< The dimension of the canvas in y-direction
-	demoFunction df_; ///< The id of the evaluation function
+	solverFunction df_; ///< The id of the evaluation function
 	bool followProgress_; ///< Indicates whether a snapshot of the current individuals should be taken whenever the infoFunction is called
 	std::string snapshotBaseName_; ///< The base name of the snapshot file
 	double minX_, maxX_; ///< Minimal and maximal x values for snapshots

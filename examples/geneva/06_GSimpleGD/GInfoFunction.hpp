@@ -84,7 +84,7 @@ public:
 	 * @param df The id of the evaluation function
 	 * @param summary The stream to which information should be written
 	 */
-	optimizationMonitor(const Gem::Geneva::demoFunction& df, std::ostream& summary)
+	optimizationMonitor(const Gem::Geneva::solverFunction& df, std::ostream& summary)
 		: summary_(summary)
 		, xDim_(DEFAULTXDIM)
 		, yDim_(DEFAULTYDIM)
@@ -611,7 +611,7 @@ private:
 	std::ostream& summary_; ///< The stream to which information is written
 	boost::uint16_t xDim_; ///< The dimension of the canvas in x-direction
 	boost::uint16_t yDim_; ///< The dimension of the canvas in y-direction
-	demoFunction df_; ///< The id of the evaluation function
+	solverFunction df_; ///< The id of the evaluation function
 	bool followProgress_; ///< Indicates whether a snapshot of the current individuals should be taken whenever the infoFunction is called
 	bool trackParentRelations_; ///< Indicates whether the relationship to parent individuals should be monitored in snapshots
 	bool drawArrows_; ///< Indicates whether arrows should be drawn from old parents to their children

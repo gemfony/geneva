@@ -43,13 +43,13 @@ namespace Geneva
 
 /********************************************************************************************/
 /**
- * Puts a Gem::Geneva::demoFunction item into a stream
+ * Puts a Gem::Geneva::solverFunction item into a stream
  *
  * @param o The ostream the item should be added to
  * @param ur the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::demoFunction& ur) {
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::solverFunction& ur) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(ur);
 	o << tmp;
 	return o;
@@ -57,20 +57,20 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::demoFunction& ur) {
 
 /********************************************************************************************/
 /**
- * Reads a Gem::Geneva::demoFunction item from a stream
+ * Reads a Gem::Geneva::solverFunction item from a stream
  *
  * @param i The stream the item should be read from
  * @param ur The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::demoFunction& ur) {
+std::istream& operator>>(std::istream& i, Gem::Geneva::solverFunction& ur) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	ur = boost::numeric_cast<Gem::Geneva::demoFunction>(tmp);
+	ur = boost::numeric_cast<Gem::Geneva::solverFunction>(tmp);
 #else
-	ur = static_cast<Gem::Geneva::demoFunction>(tmp);
+	ur = static_cast<Gem::Geneva::solverFunction>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -90,7 +90,7 @@ GFunctionIndividual::GFunctionIndividual()
  *
  * @param dF The id if the demo function
  */
-GFunctionIndividual::GFunctionIndividual(const demoFunction& dF)
+GFunctionIndividual::GFunctionIndividual(const solverFunction& dF)
 	: demoFunction_(dF)
 { /* nothing */ }
 
@@ -214,7 +214,7 @@ void GFunctionIndividual::addConfigurationOptions (
 	comment += "5: Schwefel;";
 	comment += "6: Salomon;";
 	if(showOrigin) comment += "[GFunctionIndividual]";
-	gpb.registerFileParameter<demoFunction>(
+	gpb.registerFileParameter<solverFunction>(
 		"demoFunction" // The name of the variable
 		, GO_DEF_EVALFUNCTION // The default value
 		, boost::bind(
@@ -233,7 +233,7 @@ void GFunctionIndividual::addConfigurationOptions (
  *
  * @param dF The id if the demo function
  */
-void GFunctionIndividual::setDemoFunction(demoFunction dF) {
+void GFunctionIndividual::setDemoFunction(solverFunction dF) {
 	demoFunction_ = dF;
 }
 
@@ -243,7 +243,7 @@ void GFunctionIndividual::setDemoFunction(demoFunction dF) {
  *
  * @return The id of the currently selected demo function
  */
-demoFunction GFunctionIndividual::getDemoFunction() const {
+solverFunction GFunctionIndividual::getDemoFunction() const {
 	return demoFunction_;
 }
 

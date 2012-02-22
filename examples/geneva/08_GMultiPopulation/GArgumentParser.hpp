@@ -152,7 +152,7 @@ namespace Gem
 		  , std::size_t& parDim
 		  , double& minVar
 		  , double& maxVar
-		  , demoFunction& df
+		  , solverFunction& df
 	);
 
   } /* namespace Geneva */

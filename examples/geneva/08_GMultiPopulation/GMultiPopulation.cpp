@@ -87,7 +87,7 @@ int main(int argc, char **argv){
   boost::uint32_t processingCycles;
   bool returnRegardless;
   boost::uint32_t nProcessingUnits;
-  demoFunction df;
+  solverFunction df;
   boost::uint32_t adaptionThreshold;
   double sigma;
   double sigmaSigma;

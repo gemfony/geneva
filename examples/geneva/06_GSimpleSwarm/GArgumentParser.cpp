@@ -141,7 +141,7 @@ namespace Gem
 	   , std::size_t& parDim
 	   , double& minVar
 	   , double& maxVar
-	   , demoFunction& df
+	   , solverFunction& df
 	   , double& cPersonal
 	   , double& cNeighborhood
 	   , double& cGlobal
@@ -239,7 +239,7 @@ namespace Gem
 					<< std::endl;
 			return false;
 		}
-		df=(demoFunction)evalFunction;
+		df=(solverFunction)evalFunction;
 
 	
 		if(verbose){

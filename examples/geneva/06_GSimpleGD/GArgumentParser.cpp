@@ -151,7 +151,7 @@ bool parseConfigFile(
 		, std::size_t& parDim
 		, double& minVar
 		, double& maxVar
-		, demoFunction& df
+		, solverFunction& df
 ) {
 	boost::uint16_t evalFunction = 0;
 	bool verbose = true;
@@ -225,7 +225,7 @@ bool parseConfigFile(
 					<< std::endl;
 			return false;
 		}
-		df=(demoFunction)evalFunction;
+		df=(solverFunction)evalFunction;
 
 		if (verbose) {
 			std::cout << std::endl
