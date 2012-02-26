@@ -138,10 +138,10 @@ public:
 	/**
 	 * The standard assignment operator.
 	 *
-	 * @param cp A copy of another GDoubleCollection object
+	 * @param cp A copy of another GNumT<T> object
 	 * @return A constant reference to this object
 	 */
-	const GNumT& operator=(const GNumT<T>& cp){
+	const GNumT<T>& operator=(const GNumT<T>& cp){
 		GNumT<T>::load_(&cp);
 		return *this;
 	}

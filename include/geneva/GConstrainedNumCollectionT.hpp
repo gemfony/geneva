@@ -97,7 +97,7 @@ public:
 	/**
 	 * Initialize the lower and upper boundaries for data members of this class
 	 *
-	 * @param size Zje desired size of the vector
+	 * @param size The desired size of the vector
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
@@ -106,13 +106,13 @@ public:
 			, const num_type& lowerBoundary
 			, const num_type& upperBoundary
 	)
-		: GParameterCollectionT<num_type> ()
+		: GParameterCollectionT<num_type> (size, lowerBoundary)
 		, lowerBoundary_(lowerBoundary)
 		, upperBoundary_(upperBoundary)
 	{
 		// Naturally the upper boundary should be > the lower boundary
 		if(lowerBoundary_ > upperBoundary_) {
-			std:: cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(lower,upper):" << std::endl
+			std:: cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, lower,upper):" << std::endl
 					   << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
 					   << "upperBoundary_ = " << upperBoundary_ << std::endl;
 			std::terminate();
@@ -120,7 +120,47 @@ public:
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < -GConstrainedValueLimit<num_type>::max() || upperBoundary > GConstrainedValueLimit<num_type>::max()) {
-			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(lower,upper):" << std::endl
+			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, lower,upper):" << std::endl
+					  << "lower and/or upper limit outside of allowed value range:" << std::endl
+					  << "lowerBoundary = " << lowerBoundary << std::endl
+					  << "upperBoundary = " << upperBoundary << std::endl
+					  << "-GConstrainedValueLimit<num_type>::max() = " << -GConstrainedValueLimit<num_type>::max() << std::endl
+					  << " GConstrainedValueLimit<num_type>::max() = " <<  GConstrainedValueLimit<num_type>::max();
+			std::terminate();
+		}
+	}
+
+	/******************************************************************/
+	/**
+	 * Initialize the lower and upper boundaries for data members of this class
+	 * and assign a fixed value to each position
+	 *
+	 * @param size The desired size of the vector
+	 * @param val The value to be assigned to each position
+	 * @param lowerBoundary The lower boundary of the value range
+	 * @param upperBoundary The upper boundary of the value range
+	 */
+	GConstrainedNumCollectionT(
+			const std::size_t size
+			, const num_type& val
+			, const num_type& lowerBoundary
+			, const num_type& upperBoundary
+	)
+		: GParameterCollectionT<num_type> (size, lowerBoundary)
+		, lowerBoundary_(lowerBoundary)
+		, upperBoundary_(upperBoundary)
+	{
+		// Naturally the upper boundary should be > the lower boundary
+		if(lowerBoundary_ > upperBoundary_) {
+			std:: cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
+					   << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+					   << "upperBoundary_ = " << upperBoundary_ << std::endl;
+			std::terminate();
+		}
+
+		// We might have constraints regarding the allowed boundaries. Cross-check
+		if(lowerBoundary < -GConstrainedValueLimit<num_type>::max() || upperBoundary > GConstrainedValueLimit<num_type>::max()) {
+			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
 					  << "lower and/or upper limit outside of allowed value range:" << std::endl
 					  << "lowerBoundary = " << lowerBoundary << std::endl
 					  << "upperBoundary = " << upperBoundary << std::endl
@@ -129,8 +169,14 @@ public:
 			std::terminate();
 		}
 
-		for(std::size_t i=0; i<size; i++) {
-			this->push_back(lowerBoundary);
+		// Check that assigned value is in the allowed range
+		if(val<lowerBoundary || val > upperBoundary) {
+			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
+					  << "Assigned value is outside of allowed value range:" << std::endl
+					  << "val = " << val << std::endl
+					  << "lowerBoundary = " << lowerBoundary << std::endl
+					  << "upperBoundary = " << upperBoundary << std::endl;
+			std::terminate();
 		}
 	}
 

@@ -89,20 +89,6 @@ public:
 
 	/******************************************************************/
 	/**
-	 * Allows to specify the boundaries for random initialization
-	 *
-	 * @param min The lower boundary for random entries
-	 * @param max The upper boundary for random entries
-	 */
-	GFPNumCollectionT(
-			const fp_type& min
-			, const fp_type& max
-	)
-		: GNumCollectionT<fp_type> (min, max)
-	{ /* nothing */ }
-
-	/******************************************************************/
-	/**
 	 * Initialization with a number of random values in a given range
 	 *
 	 * @param nval The amount of random values
@@ -114,10 +100,33 @@ public:
 			, const fp_type& min
 			, const fp_type& max
 	)
-		: GNumCollectionT<fp_type>(min, max)
+		: GNumCollectionT<fp_type>(nval, min, min, max) // The vector is preset to nval entries with value "min"
 	{
-		for(std::size_t i= 0; i<nval; i++) this->push_back(this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(min,max));
+		// Assign random values to each position
+		typename GFPNumCollectionT<fp_type>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			*it = this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(min,max);
+		}
 	}
+
+	/******************************************************************/
+	/**
+	 * Initialization with a number of items of predefined value. We
+	 * enforce setting of the lower and upper boundaries for random initialization,
+	 * as these double up as the preferred value range in some optimization algorithms,
+	 * such as swarm algorithms.
+	 *
+	 * @param nval The number of variables to be stored in the collection
+	 * @param val  The value to be used for their initialization
+	 */
+	GFPNumCollectionT(
+		const std::size_t& nval
+		, const fp_type& val
+		, const fp_type& min
+		, const fp_type& max
+	)
+		: GNumCollectionT<fp_type>(nval, val, min, max)
+	{ /* nothing */ }
 
 	/******************************************************************/
 	/**

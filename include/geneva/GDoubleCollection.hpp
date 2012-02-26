@@ -75,7 +75,18 @@ public:
 	/** @brief The copy constructor */
 	GDoubleCollection(const GDoubleCollection&);
 	/** @brief Initialization with a number of random values in a given range */
-	GDoubleCollection(const std::size_t&, const double&, const double&);
+	GDoubleCollection(
+			const std::size_t&
+			, const double&
+			, const double&
+	);
+	/** @brief Initialization with a number of predefined values in all positions */
+	GDoubleCollection(
+			const std::size_t&
+			, const double&
+			, const double&
+			, const double&
+	);
 	/** @brief The destructor */
 	virtual ~GDoubleCollection();
 

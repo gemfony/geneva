@@ -63,6 +63,18 @@ namespace Geneva
 
   /**********************************************************************/
   /**
+   * Initializes the class with a set of nval variables of identical
+   * value
+   *
+   * @param nval The size of the collection
+   * @param val  The value to be assigned to each position
+   */
+  GBooleanCollection::GBooleanCollection(const std::size_t& nval, const bool& val)
+    : GParameterCollectionT<bool>(nval, val)
+  { /* nothing */ }
+
+  /**********************************************************************/
+  /**
    * Initializes the class with nval random bits, of which probability percent
    * have the value true
    *

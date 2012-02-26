@@ -20,13 +20,15 @@
 					<folderInfo id="0.864464109." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.1092273675" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.36384687" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
-							<builder arguments="-C ${ProjDirPath}/build -j 4" buildPath="${workspace_loc:/Geneva/build}" command="make" id="cdt.managedbuild.target.gnu.builder.base.502196467" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<builder arguments="-C ${ProjDirPath}/build -j 4" buildPath="${workspace_loc:/Geneva/build}" command="make" id="cdt.managedbuild.target.gnu.builder.base.502196467" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="build"/>
+								</outputEntries>
+							</builder>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1178202823" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.641310008" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.include.paths.928488775" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GenEvA/include}&quot;"/>
 									<listOptionValue builtIn="false" value="/opt/boost143/include"/>
-									<listOptionValue builtIn="false" value="/opt/boost143/include/boost"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.105703412" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>

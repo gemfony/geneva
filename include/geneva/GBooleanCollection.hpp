@@ -83,6 +83,8 @@ namespace Geneva
     GBooleanCollection();
     /** @brief Random initialization with a given number of values */
     explicit GBooleanCollection(const std::size_t&);
+    /** @brief Initialization with a given number of items of defined value */
+    GBooleanCollection(const std::size_t&, const bool&);
     /** @brief Random initialization with a given number of values of
      * a certain probability structure */
     GBooleanCollection(const std::size_t&, const double&);

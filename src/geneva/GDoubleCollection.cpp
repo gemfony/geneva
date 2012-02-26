@@ -54,8 +54,30 @@ GDoubleCollection::GDoubleCollection()
  * @param min The minimum random value
  * @param max The maximum random value
  */
-GDoubleCollection::GDoubleCollection(const std::size_t& nval, const double& min, const double& max)
+GDoubleCollection::GDoubleCollection(
+		const std::size_t& nval
+		, const double& min
+		, const double& max
+)
 	: GFPNumCollectionT<double>(nval, min, max)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * Initialization with a number of predefined values in all positions
+ *
+ * @param nval The amount of random values
+ * @param val The predefined value to be assigned to all positions
+ * @param min The minimum random value
+ * @param max The maximum random value
+ */
+GDoubleCollection::GDoubleCollection(
+		const std::size_t& nval
+		, const double& val
+		, const double& min
+		, const double& max
+)
+	: GFPNumCollectionT<double>(nval, val, min, max)
 { /* nothing */ }
 
 /*******************************************************************************************/

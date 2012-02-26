@@ -82,8 +82,7 @@ class GConstrainedFPNumCollectionT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GConstrainedNumCollectionT",	boost::serialization::base_object<GConstrainedNumCollectionT<fp_type> >(*this))
-		   & BOOST_SERIALIZATION_NVP(upper_closed_);
+		ar & make_nvp("GConstrainedNumCollectionT",	boost::serialization::base_object<GConstrainedNumCollectionT<fp_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -96,7 +95,8 @@ public:
 
 	/******************************************************************/
 	/**
-	 * Initialize the lower and upper boundaries for data members of this class
+	 * Initialize the lower and upper boundaries for data members of this class.
+	 * Then set all positions to random values.
 	 *
 	 * @param size The desired size of the collection
 	 * @param lowerBoundary The lower boundary for data members
@@ -107,24 +107,33 @@ public:
 			, const fp_type& lowerBoundary
 			, const fp_type& upperBoundary
 	)
-		: GConstrainedNumCollectionT<fp_type> (size, lowerBoundary, upperBoundary)
-		, upper_closed_(fp_type(0))
+		: GConstrainedNumCollectionT<fp_type> (size, lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary)) // Note that we define the upper boundary as "open"
 	{
-		// Do some error checking.
-
-		// The following is a stronger requirement than used in our
-		// parent class, as the "real" upper boundary is defined by "upper_closed_".
-		if(lowerBoundary >= upperBoundary) {
-			raiseException(
-					"In GConstrainedFPNumCollectionT<fp_type>::GConstrainedFPNumCollectionT(lower,upper):" << std::endl
-					<< "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
-					<< "upperBoundary = " << upperBoundary
-			);
+		// Assign random values to each position
+		typename GConstrainedFPNumCollectionT<fp_type>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			*it = this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(lowerBoundary,upperBoundary);
 		}
-
-		// Assign a correct value to the upper_closed_ variable
-		upper_closed_ = boost::math::float_prior<fp_type>(GConstrainedNumCollectionT<fp_type>::getUpperBoundary());
 	}
+
+	/******************************************************************/
+	/**
+	 * Initialize the lower and upper boundaries for data members of this class.
+	 * Set all positions to the same value.
+	 *
+	 * @param size The desired size of the collection
+	 * @param val The value to be assigned to all positions
+	 * @param lowerBoundary The lower boundary for data members
+	 * @param upperBoundary The upper boundary for data members
+	 */
+	GConstrainedFPNumCollectionT (
+			const std::size_t& size
+			, const fp_type& val
+			, const fp_type& lowerBoundary
+			, const fp_type& upperBoundary
+	)
+		: GConstrainedNumCollectionT<fp_type> (size, val, lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary)) // Note that we define the upper boundary as "open"
+	{ /* nothing */ }
 
 	/******************************************************************/
 	/**
@@ -132,7 +141,6 @@ public:
 	 */
 	GConstrainedFPNumCollectionT(const GConstrainedFPNumCollectionT<fp_type>& cp)
 		: GConstrainedNumCollectionT<fp_type> (cp)
-		, upper_closed_(cp.upper_closed_)
 	{ /* nothing */ }
 
 	/******************************************************************/
@@ -174,8 +182,7 @@ public:
 		// Check our parent class'es data ...
 		deviations.push_back(GConstrainedNumCollectionT<fp_type>::checkRelationshipWith(cp, e, limit, "GConstrainedFPNumCollectionT<fp_type>", y_name, withMessages));
 
-		// ... and then our local data
-		deviations.push_back(checkExpectation(withMessages, "GConstrainedFPNumCollectionT<fp_type>", upper_closed_, p_load->upper_closed_, "upper_closed_", "p_load->upper_closed_", e , limit));
+		// ... no local data
 
 		return evaluateDiscrepancies("GConstrainedFPNumCollectionT<fp_type>", caller, deviations, e);
 	}
@@ -189,7 +196,7 @@ public:
 	 */
 	virtual fp_type transfer(const fp_type& val) const {
 		fp_type lowerBoundary = GConstrainedNumCollectionT<fp_type>::getLowerBoundary();
-		fp_type upperBoundary = upper_closed_; // We want turning points to be at the next representable fp value below the assigned upper boundary
+		fp_type upperBoundary = GConstrainedNumCollectionT<fp_type>::getUpperBoundary();
 
 		if(val >= lowerBoundary && val < upperBoundary) {
 			return val;
@@ -377,8 +384,7 @@ protected:
 		// Load our parent class'es data ...
 		GConstrainedNumCollectionT<fp_type>::load_(cp);
 
-		// ... and then our local data
-		upper_closed_ = p_load->upper_closed_;
+		// ... no local data
 	}
 
 	/******************************************************************/
@@ -409,16 +415,7 @@ protected:
 	 */
 	GConstrainedFPNumCollectionT()
 		: GConstrainedNumCollectionT<fp_type> ()
-		, upper_closed_(fp_type(0))
-	{
-		// Assign a correct value to the upper_closed_ variable
-		upper_closed_ = boost::math::float_prior<fp_type>(GConstrainedNumCollectionT<fp_type>::getUpperBoundary());
-	}
-
-private:
-	/******************************************************************/
-
-	fp_type upper_closed_; //< The next floating point value directly before an upper boundary
+	{ /* nothing */ }
 
 #ifdef GEM_TESTING
 public:

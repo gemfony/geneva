@@ -75,10 +75,21 @@ class GInt32Collection
 public:
 	/** @brief The default constructor */
 	GInt32Collection();
+	/** @brief Initialization with a number of random values in a given range */
+	GInt32Collection(
+			const std::size_t&
+			, const boost::int32_t&
+			, const boost::int32_t&
+	);
+	/** @brief Initialization with a number of predefined values and the initialization range */
+	GInt32Collection(
+			const std::size_t&
+			, const boost::int32_t&
+			, const boost::int32_t&
+			, const boost::int32_t&
+	);
 	/** @brief The copy constructor */
 	GInt32Collection(const GInt32Collection&);
-	/** @brief Initialization with a number of random values in a given range */
-	GInt32Collection(const std::size_t&, const boost::int32_t&, const boost::int32_t&);
 	/** @brief The destructor */
 	virtual ~GInt32Collection();
 

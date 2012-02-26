@@ -49,7 +49,9 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection()
 
 /*******************************************************************************************/
 /**
- * Initialize the lower and upper boundaries for data members of this class
+ * Initialize with the lower and upper boundaries for data members of this class and
+ * a number of random values within this range. Note that all action will take place in the
+ * range [lowerBoundary, upperBoundary[.
  *
  * @param size The desired size of the collection
  * @param lowerBoundary The lower boundary for data members
@@ -61,6 +63,26 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection (
 		, const double& upperBoundary
 )
 	: GConstrainedFPNumCollectionT<double> (size, lowerBoundary, upperBoundary)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * Initialize with the lower and upper boundaries for data members of this class and
+ * a fixed value for all items in the vector. Note that all action will take place in the
+ * range [lowerBoundary, upperBoundary[.
+ *
+ * @param size The desired size of the collection
+ * @param val The value to be assigned to all positions
+ * @param lowerBoundary The lower boundary for data members
+ * @param upperBoundary The upper boundary for data members
+ */
+GConstrainedDoubleCollection::GConstrainedDoubleCollection (
+		const std::size_t& size
+		, const double& val
+		, const double& lowerBoundary
+		, const double& upperBoundary
+)
+	: GConstrainedFPNumCollectionT<double> (size, val, lowerBoundary, upperBoundary)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -84,7 +106,7 @@ GConstrainedDoubleCollection::~GConstrainedDoubleCollection()
 /**
  * The standard assignment operator.
  *
- * @param cp A copy of another GDoubleCollection object
+ * @param cp A copy of another GConstrainedDoubleCollection object
  * @return A constant reference to this object
  */
 const GConstrainedDoubleCollection& GConstrainedDoubleCollection::operator=(const GConstrainedDoubleCollection& cp){

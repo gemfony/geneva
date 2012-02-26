@@ -72,6 +72,9 @@ class GIntNumCollectionT
 	}
 	///////////////////////////////////////////////////////////////////////
 
+	// Make sure this class can only be instantiated if int_type is an integral type
+	BOOST_MPL_ASSERT((boost::is_integral<int_type>));
+
 	// Make sure this class can only be instantiated if int_type is a *signed* integer type
 	BOOST_MPL_ASSERT((boost::is_signed<int_type>));
 
@@ -81,31 +84,6 @@ public:
 	 * The default constructor
 	 */
 	GIntNumCollectionT()
-	{ /* nothing */ }
-
-	/*************************************************************************************/
-	/**
-	 * The copy constructor
-	 *
-	 * @param cp A copy of another GIntNumCollectionT<int_type> object
-	 */
-	GIntNumCollectionT(const GIntNumCollectionT<int_type>& cp)
-		: GNumCollectionT<int_type>(cp)
-	{ /* nothing */ }
-
-	/*************************************************************************************/
-	/**
-	 * Allows to specify the boundaries for random initialization
-	 *
-	 * @param min The lower boundary for random entries
-	 * @param max The upper boundary for random entries
-	 */
-	GIntNumCollectionT(
-			const int_type& min
-			, const int_type& max
-			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
-	)
-		: GNumCollectionT<int_type> (min, max)
 	{ /* nothing */ }
 
 	/*************************************************************************************/
@@ -120,13 +98,45 @@ public:
 			const std::size_t& nval
 			, const int_type& min
 			, const int_type& max
-			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
 	)
-		: GNumCollectionT<int_type>(min, max)
+		: GNumCollectionT<int_type>(nval, min, min, max) // Initialization of a vector with nval variables of value "min"
 	{
-		// uniform_int produces random numbers that include the upper boundary
-		for(std::size_t i= 0; i<nval; i++) this->push_back(this->GParameterBase::gr->uniform_int(min,max));
+		// Fill the vector with random values
+		typename GIntNumCollectionT<int_type>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			*it = this->GParameterBase::gr->uniform_int(min,max);
+		}
 	}
+
+	/*************************************************************************************/
+	/**
+	 * Specifies the size of the data vector and an item to be assigned
+	 * to each position. We enforce setting of the lower and upper boundaries
+	 * for random initialization, as these may double up as the preferred value
+	 * range in some optimization algorithms.
+	 *
+	 * @param nval The amount of random values
+	 * @param min The minimum random value
+	 * @param max The maximum random value
+	 */
+	GIntNumCollectionT(
+			const std::size_t& nval
+			, const int_type& val
+			, const int_type& min
+			, const int_type& max
+	)
+		: GNumCollectionT<int_type>(nval, val, min, max)
+	{ /* nothing */ }
+
+	/*************************************************************************************/
+	/**
+	 * The copy constructor
+	 *
+	 * @param cp A copy of another GIntNumCollectionT<int_type> object
+	 */
+	GIntNumCollectionT(const GIntNumCollectionT<int_type>& cp)
+		: GNumCollectionT<int_type>(cp)
+	{ /* nothing */ }
 
 	/*************************************************************************************/
 	/**

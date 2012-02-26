@@ -96,17 +96,45 @@ public:
 
 	/******************************************************************/
 	/**
-	 * Specifies the boundaries for random intialization
+	 * Specifies the boundaries for random initialization and initializes
+	 * the data vector with a given size. Note that we need to care for the
+	 * assignment of random values ourself in derived classes.
 	 *
+	 * @param nval The number of entries in the vector
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
 	GNumCollectionT(
-			const T& min
+			const std::size_t& nval
+			, const T& min
 			, const T& max
 			, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
 	)
-		: GParameterCollectionT<T> ()
+		: GParameterCollectionT<T> (nval, min)
+		, lowerInitBoundary_(min)
+		, upperInitBoundary_(max)
+	{ /* nothing */ }
+
+	/******************************************************************/
+	/**
+	 * Specifies the size of the data vector and an item to be assigned
+	 * to each position. We enforce setting of the lower and upper boundaries
+	 * for random initialization, as these double up as the preferred value
+	 * range in some optimization algorithms, such as swarm algorithms.
+	 *
+	 * @param nval The number of entries in the vector
+	 * @param val  The value to be assigned to each position
+	 * @param min The lower boundary for random entries
+	 * @param max The upper boundary for random entries
+	 */
+	GNumCollectionT(
+			const std::size_t& nval
+			, const T& val
+			, const T& min
+			, const T& max
+			, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
+	)
+		: GParameterCollectionT<T> (nval, val)
 		, lowerInitBoundary_(min)
 		, upperInitBoundary_(max)
 	{ /* nothing */ }

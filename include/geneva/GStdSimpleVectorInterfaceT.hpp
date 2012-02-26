@@ -107,6 +107,17 @@ public:
 
 	/*****************************************************************************/
 	/**
+	 * Initialization with a number of items of defined value
+	 *
+	 * @param nval The number of items to be added to the collection
+	 * @param val  The value to be assigned to each position
+	 */
+	GStdSimpleVectorInterfaceT(const std::size_t& nval, const T& val)
+		: data(nval, val)
+	{ /* nothing */ }
+
+	/*****************************************************************************/
+	/**
 	 * Copy construction
 	 *
 	 * @param cp A constant reference to another GStdSimpleVectorInterfaceT object

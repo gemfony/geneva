@@ -81,7 +81,18 @@ class GConstrainedDoubleCollection
 public:
 	/******************************************************************/
 	/** @brief Initialize the lower and upper boundaries for data members of this class */
-	GConstrainedDoubleCollection (const std::size_t&, const double&, const double&);
+	GConstrainedDoubleCollection (
+			const std::size_t&
+			, const double&
+			, const double&
+	);
+	/** @brief Assign a fixed value to all positions of the vector and initialize the allowed value range */
+	GConstrainedDoubleCollection (
+			const std::size_t&
+			, const double&
+			, const double&
+			, const double&
+	);
 	/** @brief The standard copy constructor */
 	GConstrainedDoubleCollection(const GConstrainedDoubleCollection&);
 	/** @brief The standard destructor */

@@ -86,6 +86,18 @@ public:
 
 	/*******************************************************************************************/
 	/**
+	 * Initialization with a number of variables of predefined values
+	 *
+	 * @param nval The number of values
+	 * @param val  The value to be assigned to each position
+	 */
+	GParameterCollectionT(const std::size_t& nval, const T& val)
+		: GParameterBaseWithAdaptorsT<T> ()
+		, GStdSimpleVectorInterfaceT<T>(nval, val)
+	{ /* nothing */ }
+
+	/*******************************************************************************************/
+	/**
 	 * The copy constructor
 	 *
 	 * @param cp A copy of another GParameterCollectionT<T> object

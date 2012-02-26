@@ -88,7 +88,7 @@ GFunctionIndividual::GFunctionIndividual()
 /**
  * Initialization with the desired demo function
  *
- * @param dF The id if the demo function
+ * @param dF The id of the demo function
  */
 GFunctionIndividual::GFunctionIndividual(const solverFunction& dF)
 	: demoFunction_(dF)
@@ -507,7 +507,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	std::string comment;
 
 	comment = "";
-	comment += "The probability for random adaptions of values in evolutionary algorithms;";
+	comment += "The probability for random adaption of values in evolutionary algorithms;";
 	gpb.registerFileParameter<double>(
 		"adProb"
 		, adProb_
@@ -557,7 +557,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	);
 
 	comment = "";
-	comment += "The minimum amount value of sigma1;";
+	comment += "The minimum value of sigma1;";
 	gpb.registerFileParameter<double>(
 		"minSigma1"
 		, minSigma1_
@@ -567,7 +567,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	);
 
 	comment = "";
-	comment += "The maximum amount value of sigma1;";
+	comment += "The maximum value of sigma1;";
 	gpb.registerFileParameter<double>(
 		"maxSigma1"
 		, maxSigma1_
@@ -597,7 +597,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	);
 
 	comment = "";
-	comment += "The minimum amount value of sigma2;";
+	comment += "The minimum value of sigma2;";
 	gpb.registerFileParameter<double>(
 		"minSigma2"
 		, minSigma2_
@@ -607,7 +607,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	);
 
 	comment = "";
-	comment += "The maximum amount value of sigma2;";
+	comment += "The maximum value of sigma2;";
 	gpb.registerFileParameter<double>(
 		"maxSigma2"
 		, maxSigma2_
@@ -617,7 +617,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	);
 
 	comment = "";
-	comment += "The start distance between both peak used for bi-gaussian mutations in ES;";
+	comment += "The start distance between both peaks used for bi-gaussian mutations in ES;";
 	gpb.registerFileParameter<double>(
 		"delta"
 		, delta_
@@ -730,7 +730,8 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GFunctionIndivid
 		// Attach to the "parent pointer"
 		c_ptr = gcdc_ptr;
 	} else {
-		// Set up a collection with dimension values, each initialized with a random number in the range [min,max[
+		// Set up a collection with parDimLocal_ or parDim_ values, each initialized with a random number in the range [min,max[
+		// Random initialization happens in the constructor.
 		boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDimLocal_?parDimLocal_:parDim_, minVar_, maxVar_));
 		// Let the GDoubleCollection know about its desired initialization range
 		gdc_ptr->setInitBoundaries(minVar_, maxVar_);

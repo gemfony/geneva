@@ -54,8 +54,30 @@ GInt32Collection::GInt32Collection()
  * @param min The minimum random value
  * @param max The maximum random value
  */
-GInt32Collection::GInt32Collection(const std::size_t& nval, const boost::int32_t& min, const boost::int32_t& max)
+GInt32Collection::GInt32Collection(
+		const std::size_t& nval
+		, const boost::int32_t& min
+		, const boost::int32_t& max
+)
 	: GIntNumCollectionT<boost::int32_t>(nval, min, max)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * Initialization with a predefined value in all positions
+ *
+ * @param nval The amount of random values
+ * @param val A value to be assigned to all positions
+ * @param min The minimum random value
+ * @param max The maximum random value
+ */
+GInt32Collection::GInt32Collection(
+		const std::size_t& nval
+		, const boost::int32_t& val
+		, const boost::int32_t& min
+		, const boost::int32_t& max
+)
+	: GIntNumCollectionT<boost::int32_t>(nval, val, min, max)
 { /* nothing */ }
 
 /*******************************************************************************************/
