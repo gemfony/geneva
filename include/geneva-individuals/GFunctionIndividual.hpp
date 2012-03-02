@@ -53,12 +53,15 @@
 
 // Geneva header files go here
 #include "common/GFactoryT.hpp"
+#include "common/GParserBuilder.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GConstrainedDoubleCollection.hpp"
+#include "geneva/GDoubleObjectCollection.hpp"
+#include "geneva/GConstrainedDoubleObjectCollection.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "common/GParserBuilder.hpp"
 
 namespace Gem
 {
@@ -88,6 +91,38 @@ std::ostream& operator<<(std::ostream&, const Gem::Geneva::solverFunction&);
 /** @brief Reads a Gem::Geneva::solverFunction from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Geneva::solverFunction&);
 
+/**
+ * This enum describes different parameter types that may be used to fill the object with data
+ */
+enum parameterType {
+	USEGDOUBLECOLLECTION = 0
+	, USEGCONSTRAINEDOUBLECOLLECTION = 1
+	, USEGDOUBLEOBJECTCOLLECTION = 2
+	, USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION = 3
+};
+
+// Make sure parameterType can be streamed
+/** @brief Puts a Gem::Geneva::parameterType into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::parameterType&);
+
+/** @brief Reads a Gem::Geneva::parameterType from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::parameterType&);
+
+/**
+ * This enum describes several ways of initializing the data collections
+ */
+enum initMode {
+	INITRANDOM = 0 // random values for all variables
+	, INITPERIMETER = 1 // Uses a parameter set on the perimeter of the allowed or common value range
+};
+
+// Make sure initMode can be streamed
+/** @brief Puts a Gem::Geneva::initMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::initMode&);
+
+/** @brief Reads a Gem::Geneva::initMode from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::initMode&);
+
 /************************************************************************************************/
 // A number of default settings for the factory
 const double GFI_DEF_ADPROB = 0.05;
@@ -109,6 +144,8 @@ const std::size_t GFI_DEF_PARDIM = 2;
 const double GFI_DEF_MINVAR = -10.;
 const double GFI_DEF_MAXVAR = 10.;
 const bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
+const parameterType GFI_DEF_PARAMETERTYPE = USEGDOUBLECOLLECTION;
+const initMode GFI_DEF_INITMODE = INITRANDOM;
 const boost::uint32_t GO_DEF_PROCESSINGCYCLES = 1;
 const solverFunction GO_DEF_EVALFUNCTION = boost::numeric_cast<solverFunction>(0);
 
@@ -429,7 +466,8 @@ private:
 	std::size_t parDimLocal_;
 	double minVar_;
 	double maxVar_;
-	bool useConstrainedDoubleCollection_;
+	parameterType pT_;
+	initMode iM_;
 	boost::uint32_t processingCycles_;
 };
 

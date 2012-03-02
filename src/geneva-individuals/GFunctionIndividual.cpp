@@ -78,6 +78,76 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::solverFunction& ur) {
 
 /********************************************************************************************/
 /**
+ * Puts a Gem::Geneva::parameterType item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param ur the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::parameterType& ur) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(ur);
+	o << tmp;
+	return o;
+}
+
+/********************************************************************************************/
+/**
+ * Reads a Gem::Geneva::parameterType item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param ur The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::Geneva::parameterType& ur) {
+	boost::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	ur = boost::numeric_cast<Gem::Geneva::parameterType>(tmp);
+#else
+	ur = static_cast<Gem::Geneva::parameterType>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/********************************************************************************************/
+/**
+ * Puts a Gem::Geneva::initMode item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param ur the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::initMode& ur) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(ur);
+	o << tmp;
+	return o;
+}
+
+/********************************************************************************************/
+/**
+ * Reads a Gem::Geneva::initMode item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param ur The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::Geneva::initMode& ur) {
+	boost::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	ur = boost::numeric_cast<Gem::Geneva::initMode>(tmp);
+#else
+	ur = static_cast<Gem::Geneva::initMode>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/********************************************************************************************/
+/**
  * The default constructor
  */
 GFunctionIndividual::GFunctionIndividual()
@@ -443,7 +513,8 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& config
 	, parDimLocal_(0)
 	, minVar_(GFI_DEF_MINVAR)
 	, maxVar_(GFI_DEF_MAXVAR)
-	, useConstrainedDoubleCollection_(GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION)
+	, pT_(GFI_DEF_PARAMETERTYPE)
+	, iM_(GFI_DEF_INITMODE)
 	, processingCycles_(GO_DEF_PROCESSINGCYCLES)
 { /* nothing */ }
 
@@ -687,11 +758,21 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	);
 
 	comment = "";
-	comment += "Indicates whether a GConstrainedDoubleCollection should be used;";
-	gpb.registerFileParameter<bool>(
-		"useConstrainedDoubleCollection"
-		, useConstrainedDoubleCollection_
-		, GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION
+	comment += "Indicates what type of parameter object should be used;(0) GDoubleCollection;(1) GConstrainedDoubleCollection;(2) GDoubleObjectCollection; (3) GConstrainedDoubleObjectCollection";
+	gpb.registerFileParameter<parameterType>(
+		"parameterType"
+		, pT_
+		, GFI_DEF_PARAMETERTYPE
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
+	comment += "Indicates how the parameters are initialized;(0) randomly;(1) with a value on the perimeter of the allowed or recommended value range";
+	gpb.registerFileParameter<initMode>(
+		"initMode"
+		, iM_
+		, GFI_DEF_INITMODE
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
 	);
@@ -721,26 +802,11 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GFunctionIndividual>& p) {
-	boost::shared_ptr<GParameterCollectionT<double> > c_ptr;
-	if(useConstrainedDoubleCollection_) {
-		// Set up a collection with dimension values
-		boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(parDimLocal_?parDimLocal_:parDim_, minVar_, maxVar_));
-		// Randomly initialize
-		gcdc_ptr->randomInit();
-		// Attach to the "parent pointer"
-		c_ptr = gcdc_ptr;
-	} else {
-		// Set up a collection with parDimLocal_ or parDim_ values, each initialized with a random number in the range [min,max[
-		// Random initialization happens in the constructor.
-		boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDimLocal_?parDimLocal_:parDim_, minVar_, maxVar_));
-		// Let the GDoubleCollection know about its desired initialization range
-		gdc_ptr->setInitBoundaries(minVar_, maxVar_);
-		// Attach to the "parent pointer"
-		c_ptr = gdc_ptr;
-	}
+	// Set up a random number generator
+	Gem::Hap::GRandom gr;
 
-	// Set up and register an adaptor for the collection, so it
-	// knows how to be adapted.
+	// Set up an adaptor for the collections, so they know how to be adapted
+	boost::shared_ptr<GAdaptorT<double> > gat_ptr;
 	if(useBiGaussian_) {
 		boost::shared_ptr<GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
 		gdbga_ptr->setAllSigma1(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_);
@@ -748,16 +814,121 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GFunctionIndivid
 		gdbga_ptr->setAllSigma1(delta_, sigmaDelta_, minDelta_, maxDelta_);
 		gdbga_ptr->setAdaptionThreshold(adaptionThreshold_);
 		gdbga_ptr->setAdaptionProbability(adProb_);
-		c_ptr->addAdaptor(gdbga_ptr);
+		gat_ptr = gdbga_ptr;
 	} else {
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_));
 		gdga_ptr->setAdaptionThreshold(adaptionThreshold_);
 		gdga_ptr->setAdaptionProbability(adProb_);
-		c_ptr->addAdaptor(gdga_ptr);
+		gat_ptr = gdga_ptr;
 	}
 
-	// Make the parameter collection known to this individual
-	p->push_back(c_ptr);
+	// Find out about the amount of data items to be added
+	std::size_t nData = parDimLocal_?parDimLocal_:parDim_;
+
+	// Find out about the position that should be set to minVar_. Unless randomInit is set,
+	// all other positions will be set to the mean value of minVar_ and maxVar_.
+	std::size_t perimeterPos = gr.uniform_int<std::size_t>(nData);
+
+	// Set up the data collections
+	switch(pT_) {
+	case USEGDOUBLECOLLECTION:
+	{
+		// Set up a collection, each initialized with a random number in the range [min,max[
+		// Random initialization happens in the constructor.
+		boost::shared_ptr<GDoubleCollection> gdc_ptr;
+
+		if(INITRANDOM == iM_) {
+			gdc_ptr = boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, minVar_, maxVar_));
+		} else { // INITPERIMETER
+			gdc_ptr = boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, (maxVar_ + minVar_) / 2., minVar_, maxVar_));
+			gdc_ptr->at(perimeterPos) = minVar_;
+		}
+
+		gdc_ptr->addAdaptor(gat_ptr);
+		p->push_back(gdc_ptr);
+	}
+		break;
+
+	case USEGCONSTRAINEDOUBLECOLLECTION:
+	{
+
+		// Set up a collection
+		boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr;
+
+		if(INITRANDOM == iM_) {
+			gcdc_ptr = boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, minVar_, maxVar_));
+		} else { // INITPERIMETER
+			gcdc_ptr = boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, (maxVar_ + minVar_) / 2., minVar_, maxVar_));
+			gcdc_ptr->at(perimeterPos) = minVar_;
+		}
+
+		gcdc_ptr->addAdaptor(gat_ptr);
+		p->push_back(gcdc_ptr);
+	}
+		break;
+
+	case USEGDOUBLEOBJECTCOLLECTION:
+	{
+		// Set up a collection of GDoubleObject objects
+		boost::shared_ptr<GDoubleObjectCollection> gdoc_ptr(new GDoubleObjectCollection());
+
+		// Fill the collection with GDoubleObject objects, each equipped with a copy of our adaptor
+		// Note that addAdaptor() itself will take care of cloning the adaptor
+		for(std::size_t i=0; i<nData; i++) {
+			boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(minVar_, maxVar_));
+			if(INITPERIMETER == iM_) {
+				if(i == perimeterPos) {
+					*gdo_ptr = minVar_;
+				} else {
+					*gdo_ptr = (maxVar_ - minVar_)/2.;
+				}
+			}
+
+			gdo_ptr->addAdaptor(gat_ptr);
+			gdoc_ptr->push_back(gdo_ptr);
+		}
+
+		p->push_back(gdoc_ptr);
+	}
+		break;
+
+	case USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION:
+	{
+
+		// Set up a collection of GConstrainedDoubleObject objects
+		boost::shared_ptr<GConstrainedDoubleObjectCollection> gcdoc_ptr(new GConstrainedDoubleObjectCollection());
+
+		// Fill the collection with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
+		// Note that addAdaptor() itself will take care of cloning the adaptor
+		for(std::size_t i=0; i<nData; i++) {
+			boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_, maxVar_));
+			if(INITPERIMETER == iM_) {
+				if(i == perimeterPos) {
+					*gcdo_ptr = minVar_;
+				} else {
+					*gcdo_ptr = (maxVar_ - minVar_)/2.;
+				}
+			}
+
+			gcdo_ptr->addAdaptor(gat_ptr);
+			gcdoc_ptr->push_back(gcdo_ptr);
+		}
+
+		p->push_back(gcdoc_ptr);
+	}
+		break;
+
+	default:
+	{
+		raiseException(
+				"In GFunctionIndividualFactory::postProcess_(): Error!"
+				<< "Found invalid pT_: " << pT_ << std::endl
+		);
+	}
+		break;
+	}
+
+	// Set the max number of processing cycles in remote clients
 	p->setProcessingCycles(processingCycles_);
 }
 
