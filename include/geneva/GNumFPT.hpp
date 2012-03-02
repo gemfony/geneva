@@ -104,10 +104,35 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumFPT(const fp_type& min, const fp_type& max)
+	GNumFPT (
+		const fp_type& min
+		, const fp_type& max
+	)
 		: GNumT<fp_type> (min, max)
 	{
 		GNumFPT<fp_type>::randomInit_();
+	}
+
+	/******************************************************************/
+	/**
+	 * Initialize with a fixed value. Note that we enforce initialization
+	 * of the initialization boundaries as well, as these may play a role
+	 * in some optimization algorithms. Note that we do not enforce that the
+	 * assigned value lies inside these boundaries, as they are meant for
+	 * random initialization only.
+	 *
+	 * @param val The value to be assigned to the object
+	 * @param min The lower boundary for random entries
+	 * @param max The upper boundary for random entries
+	 */
+	GNumFPT (
+		const fp_type& val
+		, const fp_type& min
+		, const fp_type& max
+	)
+		: GNumT<fp_type> (min, max)
+	{
+		GParameterT<fp_type>::setValue(val);
 	}
 
 	/******************************************************************/

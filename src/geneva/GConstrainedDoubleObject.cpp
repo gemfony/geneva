@@ -54,7 +54,10 @@ GConstrainedDoubleObject::GConstrainedDoubleObject()
  * @param lowerBoundary The lower boundary of the value range
  * @param upperBoundary The upper boundary of the value range
  */
-GConstrainedDoubleObject::GConstrainedDoubleObject(const double& lowerBoundary, const double& upperBoundary)
+GConstrainedDoubleObject::GConstrainedDoubleObject(
+		const double& lowerBoundary
+		, const double& upperBoundary
+)
 	: GConstrainedFPT<double>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 

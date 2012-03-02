@@ -73,8 +73,28 @@ GInt32Object::GInt32Object(const boost::int32_t& val)
  * @param lowerBoundary The lower boundary for the random number used in the initialization
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
-GInt32Object::GInt32Object(const boost::int32_t& lowerBoundary, const boost::int32_t& upperBoundary)
+GInt32Object::GInt32Object(
+		const boost::int32_t& lowerBoundary
+		, const boost::int32_t& upperBoundary
+)
 	: GNumIntT<boost::int32_t>(lowerBoundary, upperBoundary)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * Initialization by a fixed value, plus the boundaries for random initialization. Note
+ * that we do not enforce val to be inside of the initialization boundaries
+ *
+ * @param val The value to be assigned to the object
+ * @param lowerBoundary The lower boundary for the random number used in the initialization
+ * @param upperBoundary The upper boundary for the random number used in the initialization
+ */
+GInt32Object::GInt32Object(
+		const boost::int32_t& val
+		, const boost::int32_t& lowerBoundary
+		, const boost::int32_t& upperBoundary
+)
+	: GNumIntT<boost::int32_t>(val, lowerBoundary, upperBoundary)
 { /* nothing */ }
 
 /*******************************************************************************************/

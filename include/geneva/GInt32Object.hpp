@@ -88,7 +88,16 @@ public:
 	/** @brief Initialization by contained value */
 	explicit GInt32Object(const boost::int32_t&);
 	/** @brief Initialization by random number in a given range */
-	GInt32Object(const boost::int32_t&, const boost::int32_t&);
+	GInt32Object(
+			const boost::int32_t&
+			, const boost::int32_t&
+	);
+	/** @brief Initialization with a fixed value and a range for random initialization */
+	GInt32Object(
+			const boost::int32_t&
+			, const boost::int32_t&
+			, const boost::int32_t&
+	);
 	/** @brief The destructor */
 	virtual ~GInt32Object();
 

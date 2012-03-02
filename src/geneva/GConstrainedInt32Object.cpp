@@ -49,12 +49,16 @@ GConstrainedInt32Object::GConstrainedInt32Object()
 
 /*******************************************************************************************/
 /**
- * Initialization with boundaries only. The value is set to the lower boundary in GConstrainedNumT<T>.
+ * Initialization with boundaries only. A random value inside of the allowed ranges will
+ * be assigned to the object.
  *
  * @param lowerBoundary The lower boundary of the value range
  * @param upperBoundary The upper boundary of the value range
  */
-GConstrainedInt32Object::GConstrainedInt32Object(const boost::int32_t& lowerBoundary, const boost::int32_t& upperBoundary)
+GConstrainedInt32Object::GConstrainedInt32Object(
+		const boost::int32_t& lowerBoundary
+		, const boost::int32_t& upperBoundary
+)
 	: GConstrainedIntT<boost::int32_t>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 

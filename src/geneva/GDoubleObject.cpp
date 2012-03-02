@@ -72,8 +72,27 @@ GDoubleObject::GDoubleObject(const double& val)
  * @param lowerBoundary The lower boundary for the random number used in the initialization
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
-GDoubleObject::GDoubleObject(const double& lowerBoundary, const double& upperBoundary)
+GDoubleObject::GDoubleObject(
+		const double& lowerBoundary
+		, const double& upperBoundary
+)
 	: GNumFPT<double>(lowerBoundary, upperBoundary)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * Initialization with a fixed value and the range for random initialization
+ *
+ * @param val The value to be assigned to the object
+ * @param lowerBoundary The lower boundary for random initialization
+ * @param upperBoundary The upper boundary for random initialization
+ */
+GDoubleObject::GDoubleObject(
+		const double& val
+		, const double& lowerBoundary
+		, const double& upperBoundary
+)
+	: GNumFPT<double>(val, lowerBoundary, upperBoundary)
 { /* nothing */ }
 
 /*******************************************************************************************/

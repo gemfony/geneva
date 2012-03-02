@@ -121,10 +121,32 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumIntT(const int_type& min,	const int_type& max)
+	GNumIntT(
+			const int_type& min
+			, const int_type& max
+	)
 		: GNumT<int_type> (min, max)
 	{
 		GNumIntT<int_type>::randomInit_();
+	}
+
+	/******************************************************************/
+	/**
+	 * Initialization with a fixed value, plus the boundaries for random
+	 * initialization.
+	 *
+	 * @param val The value to be assigned to the object
+	 * @param min The lower boundary for random entries
+	 * @param max The upper boundary for random entries
+	 */
+	GNumIntT(
+			const int_type& val
+			, const int_type& min
+			, const int_type& max
+	)
+		: GNumT<int_type> (min, max)
+	{
+		GParameterT<int_type>::setValue(val);
 	}
 
 	/******************************************************************/

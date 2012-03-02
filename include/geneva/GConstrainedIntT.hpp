@@ -107,14 +107,19 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * Initializes the boundaries and sets the value to the lower boundary.
+	 * Initializes the boundaries and assigns a random value to the object
 	 *
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	GConstrainedIntT(const int_type& lowerBoundary, const int_type& upperBoundary)
+	GConstrainedIntT(
+		 const int_type& lowerBoundary
+		 , const int_type& upperBoundary
+	)
 		: GConstrainedNumT<int_type>(lowerBoundary, upperBoundary)
-	{ /* nothing */	}
+	{
+		GParameterT<int_type>::setValue(this->GParameterBase::gr->uniform_int(lowerBoundary,upperBoundary));
+	}
 
 	/****************************************************************************/
 	/**
@@ -124,7 +129,11 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	GConstrainedIntT(const int_type& val, const int_type& lowerBoundary, const int_type& upperBoundary)
+	GConstrainedIntT(
+			const int_type& val,
+			const int_type& lowerBoundary,
+			const int_type& upperBoundary
+	)
 		: GConstrainedNumT<int_type>(val, lowerBoundary, upperBoundary)
 	{ /* nothing */	}
 

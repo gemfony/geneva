@@ -82,6 +82,8 @@ public:
 	explicit GDoubleObject(const double&);
 	/** @brief Random initialization in a given range */
 	GDoubleObject(const double&, const double&);
+	/** @brief Initialization with a fixed value and the initialization range */
+	GDoubleObject(const double&, const double&, const double&);
 	/** @brief The destructor */
 	virtual ~GDoubleObject();
 
