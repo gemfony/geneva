@@ -603,7 +603,13 @@ public:
 			// Make sure we can freely assign values
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<T>::max());
-			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<T>::max());
+
+			// GConstrainedDoubleObject assigns the float prior to the specified boundary
+			if(typeid(T) == typeid(double)) {
+				BOOST_CHECK(p_test->getUpperBoundary() ==  boost::math::float_prior<T>(GConstrainedValueLimit<T>::max()));
+			} else {
+				BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<T>::max());
+			}
 		}
 
 		//------------------------------------------------------------------------------
@@ -646,7 +652,13 @@ public:
 
 			// Check the values of these boundaries
 			BOOST_CHECK(p_test->getLowerBoundary() == lowerBoundary);
-			BOOST_CHECK(p_test->getUpperBoundary() == upperBoundary);
+
+			// GConstrainedDoubleObject assigns the float prior to the specified boundary
+			if(typeid(T) == typeid(double)) {
+				BOOST_CHECK(p_test->getUpperBoundary() == boost::math::float_prior<T>(upperBoundary));
+			} else {
+				BOOST_CHECK(p_test->getUpperBoundary() == upperBoundary);
+			}
 
 			// Check that the value is still the same
 			BOOST_CHECK(p_test->value() == testVal);
@@ -671,7 +683,7 @@ public:
 					<< "lowerBoundary = " << lowerBoundary << "\n"
 			);
 			BOOST_CHECK_MESSAGE(
-					p_test->getUpperBoundary() == upperBoundary
+					p_test->getUpperBoundary() == (typeid(T)==typeid(double)?boost::math::float_prior<T>(upperBoundary):upperBoundary)
 					,  "\n"
 					<< "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
 					<< "upperBoundary = " << upperBoundary << "\n"
