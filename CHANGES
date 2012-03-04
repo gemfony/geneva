@@ -13,6 +13,7 @@ The main changes for this release include:
  - Streamlined the use of the workOn function family in GBrokerConnectorT
  - Added an easier means to create ROOT plots from within Geneva ("GPlotDesigner")
  - Made constructors of simple collections more consistent with std::vector
+ - Ported to Boost 1.4.9
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.9, "Route d'Annemasse" - December 17, 2011

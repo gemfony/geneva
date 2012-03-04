@@ -48,6 +48,17 @@ GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection()
 
 /*******************************************************************************************/
 /**
+ * Initialization with a number of identical GConstrainedDoubleObject objects
+ */
+GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(
+	const std::size_t& nCp
+	, boost::shared_ptr<GConstrainedDoubleObject> tmpl_ptr
+)
+	:GParameterTCollectionT<GConstrainedDoubleObject>(nCp, tmpl_ptr)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
  * The copy constructor
  *
  * @param cp A copy of another GConstrainedDoubleObjectCollection object

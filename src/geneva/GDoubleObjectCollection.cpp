@@ -47,6 +47,17 @@ GDoubleObjectCollection::GDoubleObjectCollection()
 
 /*******************************************************************************************/
 /**
+ * Initialization with a number of identical GDoubleObject objects
+ */
+GDoubleObjectCollection::GDoubleObjectCollection(
+	const std::size_t& nCp
+	, boost::shared_ptr<GDoubleObject> tmpl_ptr
+)
+	:GParameterTCollectionT<GDoubleObject>(nCp, tmpl_ptr)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
  * The copy constructor
  *
  * @param cp A copy of another GDoubleObjectCollection object

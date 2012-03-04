@@ -75,6 +75,8 @@ class GDoubleObjectCollection
 public:
 	/** @brief The default constructor */
 	GDoubleObjectCollection();
+	/** @brief Initialization with a number of GDoubleObject objects */
+	GDoubleObjectCollection(const std::size_t&, boost::shared_ptr<GDoubleObject>);
 	/** @brief The copy constructor */
 	GDoubleObjectCollection(const GDoubleObjectCollection&);
 	/** @brief The destructor */

@@ -82,6 +82,9 @@ class GParameterTCollectionT
 	}
 	///////////////////////////////////////////////////////////////////////
 
+	// Make sure T is a derivative of GParameterBase
+	BOOST_MPL_ASSERT((boost::is_base_of<GParameterBase, T>));
+
 public:
 	/*******************************************************************************************/
 	/**
@@ -95,6 +98,19 @@ public:
 	 */
 	GParameterTCollectionT()
 	{ /* nothing */ }
+
+	/*******************************************************************************************/
+	/**
+	 * Initialization with a number of copies of a given GParameterBase derivative
+	 *
+	 * @param nCp The amount of copies of the GParameterBase derivative to be stored in this object
+	 * @param tmpl_ptr The object that serves as the template of all others
+	 */
+	GParameterTCollectionT(const std::size_t& nCp, boost::shared_ptr<T> tmpl_ptr) {
+		for(std::size_t i=0; i<nCp; i++) {
+			this->push_back(tmpl_ptr->clone<T>());
+		}
+	}
 
 	/*******************************************************************************************/
 	/**

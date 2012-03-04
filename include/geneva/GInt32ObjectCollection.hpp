@@ -76,6 +76,8 @@ class GInt32ObjectCollection
 public:
 	/** @brief The default constructor */
 	GInt32ObjectCollection();
+	/** @brief Initialization with a number of GInt32Object objects */
+	GInt32ObjectCollection(const std::size_t&, boost::shared_ptr<GInt32Object>);
 	/** @brief The copy constructor */
 	GInt32ObjectCollection(const GInt32ObjectCollection&);
 	/** @brief The destructor */

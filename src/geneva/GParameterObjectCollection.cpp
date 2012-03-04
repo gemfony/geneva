@@ -47,6 +47,17 @@ GParameterObjectCollection::GParameterObjectCollection()
 
 /*******************************************************************************************/
 /**
+ * Initialization with a number of identical GParameterBase objects
+ */
+GParameterObjectCollection::GParameterObjectCollection(
+	const std::size_t& nCp
+	, boost::shared_ptr<GParameterBase> tmpl_ptr
+)
+	:GParameterTCollectionT<GParameterBase>(nCp, tmpl_ptr)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
  * The copy constructor
  *
  * @param cp A copy of another GParameterObjectCollection object

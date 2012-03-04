@@ -78,6 +78,8 @@ class GConstrainedInt32ObjectCollection
 public:
 	/** @brief The default constructor */
 	GConstrainedInt32ObjectCollection();
+	/** @brief Initialization with a number of GConstrainedInt32Object objects */
+	GConstrainedInt32ObjectCollection(const std::size_t&, boost::shared_ptr<GConstrainedInt32Object>);
 	/** @brief The copy constructor */
 	GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection&);
 	/** @brief The destructor */

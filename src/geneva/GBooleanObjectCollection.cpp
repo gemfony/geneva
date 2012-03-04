@@ -48,6 +48,17 @@ GBooleanObjectCollection::GBooleanObjectCollection()
 
 /*******************************************************************************************/
 /**
+ * Initialization with a number of identical GBooleanObject objects
+ */
+GBooleanObjectCollection::GBooleanObjectCollection(
+	const std::size_t& nCp
+	, boost::shared_ptr<GBooleanObject> tmpl_ptr
+)
+	:GParameterTCollectionT<GBooleanObject>(nCp, tmpl_ptr)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
  * The copy constructor
  *
  * @param cp A copy of another GBooleanObjectCollection object

@@ -78,6 +78,8 @@ class GConstrainedDoubleObjectCollection
 public:
 	/** @brief The default constructor */
 	GConstrainedDoubleObjectCollection();
+	/** @brief Initialization with a number of GConstrainedDoubleObject objects */
+	GConstrainedDoubleObjectCollection(const std::size_t&, boost::shared_ptr<GConstrainedDoubleObject>);
 	/** @brief The copy constructor */
 	GConstrainedDoubleObjectCollection(const GConstrainedDoubleObjectCollection&);
 	/** @brief The destructor */

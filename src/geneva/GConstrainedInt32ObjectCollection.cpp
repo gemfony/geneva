@@ -47,6 +47,17 @@ GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection()
 
 /*******************************************************************************************/
 /**
+ * Initialization with a number of identical GConstrainedDoubleObject objects
+ */
+GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(
+	const std::size_t& nCp
+	, boost::shared_ptr<GConstrainedInt32Object> tmpl_ptr
+)
+	:GParameterTCollectionT<GConstrainedInt32Object>(nCp, tmpl_ptr)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
  * The copy constructor
  *
  * @param cp A copy of another GConstrainedInt32ObjectCollection object

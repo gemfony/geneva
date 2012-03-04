@@ -81,6 +81,8 @@ class GParameterObjectCollection
 public:
 	/** @brief The default constructor */
 	GParameterObjectCollection();
+	/** @brief Initialization with a number of GParameterBase objects */
+	GParameterObjectCollection(const std::size_t&, boost::shared_ptr<GParameterBase>);
 	/** @brief The copy constructor */
 	GParameterObjectCollection(const GParameterObjectCollection&);
 	/** @brief The destructor */

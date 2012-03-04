@@ -76,6 +76,8 @@ class GBooleanObjectCollection
 public:
 	/** @brief The default constructor */
 	GBooleanObjectCollection();
+	/** @brief Initialization with a number of GBooleanObject objects */
+	GBooleanObjectCollection(const std::size_t&, boost::shared_ptr<GBooleanObject>);
 	/** @brief The copy constructor */
 	GBooleanObjectCollection(const GBooleanObjectCollection&);
 	/** @brief The destructor */
