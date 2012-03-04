@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2011-Oct-08 17:16:33
+// File creation date: 2012-Mar-04 12:58:58
 //-----------------------------------------------------------------
 
 {
     "adProb":
     {
-        "comment": "The probability for random adaptions of values in evolutionary algorithms",
+        "comment": "The probability for random adaption of values in evolutionary algorithms",
         "default": "0.05",
         "value": "0.05"
     },
@@ -37,13 +37,13 @@
     },
     "minSigma1":
     {
-        "comment": "The minimum amount value of sigma1",
+        "comment": "The minimum value of sigma1",
         "default": "0.001",
         "value": "0.001"
     },
     "maxSigma1":
     {
-        "comment": "The maximum amount value of sigma1",
+        "comment": "The maximum value of sigma1",
         "default": "2",
         "value": "2"
     },
@@ -61,19 +61,19 @@
     },
     "minSigma2":
     {
-        "comment": "The minimum amount value of sigma2",
+        "comment": "The minimum value of sigma2",
         "default": "0.001",
         "value": "0.001"
     },
     "maxSigma2":
     {
-        "comment": "The maximum amount value of sigma2",
+        "comment": "The maximum value of sigma2",
         "default": "2",
         "value": "2"
     },
     "delta":
     {
-        "comment": "The start distance between both peak used for bi-gaussian mutations in ES",
+        "comment": "The start distance between both peaks used for bi-gaussian mutations in ES",
         "default": "0.5",
         "value": "0.5"
     },
@@ -113,11 +113,23 @@
         "default": "10",
         "value": "10"
     },
-    "useConstrainedDoubleCollection":
+    "parameterType":
     {
-        "comment": "Indicates whether a GConstrainedDoubleCollection should be used",
-        "default": "false",
-        "value": "false"
+        "comment": "Indicates what type of parameter object should be used",
+        "comment": "(0) GDoubleCollection",
+        "comment": "(1) GConstrainedDoubleCollection",
+        "comment": "(2) GDoubleObjectCollection",
+        "comment": " (3) GConstrainedDoubleObjectCollection",
+        "default": "0",
+        "value": "0"
+    },
+    "initMode":
+    {
+        "comment": "Indicates how the parameters are initialized",
+        "comment": "(0) randomly",
+        "comment": "(1) with a value on the perimeter of the allowed or recommended value range",
+        "default": "0",
+        "value": "0"
     },
     "processingCycles":
     {

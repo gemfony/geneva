@@ -50,6 +50,8 @@ using namespace Gem::Geneva;
 using namespace Gem::Common;
 using namespace Gem::Tests;
 
+typedef boost::tuple<double,double,double,double> xyWE; // xy-values with errors
+
 int main(int argc, char **argv) {
 	Go2::init();
 
@@ -70,14 +72,27 @@ int main(int argc, char **argv) {
 
 	// Loop over all dimensions and the number of tests in each dimension
 	std::size_t nTests = gbc.getNTests();
-	std::vector<boost::tuple<double,double,double,double> > resultVec; // Will hold the results for each dimension
+	std::vector<xyWE> resultVec; // Will hold the results for each dimension
 	std::vector<boost::uint32_t> dimVec = gbc.getParDim(); // Will hold the dimensions for each test row
 	std::vector<boost::uint32_t>::iterator it;
 	std::string functionName;
 	std::string functionCode;
 	boost::tuple<double,double> varBoundaries;
+
+	// Create the canvas
+	std::size_t nPlots = dimVec.size()%2==0?dimVec.size():dimVec.size()+1;
+	GPlotDesigner gsizepd("Object Sizes", 2, nPlots);
+	gsizepd.setCanvasDimensions(1200,1400);
+
 	for(it=dimVec.begin(); it!=dimVec.end(); ++it) {
-		std::cout << "Starting measurement with dimension " << *it << std::endl;
+		boost::shared_ptr<GGraph2D> objectSizes_ptr(new GGraph2D());
+		objectSizes_ptr->setPlotLabel(std::string("Object dimension ") + boost::lexical_cast<std::string>(*it));
+		objectSizes_ptr->setXAxisLabel("Test Id");
+		objectSizes_ptr->setYAxisLabel("Size");
+
+		boost::tuple<std::size_t, std::size_t> point;
+
+		std::cout << "Starting new measurement with dimension " << *it << std::endl;
 
 		// Create a factory for GFunctionIndividual objects
 		GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
@@ -116,7 +131,9 @@ int main(int argc, char **argv) {
 
 			// Add the fitness to the result vector
 			bestResult.push_back(p->fitness());
-			std::cout << "Best result has fitness " << p->fitness() << std::endl;
+			std::cout << "Best result in iteration " << test+1 << "/" << nTests << " with dimension " << *it << " has fitness " << p->fitness() << std::endl;
+
+			(*objectSizes_ptr) & boost::tuple<std::size_t, std::size_t>(test, sizeof(go));
 		}
 
 		// Post process the vector, extracting mean and sigma
@@ -127,9 +144,11 @@ int main(int argc, char **argv) {
 				  << "sigma = " << boost::get<1>(resultY) << std::endl
 				  << std::endl;
 
-		boost::tuple<double,double,double,double> result(double(*it), 0., boost::get<0>(resultY), boost::get<1>(resultY));
+		xyWE result(double(*it), 0., boost::get<0>(resultY), boost::get<1>(resultY));
 
 		resultVec.push_back(result);
+
+		gsizepd.registerPlotter(objectSizes_ptr);
 	}
 
 	//-------------------------------------------------------------------------
@@ -160,6 +179,8 @@ int main(int argc, char **argv) {
 
 	// Emit the result file
 	gpd.writeToFile(gbc.getResultFileName());
+
+	gsizepd.writeToFile("objectSizes.C");
 
 	// Terminate
 	return Go2::finalize();

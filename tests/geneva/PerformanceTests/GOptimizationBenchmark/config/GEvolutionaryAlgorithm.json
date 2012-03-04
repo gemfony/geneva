@@ -72,7 +72,7 @@
         "comment": "The number of iterations after which a report should be issued",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "1",
-        "value": "1"
+        "value": "100"
     },
     "cpInterval":
     {
