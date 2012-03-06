@@ -41,6 +41,30 @@ namespace Geneva {
 
 /**************************************************************************************/
 /**
+ * Set a number of parameters of the random number factory
+ *
+ * @param nProducerThreads The number of threads simultaneously producing random numbers
+ * @arraySize The size of individual random number packages
+ */
+void setRNFParameters(
+		const boost::uint16_t& nProducerThreads
+		, const std::size_t& arraySize
+) {
+	//--------------------------------------------
+	// Random numbers are our most valuable good.
+	// Set the number of threads. GRANDOMFACTORY is
+	// a singleton that will be initialized by this call.
+	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+	GRANDOMFACTORY->setArraySize(arraySize);
+}
+
+/** @brief Regulates access to the call_once facility*/
+boost::once_flag f_go2 = BOOST_ONCE_INIT;
+
+/**************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************/
+/**
  * The default constructor
  */
 Go2::Go2()
@@ -60,14 +84,16 @@ Go2::Go2()
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
 	, iterationsConsumed_(0)
-	, consumerInitialized_(false)
 {
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
-	// Set the number of threads. GRANDOMFACTORY is
-	// a singleton that will be initialized by this call.
-	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
-	GRANDOMFACTORY->setArraySize(arraySize_);
+	// Initialize all necessary variables
+	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_, arraySize_));
+
+	//--------------------------------------------
+	// Store a local clone of this object so we can
+	// restore the original settings later
+	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
 }
 
 
@@ -96,7 +122,6 @@ Go2::Go2(int argc, char **argv)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
 	, iterationsConsumed_(0)
-	, consumerInitialized_(false)
 {
 	//--------------------------------------------
 	// Load initial configuration options from the command line
@@ -104,10 +129,13 @@ Go2::Go2(int argc, char **argv)
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
-	// Set the number of threads. GRANDOMFACTORY is
-	// a singleton that will be initialized by this call.
-	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
-	GRANDOMFACTORY->setArraySize(arraySize_);
+	// Initialize all necessary variables
+	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_, arraySize_));
+
+	//--------------------------------------------
+	// Store a local clone of this object so we can
+	// restore the original settings later
+	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
 }
 
 /**************************************************************************************/
@@ -136,7 +164,6 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
 	, iterationsConsumed_(0)
-	, consumerInitialized_(false)
 {
 	//--------------------------------------------
 	// Load initial configuration options from the command line
@@ -144,10 +171,13 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
-	// Set the number of threads. GRANDOMFACTORY is
-	// a singleton that will be initialized by this call.
-	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
-	GRANDOMFACTORY->setArraySize(arraySize_);
+	// Initialize all necessary variables
+	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_, arraySize_));
+
+	//--------------------------------------------
+	// Store a local clone of this object so we can
+	// restore the original settings later
+	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
 }
 
 
@@ -188,14 +218,16 @@ Go2::Go2(
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
 	, iterationsConsumed_(0)
-	, consumerInitialized_(false)
 {
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
-	// Set the number of threads. GRANDOMFACTORY is
-	// a singleton that will be initialized by this call.
-	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
-	GRANDOMFACTORY->setArraySize(arraySize_);
+	// Initialize all necessary variables
+	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_, arraySize_));
+
+	//--------------------------------------------
+	// Store a local clone of this object so we can
+	// restore the original settings later
+	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
 }
 
 /**************************************************************************************/
@@ -219,25 +251,62 @@ Go2::Go2(const Go2& cp)
 	, offset_(cp.offset_)
 	, sorted_(cp.sorted_)
 	, iterationsConsumed_(0)
-	, consumerInitialized_(cp.consumerInitialized_)
 {
 	// Copy the best individual over (if any)
 	copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
 
+	// Copy the algorithms vector over
+	copyAlgorithmsVector(cp.algorithms_, algorithms_);
+
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
-	// Set the number of threads. GRANDOMFACTORY is
-	// a singleton that will be initialized by this call.
-	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
-	GRANDOMFACTORY->setArraySize(arraySize_);
+	// Initialize all necessary variables
+	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_, arraySize_));
+
+	//--------------------------------------------
+	// Store a local clone of this object so we can
+	// restore the original settings later
+	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
+}
+
+/**************************************************************************************/
+/**
+ * Copy construction without cloning
+ */
+Go2::Go2(const Go2& cp, bool noClone)
+	: GMutableSetT<GParameterSet>(cp)
+	, clientMode_(cp.clientMode_)
+	, serializationMode_(cp.serializationMode_)
+	, ip_(cp.ip_)
+	, port_(cp.port_)
+	, configFilename_(cp.configFilename_)
+	, parMode_(cp.parMode_)
+	, verbose_(cp.verbose_)
+	, maxStalledDataTransfers_(cp.maxStalledDataTransfers_)
+	, maxConnectionAttempts_(cp.maxConnectionAttempts_)
+	, returnRegardless_(cp.returnRegardless_)
+	, nProducerThreads_(cp.nProducerThreads_)
+	, arraySize_(cp.arraySize_)
+	, offset_(cp.offset_)
+	, sorted_(cp.sorted_)
+	, iterationsConsumed_(0)
+{
+	// Copy the best individual over (if any)
+	copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
+
+	// Copy the algorithms vector over
+	copyAlgorithmsVector(cp.algorithms_, algorithms_);
 }
 
 /**************************************************************************************/
 /**
  * The destructor
  */
-Go2::~Go2()
-{ /* nothing */ }
+Go2::~Go2() {
+	this->clear(); // Get rid of the local individuals
+	bestIndividual_.reset(); // Get rid of the stored best individual
+	algorithms_.clear(); // Get rid of the optimization algorithms
+}
 
 /**************************************************************************************/
 /**
@@ -325,8 +394,9 @@ boost::optional<std::string> Go2::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go2", offset_, p_load->offset_, "offset_", "p_load->offset_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", sorted_, p_load->sorted_, "sorted_", "p_load->sorted_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", iterationsConsumed_, p_load->iterationsConsumed_, "iterationsConsumed_", "p_load->iterationsConsumed_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", consumerInitialized_, p_load->consumerInitialized_, "consumerInitialized_", "p_load->consumerInitialized_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", bestIndividual_, p_load->bestIndividual_, "bestIndividual_", "p_load->bestIndividual_", e , limit));
+
+	// TODO: Compare algorithms; cross check other data has been added
 
 	return evaluateDiscrepancies("Go2", caller, deviations, e);
 }
@@ -359,9 +429,13 @@ void Go2::load_(const GObject *cp) {
 	offset_ = p_load->offset_;
 	sorted_ = p_load->sorted_;
 	iterationsConsumed_ = p_load->iterationsConsumed_;
-	consumerInitialized_ = p_load->consumerInitialized_;
 
 	copyGenevaSmartPointer<GParameterSet>(p_load->bestIndividual_, bestIndividual_);
+
+	// Copy the algorithms vector over
+	copyAlgorithmsVector(p_load->algorithms_, algorithms_);
+
+	// Cross check other data has been added
 }
 
 /**************************************************************************************/
@@ -566,7 +640,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	// Check that algorithms have indeed been registered
 	if(algorithms_.empty()) {
 		std::cerr << "No algorithms have been registered." << std::endl
-				  << "Adding Evolutionary Algorithm with" << std::endl
+				  << "Adding evolutionary algorithm with" << std::endl
 				  << "default settings" << std::endl;
 		this->addAlgorithm(PERSONALITY_EA);
 	}
@@ -602,7 +676,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 		boost::shared_ptr<GOptimizableI> p_base = (*alg_it);
 
 		// If this is a broker-based population, check whether we need to enrol a consumer
-		if(p_base->usesBroker() && !consumerInitialized_) {
+		if(p_base->usesBroker() && !GBROKER(Gem::Geneva::GIndividual)->hasConumers()) {
 			// Create a network consumer and enrol it with the broker
 			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(
 					port_
@@ -611,8 +685,6 @@ void Go2::optimize(const boost::uint32_t& offset) {
 					)
 			);
 			GBROKER(Gem::Geneva::GIndividual)->enrol(gatc);
-
-			consumerInitialized_ = true;
 		}
 
 		switch(p_base->getOptimizationAlgorithm()) {
@@ -626,6 +698,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 
 			// Remove our local copies
 			this->clear();
+			assert(this->empty());
 
 			// Do the actual optimization
 			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_);
@@ -639,6 +712,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
 				this->push_back(*best_it);
 			}
+			bestIndividuals.clear();
 		}
 			break;
 
@@ -652,6 +726,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 
 			// Remove our local copies
 			this->clear();
+			assert(this->empty());
 
 			// Do the actual optimization
 			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_);
@@ -665,6 +740,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
 				this->push_back(*best_it);
 			}
+			bestIndividuals.clear();
 		}
 			break;
 
@@ -678,6 +754,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 
 			// Remove our local copies
 			this->clear();
+			assert(this->empty());
 
 			// Do the actual optimization
 			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_);
@@ -691,6 +768,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
 				this->push_back(*best_it);
 			}
+			bestIndividuals.clear();
 		}
 			break;
 
@@ -718,6 +796,18 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	}
 
 	sorted_ = true;
+}
+
+/**************************************************************************************/
+/**
+ * Resets the object to its start position
+ */
+void Go2::reset() {
+	/* this->clear(); // Get rid of the local individuals
+	bestIndividual_.reset(); // Get rid of the stored best individual
+	algorithms_.clear(); // Get rid of the optimization algorithms */
+
+	this->load(tmpl_ptr);
 }
 
 /**************************************************************************************/
@@ -1177,6 +1267,60 @@ void Go2::parseCommandLine(int argc, char **argv) {
 	catch(...) {
 		std::cerr << "Unknown error while parsing the command line" << std::endl;
 		exit(1);
+	}
+}
+
+/**************************************************************************************/
+/**
+ * Copying of the algorithms_ vector. This is a modified version of the
+ * copyGenevaSmartPointerVector function, adapted to the needs of a GOptimizableI
+ * derivative. Note that this must be considered a hack.
+ */
+void Go2::copyAlgorithmsVector(
+	const std::vector<boost::shared_ptr<GOptimizableI> >& from
+	, std::vector<boost::shared_ptr<GOptimizableI> >& to
+) {
+	std::vector<boost::shared_ptr<GOptimizableI> >::const_iterator it_from;
+	std::vector<boost::shared_ptr<GOptimizableI> >::iterator it_to;
+
+	std::size_t size_from = from.size();
+	std::size_t size_to = to.size();
+
+	if(size_from==size_to) { // The most likely case
+		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(), it_to!=to.end(); ++it_from, ++it_to) {
+			const boost::shared_ptr<GObject> go_from = boost::dynamic_pointer_cast<GObject>(*it_from);
+			boost::shared_ptr<GObject>       go_to   = boost::dynamic_pointer_cast<GObject>(*it_to);
+
+			copyGenevaSmartPointer(go_from, go_to);
+		}
+	}
+	else if(size_from > size_to) {
+		// First copy the data of the first size_to items
+		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
+			const boost::shared_ptr<GObject> go_from = boost::dynamic_pointer_cast<GObject>(*it_from);
+			boost::shared_ptr<GObject>       go_to   = boost::dynamic_pointer_cast<GObject>(*it_to);
+
+			copyGenevaSmartPointer(go_from, go_to);
+		}
+
+		// Then attach copies of the remaining items
+		for(it_from=from.begin()+size_to; it_from!=from.end(); ++it_from) {
+			to.push_back(
+				boost::dynamic_pointer_cast<GOptimizableI>((boost::dynamic_pointer_cast<GObject>(*it_from))->GObject::clone())
+			);
+		}
+	}
+	else if(size_from < size_to) {
+		// First copy the initial size_foreight items over
+		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
+			const boost::shared_ptr<GObject> go_from = boost::dynamic_pointer_cast<GObject>(*it_from);
+			boost::shared_ptr<GObject>       go_to   = boost::dynamic_pointer_cast<GObject>(*it_to);
+
+			copyGenevaSmartPointer(go_from, go_to);
+		}
+
+		// Then resize the local vector. Surplus items will vanish
+		to.resize(size_from);
 	}
 }
 

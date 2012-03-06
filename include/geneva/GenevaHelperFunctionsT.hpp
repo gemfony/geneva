@@ -93,6 +93,57 @@ void copyGenevaSmartPointer (
 
 /**************************************************************************************************/
 /**
+ * This function copies a Geneva smart pointer vector to another vector. It assumes the availability
+ * of a load- and clone-call and that the objects pointed to derive from GObject
+ *
+ * @param from The vector used as the source of the copying
+ * @param to The vector used as the target of the copying
+ */
+template <typename T>
+void copyGenevaSmartPointerVector(
+		const std::vector<boost::shared_ptr<T> >& from
+		, std::vector<boost::shared_ptr<T> >& to
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, T> >::type* dummy = 0
+) {
+	typename std::vector<boost::shared_ptr<T> >::const_iterator it_from;
+	typename std::vector<boost::shared_ptr<T> >::iterator it_to;
+
+	std::size_t size_from = from.size();
+	std::size_t size_to = to.size();
+
+	if(size_from==size_to) { // The most likely case
+		for(it_from=from.begin(), it_to=to.begin();
+		     it_from!=from.end(), it_to!=to.end();
+		     ++it_from, ++it_to) {
+			copyGenevaSmartPointer(*it_from, *it_to);
+		}
+	}
+	else if(size_from > size_to) {
+		// First copy the data of the first size_to items
+		for(it_from=from.begin(), it_to=to.begin();
+		     it_to!=to.end(); ++it_from, ++it_to) {
+			copyGenevaSmartPointer(*it_from, *it_to);
+		}
+
+		// Then attach copies of the remaining items
+		for(it_from=from.begin()+size_to; it_from!=from.end(); ++it_from) {
+			to.push_back((*it_from)->GObject::clone<T>());
+		}
+	}
+	else if(size_from < size_to) {
+		// First copy the initial size_foreight items over
+		for(it_from=from.begin(), it_to=to.begin();
+		     it_from!=from.end(); ++it_from, ++it_to) {
+			copyGenevaSmartPointer(*it_from, *it_to);
+		}
+
+		// Then resize the local vector. Surplus items will vanish
+		to.resize(size_from);
+	}
+}
+
+/**************************************************************************************************/
+/**
  * This factory function returns default adaptors for a given base type. This function is a trap.
  * Specializations are responsible for the actual implementation.
  *

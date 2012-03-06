@@ -113,7 +113,7 @@ public:
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
 	 */
-	~GIntFlipAdaptorT()
+	virtual ~GIntFlipAdaptorT()
 	{ /* nothing */ }
 
 	/********************************************************************************************/

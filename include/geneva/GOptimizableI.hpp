@@ -71,23 +71,18 @@ class GOptimizableI
 
 public:
 	/** @brief The default constructor */
-	GOptimizableI() { /* nothing */ }
+	GOptimizableI();
 	/** @brief The destructor */
-	virtual ~GOptimizableI() { /* nothing */ }
+	virtual ~GOptimizableI();
 
 	/** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
 	virtual void optimize(const boost::uint32_t& offset) = 0;
 
+	/** @brief A simple wrapper function that forces the class to start with offset 0 */
+	virtual void optimize();
+
 	/** @brief Retrieves the current iteration of this object */
 	virtual boost::uint32_t getIteration() const = 0;
-
-    /**********************************************************************************/
-	/**
-	 * This is a simple wrapper function that forces the class to start with offset 0
-	 */
-	virtual void optimize() {
-		optimize(0);
-	}
 
 	/**************************************************************************************/
 	/**
@@ -101,7 +96,6 @@ public:
 		this->optimize(0);
 		return this->getBestIndividual<individual_type>();
 	}
-
 
 	/**************************************************************************************/
 	/**
@@ -167,23 +161,13 @@ public:
 		return bestIndividuals;
 	}
 
-	/**********************************************************************************/
-	/**
-	 * Returns information about the type of optimization algorithm. This function needs
-	 * to be overloaded by the actual algorithms to return the correct type.
-	 *
-	 * @return The type of optimization algorithm
-	 */
-	virtual personality_oa getOptimizationAlgorithm() const {
-		return PERSONALITY_NONE;
-	}
+	/** @brief Returns information about the type of optimization algorithm. */
+	virtual personality_oa getOptimizationAlgorithm() const;
 
-	/**********************************************************************************/
 	/** @brief Returns a name assigned to this algorithm */
 	virtual std::string getAlgorithmName() const = 0;
-
 	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
-	virtual bool usesBroker() const { return false; }
+	virtual bool usesBroker() const;
 
 protected:
 	/**********************************************************************************/

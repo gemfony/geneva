@@ -36,6 +36,7 @@
 
 // Boost header files go here
 #include <boost/algorithm/string.hpp>
+#include <boost/thread/once.hpp>
 
 #ifndef GO2_HPP_
 #define GO2_HPP_
@@ -66,6 +67,7 @@
 #include "geneva/GDoubleObject.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
 #include "geneva/GConstrainedDoubleCollection.hpp"
+#include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GInt32Object.hpp"
 #include "geneva/GInt32ObjectCollection.hpp"
 #include "geneva/GConstrainedInt32ObjectCollection.hpp"
@@ -114,17 +116,19 @@ const std::size_t GO2_DEF_ARRAYSIZE=1000;
 const boost::uint32_t GO2_DEF_OFFSET=0;
 const std::string GO2_DEF_OPTALGS="";
 
+const bool NOCLONE = true;
+
+/**************************************************************************************/
+/** @brief Set a number of parameters of the random number factory */
+void setRNFParameters(const boost::uint16_t&, const std::size_t&);
+
 /**************************************************************************************/
 /**
  * This class allows to "chain" a number of optimization algorithms so that a given
  * set of individuals can be optimized using more than one algorithm in sequence. The
  * class also hides the details of client/server mode, consumer initialization, etc.
  *
- * TODO: This class only checks that the broker hasn't been started inside of this class.
- * If there are multiple Go2 objects, multiple consumers might get registered. In summary
- * this means that one may only use one Go2 object inside of the same application.
- *
- * NOTE: This class is not currently thread-safe (nor even re-entrant)
+ * NOTE: This class might currently not be thread-safe (nor even reentrant)
  */
 class Go2
 	: public GMutableSetT<GParameterSet>
@@ -152,8 +156,8 @@ class Go2
 	     & BOOST_SERIALIZATION_NVP(arraySize_)
 	     & BOOST_SERIALIZATION_NVP(offset_)
 	     & BOOST_SERIALIZATION_NVP(sorted_)
-	     & BOOST_SERIALIZATION_NVP(bestIndividual_)
-	     & BOOST_SERIALIZATION_NVP(algorithms_);
+	     & BOOST_SERIALIZATION_NVP(bestIndividual_);
+	     // & BOOST_SERIALIZATION_NVP(algorithms_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -229,6 +233,9 @@ public:
 
 	/** @brief Perform the actual optimization cycle */
 	virtual void optimize(const boost::uint32_t& = 0);
+
+	/** @brief Resets the object to its start position */
+	void reset();
 
 	/**************************************************************************************/
 	// The following is a trivial list of getters and setters
@@ -337,6 +344,12 @@ protected:
 
 private:
 	/**********************************************************************/
+	/** @brief Copy construction without cloning */
+	Go2(const Go2&, bool);
+	/** @brief Copying of the algorithms_ vector */
+	void copyAlgorithmsVector(const std::vector<boost::shared_ptr<GOptimizableI> >&, std::vector<boost::shared_ptr<GOptimizableI> >&);
+
+	/**********************************************************************/
 	// These parameters can enter the object through the constructor
 	bool clientMode_; ///< Specifies whether this object represents a network client
 	Gem::Common::serializationMode serializationMode_; ///< Indicates whether serialization should be done in Text, XML or Binary form
@@ -366,7 +379,6 @@ private:
     boost::uint32_t offset_; ///< The offset to be used when starting a new optimization run
     bool sorted_; ///< Indicates whether local individuals have been sorted
     boost::uint32_t iterationsConsumed_; ///< The number of successive iterations performed by this object so far
-    bool consumerInitialized_; ///< Determines whether a consumer has already been initialized (this variable is not serialized)
 
     //----------------------------------------------------------------------------------------------------------------
     boost::shared_ptr<GParameterSet> bestIndividual_; ///< The best individual found during an optimization run
@@ -374,6 +386,10 @@ private:
     //----------------------------------------------------------------------------------------------------------------
     // The list of "chained" optimization algorithms
     std::vector<boost::shared_ptr<GOptimizableI> > algorithms_;
+
+    //----------------------------------------------------------------------------------------------------------------
+    // A clone of our pristine conditions, needed for the reset functionality
+    boost::shared_ptr<Go2> tmpl_ptr;
 };
 
 /**************************************************************************************/

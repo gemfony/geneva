@@ -55,13 +55,13 @@ typedef boost::tuple<double,double,double,double> xyWE; // xy-values with errors
 int main(int argc, char **argv) {
 	Go2::init();
 
+	// Create the algorithm container
+	Go2 go(argc, argv, "./config/Go2.json");
+
 	//---------------------------------------------------------------------
 	// Client mode
-	{
-		Go2 go(argc, argv, "./config/Go2.json");
-		if(go.clientMode()) {
-			return go.clientRun();
-		}
+	if(go.clientMode()) {
+		return go.clientRun();
 	}
 
 	//---------------------------------------------------------------------
@@ -79,23 +79,11 @@ int main(int argc, char **argv) {
 	std::string functionCode;
 	boost::tuple<double,double> varBoundaries;
 
-	// Create the canvas
-	std::size_t nPlots = dimVec.size()%2==0?dimVec.size():dimVec.size()+1;
-	GPlotDesigner gsizepd("Object Sizes", 2, nPlots);
-	gsizepd.setCanvasDimensions(1200,1400);
+	// Create a factory for GFunctionIndividual objects
+	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
 	for(it=dimVec.begin(); it!=dimVec.end(); ++it) {
-		boost::shared_ptr<GGraph2D> objectSizes_ptr(new GGraph2D());
-		objectSizes_ptr->setPlotLabel(std::string("Object dimension ") + boost::lexical_cast<std::string>(*it));
-		objectSizes_ptr->setXAxisLabel("Test Id");
-		objectSizes_ptr->setYAxisLabel("Size");
-
-		boost::tuple<std::size_t, std::size_t> point;
-
 		std::cout << "Starting new measurement with dimension " << *it << std::endl;
-
-		// Create a factory for GFunctionIndividual objects
-		GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
 		// Set the appropriate dimension of the function individuals
 		gfi.setParDim(*it);
@@ -105,16 +93,23 @@ int main(int argc, char **argv) {
 
 		// Run the desired number of tests
 		for(std::size_t test=0; test<nTests; test++) {
-			Go2 go(argc, argv, "./config/Go2.json");
-
 			// Retrieve an individual from the factory
 			boost::shared_ptr<GFunctionIndividual> g = gfi();
+			std::cout << "g has fitness " << g->fitness() << std::endl;
 
+#ifdef DEBUG
 			if(g->getParameterSize() != *it) {
 				raiseException(
 					"In main(): parameter size of individual != requested size: " << g->getParameterSize() << " / " << *it << std::endl
 				);
 			}
+
+			if(!go.empty()) {
+				raiseException(
+					"In main(): go contains " << go.size() << " items when it should be empty." << std::endl
+				);
+			}
+#endif /* DEBUG */
 
 			// Make an individual known to the optimizer
 			go.push_back(g);
@@ -133,7 +128,8 @@ int main(int argc, char **argv) {
 			bestResult.push_back(p->fitness());
 			std::cout << "Best result in iteration " << test+1 << "/" << nTests << " with dimension " << *it << " has fitness " << p->fitness() << std::endl;
 
-			(*objectSizes_ptr) & boost::tuple<std::size_t, std::size_t>(test, sizeof(go));
+			// Clear the go object
+			go.reset();
 		}
 
 		// Post process the vector, extracting mean and sigma
@@ -147,8 +143,6 @@ int main(int argc, char **argv) {
 		xyWE result(double(*it), 0., boost::get<0>(resultY), boost::get<1>(resultY));
 
 		resultVec.push_back(result);
-
-		gsizepd.registerPlotter(objectSizes_ptr);
 	}
 
 	//-------------------------------------------------------------------------
@@ -179,8 +173,6 @@ int main(int argc, char **argv) {
 
 	// Emit the result file
 	gpd.writeToFile(gbc.getResultFileName());
-
-	gsizepd.writeToFile("objectSizes.C");
 
 	// Terminate
 	return Go2::finalize();

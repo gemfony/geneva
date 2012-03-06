@@ -111,7 +111,7 @@ public:
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
 	 */
-	~GNumFlipAdaptorT()
+	virtual ~GNumFlipAdaptorT()
 	{ /* nothing */ }
 
 	/********************************************************************************************/

@@ -444,6 +444,18 @@ public:
 		//-----------------------------------------------------------------------------
 	}
 
+	/**********************************************************************************/
+	/**
+	 * Checks whether any consumers have been enrolled at the time of calling. As
+	 * consumers are maintained inside of a thread group and consumers may be added
+	 * asynchronously. this function can only give a hint.
+	 *
+	 * @return A boolean indicating whether any consumers are registered
+	 */
+	bool hasConumers() const {
+		return consumerThreads_.size()>0?true:false;
+	}
+
 private:
 	/**********************************************************************************/
 	GBrokerT(const GBrokerT<carrier_type>&); ///< Intentionally left undefined

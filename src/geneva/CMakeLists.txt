@@ -40,6 +40,7 @@ SET ( OPTIMIZATIONSOURCES
 	Go
 	Go2
 	GObject
+	GOptimizableI
 	GOptimizationAlgorithmT
 	GOptimizationEnums
 	GParameterBase
