@@ -48,7 +48,6 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctions.hpp"
-#include "common/GThreadWrapper.hpp"
 #include "courtier/GBrokerConnectorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GBaseGD.hpp"

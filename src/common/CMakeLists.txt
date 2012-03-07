@@ -10,6 +10,7 @@ SET ( COMMONSOURCES
 	GPODExpectationChecksT
 	GROOTProducer
 	GThreadGroup
+	GThreadPool
 	GThreadWrapper
 )
 

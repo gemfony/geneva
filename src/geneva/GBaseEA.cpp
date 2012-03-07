@@ -302,7 +302,7 @@ void GBaseEA::saveCheckpoint() const {
 	if(this->at(0)->isDirty()) {
 		raiseException(
 				"In GBaseEA::saveCheckpoint():" << std::endl
-				<< "Error: class member in position " << std::distance(it,this->begin()) << " has the dirty flag set."
+				<< "Error: class member in position " << std::distance(this->begin(),it) << " has the dirty flag set."
 		);
 	}
 #endif /* DEBUG */
@@ -1256,7 +1256,7 @@ void GBaseEA::sortMuplusnuMode() {
 		if((*it)->isDirty()) {
 			raiseException(
 				"In GBaseEA::sortMuplusnuMode(): Error!" << std::endl
-				<< "In iteration " << getIteration() << ": Found individual in position " << std::distance(it,this->begin()) << " whose dirty flag is set." << std::endl
+				<< "In iteration " << getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set." << std::endl
 			);
 		}
 	}
@@ -1287,7 +1287,7 @@ void GBaseEA::sortMucommanuMode() {
 		if((*it)->isDirty()) {
 			raiseException(
 				"In GBaseEA::sortMucommanuMode(): Error!" << std::endl
-				<< "In iteration " << getIteration() << ": Found individual in position " << std::distance(it,this->begin()) << " whose dirty flag is set." << std::endl
+				<< "In iteration " << getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set." << std::endl
 			);
 		}
 	}

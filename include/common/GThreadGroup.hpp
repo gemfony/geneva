@@ -107,7 +107,7 @@ class GThreadGroup
 	typedef std::vector<thread_ptr> thread_vector;
 
 public:
-	/** @brief The standard destructor */
+	/** @brief The destructor */
 	~GThreadGroup();
 
 	/** @brief Adds an already created thread to the group */
@@ -135,13 +135,13 @@ public:
 	/**
 	 * Creates a new thread and adds it to the group
 	 *
-	 * @param threadfunc The function to be run by the thread
+	 * @param f The function to be run by the thread
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	boost::shared_ptr<boost::thread> create_thread(F threadfunc) {
+	boost::shared_ptr<boost::thread> create_thread(F f) {
 		boost::lock_guard<boost::mutex> guard(m_);
-		thread_ptr new_thread(new boost::thread(threadfunc));
+		thread_ptr new_thread(new boost::thread(f));
 		threads_.push_back(new_thread);
 		return new_thread;
 	}
@@ -151,13 +151,13 @@ public:
 	 * Creates nThreads new threads with the same function
 	 * and adds them to the group
 	 *
-	 * @param threadfunc The function to be run by the thread
+	 * @param f The function to be run by the thread
 	 * @param nThreads The number of threads to add to the group
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	void create_threads(F threadfunc, const std::size_t& nThreads)	{
-		for(std::size_t i=0; i<nThreads; i++) create_thread(threadfunc);
+	void create_threads(F f, const std::size_t& nThreads)	{
+		for(std::size_t i=0; i<nThreads; i++) create_thread(f);
 	}
 
 	/********************************************************************/

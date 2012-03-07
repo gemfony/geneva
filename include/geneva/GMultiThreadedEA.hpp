@@ -50,6 +50,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "common/GThreadWrapper.hpp"
+#include "common/GThreadPool.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GBaseEA.hpp"

@@ -831,7 +831,7 @@ boost::shared_ptr<GIndividual> Go2::getBestIndividual() {
 			if((*it)->isDirty()) {
 				raiseException(
 					"In Go2::getBestIndividual(): Error!" << std::endl
-					<< "Found individual in position " << std::distance(it,this->begin()) << " whose dirty flag is set" << std::endl
+					<< "Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set" << std::endl
 				);
 			}
 		}
@@ -870,7 +870,7 @@ std::vector<boost::shared_ptr<GIndividual> > Go2::getBestIndividuals() {
 			if((*it)->isDirty()) {
 				raiseException(
 					"In Go2::getBestIndividuals(): Error!" << std::endl
-					<< "Found individual in position " << std::distance(it,this->begin()) << " whose dirty flag is set" << std::endl
+					<< "Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set" << std::endl
 				);
 			}
 		}

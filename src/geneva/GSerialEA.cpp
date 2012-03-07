@@ -212,23 +212,25 @@ void GSerialEA::addConfigurationOptions (
  */
 void GSerialEA::adaptChildren()
 {
+	std::size_t nParents = GBaseEA::getNParents();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	// We start with the parents, if this is the first iteration. Their
-	// initial fitness needs to be determined, if this is the MUPLUSNU_SINGLEEVAL
-	// or MUNU1PRETAIN_SINGLEEVAL selection model.
+	// initial fitness needs to be determined in some selection models.
 	// Make sure we also evaluate the parents in the first iteration, if needed.
-	// This is only applicable to the MUPLUSNU_SINGLEEVAL and MUNU1PRETAIN_SINGLEEVAL modes.
 	if(inFirstIteration()) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case SA_SINGLEEVAL:
+		case MUPLUSNU_SINGLEEVAL:
 		case MUPLUSNU_PARETO:
 		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
-		case MUPLUSNU_SINGLEEVAL:
 		case MUNU1PRETAIN_SINGLEEVAL: // same procedure. We do not know which parent is best
-			for(it=data.begin(); it!=data.begin() + getNParents(); ++it) {
-				(*it)->fitness(0);
+			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
+				// Make re-evaluation accessible
+				(*it)->setServerMode(false);
+				// Perform the actual evaluation
+				(*it)->doFitnessCalculation();
 			}
 			break;
 
@@ -239,8 +241,36 @@ void GSerialEA::adaptChildren()
 
 	// Next we perform the adaption of each child individual in
 	// sequence. Note that this can also trigger fitness calculation.
-	for(it=data.begin()+getNParents(); it!=data.end(); ++it) {
-		(*it)->adapt();
+	for(it=data.begin()+nParents; it!=data.end(); ++it) {
+		// Make re-evaluation accessible
+		(*it)->setServerMode(false);
+		// Perform the actual work
+		(*it)->adaptAndEvaluate();
+	}
+
+	// Restart the server mode for parents
+	if(inFirstIteration()) {
+		switch(getSortingScheme()) {
+		//--------------------------------------------------------------
+		case SA_SINGLEEVAL:
+		case MUPLUSNU_SINGLEEVAL:
+		case MUPLUSNU_PARETO:
+		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
+		case MUNU1PRETAIN_SINGLEEVAL: // same procedure
+			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
+				// Make re-evaluation impossible
+				(*it)->setServerMode(true);
+			}
+			break;
+
+		case MUCOMMANU_SINGLEEVAL:
+			break; // nothing
+		}
+	}
+
+	// Restart the server mode for children
+	for(it=data.begin()+nParents; it!=data.end(); ++it) {
+		(*it)->setServerMode(true);
 	}
 }
 

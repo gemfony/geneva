@@ -60,7 +60,7 @@ GMultiThreadedEA::GMultiThreadedEA()
 GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
    : GBaseEA(cp)
    , nThreads_(cp.nThreads_)
-   , tp_(nThreads_) // Make sure we initialize the threadpool
+   , tp_(nThreads_) // Make sure we initialize the thread pool
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -238,10 +238,8 @@ void GMultiThreadedEA::adaptChildren() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	// We start with the parents, if this is the first iteration. Their
-	// initial fitness needs to be determined, if this is the MUPLUSNU_SINGLEEVAL
-	// or MUNU1PRETAIN_SINGLEEVAL selection model.
+	// initial fitness needs to be determined in some selection models.
 	// Make sure we also evaluate the parents in the first iteration, if needed.
-	// This is only applicable to the MUPLUSNU_SINGLEEVAL and MUNU1PRETAIN_SINGLEEVAL modes.
 	if(inFirstIteration()) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------

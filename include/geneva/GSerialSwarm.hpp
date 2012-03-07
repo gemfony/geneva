@@ -49,7 +49,6 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctions.hpp"
-#include "common/GThreadWrapper.hpp"
 #include "geneva/GBaseSwarm.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GObject.hpp"
@@ -60,8 +59,7 @@ namespace Geneva {
 
 /********************************************************************/
 /**
- * A multi-threaded swarm based on GSerialSwarm. This version uses the
- * Boost.Threads library and a thread-pool library from http://threadpool.sf.net .
+ * A serial swarm, no multithreading is used directly by this class
  */
 class GSerialSwarm
 	: public GBaseSwarm
