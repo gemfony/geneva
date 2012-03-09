@@ -40,6 +40,7 @@
 // Boost header files go here
 #include <boost/asio/io_service.hpp>
 #include <boost/bind.hpp>
+#include <boost/function.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/thread.hpp>
 #include <boost/utility.hpp>
@@ -78,7 +79,7 @@ public:
 	~GThreadPool();
 
 	/** @brief Blocks until all submitted jobs have been cleared from the pool */
-	void wait();
+	bool wait();
 
 	/** @brief Allows to check whether any errors have occurred */
 	bool hasErrors() const;
@@ -89,15 +90,20 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * Posts the task to Boost.ASIO's io_service. This function will return immediately.
+	 * Submits the task to Boost.ASIO's io_service. This function will return immediately.
 	 *
-	 * @param f A function or function object to be executed by the threads in the pool
+	 * @param f The function to be executed by the threads in the pool
 	 */
 	template <typename F>
-	void post(F f) {
+	void schedule(F f) {
 		io_service_.post(
-			boost::bind(&GThreadPool::taskWrapper, this, f)
+			boost::bind(&GThreadPool::taskWrapper<F>, this, f)
 		);
+
+		{ // Update the submission counter
+			boost::unique_lock<boost::mutex> lck(job_counter_mutex_);
+			submittedJobs_++;
+		}
 	}
 
 private:
@@ -106,20 +112,13 @@ private:
 	 * A wrapper for the thread execution that takes care of exceptions thrown by our
 	 * function and allows to track how many jobs are still pending
 	 *
-	 * @param f A function or function object to be executed by the threads in the pool
+	 * @param f A function to be executed by the threads in the pool
 	 */
 	template <typename F>
 	void taskWrapper(F f) {
 		try {
-			{ // Increment the job counter
-				boost::unique_lock<boost::mutex> lck(job_counter_mutex_);
-				pendingJobs_++;
-			}
-
-			//----------------------------------
 			// Execute the actual worker task
 			f();
-			//----------------------------------
 		}
 		catch(Gem::Common::gemfony_error_condition& e) {
 			// Extract the error
@@ -167,12 +166,10 @@ private:
 			}
 		}
 
-		{ // Decrement the job counter -- we need an external means to check whether the pool has run empty
+		{ // Update the submission counter -- we need an external means to check whether the pool has run empty
 			boost::unique_lock<boost::mutex> lck(job_counter_mutex_);
-			pendingJobs_--;
-			if(0 == pendingJobs_) {
-				condition_.notify_all();
-			}
+			completedJobs_++;
+			condition_.notify_all();
 		}
 	}
 
@@ -187,8 +184,10 @@ private:
 	std::vector<std::string> errorLog_; ///< Holds error descriptions emitted by the work load
 	mutable boost::shared_mutex error_mutex_; ///< Protects access to the error log and error counter
 
-	boost::uint32_t pendingJobs_;  ///< The number of jobs currently running
-	mutable boost::mutex job_counter_mutex_; ///< Protects access to the job counter
+	boost::uint32_t submittedJobs_;  ///< The number of jobs that have been submitted in this round
+	boost::uint32_t completedJobs_;  ///< The number of jobs that have been completed in this round
+	mutable boost::mutex job_counter_mutex_; ///< Protects access to the "completed" job counter
+
 	boost::condition_variable_any condition_;
 };
 

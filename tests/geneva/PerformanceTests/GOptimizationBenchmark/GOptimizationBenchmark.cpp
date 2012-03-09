@@ -156,8 +156,8 @@ int main(int argc, char **argv) {
 	boost::shared_ptr<GGraph2ED> gopt_ptr(new GGraph2ED());
 	gopt_ptr->setPlotMode(CURVE);
 	gopt_ptr->setPlotLabel("Measurements");
-	gopt_ptr->setXAxisLabel("Best Result");
-	gopt_ptr->setYAxisLabel("Function Dimension");
+	gopt_ptr->setXAxisLabel("Function Dimension");
+	gopt_ptr->setYAxisLabel("Best Result");
 
 	// Add the data to the plot
 	(*gopt_ptr) & resultVec;

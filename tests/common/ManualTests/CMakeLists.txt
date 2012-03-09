@@ -5,6 +5,8 @@ ADD_CUSTOM_TARGET ( "common-tests-manual" )
 ADD_DEPENDENCIES ( "common-tests-manual"
 	# Add all the available tests targets (EXECUTABLENAMEs) here
 	GPlotDesignerTest
+	GThreadPoolTest
 )
 
 ADD_SUBDIRECTORY ( GPlotDesignerTest )
+ADD_SUBDIRECTORY ( GThreadPoolTest )

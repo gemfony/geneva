@@ -43,7 +43,8 @@ namespace Common {
  */
 GThreadPool::GThreadPool()
 	: errorCounter_(0)
-	, pendingJobs_(0)
+	, submittedJobs_(0)
+	, completedJobs_(0)
 {
 	// Store a worker (a place holder, really) in the io_service_ object
 	work_.reset(
@@ -65,6 +66,9 @@ GThreadPool::GThreadPool()
  * @param nThreads The desired number of threads executing work concurrently in the pool
  */
 GThreadPool::GThreadPool(const std::size_t& nThreads)
+	: errorCounter_(0)
+	, submittedJobs_(0)
+	, completedJobs_(0)
 {
 	// Store a worker (a place holder, really) in the io_service_ object
 	work_.reset(
@@ -119,7 +123,7 @@ void GThreadPool::getErrors(std::vector<std::string>& errorLog) {
  * Clears the error logs
  */
 void GThreadPool::clearErrors() {
-	boost::unique_lock<boost::shared_mutex> lck(error_mutex_); // We protect against concurrent write access
+	boost::lock_guard<boost::shared_mutex> lck(error_mutex_); // We protect against concurrent write access
 	errorCounter_ = 0;
 	errorLog_.clear();
 }
@@ -127,12 +131,22 @@ void GThreadPool::clearErrors() {
 /***************************************************************************************/
 /**
  * Waits for all submitted jobs to be cleared from the pool
+ *
+ * @return A boolean indicating whether errors have occured
  */
-void GThreadPool::wait() {
-	boost::unique_lock<boost::mutex> lck(job_counter_mutex_);
-	while(0 < pendingJobs_) { // Deal with spurious wake-ups
+bool GThreadPool::wait() {
+	// Acquire the lock, then return it as long as the condition hasn't
+	// been fulfilled
+	boost::lock_guard<boost::mutex> lck(job_counter_mutex_);
+	while(submittedJobs_ > completedJobs_) { // Deal with spurious wake-ups
 		condition_.wait(job_counter_mutex_);
 	}
+
+	// Reset the counters
+	submittedJobs_ = 0;
+	completedJobs_ = 0;
+
+	return !this->hasErrors();
 }
 
 /***************************************************************************************/

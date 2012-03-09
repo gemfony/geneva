@@ -1,5 +1,5 @@
 /**
- * @file GPlotDesignerTest.hpp
+ * @file GPlotDesignerTest.cpp
  */
 
 /*

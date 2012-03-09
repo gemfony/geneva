@@ -47,7 +47,6 @@ namespace Geneva {
 GMultiThreadedEA::GMultiThreadedEA()
    : GBaseEA()
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA)))
-   , tp_(nThreads_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -60,7 +59,6 @@ GMultiThreadedEA::GMultiThreadedEA()
 GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
    : GBaseEA(cp)
    , nThreads_(cp.nThreads_)
-   , tp_(nThreads_) // Make sure we initialize the thread pool
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -68,10 +66,8 @@ GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
  * The standard destructor. We clear remaining work items in the
  * thread pool and wait for active tasks to finish.
  */
-GMultiThreadedEA::~GMultiThreadedEA() {
-	tp_.clear();
-	tp_.wait();
-}
+GMultiThreadedEA::~GMultiThreadedEA()
+{ /* nothing */ }
 
 /************************************************************************************************************/
 /**
@@ -99,11 +95,7 @@ void GMultiThreadedEA::load_(const GObject *cp) {
 	GBaseEA::load_(cp);
 
 	// ... and then our own
-	if(nThreads_ != p_load->nThreads_) {
-		nThreads_ = p_load->nThreads_;
-		tp_.clear(); // TODO: is this needed ?
-		tp_.size_controller().resize(nThreads_);
-	}
+	nThreads_ = p_load->nThreads_;
 
 	// Note that we do not copy serverMode_ as it is used for internal caching only
 }
@@ -189,6 +181,9 @@ void GMultiThreadedEA::init() {
 	// GBaseEA sees exactly the environment it would when called from its own class
 	GBaseEA::init();
 
+	// Initialize our thread pool
+	tp_.reset(new Gem::Common::GThreadPool(nThreads_));
+
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
 	// The function will throw if not all individuals have the same server mode flag.
@@ -222,6 +217,9 @@ void GMultiThreadedEA::finalize() {
 		(*it)->setServerMode(serverMode_);
 	}
 
+	// Terminate our thread pool
+	tp_.reset();
+
 	// GBaseEA sees exactly the environment it would when called from its own class
 	GBaseEA::finalize();
 }
@@ -248,12 +246,14 @@ void GMultiThreadedEA::adaptChildren() {
 		case MUPLUSNU_PARETO:
 		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
 		case MUNU1PRETAIN_SINGLEEVAL: // same procedure. We do not know which parent is best
+		{
 			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
 				// Make re-evaluation accessible
 				(*it)->setServerMode(false);
 				// Schedule the actual job; enforce fitness calculation of parents
-				tp_.schedule(Gem::Common::GThreadWrapper(boost::bind(&GIndividual::doFitnessCalculation, *it)));
+				tp_->schedule(boost::function<double()>(boost::bind(&GIndividual::doFitnessCalculation, *it)));
 			}
+		}
 			break;
 
 		case MUCOMMANU_SINGLEEVAL:
@@ -266,11 +266,11 @@ void GMultiThreadedEA::adaptChildren() {
 		// Make re-evaluation accessible
 		(*it)->setServerMode(false);
 		// Schedule the actual job
-		tp_.schedule(Gem::Common::GThreadWrapper(boost::bind(&GIndividual::adaptAndEvaluate, *it)));
+		tp_->schedule(boost::function<double()>(boost::bind(&GIndividual::adaptAndEvaluate, *it)));
 	}
 
 	// ... and wait for all tasks to complete
-	tp_.wait();
+	tp_->wait();
 
 	// Restart the server mode for parents
 	if(inFirstIteration()) {
@@ -279,7 +279,7 @@ void GMultiThreadedEA::adaptChildren() {
 		case SA_SINGLEEVAL:
 		case MUPLUSNU_SINGLEEVAL:
 		case MUPLUSNU_PARETO:
-		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
+		case MUCOMMANU_PARETO: // The current setup will still allow s	ome old parents to become new parents
 		case MUNU1PRETAIN_SINGLEEVAL: // same procedure
 			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
 				// Make re-evaluation impossible
@@ -347,8 +347,6 @@ void GMultiThreadedEA::setNThreads(boost::uint16_t nThreads) {
 	else {
 		nThreads_ = nThreads;
 	}
-
-	tp_.size_controller().resize(nThreads_);
 }
 
 /************************************************************************************************************/
