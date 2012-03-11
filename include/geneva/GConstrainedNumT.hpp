@@ -36,6 +36,7 @@
 // Standard headers go here
 
 // Boost headers go here
+#include <boost/math/special_functions/next.hpp>
 
 #ifndef GCONSTRAINEDNUMT_HPP_
 #define GCONSTRAINEDNUMT_HPP_
