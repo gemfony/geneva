@@ -46,7 +46,6 @@ namespace Geneva {
 GMultiThreadedGD::GMultiThreadedGD()
 	: GBaseGD()
 	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD)))
-	, tp_(nThreads_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -60,7 +59,6 @@ GMultiThreadedGD::GMultiThreadedGD (
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize)
 	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD)))
-	, tp_(nThreads_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -70,7 +68,6 @@ GMultiThreadedGD::GMultiThreadedGD (
 GMultiThreadedGD::GMultiThreadedGD(const GMultiThreadedGD& cp)
 	: GBaseGD(cp)
 	, nThreads_(cp.nThreads_)
-	, tp_(nThreads_) // Make sure we initialize the threadpool appropriately
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -78,10 +75,8 @@ GMultiThreadedGD::GMultiThreadedGD(const GMultiThreadedGD& cp)
  * The destructor. We clear remaining work items in the
  * thread pool and wait for active tasks to finish.
  */
-GMultiThreadedGD::~GMultiThreadedGD() {
-	tp_.clear();
-	tp_.wait();
-}
+GMultiThreadedGD::~GMultiThreadedGD()
+{ /* nothing */ }
 
 /************************************************************************************************************/
 /**
@@ -175,8 +170,6 @@ void GMultiThreadedGD::setNThreads(boost::uint16_t nThreads) {
 	else {
 		nThreads_ = nThreads;
 	}
-
-	tp_.size_controller().resize(nThreads_);
 }
 
 /************************************************************************************************************/
@@ -203,11 +196,10 @@ void GMultiThreadedGD::load_(const GObject *cp) {
 	GBaseGD::load_(cp);
 
 	// ... and then our own
-	if(nThreads_ != p_load->nThreads_) {
-		nThreads_ = p_load->nThreads_;
-		tp_.clear(); // TODO: is this needed ?
-		tp_.size_controller().resize(nThreads_);
-	}
+	// ... and then our own
+	nThreads_ = p_load->nThreads_;
+
+	// Note that we do not copy serverMode_ as it is used for internal caching only
 }
 
 /************************************************************************************************************/
@@ -227,6 +219,9 @@ GObject *GMultiThreadedGD::clone_() const  {
 void GMultiThreadedGD::init() {
 	// GBaseGD sees exactly the environment it would when called from its own class
 	GBaseGD::init();
+
+	// Initialize our thread pool
+	tp_.reset(new Gem::Common::GThreadPool(nThreads_));
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -260,6 +255,9 @@ void GMultiThreadedGD::finalize() {
 	for(it=data.begin(); it!=data.end(); ++it) {
 		(*it)->setServerMode(serverMode_);
 	}
+
+	// Terminate our thread pool
+	tp_.reset();
 
 	// GBaseGD sees exactly the environment it would when called from its own class
 	GBaseGD::finalize();
@@ -308,8 +306,9 @@ void GMultiThreadedGD::addConfigurationOptions (
  * @return The best fitness found amongst all parents
  */
 double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
+	GMultiThreadedGD::iterator it; // An iterator that allows us to loop over the collection
 	double bestFitness = getWorstCase(); // Holds the best fitness found so far
-	std::size_t nStartingPoints = this->getNStartingPoints();
+	std::size_t nStartingPoints = this->getNStartingPoints(); // The number of simultaneous starting points
 
 #ifdef DEBUG
 	if(finalPos > this->size()) {
@@ -328,42 +327,35 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 #endif
 
 	// Trigger value calculation for all individuals (including parents)
-	for(std::size_t i=0; i<finalPos; i++) {
+	for(it=this->begin(); it!=this->begin() + finalPos; ++it) {
 #ifdef DEBUG
 		// Make sure the evaluated individuals have the dirty flag set
-		if(afterFirstIteration() && !this->at(i)->isDirty()) {
+		if(afterFirstIteration() && !(*it)->isDirty()) {
 			raiseException(
 					"In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
-					<< "Found individual in position " << i << " whose dirty flag isn't set"
+					<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set"
 			);
 		}
 #endif /* DEBUG */
 
 		// Make sure we are allowed to perform value calculation
-		this->at(i)->setServerMode(false);
+		(*it)->setServerMode(false);
 
-		tp_.schedule(
-			Gem::Common::GThreadWrapper(
-				boost::bind(
-					&GParameterSet::fitness
-					, this->at(i)
-					, 0
-				)
-			)
-		);
+		// Submit the actual task
+		tp_->schedule(boost::function<double()>(boost::bind(&GParameterSet::fitness, *it, 0)));
 	}
 
 	// wait for the pool to run out of tasks
-	tp_.wait();
+	tp_->wait();
 
 	// Retrieve information about the best fitness found and disallow re-evaluation
 	double fitnessFound = 0.;
-	for(std::size_t i=0; i<this->size(); i++) {
+	for(it=this->begin(); it!=this->begin() + finalPos; ++it) {
 		// Prevents re-evaluation
-		this->at(i)->setServerMode(true);
+		(*it)->setServerMode(true);
 
-		if(i<nStartingPoints) {
-			fitnessFound = this->at(i)->fitness(0);
+		if(boost::numeric_cast<std::size_t>(std::distance(this->begin(), it)) < nStartingPoints) {
+			fitnessFound = (*it)->fitness(0);
 
 			if(isBetter(fitnessFound, bestFitness)) {
 				bestFitness = fitnessFound;

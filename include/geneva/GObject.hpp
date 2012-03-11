@@ -121,7 +121,6 @@
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GSerializableI.hpp"
 #include "common/GParserBuilder.hpp"
-#include "common/thirdparty/boost/threadpool.hpp"
 #include "common/GSerializeTupleT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 

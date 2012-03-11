@@ -36,7 +36,6 @@
 // Standard headers go here
 
 // Boost headers go here
-#include <boost/bind/protect.hpp>
 
 #ifndef GMULTITHREADEDEA_HPP_
 #define GMULTITHREADEDEA_HPP_

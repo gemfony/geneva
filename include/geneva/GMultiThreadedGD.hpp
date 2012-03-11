@@ -35,7 +35,7 @@
 // Standard headers go here
 
 // Boost headers go here
-
+#include <boost/cast.hpp>
 
 #ifndef GMULTITHREADEDGD_HPP_
 #define GMULTITHREADEDGD_HPP_
@@ -50,6 +50,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "common/GThreadWrapper.hpp"
+#include "common/GThreadPool.hpp"
 #include "geneva/GBaseGD.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GObject.hpp"
@@ -139,9 +140,9 @@ protected:
 
 private:
 	boost::uint16_t nThreads_; ///< The number of threads
-	boost::threadpool::pool tp_; ///< A thread pool
-
 	bool serverMode_; ///< Indicates whether an individual runs in server mode
+
+	boost::shared_ptr<Gem::Common::GThreadPool> tp_; ///< Temporarily holds a thread pool
 
 #ifdef GEM_TESTING
 public:

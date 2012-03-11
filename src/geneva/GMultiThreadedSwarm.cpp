@@ -46,7 +46,6 @@ namespace Geneva {
 GMultiThreadedSwarm::GMultiThreadedSwarm()
    : GBaseSwarm()
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM)))
-   , tp_(nThreads_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -59,7 +58,6 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(
 )
    : GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM)))
-   , tp_(nThreads_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -71,7 +69,6 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(
 GMultiThreadedSwarm::GMultiThreadedSwarm(const GMultiThreadedSwarm& cp)
    : GBaseSwarm(cp)
    , nThreads_(cp.nThreads_)
-   , tp_(nThreads_) // Make sure we initialize the threadpool appropriately
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -79,10 +76,8 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(const GMultiThreadedSwarm& cp)
  * The destructor. We clear remaining work items in the
  * thread pool and wait for active tasks to finish.
  */
-GMultiThreadedSwarm::~GMultiThreadedSwarm() {
-	tp_.clear();
-	tp_.wait();
-}
+GMultiThreadedSwarm::~GMultiThreadedSwarm()
+{ /* nothing */ }
 
 /************************************************************************************************************/
 /**
@@ -110,11 +105,7 @@ void GMultiThreadedSwarm::load_(const GObject *cp) {
 	GBaseSwarm::load_(cp);
 
 	// ... and then our own
-	if(nThreads_ != p_load->nThreads_) {
-		nThreads_ = p_load->nThreads_;
-		tp_.clear(); // TODO: is this needed ?
-		tp_.size_controller().resize(nThreads_);
-	}
+	nThreads_ = p_load->nThreads_;
 }
 
 /************************************************************************************************************/
@@ -199,6 +190,9 @@ void GMultiThreadedSwarm::init() {
 	// GBaseSwarm sees exactly the environment it would when called from its own class
 	GBaseSwarm::init();
 
+	// Initialize our thread pool
+	tp_.reset(new Gem::Common::GThreadPool(nThreads_));
+
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
 	// The function will throw if not all individuals have the same server mode flag.
@@ -231,6 +225,9 @@ void GMultiThreadedSwarm::finalize() {
 	for(it=data.begin(); it!=data.end(); ++it) {
 		(*it)->setServerMode(serverMode_);
 	}
+
+	// Terminate our thread pool
+	tp_.reset();
 
 	// GBaseSwarm sees exactly the environment it would when called from its own class
 	GBaseSwarm::finalize();
@@ -285,8 +282,8 @@ void GMultiThreadedSwarm::updateFitness() {
 			GMultiThreadedSwarm::iterator current = start + offset;
 
 			// Schedule the fitness calculation as a thread
-			tp_.schedule(
-				Gem::Common::GThreadWrapper(
+			tp_->schedule(
+				boost::function<void()>(
 					boost::bind(
 					    &GMultiThreadedSwarm::updateIndividualFitness
 						, this
@@ -302,7 +299,7 @@ void GMultiThreadedSwarm::updateFitness() {
 	}
 
 	// wait for the pool to run out of tasks
-	tp_.wait();
+	tp_->wait();
 }
 
 /************************************************************************************************************/
@@ -321,8 +318,6 @@ void GMultiThreadedSwarm::setNThreads(boost::uint16_t nThreads) {
 	else {
 		nThreads_ = nThreads;
 	}
-
-	tp_.size_controller().resize(nThreads_);
 }
 
 /************************************************************************************************************/
