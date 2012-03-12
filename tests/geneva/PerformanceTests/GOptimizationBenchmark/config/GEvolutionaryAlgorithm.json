@@ -89,8 +89,8 @@
         {
             "comment": "The directory where checkpoint files should be stored.",
             "comment": "[GOptimizationAlgorithmT<ind_type>]",
-            "default": ".\/checkpoints\/",
-            "value": ".\/checkpoints\/"
+            "default": "./checkpoints/",
+            "value": "./checkpoints/"
         },
         "cpBaseName":
         {
