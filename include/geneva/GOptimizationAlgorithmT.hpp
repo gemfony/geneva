@@ -658,11 +658,11 @@ public:
 	 *  Sets a quality threshold beyond which optimization is expected to stop
 	 *
 	 *  @param qualityThreshold A threshold beyond which optimization should stop
-	 *  @param hasQualityThreshold Allows to (de-)activtae the quality threshold
+	 *  @param hasQualityThreshold Allows to (de-)activate the quality threshold
 	 */
 	void setQualityThreshold(double qualityThreshold, bool hasQualityThreshold = true) {
 		qualityThreshold_ = qualityThreshold;
-		hasQualityThreshold_=true;
+		hasQualityThreshold_=hasQualityThreshold;
 	}
 
 	/**************************************************************************************/
@@ -987,7 +987,7 @@ public:
 		comment1 += "set \"hasQualityThreshold\" to 1.;";
 		if(showOrigin) comment1 += "[GOptimizationAlgorithmT<ind_type>]";
 		comment2 = ""; // Reset the comment string
-		comment2 += "Activates (1) or de-activates (0) the qualit threshold;";
+		comment2 += "Activates (1) or de-activates (0) the quality threshold;";
 		if(showOrigin) comment2 += "[GOptimizationAlgorithmT<ind_type>]";
 		gpb.registerFileParameter<double, bool>(
 			"threshold" // The name of the variable

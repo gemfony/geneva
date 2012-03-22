@@ -2162,7 +2162,7 @@ std::string GBaseEA::GEAOptimizationMonitor::eaLastInformation(GBaseEA * const e
 
 	for(std::size_t i=0; i<nMonitorInds_; i++) {
 		result << "  cc->cd(" << i+1 << ");" << std::endl
-			   << "  evGraph" << i << "->Draw(\"AP\");" << std::endl;
+			   << "  evGraph" << i << "->Draw(\"APL\");" << std::endl;
 	}
 
 	result << "  cc->cd();" << std::endl

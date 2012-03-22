@@ -94,11 +94,11 @@ public:
 		def_pardim.push_back(32);
 		def_pardim.push_back(64);
 		def_pardim.push_back(128);
-		def_pardim.push_back(256);
+		/* def_pardim.push_back(256);
 		def_pardim.push_back(512);
 		def_pardim.push_back(1024);
 		def_pardim.push_back(2048);
-		def_pardim.push_back(4096);
+		def_pardim.push_back(4096); */
 
 		gpb_.registerFileParameter(
 			"dimension"
