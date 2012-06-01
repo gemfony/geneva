@@ -131,11 +131,12 @@ boost::optional<std::string> checkExpectation (
  * @param e The expectation that needed to be met
  * @return A boost::optional<std::string> object optionally holding a descriptive string of discrepancies
  */
-boost::optional<std::string> evaluateDiscrepancies(const std::string& className,
-												   const std::string& caller,
-		                                           const std::vector<boost::optional<std::string> >& v,
-		                                           const Gem::Common::expectation& e)
-{
+boost::optional<std::string> evaluateDiscrepancies(
+		const std::string& className
+		, const std::string& caller
+		, const std::vector<boost::optional<std::string> >& v
+		, const Gem::Common::expectation& e
+){
 	std::size_t nDiscrepancyChecks = v.size();
 	std::size_t nDiscrepanciesFound = 0;
 	std::string discrepancies = "";

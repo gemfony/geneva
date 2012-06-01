@@ -49,7 +49,7 @@ GConstrainedDoubleObject::GConstrainedDoubleObject()
 
 /*******************************************************************************************/
 /**
- * Initialization with boundaries only. The value is set to the lower boundary
+ * Initialization with boundaries only. The value is set randomly.
  *
  * @param lowerBoundary The lower boundary of the value range
  * @param upperBoundary The upper boundary of the value range
