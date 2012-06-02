@@ -15,6 +15,9 @@ SET ( OPTIMIZATIONINCLUDES
 	GConstrainedDoubleCollection.hpp
 	GConstrainedDoubleObject.hpp
 	GConstrainedDoubleObjectCollection.hpp
+	GConstrainedFloatCollection.hpp
+	GConstrainedFloatObject.hpp
+	GConstrainedFloatObjectCollection.hpp
 	GConstrainedFPT.hpp
 	GConstrainedFPNumCollectionT.hpp
 	GConstrainedInt32Object.hpp
