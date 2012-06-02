@@ -1,5 +1,5 @@
 /**
- * @file GDoubleObjectCollection.hpp
+ * @file GFloatGaussAdaptor.hpp
  */
 
 /*
@@ -32,33 +32,36 @@
  * http://www.gemfony.com .
  */
 
-// Standard header files go here
+// Standard headers go here
 
-// Boost header files go here
+// Boost headers go here
 
-#ifndef GDOUBLEOBJECTCOLLECTION_HPP_
-#define GDOUBLEOBJECTCOLLECTION_HPP_
+#ifndef GFLOATGAUSSADAPTOR_HPP_
+#define GFLOATGAUSSADAPTOR_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
 #pragma once
 #endif
 
-// Geneva header files go here
-#include "geneva/GDoubleObject.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GParameterTCollectionT.hpp"
+
+// Geneva headers go here
+#include "geneva/GFPGaussAdaptorT.hpp"
 
 namespace Gem {
 namespace Geneva {
 
 /*************************************************************************/
 /**
- * A collection of GDoubleObject objects, ready for use in a
- * GParameterSet derivative.
+ * The GFloatGaussAdaptor represents an adaptor used for the adaption of
+ * float values through the addition of gaussian-distributed random numbers.
+ * See the documentation of GNumGaussAdaptorT<T> for further information on adaptors
+ * in the Geneva context. This class is at the core of evolutionary strategies,
+ * as implemented by this library. It is now implemented through a generic
+ * base class that can also be used to adapt other numeric types.
  */
-class GDoubleObjectCollection
-	:public GParameterTCollectionT<GDoubleObject>
+class GFloatGaussAdaptor
+	:public GFPGaussAdaptorT<float>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -67,28 +70,42 @@ class GDoubleObjectCollection
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GParameterTCollectionT_gbd",
-			  boost::serialization::base_object<GParameterTCollectionT<GDoubleObject> >(*this));
+	  ar & make_nvp("GFPGaussAdaptorT_float", boost::serialization::base_object<GFPGaussAdaptorT<float> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GDoubleObjectCollection();
-	/** @brief Initialization with a number of GDoubleObject objects */
-	GDoubleObjectCollection(const std::size_t&, boost::shared_ptr<GDoubleObject>);
+	GFloatGaussAdaptor();
 	/** @brief The copy constructor */
-	GDoubleObjectCollection(const GDoubleObjectCollection&);
+	GFloatGaussAdaptor(const GFloatGaussAdaptor&);
+	/** @brief Initialization with a adaption probability */
+	explicit GFloatGaussAdaptor(const float&);
+	/** @brief Initialization with a number of values belonging to the width of the gaussian */
+	GFloatGaussAdaptor(
+			const float&
+			, const float&
+			, const float&
+			, const float&
+	);
+	/** @brief Initialization with a number of values belonging to the width of the gaussian and the adaption probability */
+	GFloatGaussAdaptor(
+			const float&
+			, const float&
+			, const float&
+			, const float&
+			, const float&
+	);
 	/** @brief The destructor */
-	virtual ~GDoubleObjectCollection();
+	virtual ~GFloatGaussAdaptor();
 
 	/** @brief A standard assignment operator */
-	const GDoubleObjectCollection& operator=(const GDoubleObjectCollection&);
+	const GFloatGaussAdaptor& operator=(const GFloatGaussAdaptor&);
 
-	/** @brief Checks for equality with another GDoubleObjectCollection object */
-	bool operator==(const GDoubleObjectCollection&) const;
-	/** @brief Checks for inequality with another GDoubleObjectCollection object */
-	bool operator!=(const GDoubleObjectCollection&) const;
+	/** @brief Checks for equality with another GFloatGaussAdaptor object */
+	bool operator==(const GFloatGaussAdaptor&) const;
+	/** @brief Checks for inequality with another GFloatGaussAdaptor object */
+	bool operator!=(const GFloatGaussAdaptor&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
@@ -100,6 +117,9 @@ public:
 			, const bool&
 	) const;
 
+	/** @brief Retrieves the id of this adaptor */
+	virtual Gem::Geneva::adaptorId getAdaptorId() const;
+
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
@@ -110,8 +130,6 @@ protected:
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
-	/** @brief Fills the collection with GDoubleObject objects */
-	void fillWithObjects(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
@@ -124,6 +142,6 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleObjectCollection)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFloatGaussAdaptor)
 
-#endif /* GDOUBLEOBJECTCOLLECTION_HPP_ */
+#endif /* GFLOATGAUSSADAPTOR_HPP_ */

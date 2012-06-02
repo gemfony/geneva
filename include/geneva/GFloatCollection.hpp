@@ -1,5 +1,5 @@
 /**
- * @file GDoubleObjectCollection.hpp
+ * @file GFloatCollection.hpp
  */
 
 /*
@@ -36,8 +36,8 @@
 
 // Boost header files go here
 
-#ifndef GDOUBLEOBJECTCOLLECTION_HPP_
-#define GDOUBLEOBJECTCOLLECTION_HPP_
+#ifndef GFLOATCOLLECTION_HPP_
+#define GFLOATCOLLECTION_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -45,20 +45,18 @@
 #endif
 
 // Geneva header files go here
-#include "geneva/GDoubleObject.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GParameterTCollectionT.hpp"
+#include "geneva/GFPNumCollectionT.hpp"
+#include "geneva/GFloatGaussAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {
 
-/*************************************************************************/
+/*****************************************************************************************/
 /**
- * A collection of GDoubleObject objects, ready for use in a
- * GParameterSet derivative.
+ * A collection of float objects without boundaries
  */
-class GDoubleObjectCollection
-	:public GParameterTCollectionT<GDoubleObject>
+class GFloatCollection
+	:public GFPNumCollectionT<float>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -67,28 +65,38 @@ class GDoubleObjectCollection
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GParameterTCollectionT_gbd",
-			  boost::serialization::base_object<GParameterTCollectionT<GDoubleObject> >(*this));
+	  ar & make_nvp("GFPNumCollectionT_float", boost::serialization::base_object<GFPNumCollectionT<float> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GDoubleObjectCollection();
-	/** @brief Initialization with a number of GDoubleObject objects */
-	GDoubleObjectCollection(const std::size_t&, boost::shared_ptr<GDoubleObject>);
+	GFloatCollection();
 	/** @brief The copy constructor */
-	GDoubleObjectCollection(const GDoubleObjectCollection&);
+	GFloatCollection(const GFloatCollection&);
+	/** @brief Initialization with a number of random values in a given range */
+	GFloatCollection(
+			const std::size_t&
+			, const float&
+			, const float&
+	);
+	/** @brief Initialization with a number of predefined values in all positions */
+	GFloatCollection(
+			const std::size_t&
+			, const float&
+			, const float&
+			, const float&
+	);
 	/** @brief The destructor */
-	virtual ~GDoubleObjectCollection();
+	virtual ~GFloatCollection();
 
 	/** @brief A standard assignment operator */
-	const GDoubleObjectCollection& operator=(const GDoubleObjectCollection&);
+	const GFloatCollection& operator=(const GFloatCollection&);
 
-	/** @brief Checks for equality with another GDoubleObjectCollection object */
-	bool operator==(const GDoubleObjectCollection&) const;
-	/** @brief Checks for inequality with another GDoubleObjectCollection object */
-	bool operator!=(const GDoubleObjectCollection&) const;
+	/** @brief Checks for equality with another GFloatCollection object */
+	bool operator==(const GFloatCollection&) const;
+	/** @brief Checks for inequality with another GFloatCollection object */
+	bool operator!=(const GFloatCollection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
@@ -100,6 +108,15 @@ public:
 			, const bool&
 	) const;
 
+	/** @brief Attach our local values to the vector. */
+	virtual void floatStreamline(std::vector<float>&) const;
+	/** @brief Attach boundaries of type float to the vectors */
+	virtual void floatBoundaries(std::vector<float>&, std::vector<float>&) const;
+	/** @brief Tell the audience that we own a number of float values */
+	virtual std::size_t countFloatParameters() const;
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&);
+
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
@@ -110,8 +127,8 @@ protected:
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
-	/** @brief Fills the collection with GDoubleObject objects */
-	void fillWithObjects(const std::size_t&);
+	/** @brief Fills the collection with some random data */
+	void fillWithData(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
@@ -119,11 +136,11 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/*************************************************************************/
+/*****************************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleObjectCollection)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFloatCollection)
 
-#endif /* GDOUBLEOBJECTCOLLECTION_HPP_ */
+#endif /* GFLOATCOLLECTION_HPP_ */

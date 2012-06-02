@@ -16,6 +16,11 @@ SET ( OPTIMIZATIONSOURCES
 	GConstrainedDoubleObjectCollection
 	GConstrainedInt32Object
 	GConstrainedInt32ObjectCollection
+	GFloatBiGaussAdaptor
+	GFloatCollection
+	GFloatGaussAdaptor
+	GFloatObject
+	GFloatObjectCollection
 	GDoubleBiGaussAdaptor
 	GDoubleCollection
 	GDoubleGaussAdaptor

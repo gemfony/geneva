@@ -432,6 +432,19 @@ void GParameterBase::fpSubtract(boost::shared_ptr<GParameterBase> p)
 
 /**********************************************************************************/
 /**
+ * Allows to add all parameters of type float to the vector.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+void GParameterBase::streamline<float>(
+		std::vector<float>& parVec
+) const {
+	this->floatStreamline(parVec);
+}
+
+/**********************************************************************************/
+/**
  * Allows to add all parameters of type double to the vector.
  *
  * @oaram parVec The vector to which the items should be added
@@ -468,6 +481,23 @@ void GParameterBase::streamline<bool>(
 ) const {
 	this->booleanStreamline(parVec);
 }
+
+/**********************************************************************************/
+/**
+ * Attach parameters of type double to the vector. This function does nothing by
+ * default. Parameter types based on doubles need to overload this function and do
+ * the actual work.
+ */
+void GParameterBase::floatStreamline(
+		std::vector<float>& parVec
+) const {
+	/* do nothing by default */
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
 
 /**********************************************************************************/
 /**
@@ -522,6 +552,21 @@ void GParameterBase::booleanStreamline(
 
 /**********************************************************************************/
 /**
+ * Allows to retrieve the values of lower and upper boundaries of type float
+ *
+ * @param lBndVec A vector of lower double parameter boundaries
+ * @param uBndVec A vector of upper double parameter boundaries
+ */
+template <>
+void GParameterBase::boundaries<float>(
+		std::vector<float>& lBndVec
+		, std::vector<float>& uBndVec
+) const {
+	this->floatBoundaries(lBndVec, uBndVec);
+}
+
+/**********************************************************************************/
+/**
  * Allows to retrieve the values of lower and upper boundaries of type double
  *
  * @param lBndVec A vector of lower double parameter boundaries
@@ -563,6 +608,20 @@ void GParameterBase::boundaries<bool>(
 		, std::vector<bool>& uBndVec
 ) const {
 	this->booleanBoundaries(lBndVec, uBndVec);
+}
+
+/**********************************************************************************/
+/**
+ * Attach boundaries of type float to the vectors
+ *
+ * @param lBndVec A vector of lower float parameter boundaries
+ * @param uBndVec A vector of upper float parameter boundaries
+ */
+void GParameterBase::floatBoundaries(
+		std::vector<float>& lBndVec
+		, std::vector<float>& uBndVec
+) const {
+	/* do nothing by default */
 }
 
 /**********************************************************************************/
@@ -609,6 +668,17 @@ void GParameterBase::booleanBoundaries(
 
 /**********************************************************************************/
 /**
+ * Allows to count parameters of type float.
+ *
+ * @return The number of parameters of type float
+ */
+template <>
+std::size_t GParameterBase::countParameters<float>() const {
+	return this->countFloatParameters();
+}
+
+/**********************************************************************************/
+/**
  * Allows to count parameters of type double.
  *
  * @return The number of parameters of type double
@@ -639,6 +709,22 @@ template <>
 std::size_t GParameterBase::countParameters<bool>() const {
 	return this->countBoolParameters();
 }
+
+/**********************************************************************************/
+/**
+ * Count the number of float parameters. The actual work needs to be done by
+ * derived classes, if they possess float parameters.
+ *
+ * @return The number of float parameters in this object
+ */
+std::size_t GParameterBase::countFloatParameters() const {
+	return 0;
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
 
 /**********************************************************************************/
 /**
@@ -696,6 +782,21 @@ std::size_t GParameterBase::countBoolParameters() const {
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
+void GParameterBase::assignValueVector<float>(
+		const std::vector<float>& parVec
+		, std::size_t& pos
+) {
+	this->assignFloatValueVector(parVec, pos);
+}
+
+/**********************************************************************************/
+/**
+ * Allows to assign the parameters inside of a vector the corresponding parameter objects.
+ *
+ * @param parVec The vector with the parameters to be assigned to the object
+ * @param pos The position from which parameters will be taken (will be updated by the call)
+ */
+template <>
 void GParameterBase::assignValueVector<double>(
 		const std::vector<double>& parVec
 		, std::size_t& pos
@@ -732,6 +833,19 @@ void GParameterBase::assignValueVector<bool>(
 ) {
 	this->assignBooleanValueVector(parVec, pos);
 }
+
+/**********************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter
+ */
+void GParameterBase::assignFloatValueVector(const std::vector<float>& parVec, std::size_t& pos) {
+	/* Do nothing by default */
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
 
 /**********************************************************************************/
 /**

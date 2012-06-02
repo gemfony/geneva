@@ -23,6 +23,11 @@ SET ( OPTIMIZATIONINCLUDES
 	GConstrainedNumCollectionT.hpp
 	GConstrainedNumT.hpp
 	GConstrainedValueLimit.hpp
+	GFloatBiGaussAdaptor.hpp
+	GFloatCollection.hpp
+	GFloatGaussAdaptor.hpp
+	GFloatObject.hpp
+	GFloatObjectCollection.hpp
 	GDoubleBiGaussAdaptor.hpp
 	GDoubleCollection.hpp
 	GDoubleGaussAdaptor.hpp

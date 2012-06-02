@@ -1,5 +1,5 @@
 /**
- * @file GDoubleObjectCollection.hpp
+ * @file GFloatObjectCollection.hpp
  */
 
 /*
@@ -45,8 +45,8 @@
 #endif
 
 // Geneva header files go here
-#include "geneva/GDoubleObject.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GFloatObject.hpp"
+#include "geneva/GFloatGaussAdaptor.hpp"
 #include "geneva/GParameterTCollectionT.hpp"
 
 namespace Gem {
@@ -54,11 +54,11 @@ namespace Geneva {
 
 /*************************************************************************/
 /**
- * A collection of GDoubleObject objects, ready for use in a
+ * A collection of GFloatObject objects, ready for use in a
  * GParameterSet derivative.
  */
-class GDoubleObjectCollection
-	:public GParameterTCollectionT<GDoubleObject>
+class GFloatObjectCollection
+	:public GParameterTCollectionT<GFloatObject>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -68,27 +68,27 @@ class GDoubleObjectCollection
 	  using boost::serialization::make_nvp;
 
 	  ar & make_nvp("GParameterTCollectionT_gbd",
-			  boost::serialization::base_object<GParameterTCollectionT<GDoubleObject> >(*this));
+			  boost::serialization::base_object<GParameterTCollectionT<GFloatObject> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GDoubleObjectCollection();
-	/** @brief Initialization with a number of GDoubleObject objects */
-	GDoubleObjectCollection(const std::size_t&, boost::shared_ptr<GDoubleObject>);
+	GFloatObjectCollection();
+	/** @brief Initialization with a number of GFloatObject objects */
+	GFloatObjectCollection(const std::size_t&, boost::shared_ptr<GFloatObject>);
 	/** @brief The copy constructor */
-	GDoubleObjectCollection(const GDoubleObjectCollection&);
+	GFloatObjectCollection(const GFloatObjectCollection&);
 	/** @brief The destructor */
-	virtual ~GDoubleObjectCollection();
+	virtual ~GFloatObjectCollection();
 
 	/** @brief A standard assignment operator */
-	const GDoubleObjectCollection& operator=(const GDoubleObjectCollection&);
+	const GFloatObjectCollection& operator=(const GFloatObjectCollection&);
 
-	/** @brief Checks for equality with another GDoubleObjectCollection object */
-	bool operator==(const GDoubleObjectCollection&) const;
-	/** @brief Checks for inequality with another GDoubleObjectCollection object */
-	bool operator!=(const GDoubleObjectCollection&) const;
+	/** @brief Checks for equality with another GFloatObjectCollection object */
+	bool operator==(const GFloatObjectCollection&) const;
+	/** @brief Checks for inequality with another GFloatObjectCollection object */
+	bool operator!=(const GFloatObjectCollection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
@@ -110,7 +110,7 @@ protected:
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
-	/** @brief Fills the collection with GDoubleObject objects */
+	/** @brief Fills the collection with GFloatObject objects */
 	void fillWithObjects(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
@@ -124,6 +124,6 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleObjectCollection)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFloatObjectCollection)
 
 #endif /* GDOUBLEOBJECTCOLLECTION_HPP_ */

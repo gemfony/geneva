@@ -144,6 +144,8 @@ public:
 	}
 
 	/**************************************************************************************/
+	/** @brief Attach parameters of type float to the vector */
+	virtual void floatStreamline(std::vector<float>&) const;
 	/** @brief Attach parameters of type double to the vector */
 	virtual void doubleStreamline(std::vector<double>&) const;
 	/** @brief Attach parameters of type boost::int32_t to the vector */
@@ -172,6 +174,8 @@ public:
 	}
 
 	/**************************************************************************************/
+	/** @brief Attach boundaries of type float to the vectors */
+	virtual void floatBoundaries(std::vector<float>&, std::vector<float>&) const;
 	/** @brief Attach boundaries of type double to the vectors */
 	virtual void doubleBoundaries(std::vector<double>&, std::vector<double>&) const;
 	/** @brief Attach boundaries of type boost::int32_t to the vectors */
@@ -198,6 +202,8 @@ public:
 
 	/**************************************************************************************/
 
+	/** @brief Count the number of float parameters */
+	virtual std::size_t countFloatParameters() const;
 	/** @brief Count the number of double parameters */
 	virtual std::size_t countDoubleParameters() const;
 	/** @brief Count the number of boost::int32_t parameters */
@@ -225,6 +231,8 @@ public:
 
 	/**************************************************************************************/
 
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&);
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&);
 	/** @brief Assigns part of a value vector to the parameter */
@@ -329,18 +337,22 @@ public:
 /**
  * Specializations of some template functions
  */
+template <>	void GParameterBase::streamline<float>(std::vector<float>&) const;
 template <>	void GParameterBase::streamline<double>(std::vector<double>&) const;
 template <>	void GParameterBase::streamline<boost::int32_t>(std::vector<boost::int32_t>&) const;
 template <>	void GParameterBase::streamline<bool>(std::vector<bool>&) const;
 
+template <>	void GParameterBase::boundaries<float>(std::vector<float>&, std::vector<float>&) const;
 template <>	void GParameterBase::boundaries<double>(std::vector<double>&, std::vector<double>&) const;
 template <>	void GParameterBase::boundaries<boost::int32_t>(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&) const;
 template <>	void GParameterBase::boundaries<bool>(std::vector<bool>&, std::vector<bool>&) const;
 
+template <>	std::size_t GParameterBase::countParameters<float>() const;
 template <>	std::size_t GParameterBase::countParameters<double>() const;
 template <>	std::size_t GParameterBase::countParameters<boost::int32_t>() const;
 template <>	std::size_t GParameterBase::countParameters<bool>() const;
 
+template <>	void GParameterBase::assignValueVector<float>(const std::vector<float>&, std::size_t&);
 template <>	void GParameterBase::assignValueVector<double>(const std::vector<double>&, std::size_t&);
 template <>	void GParameterBase::assignValueVector<boost::int32_t>(const std::vector<boost::int32_t>&, std::size_t&);
 template <>	void GParameterBase::assignValueVector<bool>(const std::vector<bool>&, std::size_t&);

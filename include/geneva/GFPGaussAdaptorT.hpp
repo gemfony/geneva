@@ -54,7 +54,7 @@ namespace Geneva {
 /*************************************************************************/
 /**
  * The GFPGaussAdaptorT represents an adaptor used for the adaption of
- * double values through the addition of gaussian-distributed random numbers.
+ * floating point values through the addition of gaussian-distributed random numbers.
  * See the documentation of GNumGaussAdaptorT<T> for further information on adaptors
  * in the Geneva context. This class is at the core of evolutionary strategies,
  * as implemented by this library. It is now implemented through a generic
