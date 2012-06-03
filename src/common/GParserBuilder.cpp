@@ -138,84 +138,76 @@ GParserBuilder::~GParserBuilder()
  * @param configFile The name of the configuration file to be parsed
  * @return A boolean indicating whether parsing was successful
  */
-bool GParserBuilder::parseConfigFile(const std::string& configFile)
-{
-    using namespace boost::property_tree;
-    using namespace boost::filesystem;
-
-    namespace bf = boost::filesystem;
+bool GParserBuilder::parseConfigFile(const std::string& configFile) {
+	namespace pt = boost::property_tree;
+	namespace bf = boost::filesystem;
 
 	bool result = false;
+	pt::ptree ptr; // A property tree object;
 
-	try {
+	try
+	{
 		// Do some error checking. Also check that the configuration file exists.
 		// If not, create a default version
-		{
-			// We automatically create a configuration file
-			if(!exists(configFile)) {
-				std::cerr
-					<< "Note: In GParserBuilder::parseConfigFile():" << std::endl
-					<< "Configuration file " << configFile << " does not exist." << std::endl
-					<< "We will try to create a file with default values for you." << std::endl;
+		if(!bf::exists(configFile)) {
+			std::cerr
+			<< "Note: In GParserBuilder::parseConfigFile():" << std::endl
+			<< "Configuration file " << configFile << " does not exist." << std::endl
+			<< "We will try to create a file with default values for you." << std::endl;
 
-				std::string header = "This configuration file was automatically created by GParserBuilder;";
-				this->writeConfigFile(
+			std::string header = "This configuration file was automatically created by GParserBuilder;";
+			this->writeConfigFile(
 					configFile
 					, header
 					, true // writeAll == true
+			);
+		} else { // configFile exists
+			// Is it a regular file ?
+			if(!bf::is_regular_file(configFile)) {
+				raiseException(
+						"In GParserBuilder::parseConfigFile(): Error!" << std::endl
+						<< configFile << " exists but is no regular file." << std::endl
 				);
-			} else { // configFile exists
-				// Is it a regular file ?
-				if(!is_regular_file(configFile)) {
-					raiseException(
-							"In GParserBuilder::parseConfigFile(): Error!" << std::endl
-							<< configFile << " exists but is no regular file." << std::endl
-					);
-				}
+			}
 
-				// We require the file to have the json extension
-#if BOOST_VERSION>104300
-				if(!bf::path(configFile).has_extension() || bf::path(configFile).extension() != ".json") {
+			// We require the file to have the json extension
+#if (BOOST_VERSION>104300)
+			if(!bf::path(configFile).has_extension() || bf::path(configFile).extension() != ".json") {
 #else
-					if(bf::path(configFile).extension() != ".json") { // This is a hack
+			if(bf::path(configFile).extension() != ".json") {
 #endif
-					raiseException(
+				raiseException(
 						"In GParserBuilder::parseConfigFile(): Error!" << std::endl
 						<< configFile << " does not have the required extension \".json\"" << std::endl
-					);
-				}
+				);
 			}
 		}
 
-		// Create a property tree object;
-		ptree pt;
-
 		// Do the actual parsing
-		read_json(configFile, pt);
+		pt::read_json(configFile, ptr);
 
 		// Load the data into our objects and execute the relevant call-back functions
 		std::vector<boost::shared_ptr<GParsableI> >::iterator it;
 		for(it=parameter_proxies_.begin(); it!=parameter_proxies_.end(); ++it) {
-			(*it)->load(pt);
+			(*it)->load(ptr);
 			(*it)->executeCallBackFunction();
 		}
 
 		result = true;
-	}
-	catch(const gemfony_error_condition& e) {
-		throw e;
-	}
-	catch(const std::exception& e) {
-		std::cerr << "Error parsing the configuration file " << configFile << ":" << std::endl
+	} catch(const gemfony_error_condition& e) {
+		std::cerr << "Caught gemfony_error_condition when parsing configuration file " << configFile << ":" << std::endl
 				  << e.what() << std::endl;
 		result=false;
-	}
-	catch(...) {
+	} catch(const std::exception& e) {
+		std::cerr << "Caught std::exception when parsing configuration file " << configFile << ":" << std::endl
+				  << e.what() << std::endl;
+		result=false;
+	} catch(...) {
 		std::cerr << "Unknown error while parsing the configuration file " << configFile << std::endl;
 		result=false;
 	}
 
-    return result;
+	return result;
 }
 
 /**************************************************************************************/

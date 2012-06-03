@@ -119,7 +119,7 @@ public:
 		if(!gpb.parseConfigFile(configFile_)) {
 			raiseException(
 					"In GFactoryT<T>::operator(): Error!" << std::endl
-					<< "Could not parse configuration file " << configFile_
+					<< "Could not parse configuration file " << configFile_ << std::endl
 			);
 		}
 
