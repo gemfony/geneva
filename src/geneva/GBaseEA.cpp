@@ -1979,8 +1979,12 @@ boost::optional<std::string> GBaseEA::GEAOptimizationMonitor::checkRelationshipW
  * @return A string containing information to written to the output file (if any)
  */
 std::string GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GIndividual> * const goa) {
+	std::cout << "In GEAOptimizationMonitor/firstInformation (1)" << std::endl;
+
 	// This should always be the first statement in a custom optimization monitor
 	std::cout << GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::firstInformation(goa);
+
+	std::cout << "In GEAOptimizationMonitor/firstInformation (2)" << std::endl;
 
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
@@ -1993,12 +1997,16 @@ std::string GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgor
 #endif /* DEBUG */
 	GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
 
+	std::cout << "In GEAOptimizationMonitor/firstInformation (3)" << std::endl;
+
 	// Determine a suitable number of monitored individuals, if it hasn't already
 	// been set externally. We allow a maximum of 3 monitored individuals by default
 	// (or the number of parents, if <= 3).
 	if(nMonitorInds_ == 0) {
 		nMonitorInds_ = std::min(ea->getNParents(), std::size_t(3));
 	}
+
+	std::cout << "In GEAOptimizationMonitor/firstInformation (4)" << std::endl;
 
 	// Output the header to the summary stream
 	return eaFirstInformation(ea);

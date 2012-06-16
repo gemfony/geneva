@@ -235,233 +235,6 @@ public:
 		return evaluateDiscrepancies("progressMonitor", caller, deviations, e);
 	}
 
-	/**********************************************************************************/
-	/**
-	 * A function that is called during each optimization cycle, acting on evolutionary
-	 * algorithms. It writes out a snapshot of the GBaseEA object we've
-	 * been given for the current iteration. In the way it is implemented here, this
-	 * function only makes sense for two-dimensional optimization problems. It is thus
-	 * used for illustration purposes only.
-	 *
-	 */
-	virtual std::string eaCycleInformation(GBaseEA * const ea) {
-		if(followProgress_) {
-			boost::uint32_t iteration = ea->getIteration();
-			std::string outputFileName = snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".C";
-			std::size_t nParents = ea->getNParents();
-
-			// Check whether the output directory exists, otherwise create it
-			boost::filesystem::path outputPath(outputPath_.c_str());
-			if(!boost::filesystem::exists(outputPath)) {
-				boost::filesystem::create_directory(outputPath);
-				std::cout << "Created output directory " << outputPath_ << std::endl;
-			}
-
-			// Open a file stream
-			std::ofstream ofs((outputPath_ + outputFileName).c_str());
-			if(!ofs) {
-				std::ostringstream error;
-				error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
-						<< "Could not open output file " << outputFileName << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
-			}
-
-			// Retrieve the globally best individual for later use
-			boost::shared_ptr<GParameterSet> g_best_ptr = ea->GOptimizableI::getBestIndividual<GParameterSet>();
-			// Extract the fitness
-			bool isDirty;
-			double global_best_fitness = g_best_ptr->getCachedFitness(isDirty);
-#ifdef DEBUG
-			// Check that the dirty flag isn't set
-			if(isDirty) {
-				std::ostringstream error;
-				error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
-						<< "Globally best individual has dirty flag set when it shouldn't" << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
-			}
-#endif /* DEBUG */
-
-			// Output a ROOT header
-			ofs << "{" << std::endl
-					<< "  gROOT->Reset();" << std::endl
-					<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDimProgress_ << "," << yDimProgress_ << ");" << std::endl
-					<< "  gStyle->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration = " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");" << std::endl
-					<< std::endl
-					<< "  TF2 *tf = new TF2(\"tf\", \"" << GFunctionIndividual::get2DROOTFunction(df_) << "\", " << minX_ << ", " << maxX_ << ", " << minY_ << ", " << maxY_ << ");" << std::endl
-					<< "  tf->SetLineWidth(0.05);" << std::endl
-					<< "  tf->SetLineColor(16);" << std::endl
-					<< "  tf->GetXaxis()->SetLabelSize(0.02);" << std::endl
-					<< "  tf->GetYaxis()->SetLabelSize(0.02);" << std::endl
-					<< "  tf->GetHistogram()->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");"
-					<< std::endl
-					<< "  tf->Draw();" << std::endl
-					<< std::endl;
-
-			// Draw lines where the global optima are
-			std::vector<double> f_x_mins = GFunctionIndividual::getXMin(df_);
-			std::vector<double> f_y_mins = GFunctionIndividual::getYMin(df_);
-			for(std::size_t i=0; i<f_x_mins.size(); i++) {
-				ofs << "  TLine *tlx" << i << " = new TLine(" << f_x_mins[i] << ", " << minY_ << ", " << f_x_mins[i] << ", " << maxY_ << ");" << std::endl
-						<< "  tlx" << i << "->SetLineStyle(5);" << std::endl
-						<< "  tlx" << i << "->SetLineColor(45);" << std::endl
-						<< "  tlx" << i << "->Draw();" << std::endl;
-			}
-			for(std::size_t i=0; i<f_y_mins.size(); i++) {
-				ofs << "  TLine *tly" << i << " = new TLine(" << minX_ << ", " << f_y_mins[i] << ", " << maxX_ << ", " << f_y_mins[i] << ");" << std::endl
-						<< "  tly" << i << "->SetLineStyle(5);" << std::endl
-						<< "  tly" << i << "->SetLineColor(45);" << std::endl
-						<< "  tly" << i << "->Draw();" << std::endl;
-			}
-			ofs << std::endl;
-
-			// Extract the parents and mark them in the plot
-			for(std::size_t parentId=0; parentId < nParents; parentId++) {
-				boost::shared_ptr<GParameterSet> p_ptr = ea->getParentIndividual<GParameterSet>(parentId);
-
-				// std::cout << "================ Iteration " << ea->getIteration() << " / Parent = " << parentId << " =================" << std::endl
-				//	         << p_ptr->toString(Gem::Common::SERIALIZATIONMODE_XML) << std::endl;
-
-				// Extract the coordinates
-				double x_parent = p_ptr->at<GDoubleCollection>(0)->at(0);
-				double y_parent = p_ptr->at<GDoubleCollection>(0)->at(1);
-
-				// Add to the plot, if the marker would still be inside the main drawing area
-				if(x_parent > minX_ && x_parent < maxX_ && y_parent > minY_ && y_parent < maxY_) {
-					ofs << "  TMarker *parent_marker" << parentId << " = new TMarker(" << x_parent << ", " << y_parent << ", 26);" << std::endl // A circle
-							<< "  parent_marker" << parentId << "->SetMarkerColor(2);" << std::endl
-							<< "  parent_marker" << parentId << "->SetMarkerSize(1.5);" << std::endl
-							<< "  parent_marker" << parentId << "->Draw();" << std::endl
-							<< std::endl;
-				}
-			}
-
-			// Loop over all individuals in this iteration and output their parameters
-			GBaseEA::iterator it;
-			std::size_t cind = 0;
-			for(it=ea->begin() + nParents; it!=ea->end(); ++it) {
-				// Retrieve the data members
-				boost::shared_ptr<GDoubleCollection> x = boost::dynamic_pointer_cast<GParameterSet>(*it)->at<GDoubleCollection>(0);
-				// Store a reference for ease of access
-				const GDoubleCollection& x_ref = *x;
-#ifdef DEBUG
-				// Check that we indeed only have two dimensions
-				if(x_ref.size() != 2) {
-					std::ostringstream error;
-					error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
-							<< "Found GDoubleCollection with invalid number of entries: " << x_ref.size() << std::endl;
-					throw(Gem::Common::gemfony_error_condition(error.str()));
-				}
-#endif /* DEBUG */
-
-				// Only draw the child if it is inside of the function plot
-				if(x_ref[0] > minX_ && x_ref[0] < maxX_ && x_ref[1] > minY_ && x_ref[1] < maxY_) {
-					ofs << "  TMarker *child_marker_" << cind << " = new TMarker(" << x_ref[0] << ", " << x_ref[1] << ", 8);" << std::endl // A circle
-							<< "  child_marker_" << cind << "->SetMarkerColor(1);" << std::endl
-							<< "  child_marker_" << cind << "->SetMarkerSize(1.1);" << std::endl
-							<< "  child_marker_" << cind << "->Draw();" << std::endl
-							<< std::endl;
-				}
-
-				// If requested, draw an arrow from the old parent to the individual
-				if(trackParentRelations_ && drawArrows_ && iteration>0) { // Tracking doesn't make sense for iteration 0
-#ifdef DEBUG
-					// Check whether the parent is was set at all
-					if(!(*it)->getPersonalityTraits<GEAPersonalityTraits>()->parentIdSet()) {
-						std::ostringstream error;
-						error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
-								<< "Tried to access parent id while the id wasn't set." << std::endl;
-						throw(Gem::Common::gemfony_error_condition(error.str()));
-					}
-#endif /* DEBUG */
-
-					// Retrieve the id of the individual's parent
-					std::size_t oldParentId = (*it)->getPersonalityTraits<GEAPersonalityTraits>()->getParentId();
-
-					// Retrieve a pointer to that parent
-					boost::shared_ptr<GParameterSet> op_ptr = ea->getOldParentIndividual<GParameterSet>(oldParentId);
-					// Retrieve the data members
-					boost::shared_ptr<GDoubleCollection> op_x = op_ptr->at<GDoubleCollection>(0);
-					// Store a reference for ease of access
-					const GDoubleCollection& op_x_ref = *op_x;
-
-					// Create the arrow
-					ofs << "  TArrow *rel_arrow" << cind << " = new TArrow(" << op_x_ref[0] << ", " << op_x_ref[1] << ", " << x_ref[0] << ", " << x_ref[1] << ", 0.01, \"|>\");" << std::endl
-							<< "  rel_arrow" << cind << "->Draw();" << std::endl;
-				}
-
-				cind++;
-			}
-
-			// If we want to monitor the relationships between parent individuals and children,
-			// draw the old parents and mark which children have originated from them.
-			if(trackParentRelations_ && iteration>0) { // Tracking doesn't make sense for iteration 0
-#ifdef DEBUG
-				// Check that the population has indeed logged old parents
-				if(!ea->oldParentsLogged()) {
-					std::ostringstream error;
-					error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
-							<< "Logging of parent relations was requested, even though the population" << std::endl
-							<< "doesn't have the required information." << std::endl;
-					throw(Gem::Common::gemfony_error_condition(error.str()));
-				}
-#endif /* DEBUG */
-
-				// Extract the old parent individuals and draw them into the plot
-				for(std::size_t oldParentId=0; oldParentId<nParents; oldParentId++) {
-					// Retrieve the old parent
-					boost::shared_ptr<GParameterSet> op_ptr = ea->getOldParentIndividual<GParameterSet>(oldParentId);
-					// Retrieve the data members
-					boost::shared_ptr<GDoubleCollection> x = op_ptr->at<GDoubleCollection>(0);
-					// Store a reference for ease of access
-					const GDoubleCollection& x_ref = *x;
-#ifdef DEBUG
-					// Check that we indeed only have two dimensions
-					if(x_ref.size() != 2) {
-						std::ostringstream error;
-						error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
-								<< "Found GDoubleCollection with invalid number of entries: " << x_ref.size() << std::endl;
-						throw(Gem::Common::gemfony_error_condition(error.str()));
-					}
-#endif /* DEBUG */
-
-					// Only draw the old parent if it is inside of the function plot
-					if(x_ref[0] > minX_ && x_ref[0] < maxX_ && x_ref[1] > minY_ && x_ref[1] < maxY_) {
-						ofs << "  TMarker *old_parent_marker_" << oldParentId << " = new TMarker(" << x_ref[0] << ", " << x_ref[1] << ", 8);" << std::endl // A circle
-								<< "  old_parent_marker_" << oldParentId << "->SetMarkerColor(2);" << std::endl
-								<< "  old_parent_marker_" << oldParentId << "->SetMarkerSize(2.0);" << std::endl
-								<< "  old_parent_marker_" << oldParentId << "->Draw();" << std::endl
-								<< std::endl;
-					}
-				}
-			}
-
-			// Extract the coordinates of the globally best individual
-			double x_global_best = g_best_ptr->at<GDoubleCollection>(0)->at(0);
-			double y_global_best = g_best_ptr->at<GDoubleCollection>(0)->at(1);
-
-			// Add to the plot, if the marker would still be inside the main drawing area
-			if(x_global_best > minX_ && x_global_best < maxX_ && y_global_best > minY_ && y_global_best < maxY_) {
-				ofs << "  TMarker *gbest = new TMarker(" << x_global_best << ", " << y_global_best << ", 22);" << std::endl // A circle
-						<< "  gbest->SetMarkerColor(4);" << std::endl
-						<< "  gbest->SetMarkerSize(1.6);" << std::endl
-						<< "  gbest->Draw();" << std::endl
-						<< std::endl;
-			}
-
-			ofs << std::endl
-					<< "  cc->Print(\"" << (snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".jpg") << "\");" << std::endl
-					<< "}" << std::endl;
-
-			// Close the file stream
-			ofs.close();
-		}
-
-		//-----------------------------------------------------------------------------------------
-
-		// Make sure the usual iteration work is performed
-		return GBaseEA::GEAOptimizationMonitor::eaCycleInformation(ea);
-	}
-
 	/*********************************************************************************************/
 	/**
 	 * Allows to set the dimensions of the canvas
@@ -689,6 +462,233 @@ protected:
 		minY_ = p_load->minY_;
 		maxY_ = p_load->maxY_;
 		outputPath_ = p_load->outputPath_;
+	}
+
+	/**********************************************************************************/
+	/**
+	 * A function that is called during each optimization cycle, acting on evolutionary
+	 * algorithms. It writes out a snapshot of the GBaseEA object we've
+	 * been given for the current iteration. In the way it is implemented here, this
+	 * function only makes sense for two-dimensional optimization problems. It is thus
+	 * used for illustration purposes only.
+	 *
+	 */
+	virtual std::string eaCycleInformation(GBaseEA * const ea) {
+		if(followProgress_) {
+			boost::uint32_t iteration = ea->getIteration();
+			std::string outputFileName = snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".C";
+			std::size_t nParents = ea->getNParents();
+
+			// Check whether the output directory exists, otherwise create it
+			boost::filesystem::path outputPath(outputPath_.c_str());
+			if(!boost::filesystem::exists(outputPath)) {
+				boost::filesystem::create_directory(outputPath);
+				std::cout << "Created output directory " << outputPath_ << std::endl;
+			}
+
+			// Open a file stream
+			std::ofstream ofs((outputPath_ + outputFileName).c_str());
+			if(!ofs) {
+				std::ostringstream error;
+				error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
+						<< "Could not open output file " << outputFileName << std::endl;
+				throw(Gem::Common::gemfony_error_condition(error.str()));
+			}
+
+			// Retrieve the globally best individual for later use
+			boost::shared_ptr<GParameterSet> g_best_ptr = ea->GOptimizableI::getBestIndividual<GParameterSet>();
+			// Extract the fitness
+			bool isDirty;
+			double global_best_fitness = g_best_ptr->getCachedFitness(isDirty);
+#ifdef DEBUG
+			// Check that the dirty flag isn't set
+			if(isDirty) {
+				std::ostringstream error;
+				error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
+						<< "Globally best individual has dirty flag set when it shouldn't" << std::endl;
+				throw(Gem::Common::gemfony_error_condition(error.str()));
+			}
+#endif /* DEBUG */
+
+			// Output a ROOT header
+			ofs << "{" << std::endl
+					<< "  gROOT->Reset();" << std::endl
+					<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDimProgress_ << "," << yDimProgress_ << ");" << std::endl
+					<< "  gStyle->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration = " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");" << std::endl
+					<< std::endl
+					<< "  TF2 *tf = new TF2(\"tf\", \"" << GFunctionIndividual::get2DROOTFunction(df_) << "\", " << minX_ << ", " << maxX_ << ", " << minY_ << ", " << maxY_ << ");" << std::endl
+					<< "  tf->SetLineWidth(0.05);" << std::endl
+					<< "  tf->SetLineColor(16);" << std::endl
+					<< "  tf->GetXaxis()->SetLabelSize(0.02);" << std::endl
+					<< "  tf->GetYaxis()->SetLabelSize(0.02);" << std::endl
+					<< "  tf->GetHistogram()->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");"
+					<< std::endl
+					<< "  tf->Draw();" << std::endl
+					<< std::endl;
+
+			// Draw lines where the global optima are
+			std::vector<double> f_x_mins = GFunctionIndividual::getXMin(df_);
+			std::vector<double> f_y_mins = GFunctionIndividual::getYMin(df_);
+			for(std::size_t i=0; i<f_x_mins.size(); i++) {
+				ofs << "  TLine *tlx" << i << " = new TLine(" << f_x_mins[i] << ", " << minY_ << ", " << f_x_mins[i] << ", " << maxY_ << ");" << std::endl
+						<< "  tlx" << i << "->SetLineStyle(5);" << std::endl
+						<< "  tlx" << i << "->SetLineColor(45);" << std::endl
+						<< "  tlx" << i << "->Draw();" << std::endl;
+			}
+			for(std::size_t i=0; i<f_y_mins.size(); i++) {
+				ofs << "  TLine *tly" << i << " = new TLine(" << minX_ << ", " << f_y_mins[i] << ", " << maxX_ << ", " << f_y_mins[i] << ");" << std::endl
+						<< "  tly" << i << "->SetLineStyle(5);" << std::endl
+						<< "  tly" << i << "->SetLineColor(45);" << std::endl
+						<< "  tly" << i << "->Draw();" << std::endl;
+			}
+			ofs << std::endl;
+
+			// Extract the parents and mark them in the plot
+			for(std::size_t parentId=0; parentId < nParents; parentId++) {
+				boost::shared_ptr<GParameterSet> p_ptr = ea->getParentIndividual<GParameterSet>(parentId);
+
+				// std::cout << "================ Iteration " << ea->getIteration() << " / Parent = " << parentId << " =================" << std::endl
+				//	         << p_ptr->toString(Gem::Common::SERIALIZATIONMODE_XML) << std::endl;
+
+				// Extract the coordinates
+				double x_parent = p_ptr->at<GDoubleCollection>(0)->at(0);
+				double y_parent = p_ptr->at<GDoubleCollection>(0)->at(1);
+
+				// Add to the plot, if the marker would still be inside the main drawing area
+				if(x_parent > minX_ && x_parent < maxX_ && y_parent > minY_ && y_parent < maxY_) {
+					ofs << "  TMarker *parent_marker" << parentId << " = new TMarker(" << x_parent << ", " << y_parent << ", 26);" << std::endl // A circle
+							<< "  parent_marker" << parentId << "->SetMarkerColor(2);" << std::endl
+							<< "  parent_marker" << parentId << "->SetMarkerSize(1.5);" << std::endl
+							<< "  parent_marker" << parentId << "->Draw();" << std::endl
+							<< std::endl;
+				}
+			}
+
+			// Loop over all individuals in this iteration and output their parameters
+			GBaseEA::iterator it;
+			std::size_t cind = 0;
+			for(it=ea->begin() + nParents; it!=ea->end(); ++it) {
+				// Retrieve the data members
+				boost::shared_ptr<GDoubleCollection> x = boost::dynamic_pointer_cast<GParameterSet>(*it)->at<GDoubleCollection>(0);
+				// Store a reference for ease of access
+				const GDoubleCollection& x_ref = *x;
+#ifdef DEBUG
+				// Check that we indeed only have two dimensions
+				if(x_ref.size() != 2) {
+					std::ostringstream error;
+					error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
+							<< "Found GDoubleCollection with invalid number of entries: " << x_ref.size() << std::endl;
+					throw(Gem::Common::gemfony_error_condition(error.str()));
+				}
+#endif /* DEBUG */
+
+				// Only draw the child if it is inside of the function plot
+				if(x_ref[0] > minX_ && x_ref[0] < maxX_ && x_ref[1] > minY_ && x_ref[1] < maxY_) {
+					ofs << "  TMarker *child_marker_" << cind << " = new TMarker(" << x_ref[0] << ", " << x_ref[1] << ", 8);" << std::endl // A circle
+							<< "  child_marker_" << cind << "->SetMarkerColor(1);" << std::endl
+							<< "  child_marker_" << cind << "->SetMarkerSize(1.1);" << std::endl
+							<< "  child_marker_" << cind << "->Draw();" << std::endl
+							<< std::endl;
+				}
+
+				// If requested, draw an arrow from the old parent to the individual
+				if(trackParentRelations_ && drawArrows_ && iteration>0) { // Tracking doesn't make sense for iteration 0
+#ifdef DEBUG
+					// Check whether the parent is was set at all
+					if(!(*it)->getPersonalityTraits<GEAPersonalityTraits>()->parentIdSet()) {
+						std::ostringstream error;
+						error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
+								<< "Tried to access parent id while the id wasn't set." << std::endl;
+						throw(Gem::Common::gemfony_error_condition(error.str()));
+					}
+#endif /* DEBUG */
+
+					// Retrieve the id of the individual's parent
+					std::size_t oldParentId = (*it)->getPersonalityTraits<GEAPersonalityTraits>()->getParentId();
+
+					// Retrieve a pointer to that parent
+					boost::shared_ptr<GParameterSet> op_ptr = ea->getOldParentIndividual<GParameterSet>(oldParentId);
+					// Retrieve the data members
+					boost::shared_ptr<GDoubleCollection> op_x = op_ptr->at<GDoubleCollection>(0);
+					// Store a reference for ease of access
+					const GDoubleCollection& op_x_ref = *op_x;
+
+					// Create the arrow
+					ofs << "  TArrow *rel_arrow" << cind << " = new TArrow(" << op_x_ref[0] << ", " << op_x_ref[1] << ", " << x_ref[0] << ", " << x_ref[1] << ", 0.01, \"|>\");" << std::endl
+							<< "  rel_arrow" << cind << "->Draw();" << std::endl;
+				}
+
+				cind++;
+			}
+
+			// If we want to monitor the relationships between parent individuals and children,
+			// draw the old parents and mark which children have originated from them.
+			if(trackParentRelations_ && iteration>0) { // Tracking doesn't make sense for iteration 0
+#ifdef DEBUG
+				// Check that the population has indeed logged old parents
+				if(!ea->oldParentsLogged()) {
+					std::ostringstream error;
+					error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
+							<< "Logging of parent relations was requested, even though the population" << std::endl
+							<< "doesn't have the required information." << std::endl;
+					throw(Gem::Common::gemfony_error_condition(error.str()));
+				}
+#endif /* DEBUG */
+
+				// Extract the old parent individuals and draw them into the plot
+				for(std::size_t oldParentId=0; oldParentId<nParents; oldParentId++) {
+					// Retrieve the old parent
+					boost::shared_ptr<GParameterSet> op_ptr = ea->getOldParentIndividual<GParameterSet>(oldParentId);
+					// Retrieve the data members
+					boost::shared_ptr<GDoubleCollection> x = op_ptr->at<GDoubleCollection>(0);
+					// Store a reference for ease of access
+					const GDoubleCollection& x_ref = *x;
+#ifdef DEBUG
+					// Check that we indeed only have two dimensions
+					if(x_ref.size() != 2) {
+						std::ostringstream error;
+						error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
+								<< "Found GDoubleCollection with invalid number of entries: " << x_ref.size() << std::endl;
+						throw(Gem::Common::gemfony_error_condition(error.str()));
+					}
+#endif /* DEBUG */
+
+					// Only draw the old parent if it is inside of the function plot
+					if(x_ref[0] > minX_ && x_ref[0] < maxX_ && x_ref[1] > minY_ && x_ref[1] < maxY_) {
+						ofs << "  TMarker *old_parent_marker_" << oldParentId << " = new TMarker(" << x_ref[0] << ", " << x_ref[1] << ", 8);" << std::endl // A circle
+								<< "  old_parent_marker_" << oldParentId << "->SetMarkerColor(2);" << std::endl
+								<< "  old_parent_marker_" << oldParentId << "->SetMarkerSize(2.0);" << std::endl
+								<< "  old_parent_marker_" << oldParentId << "->Draw();" << std::endl
+								<< std::endl;
+					}
+				}
+			}
+
+			// Extract the coordinates of the globally best individual
+			double x_global_best = g_best_ptr->at<GDoubleCollection>(0)->at(0);
+			double y_global_best = g_best_ptr->at<GDoubleCollection>(0)->at(1);
+
+			// Add to the plot, if the marker would still be inside the main drawing area
+			if(x_global_best > minX_ && x_global_best < maxX_ && y_global_best > minY_ && y_global_best < maxY_) {
+				ofs << "  TMarker *gbest = new TMarker(" << x_global_best << ", " << y_global_best << ", 22);" << std::endl // A circle
+						<< "  gbest->SetMarkerColor(4);" << std::endl
+						<< "  gbest->SetMarkerSize(1.6);" << std::endl
+						<< "  gbest->Draw();" << std::endl
+						<< std::endl;
+			}
+
+			ofs << std::endl
+					<< "  cc->Print(\"" << (snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".jpg") << "\");" << std::endl
+					<< "}" << std::endl;
+
+			// Close the file stream
+			ofs.close();
+		}
+
+		//-----------------------------------------------------------------------------------------
+
+		// Make sure the usual iteration work is performed
+		return GBaseEA::GEAOptimizationMonitor::eaCycleInformation(ea);
 	}
 
 private:

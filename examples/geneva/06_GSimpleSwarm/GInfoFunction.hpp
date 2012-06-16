@@ -226,6 +226,192 @@ public:
 		return evaluateDiscrepancies("progressMonitor", caller, deviations, e);
 	}
 
+	/*********************************************************************************************/
+	/**
+	 * Allows to set the dimensions of the canvas
+	 *
+	 * @param xDimProgress The desired dimension of the canvas in x-direction
+	 * @param yDimProgress The desired dimension of the canvas in y-direction
+	 */
+	void setProgressDims(const boost::uint16_t& xDimProgress, const boost::uint16_t& yDimProgress) {
+		xDimProgress_ = xDimProgress;
+		yDimProgress_ = yDimProgress;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Retrieves the dimension of the canvas in x-direction
+	 *
+	 * @return The dimension of the canvas in x-direction
+	 */
+	boost::uint16_t getXDimProgress() const {
+		return xDimProgress_;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Retrieves the dimension of the canvas in y-direction
+	 *
+	 * @return The dimension of the canvas in y-direction
+	 */
+	boost::uint16_t getYDimProgress() const {
+		return yDimProgress_;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * A snapshot of the individuals will be taken for every iteration that the progressMonitor
+	 * is called for, when the followProgress_ flag is set.
+	 *
+	 * @param followProgress_ The desired new value of the followProgress_ variable
+	 */
+	void setFollowProgress(bool followProgress) {
+		followProgress_ = followProgress;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Retrieves the current value of the followProgress_ flag
+	 *
+	 * @return The current value of the followProgress_ flag
+	 */
+	bool getFollowProgress() const {
+		return followProgress_;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Allows to set the base name used for snapshot files
+	 *
+	 * @param snapshotBaseName The desired base name for snapshot files
+	 */
+	void setSnapshotBaseName(const std::string& snapshotBaseName) {
+		snapshotBaseName_ = snapshotBaseName;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Allows to retrieve the current base name used for snapshot files
+	 */
+	std::string getSnapshotBaseName() const {
+		return snapshotBaseName_;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Allows to set the extreme x values for snapshot plots
+	 *
+	 * @param minX The minimal allowed value in x-direction
+	 * @param maxX The minimal allowed value in x-direction
+	 */
+	void setXExtremes(const double& minX, const double& maxX) {
+		if(minX >= maxX) {
+			std::ostringstream error;
+			error << "In progressMonitor::setXExtremes(): Error!" << std::endl
+				  << "Invalid min/max x values provided: " << minX << " / " << maxX << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		minX_ = minX;
+		maxX_ = maxX;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Allows to set the extreme y values for snapshot plots
+	 *
+	 * @param minY The minimal allowed value in y-direction
+	 * @param maxY The minimal allowed value in y-direction
+	 */
+	void setYExtremes(const double& minY, const double& maxY) {
+		if(minY >= maxY) {
+			std::ostringstream error;
+			error << "In progressMonitor::setYExtremes(): Error!" << std::endl
+				  << "Invalid min/max y values provided: " << minY << " / " << maxY << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		minY_ = minY;
+		maxY_ = maxY;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Allows to retrieve the minimal allowed value in x-direction for snapshots
+	 *
+	 * @return The value of the minX_ variable
+	 */
+	double getMinX() const {
+		return minX_;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Allows to retrieve the maximal allowed value in x-direction for snapshots
+	 *
+	 * @return The value of the maxX_ variable
+	 */
+	double getMaxX() const {
+		return maxX_;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Allows to retrieve the minimal allowed value in y-direction for snapshots
+	 *
+	 * @return The value of the minY_ variable
+	 */
+	double getMinY() const {
+		return minY_;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Allows to retrieve the maximal allowed value in y-direction for snapshots
+	 *
+	 * @return The value of the maxY_ variable
+	 */
+	double getMaxY() const {
+		return maxY_;
+	}
+
+protected:
+	/*********************************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 *
+	 * @return A deep clone of this object
+	 */
+	GObject* clone_() const {
+		return new progressMonitor(*this);
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Loads the data of another progressMonitor object, camouflaged as a GObject.
+	 *
+	 * @param cp A pointer to another progressMonitor object, camouflaged as a GObject
+	 */
+	void load_(const GObject * cp)
+	{
+		const progressMonitor *p_load = gobject_conversion<progressMonitor>(cp);
+
+		// First load the parent class'es data ...
+		GSerialSwarm::GSwarmOptimizationMonitor::load_(cp);
+
+		// ... and then our own data
+		xDimProgress_ = p_load->xDimProgress_;
+		yDimProgress_ = p_load->yDimProgress_;
+		df_ = p_load->df_;
+		followProgress_ = p_load->followProgress_;
+		snapshotBaseName_ = p_load->snapshotBaseName_;
+		minX_ = p_load->minX_;
+		maxX_ = p_load->maxX_;
+		minY_ = p_load->minY_;
+		maxY_ = p_load->maxY_;
+		outputPath_ = p_load->outputPath_;
+	}
+
 	/**********************************************************************************/
 	/**
 	 * A function that is called during each optimization cycle, acting on evolutionary
@@ -412,192 +598,6 @@ public:
 
 		// Make sure the usual iteration work is performed
 		return GSerialSwarm::GSwarmOptimizationMonitor::swarmCycleInformation(swarm);
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Allows to set the dimensions of the canvas
-	 *
-	 * @param xDimProgress The desired dimension of the canvas in x-direction
-	 * @param yDimProgress The desired dimension of the canvas in y-direction
-	 */
-	void setProgressDims(const boost::uint16_t& xDimProgress, const boost::uint16_t& yDimProgress) {
-		xDimProgress_ = xDimProgress;
-		yDimProgress_ = yDimProgress;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Retrieves the dimension of the canvas in x-direction
-	 *
-	 * @return The dimension of the canvas in x-direction
-	 */
-	boost::uint16_t getXDimProgress() const {
-		return xDimProgress_;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Retrieves the dimension of the canvas in y-direction
-	 *
-	 * @return The dimension of the canvas in y-direction
-	 */
-	boost::uint16_t getYDimProgress() const {
-		return yDimProgress_;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * A snapshot of the individuals will be taken for every iteration that the progressMonitor
-	 * is called for, when the followProgress_ flag is set.
-	 *
-	 * @param followProgress_ The desired new value of the followProgress_ variable
-	 */
-	void setFollowProgress(bool followProgress) {
-		followProgress_ = followProgress;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Retrieves the current value of the followProgress_ flag
-	 *
-	 * @return The current value of the followProgress_ flag
-	 */
-	bool getFollowProgress() const {
-		return followProgress_;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Allows to set the base name used for snapshot files
-	 *
-	 * @param snapshotBaseName The desired base name for snapshot files
-	 */
-	void setSnapshotBaseName(const std::string& snapshotBaseName) {
-		snapshotBaseName_ = snapshotBaseName;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Allows to retrieve the current base name used for snapshot files
-	 */
-	std::string getSnapshotBaseName() const {
-		return snapshotBaseName_;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Allows to set the extreme x values for snapshot plots
-	 *
-	 * @param minX The minimal allowed value in x-direction
-	 * @param maxX The minimal allowed value in x-direction
-	 */
-	void setXExtremes(const double& minX, const double& maxX) {
-		if(minX >= maxX) {
-			std::ostringstream error;
-			error << "In progressMonitor::setXExtremes(): Error!" << std::endl
-				  << "Invalid min/max x values provided: " << minX << " / " << maxX << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-
-		minX_ = minX;
-		maxX_ = maxX;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Allows to set the extreme y values for snapshot plots
-	 *
-	 * @param minY The minimal allowed value in y-direction
-	 * @param maxY The minimal allowed value in y-direction
-	 */
-	void setYExtremes(const double& minY, const double& maxY) {
-		if(minY >= maxY) {
-			std::ostringstream error;
-			error << "In progressMonitor::setYExtremes(): Error!" << std::endl
-				  << "Invalid min/max y values provided: " << minY << " / " << maxY << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-
-		minY_ = minY;
-		maxY_ = maxY;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Allows to retrieve the minimal allowed value in x-direction for snapshots
-	 *
-	 * @return The value of the minX_ variable
-	 */
-	double getMinX() const {
-		return minX_;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Allows to retrieve the maximal allowed value in x-direction for snapshots
-	 *
-	 * @return The value of the maxX_ variable
-	 */
-	double getMaxX() const {
-		return maxX_;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Allows to retrieve the minimal allowed value in y-direction for snapshots
-	 *
-	 * @return The value of the minY_ variable
-	 */
-	double getMinY() const {
-		return minY_;
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Allows to retrieve the maximal allowed value in y-direction for snapshots
-	 *
-	 * @return The value of the maxY_ variable
-	 */
-	double getMaxY() const {
-		return maxY_;
-	}
-
-protected:
-	/*********************************************************************************************/
-	/**
-	 * Creates a deep clone of this object
-	 *
-	 * @return A deep clone of this object
-	 */
-	GObject* clone_() const {
-		return new progressMonitor(*this);
-	}
-
-	/*********************************************************************************************/
-	/**
-	 * Loads the data of another progressMonitor object, camouflaged as a GObject.
-	 *
-	 * @param cp A pointer to another progressMonitor object, camouflaged as a GObject
-	 */
-	void load_(const GObject * cp)
-	{
-		const progressMonitor *p_load = gobject_conversion<progressMonitor>(cp);
-
-		// First load the parent class'es data ...
-		GSerialSwarm::GSwarmOptimizationMonitor::load_(cp);
-
-		// ... and then our own data
-		xDimProgress_ = p_load->xDimProgress_;
-		yDimProgress_ = p_load->yDimProgress_;
-		df_ = p_load->df_;
-		followProgress_ = p_load->followProgress_;
-		snapshotBaseName_ = p_load->snapshotBaseName_;
-		minX_ = p_load->minX_;
-		maxX_ = p_load->maxX_;
-		minY_ = p_load->minY_;
-		maxY_ = p_load->maxY_;
-		outputPath_ = p_load->outputPath_;
 	}
 
 private:

@@ -1694,6 +1694,8 @@ public:
 	    			);
 	    		}
 
+	    		std::cout << "Before summary" << std::endl;
+
 	    		// Emit the header and perform any necessary initialization work
 	    		summary_ << this->firstInformation(goa) << std::flush;
 	    	}
@@ -1713,6 +1715,14 @@ public:
 
 	    		// Clean up
 	    		summary_.close();
+	    	}
+	    	break;
+
+	    	default:
+	    	{
+	    		raiseException(
+	    				"Received invalid infoMode " << im << std::endl
+	    		);
 	    	}
 	    	break;
 	    	};
@@ -1773,8 +1783,10 @@ public:
 	     * @return A string containing information to written to the output file (if any)
 	     */
 	    virtual std::string firstInformation(GOptimizationAlgorithmT<ind_type> * const goa) {
+	    	std::cout << "In GOptimizationAlgorithmT/firstInformation (1)" << std::endl;
 	    	std::ostringstream result;
 	    	result << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
+	    	std::cout << "In GOptimizationAlgorithmT/firstInformation (2)" << std::endl;
 	    	return result.str();
 	    }
 
