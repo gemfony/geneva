@@ -278,6 +278,33 @@ double GIndividual::adaptAndEvaluate() {
 
 /************************************************************************************************************/
 /**
+ * Sets the fitness to a given set of values and clears the dirty flag. This is meant for external
+ * methods of performing the actual evaluation.
+ *
+ * @param f The primary fitness value
+ * @param sec_f_vec A vector of secondary fitness values
+ */
+void GIndividual::setFitness(const double& f, const std::vector<double>& sec_f_vec) {
+	currentFitness_ = f;
+
+#ifdef DEBUG
+	if(sec_f_vec.size() != currentSecondaryFitness_.size()) {
+		raiseException(
+				"In GIndividual::setFitness(...): Error!" << std::endl
+				<< "Invalid sizes of seconday fitness vector: " << std::endl
+				<< sec_f_vec.size() << " " << currentSecondaryFitness_.size() << std::endl
+		);
+	}
+#endif /* DEBUG */
+
+	currentSecondaryFitness_ = sec_f_vec;
+
+	// Clear the dirty flag
+	setDirtyFlag(false);
+}
+
+/************************************************************************************************************/
+/**
  * Retrieves the cached (not necessarily up-to-date) fitness
  *
  * @param dirtyFlag The value of the dirtyFlag_ variable

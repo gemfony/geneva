@@ -143,6 +143,8 @@ public:
 	virtual double fitness(const std::size_t&);
 	/** @brief Adapts and evaluates the individual in one go */
 	virtual double adaptAndEvaluate();
+	/** @brief Sets the fitness to a given set of values and clears the dirty flag */
+	virtual void setFitness(const double&, const std::vector<double>&);
 
 	/** @brief Do the required processing for this object */
 	virtual bool process();

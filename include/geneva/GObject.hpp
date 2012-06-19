@@ -53,6 +53,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
+#include <boost/any.hpp>
 #include <boost/bind.hpp>
 #include <boost/cast.hpp>
 #include <boost/cstdint.hpp>

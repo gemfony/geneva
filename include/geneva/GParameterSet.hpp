@@ -66,13 +66,11 @@
 
 
 namespace Gem {
+
 namespace Tests {
-class GTestIndividual1; // forward declaration, needed for test purposes
+class GTestIndividual1; // forward declaration, needed for testing purposes
 } /* namespace Tests */
-} /* namespace Gem */
 
-
-namespace Gem {
 namespace Geneva {
 
 /**************************************************************************/
@@ -162,13 +160,14 @@ public:
 	/** @brief Checks whether all GParameterBase derivatives use the assigned random number generator */
 	virtual bool assignedRNGUsed() const;
 
-	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
-	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
-
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
 
+	/** @brief Provides access to all data stored in the individual in a user defined selection */
+	virtual void custom_streamline(std::vector<boost::any>&);
 
+	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
+	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
 	/**********************************************************************/
 	/**
@@ -238,7 +237,6 @@ public:
 	 *
 	 * @param parVec The vector to which the parameters will be added
 	 */
-
 	template <typename par_type>
 	void streamline(std::vector<par_type>& parVec) const {
 		// Make sure the vector is clean

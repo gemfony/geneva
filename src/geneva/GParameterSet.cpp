@@ -655,6 +655,16 @@ void GParameterSet::addConfigurationOptions (
 	);
 }
 
+/************************************************************************************************************/
+/**
+ * Provides access to all data stored in the individual in a user defined selection
+ *
+ * @param var_vec A std::vector of user-defined types
+ */
+void GParameterSet::custom_streamline(std::vector<boost::any>& var_vec) {
+	/* nothing -- override in user-code */
+}
+
 #ifdef GEM_TESTING
 /************************************************************************************************************/
 /**
