@@ -1,7 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( GENEVASCRIPTS
-	FindGeneva.cmake
 	genevaConfig.gcfg
 	prepareBuild.sh
 	rsyncList.sh
