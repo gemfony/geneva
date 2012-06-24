@@ -32,6 +32,7 @@
 
 // Standard headers go here
 #include <cmath>
+#include <bits/c++config.h>
 
 // Boost headers go here
 
@@ -89,15 +90,21 @@ long double GCos(const long double&);
 float GLog(const float&);
 /** @brief Calculates the log value of a double value */
 double GLog(const double&);
+
+#ifdef _GLIBCXX_HAVE_LOGL
 /** @brief Calculates the log value of a long double value */
 long double GLog(const long double&);
+#endif /* _GLIBCXX_HAVE_LOGL */
 
 /** @brief Calculates the exp value of a float value */
 float GExo(const float&);
 /** @brief Calculates the exp value of a double value */
 double GExp(const double&);
+
+#ifdef _GLIBCXX_HAVE_EXPL
 /** @brief Calculates the exp value of a long double value */
 long double GExp(const long double&);
+#endif /* _GLIBCXX_HAVE_EXPL */
 
 /************************************************************************************/
 

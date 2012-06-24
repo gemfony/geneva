@@ -200,6 +200,7 @@ double GRandomBase::normal_distribution<double>() {
  *
  * @return double random numbers with a gaussian distribution
  */
+#ifdef _GLIBCXX_HAVE_LOGL
 template<>
 long double GRandomBase::normal_distribution<long double>() {
 	using namespace Gem::Common;
@@ -229,6 +230,8 @@ long double GRandomBase::normal_distribution<long double>() {
 #endif
 	}
 }
+#endif /* _GLIBCXX_HAVE_LOGL */
+
 
 /****************************************************************************/
 

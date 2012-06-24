@@ -236,9 +236,11 @@ double GLog(const double& x) {
  * @param x The value for which log should be calculated
  * @return The log value of x
  */
+#ifdef _GLIBCXX_HAVE_LOGL
 long double GLog(const long double& x) {
 	return logl(x);
 }
+#endif /* _GLIBCXX_HAVE_LOGL */
 
 /************************************************************************************/
 /**
@@ -269,9 +271,11 @@ double GExp(const double& x) {
  * @param x The value for which exp should be calculated
  * @return The exp value of x
  */
+#ifdef _GLIBCXX_HAVE_EXPL
 long double GExp(const long double& x) {
 	return expl(x);
 }
+#endif /* _GLIBCXX_HAVE_EXPL */
 
 /************************************************************************************/
 
