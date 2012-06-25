@@ -214,7 +214,7 @@ private:
 				// Check that we indeed got a valid item
 				if(!p) { // We didn't get a valid item after all
 					raiseException(
-						"In GSerialConsumerT<T>::startProcessing(): Error!" << std::endl
+						"In GBoostThreadConsumerT<processable_type>::startProcessing(): Error!" << std::endl
 						<< "Got empty item when it shouldn't be empty!" << std::endl
 					);
 				}
