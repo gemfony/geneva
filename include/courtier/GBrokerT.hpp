@@ -152,9 +152,6 @@ public:
 			(*it)->shutdown();
 		}
 
-		// Wait for their threads to terminate
-		consumerThreads_.join_all();
-
 		// Clear raw and processed buffers and the consumer lists
 		RawBuffers_.clear(); // Somehow that gets rid of the Boost 1.46 crash
 		ProcessedBuffers_.clear();
@@ -258,7 +255,9 @@ public:
 		// Archive the consumer and its name, then start its thread
 		consumerCollection_.push_back(gc);
 		consumerTypesPresent_.push_back(gc->getConsumerName());
-		consumerThreads_.create_thread(boost::bind(&GConsumer::startProcessing, gc));
+
+		// Initiate processing in the consumer. This call will not block.
+		gc->async_startProcessing();
 	}
 
 	/**********************************************************************************/
@@ -452,8 +451,8 @@ public:
 	 *
 	 * @return A boolean indicating whether any consumers are registered
 	 */
-	bool hasConumers() const {
-		return consumerThreads_.size()>0?true:false;
+	bool hasConsumers() const {
+		return consumerCollection_.size()>0?true:false;
 	}
 
 private:
@@ -477,7 +476,6 @@ private:
 	bool buffersPresentRaw_; ///< Set to true once the first "raw" bounded buffer has been enrolled
 	bool buffersPresentProcessed_; ///< Set to true once the first "processed" bounded buffer has been enrolled
 
-	Gem::Common::GThreadGroup consumerThreads_; ///< Holds threads running GConsumer objects
 	std::vector<boost::shared_ptr<GConsumer> > consumerCollection_; ///< Holds the actual consumers
 	std::vector<std::string> consumerTypesPresent_; ///< Holds identifying strings for each consumer
 	mutable boost::mutex consumerEnrolmentMutex_; ///< Protects the enrolment of consumers

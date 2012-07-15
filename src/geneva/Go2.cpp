@@ -677,7 +677,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 		boost::shared_ptr<GOptimizableI> p_base = (*alg_it);
 
 		// If this is a broker-based population, check whether we need to enrol a consumer
-		if(p_base->usesBroker() && !GBROKER(Gem::Geneva::GIndividual)->hasConumers()) {
+		if(p_base->usesBroker() && !GBROKER(Gem::Geneva::GIndividual)->hasConsumers()) {
 			// Create a network consumer and enrol it with the broker
 			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual>(
 					port_

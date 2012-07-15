@@ -86,12 +86,49 @@ public:
 
 	/***************************************************************/
 	/**
-	 * The function that gets new items from the broker, processes them
-	 * and returns them when finished. As this function is the main
-	 * execution point of a thread started by the broker, we need to
-	 * catch all exceptions.
+	 * Starts a single worker thread. Termination of the thread is
+	 * triggered by a call to GConsumer::shutdown().
 	 */
-	void startProcessing() {
+	void async_startProcessing() {
+		processingThread_ = boost::thread(boost::bind(&GSerialConsumerT<processable_type>::processItems, this));
+	}
+
+	/***************************************************************/
+	/**
+	* Finalization code. Sends all threads an interrupt signal.
+	* process() then waits for them to join.
+	*/
+	void shutdown() {
+		{
+			boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
+			stop_=true;
+			lock.unlock();
+		}
+
+		processingThread_.join();
+	}
+
+	/*********************************************************************/
+	/**
+	* A unique identifier for a given consumer
+	*
+	* @return A unique identifier for a given consumer
+	*/
+	virtual std::string getConsumerName() const {
+	  return std::string("GSerialConsumerT");
+	}
+
+private:
+	GSerialConsumerT(const GSerialConsumerT<processable_type>&); ///< Intentionally left undefined
+	const GSerialConsumerT<processable_type>& operator=(const GSerialConsumerT<processable_type>&); ///< Intentionally left undefined
+
+	/***************************************************************/
+	/**
+	* The function that gets new items from the broker, processes them
+	* and returns them when finished. As this function is the main
+	* execution point of a thread, we need to catch all exceptions.
+	*/
+	void processItems(){
 		try{
 			boost::shared_ptr<processable_type> p;
 			Gem::Common::PORTIDTYPE id;
@@ -167,30 +204,8 @@ public:
 	}
 
 	/***************************************************************/
-	/**
-	* Finalization code. Sends all threads an interrupt signal.
-	* process() then waits for them to join.
-	*/
-	void shutdown() {
-		boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
-		stop_=true;
-		lock.unlock();
-	}
 
-	/*********************************************************************/
-	/**
-	* A unique identifier for a given consumer
-	*
-	* @return A unique identifier for a given consumer
-	*/
-	virtual std::string getConsumerName() const {
-	  return std::string("GSerialConsumerT");
-	}
-
-private:
-	GSerialConsumerT(const GSerialConsumerT<processable_type>&); ///< Intentionally left undefined
-	const GSerialConsumerT<processable_type>& operator=(const GSerialConsumerT<processable_type>&); ///< Intentionally left undefined
-
+	boost::thread processingThread_;
 	mutable boost::shared_mutex stopMutex_;
 	mutable bool stop_; ///< Set to true if we are expected to stop
 	boost::shared_ptr<GBrokerT<processable_type> > broker_; ///< A shortcut to the broker so we do not have to go through the singleton

@@ -141,10 +141,10 @@ public:
 
 	/***************************************************************/
 	/**
-	* Starts the worker threads and then waits for their termination.
+	* Starts the worker threads. This function will not block.
 	* Termination of the threads is triggered by a call to GConsumer::shutdown().
 	*/
-	void startProcessing() {
+	void async_startProcessing() {
 		gtg_.create_threads(boost::bind(&GBoostThreadConsumerT<processable_type>::processItems,this), maxThreads_);
 	}
 

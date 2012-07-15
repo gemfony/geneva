@@ -453,7 +453,7 @@ public:
 	  /**
 	   * Starts the actual processing loops
 	   */
-	  void startProcessing() {
+	  void async_startProcessing() {
 		  // Create a number of threads responsible for the io_service_ objects
 		  gtg_.create_threads(
 				  boost::bind(&boost::asio::io_service::run, &io_service_)
