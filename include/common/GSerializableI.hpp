@@ -34,7 +34,6 @@
 
 
 // Standard header files go here
-
 #include <string>
 
 // Includes check for correct Boost version(s)
@@ -74,9 +73,9 @@ public:
 	virtual void fromString(const std::string&, const serializationMode&) = 0;
 };
 
+/**************************************************************************************************/
+
 } /* namespace Common */
 } /* namespace Gem */
-
-/**************************************************************************************************/
 
 #endif /* GSERIALIZABLEI_HPP_ */

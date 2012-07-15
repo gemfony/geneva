@@ -455,7 +455,8 @@ GObject *Go2::clone_() const {
  */
 int Go2::clientRun() {
 	// Instantiate the client worker
-	boost::shared_ptr<Gem::Courtier::GAsioTCPClientT<GIndividual> > p(new Gem::Courtier::GAsioTCPClientT<GIndividual>(ip_, boost::lexical_cast<std::string>(port_)));
+	boost::shared_ptr<Gem::Courtier::GAsioTCPClientT<Gem::Geneva::GIndividual> >
+		p(new Gem::Courtier::GAsioTCPClientT<Gem::Geneva::GIndividual>(ip_, boost::lexical_cast<std::string>(port_)));
 
 	p->setMaxStalls(maxStalledDataTransfers_); // Set to 0 to allow an infinite number of stalls
 	p->setMaxConnectionAttempts(maxConnectionAttempts_); // Set to 0 to allow an infinite number of failed connection attempts
@@ -678,7 +679,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 		// If this is a broker-based population, check whether we need to enrol a consumer
 		if(p_base->usesBroker() && !GBROKER(Gem::Geneva::GIndividual)->hasConumers()) {
 			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(
+			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual>(
 					port_
 					, 0 // Try to automatically determine the number of listener threads
 					, serializationMode_
@@ -817,7 +818,7 @@ void Go2::reset() {
  *
  * @return The best individual found
  */
-boost::shared_ptr<GIndividual> Go2::getBestIndividual() {
+boost::shared_ptr<Gem::Geneva::GIndividual> Go2::getBestIndividual() {
 	Go2::iterator it;
 
 	// Do some error checking
@@ -856,7 +857,7 @@ boost::shared_ptr<GIndividual> Go2::getBestIndividual() {
  *
  * @return The best individual found
  */
-std::vector<boost::shared_ptr<GIndividual> > Go2::getBestIndividuals() {
+std::vector<boost::shared_ptr<Gem::Geneva::GIndividual> > Go2::getBestIndividuals() {
 	Go2::iterator it;
 
 	// Do some error checking
@@ -876,7 +877,7 @@ std::vector<boost::shared_ptr<GIndividual> > Go2::getBestIndividuals() {
 		}
 	}
 
-	std::vector<boost::shared_ptr<GIndividual> > bestIndividuals;
+	std::vector<boost::shared_ptr<Gem::Geneva::GIndividual> > bestIndividuals;
 	for(it=this->begin(); it!=this->end(); ++it) {
 		// This will result in an implicit downcast
 		bestIndividuals.push_back(*it);
