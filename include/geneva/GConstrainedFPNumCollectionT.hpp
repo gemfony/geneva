@@ -112,7 +112,7 @@ public:
 		// Assign random values to each position
 		typename GConstrainedFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			*it = this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(lowerBoundary,upperBoundary);
+			*it = this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary,upperBoundary);
 		}
 	}
 
@@ -281,7 +281,7 @@ public:
 					pos
 					, transfer(
 							this->value(pos) *
-							this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(fp_type(min), fp_type(max))
+							this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(fp_type(min), fp_type(max))
 					)
 			);
 		}
@@ -298,7 +298,7 @@ public:
 		for(std::size_t pos=0; pos<this->size(); pos++) {
 			GParameterCollectionT<fp_type>::setValue(
 					pos
-					, transfer(this->value(pos) * this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_01<fp_type>())
+					, transfer(this->value(pos) * this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_01<fp_type>())
 			);
 		}
 	}
@@ -399,7 +399,7 @@ protected:
 		for(std::size_t pos=0; pos<this->size(); pos++) {
 			this->setValue(
 				pos
-				, this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(
+				, this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
 						GConstrainedNumCollectionT<fp_type>::getLowerBoundary()
 						, GConstrainedNumCollectionT<fp_type>::getUpperBoundary()
 				)

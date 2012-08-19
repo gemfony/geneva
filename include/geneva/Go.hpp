@@ -432,7 +432,7 @@ public:
 		};
 
 		// Create a copy of the best individual for later use
-		bestIndividual_ = result->GObject::clone<GParameterSet>();
+		bestIndividual_ = result->GObject::template clone<GParameterSet>();
 
 		// Let the audience know
 		return result;
