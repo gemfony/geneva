@@ -98,6 +98,9 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		# Specifics for Intel compiler (tested with 10.1). Removes two rather annoying
 		# (and, according to the authors' opinion, irrelevant in this context) warnings
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
+	IF(CMAKE_CXX_COMPILER MATCHES "clang")
+		SET( MSG_COMPILER "clang")		
+		ADD_DEFINITIONS ("-std=c++11 -stdlib=libc++ -DDEBUG -g -Wall -Wno-unused -Wno-attributes -ansi -pthread")
 	ELSE() # e.g. g++
 		SET( MSG_COMPILER "gcc")
 		# ADD_DEFINITIONS ("-DDEBUG -pg -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
@@ -108,20 +111,21 @@ ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
 		SET( MSG_COMPILER "icpc/icc")
 		ADD_DEFINITIONS ("-O3 -pthread")
+	IF(CMAKE_CXX_COMPILER MATCHES "clang")
+		SET( MSG_COMPILER "clang")
+		ADD_DEFINITIONS ("-std=c++11 -stdlib=libc++ -O3 -pthread")
 	ELSE() # e.g. g++
 		SET( MSG_COMPILER "gcc")
 		ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -O3 -pthread")
-		# ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -g -O0 -pthread")
 	ENDIF()
 ELSE()
 	MESSAGE (FATAL_ERROR "Unknown compilation mode CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 ENDIF()
 
-# Make gcc output its error messages on a single line, so Eclipse-CDT can parse them
+# Make gcc/g++ output its error messages on a single line, so Eclipse-CDT can parse them
 IF(CMAKE_COMPILER_IS_GNUCC)
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
 ENDIF()
-# Make g++ output its error messages on a single line, so Eclipse-CDT can parse them
 IF(CMAKE_COMPILER_IS_GNUCXX)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
 ENDIF()
