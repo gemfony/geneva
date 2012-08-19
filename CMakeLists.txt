@@ -98,7 +98,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		# Specifics for Intel compiler (tested with 10.1). Removes two rather annoying
 		# (and, according to the authors' opinion, irrelevant in this context) warnings
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
-	IF(CMAKE_CXX_COMPILER MATCHES "clang")
+	ELSEIF(CMAKE_CXX_COMPILER MATCHES "clang")
 		SET( MSG_COMPILER "clang")		
 		ADD_DEFINITIONS ("-std=c++11 -stdlib=libc++ -DDEBUG -g -Wall -Wno-unused -Wno-attributes -ansi -pthread")
 	ELSE() # e.g. g++
@@ -111,7 +111,7 @@ ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
 		SET( MSG_COMPILER "icpc/icc")
 		ADD_DEFINITIONS ("-O3 -pthread")
-	IF(CMAKE_CXX_COMPILER MATCHES "clang")
+	ELSEIF(CMAKE_CXX_COMPILER MATCHES "clang")
 		SET( MSG_COMPILER "clang")
 		ADD_DEFINITIONS ("-std=c++11 -stdlib=libc++ -O3 -pthread")
 	ELSE() # e.g. g++
