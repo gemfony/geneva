@@ -137,7 +137,8 @@ boost::optional<std::string> checkExpectation (
 		// Check whether the content differs
 		{
 			boost::optional<std::string> o;
-			if(o = x->checkRelationshipWith(*y, e, limit, myCaller, y_name, withMessages)) {
+			o = x->checkRelationshipWith(*y, e, limit, myCaller, y_name, withMessages);
+			if(o) {
 				if(withMessages) {
 					message <<  "In expectation check initiated by \"" << caller << "\" : Smart pointers "
 							<< x_name << " and " << y_name << " differ. Analysis:\n"
@@ -166,7 +167,8 @@ boost::optional<std::string> checkExpectation (
 		// Check whether the content differs
 		{
 			boost::optional<std::string> o;
-			if(o = x->checkRelationshipWith(*y, e, limit, myCaller, y_name, withMessages)) {
+			o = x->checkRelationshipWith(*y, e, limit, myCaller, y_name, withMessages);
+			if(o) {
 				if(withMessages) {
 					message <<  "In expectation check initiated by \"" << caller << "\" : Smart pointers"
 							<< x_name << " and " << y_name << " do not differ. Analysis:\n"
@@ -257,7 +259,8 @@ boost::optional<std::string> checkExpectation (
 				std::string first_name = "x[" + boost::lexical_cast<std::string>(index) + "]";
 				std::string second_name = "y[" + boost::lexical_cast<std::string>(index) + "]";
 
-				if(o = checkExpectation(withMessages, myCaller, *x_it, *y_it, first_name, second_name, e, limit)) {
+				o = checkExpectation(withMessages, myCaller, *x_it, *y_it, first_name, second_name, e, limit);
+				if(o) {
 					foundDeviation = true;
 					failedIndex = index;
 					break; // Leave the for-loop, one deviation is enough
