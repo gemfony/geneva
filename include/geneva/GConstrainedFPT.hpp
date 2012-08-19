@@ -116,7 +116,7 @@ public:
 	GConstrainedFPT (const fp_type& lowerBoundary , const fp_type& upperBoundary)
 		: GConstrainedNumT<fp_type>(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary))
 	{
-		GParameterT<fp_type>::setValue(this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(lowerBoundary,upperBoundary));
+		GParameterT<fp_type>::setValue(this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary,upperBoundary));
 	}
 
 	/****************************************************************************/
@@ -390,7 +390,7 @@ public:
 	 * @param max The upper boundary for random number generation
 	 */
 	virtual void fpMultiplyByRandom(const float& min, const float& max)	{
-		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() * this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(fp_type(min), fp_type(max))));
+		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() * this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(fp_type(min), fp_type(max))));
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -406,7 +406,7 @@ public:
 	 * value range.
 	 */
 	virtual void fpMultiplyByRandom() {
-		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() * this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_01<fp_type>()));
+		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() * this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_01<fp_type>()));
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -481,7 +481,7 @@ protected:
 	 */
 	virtual void randomInit_() {
 		this->setValue(
-				this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(
+				this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
 						GConstrainedNumT<fp_type>::getLowerBoundary(), GConstrainedNumT<fp_type>::getUpperBoundary()
 				)
 		);
@@ -615,7 +615,7 @@ public:
 				BOOST_CHECK_NO_THROW(p_test->setValue(tmpLowerBoundary, tmpLowerBoundary, tmpUpperBoundary));
 
 				for(std::size_t i=0; i<nTests; i++) {
-					fp_type randomValue = fp_type(this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary));
+					fp_type randomValue = fp_type(this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary));
 					BOOST_CHECK_NO_THROW(result = p_test->transfer(randomValue));
 					BOOST_CHECK_MESSAGE(
 							result >= tmpLowerBoundary && result < tmpUpperBoundary
@@ -640,7 +640,7 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Randomly initialize with a "fixed" value
-				BOOST_CHECK_NO_THROW(p_test->fpFixedValueInit(boost::numeric_cast<float>(this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary))));
+				BOOST_CHECK_NO_THROW(p_test->fpFixedValueInit(boost::numeric_cast<float>(this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary))));
 
 				// Check that the external value is inside of the allowed value range
 				// Check that the value is still in the allowed range
@@ -706,7 +706,7 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Multiply with a random value in a very wide
-				BOOST_CHECK_NO_THROW(p_test->fpMultiplyBy(boost::numeric_cast<float>(this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary))));
+				BOOST_CHECK_NO_THROW(p_test->fpMultiplyBy(boost::numeric_cast<float>(this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary))));
 
 				// Check that the value is still in the allowed range
 				BOOST_CHECK_MESSAGE(

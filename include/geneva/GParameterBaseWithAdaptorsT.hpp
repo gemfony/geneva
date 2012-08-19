@@ -101,7 +101,7 @@ public:
 	 */
 	GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T>& cp)
 		: GParameterBase(cp)
-		, adaptor_((cp.adaptor_)->GObject::clone<GAdaptorT<T> >())
+		, adaptor_((cp.adaptor_)->GObject::template clone<GAdaptorT<T> >())
 	{ /* nothing */ }
 
 	/*******************************************************************************************/
@@ -197,7 +197,7 @@ public:
 			}
 			// Different type - need to clone and assign to gat_ptr
 			else {
-				adaptor_ = gat_ptr->GObject::clone<GAdaptorT<T> >();
+				adaptor_ = gat_ptr->GObject::template clone<GAdaptorT<T> >();
 			}
 		}
 		// None there ? This should not happen
@@ -425,7 +425,7 @@ protected:
 		}
 		// Different type - need to convert
 		else {
-			adaptor_ = p_load->adaptor_->GObject::clone<GAdaptorT<T> >();
+			adaptor_ = p_load->adaptor_->GObject::template clone<GAdaptorT<T> >();
 		}
 	}
 

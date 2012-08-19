@@ -160,7 +160,7 @@ public:
 		, maxDuration_(cp.maxDuration_)
 		, emitTerminationReason_(cp.emitTerminationReason_)
 		, halted_(cp.halted_)
-		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>())
+		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>())
 	{ /* nothing */ }
 
 	/**************************************************************************************/
@@ -556,7 +556,7 @@ public:
 		}
 #endif /* DEBUG */
 
-		this->optimizationMonitor_ptr_ = om_ptr->GObject::clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
+		this->optimizationMonitor_ptr_ = om_ptr->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 	}
 
 	/**************************************************************************************/
@@ -1071,7 +1071,7 @@ protected:
 		maxDuration_ = p_load->maxDuration_;
 		emitTerminationReason_ = p_load->emitTerminationReason_;
 		halted_ = p_load->halted_;
-		this->optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
+		this->optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 	}
 
 	/**************************************************************************************/

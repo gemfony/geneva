@@ -105,7 +105,7 @@ public:
 		// Assign random values to each position
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			*it = this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(min,max);
+			*it = this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(min,max);
 		}
 	}
 
@@ -227,7 +227,7 @@ public:
 	virtual void fpMultiplyByRandom(const float& min, const float& max)	{
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it) *= this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(fp_type(min), fp_type(max));
+			(*it) *= this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(fp_type(min), fp_type(max));
 		}
 	}
 
@@ -243,7 +243,7 @@ public:
 	virtual void fpMultiplyByRandom() {
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it) *= this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_01<fp_type>();
+			(*it) *= this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_01<fp_type>();
 		}
 	}
 
@@ -388,7 +388,7 @@ protected:
 
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)=this->GParameterBase::gr->Gem::Hap::GRandomBase::uniform_real<fp_type>(lowerBoundary, upperBoundary);
+			(*it)=this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary, upperBoundary);
 		}
 	}
 

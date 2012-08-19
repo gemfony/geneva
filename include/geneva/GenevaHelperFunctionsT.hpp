@@ -84,7 +84,7 @@ void copyGenevaSmartPointer (
 		to.reset();
 	} else {
 		if(!to) {
-			to = from->GObject::clone<T>();
+			to = from->GObject::template clone<T>();
 		} else {
 			to->load(from);
 		}
@@ -127,7 +127,7 @@ void copyGenevaSmartPointerVector(
 
 		// Then attach copies of the remaining items
 		for(it_from=from.begin()+size_to; it_from!=from.end(); ++it_from) {
-			to.push_back((*it_from)->GObject::clone<T>());
+			to.push_back((*it_from)->GObject::template clone<T>());
 		}
 	}
 	else if(size_from < size_to) {
