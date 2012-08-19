@@ -297,6 +297,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// Some general settings
 	const double testVal = 42.;
 	const double testVal2 = 17.;
+	double testVal3 = 0.;
 	const double lowerBoundary = 0.;
 	const double upperBoundary = 100.;
 
@@ -342,6 +343,13 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Check the value again, should have changed
 		BOOST_CHECK(p_test->value() == testVal);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Check construction with two boundaries plus initialization with a random value and extraction of that value
+		boost::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.3, 0.6));
+		BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
 	}
 
 	//------------------------------------------------------------------------------
