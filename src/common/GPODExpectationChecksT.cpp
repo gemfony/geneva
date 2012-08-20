@@ -148,7 +148,8 @@ boost::optional<std::string> evaluateDiscrepancies(
 	case Gem::Common::CE_FP_SIMILARITY:
 	case Gem::Common::CE_EQUALITY:
 		for(cit=v.begin(); cit!=v.end(); ++cit) {
-			if(receiver = *cit) { // A message is held in the boost::optional<std::string> object
+			receiver = *cit;
+			if(receiver) { // A message is held in the boost::optional<std::string> object
 				nDiscrepanciesFound++;
 				discrepancies += (*receiver + "\n");
 			}
@@ -163,7 +164,8 @@ boost::optional<std::string> evaluateDiscrepancies(
 
 	case Gem::Common::CE_INEQUALITY:
 		for(cit=v.begin(); cit!=v.end(); ++cit) {
-			if(receiver = *cit) { // A message is held in the boost::optional<std::string> object
+			receiver = *cit;
+			if(receiver) { // A message is held in the boost::optional<std::string> object
 				nDiscrepanciesFound++;
 				discrepancies += (*receiver + "\n");
 			}
