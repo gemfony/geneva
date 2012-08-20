@@ -269,8 +269,9 @@ void networkData::saveToDisk(const std::string& networkDataFile) const {
 
 	// Load the data, using the Boost.Serialization library
 	{
+		const networkData *local = this;
 		boost::archive::xml_oarchive oa(trDat);
-		oa << boost::serialization::make_nvp("networkData", this);
+		oa << boost::serialization::make_nvp("networkData", local);
 	} // Explicit scope at this point is essential so that ia's destructor is called
 
 	trDat.close();
