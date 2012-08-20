@@ -193,7 +193,7 @@ public:
 			data.resize(cpSize);
 
 			// Then copy the elements
-			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(), cp_it!=cp.end(); ++it, ++cp_it) {
+			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) {
 				(*it)->GObject::load(*cp_it);
 			}
 		}
