@@ -496,7 +496,7 @@ double GNeuralNetworkIndividual<RBF>::transfer(const double& value) const {
 #ifdef GEM_TESTING
 
 /**
- * As the Gem::Geneva::Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> has a private default constructor, we need to provide a
+ * As the Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <>
@@ -506,7 +506,7 @@ boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> > 
 
 /*************************************************************************************************/
 /**
- * As the Gem::Geneva::Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> has a private default constructor, we need to provide a
+ * As the Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <>
