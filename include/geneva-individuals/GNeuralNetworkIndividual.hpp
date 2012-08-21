@@ -79,6 +79,7 @@
 #include <common/GCommonEnums.hpp>
 #include <common/GExceptions.hpp>
 #include <common/GHelperFunctionsT.hpp>
+#include <common/GUnitTestFrameworkT.hpp>
 #include <hap/GRandomT.hpp>
 #include <geneva/GDoubleObject.hpp>
 #include <geneva/GDoubleGaussAdaptor.hpp>
@@ -1290,7 +1291,7 @@ protected:
 		// Now loop over all data sets
 		nD_->resetCurrentIndex();
 		boost::optional<boost::shared_ptr<trainingSet> > o;
-		while(o = nD_->getNextTrainingSet()) {
+		while((o = nD_->getNextTrainingSet())) {
 			// Retrieve a constant reference to the training data set for faster access
 			const trainingSet& tS = **o;
 

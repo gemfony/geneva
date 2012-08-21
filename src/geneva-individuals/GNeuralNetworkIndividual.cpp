@@ -487,35 +487,6 @@ double GNeuralNetworkIndividual<RBF>::transfer(const double& value) const {
 	return exp(-GSQUARED(value));
 }
 
-
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
-// For testing purposes
-
-#ifdef GEM_TESTING
-
-/**
- * As the Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> has a private default constructor, we need to provide a
- * specialization of the factory function that creates GStartProjectIndividual objects
- */
-template <>
-boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> > TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >() {
-	return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >(new Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
-}
-
-/*************************************************************************************************/
-/**
- * As the Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> has a private default constructor, we need to provide a
- * specialization of the factory function that creates GStartProjectIndividual objects
- */
-template <>
-boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> > TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> >() {
-	return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> >(new Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
-}
-
-#endif /* GEM_TESTING */
-
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
@@ -598,3 +569,31 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::transferFunction& t
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+// For testing purposes
+
+#ifdef GEM_TESTING
+
+/**
+ * As the Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> has a private default constructor, we need to provide a
+ * specialization of the factory function that creates GStartProjectIndividual objects
+ */
+template <>
+boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> > TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >() {
+	return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >(new Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
+}
+
+/*************************************************************************************************/
+/**
+ * As the Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> has a private default constructor, we need to provide a
+ * specialization of the factory function that creates GStartProjectIndividual objects
+ */
+template <>
+boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> > TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> >() {
+	return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> >(new Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
+}
+
+#endif /* GEM_TESTING */

@@ -269,16 +269,13 @@ void copySmartPointerVector(
 	std::size_t size_to = to.size();
 
 	if(size_from==size_to) { // The most likely case
-		for(it_from=from.begin(), it_to=to.begin();
-		     it_from!=from.end(), it_to!=to.end();
-		     ++it_from, ++it_to) {
+		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
 			**it_to=**it_from; // Uses T::operator=()
 		}
 	}
 	else if(size_from > size_to) {
 		// First copy the data of the first size_to items
-		for(it_from=from.begin(), it_to=to.begin();
-		     it_to!=to.end(); ++it_from, ++it_to) {
+		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
 			**it_to=**it_from;
 		}
 
@@ -290,8 +287,7 @@ void copySmartPointerVector(
 	}
 	else if(size_from < size_to) {
 		// First copy the initial size_foreight items over
-		for(it_from=from.begin(), it_to=to.begin();
-		     it_from!=from.end(); ++it_from, ++it_to) {
+		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
 			**it_to=**it_from;
 		}
 

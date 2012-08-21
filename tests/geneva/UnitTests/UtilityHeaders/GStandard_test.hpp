@@ -122,7 +122,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
 
 		// Cloning
-		BOOST_REQUIRE_NO_THROW(T_ptr_clone = T_ptr->GObject::clone<T>());
+		BOOST_REQUIRE_NO_THROW(T_ptr_clone = T_ptr->template GObject::clone<T>());
 
 		// Check for equivalence and similarity
 		BOOST_CHECK(gep.isEqual(*T_ptr_clone, *T_ptr));

@@ -574,8 +574,8 @@ private:
 		result << std::endl;
 
 		for(std::size_t i=0; i<entries_.size(); i++) {
-			result << "  currentEntries[" << i << "] = " << entries_[i].get<0>() << ";" << std::endl
-				   << "  entryTimes[" << i << "] = " << entries_[i].get<1>() << ";" << std::endl;
+			result << "  currentEntries[" << i << "] = " << boost::get<0>(entries_[i]) << ";" << std::endl
+				   << "  entryTimes[" << i << "] = " << boost::get<1>(entries_[i]) << ";" << std::endl;
 		}
 
 		result
