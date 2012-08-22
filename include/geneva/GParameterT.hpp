@@ -335,7 +335,7 @@ public:
 template <typename T>
 GParameterT<T>::GParameterT()
 	: GParameterBaseWithAdaptorsT<T>()
-	, val_(T(0))
+	, val_(Gem::Common::GDefaultValueT<bool>())
 { /* nothing */ }
 
 /*********************************************************************************************/

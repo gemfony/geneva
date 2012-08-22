@@ -78,6 +78,8 @@ public:
 	GBooleanObjectCollection();
 	/** @brief Initialization with a number of GBooleanObject objects */
 	GBooleanObjectCollection(const std::size_t&, boost::shared_ptr<GBooleanObject>);
+	/** @brief Initialization with a number of GBoolean objects with a given probability for the value "true" */
+	GBooleanObjectCollection(const std::size_t&, const double&);
 	/** @brief The copy constructor */
 	GBooleanObjectCollection(const GBooleanObjectCollection&);
 	/** @brief The destructor */

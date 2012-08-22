@@ -80,6 +80,8 @@ public:
 	GBooleanObject(const GBooleanObject&);
 	/** @brief Initialization by contained value */
 	explicit GBooleanObject(const bool&);
+	/** @brief Initialization with a given probability for "true" */
+	explicit GBooleanObject(const double&);
 	/** @brief The destructor */
 	virtual ~GBooleanObject();
 

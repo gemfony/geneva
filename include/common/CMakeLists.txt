@@ -35,6 +35,7 @@ SET ( GENEVACOMMONINCLUDES
 	GBoundedBufferT.hpp
 	GBoundedBufferWithIdT.hpp
 	GCommonEnums.hpp
+	GDefaultValueT.hpp
 	GExceptions.hpp
 	GFactoryT.hpp
 	GGlobalDefines.hpp

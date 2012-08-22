@@ -51,11 +51,24 @@ GBooleanObjectCollection::GBooleanObjectCollection()
  * Initialization with a number of identical GBooleanObject objects
  */
 GBooleanObjectCollection::GBooleanObjectCollection(
-	const std::size_t& nCp
+	const std::size_t& nVals
 	, boost::shared_ptr<GBooleanObject> tmpl_ptr
 )
-	:GParameterTCollectionT<GBooleanObject>(nCp, tmpl_ptr)
+	:GParameterTCollectionT<GBooleanObject>(nVals, tmpl_ptr)
 { /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * Initialization with a number of GBoolean objects with a given probability for the value "true"
+ */
+GBooleanObjectCollection::GBooleanObjectCollection(
+		const std::size_t& nVals
+		, const double& probability
+) {
+	for(std::size_t i=0; i<nVals; i++) {
+		this->push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject(probability)));
+	}
+}
 
 /*******************************************************************************************/
 /**

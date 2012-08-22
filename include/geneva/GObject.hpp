@@ -118,6 +118,7 @@
 
 
 // Geneva header files go here
+#include "common/GDefaultValueT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GSerializableI.hpp"

@@ -44,7 +44,10 @@ namespace Geneva {
  * The default constructor
  */
 GBooleanObject::GBooleanObject()
+	: GParameterT<bool>()
 { /* nothing */ }
+
+// Tested in this file
 
 /*******************************************************************************************/
 /**
@@ -56,6 +59,8 @@ GBooleanObject::GBooleanObject(const GBooleanObject& cp)
 	: GParameterT<bool>(cp)
 { /* nothing */ }
 
+// Tested in this file
+
 /*******************************************************************************************/
 /**
  * Initialization by contained value
@@ -65,6 +70,20 @@ GBooleanObject::GBooleanObject(const GBooleanObject& cp)
 GBooleanObject::GBooleanObject(const bool& val)
 	: GParameterT<bool>(val)
 { /* nothing */ }
+
+// Tested in this file
+
+/*******************************************************************************************/
+/**
+ * Initialization with a given probability for "true"
+ *
+ * @param prob The probability for the value "true"
+ */
+GBooleanObject::GBooleanObject(const double& probability) {
+	this->setValue(gr->weighted_bool(probability));
+}
+
+// Tested in this file
 
 /*******************************************************************************************/
 /**
@@ -320,6 +339,7 @@ bool GBooleanObject::modify_GUnitTests() {
 void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// Some general settings
 	const bool FIXEDVALUEINIT = true;
+    const double LOWERBND = 0.8, UPPERBND = 1.2;
 	const std::size_t nTests = 10000;
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
@@ -338,6 +358,52 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Call the parent class'es function
 	GParameterT<bool>::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Test default constructor
+		GBooleanObject gbo;
+		BOOST_CHECK_MESSAGE (
+				gbo.value() == Gem::Common::GDefaultValueT<bool>()
+				, "\n"
+				<< "gbo.value() = " << gbo.value()
+				<< "DEFBOVAL = " << Gem::Common::GDefaultValueT<bool>()
+		);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test copy construction and construction with value
+		GBooleanObject gbo1(false), gbo2(gbo1);
+
+		BOOST_CHECK_MESSAGE (
+				gbo1.value()==false && gbo2.value()==gbo1.value()
+				, "\n"
+				<< "gbo1.value() = " << gbo1.value()
+				<< "gbo2.value() = " << gbo2.value()
+		);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Check construction with a given probability for the value "true"
+		std::size_t nTrue=0, nFalse=0;
+		for(int i=0; i<nTests; i++) {
+			GBooleanObject gbo(0.5);
+			gbo.value()==true?nTrue++:nFalse++;
+		}
+
+		// We allow a slight deviation, as the initialization is a random process
+		BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+		double ratio = double(nTrue)/double(nFalse);
+		BOOST_CHECK_MESSAGE(
+				ratio>LOWERBND && ratio<UPPERBND
+				,  "\n"
+				<< "ratio = " << ratio << "\n"
+				<< "nTrue = " << nTrue << "\n"
+				<< "nFalse = " << nFalse << "\n"
+		);
+	}
 
 	//------------------------------------------------------------------------------
 
