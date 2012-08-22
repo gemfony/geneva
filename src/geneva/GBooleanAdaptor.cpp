@@ -43,6 +43,7 @@ namespace Geneva {
  * The default constructor
  */
 GBooleanAdaptor::GBooleanAdaptor()
+	: GIntFlipAdaptorT<bool>(DEFAULTBITADPROB)
 { /* nothing */ }
 
 // Tested in this class
@@ -244,10 +245,10 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Check default construction
 		GBooleanAdaptor gba;
 		BOOST_CHECK_MESSAGE(
-				gba.getAdaptionProbability() == DEFAULTADPROB
+				gba.getAdaptionProbability() == DEFAULTBITADPROB
 				, "\n"
-				<< "gba.getAdaptionProbability() = " << gba.getAdaptionProbability()
-				<< "DEFAULTADPROB = " << DEFAULTADPROB
+				<< "gba.getAdaptionProbability() = " << gba.getAdaptionProbability() << "\n"
+				<< "DEFAULTADPROB = " << DEFAULTBITADPROB
 		);
 	}
 

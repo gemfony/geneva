@@ -82,7 +82,7 @@ public:
 	 * The standard constructor.
 	 */
 	GNumFlipAdaptorT()
-		: GAdaptorT<num_type> (DEFAULTBITADPROB)
+		: GAdaptorT<num_type> (DEFAULTADPROB)
 	{ /* nothing */	}
 
 	/********************************************************************************************/

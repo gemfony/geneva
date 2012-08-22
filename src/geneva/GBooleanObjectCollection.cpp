@@ -46,6 +46,20 @@ namespace Geneva {
 GBooleanObjectCollection::GBooleanObjectCollection()
 { /* nothing */ }
 
+// Tested in this file
+
+/*******************************************************************************************/
+/**
+ * The copy constructor
+ *
+ * @param cp A copy of another GBooleanObjectCollection object
+ */
+GBooleanObjectCollection::GBooleanObjectCollection(const GBooleanObjectCollection& cp)
+	: GParameterTCollectionT<GBooleanObject>(cp)
+{ /* nothing */ }
+
+// Tested in this file
+
 /*******************************************************************************************/
 /**
  * Initialization with a number of identical GBooleanObject objects
@@ -56,6 +70,8 @@ GBooleanObjectCollection::GBooleanObjectCollection(
 )
 	:GParameterTCollectionT<GBooleanObject>(nVals, tmpl_ptr)
 { /* nothing */ }
+
+// Tested in this file
 
 /*******************************************************************************************/
 /**
@@ -70,15 +86,7 @@ GBooleanObjectCollection::GBooleanObjectCollection(
 	}
 }
 
-/*******************************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GBooleanObjectCollection object
- */
-GBooleanObjectCollection::GBooleanObjectCollection(const GBooleanObjectCollection& cp)
-	: GParameterTCollectionT<GBooleanObject>(cp)
-{ /* nothing */ }
+// Tested in this file
 
 /*******************************************************************************************/
 /**
@@ -244,13 +252,14 @@ void GBooleanObjectCollection::fillWithObjects(const std::size_t& nAddedObjects)
 void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Some settings
 	const std::size_t nAddedObjects = 10;
-	const std::size_t nTests = 100;
+	const std::size_t nTests = 10000;
 	const double LOWERINITBOUNDARY = -10;
 	const double UPPERINITBOUNDARY =  10;
 	const double FIXEDVALUEINIT = 1.;
 	const double MULTVALUE = 3.;
 	const double RANDLOWERBOUNDARY = 0.;
 	const double RANDUPPERBOUNDARY = 10.;
+	const double LOWERBND = 0.8, UPPERBND = 1.2;
 
 	//----------------------------------------------------------------------------
 
@@ -262,6 +271,74 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Call the parent's tests
 		p_test->GParameterTCollectionT<GBooleanObject>::specificTestsNoFailureExpected_GUnitTests();
+	}
+
+	//----------------------------------------------------------------------------
+
+	{ // Check default construction
+		GBooleanObjectCollection gboc;
+		BOOST_CHECK(gboc.empty());
+	}
+
+	//----------------------------------------------------------------------------
+
+	{ // Check copy construction
+		GBooleanObjectCollection gboc1;
+		gboc1.push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject(0.5)));
+		BOOST_CHECK(gboc1.size() == 1);
+		GBooleanObjectCollection gboc2(gboc1);
+		BOOST_CHECK(gboc1.size() == gboc2.size());
+		BOOST_CHECK_MESSAGE(
+				gboc1.at(0)->value() == gboc2.at(0)->value()
+				, "\n"
+				<< "gboc1.at(0)->value() = " << gboc1.at(0)->value()
+				<< "gboc2.at(0)->value() = " << gboc2.at(0)->value()
+		);
+	}
+
+	//----------------------------------------------------------------------------
+
+	{ // Check construction with a number of object templates
+		boost::shared_ptr<GBooleanObject> gbo_ptr(new GBooleanObject(Gem::Common::GDefaultValueT<bool>()));
+		GBooleanObjectCollection gboc(nTests, gbo_ptr);
+
+		BOOST_CHECK_MESSAGE(
+				gboc.size() == nTests
+				, "\n"
+				<< "gboc.size() = " << gboc.size()
+				<< "nTests = " << nTests
+		);
+
+		for(std::size_t i=0; i<nTests; i++) {
+			BOOST_CHECK_MESSAGE(
+					gboc.at(i)->value() == Gem::Common::GDefaultValueT<bool>()
+					, "\n"
+					<< "gboc.at(" << i << ")->value() = " << gboc.at(i)->value()
+					<< "Gem::Common::GDefaultValueT<bool>() = " << Gem::Common::GDefaultValueT<bool>()
+			);
+		}
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Check construction with a number of GBooleanObject with a given probability for "true"
+		GBooleanObjectCollection gboc(nTests, 0.5);
+
+		std::size_t nTrue=0, nFalse=0;
+		for(std::size_t i=0; i<nTests; i++) {
+			gboc.at(i)->value()==true?nTrue++:nFalse++;
+		}
+
+		// We allow a slight deviation, as the initialization is a random process
+		BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+		double ratio = double(nTrue)/double(nFalse);
+		BOOST_CHECK_MESSAGE(
+				ratio>LOWERBND && ratio<UPPERBND
+				,  "\n"
+				<< "ratio = " << ratio << "\n"
+				<< "nTrue = " << nTrue << "\n"
+				<< "nFalse = " << nFalse << "\n"
+		);
 	}
 
 	//------------------------------------------------------------------------------
