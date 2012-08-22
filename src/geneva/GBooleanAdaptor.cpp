@@ -235,6 +235,45 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
+	{ // Check default construction
+		GBooleanAdaptor gba;
+		BOOST_CHECK_MESSAGE(
+				gba.getAdaptionProbability() == DEFAULTADPROB
+				, "\n"
+				<< "gba.getAdaptionProbability() = " << gba.getAdaptionProbability()
+				<< "DEFAULTADPROB = " << DEFAULTADPROB
+		);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Check construction with a given adaption probability
+		const double TRIALADPROB = 0.1;
+		GBooleanAdaptor gba(TRIALADPROB);
+		BOOST_CHECK_MESSAGE(
+				gba.getAdaptionProbability() == TRIALADPROB
+				, "\n"
+				<< "gba.getAdaptionProbability() = " << gba.getAdaptionProbability()
+				<< "TRIALADPROB = " << TRIALADPROB
+		);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Check copy construction
+		const double TRIALADPROB = 0.1;
+		GBooleanAdaptor gba1(TRIALADPROB);
+		GBooleanAdaptor gba2(gba1);
+		BOOST_CHECK_MESSAGE(
+				gba2.getAdaptionProbability() == TRIALADPROB
+				, "\n"
+				<< "gba2.getAdaptionProbability() = " << gba2.getAdaptionProbability()
+				<< "TRIALADPROB = " << TRIALADPROB
+		);
+	}
+
+	//------------------------------------------------------------------------------
+
 	{ // Check that the adaptor returns the correct adaptor id
 		boost::shared_ptr<GBooleanAdaptor> p_test = this->clone<GBooleanAdaptor>();
 

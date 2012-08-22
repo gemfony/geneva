@@ -149,8 +149,9 @@ public:
 		// Do some error checking
 		if(adProb < 0. || adProb > 1.) {
 			std::cerr << "In GAdaptorT<T>::GadaptorT(const double& prob):" << std::endl
-					  << "Provided daption probability is invalid: " << adProb << std::endl;
-			std::terminate();
+					  << "Provided adaption probability is invalid: " << adProb << std::endl
+					  << "Setting to the maximum allowed value 1." << std::endl;
+			adProb_ = 1.;
 		}
 	}
 
