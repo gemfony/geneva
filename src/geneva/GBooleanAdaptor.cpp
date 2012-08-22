@@ -45,6 +45,8 @@ namespace Geneva {
 GBooleanAdaptor::GBooleanAdaptor()
 { /* nothing */ }
 
+// Tested in this class
+
 /*******************************************************************************************/
 /**
  * The copy constructor
@@ -55,6 +57,8 @@ GBooleanAdaptor::GBooleanAdaptor(const GBooleanAdaptor& cp)
 	: GIntFlipAdaptorT<bool>(cp)
 { /* nothing */ }
 
+// Tested in this class
+
 /*******************************************************************************************/
 /**
  * Initialization with a adaption probability
@@ -64,6 +68,8 @@ GBooleanAdaptor::GBooleanAdaptor(const GBooleanAdaptor& cp)
 GBooleanAdaptor::GBooleanAdaptor(const double& adProb)
 	: GIntFlipAdaptorT<bool>(adProb)
 { /* nothing */ }
+
+// Tested in this class
 
 /*******************************************************************************************/
 /**

@@ -49,6 +49,20 @@ namespace Geneva
 	: GParameterCollectionT<bool>()
   { /* nothing */ }
 
+  // Tested in this class
+
+  /**********************************************************************/
+  /**
+   * No local data, hence we can rely on the parent class.
+   *
+   * @param cp A copy of another GBooleanCollection object
+   */
+  GBooleanCollection::GBooleanCollection(const GBooleanCollection& cp)
+    : GParameterCollectionT<bool>(cp)
+  { /* nothing */ }
+
+  // Tested in this class
+
   /**********************************************************************/
   /**
    * Initializes the class with a set of nval random bits.
@@ -61,10 +75,11 @@ namespace Geneva
 	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr->uniform_bool());
   }
 
+  // Tested in this class
+
   /**********************************************************************/
   /**
-   * Initializes the class with a set of nval variables of identical
-   * value
+   * Initializes the class with a set of nval variables of identical value
    *
    * @param nval The size of the collection
    * @param val  The value to be assigned to each position
@@ -72,6 +87,8 @@ namespace Geneva
   GBooleanCollection::GBooleanCollection(const std::size_t& nval, const bool& val)
     : GParameterCollectionT<bool>(nval, val)
   { /* nothing */ }
+
+  // Tested in this class
 
   /**********************************************************************/
   /**
@@ -87,15 +104,7 @@ namespace Geneva
 	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr->weighted_bool(probability));
   }
 
-  /**********************************************************************/
-  /**
-   * No local data, hence we can rely on the parent class.
-   *
-   * @param cp A copy of another GBooleanCollection object
-   */
-  GBooleanCollection::GBooleanCollection(const GBooleanCollection& cp)
-    : GParameterCollectionT<bool>(cp)
-  { /* nothing */ }
+  // Tested in this class
 
   /**********************************************************************/
   /**
@@ -339,6 +348,7 @@ namespace Geneva
 	  // A few settings
 	  const std::size_t nItems = 10000;
 	  const bool FIXEDVALUEINIT = true;
+	  const double LOWERBND = 0.8, UPPERBND = 1.2;
 
 	  // Make sure we have an appropriate adaptor loaded when performing these tests
 	  bool adaptorStored = false;
@@ -356,6 +366,116 @@ namespace Geneva
 
 	  // Call the parent class'es function
 	  GParameterCollectionT<bool>::specificTestsNoFailureExpected_GUnitTests();
+
+	  //------------------------------------------------------------------------------
+
+	  { // Check default constructor
+		  GBooleanCollection gbc;
+		  BOOST_CHECK(gbc.empty());
+	  }
+
+	  //------------------------------------------------------------------------------
+
+	  { // Check copy construction
+		  GBooleanCollection gbc1;
+		  BOOST_CHECK_NO_THROW(gbc1.push_back(true));
+		  GBooleanCollection gbc2(gbc1);
+		  BOOST_CHECK_MESSAGE(
+				  gbc2.size() == 1 && gbc2.at(0) == true
+				  , "\n"
+				  << "gbc2.size() = " << gbc2.size()
+				  << "gbc2.at(0) = " << gbc2.at(0)
+		  );
+	  }
+
+	  //------------------------------------------------------------------------------
+
+	  { // Check construction with a number of random bits
+		  GBooleanCollection gbc(nItems);
+
+		  BOOST_CHECK_MESSAGE(
+				  gbc.size() == nItems
+				  , "\n"
+				  << "gbc.size() = " << gbc.size()
+				  << "nItems = " << nItems
+		  );
+
+		  // Count the number of true and false values
+		  std::size_t nTrue = 0;
+		  std::size_t nFalse = 0;
+		  for(std::size_t i=0; i<nItems; i++) {
+			  gbc.at(i)?nTrue++:nFalse++;
+		  }
+
+		  // We allow a slight deviation, as the initialization is a random process
+		  BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+		  double ratio = double(nTrue)/double(nFalse);
+		  BOOST_CHECK_MESSAGE(
+				  ratio>LOWERBND && ratio<UPPERBND
+				  ,  "\n"
+				  << "ratio = " << ratio << "\n"
+				  << "nTrue = " << nTrue << "\n"
+				  << "nFalse = " << nFalse << "\n"
+		  );
+	  }
+
+	  //------------------------------------------------------------------------------
+
+	  { // Check construction with a number of identical bits
+		  GBooleanCollection gbc(nItems, true);
+
+		  BOOST_CHECK_MESSAGE(
+				  gbc.size() == nItems
+				  , "\n"
+				  << "gbc.size() = " << gbc.size()
+				  << "nItems = " << nItems
+		  );
+
+		  // Count the number of true and false values
+		  std::size_t nTrue = 0;
+		  std::size_t nFalse = 0;
+		  for(std::size_t i=0; i<nItems; i++) {
+			  gbc.at(i)?nTrue++:nFalse++;
+		  }
+
+		  BOOST_CHECK_MESSAGE(
+				  nTrue == nItems
+				  ,  "\n"
+				  << "nTrue = " << nTrue << "\n"
+				  << "nItems = " << nItems << "\n"
+		  );
+	  }
+
+	  //------------------------------------------------------------------------------
+
+	  { // Check construction with a given probability for the value true
+		  GBooleanCollection gbc(nItems, 0.5);
+
+		  BOOST_CHECK_MESSAGE(
+				  gbc.size() == nItems
+				  , "\n"
+				  << "gbc.size() = " << gbc.size()
+				  << "nItems = " << nItems
+		  );
+
+		  // Count the number of true and false values
+		  std::size_t nTrue = 0;
+		  std::size_t nFalse = 0;
+		  for(std::size_t i=0; i<nItems; i++) {
+			  gbc.at(i)?nTrue++:nFalse++;
+		  }
+
+		  // We allow a slight deviation, as the initialization is a random process
+		  BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+		  double ratio = double(nTrue)/double(nFalse);
+		  BOOST_CHECK_MESSAGE(
+				  ratio>LOWERBND && ratio<UPPERBND
+				  ,  "\n"
+				  << "ratio = " << ratio << "\n"
+				  << "nTrue = " << nTrue << "\n"
+				  << "nFalse = " << nFalse << "\n"
+		  );
+	  }
 
 	  //------------------------------------------------------------------------------
 
@@ -387,7 +507,7 @@ namespace Geneva
 		  BOOST_REQUIRE(nFalse != 0); // There should be a few false values
 		  double ratio = double(nTrue)/double(nFalse);
 		  BOOST_CHECK_MESSAGE(
-				  ratio>0.8 && ratio<1.2
+				  ratio>LOWERBND && ratio<UPPERBND
 				  ,  "\n"
 				  << "ratio = " << ratio << "\n"
 				  << "nTrue = " << nTrue << "\n"
