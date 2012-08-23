@@ -447,22 +447,12 @@ public:
 	void adapt(T& val) {
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate
 			if(gr->uniform_01<double>() <= adProb_) { // Should we perform adaption
-				// The adaption parameters are modified every adaptionThreshold_ number of adaptions.
-				if(adaptionThreshold_) {
-					if(++adaptionCounter_ >= adaptionThreshold_){
-						adaptionCounter_ = 0;
-						adaptAdaption();
-					}
-				} else if(adaptAdaptionProbability_) { // Do the same with probability settings
-					if(gr->uniform_01<double>() <= adaptAdaptionProbability_) {
-						adaptAdaption();
-					}
-				}
-
+				adaptAdaption();
 				customAdaptions(val);
 			}
 		}
 		else if(adaptionMode_) { // always adapt
+			adaptAdaption();
 			customAdaptions(val);
 		}
 
@@ -587,18 +577,29 @@ protected:
 
 	/***********************************************************************************/
 	/**
-	 *  This function is re-implemented by derived classes, if they wish to
+	 * 	This function is re-implemented by derived classes, if they wish to
 	 *  implement special behavior upon a new adaption run. E.g., an internal
-	 *  variable could be set to a new value. The function will be called every
-	 *  adaptionThreshold_ calls of the adapt() function, unless the threshold is
-	 *  set to 0 . It is not purely virtual, as we do not force derived classes
-	 *  to re-implement this function. Note though that, if the function is
-	 *  re-implemented, this class'es function should be called as the last action,
-	 *  as later versions of this function might implement local logic. Adaption
-	 *  of adaption parameters can be switched off by setting the adaptionThreshold_
-	 *  variable to 0.
+	 *  variable could be set to a new value.
 	 */
-	virtual void adaptAdaption() { /* nothing */ }
+	virtual void customAdaptAdaption() { /* nothing */ }
+
+	/***********************************************************************************/
+	/**
+	 * This function helps tp adapt the adaption parameters, if certain conditions are met.
+	 */
+	void adaptAdaption() {
+		// The adaption parameters are modified every adaptionThreshold_ number of adaptions.
+		if(adaptionThreshold_) {
+			if(++adaptionCounter_ >= adaptionThreshold_){
+				adaptionCounter_ = 0;
+				customAdaptAdaption();
+			}
+		} else if(adaptAdaptionProbability_) { // Do the same with probability settings
+			if(gr->uniform_01<double>() <= adaptAdaptionProbability_) {
+				customAdaptAdaption();
+			}
+		}
+	}
 
 	/***********************************************************************************/
 	/** @brief Adaption of values as specified by the user */
@@ -1017,6 +1018,7 @@ public:
 				BOOST_CHECK_MESSAGE(
 						testVal != oldTestVal
 						,  "\n"
+						<< "Found identical values after adaption took place" << "\n"
 						<< "testVal = " << testVal << "\n"
 						<< "oldTestVal = " << oldTestVal << "\n"
 						<< "iteration = " << i << "\n"

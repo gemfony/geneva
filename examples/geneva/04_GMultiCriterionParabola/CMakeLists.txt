@@ -102,7 +102,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 
 SET ( CONFIGFILES
 	GMultiCriterionParabola.cfg
-	GMultiCriterionParabolaIndividual.cfg
+	GMultiCriterionParabolaIndividual.json
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

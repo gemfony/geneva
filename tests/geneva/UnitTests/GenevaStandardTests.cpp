@@ -101,8 +101,8 @@ public:
 			GInt32FlipAdaptor
 			, GBooleanAdaptor
 			, GInt32GaussAdaptor
-			, GFloatBiGaussAdaptor
-			, GFloatGaussAdaptor
+			// , GFloatBiGaussAdaptor
+			// , GFloatGaussAdaptor
 			, GDoubleBiGaussAdaptor
 			, GDoubleGaussAdaptor
 		>
@@ -111,7 +111,7 @@ public:
 		typedef boost::mpl::list<
 			GBooleanObject
 			, GInt32Object
-			//, GFloatObject
+			// , GFloatObject
 			, GDoubleObject
 			, GConstrainedInt32Object
 			//, GConstrainedFloatObject

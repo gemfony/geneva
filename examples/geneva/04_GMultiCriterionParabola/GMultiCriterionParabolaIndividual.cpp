@@ -234,7 +234,7 @@ void GMultiCriterionParabolaIndividualFactory::init_() {
 void GMultiCriterionParabolaIndividualFactory::describeConfigurationOptions_() {
 	gpb.registerFileParameter("par_min", par_min_, par_min_);
 	gpb.registerFileParameter("par_max", par_max_, par_max_);
-	gpb.registerFileParameter("minima", minima_string_, std::string(""));
+	gpb.registerFileParameter("minima", minima_string_, std::string("-1. 0. 1."));
 }
 
 /********************************************************************************************/

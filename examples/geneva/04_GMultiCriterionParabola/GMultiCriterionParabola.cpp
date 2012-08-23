@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 
 	// Create a factory for GMultiCriterionParaboloidIndividual2D objects and perform
 	// any necessary initial work.
-	GMultiCriterionParabolaIndividualFactory gpi("./GMultiCriterionParabolaIndividual.cfg");
+	GMultiCriterionParabolaIndividualFactory gpi("./GMultiCriterionParabolaIndividual.json");
 	gpi.init();
 
 	// Retrieve an individual from the factory and make it known to the optimizer

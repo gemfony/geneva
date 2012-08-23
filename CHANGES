@@ -33,8 +33,8 @@ The main changes for this release include:
 * Version 0.9.3, "Route de Bonneville" - November 10, 2011
 
 The main changes for this release include:
- - Switched configuration files to JSON format, making possible to
-   create JavaScript based GUI interfaces.
+ - Switched configuration files to JSON format, making it possible to
+   create JavaScript based GUI interfaces for configuration files
  - Simplified and centralized creation and parsing of configuration
    options, so users may more easily configure their applications.
  - Introduced a new wrapper class Go2 that allows to aggregate

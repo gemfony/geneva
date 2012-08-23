@@ -661,7 +661,7 @@ protected:
 	 *
 	 * ATTENTION: sigma/delta may become 0 here ??!?
 	 */
-	virtual void adaptAdaption()
+	virtual void customAdaptAdaption()
 	{
 		// We do not want to favor the decrease or increase of sigma1/2 and delta, hence we choose
 		// randomly whether to multiply or divide. TODO: cross-check.
@@ -684,9 +684,6 @@ protected:
 
 		if(delta_ < minDelta_) delta_ = minDelta_;
 		else if(delta_ > maxDelta_) delta_ = maxDelta_;
-
-		// Make sure that the appropriate actions are performed by the parent class
-		GAdaptorT<num_type>::adaptAdaption();
 	}
 
 	/********************************************************************************************/

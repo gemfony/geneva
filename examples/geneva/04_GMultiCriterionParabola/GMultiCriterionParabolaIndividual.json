@@ -1,0 +1,22 @@
+//-----------------------------------------------------------------
+// This configuration file was automatically created by GParserBuilder
+// File creation date: 2012-Aug-23 21:34:06
+//-----------------------------------------------------------------
+
+{
+    "par_min":
+    {
+        "default": "-10",
+        "value": "-10"
+    },
+    "par_max":
+    {
+        "default": "10",
+        "value": "10"
+    },
+    "minima":
+    {
+        "default": "-1. 0. 1.",
+        "value": "-1. 0. 1."
+    }
+}

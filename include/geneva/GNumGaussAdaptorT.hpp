@@ -419,7 +419,7 @@ protected:
 	 *
 	 * ATTENTION: sigma/delta may become 0 here ??!?
 	 */
-	virtual void adaptAdaption()
+	virtual void customAdaptAdaption()
 	{
 	    using namespace Gem::Common;
 
@@ -430,9 +430,6 @@ protected:
 		// make sure sigma_ doesn't get out of range
 		if(sigma_ < minSigma_) sigma_ = minSigma_;
 		else if(sigma_ > maxSigma_) sigma_ = maxSigma_;
-
-		// Make sure that the appropriate actions are performed by the parent class
-		GAdaptorT<num_type>::adaptAdaption();
 	}
 
 	/********************************************************************************************/
