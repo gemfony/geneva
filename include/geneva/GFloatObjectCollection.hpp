@@ -36,8 +36,8 @@
 
 // Boost header files go here
 
-#ifndef GDOUBLEOBJECTCOLLECTION_HPP_
-#define GDOUBLEOBJECTCOLLECTION_HPP_
+#ifndef GFLOATOBJECTCOLLECTION_HPP_
+#define GFLOATOBJECTCOLLECTION_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -126,4 +126,4 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFloatObjectCollection)
 
-#endif /* GDOUBLEOBJECTCOLLECTION_HPP_ */
+#endif /* GFLOATOBJECTCOLLECTION_HPP_ */

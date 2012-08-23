@@ -98,6 +98,15 @@ const double MAXCONSTRAINEDDOUBLE = std::numeric_limits<double>::max()/10.;
 
 /**********************************************************************************************/
 /**
+ * The default maximum value for constrained float values. It needs to be smaller
+ * than the maximum allowed value for the underlying type in order to allow statements like
+ * (max - min) without leaving the allowed value range.
+ */
+const double MAXCONSTRAINEDFLOAT = std::numeric_limits<float>::max()/10.;
+
+
+/**********************************************************************************************/
+/**
  * The default maximum value for constrained boost::int32_t values. It needs to be smaller
  * than the maximum allowed value for the underlying type in order to allow statements like
  * (max - min) without leaving the allowed value range.
@@ -260,6 +269,8 @@ enum infoMode {
 enum adaptorId {
 	GDOUBLEBIGAUSSADAPTOR
 	, GDOUBLEGAUSSADAPTOR
+	, GFLOATGAUSSADAPTOR
+	, GFLOATBIGAUSSADAPTOR
 	, GINT32GAUSSADAPTOR
 	, GBOOLEANADAPTOR
 	, GINT32FLIPADAPTOR

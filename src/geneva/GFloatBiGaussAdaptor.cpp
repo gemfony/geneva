@@ -181,7 +181,7 @@ void GFloatBiGaussAdaptor::load_(const GObject* cp){
  * @return The id of this adaptor
  */
 Gem::Geneva::adaptorId GFloatBiGaussAdaptor::getAdaptorId() const {
-	return Gem::Geneva::GDOUBLEBIGAUSSADAPTOR;
+	return Gem::Geneva::GFLOATBIGAUSSADAPTOR;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -225,10 +225,10 @@ void GFloatBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		boost::shared_ptr<GFloatBiGaussAdaptor> p_test = this->clone<GFloatBiGaussAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
-			p_test->getAdaptorId() == GDOUBLEBIGAUSSADAPTOR
+			p_test->getAdaptorId() == GFLOATBIGAUSSADAPTOR
 			,  "\n"
 			<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-			<< "GDOUBLEBIGAUSSADAPTOR     = " << GDOUBLEBIGAUSSADAPTOR << "\n"
+			<< "GFLOATBIGAUSSADAPTOR     = " << GFLOATBIGAUSSADAPTOR << "\n"
 		);
 	}
 

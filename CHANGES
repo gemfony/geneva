@@ -19,7 +19,7 @@ The main changes for this release include:
    of all implemented algorithms in all parallelization modes, thus
    providing a means to further improve our algorithms.
  - Support for automatic testing with CTest.
- - Ported to Boost 1.49
+ - Ported to Boost 1.51
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.9, "Route d'Annemasse" - December 17, 2011

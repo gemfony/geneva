@@ -87,6 +87,18 @@ struct GConstrainedValueLimit<double>
 
 /**********************************************************************************************/
 /**
+ * Specialization of GConstrainedValueLimit for float values.
+ */
+template <>
+struct GConstrainedValueLimit<float>
+{
+	static float max() {
+		return MAXCONSTRAINEDFLOAT;
+	}
+};
+
+/**********************************************************************************************/
+/**
  * Specialization of GConstrainedValueLimit for boost::int32_t values.
  */
 template <>

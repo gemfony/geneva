@@ -157,8 +157,9 @@ boost::shared_ptr<GAdaptorT<T> > getDefaultAdaptor() {
 	);
 }
 
-// Specializations for double, boost::int32_t and bool
+// Specializations for float, double, boost::int32_t and bool
 template <> boost::shared_ptr<GAdaptorT<double> > getDefaultAdaptor<double>();
+template <> boost::shared_ptr<GAdaptorT<float> > getDefaultAdaptor<float>();
 template <> boost::shared_ptr<GAdaptorT<boost::int32_t> > getDefaultAdaptor<boost::int32_t>();
 template <> boost::shared_ptr<GAdaptorT<bool> > getDefaultAdaptor<bool>();
 

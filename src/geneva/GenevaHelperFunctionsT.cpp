@@ -34,6 +34,7 @@
 
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GFloatGaussAdaptor.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 
@@ -51,6 +52,17 @@ namespace Geneva
 template <>
 boost::shared_ptr<GAdaptorT<double> > getDefaultAdaptor<double>() {
 	return boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor());
+}
+
+/**************************************************************************************************/
+/**
+ * A factory function that returns the default adaptor for the base type "float"
+ *
+ * @return The default adaptor for the base type "float"
+ */
+template <>
+boost::shared_ptr<GAdaptorT<float> > getDefaultAdaptor<float>() {
+	return boost::shared_ptr<GFloatGaussAdaptor>(new GFloatGaussAdaptor());
 }
 
 /**************************************************************************************************/
