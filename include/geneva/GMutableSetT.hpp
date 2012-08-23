@@ -60,9 +60,8 @@ namespace Geneva {
 /**
  * This class forms the basis for many user-defined individuals. It acts as a collection
  * of different parameter sets. User individuals can thus contain a mix of parameters of
- * different types, such as double, Geneva::bit, long, ... . Derived classes must implement
- * a useful operator=(). It is also assumed that template arguments have the GObject and the
- * GMutableI interfaces, in particular the load(), clone() and adapt() functions.
+ * different types. Derived classes must implement a useful operator=(). It is also assumed
+ * that template arguments have the GObject and the GMutableI interfaces.
  */
 template <typename T>
 class GMutableSetT:
