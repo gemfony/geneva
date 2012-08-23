@@ -101,8 +101,8 @@ public:
 			GInt32FlipAdaptor
 			, GBooleanAdaptor
 			, GInt32GaussAdaptor
-			//, GFloatBiGaussAdaptor
-			//, GFloatGaussAdaptor
+			, GFloatBiGaussAdaptor
+			, GFloatGaussAdaptor
 			, GDoubleBiGaussAdaptor
 			, GDoubleGaussAdaptor
 		>
