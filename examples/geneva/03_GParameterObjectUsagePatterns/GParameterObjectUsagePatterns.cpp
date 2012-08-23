@@ -726,7 +726,7 @@ int main(int argc, char **argv) {
 
 		a1.setSigmaRange(minSigma, maxSigma);
 		boost::tuple<double,double> t = a1.getSigmaRange();
-		std::cout << t.get<0>() << " " << t.get<1>() << std::endl;
+		std::cout << boost::get<0>(t) << " " << boost::get<1>(t) << std::endl;
 
 		a1.setSigmaAdaptionRate(sigmaSigma);
 		double adaptionRate = a1.getSigmaAdaptionRate();
@@ -796,14 +796,14 @@ int main(int argc, char **argv) {
 		a1.setAllSigma1(
 				sigma1
 				, sigma1AdaptionRate
-				, sigma1Range.get<0>()
-				, sigma1Range.get<1>()
+				, boost::get<0>(sigma1Range)
+				, boost::get<1>(sigma1Range)
 		);
 		a1.setAllSigma2(
 				sigma2
 				, sigma2AdaptionRate
-				, sigma2Range.get<0>()
-				, sigma2Range.get<1>()
+				, boost::get<0>(sigma2Range)
+				, boost::get<1>(sigma2Range)
 		);
 
 		// Set the initial distance between both peaks
@@ -824,8 +824,8 @@ int main(int argc, char **argv) {
 		a1.setAllDelta(
 			delta
 			, deltaAdaptionRate
-			, deltaRange.get<0>()
-			, deltaRange.get<1>()
+			, boost::get<0>(deltaRange)
+			, boost::get<1>(deltaRange)
 		);
 
 		//-----------------------------------------------------
@@ -876,7 +876,7 @@ int main(int argc, char **argv) {
 
 		a1.setSigmaRange(minSigma, maxSigma);
 		boost::tuple<double,double> t = a1.getSigmaRange();
-		std::cout << t.get<0>() << " " << t.get<1>() << std::endl;
+		std::cout << boost::get<0>(t) << " " << boost::get<1>(t) << std::endl;
 
 		a1.setSigmaAdaptionRate(sigmaSigma);
 		double adaptionRate = a1.getSigmaAdaptionRate();
