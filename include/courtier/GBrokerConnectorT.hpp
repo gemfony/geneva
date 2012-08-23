@@ -734,7 +734,7 @@ private:
 
     		// If it is from the current iteration, break the loop, otherwise continue,
 			// until the first item of the current iteration has been received.
-    		if(submission_counter_ == (p->getCourtierId()).get<0>()) {
+    		if(submission_counter_ == boost::get<0>(p->getCourtierId())) {
     			// Add the item to the workItems vector at the start of the range
     			workItems.insert(workItems.begin()+start, p);
     			// Update the counter
@@ -759,7 +759,7 @@ private:
     		using namespace boost;
 
 			// Update the counters and insert items
-    		if(submission_counter_ == (p->getCourtierId()).get<0>()) {
+    		if(submission_counter_ == boost::get<0>(p->getCourtierId())) {
     			// Add the item to the workItems vector at the start of the range
     			workItems.insert(workItems.begin()+start, p);
     			// Update the counter
@@ -901,9 +901,9 @@ private:
 
     		// If it is from the current iteration, break the loop, otherwise continue,
     		// until the first item of the current iteration has been received.
-    		if(submission_counter_ == (p->getCourtierId()).get<0>()) {
+    		if(submission_counter_ == boost::get<0>(p->getCourtierId())) {
     			// Make a note about this items return in the returnedItemPos vector
-    			returnedItemPos[(p->getCourtierId()).get<1>()] = 1;
+    			returnedItemPos[boost::get<1>(p->getCourtierId())] = 1;
 
     			// Add the item to the list of returned objects
     			returnedItems.push_back(p);
@@ -932,11 +932,11 @@ private:
     			using namespace boost;
 
     			// Check whether the received item hasn't been added already or comes from an older submission
-    			if(1 == returnedItemPos[(p->getCourtierId()).get<1>()] || submission_counter_ != (p->getCourtierId()).get<0>()) {
+    			if(1 == returnedItemPos[boost::get<1>(p->getCourtierId())] || submission_counter_ != boost::get<0>(p->getCourtierId())) {
     				p.reset();
     			} else {
         			// Make a note about this items return in the returnedItemPos vector
-        			returnedItemPos[(p->getCourtierId()).get<1>()] = 1;
+        			returnedItemPos[boost::get<1>(p->getCourtierId())] = 1;
 
         			// Add the item to the list of returned objects
         			returnedItems.push_back(p);
@@ -981,10 +981,10 @@ private:
     		for(std::size_t i=0; i<returnedItems.size(); i++) {
     			using namespace boost;
 
-    			if((returnedItems[i]->getCourtierId()).get<1>() != start+i){
+    			if(boost::get<1>(returnedItems[i]->getCourtierId()) != start+i){
     				raiseException(
     						"In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
-							<< "Expected item with position id " << (returnedItems[i]->getCourtierId()).get<1>() << std::endl
+							<< "Expected item with position id " << boost::get<1>(returnedItems[i]->getCourtierId()) << std::endl
 							<< "to have id " << start+i << " instead." << std::endl
     				);
     			}
@@ -1337,7 +1337,7 @@ private:
     struct courtierPosComp {
     	bool operator()(boost::shared_ptr<work_item> x, boost::shared_ptr<work_item> y) {
     		using namespace boost;
-    		return (x->getCourtierId()).get<1>() < (y->getCourtierId()).get<1>();
+    		return boost::get<1>(x->getCourtierId()) < boost::get<1>(y->getCourtierId());
     	}
     };
 

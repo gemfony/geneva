@@ -1015,10 +1015,10 @@ void GBaseSwarm::updateIndividualPositions(
 	  , boost::tuple<double, double, double, double> constants
 ) {
 	// Extract the constants from the tuple
-	double cPersonal     = constants.get<0>();
-	double cNeighborhood = constants.get<1>();
-	double cGlobal       = constants.get<2>();
-	double cVelocity     = constants.get<3>();
+	double cPersonal     = boost::get<0>(constants);
+	double cNeighborhood = boost::get<1>(constants);
+	double cGlobal       = boost::get<2>(constants);
+	double cVelocity     = boost::get<3>(constants);
 
 #ifdef DEBUG
 	// Do some error checking

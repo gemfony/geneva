@@ -305,7 +305,7 @@ public:
 	/********************************************************************************************/
 	/**
 	 * Retrieves the allowed value range for sigma. You can retrieve the values
-	 * like this: getSigmaRange().get<0>() , getSigmaRange().get<1>() .
+	 * like this: boost::get<0>(getSigmaRange()) , boost::get<1>(getSigmaRange()) .
 	 *
 	 * @return The allowed value range for sigma
 	 */
@@ -498,12 +498,12 @@ public:
 				using namespace boost;
 
 				if(dlower == 0.) { // Account for the fact that a lower boundary of 0. will be silently changed
-					BOOST_CHECK(range.get<0>() == boost::numeric_cast<fp_type>(DEFAULTMINSIGMA));
-					BOOST_CHECK(range.get<1>() == boost::numeric_cast<fp_type>(1.));
+					BOOST_CHECK(boost::get<0>(range) == boost::numeric_cast<fp_type>(DEFAULTMINSIGMA));
+					BOOST_CHECK(boost::get<1>(range) == boost::numeric_cast<fp_type>(1.));
 				}
 				else {
-					BOOST_CHECK(range.get<0>() == dlower);
-					BOOST_CHECK(fabs(range.get<1>() - 2.*dlower) < fp_type(pow(10,-8))); // Take into account rounding errors
+					BOOST_CHECK(boost::get<0>(range) == dlower);
+					BOOST_CHECK(fabs(boost::get<1>(range) - 2.*dlower) < fp_type(pow(10,-8))); // Take into account rounding errors
 				}
 			}
 
@@ -555,8 +555,8 @@ public:
 			BOOST_CHECK(p_test->getSigmaAdaptionRate() == fp_type(0.8));
 			boost::tuple<fp_type, fp_type> range;
 			BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
-			BOOST_CHECK(range.get<0>() == fp_type(DEFAULTMINSIGMA));
-			BOOST_CHECK(range.get<1>() == fp_type(1.));
+			BOOST_CHECK(boost::get<0>(range) == fp_type(DEFAULTMINSIGMA));
+			BOOST_CHECK(boost::get<1>(range) == fp_type(1.));
 		}
 
 		//------------------------------------------------------------------------------
