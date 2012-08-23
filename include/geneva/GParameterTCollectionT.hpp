@@ -108,7 +108,7 @@ public:
 	 */
 	GParameterTCollectionT(const std::size_t& nCp, boost::shared_ptr<T> tmpl_ptr) {
 		for(std::size_t i=0; i<nCp; i++) {
-			this->push_back(tmpl_ptr->clone<T>());
+			this->push_back(tmpl_ptr->template clone<T>());
 		}
 	}
 
@@ -775,7 +775,7 @@ public:
 
 		{ // Check adding and resetting of random number generators
 			// Create two local clones
-			boost::shared_ptr<GParameterTCollectionT<T> > p_test1 = this->clone<GParameterTCollectionT<T> >();
+			boost::shared_ptr<GParameterTCollectionT<T> > p_test1 = this->template clone<GParameterTCollectionT<T> >();
 
 			// Assign a factory generator
 			Gem::Hap::GRandomBase *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>();
@@ -811,7 +811,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that assigning a NULL pointer for the random number generator throws
-			boost::shared_ptr<GParameterTCollectionT<T> > p_test = this->clone<GParameterTCollectionT<T> >();
+			boost::shared_ptr<GParameterTCollectionT<T> > p_test = this->template clone<GParameterTCollectionT<T> >();
 
 			// Assigning a NULL pointer should throw
 			BOOST_CHECK_THROW(

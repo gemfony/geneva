@@ -830,7 +830,7 @@ private:
 		std::vector<boost::shared_ptr<work_item> >& workItems
 		, const std::size_t& start
 		, const std::size_t& end
-		, typename boost::enable_if<boost::is_base_of<T, work_item> >::type* dummy = 0
+		, typename boost::enable_if<boost::template is_base_of<T, work_item> >::type* dummy = 0
     ) {
     	std::size_t expectedNumber = end - start; // The expected number of work items from the current iteration
     	std::size_t nReceivedCurrent = 0; // The number of items of this iteration received so far

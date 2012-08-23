@@ -349,7 +349,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test setting and retrieval of initialization boundaries
-			boost::shared_ptr<GNumT<T> > p_test = this->GObject::clone<GNumT<T> >();
+			boost::shared_ptr<GNumT<T> > p_test = this->GObject::template clone<GNumT<T> >();
 
 			// Set the boundaries
 			BOOST_CHECK_NO_THROW(p_test->setInitBoundaries(LOWERTESTINITVAL, UPPERTESTINITVAL));
@@ -377,7 +377,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that assignement of initialization boundaries throws for invalid boundaries
-			boost::shared_ptr<GNumT<T> > p_test = this->GObject::clone<GNumT<T> >();
+			boost::shared_ptr<GNumT<T> > p_test = this->GObject::template clone<GNumT<T> >();
 
 			BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), Gem::Common::gemfony_error_condition);
 		}
