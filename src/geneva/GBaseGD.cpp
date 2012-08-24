@@ -380,10 +380,6 @@ void GBaseGD::loadCheckpoint(const std::string& cpFile) {
  * @param cp A pointer to another GBaseGD object, camouflaged as a GObject
  */
 void GBaseGD::load_(const GObject *cp) {
-	// Make a note of the current iteration (needed for a check below).
-	// The information would otherwise be lost after the load call below
-	boost::uint32_t currentIteration = this->getIteration();
-
 	const GBaseGD *p_load = this->gobject_conversion<GBaseGD>(cp);
 
 	// First load the parent class'es data.
@@ -942,7 +938,11 @@ boost::optional<std::string> GBaseGD::GGDOptimizationMonitor::checkRelationshipW
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GBaseGD::GGDOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseGD::GGDOptimizationMonitor >(&cp);
+	// const GBaseGD::GGDOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseGD::GGDOptimizationMonitor >(&cp);
+	// Uncomment the above line if you are assigning data in this function.
+
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GBaseGD::GGDOptimizationMonitor>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -1153,7 +1153,9 @@ std::string GBaseGD::GGDOptimizationMonitor::gdLastInformation(GBaseGD * const g
  * cp A pointer to another GGDOptimizationMonitor object, camouflaged as a GObject
  */
 void GBaseGD::GGDOptimizationMonitor::load_(const GObject* cp) {
-	const GBaseGD::GGDOptimizationMonitor *p_load = gobject_conversion<GBaseGD::GGDOptimizationMonitor>(cp);
+	// const GBaseGD::GGDOptimizationMonitor *p_load = gobject_conversion<GBaseGD::GGDOptimizationMonitor>(cp);
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GBaseGD::GGDOptimizationMonitor>(cp);
 
 	// Load the parent classes' data ...
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);

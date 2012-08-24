@@ -197,10 +197,6 @@ const GBaseSwarm& GBaseSwarm::operator=(const GBaseSwarm& cp) {
  */
 void GBaseSwarm::load_(const GObject *cp)
 {
-	// Make a note of the current iteration (needed for a check below).
-	// The information would otherwise be lost after the load call below
-	boost::uint32_t currentIteration = this->getIteration();
-
 	const GBaseSwarm *p_load = this->gobject_conversion<GBaseSwarm>(cp);
 
 	// First load the parent class'es data.
@@ -946,7 +942,6 @@ double GBaseSwarm::cycleLogic() {
 void GBaseSwarm::updatePositions() {
 	std::size_t neighborhood_offset = 0;
 	GBaseSwarm::iterator start = this->begin();
-	boost::uint32_t iteration = getIteration();
 
 	// First update all positions
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
