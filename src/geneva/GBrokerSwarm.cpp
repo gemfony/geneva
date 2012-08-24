@@ -362,7 +362,6 @@ void GBrokerSwarm::updateFitness() {
  */
 void GBrokerSwarm::adjustNeighborhoods() {
 	std::size_t firstNIPos; // Will hold the expected first position of a neighborhood
-	boost::uint32_t iteration = getIteration();
 
 #ifdef DEBUG
 	// Check that oldIndividuals_ has the desired size in iterations other than the first

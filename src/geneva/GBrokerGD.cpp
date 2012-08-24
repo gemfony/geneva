@@ -272,7 +272,6 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	using namespace Gem::Courtier;
 
 	std::size_t nStartingPoints = this->getNStartingPoints();
-	boost::uint32_t iteration = getIteration();
 	bool complete = false;
 
 #ifdef DEBUG

@@ -254,12 +254,6 @@ bool GBrokerEA::usesBroker() const {
  * command intended to be executed on the individuals is stored in the individual.
  */
 void GBrokerEA::adaptChildren() {
-	using namespace Gem::Courtier;
-
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	std::size_t np = getNParents(), nc=data.size()-np;
-	boost::uint32_t iteration=getIteration();
-
 	//--------------------------------------------------------------------------------
 	// Start by marking the work to be done in the individuals.
 	// "range" will hold the start- and end-points of the range
@@ -272,7 +266,7 @@ void GBrokerEA::adaptChildren() {
 			data
 			, boost::get<0>(range)
 			, boost::get<1>(range)
-			, ACCEPTOLDERITEMS
+			, Gem::Courtier::ACCEPTOLDERITEMS
 	);
 
 	//--------------------------------------------------------------------------------
@@ -288,8 +282,7 @@ void GBrokerEA::adaptChildren() {
  */
 boost::tuple<std::size_t, std::size_t> GBrokerEA::markCommands() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	std::size_t np = getNParents(), nc=data.size()-np;
-	boost::uint32_t iteration=getIteration();
+	std::size_t np = getNParents();
 
 	std::size_t start = np; // Where the evaluation starts
 	std::size_t end = data.size(); // Where the evaluation ends
@@ -333,7 +326,7 @@ boost::tuple<std::size_t, std::size_t> GBrokerEA::markCommands() {
  */
 void GBrokerEA::fixAfterJobSubmission() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	std::size_t np = getNParents(), nc=data.size()-np;
+	std::size_t np = getNParents();
 	boost::uint32_t iteration=getIteration();
 
 	// Remove parents from older iterations -- we do not want them. Note that "remove_if"
