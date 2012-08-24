@@ -164,7 +164,9 @@ boost::optional<std::string> GConstrainedFloatCollection::checkRelationshipWith(
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GConstrainedFloatCollection  *p_load = GObject::gobject_conversion<GConstrainedFloatCollection>(&cp);
+	// const GConstrainedFloatCollection  *p_load = GObject::gobject_conversion<GConstrainedFloatCollection>(&cp);
+	// Uncomment the previous line and comment the following line if you wish to use local data
+	GObject::selfAssignmentCheck<GConstrainedFloatCollection>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -255,7 +257,9 @@ void GConstrainedFloatCollection::assignFloatValueVector(const std::vector<float
  */
 void GConstrainedFloatCollection::load_(const GObject *cp){
 	// Convert cp into local format
-	const GConstrainedFloatCollection *p_load = GObject::gobject_conversion<GConstrainedFloatCollection>(cp);
+	// const GConstrainedFloatCollection *p_load = GObject::gobject_conversion<GConstrainedFloatCollection>(cp);
+	// Uncomment the previous line and comment the following line if you wish to use local data
+	GObject::selfAssignmentCheck<GConstrainedFloatCollection>(cp);
 
 	// Load our parent class'es data ...
 	GConstrainedFPNumCollectionT<float>::load_(cp);

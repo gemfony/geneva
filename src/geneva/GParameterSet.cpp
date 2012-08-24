@@ -148,7 +148,9 @@ boost::optional<std::string> GParameterSet::checkRelationshipWith(
  */
 void GParameterSet::load_(const GObject* cp){
 	// Convert to local format
-	const GParameterSet *p_load = this->gobject_conversion<GParameterSet>(cp);
+	// const GParameterSet *p_load = this->gobject_conversion<GParameterSet>(cp);
+	// Uncomment the previous line and comment the following line if you wish to use local data
+	GObject::selfAssignmentCheck<GParameterSet>(cp);
 
 	// Load the parent class'es data
 	GMutableSetT<Gem::Geneva::GParameterBase>::load_(cp);

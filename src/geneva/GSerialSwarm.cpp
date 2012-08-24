@@ -94,7 +94,9 @@ const GSerialSwarm& GSerialSwarm::operator=(const GSerialSwarm& cp) {
  */
 void GSerialSwarm::load_(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GSerialSwarm *p_load = this->gobject_conversion<GSerialSwarm>(cp);
+	// const GSerialSwarm *p_load = this->gobject_conversion<GSerialSwarm>(cp);
+	// Uncomment the previous line and comment the following line if you wish to use local data
+	GObject::selfAssignmentCheck<GSerialSwarm>(cp);
 
 	// First load our parent class'es data ...
 	GBaseSwarm::load_(cp);
@@ -152,7 +154,9 @@ boost::optional<std::string> GSerialSwarm::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GSerialSwarm *p_load = GObject::gobject_conversion<GSerialSwarm>(&cp);
+	// const GSerialSwarm *p_load = GObject::gobject_conversion<GSerialSwarm>(&cp);
+	// Uncomment the previous line and comment the following line if you wish to use local data
+	GObject::selfAssignmentCheck<GSerialSwarm>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;

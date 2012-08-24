@@ -136,7 +136,9 @@ boost::optional<std::string> GSerialGD::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GSerialGD *p_load = GObject::gobject_conversion<GSerialGD>(&cp);
+	// const GSerialGD *p_load = GObject::gobject_conversion<GSerialGD>(&cp);
+	// Uncomment the previous line and comment the following line if you wish to use local data
+	GObject::selfAssignmentCheck<GSerialGD>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -157,7 +159,9 @@ boost::optional<std::string> GSerialGD::checkRelationshipWith(
  */
 void GSerialGD::load_(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GSerialGD *p_load = this->gobject_conversion<GSerialGD>(cp);
+	// const GSerialGD *p_load = this->gobject_conversion<GSerialGD>(cp);
+	// Uncomment the previous line and comment the following line if you wish to use local data
+	GObject::selfAssignmentCheck<GSerialGD>(cp);
 
 	// First load our parent class'es data ...
 	GBaseGD::load_(cp);
