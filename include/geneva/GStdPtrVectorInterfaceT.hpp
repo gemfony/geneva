@@ -824,9 +824,8 @@ public:
 	void attachViewTo(std::vector<boost::shared_ptr<derivedType> >& target) {
 		typename std::vector<boost::shared_ptr<T> >::iterator it;
 		for(it = data.begin(); it!=data.end(); ++it) {
-			if(boost::shared_ptr<derivedType> p = boost::dynamic_pointer_cast<derivedType>(*it)) {
-				target.push_back(p);
-			}
+			boost::shared_ptr<derivedType> p = boost::dynamic_pointer_cast<derivedType>(*it);
+			if(p) {	target.push_back(p); }
 		}
 	}
 
@@ -924,6 +923,7 @@ public:
 				raiseException(
 						"In conversion_iterator::dereference(): Error: empty pointer"
 				);
+				return boost::shared_ptr<derivedType>(); // Make the compiler happy / empty pointer
 			}
 #else
 			return p;

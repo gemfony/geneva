@@ -388,7 +388,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Check construction with a given probability for the value "true"
 		std::size_t nTrue=0, nFalse=0;
-		for(int i=0; i<nTests; i++) {
+		for(std::size_t i=0; i<nTests; i++) {
 			GBooleanObject gbo(0.5);
 			gbo.value()==true?nTrue++:nFalse++;
 		}
