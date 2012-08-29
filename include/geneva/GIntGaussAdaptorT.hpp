@@ -241,17 +241,25 @@ protected:
 #if defined (CHECKOVERFLOWS)
 		// Prevent over- and underflows.
 		if(value >= 0){
-			if(addition >= 0 && (std::numeric_limits<int_type>::max()-value < addition)) {
+			if(addition >= 0 && (boost::numeric::bounds<int_type>::highest()-value < addition)) {
 #ifdef DEBUG
-				std::cout << "Warning in GInt32GaussAdaptor::customAdaptions(): Had to change adaption due to overflow" << std::endl;
+				std::cout << "Warning in GInt32GaussAdaptor::customAdaptions():"
+						  << "Had to change adaption due to overflow" << std::endl
+						  << "addition = " << addition << std::endl
+						  << "value = " << value << std::endl
+						  << "boost::numeric::bounds<int_type>::highest() = " << boost::numeric::bounds<int_type>::highest() << std::endl;
 #endif
 				addition *= -1;
 			}
 		}
-		else { // < 0
-			if(addition < 0 && (std::numeric_limits<int_type>::min()-value > addition)) {
+		else { // value < 0
+			if(addition < 0 && (Gem::Common::GIabs(boost::numeric::bounds<int_type>::lowest()-value) < Gem::Common::GIabs(addition))) {
 #ifdef DEBUG
-				std::cout << "Warning in GInt32GaussAdaptor::customAdaptions(): Had to change adaption due to underflow" << std::endl;
+				std::cout << "Warning in GInt32GaussAdaptor::customAdaptions():"
+						  << "Had to change adaption due to underflow" << std::endl
+						  << "addition = " << addition << std::endl
+						  << "value = " << value << std::endl
+						  << "boost::numeric::bounds<int_type>::lowest() = " << boost::numeric::bounds<int_type>::lowest() << std::endl;
 #endif
 				addition *= -1;
 			}

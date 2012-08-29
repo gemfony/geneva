@@ -981,7 +981,7 @@ public:
 			BOOST_CHECK(p_test->getUpperBoundary() ==  boost::math::float_prior<fp_type>(GConstrainedValueLimit<fp_type>::max()));
 
 			// Try to set a boundary to a bad value
-			BOOST_CHECK_THROW(p_test->setValue(lowerBoundary, lowerBoundary, std::numeric_limits<fp_type>::max()), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setValue(lowerBoundary, lowerBoundary, boost::numeric::bounds<fp_type>::highest()), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------
@@ -997,7 +997,7 @@ public:
 			BOOST_CHECK(p_test->getUpperBoundary() ==  boost::math::float_prior<fp_type>(GConstrainedValueLimit<fp_type>::max()));
 
 			// Try to set a boundary to a bad value
-			BOOST_CHECK_THROW(p_test->setValue(0., -std::numeric_limits<fp_type>::max(), upperBoundary), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setValue(0., boost::numeric::bounds<fp_type>::lowest(), upperBoundary), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------
@@ -1013,7 +1013,7 @@ public:
 			BOOST_CHECK(p_test->getUpperBoundary() ==  boost::math::float_prior<fp_type>(GConstrainedValueLimit<fp_type>::max()));
 
 			// Try to set a boundary to a bad value
-			BOOST_CHECK_THROW(p_test->setBoundaries(lowerBoundary, std::numeric_limits<fp_type>::max()), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setBoundaries(lowerBoundary, boost::numeric::bounds<fp_type>::highest()), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------
@@ -1029,7 +1029,7 @@ public:
 			BOOST_CHECK(p_test->getUpperBoundary() ==  boost::math::float_prior<fp_type>(GConstrainedValueLimit<fp_type>::max()));
 
 			// Try to set a boundary to a bad value
-			BOOST_CHECK_THROW(p_test->setBoundaries(-std::numeric_limits<fp_type>::max(), upperBoundary), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setBoundaries(boost::numeric::bounds<fp_type>::lowest(), upperBoundary), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------

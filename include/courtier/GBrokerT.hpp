@@ -91,7 +91,7 @@ class buffer_not_present: public std::exception {};
 /** @brief The maximum allowed port id. Note that, if we have no 64 bit integer types,
  * we will only be able to count up to roughly 4 billion. PORTIDTYPE is defined in
  * GBoundedBufferWithIdT.hpp, based on whether BOOST_HAS_LONG_LONG is defined or not. */
-const Gem::Common::PORTIDTYPE MAXPORTID = std::numeric_limits<Gem::Common::PORTIDTYPE>::max()-1;
+const Gem::Common::PORTIDTYPE MAXPORTID = boost::numeric::bounds<Gem::Common::PORTIDTYPE>::highest()-1;
 
 /**************************************************************************************/
 /**

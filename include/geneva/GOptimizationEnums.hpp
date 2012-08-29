@@ -94,7 +94,7 @@ const boost::uint16_t DEFAULTYDIMOM=768;
  * than the maximum allowed value for the underlying type in order to allow statements like
  * (max - min) without leaving the allowed value range.
  */
-const double MAXCONSTRAINEDDOUBLE = std::numeric_limits<double>::max()/10.;
+const double MAXCONSTRAINEDDOUBLE = (boost::numeric::bounds<double>::highest())/10.;
 
 /**********************************************************************************************/
 /**
@@ -102,7 +102,7 @@ const double MAXCONSTRAINEDDOUBLE = std::numeric_limits<double>::max()/10.;
  * than the maximum allowed value for the underlying type in order to allow statements like
  * (max - min) without leaving the allowed value range.
  */
-const double MAXCONSTRAINEDFLOAT = std::numeric_limits<float>::max()/10.;
+const double MAXCONSTRAINEDFLOAT = (boost::numeric::bounds<float>::highest())/10.f;
 
 
 /**********************************************************************************************/
@@ -111,7 +111,7 @@ const double MAXCONSTRAINEDFLOAT = std::numeric_limits<float>::max()/10.;
  * than the maximum allowed value for the underlying type in order to allow statements like
  * (max - min) without leaving the allowed value range.
  */
-const boost::int32_t MAXCONSTRAINEDINT32 = std::numeric_limits<boost::int32_t>::max()/10;
+const boost::int32_t MAXCONSTRAINEDINT32 = (boost::numeric::bounds<boost::int32_t>::highest())/10.;
 
 /**********************************************************************************************/
 /**

@@ -503,7 +503,7 @@ public:
 			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<int_type>::max());
 
 			// Try to set a boundary to a bad value
-			BOOST_CHECK_THROW(p_test->setValue(0, 0, std::numeric_limits<int_type>::max()), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setValue(0, 0, boost::numeric::bounds<int_type>::highest()), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------
@@ -519,7 +519,7 @@ public:
 			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<int_type>::max());
 
 			// Try to set a boundary to a bad value
-			BOOST_CHECK_THROW(p_test->setValue(0, -std::numeric_limits<int_type>::max(), 100), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setValue(0, boost::numeric::bounds<int_type>::lowest(), 100), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------
@@ -535,7 +535,7 @@ public:
 			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<int_type>::max());
 
 			// Try to set a boundary to a bad value
-			BOOST_CHECK_THROW(p_test->setBoundaries(0, std::numeric_limits<int_type>::max()), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setBoundaries(0, boost::numeric::bounds<int_type>::highest()), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------
@@ -551,7 +551,7 @@ public:
 			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<int_type>::max());
 
 			// Try to set a boundary to a bad value
-			BOOST_CHECK_THROW(p_test->setBoundaries(-std::numeric_limits<int_type>::max(), 100), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setBoundaries(boost::numeric::bounds<int_type>::lowest(), 100), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------

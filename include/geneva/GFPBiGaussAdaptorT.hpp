@@ -191,7 +191,7 @@ protected:
 	 * @param value The value that is going to be adapted in situ
 	 */
 	virtual void customAdaptions(fp_type& value) {
-		if(GNumBiGaussAdaptorT<fp_type, fp_type>::useSymmetricSigmas_) { // Should we use the same sigma for bost gaussians ?
+		if(GNumBiGaussAdaptorT<fp_type, fp_type>::useSymmetricSigmas_) { // Should we use the same sigma for both gaussians ?
 			// adapt the value in situ. Note that this changes
 			// the argument of this function
 #if defined (CHECKOVERFLOWS)
@@ -204,17 +204,25 @@ protected:
 			);
 
 			if(value >= fp_type(0.)){
-				if(addition >= fp_type(0.) && (std::numeric_limits<fp_type>::max()-value < addition)) {
+				if(addition >= fp_type(0.) && (boost::numeric::bounds<fp_type>::highest()-value < addition)) {
 #ifdef DEBUG
-					std::cout << "Warning in GFPGaussAdaptor<fp_type>::customAdaptions(): Had to change adaption due to overflow" << std::endl;
+					std::cout << "Warning in GFPBiGaussAdaptor<fp_type>::customAdaptions():"
+							  << "Had to change adaption due to overflow" << std::endl
+							  << "value = " << value << std::endl
+							  << "addition = " << addition << std::endl
+							  << "boost::numeric::bounds<fp_type>::highest() = " << boost::numeric::bounds<fp_type>::highest() << std::endl;
 #endif
 					addition *= fp_type(-1.);
 				}
 			}
-			else { // < 0
-				if(addition < fp_type(0.) && (std::numeric_limits<fp_type>::min()-value > addition)) {
+			else { // value < 0
+				if(addition < fp_type(0.) && (Gem::Common::GFabs(boost::numeric::bounds<fp_type>::lowest() - value) < Gem::Common::GFabs(addition))) {
 #ifdef DEBUG
-					std::cout << "Warning in GFPGaussAdaptorT<fp_type>::customAdaptions(): Had to change adaption due to underflow" << std::endl;
+					std::cout << "Warning in GFPGaussAdaptorT<fp_type>::customAdaptions():" << std::endl
+							  << "Had to change adaption due to underflow" << std::endl
+							  << "value = " << value << std::endl
+							  << "addition = " << addition << std::endl
+							  << "boost::numeric::bounds<fp_type>::lowest() = " << boost::numeric::bounds<fp_type>::lowest() << std::endl;
 #endif
 					addition *= fp_type(-1.);
 				}
@@ -243,17 +251,25 @@ protected:
 			);
 
 			if(value >= fp_type(0.)){
-				if(addition >= fp_type(0.) && (std::numeric_limits<fp_type>::max()-value < addition)) {
+				if(addition >= fp_type(0.) && (boost::numeric::bounds<fp_type>::highest()-value < addition)) {
 #ifdef DEBUG
-					std::cout << "Warning in GFPGaussAdaptor<fp_type>::customAdaptions(): Had to change adaption due to overflow" << std::endl;
+					std::cout << "Warning in GFPBiGaussAdaptor<fp_type>::customAdaptions():"
+							  << "Had to change adaption due to overflow" << std::endl
+							  << "value = " << value << std::endl
+							  << "addition = " << addition << std::endl
+							  << "boost::numeric::bounds<fp_type>::highest() = " << boost::numeric::bounds<fp_type>::highest() << std::endl;
 #endif
 					addition *= fp_type(-1.);
 				}
 			}
-			else { // < 0
-				if(addition < fp_type(0.) && (std::numeric_limits<fp_type>::min()-value > addition)) {
+			else { // value < 0
+				if(addition < fp_type(0.) && (Gem::Common::GFabs(boost::numeric::bounds<fp_type>::lowest() - value) < Gem::Common::GFabs(addition))) {
 #ifdef DEBUG
-					std::cout << "Warning in GFPGaussAdaptorT<fp_type>::customAdaptions(): Had to change adaption due to underflow" << std::endl;
+					std::cout << "Warning in GFPGaussAdaptorT<fp_type>::customAdaptions():" << std::endl
+							  << "Had to change adaption due to underflow" << std::endl
+							  << "value = " << value << std::endl
+							  << "addition = " << addition << std::endl
+							  << "boost::numeric::bounds<fp_type>::lowest() = " << boost::numeric::bounds<fp_type>::lowest() << std::endl;
 #endif
 					addition *= fp_type(-1.);
 				}

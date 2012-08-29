@@ -111,7 +111,7 @@ public:
 		typedef boost::mpl::list<
 			GBooleanObject
 			, GInt32Object
-			// , GFloatObject
+			, GFloatObject
 			, GDoubleObject
 			, GConstrainedInt32Object
 			//, GConstrainedFloatObject
@@ -124,7 +124,7 @@ public:
 			, GBooleanObjectCollection
 			, GInt32ObjectCollection
 			, GConstrainedInt32ObjectCollection
-			//, GFloatObjectCollection
+			, GFloatObjectCollection
 			, GDoubleObjectCollection
 			//, GConstrainedFloatObjectCollection
 			, GConstrainedDoubleObjectCollection

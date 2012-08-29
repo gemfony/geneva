@@ -81,7 +81,7 @@ const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
  * The maximum value of boost::int32_t, converted to a double value. This is
  * needed to scale the output of boost::rand48 to a maximum value of 1.
  */
-const double rnr_max = static_cast<double>(std::numeric_limits<boost::int32_t>::max());
+const double rnr_max = static_cast<double>(boost::numeric::bounds<boost::int32_t>::highest());
 
 /****************************************************************************/
 /**

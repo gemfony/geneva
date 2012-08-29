@@ -32,6 +32,7 @@
 
 // Standard headers go here
 #include <cmath>
+#include <cstdlib>
 #include <bits/c++config.h>
 
 // Boost headers go here
@@ -64,6 +65,11 @@ float GFabs(const float&);
 double GFabs(const double&);
 /** @brief Calculates the fabs value of a long double value */
 long double GFabs(const long double&);
+
+/** @brief Calculates the abs value of an int value */
+int GIabs(const int&);
+/** @brief Calculates the abs value of a long int value */
+long GIabs(const long&);
 
 /** @brief Calculates the sqrt value of a float value */
 float GSqrt(const float&);

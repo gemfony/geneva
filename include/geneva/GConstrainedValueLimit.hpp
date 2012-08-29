@@ -69,7 +69,7 @@ template <typename T>
 struct GConstrainedValueLimit
 {
 	static T max() {
-		return std::numeric_limits<T>::max();
+		return boost::numeric::bounds<T>::highest();
 	}
 };
 

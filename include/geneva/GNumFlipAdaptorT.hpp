@@ -206,7 +206,7 @@ protected:
 		bool up = this->gr->uniform_bool();
 		if(up){
 #if defined (CHECKOVERFLOWS)
-			if(std::numeric_limits<num_type>::max() == value) {
+			if(boost::numeric::bounds<num_type>::highest() == value) {
 #ifdef DEBUG
 				std::cout << "Warning: Had to change adaption due to overflow in GNumFlipAdaptorT<>::customAdaptions()" << std::endl;
 #endif
@@ -219,7 +219,7 @@ protected:
 		}
 		else {
 #if defined (CHECKOVERFLOWS)
-			if(std::numeric_limits<num_type>::min() == value) {
+			if(boost::numeric::bounds<num_type>::lowest() == value) {
 #ifdef DEBUG
 				std::cout << "Warning: Had to change adaption due to underflow in GNumFlipAdaptorT<>::customAdaptions()" << std::endl;
 #endif

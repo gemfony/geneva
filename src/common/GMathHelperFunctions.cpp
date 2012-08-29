@@ -110,6 +110,28 @@ long double GFabs(const long double& x) {
 
 /************************************************************************************/
 /**
+ * Calculates the abs value of an int value
+ *
+ * @param i The value of which the absolute value should be calculated
+ * @return The absolute value of i
+ */
+int GIabs(const int& i) {
+  return abs(i);
+}
+
+/************************************************************************************/
+/**
+ * Calculates the abs value of a long int value
+ *
+ * @param i The value of which the absolute value should be calculated
+ * @return The absolute value of i
+ */
+long GIabs(const long& i) {
+  return labs(i);
+}
+
+/************************************************************************************/
+/**
  * Calculates the sqrt value of a float value
  *
  * @param x The value for which sqrt should be calculated

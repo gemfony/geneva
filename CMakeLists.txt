@@ -104,7 +104,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	ELSE() # e.g. g++
 		SET( MSG_COMPILER "gcc")
 		# ADD_DEFINITIONS ("-DDEBUG -pg -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
-		ADD_DEFINITIONS ("-DDEBUG -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wno-unused -Wno-attributes -ansi -pthread")
+		ADD_DEFINITIONS ("-DDEBUG -DCHECKOVERFLOWS -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wno-unused -Wno-attributes -ansi -pthread")
 		# ADD_DEFINITIONS ("-DDEBUG -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wno-unused -pthread -std=c++11 -Wno-attributes")
 	ENDIF()
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
