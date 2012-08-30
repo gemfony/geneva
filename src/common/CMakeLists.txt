@@ -9,7 +9,6 @@ SET ( COMMONSOURCES
 	GParserBuilder
 	GPlotDesigner
 	GPODExpectationChecksT
-	GROOTProducer
 	GThreadGroup
 	GThreadPool
 	GThreadWrapper

@@ -535,6 +535,16 @@ public:
 		return gr != gr_local;
 	}
 
+	/***********************************************************************************/
+	/**
+	 * Allows derived classes to print diagnostic messages
+	 *
+	 * @return A diagnostic message
+	 */
+	virtual std::string printDiagnostics() const {
+		return std::string();
+	}
+
 protected:
 	/***********************************************************************************/
     /**
@@ -585,7 +595,7 @@ protected:
 
 	/***********************************************************************************/
 	/**
-	 * This function helps tp adapt the adaption parameters, if certain conditions are met.
+	 * This function helps to adapt the adaption parameters, if certain conditions are met.
 	 */
 	void adaptAdaption() {
 		// The adaption parameters are modified every adaptionThreshold_ number of adaptions.
@@ -803,6 +813,7 @@ public:
 				BOOST_CHECK_MESSAGE (
 						currentValue == oldValue
 						,  "\n"
+						<< "Values differ, when they shouldn't:"
 						<< "currentValue = " << currentValue << "\n"
 						<< "oldValue     = " << oldValue << "\n"
 						<< "iteration    = " << i << "\n"
@@ -818,9 +829,11 @@ public:
 				BOOST_CHECK_MESSAGE (
 						currentValue != oldValue
 						,  "\n"
+						<< "Values are identical when they shouldn't be:" << "\n"
 						<< "currentValue = " << currentValue << "\n"
 						<< "oldValue     = " << oldValue << "\n"
 						<< "iteration    = " << i << "\n"
+						<< (this->printDiagnostics()).c_str()
 				);
 				oldValue = currentValue;
 			}

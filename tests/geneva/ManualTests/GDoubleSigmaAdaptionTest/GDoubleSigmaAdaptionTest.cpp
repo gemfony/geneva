@@ -1,5 +1,5 @@
 /**
- * @file GSigmaAdaption_test.cpp
+ * @file GDoubleSigmaAdaptionTest.cpp
  */
 
 /*

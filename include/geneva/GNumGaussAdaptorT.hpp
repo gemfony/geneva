@@ -377,6 +377,26 @@ public:
 
 	/***********************************************************************************/
 	/**
+	 * Prints diagnostic messages
+	 *
+	 * @return The diagnostic message
+	 */
+	virtual std::string printDiagnostics() const {
+		std::ostringstream diag;
+		boost::tuple<fp_type,fp_type> sigmaRange = getSigmaRange();
+
+		diag << "Diagnostic message by GNumAdaptorT<num_type,fp_type>" << std::endl
+			 << "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
+			 << "and typeid(fp_type).name() = " << typeid(fp_type).name() << " :" << std::endl
+			 << "getSigma() = " << getSigma() << std::endl
+			 << "getSigmaRange() = " << boost::get<0>(sigmaRange) << " --> " << boost::get<1>(sigmaRange) << std::endl
+		     << "getSigmaAdaptionRate() = " << getSigmaAdaptionRate() << std::endl;
+
+		return diag.str();
+	}
+
+	/***********************************************************************************/
+	/**
 	 * @brief Retrieves the id of the adaptor. */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
@@ -416,8 +436,6 @@ protected:
 	/**
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	 * algorithm to adapt to changing geometries of the quality surface.
-	 *
-	 * ATTENTION: sigma/delta may become 0 here ??!?
 	 */
 	virtual void customAdaptAdaption()
 	{
@@ -564,10 +582,13 @@ public:
 		{ // Test sigma adaption
 			boost::shared_ptr<GNumGaussAdaptorT<num_type, fp_type> > p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type> >();
 
-			const fp_type minSigma = fp_type(0.1);
-			const fp_type maxSigma = fp_type(0.5);
-			const fp_type sigmaStart = fp_type(0.3);
-			const fp_type sigmaSigma = fp_type(0.3);
+			// true: Adaptions should happen always, independent of the adaption probability
+			BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(true));
+
+			const fp_type minSigma = fp_type(0.0001);
+			const fp_type maxSigma = fp_type(5);
+			const fp_type sigmaStart = fp_type(1);
+			const fp_type sigmaSigma = fp_type(0.001);
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(minSigma, maxSigma));
 			BOOST_CHECK_NO_THROW(p_test->setSigma(sigmaStart));
@@ -579,7 +600,7 @@ public:
 
 			std::size_t nTests = 10000;
 			std::size_t maxCounter = 0;
-			std::size_t maxMaxCounter = 5000;
+			std::size_t maxMaxCounter = 500;
 			for(std::size_t i=0; i<nTests; i++) {
 				BOOST_CHECK_NO_THROW(p_test->adaptAdaption());
 				BOOST_CHECK(newSigma = p_test->getSigma());
@@ -600,8 +621,6 @@ public:
 					maxCounter++;
 				}
 			}
-
-			// std::cout << "maxCounter = " << maxCounter << std::endl;
 
 			BOOST_CHECK_MESSAGE (
 					maxCounter < maxMaxCounter
