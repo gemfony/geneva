@@ -81,6 +81,103 @@ namespace Common
 
 /**************************************************************************************************/
 /**
+ * Find the minimum and maximum component in a vector of undefined types. This
+ * function requires that x_type_undet can be compared using the usual operators.
+ *
+ * @param extDat The vector holding the data, for which extreme values should be calculated
+ * @return A boost::tuple holding the extreme values
+ */
+template <typename x_type_undet>
+boost::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_undet>& extDat) {
+	// Do some error checking
+	if(extDat.size() < (std::size_t)2) {
+		raiseException(
+				"In GBasePlotter::getMinMax(1D): Error!" << std::endl
+				<< "Got vector of invalid size " << extDat.size() << std::endl
+		);
+	}
+
+	x_type_undet min=extDat.at(0), max=min;
+
+	for(std::size_t i=1; i<extDat.size(); i++) {
+		if(extDat.at(i) < min) min = extDat.at(i);
+		if(extDat.at(i) > max) max = extDat.at(i);
+	}
+
+	return boost::tuple<x_type_undet, x_type_undet>(min, max);
+}
+
+/**************************************************************************************************/
+/**
+ * Find the minimum and maximum component in a vector of 2d-Tuples of undefined types.
+ * This function requires that x_type_undet and y_type_undet can be compared using the
+ * usual operators
+ *
+ * @param extDat The vector holding the data, for which extreme values should be calculated
+ * @return A boost::tuple holding the extreme values
+ */
+template <typename x_type_undet, typename y_type_undet>
+boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>
+getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet> >& extDat) {
+	// Do some error checking
+	if(extDat.size() < (std::size_t)2) {
+		raiseException(
+				"In GBasePlotter::getMinMax(2D): Error!" << std::endl
+				<< "Got vector of invalid size " << extDat.size() << std::endl
+		);
+	}
+
+	x_type_undet minX=boost::get<0>(extDat.at(0)), maxX = minX;
+	y_type_undet minY=boost::get<1>(extDat.at(0)), maxY = minY;
+
+	for(std::size_t i=1; i<extDat.size(); i++) {
+		if(boost::get<0>(extDat.at(i)) < minX) minX = boost::get<0>(extDat.at(i));
+		if(boost::get<0>(extDat.at(i)) > maxX) maxX = boost::get<0>(extDat.at(i));
+		if(boost::get<1>(extDat.at(i)) < minY) minY = boost::get<1>(extDat.at(i));
+		if(boost::get<1>(extDat.at(i)) > maxY) maxY = boost::get<1>(extDat.at(i));
+	}
+
+	return boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>(minX, maxX, minY, maxY);
+}
+
+/**************************************************************************************************/
+/**
+ * Find the minimum and maximum component in a vector of 3d-Tuples of undefined types.
+ * This function requires that x_type_undet, y_type_undet and z_type_undet can be compared
+ * using the usual operators
+ *
+ * @param extDat The vector holding the data, for which extreme values should be calculated
+ * @return A boost::tuple holding the extreme values
+ */
+template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
+boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>
+getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet> >& extDat) {
+	// Do some error checking
+	if(extDat.size() < (std::size_t)2) {
+		raiseException(
+				"In GBasePlotter::getMinMax(3D): Error!" << std::endl
+				<< "Got vector of invalid size " << extDat.size() << std::endl
+		);
+	}
+
+	x_type_undet minX=boost::get<0>(extDat.at(0)), maxX = minX;
+	y_type_undet minY=boost::get<1>(extDat.at(0)), maxY = minY;
+	z_type_undet minZ=boost::get<2>(extDat.at(0)), maxZ = minZ;
+
+	for(std::size_t i=1; i<extDat.size(); i++) {
+		if(boost::get<0>(extDat.at(i)) < minX) minX = boost::get<0>(extDat.at(i));
+		if(boost::get<0>(extDat.at(i)) > maxX) maxX = boost::get<0>(extDat.at(i));
+		if(boost::get<1>(extDat.at(i)) < minY) minY = boost::get<1>(extDat.at(i));
+		if(boost::get<1>(extDat.at(i)) > maxY) maxY = boost::get<1>(extDat.at(i));
+		if(boost::get<2>(extDat.at(i)) < minZ) minZ = boost::get<2>(extDat.at(i));
+		if(boost::get<2>(extDat.at(i)) > maxZ) maxZ = boost::get<2>(extDat.at(i));
+	}
+
+	return boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>(minX, maxX, minY, maxY, minZ, maxZ);
+}
+
+/**************************************************************************************************/
+/**
  * Calculates the mean value from a std::vector of floating point values
  *
  * @param parVec The vector of values for which the mean should be calculated

@@ -61,6 +61,12 @@ namespace Common {
 
 /**********************************************************************************************/
 /**
+ * The default number of bins in histograms, used in GPlotDesigner
+ */
+const std::size_t DEFAULTNBINSGPD = 100;
+
+/**********************************************************************************************/
+/**
  * Used in parameter definitions (GParserBuilder)
  */
 const bool VAR_IS_ESSENTIAL = true;

@@ -218,6 +218,82 @@ void GBasePlotter::setId(const std::size_t& id) {
 ///////////////////////////////////////////////////////////////////////////////
 /*****************************************************************************/
 /**
+ * Specialization of projectX for <x_type, y_type> = <double, double>, that will return a
+ * GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * default-constructed range, the function will attempt to determine suitable parameters
+ * for the range settings.
+ *
+ * @param nBins The number of bins of the histogram
+ * @param range The minimum and maximum boundaries of the histogram
+ */
+template<>
+boost::shared_ptr<GDataCollector1T<double> >
+GDataCollector2T<double, double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
+	boost::tuple<double, double> myRangeX;
+	if(rangeX == boost::tuple<double, double>()) {
+		// Find out about the minimum and maximum values in the data_ array
+		boost::tuple<double,double,double,double> extremes = Gem::Common::getMinMax(this->data_);
+		myRangeX = boost::tuple<double,double>(boost::get<0>(extremes), boost::get<1>(extremes));
+	} else {
+		myRangeX = rangeX;
+	}
+
+	// Construct the result object
+	boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsX, myRangeX));
+	result->setXAxisLabel(this->xAxisLabel());
+	result->setYAxisLabel("Number of entries");
+	result->setPlotLabel(this->plotLabel() + " / x-projection");
+
+	// Add data to the object
+	for(std::size_t i=0; i<data_.size(); i++) {
+		(*result) & boost::get<0>(data_.at(i));
+	}
+
+	// Return the data
+	return result;
+}
+
+/*****************************************************************************/
+/**
+ * Specialization of projectY for <x_type, y_type> = <double, double>, that will return a
+ * GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * default-constructed range, the function will attempt to determine suitable parameters
+ * for the range settings.
+ *
+ * @param nBins The number of bins of the histogram
+ * @param range The minimum and maximum boundaries of the histogram
+ */
+template<>
+boost::shared_ptr<GDataCollector1T<double> >
+GDataCollector2T<double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
+	boost::tuple<double, double> myRangeY;
+	if(rangeY == boost::tuple<double, double>()) {
+		// Find out about the minimum and maximum values in the data_ array
+		boost::tuple<double,double,double,double> extremes = Gem::Common::getMinMax(data_);
+		myRangeY = boost::tuple<double,double>(boost::get<2>(extremes), boost::get<3>(extremes));
+	} else {
+		myRangeY = rangeY;
+	}
+
+	// Construct the result object
+	boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsY, myRangeY));
+	result->setXAxisLabel(this->yAxisLabel());
+	result->setYAxisLabel("Number of entries");
+	result->setPlotLabel(this->plotLabel() + " / y-projection");
+
+	// Add data to the object
+	for(std::size_t i=0; i<data_.size(); i++) {
+		(*result) & boost::get<1>(data_.at(i));
+	}
+
+	// Return the data
+	return result;
+}
+
+/*****************************************************************************/
+///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
  * The default constructor
  */
 GGraph2D::GGraph2D()
@@ -584,7 +660,7 @@ std::string GGraph2ED::footerData() const {
 ///////////////////////////////////////////////////////////////////////////////
 /*****************************************************************************/
 /**
- * The default constructor
+ * The standard constructor
  */
 GHistogram1D::GHistogram1D(
 	const std::size_t& nBinsX
@@ -594,6 +670,19 @@ GHistogram1D::GHistogram1D(
 	: nBinsX_(nBinsX)
 	, minX_(minX)
 	, maxX_(maxX)
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * Initialization with a range in the form of a tuple
+ */
+GHistogram1D::GHistogram1D(
+	const std::size_t& nBinsX
+	, const boost::tuple<double,double>& rangeX
+)
+	: nBinsX_(nBinsX)
+	, minX_(boost::get<0>(rangeX))
+	, maxX_(boost::get<1>(rangeX))
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -755,7 +844,7 @@ double GHistogram1D::getMaxX() const {
 ///////////////////////////////////////////////////////////////////////////////
 /*****************************************************************************/
 /**
- * The default constructor
+ * The standard constructor
  */
 GHistogram2D::GHistogram2D(
 	const std::size_t& nBinsX
@@ -771,6 +860,25 @@ GHistogram2D::GHistogram2D(
 	, maxX_(maxX)
 	, minY_(minY)
 	, maxY_(maxY)
+	, dropt_(TDEMPTY)
+{ /* nothing */ }
+
+/*****************************************************************************/
+/**
+ * Initialization with ranges
+ */
+GHistogram2D::GHistogram2D(
+	const std::size_t& nBinsX
+	, const std::size_t& nBinsY
+	, const boost::tuple<double,double>& rangeX
+	, const boost::tuple<double,double>& rangeY
+)
+	: nBinsX_(nBinsX)
+	, nBinsY_(nBinsY)
+	, minX_(boost::get<0>(rangeX))
+	, maxX_(boost::get<1>(rangeX))
+	, minY_(boost::get<0>(rangeY))
+	, maxY_(boost::get<1>(rangeY))
 	, dropt_(TDEMPTY)
 { /* nothing */ }
 
@@ -1626,6 +1734,7 @@ std::string GPlotDesigner::staticHeader() const {
 	  << "  gROOT->Reset();" << std::endl
 	  << "  gStyle->SetCanvasColor(0);" << std::endl
 	  << "  gStyle->SetStatBorderSize(1);" << std::endl
+	  << "  gStyle->SetOptStat(0);" << std::endl
 	  << std::endl
 	  << "  TCanvas *cc = new TCanvas(\"cc\", \"cc\",0,0,"<< c_x_dim_ << "," << c_y_dim_ << ");" << std::endl
 	  << std::endl

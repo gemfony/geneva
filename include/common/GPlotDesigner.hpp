@@ -42,6 +42,8 @@
 // Boost headers go here
 #include <boost/utility.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_io.hpp>
+#include <boost/tuple/tuple_comparison.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
@@ -58,6 +60,8 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonEnums.hpp"
 
 namespace Gem {
 namespace Common {
@@ -81,7 +85,7 @@ const boost::uint32_t DEFCYDIV    =    1;
 
 const std::size_t     DEFNSAMPLES = 100;
 
-const graphPlotMode        DEFPLOTMODE = CURVE;
+const graphPlotMode   DEFPLOTMODE = CURVE;
 
 // Easier access to the header-, body- and footer-data
 typedef boost::tuple<std::string,std::string,std::string> plotData;
@@ -150,6 +154,8 @@ public:
 	std::string dsMarker() const;
 
 protected:
+	/**********************************************************************************/
+
 	std::string drawingArguments_; ///< Holds the drawing arguments for this plot
 
 	std::string x_axis_label_; ///< A label for the x-axis
@@ -314,6 +320,56 @@ protected:
 
 /*********************************************************************************/
 /**
+ * A wrapper for ROOT's TH1D class (1-d double data)
+ */
+class GHistogram1D : public GDataCollector1T<double> {
+public:
+	/** @brief The standard constructor */
+	GHistogram1D(
+		const std::size_t&
+		, const double&
+		, const double&
+	);
+	/** @brief Initialization with a range in the form of a tuple */
+	GHistogram1D(
+		const std::size_t&
+		, const boost::tuple<double,double>&
+	);
+	/** @brief A copy constructor */
+	GHistogram1D(const GHistogram1D&);
+
+	/** @brief The destructor */
+	~GHistogram1D();
+
+	/** @brief The assignment operator */
+	const GHistogram1D &operator=(const GHistogram1D&);
+
+	/** @brief Retrieve specific header settings for this plot */
+	virtual std::string headerData() const;
+	/** @brief Retrieves the actual data sets */
+	virtual std::string bodyData() const;
+	/** @brief Retrieves specific draw commands for this plot */
+	virtual std::string footerData() const;
+
+	/** @brief Retrieve the number of bins in x-direction */
+	std::size_t getNBinsX() const;
+
+	/** @brief Retrieve the lower boundary of the plot */
+	double getMinX() const;
+	/** @brief Retrieve the upper boundary of the plot */
+	double getMaxX() const;
+
+private:
+	GHistogram1D(); ///< The default constructor -- intentionally private and undefined
+
+	std::size_t nBinsX_; ///< The number of bins in the histogram
+
+	double minX_; ///< The lower boundary of the histogram
+	double maxX_; ///< The upper boundary of the histogram
+};
+
+/*********************************************************************************/
+/**
  * A data collector for 2-d data of user-defined type
  */
 template <typename x_type, typename y_type>
@@ -358,6 +414,44 @@ public:
 
 		// and then our own
 		data_ = cp.data_;
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Allows to project the graph into a histogram (x-direction). This function is a
+	 * trap to catch calls with un-implemented types. Use the corresponding specializations,
+	 * if available.
+	 */
+	boost::shared_ptr<GDataCollector1T<x_type> > projectX(
+			std::size_t=DEFAULTNBINSGPD
+			, boost::tuple<x_type, y_type> = boost::tuple<x_type, y_type>()
+	) const {
+		raiseException(
+				"In GDataCollector2T<>::projectX(range, nBins): Error!" << std::endl
+				<< "Function was called for class with un-implemented types" << std::endl
+		);
+
+		// Make the compiler happy
+		return boost::shared_ptr<GDataCollector1T<x_type> >();
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Allows to project the graph into a histogram (y-direction). This function is a
+	 * trap to catch calls with un-implemented types. Use the corresponding specializations,
+	 * if available.
+	 */
+	boost::shared_ptr<GDataCollector1T<y_type> > projectY(
+			std::size_t=DEFAULTNBINSGPD
+			, boost::tuple<y_type, y_type> = boost::tuple<x_type, y_type>()
+	) const {
+		raiseException(
+				"In GDataCollector2T<>::projectY(range, nBins): Error!" << std::endl
+				<< "Function was called for class with un-implemented types" << std::endl
+		);
+
+		// Make the compiler happy
+		return boost::shared_ptr<GDataCollector1T<y_type> >();
 	}
 
 	/*****************************************************************************/
@@ -459,6 +553,17 @@ protected:
 
 	std::vector<boost::tuple<x_type, y_type> > data_; ///< Holds the actual data
 };
+
+/*********************************************************************************/
+/** @brief Specialization for <x_type, y_type> = <double, double> */
+template<>
+boost::shared_ptr<GDataCollector1T<double> >
+GDataCollector2T<double, double>::projectX(std::size_t	, boost::tuple<double, double>) const;
+
+/** @brief Specialization for <x_type, y_type> = <double, double> */
+template<>
+boost::shared_ptr<GDataCollector1T<double> >
+GDataCollector2T<double, double>::projectY(std::size_t	, boost::tuple<double, double>) const;
 
 /*********************************************************************************/
 /**
@@ -619,6 +724,103 @@ protected:
 
 /*********************************************************************************/
 /**
+ * An enum for 2D-drawing options
+ */
+enum tddropt {
+	TDEMPTY = 0
+	, SURFONE = 1
+	, SURFTWOZ = 2
+	, SURFTHREE = 3
+	, SURFFOUR = 4
+	, CONTZ = 5
+	, CONTONE = 6
+	, CONTTWO = 7
+	, CONTTHREE = 8
+	, TEXT = 9
+	, SCAT = 10
+	, BOX = 11
+	, ARR = 12
+	, COLZ = 13
+	, LEGO = 14
+	, LEGOONE = 15
+	, SURFONEPOL = 16
+	, SURFONECYL = 17
+};
+
+/*********************************************************************************/
+/**
+ * A wrapper for ROOT's TH2D class (2-d double data)
+ */
+class GHistogram2D : public GDataCollector2T<double, double> {
+public:
+	/** @brief The standard constructor */
+	GHistogram2D(
+		const std::size_t&
+		, const std::size_t&
+		, const double&
+		, const double&
+		, const double&
+		, const double&
+	);
+	/** @brief Initialization with ranges */
+	GHistogram2D(
+		const std::size_t&
+		, const std::size_t&
+		, const boost::tuple<double,double>&
+		, const boost::tuple<double,double>&
+	);
+	/** @brief A copy constructor */
+	GHistogram2D(const GHistogram2D&);
+
+	/** @brief The destructor */
+	~GHistogram2D();
+
+	/** @brief The assignment operator */
+	const GHistogram2D &operator=(const GHistogram2D&);
+
+	/** @brief Retrieve specific header settings for this plot */
+	virtual std::string headerData() const;
+	/** @brief Retrieves the actual data sets */
+	virtual std::string bodyData() const;
+	/** @brief Retrieves specific draw commands for this plot */
+	virtual std::string footerData() const;
+
+	/** @brief Retrieve the number of bins in x-direction */
+	std::size_t getNBinsX() const;
+	/** @brief Retrieve the number of bins in y-direction */
+	std::size_t getNBinsY() const;
+
+	/** @brief Retrieve the lower boundary of the plot in x-direction */
+	double getMinX() const;
+	/** @brief Retrieve the upper boundary of the plot in x-direction */
+	double getMaxX() const;
+	/** @brief Retrieve the lower boundary of the plot in y-direction */
+	double getMinY() const;
+	/** @brief Retrieve the upper boundary of the plot in y-direction */
+	double getMaxY() const;
+
+	/** @brief Allows to specify 2d-drawing options */
+	void set2DOpt(tddropt);
+	/** @brief Allows to retrieve 2d-drawing options */
+	tddropt get2DOpt() const;
+
+
+private:
+	GHistogram2D(); ///< The default constructor -- intentionally private and undefined
+
+	std::size_t nBinsX_; ///< The number of bins in the x-direction of the histogram
+	std::size_t nBinsY_; ///< The number of bins in the y-direction of the histogram
+
+	double minX_; ///< The lower boundary of the histogram in x-direction
+	double maxX_; ///< The upper boundary of the histogram in x-direction
+	double minY_; ///< The lower boundary of the histogram in y-direction
+	double maxY_; ///< The upper boundary of the histogram in y-direction
+
+	tddropt dropt_; ///< The drawing options for 2-d histograms
+};
+
+/*********************************************************************************/
+/**
  * A wrapper for the ROOT TGraph class (2d data and curve-like structures)
  */
 class GGraph2D : public GDataCollector2T<double,double> {
@@ -683,141 +885,6 @@ public:
 
 private:
 	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
-};
-
-/*********************************************************************************/
-/**
- * A wrapper for ROOT's TH1D class (1-d double data)
- */
-class GHistogram1D : public GDataCollector1T<double> {
-public:
-	/** @brief The default constructor */
-	GHistogram1D(
-		const std::size_t&
-		, const double&
-		, const double&
-	);
-	/** @brief A copy constructor */
-	GHistogram1D(const GHistogram1D&);
-
-	/** @brief The destructor */
-	~GHistogram1D();
-
-	/** @brief The assignment operator */
-	const GHistogram1D &operator=(const GHistogram1D&);
-
-	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData() const;
-	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData() const;
-	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData() const;
-
-	/** @brief Retrieve the number of bins in x-direction */
-	std::size_t getNBinsX() const;
-
-	/** @brief Retrieve the lower boundary of the plot */
-	double getMinX() const;
-	/** @brief Retrieve the upper boundary of the plot */
-	double getMaxX() const;
-
-private:
-	GHistogram1D(); ///< The default constructor -- intentionally private and undefined
-
-	std::size_t nBinsX_; ///< The number of bins in the histogram
-
-	double minX_; ///< The lower boundary of the histogram
-	double maxX_; ///< The upper boundary of the histogram
-};
-
-/*********************************************************************************/
-/**
- * An enum for 2D-drawing options
- */
-enum tddropt {
-	TDEMPTY = 0
-	, SURFONE = 1
-	, SURFTWOZ = 2
-	, SURFTHREE = 3
-	, SURFFOUR = 4
-	, CONTZ = 5
-	, CONTONE = 6
-	, CONTTWO = 7
-	, CONTTHREE = 8
-	, TEXT = 9
-	, SCAT = 10
-	, BOX = 11
-	, ARR = 12
-	, COLZ = 13
-	, LEGO = 14
-	, LEGOONE = 15
-	, SURFONEPOL = 16
-	, SURFONECYL = 17
-};
-
-/*********************************************************************************/
-/**
- * A wrapper for ROOT's TH2D class (2-d double data)
- */
-class GHistogram2D : public GDataCollector2T<double, double> {
-public:
-	/** @brief The default constructor */
-	GHistogram2D(
-		const std::size_t&
-		, const std::size_t&
-		, const double&
-		, const double&
-		, const double&
-		, const double&
-	);
-	/** @brief A copy constructor */
-	GHistogram2D(const GHistogram2D&);
-
-	/** @brief The destructor */
-	~GHistogram2D();
-
-	/** @brief The assignment operator */
-	const GHistogram2D &operator=(const GHistogram2D&);
-
-	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData() const;
-	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData() const;
-	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData() const;
-
-	/** @brief Retrieve the number of bins in x-direction */
-	std::size_t getNBinsX() const;
-	/** @brief Retrieve the number of bins in y-direction */
-	std::size_t getNBinsY() const;
-
-	/** @brief Retrieve the lower boundary of the plot in x-direction */
-	double getMinX() const;
-	/** @brief Retrieve the upper boundary of the plot in x-direction */
-	double getMaxX() const;
-	/** @brief Retrieve the lower boundary of the plot in y-direction */
-	double getMinY() const;
-	/** @brief Retrieve the upper boundary of the plot in y-direction */
-	double getMaxY() const;
-
-	/** @brief Allows to specify 2d-drawing options */
-	void set2DOpt(tddropt);
-	/** @brief Allows to retrieve 2d-drawing options */
-	tddropt get2DOpt() const;
-
-
-private:
-	GHistogram2D(); ///< The default constructor -- intentionally private and undefined
-
-	std::size_t nBinsX_; ///< The number of bins in the x-direction of the histogram
-	std::size_t nBinsY_; ///< The number of bins in the y-direction of the histogram
-
-	double minX_; ///< The lower boundary of the histogram in x-direction
-	double maxX_; ///< The upper boundary of the histogram in x-direction
-	double minY_; ///< The lower boundary of the histogram in y-direction
-	double maxY_; ///< The upper boundary of the histogram in y-direction
-
-	tddropt dropt_; ///< The drawing options for 2-d histograms
 };
 
 /*********************************************************************************/
