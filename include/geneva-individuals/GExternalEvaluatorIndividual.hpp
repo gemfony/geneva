@@ -117,15 +117,13 @@ protected:
 public:
 	/** @brief Applies modifications to this object. */
 	virtual bool modify_GUnitTests();
-	/** @brief Adds a number of GDoubleObject objects to the individual */
-	void addGDoubleObjects(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 
 #endif /* GEM_TESTING */
-};
+}; // End of class declaration
 
 } /* namespace Geneva */
 } /* namespace Gem */
