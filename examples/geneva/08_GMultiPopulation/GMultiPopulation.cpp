@@ -163,6 +163,10 @@ int main(int argc, char **argv){
   }
 
   //***************************************************************************
+	// Create a factory for GFunctionIndividual objects and perform
+	// any necessary initial work.
+	GFunctionIndividualFactory gfi("./GFunctionIndividual.json");
+	gfi.init();
 
   // Create the first set of parent populations.
   std::vector<boost::shared_ptr<GBaseEA> > parentPopulations;
@@ -175,7 +179,7 @@ int main(int argc, char **argv){
 
 	  // Create the first set of parent individuals. Initialization of parameters is done randomly.
 	  for(std::size_t psub = 0 ; psub<nParentsSub; psub++) {
-		  boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual::getFunctionIndividual(df);
+		  boost::shared_ptr<GParameterSet> functionIndividual_ptr = gfi();
 
 		  // Set up a GDoubleCollection with dimension values, each initialized
 		  // with a random number in the range [min,max[

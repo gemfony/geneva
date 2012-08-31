@@ -208,43 +208,6 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * A factory function that returns a function individual of the desired type.
-	 *
-	 * @param df The id of the desired function individual
-	 * @return A function individual of the desired type
-	 */
-	static boost::shared_ptr<GFunctionIndividual> getFunctionIndividual(const solverFunction& df) {
-		// Set up a single function individual, depending on the expected function type
-		switch(df) {
-		case PARABOLA:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(PARABOLA));
-			break;
-		case NOISYPARABOLA:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(NOISYPARABOLA));
-			break;
-		case ROSENBROCK:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(ROSENBROCK));
-			break;
-		case ACKLEY:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(ACKLEY));
-			break;
-		case RASTRIGIN:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(RASTRIGIN));
-			break;
-		case SCHWEFEL:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(SCHWEFEL));
-			break;
-		case SALOMON:
-			return boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(SALOMON));
-			break;
-		}
-
-		// Make the compiler happy
-		return boost::shared_ptr<GFunctionIndividual>();
-	}
-
-	/*******************************************************************************************/
-	/**
 	 * This function converts the function id to a string representation. This is a convenience
 	 * function that is mostly used in GArgumentParser.cpp of various Geneva examples.
 	 *

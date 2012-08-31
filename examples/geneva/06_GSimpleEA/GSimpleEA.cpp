@@ -181,11 +181,15 @@ int main(int argc, char **argv){
   pm_ptr->setDrawArrows(drawArrows);
 
   //***************************************************************************
+  // Create a factory for GFunctionIndividual objects and perform
+  // any necessary initial work.
+  GFunctionIndividualFactory gfi("./GFunctionIndividual.json");
+  gfi.init();
 
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
   std::vector<boost::shared_ptr<GParameterSet> > parentIndividuals;
   for(std::size_t p = 0 ; p<nParents; p++) {
-	  boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual::getFunctionIndividual(df);
+	  boost::shared_ptr<GParameterSet> functionIndividual_ptr = gfi();
 
 	  // Set up a GDoubleCollection with dimension values, each initialized
 	  // with a random number in the range [min,max[
