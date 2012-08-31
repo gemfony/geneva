@@ -143,8 +143,6 @@ public:
 	virtual double fitness(const std::size_t&);
 	/** @brief Adapts and evaluates the individual in one go */
 	virtual double adaptAndEvaluate();
-	/** @brief Sets the fitness to a given set of values and clears the dirty flag */
-	virtual void setFitness(const double&, const std::vector<double>&);
 
 	/** @brief Do the required processing for this object */
 	virtual bool process();
@@ -160,8 +158,10 @@ public:
 
 	/** @brief Registers a new, secondary result value of the custom fitness calculation */
 	void registerSecondaryResult(const double&);
-	/** @brief Determines the number of fitness criteria present for individual */
+	/** @brief Determines the overall number of fitness criteria present for this individual */
 	std::size_t getNumberOfFitnessCriteria() const;
+	/** @brief Determines the number of secondary fitness criteria present for this individual */
+	std::size_t getNumberOfSecondaryFitnessCriteria() const;
 	/** @brief Determines whether more than one fitness criterion is present for this individual */
 	bool hasMultipleFitnessCriteria() const;
 
@@ -278,6 +278,8 @@ protected:
 
 	/** @brief The fitness calculation for the main quality criterion takes place here */
 	virtual double fitnessCalculation() = 0;
+	/** @brief Sets the fitness to a given set of values and clears the dirty flag */
+	void setFitness_(const double&, const std::vector<double>&);
 
 	/** @brief The actual adaption operations */
 	virtual void customAdaptions();

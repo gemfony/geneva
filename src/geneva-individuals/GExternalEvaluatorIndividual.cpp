@@ -117,7 +117,8 @@ bool GExternalEvaluatorIndividual::operator!=(const GExternalEvaluatorIndividual
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GExternalEvaluatorIndividual::checkRelationshipWith(const GObject& cp,
+boost::optional<std::string> GExternalEvaluatorIndividual::checkRelationshipWith(
+		const GObject& cp,
 		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
@@ -141,6 +142,22 @@ boost::optional<std::string> GExternalEvaluatorIndividual::checkRelationshipWith
 
 	return evaluateDiscrepancies("GExternalEvaluatorIndividual", caller, deviations, e);
 }
+
+/********************************************************************************************/
+/**
+ * Sets the fitness to a given set of values and clears the dirty flag. This is meant for external
+ * methods of performing the actual evaluation.
+ *
+ * @param f The primary fitness value
+ * @param sec_f_vec A vector of secondary fitness values
+ */
+void GExternalEvaluatorIndividual::setFitness(
+		const double& f
+		, const std::vector<double>& sec_f_vec
+) {
+	GIndividual::setFitness_(f, sec_f_vec);
+}
+
 
 /********************************************************************************************/
 /**

@@ -103,6 +103,9 @@ public:
 			const bool&
 	) const;
 
+	/** @brief Sets the fitness to a given set of values and clears the dirty flag */
+	void setFitness(const double&, const std::vector<double>&);
+
 protected:
 	/** @brief Loads the data of another GExternalEvaluatorIndividual */
 	virtual void load_(const GObject*);

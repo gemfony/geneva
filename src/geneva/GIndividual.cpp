@@ -278,33 +278,6 @@ double GIndividual::adaptAndEvaluate() {
 
 /************************************************************************************************************/
 /**
- * Sets the fitness to a given set of values and clears the dirty flag. This is meant for external
- * methods of performing the actual evaluation.
- *
- * @param f The primary fitness value
- * @param sec_f_vec A vector of secondary fitness values
- */
-void GIndividual::setFitness(const double& f, const std::vector<double>& sec_f_vec) {
-	currentFitness_ = f;
-
-#ifdef DEBUG
-	if(sec_f_vec.size() != currentSecondaryFitness_.size()) {
-		raiseException(
-				"In GIndividual::setFitness(...): Error!" << std::endl
-				<< "Invalid sizes of seconday fitness vector: " << std::endl
-				<< sec_f_vec.size() << " " << currentSecondaryFitness_.size() << std::endl
-		);
-	}
-#endif /* DEBUG */
-
-	currentSecondaryFitness_ = sec_f_vec;
-
-	// Clear the dirty flag
-	setDirtyFlag(false);
-}
-
-/************************************************************************************************************/
-/**
  * Retrieves the cached (not necessarily up-to-date) fitness
  *
  * @param dirtyFlag The value of the dirtyFlag_ variable
@@ -386,12 +359,48 @@ std::size_t GIndividual::getNumberOfFitnessCriteria() const {
 
 /************************************************************************************************************/
 /**
+ * Determines the number of secondary itness criteria present for individual.
+ *
+ * @return The number of secondary fitness criteria registered with this individual
+ */
+std::size_t GIndividual::getNumberOfSecondaryFitnessCriteria() const {
+	return currentSecondaryFitness_.size();
+}
+
+/************************************************************************************************************/
+/**
  * Determines whether more than one fitness criterion is present for this individual
  *
  * @return A boolean indicating whether more than one target function is present
  */
 bool GIndividual::hasMultipleFitnessCriteria() const {
 	return (getNumberOfFitnessCriteria()>1?true:false);
+}
+
+/************************************************************************************************************/
+/**
+ * Sets the fitness to a given set of values and clears the dirty flag. This is meant for external
+ * methods of performing the actual evaluation.
+ *
+ * @param f The primary fitness value
+ * @param sec_f_vec A vector of secondary fitness values
+ */
+void GIndividual::setFitness_(const double& f, const std::vector<double>& sec_f_vec) {
+#ifdef DEBUG
+	if(sec_f_vec.size() != GIndividual::getNumberOfSecondaryFitnessCriteria()) {
+		raiseException(
+				"In GIndividual::setFitness_(...): Error!" << std::endl
+				<< "Invalid size of secondary fitness vector: " << std::endl
+				<< sec_f_vec.size() << " / " << GIndividual::getNumberOfSecondaryFitnessCriteria() << std::endl
+		);
+	}
+#endif /* DEBUG */
+
+	currentFitness_ = f;
+	currentSecondaryFitness_ = sec_f_vec;
+
+	// Clear the dirty flag
+	setDirtyFlag(false);
 }
 
 /************************************************************************************************************/

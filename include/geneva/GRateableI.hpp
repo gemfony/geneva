@@ -67,8 +67,6 @@ public:
 	virtual double fitness() = 0;
 	/** @brief Retrieve a value for this class, using a fitness function with a given id */
 	virtual double fitness(const std::size_t&) = 0;
-	/** @brief Allows to set the fitness through an external application */
-	virtual void setFitness(const double&, const std::vector<double>&) = 0;
 };
 
 } /* namespace Geneva */
