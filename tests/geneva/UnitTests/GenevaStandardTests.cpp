@@ -81,6 +81,7 @@ using namespace boost::unit_test;
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GEvaluator.hpp"
 #include "geneva-individuals/GTestIndividual1.hpp"
+#include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
 
 #include "GStandard_test.hpp"
 
@@ -172,6 +173,7 @@ public:
 
 		typedef boost::mpl::list<
 			Gem::Tests::GTestIndividual1
+			, Gem::Geneva::GExternalEvaluatorIndividual
 		>
 		individual_types;
 

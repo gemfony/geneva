@@ -264,7 +264,23 @@ void GExternalEvaluatorIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent classes' functions
 	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
 
-	/* nothing */
+	{ // Check that we can set the value of this object and that it isn't dirty afterwards
+		double f = 0.; // For the fitness value
+		const double FITNESS = 3.0;
+		boost::shared_ptr<GExternalEvaluatorIndividual> p_test = this->GObject::clone<GExternalEvaluatorIndividual>();
+		boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(1.));
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.,0.6,0.,2.));
+		gdo_ptr->addAdaptor(gdga_ptr);
+		p_test->push_back(gdo_ptr);
+
+		BOOST_CHECK_NO_THROW(p_test->adapt());
+		BOOST_CHECK(p_test->isDirty()); // The dirty flag should be set after mutation
+
+		BOOST_CHECK_NO_THROW(p_test->setFitness(FITNESS,std::vector<double>()));
+		BOOST_CHECK(!p_test->isDirty());
+		BOOST_CHECK_NO_THROW(f = p_test->fitness());
+		BOOST_CHECK(f == FITNESS);
+	}
 }
 
 /******************************************************************/
@@ -280,7 +296,29 @@ void GExternalEvaluatorIndividual::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent classes' functions
 	Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests();
 
-	/* nothing */
+	{ // Check that calling the fitness function throws
+		double f = 0.;
+
+		boost::shared_ptr<GExternalEvaluatorIndividual> p_test = this->GObject::clone<GExternalEvaluatorIndividual>();
+		boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(1.));
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.,0.6,0.,2.));
+		gdo_ptr->addAdaptor(gdga_ptr);
+		p_test->push_back(gdo_ptr);
+
+		BOOST_CHECK_NO_THROW(p_test->adapt());
+		BOOST_CHECK(p_test->isDirty()); // The dirty flag should be set after mutation
+		BOOST_CHECK_THROW(f = p_test->fitness(), Gem::Common::gemfony_error_condition); // No direct evaluation is allowed for this object
+	}
+
+	{ // Check that supplying secondary fitness values when no corresponding variables have been registered throws
+		const double FITNESS = 3.0;
+		boost::shared_ptr<GExternalEvaluatorIndividual> p_test = this->GObject::clone<GExternalEvaluatorIndividual>();
+		std::vector<double> x_vec;
+		x_vec.push_back(1.);
+		x_vec.push_back(2.);
+		x_vec.push_back(3.);
+		BOOST_CHECK_THROW(p_test->setFitness(FITNESS, x_vec), Gem::Common::gemfony_error_condition);
+	}
 }
 
 /******************************************************************/

@@ -403,6 +403,11 @@ void GIndividual::setFitness_(const double& f, const std::vector<double>& sec_f_
 	setDirtyFlag(false);
 }
 
+/* ----------------------------------------------------------------------------------
+ * Throwing and fitness setting is tested in GExternalEvaluatorIndividual
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * (De-)activates the server mode.

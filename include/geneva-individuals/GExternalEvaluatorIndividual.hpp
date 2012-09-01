@@ -34,6 +34,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <vector>
 
 // Boost header files go here
 
@@ -47,6 +48,11 @@
 
 // Geneva header files go here
 #include "geneva/GParameterSet.hpp"
+
+#ifdef GEM_TESTING
+#include "geneva/GDoubleObject.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#endif /* GEM_TESTING */
 
 namespace Gem
 {
