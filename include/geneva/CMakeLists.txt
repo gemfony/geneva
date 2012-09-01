@@ -26,6 +26,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GConstrainedNumCollectionT.hpp
 	GConstrainedNumT.hpp
 	GConstrainedValueLimit.hpp
+	GExternalEvaluatorConsumer.hpp
 	GFloatBiGaussAdaptor.hpp
 	GFloatCollection.hpp
 	GFloatGaussAdaptor.hpp

@@ -663,9 +663,8 @@ void GParameterSet::addConfigurationOptions (
  *
  * @param var_vec A std::vector of user-defined types
  */
-void GParameterSet::custom_streamline(std::vector<boost::any>& var_vec) {
-	/* nothing -- override in user-code */
-}
+void GParameterSet::custom_streamline(std::vector<boost::any>& var_vec)
+{ /* nothing -- override in user-code */ }
 
 #ifdef GEM_TESTING
 /************************************************************************************************************/
@@ -701,8 +700,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		const double MAXGDOUBLE          =  5.;
 		const double MINGDOUBLECOLL      = -3.;
 		const double MAXGDOUBLECOLL      =  3.;
-		const std::size_t NGDOUBLECOLL   = 10 ;
-		const std::size_t FPLOOPCOUNT    =  5 ;
+		const std::size_t NGDOUBLECOLL    = 10 ;
+		const std::size_t FPLOOPCOUNT     =  5 ;
 		const double FPFIXEDVALINITMIN   = -3.;
 		const double FPFIXEDVALINITMAX   =  3.;
 		const double FPMULTIPLYBYRANDMIN = -5.;

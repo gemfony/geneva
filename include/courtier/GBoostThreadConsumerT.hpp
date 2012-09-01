@@ -44,15 +44,6 @@
 #include <boost/cstdint.hpp>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
@@ -74,6 +65,7 @@
 #include "common/GHelperFunctions.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GConsumer.hpp"
+#include "courtier/GSubmissionContainerT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -86,11 +78,15 @@ const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
  * Objects of this class can exist alongside a networked consumer, as the broker
  * accepts more than one consumer. You can thus use this class to aid networked
  * optimization, if the server has spare CPU cores that would otherwise run idle.
+ * The class makes use of the template arguments' process() function.
  */
 template <class processable_type>
 class GBoostThreadConsumerT
 	:public Gem::Courtier::GConsumer
 {
+	// Make sure processable_type adheres to the GSubmissionContainerT interface
+	BOOST_MPL_ASSERT((boost::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>));
+
 public:
 	/***************************************************************/
 	/**
@@ -108,7 +104,7 @@ public:
 	* Standard destructor. Nothing - our threads receive the stop
 	* signal from the broker and shouldn't exist at this point anymore.
 	*/
-	~GBoostThreadConsumerT()
+	virtual ~GBoostThreadConsumerT()
 	{ /* nothing */ }
 
 	/***************************************************************/
@@ -145,7 +141,7 @@ public:
 	* Termination of the threads is triggered by a call to GConsumer::shutdown().
 	*/
 	void async_startProcessing() {
-		gtg_.create_threads(boost::bind(&GBoostThreadConsumerT<processable_type>::processItems,this), maxThreads_);
+		gtg_.create_threads(boost::bind(&GBoostThreadConsumerT<processable_type>::worker, this), maxThreads_);
 	}
 
 	/***************************************************************/
@@ -173,6 +169,30 @@ public:
 	  return std::string("GBoostThreadConsumerT");
 	}
 
+protected:
+	/***************************************************************/
+	/**
+	* Initiate the actual processing. This function assumes that processable_type
+	* has the GSubmissionContainerT interface, which means that it understands the
+	* "process()" call.
+	*
+	* @param p The work item to be processed by this consumer
+	*/
+	inline virtual void processItems(boost::shared_ptr<processable_type> p) {
+		// Do the actual work
+#ifdef DEBUG
+		if(p) p->process();
+		else {
+			raiseException(
+					"In GBoostThreadConsumerT<processable_type>::processItems(): Error!" << std::endl
+					<< "Received empty pointer for processable object" << std::endl
+			);
+		}
+#else
+		p->process();
+#endif /* DEBUG */
+	}
+
 private:
 	GBoostThreadConsumerT(const GBoostThreadConsumerT<processable_type>&); ///< Intentionally left undefined
 	const GBoostThreadConsumerT<processable_type>& operator=(const GBoostThreadConsumerT<processable_type>&); ///< Intentionally left undefined
@@ -185,11 +205,11 @@ private:
 
 	/***************************************************************/
 	/**
-	* The function that gets new items from the broker, processes them
-	* and returns them when finished. As this function is the main
-	* execution point of a thread, we need to catch all exceptions.
+	* The function that gets new items from the broker, initiates processing
+	* and returns them when finished. As this function is the main execution
+	* point of a thread, we need to catch all exceptions.
 	*/
-	void processItems(){
+	void worker() {
 		try{
 			boost::shared_ptr<processable_type> p;
 			Gem::Common::PORTIDTYPE id;
@@ -214,14 +234,14 @@ private:
 				// Check that we indeed got a valid item
 				if(!p) { // We didn't get a valid item after all
 					raiseException(
-						"In GBoostThreadConsumerT<processable_type>::startProcessing(): Error!" << std::endl
+						"In GBoostThreadConsumerT<processable_type>::worker(): Error!" << std::endl
 						<< "Got empty item when it shouldn't be empty!" << std::endl
 					);
 				}
 #endif /* DEBUG */
 
-				// Do the actual work
-				p->process();
+				// Initiate the actual processing
+				this->processItems(p);
 
 				// Return the item to the broker. The item will be discarded
 				// if the requested target queue cannot be found.
@@ -245,24 +265,26 @@ private:
 		}
 		catch(std::exception& e) {
 			std::ostringstream error;
-			error << "In GBoostThreadConsumerT<processable_type>::processItems(): Caught std::exception with message" << std::endl
+			error << "In GBoostThreadConsumerT<processable_type>::worker(): Caught std::exception with message" << std::endl
 			      << e.what() << std::endl;
 			std::cerr << error.str();
 			std::terminate();
 		}
 		catch(boost::exception& e){
 			std::ostringstream error;
-		    error << "In GBoostThreadConsumerT<processable_type>::processItems(): Caught boost::exception with message" << std::endl;
+		    error << "In GBoostThreadConsumerT<processable_type>::worker(): Caught boost::exception with message" << std::endl;
 		    std::cerr << error.str();
 		    std::terminate();
 		}
 		catch(...) {
 			std::ostringstream error;
-			error << "In GBoostThreadConsumerT<processable_type>::processItems(): Caught unknown exception." << std::endl;
+			error << "In GBoostThreadConsumerT<processable_type>::worker(): Caught unknown exception." << std::endl;
 			std::cerr << error.str();
 			std::terminate();
 		}
 	}
+
+	/***************************************************************/
 };
 
 /***************************************************************/

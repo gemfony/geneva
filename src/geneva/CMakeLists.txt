@@ -19,6 +19,7 @@ SET ( OPTIMIZATIONSOURCES
 	GConstrainedFloatObjectCollection
 	GConstrainedInt32Object
 	GConstrainedInt32ObjectCollection
+	GExternalEvaluatorConsumer
 	GFloatBiGaussAdaptor
 	GFloatCollection
 	GFloatGaussAdaptor

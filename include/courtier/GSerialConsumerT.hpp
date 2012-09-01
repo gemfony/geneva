@@ -55,7 +55,7 @@
 namespace Gem {
 namespace Courtier {
 
-/***************************************************************/
+/*******************************************************************/
 /**
  * This class adds a serial consumer to the collection of consumers.
  * This allows to use a single implementation of the available

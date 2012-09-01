@@ -1366,39 +1366,6 @@ private:
     std::vector<std::vector<boost::uint32_t> >  arrivalTimes_; ///< Holds the actual arrival times. Note: Neither serialized nor copied
 
     GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
-
-#ifdef GEM_TESTING
-public:
-    /**********************************************************************************/
-    /**
-     * Applies modifications to this object. This is needed for testing purposes
-     *
-     * @return A boolean which indicates whether modifications were made
-     */
-    bool modify_GUnitTests() {
-    	bool result = false;
-    	return result;
-    }
-
-    /**********************************************************************************/
-    /**
-     * Performs self tests that are expected to succeed. This is needed for testing purposes
-     */
-    void specificTestsNoFailureExpected_GUnitTests() {
-    	/* nothing */
-    }
-
-    /**********************************************************************************/
-    /**
-     * Performs self tests that are expected to fail. This is needed for testing purposes
-     */
-    void specificTestsFailuresExpected_GUnitTests() {
-    	/* nothing */
-    }
-
-    /**********************************************************************************/
-
-#endif /* GEM_TESTING */
 };
 
 /************************************************************************************************************/

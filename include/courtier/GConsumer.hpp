@@ -57,6 +57,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/type_traits.hpp>
 
 #ifndef GCONSUMER_HPP_
 #define GCONSUMER_HPP_
