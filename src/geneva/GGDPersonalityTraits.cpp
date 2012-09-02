@@ -332,7 +332,7 @@ void GGDPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Check that setting any other command than "evaluate" or "adapt" throws
+	{ // Check that setting any other command than "evaluate" or "adaptAndEvaluate" throws
 		boost::shared_ptr<GGDPersonalityTraits> p_test = this->clone<GGDPersonalityTraits>();
 
 		// Try to set an unknown command

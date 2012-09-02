@@ -492,11 +492,11 @@ void GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Check that setting any other command than "evaluate" throws. In particular, "adapt" should throw
+	{ // Check that setting any other command than "evaluate" throws. In particular, "adaptAndEvaluate" should throw
 		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
 
 		// Try to set an unknown command
-		BOOST_CHECK_THROW(p_test->setCommand("adapt"), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->setCommand("adaptAndEvaluate"), Gem::Common::gemfony_error_condition);
 	}
 
 	//------------------------------------------------------------------------------

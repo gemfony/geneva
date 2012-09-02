@@ -311,10 +311,10 @@ boost::tuple<std::size_t, std::size_t> GBrokerEA::markCommands() {
 		}
 	}
 
-	// Mark children. This is the same for all sorting modes. The "adapt" command
+	// Mark children. This is the same for all sorting modes. The "adaptAndEvaluate" command
 	// comprises both mutation and evaluation
 	for(it=data.begin() + np; it!=data.end(); ++it) {
-		(*it)->getPersonalityTraits()->setCommand("adapt");
+		(*it)->getPersonalityTraits()->setCommand("adaptAndEvaluate");
 	}
 
 	return boost::make_tuple<std::size_t, std::size_t>(start, end);

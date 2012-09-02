@@ -411,7 +411,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Check the effects of the process function in EA mode, using the "adapt" call, with one allowed processing cycle
+	{ // Check the effects of the process function in EA mode, using the "adaptAndEvaluate" call, with one allowed processing cycle
 		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
 
 		// Make sure our individuals are clean and evaluated
@@ -419,9 +419,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		boost::shared_ptr<GTestIndividual1> p_test_orig = p_test->clone<GTestIndividual1>();
 
 		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
-		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("adapt"));
+		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("adaptAndEvaluate"));
 		BOOST_CHECK_NO_THROW(p_test_orig->setPersonality(Gem::Geneva::PERSONALITY_EA));
-		BOOST_CHECK_NO_THROW(p_test_orig->getPersonalityTraits()->setCommand("adapt"));
+		BOOST_CHECK_NO_THROW(p_test_orig->getPersonalityTraits()->setCommand("adaptAndEvaluate"));
 
 		// Cross check that both individuals are indeed currently equal
 		BOOST_CHECK(*p_test == *p_test_orig);
@@ -448,7 +448,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Check the effects of the process function in EA mode, using the "adapt" call, with multiple allowed processing cycles, in an iteration > 0
+	{ // Check the effects of the process function in EA mode, using the "adaptAndEvaluate" call, with multiple allowed processing cycles, in an iteration > 0
 		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
 
 		// Make sure our individuals are clean and evaluated
@@ -456,9 +456,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		boost::shared_ptr<GTestIndividual1> p_test_orig = p_test->clone<GTestIndividual1>();
 
 		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
-		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("adapt"));
+		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("adaptAndEvaluate"));
 		BOOST_CHECK_NO_THROW(p_test_orig->setPersonality(Gem::Geneva::PERSONALITY_EA));
-		BOOST_CHECK_NO_THROW(p_test_orig->getPersonalityTraits()->setCommand("adapt"));
+		BOOST_CHECK_NO_THROW(p_test_orig->getPersonalityTraits()->setCommand("adaptAndEvaluate"));
 
 		// Cross check that both individuals are indeed currently equal
 		BOOST_CHECK(*p_test == *p_test_orig);
@@ -907,12 +907,12 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 #ifdef DEBUG
-	{ // Trying to run the process call on a dirty individual with the "adapt" command,
+	{ // Trying to run the process call on a dirty individual with the "adaptAndEvaluate" command,
 		// using multiple processing cycles in an iteration > 0 should throw in DEBUG mode
 		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
 
 		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
-		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("adapt"));
+		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("adaptAndEvaluate"));
 
 		// Make sure the individual is dirty
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());

@@ -284,7 +284,7 @@ std::size_t GEAPersonalityTraits::getPopulationPosition(void) const {
  * @param command The command to be performed by a remote client
  */
 void GEAPersonalityTraits::setCommand(const std::string& command) {
-	if(command != "evaluate" && command != "adapt") { // The allowed "grammar"
+	if(command != "evaluate" && command != "adaptAndEvaluate") { // The allowed "grammar"
 		raiseException(
 				"In GEAPersonalityTraits::setCommand(): Got invalid command " << command
 		);
@@ -524,8 +524,8 @@ void GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->setCommand("evaluate"));
 		BOOST_CHECK(p_test->getCommand() == "evaluate");
 
-		BOOST_CHECK_NO_THROW(p_test->setCommand("adapt"));
-		BOOST_CHECK(p_test->getCommand() == "adapt");
+		BOOST_CHECK_NO_THROW(p_test->setCommand("adaptAndEvaluate"));
+		BOOST_CHECK(p_test->getCommand() == "adaptAndEvaluate");
 	}
 
 	//------------------------------------------------------------------------------
@@ -572,7 +572,7 @@ void GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Check that setting any other command than "evaluate" or "adapt" throws
+	{ // Check that setting any other command than "evaluate" or "adaptAndEvaluate" throws
 		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
 
 		// Try to set an unknown command

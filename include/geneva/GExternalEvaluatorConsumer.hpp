@@ -82,7 +82,7 @@ public:
 	virtual ~GExternalEvaluatorConsumer();
 
 	/** @brief An overloaded version of GBoostThreadConsumerT<>'s main processing function */
-	inline virtual void processItems(boost::shared_ptr<Gem::Geneva::GIndividual>);
+	virtual void processItems(boost::shared_ptr<Gem::Geneva::GIndividual>);
 
 	/** @brief Identify this consumer */
 	virtual std::string getConsumerName() const;
@@ -93,7 +93,10 @@ protected:
 	 * by derived classes. Note that it is called from within multiple threads, so it may only
 	 * access thread-safe resources.
 	 */
-	inline virtual void customProcessItems(boost::shared_ptr<GExternalEvaluatorIndividual>) = 0;
+	virtual double customProcessItems(
+			boost::shared_ptr<GExternalEvaluatorIndividual>
+			, std::vector<double>&
+	) = 0;
 };
 
 } /* namespace Geneva */

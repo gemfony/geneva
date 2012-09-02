@@ -74,7 +74,11 @@ void GExternalEvaluatorConsumer::processItems(boost::shared_ptr<Gem::Geneva::GIn
 #endif /* DEBUG */
 
 	// Initiate the actual processing
-	customProcessItems(p_conv);
+	std::vector<double> sec_f_vec;
+	double f = customProcessItems(p_conv, sec_f_vec);
+
+	// Set the individual's fitness
+	p_conv->setFitness(f, sec_f_vec);
 }
 
 /*******************************************************************/
