@@ -56,7 +56,7 @@ namespace Geneva {
 /*********************************************************************************/
 /**
  * This class adds variables and functions to GPersonalityTraits that are specific
- * to evolutionary algorithms.
+ * to gradient descents.
  */
 class GGDPersonalityTraits :public GPersonalityTraits
 {

@@ -60,7 +60,7 @@ class GParameterSet;
 /*********************************************************************************/
 /**
  * This class adds variables and functions to GPersonalityTraits that are specific
- * to evolutionary algorithms.
+ * to swarm optimization.
  */
 class GSwarmPersonalityTraits :public GPersonalityTraits
 {
