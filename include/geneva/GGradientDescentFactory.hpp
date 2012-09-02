@@ -62,7 +62,7 @@ namespace Geneva
 
 /*******************************************************************************************/
 /**
- * This class is a specialization of the GFactoryT<> class for evolutionary algorithms.
+ * This class is a specialization of the GFactoryT<> class for gradient descents.
  */
 class GGradientDescentFactory
 	: public GOptimizationAlgorithmFactoryT<GBaseGD>
