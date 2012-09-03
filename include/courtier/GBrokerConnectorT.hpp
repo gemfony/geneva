@@ -52,6 +52,9 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/date_time.hpp>
+#include <boost/date_time/gregorian/greg_serialize.hpp>
+#include <boost/date_time/posix_time/time_serialize.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -59,9 +62,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
-#include <boost/date_time.hpp>
-#include <boost/date_time/gregorian/greg_serialize.hpp>
-#include <boost/date_time/posix_time/time_serialize.hpp>
+#include <boost/tuple/tuple.hpp>
 #include <boost/utility/enable_if.hpp>
 
 #ifndef GBROKERCONNECTORT_HPP_
@@ -525,6 +526,42 @@ public:
 			return false; // Make the compiler happy
 			break;
     	}
+    }
+
+	/*********************************************************************************/
+    /**
+     * A wrapper for workOn that accepts a boost::tuple for the range
+     *
+     * @param workItems A vector with work items to be evaluated beyond the broker
+     * @param range The range inside of the vector for which evaluation should take place
+     * @param srm An enum indicating whether all submitted items may return, or some may be missing
+     * @return A boolean indicating whether all expected items have returned
+     */
+    template <typename work_item>
+    bool workOn(
+    	std::vector<boost::shared_ptr<work_item> >& workItems
+    	, const boost::tuple<std::size_t,std::size_t>& range
+    	, const submissionReturnMode& srm = ACCEPTOLDERITEMS
+    	, typename boost::enable_if<boost::is_base_of<T, work_item> >::type* dummy = 0
+    ) {
+    	return workOn(workItems, boost::get<0>(range), boost::get<1>(range), srm);
+    }
+
+	/*********************************************************************************/
+    /**
+     * A wrapper for workOn that acts on the entire vector
+     *
+     * @param workItems A vector with work items to be evaluated beyond the broker
+     * @param srm An enum indicating whether all submitted items may return, or some may be missing
+     * @return A boolean indicating whether all expected items have returned
+     */
+    template <typename work_item>
+    bool workOn(
+    	std::vector<boost::shared_ptr<work_item> >& workItems
+    	, const submissionReturnMode& srm = ACCEPTOLDERITEMS
+    	, typename boost::enable_if<boost::is_base_of<T, work_item> >::type* dummy = 0
+    ) {
+    	return workOn(workItems, (std::size_t)0, workItems.size(), srm);
     }
 
 	/*********************************************************************************/

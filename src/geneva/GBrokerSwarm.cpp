@@ -333,8 +333,6 @@ void GBrokerSwarm::updateFitness() {
 	// Now submit work items and wait for results
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
 			data
-			, 0
-			, data.size()
 			, ACCEPTOLDERITEMS
 	);
 

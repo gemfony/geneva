@@ -263,8 +263,7 @@ void GBrokerEA::adaptChildren() {
 	// Now submit work items and wait for results.
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
 			data
-			, boost::get<0>(range)
-			, boost::get<1>(range)
+			, range
 			, Gem::Courtier::ACCEPTOLDERITEMS
 	);
 

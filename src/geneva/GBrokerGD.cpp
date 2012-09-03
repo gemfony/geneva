@@ -319,10 +319,10 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
+	boost::tuple<std::size_t,std::size_t> range(0, finalPos);
 	complete = GBrokerConnectorT<GIndividual>::workOn(
 			data
-			, 0
-			, finalPos
+			, range
 			, EXPECTFULLRETURN
 	);
 
