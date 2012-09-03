@@ -114,9 +114,10 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
 
-	/** @brief Overloaded version from GSerialEA,
-	 * core of the Boost-thread implementation */
+	/** @brief Adapt children in a serial manner */
 	virtual void adaptChildren();
+	/** @brief Evaluates all children (and possibly parents) of this population */
+	virtual void evaluateChildren();
 
 	/** @brief Necessary initialization work before the start of the optimization */
 	virtual void init();

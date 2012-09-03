@@ -48,6 +48,7 @@ namespace Geneva
 GBrokerEA::GBrokerEA()
 	: GBaseEA()
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
+	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA)))
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -59,6 +60,7 @@ GBrokerEA::GBrokerEA()
 GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	: GBaseEA(cp)
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
+	, nThreads_(cp.nThreads_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -95,7 +97,10 @@ void GBrokerEA::load_(const GObject * cp) {
 	GBaseEA::load_(cp);
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::load(p_load);
 
-	// no local data
+	// ... and then our own
+	nThreads_ = p_load->nThreads_;
+
+	// Note that we do not copy storedServerMode_ as it is used for internal caching only
 }
 
 /************************************************************************************************************/
@@ -168,7 +173,8 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
 	deviations.push_back(GBaseEA::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
 	deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
 
-	// ... no local data
+	// ... and then our local data
+	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
 
 	return evaluateDiscrepancies("GBrokerEA", caller, deviations, e);
 }
@@ -197,6 +203,9 @@ void GBrokerEA::init() {
 
 	// GBaseEA sees exactly the environment it would when called from its own class
 	GBaseEA::init();
+
+	// Initialize our thread pool
+	tp_.reset(new Gem::Common::GThreadPool(nThreads_));
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -231,6 +240,9 @@ void GBrokerEA::finalize() {
 		(*it)->setServerMode(storedServerMode_);
 	}
 
+	// Terminate our thread pool
+	tp_.reset();
+
 	// GBaseEA sees exactly the environment it would when called from its own class
 	GBaseEA::finalize();
 }
@@ -248,16 +260,31 @@ bool GBrokerEA::usesBroker() const {
 
 /************************************************************************************************************/
 /**
- * We submit individuals  to the broker and wait for processed items. In the first iteration, in the case of
- * the MUPLUSNU_SINGLEEVAL sorting strategy, also the fitness of the parents is calculated. The type of
- * command intended to be executed on the individuals is stored in the individual.
+ * Adapt all children in parallel. Evaluation is done in a seperate function (evaluateChildren).
  */
-void GBrokerEA::adaptChildren() {
+void GBrokerEA::adaptChildren()
+{
+	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+
+	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
+		tp_->schedule(boost::function<void()>(boost::bind(&GIndividual::adapt, *it)));
+	}
+
+	// Wait for all threads in the pool to complete their work
+	tp_->wait();
+}
+
+/************************************************************************************************************/
+/**
+ * We submit individuals to the broker and wait for processed items.
+ */
+void GBrokerEA::evaluateChildren() {
 	//--------------------------------------------------------------------------------
 	// Start by marking the work to be done in the individuals.
 	// "range" will hold the start- and end-points of the range
 	// to be worked on
-	boost::tuple<std::size_t, std::size_t> range = markCommands();
+	boost::tuple<std::size_t, std::size_t> range = getEvaluationRange();
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
@@ -268,54 +295,8 @@ void GBrokerEA::adaptChildren() {
 	);
 
 	//--------------------------------------------------------------------------------
-	// Now fix the population
+	// Now fix the population -- it may be smaller than its nominal size
 	fixAfterJobSubmission();
-}
-
-/************************************************************************************************************/
-/**
- * Mark the commands each individual has to work on.
- *
- * @return A boost::tuple holding the start- and end-points for the job submission
- */
-boost::tuple<std::size_t, std::size_t> GBrokerEA::markCommands() {
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	std::size_t np = getNParents();
-
-	std::size_t start = np; // Where the evaluation starts
-	std::size_t end = data.size(); // Where the evaluation ends
-
-	//--------------------------------------------------------------------------------
-	// Start by marking the work to be done
-
-	// In the first iteration, depending on the selection mode, parents need to be evaluated as well
-	if(inFirstIteration()) {
-		switch(getSortingScheme()) {
-		case SA_SINGLEEVAL:
-		case MUPLUSNU_SINGLEEVAL:
-		case MUPLUSNU_PARETO:
-		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
-		case MUNU1PRETAIN_SINGLEEVAL: // same procedure. We do not know which parent is best
-			start = 0; // We want to evaluate parents as well
-
-			// Note that we only have parents left in this iteration
-			for(it=data.begin(); it!=data.begin() + np; ++it) {
-				(*it)->getPersonalityTraits()->setCommand("evaluate");
-			}
-			break;
-
-		case MUCOMMANU_SINGLEEVAL:
-			break;
-		}
-	}
-
-	// Mark children. This is the same for all sorting modes. The "adaptAndEvaluate" command
-	// comprises both mutation and evaluation
-	for(it=data.begin() + np; it!=data.end(); ++it) {
-		(*it)->getPersonalityTraits()->setCommand("adaptAndEvaluate");
-	}
-
-	return boost::make_tuple<std::size_t, std::size_t>(start, end);
 }
 
 /************************************************************************************************************/
@@ -355,7 +336,7 @@ void GBrokerEA::fixAfterJobSubmission() {
 		}
 	}
 
-	// We care for too many returned individuals in the select() function. Older
+	// We care for too many returned individuals in the selectBest() function. Older
 	// individuals might nevertheless have a better quality. We do not want to loose them.
 }
 
@@ -365,12 +346,23 @@ void GBrokerEA::fixAfterJobSubmission() {
  * of individuals. More individuals are allowed. the population will be
  * resized to nominal values at the end of this function.
  */
-void GBrokerEA::select() {
+void GBrokerEA::selectBest() {
 	////////////////////////////////////////////////////////////
 	// Great - we are at least at the default level and are
-	// ready to call the actual select() function. This will
+	// ready to call the actual selectBest() function. This will
 	// automatically take care of the selection modes.
-	GBaseEA::select();
+	GBaseEA::selectBest();
+
+#ifdef DEBUG
+	// Make sure our population is not smaller than its nominal size -- this
+	// should have been taken care of in fixAfterJobSubmission() .
+	if(data.size() < getDefaultPopulationSize()) {
+		raiseException(
+			"In GBrokerEA::selectBest(): Error!" << std::endl
+			<< "Size of population is smaller than expected: " << data.size() << " / " << getDefaultPopulationSize() << std::endl
+		);
+	}
+#endif /* DEBUG */
 
 	////////////////////////////////////////////////////////////
 	// At this point we have a sorted list of individuals and can take care of
@@ -392,11 +384,54 @@ void GBrokerEA::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
+	std::string comment;
+
 	// Call our parent class'es function
 	GBaseEA::addConfigurationOptions(gpb, showOrigin);
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 
-	// no local data
+	// Add local data
+	comment = ""; // Reset the comment string
+	comment += "The number of threads used to simultaneously adapt individuals;";
+	if(showOrigin) comment += "[GBrokerEA]";
+	gpb.registerFileParameter<boost::uint16_t>(
+		"nEvaluationThreads" // The name of the variable
+		, 0 // The default value
+		, boost::bind(
+			&GBrokerEA::setNThreads
+			, this
+			, _1
+		  )
+		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+		, comment
+	);
+}
+
+/************************************************************************************************************/
+/**
+ * Sets the number of threads this population uses for adaption. If nThreads is set
+ * to 0, an attempt will be made to set the number of threads to the number of hardware
+ * threading units (e.g. number of cores or hyperthreading units).
+ *
+ * @param nThreads The number of threads this class uses
+ */
+void GBrokerEA::setNThreads(boost::uint16_t nThreads) {
+	if(nThreads == 0) {
+		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA));
+	}
+	else {
+		nThreads_ = nThreads;
+	}
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieves the number of threads this population uses for adaption
+ *
+ * @return The maximum number of allowed threads
+ */
+boost::uint16_t GBrokerEA::getNThreads() const  {
+	return nThreads_;
 }
 
 /************************************************************************************************************/

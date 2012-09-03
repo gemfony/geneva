@@ -46,12 +46,13 @@
 #endif
 
 // Geneva headers go here
-#include "common/GExceptions.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GBrokerConnectorT.hpp"
 #include "geneva/GEAPersonalityTraits.hpp"
 #include "geneva/GBaseEA.hpp"
 #include "geneva/GIndividual.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GThreadPool.hpp"
 
 // TODO Move GBrokerConnectorT include to this class
 
@@ -82,7 +83,8 @@ namespace Geneva
       using boost::serialization::make_nvp;
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseEA)
-         & make_nvp("GBrokerConnectorT_GIndividual", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this));
+         & make_nvp("GBrokerConnectorT_GIndividual", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this))
+         & BOOST_SERIALIZATION_NVP(nThreads_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -114,6 +116,11 @@ namespace Geneva
 		, const bool& showOrigin
 	);
 
+	/** @brief Sets the maximum number of threads */
+	void setNThreads(boost::uint16_t);
+	/** @brief Retrieves the maximum number of threads */
+	uint16_t getNThreads() const ;
+
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
 	virtual std::string getIndividualCharacteristic() const;
 
@@ -123,10 +130,12 @@ namespace Geneva
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone_() const;
 
-    /** @brief Adapts all children in sequence */
-    virtual void adaptChildren();
+	/** @brief Adapt children in a serial manner */
+	virtual void adaptChildren();
+	/** @brief Evaluates all children (and possibly parents) of this population */
+	virtual void evaluateChildren();
     /** @brief Selects new parents */
-    virtual void select();
+    virtual void selectBest();
 
 	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
 	virtual void init();
@@ -136,7 +145,10 @@ namespace Geneva
   private:
     /*********************************************************************************/
 
+	boost::uint16_t nThreads_; ///< The number of threads
 	bool storedServerMode_; ///< Indicates whether an individual runs in server mode
+
+	boost::shared_ptr<Gem::Common::GThreadPool> tp_; ///< Temporarily holds a thread pool
 
     /*********************************************************************************/
     /**
@@ -180,8 +192,7 @@ namespace Geneva
     };
 
     /*********************************************************************************/
-    /** @brief Mark the commands each individual has to work on */
-    boost::tuple<std::size_t, std::size_t> markCommands();
+
     /** @brief Fixes the population after a job submission */
     void fixAfterJobSubmission();
 

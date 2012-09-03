@@ -220,70 +220,33 @@ std::string GSerialEA::getIndividualCharacteristic() const {
 
 /************************************************************************************************************/
 /**
- * Adapt all children in sequence. Note that this also triggers their value
- * calculation, so this function needs to be overloaded for optimization in a
- * network context.
+ * Adapt all children in sequence. Evaluation is done in a seperate function (evaluateChildren).
  */
 void GSerialEA::adaptChildren()
 {
-	std::size_t nParents = GBaseEA::getNParents();
+	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
-	// We start with the parents, if this is the first iteration. Their
-	// initial fitness needs to be determined in some selection models.
-	// Make sure we also evaluate the parents in the first iteration, if needed.
-	if(inFirstIteration()) {
-		switch(getSortingScheme()) {
-		//--------------------------------------------------------------
-		case SA_SINGLEEVAL:
-		case MUPLUSNU_SINGLEEVAL:
-		case MUPLUSNU_PARETO:
-		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
-		case MUNU1PRETAIN_SINGLEEVAL: // same procedure. We do not know which parent is best
-			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
-				// Make re-evaluation accessible
-				(*it)->setServerMode(false);
-				// Perform the actual evaluation
-				(*it)->doFitnessCalculation();
-			}
-			break;
-
-		case MUCOMMANU_SINGLEEVAL:
-			break; // nothing
-		}
+	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
+		(*it)->adapt();
 	}
+}
 
-	// Next we perform the adaption of each child individual in
-	// sequence. Note that this can also trigger fitness calculation.
-	for(it=data.begin()+nParents; it!=data.end(); ++it) {
+/************************************************************************************************************/
+/**
+ * Evaluate all children (and possibly parents, depending on the iteration)
+ */
+void GSerialEA::evaluateChildren()
+{
+	boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+
+	for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
 		// Make re-evaluation accessible
 		(*it)->setServerMode(false);
-		// Perform the actual work
-		(*it)->adaptAndEvaluate();
-	}
-
-	// Restart the server mode for parents
-	if(inFirstIteration()) {
-		switch(getSortingScheme()) {
-		//--------------------------------------------------------------
-		case SA_SINGLEEVAL:
-		case MUPLUSNU_SINGLEEVAL:
-		case MUPLUSNU_PARETO:
-		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
-		case MUNU1PRETAIN_SINGLEEVAL: // same procedure
-			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
-				// Make re-evaluation impossible
-				(*it)->setServerMode(true);
-			}
-			break;
-
-		case MUCOMMANU_SINGLEEVAL:
-			break; // nothing
-		}
-	}
-
-	// Restart the server mode for children
-	for(it=data.begin()+nParents; it!=data.end(); ++it) {
+		// Perform the actual evaluation
+		(*it)->doFitnessCalculation();
+		// Make re-evaluation impossible
 		(*it)->setServerMode(true);
 	}
 }

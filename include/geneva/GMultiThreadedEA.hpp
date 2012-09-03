@@ -57,9 +57,6 @@
 namespace Gem {
 namespace Geneva {
 
-/** @brief The default number of threads for parallelization with boost */
-const boost::uint16_t DEFAULTBOOSTTHREADSEA = 2;
-
 /********************************************************************/
 /**
  * A multi-threaded population based on GBaseEA. This version
@@ -100,11 +97,6 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Necessary initialization work before the start of the optimization */
-	virtual void init();
-	/** @brief Necessary clean-up work after the optimization has finished */
-	virtual void finalize();
-
 	/** @brief Sets the maximum number of threads */
 	void setNThreads(boost::uint16_t);
 	/** @brief Retrieves the maximum number of threads */
@@ -125,9 +117,15 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
 
-	/** @brief Overloaded version from GBaseEA,
-	 * core of the Boost-thread implementation */
+	/** @brief Necessary initialization work before the start of the optimization */
+	virtual void init();
+	/** @brief Necessary clean-up work after the optimization has finished */
+	virtual void finalize();
+
+	/** @brief Adapt children in a serial manner */
 	virtual void adaptChildren();
+	/** @brief Evaluates all children (and possibly parents) of this population */
+	virtual void evaluateChildren();
 
 private:
 	boost::uint16_t nThreads_; ///< The number of threads

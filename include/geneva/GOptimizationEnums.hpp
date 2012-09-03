@@ -62,6 +62,10 @@ namespace Gem {
 namespace Geneva {
 
 /**********************************************************************************************/
+/** @brief The default number of threads for parallelization with boost */
+const boost::uint16_t DEFAULTBOOSTTHREADSEA = 2;
+
+/**********************************************************************************************/
 /**
  * The default population size in evolutionary algorithms
  */

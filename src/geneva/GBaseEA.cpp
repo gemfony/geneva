@@ -548,8 +548,10 @@ double GBaseEA::cycleLogic() {
 
 	// create new children from parents
 	recombine();
-	// adapt children and calculate their (and possibly their parent's) values
+	// adapt children
 	adaptChildren();
+	// calculate the childrens' (and possibly their parents' values)
+	evaluateChildren();
 
 	// Create a copy of the old parents, if requested
 	if(logOldParents_) {
@@ -563,7 +565,7 @@ double GBaseEA::cycleLogic() {
 	}
 
 	// find out the best individuals of the population
-	select();
+	selectBest();
 
 	boost::uint32_t stallCounter = getStallCounter();
 	if(microTrainingInterval_ && stallCounter && stallCounter%microTrainingInterval_ == 0) {
@@ -1185,7 +1187,7 @@ void GBaseEA::valueRecombine(boost::shared_ptr<GIndividual>& p, const std::vecto
 /**
  * Choose new parents, based on the selection scheme set by the user.
  */
-void GBaseEA::select()
+void GBaseEA::selectBest()
 {
 #ifdef DEBUG
 	// We require at this stage that at least the default number of
@@ -1240,6 +1242,63 @@ void GBaseEA::select()
 
 	// Let parents know they are parents
 	markParents();
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieves the adaption range in a given iteration and sorting scheme.
+ *
+ * @return The range inside which adaption should take place
+ */
+boost::tuple<std::size_t,std::size_t> GBaseEA::getAdaptionRange() const {
+	std::size_t nParents = GBaseEA::getNParents();
+	std::size_t first=nParents, last=data.size();
+	return boost::tuple<std::size_t, std::size_t>(first, last);
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieves the evaluation range in a given iteration and sorting scheme. Depending on the
+ * iteration and sorting scheme, the start point will be different. The end-point is not meant
+ * to be inclusive.
+ *
+ * @return The range inside which evaluation should take place
+ */
+boost::tuple<std::size_t,std::size_t> GBaseEA::getEvaluationRange() const {
+	std::size_t first=0, last=data.size();
+	std::size_t nParents = GBaseEA::getNParents();
+
+	if(inFirstIteration()) {
+		switch(getSortingScheme()) {
+		//--------------------------------------------------------------
+		case SA_SINGLEEVAL:
+		case MUPLUSNU_SINGLEEVAL:
+		case MUPLUSNU_PARETO:
+		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
+		case MUNU1PRETAIN_SINGLEEVAL: // same procedure. We do not know which parent is best
+		{
+			first = 0;
+		}
+			break;
+
+		case MUCOMMANU_SINGLEEVAL: // No evaluation of parents is necessary
+		{
+			first = nParents;
+		}
+			break; // nothing
+
+		default:
+		{
+			raiseException(
+				"In GBaseEA::getEvaluationRange(): Error" << std::endl
+				<< "Incorrect sorting scheme requested: " << getSortingScheme() << std::endl
+			);
+		}
+			break;
+		}
+	}
+
+	return boost::tuple<std::size_t, std::size_t>(first, last);
 }
 
 /************************************************************************************************************/

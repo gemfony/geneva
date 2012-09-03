@@ -813,64 +813,6 @@ bool GIndividual::process(){
 	if(getPersonalityTraits()->getCommand() == "evaluate") {
 		doFitnessCalculation();
 		gotUsableResult = true;
-	} else if(getPersonalityTraits()->getCommand() == "adaptAndEvaluate") {
-		if(pers_ != PERSONALITY_EA) {
-			raiseException(
-				"In GIndividual::process(); adaptAndEvaluate command" << std::endl
-				<< "requested for personality " << pers_ << std::endl
-			);
-		}
-
-		if(processingCycles_ == 1 || getAssignedIteration() == 0) {
-			adaptAndEvaluate();
-			gotUsableResult = true;
-		} else{
-			// Retrieve this object's current fitness.
-			bool isDirty=false;
-			double originalFitness = getCachedFitness(isDirty);
-
-#ifdef DEBUG
-			// Individuals that arrive here for adaption should be "clean"
-			if(isDirty) {
-				raiseException(
-						"In GIndividual::process(): Dirty flag set when it shouldn't be!"
-				);
-			}
-#endif /* DEBUG */
-
-			// Record the number of processing cycles
-			boost::uint32_t nCycles=0;
-
-			// Will hold a copy of this object
-			boost::shared_ptr<GIndividual> p;
-
-			// Indicates whether a better solution was found
-			bool success = false;
-
-			// Loop until a better solution was found or the maximum number of attempts was reached
-			while(true) {
-				// Create a copy of this object
-				p = GObject::clone<GIndividual>();
-
-				// Adapt and check fitness. Leave if a better solution was found
-				p->adapt();
-				p->doFitnessCalculation();
-				if((!maximize_ && p->fitness(0) < originalFitness) || (maximize_ && p->fitness(0) > originalFitness))	{
-					success = true;
-					break;
-				}
-
-				// Leave if the maximum number of cycles was reached. Will continue
-				// to loop if processingCycles_ is 0 (dangerous!)
-				if(processingCycles_ && nCycles++ >= processingCycles_) break;
-			}
-
-			// Load the last tested solution into this object
-			GObject::load(p);
-
-			// If a better solution was found, let the audience know
-			if(success) gotUsableResult = true;
-		}
 	} else {
 		raiseException(
 				"In GIndividual::process(): Unknown command: \""
@@ -887,12 +829,6 @@ bool GIndividual::process(){
 	// Let the audience know
 	return gotUsableResult;
 }
-
-/* ----------------------------------------------------------------------------------
- * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
- * Tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
 
 /************************************************************************************************************/
 /**

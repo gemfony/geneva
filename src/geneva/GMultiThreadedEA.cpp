@@ -226,86 +226,41 @@ void GMultiThreadedEA::finalize() {
 
 /************************************************************************************************************/
 /**
- * An overloaded version of GBaseEA::adaptChildren() -- which itself is a purely virtual
- * function. Adaption and evaluation of children is handled by threads in a thread pool.
- * The maximum number of threads is DEFAULTBOOSTTHREADSEA (possibly 2) and can be overridden
- * with the GMultiThreadedEA::setMaxThreads() function.
+ * Adapt all children in parallel. Evaluation is done in a seperate function (evaluateChildren).
  */
-void GMultiThreadedEA::adaptChildren() {
-	std::size_t nParents = GBaseEA::getNParents();
+void GMultiThreadedEA::adaptChildren()
+{
+	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
-	// We start with the parents, if this is the first iteration. Their
-	// initial fitness needs to be determined in some selection models.
-	// Make sure we also evaluate the parents in the first iteration, if needed.
-	if(inFirstIteration()) {
-		switch(getSortingScheme()) {
-		//--------------------------------------------------------------
-		case SA_SINGLEEVAL:
-		case MUPLUSNU_SINGLEEVAL:
-		case MUPLUSNU_PARETO:
-		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
-		case MUNU1PRETAIN_SINGLEEVAL: // same procedure. We do not know which parent is best
-		{
-			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
-				// Make re-evaluation accessible
-				(*it)->setServerMode(false);
-				// Schedule the actual job; enforce fitness calculation of parents
-				tp_->schedule(boost::function<double()>(boost::bind(&GIndividual::doFitnessCalculation, *it)));
-			}
-		}
-		break;
-
-		case MUCOMMANU_SINGLEEVAL:
-			break; // nothing
-
-		default:
-		{
-			raiseException(
-					"In GMultiThreadedEA::adaptChildren(): Error!" << std::endl
-					<< "Invalid sorting scheme requested: " << getSortingScheme() << std::endl
-			);
-		}
-		break;
-		}
+	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
+		tp_->schedule(boost::function<void()>(boost::bind(&GIndividual::adapt, *it)));
 	}
 
-	// Next we adapt the children
-	for(it=data.begin()+nParents; it!=data.end(); ++it) {
-		// Make re-evaluation accessible
+	// Wait for all threads in the pool to complete their work
+	tp_->wait();
+}
+
+/************************************************************************************************************/
+/**
+ * Evaluate all children (and possibly parents, depending on the iteration and sorting mode) in parallel
+ */
+void GMultiThreadedEA::evaluateChildren()
+{
+	boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+
+	// Make evaluation possible and initiate the worker threads
+	for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
 		(*it)->setServerMode(false);
-		// Schedule the actual job
-		tp_->schedule(boost::function<double()>(boost::bind(&GIndividual::adaptAndEvaluate, *it)));
+		tp_->schedule(boost::function<double()>(boost::bind(&GIndividual::doFitnessCalculation, *it)));
 	}
 
-	// ... and wait for all tasks to complete
+	// Wait for all threads in the pool to complete their work
 	tp_->wait();
 
-	// Restart the server mode for parents
-	if(inFirstIteration()) {
-		switch(getSortingScheme()) {
-		//--------------------------------------------------------------
-		case SA_SINGLEEVAL:
-		case MUPLUSNU_SINGLEEVAL:
-		case MUPLUSNU_PARETO:
-		case MUCOMMANU_PARETO: // The current setup will still allow s	ome old parents to become new parents
-		case MUNU1PRETAIN_SINGLEEVAL: // same procedure
-			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
-				// Make re-evaluation impossible
-				(*it)->setServerMode(true);
-			}
-			break;
-
-		case MUCOMMANU_SINGLEEVAL:
-			break; // nothing
-
-			// No default clause as corresponding errors will have been caught already
-			// in the first switch statement
-		}
-	}
-
-	// Restart the server mode for children
-	for(it=data.begin()+nParents; it!=data.end(); ++it) {
+	// Make re-evaluation impossible
+	for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
 		(*it)->setServerMode(true);
 	}
 }

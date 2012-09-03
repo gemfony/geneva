@@ -37,6 +37,7 @@
 // Standard headers go here
 
 // Boost headers go here
+#include <boost/tuple/tuple.hpp>
 
 #ifndef GEVOLUTIONARYALGORITHM_HPP_
 #define GEVOLUTIONARYALGORITHM_HPP_
@@ -336,8 +337,15 @@ protected:
 	virtual void recombine();
 	/** @brief Adapts all children of this population */
 	virtual void adaptChildren() = 0;
+	/** @brief Evaluates all children (and possibly parents) of this population */
+	virtual void evaluateChildren() = 0;
 	/** @brief Selects the best children of the population */
-	virtual void select();
+	virtual void selectBest();
+
+	/** @brief Retrieves the adaption range in a given iteration and sorting scheme */
+	boost::tuple<std::size_t,std::size_t> getAdaptionRange() const;
+	/** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
+	boost::tuple<std::size_t,std::size_t> getEvaluationRange() const;
 
 	/** @brief Marks parents as parents and children as children */
 	void markParents();
