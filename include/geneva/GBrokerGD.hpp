@@ -147,7 +147,7 @@ private:
 
     /*********************************************************************************/
 
-    bool serverMode_; ///< Indicates whether an individual runs in server mode
+    bool storedServerMode_; ///< Indicates whether an individual runs in server mode
 
 #ifdef GEM_TESTING
 public:
