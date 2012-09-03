@@ -281,6 +281,12 @@ public:
 	/** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
 	void parseCommandLine(int, char **);
 
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder& , const bool&);
+
+	/** @brief Allows to assign a name to the role of this individual(-derivative) */
+	virtual std::string getIndividualCharacteristic() const;
+
 	/************************************************************************************/
 	/**
 	 * Initialization code for the Geneva library collection.
@@ -326,9 +332,6 @@ public:
 	) {
 		return GOptimizableI::optimize<individual_type>(offset);
 	}
-
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder& , const bool&);
 
 protected:
 	/************************************************************************************/

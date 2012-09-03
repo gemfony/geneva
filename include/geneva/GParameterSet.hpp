@@ -163,6 +163,9 @@ public:
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
 
+	/** @brief Allows to assign a name to the role of this individual(-derivative) */
+	virtual std::string getIndividualCharacteristic() const;
+
 	/** @brief Provides access to all data stored in the individual in a user defined selection */
 	virtual void custom_streamline(std::vector<boost::any>&);
 

@@ -930,6 +930,16 @@ void Go2::addConfigurationOptions (
 
 /**************************************************************************************/
 /**
+ * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
+ * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
+ * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
+ */
+std::string Go2::getIndividualCharacteristic() const {
+	return std::string("GENEVA_GO2WRAPPER");
+}
+
+/**************************************************************************************/
+/**
  * Allows to mark this object as belonging to a client as opposed to a server
  *
  * @param serverMode Allows to mark this object as belonging to a client as opposed to a server

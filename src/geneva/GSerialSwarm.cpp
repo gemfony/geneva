@@ -220,6 +220,16 @@ void GSerialSwarm::addConfigurationOptions (
 
 /************************************************************************************************************/
 /**
+ * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
+ * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
+ * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
+ */
+std::string GSerialSwarm::getIndividualCharacteristic() const {
+	return std::string("GENEVA_SERIALOPTALG");
+}
+
+/************************************************************************************************************/
+/**
  * Updates the fitness of all individuals
  */
 void GSerialSwarm::updateFitness() {

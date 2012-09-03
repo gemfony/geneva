@@ -178,19 +178,18 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
  * Performs any necessary initialization work before the start of the optimization cycle
  */
 void GBrokerEA::init() {
-	// Prevent usage of this population inside another broker population - check type of individuals
+	// Prevent usage of this brokered algorithms inside of this broker population - check type of individuals
+	// Note that evolutionary algorithms may store arbitrary "GIndividual"-derivatives, hence it is also possible
+	// to store brokered optimization algorithms in it, which does not make sense.
 	{
 		std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			boost::shared_ptr<GBrokerEA> p = boost::dynamic_pointer_cast<GBrokerEA>(*it);
-
-			if(p) {
-				// Conversion was successful - this should not be, as there are not to supposed to be
-				// any GBrokerEA objects inside itself.
+			if((*it)->getIndividualCharacteristic() == "GENEVA_BROKEROPTALG"
+			   || (*it)->getIndividualCharacteristic() == "GENEVA_GO2WRAPPER") {
 				raiseException(
 						"In GBrokerEA::optimize(): Error" << std::endl
-						<< "GBrokerEA stored as an individual inside of" << std::endl
-						<< "a population of the same type"
+						<< "GBrokerEA or Go2 stored as an individual inside of" << std::endl
+						<< "the population." << std::endl
 				);
 			}
 		}
@@ -399,6 +398,16 @@ void GBrokerEA::addConfigurationOptions (
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 
 	// no local data
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
+ * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
+ * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
+ */
+std::string GBrokerEA::getIndividualCharacteristic() const {
+	return std::string("GENEVA_BROKEROPTALG");
 }
 
 #ifdef GEM_TESTING

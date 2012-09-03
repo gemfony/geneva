@@ -225,6 +225,9 @@ public:
 	/** @brief Allows to specify an optimization monitor to be used with gradient descents */
 	void registerOptimizationMonitor(boost::shared_ptr<GBaseGD::GGDOptimizationMonitor>);
 
+	/** @brief Allows to assign a name to the role of this individual(-derivative) */
+	virtual std::string getIndividualCharacteristic() const;
+
 	/** @brief Triggers execution of the client loop */
 	bool clientRun();
 

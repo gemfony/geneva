@@ -114,6 +114,9 @@ namespace Geneva
 		, const bool& showOrigin
 	);
 
+	/** @brief Allows to assign a name to the role of this individual(-derivative) */
+	virtual std::string getIndividualCharacteristic() const;
+
   protected:
     /** @brief Loads the data of another GTransfer Population */
     virtual void load_(const GObject *);

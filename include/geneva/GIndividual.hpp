@@ -269,6 +269,9 @@ public:
 		, const bool&
 	);
 
+	/** @brief Allows to assign a name to the role of this individual(-derivative) */
+	virtual std::string getIndividualCharacteristic() const = 0;
+
 protected:
 	/**************************************************************************************************/
 	/** @brief Loads the data of another GIndividual */

@@ -116,6 +116,9 @@ public:
 		, const bool& showOrigin
 	);
 
+	/** @brief Allows to assign a name to the role of this individual(-derivative) */
+	virtual std::string getIndividualCharacteristic() const;
+
 protected:
 	/** @brief Loads data from another object */
 	virtual void load_(const GObject *);
