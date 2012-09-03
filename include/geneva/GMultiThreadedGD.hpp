@@ -140,7 +140,7 @@ protected:
 
 private:
 	boost::uint16_t nThreads_; ///< The number of threads
-	bool serverMode_; ///< Indicates whether an individual runs in server mode
+	bool storedServerMode_; ///< Temporary storage for individual server mode flags during optimization runs
 
 	boost::shared_ptr<Gem::Common::GThreadPool> tp_; ///< Temporarily holds a thread pool
 

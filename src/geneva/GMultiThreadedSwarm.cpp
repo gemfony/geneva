@@ -202,11 +202,11 @@ void GMultiThreadedSwarm::init() {
 	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it){
 		if(first){
-			serverMode_ = (*it)->getServerMode();
+			storedServerMode_ = (*it)->getServerMode();
 			first = false;
 		}
 
-		if(serverMode_ != (*it)->setServerMode(true)) {
+		if(storedServerMode_ != (*it)->setServerMode(true)) {
 			raiseException(
 				"In GMultiThreadedSwarm::init():" << std::endl
 				<< "Not all server mode flags have the same vaue!"
@@ -223,7 +223,7 @@ void GMultiThreadedSwarm::finalize() {
 	// Restore the original values
 	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it) {
-		(*it)->setServerMode(serverMode_);
+		(*it)->setServerMode(storedServerMode_);
 	}
 
 	// Terminate our thread pool

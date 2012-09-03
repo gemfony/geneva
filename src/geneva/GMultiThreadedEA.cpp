@@ -51,7 +51,7 @@ GMultiThreadedEA::GMultiThreadedEA()
 
 /************************************************************************************************************/
 /**
- * A standard copy constructor. Note that we do not copy serverMode_ as
+ * A standard copy constructor. Note that we do not copy storedServerMode_ as
  * it is used for internal caching only.
  *
  * @param cp Reference to another GMultiThreadedEA object
@@ -97,7 +97,7 @@ void GMultiThreadedEA::load_(const GObject *cp) {
 	// ... and then our own
 	nThreads_ = p_load->nThreads_;
 
-	// Note that we do not copy serverMode_ as it is used for internal caching only
+	// Note that we do not copy storedServerMode_ as it is used for internal caching only
 }
 
 /************************************************************************************************************/
@@ -193,11 +193,11 @@ void GMultiThreadedEA::init() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it){
 		if(first){
-			serverMode_ = (*it)->getServerMode();
+			storedServerMode_ = (*it)->getServerMode();
 			first = false;
 		}
 
-		if(serverMode_ != (*it)->setServerMode(true)) {
+		if(storedServerMode_ != (*it)->setServerMode(true)) {
 			raiseException(
 				"In GMultiThreadedEA::init():" << std::endl
 				<< "Not all server mode flags have the same value!"
@@ -214,7 +214,7 @@ void GMultiThreadedEA::finalize() {
 	// Restore the original values
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it) {
-		(*it)->setServerMode(serverMode_);
+		(*it)->setServerMode(storedServerMode_);
 	}
 
 	// Terminate our thread pool
@@ -226,9 +226,9 @@ void GMultiThreadedEA::finalize() {
 
 /************************************************************************************************************/
 /**
- * An overloaded version of GBaseEA::adaptChildren() . Adaption
- * and evaluation of children is handled by threads in a thread pool. The maximum
- * number of threads is DEFAULTBOOSTTHREADSEA (possibly 2) and can be overridden
+ * An overloaded version of GBaseEA::adaptChildren() -- which itself is a purely virtual
+ * function. Adaption and evaluation of children is handled by threads in a thread pool.
+ * The maximum number of threads is DEFAULTBOOSTTHREADSEA (possibly 2) and can be overridden
  * with the GMultiThreadedEA::setMaxThreads() function.
  */
 void GMultiThreadedEA::adaptChildren() {
@@ -254,10 +254,19 @@ void GMultiThreadedEA::adaptChildren() {
 				tp_->schedule(boost::function<double()>(boost::bind(&GIndividual::doFitnessCalculation, *it)));
 			}
 		}
-			break;
+		break;
 
 		case MUCOMMANU_SINGLEEVAL:
 			break; // nothing
+
+		default:
+		{
+			raiseException(
+					"In GMultiThreadedEA::adaptChildren(): Error!" << std::endl
+					<< "Invalid sorting scheme requested: " << getSortingScheme() << std::endl
+			);
+		}
+		break;
 		}
 	}
 
@@ -289,6 +298,9 @@ void GMultiThreadedEA::adaptChildren() {
 
 		case MUCOMMANU_SINGLEEVAL:
 			break; // nothing
+
+			// No default clause as corresponding errors will have been caught already
+			// in the first switch statement
 		}
 	}
 
