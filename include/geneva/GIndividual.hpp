@@ -103,7 +103,6 @@ class GIndividual
 	     & BOOST_SERIALIZATION_NVP(nStalls_)
 	     & BOOST_SERIALIZATION_NVP(dirtyFlag_)
 	     & BOOST_SERIALIZATION_NVP(serverMode_)
-	     & BOOST_SERIALIZATION_NVP(processingCycles_)
 	     & BOOST_SERIALIZATION_NVP(maximize_)
 	     & BOOST_SERIALIZATION_NVP(assignedIteration_)
 	     & BOOST_SERIALIZATION_NVP(pers_)
@@ -146,10 +145,6 @@ public:
 
 	/** @brief Do the required processing for this object */
 	virtual bool process();
-	/** @brief Allows to instruct this individual to perform multiple process operations in one go. */
-	void setProcessingCycles(const boost::uint32_t&);
-	/** @brief Retrieves the number of allowed processing cycles */
-	boost::uint32_t getProcessingCycles() const;
 
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
 	double getCachedFitness(bool&, const std::size_t& = 0) const;
@@ -320,8 +315,6 @@ private:
     bool dirtyFlag_;
     /** @brief Prevents re-evaluation when set */
     bool serverMode_;
-    /** @brief The maximum number of processing cycles. 0 means "loop forever" (use with care!) */
-    boost::uint32_t processingCycles_;
     /** @brief Indicates whether we are running in maximization or minimization mode */
     bool maximize_;
     /** @brief The iteration of the parent algorithm's optimization cycle */

@@ -153,7 +153,6 @@ int main(int argc, char **argv){
   duplicationScheme rScheme;
   std::size_t arraySize;
   sortingMode smode;
-  boost::uint32_t processingCycles;
   bool returnRegardless;
   boost::uint32_t nProcessingUnits;
   trainingDataType tdt;
@@ -199,7 +198,6 @@ int main(int argc, char **argv){
 		   , rScheme
 		   , smode
 		   , arraySize
-		   , processingCycles
 		   , returnRegardless
 		   , nProcessingUnits
 		   , tF
@@ -268,7 +266,6 @@ int main(int argc, char **argv){
 				    , adProb
 			)
 		);
-		sigmoid_nn_ptr->setProcessingCycles(processingCycles);
 
 		parentIndividuals.push_back(sigmoid_nn_ptr);
 	  }
@@ -288,7 +285,6 @@ int main(int argc, char **argv){
 					, adProb
 			)
 		);
-		rbf_nn_ptr->setProcessingCycles(processingCycles);
 
 		parentIndividuals.push_back(rbf_nn_ptr);
 	  }

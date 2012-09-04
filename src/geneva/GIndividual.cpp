@@ -52,7 +52,6 @@ GIndividual::GIndividual()
 	, nStalls_(0)
 	, dirtyFlag_(true)
 	, serverMode_(false)
-	, processingCycles_(1)
 	, maximize_(false)
 	, assignedIteration_(0)
 	, pers_(PERSONALITY_NONE)
@@ -75,7 +74,6 @@ GIndividual::GIndividual(const GIndividual& cp)
 	, nStalls_(cp.nStalls_)
 	, dirtyFlag_(cp.dirtyFlag_)
 	, serverMode_(cp.serverMode_)
-	, processingCycles_(cp.processingCycles_)
 	, maximize_(cp.maximize_)
 	, assignedIteration_(cp.assignedIteration_)
 	, pers_(cp.pers_)
@@ -157,7 +155,6 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", nStalls_, p_load->nStalls_, "nStalls_", "p_load->nStalls_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", dirtyFlag_, p_load->dirtyFlag_, "dirtyFlag_", "p_load->dirtyFlag_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", processingCycles_, p_load->processingCycles_, "processingCycles_", "p_load->processingCycles_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", assignedIteration_, p_load->assignedIteration_, "assignedIteration_", "p_load->assignedIteration_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", pers_, p_load->pers_, "pers_", "p_load->pers_", e , limit));
@@ -186,7 +183,6 @@ void GIndividual::load_(const GObject* cp) {
 	nStalls_ = p_load->nStalls_;
 	dirtyFlag_ = p_load->dirtyFlag_;
 	serverMode_ = p_load->serverMode_;
-	processingCycles_ = p_load->processingCycles_;
 	maximize_ = p_load->maximize_;
 	assignedIteration_ = p_load->assignedIteration_;
 	setPersonality(p_load->pers_);
@@ -791,12 +787,7 @@ void GIndividual::customAdaptions()
 
 /************************************************************************************************************/
 /**
- * Performs all necessary processing steps for this object. Not meant to be
- * called directly from threads, as no exceptions are caught. Use checkedProcess() instead.
- * If the processingCycles_ variable is set to a value of 0 or higher than 1, multiple
- * adapt() calls will be performed in EA mode, until the maximum number of calls is reached or
- * a better solution is found. If processingCycles_ has a value of 0, this routine
- * will loop forever, unless a better solution is found (DANGEROUS: USE WITH CARE!!!).
+ * Performs all necessary (remote-)processing steps for this object.
  *
  * @return A boolean which indicates whether processing has led to a useful result
  */
@@ -829,34 +820,6 @@ bool GIndividual::process(){
 	// Let the audience know
 	return gotUsableResult;
 }
-
-/************************************************************************************************************/
-/**
- * Allows to instruct this individual to perform multiple process operations in one go.
- * This is useful in order to minimize communication between client and server. See the
- * description of the process() function for further information.
- *
- * @param processingCycles The desired number of maximum processing cycles
- */
-void GIndividual::setProcessingCycles(const boost::uint32_t& processingCycles) {
-	processingCycles_= processingCycles;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/************************************************************************************************************/
-/** @brief Retrieves the number of allowed processing cycles */
-boost::uint32_t GIndividual::getProcessingCycles() const {
-	return processingCycles_;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
 
 /************************************************************************************************************/
 /**
@@ -998,7 +961,7 @@ bool GIndividual::modify_GUnitTests() {
 	// parameters directly here in this class.
 
 	// A relatively harmless change
-	this->setProcessingCycles(this->getProcessingCycles() + 1);
+	nStalls_++;
 
 	return result;
 }
@@ -1049,22 +1012,6 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty() == true); // Note the missing argument -- this is a different function
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(false));
 		BOOST_CHECK(p_test->isDirty() == false);
-	}
-
-	//------------------------------------------------------------------------------
-
-	{ // Test setting and retrieval of processing cycles
-		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
-
-		for(boost::uint32_t i=1; i<10; i++) {
-			BOOST_CHECK_NO_THROW(p_test->setProcessingCycles(i));
-			BOOST_CHECK_MESSAGE(
-					p_test->getProcessingCycles() == i
-					,  "\n"
-					<< "p_test->getProcessingCycles() = " << p_test->getProcessingCycles() << "\n"
-					<< "i = " << i << "\n"
-			);
-		}
 	}
 
 	//------------------------------------------------------------------------------

@@ -227,7 +227,6 @@ boost::posix_time::time_duration GDelayIndividual::getSleepTime() const {
  */
 GDelayIndividualFactory::GDelayIndividualFactory(const std::string& cF)
 	: Gem::Geneva::GIndividualFactoryT<GDelayIndividual>(cF)
-	, processingCycles_(1)
 	, nVariables_(100)
 	, resultFile_("networkResults.C")
 	, shortResultFile_("shortDelayResults.txt")
@@ -359,6 +358,7 @@ void GDelayIndividualFactory::init_() {
 							<< "tokenCounter has reached invalid value " << tokenCounter
 					);
 				}
+				break;
 			}
 		}
 	}
@@ -372,7 +372,6 @@ void GDelayIndividualFactory::describeConfigurationOptions_() {
 	// Default values for the delay string
 	std::string default_delays = "0/1 0/10 0/100 0/500 1/0 2/0 3/0 4/0 5/0 6/0 7/0 8/0 9/0 10/0 15/0 20/0 25/0 30/0 40/0 50/0 60/0";
 
-	gpb.registerFileParameter("processingCycles", processingCycles_, processingCycles_);
 	gpb.registerFileParameter("nVariables", nVariables_, nVariables_);
 	gpb.registerFileParameter("delays", delays_, default_delays);
 	gpb.registerFileParameter("resultFile", resultFile_, resultFile_);
@@ -401,7 +400,6 @@ boost::shared_ptr<GDelayIndividual> GDelayIndividualFactory::getIndividual_(cons
 		std::cout << "Producing an individual with sleep time = " << sleepTime.total_milliseconds() << std::endl;
 
 		boost::shared_ptr<GDelayIndividual> gdi_ptr(new GDelayIndividual(sleepTime));
-		gdi_ptr->setProcessingCycles(processingCycles_);
 
 		// Set up a GDoubleObjectCollection
 		boost::shared_ptr<Gem::Geneva::GDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GDoubleObjectCollection());

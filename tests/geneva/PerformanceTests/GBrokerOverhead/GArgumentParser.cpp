@@ -122,7 +122,6 @@ namespace Gem
 		  , duplicationScheme& rScheme
 		  , sortingMode& smode
 		  , std::size_t& arraySize
-		  , boost::uint32_t& processingCycles
 		  , boost::uint32_t& nProcessingUnits
 		  , double& adProb
 		  , boost::uint32_t& adaptionThreshold
@@ -171,8 +170,6 @@ namespace Gem
 	   "The size of the buffer with random arrays in the random factory")
 	  ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 	   "Whether additional information should be emitted")
-	  ("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
-	   "The maximum number of cycles a client should perform adaptions before it returns without success")
 	  ("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
 	   "Specifies how many processing units are available in networked mode")
 	  ("adProb", po::value<double>(&adProb)->default_value(DEFAULTGDAADPROB),
@@ -254,7 +251,6 @@ namespace Gem
 		    << "rScheme = " << (boost::uint16_t)rScheme << std::endl
 		    << "sortingScheme = " << smode << std::endl
 		    << "arraySize = " << arraySize << std::endl
-		    << "processingCycles = " << processingCycles << std::endl
 	        << "nProcessingUnits = " << nProcessingUnits << std::endl
  		    << "adProb = " << adProb << std::endl
 			<< "adaptionThreshold = " << adaptionThreshold << std::endl

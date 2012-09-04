@@ -146,7 +146,6 @@ const double GFI_DEF_MAXVAR = 10.;
 const bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
 const parameterType GFI_DEF_PARAMETERTYPE = USEGDOUBLECOLLECTION;
 const initMode GFI_DEF_INITMODE = INITRANDOM;
-const boost::uint32_t GO_DEF_PROCESSINGCYCLES = 1;
 const solverFunction GO_DEF_EVALFUNCTION = boost::numeric_cast<solverFunction>(0);
 
 /************************************************************************************************/
@@ -431,7 +430,6 @@ private:
 	double maxVar_;
 	parameterType pT_;
 	initMode iM_;
-	boost::uint32_t processingCycles_;
 };
 
 /************************************************************************************************/

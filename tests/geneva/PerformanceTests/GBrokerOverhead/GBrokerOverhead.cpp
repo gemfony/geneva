@@ -72,7 +72,6 @@ int main(int argc, char **argv){
   double minVar;
   double maxVar;
   sortingMode smode;
-  boost::uint32_t processingCycles;
   boost::uint32_t nProcessingUnits;
   solverFunction df;
   boost::uint32_t adaptionThreshold;
@@ -97,7 +96,6 @@ int main(int argc, char **argv){
 		      rScheme,
 		      smode,
 		      arraySize,
-		      processingCycles,
 		      nProcessingUnits,
 		      adProb,
 		      adaptionThreshold,
@@ -142,7 +140,6 @@ int main(int argc, char **argv){
 
 	  // Make the parameter collection known to this individual
 	  functionIndividual_ptr->push_back(gdc_ptr);
-	  functionIndividual_ptr->setProcessingCycles(processingCycles);
 
 	  parentIndividuals.push_back(functionIndividual_ptr);
   }

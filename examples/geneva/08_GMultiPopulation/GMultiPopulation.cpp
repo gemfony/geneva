@@ -84,7 +84,6 @@ int main(int argc, char **argv){
   std::size_t parDim;
   double minVar;
   double maxVar;
-  boost::uint32_t processingCycles;
   bool returnRegardless;
   boost::uint32_t nProcessingUnits;
   solverFunction df;
@@ -122,7 +121,6 @@ int main(int argc, char **argv){
 		      rSchemeSub,
 		      smodeSub,
 		      arraySize,
-		      processingCycles,
 			  returnRegardless,
 			  nProcessingUnits,
 		      adProb,
@@ -194,7 +192,6 @@ int main(int argc, char **argv){
 
 		  // Make the parameter collection known to this individual
 		  functionIndividual_ptr->push_back(gdc_ptr);
-		  functionIndividual_ptr->setProcessingCycles(processingCycles);
 
 		  sub_pop_ptr->push_back(functionIndividual_ptr);
 	  }

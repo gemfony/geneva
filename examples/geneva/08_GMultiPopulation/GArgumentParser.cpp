@@ -142,7 +142,6 @@ namespace Gem
 		  , duplicationScheme& rSchemeSub
 		  , sortingMode& smodeSub
 		  , std::size_t& arraySize
-		  , boost::uint32_t& processingCycles
 		  , bool& returnRegardless
 		  , boost::uint32_t& nProcessingUnits
 		  , double& adProb
@@ -207,8 +206,6 @@ namespace Gem
 	   "The size of the buffer with random arrays in the random factory")
 	  ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 	   "Whether additional information should be emitted")
-	  ("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
-	   "The maximum number of cycles a client should perform adaptions before it returns without success")
       ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
        "Specifies whether results should be returned even if they are not better than before")
 	  ("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
@@ -320,7 +317,6 @@ namespace Gem
 			<< "rSchemeSub = " << (boost::uint16_t)rSchemeSub << std::endl
 			<< "sortingSchemeSub = " << smodeSub << std::endl
 		    << "arraySize = " << arraySize << std::endl
-		    << "processingCycles = " << processingCycles << std::endl
 			<< "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
 	        << "nProcessingUnits = " << nProcessingUnits << std::endl
  		    << "adProb = " << adProb << std::endl

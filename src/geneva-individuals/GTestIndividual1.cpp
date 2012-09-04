@@ -832,31 +832,6 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 #ifdef DEBUG
-	{ // Trying to run the process call on a dirty individual with the "adaptAndEvaluate" command,
-		// using multiple processing cycles in an iteration > 0 should throw in DEBUG mode
-		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
-
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
-		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("adaptAndEvaluate"));
-
-		// Make sure the individual is dirty
-		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());
-		// Cross check
-		BOOST_CHECK(p_test->isDirty());
-
-		// Allow just multiple processing cycles, with an iteration > 0
-		BOOST_CHECK_NO_THROW(p_test->setProcessingCycles(5));
-		BOOST_CHECK_NO_THROW(p_test->setAssignedIteration(3));
-
-		// Calling the process function should throw when the process() function is called
-		// on a dirty individual that allows multiple processing cycles
-		BOOST_CHECK_THROW(p_test->process(), Gem::Common::gemfony_error_condition);
-	}
-#endif /* DEBUG */
-
-	//------------------------------------------------------------------------------
-
-#ifdef DEBUG
 	{ // Check that calling GParameterSet::updateOnStall throws in EA mode, if this is not a parent
 		// The exception will only be triggered in DEBUG mode
 		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();

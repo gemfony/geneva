@@ -152,7 +152,6 @@ bool parseConfigFile(
 		, duplicationScheme& rScheme
 		, sortingMode& smode
 		, std::size_t& arraySize
-		, boost::uint32_t& processingCycles
 		, bool& returnRegardless
 		, boost::uint32_t& nProcessingUnits
 		, double& adProb
@@ -209,8 +208,6 @@ bool parseConfigFile(
 			"The size of the buffer with random arrays in the random factory")
 			("verbose", po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 			"Whether additional information should be emitted")
-			("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
-			"The maximum number of cycles a client should perform adaptions before it returns without success")
 			("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
 			"Specifies whether results should be returned even if they are not better than before")
 			("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
@@ -315,7 +312,6 @@ bool parseConfigFile(
 					<< "rScheme = " << (boost::uint16_t) rScheme << std::endl
 					<< "sortingScheme = " << smode << std::endl
 					<< "arraySize = " << arraySize << std::endl
-					<< "processingCycles = " << processingCycles << std::endl
 					<< "nProcessingUnits = " << nProcessingUnits << std::endl
 					<< "adProb = " << adProb << std::endl
 					<< "adaptionThreshold = " << adaptionThreshold << std::endl

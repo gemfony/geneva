@@ -515,7 +515,6 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& config
 	, maxVar_(GFI_DEF_MAXVAR)
 	, pT_(GFI_DEF_PARAMETERTYPE)
 	, iM_(GFI_DEF_INITMODE)
-	, processingCycles_(GO_DEF_PROCESSINGCYCLES)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -777,17 +776,6 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 		, comment
 	);
 
-	comment = "";
-	comment += "The maximum number of processing cycles without improvement;";
-	comment += "that may be used by a remote individual before it returns its result;";
-	gpb.registerFileParameter<boost::uint32_t>(
-		"processingCycles"
-		, processingCycles_
-		, GO_DEF_PROCESSINGCYCLES
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
-
 
 	// Allow our parent class to describe its options
 	Gem::Common::GFactoryT<GFunctionIndividual>::describeLocalOptions_(gpb);
@@ -927,9 +915,6 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GFunctionIndivid
 	}
 		break;
 	}
-
-	// Set the max number of processing cycles in remote clients
-	p->setProcessingCycles(processingCycles_);
 }
 
 /********************************************************************************************/

@@ -173,7 +173,6 @@ protected:
 	virtual boost::shared_ptr<GDelayIndividual> getIndividual_(const std::size_t&);
 
 private:
-	boost::uint32_t processingCycles_;
 	std::size_t nVariables_;
 	std::string delays_;
 	std::vector<long> sleepSeconds_, sleepMilliSeconds_;
