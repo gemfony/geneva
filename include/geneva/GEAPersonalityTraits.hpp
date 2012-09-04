@@ -69,7 +69,6 @@ class GEAPersonalityTraits :public GPersonalityTraits
 	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
 	     & BOOST_SERIALIZATION_NVP(parentCounter_)
 	     & BOOST_SERIALIZATION_NVP(popPos_)
-	     & BOOST_SERIALIZATION_NVP(command_)
 	     & BOOST_SERIALIZATION_NVP(parentId_)
 	     & BOOST_SERIALIZATION_NVP(isOnParetoFront_);
 	}
@@ -109,13 +108,6 @@ public:
 	/** @brief Retrieves the position of the individual in the population */
 	std::size_t getPopulationPosition(void) const ;
 
-	/** @brief Sets a command to be performed by a remote client. */
-	virtual void setCommand(const std::string&);
-	/** @brief Retrieves the command to be performed by a remote client. */
-	virtual std::string getCommand() const;
-	/** @brief Resets the command string */
-	virtual void resetCommand();
-
 	/** @brief Stores the parent's id with this object */
 	void setParentId(const std::size_t&);
 	/** @brief Retrieves the parent id's value */
@@ -143,8 +135,6 @@ private:
 	boost::uint32_t parentCounter_;
 	/** @brief Stores the current position in the population */
 	std::size_t popPos_;
-	/** @brief The command to be performed by remote clients */
-	std::string command_;
 	/** @brief The id of the old parent individual. This is intentionally a signed value. A negative value refers to an unset parent id */
 	boost::int16_t parentId_;
 	/** @brief Determines whether the individual lies on the pareto front */

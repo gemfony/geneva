@@ -425,7 +425,6 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Tell the individual about its personality and duty
 		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
-		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("evaluate"));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
@@ -457,9 +456,6 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		// Make sure the server mode is indeed set
 		BOOST_CHECK(p_test->serverMode());
 
-		// Set the command
-		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("evaluate"));
-
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
 
@@ -486,7 +482,6 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Tell the individual about its personality and duty
 		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_SWARM));
-		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("evaluate"));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
@@ -803,30 +798,6 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());
 		BOOST_CHECK_NO_THROW(p_test->setServerMode(true));
 		BOOST_CHECK_THROW(p_test->fitness(), Gem::Common::gemfony_error_condition);
-	}
-
-	//------------------------------------------------------------------------------
-
-	{ // Check that the process function throws for GD personalities
-		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
-
-		// Set the GD personality
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_GD));
-
-		// Calling the process function should throw for this personality type
-		BOOST_CHECK_THROW(p_test->process(), Gem::Common::gemfony_error_condition);
-	}
-
-	//------------------------------------------------------------------------------
-
-	{ // Check that the process function throws if no personality has been assigned
-		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
-
-		// Reset the personality (sets it to PERSONALITY_NONE)
-		BOOST_CHECK_NO_THROW(p_test->resetPersonality());
-
-		// Calling the process function should throw when no personality has been assigned
-		BOOST_CHECK_THROW(p_test->process(), Gem::Common::gemfony_error_condition);
 	}
 
 	//------------------------------------------------------------------------------

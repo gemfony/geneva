@@ -323,13 +323,6 @@ void GBrokerSwarm::updateFitness() {
 	GBrokerSwarm::iterator it;
 
 	//--------------------------------------------------------------------------------
-	// Let all individual know that they should perform the "evaluate" command
-	// after having passed the broker (i.e. usually on a remote machine)
-	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)->getPersonalityTraits()->setCommand("evaluate");
-	}
-
-	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
 			data

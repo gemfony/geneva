@@ -298,11 +298,8 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 				<< "We require finalPos to be at least " << nStartingPoints << ", but got " << finalPos
 		);
 	}
-#endif
 
-	// Signal evaluation for all individuals (including parents)
 	for (std::size_t i = 0; i < finalPos; i++) {
-#ifdef DEBUG
 		// Make sure the evaluated individuals have the dirty flag set
 		if(afterFirstIteration() && !this->at(i)->isDirty()) {
 			raiseException(
@@ -310,12 +307,8 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 					<< "Found individual in position " << i << " whose dirty flag isn't set"
 			);
 		}
-#endif /* DEBUG */
-
-		// Let the individual know that it should perform the "evaluate" command
-		// after having passed the broker (i.e. usually on a remote machine)
-		this->at(i)->getPersonalityTraits()->setCommand("evaluate");
 	}
+#endif /* DEBUG */
 
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return

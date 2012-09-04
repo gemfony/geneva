@@ -47,7 +47,6 @@ namespace Geneva {
 GSwarmPersonalityTraits::GSwarmPersonalityTraits()
 	: GPersonalityTraits()
 	, neighborhood_(0)
-	, command_("")
 	, noPositionUpdate_(false)
 	, personal_best_(boost::shared_ptr<GParameterSet>(new GParameterSet()))
 	, personal_best_quality_(0.)
@@ -62,7 +61,6 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits()
 GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits& cp)
 	: GPersonalityTraits(cp)
 	, neighborhood_(cp.neighborhood_)
-	, command_(cp.command_)
 	, noPositionUpdate_(cp.noPositionUpdate_)
 	, personal_best_((cp.personal_best_)->clone<GParameterSet>())
 	, personal_best_quality_(cp.personal_best_quality_)
@@ -146,7 +144,6 @@ boost::optional<std::string> GSwarmPersonalityTraits::checkRelationshipWith(cons
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", neighborhood_, p_load->neighborhood_, "neighborhood_", "p_load->neighborhood_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", command_, p_load->command_, "command_", "p_load->command_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", noPositionUpdate_, p_load->noPositionUpdate_, "noPositionUpdate_", "p_load->noPositionUpdate_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", personal_best_, p_load->personal_best_, "personal_best_", "p_load->personal_best_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", personal_best_quality_, p_load->personal_best_quality_, "personal_best_quality_", "p_load->personal_best_quality_", e , limit));
@@ -305,7 +302,6 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
 
 	// and then the local data
 	neighborhood_ = p_load->neighborhood_;
-	command_ = p_load->command_;
 	noPositionUpdate_ = p_load->noPositionUpdate_;
 	personal_best_ = p_load->personal_best_->clone<GParameterSet>();
 	personal_best_quality_ = p_load->personal_best_quality_;
@@ -330,67 +326,6 @@ void GSwarmPersonalityTraits::setNeighborhood(const std::size_t& neighborhood) {
 std::size_t GSwarmPersonalityTraits::getNeighborhood(void) const {
 	return neighborhood_;
 }
-
-/*****************************************************************************/
-/**
- * Sets a command to be performed by a remote client.
- *
- * @param command The command to be performed by a remote client
- */
-void GSwarmPersonalityTraits::setCommand(const std::string& command) {
-	if(command != "evaluate") { // The allowed "grammar"
-		raiseException(
-				"In GSwarmPersonalityTraits::setCommand(): Got invalid command " << command
-		);
-	}
-
-	command_ = command;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GSwarmPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * Tested in GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/*****************************************************************************/
-/**
- * Retrieves the command to be performed by a remote client.
- *
- * @return The command to be performed by a remote client.
- */
-std::string GSwarmPersonalityTraits::getCommand() const {
-#ifdef DEBUG
-	// Some error checking
-	if(command_.empty() || command_=="" || command_=="empty") {
-		raiseException(
-				"In GSwarmPersonalityTraits::getCommand(): Error " << std::endl
-				<< "Tried to retrieve a command while a command hasn't been set"
-		);
-	}
-#endif /* DEBUG */
-
-	return command_;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GSwarmPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * Tested in GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/*****************************************************************************/
-/**
- * Resets the command string
- */
-void GSwarmPersonalityTraits::resetCommand() {
-	command_ = "";
-}
-
-/* ----------------------------------------------------------------------------------
- * Used in GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
 
 #ifdef GEM_TESTING
 /*****************************************************************************/
@@ -418,15 +353,6 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Call the parent class'es function
 	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
-
-	//------------------------------------------------------------------------------
-
-	{ // Test setting and retrieval of the allowed commands
-		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
-
-		BOOST_CHECK_NO_THROW(p_test->setCommand("evaluate"));
-		BOOST_CHECK(p_test->getCommand() == "evaluate");
-	}
 
 	//------------------------------------------------------------------------------
 
@@ -476,28 +402,6 @@ void GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
-
-#ifdef DEBUG
-	{ // Test that retrieval of an unset command throws in DEBUG mode
-		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
-
-		// Reset the command string
-		BOOST_CHECK_NO_THROW(p_test->resetCommand());
-
-		// Try to retrieve the command string
-		BOOST_CHECK_THROW(p_test->getCommand(), Gem::Common::gemfony_error_condition);
-	}
-#endif /* DEBUG */
-
-	//------------------------------------------------------------------------------
-
-	{ // Check that setting any other command than "evaluate" throws. In particular, "adaptAndEvaluate" should throw
-		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
-
-		// Try to set an unknown command
-		BOOST_CHECK_THROW(p_test->setCommand("adaptAndEvaluate"), Gem::Common::gemfony_error_condition);
-	}
 
 	//------------------------------------------------------------------------------
 }

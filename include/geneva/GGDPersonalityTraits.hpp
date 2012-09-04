@@ -68,7 +68,6 @@ class GGDPersonalityTraits :public GPersonalityTraits
 	  using boost::serialization::make_nvp;
 
 	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-	     & BOOST_SERIALIZATION_NVP(command_)
 	     & BOOST_SERIALIZATION_NVP(popPos_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -90,14 +89,14 @@ public:
 	bool operator!=(const GGDPersonalityTraits&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
-
-	/** @brief Sets a command to be performed by a remote client. */
-	virtual void setCommand(const std::string&);
-	/** @brief Retrieves the command to be performed by a remote client. */
-	virtual std::string getCommand() const;
-	/** @brief Resets the command string */
-	virtual void resetCommand();
+	virtual boost::optional<std::string> checkRelationshipWith(
+			const GObject&
+			, const Gem::Common::expectation&
+			, const double&
+			, const std::string&
+			, const std::string&
+			, const bool&
+	) const;
 
 	/** @brief Sets the position of the individual in the population */
 	void setPopulationPosition(const std::size_t&) ;
@@ -111,8 +110,6 @@ protected:
 	virtual GObject* clone_() const;
 
 private:
-	/** @brief The command to be performed by remote clients */
-	std::string command_;
 	/** @brief Stores the current position in the population */
 	std::size_t popPos_;
 

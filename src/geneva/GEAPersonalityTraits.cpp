@@ -47,7 +47,6 @@ GEAPersonalityTraits::GEAPersonalityTraits()
 	: GPersonalityTraits()
 	, parentCounter_(0)
 	, popPos_(0)
-	, command_("")
 	, parentId_(-1) // means "unset"
 	, isOnParetoFront_(true)
 { /* nothing */ }
@@ -62,7 +61,6 @@ GEAPersonalityTraits::GEAPersonalityTraits(const GEAPersonalityTraits& cp)
 	: GPersonalityTraits(cp)
 	, parentCounter_(cp.parentCounter_)
 	, popPos_(cp.popPos_)
-	, command_(cp.command_)
 	, parentId_(cp.parentId_)
 	, isOnParetoFront_(cp.isOnParetoFront_)
 { /* nothing */ }
@@ -146,7 +144,6 @@ boost::optional<std::string> GEAPersonalityTraits::checkRelationshipWith(const G
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", parentCounter_, p_load->parentCounter_, "parentCounter_", "p_load->parentCounter_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", popPos_, p_load->popPos_, "popPos_", "p_load->popPos_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", command_, p_load->command_, "command_", "p_load->command_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", parentId_, p_load->parentId_, "parentId_", "p_load->parentId_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", isOnParetoFront_, p_load->isOnParetoFront_, "isOnParetoFront_", "p_load->isOnParetoFront_", e , limit));
 
@@ -178,7 +175,6 @@ void GEAPersonalityTraits::load_(const GObject* cp) {
 	// Then load our local data
 	parentCounter_ = p_load->parentCounter_;
 	popPos_ = p_load->popPos_;
-	command_ = p_load->command_;
 	parentId_ = p_load->parentId_;
 	isOnParetoFront_ = p_load->isOnParetoFront_;
 }
@@ -274,67 +270,6 @@ std::size_t GEAPersonalityTraits::getPopulationPosition(void) const {
 
 /* ----------------------------------------------------------------------------------
  * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/*****************************************************************************/
-/**
- * Sets a command to be performed by a remote client.
- *
- * @param command The command to be performed by a remote client
- */
-void GEAPersonalityTraits::setCommand(const std::string& command) {
-	if(command != "evaluate" && command != "adaptAndEvaluate") { // The allowed "grammar"
-		raiseException(
-				"In GEAPersonalityTraits::setCommand(): Got invalid command " << command
-		);
-	}
-
-	command_ = command;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * Tested in GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/*****************************************************************************/
-/**
- * Retrieves the command to be performed by a remote client.
- *
- * @return The command to be performed by a remote client.
- */
-std::string GEAPersonalityTraits::getCommand() const {
-#ifdef DEBUG
-	// Some error checking
-	if(command_.empty() || command_=="" || command_=="empty") {
-		raiseException(
-				"In GEAPersonalityTraits::getCommand(): Error " << std::endl
-				<< "Tried to retrieve a command while a command hasn't been set"
-		);
-	}
-#endif /* DEBUG */
-
-	return command_;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * Tested in GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/*****************************************************************************/
-/**
- * Resets the command string
- */
-void GEAPersonalityTraits::resetCommand() {
-	command_ = "";
-}
-
-/* ----------------------------------------------------------------------------------
- * Used in GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -518,18 +453,6 @@ void GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test setting and retrieval of the allowed commands
-		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
-
-		BOOST_CHECK_NO_THROW(p_test->setCommand("evaluate"));
-		BOOST_CHECK(p_test->getCommand() == "evaluate");
-
-		BOOST_CHECK_NO_THROW(p_test->setCommand("adaptAndEvaluate"));
-		BOOST_CHECK(p_test->getCommand() == "adaptAndEvaluate");
-	}
-
-	//------------------------------------------------------------------------------
-
 	{ // Test setting and retrieval of valid parent ids
 		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
 
@@ -555,29 +478,6 @@ void GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 
 	// Call the parent class'es function
 	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
-
-	//------------------------------------------------------------------------------
-
-#ifdef DEBUG
-	{ // Test that retrieval of an unset command throws in DEBUG mode
-		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
-
-		// Reset the command string
-		BOOST_CHECK_NO_THROW(p_test->resetCommand());
-
-		// Try to retrieve the command string
-		BOOST_CHECK_THROW(p_test->getCommand(), Gem::Common::gemfony_error_condition);
-	}
-#endif /* DEBUG */
-
-	//------------------------------------------------------------------------------
-
-	{ // Check that setting any other command than "evaluate" or "adaptAndEvaluate" throws
-		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
-
-		// Try to set an unknown command
-		BOOST_CHECK_THROW(p_test->setCommand("abc"), Gem::Common::gemfony_error_condition);
-	}
 
 	//------------------------------------------------------------------------------
 

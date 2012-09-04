@@ -792,8 +792,6 @@ void GIndividual::customAdaptions()
  * @return A boolean which indicates whether processing has led to a useful result
  */
 bool GIndividual::process(){
-	bool gotUsableResult = false;
-
 	// Make sure GParameterBase objects are updated with our local random number generator
 	this->updateRNGs();
 
@@ -801,15 +799,7 @@ bool GIndividual::process(){
 	// sure that re-evaluation is possible
 	bool previousServerMode=setServerMode(false);
 
-	if(getPersonalityTraits()->getCommand() == "evaluate") {
-		doFitnessCalculation();
-		gotUsableResult = true;
-	} else {
-		raiseException(
-				"In GIndividual::process(): Unknown command: \""
-				<< getPersonalityTraits()->getCommand() << "\""
-		);
-	}
+	doFitnessCalculation();
 
 	// Restore the serverMode_ flag
 	setServerMode(previousServerMode);
@@ -817,8 +807,8 @@ bool GIndividual::process(){
 	// Restore the local random number generators in the individuals
 	this->restoreRNGs();
 
-	// Let the audience know
-	return gotUsableResult;
+	// Let the audience know that we were successful
+	return true;
 }
 
 /************************************************************************************************************/

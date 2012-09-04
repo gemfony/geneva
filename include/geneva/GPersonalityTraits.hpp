@@ -92,13 +92,6 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Sets a command to be performed by a remote client. */
-	virtual void setCommand(const std::string&) = 0;
-	/** @brief Retrieves the command to be performed by a remote client. */
-	virtual std::string getCommand() const = 0;
-	/** @brief Resets the command string */
-	virtual void resetCommand() = 0;
-
 protected:
 	/** @brief Loads the data of another GPersonalityTraits object */
 	virtual void load_(const GObject*);

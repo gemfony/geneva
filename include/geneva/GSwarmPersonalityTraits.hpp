@@ -73,7 +73,6 @@ class GSwarmPersonalityTraits :public GPersonalityTraits
 
 	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
 	     & BOOST_SERIALIZATION_NVP(neighborhood_)
-	     & BOOST_SERIALIZATION_NVP(command_)
 	     & BOOST_SERIALIZATION_NVP(noPositionUpdate_)
 	     & BOOST_SERIALIZATION_NVP(personal_best_)
 	     & BOOST_SERIALIZATION_NVP(personal_best_quality_);
@@ -99,12 +98,6 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Sets a command to be performed by a remote client. */
-	virtual void setCommand(const std::string&);
-	/** @brief Retrieves the command to be performed by a remote client. */
-	virtual std::string getCommand() const;
-	/** @brief Resets the command string */
-	virtual void resetCommand();
 
 	/** @brief Specifies in which neighborhood the individual is at present */
 	void setNeighborhood(const std::size_t&) ;
@@ -136,8 +129,6 @@ protected:
 private:
 	/** @brief Stores the current position in the population */
 	std::size_t neighborhood_;
-	/** @brief The command to be performed by remote clients */
-	std::string command_;
 
 	/** @brief Determines whether the individual has been randomly initialized */
 	bool noPositionUpdate_;
