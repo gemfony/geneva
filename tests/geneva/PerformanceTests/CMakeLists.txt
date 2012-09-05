@@ -7,8 +7,11 @@ ADD_DEPENDENCIES ( "geneva-tests-performance"
 	GBrokerOverhead
 	GOptimizationBenchmark
 	GParallelisationOverhead
+	GSerializationOverhead
 )
 
 ADD_SUBDIRECTORY ( GBrokerOverhead )
 ADD_SUBDIRECTORY ( GOptimizationBenchmark )
 ADD_SUBDIRECTORY ( GParallelisationOverhead )
+ADD_SUBDIRECTORY ( GSerializationOverhead )
+

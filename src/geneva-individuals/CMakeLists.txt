@@ -5,6 +5,7 @@ SET ( SAMPLEINDIVIDUALSOURCES
 	GFunctionIndividual
 	GNeuralNetworkIndividual
 	GTestIndividual1
+	GTestIndividual2
 )
 
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted

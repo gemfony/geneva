@@ -1,0 +1,5 @@
+This folder contains a test that tries to measure the time needed for serialization of 
+a complex individual and compares it with the time needed for its adaption. It does so
+for different sizes of the individual (i.e. different amounts of parameters) and graphically
+plots the amount of time needed for each time. The idea is to find out whether adaption 
+should rather happen on the server or the client side in networked execution.
