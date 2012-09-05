@@ -298,6 +298,7 @@ GDataCollector2T<double, double>::projectY(std::size_t nBinsY, boost::tuple<doub
  */
 GGraph2D::GGraph2D()
 	: pM_(DEFPLOTMODE)
+	, drawArrows_(false)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -307,6 +308,7 @@ GGraph2D::GGraph2D()
 GGraph2D::GGraph2D(const GGraph2D& cp)
 	: GDataCollector2T<double,double>(cp)
 	, pM_(cp.pM_)
+	, drawArrows_(cp.drawArrows_)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -326,8 +328,30 @@ const GGraph2D & GGraph2D::operator=(const GGraph2D& cp) {
 
 	// and then our own
 	pM_ = cp.pM_;
+	drawArrows_ = cp.drawArrows_;
 
 	return *this;
+}
+
+/*****************************************************************************/
+/**
+ * Adds arrows to the plots between consecutive points. Note that setting this
+ * value to true will force "SCATTER" mode
+ *
+ * @param dA The desired value of the drawArrows_ variable
+ */
+void GGraph2D::setDrawArrows(bool dA) {
+	drawArrows_ = dA;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves the value of the drawArrows_ variable
+ *
+ * @return The value of the drawArrows_ variable
+ */
+bool GGraph2D::getDrawArrows() const {
+	return drawArrows_;
 }
 
 /*****************************************************************************/
@@ -402,8 +426,8 @@ std::string GGraph2D::bodyData() const {
 
 	for(it=data_.begin(); it!=data_.end(); ++it) {
 		body_data
-			<< "  " << xArrayName << "[" << posCounter << "] = " << it->get<0>() << ";" << std::endl
-			<< "  " << yArrayName << "[" << posCounter << "] = " << it->get<1>() << ";" << std::endl;
+			<< "  " << xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << std::endl
+			<< "  " << yArrayName << "[" << posCounter << "] = " << boost::get<1>(*it) << ";" << std::endl;
 
 		posCounter++;
 	}
@@ -440,7 +464,7 @@ std::string GGraph2D::footerData() const {
 	if(drawingArguments() != "") {
 		dA = drawingArguments();
 	} else {
-		if(pM_ == SCATTER) {
+		if(pM_ == SCATTER || true==drawArrows_) {
 			dA = "AP";
 		} else {
 			dA = "APL";
@@ -464,6 +488,28 @@ std::string GGraph2D::footerData() const {
 	footer_data
 		<< "  " << graphName << "->Draw(\""<< dA << "\");" << std::endl
 		<< std::endl;
+
+	if(drawArrows_ && data_.size() >= 2) {
+		std::vector<boost::tuple<double, double> >::const_iterator it;
+		std::size_t posCounter = 0;
+
+		double x1 = boost::get<0>(*data_.begin());
+		double y1 = boost::get<1>(*data_.begin());
+		double x2,y2;
+
+		for(it=data_.begin()+1; it!=data_.end(); ++it) {
+			x2 = boost::get<0>(*it);
+			y2 = boost::get<1>(*it);
+
+			footer_data
+				<< "  TArrow * ta_" << graphName << "_posCounter = new TArrow(" << x1 << ", " << y1 << "," << x2 << ", " << y2 << ", " << 0.05 << ", \"|>\");" << std::endl
+				<< "  ta_" << graphName << "_posCounter->Draw();" << std::endl;
+
+			posCounter++;
+		}
+		footer_data
+			<< std::endl;
+	}
 
 	return footer_data.str();
 }
@@ -586,10 +632,10 @@ std::string GGraph2ED::bodyData() const {
 
 	for(it=data_.begin(); it!=data_.end(); ++it) {
 		body_data
-			<< "  " <<  xArrayName << "[" << posCounter << "] = " << it->get<0>() << ";" << std::endl
-			<< "  " << exArrayName << "[" << posCounter << "] = " << it->get<1>() << ";" << std::endl
-			<< "  " <<  yArrayName << "[" << posCounter << "] = " << it->get<2>() << ";" << std::endl
-			<< "  " << eyArrayName << "[" << posCounter << "] = " << it->get<3>() << ";" << std::endl;
+			<< "  " <<  xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << std::endl
+			<< "  " << exArrayName << "[" << posCounter << "] = " << boost::get<1>(*it) << ";" << std::endl
+			<< "  " <<  yArrayName << "[" << posCounter << "] = " << boost::get<2>(*it) << ";" << std::endl
+			<< "  " << eyArrayName << "[" << posCounter << "] = " << boost::get<3>(*it) << ";" << std::endl;
 
 		posCounter++;
 	}

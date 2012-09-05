@@ -821,7 +821,8 @@ private:
 
 /*********************************************************************************/
 /**
- * A wrapper for the ROOT TGraph class (2d data and curve-like structures)
+ * A wrapper for the ROOT TGraph class (2d data and curve-like structures). It
+ * also adds the option to draw arrows between consecutive points.
  */
 class GGraph2D : public GDataCollector2T<double,double> {
 public:
@@ -837,6 +838,11 @@ public:
 	/** @brief The assignment operator */
 	const GGraph2D &operator=(const GGraph2D&);
 
+	/** @brief Adds arrows to the plots between consecutive points */
+	void setDrawArrows(bool);
+	/** @brief Retrieves the value of the drawArrows_ variable */
+	bool getDrawArrows() const;
+
 	/** @brief Determines whether a scatter plot or a curve is created */
 	void setPlotMode(graphPlotMode);
 	/** @brief Allows to retrieve the current plotting mode */
@@ -851,6 +857,7 @@ public:
 
 private:
 	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
+	bool drawArrows_; ///< When set to true, arrows will be drawn between consecutive points
 };
 
 /*********************************************************************************/
