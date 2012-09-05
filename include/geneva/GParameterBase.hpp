@@ -65,8 +65,8 @@ namespace Geneva {
  * Note: It is required that derived classes make sure that a useful operator=() is available!
  */
 class GParameterBase
-	: public GMutableI
-	, public GObject
+	: public GObject
+	, public GMutableI
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;

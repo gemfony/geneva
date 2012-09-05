@@ -42,8 +42,8 @@ namespace Geneva {
  * The default constructor. Adaptions are switched on by default.
  */
 GParameterBase::GParameterBase()
-	: GMutableI()
-	, GObject()
+	: GObject()
+	, GMutableI()
 	, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>())
 	, gr(gr_local)
 	, adaptionsActive_(true)
@@ -57,8 +57,8 @@ GParameterBase::GParameterBase()
  * @param cp A copy of another GParameterBase object
  */
 GParameterBase::GParameterBase(const GParameterBase& cp)
-	: GMutableI(cp)
-	, GObject(cp)
+	: GObject(cp)
+	, GMutableI(cp)
 	, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>()) // We do *not* copy cp's random number generator!
 	, gr(gr_local)
 	, adaptionsActive_(cp.adaptionsActive_)
