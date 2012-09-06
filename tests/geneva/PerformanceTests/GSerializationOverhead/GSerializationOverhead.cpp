@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
 	gcdc_ser_ptr->setYAxisLabel("Time (s)");
 
 	for(std::size_t s=1; s<=MAXOBJECTSIZE; s+=(s<10?1:STEPSIZE)) {
-		// std::cout << "Starting measurement for object size " << s << std::endl;
+		std::cout << "Starting measurement for object size " << s << std::endl;
 
 		for(std::size_t o=0; o<NPERFOBJECTTYPES; o++) {
 			// Create a GTestIndividual2 object of the desired size
@@ -143,7 +143,7 @@ int main(int argc, char **argv) {
 
 			// Now measure the time needed for NMEASUREMENTS
 			// consecutive (de-)serializations in the fastest mode (binary)
-			for(std::size_t i=1; i<=NMEASUREMENTS; i+=2) {
+			for(std::size_t i=1; i<=NMEASUREMENTS; i++) {
 				gti_ptr->GObject::fromString(gti_ptr->GObject::toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY);
 			}
 			ptime post_serialization = microsec_clock::local_time();

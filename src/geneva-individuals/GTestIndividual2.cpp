@@ -90,6 +90,7 @@ GTestIndividual2::GTestIndividual2(const std::size_t& nObjects, const PERFOBJECT
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.0, 0.8, 0.0001, 1.,1.));
 		gcdo_ptr->addAdaptor(gdga_ptr);
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> gcdc_ptr(new GConstrainedDoubleObjectCollection(nObjects,gcdo_ptr));
+		this->push_back(gcdc_ptr);
 		break;
 	}
 

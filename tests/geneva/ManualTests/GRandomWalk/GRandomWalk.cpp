@@ -93,8 +93,6 @@ int main(int argc, char **argv) {
 	// gcdc_adapt_ptr->setDrawArrows();
 
 	for(std::size_t o=0; o<NPERFOBJECTTYPES; o++) {
-		if(o==2) continue;
-
 		// Create a GTestIndividual2 object of size 2
 		boost::shared_ptr<GTestIndividual2> gti_ptr(new GTestIndividual2(2,PERFOBJECTTYPE(o)));
 
@@ -135,7 +133,7 @@ int main(int argc, char **argv) {
 
 	gpd.registerPlotter(gdo_adapt_ptr);
 	gpd.registerPlotter(gcdo_adapt_ptr);
-	// gpd.registerPlotter(gcdoc_adapt_ptr);
+	gpd.registerPlotter(gcdoc_adapt_ptr);
 	gpd.registerPlotter(gdc_adapt_ptr);
 	gpd.registerPlotter(gcdc_adapt_ptr);
 
