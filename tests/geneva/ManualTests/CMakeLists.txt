@@ -11,6 +11,7 @@ ADD_DEPENDENCIES ( "geneva-tests-manual"
 	GFloatGaussAdaptorTest
 	GDoubleBiGaussAdaptorTest
 	GDoubleGaussAdaptorTest
+	GRandomWalk
 )
 
 ADD_SUBDIRECTORY ( GBooleanProbabilityTest )
@@ -20,3 +21,4 @@ ADD_SUBDIRECTORY ( GFloatBiGaussAdaptorTest )
 ADD_SUBDIRECTORY ( GFloatGaussAdaptorTest )
 ADD_SUBDIRECTORY ( GDoubleBiGaussAdaptorTest )
 ADD_SUBDIRECTORY ( GDoubleGaussAdaptorTest )
+ADD_SUBDIRECTORY ( GRandomWalk )

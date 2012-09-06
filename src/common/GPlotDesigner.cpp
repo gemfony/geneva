@@ -503,7 +503,11 @@ std::string GGraph2D::footerData() const {
 
 			footer_data
 				<< "  TArrow * ta_" << graphName << "_posCounter = new TArrow(" << x1 << ", " << y1 << "," << x2 << ", " << y2 << ", " << 0.05 << ", \"|>\");" << std::endl
+				<< "  ta_" << graphName << "_posCounter->SetArrowSize(0.01);" << std::endl
 				<< "  ta_" << graphName << "_posCounter->Draw();" << std::endl;
+
+			x1 = x2;
+			y1 = y2;
 
 			posCounter++;
 		}

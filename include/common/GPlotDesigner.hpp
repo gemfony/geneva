@@ -839,7 +839,7 @@ public:
 	const GGraph2D &operator=(const GGraph2D&);
 
 	/** @brief Adds arrows to the plots between consecutive points */
-	void setDrawArrows(bool);
+	void setDrawArrows(bool=true);
 	/** @brief Retrieves the value of the drawArrows_ variable */
 	bool getDrawArrows() const;
 
