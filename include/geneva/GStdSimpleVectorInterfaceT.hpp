@@ -314,7 +314,7 @@ public:
 	/**
 	 * Inserts a given amount of items after position pos.
 	 */
-	void insert(iterator pos, size_type amount, const T& item) {	return data.insert(pos,amount,item); }
+	void insert(iterator pos, size_type amount, const T& item) { data.insert(pos,amount,item); }
 
 	/* ----------------------------------------------------------------------------
 	 * Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()

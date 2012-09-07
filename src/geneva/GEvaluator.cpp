@@ -184,6 +184,9 @@ double GEvaluator::fitnessCalculation(GParameterSet * const gps) const {
 			"In GEvaluator::fitnessCalculation()" << std::endl
 			<< "Function called directly which should not happen"
 	);
+
+	// Make the compiler happy
+	return 0.;
 }
 
 /************************************************************************************************************/

@@ -1356,6 +1356,9 @@ private:
 				"In GNeuralNetworkIndividual::transfer(): Error!" << std::endl
 				<< "Class was instantiated with invalid value for template parameter tF"
 		);
+
+		// Make the compiler happy
+		return 0.;
 	}
 
 	/********************************************************************************************/

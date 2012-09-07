@@ -303,6 +303,9 @@ std::size_t GEAPersonalityTraits::getParentId() const {
 				<< "parentId_ is unset"
 		);
 	}
+
+	// Make the compiler happy
+	return std::size_t(0);
 }
 
 /* ----------------------------------------------------------------------------------

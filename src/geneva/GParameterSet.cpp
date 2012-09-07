@@ -180,6 +180,9 @@ double GParameterSet::fitnessCalculation() {
 			"In GParameterSet::fitnessCalculation()" << std::endl
 			<< "Function called directly which should not happen"
 	);
+
+	// Make the compiler happy
+	return 0.;
 }
 
 /************************************************************************************************************/

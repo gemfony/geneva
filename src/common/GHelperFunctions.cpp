@@ -118,6 +118,9 @@ std::string serializationModeToString(const serializationMode& s) {
 		break;
 	}
 	}
+
+	// Make the compiler happy
+	return std::string("");
 }
 
 /**************************************************************************************************/
