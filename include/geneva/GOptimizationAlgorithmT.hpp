@@ -681,10 +681,8 @@ public:
 	/**************************************************************************************/
 	/**
 	 * Removes the quality threshold
-	 *
-	 * TODO: rename to resetQualityThreshold()
 	 */
-	void unsetQualityThreshold() {
+	void resetQualityThreshold() {
 		hasQualityThreshold_ = false;
 	}
 

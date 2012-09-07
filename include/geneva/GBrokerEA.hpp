@@ -54,8 +54,6 @@
 #include "common/GExceptions.hpp"
 #include "common/GThreadPool.hpp"
 
-// TODO Move GBrokerConnectorT include to this class
-
 namespace Gem
 {
 namespace Geneva
