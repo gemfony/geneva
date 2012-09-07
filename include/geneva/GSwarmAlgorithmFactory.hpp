@@ -60,9 +60,10 @@ namespace Gem
 namespace Geneva
 {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
- * This class is a specialization of the GOptimizationAlgorithmFactoryT<> class for swarm algorithms.
+ * This class is a specialization of the GOptimizationAlgorithmFactoryT<> class
+ * for swarm algorithms.
  */
 class GSwarmAlgorithmFactory
 	: public GOptimizationAlgorithmFactoryT<GBaseSwarm>
@@ -83,8 +84,7 @@ private:
 	/** @brief The default constructor. Intentionally private and undefined */
 	GSwarmAlgorithmFactory();
 };
-
-/*******************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

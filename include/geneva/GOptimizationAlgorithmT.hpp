@@ -45,8 +45,6 @@
 #pragma once
 #endif
 
-/**************************************************************************************/
-
 // Geneva headers go here
 #include "courtier/GBrokerConnectorT.hpp"
 #include "geneva/GObject.hpp"
@@ -58,7 +56,7 @@
 namespace Gem {
 namespace Geneva {
 
-/******************************************************************************************/
+/***************************************************************************/
 /**
  * This class implements basic operations found in iteration-based optimization algorithms.
  * E.g., one might want to stop the optimization after a given number of cycles, or after
@@ -107,7 +105,7 @@ private:
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor
 	 */
@@ -134,7 +132,7 @@ public:
 		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
 	{ /* nothing */ }
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 *
@@ -163,14 +161,14 @@ public:
 		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>())
 	{ /* nothing */ }
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GOptimizationAlgorithmT()
 	{ /* nothing */ }
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs the necessary administratory work of doing check-pointing
 	 *
@@ -182,11 +180,11 @@ public:
 		else if(cpInterval_ && iteration_%cpInterval_ == 0) saveCheckpoint();
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the state of the class from disc. */
 	virtual void loadCheckpoint(const std::string&) = 0;
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether the optimization process has been halted, because the halt() function
 	 * has returned "true"
@@ -197,7 +195,7 @@ public:
 		return halted_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a better solution was found and updates the stallCounter_ variable
 	 * as necessary.
@@ -219,7 +217,7 @@ public:
 		return better;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to set the number of generations after which a checkpoint should be written.
 	 * A negative value will result in automatic checkpointing, whenever a better solution
@@ -231,7 +229,7 @@ public:
 		cpInterval_ = cpInterval;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to retrieve the number of generations after which a checkpoint should be written
 	 *
@@ -241,7 +239,7 @@ public:
 		return cpInterval_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to set the base name of the checkpoint file and the directory where it
 	 * should be stored.
@@ -292,7 +290,7 @@ public:
 	    else cpDirectory_ = cpDirectory;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to retrieve the base name of the checkpoint file.
 	 *
@@ -302,7 +300,7 @@ public:
 		return cpBaseName_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to retrieve the directory where checkpoint files should be stored
 	 *
@@ -312,7 +310,7 @@ public:
 		return cpDirectory_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Determines whether checkpointing should be done in Text-, XML- or Binary-mode
 	 *
@@ -322,7 +320,7 @@ public:
 		cpSerMode_ = cpSerMode;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the current checkpointing serialization mode
 	 *
@@ -332,7 +330,7 @@ public:
 		return cpSerMode_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for equality with another GOptimizationAlgorithmT object
 	 *
@@ -345,7 +343,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithm<ind_type>::operator==","cp", CE_SILENT);
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for inequality with another GOptimizationAlgorithmT object
 	 *
@@ -358,7 +356,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::operator!=","cp", CE_SILENT);
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -413,7 +411,7 @@ public:
 		return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function encapsulates some common functionality of iteration-based
 	 * optimization algorithms. E.g., they all need a loop that stops if some
@@ -508,7 +506,7 @@ public:
 		resetIndividualPersonalities();
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A little convenience function that helps to avoid having to specify explicit scopes
 	 */
@@ -516,7 +514,7 @@ public:
 		GOptimizableI::optimize();
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Emits information specific to this class. The function can be overloaded
 	 * in derived classes and it indeed makes sense to emit much more information
@@ -537,7 +535,7 @@ public:
 		(this->optimizationMonitor_ptr_)->informationFunction(im, this);
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Registers an optimizationMonitor object (or a derivative) with this object. Note
 	 * that this class will take ownership of the optimization monitor by cloning it.
@@ -559,7 +557,7 @@ public:
 		this->optimizationMonitor_ptr_ = om_ptr->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the default population size
 	 *
@@ -569,7 +567,7 @@ public:
 		return defaultPopulationSize_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieve the current population size
 	 *
@@ -579,7 +577,7 @@ public:
 		return this->size();
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Set the number of iterations after which the optimization should
 	 * be stopped
@@ -590,7 +588,7 @@ public:
 		maxIteration_ = maxIteration;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieve the number of iterations after which optimization should
 	 * be stopped
@@ -601,7 +599,7 @@ public:
 		return maxIteration_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the maximum number of generations allowed without improvement of the best
 	 * individual. Set to 0 in order for this stop criterion to be disabled.
@@ -612,7 +610,7 @@ public:
 		maxStallIteration_ = maxStallIteration;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the maximum number of generations allowed in an optimization run without
 	 * improvement of the best individual.
@@ -623,7 +621,7 @@ public:
 		return maxStallIteration_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the maximum allowed processing time
 	 *
@@ -643,7 +641,7 @@ public:
 		maxDuration_ = maxDuration;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the value of the maxDuration_ parameter.
 	 *
@@ -653,7 +651,7 @@ public:
 		return maxDuration_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 *  Sets a quality threshold beyond which optimization is expected to stop
 	 *
@@ -665,7 +663,7 @@ public:
 		hasQualityThreshold_=hasQualityThreshold;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the current value of the quality threshold and also indicates whether
 	 * the threshold is active
@@ -678,7 +676,7 @@ public:
 		return qualityThreshold_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Removes the quality threshold
 	 */
@@ -686,7 +684,7 @@ public:
 		hasQualityThreshold_ = false;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a quality threshold has been set
 	 *
@@ -696,7 +694,7 @@ public:
 		return hasQualityThreshold_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieve the current iteration of the optimization run
 	 *
@@ -706,7 +704,7 @@ public:
 		return iteration_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Returns the current offset used to calculate the current iteration
 	 *
@@ -716,7 +714,7 @@ public:
 		return offset_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the number of iterations after which the algorithm should
 	 * report about its inner state.
@@ -727,7 +725,7 @@ public:
 		reportIteration_ = iter;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Returns the number of iterations after which the algorithm should
 	 * report about its inner state.
@@ -738,7 +736,7 @@ public:
 		return reportIteration_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the current number of failed optimization attempts
 	 *
@@ -748,7 +746,7 @@ public:
 		return stallCounter_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieve the best value found in the entire optimization run so far
 	 *
@@ -758,7 +756,7 @@ public:
 		return bestPastFitness_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the best value found in the current iteration
 	 *
@@ -768,7 +766,7 @@ public:
 		return bestCurrentFitness_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Specifies whether information about termination reasons should be emitted
 	 *
@@ -778,7 +776,7 @@ public:
 		emitTerminationReason_ = emitTerminatioReason;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves information on whether information about termination reasons should be emitted
 	 *
@@ -788,7 +786,7 @@ public:
 		return emitTerminationReason_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function converts an individual at a given position to the derived
 	 * type and returns it. In DEBUG mode, the function will check whether the
@@ -827,7 +825,7 @@ public:
 #endif /* DEBUG */
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function is e.g. called from GSerialEA::adjustPopulation(). It
 	 * currently only triggers actions for GParameterSet-derivatives. Optimization algorithms
@@ -836,7 +834,7 @@ public:
 	 */
 	void randomInit() { /* nothing */ }
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieve the number of processable items in the current iteration. This function should
 	 * be overloaded for derived classes. It is used to determine a suitable wait factor for
@@ -848,7 +846,7 @@ public:
 		return this->size();
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Gives access to the current optimization monitor
 	 *
@@ -858,7 +856,7 @@ public:
 		return this->optimizationMonitor_ptr_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds local configuration options to a GParserBuilder object
 	 *
@@ -1035,7 +1033,7 @@ public:
 		);
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
 	 * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -1047,7 +1045,7 @@ public:
 
 
 protected:
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GObject
 	 *
@@ -1082,15 +1080,15 @@ protected:
 		this->optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/** @brief Allows derived classes to set the personality type of the individuals */
 	virtual void setIndividualPersonalities() = 0;
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Resets the individual's personality types
 	 */
@@ -1099,15 +1097,15 @@ protected:
 		for(it=this->begin(); it!=this->end(); ++it) (*it)->resetPersonality();
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/** @brief Saves the state of the class to disc */
 	virtual void saveCheckpoint() const = 0;
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
 	virtual double cycleLogic() = 0;
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the default size of the population
 	 *
@@ -1117,7 +1115,7 @@ protected:
 		defaultPopulationSize_ = defPopSize;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * It is possible for derived classes to specify in overloaded versions of this
 	 * function under which conditions the optimization should be stopped. The
@@ -1132,7 +1130,7 @@ protected:
 		return false;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Fitness calculation for a population means optimization. The fitness is then determined
 	 * by the best individual which, after the end of the optimization cycle, can be found in
@@ -1159,7 +1157,7 @@ protected:
 		return val;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows derived classes to reset the stall counter.
 	 */
@@ -1167,7 +1165,7 @@ protected:
 		stallCounter_ = 0;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Helps to determine whether a given value is strictly better (i.e. better than equal)
 	 * than another one. As "better" means something different for maximization and minimization,
@@ -1188,7 +1186,7 @@ protected:
 		}
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Helps to determine whether a given value is strictly worse (i.e. worse than equal)
 	 * than another one. As "worse" means something different for maximization and minimization,
@@ -1209,7 +1207,7 @@ protected:
 		}
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Helper function that emits the worst case value depending on whether maximization
 	 * or minimization is performed.
@@ -1220,7 +1218,7 @@ protected:
 		return (this->getMaxMode()?-DBL_MAX:DBL_MAX);
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to perform initialization work before the optimization cycle starts. This
 	 * function will usually be overloaded by derived functions, which should however,
@@ -1238,7 +1236,7 @@ protected:
 		}
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to perform any remaining work after the optimization cycle has finished.
 	 * This function will usually be overloaded by derived functions, which shoudl however
@@ -1255,7 +1253,7 @@ protected:
 		}
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function performs any initial optimization work (such as the evaluation of a
 	 * single individual).
@@ -1263,7 +1261,7 @@ protected:
 	virtual void optimizationInit()
 	{ /* nothing */ }
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function performs any final optimization work (such as the evaluation of a
 	 * single individual).
@@ -1271,11 +1269,11 @@ protected:
 	virtual void optimizationFinalize()
 	{ /* nothing */ }
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/** @brief Resizes the population to the desired level and does some error checks */
 	virtual void adjustPopulation() = 0;
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Lets individuals know about the current iteration of the optimization
 	 * cycle.
@@ -1287,7 +1285,7 @@ protected:
 		}
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A little helper function that determines whether we are currently inside of the first
 	 * iteration
@@ -1298,7 +1296,7 @@ protected:
 		return iteration_ == offset_;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A little helper function that determines whether we are after the first iteration
 	 *
@@ -1309,7 +1307,7 @@ protected:
 	}
 
 private:
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function returns true once a given time (set with
 	 * GOptimizationAlgorithm<ind_type>::setMaxTime()) has passed.
@@ -1331,7 +1329,7 @@ private:
 		}
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function returns true once the quality is below or above a given threshold
 	 * (depending on whether we maximize or minimize).
@@ -1350,7 +1348,7 @@ private:
 		}
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function returns true once a given number of stalls has been exceeded in a row
 	 *
@@ -1368,7 +1366,7 @@ private:
 		}
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function returns true once a maximum number of iterations has been exceeded
 	 *
@@ -1386,7 +1384,7 @@ private:
 		}
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A wrapper for the customHalt() function that allows us to emit the termination reason
 	 *
@@ -1405,7 +1403,7 @@ private:
 
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function checks whether a halt criterion has been reached. The most
 	 * common criterion is the maximum number of iterations. Set the maxIteration_
@@ -1437,7 +1435,7 @@ private:
 		return false;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the individual's maximization mode and sets our own mode accordingly. This
 	 * function effectively steers whether the entire algorithm will maximize or minimize the
@@ -1467,7 +1465,7 @@ private:
 		this->setMaxMode_(localMaxMode);
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Marks the globally best known fitness in all individuals
 	 */
@@ -1478,7 +1476,7 @@ private:
 		}
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Marks the number of stalled optimization attempts in all individuals
 	 */
@@ -1489,7 +1487,8 @@ private:
 		}
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
+
 	boost::uint32_t iteration_; ///< The current iteration
 	boost::uint32_t offset_; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
 	boost::uint32_t maxIteration_; ///< The maximum number of iterations
@@ -1513,7 +1512,7 @@ private:
 
 #ifdef GEM_TESTING
 public:
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -1528,7 +1527,7 @@ public:
 		return result;
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -1537,7 +1536,7 @@ public:
 		GMutableSetT<ind_type>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -1546,14 +1545,14 @@ public:
 		GMutableSetT<ind_type>::specificTestsFailuresExpected_GUnitTests();
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 #endif /* GEM_TESTING */
 
 
 public:
-	/**************************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////////////
-	/**************************************************************************************/
+	/***************************************************************************/
+	/////////////////////////////////////////////////////////////////////////////
+	/***************************************************************************/
 	/**
 	 * This nested class defines the interface of optimization monitors, as used
 	 * in the Geneva library. It also provides users with some basic information.
@@ -1575,7 +1574,7 @@ public:
 	    ///////////////////////////////////////////////////////////////////////
 
 	public:
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * The default constructor
 	     */
@@ -1584,7 +1583,7 @@ public:
 	    	, resultFile_(DEFAULTRESULTFILEOM)
 	    { /* nothing */ }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * The copy constructor
 	     *
@@ -1596,14 +1595,14 @@ public:
 	    	, resultFile_(cp.resultFile_)
 	    { /* nothing */ }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * The destructor
 	     */
 	    virtual ~GOptimizationMonitorT()
 	    { /* nothing */ }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * The standard assignment operator.
 	     *
@@ -1615,7 +1614,7 @@ public:
 	    	return *this;
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * Checks for equality with another GParameter Base object
 	     *
@@ -1628,7 +1627,7 @@ public:
 	    	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT::operator==","cp", CE_SILENT);
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * Checks for inequality with another GOptimizationMonitorT object
 	     *
@@ -1641,7 +1640,7 @@ public:
 	    	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT::operator!=","cp", CE_SILENT);
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * Checks whether a given expectation for the relationship between this object and another object
 	     * is fulfilled.
@@ -1680,7 +1679,7 @@ public:
 	    	return evaluateDiscrepancies("GOptimizationMonitorT", caller, deviations, e);
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * The actual information function
 	     *
@@ -1736,7 +1735,7 @@ public:
 	    	};
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * Prevents any information from being emitted by this object
 	     */
@@ -1744,7 +1743,7 @@ public:
 	    	quiet_ = true;
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * Allows this object to emit information
 	     */
@@ -1752,7 +1751,7 @@ public:
 	    	quiet_ = false;
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * Allows to check whether the emission of information is prevented
 	     *
@@ -1762,7 +1761,7 @@ public:
 	    	return quiet_;
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * Allows to specify a different name for the result file
 	     *
@@ -1772,7 +1771,7 @@ public:
 	    	resultFile_ = resultFile;
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * Allows to retrieve the current value of the result file name
 	     *
@@ -1783,7 +1782,7 @@ public:
 	    }
 
 	protected:
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * A function that is called once before the optimization starts
 	     *
@@ -1798,7 +1797,7 @@ public:
 	    	return result.str();
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * A function that is called during each optimization cycle. It is possible to
 	     * extract quite comprehensive information in each iteration. For examples, see
@@ -1813,7 +1812,7 @@ public:
 	    	return result.str();
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * A function that is called once at the end of the optimization cycle
 	     *
@@ -1826,7 +1825,7 @@ public:
 	    	return result.str();
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * Loads the data of another object
 	     *
@@ -1843,7 +1842,7 @@ public:
 	    	resultFile_ = p_load->resultFile_;
 	    }
 
-	    /**********************************************************************************/
+	    /************************************************************************/
 	    /**
 	     * Creates a deep clone of this object
 	     */
@@ -1852,14 +1851,14 @@ public:
 		}
 
 	private:
-		/**********************************************************************************/
+		/************************************************************************/
 		bool quiet_; ///< Specifies whether any information should be emitted at all
 		std::string resultFile_; ///< Specifies where result information should be sent to
 		std::ofstream summary_; ///< The stream to which information is written (not serialized)
 
 #ifdef GEM_TESTING
 	public:
-		/**********************************************************************************/
+		/************************************************************************/
 		/**
 		 * Applies modifications to this object. This is needed for testing purposes
 		 */
@@ -1872,7 +1871,7 @@ public:
 			return result;
 		}
 
-		/**********************************************************************************/
+		/************************************************************************/
 		/**
 		 * Performs self tests that are expected to succeed. This is needed for testing purposes
 		 */
@@ -1881,7 +1880,7 @@ public:
 			GObject::specificTestsNoFailureExpected_GUnitTests();
 		}
 
-		/**********************************************************************************/
+		/************************************************************************/
 		/**
 		 * Performs self tests that are expected to fail. This is needed for testing purposes
 		 */
@@ -1890,19 +1889,18 @@ public:
 			GObject::specificTestsFailuresExpected_GUnitTests();
 		}
 
-		/**********************************************************************************/
+		/************************************************************************/
 #endif /* GEM_TESTING */
 	};
-
-	/**************************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////////////
-	/**************************************************************************************/
+   /***************************************************************************/
+	/////////////////////////////////////////////////////////////////////////////
+   /***************************************************************************/
 };
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/******************************************************************************************/
+/******************************************************************************/
 /**
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
@@ -1915,12 +1913,12 @@ namespace boost {
   }
 }
 
-/******************************************************************************************/
+/******************************************************************************/
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::GOptimizationMonitorT)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT)
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>)
 
-/******************************************************************************************/
+/******************************************************************************/
 
 #endif /* GOPTIMIZATIONALGORITHMT_HPP_ */

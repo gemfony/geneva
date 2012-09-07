@@ -61,11 +61,11 @@
 namespace Gem {
 namespace Geneva {
 
-/**********************************************************************************************/
+/******************************************************************************/
 /** @brief The default number of threads for parallelization with boost */
 const boost::uint16_t DEFAULTBOOSTTHREADSEA = 2;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default population size in evolutionary algorithms
  */
@@ -76,7 +76,7 @@ const std::size_t DEFAULTEAPOPULATIONSIZE = 100;
  */
 const std::size_t DEFAULTEANPARENTS = 1;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default name of the output file of the optimization monitor base class
  */
@@ -92,7 +92,7 @@ const boost::uint16_t DEFAULTXDIMOM=1024;
  */
 const boost::uint16_t DEFAULTYDIMOM=768;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default maximum value for constrained double values. It needs to be smaller
  * than the maximum allowed value for the underlying type in order to allow statements like
@@ -100,7 +100,7 @@ const boost::uint16_t DEFAULTYDIMOM=768;
  */
 const double MAXCONSTRAINEDDOUBLE = (boost::numeric::bounds<double>::highest())/10.;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default maximum value for constrained float values. It needs to be smaller
  * than the maximum allowed value for the underlying type in order to allow statements like
@@ -109,7 +109,7 @@ const double MAXCONSTRAINEDDOUBLE = (boost::numeric::bounds<double>::highest())/
 const double MAXCONSTRAINEDFLOAT = (boost::numeric::bounds<float>::highest())/10.f;
 
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default maximum value for constrained boost::int32_t values. It needs to be smaller
  * than the maximum allowed value for the underlying type in order to allow statements like
@@ -117,7 +117,7 @@ const double MAXCONSTRAINEDFLOAT = (boost::numeric::bounds<float>::highest())/10
  */
 const boost::int32_t MAXCONSTRAINEDINT32 = (boost::numeric::bounds<boost::int32_t>::highest())/10.;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The two const variables MAXIMIZE and MINIMIZE determine, whether the library
  * should work in maximization or minimization mode.
@@ -125,21 +125,21 @@ const boost::int32_t MAXCONSTRAINEDINT32 = (boost::numeric::bounds<boost::int32_
 const bool MAXIMIZE = true;
 const bool MINIMIZE = false;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The number of iterations after which information should be
  * emitted about the inner state of the optimization algorithm.
  */
 const boost::uint32_t DEFAULTREPORTITER = 1;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The number of iterations after which a checkpoint should be written.
  * 0 means that no checkpoints are written at all.
  */
 const boost::uint32_t DEFAULTCHECKPOINTIT = 0;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default base name used for check-pointing. Derivatives of this
  * class can build distinguished filenames from this e.g. by adding
@@ -147,51 +147,51 @@ const boost::uint32_t DEFAULTCHECKPOINTIT = 0;
  */
 const std::string DEFAULTCPBASENAME = "geneva.cp";
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default directory used for check-pointing. We choose a directory
  * that will always exist.
  */
 const std::string DEFAULTCPDIR = "./checkpoints/";
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default serialization mode used for check-pointing
  */
 const Gem::Common::serializationMode DEFAULTCPSERMODE = Gem::Common::SERIALIZATIONMODE_BINARY;
 
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default offset for a new optimization run
  */
 const boost::uint32_t DEFAULTOFFSET = 0;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default maximum number of iterations
  */
 const boost::uint32_t DEFAULTMAXIT = 1000;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default maximum number of iterations without improvement. 0 means: ignore
  */
 const boost::uint32_t DEFAULTMAXSTALLIT = 0;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default maximization mode
  */
 const bool DEFAULTMAXMODE = false; // means: "minimization"
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * A 0 time period . timedHalt will not trigger if this duration is set
  */
 const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default factor applied to the turn-around time
  * of the first item in the current iteration. Used to
@@ -201,13 +201,13 @@ const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration
  */
 const boost::uint32_t DEFAULTBROKERWAITFACTOR = 0;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default number of processing units
  */
 const boost::uint32_t DEFAULTNPROCESSINGUNITS = 0;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default allowed time in seconds for the first individual
  * in generation 0 to return. Set it to 0 to disable this timeout.
@@ -216,19 +216,19 @@ const boost::uint32_t DEFAULTNPROCESSINGUNITS = 0;
  */
 const std::string DEFAULTBROKERFIRSTTIMEOUT = EMPTYDURATION;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default maximum duration of the calculation.
  */
 const std::string DEFAULTDURATION = EMPTYDURATION;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default quality threshold
  */
 const double DEFAULTQUALITYTHRESHOLD=0.;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Specification of different parallelization modes
  */
@@ -243,7 +243,7 @@ enum parMode {
  */
 const parMode DEFAULTPARALLELIZATIONMODE = PARMODE_MULTITHREADED;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Currently three types of duplication schemes are supported:
  * - DEFAULTDUPLICATIONSCHEME defaults to RANDOMDUPLICATIONSCHEME
@@ -256,7 +256,7 @@ enum duplicationScheme {
 	, VALUEDUPLICATIONSCHEME = 2
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The info function can be called in these three modes
  */
@@ -266,7 +266,7 @@ enum infoMode {
 	, INFOEND
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Ids that are assigned to adaptors and which should (by convention!) be unique for these
  */
@@ -280,7 +280,7 @@ enum adaptorId {
 	, GINT32FLIPADAPTOR
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The selection mode in populations. MUPLUSNU_SINGLEEVAL means that new parents are selected from old
  * parents and their children. MUCOMMNU means that new parents are selected from children only.
@@ -297,14 +297,14 @@ enum sortingMode {
 	, MUCOMMANU_PARETO = 5
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Settings for simulated annealing
  */
 const double SA_T0 = 1000.; ///< The default start temperature in simulated annealing
 const double SA_ALPHA = 0.95; ///< The degradation strength in simulated annealing
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Different optimization algorithms need to assign different information to individuals. They
  * can thus assume different personalities, resulting in different data structures to be stored
@@ -317,13 +317,13 @@ enum personality_oa {
 	, PERSONALITY_SWARM = 3
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The maximum number of resubmissions allowed in broker-based gradient descents
  */
 const std::size_t DEFAULTMAXGDRESUBMISSIONS = 5;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default value for the GSerialEA::markOldParents_ flag. This is used mostly
  * for logging purposes. If set, the algorithm will keep a copy of the parents from which the
@@ -331,7 +331,7 @@ const std::size_t DEFAULTMAXGDRESUBMISSIONS = 5;
  */
 const bool DEFAULTMARKOLDPARENTS = false;
 
-/**********************************************************************************************/
+/******************************************************************************/
 
 const double DEFAULTSIGMA = 1; ///< Default start value for sigma_
 const double DEFAULTINT32SIGMA = 5; ///< Default sigma start value for GInt32GaussAdaptor
@@ -347,14 +347,14 @@ const double DEFAULTADPROB = 1.0; // 100 percent adaption probability for all ot
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD = 1; // Adaption parameters should be adapted whenever an adaption takes place
 const double DEFAULTADAPTADAPTIONPROB = 0.; // 0 percent probability for the adaption of adaption parameters
 
-/**********************************************************************************************/
+/******************************************************************************/
 // Adaption modes
 const boost::logic::tribool DEFAULTADAPTIONMODE = boost::logic::indeterminate; // Adapt should happen with a given probability
 const boost::logic::tribool ADAPTALWAYS = true; // Always adapt, independent of probability settings
 const boost::logic::tribool ADAPTWITHPROB = boost::logic::indeterminate; // Adapt according to the set probability
 const boost::logic::tribool ADAPTNEVER = false; // Never adapt (effectively disables the adaptor)
 
-/**********************************************************************************************/
+/******************************************************************************/
 
 const double DEFAULTCPERSONAL = 1.49; ///< Default multiplier for personal distances (swarm)
 const double DEFAULTCNEIGHBORHOOD = 1.49; ///< Default multiplier for neighborhood distances (swarm)
@@ -364,7 +364,7 @@ const double DEFAULTVELOCITYRANGEPERCENTAGE = 0.15; ///< Default percentage of v
 const std::size_t DEFAULTNNEIGHBORHOODS = 5; ///< The default size of each neighborhood in swarm algorithms
 const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 10; ///< The default number of members in each neighborhood
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Specifies different update rules in swarms
  */
@@ -373,11 +373,11 @@ enum updateRule {
 	, SWARM_UPDATERULE_CLASSIC = 1
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 
 const updateRule DEFAULTUPDATERULE = SWARM_UPDATERULE_CLASSIC; ///< The default update rule in swarms
 
-/**********************************************************************************************/
+/******************************************************************************/
 
 /** @brief Puts a Gem::Geneva::parMode into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Geneva::parMode&);
@@ -421,7 +421,7 @@ std::ostream& operator<<(std::ostream&, const Gem::Geneva::updateRule&);
 /** @brief Reads a Gem::Geneva::updateRule from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Geneva::updateRule&);
 
-/**********************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

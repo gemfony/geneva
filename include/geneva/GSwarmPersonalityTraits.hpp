@@ -52,12 +52,12 @@
 namespace Gem {
 namespace Geneva {
 
-/*********************************************************************************/
+/******************************************************************************/
 // Forward declaration needed as GSwarmPersonalityTraits.hpp is
 // included in GIndividual.hpp. Breaks circular dependency.
 class GParameterSet;
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to swarm optimization.
@@ -149,7 +149,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

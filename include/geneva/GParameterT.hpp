@@ -54,7 +54,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A class holding a single, mutable parameter - usually just an atomic value (double, long,
  * boolean, ...).
@@ -88,7 +88,7 @@ public:
 	/** @brief The destructor */
 	virtual ~GParameterT();
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard assignment operator.
 	 *
@@ -100,7 +100,7 @@ public:
 		return *this;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * An assignment operator that allows us to set val_ . Note that the value is returned as
 	 * a copy, not a reference. Hence we assume here that val_ is copy-constructible.
@@ -113,7 +113,7 @@ public:
 		return val_;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to set the internal (and usually externally visible) value. Note
 	 * that we assume here that T has an operator=() or is a basic value type, such as double
@@ -130,7 +130,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Automatic conversion to the target type
 	 */
@@ -143,7 +143,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieval of the value
 	 *
@@ -158,7 +158,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for equality with another GParameterT<T> object
 	 *
@@ -171,7 +171,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterT<T>::operator==","cp", CE_SILENT);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for inequality with another GParameterT<T> object
 	 *
@@ -184,7 +184,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterT<T>::operator!=","cp", CE_SILENT);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -221,7 +221,7 @@ public:
 		return evaluateDiscrepancies("GParameterT<T>", caller, deviations, e);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to adapt the value stored in this class.
 	 */
@@ -235,7 +235,7 @@ public:
 	 */
 
 protected:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Gives derived classes access to the internal value. A constant function is needed to
 	 * allow resetting the value in the GConstrained family of classes from within the value()
@@ -253,7 +253,7 @@ protected:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GObject
 	 *
@@ -270,14 +270,14 @@ protected:
 		val_ = p_load->val_;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 	/** @brief Triggers random initialization of the parameter(-collection) */
 	virtual void randomInit_() = 0;
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The internal representation of our value. Mutability is needed as in some cases value
 	 * calculation implies resetting of the internal value. We nevertheless want to be able
@@ -289,7 +289,7 @@ protected:
 
 #ifdef GEM_TESTING
 public:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -304,7 +304,7 @@ public:
 		return result;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -315,7 +315,7 @@ public:
 		// All tests of our local functions are made in derived classes
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -328,7 +328,7 @@ public:
 };
 
 
-/*********************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor. Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
  */
@@ -338,7 +338,7 @@ GParameterT<T>::GParameterT()
 	, val_(Gem::Common::GDefaultValueT<bool>())
 { /* nothing */ }
 
-/*********************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor.  Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
  *
@@ -350,7 +350,7 @@ GParameterT<T>::GParameterT(const GParameterT<T>& cp)
 	, val_(cp.val_)
 { /* nothing */	}
 
-/*********************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization by contained value.Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
  *
@@ -362,7 +362,7 @@ GParameterT<T>::GParameterT(const T& val)
 	, val_(val)
 { /* nothing */	}
 
-/*********************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor.Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
  */
@@ -370,12 +370,12 @@ template <typename T>
 GParameterT<T>:: ~GParameterT()
 { /* nothing */ }
 
-/*********************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/********************************************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
@@ -387,6 +387,6 @@ namespace boost {
 	}
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 
 #endif /* GPARAMETERT_HPP_ */

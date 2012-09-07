@@ -57,14 +57,14 @@
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
- * This is a templatized version of the GParameterBase class. Its main
+ * This is a template-ized version of the GParameterBase class. Its main
  * addition over that class is the storage of an adaptor, which allows the
  * adaption of parameters. As this functionality has to be type specific,
  * this class has also been implemented as a template. Storing the adaptors in
  * the GParameterBase class would not have been possible, as it cannot be
- * templatized - it serves as a base class for the objects stored in the
+ * template-ized - it serves as a base class for the objects stored in the
  * GParameterSet collections.
  */
 template <typename T>
@@ -83,7 +83,7 @@ class GParameterBaseWithAdaptorsT:	public GParameterBase
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor. adaptor_ will be initialized with the default adaptor for this
 	 * type
@@ -93,7 +93,7 @@ public:
 		, adaptor_(getDefaultAdaptor<T>())
 	{ /* nothing */	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The copy constructor.
 	 *
@@ -104,14 +104,14 @@ public:
 		, adaptor_((cp.adaptor_)->GObject::template clone<GAdaptorT<T> >())
 	{ /* nothing */ }
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor. All cleanup work is done by boost::shared_ptr.
 	 */
 	virtual ~GParameterBaseWithAdaptorsT()
 	{ /* nothing */ }
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for equality with another GParameterBaseWithAdaptorsT<T> object
 	 *
@@ -124,7 +124,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterBaseWithAdaptorsT<T>::operator==","cp", CE_SILENT);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for inequality with another GParameterBaseWithAdaptorsT<T> object
 	 *
@@ -137,7 +137,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterBaseWithAdaptorsT<T>::operator!=","cp", CE_SILENT);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -174,7 +174,7 @@ public:
 		return evaluateDiscrepancies("GParameterBaseWithAdaptorsT<T>", caller, deviations, e);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds an adaptor to this object. Please note that this class takes ownership of the adaptor
 	 * by cloning it.
@@ -219,7 +219,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the adaptor. Throws in DBEUG mode , if we have no adaptor. It is assumed
 	 * that only the object holding the "master" adaptor pointer should be allowed to modify it.
@@ -246,7 +246,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Transforms the adaptor stored in this class to the desired target type. The function
 	 * will check in DEBUG mode whether an adaptor was indeed stored in this class. It will
@@ -290,7 +290,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function resets the local adaptor_ pointer.
 	 */
@@ -303,7 +303,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Indicates whether an adaptor is present
 	 *
@@ -319,7 +319,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Assigns a random number generator from another object to this object and any adaptor
 	 * contained herein.
@@ -336,7 +336,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Re-connects the local random number generator to gr and tells the adaptor to do the same.
 	 */
@@ -350,7 +350,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether the local random number generator is used in this class and in a
 	 * possible adaptor contained in this object. The result will be true only if both
@@ -372,7 +372,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a "foreign" random number generator is used in this class and in a
 	 * possible adaptor contained in this object. The result will be true only if both
@@ -395,7 +395,7 @@ public:
 	 */
 
 protected:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GParameterBaseWithAdaptorsT object, which
 	 * is camouflaged as a GObject.
@@ -429,12 +429,12 @@ protected:
 		}
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. Purely virtual, as we do not want this
 	 * class to be instantiated directly */
 	virtual GObject* clone_() const = 0;
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function applies our adaptor to a value. Note that the argument of
 	 * this function will get changed.
@@ -461,7 +461,7 @@ protected:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function applies our adaptor to a collection of values. Note that the argument
 	 * of this function will get changed.
@@ -493,7 +493,7 @@ protected:
 	 */
 
 private:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * @brief Holds the adaptor used for adaption of the values stored in derived classes.
 	 */
@@ -501,7 +501,7 @@ private:
 
 #ifdef GEM_TESTING
 public:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -516,7 +516,7 @@ public:
 		return result;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -588,7 +588,7 @@ public:
 
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -605,7 +605,7 @@ template<> void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/********************************************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
@@ -617,6 +617,6 @@ namespace boost {
 	}
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 
 #endif /* GPARAMETERBASEWITHADAPTORST_HPP_ */

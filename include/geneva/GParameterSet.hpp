@@ -73,7 +73,7 @@ class GTestIndividual1; // forward declaration, needed for testing purposes
 
 namespace Geneva {
 
-/**************************************************************************/
+/******************************************************************************/
 /**
  * This class implements a collection of GParameterBase objects. It
  * will form the basis of many user-defined individuals.
@@ -172,7 +172,7 @@ public:
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function returns a parameter set at a given position of the data set.
 	 * Note that this function will only be accessible to the compiler if par_type
@@ -206,7 +206,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieve information about the total number of parameters of type
 	 * par_type in the individual. Note that the GParameterBase-template
@@ -232,7 +232,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loops over all GParameterBase objects. Each object will add the
 	 * values of its parameters to the vector, if they comply with the
@@ -257,7 +257,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loops over all GParameterBase objects. Each object will add the
 	 * lower and upper boundaries of its parameters to the vector, if
@@ -288,7 +288,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Assigns values from a std::vector to the parameters in the collection
 	 *
@@ -320,7 +320,7 @@ public:
 	}
 
 protected:
-	/**********************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
@@ -334,7 +334,7 @@ protected:
 private:
 	explicit GParameterSet(const float&); ///< Intentionally private and undefined
 
-	/**********************************************************************/
+	/***************************************************************************/
 #ifdef GEM_TESTING
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -344,18 +344,18 @@ public:
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 #endif /* GEM_TESTING */
-	/**********************************************************************/
+	/***************************************************************************/
 };
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSet)
 
-/*************************************************************************************************/
+/******************************************************************************/
 
 #endif /* GPARAMETERSET_HPP_ */

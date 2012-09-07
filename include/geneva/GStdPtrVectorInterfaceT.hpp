@@ -82,7 +82,7 @@
 namespace Gem {
 namespace Geneva {
 
-/******************************************************************************************************/
+/******************************************************************************/
 /**
  * This class implements the most important functions of the std::vector
  * class. It is intended to hold boost::shared_ptr smart pointers. Hence
@@ -115,14 +115,13 @@ class GStdPtrVectorInterfaceT
     ///////////////////////////////////////////////////////////////////////
 
 public:
-	/**************************************************************************************************/
+   /***************************************************************************/
 	/**
 	 * The default constructor
 	 */
 	GStdPtrVectorInterfaceT() { /* nothing */ }
 
-	/**************************************************************************************************/
-
+	/***************************************************************************/
 	/**
 	 * Copy construction. The content of the smart pointers is cloned (if content is
 	 * available).
@@ -136,7 +135,7 @@ public:
 		}
 	}
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor. Destruction of the objects will be taken care of
 	 * by boost::shared_ptr<T>.
@@ -145,7 +144,7 @@ public:
 		data.clear();
 	}
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Assginment operator
 	 *
@@ -157,7 +156,7 @@ public:
 		return cp;
 	}
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Assignment of a std::vector<boost::shared_ptr<T> > . As the vector contains smart
 	 * pointers, we cannot just copy the pointers themselves but need to copy their content.
@@ -201,7 +200,7 @@ public:
 		return cp;
 	}
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -238,7 +237,7 @@ public:
 		return evaluateDiscrepancies(className, caller, deviations, e);
 	}
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -275,7 +274,7 @@ public:
 		return evaluateDiscrepancies(className, caller, deviations, e);
 	}
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	// Typedefs
 	typedef typename std::vector<boost::shared_ptr<T> >::value_type value_type;
 	typedef typename std::vector<boost::shared_ptr<T> >::reference reference;
@@ -289,7 +288,7 @@ public:
 	typedef typename std::vector<boost::shared_ptr<T> >::size_type size_type;
 	typedef typename std::vector<boost::shared_ptr<T> >::difference_type difference_type;
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	// Non modifying access
 	size_type size() const { return data.size(); } // not tested -- trivial mapping
 	bool empty() const { return data.empty(); } // not tested -- trivial mapping
@@ -298,7 +297,7 @@ public:
 	size_type capacity() const { return data.capacity(); } // not tested -- trivial mapping
 	void reserve(size_type amount) { data.reserve(amount); } // not tested -- trivial mapping
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Counts the elements whose content is equal to the content of item.
 	 * Needs to be re-implemented here, as we are dealing with a collection of smart pointers
@@ -323,13 +322,13 @@ public:
 		}
 	}
 
-	/* ------------------------------------------------------------------------------------------------
+	/* -------------------------------------------------------------------------
 	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
 	 * Throwing tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
-	 * ------------------------------------------------------------------------------------------------
+	 * -------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Searches for the content of item in the entire range of the vector. Needs to be
 	 * re-implemented here, as we are dealing with a collection of smart pointers
@@ -358,7 +357,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Clones an object at a given position and convert it to a given target type
 	 */
@@ -367,7 +366,7 @@ public:
 		return (data.at(pos))->GObject::template clone<target_type>();
 	}
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	// Modifying functions
 
 	// Exchange of two data sets
@@ -399,11 +398,10 @@ public:
 	reverse_iterator rend() { return data.rend(); } // not tested -- trivial mapping
 	const_reverse_iterator rend() const { return data.rend(); } // not tested -- trivial mapping
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	// Insertion and removal
 
-
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Inserts a given item at position pos. Behavior defaults
 	 * to insert_noclone(pos,item).
@@ -420,7 +418,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Inserts a given item at position pos. Checks whether the item actually points
 	 * somewhere. Note that the shared_ptr will inserted itself. Hence any Change you
@@ -446,7 +444,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Inserts a given item at position pos. Checks whether the item actually points
 	 * somewhere. This function clones the item, hence changes to the argument after
@@ -472,7 +470,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Inserts a given amount of items at position pos. Defaults to
 	 * insert_clone(pos, amount, item_ptr)
@@ -490,7 +488,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Inserts a given amount of items at position pos. Will always clone.
 	 *
@@ -519,7 +517,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Inserts a given amount of items at position pos. Will not clone the argument.
 	 * Note that changes made to item_ptr's object after a call to this function will
@@ -553,7 +551,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Ads a shared_ptr object to the  back of the vector. The function defaults to
 	 * push_back_noclone
@@ -569,7 +567,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Ads a shared_ptr object to the  back of the vector. Note that the shared_ptr
 	 * will inserted itself. Hence any Change you might make to the object pointed
@@ -594,7 +592,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Ads a shared_ptr object to the  back of the vector. The object pointed to
 	 * will be cloned. Hence changes to it after a call to this function will not
@@ -619,7 +617,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	// Removal at a given position or in a range
 	iterator erase(iterator pos) { return data.erase(pos); }  // not tested -- trivial mapping
 	iterator erase(iterator from, iterator to) { return data.erase(from,to); }  // not tested -- trivial mapping
@@ -627,7 +625,7 @@ public:
 	// Removing an element from the end of the vector
 	void pop_back(){ data.pop_back(); }  // not tested -- trivial mapping
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Resizing the vector. This function will clone the first item in the collection, if available.
 	 */
@@ -650,7 +648,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Resizing the vector, initialization with item. This function is a front end
 	 * to resize_clone()
@@ -667,7 +665,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Resizing the vector, initialization with item. This function does nothing
 	 * if amount is the same as data.size(). Note that item_ptr will become part
@@ -708,7 +706,7 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Resizing the vector, initialization with item. This function does nothing
 	 * if amount is the same as data.size(). item_ptr will be cloned. Hence
@@ -743,11 +741,11 @@ public:
 	 * ------------------------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/** @brief Clearing the data vector */
 	void clear() { data.clear(); } // Not tested -- trivial mapping
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates a copy of the data vector. It is assumed that cp is empty or that
 	 * all data in it can be deleted.
@@ -762,7 +760,7 @@ public:
 		}
 	}
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs a cross-over operation at a given position. Note: We do not require
 	 * the two vectors to be of the same size
@@ -812,8 +810,7 @@ public:
 		// Nothing to do if both vectors have the same size
 	}
 
-
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Returns a view on the vector's content, filtering out only items of specific
 	 * type.
@@ -829,9 +826,9 @@ public:
 		}
 	}
 
-	/**************************************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**************************************************************************************************/
+	/***************************************************************************/
+	/////////////////////////////////////////////////////////////////////////////
+	/***************************************************************************/
 	/** An iterator implementation that facilitates access to derived elements */
 	template <typename derivedType>
 	class conversion_iterator:
@@ -843,7 +840,7 @@ public:
 		>
 	{
 	public:
-		/**********************************************************************************************/
+      /************************************************************************/
 		/**
 		 * The standard constructor. The iterator needs to know about the end of the
 		 * sequence so it can skip items not fitting the derivation pattern.
@@ -854,7 +851,7 @@ public:
 			:end_(end)
 		 { /* nothing */ }
 
-		/**********************************************************************************************/
+		/************************************************************************/
 		/**
 		 * We need to be able to assign values to the iterator, e.g. in a for loop.
 		 *
@@ -868,7 +865,7 @@ public:
 			}
 		}
 
-		/**********************************************************************************************/
+		/************************************************************************/
 		/**
 		 * We need to test whether we have reached the end of the sequence, e.g. in a for loop.
 		 *
@@ -879,7 +876,7 @@ public:
 			return current_ != other;
 		}
 
-		/**********************************************************************************************/
+		/************************************************************************/
 		/**
 		 * This iterator internally stores a copy of the end of the sequence it iterates over. If
 		 * the size of the sequence changes, so does the end point. Hence users need to adapt the
@@ -892,18 +889,18 @@ public:
 			end_ = end;
 		}
 
-		/**********************************************************************************************/
 	private:
+		/************************************************************************/
 		friend class boost::iterator_core_access; ///< Boost's iterator classes need access to the internals of this class
 
-		/**********************************************************************************************/
+		/************************************************************************/
 		/**
 		 * The default constructor. Intentionally left undefined and private, so it cannot be
 		 * instantiated.
 		 */
 		conversion_iterator();
 
-		/**********************************************************************************************/
+		/************************************************************************/
 		/**
 		 * This is a standard function required by boost's iterator_facade class.
 		 *
@@ -930,7 +927,7 @@ public:
 #endif /* DEBUG */
 		}
 
-		/**********************************************************************************************/
+		/************************************************************************/
 		/**
 		 * Checks for equality with another iterator
 		 *
@@ -941,7 +938,7 @@ public:
 			return current_ == other;
 		}
 
-		/**********************************************************************************************/
+		/************************************************************************/
 		/**
 		 * This function increments the iterator position, possibly skipping items, should they
 		 * not meet the derivation pattern.
@@ -953,7 +950,7 @@ public:
 			}
 		}
 
-		/**********************************************************************************************/
+		/************************************************************************/
 		typename std::vector<boost::shared_ptr<T> >::iterator current_; ///< Marks the current position in the iteration sequence
 		typename std::vector<boost::shared_ptr<T> >::iterator end_; ///< Marks the end of the iteration sequence
 
@@ -966,7 +963,7 @@ protected:
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
 	virtual void dummyFunction() = 0;
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A small helper class that compares two items and checks for equality, depending on the current mode
 	 */
@@ -992,7 +989,7 @@ protected:
 		}
 	};
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A small helper class that compares two items of identical type
 	 * and checks for equality, depending on the current mode
@@ -1006,7 +1003,7 @@ protected:
 	};
 
 private:
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/** @brief Intentionally left undefined */
 	bool operator==(const GStdPtrVectorInterfaceT<T>&) const;
 	/** @brief Intentionally left undefined */
@@ -1028,12 +1025,12 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
@@ -1046,6 +1043,6 @@ namespace boost {
   }
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 #endif /* GSTDPTRVECTORINTERFACET_HPP_ */

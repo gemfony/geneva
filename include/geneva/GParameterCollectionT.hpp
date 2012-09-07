@@ -53,7 +53,7 @@
 namespace Gem {
 namespace Geneva {
 
-/***********************************************************************************************/
+/******************************************************************************/
 /**
  * A class holding a collection of mutable parameters - usually just an atomic value (double,
  * long, bool, ...).
@@ -75,7 +75,7 @@ class GParameterCollectionT
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor
 	 */
@@ -84,7 +84,7 @@ public:
 		, GStdSimpleVectorInterfaceT<T>()
 	{ /* nothing */ }
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization with a number of variables of predefined values
 	 *
@@ -96,7 +96,7 @@ public:
 		, GStdSimpleVectorInterfaceT<T>(nval, val)
 	{ /* nothing */ }
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 *
@@ -107,14 +107,14 @@ public:
 		, GStdSimpleVectorInterfaceT<T>(cp)
 	{  /* nothing */ }
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
 	virtual ~GParameterCollectionT()
 	{ /* nothing */ }
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard assignment operator.
 	 *
@@ -127,7 +127,7 @@ public:
 		return *this;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for equality with another GParameterCollectionT<T> object
 	 *
@@ -140,7 +140,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterCollectionT<T>::operator==","cp", CE_SILENT);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for inequality with another GParameterCollectionT<T> object
 	 *
@@ -153,7 +153,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterCollectionT<T>::operator==","cp", CE_SILENT);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -191,7 +191,7 @@ public:
 		return evaluateDiscrepancies("GParameterCollectionT<T>", caller, deviations, e);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and a vector
 	 * of base-type items is fulfilled. Only the content of the vector underlying this class
@@ -223,7 +223,7 @@ public:
 		return evaluateDiscrepancies("GParameterCollectionT<T>", caller, deviations, e);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to adapt the values stored in this class. applyAdaptor expects a reference
 	 * to a std::vector<T>. As we are derived from a wrapper of this class, we can just pass
@@ -238,7 +238,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to identify whether we are dealing with a collection or an individual parameter
 	 * (which is obviously not the case here). This function needs to be overloaded for parameter
@@ -251,7 +251,7 @@ public:
 		return false;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Swap another object's vector with ours
 	 */
@@ -264,7 +264,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieval of the value at a given position
 	 *
@@ -275,7 +275,7 @@ public:
 		return this->at(pos);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to set the internal (and usually externally visible) value at a given position. Note
 	 * that we assume here that T has an operator=() or is a basic value type, such as double
@@ -289,7 +289,7 @@ public:
 	}
 
 protected:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GParameterCollectionT<T> object, camouflaged as a GObject
 	 *
@@ -304,13 +304,13 @@ protected:
 		GStdSimpleVectorInterfaceT<T>::operator=(*p_load);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.
 	 */
 	virtual GObject* clone_() const = 0;
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Re-implementation of a corresponding function in GStdSimpleVectorInterface.
 	 * Making the vector wrapper purely virtual allows the compiler to perform
@@ -320,7 +320,7 @@ protected:
 
 #ifdef GEM_TESTING
 public:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -336,7 +336,7 @@ public:
 		return result;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -346,7 +346,7 @@ public:
 		GStdSimpleVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -358,12 +358,12 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/*********************************************************************************************/
+	/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
@@ -376,6 +376,6 @@ namespace boost {
   }
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 #endif /* GPARAMETERCOLLECTIONT_HPP_ */

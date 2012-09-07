@@ -54,7 +54,7 @@
 namespace Gem {
 namespace Geneva {
 
-/***********************************************************************************************/
+/******************************************************************************/
 /**
  * This class shares many similarities with the GParameterCollectionT class. Instead
  * of individual values that can be modified with adaptors, however, it assumes that
@@ -86,20 +86,20 @@ class GParameterTCollectionT
 	BOOST_MPL_ASSERT((boost::is_base_of<GParameterBase, T>));
 
 public:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to find out which type is stored in this class
 	 */
 	typedef T collection_type;
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor
 	 */
 	GParameterTCollectionT()
 	{ /* nothing */ }
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization with a number of copies of a given GParameterBase derivative
 	 *
@@ -112,7 +112,7 @@ public:
 		}
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 *
@@ -123,14 +123,14 @@ public:
 		, GStdPtrVectorInterfaceT<T>(cp)
 	{ /* nothing */ }
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
 	virtual ~GParameterTCollectionT()
 	{ /* nothing */ }
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard assignment operator.
 	 *
@@ -143,7 +143,7 @@ public:
 		return *this;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for equality with another GParameterTCollectionT<T> object
 	 *
@@ -156,7 +156,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterTCollectionT<T>::operator==","cp", CE_SILENT);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for inequality with another GParameterTCollectionT<T> object
 	 *
@@ -169,8 +169,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterTCollectionT<T>::operator==","cp", CE_SILENT);
 	}
 
-
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -183,13 +182,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	boost::optional<std::string> checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+	) const {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -207,7 +207,7 @@ public:
 		return evaluateDiscrepancies("GParameterTCollectionT<T>", caller, deviations, e);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to adapt the values stored in this class. We assume here that
 	 * each item has its own adapt function. Hence we do not need to use or
@@ -225,7 +225,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to identify whether we are dealing with a collection or an individual parameter
 	 * (which is obviously not the case here). This function needs to be overloaded for parameter
@@ -238,7 +238,7 @@ public:
 		return false;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes floating-point-based parameters with a given value. Allows e.g. to set all
 	 * floating point parameters to 0.
@@ -257,7 +257,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Multiplies floating-point-based parameters with a given value.
 	 *
@@ -275,7 +275,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Multiplies with a random floating point number in a given range.
 	 *
@@ -294,7 +294,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
@@ -310,7 +310,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds the floating point parameters of another GParameterTCollectionT object to this one.
 	 *
@@ -342,7 +342,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Subtracts the floating point parameters of another GParameterTCollectionT object from this one.
 	 *
@@ -374,7 +374,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Attach parameters of type double to the vector. This function distributes this task to
 	 * objects contained in the container.
@@ -393,7 +393,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Attach parameters of type boost::int32_t to the vector. This function distributes this task
 	 * to objects contained in the container.
@@ -412,7 +412,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Attach parameters of type bool to the vector.  This function distributes this task
 	 * to objects contained in the container.
@@ -431,7 +431,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Attach boundaries of type double to the vectors
 	 *
@@ -448,7 +448,7 @@ public:
 		}
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Attach boundaries of type boost::int32_t to the vectors
 	 *
@@ -465,7 +465,7 @@ public:
 		}
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Attach boundaries of type bool to the vectors. This function has been added for
 	 * completeness - at the very least it can give an indication of the number of boolean
@@ -485,7 +485,7 @@ public:
 		}
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Count the number of double parameters. This function returns the responses from all
 	 * objects contained in this collection.
@@ -503,7 +503,7 @@ public:
 		return result;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Count the number of boost::int32_t parameters. This function returns the responses from all
 	 * objects contained in this collection.
@@ -521,7 +521,7 @@ public:
 		return result;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Count the number of bool parameters. This function returns the responses from all
 	 * objects contained in this collection.
@@ -539,7 +539,7 @@ public:
 		return result;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Assigns part of a value vector to the parameter
 	 */
@@ -555,7 +555,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Assigns part of a value vector to the parameter
 	 */
@@ -571,7 +571,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Assigns part of a value vector to the parameter
 	 */
@@ -587,7 +587,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Assigns a random number generator from another object to all objects stored in this
 	 * collection and to the object itself.
@@ -619,7 +619,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Re-connects the local random number generator to gr and distributes the call
 	 * to all objects contained in this collection class.
@@ -640,7 +640,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether solely the local random number generator is used. The function returns
 	 * false if at least one component of this class does not use a local random number
@@ -668,7 +668,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether all relevant objects use the assigned random number generator.
 	 *
@@ -695,7 +695,7 @@ public:
 	 */
 
 protected:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GParameterTCollectionT<T> object, camouflaged as a GObject
 	 *
@@ -710,14 +710,14 @@ protected:
 		GStdPtrVectorInterfaceT<T>::operator=(*p_load);
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates a deep clone of this object. Declared purely virtual, as this class is not
 	 * intended to be used directly.
 	 */
 	virtual GObject* clone_() const = 0;
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Re-implementation of a corresponding function in GStdPtrVectorInterface.
 	 * Making the vector wrapper purely virtual allows the compiler to perform
@@ -725,7 +725,7 @@ protected:
 	 */
 	virtual void dummyFunction() { /* nothing */ }
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Triggers random initialization of all parameter objects
 	 */
@@ -746,7 +746,7 @@ protected:
 
 #ifdef GEM_TESTING
 public:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -762,7 +762,7 @@ public:
 		return result;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -799,7 +799,7 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -825,12 +825,12 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/***********************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/***********************************************************************************************/
+/******************************************************************************/
 /** @brief Mark this class as abstract. This is the content of
  * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
 
@@ -843,6 +843,6 @@ namespace boost {
 	}
 }
 
-/***********************************************************************************************/
+/******************************************************************************/
 
 #endif /* GPARAMETERTCOLLECTIONT_HPP_ */

@@ -60,11 +60,11 @@ namespace Gem
 namespace Geneva
 {
 
-/*******************************************************************************************/
+/******************************************************************************/
 // Default settings
 const boost::uint16_t FACT_DEF_NEVALUATIONTHREADS=0;
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * This class is a specialization of the GFactoryT<> class for optimization algorithms
  */
@@ -73,16 +73,19 @@ class GOptimizationAlgorithmFactoryT
 	: public Gem::Common::GFactoryT<T>
 {
 public:
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard constructor
 	 */
-	GOptimizationAlgorithmFactoryT(const std::string& configFile, const parMode& pm)
+	GOptimizationAlgorithmFactoryT(
+	      const std::string& configFile
+	      , const parMode& pm
+	)
 		: Gem::Common::GFactoryT<T>(configFile)
 		, pm_(pm)
 	{ /* nothing */ }
 
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
@@ -90,7 +93,7 @@ public:
 	{ /* nothing */ }
 
 protected:
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to describe configuration options
 	 *
@@ -187,7 +190,7 @@ protected:
 		);
 	}
 
-	/***************************************************************************************/
+	/***************************************************************************/
 	/** @brief Creates individuals of this type */
 	virtual boost::shared_ptr<T> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
 	/** @brief Allows to act on the configuration options received from the configuration file */
@@ -197,7 +200,7 @@ protected:
 
 	boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
 
-    boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
+	boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
 	double minWaitFactor_; ///< The minimum allowed wait factor
 	double maxWaitFactor_; ///< The maximum allowed wait factor
 	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
@@ -205,12 +208,12 @@ protected:
 	double waitFactorIncrement_; ///< The amount by which the waitFactor_ may be incremented or decremented
 
 private:
-	/***************************************************************************************/
+	/***************************************************************************/
 	/** @brief The default constructor. Intentionally private and undefined */
 	GOptimizationAlgorithmFactoryT();
 };
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

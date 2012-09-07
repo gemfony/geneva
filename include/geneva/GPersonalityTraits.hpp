@@ -54,7 +54,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * This is the base class for a small hierarchy that encapsulates information
  * relevant to particular optimization algorithms. The information is stored in
@@ -90,7 +90,14 @@ public:
 	bool operator!=(const GPersonalityTraits&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+	      const GObject&
+	      , const Gem::Common::expectation&
+	      , const double&
+	      , const std::string&
+	      , const std::string&
+	      , const bool&
+	) const;
 
 protected:
 	/** @brief Loads the data of another GPersonalityTraits object */
@@ -109,16 +116,16 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GPersonalityTraits)
-/*********************************************************************************/
+/******************************************************************************/
 
 #endif /* GPERSONALITYTRAITS_HPP_ */

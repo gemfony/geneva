@@ -56,7 +56,7 @@
 namespace Gem {
 namespace Geneva {
 
-/******************************************************************************************/
+/******************************************************************************/
 /**
  * The purpose of this class is to provide a common base for all parameter classes, so
  * that a GParameterSet can be built from different parameter types. The class also
@@ -126,7 +126,7 @@ public:
 	/** @brief Subtract the floating point parameters of another GParameterBase object from this one */
 	virtual void fpSubtract(boost::shared_ptr<GParameterBase>);
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add all parameters of a specific type to the vector. This function is a
 	 * trap, needed to catch streamlining attempts with unsupported types. Use the supplied
@@ -143,7 +143,7 @@ public:
 		);
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/** @brief Attach parameters of type float to the vector */
 	virtual void floatStreamline(std::vector<float>&) const;
 	/** @brief Attach parameters of type double to the vector */
@@ -153,7 +153,7 @@ public:
 	/** @brief Attach parameters of type bool to the vector */
 	virtual void booleanStreamline(std::vector<bool>&) const;
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add all boundaries if parameters of a specific type to the vectors. This
 	 * function is a trap, needed to catch streamlining attempts with unsupported types.
@@ -173,7 +173,7 @@ public:
 		);
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/** @brief Attach boundaries of type float to the vectors */
 	virtual void floatBoundaries(std::vector<float>&, std::vector<float>&) const;
 	/** @brief Attach boundaries of type double to the vectors */
@@ -183,7 +183,7 @@ public:
 	/** @brief Attach boundaries of type bool to the vectors */
 	virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&) const;
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to count parameters of a specific type. This function is a trap, needed to
 	 * catch attempts to use this function with unsupported types. Use the supplied
@@ -200,7 +200,7 @@ public:
 		);
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 
 	/** @brief Count the number of float parameters */
 	virtual std::size_t countFloatParameters() const;
@@ -211,7 +211,7 @@ public:
 	/** @brief Count the number of bool parameters */
 	virtual std::size_t countBoolParameters() const;
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to assign the parameters inside of a vector the corresponding parameter objects.
 	 * This function is a trap, needed to catch attempts to use this function with unsupported
@@ -229,7 +229,7 @@ public:
 		);
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&);
@@ -269,7 +269,7 @@ public:
 	/** @brief Checks whether the assigned random number generator is used throughout */
 	virtual bool assignedRNGUsed() const;
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function converts a GParameterBase boost::shared_ptr to the target type.  Note that this
 	 * template will only be accessible to the compiler if GParameterBase is a base type of load_type.
@@ -297,10 +297,9 @@ public:
 #endif
 	}
 
-	/**************************************************************************************************/
 
 protected:
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
      * A random number generator. This reference and the associated pointer is either
      * connected to a local random number generator assigned in the constructor, or
@@ -309,7 +308,7 @@ protected:
 	Gem::Hap::GRandomBase *gr_local;
 	Gem::Hap::GRandomBase *gr;
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
@@ -333,7 +332,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Specializations of some template functions
  */
@@ -360,12 +359,12 @@ template <>	void GParameterBase::assignValueVector<bool>(const std::vector<bool>
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterBase)
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 #endif /* GPARAMETERBASE_HPP_ */

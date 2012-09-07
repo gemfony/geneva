@@ -58,7 +58,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * A collection of GParameterBase objects, ready for use in a
  * GParameterSet derivative.
@@ -102,7 +102,7 @@ public:
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function returns a parameter item at a given position of the data set.
      * Note that this function will only be accessible to the compiler if parameter_type
@@ -132,7 +132,7 @@ public:
 	}
 
 protected:
-	/**********************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
@@ -151,7 +151,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/*************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -78,7 +78,7 @@
 namespace Gem {
 namespace Geneva {
 
-/********************************************************************************/
+/******************************************************************************/
 /**
  * This class implements most important functions of the std::vector
  * class. It is intended to hold basic types or types that can treated
@@ -99,13 +99,13 @@ class GStdSimpleVectorInterfaceT
     ///////////////////////////////////////////////////////////////////////
 
 public:
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * The default constructor
 	 */
 	GStdSimpleVectorInterfaceT() { /* nothing */ }
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization with a number of items of defined value
 	 *
@@ -116,7 +116,7 @@ public:
 		: data(nval, val)
 	{ /* nothing */ }
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * Copy construction
 	 *
@@ -126,13 +126,13 @@ public:
 		: data(cp.data)
 	{ /* nothing */ }
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * The destructor.
 	 */
 	virtual ~GStdSimpleVectorInterfaceT() { data.clear();	}
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * Assginment operator
 	 */
@@ -141,7 +141,7 @@ public:
 		return cp;
 	}
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -177,7 +177,7 @@ public:
 		return evaluateDiscrepancies(className, caller, deviations, e);
 	}
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -213,7 +213,7 @@ public:
 		return evaluateDiscrepancies(className, caller, deviations, e);
 	}
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	// Typedefs
 	typedef typename std::vector<T>::value_type value_type;
 	typedef typename std::vector<T>::reference reference;
@@ -227,7 +227,7 @@ public:
 	typedef typename std::vector<T>::size_type size_type;
 	typedef typename std::vector<T>::difference_type difference_type;
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	// Non modifying access
 	size_type size() const { return data.size(); } // Used/tested in GDoubleCollection::fillWithData()
 	bool empty() const { return data.empty(); } // Used/tested in GDoubleCollection::fillWithData()
@@ -236,7 +236,7 @@ public:
 	size_type capacity() const { return data.capacity(); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 	void reserve(size_type amount) { data.reserve(amount); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * Counts the elements whose content is equal to item.
 	*
@@ -250,7 +250,7 @@ public:
 	 * ----------------------------------------------------------------------------
 	 */
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * Searches for item in the entire range of the vector. Needs to be
 	 * re-implemented here, as we are dealing with a collection of smart pointers
@@ -265,7 +265,7 @@ public:
 	 * ----------------------------------------------------------------------------
 	 */
 
-	/*****************************************************************************/
+   /***************************************************************************/
 
 	// Modifying functions
 	void swap(std::vector<T>& cont) { std::swap(data, cont); } // untested (likely irrelevant)
@@ -296,7 +296,7 @@ public:
 	reverse_iterator rend() { return data.rend(); } // untested (likely irrelevant)
 	const_reverse_iterator rend() const { return data.rend(); }
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	// Insertion and removal
 
 	/**
@@ -310,7 +310,7 @@ public:
 	 * ----------------------------------------------------------------------------
 	 */
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * Inserts a given amount of items after position pos.
 	 */
@@ -321,11 +321,11 @@ public:
 	 * ----------------------------------------------------------------------------
 	 */
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	// Adding simple items to the  back of the vector
 	void push_back(const T& item){ data.push_back(item); } // Used/tested in GDoubleCollection::fillWithData()
 
-	/*****************************************************************************/
+   /***************************************************************************/
 
 	// Removal at a given position or in a range
 	iterator erase(iterator pos) { return data.erase(pos); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
@@ -334,7 +334,7 @@ public:
 	// Removing an element from the end of the vector
 	void pop_back(){ data.pop_back(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * Resizing the vector, initialization with item. This function does nothing
 	 * if amount is the same as data.size(). We assume in this function that
@@ -345,11 +345,11 @@ public:
 	 */
 	void resize(size_type amount, const T& item) { data.resize(amount, item);} // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/** @brief Clearing the data vector */
 	void clear() { data.clear(); } // Used/tested in GDoubleCollection::fillWithData()
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * Assignment of a std::vector<T>
 	 *
@@ -366,7 +366,7 @@ public:
 	 * ----------------------------------------------------------------------------
 	 */
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * Creates a copy of the data vector. It is assumed that cp is empty or that
 	 * all data in it can be deleted.
@@ -375,7 +375,7 @@ public:
 	 */
 	void getDataCopy(std::vector<T>& cp) const { cp=data; 	}  // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * Performs a cross-over operation at a given position. Note: We do not require
 	 * the two vectors to be of the same size
@@ -443,23 +443,23 @@ private:
 
 #ifdef GEM_TESTING
 public:
-	/*****************************************************************************/
+   /***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests() { /* nothing here yet */ return false; }
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing here yet */ }
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing here yet */  }
-	/*****************************************************************************/
+   /***************************************************************************/
 #endif /* GEM_TESTING */
 };
 
-/********************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
@@ -472,6 +472,6 @@ namespace boost {
   }
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 #endif /* GSTDSIMPLEVECTORINTERFACET_HPP_ */

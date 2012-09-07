@@ -56,12 +56,12 @@
 namespace Gem {
 namespace Geneva {
 
-/********************************************************************/
+/******************************************************************************/
 /**
  * This class adds a simple, serial adaptChildren() call to the GBaseEA class.
  */
 class GSerialEA
-	: public Geneva::GBaseEA
+	: public GBaseEA
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -135,7 +135,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/********************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
