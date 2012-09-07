@@ -57,13 +57,17 @@ const std::size_t MAXOBJECTSIZE = 100;
 // The step size
 const std::size_t STEPSIZE = 10;
 
+// The default serialization mode
+const Gem::Common::serializationMode DEFAULTSERMODE = Gem::Common::SERIALIZATIONMODE_BINARY;
+// const Gem::Common::serializationMode DEFAULTSERMODE = Gem::Common::SERIALIZATIONMODE_XML;
+
 using namespace boost::posix_time;
 using namespace Gem::Common;
 using namespace Gem::Geneva;
 using namespace Gem::Tests;
 
 int main(int argc, char **argv) {
-	std::string caption = "Times for adaption and serialization (" + boost::lexical_cast<std::string>(NMEASUREMENTS) + " measurements each)";
+	std::string caption = "Times for adaption and serialization (" + boost::lexical_cast<std::string>(NMEASUREMENTS) + " measurements each; serialization in " + serializationModeToString(DEFAULTSERMODE) + ")";
 	GPlotDesigner gpd(caption, 2, NPERFOBJECTTYPES);
 
 	boost::shared_ptr<GGraph2D> gdo_adapt_ptr(new GGraph2D());
@@ -144,7 +148,7 @@ int main(int argc, char **argv) {
 			// Now measure the time needed for NMEASUREMENTS
 			// consecutive (de-)serializations in the fastest mode (binary)
 			for(std::size_t i=1; i<=NMEASUREMENTS; i++) {
-				gti_ptr->GObject::fromString(gti_ptr->GObject::toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY);
+				gti_ptr->GObject::fromString(gti_ptr->GObject::toString(DEFAULTSERMODE), DEFAULTSERMODE);
 			}
 			ptime post_serialization = microsec_clock::local_time();
 

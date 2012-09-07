@@ -92,6 +92,35 @@ void runExternalCommand(const std::string& command) {
 }
 
 /**************************************************************************************************/
+/**
+ * Returns a string for a given serialization mode
+ *
+ * @param s The serialization mode which should be translated to a string
+ * @return A string for a given serialization mode
+ */
+std::string serializationModeToString(const serializationMode& s) {
+	switch(s) {
+	case SERIALIZATIONMODE_TEXT:
+		return std::string("text mode");
+		break;
+	case SERIALIZATIONMODE_XML:
+		return std::string("XML mode");
+		break;
+	case SERIALIZATIONMODE_BINARY:
+		return std::string("binary mode");
+		break;
+	default:
+	{
+		raiseException(
+				"In serializationModeToString(): Error!" << std::endl
+				<< "Incorrect serialization mode requested: " << s << std::endl
+		);
+		break;
+	}
+	}
+}
+
+/**************************************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

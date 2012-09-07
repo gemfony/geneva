@@ -84,6 +84,10 @@ unsigned int getNHardwareThreads(const unsigned int& defaultNThreads = Gem::Comm
 void runExternalCommand(const std::string&);
 
 /**************************************************************************************************/
+/** @brief Returns a string for a given serialization mode */
+std::string serializationModeToString(const serializationMode&);
+
+/**************************************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
