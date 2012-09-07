@@ -426,8 +426,7 @@ std::string GGraph2D::bodyData() const {
 
 	for(it=data_.begin(); it!=data_.end(); ++it) {
 		body_data
-			<< "  " << xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << std::endl
-			<< "  " << yArrayName << "[" << posCounter << "] = " << boost::get<1>(*it) << ";" << std::endl;
+			<< "  " << xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << "\t" << yArrayName << "[" << posCounter << "] = " << boost::get<1>(*it) << ";" << std::endl;
 
 		posCounter++;
 	}

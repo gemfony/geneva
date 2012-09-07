@@ -300,6 +300,42 @@ bool GConstrainedDoubleCollection::modify_GUnitTests() {
 void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent classes' functions
 	GConstrainedFPNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests();
+
+	// Some parameters
+	const std::size_t DEFSIZE=10;
+	const double DEFVAL=1.;
+	const double DEFMIN=-10.;
+	const double DEFMAX= 10.;
+
+	//---------------------------------------------------------------------
+
+	{ // Check that initialization with a fixed value-range yields the desired values
+		boost::shared_ptr<GConstrainedDoubleCollection> p_test;
+
+		BOOST_CHECK_NO_THROW(p_test = boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(DEFSIZE, DEFMIN, DEFMAX)));
+		BOOST_CHECK(p_test->size() == DEFSIZE && DEFSIZE>1);
+		for(std::size_t i=1; i<DEFSIZE; i++) { // Check that consecutive values are different
+			BOOST_CHECK(p_test->at(i) != p_test->at(i-1));
+		}
+		BOOST_CHECK(p_test->getLowerBoundary() == DEFMIN);
+		BOOST_CHECK(p_test->getUpperBoundary() == boost::math::float_prior<double>(DEFMAX)); // The upper boundary is an open one
+	}
+
+	//---------------------------------------------------------------------
+
+	{ // Check that initialization with a fixed value and range yields the desired values
+		boost::shared_ptr<GConstrainedDoubleCollection> p_test;
+
+		BOOST_CHECK_NO_THROW(p_test = boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(DEFSIZE, DEFVAL, DEFMIN, DEFMAX)));
+		BOOST_CHECK(p_test->size() == DEFSIZE);
+		for(std::size_t i=0; i<DEFSIZE; i++) {
+			BOOST_CHECK(p_test->at(i) == DEFVAL);
+		}
+		BOOST_CHECK(p_test->getLowerBoundary() == DEFMIN);
+		BOOST_CHECK(p_test->getUpperBoundary() == boost::math::float_prior<double>(DEFMAX)); // The upper boundary is an open one
+	}
+
+	//---------------------------------------------------------------------
 }
 
 /*******************************************************************************************/

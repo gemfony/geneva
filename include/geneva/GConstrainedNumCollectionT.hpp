@@ -146,7 +146,7 @@ public:
 			, const num_type& lowerBoundary
 			, const num_type& upperBoundary
 	)
-		: GParameterCollectionT<num_type> (size, lowerBoundary)
+		: GParameterCollectionT<num_type> (size, val)
 		, lowerBoundary_(lowerBoundary)
 		, upperBoundary_(upperBoundary)
 	{
