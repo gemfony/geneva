@@ -64,7 +64,7 @@ namespace Geneva {
  * http://threadpool.sf.net .
  */
 class GMultiThreadedEA
-	: public Geneva::GBaseEA
+	: public GBaseEA
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

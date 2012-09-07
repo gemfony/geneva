@@ -324,7 +324,7 @@ public:
 			// Check that the object has indeed changed
 			BOOST_CHECK(*p_test1 != *p_test2);
 
-			// Check that the values of p_test1 are inside of the allowed boundaroes
+			// Check that the values of p_test1 are inside of the allowed boundaries
 			for(std::size_t i=0; i<nItems; i++) {
 				BOOST_CHECK(p_test1->at(i) != p_test2->at(i));
 				BOOST_CHECK(p_test1->at(i) >= LOWERINITBOUNDARY);
