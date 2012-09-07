@@ -39,8 +39,8 @@
 #include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
 
-#ifndef GOPTIMIZATIONALGORITHMFACTORYT
-#define GOPTIMIZATIONALGORITHMFACTORYT
+#ifndef GOPTIMIZATIONALGORITHMFACTORYT_HPP_
+#define GOPTIMIZATIONALGORITHMFACTORYT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -83,6 +83,12 @@ public:
 	)
 		: Gem::Common::GFactoryT<T>(configFile)
 		, pm_(pm)
+		, nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+		, minWaitFactor_(DEFAULTMINBROKERWAITFACTOR)
+		, maxWaitFactor_(DEFAULTMAXBROKERWAITFACTOR)
+      , doLogging_(false)
+      , boundlessWait_(false)
+		, waitFactorIncrement_(DEFAULTBROKERWAITFACTORINCREMENT)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -218,4 +224,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GOPTIMIZATIONALGORITHMFACTORYT */
+#endif /* GOPTIMIZATIONALGORITHMFACTORYT_HPP_ */

@@ -58,9 +58,6 @@
 namespace Gem {
 namespace Geneva {
 
-/** @brief The default number of threads for parallelization with boost */
-const boost::uint16_t DEFAULTBOOSTTHREADSSWARM = 2;
-
 /********************************************************************/
 /**
  * A multi-threaded swarm based on GBaseSwarm. This version uses the

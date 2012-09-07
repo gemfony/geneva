@@ -63,9 +63,6 @@
 namespace Gem {
 namespace Geneva {
 
-/** @brief The default number of threads for parallelization with boost */
-const boost::uint16_t DEFAULTBOOSTTHREADSGD = 2;
-
 /*********************************************************************************/
 /**
  * A multi-threaded version of the GBaseGD class

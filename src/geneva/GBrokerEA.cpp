@@ -48,7 +48,7 @@ namespace Geneva
 GBrokerEA::GBrokerEA()
 	: GBaseEA()
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
-	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA)))
+	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -417,7 +417,7 @@ void GBrokerEA::addConfigurationOptions (
  */
 void GBrokerEA::setNThreads(boost::uint16_t nThreads) {
 	if(nThreads == 0) {
-		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA));
+		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
 	}
 	else {
 		nThreads_ = nThreads;

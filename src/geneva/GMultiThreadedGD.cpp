@@ -45,7 +45,8 @@ namespace Geneva {
  */
 GMultiThreadedGD::GMultiThreadedGD()
 	: GBaseGD()
-	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD)))
+	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+   , storedServerMode_(false)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -58,7 +59,8 @@ GMultiThreadedGD::GMultiThreadedGD (
 		, const float& stepSize
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize)
-	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD)))
+	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+   , storedServerMode_(false)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -68,6 +70,7 @@ GMultiThreadedGD::GMultiThreadedGD (
 GMultiThreadedGD::GMultiThreadedGD(const GMultiThreadedGD& cp)
 	: GBaseGD(cp)
 	, nThreads_(cp.nThreads_)
+   , storedServerMode_(cp.storedServerMode_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -165,7 +168,7 @@ boost::optional<std::string> GMultiThreadedGD::checkRelationshipWith(
  */
 void GMultiThreadedGD::setNThreads(boost::uint16_t nThreads) {
 	if(nThreads == 0) {
-		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD));
+		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
 	}
 	else {
 		nThreads_ = nThreads;
@@ -195,7 +198,6 @@ void GMultiThreadedGD::load_(const GObject *cp) {
 	// First load our parent class'es data ...
 	GBaseGD::load_(cp);
 
-	// ... and then our own
 	// ... and then our own
 	nThreads_ = p_load->nThreads_;
 

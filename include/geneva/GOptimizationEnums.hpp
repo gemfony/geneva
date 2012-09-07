@@ -63,7 +63,7 @@ namespace Geneva {
 
 /******************************************************************************/
 /** @brief The default number of threads for parallelization with boost */
-const boost::uint16_t DEFAULTBOOSTTHREADSEA = 2;
+const boost::uint16_t DEFAULTNBOOSTTHREADS = 2;
 
 /******************************************************************************/
 /**

@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GMultiThreadedSwarm::GMultiThreadedSwarm()
    : GBaseSwarm()
-   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM)))
+   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -57,7 +57,7 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(
 		, const std::size_t& nNeighborhoodMembers
 )
    : GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
-   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM)))
+   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -323,7 +323,7 @@ void GMultiThreadedSwarm::updateFitness() {
  */
 void GMultiThreadedSwarm::setNThreads(boost::uint16_t nThreads) {
 	if(nThreads == 0) {
-		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM));
+		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
 	}
 	else {
 		nThreads_ = nThreads;
