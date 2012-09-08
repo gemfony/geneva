@@ -53,7 +53,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * A collection of GInt32Object objects, ready for use in a
  * GParameterSet derivative.
@@ -92,7 +92,14 @@ public:
 	bool operator!=(const GInt32ObjectCollection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+	      const GObject&
+	      , const Gem::Common::expectation&
+	      , const double&
+	      , const std::string&
+	      , const std::string&
+	      , const bool&
+	) const;
 
 protected:
 	/** @brief Loads the data of another GObject */
@@ -113,7 +120,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/*************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

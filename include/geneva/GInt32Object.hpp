@@ -54,7 +54,7 @@
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * This class encapsulates a single integer value. This might appear heavy weight,
  * and indeed for most applications this is not the recommended solution -
@@ -113,7 +113,14 @@ public:
 	bool operator!=(const GInt32Object&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+	      const GObject&
+	      , const Gem::Common::expectation&
+	      , const double&
+	      , const std::string&
+	      , const std::string&
+	      , const bool&
+	) const;
 
 	/** @brief Attach our local value to the vector. */
 	virtual void int32Streamline(std::vector<boost::int32_t>&) const;
@@ -141,7 +148,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

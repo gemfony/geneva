@@ -51,7 +51,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * The GFPGaussAdaptorT represents an adaptor used for the adaption of
  * floating point values through the addition of gaussian-distributed random numbers.
@@ -79,14 +79,14 @@ class GFPGaussAdaptorT
 	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
 
 public:
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor
 	 */
 	GFPGaussAdaptorT()
 	{ /* nothing */ }
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 *
@@ -96,7 +96,7 @@ public:
 		: GNumGaussAdaptorT<fp_type, fp_type>(cp)
 	{ /* nothing */ }
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization with a adaption probability
 	 *
@@ -106,7 +106,7 @@ public:
 		: GNumGaussAdaptorT<fp_type, fp_type>(adProb)
 	{ /* nothing */ }
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization with a number of values belonging to
 	 * the width of the gaussian.
@@ -125,7 +125,7 @@ public:
 		: GNumGaussAdaptorT<fp_type, fp_type> (sigma, sigmaSigma, minSigma, maxSigma)
 	{ /* nothing */ }
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * This constructor lets a user set all sigma parameters, as well as the adaption
 	 * probability in one go.
@@ -146,14 +146,14 @@ public:
 		: GNumGaussAdaptorT<fp_type, fp_type> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
 	{ /* nothing */ }
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GFPGaussAdaptorT()
 	{ /* nothing */ }
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether this object fulfills a given expectation in relation
 	 * to another object
@@ -190,12 +190,12 @@ public:
 		return evaluateDiscrepancies("GFPGaussAdaptorT<fp_type>", caller, deviations, e);
 	}
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
 protected:
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another object of this type
 	 *
@@ -211,11 +211,11 @@ protected:
 		// ... no local data
 	}
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const = 0;
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The actual adaption of the supplied value takes place here.
 	 *
@@ -268,7 +268,7 @@ protected:
 
 #ifdef GEM_TESTING
 public:
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
@@ -284,7 +284,7 @@ public:
 		return result;
 	}
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for
 	 * testing purposes
@@ -297,7 +297,7 @@ public:
 		GNumGaussAdaptorT<fp_type, fp_type>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -311,12 +311,12 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/*************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/*************************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
@@ -327,6 +327,6 @@ namespace boost {
 		struct is_abstract< const Gem::Geneva::GFPGaussAdaptorT<fp_type> > : public boost::true_type {};
 	}
 }
-/*************************************************************************/
+/******************************************************************************/
 
 #endif /* GFPGAUSSADAPTORT_HPP_ */

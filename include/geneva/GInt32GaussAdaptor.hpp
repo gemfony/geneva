@@ -53,7 +53,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * The GInt32GaussAdaptor class represents an adaptor used for the adaption of
  * boost::int32_t values through the addition of gaussian-distributed random numbers.
@@ -86,9 +86,20 @@ public:
 	/** @brief Initialization with a adaption probability */
 	explicit GInt32GaussAdaptor(const double&);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian */
-	GInt32GaussAdaptor(const double&, const double&, const double&, const double&);
+	GInt32GaussAdaptor(
+	      const double&
+	      , const double&
+	      , const double&
+	      , const double&
+	);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian and the adaption probability */
-	GInt32GaussAdaptor(const double&, const double&, const double&, const double&, const double&);
+	GInt32GaussAdaptor(
+	      const double&
+	      , const double&
+	      , const double&
+	      , const double&
+	      , const double&
+	);
 	/** @brief The destructor */
 	virtual ~GInt32GaussAdaptor();
 
@@ -101,7 +112,14 @@ public:
 	bool operator!=(const GInt32GaussAdaptor&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+	      const GObject&
+	      , const Gem::Common::expectation&
+	      , const double&
+	      , const std::string&
+	      , const std::string&
+	      , const bool&
+	) const;
 
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const;
@@ -123,6 +141,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

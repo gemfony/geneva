@@ -53,7 +53,7 @@
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * GFPBiGaussAdaptorT is used for the adaption of numeric types, by the addition of random numbers
  * distributed as two adjacent gaussians. Different numeric types may be used, including Boost's
@@ -82,7 +82,7 @@ class GFPBiGaussAdaptorT :public GNumBiGaussAdaptorT<fp_type, fp_type>
 	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
 
 public:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard constructor.
 	 */
@@ -90,7 +90,7 @@ public:
 		: GNumBiGaussAdaptorT<fp_type, fp_type> ()
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization of the parent class'es adaption probability.
 	 *
@@ -100,7 +100,7 @@ public:
 		: GNumBiGaussAdaptorT<fp_type, fp_type> (probability)
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard copy constructor. It assumes that the values of the other object are correct
 	 * and does no additional error checks.
@@ -111,7 +111,7 @@ public:
 		: GNumBiGaussAdaptorT<fp_type, fp_type> (cp)
 	{ /* nothing */	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
@@ -119,7 +119,7 @@ public:
 	virtual ~GFPBiGaussAdaptorT()
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -162,7 +162,7 @@ public:
 	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
 protected:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function loads the data of another GFPBiGaussAdaptorT, camouflaged as a GObject.
 	 * We assume that the values given to us by the other object are correct and do no error checks.
@@ -180,11 +180,11 @@ protected:
 		// no local data ...
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/** @brief This function creates a deep copy of this object */
 	virtual GObject *clone_() const = 0;
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The actual adaption of the supplied value takes place here
 	 *
@@ -290,7 +290,7 @@ protected:
 
 #ifdef GEM_TESTING
 public:
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -308,7 +308,7 @@ public:
 		return result;
 	}
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -320,7 +320,7 @@ public:
 		GNumBiGaussAdaptorT<fp_type, fp_type>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -335,12 +335,12 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/************************************************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 namespace boost {
 	namespace serialization {
@@ -350,5 +350,7 @@ namespace boost {
 		struct is_abstract< const Gem::Geneva::GFPBiGaussAdaptorT<fp_type> > : public boost::true_type {};
 	}
 }
+
+/******************************************************************************/
 
 #endif /* GFPBIGAUSSADAPTORT_HPP_ */

@@ -68,7 +68,7 @@ namespace Geneva {
 
 class GSerialSwarm; // forward declaration
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * This class acts as an interface class for all objects that can take part
  * in an evolutionary improvement. Such items must possess adaption functionality
@@ -197,7 +197,7 @@ public:
 	/** @brief Allows to randomly initialize parameter members */
 	virtual void randomInit() = 0;
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The function converts the local personality base pointer to the desired type
 	 * and returns it for modification by the corresponding optimization algorithm.
@@ -241,8 +241,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
-
+	/***************************************************************************/
 	/** @brief This function returns the current personality traits base pointer */
 	boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
 
@@ -268,7 +267,7 @@ public:
 	virtual std::string getIndividualCharacteristic() const = 0;
 
 protected:
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the data of another GIndividual */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
@@ -300,7 +299,7 @@ protected:
 	double weighedSquaredSumCombiner(const std::vector<double>&) const;
 
 private:
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/** @brief Holds this object's internal, primary fitness */
     double currentFitness_;
     /** @brief Holds this object's internal, secondary fitness values */
@@ -324,7 +323,7 @@ private:
     /** @brief Holds the actual personality information */
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
 
-	/**************************************************************************************************/
+    /***************************************************************************/
 #ifdef GEM_TESTING
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -339,12 +338,12 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GIndividual)
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 #endif /* GINDIVIDUAL_HPP_ */

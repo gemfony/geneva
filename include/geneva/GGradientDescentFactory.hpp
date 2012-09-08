@@ -60,7 +60,7 @@ namespace Gem
 namespace Geneva
 {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * This class is a specialization of the GFactoryT<> class for gradient descents.
  */
@@ -88,7 +88,7 @@ private:
 	std::size_t maxResubmissions_; ///< The maximum number of allowed re-submissions in an iteration
 };
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

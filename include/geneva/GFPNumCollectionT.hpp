@@ -55,7 +55,7 @@
 namespace Gem {
 namespace Geneva {
 
-/**********************************************************************/
+/******************************************************************************/
 /**
  * This class represents a collection of floating point values, all modified
  * using the same algorithm. The most likely type to be stored in this
@@ -79,7 +79,7 @@ class GFPNumCollectionT
 	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
 
 public:
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor.
 	 */
@@ -87,7 +87,7 @@ public:
 		: GNumCollectionT<fp_type> ()
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization with a number of random values in a given range
 	 *
@@ -109,7 +109,7 @@ public:
 		}
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization with a number of items of predefined value. We
 	 * enforce setting of the lower and upper boundaries for random initialization,
@@ -128,7 +128,7 @@ public:
 		: GNumCollectionT<fp_type>(nval, val, min, max)
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard copy constructor
 	 */
@@ -136,14 +136,14 @@ public:
 		: GNumCollectionT<fp_type> (cp)
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
 	virtual ~GFPNumCollectionT()
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard assignment operator.
 	 *
@@ -155,7 +155,7 @@ public:
 		return *this;
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for equality with another GFPNumCollectionT<fp_type> object
 	 *
@@ -168,7 +168,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GFPNumCollectionT<fp_type>::operator==","cp", CE_SILENT);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for inequality with another GFPNumCollectionT<fp_type> object
 	 *
@@ -181,7 +181,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GFPNumCollectionT<fp_type>::operator!=","cp", CE_SILENT);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes floating-point-based parameters with a given value.
 	 *
@@ -199,7 +199,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Multiplies floating-point-based parameters with a given value
 	 *
@@ -217,7 +217,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Multiplies with a random floating point number in a given range.
 	 *
@@ -236,7 +236,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
@@ -252,7 +252,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds the floating point parameters of another GParameterBase object to this one.
 	 *
@@ -281,7 +281,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Subtracts the floating point parameters of another GParameterBase object
 	 * from this one.
@@ -311,7 +311,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -348,7 +348,7 @@ public:
 	}
 
 protected:
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GFPNumCollectionT<fp_type> object,
 	 * camouflaged as a GObject. We have no local data, so
@@ -367,7 +367,7 @@ protected:
 		// no local data ...
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates a deep copy of this object. Purely virtual as this class
 	 * should not be instantiable.
@@ -376,7 +376,7 @@ protected:
 	 */
 	virtual GObject *clone_() const = 0;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Triggers random initialization of the parameter collection. Note
 	 * that this function assumes that the collection has been completely
@@ -400,7 +400,7 @@ protected:
 #ifdef GEM_TESTING
 public:
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -415,7 +415,7 @@ public:
 		return result;
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -653,7 +653,7 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -698,12 +698,12 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/**********************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**********************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
@@ -714,6 +714,6 @@ namespace boost {
 		struct is_abstract< const Gem::Geneva::GFPNumCollectionT<fp_type> > : public boost::true_type {};
 	}
 }
-/**********************************************************************/
+/******************************************************************************/
 
 #endif /* GNUMCOLLECTIONFPT_HPP_ */

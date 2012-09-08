@@ -53,7 +53,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to gradient descents.
@@ -123,6 +123,8 @@ public:
 	virtual void specificTestsFailuresExpected_GUnitTests();
 #endif /* GEM_TESTING */
 };
+
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

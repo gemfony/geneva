@@ -56,7 +56,7 @@
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * GIntFlipAdaptorT represents an adaptor used for the adaption of integer
  * types, by flipping an integer number to the next larger or smaller number.
@@ -79,7 +79,7 @@ class GIntFlipAdaptorT
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard constructor.
 	 */
@@ -87,7 +87,7 @@ public:
 		: GNumFlipAdaptorT<int_type> ()
 	{ /* nothing */	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This constructor takes an argument, that specifies the (initial) probability
 	 * for the adaption of an integer or bit value
@@ -98,7 +98,7 @@ public:
 		: GNumFlipAdaptorT<int_type>(prob)
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard copy constructor.
 	 *
@@ -108,7 +108,7 @@ public:
 		: GNumFlipAdaptorT<int_type>(cp)
 	{ /* nothing */	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
@@ -116,7 +116,7 @@ public:
 	virtual ~GIntFlipAdaptorT()
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -153,7 +153,7 @@ public:
 		return evaluateDiscrepancies("GIntFlipAdaptorT<int_type>", caller, deviations, e);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the id of the adaptor. Purely virtual, as we do not want this class to be
 	 * instantiated.
@@ -169,7 +169,7 @@ public:
 	 */
 
 protected:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function loads the data of another GIntFlipAdaptorT, camouflaged as a GObject.
 	 *
@@ -186,7 +186,7 @@ protected:
 		// no local data
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function creates a deep copy of this object. The function is purely virtual, as we
 	 * do not want this class to be instantiated. Use the derived classes instead.
@@ -197,7 +197,7 @@ protected:
 
 #ifdef GEM_TESTING
 public:
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -217,7 +217,7 @@ public:
 		return result;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -229,7 +229,7 @@ public:
 		GNumFlipAdaptorT<int_type>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -244,12 +244,12 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/********************************************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
@@ -261,6 +261,6 @@ namespace boost {
 	}
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 
 #endif /* GINTFLIPADAPTORT_HPP_ */

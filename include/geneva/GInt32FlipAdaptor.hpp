@@ -53,7 +53,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * This adaptor increases or decreases a value by 1
  */
@@ -91,7 +91,14 @@ public:
 	bool operator!=(const GInt32FlipAdaptor&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+	      const GObject&
+	      , const Gem::Common::expectation&
+	      , const double&
+	      , const std::string&
+	      , const std::string&
+	      , const bool&
+	) const;
 
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const;
@@ -113,7 +120,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/*************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

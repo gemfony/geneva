@@ -53,7 +53,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * The GIntGaussAdaptorT<> class represents an adaptor used for the adaption of
  * integer values through the addition of gaussian-distributed random numbers.
@@ -81,7 +81,7 @@ class GIntGaussAdaptorT
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor
 	 */
@@ -89,7 +89,7 @@ public:
 		: GNumGaussAdaptorT<int_type, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA)
     { /* nothing */ }
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 *
@@ -99,7 +99,7 @@ public:
 		: GNumGaussAdaptorT<int_type, double>(cp)
     { /* nothing */ }
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization with a adaption probability.  Note that we need to use a different default
 	 * value for sigma, as there is a "natural" gap of 1 between integers, and the DEFAULTSIGMA
@@ -111,7 +111,7 @@ public:
 		: GNumGaussAdaptorT<int_type, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, adProb)
     { /* nothing */ }
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * This constructor lets a user set all sigma parameters in one go.
 	 *
@@ -129,7 +129,7 @@ public:
 		: GNumGaussAdaptorT<int_type, double> (sigma, sigmaSigma, minSigma, maxSigma)
     { /* nothing */ }
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * This constructor lets a user set all sigma parameters, as well as the adaption
 	 * probability in one go.
@@ -150,14 +150,14 @@ public:
 		: GNumGaussAdaptorT<int_type, double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
 	{ /* nothing */ }
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GIntGaussAdaptorT()
 	{ /* nothing */ }
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -194,12 +194,12 @@ public:
 		return evaluateDiscrepancies("GIntGaussAdaptorT<int_type>", caller, deviations, e);
 	}
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
 protected:
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GObject
 	 *
@@ -215,11 +215,11 @@ protected:
 		// ... no local data
 	}
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const = 0;
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The actual adaption of the supplied value takes place here.
 	 *
@@ -276,7 +276,7 @@ protected:
 
 #ifdef GEM_TESTING
 public:
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -291,7 +291,7 @@ public:
 		return result;
 	}
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -304,7 +304,7 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -319,7 +319,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/*************************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
@@ -330,6 +330,6 @@ namespace boost {
 		struct is_abstract< const Gem::Geneva::GIntGaussAdaptorT<int_type> > : public boost::true_type {};
 	}
 }
-/*************************************************************************/
+/******************************************************************************/
 
 #endif /* GINTGAUSSADAPTORT_HPP_ */

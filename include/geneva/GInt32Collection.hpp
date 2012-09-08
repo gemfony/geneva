@@ -54,7 +54,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*****************************************************************************************/
+/******************************************************************************/
 /**
  * A collection of boost::int32_t objects without boundaries
  */
@@ -102,7 +102,14 @@ public:
 	bool operator!=(const GInt32Collection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+	      const GObject&
+	      , const Gem::Common::expectation&
+	      , const double&
+	      , const std::string&
+	      , const std::string&
+	      , const bool&
+	) const;
 
 	/** @brief Attach our local values to the vector. */
 	virtual void int32Streamline(std::vector<boost::int32_t>&) const;
@@ -130,7 +137,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/*****************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
