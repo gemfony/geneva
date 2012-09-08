@@ -57,7 +57,7 @@
 namespace Gem {
 namespace Geneva {
 
-/********************************************************************/
+/******************************************************************************/
 /**
  * A multi-threaded population based on GBaseEA. This version
  * uses the Boost.Threads library and a thread-pool library from
@@ -144,7 +144,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/********************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -84,11 +84,11 @@ public:
 		: Gem::Common::GFactoryT<T>(configFile)
 		, pm_(pm)
 		, nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-		, minWaitFactor_(DEFAULTMINBROKERWAITFACTOR)
-		, maxWaitFactor_(DEFAULTMAXBROKERWAITFACTOR)
+		, minWaitFactor_(Gem::Courtier::DEFAULTMINBROKERWAITFACTOR)
+		, maxWaitFactor_(Gem::Courtier::DEFAULTMAXBROKERWAITFACTOR)
       , doLogging_(false)
       , boundlessWait_(false)
-		, waitFactorIncrement_(DEFAULTBROKERWAITFACTORINCREMENT)
+		, waitFactorIncrement_(Gem::Courtier::DEFAULTBROKERWAITFACTORINCREMENT)
 	{ /* nothing */ }
 
 	/***************************************************************************/

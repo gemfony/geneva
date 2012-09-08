@@ -53,7 +53,7 @@
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * GNumBiGaussAdaptorT is used for the adaption of numeric types, by the addition of random numbers
  * distributed as two adjacent gaussians. Different numeric types may be used, including Boost's
@@ -92,7 +92,7 @@ class GNumBiGaussAdaptorT :public GAdaptorT<num_type>
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard constructor.
 	 */
@@ -113,7 +113,7 @@ public:
 		, maxDelta_(DEFAULTMAXDELTA)
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization of the parent class'es adaption probability.
 	 *
@@ -136,7 +136,7 @@ public:
 		, maxDelta_(DEFAULTMAXDELTA)
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard copy constructor. It assumes that the values of the other object are correct
 	 * and does no additional error checks.
@@ -160,7 +160,7 @@ public:
 		, maxDelta_(cp.maxDelta_)
 	{ /* nothing */	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
@@ -168,7 +168,7 @@ public:
 	virtual ~GNumBiGaussAdaptorT()
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -219,7 +219,7 @@ public:
 		return evaluateDiscrepancies("GNumBiGaussAdaptorT<num_type, fp_type>", caller, deviations, e);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Determines whether the two sigmas of the double-gaussian should be identical
 	 *
@@ -229,7 +229,7 @@ public:
 		useSymmetricSigmas_ = useSymmetricSigmas;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the value of the "useSymmetricSigmas_" variable
 	 *
@@ -239,7 +239,7 @@ public:
 		return useSymmetricSigmas_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function sets the value of the sigma1_ parameter.
 	 *
@@ -262,7 +262,7 @@ public:
 		sigma1_ = sigma1;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the current value of sigma1_.
 	 *
@@ -272,7 +272,7 @@ public:
 		return sigma1_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the allowed value range of sigma1_. A minimum sigma1 of 0 will silently be adapted
 	 * to a very small value (DEFAULTMINSIGMA), as otherwise adaptions would stop entirely,
@@ -306,7 +306,7 @@ public:
 		else if(sigma1_>maxSigma1_) sigma1_ = maxSigma1_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the allowed value range for sigma1. You can retrieve the values
 	 * like this: getSigma1Range().first , getSigmaRange().second .
@@ -317,7 +317,7 @@ public:
 		return boost::make_tuple<fp_type,fp_type>(minSigma1_, maxSigma1_);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function sets the values of the sigmaSigma1_ parameter. Values <= 0 mean "do not adapt
 	 * sigma1_". If you do want to prevent adaption of sigma1, you can also use the
@@ -331,7 +331,7 @@ public:
 		sigmaSigma1_ = sigmaSigma1;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the value of sigmaSigma1_ .
 	 *
@@ -341,7 +341,7 @@ public:
 		return sigmaSigma1_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Convenience function that lets users set all relevant parameters of the sigma1_ parameter
 	 * at once
@@ -358,7 +358,7 @@ public:
 		setSigma1(sigma1);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function sets the value of the sigma2_ parameter. Note that this function
 	 * will silently set a 0 sigma2 to a very small value.
@@ -382,7 +382,7 @@ public:
 		sigma2_ = sigma2;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the current value of sigma2_.
 	 *
@@ -392,7 +392,7 @@ public:
 		return sigma2_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the allowed value range of sigma2_. A minimum sigma2_ of 0 will silently be adapted
 	 * to a very small value (DEFAULTMINSIGMA), as otherwise adaptions would stop entirely,
@@ -426,7 +426,7 @@ public:
 		else if(sigma2_>maxSigma2_) sigma2_ = maxSigma2_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the allowed value range for sigma2. You can retrieve the values
 	 * like this: getSigma2Range().first , getSigmaRange().second .
@@ -437,7 +437,7 @@ public:
 		return boost::make_tuple<fp_type,fp_type>(minSigma2_, maxSigma2_);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function sets the values of the sigmaSigma2_ parameter. Values <= 0 mean "do not adapt
 	 * sigma2_". If you do want to prevent adaption of sigma1, you can also use the
@@ -451,7 +451,7 @@ public:
 		sigmaSigma2_ = sigmaSigma2;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the value of sigmaSigma2_ .
 	 *
@@ -461,7 +461,7 @@ public:
 		return sigmaSigma2_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Convenience function that lets users set all relevant parameters of the sigma2_ parameter
 	 * at once
@@ -478,7 +478,7 @@ public:
 		setSigma2(sigma2);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function sets the value of the delta_ parameter.
 	 *
@@ -501,7 +501,7 @@ public:
 		delta_ = delta;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the current value of delta_.
 	 *
@@ -511,7 +511,7 @@ public:
 		return delta_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the allowed value range of delta_. A minimum delta of 0 will silently be adapted
 	 * to DEFAULTMINSIGMA, if that value is > 0. Note that this function will also adapt delta
@@ -546,7 +546,7 @@ public:
 		else if(delta_>maxDelta_) delta_ = maxDelta_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the allowed value range for delta. You can retrieve the values
 	 * like this: getDeltaRange().first , getSigmaRange().second .
@@ -557,7 +557,7 @@ public:
 		return boost::make_tuple<fp_type,fp_type>(minDelta_, maxDelta_);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function sets the values of the sigmaSigma2_ parameter. Values <= 0 mean "do not adapt
 	 * delta_". If you do want to prevent adaption of delta_, you can also use the
@@ -571,7 +571,7 @@ public:
 		sigmaDelta_ = sigmaDelta;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the value of sigmaDelta_ .
 	 *
@@ -581,7 +581,7 @@ public:
 		return sigmaDelta_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Convenience function that lets users set all relevant parameters of the delta_ parameter
 	 * at once
@@ -603,7 +603,7 @@ public:
 	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
 protected:
-	/********************************************************************************************/
+	/***************************************************************************/
 	// For performance reasons, so we do not have to go through access functions
 	bool useSymmetricSigmas_; ///< Determines whether the sigmas of both gaussians should be the same
 	fp_type sigma1_; ///< The width of the first gaussian used to adapt values
@@ -619,7 +619,7 @@ protected:
 	fp_type minDelta_; ///< minimum allowed value for delta_
 	fp_type maxDelta_; ///< maximum allowed value for delta_
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function loads the data of another GNumBiGaussAdaptorT, camouflaged as a GObject.
 	 * We assume that the values given to us by the other object are correct and do no error checks.
@@ -650,11 +650,11 @@ protected:
 		maxDelta_ = p_load->maxDelta_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/** @brief This function creates a deep copy of this object */
 	virtual GObject *clone_() const = 0;
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	 * algorithm to adapt to changing geometries of the quality surface.
@@ -686,7 +686,7 @@ protected:
 		else if(delta_ > maxDelta_) delta_ = maxDelta_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The actual adaption of the supplied value takes place here. Purely virtual, as the actual
 	 * adaptions are defined in the derived classes.
@@ -697,7 +697,7 @@ protected:
 
 #ifdef GEM_TESTING
 public:
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -719,7 +719,7 @@ public:
 		return result;
 	}
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -731,7 +731,7 @@ public:
 		GAdaptorT<num_type>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -746,12 +746,12 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/************************************************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 namespace boost {
 	namespace serialization {
@@ -761,5 +761,7 @@ namespace boost {
 		struct is_abstract< const Gem::Geneva::GNumBiGaussAdaptorT<num_type, fp_type> > : public boost::true_type {};
 	}
 }
+
+/******************************************************************************/
 
 #endif /* GNUMBIGAUSSADAPTORT_HPP_ */

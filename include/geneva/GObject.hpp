@@ -134,7 +134,7 @@
 namespace Gem {
 namespace Geneva {
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * GObject is the parent class for the majority of Geneva classes. Essentially, GObject gives a
  * Geneva class the ability to carry a name and defines a number of interface functions.
@@ -208,7 +208,7 @@ public:
 	/** @brief Creates a clone of this object, storing it in a boost::shared_ptr<GObject> */
 	boost::shared_ptr<GObject> clone() const;
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GObject(-derivative), wrapped in a shared pointer. Note that this
 	 * function is only accessible to the compiler if load_type is a derivative of GObject.
@@ -228,7 +228,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GObject(-derivative), presented as a constant reference. Note that this
 	 * function is only accessible to the compiler if load_type is a derivative of GObject.
@@ -248,7 +248,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The function creates a clone of the GObject pointer, converts it to a pointer to a derived class
 	 * and emits it as a boost::shared_ptr<> . Note that this template will only be accessible to the
@@ -280,7 +280,7 @@ public:
 	 */
 
 protected:
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
@@ -291,7 +291,7 @@ protected:
 	/** @brief Checks whether this object may currently be serialized */
 	bool mayBeSerialized() const;
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function checks in DEBUG mode whether a load pointer points to the current object. Note
 	 * that this template will only be accessible to the compiler if GObject is a base type of load_type.
@@ -317,7 +317,7 @@ protected:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function converts the GObject pointer to the target type, optionally checking for self-assignment
 	 * along the ways in DEBUG mode (through selfAssignmentCheck() ).  Note that this template will
@@ -350,7 +350,7 @@ protected:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function converts a GObject boost::shared_ptr to the target type, optionally checking for
 	 * self-assignment along the ways in DEBUG mode (through selfAssignmentCheck() ).  Note that this
@@ -387,7 +387,7 @@ protected:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 
 private:
 	bool mayBeSerialized_; ///< Indicates whether derivatives may be serialized.
@@ -399,7 +399,7 @@ private:
 
 #ifdef GEM_TESTING
 public:
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -409,7 +409,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/**********************************************************************************************************/
+/******************************************************************************/
 /** @brief A specialization for cases for no conversion is supposed to take place */
 template <> boost::shared_ptr<GObject> GObject::clone<GObject>(
 		boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type*
@@ -418,15 +418,15 @@ template <> boost::shared_ptr<GObject> GObject::clone<GObject>(
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**********************************************************************************************************/
+/******************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GObject)
 
-/**********************************************************************************************************/
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/**********************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 // Tests for the GObject class
 
 #endif /* GOBJECT_HPP_ */

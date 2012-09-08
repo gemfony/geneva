@@ -55,7 +55,7 @@
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * GNumGaussAdaptorT represents an adaptor used for the adaption of numeric
  * types, by the addition of gaussian-distributed random numbers. Different numeric
@@ -85,7 +85,7 @@ class GNumGaussAdaptorT :public GAdaptorT<num_type>
 	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
 
 public:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard constructor.
 	 */
@@ -97,7 +97,7 @@ public:
 		, maxSigma_(fp_type(DEFAULTMAXSIGMA))
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization of the parent class'es adaption probability.
 	 *
@@ -111,7 +111,7 @@ public:
 		, maxSigma_(fp_type(DEFAULTMAXSIGMA))
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This constructor lets a user set all sigma parameters in one go.
 	 *
@@ -138,7 +138,7 @@ public:
 		setSigma(sigma);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This constructor lets a user set all parameters in one go.
 	 *
@@ -167,7 +167,7 @@ public:
 		setSigma(sigma);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard copy constructor. It assumes that the values of the other object are correct
 	 * and does no additional error checks.
@@ -182,7 +182,7 @@ public:
 		, maxSigma_(cp.maxSigma_)
 	{ /* nothing */	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
@@ -190,7 +190,7 @@ public:
 	virtual ~GNumGaussAdaptorT()
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -230,7 +230,7 @@ public:
 		return evaluateDiscrepancies("GNumGaussAdaptorT<num_type, fp_type>", caller, deviations, e);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function sets the value of the sigma_ parameter.
 	 *
@@ -253,7 +253,7 @@ public:
 		sigma_ = sigma;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the current value of sigma_.
 	 *
@@ -263,7 +263,7 @@ public:
 		return sigma_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the allowed value range of sigma_. A minimum sigma of 0 will silently be adapted
 	 * to a very small value (DEFAULTMINSIGMA), as otherwise adaptions would stop entirely,
@@ -302,7 +302,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the allowed value range for sigma. You can retrieve the values
 	 * like this: boost::get<0>(getSigmaRange()) , boost::get<1>(getSigmaRange()) .
@@ -318,7 +318,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function sets the values of the sigmaSigma_ parameter. Values <= 0 mean "do not adapt
 	 * sigma". If you do want to prevent adaption of sigma, you can also use the
@@ -338,7 +338,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the value of sigmaSigma_ .
 	 *
@@ -353,7 +353,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Convenience function that lets users set all relevant parameters of this class
 	 * at once.
@@ -375,7 +375,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Prints diagnostic messages
 	 *
@@ -395,13 +395,13 @@ public:
 		return diag.str();
 	}
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * @brief Retrieves the id of the adaptor. */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
 protected:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function loads the data of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GObject.
 	 * We assume that the values given to us by the other object are correct and do no error checks.
@@ -423,7 +423,7 @@ protected:
 		maxSigma_ = p_load->maxSigma_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function creates a deep copy of this object. Purely virtual so this class cannot
 	 * be instantiated directly.
@@ -432,7 +432,7 @@ protected:
 	 */
 	virtual GObject *clone_() const = 0;
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	 * algorithm to adapt to changing geometries of the quality surface.
@@ -450,7 +450,7 @@ protected:
 		else if(sigma_ > maxSigma_) sigma_ = maxSigma_;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The actual adaption of the supplied value takes place here. Purely virtual, as the actual
 	 * adaptions are defined in the derived classes.
@@ -460,7 +460,7 @@ protected:
 	virtual void customAdaptions(num_type&) = 0;
 
 protected: // For performance reasons, so we do not have to go through access functions
-	/********************************************************************************************/
+	/***************************************************************************/
 	fp_type sigma_; ///< The width of the gaussian used to adapt values
 	fp_type sigmaSigma_; ///< affects sigma_ adaption
 	fp_type minSigma_; ///< minimum allowed value for sigma_
@@ -468,7 +468,7 @@ protected: // For performance reasons, so we do not have to go through access fu
 
 #ifdef GEM_TESTING
 public:
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -490,7 +490,7 @@ public:
 		return result;
 	}
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -633,7 +633,7 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -693,12 +693,12 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/************************************************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 namespace boost {
 	namespace serialization {

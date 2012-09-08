@@ -52,7 +52,7 @@
 namespace Gem {
 namespace Geneva {
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * This class specifies the interface that needs to be implemented by optimization
  * algorithms.
@@ -84,7 +84,7 @@ public:
 	/** @brief Retrieves the current iteration of this object */
 	virtual boost::uint32_t getIteration() const = 0;
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Starts the optimization cycle and returns the best individual found, converted to
 	 * the desired target type.
@@ -97,7 +97,7 @@ public:
 		return this->getBestIndividual<individual_type>();
 	}
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Starts the optimization cycle and returns the best individual found, converted to
 	 * the desired target type. This function uses a configurable offset for the iteration
@@ -114,7 +114,7 @@ public:
 		return this->getBestIndividual<individual_type>();
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the best individual and converts it to a given target type. Note that
 	 * this function will not allow you to modify the best individual itself as it will
@@ -129,7 +129,7 @@ public:
 		return getBestIndividual()->clone<individual_type>();
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves a list of the best individuals and converts them to a given target type.
 	 * Note that this function will not allow you to modify the best individuals themselves
@@ -170,22 +170,24 @@ public:
 	virtual bool usesBroker() const;
 
 protected:
-	/**********************************************************************************/
+	/***************************************************************************/
 	/** @brief Retrieves the best individual found */
 	virtual boost::shared_ptr<GIndividual> getBestIndividual() = 0;
 	/** @brief Retrieves a list of the best individuals found */
 	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals() = 0;
 };
 
-/**************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GOptimizableI)
+
+/******************************************************************************/
 
 #endif /* GOPTIMIZATIONALGORITHMI_HPP_ */

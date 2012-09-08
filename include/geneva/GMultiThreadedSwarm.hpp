@@ -58,7 +58,7 @@
 namespace Gem {
 namespace Geneva {
 
-/********************************************************************/
+/******************************************************************************/
 /**
  * A multi-threaded swarm based on GBaseSwarm. This version uses the
  * Boost.Threads library and a thread-pool library from http://threadpool.sf.net .
@@ -133,7 +133,7 @@ protected:
 	/** @brief Updates the fitness of all individuals */
 	virtual void updateFitness();
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 private:
 	boost::uint16_t nThreads_; ///< The number of threads
 	bool storedServerMode_; ///< Temporary storage for individual server mode flags during optimization runs
@@ -142,7 +142,7 @@ private:
 
 #ifdef GEM_TESTING
 public:
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -157,15 +157,15 @@ public:
 
 #ifdef GEM_TESTING
 // Tests of this class (and parent classes)
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /** @brief We need to provide a specialization of the factory function that creates objects of this type. */
 template <> boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedSwarm>();
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

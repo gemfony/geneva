@@ -56,7 +56,7 @@
 namespace Gem {
 namespace Geneva {
 
-/******************************************************************************************/
+/******************************************************************************/
 /**
  * This class forms the basis for many user-defined individuals. It acts as a collection
  * of different parameter sets. User individuals can thus contain a mix of parameters of
@@ -81,7 +81,7 @@ class GMutableSetT:
     ///////////////////////////////////////////////////////////////////////
 
 public:
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor. No local data, hence nothing to do.
 	 */
@@ -90,7 +90,7 @@ public:
 		, GStdPtrVectorInterfaceT<T>()
 	{ /* nothing */	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The copy constructor. Note that we cannot rely on the operator=() of the vector
 	 * here, as we do not know the actual type of T objects.
@@ -102,7 +102,7 @@ public:
 		, GStdPtrVectorInterfaceT<T>(cp)
 	{ /* nothing */ }
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor. As we use smart pointers, we do not need to take care of the
 	 * data in the vector ourselves.
@@ -110,7 +110,7 @@ public:
 	virtual ~GMutableSetT()
 	{ /* nothing */ }
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for equality with another GNumCollectionT<T> object
 	 *
@@ -123,7 +123,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMutableSetT<T>::operator==","cp", CE_SILENT);
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for inequality with another GMutableSetT<T> object
 	 *
@@ -136,7 +136,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMutableSetT<T>::operator!=","cp", CE_SILENT);
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -173,7 +173,7 @@ public:
 		return evaluateDiscrepancies("GMutableSetT<T>", caller, deviations, e);
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Swap another object's vector with ours. We need to set the dirty flag of both
 	 * individuals in this case.
@@ -189,7 +189,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds local configuration options to a GParserBuilder object
 	 *
@@ -207,18 +207,18 @@ public:
 	}
 
 protected:
-	/***********************************************************************************/
-    /**
-     * A random number generator. Note that the actual calculation is possibly
-     * done in a random number server, depending on the defines you have chosen.
-     */
+	/***************************************************************************/
+   /**
+   * A random number generator. Note that the actual calculation is possibly
+   * done in a random number server, depending on the defines you have chosen.
+   */
 #ifdef GEM_GENEVA_USE_LOCAL_RANDOM_ADAPTION /* produce random numbers locally */
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL> gr;
 #else /* act as a proxy, take random numbers from a factory */
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr;
 #endif /* USEPROXYRANDOM */
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GParameterBase object, camouflaged as a GObject
 	 *
@@ -233,15 +233,15 @@ protected:
 		GStdPtrVectorInterfaceT<T>::operator=(*p_load);
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated */
 	virtual GObject* clone_() const = 0;
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/** @brief The actual fitness calculation takes place in derived objects */
 	virtual double fitnessCalculation() = 0;
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Re-implementation of a corresponding function in GStdPtrVectorInterface.
 	 * Make the vector wrapper purely virtual allows the compiler to perform
@@ -251,7 +251,7 @@ protected:
 
 #ifdef GEM_TESTING
 public:
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -276,7 +276,7 @@ public:
 		return result;
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -291,7 +291,7 @@ public:
 		// no local data, nothing to test
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -306,14 +306,14 @@ public:
 		// no local data, nothing to test
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 #endif /* GEM_TESTING */
 };
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
@@ -326,6 +326,6 @@ namespace boost {
   }
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 #endif /* GMUTABLESETT_HPP_ */

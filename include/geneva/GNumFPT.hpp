@@ -50,7 +50,7 @@
 namespace Gem {
 namespace Geneva {
 
-/**********************************************************************/
+/******************************************************************************/
 /**
  * This class represents floating point values. The most likely type to be stored
  * in this class is a double. It adds floating point initialization and multiplication
@@ -77,7 +77,7 @@ public:
 	/** @brief Specifies the type of parameters stored in this object */
 	typedef fp_type parameter_type;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor.
 	 */
@@ -85,7 +85,7 @@ public:
 		: GNumT<fp_type> ()
 	{ /* nothing */ }
 
-	/*****************************************************************/
+	/***************************************************************************/
 	/*
 	 * Initialize with a single value
 	 *
@@ -95,7 +95,7 @@ public:
 		: GNumT<fp_type>(val)
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialize with a random value within given boundaries. Note that
 	 * we use the local randomInit_ function in order not to call any
@@ -113,7 +113,7 @@ public:
 		GNumFPT<fp_type>::randomInit_();
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialize with a fixed value. Note that we enforce initialization
 	 * of the initialization boundaries as well, as these may play a role
@@ -135,7 +135,7 @@ public:
 		GParameterT<fp_type>::setValue(val);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard copy constructor
 	 *
@@ -145,14 +145,14 @@ public:
 		: GNumT<fp_type> (cp)
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
 	virtual ~GNumFPT()
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard assignment operator.
 	 *
@@ -164,7 +164,7 @@ public:
 		return *this;
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * An assignment operator for the contained value type
 	 *
@@ -175,7 +175,7 @@ public:
 		return GNumT<fp_type>::operator=(val);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for equality with another GNumFPT<fp_type> object
 	 *
@@ -188,7 +188,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumFPT<fp_type>::operator==","cp", CE_SILENT);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for inequality with another GNumFPT<fp_type> object
 	 *
@@ -201,7 +201,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumFPT<fp_type>::operator!=","cp", CE_SILENT);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -237,7 +237,7 @@ public:
 		return evaluateDiscrepancies("GNumFPT<fp_type>", caller, deviations, e);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes floating-point-based parameters with a given value.
 	 *
@@ -254,7 +254,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Multiplies floating-point-based parameters with a given value
 	 *
@@ -269,7 +269,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Multiplies with a random floating point number in a given range.
 	 *
@@ -285,7 +285,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
@@ -298,7 +298,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds the floating point parameters of another GParameterBase
 	 * object to this one.
@@ -316,7 +316,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Subtracts the floating point parameters of another GParameterBase
 	 * object from this one.
@@ -335,7 +335,7 @@ public:
 	 */
 
 protected:
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GNumFPT<fp_type> object,
 	 * camouflaged as a GObject. We have no local data, so
@@ -354,7 +354,7 @@ protected:
 		// no local data ...
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates a deep copy of this object. Purely virtual as this class
 	 * should not be instantiable.
@@ -363,7 +363,7 @@ protected:
 	 */
 	virtual GObject *clone_() const = 0;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Triggers random initialization of the parameter
 	 */
@@ -381,7 +381,7 @@ protected:
 #ifdef GEM_TESTING
 public:
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -396,7 +396,7 @@ public:
 		return result;
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -602,7 +602,7 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -617,7 +617,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**********************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
@@ -628,6 +628,6 @@ namespace boost {
 		struct is_abstract< const Gem::Geneva::GNumFPT<fp_type> > : public boost::true_type {};
 	}
 }
-/**********************************************************************/
+/******************************************************************************/
 
 #endif /* GNUMFPT_HPP_ */

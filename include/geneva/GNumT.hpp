@@ -55,7 +55,7 @@ namespace Geneva {
 const double DEFAULTLOWERINITBOUNDARYSINGLE=0.;
 const double DEFAULTUPPERINITBOUNDARYSINGLE=1.;
 
-/**********************************************************************/
+/******************************************************************************/
 /**
  * This class represents numeric values. The most likely types to be stored
  * in this class are double and boost::int32_t . By using the framework provided
@@ -81,7 +81,7 @@ public:
 	/** @brief Specifies the type of parameters stored in this collection */
 	typedef T collection_type;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor.
 	 */
@@ -103,7 +103,7 @@ public:
 		, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYSINGLE))
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialize the boundaries. The internal value will be
 	 * initialized with the lower boundary.
@@ -117,7 +117,7 @@ public:
 		, upperInitBoundary_(max)
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard copy constructor
 	 */
@@ -127,14 +127,14 @@ public:
 		, upperInitBoundary_(cp.upperInitBoundary_)
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
 	virtual ~GNumT()
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard assignment operator.
 	 *
@@ -146,7 +146,7 @@ public:
 		return *this;
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * An assignment operator for the contained value type
 	 */
@@ -154,7 +154,7 @@ public:
 		return GParameterT<T>::operator=(val);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for equality with another GNumT<T> object
 	 *
@@ -167,7 +167,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumT<T>::operator==","cp", CE_SILENT);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for inequality with another GNumT<T> object
 	 *
@@ -180,7 +180,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumT<T>::operator!=","cp", CE_SILENT);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -218,7 +218,7 @@ public:
 		return evaluateDiscrepancies("GNumT<T>", caller, deviations, e);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the initialization boundaries
 	 *
@@ -246,7 +246,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the value of the lower initialization boundary
 	 *
@@ -261,7 +261,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the value of the upper initialization boundary
 	 *
@@ -277,7 +277,7 @@ public:
 	 */
 
 protected:
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GNumT<T> object,
 	 * camouflaged as a GObject. We have no local data, so
@@ -298,7 +298,7 @@ protected:
 		upperInitBoundary_ = p_load->upperInitBoundary_;
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates a deep copy of this object. Purely virtual as this class
 	 * should not be instantiable.
@@ -307,19 +307,19 @@ protected:
 	 */
 	virtual GObject *clone_() const = 0;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/** @brief Triggers random initialization of the parameter */
 	virtual void randomInit_() = 0;
 
 private:
-	/******************************************************************/
+	/***************************************************************************/
 	T lowerInitBoundary_; ///< The lower boundary for random initialization
 	T upperInitBoundary_; ///< The upper boundary for random initialization
 
 #ifdef GEM_TESTING
 public:
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -334,7 +334,7 @@ public:
 		return result;
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -362,7 +362,7 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -391,7 +391,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**********************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
@@ -402,6 +402,7 @@ namespace boost {
 		struct is_abstract< const Gem::Geneva::GNumT<T> > : public boost::true_type {};
 	}
 }
-/**********************************************************************/
+
+/******************************************************************************/
 
 #endif /* GNUMT_HPP_ */

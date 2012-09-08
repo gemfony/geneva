@@ -75,7 +75,7 @@ namespace Common {
  * meet a given set of expectations.
  */
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * This function checks whether two smart pointers to complex types meet a given expectation.
  * It is assumed that these types have the standard Geneva interface with corresponding "checkRelationshipWith"
@@ -193,7 +193,7 @@ boost::optional<std::string> checkExpectation (
 	}
 }
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * This function checks whether two vectors of smart pointers to complex types meet a given expectation.
  * It is assumed that these types have the standard Geneva interface with corresponding "checkRelationshipWith"
@@ -322,7 +322,7 @@ boost::optional<std::string> checkExpectation (
 	}
 }
 
-/*************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

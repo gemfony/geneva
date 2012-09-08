@@ -56,7 +56,7 @@
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * This class encapsulates a single integer value, which can assume different integer types.
  * The reason for this class is that there might be applications where one might want different
@@ -84,7 +84,7 @@ public:
 	/** @brief Specifies the type of parameters stored in this object */
 	typedef int_type parameter_type;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor
 	 */
@@ -92,7 +92,7 @@ public:
 		: GNumT<int_type> ()
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 *
@@ -102,7 +102,7 @@ public:
 		: GNumT<int_type> (cp)
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization by contained value
 	 *
@@ -112,7 +112,7 @@ public:
 		: GNumT<int_type>(val)
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization by random number in a given range. Note that we
 	 * use the local randomInit_ function in order to avoid trying to
@@ -130,7 +130,7 @@ public:
 		GNumIntT<int_type>::randomInit_();
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization with a fixed value, plus the boundaries for random
 	 * initialization.
@@ -149,14 +149,14 @@ public:
 		GParameterT<int_type>::setValue(val);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GNumIntT()
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * An assignment operator for the contained value type
 	 *
@@ -167,7 +167,7 @@ public:
 		return GNumT<int_type>::operator=(val);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard assignment operator.
 	 *
@@ -179,7 +179,7 @@ public:
 		return *this;
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for equality with another GNumIntT object
 	 *
@@ -192,7 +192,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumIntT<int_type>::operator==","cp", CE_SILENT);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for inequality with another GNumIntT object
 	 *
@@ -205,7 +205,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumIntT<int_type>::operator!=","cp", CE_SILENT);
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -243,7 +243,7 @@ public:
 
 
 protected:
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GNumIntT<int_type> object,
 	 * camouflaged as a GObject. We have no local data, so
@@ -262,11 +262,11 @@ protected:
 		// no local data ...
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. Needs to be redefined in derived classes */
 	virtual GObject* clone_() const = 0;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Triggers random initialization of the parameter collection
 	 */
@@ -285,7 +285,7 @@ protected:
 
 #ifdef GEM_TESTING
 public:
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
@@ -298,7 +298,7 @@ public:
 		return result;
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -392,7 +392,7 @@ public:
 
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -401,17 +401,17 @@ public:
 		GNumT<int_type>::specificTestsFailuresExpected_GUnitTests();
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 
 #endif /* GEM_TESTING */
 };
 
-/************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/************************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
@@ -423,6 +423,6 @@ namespace boost {
 	}
 }
 
-/************************************************************************/
+/******************************************************************************/
 
 #endif /* GNUMINTT_HPP_ */

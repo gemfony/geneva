@@ -98,7 +98,7 @@
 namespace Gem {
 namespace Geneva {
 
-/**************************************************************************************/
+/******************************************************************************/
 // Default values for the variables used by the optimizer
 const std::string GO2_DEF_DEFAULTCONFIGFILE="config/Go2.json";
 const bool GO2_DEF_CLIENTMODE=false;
@@ -118,11 +118,11 @@ const std::string GO2_DEF_OPTALGS="";
 
 const bool NOCLONE = true;
 
-/**************************************************************************************/
+/******************************************************************************/
 /** @brief Set a number of parameters of the random number factory */
 void setRNFParameters(const boost::uint16_t&, const std::size_t&);
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * This class allows to "chain" a number of optimization algorithms so that a given
  * set of individuals can be optimized using more than one algorithm in sequence. The
@@ -237,7 +237,7 @@ public:
 	/** @brief Resets the object to its start position */
 	void reset();
 
-	/**************************************************************************************/
+	/***************************************************************************/
 	// The following is a trivial list of getters and setters
 	void setClientMode(bool);
 	bool getClientMode() const;
@@ -287,7 +287,7 @@ public:
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
 	virtual std::string getIndividualCharacteristic() const;
 
-	/************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization code for the Geneva library collection.
 	 */
@@ -295,7 +295,7 @@ public:
 		Geneva::init();
 	}
 
-	/************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Finalization code for the Geneva library collection.
 	 */
@@ -303,7 +303,7 @@ public:
 		return Geneva::finalize();
 	}
 
-	/************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Starts the optimization cycle and returns the best individual found, converted to
 	 * the desired target type. This is a convenience overload of the corresponding
@@ -316,7 +316,7 @@ public:
 		return GOptimizableI::optimize<individual_type>();
 	}
 
-	/************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Starts the optimization cycle and returns the best individual found, converted to
 	 * the desired target type. This function uses a configurable offset for the iteration
@@ -334,7 +334,7 @@ public:
 	}
 
 protected:
-	/************************************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the data of another Go2 object */
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
@@ -346,18 +346,18 @@ protected:
 	std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
 
 private:
-	/**********************************************************************/
+	/***************************************************************************/
 	/** @brief Copy construction without cloning */
 	Go2(const Go2&, bool);
 	/** @brief Copying of the algorithms_ vector */
 	void copyAlgorithmsVector(const std::vector<boost::shared_ptr<GOptimizableI> >&, std::vector<boost::shared_ptr<GOptimizableI> >&);
 
-	/**********************************************************************/
+	/***************************************************************************/
 	// These parameters can enter the object through the constructor
 	bool clientMode_; ///< Specifies whether this object represents a network client
 	Gem::Common::serializationMode serializationMode_; ///< Indicates whether serialization should be done in Text, XML or Binary form
-    std::string ip_; ///< Where the server can be reached
-    unsigned short port_; ///< The port on which the server answers
+   std::string ip_; ///< Where the server can be reached
+   unsigned short port_; ///< The port on which the server answers
 	std::string configFilename_; ///< Indicates where the configuration file is stored
 	parMode parMode_; ///< The desired parallelization mode for free-form algorithms
 	bool verbose_; ///< Whether additional information should be emitted, e.g. when parsing configuration files
@@ -395,7 +395,7 @@ private:
     boost::shared_ptr<Go2> tmpl_ptr;
 };
 
-/**************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
