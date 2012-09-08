@@ -64,7 +64,7 @@
 namespace Gem {
 namespace Geneva {
 
-/**********************************************************************/
+/******************************************************************************/
 /**
  * This class represents a collection of numeric values with common
  * boundaries, all modified using the same algorithm. The most likely types to
@@ -93,7 +93,7 @@ public:
 	/** @brief Specifies the type of parameters stored in this collection */
 	typedef num_type collection_type;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialize the lower and upper boundaries for data members of this class
 	 *
@@ -130,7 +130,7 @@ public:
 		}
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialize the lower and upper boundaries for data members of this class
 	 * and assign a fixed value to each position
@@ -180,7 +180,7 @@ public:
 		}
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard copy constructor. We assume that the boundaries have
 	 * "legal" values. Thus we do not make any error checks here.
@@ -191,14 +191,14 @@ public:
 		, upperBoundary_(cp.upperBoundary_)
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
 	virtual ~GConstrainedNumCollectionT()
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -236,7 +236,7 @@ public:
 		return evaluateDiscrepancies("GConstrainedNumCollectionT<num_type>", caller, deviations, e);
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
     /**
      * Retrieves the lower boundary
      *
@@ -246,7 +246,7 @@ public:
     	return lowerBoundary_;
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
     /**
      * Retrieves the upper boundary
      *
@@ -256,7 +256,7 @@ public:
     	return upperBoundary_;
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Resets the boundaries to the maximum allowed value.
 	 */
@@ -264,7 +264,7 @@ public:
 		this->setBoundaries(-GConstrainedValueLimit<num_type>::max(), GConstrainedValueLimit<num_type>::max());
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the boundaries of this object and does corresponding
 	 * error checks. If the current value is below or above the new
@@ -312,7 +312,7 @@ public:
 		}
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to set the value in a given position. This function will throw if val is
 	 * not in the currently assigned value range. Use the corresponding overload if
@@ -337,7 +337,7 @@ public:
 		GParameterCollectionT<num_type>::setValue(pos, val);
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieval of the value at a given position. This is an overloaded version
 	 * of the original GParameterCollectionT<num_type>::value(pos) function which
@@ -355,13 +355,13 @@ public:
 		return mapping;
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/** @brief The transfer function needed to calculate the externally visible
 	 * value. Declared public so we can do tests of the value transformation. */
 	virtual num_type transfer(const num_type&) const = 0;
 
 protected:
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GConstrainedNumCollectionT<num_type> object,
 	 * camouflaged as a GObject. We have no local data, so
@@ -382,7 +382,7 @@ protected:
 		upperBoundary_ = p_load->upperBoundary_;
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates a deep copy of this object. Purely virtual as this class
 	 * should not be instantiable.
@@ -391,11 +391,11 @@ protected:
 	 */
 	virtual GObject *clone_() const = 0;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/** @brief Triggers random initialization of the parameter collection */
 	virtual void randomInit_() = 0;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor. Intentionally protected -- only needed
 	 * for de-serialization and as the basis for derived class'es default
@@ -408,13 +408,13 @@ protected:
 	{ /* nothing */ }
 
 private:
-	/******************************************************************/
+	/***************************************************************************/
 	num_type lowerBoundary_; ///< The lower allowed boundary for our value
 	num_type upperBoundary_; ///< The upper allowed boundary for our value
 
 #ifdef GEM_TESTING
 public:
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -429,7 +429,7 @@ public:
 		return result;
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -438,7 +438,7 @@ public:
 		GParameterCollectionT<num_type>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -451,12 +451,12 @@ public:
 
 };
 
-/**********************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**********************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
@@ -467,6 +467,6 @@ namespace boost {
 		struct is_abstract< const Gem::Geneva::GConstrainedNumCollectionT<num_type> > : public boost::true_type {};
 	}
 }
-/**********************************************************************/
+/******************************************************************************/
 
 #endif /* GCONSTRAINEDNUMCOLLECTIONT_HPP_ */

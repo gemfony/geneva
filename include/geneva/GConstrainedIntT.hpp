@@ -86,7 +86,7 @@ class GConstrainedIntT
 	BOOST_MPL_ASSERT((boost::is_signed<int_type>));
 
 public:
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor
 	 */
@@ -94,7 +94,7 @@ public:
 		: GConstrainedNumT<int_type>()
     { /* nothing */ }
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A constructor that initializes the value only. The boundaries will
 	 * be set to the maximum and minimum values of the corresponding type.
@@ -105,7 +105,7 @@ public:
 		: GConstrainedNumT<int_type>(val)
 	{ /* nothing */	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes the boundaries and assigns a random value to the object
 	 *
@@ -121,7 +121,7 @@ public:
 		GParameterT<int_type>::setValue(this->GParameterBase::gr->uniform_int(lowerBoundary,upperBoundary));
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization with value and boundaries.
 	 *
@@ -137,7 +137,7 @@ public:
 		: GConstrainedNumT<int_type>(val, lowerBoundary, upperBoundary)
 	{ /* nothing */	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard copy constructor. Most work is done by the parent
 	 * classes, we only need to copy the allowed value range.
@@ -148,14 +148,14 @@ public:
 		: GConstrainedNumT<int_type>(cp)
 	{ /* nothing */ }
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
 	virtual ~GConstrainedIntT()
 	{ /* nothing */	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard assignment operator for GConstrainedIntT<int_type> objects
 	 *
@@ -167,7 +167,7 @@ public:
 		return *this;
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard assignment operator for int_type values. Note that this function
 	 * will throw an exception if the new value is not in the allowed value range.
@@ -184,7 +184,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/****************************************************************************/
+	/***************************************************************************/
     /**
      * Checks equality of this object with another.
      *
@@ -197,7 +197,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedIntT<int_type>::operator==","cp", CE_SILENT);
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
     /**
      * Checks inequality of this object with another.
      *
@@ -210,7 +210,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedIntT<int_type>::operator!=","cp", CE_SILENT);
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -246,7 +246,7 @@ public:
 		return evaluateDiscrepancies("GConstrainedIntT<int_type>", caller, deviations, e);
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The transfer function needed to calculate the externally visible value.
 	 *
@@ -316,7 +316,7 @@ public:
 	 */
 
 protected:
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GConstrainedIntT<int_type>, camouflaged as a GObject.
 	 *
@@ -332,11 +332,11 @@ protected:
 		// no local data
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/** @brief Create a deep copy of this object */
 	virtual GObject *clone_() const = 0;
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
@@ -350,7 +350,7 @@ protected:
 	 */
 
 private:
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Reverts the value to descending order. Note: No check is made whether the value
 	 * is indeed in the allowed region.
@@ -366,7 +366,7 @@ private:
 
 #ifdef GEM_TESTING
 public:
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -381,7 +381,7 @@ public:
 		return result;
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -572,7 +572,7 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */

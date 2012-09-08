@@ -1,5 +1,5 @@
 /**
- * @file GLimits.hpp
+ * @file GConstrainedValueLimit.hpp
  */
 
 /*
@@ -47,8 +47,8 @@
 #include <boost/limits.hpp>
 #include <boost/logic/tribool.hpp>
 
-#ifndef GLIMITS_HPP_
-#define GLIMITS_HPP_
+#ifndef GCONSTRAINEDVALUELIMIT_HPP_
+#define GCONSTRAINEDVALUELIMIT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -61,7 +61,7 @@
 namespace Gem {
 namespace Geneva {
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * This struct defines limits used for constrained parameter types
  */
@@ -73,7 +73,7 @@ struct GConstrainedValueLimit
 	}
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Specialization of GConstrainedValueLimit for double values.
  */
@@ -85,7 +85,7 @@ struct GConstrainedValueLimit<double>
 	}
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Specialization of GConstrainedValueLimit for float values.
  */
@@ -97,7 +97,7 @@ struct GConstrainedValueLimit<float>
 	}
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Specialization of GConstrainedValueLimit for boost::int32_t values.
  */
@@ -109,9 +109,9 @@ struct GConstrainedValueLimit<boost::int32_t>
 	}
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 
 } /* Geneva */
 } /* Gem */
 
-#endif /* GLIMITS_HPP_ */
+#endif /* GCONSTRAINEDVALUELIMIT_HPP_ */

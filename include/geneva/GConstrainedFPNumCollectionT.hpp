@@ -63,7 +63,7 @@
 namespace Gem {
 namespace Geneva {
 
-/**********************************************************************/
+/******************************************************************************/
 /**
  * This class represents a collection of floating point values with common
  * boundaries, all modified using the same algorithm. The most likely types to
@@ -82,7 +82,8 @@ class GConstrainedFPNumCollectionT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GConstrainedNumCollectionT",	boost::serialization::base_object<GConstrainedNumCollectionT<fp_type> >(*this));
+		ar & make_nvp("GConstrainedNumCollectionT",
+		      boost::serialization::base_object<GConstrainedNumCollectionT<fp_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -93,7 +94,7 @@ public:
 	/** @brief Specifies the type of parameters stored in this collection */
 	typedef fp_type collection_type;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialize the lower and upper boundaries for data members of this class.
 	 * Then set all positions to random values.
@@ -116,7 +117,7 @@ public:
 		}
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialize the lower and upper boundaries for data members of this class.
 	 * Set all positions to the same value.
@@ -135,7 +136,7 @@ public:
 		: GConstrainedNumCollectionT<fp_type> (size, val, lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary)) // Note that we define the upper boundary as "open"
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard copy constructor
 	 */
@@ -143,14 +144,14 @@ public:
 		: GConstrainedNumCollectionT<fp_type> (cp)
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
 	virtual ~GConstrainedFPNumCollectionT()
 	{ /* nothing */ }
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -368,7 +369,7 @@ public:
 	}
 
 protected:
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GConstrainedFPNumCollectionT<fp_type> object,
 	 * camouflaged as a GObject. We have no local data, so
@@ -387,11 +388,11 @@ protected:
 		// ... no local data
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/** @brief Creates a deep copy of this object */
 	virtual GObject *clone_() const = 0;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Triggers random initialization of the parameter collection
 	 */
@@ -407,7 +408,7 @@ protected:
 		}
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor. Intentionally protected, as it is only
 	 * needed for de-serialization and as the basis for derived class'es
@@ -419,7 +420,7 @@ protected:
 
 #ifdef GEM_TESTING
 public:
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -434,7 +435,7 @@ public:
 		return result;
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -443,7 +444,7 @@ public:
 		GConstrainedNumCollectionT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	/******************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -456,12 +457,12 @@ public:
 
 };
 
-/**********************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**********************************************************************/
+/******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
@@ -472,6 +473,6 @@ namespace boost {
 		struct is_abstract< const Gem::Geneva::GConstrainedFPNumCollectionT<fp_type> > : public boost::true_type {};
 	}
 }
-/**********************************************************************/
+/******************************************************************************/
 
 #endif /* GCONSTRAINEDFPNUMCOLLECTIONT_HPP_ */

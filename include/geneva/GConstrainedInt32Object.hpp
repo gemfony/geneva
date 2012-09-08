@@ -69,7 +69,8 @@ class GConstrainedInt32Object
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GConstrainedIntT_int32", boost::serialization::base_object<GConstrainedIntT<boost::int32_t> >(*this));
+		ar & make_nvp("GConstrainedIntT_int32",
+		      boost::serialization::base_object<GConstrainedIntT<boost::int32_t> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -77,9 +78,16 @@ public:
 	/** @brief The default constructor */
 	GConstrainedInt32Object();
 	/** @brief Initialization with boundaries only */
-	GConstrainedInt32Object(const boost::int32_t&, const boost::int32_t&);
+	GConstrainedInt32Object(
+	      const boost::int32_t&
+	      , const boost::int32_t&
+	);
 	/** @brief Initialization with value and boundaries */
-	GConstrainedInt32Object(const boost::int32_t&, const boost::int32_t&, const boost::int32_t&);
+	GConstrainedInt32Object(
+	      const boost::int32_t&
+	      , const boost::int32_t&
+	      , const boost::int32_t&
+	);
 	/** @brief The copy constructor */
 	GConstrainedInt32Object(const GConstrainedInt32Object&);
 	/** @brief Initialization by contained value */
@@ -99,7 +107,14 @@ public:
 	bool operator!=(const GConstrainedInt32Object&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+	      const GObject&
+	      , const Gem::Common::expectation&
+	      , const double&
+	      , const std::string&
+	      , const std::string&
+	      , const bool&
+	) const;
 
 	/** @brief Attach our local value to the vector. */
 	virtual void int32Streamline(std::vector<boost::int32_t>&) const;

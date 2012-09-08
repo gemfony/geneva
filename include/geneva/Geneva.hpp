@@ -75,11 +75,11 @@
 namespace Gem {
 namespace Geneva {
 
-/****************************************************************************************/
+/******************************************************************************/
 /** @brief A termination handler */
 void GTerminate();
 
-/****************************************************************************************/
+/******************************************************************************/
 /**
  * This class serves as a hold-all for functions governing the overall running and progress
  * of optimizations carried out with Geneva. Most notably, this class holds the startup
@@ -87,7 +87,7 @@ void GTerminate();
  */
 class Geneva {
 public:
-	/************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization code for the Geneva library collection. Most notably, we enforce
 	 * the initialization of various singletons needed for Geneva.
@@ -97,7 +97,7 @@ public:
 		GBROKER(Gem::Geneva::GIndividual)->init();
 	}
 
-	/************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Finalization code for the Geneva library collection. Most notably, we enforce
 	 * shutdown of various singleton services needed for Geneva. Note that we shut down
@@ -120,10 +120,10 @@ public:
 		return 0;
 	}
 
-	/************************************************************************************/
+	/***************************************************************************/
 };
 
-/****************************************************************************************/
+/******************************************************************************/
 
 } /* Geneva */
 } /* Gem */

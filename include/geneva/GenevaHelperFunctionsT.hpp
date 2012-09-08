@@ -64,7 +64,7 @@ namespace Gem
 namespace Geneva
 {
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * This function takes two smart Geneva pointers and copies their contents (if any) with the
  * load / clone functions. boost::enable_if makes sure that this function can only be called
@@ -91,7 +91,7 @@ void copyGenevaSmartPointer (
 	}
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * This function copies a Geneva smart pointer vector to another vector. It assumes the availability
  * of a load- and clone-call and that the objects pointed to derive from GObject
@@ -142,7 +142,7 @@ void copyGenevaSmartPointerVector(
 	}
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * This factory function returns default adaptors for a given base type. This function is a trap.
  * Specializations are responsible for the actual implementation.
@@ -163,7 +163,7 @@ template <> boost::shared_ptr<GAdaptorT<float> > getDefaultAdaptor<float>();
 template <> boost::shared_ptr<GAdaptorT<boost::int32_t> > getDefaultAdaptor<boost::int32_t>();
 template <> boost::shared_ptr<GAdaptorT<bool> > getDefaultAdaptor<bool>();
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

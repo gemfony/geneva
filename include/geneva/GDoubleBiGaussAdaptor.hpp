@@ -51,7 +51,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * The GDoubleBiGaussAdaptor represents an adaptor used for the adaption of
  * double values through the addition of gaussian-distributed random numbers.
@@ -122,7 +122,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/*************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -87,7 +87,7 @@ class GConstrainedFPT
 	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
 
 public:
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor.
 	 */
@@ -95,7 +95,7 @@ public:
 		: GConstrainedNumT<fp_type>()
     { /* nothing */ }
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A constructor that initializes the value only. The boundaries will
 	 * be set to the maximum and minimum values of the corresponding type.
@@ -106,7 +106,7 @@ public:
 		: GConstrainedNumT<fp_type>(val)
 	{ /* nothing */ }
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes the boundaries and assigns a random value.
 	 *
@@ -119,7 +119,7 @@ public:
 		GParameterT<fp_type>::setValue(this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary,upperBoundary));
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization with value and boundaries. We need somewhat tighter
 	 * constraints for the allowed value range than implemented in the
@@ -137,7 +137,7 @@ public:
 		: GConstrainedNumT<fp_type>(val, lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary))
 	{ /* nothing */ }
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard copy constructor. Most work is done by the parent
 	 * classes.
@@ -148,14 +148,14 @@ public:
 		: GConstrainedNumT<fp_type>(cp)
 	{ /* nothing */ }
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
 	virtual ~GConstrainedFPT()
 	{ /* nothing */	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard assignment operator for GConstrainedFPT<fp_type> objects
 	 *
@@ -167,7 +167,7 @@ public:
 		return *this;
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
     /**
      * Checks equality of this object with another.
      *
@@ -180,7 +180,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedFPT<fp_type>::operator==","cp", CE_SILENT);
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
     /**
      * Checks inequality of this object with another.
      *
@@ -193,7 +193,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedFPT<fp_type>::operator!=","cp", CE_SILENT);
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -230,7 +230,7 @@ public:
 		return evaluateDiscrepancies("GConstrainedFPT<fp_type>", caller, deviations, e);
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard assignment operator for T values.
 	 *
@@ -247,7 +247,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to set the value. Has the same constraints as the parent class'es function,
 	 * applies additional restrictions.
@@ -264,7 +264,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to set the value of this object together with its boundaries.
 	 *
@@ -282,7 +282,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the boundaries of this object. This function differs from the parent
 	 * class'es function in that it calculates an additional quantity, the closed
@@ -296,7 +296,7 @@ public:
 		GConstrainedNumT<fp_type>::setBoundaries(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary));
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The transfer function needed to calculate the externally visible value.
 	 *
@@ -343,7 +343,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes floating-point-based parameters with a given value. Allows e.g. to set all
 	 * floating point parameters to 0. Note that, contrary to the usual behavior,
@@ -363,7 +363,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Multiplies floating-point-based parameters with a given value. Note that the resulting
 	 * internal value may well be outside of the allowed boundaries. However, the internal
@@ -379,7 +379,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Multiplies with a random floating point number in a given range.  Note that the resulting
 	 * internal value may well be outside of the allowed boundaries. However, the internal
@@ -398,7 +398,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Multiplies with a random floating point number in the range [0, 1[.  Note that the resulting
 	 * internal value may well be outside of the allowed boundaries. However, the internal
@@ -414,7 +414,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds the floating point parameters of another GParameterBase object to this one.
 	 * Note that the resulting internal value may well be outside of the allowed boundaries.
@@ -434,7 +434,7 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Subtracts the floating point parameters of another GParameterBase object
 	 * from this one. Note that the resulting internal value may well be outside of
@@ -455,7 +455,7 @@ public:
 	 */
 
 protected:
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GConstrainedFPT<fp_type>, camouflaged as a GObject.
 	 *
@@ -471,11 +471,11 @@ protected:
 		// no local data ...
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/** @brief Create a deep copy of this object */
 	virtual GObject *clone_() const = 0;
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
@@ -494,7 +494,7 @@ protected:
 
 #ifdef GEM_TESTING
 public:
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 *
@@ -509,7 +509,7 @@ public:
 		return result;
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
@@ -889,7 +889,7 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
@@ -1035,6 +1035,8 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
+	/***************************************************************************/
+
 #endif /* GEM_TESTING */
 };
 
@@ -1052,5 +1054,7 @@ namespace boost {
 		struct is_abstract< const Gem::Geneva::GConstrainedFPT<fp_type> > : public boost::true_type {};
 	}
 }
+
+/******************************************************************************/
 
 #endif /* GCONSTRAINEDFPT_HPP_ */
