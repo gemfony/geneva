@@ -53,7 +53,7 @@
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * This class encapsulates a single bit, represented as a bool. This might appear heavy weight,
  * and indeed for most applications this is not the recommended solution -
@@ -102,7 +102,14 @@ public:
 	virtual void randomInit(const double&);
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+	      const GObject&
+	      , const Gem::Common::expectation&
+	      , const double&
+	      , const std::string&
+	      , const std::string&
+	      , const bool&
+	) const;
 
 	/** @brief Attach our local value to the vector. */
 	virtual void booleanStreamline(std::vector<bool>&) const;
@@ -135,7 +142,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

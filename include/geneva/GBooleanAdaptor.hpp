@@ -57,7 +57,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * The GBooleanAdaptor represents an adaptor used for the adaption of
  * bool values by flipping its value. See the documentation of GAdaptorT<T> for
@@ -75,7 +75,8 @@ class GBooleanAdaptor
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GIntFlipAdaptorT_bool", boost::serialization::base_object<GIntFlipAdaptorT<bool> >(*this));
+	  ar & make_nvp("GIntFlipAdaptorT_bool",
+	        boost::serialization::base_object<GIntFlipAdaptorT<bool> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -131,7 +132,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/***********************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

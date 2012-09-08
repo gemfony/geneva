@@ -60,7 +60,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * A networked version of the GBaseGD class
  */
@@ -76,7 +76,8 @@ class GBrokerGD
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseGD)
-		   & make_nvp("GBrokerConnectorT_GIndividual", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this));
+		   & make_nvp("GBrokerConnectorT_GIndividual",
+		         boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this));
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -136,25 +137,24 @@ protected:
 	virtual double doFitnessCalculation(const std::size_t&);
 
 private:
-    /*********************************************************************************/
-    /**
-     * A simple comparison operator that helps to sort individuals according to their
-     * position in the population Smaller position numbers will end up in front.
-     */
-    struct indPositionComp {
-    	bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
-    		return x->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition()
-    			   < y->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition();
-    	}
-    };
+	/***************************************************************************/
+	/**
+	 * A simple comparison operator that helps to sort individuals according to their
+	 * position in the population Smaller position numbers will end up in front.
+	 */
+	struct indPositionComp {
+	   bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
+	      return x->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition()
+	            < y->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition();
+	   }
+	};
+	/***************************************************************************/
 
-    /*********************************************************************************/
-
-    bool storedServerMode_; ///< Indicates whether an individual runs in server mode
+	bool storedServerMode_; ///< Indicates whether an individual runs in server mode
 
 #ifdef GEM_TESTING
 public:
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -164,20 +164,22 @@ public:
 #endif /* GEM_TESTING */
 };
 
+/******************************************************************************/
+
 } /* namespace Geneva */
 } /* namespace Gem */
 
 #ifdef GEM_TESTING
 // Tests of this class (and parent classes)
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /** @brief We need to provide a specialization of the factory function that creates objects of this type. */
 template <> boost::shared_ptr<Gem::Geneva::GBrokerGD> TFactory_GUnitTests<Gem::Geneva::GBrokerGD>();
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBrokerGD)

@@ -62,7 +62,7 @@ namespace Gem {
 namespace Geneva {
 
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * The GBaseSwarm class implements a swarm optimization algorithm, based on the infrastructure
  * provided by the GOptimizationAlgorithmT class. Its population is based on a constant number
@@ -190,7 +190,7 @@ public:
 		, const bool& showOrigin
 	);
 
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the best individual of a neighborhood and casts it to the desired type. Note that this
 	 * function will only be accessible to the compiler if parameterset_type is a derivative of GParameterSet,
@@ -333,7 +333,7 @@ protected:
 	virtual std::string getAlgorithmName() const;
 
 private:
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
 	bool nNeighborhoodMembersEqual(const std::vector<std::size_t>&, const std::vector<std::size_t>&) const;
 
@@ -342,7 +342,7 @@ private:
 
 #ifdef GEM_TESTING
 public:
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -352,9 +352,9 @@ public:
 #endif /* GEM_TESTING */
 
 public:
-	/**************************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////////////
-	/**************************************************************************************/
+	/***************************************************************************/
+	/////////////////////////////////////////////////////////////////////////////
+	/***************************************************************************/
 	/**
 	 * This nested class defines the interface of optimization monitors, as used
 	 * by default in the Geneva library for swarm algorithms.
@@ -440,16 +440,16 @@ public:
 		/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 		virtual void specificTestsFailuresExpected_GUnitTests();
 
-		/**********************************************************************************/
+		/************************************************************************/
 #endif /* GEM_TESTING */
 	};
 
-	/**************************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////////////
-	/**************************************************************************************/
+   /***************************************************************************/
+   /////////////////////////////////////////////////////////////////////////////
+   /***************************************************************************/
 };
 
-/******************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

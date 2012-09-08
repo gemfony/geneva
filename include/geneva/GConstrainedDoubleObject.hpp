@@ -70,7 +70,8 @@ class GConstrainedDoubleObject
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GConstrainedFPT_double", boost::serialization::base_object<GConstrainedFPT<double> >(*this));
+		ar & make_nvp("GConstrainedFPT_double",
+		      boost::serialization::base_object<GConstrainedFPT<double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -100,7 +101,14 @@ public:
 	bool operator!=(const GConstrainedDoubleObject&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+	      const GObject&
+	      , const Gem::Common::expectation&
+	      , const double&
+	      , const std::string&
+	      , const std::string&
+	      , const bool&
+	) const;
 
 	/** @brief Attach our local value to the vector. */
 	virtual void doubleStreamline(std::vector<double>&) const;

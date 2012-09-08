@@ -57,7 +57,7 @@ namespace Gem
 namespace Geneva
 {
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * This class implements a swarm algorithm with the ability to delegate certain
  * tasks to remote clients, using Geneva's broker infrastructure.
@@ -74,7 +74,8 @@ class GBrokerSwarm
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSwarm)
-		   & make_nvp("GBrokerConnectorT_GIndividual", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this));
+		   & make_nvp("GBrokerConnectorT_GIndividual",
+		         boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -119,11 +120,11 @@ public:
 	virtual std::string getIndividualCharacteristic() const;
 
 protected:
-    /*********************************************************************************/
+   /***************************************************************************/
 	/** @brief Loads the data of another GTransfer Population */
-    virtual void load_(const GObject *);
-    /** @brief Creates a deep copy of this object */
-    virtual GObject *clone_() const;
+   virtual void load_(const GObject *);
+   /** @brief Creates a deep copy of this object */
+   virtual GObject *clone_() const;
 
 	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
 	virtual void init();
@@ -135,29 +136,29 @@ protected:
 	/** @brief Triggers the fitness calculation of all individuals */
 	virtual void updateFitness();
 
-    /** @brief Fixes the population after a job submission */
-    virtual void adjustNeighborhoods();
-    /** @brief Checks whether each neighborhood has the default size */
-    bool neighborhoodsHaveNominalValues() const;
+   /** @brief Fixes the population after a job submission */
+   virtual void adjustNeighborhoods();
+   /** @brief Checks whether each neighborhood has the default size */
+   bool neighborhoodsHaveNominalValues() const;
 
 private:
-	/*********************************************************************************/
+	/***************************************************************************/
 	bool storedServerMode_; ///< Indicates whether an individual runs in server mode
 	std::vector<boost::shared_ptr<GParameterSet> > oldIndividuals_; ///< A temporary copy of the last iteration's individuals
 
-    /*********************************************************************************/
-    /**
-     * A simple comparison operator that helps to sort individuals according to their
-     * affiliation to a neighborhood. Smaller neighborhood numbers should be in front.
-     */
-    class indNeighborhoodComp {
-    public:
-    	bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
-    		return x->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() < y->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood();
-    	}
-    };
+	/***************************************************************************/
+	/**
+	 * A simple comparison operator that helps to sort individuals according to their
+	 * affiliation to a neighborhood. Smaller neighborhood numbers should be in front.
+	 */
+	class indNeighborhoodComp {
+	public:
+	   bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
+	      return x->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() < y->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood();
+	   }
+	};
 
-    /*********************************************************************************/
+	/***************************************************************************/
 
 #ifdef GEM_TESTING
 public:
@@ -170,7 +171,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/**********************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

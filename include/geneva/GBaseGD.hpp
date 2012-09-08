@@ -66,7 +66,7 @@ const std::size_t DEFAULTGDSTARTINGPOINTS=1;
 const double DEFAULTFINITESTEP=0.01;
 const double DEFAULTSTEPSIZE=0.1;
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * The GBaseGD class implements a steepest descent algorithm. It is possible
  * to search for optima starting from several positions simultaneously.
@@ -81,7 +81,8 @@ class GBaseGD
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
+		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet",
+		      boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
 		   & BOOST_SERIALIZATION_NVP(nStartingPoints_)
 		   & BOOST_SERIALIZATION_NVP(nFPParmsFirst_)
 		   & BOOST_SERIALIZATION_NVP(finiteStep_)
@@ -155,7 +156,7 @@ public:
 	);
 
 protected:
-	/**************************************************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
@@ -189,7 +190,7 @@ protected:
 	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
 
 private:
-	/**************************************************************************************************/
+	/***************************************************************************/
 	std::size_t nStartingPoints_; ///< The number of starting positions in the parameter space
 	std::size_t nFPParmsFirst_; ///< The amount of floating point values in the first individual
 	float finiteStep_; ///< The size of the incremental adaption of the feature vector
@@ -199,8 +200,8 @@ private:
 	void markIndividualPositions();
 
 #ifdef GEM_TESTING
-public:
-	/**************************************************************************************************/
+public
+   /***************************************************************************/:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -210,9 +211,9 @@ public:
 #endif /* GEM_TESTING */
 
 public:
-	/**************************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////////////
-	/**************************************************************************************/
+	/***************************************************************************/
+	/////////////////////////////////////////////////////////////////////////////
+	/***************************************************************************/
 	/**
 	 * This class defines the interface of optimization monitors, as used
 	 * by default in the Geneva library for evolutionary algorithms.
@@ -227,7 +228,8 @@ public:
 	    void serialize(Archive & ar, const unsigned int){
 	      using boost::serialization::make_nvp;
 
-	      ar & make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this));
+	      ar & make_nvp("GOptimizationMonitorT_GParameterSet",
+	            boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this));
 	    }
 	    ///////////////////////////////////////////////////////////////////////
 
@@ -296,16 +298,16 @@ public:
 		/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 		virtual void specificTestsFailuresExpected_GUnitTests();
 
-		/**********************************************************************************/
+		/************************************************************************/
 	#endif /* GEM_TESTING */
 	};
 
-	/**************************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////////////
-	/**************************************************************************************/
+   /***************************************************************************/
+   /////////////////////////////////////////////////////////////////////////////
+   /***************************************************************************/
 };
 
-/******************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -57,7 +57,7 @@
 namespace Gem {
 namespace Geneva {
 
-/**********************************************************************/
+/******************************************************************************/
 /**
  * This class represents a collection of double values with common
  * boundaries, all modified using the same algorithm. Note: If you want
@@ -74,12 +74,13 @@ class GConstrainedDoubleCollection
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GConstrainedFPNumCollectionT", boost::serialization::base_object<GConstrainedFPNumCollectionT<double> >(*this));
+		ar & make_nvp("GConstrainedFPNumCollectionT",
+		      boost::serialization::base_object<GConstrainedFPNumCollectionT<double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/******************************************************************/
+	/***************************************************************************/
 	/** @brief Initialize the lower and upper boundaries for data members of this class */
 	GConstrainedDoubleCollection (
 			const std::size_t&
@@ -126,51 +127,53 @@ public:
 	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&);
 
 protected:
-	/******************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the data of another GConstrainedDoubleCollection object */
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
 	GObject* clone_() const;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/** @brief The default constructor. Intentionally protected	 */
 	GConstrainedDoubleCollection();
 
 #ifdef GEM_TESTING
 public:
-	/******************************************************************/
+	/***************************************************************************/
 	/** @brief Applies modifications to this object */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail */
 	virtual void specificTestsFailuresExpected_GUnitTests();
-	/******************************************************************/
+	/***************************************************************************/
 #endif /* GEM_TESTING */
 
 };
 
-/**********************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
 #ifdef GEM_TESTING
 // Tests of this class (and parent classes)
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /** @brief We need to provide a specialization of the factory function that creates objects of this type. */
 template <> boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection>
 TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>();
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
 #endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleCollection)
 
-/**********************************************************************/
+/******************************************************************************/
 
 #endif /* GCONSTRAINEDDOUBLECOLLECTION_HPP_ */

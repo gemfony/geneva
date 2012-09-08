@@ -57,7 +57,7 @@
 namespace Gem {
 namespace Geneva {
 
-/**********************************************************************/
+/******************************************************************************/
 /**
  * This class represents a collection of float values with common
  * boundaries, all modified using the same algorithm. Note: If you want
@@ -79,7 +79,7 @@ class GConstrainedFloatCollection
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/******************************************************************/
+	/***************************************************************************/
 	/** @brief Initialize the lower and upper boundaries for data members of this class */
 	GConstrainedFloatCollection (
 			const std::size_t&
@@ -126,51 +126,52 @@ public:
 	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&);
 
 protected:
-	/******************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the data of another GConstrainedFloatCollection object */
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
 	GObject* clone_() const;
 
-	/******************************************************************/
+	/***************************************************************************/
 	/** @brief The default constructor. Intentionally protected	 */
 	GConstrainedFloatCollection();
 
 #ifdef GEM_TESTING
 public:
-	/******************************************************************/
+	/***************************************************************************/
 	/** @brief Applies modifications to this object */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail */
 	virtual void specificTestsFailuresExpected_GUnitTests();
-	/******************************************************************/
+	/***************************************************************************/
 #endif /* GEM_TESTING */
 
 };
 
-/**********************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
 #ifdef GEM_TESTING
 // Tests of this class (and parent classes)
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /** @brief We need to provide a specialization of the factory function that creates objects of this type. */
 template <> boost::shared_ptr<Gem::Geneva::GConstrainedFloatCollection>
 TFactory_GUnitTests<Gem::Geneva::GConstrainedFloatCollection>();
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
 #endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedFloatCollection)
 
-/**********************************************************************/
+/******************************************************************************/
 
 #endif /* GCONSTRAINEDFLOATCOLLECTION_HPP_ */
