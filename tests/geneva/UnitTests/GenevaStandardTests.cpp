@@ -79,7 +79,6 @@ using namespace boost::unit_test;
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/Go.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GEvaluator.hpp"
 #include "geneva-individuals/GTestIndividual1.hpp"
 #include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
 
@@ -151,7 +150,6 @@ public:
 			, GSerialGD
 			, GMultiThreadedGD
 			, Go
-			, GEvaluator
 		>
 		algorithm_types;
 

@@ -51,7 +51,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * The GFloatGaussAdaptor represents an adaptor used for the adaption of
  * float values through the addition of gaussian-distributed random numbers.
@@ -137,7 +137,7 @@ public:
 #endif /* GEM_TESTING */
 };
 
-/*************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

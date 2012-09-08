@@ -26,22 +26,21 @@ SET ( OPTIMIZATIONINCLUDES
 	GConstrainedNumCollectionT.hpp
 	GConstrainedNumT.hpp
 	GConstrainedValueLimit.hpp
-	GExternalEvaluatorConsumer.hpp
-	GFloatBiGaussAdaptor.hpp
-	GFloatCollection.hpp
-	GFloatGaussAdaptor.hpp
-	GFloatObject.hpp
-	GFloatObjectCollection.hpp
 	GDoubleBiGaussAdaptor.hpp
 	GDoubleCollection.hpp
 	GDoubleGaussAdaptor.hpp
 	GDoubleObject.hpp
 	GDoubleObjectCollection.hpp
 	GEAPersonalityTraits.hpp
-	GEvaluator.hpp
-	GEvolutionaryAlgorithmFactory.hpp
 	Geneva.hpp
 	GenevaHelperFunctionsT.hpp
+	GEvolutionaryAlgorithmFactory.hpp
+	GExternalEvaluatorConsumer.hpp
+	GFloatBiGaussAdaptor.hpp
+	GFloatCollection.hpp
+	GFloatGaussAdaptor.hpp
+	GFloatObject.hpp
+	GFloatObjectCollection.hpp
 	GFPBiGaussAdaptorT.hpp
 	GFPGaussAdaptorT.hpp
 	GFPNumCollectionT.hpp

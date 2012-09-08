@@ -52,7 +52,7 @@
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * This class encapsulates a float type. This might appear heavy weight,
  * and indeed for most applications this is not the recommended solution -
@@ -135,7 +135,7 @@ public:
 };
 
 
-/************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

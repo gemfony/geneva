@@ -57,7 +57,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************/
+/******************************************************************************/
 /**
  * This class is meant to be the base of a hierarchy of classes
  * which take evaluation of individuals into their own hands. This
@@ -98,6 +98,8 @@ protected:
 			, std::vector<double>&
 	) = 0;
 };
+
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

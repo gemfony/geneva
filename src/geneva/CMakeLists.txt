@@ -19,12 +19,6 @@ SET ( OPTIMIZATIONSOURCES
 	GConstrainedFloatObjectCollection
 	GConstrainedInt32Object
 	GConstrainedInt32ObjectCollection
-	GExternalEvaluatorConsumer
-	GFloatBiGaussAdaptor
-	GFloatCollection
-	GFloatGaussAdaptor
-	GFloatObject
-	GFloatObjectCollection
 	GDoubleBiGaussAdaptor
 	GDoubleCollection
 	GDoubleGaussAdaptor
@@ -33,8 +27,13 @@ SET ( OPTIMIZATIONSOURCES
 	GEAPersonalityTraits
 	Geneva
 	GenevaHelperFunctionsT
-	GEvaluator
 	GEvolutionaryAlgorithmFactory
+	GExternalEvaluatorConsumer
+	GFloatBiGaussAdaptor
+	GFloatCollection
+	GFloatGaussAdaptor
+	GFloatObject
+	GFloatObjectCollection
 	GGDPersonalityTraits
 	GGradientDescentFactory
 	GIndividual
