@@ -36,6 +36,7 @@
 // Standard header files go here
 
 // Boost header files go here
+#include <boost/cast.hpp>
 
 #ifndef GPARAMETROBJECTCOLLECTION_HPP_
 #define GPARAMETROBJECTCOLLECTION_HPP_
@@ -118,7 +119,7 @@ public:
 			, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
 	)  const {
 #ifdef DEBUG
-		boost::shared_ptr<parameter_type> p = boost::static_pointer_cast<parameter_type>(data.at(pos));
+		boost::shared_ptr<parameter_type> p = boost::dynamic_pointer_cast<parameter_type>(data.at(pos));
 
 		if(p) return p;
 		else {
