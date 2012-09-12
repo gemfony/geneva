@@ -118,7 +118,9 @@ float GPow(const float&, const float&);
 /** @brief Calculates the pow value of a float value */
 double GPow(const double&, const double&);
 /** @brief Calculates the pow value of a float value */
+#ifdef _GLIBCXX_HAVE_POWL
 long double GPow(const long double&, const long double&);
+#endif /* _GLIBCXX_HAVE_POWL */
 
 /** @brief Performs alpha blending for floats */
 float GMix(const float&, const float&, const float&);

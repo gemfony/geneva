@@ -319,9 +319,11 @@ double GPow(const double& x, const double& y) {
 /**
  * Calculates the pow value of a long value
  */
+#ifdef _GLIBCXX_HAVE_POWL
 long double GPow(const long double& x, const long double& y) {
    return powl(x, y);
 }
+#endif /* _GLIBCXX_HAVE_POWL */
 
 /************************************************************************************/
 /**
