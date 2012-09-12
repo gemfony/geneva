@@ -172,9 +172,25 @@ public:
 protected:
 	/***************************************************************/
 	/**
+	 * A place to do set-up work done by worker threads. This allows
+	 * derived classes to further qualify what is done
+	 */
+	virtual void initWorker()
+	{ /* nothing */ }
+
+	/***************************************************************/
+	/**
+	 * Cleans up after a worker has finished
+	 */
+	virtual void cleanUpWorker()
+	{ /* nothing */ }
+
+	/***************************************************************/
+	/**
 	* Initiate the actual processing. This function assumes that processable_type
 	* has the GSubmissionContainerT interface, which means that it understands the
-	* "process()" call.
+	* "process()" call. It may be overloaded in derived classes that wish to use the
+	* parallel processing provided by GBoostThreadConsumerT.
 	*
 	* @param p The work item to be processed by this consumer
 	*/
@@ -211,6 +227,9 @@ private:
 	*/
 	void worker() {
 		try{
+		   // Allow derived classes to perform set-up work
+		   initWorker();
+
 			boost::shared_ptr<processable_type> p;
 			Gem::Common::PORTIDTYPE id;
 			boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
@@ -259,8 +278,8 @@ private:
 				}
 			}
 		}
-		catch(boost::thread_interrupted&){
-			// Terminate
+		catch(boost::thread_interrupted&){ // Normal termination
+		   cleanUpWorker();
 			return;
 		}
 		catch(std::exception& e) {
