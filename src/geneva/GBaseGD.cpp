@@ -89,7 +89,7 @@ GBaseGD::GBaseGD(
 /**
  * A standard copy constructor.
  *
- * @param cp A copy of another GRadientDescent object
+ * @param cp A copy of another GradientDescent object
  */
 GBaseGD::GBaseGD(const GBaseGD& cp)
 	: GOptimizationAlgorithmT<GParameterSet>(cp)
