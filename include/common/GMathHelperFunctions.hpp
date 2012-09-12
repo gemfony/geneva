@@ -46,6 +46,7 @@
 #endif
 
 // Geneva headers go here
+#include "common/GExceptions.hpp"
 
 namespace Gem {
 namespace Common {
@@ -103,7 +104,7 @@ long double GLog(const long double&);
 #endif /* _GLIBCXX_HAVE_LOGL */
 
 /** @brief Calculates the exp value of a float value */
-float GExo(const float&);
+float GExp(const float&);
 /** @brief Calculates the exp value of a double value */
 double GExp(const double&);
 
@@ -111,6 +112,20 @@ double GExp(const double&);
 /** @brief Calculates the exp value of a long double value */
 long double GExp(const long double&);
 #endif /* _GLIBCXX_HAVE_EXPL */
+
+/** @brief Calculates the pow value of a float value */
+float GPow(const float&, const float&);
+/** @brief Calculates the pow value of a float value */
+double GPow(const double&, const double&);
+/** @brief Calculates the pow value of a float value */
+long double GPow(const long double&, const long double&);
+
+/** @brief Performs alpha blending for floats */
+float GMix(const float&, const float&, const float&);
+/** @brief Performs alpha blending for doubles */
+double GMix(const double&, const double&, const double&);
+/** @brief Performs alpha blending for long doubles */
+long double GMix(const long double&, const long double&, const long double&);
 
 /************************************************************************************/
 

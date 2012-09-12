@@ -141,7 +141,9 @@ public:
 	* Termination of the threads is triggered by a call to GConsumer::shutdown().
 	*/
 	void async_startProcessing() {
-		gtg_.create_threads(boost::bind(&GBoostThreadConsumerT<processable_type>::worker, this), maxThreads_);
+	   for(std::size_t i=0; i<maxThreads_; i++) {
+	      gtg_.create_thread(boost::bind(&GBoostThreadConsumerT<processable_type>::worker, this, i));
+	   }
 	}
 
 	/***************************************************************/
@@ -175,14 +177,14 @@ protected:
 	 * A place to do set-up work done by worker threads. This allows
 	 * derived classes to further qualify what is done
 	 */
-	virtual void initWorker()
+	virtual void initWorker(std::size_t thread_id)
 	{ /* nothing */ }
 
 	/***************************************************************/
 	/**
 	 * Cleans up after a worker has finished
 	 */
-	virtual void cleanUpWorker()
+	virtual void cleanUpWorker(std::size_t thread_id)
 	{ /* nothing */ }
 
 	/***************************************************************/
@@ -193,8 +195,12 @@ protected:
 	* parallel processing provided by GBoostThreadConsumerT.
 	*
 	* @param p The work item to be processed by this consumer
+	* @param thread_id Position of this thread in the thread-array
 	*/
-	inline virtual void processItems(boost::shared_ptr<processable_type> p) {
+	inline virtual void processItems(
+	      boost::shared_ptr<processable_type> p
+	      , std::size_t thread_id
+	) {
 		// Do the actual work
 #ifdef DEBUG
 		if(p) p->process();
@@ -224,11 +230,13 @@ private:
 	* The function that gets new items from the broker, initiates processing
 	* and returns them when finished. As this function is the main execution
 	* point of a thread, we need to catch all exceptions.
+	*
+	* @param thread_id An id that lets the work identify its position in the array of threads
 	*/
-	void worker() {
+	void worker(std::size_t thread_id) {
 		try{
 		   // Allow derived classes to perform set-up work
-		   initWorker();
+		   initWorker(thread_id);
 
 			boost::shared_ptr<processable_type> p;
 			Gem::Common::PORTIDTYPE id;
@@ -260,7 +268,7 @@ private:
 #endif /* DEBUG */
 
 				// Initiate the actual processing
-				this->processItems(p);
+				this->processItems(p, thread_id);
 
 				// Return the item to the broker. The item will be discarded
 				// if the requested target queue cannot be found.
@@ -279,7 +287,7 @@ private:
 			}
 		}
 		catch(boost::thread_interrupted&){ // Normal termination
-		   cleanUpWorker();
+		   cleanUpWorker(thread_id);
 			return;
 		}
 		catch(std::exception& e) {

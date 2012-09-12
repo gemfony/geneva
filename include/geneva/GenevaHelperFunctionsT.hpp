@@ -59,10 +59,8 @@
 #include "geneva/GAdaptorT.hpp"
 #include "common/GExceptions.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 /**

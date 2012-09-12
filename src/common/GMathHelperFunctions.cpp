@@ -300,6 +300,93 @@ long double GExp(const long double& x) {
 #endif /* _GLIBCXX_HAVE_EXPL */
 
 /************************************************************************************/
+/**
+ * Calculates the pow value of a float value
+ */
+float GPow(const float& x, const float& y) {
+   return powf(x, y);
+}
+
+/************************************************************************************/
+/**
+ * Calculates the pow value of a double value
+ */
+double GPow(const double& x, const double& y) {
+   return pow(x, y);
+}
+
+/************************************************************************************/
+/**
+ * Calculates the pow value of a long value
+ */
+long double GPow(const long double& x, const long double& y) {
+   return powl(x, y);
+}
+
+/************************************************************************************/
+/**
+ * Performs alpha blending for floats
+ */
+float GMix(
+      const float& bottom
+      , const float& top
+      , const float& alpha
+) {
+#ifdef DEBUG
+   if(alpha < 0.f || alpha > 1.f) {
+      raiseException(
+            "In GMix<float>(): Error!" << std::endl
+            << "alpha should be in the range [0.f,1.f], but has value " << alpha << std::endl
+      );
+   }
+#endif
+
+   return bottom*(1.f-alpha) + top*alpha;
+}
+
+/************************************************************************************/
+/**
+ * Performs alpha blending for doubles
+ */
+double GMix(
+      const double& bottom
+      , const double& top
+      , const double& alpha
+) {
+#ifdef DEBUG
+   if(alpha < 0. || alpha > 1.) {
+      raiseException(
+            "In GMix<double>(): Error!" << std::endl
+            << "alpha should be in the range [0.,1.], but has value " << alpha << std::endl
+      );
+   }
+#endif
+
+   return bottom*(1.-alpha) + top*alpha;
+}
+
+/************************************************************************************/
+/**
+ * Performs alpha blending for long doubles
+ */
+long double GMix(
+      const long double& bottom
+      , const long double& top
+      , const long double& alpha
+) {
+#ifdef DEBUG
+   if(alpha < 0.l || alpha > 1.l) {
+      raiseException(
+            "In GMix<long double>(): Error!" << std::endl
+            << "alpha should be in the range [0.l,1.l], but has value " << alpha << std::endl
+      );
+   }
+#endif
+
+   return bottom*(1.l-alpha) + top*alpha;
+}
+
+/************************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

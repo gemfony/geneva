@@ -253,7 +253,7 @@ Go2::Go2(const Go2& cp)
 	, iterationsConsumed_(0)
 {
 	// Copy the best individual over (if any)
-	copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
+	Gem::Geneva::copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
 
 	// Copy the algorithms vector over
 	copyAlgorithmsVector(cp.algorithms_, algorithms_);
