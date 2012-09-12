@@ -33,7 +33,6 @@
 // Standard headers go here
 #include <cmath>
 #include <cstdlib>
-#include <bits/c++config.h>
 
 // Boost headers go here
 
