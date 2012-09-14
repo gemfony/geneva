@@ -50,7 +50,7 @@
 namespace Gem {
 namespace Common {
 
-/************************************************************************************/
+/******************************************************************************/
 
 /** @brief Calculates the maximum value of two float values */
 float GMax(const float&, const float&);
@@ -149,7 +149,7 @@ double GPow(const double&, const double&);
 long double GPow(const long double&, const long double&);
 #endif /* _GLIBCXX_HAVE_POWL */
 
-/************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
