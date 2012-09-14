@@ -67,6 +67,25 @@ unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
 
 /**************************************************************************************************/
 /**
+ * This function loads textual (ASCII) data from an external file. Note that this function is
+ * not currently meant to be used with binary data, although it should work with that as well
+ * (at least in theory -- this is untested). There is no check whether the data loaded represents
+ * a text.
+ *
+ * @param fileName The name of the file to be loaded
+ * @return The data contained in the file
+ */
+std::string loadTextDataFromFile(const std::string& fileName) {
+   std::ifstream sourceFileStream(fileName.c_str());
+   std::string sourceFile (
+            std::istreambuf_iterator<char>(sourceFileStream)
+            , (std::istreambuf_iterator<char>())
+            );
+   return sourceFile;
+}
+
+/**************************************************************************************************/
+/**
  * Execute an external command, reacting to possible errors.
  *
  * @param command The command to be executed

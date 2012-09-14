@@ -44,6 +44,54 @@ namespace Common {
 
 /************************************************************************************/
 /**
+ * Calculates the maximum value of two float values
+ */
+float GMax(const float& x, const float& y) {
+   return fmaxf(x,y);
+}
+
+/************************************************************************************/
+/**
+ * Calculates the maximum value of two double values
+ */
+double GMax(const double& x, const double& y) {
+   return fmax(x,y);
+}
+
+/************************************************************************************/
+/**
+ * Calculates the maximum value of two long double values
+ */
+long double GMax(const long double& x, const long double& y) {
+   return fmaxl(x,y);
+}
+
+/************************************************************************************/
+/**
+ * Calculates the minimum value of two float values
+ */
+float GMin(const float& x, const float& y) {
+   return fminf(x,y);
+}
+
+/************************************************************************************/
+/**
+ * Calculates the minimum value of two double values
+ */
+double GMin(const double& x, const double& y) {
+   return fmin(x,y);
+}
+
+/************************************************************************************/
+/**
+ * Calculates the minimum value of two long double values
+ */
+long double GMin(const long double& x, const long double& y) {
+   return fminl(x,y);
+}
+
+/************************************************************************************/
+/**
  * Calculates the floor value of a float value
  *
  * @param x The value for which floor should be calculated

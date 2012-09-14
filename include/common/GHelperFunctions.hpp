@@ -44,6 +44,7 @@
 #include <string>
 #include <cstdlib>
 #include <cmath>
+#include <fstream>
 #include <typeinfo>
 
 // Includes check for correct Boost version(s)
@@ -78,6 +79,10 @@ boost::tuple<double,double> getStandardDeviation(const std::vector<double>&);
 /**************************************************************************************************/
 /** @brief This function tries to determine a suitable number of threads for the current architecture */
 unsigned int getNHardwareThreads(const unsigned int& defaultNThreads = Gem::Common::DEFAULTNHARDWARETHREADS);
+
+/**************************************************************************************************/
+/** @brief This function loads textual (ASCII) data from an external file */
+std::string loadTextDataFromFile(const std::string&);
 
 /**************************************************************************************************/
 /** @brief This function executes an external command on the operating system */

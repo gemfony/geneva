@@ -52,7 +52,21 @@ namespace Common {
 
 /************************************************************************************/
 
-/** Calculates the floor value of a float value */
+/** @brief Calculates the maximum value of two float values */
+float GMax(const float&, const float&);
+/** @brief Calculates the maximum value of two double values */
+double GMax(const double&, const double&);
+/** @brief Calculates the maximum value of two long double values */
+long double GMax(const long double&, const long double&);
+
+/** @brief Calculates the minimum value of two float values */
+float GMin(const float&, const float&);
+/** @brief Calculates the minimum value of two double values */
+double GMin(const double&, const double&);
+/** @brief Calculates the minimum value of two long double values */
+long double GMin(const long double&, const long double&);
+
+/** @brief Calculates the floor value of a float value */
 float GFloor(const float&);
 /** @brief Calculates the floor value of a double value */
 double GFloor(const double&);
@@ -134,13 +148,6 @@ double GPow(const double&, const double&);
 #ifdef _GLIBCXX_HAVE_POWL
 long double GPow(const long double&, const long double&);
 #endif /* _GLIBCXX_HAVE_POWL */
-
-/** @brief Performs alpha blending for floats */
-float GMix(const float&, const float&, const float&);
-/** @brief Performs alpha blending for doubles */
-double GMix(const double&, const double&, const double&);
-/** @brief Performs alpha blending for long doubles */
-long double GMix(const long double&, const long double&, const long double&);
 
 /************************************************************************************/
 
