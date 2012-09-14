@@ -1,7 +1,0 @@
-This folder contains third party includes, particularly from the Boost library.
-
-boost: Contains
-  - threadpool library (v0.2.5; see http://threadpool.sf.net). Covered by 
-    the Boost Software License 1.0 . Delivered with Geneva with kind 
-    permission from the author, Philipp Henkel.
- 

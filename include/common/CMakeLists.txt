@@ -28,9 +28,6 @@ CONFIGURE_FILE (
 	@ONLY
 )
 
-
-ADD_SUBDIRECTORY ( thirdparty )
-
 SET ( GENEVACOMMONINCLUDES
 	GBoundedBufferT.hpp
 	GBoundedBufferWithIdT.hpp
