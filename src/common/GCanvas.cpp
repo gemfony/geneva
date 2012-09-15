@@ -31,6 +31,12 @@
 
 #include "common/GCanvas.hpp"
 
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GRgb);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GColumn);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas<8>);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas<16>);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas<32>);
+
 namespace Gem {
 namespace Common {
 

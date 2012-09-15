@@ -871,4 +871,10 @@ float operator-(const GCanvas<COLORDEPTH>& x, const GCanvas<COLORDEPTH>& y) {
 } /* namespace Common */
 } /* namespace Gem */
 
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GRgb);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GColumn);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas<8>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas<16>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas<32>);
+
 #endif /* GCANVAS_HPP_ */
