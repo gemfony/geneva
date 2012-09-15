@@ -1,0 +1,3 @@
+This directory contains a manual test / usage demo of the GCanvas class,
+which lets you load, store (and to some extent modify) images in PPM format.
+This is useful for some demos we are preparing.
