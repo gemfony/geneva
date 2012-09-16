@@ -154,10 +154,13 @@ typedef struct t_spec_c {
 
 /******************************************************************************/
 /**
- * A simple struct holding the rgb values of a pixel
+ * A simple class holding the rgb values of a pixel
  */
 struct GRgb {
+private:
    ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
    template<typename Archive>
    void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
@@ -169,6 +172,7 @@ struct GRgb {
    }
    ///////////////////////////////////////////////////////////////////////
 
+public:
    /** @brief The default constructor */
    GRgb();
    /** @brief Initialization with colors */
@@ -177,6 +181,8 @@ struct GRgb {
    GRgb(const boost::tuple<float,float,float>&);
    /** @brief Copy Construction */
    GRgb(const GRgb&);
+   /** @brief Destructor */
+   virtual ~GRgb();
 
    /** @brief Assignment operator */
    const GRgb& operator=(const GRgb&);
@@ -191,6 +197,8 @@ struct GRgb {
    float b; ///< blue
 };
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * A column in a canvas
@@ -241,6 +249,8 @@ private:
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * A collection of pixels in a two-dimensional array
  */
@@ -275,11 +285,11 @@ public:
 
    /***************************************************************************/
    /**
-    * Initialization with dimensions and colors
+    * Initialization with dimensions and colors. The default color is black.
     */
    GCanvas(
        const boost::tuple<std::size_t, std::size_t>& dim
-       , const boost::tuple<float,float,float>& color
+       , const boost::tuple<float,float,float>& color = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
    )
       : xDim_(boost::get<0>(dim))
       , yDim_(boost::get<1>(dim))
@@ -446,7 +456,7 @@ public:
    /**
     * Find out the deviation between this and another canvas
     */
-   float diff(const GCanvas<COLORDEPTH>& cp) const {
+   virtual float diff(const GCanvas<COLORDEPTH>& cp) const {
       using namespace Gem::Common;
 
       if(cp.dimensions() != this->dimensions()) {
@@ -867,14 +877,193 @@ float operator-(const GCanvas<COLORDEPTH>& x, const GCanvas<COLORDEPTH>& y) {
 }
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Specialization of GCanvas for a color depth of 8 bits
+ */
+class GCanvas8:public GCanvas<8>
+{
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int) {
+      using boost::serialization::make_nvp;
+
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GCanvas<8>);
+   }
+   ///////////////////////////////////////////////////////////////////////
+
+public:
+   /** @brief The default constructor */
+   GCanvas8();
+   /** @brief Initialization with dimensions and colors */
+   GCanvas8(
+         const boost::tuple<std::size_t, std::size_t>&
+         , const boost::tuple<float,float,float>& = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
+   );
+   /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
+   GCanvas8(const std::string&);
+   /** @brief Copy construction */
+   GCanvas8(const GCanvas8&);
+   /** @brief The destructor */
+   virtual ~GCanvas8();
+
+   /** @brief The assignment operator */
+   const GCanvas8& operator=(const GCanvas8&);
+
+   /** @brief Find out the deviation between this and another canvas */
+   virtual float diff(const GCanvas8&) const;
+};
+
+/** @brief Convenience function for the calculation of the difference between two canvasses */
+float operator-(const GCanvas8&, const GCanvas8&);
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Specialization of GCanvas for a color depth of 16 bits
+ */
+class GCanvas16:public GCanvas<16>
+{
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int) {
+      using boost::serialization::make_nvp;
+
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GCanvas<16>);
+   }
+   ///////////////////////////////////////////////////////////////////////
+
+public:
+   /** @brief The default constructor */
+   GCanvas16();
+   /** @brief Initialization with dimensions and colors */
+   GCanvas16(
+         const boost::tuple<std::size_t, std::size_t>&
+         , const boost::tuple<float,float,float>& = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
+   );
+   /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
+   GCanvas16(const std::string&);
+   /** @brief Copy construction */
+   GCanvas16(const GCanvas16&);
+   /** @brief The destructor */
+   virtual ~GCanvas16();
+
+   /** @brief The assignment operator */
+   const GCanvas16& operator=(const GCanvas16&);
+
+   /** @brief Find out the deviation between this and another canvas */
+   virtual float diff(const GCanvas16&) const;
+};
+
+/** @brief Convenience function for the calculation of the difference between two canvasses */
+float operator-(const GCanvas16&, const GCanvas16&);
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Specialization of GCanvas for a color depth of 24 bits
+ */
+class GCanvas24:public GCanvas<24>
+{
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int) {
+      using boost::serialization::make_nvp;
+
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GCanvas<24>);
+   }
+   ///////////////////////////////////////////////////////////////////////
+
+public:
+   /** @brief The default constructor */
+   GCanvas24();
+   /** @brief Initialization with dimensions and colors */
+   GCanvas24(
+         const boost::tuple<std::size_t, std::size_t>&
+         , const boost::tuple<float,float,float>& = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
+   );
+   /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
+   GCanvas24(const std::string&);
+   /** @brief Copy construction */
+   GCanvas24(const GCanvas24&);
+   /** @brief The destructor */
+   virtual ~GCanvas24();
+
+   /** @brief The assignment operator */
+   const GCanvas24& operator=(const GCanvas24&);
+
+   /** @brief Find out the deviation between this and another canvas */
+   virtual float diff(const GCanvas24&) const;
+};
+
+/** @brief Convenience function for the calculation of the difference between two canvasses */
+float operator-(const GCanvas24&, const GCanvas24&);
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Specialization of GCanvas for a color depth of 32 bits
+ */
+class GCanvas32:public GCanvas<32>
+{
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int) {
+      using boost::serialization::make_nvp;
+
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GCanvas<32>);
+   }
+   ///////////////////////////////////////////////////////////////////////
+
+public:
+   /** @brief The default constructor */
+   GCanvas32();
+   /** @brief Initialization with dimensions and colors */
+   GCanvas32(
+         const boost::tuple<std::size_t, std::size_t>&
+         , const boost::tuple<float,float,float>& = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
+   );
+   /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
+   GCanvas32(const std::string&);
+   /** @brief Copy construction */
+   GCanvas32(const GCanvas32&);
+   /** @brief The destructor */
+   virtual ~GCanvas32();
+
+   /** @brief The assignment operator */
+   const GCanvas32& operator=(const GCanvas32&);
+
+   /** @brief Find out the deviation between this and another canvas */
+   virtual float diff(const GCanvas32&) const;
+};
+
+/** @brief Convenience function for the calculation of the difference between two canvasses */
+float operator-(const GCanvas32&, const GCanvas32&);
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GRgb);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GColumn);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas<8>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas<16>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas<32>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas8);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas16);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas24);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas32);
 
 #endif /* GCANVAS_HPP_ */

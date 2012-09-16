@@ -33,9 +33,10 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GRgb);
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GColumn);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas<8>);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas<16>);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas<32>);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas8);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas16);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas24);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas32);
 
 namespace Gem {
 namespace Common {
@@ -126,6 +127,13 @@ GRgb::GRgb(const boost::tuple<float,float,float>& color)
  * Copy Construction
  */
 GRgb::GRgb(const GRgb& cp): r(cp.r), g(cp.g), b(cp.b)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GRgb::~GRgb()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -253,6 +261,278 @@ const GRgb& GColumn::at(const std::size_t& pos) const {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+/**
+ * The default constructor
+ */
+GCanvas8::GCanvas8()
+   : GCanvas<8>()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with dimensions and colors
+ */
+GCanvas8::GCanvas8(
+      const boost::tuple<std::size_t, std::size_t>& dim
+      , const boost::tuple<float,float,float>& color
+) : GCanvas<8>(dim,color)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization from data held in a string -- uses the PPM-P3 format
+ */
+GCanvas8::GCanvas8(const std::string& ppmData)
+   : GCanvas<8>(ppmData)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Copy construction
+ */
+GCanvas8::GCanvas8(const GCanvas8& cp)
+  : GCanvas<8>(cp)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GCanvas8::~GCanvas8()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The assignment operator
+ */
+const GCanvas8& GCanvas8::operator=(const GCanvas8& cp) {
+   GCanvas<8>::operator=(cp);
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Find out the deviation between this and another canvas
+ */
+float GCanvas8::diff(const GCanvas8& cp) const {
+   return GCanvas<8>::diff(cp);
+}
+
+/******************************************************************************/
+/**
+  * Convenience function for the calculation of the difference between two canvasses
+  */
+float operator-(const GCanvas8& x, const GCanvas8& y) {
+   return x.diff(y);
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The default constructor
+ */
+GCanvas16::GCanvas16()
+   : GCanvas<16>()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with dimensions and colors
+ */
+GCanvas16::GCanvas16(
+      const boost::tuple<std::size_t, std::size_t>& dim
+      , const boost::tuple<float,float,float>& color
+) : GCanvas<16>(dim,color)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization from data held in a string -- uses the PPM-P3 format
+ */
+GCanvas16::GCanvas16(const std::string& ppmData)
+   : GCanvas<16>(ppmData)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Copy construction
+ */
+GCanvas16::GCanvas16(const GCanvas16& cp)
+  : GCanvas<16>(cp)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GCanvas16::~GCanvas16()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The assignment operator
+ */
+const GCanvas16& GCanvas16::operator=(const GCanvas16& cp) {
+   GCanvas<16>::operator=(cp);
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Find out the deviation between this and another canvas
+ */
+float GCanvas16::diff(const GCanvas16& cp) const {
+   return GCanvas<16>::diff(cp);
+}
+
+/******************************************************************************/
+/**
+  * Convenience function for the calculation of the difference between two canvasses
+  */
+float operator-(const GCanvas16& x, const GCanvas16& y) {
+   return x.diff(y);
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The default constructor
+ */
+GCanvas24::GCanvas24()
+   : GCanvas<24>()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with dimensions and colors
+ */
+GCanvas24::GCanvas24(
+      const boost::tuple<std::size_t, std::size_t>& dim
+      , const boost::tuple<float,float,float>& color
+) : GCanvas<24>(dim,color)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization from data held in a string -- uses the PPM-P3 format
+ */
+GCanvas24::GCanvas24(const std::string& ppmData)
+   : GCanvas<24>(ppmData)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Copy construction
+ */
+GCanvas24::GCanvas24(const GCanvas24& cp)
+  : GCanvas<24>(cp)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GCanvas24::~GCanvas24()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The assignment operator
+ */
+const GCanvas24& GCanvas24::operator=(const GCanvas24& cp) {
+   GCanvas<24>::operator=(cp);
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Find out the deviation between this and another canvas
+ */
+float GCanvas24::diff(const GCanvas24& cp) const {
+   return GCanvas<24>::diff(cp);
+}
+
+/******************************************************************************/
+/**
+  * Convenience function for the calculation of the difference between two canvasses
+  */
+float operator-(const GCanvas24& x, const GCanvas24& y) {
+   return x.diff(y);
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The default constructor
+ */
+GCanvas32::GCanvas32()
+   : GCanvas<32>()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with dimensions and colors
+ */
+GCanvas32::GCanvas32(
+      const boost::tuple<std::size_t, std::size_t>& dim
+      , const boost::tuple<float,float,float>& color
+) : GCanvas<32>(dim,color)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization from data held in a string -- uses the PPM-P3 format
+ */
+GCanvas32::GCanvas32(const std::string& ppmData)
+   : GCanvas<32>(ppmData)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Copy construction
+ */
+GCanvas32::GCanvas32(const GCanvas32& cp)
+  : GCanvas<32>(cp)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GCanvas32::~GCanvas32()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The assignment operator
+ */
+const GCanvas32& GCanvas32::operator=(const GCanvas32& cp) {
+   GCanvas<32>::operator=(cp);
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Find out the deviation between this and another canvas
+ */
+float GCanvas32::diff(const GCanvas32& cp) const {
+   return GCanvas<32>::diff(cp);
+}
+
+/******************************************************************************/
+/**
+  * Convenience function for the calculation of the difference between two canvasses
+  */
+float operator-(const GCanvas32& x, const GCanvas32& y) {
+   return x.diff(y);
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/#
 
 } /* namespace Common */
 } /* namespace Gem */
