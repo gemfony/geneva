@@ -72,7 +72,7 @@ namespace Courtier {
 
 const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
 
-/***************************************************************/
+/******************************************************************************/
 /**
  * A derivative of GConsumer, that processes items in separate threads.
  * Objects of this class can exist alongside a networked consumer, as the broker
@@ -84,11 +84,16 @@ template <class processable_type>
 class GBoostThreadConsumerT
 	:public Gem::Courtier::GConsumer
 {
+private:
 	// Make sure processable_type adheres to the GSubmissionContainerT interface
 	BOOST_MPL_ASSERT((boost::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>));
 
+protected:
+   class GWorker; ///< Forward declaration
+   class GDefaultWorker; ///< Forward declaration
+
 public:
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor. Nothing special here.
 	 */
@@ -97,9 +102,10 @@ public:
 		, maxThreads_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTGBTCMAXTHREADS)))
 		, stop_(false)
 		, broker_(GBROKER(processable_type))
+	   , workerTemplate_(new GDefaultWorker())
 	{ /* nothing */ }
 
-	/***************************************************************/
+   /***************************************************************************/
 	/**
 	* Standard destructor. Nothing - our threads receive the stop
 	* signal from the broker and shouldn't exist at this point anymore.
@@ -107,7 +113,7 @@ public:
 	virtual ~GBoostThreadConsumerT()
 	{ /* nothing */ }
 
-	/***************************************************************/
+   /***************************************************************************/
 	/**
 	* Sets the maximum number of threads. Note that this function
 	* will only have an effect before the threads have been started.
@@ -125,7 +131,7 @@ public:
 		}
 	}
 
-	/***************************************************************/
+   /***************************************************************************/
 	/**
 	* Retrieves the maximum number of allowed threads
 	*
@@ -135,18 +141,7 @@ public:
 		return maxThreads_;
 	}
 
-	/***************************************************************/
-	/**
-	* Starts the worker threads. This function will not block.
-	* Termination of the threads is triggered by a call to GConsumer::shutdown().
-	*/
-	void async_startProcessing() {
-	   for(std::size_t i=0; i<maxThreads_; i++) {
-	      gtg_.create_thread(boost::bind(&GBoostThreadConsumerT<processable_type>::worker, this, i));
-	   }
-	}
-
-	/***************************************************************/
+   /***************************************************************************/
 	/**
 	* Finalization code. Sends all threads an interrupt signal.
 	* process() then waits for them to join.
@@ -159,9 +154,10 @@ public:
 		}
 
 		gtg_.join_all();
+		workers_.clear();
 	}
 
-	/*********************************************************************/
+   /***************************************************************************/
 	/**
 	* A unique identifier for a given consumer
 	*
@@ -171,49 +167,48 @@ public:
 	  return std::string("GBoostThreadConsumerT");
 	}
 
-protected:
-	/***************************************************************/
-	/**
-	 * A place to do set-up work done by worker threads. This allows
-	 * derived classes to further qualify what is done
-	 */
-	virtual void initWorker(std::size_t thread_id)
-	{ /* nothing */ }
-
-	/***************************************************************/
-	/**
-	 * Cleans up after a worker has finished
-	 */
-	virtual void cleanUpWorker(std::size_t thread_id)
-	{ /* nothing */ }
-
-	/***************************************************************/
-	/**
-	* Initiate the actual processing. This function assumes that processable_type
-	* has the GSubmissionContainerT interface, which means that it understands the
-	* "process()" call. It may be overloaded in derived classes that wish to use the
-	* parallel processing provided by GBoostThreadConsumerT.
-	*
-	* @param p The work item to be processed by this consumer
-	* @param thread_id Position of this thread in the thread-array
-	*/
-	inline virtual void processItems(
-	      boost::shared_ptr<processable_type> p
-	      , std::size_t thread_id
-	) {
-		// Do the actual work
+   /***************************************************************************/
+   /**
+   * Starts the worker threads. This function will not block.
+   * Termination of the threads is triggered by a call to GConsumer::shutdown().
+   */
+   void async_startProcessing() {
 #ifdef DEBUG
-		if(p) p->process();
-		else {
-			raiseException(
-					"In GBoostThreadConsumerT<processable_type>::processItems(): Error!" << std::endl
-					<< "Received empty pointer for processable object" << std::endl
-			);
-		}
-#else
-		p->process();
+      if(!workerTemplate_) { // Is a template empty ?
+         raiseException(
+            "In GBoostThreadConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
+            << "workerTemplate_ is empty when it should not be empty" << std::endl
+         );
+      }
 #endif /* DEBUG */
-	}
+
+      for(std::size_t i=0; i<maxThreads_; i++) {
+         boost::shared_ptr<GWorker> p_worker = workerTemplate_->clone();
+         p_worker->setThreadId(i);
+         gtg_.create_thread(boost::bind(&GBoostThreadConsumerT<processable_type>::GWorker::run, p_worker, this));
+
+         workers_.push_back(p_worker);
+      }
+   }
+
+protected:
+   /***************************************************************************/
+   /**
+    * Allows to register a different worker template with this class. This facility
+    * is meant to be used by derived classes only, hence this function is protected.
+    */
+   void registerWorkerTemplate(boost::shared_ptr<GWorker> workerTemplate) {
+#ifdef DEBUG
+      if(!workerTemplate_) { // Is a template empty ?
+         raiseException(
+            "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
+            << "workerTemplate is empty when it should not be empty" << std::endl
+         );
+      }
+#endif /* DEBUG */
+
+      workerTemplate_ = workerTemplate;
+   }
 
 private:
 	GBoostThreadConsumerT(const GBoostThreadConsumerT<processable_type>&); ///< Intentionally left undefined
@@ -224,97 +219,221 @@ private:
 	mutable boost::shared_mutex stopMutex_;
 	mutable bool stop_; ///< Set to true if we are expected to stop
 	boost::shared_ptr<GBrokerT<processable_type> > broker_; ///< A shortcut to the broker so we do not have to go through the singleton
+   std::vector<boost::shared_ptr<GWorker> > workers_; ///< Holds the worker objects
+   boost::shared_ptr<GWorker> workerTemplate_; ///< All workers will be created as a clone of this worker
 
-	/***************************************************************/
-	/**
-	* The function that gets new items from the broker, initiates processing
-	* and returns them when finished. As this function is the main execution
-	* point of a thread, we need to catch all exceptions.
-	*
-	* @param thread_id An id that lets the work identify its position in the array of threads
-	*/
-	void worker(std::size_t thread_id) {
-		try{
-		   // Allow derived classes to perform set-up work
-		   initWorker(thread_id);
+protected:
+   /***************************************************************************/
+   /**
+    * A nested class that performs the actual work inside of a thread. It is
+    * meant as a means to  Classes derived from GBoostThreadConsumerT
+    * may use their own derivative from this class and store complex
+    * information associated with the execution inside of the worker threads.
+    * Note that a GWorker(-derivative) must be copy-constructible and implement
+    * the clone() function.
+    */
+   class GWorker{
+   public:
+      /************************************************************************/
+      /**
+       * The default constructor
+       */
+      GWorker()
+         : thread_id_(0)
+      { /* nothing */ }
 
-			boost::shared_ptr<processable_type> p;
-			Gem::Common::PORTIDTYPE id;
-			boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
+      /************************************************************************/
+      /**
+       * The copy constructor. We do not copy the thread id, as it is set by
+       * async_startprocessing().
+       */
+      GWorker(const GWorker& cp)
+         : thread_id_(0)
+      { /* nothing */ }
 
-			while(true){
-				// Have we been asked to stop ?
-				{
-					boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
-					if(stop_) {
-						lock.unlock();
-						break;
-					}
-				}
+      /************************************************************************/
+      /**
+       * The destructor
+       */
+      virtual ~GWorker()
+      { /* nothing */ }
 
-				// If we didn't get a valid item, start again with the while loop
-				if(!broker_->get(id, p, timeout)) {
-					continue;
-				}
+      /************************************************************************/
+      /**
+       * The main entry point for the execution
+       *
+       * @param outer A pointer to the surrounding class, so we do get access to the mutex
+       */
+      void run(GBoostThreadConsumerT<processable_type> * outer) {
+         try{
+            boost::shared_ptr<processable_type> p;
+            Gem::Common::PORTIDTYPE id;
+            boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 
-#ifdef DEBUG
-				// Check that we indeed got a valid item
-				if(!p) { // We didn't get a valid item after all
-					raiseException(
-						"In GBoostThreadConsumerT<processable_type>::worker(): Error!" << std::endl
-						<< "Got empty item when it shouldn't be empty!" << std::endl
-					);
-				}
-#endif /* DEBUG */
+            while(true){
+               // Have we been asked to stop ?
+               {
+                  boost::shared_lock<boost::shared_mutex> lock(outer->stopMutex_);
+                  if(outer->stop_) {
+                     lock.unlock();
+                     break;
+                  }
+               }
 
-				// Initiate the actual processing
-				this->processItems(p, thread_id);
+               // If we didn't get a valid item, start again with the while loop
+               if(!outer->broker_->get(id, p, timeout)) {
+                  continue;
+               }
 
-				// Return the item to the broker. The item will be discarded
-				// if the requested target queue cannot be found.
-				try {
-					while(!broker_->put(id, p, timeout)){
-						// Terminate if we have been asked to stop
-						boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
-						if(stop_) {
-							lock.unlock();
-							break;
-						}
-					}
-				} catch (Gem::Courtier::buffer_not_present&) {
-					continue;
-				}
-			}
-		}
-		catch(boost::thread_interrupted&){ // Normal termination
-		   cleanUpWorker(thread_id);
-			return;
-		}
-		catch(std::exception& e) {
-			std::ostringstream error;
-			error << "In GBoostThreadConsumerT<processable_type>::worker(): Caught std::exception with message" << std::endl
-			      << e.what() << std::endl;
-			std::cerr << error.str();
-			std::terminate();
-		}
-		catch(boost::exception& e){
-			std::ostringstream error;
-		    error << "In GBoostThreadConsumerT<processable_type>::worker(): Caught boost::exception with message" << std::endl;
-		    std::cerr << error.str();
-		    std::terminate();
-		}
-		catch(...) {
-			std::ostringstream error;
-			error << "In GBoostThreadConsumerT<processable_type>::worker(): Caught unknown exception." << std::endl;
-			std::cerr << error.str();
-			std::terminate();
-		}
-	}
+   #ifdef DEBUG
+               // Check that we indeed got a valid item
+               if(!p) { // We didn't get a valid item after all
+                  raiseException(
+                     "In GBoostThreadConsumerT<processable_type>::GWorker::operator(): Error!" << std::endl
+                     << "Got empty item when it shouldn't be empty!" << std::endl
+                  );
+               }
+   #endif /* DEBUG */
 
-	/***************************************************************/
+               // Initiate the actual processing
+               this->process(p);
+
+               // Return the item to the broker. The item will be discarded
+               // if the requested target queue cannot be found.
+               try {
+                  while(!outer->broker_->put(id, p, timeout)){
+                     // Terminate if we have been asked to stop
+                     boost::shared_lock<boost::shared_mutex> lock(outer->stopMutex_);
+                     if(outer->stop_) {
+                        lock.unlock();
+                        break;
+                     }
+                  }
+               } catch (Gem::Courtier::buffer_not_present&) {
+                  continue;
+               }
+            }
+         }
+         catch(boost::thread_interrupted&){ // Normal termination
+            return;
+         }
+         catch(std::exception& e) {
+            std::ostringstream error;
+            error << "In GBoostThreadConsumerT<processable_type>::GWorker::operator():" << std::endl
+                  << "Caught std::exception with message" << std::endl
+                  << e.what() << std::endl;
+            std::cerr << error.str();
+            std::terminate();
+         }
+         catch(boost::exception& e){
+            std::ostringstream error;
+             error << "In GBoostThreadConsumerT<processable_type>::GWorker::operator():" << std::endl
+                   << "Caught boost::exception with message" << std::endl;
+             std::cerr << error.str();
+             std::terminate();
+         }
+         catch(...) {
+            std::ostringstream error;
+            error << "In GBoostThreadConsumerT<processable_type>::GWorker::operator():" << std::endl
+                  << "Caught unknown exception." << std::endl;
+            std::cerr << error.str();
+            std::terminate();
+         }
+      }
+
+      /************************************************************************/
+      // Some purely virtual functions
+
+      /** @brief Creation of deep clones of this object('s derivatives) */
+      virtual boost::shared_ptr<GWorker> clone() const = 0;
+      /** @brief Actual per-item work is done here -- Implement this in derived classes */
+      virtual void process(boost::shared_ptr<processable_type> p) = 0;
+
+      /************************************************************************/
+      /**
+       * Set the thread id
+       */
+      void setThreadId(const std::size_t thread_id) {
+         thread_id_ = thread_id;
+      }
+
+      /************************************************************************/
+      /**
+       * Retrieve this class'es id
+       */
+      std::size_t getThreadId() const {
+         return thread_id_;
+      }
+
+   private:
+      /************************************************************************/
+
+      std::size_t thread_id_; ///< The id of the thread running this class'es operator()
+   };
+
+   /***************************************************************************/
+   /**
+    * The default derivative of GWorker that is used when no other worker has
+    * been registered with our outer class.
+    */
+   class GDefaultWorker
+      : public GBoostThreadConsumerT<processable_type>::GWorker
+   {
+   public:
+      /************************************************************************/
+      /**
+       * The default constructor
+       */
+      GDefaultWorker() : GWorker()
+      { /* nothing */ }
+
+      /************************************************************************/
+      /**
+       * The copy constructor.
+       */
+      GDefaultWorker(const GDefaultWorker& cp) : GWorker(cp)
+      { /* nothing */ }
+
+      /************************************************************************/
+      /**
+       * The destructor
+       */
+      virtual ~GDefaultWorker()
+      { /* nothing */ }
+
+      /************************************************************************/
+      /**
+       * Create a deep clone of this object, camouflaged as a GWorker
+       */
+      virtual boost::shared_ptr<GWorker> clone() const {
+         return boost::shared_ptr<GDefaultWorker>(new GDefaultWorker(*this));
+      }
+
+      /************************************************************************/
+      /**
+       * Actual per-item work is done here. Overload this function if you want
+       * to do something different here.
+       */
+      virtual void process(boost::shared_ptr<processable_type> p) {
+         // Do the actual work
+   #ifdef DEBUG
+         if(p) p->process();
+         else {
+            raiseException(
+                  "In GBoostThreadConsumerT<processable_type>::GWorker::process(): Error!" << std::endl
+                  << "Received empty pointer for processable object" << std::endl
+            );
+         }
+   #else
+         p->process();
+   #endif /* DEBUG */
+      }
+
+      /************************************************************************/
+   };
 };
 
-/***************************************************************/
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */

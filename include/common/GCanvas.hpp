@@ -31,7 +31,6 @@
  */
 
 // Standard header files go here
-
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -859,7 +858,7 @@ public:
 
    /***************************************************************************/
 
-private:
+protected:
    std::size_t xDim_, yDim_; ///< The dimensions of this canvas
    std::vector<GColumn> canvasData_; ///< Holds this canvas' columns
 
