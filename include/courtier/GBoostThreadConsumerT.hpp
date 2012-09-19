@@ -172,7 +172,7 @@ public:
    * Starts the worker threads. This function will not block.
    * Termination of the threads is triggered by a call to GConsumer::shutdown().
    */
-   void async_startProcessing() {
+   virtual void async_startProcessing() {
 #ifdef DEBUG
       if(!workerTemplate_) { // Is a template empty ?
          raiseException(
@@ -185,7 +185,9 @@ public:
       for(std::size_t i=0; i<maxThreads_; i++) {
          boost::shared_ptr<GWorker> p_worker = workerTemplate_->clone();
          p_worker->setThreadId(i);
-         gtg_.create_thread(boost::bind(&GBoostThreadConsumerT<processable_type>::GWorker::run, p_worker, this));
+         p_worker->setParentPointer(this);
+         p_worker->init();
+         gtg_.create_thread(boost::bind(&GBoostThreadConsumerT<processable_type>::GWorker::run, p_worker));
 
          workers_.push_back(p_worker);
       }
@@ -232,7 +234,7 @@ protected:
     * Note that a GWorker(-derivative) must be copy-constructible and implement
     * the clone() function.
     */
-   class GWorker{
+   class GWorker {
    public:
       /************************************************************************/
       /**
@@ -261,10 +263,8 @@ protected:
       /************************************************************************/
       /**
        * The main entry point for the execution
-       *
-       * @param outer A pointer to the surrounding class, so we do get access to the mutex
        */
-      void run(GBoostThreadConsumerT<processable_type> * outer) {
+      void run() {
          try{
             boost::shared_ptr<processable_type> p;
             Gem::Common::PORTIDTYPE id;
@@ -273,15 +273,15 @@ protected:
             while(true){
                // Have we been asked to stop ?
                {
-                  boost::shared_lock<boost::shared_mutex> lock(outer->stopMutex_);
-                  if(outer->stop_) {
+                  boost::shared_lock<boost::shared_mutex> lock(outer_->stopMutex_);
+                  if(outer_->stop_) {
                      lock.unlock();
                      break;
                   }
                }
 
                // If we didn't get a valid item, start again with the while loop
-               if(!outer->broker_->get(id, p, timeout)) {
+               if(!outer_->broker_->get(id, p, timeout)) {
                   continue;
                }
 
@@ -301,10 +301,10 @@ protected:
                // Return the item to the broker. The item will be discarded
                // if the requested target queue cannot be found.
                try {
-                  while(!outer->broker_->put(id, p, timeout)){
+                  while(!outer_->broker_->put(id, p, timeout)){
                      // Terminate if we have been asked to stop
-                     boost::shared_lock<boost::shared_mutex> lock(outer->stopMutex_);
-                     if(outer->stop_) {
+                     boost::shared_lock<boost::shared_mutex> lock(outer_->stopMutex_);
+                     if(outer_->stop_) {
                         lock.unlock();
                         break;
                      }
@@ -348,6 +348,8 @@ protected:
       virtual boost::shared_ptr<GWorker> clone() const = 0;
       /** @brief Actual per-item work is done here -- Implement this in derived classes */
       virtual void process(boost::shared_ptr<processable_type> p) = 0;
+      /** @brief Allows derived classes to perform some preparatory work */
+      virtual void init() = 0;
 
       /************************************************************************/
       /**
@@ -365,10 +367,28 @@ protected:
          return thread_id_;
       }
 
-   private:
+      /************************************************************************/
+      /**
+       * Allows to set the parent pointer. This is needed so the nested classes
+       * cann access all external data.
+       */
+      void setParentPointer(GBoostThreadConsumerT<processable_type> * outer) {
+#ifdef DEBUG
+         if(!outer) {
+           raiseException(
+               "In GBoostThreadConsumerT<>::GWorker::setParentPointer(): Error!" << std::endl
+               << "Got empty pointer!" << std::endl
+           );
+         }
+#endif /* DEBUG */
+
+         outer_ = outer;
+      }
+
       /************************************************************************/
 
       std::size_t thread_id_; ///< The id of the thread running this class'es operator()
+      GBoostThreadConsumerT<processable_type> * outer_;
    };
 
    /***************************************************************************/
@@ -408,6 +428,13 @@ protected:
       virtual boost::shared_ptr<GWorker> clone() const {
          return boost::shared_ptr<GDefaultWorker>(new GDefaultWorker(*this));
       }
+
+      /************************************************************************/
+      /**
+       * Allows to perform some preparatory work
+       */
+      virtual void init()
+      { /* nothing */ }
 
       /************************************************************************/
       /**
