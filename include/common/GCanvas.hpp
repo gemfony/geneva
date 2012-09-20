@@ -331,7 +331,7 @@ public:
    /**
     * The destructor
     */
-   ~GCanvas() {
+   virtual ~GCanvas() {
       xDim_ = 0.;
       yDim_ = 0.;
       canvasData_.clear();

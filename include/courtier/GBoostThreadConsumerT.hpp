@@ -182,11 +182,8 @@ public:
       }
 #endif /* DEBUG */
 
-      for(std::size_t i=0; i<maxThreads_; i++) {
-         boost::shared_ptr<GWorker> p_worker = workerTemplate_->clone();
-         p_worker->setThreadId(i);
-         p_worker->setParentPointer(this);
-         p_worker->init();
+      for(std::size_t i=0; i<(maxThreads_*this->customMultiplier()); i++) {
+         boost::shared_ptr<GWorker> p_worker = workerTemplate_->clone(i,this);
          gtg_.create_thread(boost::bind(&GBoostThreadConsumerT<processable_type>::GWorker::run, p_worker));
 
          workers_.push_back(p_worker);
@@ -194,6 +191,16 @@ public:
    }
 
 protected:
+   /***************************************************************************/
+   /**
+    * A custom multiplier for the number of threads. This function can be
+    * overloaded in derived classes, which can then make statements like: "We
+    * have n devices processing data -- start m threads per device"
+    */
+   virtual std::size_t customMultiplier() const {
+      return 1;
+   }
+
    /***************************************************************************/
    /**
     * Allows to register a different worker template with this class. This facility
@@ -213,6 +220,8 @@ protected:
    }
 
 private:
+   /***************************************************************************/
+
 	GBoostThreadConsumerT(const GBoostThreadConsumerT<processable_type>&); ///< Intentionally left undefined
 	const GBoostThreadConsumerT<processable_type>& operator=(const GBoostThreadConsumerT<processable_type>&); ///< Intentionally left undefined
 
@@ -242,6 +251,7 @@ protected:
        */
       GWorker()
          : thread_id_(0)
+         , outer_(NULL)
       { /* nothing */ }
 
       /************************************************************************/
@@ -249,8 +259,13 @@ protected:
        * The copy constructor. We do not copy the thread id, as it is set by
        * async_startprocessing().
        */
-      GWorker(const GWorker& cp)
-         : thread_id_(0)
+      GWorker(
+            const GWorker& cp
+            , const std::size_t& thread_id
+            , const GBoostThreadConsumerT<processable_type> *outer
+      )
+         : thread_id_(thread_id)
+         , outer_(outer)
       { /* nothing */ }
 
       /************************************************************************/
@@ -345,19 +360,12 @@ protected:
       // Some purely virtual functions
 
       /** @brief Creation of deep clones of this object('s derivatives) */
-      virtual boost::shared_ptr<GWorker> clone() const = 0;
+      virtual boost::shared_ptr<GWorker> clone(
+            const std::size_t&
+            , const GBoostThreadConsumerT<processable_type> *
+      ) const = 0;
       /** @brief Actual per-item work is done here -- Implement this in derived classes */
       virtual void process(boost::shared_ptr<processable_type> p) = 0;
-      /** @brief Allows derived classes to perform some preparatory work */
-      virtual void init() = 0;
-
-      /************************************************************************/
-      /**
-       * Set the thread id
-       */
-      void setThreadId(const std::size_t thread_id) {
-         thread_id_ = thread_id;
-      }
 
       /************************************************************************/
       /**
@@ -367,28 +375,11 @@ protected:
          return thread_id_;
       }
 
-      /************************************************************************/
-      /**
-       * Allows to set the parent pointer. This is needed so the nested classes
-       * cann access all external data.
-       */
-      void setParentPointer(GBoostThreadConsumerT<processable_type> * outer) {
-#ifdef DEBUG
-         if(!outer) {
-           raiseException(
-               "In GBoostThreadConsumerT<>::GWorker::setParentPointer(): Error!" << std::endl
-               << "Got empty pointer!" << std::endl
-           );
-         }
-#endif /* DEBUG */
-
-         outer_ = outer;
-      }
-
+   protected:
       /************************************************************************/
 
       std::size_t thread_id_; ///< The id of the thread running this class'es operator()
-      GBoostThreadConsumerT<processable_type> * outer_;
+      const GBoostThreadConsumerT<processable_type> * outer_;
    };
 
    /***************************************************************************/
@@ -411,7 +402,11 @@ protected:
       /**
        * The copy constructor.
        */
-      GDefaultWorker(const GDefaultWorker& cp) : GWorker(cp)
+      GDefaultWorker(
+            const GDefaultWorker& cp
+            , const std::size_t& thread_id
+            , const GBoostThreadConsumerT<processable_type> *outer
+      ) : GWorker(cp, thread_id, outer)
       { /* nothing */ }
 
       /************************************************************************/
@@ -425,16 +420,21 @@ protected:
       /**
        * Create a deep clone of this object, camouflaged as a GWorker
        */
-      virtual boost::shared_ptr<GWorker> clone() const {
-         return boost::shared_ptr<GDefaultWorker>(new GDefaultWorker(*this));
-      }
+      virtual boost::shared_ptr<GWorker> clone(
+            const std::size_t& thread_id
+            , const GBoostThreadConsumerT<processable_type> *outer
+      ) const {
+#ifdef DEBUG
+         if(!outer) {
+           raiseException(
+               "In GBoostThreadConsumerT<processable_type>::GWorker::clone(): Error!" << std::endl
+               << "Got empty pointer!" << std::endl
+           );
+         }
+#endif /* DEBUG */
 
-      /************************************************************************/
-      /**
-       * Allows to perform some preparatory work
-       */
-      virtual void init()
-      { /* nothing */ }
+         return boost::shared_ptr<GDefaultWorker>(new GDefaultWorker(*this, thread_id, outer));
+      }
 
       /************************************************************************/
       /**
