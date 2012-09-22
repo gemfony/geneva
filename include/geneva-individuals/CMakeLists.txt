@@ -7,6 +7,7 @@ SET ( SAMPLEINDIVIDUALINCLUDES
 	GNeuralNetworkIndividual.hpp
 	GTestIndividual1.hpp
 	GTestIndividual2.hpp
+	GTestIndividual3.hpp
 )
 
 SET ( SAMPLEINDIVIDUALCONFIGS

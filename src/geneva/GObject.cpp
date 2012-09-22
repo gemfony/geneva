@@ -428,12 +428,13 @@ bool GObject::mayBeSerialized() const {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
+/*
 void GObject::addConfigurationOptions(
 	Gem::Common::GParserBuilder& gpb
 ) {
 	addConfigurationOptions(gpb, true);
 }
-
+*/
 /**************************************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object. This is a protected, virtual version

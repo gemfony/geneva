@@ -226,7 +226,7 @@ void GTestIndividual2::load_(const GObject* cp)
 	using namespace Gem::Common;
 	using namespace Gem::Geneva;
 
-	// Check that we are indeed dealing with a GParamterBase reference
+	// Check that we are indeed dealing with a GTestIndividual2 object
 	const GTestIndividual2 *p_load = gobject_conversion<GTestIndividual2>(cp);
 
 	// Load our parent's data

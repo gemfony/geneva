@@ -43,6 +43,7 @@ namespace Geneva {
  * The default constructor
  */
 GParameterObjectCollection::GParameterObjectCollection()
+   : GParameterTCollectionT<GParameterBase>()
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -53,7 +54,7 @@ GParameterObjectCollection::GParameterObjectCollection(
 	const std::size_t& nCp
 	, boost::shared_ptr<GParameterBase> tmpl_ptr
 )
-	:GParameterTCollectionT<GParameterBase>(nCp, tmpl_ptr)
+	: GParameterTCollectionT<GParameterBase>(nCp, tmpl_ptr)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -80,7 +81,9 @@ GParameterObjectCollection::~GParameterObjectCollection()
  * @param cp A copy of another GParameterObjectCollection object
  * @return A constant reference to this object
  */
-const GParameterObjectCollection& GParameterObjectCollection::operator=(const GParameterObjectCollection& cp){
+const GParameterObjectCollection& GParameterObjectCollection::operator=(
+      const GParameterObjectCollection& cp
+){
 	GParameterObjectCollection::load_(&cp);
 	return *this;
 }
@@ -165,7 +168,7 @@ boost::optional<std::string> GParameterObjectCollection::checkRelationshipWith(c
  */
 void GParameterObjectCollection::load_(const GObject* cp){
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GParameterObjectCollection>(cp);
+   GObject::selfAssignmentCheck<GParameterObjectCollection>(cp);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GParameterBase>::load_(cp);

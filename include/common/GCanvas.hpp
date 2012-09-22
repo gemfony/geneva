@@ -109,6 +109,9 @@ struct coord2D {
    /** @brief Copy construction */
    coord2D(const coord2D&);
 
+   /** @brief An assignment operator */
+   const coord2D& operator=(const coord2D&);
+
    float x;
    float y;
 };
@@ -134,6 +137,10 @@ typedef struct triangle_circle_struct {
   float b;
   float a;
 
+  /** @brief Assignment operator */
+  const triangle_circle_struct& operator=(const triangle_circle_struct&);
+
+  /** @brief Needed for sorting */
   float getAlphaValue() const;
 } t_circle;
 
@@ -911,9 +918,8 @@ public:
 
    /** @brief The assignment operator */
    const GCanvas8& operator=(const GCanvas8&);
-
    /** @brief Find out the deviation between this and another canvas */
-   virtual float diff(const GCanvas8&) const;
+   // virtual float diff(const GCanvas<8>&) const;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -957,7 +963,7 @@ public:
    const GCanvas16& operator=(const GCanvas16&);
 
    /** @brief Find out the deviation between this and another canvas */
-   virtual float diff(const GCanvas16&) const;
+   // virtual float diff(const GCanvas16&) const;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -1001,7 +1007,7 @@ public:
    const GCanvas24& operator=(const GCanvas24&);
 
    /** @brief Find out the deviation between this and another canvas */
-   virtual float diff(const GCanvas24&) const;
+   // virtual float diff(const GCanvas24&) const;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -1045,7 +1051,7 @@ public:
    const GCanvas32& operator=(const GCanvas32&);
 
    /** @brief Find out the deviation between this and another canvas */
-   virtual float diff(const GCanvas32&) const;
+   // virtual float diff(const GCanvas32&) const;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -1058,11 +1064,11 @@ float operator-(const GCanvas32&, const GCanvas32&);
 } /* namespace Common */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GRgb);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GColumn);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas8);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas16);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas24);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas32);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GRgb)
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GColumn)
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas8)
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas16)
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas24)
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas32)
 
 #endif /* GCANVAS_HPP_ */

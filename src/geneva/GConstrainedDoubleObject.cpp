@@ -300,6 +300,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	double testVal3 = 0.;
 	const double lowerBoundary = 0.;
 	const double upperBoundary = 100.;
+	const std::size_t NTESTS = 100;
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
@@ -351,6 +352,29 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 		boost::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.3, 0.6));
 		BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
 	}
+
+   //------------------------------------------------------------------------------
+
+   { // Check construction with two boundaries and a value and extraction of that value
+      const double TESTVAL = 0.4;
+      boost::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.4, 0.3, 0.6));
+      BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
+      BOOST_CHECK(testVal3 == TESTVAL);
+   }
+
+   //------------------------------------------------------------------------------
+
+   { // Check that repeated retrieval of the value always yields the same value
+      const double TESTVAL = 0.4;
+      boost::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.4, 0.3, 0.6));
+      for(std::size_t i=0; i<NTESTS; i++) {
+         BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
+         BOOST_CHECK_MESSAGE(
+               testVal3 == TESTVAL
+               , "The value has changed: " << testVal3 << " / " << TESTVAL
+         );
+      }
+   }
 
 	//------------------------------------------------------------------------------
 

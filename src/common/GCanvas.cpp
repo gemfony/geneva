@@ -31,12 +31,12 @@
 
 #include "common/GCanvas.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GRgb);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GColumn);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas8);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas16);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas24);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas32);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GRgb)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GColumn)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas8)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas16)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas24)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas32)
 
 namespace Gem {
 namespace Common {
@@ -72,6 +72,17 @@ coord2D::coord2D(const coord2D& cp)
 
 /******************************************************************************/
 /**
+ * An assignment operator
+ */
+const coord2D& coord2D::operator=(const coord2D& cp) {
+   x = cp.x;
+   y = cp.y;
+
+   return *this;
+}
+
+/******************************************************************************/
+/**
  * Convenience function for calculating the difference between two coordinate vectors
  */
 coord2D operator-(const coord2D& a, const coord2D& b) {
@@ -88,6 +99,26 @@ float operator*(const coord2D& a, const coord2D& b) {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A simple assignment operator
+ */
+const triangle_circle_struct& triangle_circle_struct::operator=(
+      const triangle_circle_struct& cp
+) {
+   middle = cp.middle;
+   radius = cp.radius;
+   angle1 = cp.angle1;
+   angle2 = cp.angle2;
+   angle3 = cp.angle3;
+   r      = cp.r;
+   g      = cp.g;
+   b      = cp.b;
+   a      = cp.a;
+
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * Needed for sorting the structs
@@ -314,9 +345,11 @@ const GCanvas8& GCanvas8::operator=(const GCanvas8& cp) {
 /**
  * Find out the deviation between this and another canvas
  */
-float GCanvas8::diff(const GCanvas8& cp) const {
+/*
+float GCanvas8::diff(const GCanvas<8>& cp) const {
    return GCanvas<8>::diff(cp);
 }
+*/
 
 /******************************************************************************/
 /**
@@ -382,10 +415,11 @@ const GCanvas16& GCanvas16::operator=(const GCanvas16& cp) {
 /**
  * Find out the deviation between this and another canvas
  */
+/*
 float GCanvas16::diff(const GCanvas16& cp) const {
    return GCanvas<16>::diff(cp);
 }
-
+*/
 /******************************************************************************/
 /**
   * Convenience function for the calculation of the difference between two canvasses
@@ -450,10 +484,11 @@ const GCanvas24& GCanvas24::operator=(const GCanvas24& cp) {
 /**
  * Find out the deviation between this and another canvas
  */
+/*
 float GCanvas24::diff(const GCanvas24& cp) const {
    return GCanvas<24>::diff(cp);
 }
-
+*/
 /******************************************************************************/
 /**
   * Convenience function for the calculation of the difference between two canvasses
@@ -518,10 +553,11 @@ const GCanvas32& GCanvas32::operator=(const GCanvas32& cp) {
 /**
  * Find out the deviation between this and another canvas
  */
+/*
 float GCanvas32::diff(const GCanvas32& cp) const {
    return GCanvas<32>::diff(cp);
 }
-
+*/
 /******************************************************************************/
 /**
   * Convenience function for the calculation of the difference between two canvasses

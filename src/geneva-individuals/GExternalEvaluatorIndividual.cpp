@@ -264,6 +264,8 @@ void GExternalEvaluatorIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent classes' functions
 	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
 
+	//---------------------------------------------------------------------------
+
 	{ // Check that we can set the value of this object and that it isn't dirty afterwards
 		double f = 0.; // For the fitness value
 		const double FITNESS = 3.0;
@@ -281,6 +283,8 @@ void GExternalEvaluatorIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(f = p_test->fitness());
 		BOOST_CHECK(f == FITNESS);
 	}
+
+	//---------------------------------------------------------------------------
 }
 
 /******************************************************************/
@@ -296,6 +300,8 @@ void GExternalEvaluatorIndividual::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent classes' functions
 	Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests();
 
+	//---------------------------------------------------------------------------
+
 	{ // Check that calling the fitness function throws
 		double f = 0.;
 
@@ -310,6 +316,8 @@ void GExternalEvaluatorIndividual::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK_THROW(f = p_test->fitness(), Gem::Common::gemfony_error_condition); // No direct evaluation is allowed for this object
 	}
 
+	//---------------------------------------------------------------------------
+
 	{ // Check that supplying secondary fitness values when no corresponding variables have been registered throws
 		const double FITNESS = 3.0;
 		boost::shared_ptr<GExternalEvaluatorIndividual> p_test = this->GObject::clone<GExternalEvaluatorIndividual>();
@@ -319,6 +327,8 @@ void GExternalEvaluatorIndividual::specificTestsFailuresExpected_GUnitTests() {
 		x_vec.push_back(3.);
 		BOOST_CHECK_THROW(p_test->setFitness(FITNESS, x_vec), Gem::Common::gemfony_error_condition);
 	}
+
+	//---------------------------------------------------------------------------
 }
 
 /******************************************************************/

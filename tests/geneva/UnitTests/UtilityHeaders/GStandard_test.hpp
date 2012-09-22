@@ -77,7 +77,7 @@ using boost::unit_test_framework::test_case;
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("StandardTests_no_failure_expected",
-						 pow(10,-10),
+						 pow(10,-7),
 						 Gem::Common::CE_WITH_MESSAGES);
 
 	//---------------------------------------------------------------------------//
@@ -152,7 +152,6 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr_load = TFactory_GUnitTests<T>());
 		BOOST_REQUIRE(T_ptr_load); // must point somewhere
 		BOOST_REQUIRE_NO_THROW(T_ptr_load->GObject::load(T_ptr));
-
 		// Check for equivalence and similarity
 		BOOST_CHECK(gep.isEqual(*T_ptr_load, *T_ptr));
 		BOOST_CHECK(gep.isSimilar(*T_ptr_load, *T_ptr));

@@ -201,7 +201,7 @@ public:
 	void readConfigFile(const std::string&);
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
+	// virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
 
@@ -336,7 +336,7 @@ protected:
 		else {
 			raiseException(
 					"In const GObject* GObject::gobject_conversion<load_type>() :" << std::endl
-					<< "Invalid conversion"
+					<< "Invalid conversion to type with type name " << typeid(load_type).name() << std::endl
 			);
 		}
 #else

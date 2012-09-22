@@ -1,0 +1,3 @@
+This directory contains a test of data hierarchies created inside of 
+an individual. It is currently still somewhat rudimentary but is expected
+to grow over time. Most action currently happens in GTestIndividual3.

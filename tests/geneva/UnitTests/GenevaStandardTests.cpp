@@ -80,6 +80,7 @@ using namespace boost::unit_test;
 #include "geneva/Go.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva-individuals/GTestIndividual1.hpp"
+#include "geneva-individuals/GTestIndividual3.hpp"
 #include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
 
 #include "GStandard_test.hpp"
@@ -111,7 +112,7 @@ public:
 		typedef boost::mpl::list<
 			GBooleanObject
 			, GInt32Object
-			, GFloatObject
+			// , GFloatObject
 			, GDoubleObject
 			, GConstrainedInt32Object
 			//, GConstrainedFloatObject
@@ -124,7 +125,7 @@ public:
 			, GBooleanObjectCollection
 			, GInt32ObjectCollection
 			, GConstrainedInt32ObjectCollection
-			, GFloatObjectCollection
+			// , GFloatObjectCollection
 			, GDoubleObjectCollection
 			//, GConstrainedFloatObjectCollection
 			, GConstrainedDoubleObjectCollection
@@ -171,6 +172,7 @@ public:
 
 		typedef boost::mpl::list<
 			Gem::Tests::GTestIndividual1
+			// , Gem::Tests::GTestIndividual3
 			, Gem::Geneva::GExternalEvaluatorIndividual
 		>
 		individual_types;

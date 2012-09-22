@@ -106,7 +106,10 @@ public:
 	 * @param nCp The amount of copies of the GParameterBase derivative to be stored in this object
 	 * @param tmpl_ptr The object that serves as the template of all others
 	 */
-	GParameterTCollectionT(const std::size_t& nCp, boost::shared_ptr<T> tmpl_ptr) {
+	GParameterTCollectionT(
+	      const std::size_t& nCp
+	      , boost::shared_ptr<T> tmpl_ptr
+	) {
 		for(std::size_t i=0; i<nCp; i++) {
 			this->push_back(tmpl_ptr->template clone<T>());
 		}

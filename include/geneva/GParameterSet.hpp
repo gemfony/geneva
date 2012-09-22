@@ -188,7 +188,7 @@ public:
 			, typename boost::enable_if<boost::is_base_of<GParameterBase, par_type> >::type* dummy = 0
 	)  const {
 #ifdef DEBUG
-		boost::shared_ptr<par_type> p = boost::static_pointer_cast<par_type>(data.at(pos));
+		boost::shared_ptr<par_type> p = boost::dynamic_pointer_cast<par_type>(data.at(pos));
 
 		if(p) return p;
 		else {

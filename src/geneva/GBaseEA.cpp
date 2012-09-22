@@ -569,10 +569,6 @@ double GBaseEA::cycleLogic() {
 
 	boost::uint32_t stallCounter = getStallCounter();
 	if(microTrainingInterval_ && stallCounter && stallCounter%microTrainingInterval_ == 0) {
-#ifdef DEBUG
-		std::cout << "Updating parents ..." << std::endl;
-#endif /* DEBUG */
-
 		if(updateParentStructure()) {
 			setOneTimeMuCommaNu();
 		}
@@ -851,7 +847,7 @@ void GBaseEA::addConfigurationOptions (
 	comment += "   unless a better individual has been found;";
     comment += "3: Simulated Annealing (implemented through a special sorting scheme;";
     comment += "4: MUPLUSNU mode for multiple evaluation criteria, pareto selection;";
-    comment += "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection;";
+    comment += "5: MUCOMMANU mode for multiple evaluation criteria, pareto selection;";
 	if(showOrigin) comment += "[GBaseEA]";
 	gpb.registerFileParameter<sortingMode>(
 		"sortingMethod" // The name of the variable
@@ -1207,16 +1203,16 @@ void GBaseEA::selectBest()
 	//----------------------------------------------------------------------------
 	case MUPLUSNU_SINGLEEVAL:
 		if(oneTimeMuCommaNu_) {
-			sortMucommanuMode();
+			sortMuCommaNuMode();
 			oneTimeMuCommaNu_=false;
 		}
-		else sortMuplusnuMode();
+		else sortMuPlusNuMode();
 		break;
 
 	//----------------------------------------------------------------------------
 	case MUNU1PRETAIN_SINGLEEVAL:
 		if(oneTimeMuCommaNu_) {
-			sortMucommanuMode();
+			sortMuCommaNuMode();
 			oneTimeMuCommaNu_=false;
 		}
 		else sortMunu1pretainMode();
@@ -1224,7 +1220,7 @@ void GBaseEA::selectBest()
 
 	//----------------------------------------------------------------------------
 	case MUCOMMANU_SINGLEEVAL:
-		sortMucommanuMode();
+		sortMuCommaNuMode();
 		break;
 	//----------------------------------------------------------------------------
 	case SA_SINGLEEVAL:
@@ -1265,8 +1261,8 @@ boost::tuple<std::size_t,std::size_t> GBaseEA::getAdaptionRange() const {
  * @return The range inside which evaluation should take place
  */
 boost::tuple<std::size_t,std::size_t> GBaseEA::getEvaluationRange() const {
-	std::size_t first=0, last=data.size();
 	std::size_t nParents = GBaseEA::getNParents();
+   std::size_t first=nParents, last=data.size();
 
 	if(inFirstIteration()) {
 		switch(getSortingScheme()) {
@@ -1282,10 +1278,7 @@ boost::tuple<std::size_t,std::size_t> GBaseEA::getEvaluationRange() const {
 			break;
 
 		case MUCOMMANU_SINGLEEVAL: // No evaluation of parents is necessary
-		{
-			first = nParents;
-		}
-			break; // nothing
+		   break; // nothing -- we start with the first child, i.e. first == nParents;
 
 		default:
 		{
@@ -1307,7 +1300,7 @@ boost::tuple<std::size_t,std::size_t> GBaseEA::getEvaluationRange() const {
  * are sorted -- only the nParents best individuals are identified. The quality of the population can only
  * increase, but the optimization will stall more easily in MUPLUSNU_SINGLEEVAL mode.
  */
-void GBaseEA::sortMuplusnuMode() {
+void GBaseEA::sortMuPlusNuMode() {
 #ifdef DEBUG
 	// Check that we do not accidently trigger value calculation
 	GBaseEA::iterator it;
@@ -1322,11 +1315,10 @@ void GBaseEA::sortMuplusnuMode() {
 #endif /* DEBUG */
 
 	// Only partially sort the arrays
-	if(this->getMaxMode()){
+	if(true == this->getMaxMode()){ // Maximization
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
 				boost::bind(&GIndividual::fitness, _1, 0) > boost::bind(&GIndividual::fitness, _2, 0));
-	}
-	else{ // Minimization
+	} else{ // Minimization
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
 				boost::bind(&GIndividual::fitness, _1, 0) < boost::bind(&GIndividual::fitness, _2, 0));
 	}
@@ -1338,7 +1330,7 @@ void GBaseEA::sortMuplusnuMode() {
  * of the population may decrease occasionally from generation to generation, but the
  * optimization is less likely to stall.
  */
-void GBaseEA::sortMucommanuMode() {
+void GBaseEA::sortMuCommaNuMode() {
 #ifdef DEBUG
 	// Check that we do not accidently trigger value calculation
 	GBaseEA::iterator it;
@@ -1353,11 +1345,11 @@ void GBaseEA::sortMucommanuMode() {
 #endif /* DEBUG */
 
 	// Only sort the children
-	if(this->getMaxMode()){
+	if(true == this->getMaxMode()){ // Maximization
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
 			  boost::bind(&GIndividual::fitness, _1, 0) > boost::bind(&GIndividual::fitness, _2, 0));
 	}
-	else{
+	else{ // Minimization
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
 			  boost::bind(&GIndividual::fitness, _1, 0) < boost::bind(&GIndividual::fitness, _2, 0));
 	}
@@ -1376,7 +1368,7 @@ void GBaseEA::sortMucommanuMode() {
  */
 void GBaseEA::sortMunu1pretainMode() {
 	if(nParents_==1 || inFirstIteration()) { // Falls back to MUPLUSNU_SINGLEEVAL mode
-		sortMuplusnuMode();
+		sortMuPlusNuMode();
 	} else {
 		// Sort the children
 		if(this->getMaxMode()){
@@ -1413,7 +1405,7 @@ void GBaseEA::sortMuPlusNuParetoMode() {
 	// We fall back to the single-eval MUPLUSNU mode if there is just one evaluation criterion
 	it=this->begin();
 	if(!(*it)->hasMultipleFitnessCriteria()) {
-		sortMuplusnuMode();
+		sortMuPlusNuMode();
 	}
 
 	// Mark all individuals as being on the pareto front initially
@@ -1499,7 +1491,7 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 	// We fall back to the single-eval MUCOMMANU mode if there is just one evaluation criterion
 	it=this->begin();
 	if(!(*it)->hasMultipleFitnessCriteria()) {
-		sortMucommanuMode();
+		sortMuCommaNuMode();
 	}
 
 	// Mark the last iterations parents as not being on the pareto front
@@ -2038,12 +2030,8 @@ boost::optional<std::string> GBaseEA::GEAOptimizationMonitor::checkRelationshipW
  * @return A string containing information to written to the output file (if any)
  */
 std::string GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GIndividual> * const goa) {
-	std::cout << "In GEAOptimizationMonitor/firstInformation (1)" << std::endl;
-
 	// This should always be the first statement in a custom optimization monitor
-	std::cout << GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::firstInformation(goa);
-
-	std::cout << "In GEAOptimizationMonitor/firstInformation (2)" << std::endl;
+   std::cout << GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::firstInformation(goa);
 
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
@@ -2056,16 +2044,12 @@ std::string GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgor
 #endif /* DEBUG */
 	GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
 
-	std::cout << "In GEAOptimizationMonitor/firstInformation (3)" << std::endl;
-
 	// Determine a suitable number of monitored individuals, if it hasn't already
 	// been set externally. We allow a maximum of 3 monitored individuals by default
 	// (or the number of parents, if <= 3).
 	if(nMonitorInds_ == 0) {
 		nMonitorInds_ = std::min(ea->getNParents(), std::size_t(3));
 	}
-
-	std::cout << "In GEAOptimizationMonitor/firstInformation (4)" << std::endl;
 
 	// Output the header to the summary stream
 	return eaFirstInformation(ea);

@@ -241,6 +241,19 @@ void GSerialEA::evaluateChildren()
 	boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
+#ifdef DEBUG
+   // There should be no situation in which a "clean" individual is submitted
+   // through this function
+   for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
+      if(!this->at(i)->isDirty()) {
+         raiseException(
+               "In GSerialEA::evaluateChildren(): Error!" << std::endl
+               << "Tried to evaluate \"clean\" children." << std::endl
+         );
+      }
+   }
+#endif
+
 	for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
 		// Make re-evaluation accessible
 		(*it)->setServerMode(false);

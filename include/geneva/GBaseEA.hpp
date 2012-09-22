@@ -399,9 +399,9 @@ private:
    void valueRecombine(boost::shared_ptr<GIndividual>&, const std::vector<double>&);
 
    /** @brief Selection, MUPLUSNU_SINGLEEVAL style */
-   void sortMuplusnuMode();
+   void sortMuPlusNuMode();
    /** @brief Selection, MUCOMMANU_SINGLEEVAL style */
-   void sortMucommanuMode();
+   void sortMuCommaNuMode();
    /** @brief Selection, MUNU1PRETAIN_SINGLEEVAL style */
    void sortMunu1pretainMode();
 

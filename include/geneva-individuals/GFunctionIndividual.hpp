@@ -125,7 +125,7 @@ std::istream& operator>>(std::istream&, Gem::Geneva::initMode&);
 
 /************************************************************************************************/
 // A number of default settings for the factory
-const double GFI_DEF_ADPROB = 0.05;
+const double GFI_DEF_ADPROB = 1.0;
 const boost::uint32_t GFI_DEF_ADAPTIONTHRESHOLD = 1;
 const bool GFI_DEF_USEBIGAUSSIAN = false;
 const double GFI_DEF_SIGMA1 = 0.5;
