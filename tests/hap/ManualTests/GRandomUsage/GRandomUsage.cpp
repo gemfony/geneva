@@ -72,7 +72,7 @@ enum distType {
 	EXPGAUSS02,
 	EXPGAUSS04,
 	EXPGAUSS08,
-	EXPGAUSS16,
+	EXPGAUSS16
 };
 
 template <class T>

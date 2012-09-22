@@ -34,7 +34,7 @@
 
 #include "GSimpleContainer.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::Tests::GSimpleContainer);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::Tests::GSimpleContainer)
 
 namespace Gem {
 namespace Courtier {

@@ -67,7 +67,7 @@ enum distType {
 	DISCRETE,
 	DISCRETEBOUND,
 	BITPROB,
-	BITSIMPLE,
+	BITSIMPLE
 };
 
 template <class T>

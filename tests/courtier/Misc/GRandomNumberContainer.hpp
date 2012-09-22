@@ -119,6 +119,6 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::Tests::GRandomNumberContainer);
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::Tests::GRandomNumberContainer)
 
 #endif /* GRANDOMNUMBERCONTAINER_HPP_ */

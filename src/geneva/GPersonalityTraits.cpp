@@ -45,6 +45,7 @@ namespace Geneva {
  * The default constructor
  */
 GPersonalityTraits::GPersonalityTraits()
+   : GObject()
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -52,6 +53,7 @@ GPersonalityTraits::GPersonalityTraits()
  * The copy constructor
  */
 GPersonalityTraits::GPersonalityTraits(const GPersonalityTraits& cp)
+   : GObject(cp)
 { /* nothing */ }
 
 /*****************************************************************************/

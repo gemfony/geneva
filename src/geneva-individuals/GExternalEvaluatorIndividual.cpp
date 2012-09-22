@@ -303,8 +303,6 @@ void GExternalEvaluatorIndividual::specificTestsFailuresExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 	{ // Check that calling the fitness function throws
-		double f = 0.;
-
 		boost::shared_ptr<GExternalEvaluatorIndividual> p_test = this->GObject::clone<GExternalEvaluatorIndividual>();
 		boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(1.));
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.,0.6,0.,2.));
@@ -313,7 +311,7 @@ void GExternalEvaluatorIndividual::specificTestsFailuresExpected_GUnitTests() {
 
 		BOOST_CHECK_NO_THROW(p_test->adapt());
 		BOOST_CHECK(p_test->isDirty()); // The dirty flag should be set after mutation
-		BOOST_CHECK_THROW(f = p_test->fitness(), Gem::Common::gemfony_error_condition); // No direct evaluation is allowed for this object
+		BOOST_CHECK_THROW(p_test->fitness(), Gem::Common::gemfony_error_condition); // No direct evaluation is allowed for this object
 	}
 
 	//---------------------------------------------------------------------------

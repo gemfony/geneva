@@ -5,7 +5,6 @@ SET ( COMMONSOURCES
 	GCommonEnums
 	GDefaultValueT
 	GHelperFunctions
-	GMainLoop
 	GMathHelperFunctions
 	GParserBuilder
 	GPlotDesigner

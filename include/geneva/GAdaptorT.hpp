@@ -889,7 +889,7 @@ public:
 			// Set the adaption threshold to a specific value
 			for(boost::uint32_t adThr=10; adThr>0; adThr--) {
 				// Just make sure our logic is right and we stay in the right window
-				assert(adThr >= 0 && adThr<=10);
+				assert(adThr<=10);
 
 				BOOST_CHECK_NO_THROW(p_test->setAdaptionThreshold(adThr));
 				BOOST_CHECK_MESSAGE(

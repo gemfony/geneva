@@ -104,7 +104,9 @@ public:
 	 *
 	 * @param cp A copy of another GSubmissionContainer object
 	 */
-	GSubmissionContainerT(const GSubmissionContainerT<submission_type>& cp) : id_(cp.id_)
+	GSubmissionContainerT(
+	      const GSubmissionContainerT<submission_type>& cp
+	) : id_(cp.id_)
 	{ /* nothing */ }
 
 
@@ -130,7 +132,7 @@ public:
 	 *
 	 * @param cD_ptr A pointer to the object whose data should be loaded
 	 */
-	virtual void loadConstantData(boost::shared_ptr<submission_type> cD_ptr)
+	virtual void loadConstantData(boost::shared_ptr<submission_type>)
 	{ /* nothing */ }
 
 	/**********************************************************************************/

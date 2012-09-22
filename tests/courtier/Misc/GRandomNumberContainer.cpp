@@ -34,7 +34,7 @@
 
 #include "GRandomNumberContainer.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::Tests::GRandomNumberContainer);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::Tests::GRandomNumberContainer)
 
 namespace Gem {
 namespace Courtier {

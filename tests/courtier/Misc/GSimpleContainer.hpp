@@ -119,6 +119,6 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::Tests::GSimpleContainer);
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::Tests::GSimpleContainer)
 
 #endif /* GSIMPLECONTAINER_HPP_ */
