@@ -109,11 +109,11 @@
 namespace Gem {
 namespace Common {
 
-/***********************************************************************************/
+/******************************************************************************/
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
 class condition_time_out: public std::exception {};
 
-/***********************************************************************************/
+/******************************************************************************/
 /**
  * By default the buffer will have this size. As the buffer
  * dynamically grows and shrinks, we choose a very high value. This
@@ -124,7 +124,7 @@ class condition_time_out: public std::exception {};
  */
 const std::size_t DEFAULTBUFFERSIZE = 10000;
 
-/********************************************************************/
+/******************************************************************************/
 /**
  * This class implements a bounded buffer. Items can be added to one
  * end by multiple threads and retrieved from the other, also by
@@ -150,7 +150,7 @@ public:
 	// typedef typename std::list<T> container_type;
 	typedef typename container_type::value_type value_type;
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor. Sets up a buffer of size DEFAULTBUFFERSIZE.
 	 */
@@ -165,7 +165,7 @@ public:
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * A constructor that creates a buffer with custom size "capacity".
 	 * It enforces a minimum buffer size of 1.
@@ -183,7 +183,7 @@ public:
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard destructor. Virtual, as classes such as a producer-type
 	 * class might get derived from this one. We do not want the destructor
@@ -218,7 +218,7 @@ public:
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds a single item to the front of the buffer. The function
 	 * will block if there is no space in the buffer and continue once
@@ -245,7 +245,7 @@ public:
 		not_empty_.notify_one();
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds a single item to the front of the buffer. The function
 	 * will time out after a given amount of time. This function was
@@ -273,7 +273,7 @@ public:
 		not_empty_.notify_one();
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds a single item to the front of the buffer. The function
 	 * will time out after a given amount of time and return false
@@ -303,7 +303,7 @@ public:
 		return true;
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves a single item from the end of the buffer. The
 	 * function will block if no items are available and will continue
@@ -338,7 +338,7 @@ public:
 		not_full_.notify_one();
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves a single item from the end of the buffer. The function
 	 * will time out after a given amount of time. This function was
@@ -376,7 +376,7 @@ public:
 		not_full_.notify_one();
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves a single item from the end of the buffer. The function
 	 * will time out after a given amount of time. It will return false
@@ -417,7 +417,7 @@ public:
 		return true;
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the maximum allowed size of the buffer. No need for
 	 * synchronization, as reading the value should be an atomic
@@ -430,7 +430,7 @@ public:
 		return capacity_;
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the remaining space in the buffer. Note that the capacity
 	 * may change once this function has completed. The information taken
@@ -444,7 +444,7 @@ public:
 		return capacity_ - container_.size();
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the current size of the buffer. Note that the buffer
 	 * (and its size) may change immediately after this function has
@@ -459,7 +459,7 @@ public:
 		return container_.size();
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Returns whether the buffer is empty or not. Note that the buffer
 	 * contents may change immediately after this function has
@@ -475,7 +475,7 @@ public:
 	}
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to assign a name to this object
 	 *
@@ -485,7 +485,7 @@ public:
 		name_ = name;
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to retrieve this object's name
 	 *
@@ -495,11 +495,12 @@ public:
 		return name_;
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 protected:
-	/***************************************************************
+	/***************************************************************************/
+	/*
 	 * We want to be able to add custom producer threads. Hence the
 	 * following functions are all protected, not private.
 	 */
@@ -535,12 +536,12 @@ protected:
 	mutable boost::condition_variable not_full_; ///< Used for synchronization of access to the container
 
 private:
-	/***************************************************************/
+	/***************************************************************************/
 	GBoundedBufferT(const GBoundedBufferT&); ///< Disabled copy constructor
 	GBoundedBufferT& operator = (const GBoundedBufferT&); ///< Disabled assign operator
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Writes out put- and get times. You can evaluate the results using
 	 * the root analysis framework (see http://root.cern.ch)
@@ -600,7 +601,7 @@ private:
 
 		result.close();
 	}
-	/***************************************************************/
+	/***************************************************************************/
 
 	std::string name_; ///< A name to be assigned to this object
 
@@ -612,6 +613,8 @@ private:
 
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 };
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

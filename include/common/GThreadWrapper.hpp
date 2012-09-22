@@ -77,7 +77,7 @@
 namespace Gem {
 namespace Common {
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * This struct is used to catch errors of worker tasks, submitted to threads. Exceptions that are
  * thrown inside of threads to not travel beyond the thread's boundary. Hence we need to catch them
@@ -94,7 +94,7 @@ private:
 	boost::function<void()> f_; ///< Holds the actual worker task
 };
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

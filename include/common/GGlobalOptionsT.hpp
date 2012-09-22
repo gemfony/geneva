@@ -64,7 +64,7 @@
 namespace Gem {
 namespace Common {
 
-/***************************************************************************/
+/******************************************************************************/
 /**
  * This class provides access to global options of user-defined type.
  * Note that these are not serialized, so you need to take care yourself
@@ -151,7 +151,7 @@ private:
 	std::map<std::string, T> kvp_;
 };
 
-/***************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

@@ -47,7 +47,7 @@
 
 // Geneva headers go here
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * This function creates a new T object. It can be specialized by the tested objects e.g. in case
  * they do not have a default constructor.
@@ -59,6 +59,6 @@ boost::shared_ptr<T> TFactory_GUnitTests() {
 	return boost::shared_ptr<T>(new T());
 }
 
-/*************************************************************************************************/
+/******************************************************************************/
 
 #endif /* GUNITTESTFRAMEWORKT_HPP_ */

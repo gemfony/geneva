@@ -60,7 +60,7 @@
 #ifndef GSERIALIZETUPLET_HPP_
 #define GSERIALIZETUPLET_HPP_
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * This file contains some helper functions needed for the serialization of boost::tuple objects
  */
@@ -68,7 +68,7 @@
 namespace boost {
 namespace serialization {
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * Serialization of a boost::tuple with a single element
  *
@@ -82,7 +82,7 @@ void serialize(archive & ar, boost::tuple<T0> & tpl, unsigned int) {
 	ar & make_nvp("tpl_0", boost::get<0>(tpl));
 }
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * Serialization of a boost::tuple with two elements
  *
@@ -97,7 +97,7 @@ void serialize(archive & ar, boost::tuple<T0, T1> & tpl, unsigned int) {
 	   & make_nvp("tpl_1", boost::get<1>(tpl));
 }
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * Serialization of a boost::tuple with three elements
  *
@@ -113,7 +113,7 @@ void serialize(archive & ar, boost::tuple<T0, T1, T2> & tpl, unsigned int) {
 	   & make_nvp("tpl_2", boost::get<2>(tpl));
 }
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * Serialization of a boost::tuple with four elements
  *
@@ -130,7 +130,7 @@ void serialize(archive & ar, boost::tuple<T0, T1, T2, T3> & tpl, unsigned int) {
 	   & make_nvp("tpl_3", boost::get<3>(tpl));
 }
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * Serialization of a boost::tuple with five elements
  *
@@ -148,7 +148,7 @@ void serialize(archive & ar, boost::tuple<T0, T1, T2, T3, T4> & tpl, unsigned in
 	   & make_nvp("tpl_4", boost::get<4>(tpl));
 }
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * Serialization of a boost::tuple with six elements
  *
@@ -167,7 +167,7 @@ void serialize(archive & ar, boost::tuple<T0, T1, T2, T3, T4, T5> & tpl, unsigne
 	   & make_nvp("tpl_5", boost::get<5>(tpl));
 }
 
-/************************************************************************/
+/******************************************************************************/
 
 } /* namespace serialization */
 } /* namespace boost */

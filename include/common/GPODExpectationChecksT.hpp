@@ -66,18 +66,7 @@
 namespace Gem {
 namespace Common {
 
-///**************************************************************************************************/
-///*
-// * This class helps to check whether whether "Plain Old Data" components meet a given set of
-// * criteria, such as equality, inequality or floating point similarity.
-// */
-//class GExpectationChecks {
-//public:
-//private:
-//};
-
-
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * This function checks whether two "basic" types meet a given expectation. It assumes that x and y
  * understand the == and != operators. If x and y do not fulfill this requirement, you need to provide
@@ -137,7 +126,7 @@ boost::optional<std::string> checkExpectation (
 	}
 }
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * This function checks whether two vectors of "basic" types meet a given expectation. It assumes that
  * these types understand the == and != operators. If they do not fulfill this requirement, you need to provide
@@ -229,7 +218,7 @@ boost::optional<std::string> checkExpectation (
 	}
 }
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * This function checks whether two floating point types meet a given expectation.
  *
@@ -314,7 +303,7 @@ boost::optional<std::string> checkExpectation (
 	}
 }
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * This function checks whether two vectors of floating point types meet a given expectation.
  *
@@ -456,7 +445,7 @@ boost::optional<std::string> checkExpectation (
 	}
 }
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * @brief This function checks whether two objects of type boost::logic::tribool meet a given expectation.
  */
@@ -471,7 +460,7 @@ boost::optional<std::string> checkExpectation (
 	  , const double& limit = 0
 );
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * Helps to evaluate possible discrepancies between expectations in relationship tests
  */
@@ -482,13 +471,13 @@ boost::optional<std::string> evaluateDiscrepancies(
 		const Gem::Common::expectation&
 );
 
-/*************************************************************************************************/
+/******************************************************************************/
 /*
  * This define facilitates calls to the checkExpectation() function
  */
 #define EXPECTATIONCHECK(x) deviations.push_back(checkExpectation( withMessages , caller , x , p_load->x , #x , "p_load->"#x , e, limit ))
 
-/*************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

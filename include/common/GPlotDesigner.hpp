@@ -66,7 +66,7 @@
 namespace Gem {
 namespace Common {
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * Determines whether a scatter plot or a curve should be recorded
  */
@@ -93,7 +93,7 @@ typedef boost::tuple<std::string,std::string,std::string> plotData;
 // Forward declaration in order to allow a friend statement in GBasePlotter
 class GPlotDesigner;
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * An abstract base class that defines functions for plots. Concrete plotters
  * derive from this class. They can be added to a master canvas, which takes care
@@ -154,7 +154,7 @@ public:
 	std::string dsMarker() const;
 
 protected:
-	/**********************************************************************************/
+	/***************************************************************************/
 
 	std::string drawingArguments_; ///< Holds the drawing arguments for this plot
 
@@ -175,7 +175,7 @@ private:
 	std::size_t id_; ///< The id of this object
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * A data collector for 1-d data of user-defined type. This will usually be
  * data of a histogram type.
@@ -184,7 +184,7 @@ template <typename x_type>
 class GDataCollector1T :public GBasePlotter
 {
 public:
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * The default constructor
 	 */
@@ -193,7 +193,7 @@ public:
 		, data_()
 	{ /* nothing */ }
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A copy constructor
 	 *
@@ -204,7 +204,7 @@ public:
 		, data_(cp.data_)
 	{ /* nothing */ }
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
@@ -212,7 +212,7 @@ public:
 		data_.clear();
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The assignment operator
 	 */
@@ -224,7 +224,7 @@ public:
 		data_ = cp.data_;
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add data of arbitrary type, provided it can be converted
 	 * safely to the target type.
@@ -254,7 +254,7 @@ public:
 		data_.push_back(x);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add data of type "x_type
 	 *
@@ -265,7 +265,7 @@ public:
 		data_.push_back(x);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add a collection of data items of undetermined type in one go,
 	 * provided the type can be converted safely into the target type
@@ -298,7 +298,7 @@ public:
 		}
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add a collection of data items of type x_type to our data_ vector.
 	 *
@@ -313,12 +313,12 @@ public:
 	}
 
 protected:
-	/*****************************************************************************/
+	/***************************************************************************/
 
 	std::vector<x_type> data_; ///< Holds the actual data
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * A wrapper for ROOT's TH1D class (1-d double data)
  */
@@ -368,7 +368,7 @@ private:
 	double maxX_; ///< The upper boundary of the histogram
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * A data collector for 2-d data of user-defined type
  */
@@ -376,7 +376,7 @@ template <typename x_type, typename y_type>
 class GDataCollector2T :public GBasePlotter
 {
 public:
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * The default constructor
 	 */
@@ -385,7 +385,7 @@ public:
 		, data_()
 	{ /* nothing */ }
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A copy constructor
 	 *
@@ -396,7 +396,7 @@ public:
 		, data_(cp.data_)
 	{ /* nothing */ }
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
@@ -404,7 +404,7 @@ public:
 		data_.clear();
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The assignment operator
 	 */
@@ -416,7 +416,7 @@ public:
 		data_ = cp.data_;
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to project the graph into a histogram (x-direction). This function is a
 	 * trap to catch calls with un-implemented types. Use the corresponding specializations,
@@ -435,7 +435,7 @@ public:
 		return boost::shared_ptr<GDataCollector1T<x_type> >();
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to project the graph into a histogram (y-direction). This function is a
 	 * trap to catch calls with un-implemented types. Use the corresponding specializations,
@@ -454,7 +454,7 @@ public:
 		return boost::shared_ptr<GDataCollector1T<y_type> >();
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add data of undetermined type to the collection in an intuitive way,
 	 * provided that it can be converted safely to the target type.
@@ -485,7 +485,7 @@ public:
 		data_.push_back(boost::tuple<x_type,y_type>(x,y));
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add data of type boost::tuple<x_type, x_type> to the collection in
 	 * an intuitive way.
@@ -497,7 +497,7 @@ public:
 		data_.push_back(point);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add a collection of data items of undetermined type to the
 	 * collection in an intuitive way, provided they can be converted safely
@@ -532,7 +532,7 @@ public:
 		}
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add a collection of data items of type boost::tuple<x_type, y_type>
 	 * to the collection in an intuitive way, provided they can be converted safely
@@ -549,12 +549,12 @@ public:
 	}
 
 protected:
-	/*****************************************************************************/
+	/***************************************************************************/
 
 	std::vector<boost::tuple<x_type, y_type> > data_; ///< Holds the actual data
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 /** @brief Specialization for <x_type, y_type> = <double, double> */
 template<>
 boost::shared_ptr<GDataCollector1T<double> >
@@ -565,7 +565,7 @@ template<>
 boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector2T<double, double>::projectY(std::size_t	, boost::tuple<double, double>) const;
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * A data collector for 2-d data of user-defined type, with the ability to
  * additionally specify an error component for both dimensions.
@@ -574,7 +574,7 @@ template <typename x_type, typename y_type>
 class GDataCollector2ET :public GBasePlotter
 {
 public:
-	/*****************************************************************************/
+   /***************************************************************************/
 	/**
 	 * The default constructor
 	 */
@@ -583,7 +583,7 @@ public:
 		, data_()
 	{ /* nothing */ }
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A copy constructor
 	 *
@@ -594,7 +594,7 @@ public:
 		, data_(cp.data_)
 	{ /* nothing */ }
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
@@ -602,7 +602,7 @@ public:
 		data_.clear();
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The assignment operator
 	 */
@@ -614,7 +614,7 @@ public:
 		data_ = cp.data_;
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add data of undetermined type to the collection in an intuitive way,
 	 * provided that it can be converted safely to the target type.
@@ -649,7 +649,7 @@ public:
 		data_.push_back(boost::tuple<x_type,x_type,y_type,y_type>(x,ex,y,ey));
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add data of type boost::tuple<x_type, x_type> to the collection in
 	 * an intuitive way.
@@ -661,7 +661,7 @@ public:
 		data_.push_back(point);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add a collection of data items of undetermined type to the
 	 * collection in an intuitive way, provided they can be converted safely
@@ -700,7 +700,7 @@ public:
 		}
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to add a collection of data items of type boost::tuple<x_type, x_type, y_type, y_type>
 	 * to the collection in an intuitive way, provided they can be converted safely
@@ -717,12 +717,12 @@ public:
 	}
 
 protected:
-	/*****************************************************************************/
+	/***************************************************************************/
 
 	std::vector<boost::tuple<x_type, x_type, y_type, y_type> > data_; ///< Holds the actual data
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * An enum for 2D-drawing options
  */
@@ -747,7 +747,7 @@ enum tddropt {
 	, SURFONECYL = 17
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * A wrapper for ROOT's TH2D class (2-d double data)
  */
@@ -819,7 +819,7 @@ private:
 	tddropt dropt_; ///< The drawing options for 2-d histograms
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * A wrapper for the ROOT TGraph class (2d data and curve-like structures). It
  * also adds the option to draw arrows between consecutive points.
@@ -860,7 +860,7 @@ private:
 	bool drawArrows_; ///< When set to true, arrows will be drawn between consecutive points
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * A wrapper for the ROOT TGraphErrors class (2d data and curve-like structures)
  */
@@ -894,7 +894,7 @@ private:
 	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * A wrapper for the ROOT TF1 1d-function plotter
  */
@@ -936,7 +936,7 @@ private:
 	std::size_t nSamplesX_; ///< The number of sampling points of the function
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * A wrapper for the ROOT TF2 2d-function plotter
  */
@@ -985,7 +985,7 @@ private:
 };
 
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * This class allows to add free-form root-data to the master plot
  */
@@ -1019,7 +1019,7 @@ private:
 	std::string footerData_; ///< The data to be written into the master plot's footer
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 /**
  * A class that outputs a ROOT input file (compare http://root.cern.ch), based
  * on the data providers stored in it.
@@ -1063,7 +1063,7 @@ private:
 	std::string canvasLabel_; ///< A label to be assigned to the entire canvas
 };
 
-/*********************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

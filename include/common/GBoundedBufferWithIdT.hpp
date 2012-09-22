@@ -72,7 +72,7 @@ typedef boost::uint64_t PORTIDTYPE;
 typedef boost::uint32_t PORTIDTYPE;
 #endif
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * A small helper class that adds a unique id to the GBoundedBufferT class. Note
  * that, once it has been set, it may not be modified anymore.
@@ -84,7 +84,7 @@ class GBoundedBufferWithIdT
 	:public Gem::Common::GBoundedBufferT<T>
 {
 public:
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor.
 	 */
@@ -94,7 +94,7 @@ public:
 		, idSet_(false)
 	{ /* nothing */}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * A constructor that creates a buffer with custom size "capacity".
 	 * It enforces a minimum buffer size of 1.
@@ -107,14 +107,14 @@ public:
 		, idSet_(false)
 	{ /* nothing */}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard destructor.
 	 */
 	virtual ~GBoundedBufferWithIdT()
 	{ /* nothing */ }
 
-	/***************************************************************/
+	/***************************************************************************/
 	/*
 	 * Retrieves the id_ variable.
 	 *
@@ -124,7 +124,7 @@ public:
 		return id_;
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/*
 	 * Allows to set the id_ once. Any subsequent calls to this
 	 * function will have no effect.
@@ -139,11 +139,12 @@ public:
 	}
 
 private:
-	/***************************************************************/
+	/***************************************************************************/
 	volatile PORTIDTYPE id_; ///< An id that allows to identify this class
 	volatile bool idSet_; ///< Allows control over whether the id has been set before
 };
 
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

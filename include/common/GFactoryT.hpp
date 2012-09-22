@@ -59,7 +59,7 @@ namespace Gem
 namespace Common
 {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A factory class that returns objects of type T . The class comprises a framework
  * for reading additional configuration options from a configuration file. The actual setup
@@ -71,7 +71,7 @@ class GFactoryT
 	:private boost::noncopyable
 {
 public:
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard constructor
 	 *
@@ -83,14 +83,14 @@ public:
 		, initialized_(false)
 	{ /* nothing */ }
 
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GFactoryT()
 	{ /* nothing */ }
 
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Triggers the creation of objects of the desired type
 	 *
@@ -131,7 +131,7 @@ public:
 		return p;
 	}
 
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs necessary initialization work. This function will do nothing when
 	 * called more than once.
@@ -144,7 +144,7 @@ public:
 		}
 	}
 
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Writes a configuration file to disk
 	 *
@@ -183,7 +183,7 @@ public:
 	}
 
 protected:
-	/***************************************************************************************/
+	/***************************************************************************/
 	/** @brief Performs necessary initialization work */
 	virtual void init_() {}
 	/** @brief Allows to describe local configuration options in derived classes */
@@ -194,7 +194,7 @@ protected:
 	virtual void postProcess_(boost::shared_ptr<T>&) = 0;
 
 private:
-	/***************************************************************************************/
+	/***************************************************************************/
 	GFactoryT(); ///< The default constructor. Intentionally private and undefined
 
 	std::string configFile_; ///< The name of the configuration file
@@ -202,7 +202,7 @@ private:
 	bool initialized_; ///< Indicates whether the configuration file has already been parsed
 };
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

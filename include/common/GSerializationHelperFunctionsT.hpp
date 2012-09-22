@@ -82,7 +82,7 @@ namespace Gem
 namespace Common
 {
 
-/*******************************************************************************************************/
+/******************************************************************************/
 /**
  * Converts a shared_ptr<T> into its string representation. This template function thus assumes that
  * T is serializable using the Boost.Serialization framework.
@@ -123,7 +123,7 @@ std::string sharedPtrToString(boost::shared_ptr<T> gt_ptr, const Gem::Common::se
 	return oarchive_stream.str();
 }
 
-/*******************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads a shared_ptr<T> from its string representation. This template function thus assumes that
  * T is de-serializable using the Boost.Serialization framework.
@@ -165,7 +165,7 @@ boost::shared_ptr<T> sharedPtrFromString(const std::string& gt_string, const Gem
 	return gt_ptr;
 }
 
-/*******************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

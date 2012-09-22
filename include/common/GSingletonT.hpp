@@ -65,7 +65,7 @@
 namespace Gem {
 namespace Common {
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * This function creates a new T object. It can be specialized by the object
  * used inside of Gemfony's singleton, e.g. in case they do not have a default
@@ -78,7 +78,7 @@ boost::shared_ptr<T> TFactory_GSingletonT() {
 	return boost::shared_ptr<T>(new T());
 }
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * This class implements a singleton pattern, augmented so that it returns
  * a boost::shared_ptr. This allows other singletons to store a shared_ptr to
@@ -90,7 +90,7 @@ class GSingletonT
 	:boost::noncopyable
 {
 public:
-	/*******************************************************************/
+	/***************************************************************************/
 	/**
 	 * If called for the first time, the function creates a boost::shared_ptr
 	 * of T and returns it to the caller. Subsequent calls to this function
@@ -124,14 +124,14 @@ public:
 		return boost::shared_ptr<T>(); // Make the compiler happy
 	}
 
-	/*******************************************************************/
+	/***************************************************************************/
 
 private:
 	GSingletonT(); ///< Intentionally left undefined
 	~GSingletonT(); ///< Intentionally left undefined
 };
 
-/************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

@@ -131,7 +131,7 @@ public:
 	/** @brief Returns the size of the current thread group */
 	std::size_t size() const;
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates a new thread and adds it to the group
 	 *
@@ -146,7 +146,7 @@ public:
 		return new_thread;
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates nThreads new threads with the same function
 	 * and adds them to the group
@@ -160,12 +160,14 @@ public:
 		for(std::size_t i=0; i<nThreads; i++) create_thread(f);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 
 private:
 	thread_vector threads_; ///< Holds the actual threads
 	mutable boost::mutex m_; ///< Needed to synchronize access to the vector
 };
+
+/******************************************************************************/
 
 } /* namespace Common*/
 } /* namespace Gem */

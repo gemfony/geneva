@@ -72,27 +72,27 @@ namespace Gem
 namespace Common
 {
 
-/**************************************************************************************************/
+/******************************************************************************/
 /** @brief Calculates the mean and the standard deviation for a vector of doubles */
 boost::tuple<double,double> getStandardDeviation(const std::vector<double>&);
 
-/**************************************************************************************************/
+/******************************************************************************/
 /** @brief This function tries to determine a suitable number of threads for the current architecture */
 unsigned int getNHardwareThreads(const unsigned int& defaultNThreads = Gem::Common::DEFAULTNHARDWARETHREADS);
 
-/**************************************************************************************************/
+/******************************************************************************/
 /** @brief This function loads textual (ASCII) data from an external file */
 std::string loadTextDataFromFile(const std::string&);
 
-/**************************************************************************************************/
+/******************************************************************************/
 /** @brief This function executes an external command on the operating system */
 void runExternalCommand(const std::string&);
 
-/**************************************************************************************************/
+/******************************************************************************/
 /** @brief Returns a string for a given serialization mode */
 std::string serializationModeToString(const serializationMode&);
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

@@ -61,7 +61,7 @@
 namespace Gem {
 namespace Common {
 
-/***************************************************************************************/
+/******************************************************************************/
 /**
  * This class implements a simple thread pool, based on the facilities already
  * provided by Boost.ASIO . This is meant as a drop-in replacement, until a more
@@ -88,7 +88,7 @@ public:
 	/** @brief Clears the error logs */
 	void clearErrors();
 
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Submits the task to Boost.ASIO's io_service. This function will return immediately.
 	 *
@@ -107,7 +107,7 @@ public:
 	}
 
 private:
-	/***********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A wrapper for the thread execution that takes care of exceptions thrown by our
 	 * function and allows to track how many jobs are still pending
@@ -173,7 +173,7 @@ private:
 		}
 	}
 
-	/***********************************************************************************/
+	/***************************************************************************/
 
 	boost::asio::io_service io_service_; ///< Manages the concurrent thread execution
 	boost::shared_ptr<boost::asio::io_service::work> work_; ///< A place holder ensuring that the io_service doesn't stop prematurely
@@ -191,7 +191,7 @@ private:
 	boost::condition_variable_any condition_;
 };
 
-/***************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

@@ -79,7 +79,7 @@ namespace Gem
 namespace Common
 {
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Find the minimum and maximum component in a vector of undefined types. This
  * function requires that x_type_undet can be compared using the usual operators.
@@ -107,7 +107,7 @@ boost::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_unde
 	return boost::tuple<x_type_undet, x_type_undet>(min, max);
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Find the minimum and maximum component in a vector of 2d-Tuples of undefined types.
  * This function requires that x_type_undet and y_type_undet can be compared using the
@@ -140,7 +140,7 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet> >& extDat) 
 	return boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>(minX, maxX, minY, maxY);
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Find the minimum and maximum component in a vector of 3d-Tuples of undefined types.
  * This function requires that x_type_undet, y_type_undet and z_type_undet can be compared
@@ -176,7 +176,7 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_unde
 	return boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>(minX, maxX, minY, maxY, minZ, maxZ);
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Calculates the mean value from a std::vector of floating point values
  *
@@ -208,7 +208,7 @@ T GMean(
 }
 
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Calculates the mean and standard deviation for a std::vector of floating point values
  *
@@ -247,7 +247,7 @@ boost::tuple<T,T> GStandardDeviation(
 	return boost::tuple<T,T>(mean, sigma);
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Calculates the mean and standard deviation for each row of a "matrix" made up from several
  * std:vector<T> objects of equal size. E.g., if you have 5 std::vector<double> of size 10, you will
@@ -317,7 +317,7 @@ void GVecStandardDeviation(
 	}
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * This function takes two smart pointers and copies their contents (if any). Note that this
  * function might yield bad results for virtual types and will not work for purely virtual types.
@@ -342,7 +342,7 @@ void copySmartPointer (
 	}
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * This function takes two vectors of boost::shared_ptr smart pointers and copies
  * one into the other. As we want to make a deep copy of the smart pointers' contents
@@ -393,7 +393,7 @@ void copySmartPointerVector(
 	}
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Takes two std::vector<> and subtracts each position of the second vector from the
  * corresponding position of the first vector. Note that we assume here that T understands
@@ -426,7 +426,7 @@ void subtractVec (
 	}
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Takes two std::vector<> and adds each position of the second vector to the
  * corresponding position of the first vector. Note that we assume here that T understands
@@ -459,7 +459,7 @@ void addVec (
 	}
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Multiplies each position of a std::vector<> with a constant. Note that we assume here that
  * T understands the operator*= . Note that after this function has been called, a will have changed.
@@ -480,7 +480,7 @@ void multVecConst (
 	}
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Assigns a constant value to each position of the vector. Note that we assume here that
  * T understands the operator*= . Note that after this function has been called, a will have changed.
@@ -501,7 +501,7 @@ void assignVecConst (
 	}
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

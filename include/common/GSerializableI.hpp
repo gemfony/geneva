@@ -56,7 +56,7 @@
 namespace Gem {
 namespace Common {
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * This is an interface class that specifies the operations available
  * for "serializable" classes.
@@ -73,7 +73,7 @@ public:
 	virtual void fromString(const std::string&, const serializationMode&) = 0;
 };
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

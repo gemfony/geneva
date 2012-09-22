@@ -59,20 +59,20 @@
 namespace Gem {
 namespace Common {
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default number of bins in histograms, used in GPlotDesigner
  */
 const std::size_t DEFAULTNBINSGPD = 100;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Used in parameter definitions (GParserBuilder)
  */
 const bool VAR_IS_ESSENTIAL = true;
 const bool VAR_IS_SECONDARY = false;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Needed for the serialization of boost::logic::tribool
  */
@@ -82,13 +82,13 @@ enum triboolStates {
 	, TBS_TRUE
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 /** @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Common::triboolStates&);
 /** @brief Reads a Gem::Common::triboolStates from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Common::triboolStates&);
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The serialization modes that are currently allowed
  */
@@ -98,21 +98,21 @@ enum serializationMode {
 	, SERIALIZATIONMODE_BINARY = 2
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 
 /** @brief Puts a Gem::Common::serializationMode into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Common::serializationMode&);
 /** @brief Reads a Gem::Common::serializationMode item from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Common::serializationMode&);
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Specification of whether checkExpectation should emit messages
  */
 const bool CE_SILENT = false;
 const bool CE_WITH_MESSAGES = true;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Needed to express expectations in testing framework. CE stands for "Check expectation".
  */
@@ -122,21 +122,21 @@ enum expectation {
 	, CE_FP_SIMILARITY // equality for non-floating point components, similarity for floating point
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 
 /** @brief Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Common::expectation&);
 /** @brief Reads a Gem::Common::expectation item from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Common::expectation&);
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Specification of the default number of threads, when no information about hardware
  * concurrency can be determined.
  */
 const unsigned int DEFAULTNHARDWARETHREADS = 2;
 
-/**********************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

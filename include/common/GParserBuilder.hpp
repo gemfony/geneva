@@ -82,9 +82,10 @@ namespace Common {
 // Forward declaration
 class GParserBuilder;
 
-/************************************************************************/
-//////////////////////////////////////////////////////////////////////////
-/************************************************************************/
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class specifies the interface of parsable parameters, to
  * which a call-back function has been assigned. It also stores some
@@ -122,7 +123,7 @@ public:
 	/** @brief Checks whether this is an essential variable at a given position */
 	bool isEssential() const;
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Create a std::vector<T> from a single element
 	 */
@@ -133,7 +134,7 @@ public:
 		return result;
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Create a std::vector<T> from two elements
 	 */
@@ -146,14 +147,14 @@ public:
 	}
 
 protected:
-	/********************************************************************/
+	/***************************************************************************/
 	/** @brief Loads data from a property_tree object */
 	virtual void load(const boost::property_tree::ptree&) = 0;
 	/** @brief Saves data to a property tree object */
 	virtual void save(boost::property_tree::ptree&) const = 0;
 
 private:
-	/********************************************************************/
+	/***************************************************************************/
 	/** @brief The default constructor. Intentionally private and undefined */
 	GParsableI();
 
@@ -162,9 +163,9 @@ private:
 	bool isEssential_; ///< Indicates whether this is an essential variable
 };
 
-/************************************************************************/
-//////////////////////////////////////////////////////////////////////////
-/************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class wraps individual parsable parameters, to which a callback
  * function has been assigned.
@@ -176,7 +177,7 @@ struct GSingleParsableParameter	:public GParsableI
 	friend class GParserBuilder;
 
 public:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes the parameter and sets values in the parent class
 	 */
@@ -195,14 +196,14 @@ public:
 		, def_val_(defVal)
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GSingleParsableParameter()
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Executes a stored call-back function
 	 */
@@ -218,7 +219,7 @@ public:
 		callBack_(par_);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to register a call-back function with this object
 	 *
@@ -236,7 +237,7 @@ public:
 	}
 
 protected:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads data from a property_tree object
 	 *
@@ -246,7 +247,7 @@ protected:
 		par_ = pt.get((optionName(0) + ".value").c_str(), def_val_);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Saves data to a property tree object, including comments.
 	 *
@@ -271,7 +272,7 @@ protected:
 	}
 
 private:
-	/********************************************************************/
+	/***************************************************************************/
 	GSingleParsableParameter(); ///< The default constructor. Intentionally private and undefined
 
 	parameter_type par_; ///< Holds the individual parameter
@@ -280,9 +281,9 @@ private:
 	boost::function<void(parameter_type)> callBack_; ///< Holds the call-back function
 };
 
-/************************************************************************/
-//////////////////////////////////////////////////////////////////////////
-/************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class wraps combined parsable parameters, to which a callback
  * function has been assigned.
@@ -294,7 +295,7 @@ struct GCombinedParsableParameter :public GParsableI
 	friend class GParserBuilder;
 
 public:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes the parameters
 	 */
@@ -320,14 +321,14 @@ public:
 		, combined_label_(combined_label)
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GCombinedParsableParameter()
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Executes a stored call-back function
 	 */
@@ -343,7 +344,7 @@ public:
 		callBack_(par0_, par1_);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to register a call-back function with this object
 	 *
@@ -361,7 +362,7 @@ public:
 	}
 
 protected:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads data from a property_tree object
 	 *
@@ -372,7 +373,7 @@ protected:
 		par1_ = pt.get((combined_label_ + "." + optionName(1) + ".value").c_str(), def_val1_);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Saves data to a property tree object, including comments.
 	 *
@@ -407,7 +408,7 @@ protected:
 	}
 
 private:
-	/********************************************************************/
+	/***************************************************************************/
 	GCombinedParsableParameter(); ///< The default constructor. Intentionally private and undefined
 
 	par_type0 par0_; ///< Holds the first parameter
@@ -421,9 +422,9 @@ private:
 	boost::function<void(par_type0, par_type1)> callBack_; ///< Holds the call-back function
 };
 
-/************************************************************************/
-//////////////////////////////////////////////////////////////////////////
-/************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class wraps a std::vector of values (obviously of identical type).
  * Note that this class does not enforce a given amount of parameters. However,
@@ -437,7 +438,7 @@ class GVectorParsableParameter :public GParsableI
 	friend class GParserBuilder;
 
 public:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes the parameters
 	 */
@@ -456,14 +457,14 @@ public:
 		, par_() // empty
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GVectorParsableParameter()
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Executes a stored call-back function
 	 */
@@ -479,7 +480,7 @@ public:
 		callBack_(par_);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to register a call-back function with this object
 	 *
@@ -497,7 +498,7 @@ public:
 	}
 
 protected:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads data from a property_tree object
 	 *
@@ -515,7 +516,7 @@ protected:
 	    }
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Saves data to a property tree object, including comments. Default
 	 * values are taken from the def_val_ vector. Note that there needs
@@ -555,7 +556,7 @@ protected:
 	}
 
 private:
-	/********************************************************************/
+	/***************************************************************************/
 
 	std::vector<parameter_type> def_val_; ///< Holds default values
 	std::vector<parameter_type> par_; ///< Holds the parsed parameters
@@ -563,9 +564,9 @@ private:
 	boost::function<void(std::vector<parameter_type>)> callBack_; ///< Holds the call-back function
 };
 
-/************************************************************************/
-//////////////////////////////////////////////////////////////////////////
-/************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class wraps a reference std::vector of values (obviously of identical type).
  * Note that this class does not enforce a given amount of parameters. However,
@@ -579,7 +580,7 @@ class GVectorReferenceParsableParameter :public GParsableI
 	friend class GParserBuilder;
 
 public:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes the parameters
 	 */
@@ -600,14 +601,14 @@ public:
 		, par_()
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GVectorReferenceParsableParameter()
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Assigns the parsed parameters to the reference vector
 	 */
@@ -616,7 +617,7 @@ public:
 	}
 
 protected:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads data from a property_tree object
 	 *
@@ -633,7 +634,7 @@ protected:
 			par_.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Saves data to a property tree object, including comments. Default
 	 * values are taken from the def_val_ vector. Note that there needs
@@ -673,16 +674,16 @@ protected:
 	}
 
 private:
-	/********************************************************************/
+	/***************************************************************************/
 
 	std::vector<parameter_type>& stored_reference_; ///< Holds a reference to the target vector
 	std::vector<parameter_type> def_val_; ///< Holds default values
 	std::vector<parameter_type> par_; ///< Holds the parsed parameters
 };
 
-/************************************************************************/
-//////////////////////////////////////////////////////////////////////////
-/************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class wraps a boost::array of values (obviously of identical type).
  * This class enforces a fixed number of items in the array.
@@ -694,7 +695,7 @@ class GArrayParsableParameter :public GParsableI
 	friend class GParserBuilder;
 
 public:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes the parameters
 	 */
@@ -713,14 +714,14 @@ public:
 		, par_(def_val) // Same size as def_val
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GArrayParsableParameter()
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Executes a stored call-back function
 	 */
@@ -736,7 +737,7 @@ public:
 		callBack_(par_);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to register a call-back function with this object
 	 *
@@ -754,7 +755,7 @@ public:
 	}
 
 protected:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads data from a property_tree object
 	 *
@@ -768,7 +769,7 @@ protected:
 		}
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Saves data to a property tree object, including comments. Default
 	 * values are taken from the def_val_ vector.
@@ -806,7 +807,7 @@ protected:
 	}
 
 private:
-	/********************************************************************/
+	/***************************************************************************/
 
 	boost::array<parameter_type,N> def_val_; ///< Holds default values
 	boost::array<parameter_type,N> par_; ///< Holds the parsed parameters
@@ -814,9 +815,9 @@ private:
 	boost::function<void(boost::array<parameter_type,N>)> callBack_; ///< Holds the call-back function
 };
 
-/************************************************************************/
-//////////////////////////////////////////////////////////////////////////
-/************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class wraps a reference to a boost::array of values (obviously of
  * identical type). This class enforces a fixed number of items in the array.
@@ -828,7 +829,7 @@ class GArrayReferenceParsableParameter :public GParsableI
 	friend class GParserBuilder;
 
 public:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes the parameters
 	 */
@@ -849,14 +850,14 @@ public:
 		, par_(def_val)
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GArrayReferenceParsableParameter()
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Assigns the parsed parameters to the reference vector
 	 */
@@ -865,7 +866,7 @@ public:
 	}
 
 protected:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads data from a property_tree object
 	 *
@@ -879,7 +880,7 @@ protected:
 		}
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Saves data to a property tree object, including comments. Default
 	 * values are taken from the def_val_ vector.
@@ -917,16 +918,16 @@ protected:
 	}
 
 private:
-	/********************************************************************/
+	/***************************************************************************/
 
 	boost::array<parameter_type,N>& stored_reference_; ///< Holds a reference to the target vector
 	boost::array<parameter_type,N> def_val_; ///< Holds default values
 	boost::array<parameter_type,N> par_; ///< Holds the parsed parameters
 };
 
-/************************************************************************/
-//////////////////////////////////////////////////////////////////////////
-/************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class wraps a reference to individual parameters. Instead of
  * executing a stored call-back function, executeCallBackFunction will assign
@@ -939,7 +940,7 @@ class GReferenceParsableParameter :public GParsableI
 	friend class GParserBuilder;
 
 public:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * A constructor that initializes the internal reference
 	 *
@@ -963,7 +964,7 @@ public:
 		, def_val_(defVal)
 	{ /* nothing */ }
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Assigns the stored parameter to the reference
 	 */
@@ -972,7 +973,7 @@ public:
 	}
 
 protected:
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads data from a property_tree object
 	 *
@@ -982,7 +983,7 @@ protected:
 		par_ = pt.get((optionName(0) + ".value").c_str(), def_val_);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Saves data to a property tree object, including comments.
 	 *
@@ -1007,7 +1008,7 @@ protected:
 	}
 
 private:
-	/********************************************************************/
+	/***************************************************************************/
 	GReferenceParsableParameter(); ///< The default constructor. Intentionally private and undefined
 
 	parameter_type& storedReference_; ///< Holds the reference to which the parsed value will be assigned
@@ -1015,9 +1016,9 @@ private:
 	parameter_type def_val_; ///< Holds the default value if par_
 };
 
-/************************************************************************/
-//////////////////////////////////////////////////////////////////////////
-/************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class implements a "parser builder", that allows to easily specify
  * the options that the parser should search for in a configuration file.
@@ -1045,7 +1046,7 @@ public:
 	/** @brief Provides information on the number of configuration options stored in this class */
 	std::size_t numberOfOptions() const;
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds a single parameter of configurable type to the collection. When
 	 * this parameter has been read using parseConfigFile, a call-back
@@ -1074,7 +1075,7 @@ public:
 		parameter_proxies_.push_back(singleParm_ptr);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds two parameters of configurable types to the collection. When
 	 * these parameters have been read using parseConfigFile, a call-back
@@ -1111,7 +1112,7 @@ public:
 		parameter_proxies_.push_back(combParm_ptr);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds a parameter with a configurable type to the collection.
 	 *
@@ -1143,7 +1144,7 @@ public:
 		parameter_proxies_.push_back(refParm_ptr);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds a vector of configurable type to the collection, using a
 	 * call-back function
@@ -1171,7 +1172,7 @@ public:
 		parameter_proxies_.push_back(vecParm_ptr);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds a reference to a vector of configurable type to the collection
 	 */
@@ -1197,7 +1198,7 @@ public:
 		parameter_proxies_.push_back(vecRefParm_ptr);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds an array of configurable type but fixed size to the collection.
 	 * This allows to make sure that a given amount of configuration options
@@ -1227,7 +1228,7 @@ public:
 		parameter_proxies_.push_back(arrayParm_ptr);
 	}
 
-	/********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds a reference to an array of configurable type but fixed size
 	 * to the collection
@@ -1255,12 +1256,12 @@ public:
 	}
 
 private:
-	/********************************************************************/
+	/***************************************************************************/
 
 	std::vector<boost::shared_ptr<GParsableI> > parameter_proxies_; ///< Holds parameter proxies
 };
 
-/************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
