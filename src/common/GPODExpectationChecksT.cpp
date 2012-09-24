@@ -42,7 +42,7 @@
 namespace Gem {
 namespace Common {
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * This function checks whether two objects of type boost::logic::tribool meet a given expectation.
  *
@@ -122,7 +122,7 @@ boost::optional<std::string> checkExpectation (
 	}
 }
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * Helps to evaluate possible discrepancies between expectations in relationship tests
  *
@@ -186,7 +186,7 @@ boost::optional<std::string> evaluateDiscrepancies(
 		return boost::optional<std::string>();
 }
 
-/*************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

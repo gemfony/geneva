@@ -71,7 +71,7 @@
 namespace Gem {
 namespace Common {
 
-/********************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor. Assumes that all threads have already
  * been terminated (?), so that the thread objects can be safely deleted.
@@ -81,7 +81,7 @@ namespace Common {
 GThreadGroup::~GThreadGroup()
 { /* nothing */ }
 
-/********************************************************************/
+/******************************************************************************/
 /**
  * Adds an already created thread to the group
  *
@@ -94,7 +94,7 @@ void GThreadGroup::add_thread(thread_ptr thrd) {
 	}
 }
 
-/********************************************************************/
+/******************************************************************************/
 /**
  * Remove a thread from the group. Does nothing if the thread is empty.
  *
@@ -110,7 +110,7 @@ void GThreadGroup::remove_thread(thread_ptr thrd) {
 	if (cit != threads_.end()) threads_.erase(cit);
 }
 
-/********************************************************************/
+/******************************************************************************/
 /**
  * Requests all threads to join
  */
@@ -122,7 +122,7 @@ void GThreadGroup::join_all() {
 	}
 }
 
-/********************************************************************/
+/******************************************************************************/
 /**
  * Sends all threads the interrupt signal
  */
@@ -134,7 +134,7 @@ void GThreadGroup::interrupt_all() {
 	}
 }
 
-/********************************************************************/
+/******************************************************************************/
 /**
  * Interrupts, joins and finally removes the last thread in the group.
  * Does nothing if the group is already empty.
@@ -150,7 +150,7 @@ void GThreadGroup::remove_last() {
 	threads_.pop_back();
 }
 
-/********************************************************************/
+/******************************************************************************/
 /**
  * Interrupts, joins and finally removes the last nThreads threads
  * in the group. Stops if the number of threads would drop below 0.
@@ -163,7 +163,7 @@ void GThreadGroup::remove_last(const std::size_t& nThreads) {
 	}
 }
 
-/********************************************************************/
+/******************************************************************************/
 /**
  * Returns the size of the current thread group.
  * @return The size of the current group
@@ -173,7 +173,7 @@ std::size_t GThreadGroup::size() const {
 	return threads_.size();
 }
 
-/********************************************************************/
+/******************************************************************************/
 
 } /* namespace Common*/
 } /* namespace Gem */

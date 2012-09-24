@@ -42,7 +42,7 @@
 namespace Gem {
 namespace Common {
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * This function retrieves the number of CPU cores on the system, which is regarded as a suitable
  * default number for the amount of threads of a specific kind.
@@ -65,7 +65,7 @@ unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
 	}
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * This function loads textual (ASCII) data from an external file. Note that this function is
  * not currently meant to be used with binary data, although it should work with that as well
@@ -84,7 +84,7 @@ std::string loadTextDataFromFile(const std::string& fileName) {
    return sourceFile;
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Execute an external command, reacting to possible errors.
  *
@@ -110,7 +110,7 @@ void runExternalCommand(const std::string& command) {
 	}
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Returns a string for a given serialization mode
  *
@@ -142,7 +142,7 @@ std::string serializationModeToString(const serializationMode& s) {
 	return std::string("");
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

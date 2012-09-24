@@ -34,12 +34,10 @@
 
 #include "common/GCommonEnums.hpp"
 
-namespace Gem
-{
-namespace Common
-{
+namespace Gem {
+namespace Common {
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Common::triboolStates item into a stream
  *
@@ -53,7 +51,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Common::triboolStates& tbs)
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Common::triboolStates item from a stream
  *
@@ -74,7 +72,7 @@ std::istream& operator>>(std::istream& i, Gem::Common::triboolStates& tbs){
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Common::serializationMode item into a stream
  *
@@ -88,7 +86,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Common::serializationMode& 
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Common::serializationMode item from a stream
  *
@@ -109,7 +107,7 @@ std::istream& operator>>(std::istream& i, Gem::Common::serializationMode& serMod
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Common::expectation item into a stream
  *
@@ -123,7 +121,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Common::expectation& expect
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Common::expectation item from a stream
  *
@@ -144,7 +142,7 @@ std::istream& operator>>(std::istream& i, Gem::Common::expectation& expect){
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
