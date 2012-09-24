@@ -190,8 +190,9 @@ public:
 #ifdef DEBUG
 		boost::shared_ptr<par_type> p = boost::dynamic_pointer_cast<par_type>(data.at(pos));
 
-		if(p) return p;
-		else {
+		if(p) {
+		   return p;
+		} else {
 			raiseException(
 					"In GParameterSet::at<>() : Conversion error"
 			);

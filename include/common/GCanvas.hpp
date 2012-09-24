@@ -144,6 +144,9 @@ typedef struct triangle_circle_struct {
   float getAlphaValue() const;
 } t_circle;
 
+/** @brief Simplify debugging output */
+std::ostream& operator<<(std::ostream&, const t_circle&);
+
 /******************************************************************************/
 /**
  * A struct holding triangle definitions in standard coordinates

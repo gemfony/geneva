@@ -267,23 +267,12 @@ void GBrokerEA::adaptChildren()
 	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
-
-   std::cout << std::endl
-             << "In iteration " << this->getIteration() << ":" << std::endl
-             << "Adapting in the range " << boost::get<0>(range) << "-" << boost::get<1>(range) << std::endl;
-    if(this->getIteration() > 0) {
-       std::cout  << "First individual has fitness " << this->at(0)->fitness() << std::endl;
-	}
-
 	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
 		tp_->schedule(boost::function<void()>(boost::bind(&GIndividual::adapt, *it)));
 	}
 
 	// Wait for all threads in the pool to complete their work
 	tp_->wait();
-	if(this->getIteration() > 0) {
-	  std::cout << "After adaption, first individual has fitness " << this->at(0)->fitness() << std::endl;
-	}
 }
 
 /************************************************************************************************************/
@@ -309,9 +298,6 @@ void GBrokerEA::evaluateChildren() {
 	   }
 	}
 #endif
-
-	std::cout << "In iteration " << this->getIteration() << ":" << std::endl
-	          << "Evaluating in the range " << boost::get<0>(range) << "-" << boost::get<1>(range) << std::endl;
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.

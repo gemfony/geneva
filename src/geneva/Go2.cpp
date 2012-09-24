@@ -1229,7 +1229,7 @@ void Go2::parseCommandLine(int argc, char **argv) {
 		// the target directory needs to exist, though.
 		if(vm.count("configFilename")) {
 			configFilename_ = configFilename;
-			readConfigFile(configFilename_);
+			GObject::readConfigFile(configFilename_);
 		}
 
 		// Parse the list of optimization algorithms

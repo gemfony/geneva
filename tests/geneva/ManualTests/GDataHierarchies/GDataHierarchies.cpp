@@ -34,23 +34,39 @@
 
 // Standard header files go here
 #include <iostream>
+/*
 #include <cmath>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
+*/
 
 // Boost header files go here
-#include "boost/lexical_cast.hpp"
+// #include "boost/lexical_cast.hpp"
 
 // Geneva header files go here
-#include "common/GPlotDesigner.hpp"
-#include "geneva-individuals/GTestIndividual3.hpp"
+// #include "common/GPlotDesigner.hpp"
+// #include "geneva-individuals/GTestIndividual3.hpp"
 
-using namespace Gem::Tests;
+#include "geneva/GConstrainedDoubleObject.hpp"
+
+using namespace Gem::Geneva;
+using namespace Gem::Common;
+
+// using namespace Gem::Tests;
+// using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
+   const double TESTVAL = 0.4;
+   boost::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(TESTVAL, 0.3, 0.6));
+   std::cout
+   << p_test->value() << " / " << TESTVAL << std::endl
+   << p_test->value() << " / " << TESTVAL << std::endl;
+
+   /*
    boost::shared_ptr<GTestIndividual3> p = TFactory_GUnitTests<GTestIndividual3>()
                                 , p_load = TFactory_GUnitTests<GTestIndividual3>();
    p_load->GObject::load(p);
+   */
 }

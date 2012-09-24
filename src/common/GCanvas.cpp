@@ -128,6 +128,26 @@ float triangle_circle_struct::getAlphaValue() const {
 }
 
 /******************************************************************************/
+/**
+ * Simplify debugging output
+ */
+std::ostream& operator<<(std::ostream& out, const t_circle& tc) {
+   out << std::setprecision(5)
+   << "middle.x = " << tc.middle.x << std::endl
+   << "middle.y = " << tc.middle.y << std::endl
+   << "radius   = " << tc.radius   << std::endl
+   << "angle1   = " << tc.angle1   << std::endl
+   << "angle2   = " << tc.angle2   << std::endl
+   << "angle3   = " << tc.angle3   << std::endl
+   << "red      = " << tc.r        << std::endl
+   << "green    = " << tc.g        << std::endl
+   << "blue     = " << tc.b        << std::endl
+   << "alpha    = " << tc.a        << std::endl;
+
+   return out;
+}
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
