@@ -80,7 +80,6 @@ int main(int argc, char **argv){
   boost::uint32_t reportIterationSub;
   duplicationScheme rSchemeSub;
   sortingMode smodeSub;
-  std::size_t arraySize;
   std::size_t parDim;
   double minVar;
   double maxVar;
@@ -120,15 +119,14 @@ int main(int argc, char **argv){
 		      reportIterationSub,
 		      rSchemeSub,
 		      smodeSub,
-		      arraySize,
-			  returnRegardless,
-			  nProcessingUnits,
+			   returnRegardless,
+			   nProcessingUnits,
 		      adProb,
 		      adaptionThreshold,
-			  sigma,
-			  sigmaSigma,
-			  minSigma,
-			  maxSigma,
+			   sigma,
+			   sigmaSigma,
+			   minSigma,
+			   maxSigma,
 		      parDim,
 		      minVar,
 		      maxVar,
@@ -140,7 +138,6 @@ int main(int argc, char **argv){
 
   // Random numbers are our most valuable good. Set the number of threads
   GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
-  GRANDOMFACTORY->setArraySize(arraySize);
 
   //***************************************************************************
   // If this is a client in networked mode, we can just start the listener and

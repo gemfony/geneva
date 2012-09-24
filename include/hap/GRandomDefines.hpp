@@ -66,8 +66,8 @@ typedef boost::mt19937::result_type seed_type;
 
 const std::size_t DEFAULTARRAYSIZE = 1000; ///< Default size of the random number array
 const std::size_t DEFAULTFACTORYBUFFERSIZE = 400; ///< Default size of the underlying buffer
-const boost::uint16_t DEFAULTFACTORYPUTWAIT = 5; ///< waiting time in milliseconds
-const boost::uint16_t DEFAULTFACTORYGETWAIT = 5; ///< waiting time in milliseconds
+const boost::uint16_t DEFAULTFACTORYPUTWAIT = 50; ///< waiting time in milliseconds
+const boost::uint16_t DEFAULTFACTORYGETWAIT = 50; ///< waiting time in milliseconds
 const boost::uint16_t DEFAULTSEEDQUEUEPUTWAIT = 50; ///< waiting time for seeding queue in milliseconds
 
 /******************************************************************************/
@@ -96,7 +96,7 @@ const boost::uint32_t DEFAULTSTARTSEED=5489;
 /**
  * This value specifies the number of seeds in the queue
  */
-const std::size_t DEFAULTSEEDQUEUESIZE=2000;
+const std::size_t DEFAULTSEEDQUEUESIZE=1000;
 
 /******************************************************************************/
 /**

@@ -123,7 +123,7 @@ public:
 	 * @return The precision of the values returned by GRandomBase::operator()
 	 */
 	static std::size_t precision() {
-		return 	std::numeric_limits<GRandomBase::result_type>::digits;
+		return std::numeric_limits<GRandomBase::result_type>::digits;
 	}
 
 	/***************************************************************************/
@@ -139,7 +139,7 @@ public:
 	fp_type uniform_01(
 			typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 	) {
-		return static_cast<float>(dbl_random01());
+		return static_cast<fp_type>(dbl_random01());
 	}
 
 	/***************************************************************************/
@@ -442,7 +442,7 @@ private:
 };
 
 /******************************************************************************/
-// Specializations of normal_distributions for the available floating point types
+// Specializations of a number of local functions
 
 /** @brief  Produces gaussian-distributed float random numbers with sigma 1 and mean 0 */
 template<> float GRandomBase::normal_distribution<float>();
@@ -450,6 +450,8 @@ template<> float GRandomBase::normal_distribution<float>();
 template<> double GRandomBase::normal_distribution<double>();
 /** @brief Produces gaussian-distributed long double random numbers with sigma 1 and mean 0 */
 template<> long double GRandomBase::normal_distribution<long double>();
+/** @brief Avoid the cast for native double type */
+template <> double GRandomBase::uniform_01<double>(typename boost::enable_if<boost::is_floating_point<double> >::type*);
 
 /******************************************************************************/
 

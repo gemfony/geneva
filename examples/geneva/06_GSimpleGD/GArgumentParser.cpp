@@ -144,7 +144,6 @@ bool parseConfigFile(
 		, boost::uint32_t& maxIterations
 		, long& maxMinutes
 		, boost::uint32_t& reportIteration
-		, std::size_t& arraySize
 		, boost::uint32_t& processingCycles
 		, bool& returnRegardless
 		, boost::uint32_t& nProcessingUnits
@@ -183,8 +182,6 @@ bool parseConfigFile(
 			"The maximum number of minutes the optimization of the population should run")
 			("reportIteration",	po::value<boost::uint32_t>(&reportIteration)->default_value(DEFAULTREPORTITERATION),
 			"The number of iterations after which information should be emitted in the super-population")
-			("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
-			"The size of the buffer with random arrays in the random factory")
 			("verbose", po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 			"Whether additional information should be emitted")
 			("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
@@ -235,7 +232,6 @@ bool parseConfigFile(
 					<< "maxIterations = " << maxIterations << std::endl
 					<< "maxMinutes = " << maxMinutes << std::endl
 					<< "reportIteration = " << reportIteration << std::endl
-					<< "arraySize = " << arraySize << std::endl
 					<< "processingCycles = " << processingCycles << std::endl
 					<< "nProcessingUnits = " << nProcessingUnits << std::endl
 					<< "nStartingPoints = " << nStartingPoints << std::endl

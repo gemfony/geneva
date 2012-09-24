@@ -44,18 +44,15 @@ namespace Geneva {
  * Set a number of parameters of the random number factory
  *
  * @param nProducerThreads The number of threads simultaneously producing random numbers
- * @arraySize The size of individual random number packages
  */
 void setRNFParameters(
 		const boost::uint16_t& nProducerThreads
-		, const std::size_t& arraySize
 ) {
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Set the number of threads. GRANDOMFACTORY is
 	// a singleton that will be initialized by this call.
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
-	GRANDOMFACTORY->setArraySize(arraySize);
 }
 
 /** @brief Regulates access to the call_once facility*/
@@ -80,7 +77,6 @@ Go2::Go2()
 	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
 	, returnRegardless_(GO2_DEF_RETURNREGARDLESS)
 	, nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
-	, arraySize_(GO2_DEF_ARRAYSIZE)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
 	, iterationsConsumed_(0)
@@ -88,7 +84,7 @@ Go2::Go2()
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_, arraySize_));
+	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
 
 	//--------------------------------------------
 	// Store a local clone of this object so we can
@@ -118,7 +114,6 @@ Go2::Go2(int argc, char **argv)
 	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
 	, returnRegardless_(GO2_DEF_RETURNREGARDLESS)
 	, nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
-	, arraySize_(GO2_DEF_ARRAYSIZE)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
 	, iterationsConsumed_(0)
@@ -130,7 +125,7 @@ Go2::Go2(int argc, char **argv)
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_, arraySize_));
+	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
 
 	//--------------------------------------------
 	// Store a local clone of this object so we can
@@ -160,7 +155,6 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
 	, returnRegardless_(GO2_DEF_RETURNREGARDLESS)
 	, nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
-	, arraySize_(GO2_DEF_ARRAYSIZE)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
 	, iterationsConsumed_(0)
@@ -172,7 +166,7 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_, arraySize_));
+	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
 
 	//--------------------------------------------
 	// Store a local clone of this object so we can
@@ -214,7 +208,6 @@ Go2::Go2(
 	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
 	, returnRegardless_(GO2_DEF_RETURNREGARDLESS)
 	, nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
-	, arraySize_(GO2_DEF_ARRAYSIZE)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
 	, iterationsConsumed_(0)
@@ -222,7 +215,7 @@ Go2::Go2(
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_, arraySize_));
+	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
 
 	//--------------------------------------------
 	// Store a local clone of this object so we can
@@ -247,7 +240,6 @@ Go2::Go2(const Go2& cp)
 	, maxConnectionAttempts_(cp.maxConnectionAttempts_)
 	, returnRegardless_(cp.returnRegardless_)
 	, nProducerThreads_(cp.nProducerThreads_)
-	, arraySize_(cp.arraySize_)
 	, offset_(cp.offset_)
 	, sorted_(cp.sorted_)
 	, iterationsConsumed_(0)
@@ -261,7 +253,7 @@ Go2::Go2(const Go2& cp)
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_, arraySize_));
+	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
 
 	//--------------------------------------------
 	// Store a local clone of this object so we can
@@ -286,7 +278,6 @@ Go2::Go2(const Go2& cp, bool noClone)
 	, maxConnectionAttempts_(cp.maxConnectionAttempts_)
 	, returnRegardless_(cp.returnRegardless_)
 	, nProducerThreads_(cp.nProducerThreads_)
-	, arraySize_(cp.arraySize_)
 	, offset_(cp.offset_)
 	, sorted_(cp.sorted_)
 	, iterationsConsumed_(0)
@@ -390,7 +381,6 @@ boost::optional<std::string> Go2::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go2", maxConnectionAttempts_, p_load->maxConnectionAttempts_, "maxConnectionAttempts_", "p_load->maxConnectionAttempts_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", returnRegardless_, p_load->returnRegardless_, "returnRegardless_", "p_load->returnRegardless_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", nProducerThreads_, p_load->nProducerThreads_, "nProducerThreads_", "p_load->nProducerThreads_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", arraySize_, p_load->arraySize_, "arraySize_", "p_load->arraySize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", offset_, p_load->offset_, "offset_", "p_load->offset_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", sorted_, p_load->sorted_, "sorted_", "p_load->sorted_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", iterationsConsumed_, p_load->iterationsConsumed_, "iterationsConsumed_", "p_load->iterationsConsumed_", e , limit));
@@ -425,7 +415,6 @@ void Go2::load_(const GObject *cp) {
 	maxConnectionAttempts_ = p_load->maxConnectionAttempts_;
 	returnRegardless_ = p_load->returnRegardless_;
 	nProducerThreads_ = p_load->nProducerThreads_;
-	arraySize_ = p_load->arraySize_;
 	offset_ = p_load->offset_;
 	sorted_ = p_load->sorted_;
 	iterationsConsumed_ = p_load->iterationsConsumed_;
@@ -1120,26 +1109,6 @@ void Go2::setNProducerThreads(const boost::uint16_t& nProducerThreads) {
  */
 boost::uint16_t Go2::getNProducerThreads() const {
 	return nProducerThreads_;
-}
-
-/******************************************************************************/
-/**
- * Allows to set the size of the array of random numbers transferred to proxies upon request.
- *
- * @param arraySize The size of the array of random numbers transferred to proxies upon request
- */
-void Go2::setArraySize(const std::size_t& arraySize) {
-	arraySize_ = arraySize;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the size of the array of random numbers transferred to proxies upon request.
- *
- * @return The size of the array of random numbers transferred to proxies upon request
- */
-std::size_t Go2::getArraySize() const {
-	return arraySize_;
 }
 
 /******************************************************************************/

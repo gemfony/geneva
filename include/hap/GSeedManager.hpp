@@ -97,11 +97,11 @@ namespace Hap {
 /******************************************************************************/
 /**
  * This class manages a set of seeds, making sure they are handed out in
- * pseudo random order themselves. The need for this class became clear when it
- * turned out that random number sequences with successive seeds can be
- * highly correlated. This can only be amended by handing out seeds randomly
- * themselves. A start seed for the seeding sequence is either taken from a
- * non deterministic generator, or provided by the user.
+ * pseudo random order themselves. The need for this class results from the fact
+ * that random number sequences with successive seeds can be highly correlated.
+ * This can only be amended by handing out seeds in a pseudo random fashion themselves.
+ * A start seed for the seeding sequence is either taken from a non deterministic
+ * generator, or can be provided by the user.
  */
 class GSeedManager:
 	private boost::noncopyable // prevents this class from being copied
@@ -134,20 +134,20 @@ private:
 	/**
 	 * Wrapper function that attempts to create a start seed using different methods
 	 *
+	 * TODO: Add a method that allows to retrieve a good start seed on Windows systems
+	 *
 	 * @return A start seed for the random seed sequence
 	 */
 	static initial_seed_type createStartSeed() {
 		initial_seed_type startSeed = 0;
 
-		if(!(startSeed = GSeedManager::createStartSeedDevURandom())) {
-			std::cerr << "Warning: Using /dev/urandom to retrieve global seed failed." << std::endl
-				      << "Using the current time instead: ";
+		startSeed = GSeedManager::createStartSeedDevURandom();
+		if(0 == startSeed) {
+			std::cerr
+			<< "Warning: Using /dev/urandom to retrieve global seed failed." << std::endl
+			<< "Using the current time instead: ";
 			startSeed = GSeedManager::createStartSeedCurrentTime();
-			std::cerr << startSeed << std::endl;
 	 	}
-		else {
-			std::cout << "Used /dev/urandom to retrieve start seed " << startSeed << std::endl;
-		}
 
 		return startSeed;
 	}
@@ -163,7 +163,7 @@ private:
 	 * @return A random number obtained from /dev/urandom
 	 */
 	static initial_seed_type createStartSeedDevURandom() {
-		// Check if /dev/random exists (this might not be a Linux system after all)
+		// Check if /dev/urandom exists (this might not be a Linux system after all)
 		if(!boost::filesystem::exists("/dev/urandom")) return 0;
 
 		// Open the device
@@ -172,7 +172,7 @@ private:
 
 		// Read in the data
 		initial_seed_type startSeed;
-		devurandom.read(reinterpret_cast<char*>(&startSeed), sizeof(startSeed));
+		devurandom.read(reinterpret_cast<char*>(&startSeed), sizeof(initial_seed_type));
 
 		// Clean up
 		devurandom.close();
@@ -187,8 +187,7 @@ private:
 	 * different entities in short succession. It should be sufficient for a one-time
 	 * retrieval of a seed for the seed random sequence, though. Remote components of
 	 * an application needing unique seeds should retrieve them out of the random
-	 * sequence instead of this function. Note also that results obtained with this
-	 * function might depend on the endianness of your machine (tested on x86_64 only).
+	 * sequence instead of this function.
 	 */
 	static initial_seed_type createStartSeedCurrentTime() {
 		using namespace boost::posix_time;
@@ -200,19 +199,11 @@ private:
 		// Retrieve the time passed since January 1, 1970 in microseconds
 		long currentMS = (microsec_clock::local_time() - ptime(date(1970, Jan, 1))).total_microseconds();
 
-		// Attach the char pointer to where the boost::uint32_t inside of the long would start
+		// Attach the char pointer to the beginning of the long value
 		char *currentMSStart = reinterpret_cast<char*>(&currentMS);
 
-		// Note: whether the above will give you different values upon each invocation
-		// will likely depend on the endianness of your machine. It has been tested on
-		// x86_64 only. You might need to use something along the lines of:
-		// std::size_t nHops = sizeof(long) - sizeof(boost::uint32_t);
-		// currentMSStart+=nHops;
-		// Note: This is totally untested.
-
 		// Attach the seed to this point
-		initial_seed_type *seed_ptr = 0;
-		seed_ptr = reinterpret_cast<initial_seed_type *>(currentMSStart);
+		initial_seed_type *seed_ptr = reinterpret_cast<initial_seed_type *>(currentMSStart);
 
 		// Let the audience know
 		return *seed_ptr;

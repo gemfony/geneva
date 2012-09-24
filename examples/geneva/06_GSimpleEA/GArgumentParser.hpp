@@ -82,7 +82,6 @@ namespace Gem
     const duplicationScheme DEFAULTRSCHEME=VALUEDUPLICATIONSCHEME;
     const bool DEFAULTVERBOSE=true;
     const bool DEFAULTPARALLELIZATIONMODEAP=1;
-    const std::size_t DEFAULTARRAYSIZE=1000;
     const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
     const unsigned short DEFAULTPORT=10000;
     const std::string DEFAULTIP="localhost";
@@ -130,7 +129,6 @@ namespace Gem
     		, boost::uint32_t& reportIteration
     		, duplicationScheme& rScheme
     		, sortingMode& smode
-    		, std::size_t& arraySize
     		, bool& returnRegardless
     		, boost::uint32_t& nProcessingUnits
     		, double& adProb

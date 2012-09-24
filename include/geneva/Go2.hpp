@@ -112,7 +112,6 @@ const boost::uint16_t GO2_DEF_MAXSTALLED=0;
 const boost::uint16_t GO2_DEF_MAXCONNATT=100;
 const bool GO2_DEF_RETURNREGARDLESS=true;
 const boost::uint16_t GO2_DEF_NPRODUCERTHREADS=0;
-const std::size_t GO2_DEF_ARRAYSIZE=1000;
 const boost::uint32_t GO2_DEF_OFFSET=0;
 const std::string GO2_DEF_OPTALGS="";
 
@@ -120,7 +119,7 @@ const bool NOCLONE = true;
 
 /******************************************************************************/
 /** @brief Set a number of parameters of the random number factory */
-void setRNFParameters(const boost::uint16_t&, const std::size_t&);
+void setRNFParameters(const boost::uint16_t&);
 
 /******************************************************************************/
 /**
@@ -153,7 +152,6 @@ class Go2
 	     & BOOST_SERIALIZATION_NVP(maxConnectionAttempts_)
 	     & BOOST_SERIALIZATION_NVP(returnRegardless_)
 	     & BOOST_SERIALIZATION_NVP(nProducerThreads_)
-	     & BOOST_SERIALIZATION_NVP(arraySize_)
 	     & BOOST_SERIALIZATION_NVP(offset_)
 	     & BOOST_SERIALIZATION_NVP(sorted_)
 	     & BOOST_SERIALIZATION_NVP(bestIndividual_);
@@ -266,9 +264,6 @@ public:
 	void setNProducerThreads(const boost::uint16_t&);
 	boost::uint16_t getNProducerThreads() const;
 
-	void setArraySize(const std::size_t&);
-	std::size_t getArraySize() const;
-
 	void setOffset(const boost::uint32_t&);
 	boost::uint32_t getIterationOffset() const;
 
@@ -371,7 +366,6 @@ private:
     //----------------------------------------------------------------------------------------------------------------
     // Parameters for the random number generator
     boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
-    std::size_t arraySize_; ///< The size of the random number packages being transferred to the proxy RNGs
 
     //----------------------------------------------------------------------------------------------------------------
     // Parameters related to automatically added optimization algorithms

@@ -41,13 +41,13 @@ namespace Hap
 
 /******************************************************************************/
 /**
- * Puts a Gem::Hap::gRandomTSpecialization item into a stream
+ * Puts a Gem::Hap::RANDFLAVOURS item into a stream
  *
  * @param o The ostream the item should be added to
  * @param grts the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Hap::gRandomTSpecialization& grts){
+std::ostream& operator<<(std::ostream& o, const Gem::Hap::RANDFLAVOURS& grts){
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(grts);
 	o << tmp;
 	return o;
@@ -55,20 +55,20 @@ std::ostream& operator<<(std::ostream& o, const Gem::Hap::gRandomTSpecialization
 
 /******************************************************************************/
 /**
- * Reads a Gem::Hap::gRandomTSpecialization item from a stream
+ * Reads a Gem::Hap::RANDFLAVOURS item from a stream
  *
  * @param i The stream the item should be read from
  * @param grts The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Hap::gRandomTSpecialization& grts){
+std::istream& operator>>(std::istream& i, Gem::Hap::RANDFLAVOURS& grts){
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	grts = boost::numeric_cast<Gem::Hap::gRandomTSpecialization>(tmp);
+	grts = boost::numeric_cast<Gem::Hap::RANDFLAVOURS>(tmp);
 #else
-	grts = static_cast<Gem::Hap::gRandomTSpecialization>(tmp);
+	grts = static_cast<Gem::Hap::RANDFLAVOURS>(tmp);
 #endif /* DEBUG */
 
 	return i;

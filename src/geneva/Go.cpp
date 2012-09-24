@@ -58,7 +58,6 @@ Go::Go()
 	, maxConnectionAttempts_(GO_DEF_MAXCONNATT)
 	, returnRegardless_(GO_DEF_RETURNREGARDLESS)
 	, nProducerThreads_(GO_DEF_NPRODUCERTHREADS)
-	, arraySize_(GO_DEF_ARRAYSIZE)
 	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
 	, nProcessingUnits_(GO_DEF_NPROCUNITS)
 	, maxIterations_(GO_DEF_MAXITERATIONS)
@@ -90,7 +89,6 @@ Go::Go()
 	// Set the number of threads. GRANDOMFACTORY is
 	// a singleton that will be initialized by this call.
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
-	GRANDOMFACTORY->setArraySize(arraySize_);
 }
 
 
@@ -118,7 +116,6 @@ Go::Go(int argc, char **argv, const std::string& configFilename)
 	, maxConnectionAttempts_(GO_DEF_MAXCONNATT)
 	, returnRegardless_(GO_DEF_RETURNREGARDLESS)
 	, nProducerThreads_(GO_DEF_NPRODUCERTHREADS)
-	, arraySize_(GO_DEF_ARRAYSIZE)
 	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
 	, nProcessingUnits_(GO_DEF_NPROCUNITS)
 	, maxIterations_(GO_DEF_MAXITERATIONS)
@@ -163,7 +160,6 @@ Go::Go(int argc, char **argv, const std::string& configFilename)
 	// Set the number of threads. GRANDOMFACTORY is
 	// a singleton that will be initialized by this call.
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
-	GRANDOMFACTORY->setArraySize(arraySize_);
 }
 
 /******************************************************************************/
@@ -204,7 +200,6 @@ Go::Go(
 	, maxConnectionAttempts_(GO_DEF_MAXCONNATT)
 	, returnRegardless_(GO_DEF_RETURNREGARDLESS)
 	, nProducerThreads_(GO_DEF_NPRODUCERTHREADS)
-	, arraySize_(GO_DEF_ARRAYSIZE)
 	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
 	, nProcessingUnits_(GO_DEF_NPROCUNITS)
 	, maxIterations_(GO_DEF_MAXITERATIONS)
@@ -240,7 +235,6 @@ Go::Go(
 	// Set the number of threads. GRANDOMFACTORY is
 	// a singleton that will be initialized by this call.
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
-	GRANDOMFACTORY->setArraySize(arraySize_);
 }
 
 /******************************************************************************/
@@ -262,7 +256,6 @@ Go::Go(const Go& cp)
 	, maxConnectionAttempts_(cp.maxConnectionAttempts_)
 	, returnRegardless_(cp.returnRegardless_)
 	, nProducerThreads_(cp.nProducerThreads_)
-	, arraySize_(cp.arraySize_)
 	, nEvaluationThreads_(cp.nEvaluationThreads_)
 	, nProcessingUnits_(cp.nProcessingUnits_)
 	, maxIterations_(cp.maxIterations_)
@@ -303,7 +296,6 @@ Go::Go(const Go& cp)
 	// Set the number of threads. GRANDOMFACTORY is
 	// a singleton that will be initialized by this call.
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
-	GRANDOMFACTORY->setArraySize(arraySize_);
 }
 
 /******************************************************************************/
@@ -400,7 +392,6 @@ boost::optional<std::string> Go::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go", maxConnectionAttempts_, p_load->maxConnectionAttempts_, "maxConnectionAttempts_", "p_load->maxConnectionAttempts_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", returnRegardless_, p_load->returnRegardless_, "returnRegardless_", "p_load->returnRegardless_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", nProducerThreads_, p_load->nProducerThreads_, "nProducerThreads_", "p_load->nProducerThreads_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go", arraySize_, p_load->arraySize_, "arraySize_", "p_load->arraySize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", nEvaluationThreads_, p_load->nEvaluationThreads_, "nEvaluationThreads_", "p_load->nEvaluationThreads_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", nProcessingUnits_, p_load->nProcessingUnits_, "nProcessingUnits_", "p_load->nProcessingUnits_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", maxIterations_, p_load->maxIterations_, "maxIterations_", "p_load->maxIterations_", e , limit));
@@ -462,7 +453,6 @@ void Go::load_(const GObject *cp) {
 	maxConnectionAttempts_ = p_load->maxConnectionAttempts_;
 	returnRegardless_ = p_load->returnRegardless_;
 	nProducerThreads_ = p_load->nProducerThreads_;
-	arraySize_ = p_load->arraySize_;
 	nEvaluationThreads_ = p_load->nEvaluationThreads_;
 	nProcessingUnits_ = p_load->nProcessingUnits_;
 	maxIterations_ = p_load->maxIterations_;
@@ -909,26 +899,6 @@ void Go::setNProducerThreads(const boost::uint16_t& nProducerThreads) {
  */
 boost::uint16_t Go::getNProducerThreads() const {
 	return nProducerThreads_;
-}
-
-/******************************************************************************/
-/**
- * Allows to set the size of the array of random numbers transferred to proxies upon request.
- *
- * @param arraySize The size of the array of random numbers transferred to proxies upon request
- */
-void Go::setArraySize(const std::size_t& arraySize) {
-	arraySize_ = arraySize;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the size of the array of random numbers transferred to proxies upon request.
- *
- * @return The size of the array of random numbers transferred to proxies upon request
- */
-std::size_t Go::getArraySize() const {
-	return arraySize_;
 }
 
 /******************************************************************************/
@@ -1525,7 +1495,6 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 		("copyBestOnly", po::value<bool>(&copyBestOnly_)->default_value(GO_DEF_COPYBESTONLY))
 		("returnRegardless", po::value<bool>(&returnRegardless_)->default_value(GO_DEF_RETURNREGARDLESS))
 		("nProducerThreads", po::value<boost::uint16_t>(&nProducerThreads_)->default_value(GO_DEF_NPRODUCERTHREADS))
-		("arraySize", po::value<std::size_t>(&arraySize_)->default_value(GO_DEF_ARRAYSIZE))
 		("nEvaluationThreads", po::value<boost::uint16_t>(&nEvaluationThreads_)->default_value(GO_DEF_NEVALUATIONTHREADS))
 		("serializationMode", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO_DEF_SERIALIZATIONMODE))
 		("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits_)->default_value(GO_DEF_NPROCUNITS))
@@ -1572,7 +1541,6 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 					  << "copyBestOnly = " << copyBestOnly_ << std::endl
 					  << "returnRegardless = " << returnRegardless_ << std::endl
 					  << "nProducerThreads = " << nProducerThreads_ << std::endl
-					  << "arraySize = " << arraySize_ << std::endl
 					  << "nEvaluationThreads = " << nEvaluationThreads_ << std::endl
 					  << "serializationMode = " << serializationMode_ << std::endl
 					  << "nProcessingUnits = " << nProcessingUnits_ << std::endl

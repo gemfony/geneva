@@ -121,7 +121,6 @@ namespace Gem
 		  , boost::uint32_t& reportIteration
 		  , duplicationScheme& rScheme
 		  , sortingMode& smode
-		  , std::size_t& arraySize
 		  , boost::uint32_t& nProcessingUnits
 		  , double& adProb
 		  , boost::uint32_t& adaptionThreshold
@@ -166,8 +165,6 @@ namespace Gem
 	   "The recombination scheme for the super-population")
 	  ("sortingScheme,o", po::value<sortingMode>(&smode)->default_value(DEFAULTSORTINGSCHEME),
 	   "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode")
-	  ("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
-	   "The size of the buffer with random arrays in the random factory")
 	  ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 	   "Whether additional information should be emitted")
 	  ("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
@@ -250,10 +247,9 @@ namespace Gem
 		    << "reportIteration = " << reportIteration << std::endl
 		    << "rScheme = " << (boost::uint16_t)rScheme << std::endl
 		    << "sortingScheme = " << smode << std::endl
-		    << "arraySize = " << arraySize << std::endl
-	        << "nProcessingUnits = " << nProcessingUnits << std::endl
+	       << "nProcessingUnits = " << nProcessingUnits << std::endl
  		    << "adProb = " << adProb << std::endl
-			<< "adaptionThreshold = " << adaptionThreshold << std::endl
+			 << "adaptionThreshold = " << adaptionThreshold << std::endl
 		    << "sigma = " << sigma << std::endl
 		    << "sigmaSigma " << sigmaSigma << std::endl
 		    << "minSigma " << minSigma << std::endl

@@ -141,7 +141,6 @@ namespace Gem
 		  , boost::uint32_t& reportIterationSub
 		  , duplicationScheme& rSchemeSub
 		  , sortingMode& smodeSub
-		  , std::size_t& arraySize
 		  , bool& returnRegardless
 		  , boost::uint32_t& nProcessingUnits
 		  , double& adProb
@@ -202,8 +201,6 @@ namespace Gem
 	   "The recombination scheme for the sub-population")
 	  ("sortingSchemeSub", po::value<sortingMode>(&smodeSub)->default_value(DEFAULTSORTINGSCHEMESUB),
 	   "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode in the sub-population")
-	  ("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
-	   "The size of the buffer with random arrays in the random factory")
 	  ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 	   "Whether additional information should be emitted")
       ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
@@ -309,18 +306,17 @@ namespace Gem
 		    << "reportIterationSuper = " << reportIterationSuper << std::endl
 		    << "rSchemeSuper = " << (boost::uint16_t)rSchemeSuper << std::endl
 		    << "sortingSchemeSuper = " << smodeSuper << std::endl
-			<< "populationSizeSub = " << populationSizeSub << std::endl
-			<< "nParentsSub = " << nParentsSub << std::endl
-			<< "maxIterationsSub = " << maxIterationsSub << std::endl
-			<< "maxMinutesSub = " << maxMinutesSub << std::endl
-			<< "reportIterationSub = " << reportIterationSub << std::endl
-			<< "rSchemeSub = " << (boost::uint16_t)rSchemeSub << std::endl
-			<< "sortingSchemeSub = " << smodeSub << std::endl
-		    << "arraySize = " << arraySize << std::endl
-			<< "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
-	        << "nProcessingUnits = " << nProcessingUnits << std::endl
+			 << "populationSizeSub = " << populationSizeSub << std::endl
+			 << "nParentsSub = " << nParentsSub << std::endl
+			 << "maxIterationsSub = " << maxIterationsSub << std::endl
+			 << "maxMinutesSub = " << maxMinutesSub << std::endl
+			 << "reportIterationSub = " << reportIterationSub << std::endl
+			 << "rSchemeSub = " << (boost::uint16_t)rSchemeSub << std::endl
+			 << "sortingSchemeSub = " << smodeSub << std::endl
+			 << "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
+	       << "nProcessingUnits = " << nProcessingUnits << std::endl
  		    << "adProb = " << adProb << std::endl
-			<< "adaptionThreshold = " << adaptionThreshold << std::endl
+			 << "adaptionThreshold = " << adaptionThreshold << std::endl
 		    << "sigma = " << sigma << std::endl
 		    << "sigmaSigma " << sigmaSigma << std::endl
 		    << "minSigma " << minSigma << std::endl

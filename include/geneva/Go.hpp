@@ -85,7 +85,6 @@ const boost::uint16_t GO_DEF_MAXSTALLED=0;
 const boost::uint16_t GO_DEF_MAXCONNATT=100;
 const bool GO_DEF_RETURNREGARDLESS=true;
 const boost::uint16_t GO_DEF_NPRODUCERTHREADS=0;
-const std::size_t GO_DEF_ARRAYSIZE=1000;
 const boost::uint16_t GO_DEF_NEVALUATIONTHREADS=0;
 const boost::uint32_t GO_DEF_NPROCUNITS=0;
 const boost::uint32_t GO_DEF_MAXITERATIONS=1000;
@@ -149,7 +148,6 @@ class Go
 	     & BOOST_SERIALIZATION_NVP(maxConnectionAttempts_)
 	     & BOOST_SERIALIZATION_NVP(returnRegardless_)
 	     & BOOST_SERIALIZATION_NVP(nProducerThreads_)
-	     & BOOST_SERIALIZATION_NVP(arraySize_)
 	     & BOOST_SERIALIZATION_NVP(nEvaluationThreads_)
 	     & BOOST_SERIALIZATION_NVP(nProcessingUnits_)
 	     & BOOST_SERIALIZATION_NVP(maxIterations_)
@@ -283,9 +281,6 @@ public:
 
 	void setNProducerThreads(const boost::uint16_t&);
 	boost::uint16_t getNProducerThreads() const;
-
-	void setArraySize(const std::size_t&);
-	std::size_t getArraySize() const;
 
 	void setNEvaluationThreads(const boost::uint16_t&);
 	boost::uint16_t getNEvaluationThreads() const;
@@ -485,10 +480,6 @@ public:
 	       << "# Determines the number of threads simultaneously producing" << std::endl
 	       << "# random numbers. 0 means \"automatic\"" << std::endl
 	       << "nProducerThreads = " << GO_DEF_NPRODUCERTHREADS << std::endl
-	       << std::endl
-	       << "# Specifies the number of entries in random number packages" << std::endl
-	       << "# coming from the factory" << std::endl
-	       << "arraySize = " << GO_DEF_ARRAYSIZE << std::endl
 	       << std::endl
 	       << "# Determines the number of threads simultaneously performing" << std::endl
 	       << "# evaluations in multi-threaded mode. 0 means \"automatic\"" << std::endl
@@ -1012,7 +1003,6 @@ private:
     boost::uint32_t maxConnectionAttempts_; ///< Specifies how often a client may try to connect unsuccessfully to the server (0 means endless)
     bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
     boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
-    std::size_t arraySize_; ///< The size of the random number packages being transferred to the proxy RNGs
     boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
     boost::uint32_t nProcessingUnits_; ///< Influences the timeout in each iteration on the server side in networked execution
     boost::uint32_t maxIterations_; ///< The maximum number of iterations of the optimization algorithms

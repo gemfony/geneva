@@ -151,7 +151,6 @@ bool parseConfigFile(
 		, boost::uint32_t& reportIteration
 		, duplicationScheme& rScheme
 		, sortingMode& smode
-		, std::size_t& arraySize
 		, bool& returnRegardless
 		, boost::uint32_t& nProcessingUnits
 		, double& adProb
@@ -204,8 +203,6 @@ bool parseConfigFile(
 			"The recombination scheme for the super-population")
 			("sortingScheme,o",	po::value<boost::uint16_t>(&sortingScheme)->default_value(DEFAULTSORTINGSCHEME),
 			"Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode")
-			("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
-			"The size of the buffer with random arrays in the random factory")
 			("verbose", po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 			"Whether additional information should be emitted")
 			("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
@@ -311,7 +308,6 @@ bool parseConfigFile(
 					<< "reportIteration = " << reportIteration << std::endl
 					<< "rScheme = " << (boost::uint16_t) rScheme << std::endl
 					<< "sortingScheme = " << smode << std::endl
-					<< "arraySize = " << arraySize << std::endl
 					<< "nProcessingUnits = " << nProcessingUnits << std::endl
 					<< "adProb = " << adProb << std::endl
 					<< "adaptionThreshold = " << adaptionThreshold << std::endl

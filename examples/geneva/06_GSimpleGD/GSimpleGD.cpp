@@ -76,7 +76,6 @@ int main(int argc, char **argv){
   long maxMinutes;
   boost::uint32_t reportIteration;
   duplicationScheme rScheme;
-  std::size_t arraySize;
   std::size_t parDim;
   double minVar;
   double maxVar;
@@ -123,7 +122,6 @@ int main(int argc, char **argv){
    		, maxIterations
    		, maxMinutes
    		, reportIteration
-   		, arraySize
    		, processingCycles
    		, returnRegardless
    		, nProcessingUnits
@@ -141,7 +139,6 @@ int main(int argc, char **argv){
 
   // Random numbers are our most valuable good. Set the number of threads
   GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
-  GRANDOMFACTORY->setArraySize(arraySize);
 
   //***************************************************************************
   // If this is a client in networked mode, we can just start the listener and

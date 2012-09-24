@@ -64,7 +64,7 @@ GSeedManager::GSeedManager()
  */
 GSeedManager::GSeedManager(const initial_seed_type& startSeed, const std::size_t& seedQueueSize)
 	: seedQueue_(seedQueueSize)
-	, startSeed_(startSeed>0?startSeed:GSeedManager::createStartSeed()) // Enforce a start seed != 0
+	, startSeed_(startSeed>0?startSeed:GSeedManager::createStartSeed())
 {
 	// Cross-check the provided size of the seed queue
 	if(seedQueueSize == 0) {
@@ -166,7 +166,9 @@ void GSeedManager::seedProducer() {
 			try {
 				seedQueue_.push_front(mt(), boost::posix_time::milliseconds(DEFAULTSEEDQUEUEPUTWAIT));
 			}
-			catch(Gem::Common::condition_time_out&){ continue; } // queue is full. Just continue ...
+			catch(Gem::Common::condition_time_out&){
+			   continue;
+			} // queue is full: just try again. This will not keep the machine busy, as we use a time-out
 		}
 	}
 	catch (boost::thread_interrupted&) { // Not an error

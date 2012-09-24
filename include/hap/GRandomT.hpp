@@ -72,7 +72,7 @@ namespace Hap {
  * produced in different ways. We only define the interface here. The actual
  * implementation can be found in the (partial) specializations of this class.
  */
-template <Gem::Hap::gRandomTSpecialization s = Gem::Hap::RANDOMPROXY>
+template <Gem::Hap::RANDFLAVOURS s = Gem::Hap::RANDOMPROXY>
 class GRandomT
 	: public Gem::Hap::GRandomBase
 {
@@ -108,7 +108,6 @@ public:
 	 */
 	GRandomT()
 		: Gem::Hap::GRandomBase()
-		, currentPackageSize_(DEFAULTARRAYSIZE)
 		, current01_(1) // position 0 holds the array size
 		, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 	{
@@ -137,7 +136,9 @@ protected:
 	 * assumes that a valid container is already available.
 	 */
 	virtual double dbl_random01() {
-		if (current01_ > currentPackageSize_) getNewP01();
+		if (current01_ >= DEFAULTARRAYSIZE) {
+		   getNewP01();
+		}
 		return p_raw_[current01_++];
 	}
 
@@ -151,38 +152,36 @@ private:
 		// Make sure we get rid of the old container
 		p01_.reset();
 
-		if(grf_) {
 #ifdef DEBUG
-			boost::uint32_t nRetries = 0;
-#endif /* DEBUG */
-
-			// Try until a valid container has been received
-			while (!(p01_ = grf_->new01Container())) {
-#ifdef DEBUG
-				nRetries++;
-#endif /* DEBUG */
-			}
-
-#ifdef DEBUG
-			if(nRetries) {
-				std::cout << "Info: Had to try " << nRetries+1 << " times to retrieve a valid random number container." << std::endl;
-			}
-#endif /* DEBUG */
-
-			current01_ = 1; // Position 0 is the array size
+		if(!grf_) {
+         raiseException(
+               "In GRandomT<RANDOMPROXY>::getNewP01(): Error!" << std::endl
+               << "No connection to GRandomFactory object."
+         );
 		}
-		else {
-			raiseException(
-					"In GRandomT<RANDOMPROXY>::getNewP01(): Error!" << std::endl
-					<< "No connection to GRandomFactory object."
-			);
+#endif /* DEBUG */
+
+#ifdef DEBUG
+		boost::uint32_t nRetries = 0;
+#endif /* DEBUG */
+
+		// Try until a valid container has been received
+		while (!(p01_ = grf_->new01Container())) {
+#ifdef DEBUG
+		   nRetries++;
+#endif /* DEBUG */
 		}
+
+#ifdef DEBUG
+		if(nRetries>0) {
+		   std::cout << "Info: Had to try " << nRetries << " times to retrieve a valid random number container." << std::endl;
+		}
+#endif /* DEBUG */
+
+		current01_ = 0; // Position 0 is the array size
 
 		// We should now have a valid p01_ in any case
 		p_raw_ = p01_.get();
-
-		// Extract the array size for later use
-		currentPackageSize_ = static_cast<std::size_t>(p_raw_[0]);
 	}
 
 
@@ -191,8 +190,6 @@ private:
 	boost::shared_array<double> p01_;
 	/** @brief A pointer to the content of p01_ for faster access.  Size is 8 byte on a 64 bit system */
 	double *p_raw_;
-	/** @brief The package size, as obtained from the factory.  Size is 8 byte on a 64 bit system */
-	std::size_t currentPackageSize_;
 	/** @brief The current position in p01_.  Size is 8 byte on a 64 bit system */
 	std::size_t current01_;
 

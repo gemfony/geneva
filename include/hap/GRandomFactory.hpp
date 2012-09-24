@@ -135,9 +135,7 @@ public:
 	/** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
 	boost::shared_array<double> new01Container();
 
-	/** @brief Allows to set the size of random number arrays */
-	void setArraySize(const std::size_t&);
-	/** @brief Allows to retrieve the current value of the arraySize_ variable */
+	/** @brief Allows to retrieve the size of the array */
 	std::size_t getCurrentArraySize() const;
 
 	/** @brief Allows to retrieve the size of the buffer */
@@ -168,13 +166,12 @@ private:
 	void producer01(boost::uint32_t seed);
 
 	bool finalized_;
-	std::size_t arraySize_;
 	bool threadsHaveBeenStarted_;
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 
 	/** @brief A bounded buffer holding the [0,1[ random number packages */
-	boost::shared_ptr<Gem::Common::GBoundedBufferT<boost::shared_array<double> > > g01_; // Note: Absolutely needs to be defined after the thread group !!!
+	Gem::Common::GBoundedBufferT<boost::shared_array<double> > g01_; // Note: Absolutely needs to be defined after the thread group !!!
 
 	static boost::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
@@ -198,4 +195,3 @@ private:
 
 
 #endif /* GRANDOMFACTORY_HPP_ */
-

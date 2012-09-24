@@ -199,7 +199,6 @@ namespace Gem
 			, boost::uint32_t& reportIteration
 			, duplicationScheme& rScheme
 			, sortingMode& smode
-			, std::size_t& arraySize
 			, bool& returnRegardless
 			, boost::uint32_t& nProcessingUnits
 			, transferFunction& tF
@@ -243,8 +242,6 @@ namespace Gem
 	   "The recombination scheme for the super-population")
 	  ("sortingScheme,o", po::value<sortingMode>(&smode)->default_value(DEFAULTSORTINGSCHEME),
 	   "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode")
-	  ("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
-	   "The size of the buffer with random arrays in the random factory")
 	  ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
 	   "Specifies whether results should be returned even if they are not better than before")
 	  ("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
@@ -317,7 +314,6 @@ namespace Gem
 		    << "reportIteration = " << reportIteration << std::endl
 		    << "rScheme = " << (boost::uint16_t)rScheme << std::endl
 		    << "sortingScheme = " << smode << std::endl
-		    << "arraySize = " << arraySize << std::endl
 		    << "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
 		    << "nProcessingUnits = " << nProcessingUnits << std::endl
 		    << "transferFunction = " << tF << std::endl

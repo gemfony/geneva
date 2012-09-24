@@ -51,18 +51,17 @@ boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
  */
 GRandomFactory::GRandomFactory()
 	: finalized_(false)
-	, arraySize_(DEFAULTARRAYSIZE)
 	, threadsHaveBeenStarted_(false)
 	, n01Threads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
-	, g01_ (boost::shared_ptr<Gem::Common::GBoundedBufferT<boost::shared_array<double> > >(new Gem::Common::GBoundedBufferT<boost::shared_array<double> > (DEFAULTFACTORYBUFFERSIZE)))
+	, g01_ (DEFAULTFACTORYBUFFERSIZE)
 {
 	boost::mutex::scoped_lock lk(factory_creation_mutex_);
 	if(multiple_call_trap_ > 0) {
-		raiseException(
-				"Error in GRandomFactory::GRandomFactory():" << std::endl
-				<< "Class has been instantiated before." << std::endl
-				<< "and may be instantiated only once"
-		);
+	   std::cerr
+	   << "Error in GRandomFactory::GRandomFactory():" << std::endl
+	   << "Class has been instantiated before." << std::endl
+	   << "and may be instantiated only once" << std::endl;
+	   std::terminate();
 	}
 	else {
 		multiple_call_trap_++;
@@ -105,49 +104,18 @@ void GRandomFactory::finalize() {
 
 /******************************************************************************/
 /**
- * Allows to globally set the size of random number arrays. Note that this function
- * will throw if  an array size of 0 was requested. Calling this function from
- * multipe threads is not recommended, as the new array size will have
- * no effects on the existing items in the buffer, and so changing the array
- * size from different locations will lead to confusion.
- *
- * @param arraySize The desired size of the array
- */
-void GRandomFactory::setArraySize(const std::size_t& arraySize) {
-	if(arraySize == 0) {
-		raiseException(
-				"In GRandomFactory::setArraySize(): Error" << std::endl
-				<< "Requested array size is 0: " << arraySize
-		);
-	}
-
-	{ // explicit scope
-		boost::unique_lock<boost::shared_mutex> lock(arraySizeMutex_);
-		arraySize_ = arraySize;
-	} // mutex gets destroyed here
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the current value of the arraySize_ variable. Note that
- * its value may change after retrieval.
+ * Allows to retrieve the size of random number arrays
  *
  * @return The current value of the arraySize_ variable
  */
 std::size_t GRandomFactory::getCurrentArraySize() const {
-	std::size_t result;
-
-	{ // explicit scope
-		boost::shared_lock<boost::shared_mutex> lock(arraySizeMutex_);
-		result = arraySize_;
-	} // mutex gets destroyed here
-
-	return result;
+   return DEFAULTARRAYSIZE;
 }
 
 /******************************************************************************/
 /**
- * Retrieves the size of the random buffer
+ * Retrieves the size of the random buffer, i.e. the array holding the random
+ * number packages.
  *
  * @return The size of the random buffer
  */
@@ -310,9 +278,8 @@ boost::shared_array<double> GRandomFactory::new01Container() {
 	}
 
 	boost::shared_array<double> result; // empty
-
 	try {
-		g01_->pop_back(result, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
+		g01_.pop_back(result, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
 	} catch (Gem::Common::condition_time_out&) {
 		// nothing - our way of signaling a time out
 		// is to return an empty boost::shared_ptr
@@ -339,35 +306,26 @@ void GRandomFactory::startProducerThreads()  {
  * The production of [0,1[ random numbers takes place here. As this function
  * is called in a thread, it may not throw under any circumstance. Exceptions
  * could otherwise go unnoticed. Hence this function has a possibly confusing
- * setup. The current value of the arraySize_ variable is stored in the random
- * number array, so it is possible to change the size later.
+ * setup.
  *
- * @param seed The seed for our local random number generator
+ * @param seed A seed for our local random number generator
  */
 void GRandomFactory::producer01(boost::uint32_t seed)  {
-	std::size_t localArraySize;
-
 	try {
 		lagged_fibonacci lf(seed);
 
 		while (true) {
-			if(boost::this_thread::interruption_requested()) break;
-
-			{
-				// Retrieve the current array size.
-				boost::shared_lock<boost::shared_mutex> lock(arraySizeMutex_);
-				localArraySize = arraySize_;
+			if(boost::this_thread::interruption_requested()) {
+			   break;
 			}
 
-			// we want to store both the array size and the random numbers
-			boost::shared_array<double> p(new double[localArraySize + 1]);
+			// Will hold the newly created random numbers
+			boost::shared_array<double> p(new double[DEFAULTARRAYSIZE]);
 
 			// Faster access during the fill procedure - uses the "raw" pointer.
 			// Note that we own the only instance of this pointer at this point
 			double *p_raw = p.get();
-			p_raw[0] = static_cast<double>(localArraySize);
-
-			for (std::size_t i = 1; i <= arraySize_; i++)
+			for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
 			{
 #ifdef DEBUG
 				double value = lf();
@@ -378,9 +336,11 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 #endif /* DEBUG */
 			}
 
-			// Get a local copy of g01_, so its object does not get deleted involuntarily  when the singleton exits.
-			boost::shared_ptr<Gem::Common::GBoundedBufferT<boost::shared_array<double> > > g01_cp = g01_;
-			if(g01_cp) g01_cp->push_front(p);
+		   try {
+	         g01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+		   } catch (Gem::Common::condition_time_out&) {
+		      continue; // Try again, if we didn't succeed
+		   }
 		}
 	} catch (boost::thread_interrupted&) { // Not an error
 		return; // We're done
