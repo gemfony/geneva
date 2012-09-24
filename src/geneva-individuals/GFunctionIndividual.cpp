@@ -41,7 +41,7 @@ namespace Gem
 namespace Geneva
 {
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::solverFunction item into a stream
  *
@@ -55,7 +55,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::solverFunction& ur)
 	return o;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::solverFunction item from a stream
  *
@@ -76,7 +76,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::solverFunction& ur) {
 	return i;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::parameterType item into a stream
  *
@@ -90,7 +90,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::parameterType& ur) 
 	return o;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::parameterType item from a stream
  *
@@ -111,7 +111,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::parameterType& ur) {
 	return i;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::initMode item into a stream
  *
@@ -125,7 +125,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::initMode& ur) {
 	return o;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::initMode item from a stream
  *
@@ -146,7 +146,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::initMode& ur) {
 	return i;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -154,7 +154,7 @@ GFunctionIndividual::GFunctionIndividual()
 	: demoFunction_(PARABOLA)
 { /* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with the desired demo function
  *
@@ -164,7 +164,7 @@ GFunctionIndividual::GFunctionIndividual(const solverFunction& dF)
 	: demoFunction_(dF)
 { /* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor
  *
@@ -175,14 +175,14 @@ GFunctionIndividual::GFunctionIndividual(const GFunctionIndividual& cp)
 	, demoFunction_(cp.demoFunction_)
 { /* nothing */	}
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor
  */
 GFunctionIndividual::~GFunctionIndividual()
 { /* nothing */	}
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator
  *
@@ -193,7 +193,7 @@ const GFunctionIndividual& GFunctionIndividual::operator=(const GFunctionIndivid
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GFunctionIndividual object
  *
@@ -206,7 +206,7 @@ bool GFunctionIndividual::operator==(const GFunctionIndividual& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GFunctionIndividual::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GFunctionIndividual object
  *
@@ -219,7 +219,7 @@ bool GFunctionIndividual::operator!=(const GFunctionIndividual& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GFunctionIndividual::operator!=","cp", CE_SILENT);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -257,7 +257,7 @@ boost::optional<std::string> GFunctionIndividual::checkRelationshipWith(const GO
 	return evaluateDiscrepancies("GFunctionIndividual", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -297,7 +297,7 @@ void GFunctionIndividual::addConfigurationOptions (
 	);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the demo function
  *
@@ -307,7 +307,7 @@ void GFunctionIndividual::setDemoFunction(solverFunction dF) {
 	demoFunction_ = dF;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the demo function
  *
@@ -317,7 +317,7 @@ solverFunction GFunctionIndividual::getDemoFunction() const {
 	return demoFunction_;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to cross check the parameter size
  *
@@ -330,7 +330,7 @@ std::size_t GFunctionIndividual::getParameterSize() const {
 	return parVec.size();
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GFunctionIndividual, camouflaged as a GObject
  *
@@ -348,7 +348,7 @@ void GFunctionIndividual::load_(const GObject* cp){
 	demoFunction_ = p_load->demoFunction_;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -358,7 +358,7 @@ GObject* GFunctionIndividual::clone_() const {
 	return new GFunctionIndividual(*this);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The actual value calculation takes place here
  *
@@ -483,9 +483,9 @@ double GFunctionIndividual::fitnessCalculation(){
 	return result;
 }
 
-/********************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////
-/********************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * A constructor with the ability to switch the parallelization mode. It initializes a
  * target item as needed.
@@ -517,14 +517,14 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& config
 	, iM_(GFI_DEF_INITMODE)
 { /* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GFunctionIndividualFactory::~GFunctionIndividualFactory()
 { /* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * (Re-)Set the dimension of the function
  */
@@ -539,7 +539,7 @@ void GFunctionIndividualFactory::setParDim(std::size_t parDim) {
 	parDimLocal_ = parDim;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Extract the minimum and maximum boundaries of the variables
  */
@@ -547,7 +547,7 @@ boost::tuple<double,double> GFunctionIndividualFactory::getVarBoundaries() const
 	return boost::tuple<double,double>(minVar_, maxVar_);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Creates items of this type
  *
@@ -566,7 +566,7 @@ boost::shared_ptr<GFunctionIndividual> GFunctionIndividualFactory::getObject_(
 	return target;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to describe local configuration options for gradient descents
  */
@@ -781,7 +781,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	Gem::Common::GFactoryT<GFunctionIndividual>::describeLocalOptions_(gpb);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to act on the configuration options received from the configuration file. Here
  * we can add the options described in describeLocalOptions to the object. In practice,
@@ -917,7 +917,7 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GFunctionIndivid
 	}
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

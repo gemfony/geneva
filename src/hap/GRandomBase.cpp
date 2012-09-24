@@ -39,7 +39,7 @@ namespace Gem
 namespace Hap
 {
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * The standard constructor
  */
@@ -54,14 +54,14 @@ GRandomBase::GRandomBase()
 	, ldblGaussCacheAvailable_(false)
 { /* nothing */ }
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GRandomBase::~GRandomBase()
 { /* nothing */ }
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves an uniform_01 item. Thus function, together with the min() and
  * max() functions make it possible to use GRandomBase as a generator for
@@ -73,7 +73,7 @@ GRandomBase::result_type GRandomBase::operator()() {
 	return this->uniform_01<GRandomBase::result_type>();
 }
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * Returns the minimum value returned by evenRandom(). This
  * makes it possible to use GRandomBase as a generator for Boost's random
@@ -85,7 +85,7 @@ GRandomBase::result_type GRandomBase::min() const {
 	return min_value;
 }
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * Returns the maximum value returned by evenRandom(). This
  * makes it possible to use GRandomBase as a generator for Boost's random
@@ -97,7 +97,7 @@ GRandomBase::result_type GRandomBase::max() const {
 	return max_value;
 }
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * This function returns true with a probability "probability", otherwise false.
  *
@@ -111,7 +111,7 @@ bool GRandomBase::weighted_bool(const double& probability) {
 	return ((uniform_01<double>()<probability)?true:false);
 }
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * This function produces boolean values with a 50% likelihood each for
  * true and false.
@@ -122,7 +122,7 @@ bool GRandomBase::uniform_bool() {
 	return this->weighted_bool(0.5);
 }
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * Produces gaussian-distributed float random numbers with sigma 1 and mean 0
  *
@@ -158,7 +158,7 @@ float GRandomBase::normal_distribution<float>() {
 	}
 }
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * Produces gaussian-distributed double random numbers with sigma 1 and mean 0
  *
@@ -194,7 +194,7 @@ double GRandomBase::normal_distribution<double>() {
 	}
 }
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * Produces gaussian-distributed long double random numbers with sigma 1 and mean 0
  *
@@ -233,7 +233,7 @@ long double GRandomBase::normal_distribution<long double>() {
 #endif /* _GLIBCXX_HAVE_LOGL */
 
 
-/****************************************************************************/
+/******************************************************************************/
 
 } /* Hap */
 } /* Gem */

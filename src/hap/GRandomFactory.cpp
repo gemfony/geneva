@@ -37,14 +37,14 @@
 namespace Gem {
 namespace Hap {
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * Initialization of static data members
  */
 boost::uint16_t Gem::Hap::GRandomFactory::multiple_call_trap_ = 0;
 boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * The standard constructor, which seeds the random number generator and
  * creates a predefined number of threads.
@@ -69,7 +69,7 @@ GRandomFactory::GRandomFactory()
 	}
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * The destructor. All work is done in the finalize() function.
  */
@@ -80,14 +80,14 @@ GRandomFactory::~GRandomFactory() {
 	finalize();
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * Initializes the factory. This function does nothing at this time. Its
  * only purpose is to control initialization of the factory in the singleton.
  */
 void GRandomFactory::init() { /* nothing */ }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * Finalization code for the GRandomFactory. All threads are given the
  * interrupt signal. Then we wait for them to join us. This function will
@@ -103,7 +103,7 @@ void GRandomFactory::finalize() {
 	finalized_ = true; // Let the audience know
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * Allows to globally set the size of random number arrays. Note that this function
  * will throw if  an array size of 0 was requested. Calling this function from
@@ -127,7 +127,7 @@ void GRandomFactory::setArraySize(const std::size_t& arraySize) {
 	} // mutex gets destroyed here
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the current value of the arraySize_ variable. Note that
  * its value may change after retrieval.
@@ -145,7 +145,7 @@ std::size_t GRandomFactory::getCurrentArraySize() const {
 	return result;
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the size of the random buffer
  *
@@ -155,7 +155,7 @@ std::size_t GRandomFactory::getBufferSize() const {
 	return DEFAULTFACTORYBUFFERSIZE;
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * Provides users with an interface to set the initial seed for the global seed
  * generator. Note that this function will have no effect once seeding has started.
@@ -182,7 +182,7 @@ bool GRandomFactory::setStartSeed(const initial_seed_type& initial_seed) {
 	return false;
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * Retrieval of the value of the global startSeed_ variable
  *
@@ -200,7 +200,7 @@ boost::uint32_t GRandomFactory::getStartSeed() const {
 	return seedManager_ptr_->getStartSeed();
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether the seeding process has already started
  *
@@ -218,7 +218,7 @@ bool GRandomFactory::checkSeedingIsInitialized() const {
 	return seedManager_ptr_->checkSeedingIsInitialized();
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * This function returns a random number from a pseudo random number generator
  * that has been seeded from a non-deterministic source (using the facilities
@@ -245,7 +245,7 @@ boost::uint32_t GRandomFactory::getSeed(){
 	return seedManager_ptr_->getSeed();
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the size of the seeding queue
  *
@@ -255,7 +255,7 @@ std::size_t GRandomFactory::getSeedingQueueSize() const {
 	return seedManager_ptr_->getQueueSize();
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * Sets the number of producer threads for this factory.
  *
@@ -291,7 +291,7 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 	}
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * When objects need a new container [0,1[ of random numbers with the current
  * default size, they call this function. Note that calling threads are responsible
@@ -321,7 +321,7 @@ boost::shared_array<double> GRandomFactory::new01Container() {
 	return result;
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * This function starts the threads needed for the production of random numbers
  */
@@ -334,7 +334,7 @@ void GRandomFactory::startProducerThreads()  {
 	}
 }
 
-/*************************************************************************/
+/******************************************************************************/
 /**
  * The production of [0,1[ random numbers takes place here. As this function
  * is called in a thread, it may not throw under any circumstance. Exceptions
@@ -412,7 +412,7 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 	}
 }
 
-/*************************************************************************/
+/******************************************************************************/
 
 } /* namespace Hap */
 } /* namespace Gem */

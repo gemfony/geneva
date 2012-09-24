@@ -43,9 +43,9 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * The destructor -- empty, as there is no local, dynamically
  * allocated data. A virtual destructor is needed due to a
@@ -54,7 +54,7 @@ namespace Geneva {
 trainingSet::~trainingSet()
 { /* nothing */ }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Assigns another trainingSet's data to this object
  *
@@ -68,7 +68,7 @@ const trainingSet& trainingSet::operator=(const trainingSet& cp) {
 	return *this;
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another trainingSet object
  *
@@ -81,7 +81,7 @@ bool trainingSet::operator==(const trainingSet& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"trainingSet::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another trainingSet object
  *
@@ -93,7 +93,7 @@ bool trainingSet::operator!=(const trainingSet& cp) const {
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"trainingSet::operator!=","cp", CE_SILENT);
 }
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -125,16 +125,17 @@ boost::optional<std::string> trainingSet::checkRelationshipWith(const trainingSe
 	return evaluateDiscrepancies("trainingSet", caller, deviations, e);
 }
 
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * The default constructor
  */
 networkData::networkData()
 { /* nothing */ }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Initializes the object with data from a file
  *
@@ -144,7 +145,7 @@ networkData::networkData(const std::string& networkDataFile) {
 	this->loadFromDisk(networkDataFile);
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Initializes with data from another networkData object
  *
@@ -157,7 +158,7 @@ networkData::networkData(const networkData& cp)
 	Gem::Common::copySmartPointerVector(cp.data_, data_);
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard destructor. Declared virtual in the header
  * due to a serialization problem in Boost 1.41.
@@ -165,7 +166,7 @@ networkData::networkData(const networkData& cp)
 networkData::~networkData()
 { /* nothing */ }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Copies the data of another networkData object into this object, using one of Gemfony's
  * utility functions.
@@ -180,7 +181,7 @@ const networkData& networkData::operator=(const networkData& cp) {
 	return *this;
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another networkData object
  *
@@ -193,7 +194,7 @@ bool networkData::operator==(const networkData& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"networkData::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another networkData object
  *
@@ -205,7 +206,7 @@ bool networkData::operator!=(const networkData& cp) const {
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"networkData::operator!=","cp", CE_SILENT);
 }
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -251,7 +252,7 @@ boost::optional<std::string> networkData::checkRelationshipWith(const networkDat
 	return evaluateDiscrepancies("networkData", caller, deviations, e);
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Saves the data of this struct to disc
  *
@@ -277,7 +278,7 @@ void networkData::saveToDisk(const std::string& networkDataFile) const {
 	trDat.close();
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads training data from the disc
  *
@@ -315,7 +316,7 @@ void networkData::loadFromDisk(const std::string& networkDataFile) {
 	delete nD;
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds a new training set to the collection, Requires for the network architecture to be
  * defined already
@@ -326,7 +327,7 @@ void networkData::addTrainingSet(boost::shared_ptr<trainingSet> tS) {
 	data_.push_back(tS);
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the next training set
  *
@@ -345,7 +346,7 @@ boost::optional<boost::shared_ptr<trainingSet> > networkData::getNextTrainingSet
 	}
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Resets the index of the current training set, so that upon next call to getNextTrainingSet()
  * the first training set in the list is returned.
@@ -355,7 +356,7 @@ void networkData::resetCurrentIndex() const {
 }
 
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the number of input nodes of this network
  *
@@ -365,7 +366,7 @@ std::size_t networkData::getNInputNodes() const {
 	return this->front();
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the number of output nodes of this network
  *
@@ -375,7 +376,7 @@ std::size_t networkData::getNOutputNodes() const {
 	return this->back();
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Saves this data set in ROOT format for visual inspection. It assumes that the input dimension
  * is 2 and the output dimension is 1. It will generate two distributions that will be coloured
@@ -461,9 +462,10 @@ void networkData::toRoot(
 	of.close();
 }
 
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * Specialization of the transfer function for case tF==SIGMOID
  *
@@ -475,7 +477,7 @@ double GNeuralNetworkIndividual<SIGMOID>::transfer(const double& value) const {
 	return 1./(1.+exp(-value));
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Specialization of the transfer function for case tF==RBF
  *
@@ -487,9 +489,10 @@ double GNeuralNetworkIndividual<RBF>::transfer(const double& value) const {
 	return exp(-GSQUARED(value));
 }
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::trainingDataType item from a stream. Needed so we
  * can use boost::program_options to read trainingDataType data.
@@ -511,7 +514,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::trainingDataType& tdt){
 	return i;
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::trainingDataType item into a stream. Needed so we
  * can use boost::program_options to output trainingDataType data.
@@ -526,7 +529,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::trainingDataType& t
 	return o;
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::transferFunction item from a stream. Needed so we
  * can use boost::program_options to read transferFunction data.
@@ -548,7 +551,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::transferFunction& tF){
 	return i;
 }
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::transferFunction item into a stream. Needed so we
  * can use boost::program_options to output transferFunction data.
@@ -563,16 +566,18 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::transferFunction& t
 	return o;
 }
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 // For testing purposes
 
 #ifdef GEM_TESTING
@@ -586,7 +591,7 @@ boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> > 
 	return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >(new Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
 }
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * As the Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
@@ -595,5 +600,7 @@ template <>
 boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> > TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> >() {
 	return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> >(new Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
 }
+
+/******************************************************************************/
 
 #endif /* GEM_TESTING */

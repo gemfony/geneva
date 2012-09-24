@@ -41,7 +41,7 @@ namespace Gem
 namespace Tests
 {
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor.
  */
@@ -57,7 +57,7 @@ GTestIndividual1::GTestIndividual1()
 	this->push_back(gdc_ptr);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -68,14 +68,14 @@ GTestIndividual1::GTestIndividual1(const GTestIndividual1& cp)
 , fakeUpdateOnStall_(cp.fakeUpdateOnStall_)
 {	/* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor
  */
 GTestIndividual1::~GTestIndividual1()
 { /* nothing */	}
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator
  *
@@ -87,7 +87,7 @@ const GTestIndividual1& GTestIndividual1::operator=(const GTestIndividual1& cp){
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GTestIndividual1 object
  *
@@ -100,7 +100,7 @@ bool GTestIndividual1::operator==(const GTestIndividual1& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GTestIndividual1::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GTestIndividual1 object
  *
@@ -113,7 +113,7 @@ bool GTestIndividual1::operator!=(const GTestIndividual1& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GTestIndividual1::operator!=","cp", CE_SILENT);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -151,7 +151,7 @@ boost::optional<std::string> GTestIndividual1::checkRelationshipWith(const GObje
 	return evaluateDiscrepancies("GTestIndividual1", caller, deviations, e);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the fakeUpdateOnStall_ variable. When set, this object's customUpdateOnStall() function
  * will return true.
@@ -162,7 +162,7 @@ void GTestIndividual1::setFakeCustomUpdateOnStall(const bool& fakeUpdateOnStall)
 	fakeUpdateOnStall_ = fakeUpdateOnStall;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the current value of the fakeUpdateOnStall_ flag
  *
@@ -172,7 +172,7 @@ bool GTestIndividual1::getFakeCustomUpdateOnStall() const {
 	return fakeUpdateOnStall_;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * An overload of GIndividual::customUpdateOnStall() that can fake updates.
  *
@@ -183,7 +183,7 @@ bool GTestIndividual1::customUpdateOnStall() {
 	else return false;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GTestIndividual1, camouflaged as a GObject.
  *
@@ -204,7 +204,7 @@ void GTestIndividual1::load_(const GObject* cp)
 	fakeUpdateOnStall_ = p_load->fakeUpdateOnStall_;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -214,7 +214,7 @@ Gem::Geneva::GObject* GTestIndividual1::clone_() const {
 	return new GTestIndividual1(*this);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The actual fitness calculation takes place here.
  *
@@ -239,7 +239,7 @@ double GTestIndividual1::fitnessCalculation(){
 #ifdef GEM_TESTING
 // Note: The following code is designed to mainly test parent classes
 
-/******************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -261,7 +261,7 @@ bool GTestIndividual1::modify_GUnitTests() {
 	return result;
 }
 
-/******************************************************************/
+/******************************************************************************/
 /**
  * Adds a number of GDoubleObject objects to the individual
  *
@@ -298,7 +298,7 @@ void GTestIndividual1::addGDoubleObjects(const std::size_t& nItems) {
 	}
 }
 
-/******************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -774,7 +774,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 }
 
-/******************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -960,7 +960,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 }
 
-/******************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

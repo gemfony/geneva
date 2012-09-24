@@ -39,7 +39,7 @@ namespace Gem
 namespace Hap
 {
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Hap::gRandomTSpecialization item into a stream
  *
@@ -53,7 +53,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Hap::gRandomTSpecialization
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Hap::gRandomTSpecialization item from a stream
  *
@@ -74,7 +74,7 @@ std::istream& operator>>(std::istream& i, Gem::Hap::gRandomTSpecialization& grts
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 
 } /* namespace Hap */
 } /* namespace Gem */

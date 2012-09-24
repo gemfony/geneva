@@ -41,7 +41,7 @@ namespace Gem
 namespace Tests
 {
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor -- private, as it is only needed for (de-)serialization purposes
  */
@@ -49,7 +49,7 @@ GTestIndividual2::GTestIndividual2()
 : GParameterSet()
 { /* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The standard constructor
  *
@@ -123,7 +123,7 @@ GTestIndividual2::GTestIndividual2(const std::size_t& nObjects, const PERFOBJECT
 	}
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -133,14 +133,14 @@ GTestIndividual2::GTestIndividual2(const GTestIndividual2& cp)
 : Gem::Geneva::GParameterSet(cp)
 {	/* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor
  */
 GTestIndividual2::~GTestIndividual2()
 { /* nothing */	}
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator
  *
@@ -152,7 +152,7 @@ const GTestIndividual2& GTestIndividual2::operator=(const GTestIndividual2& cp){
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GTestIndividual2 object
  *
@@ -165,7 +165,7 @@ bool GTestIndividual2::operator==(const GTestIndividual2& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GTestIndividual2::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GTestIndividual2 object
  *
@@ -178,7 +178,7 @@ bool GTestIndividual2::operator!=(const GTestIndividual2& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GTestIndividual2::operator!=","cp", CE_SILENT);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -215,7 +215,7 @@ boost::optional<std::string> GTestIndividual2::checkRelationshipWith(const GObje
 	return evaluateDiscrepancies("GTestIndividual2", caller, deviations, e);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GTestIndividual2, camouflaged as a GObject.
  *
@@ -235,7 +235,7 @@ void GTestIndividual2::load_(const GObject* cp)
 	// no local data
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -245,7 +245,7 @@ Gem::Geneva::GObject* GTestIndividual2::clone_() const {
 	return new GTestIndividual2(*this);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The actual fitness calculation takes place here.
  *
@@ -269,7 +269,7 @@ double GTestIndividual2::fitnessCalculation(){
 
 #ifdef GEM_TESTING
 
-/******************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -290,7 +290,7 @@ bool GTestIndividual2::modify_GUnitTests() {
 	return result;
 }
 
-/******************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -304,7 +304,7 @@ void GTestIndividual2::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 }
 
-/******************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -321,7 +321,7 @@ void GTestIndividual2::specificTestsFailuresExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 }
 
-/******************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

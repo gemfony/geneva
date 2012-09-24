@@ -41,7 +41,7 @@ namespace Gem
 namespace Geneva
 {
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor.
  */
@@ -49,7 +49,7 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
 : GParameterSet()
 { /* empty */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -59,14 +59,14 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvalua
 : Gem::Geneva::GParameterSet(cp)
 {	/* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor
  */
 GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual()
 { /* nothing */	}
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator
  *
@@ -104,7 +104,7 @@ bool GExternalEvaluatorIndividual::operator!=(const GExternalEvaluatorIndividual
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GExternalEvaluatorIndividual::operator!=","cp", CE_SILENT);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -143,7 +143,7 @@ boost::optional<std::string> GExternalEvaluatorIndividual::checkRelationshipWith
 	return evaluateDiscrepancies("GExternalEvaluatorIndividual", caller, deviations, e);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the fitness to a given set of values and clears the dirty flag. This is meant for external
  * methods of performing the actual evaluation.
@@ -159,7 +159,7 @@ void GExternalEvaluatorIndividual::setFitness(
 }
 
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -178,7 +178,7 @@ void GExternalEvaluatorIndividual::addConfigurationOptions (
 	// No local data
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GObject.
  *
@@ -199,7 +199,7 @@ void GExternalEvaluatorIndividual::load_(const GObject* cp)
 	// No local data
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -209,7 +209,7 @@ Gem::Geneva::GObject* GExternalEvaluatorIndividual::clone_() const {
 	return new GExternalEvaluatorIndividual(*this);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The actual fitness calculation takes place here.
  *
@@ -229,7 +229,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation(){
 #ifdef GEM_TESTING
 // Note: The following code is designed to mainly test parent classes
 
-/******************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -251,7 +251,7 @@ bool GExternalEvaluatorIndividual::modify_GUnitTests() {
 	return result;
 }
 
-/******************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -287,7 +287,7 @@ void GExternalEvaluatorIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 }
 
-/******************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -329,7 +329,7 @@ void GExternalEvaluatorIndividual::specificTestsFailuresExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 }
 
-/******************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

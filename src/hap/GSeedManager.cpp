@@ -38,7 +38,7 @@
 namespace Gem {
 namespace Hap {
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor.
  */
@@ -52,7 +52,7 @@ GSeedManager::GSeedManager()
 	std::cout << "Seeding has started" << std::endl;
 }
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a start seed. Setting the seed to 0 will result in
  * the seed being obtained from a non-determinsitic source, as provided by
@@ -77,7 +77,7 @@ GSeedManager::GSeedManager(const initial_seed_type& startSeed, const std::size_t
 	seedThread_ = thread_ptr(new boost::thread(boost::bind(&GSeedManager::seedProducer, this)));
 }
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * The destructor. Its main purpose is to make sure that the seed thread
  * has terminated.
@@ -89,7 +89,7 @@ GSeedManager::~GSeedManager() {
 	}
 }
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * Allows different objects to retrieve seeds concurrently. Note that
  * this function will block if the queue is empty and will only wake
@@ -103,7 +103,7 @@ seed_type GSeedManager::getSeed() {
 	return seed;
 }
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * Allows different objects to retrieve seeds concurrently, while observing
  * a time-out. Note that this function will throw once the timeout is
@@ -149,7 +149,7 @@ bool GSeedManager::checkSeedingIsInitialized() const {
 	return (seedThread_?true:false);
 }
 
-/************************************************************************/
+/******************************************************************************/
 /**
  * Manages the production of seeds from within its own thread. Only one
  * thread is started.
@@ -199,7 +199,7 @@ void GSeedManager::seedProducer() {
 	}
 }
 
-/************************************************************************/
+/******************************************************************************/
 
 } /* namespace Hap */
 } /* namespace Gem */
