@@ -68,7 +68,7 @@ namespace Gem
 namespace Geneva
 {
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * This enum denotes the possible demo function types
  */
@@ -123,7 +123,7 @@ std::ostream& operator<<(std::ostream&, const Gem::Geneva::initMode&);
 /** @brief Reads a Gem::Geneva::initMode from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Geneva::initMode&);
 
-/************************************************************************************************/
+/******************************************************************************/
 // A number of default settings for the factory
 const double GFI_DEF_ADPROB = 1.0;
 const boost::uint32_t GFI_DEF_ADAPTIONTHRESHOLD = 1;
@@ -148,7 +148,7 @@ const parameterType GFI_DEF_PARAMETERTYPE = USEGDOUBLECOLLECTION;
 const initMode GFI_DEF_INITMODE = INITRANDOM;
 const solverFunction GO_DEF_EVALFUNCTION = boost::numeric_cast<solverFunction>(0);
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
@@ -205,7 +205,7 @@ public:
 	/** @brief Allows to cross check the parameter size */
 	std::size_t getParameterSize() const;
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function converts the function id to a string representation. This is a convenience
 	 * function that is mostly used in GArgumentParser.cpp of various Geneva examples.
@@ -244,7 +244,7 @@ public:
 		return result;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves a string in ROOT format (see http://root.cern.ch) of the 2D version of a
 	 * given function.
@@ -283,7 +283,7 @@ public:
 		return result;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the minimum x-value(s) of a given (2D) demo function
 	 *
@@ -323,7 +323,7 @@ public:
 		return result;
 	}
 
-	/*******************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the minimum y-value(s) of a given (2D) demo function
 	 *
@@ -362,7 +362,7 @@ public:
 	}
 
 protected:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the data of another GFunctionIndividual */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
@@ -371,15 +371,15 @@ protected:
 	/** @brief The actual value calculation takes place here */
 	virtual double fitnessCalculation();
 
-	/********************************************************************************************/
+	/***************************************************************************/
 
 private:
 	solverFunction demoFunction_; ///< Specifies which demo function should be used
 };
 
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * A factory for GFunctionIndividual objects
  */
@@ -432,7 +432,7 @@ private:
 	initMode iM_;
 };
 
-/************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

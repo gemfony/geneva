@@ -92,9 +92,9 @@ namespace Gem
 namespace Geneva
 {
 
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * A single data set holding the training data of a single training iteration
  */
@@ -131,15 +131,15 @@ struct trainingSet
 			const std::string&,
 			const bool&) const;
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	// Local data
 	std::vector<double> Input; ///< Holds the input data
 	std::vector<double> Output; ///< Holds the output data
 };
 
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class holds all necessary information for the training of the neural network individual,
  * including the network's geometry. For intermediate storage on disk, we can serialize the
@@ -214,22 +214,22 @@ protected:
 	virtual void dummyFunction() { /* nothing */ };
 
 private:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/** @brief Holds the individual data items */
 	std::vector<boost::shared_ptr<trainingSet> > data_;
 	/** @brief The index of the current training set */
 	mutable std::size_t currentIndex_;
 };
 
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /** @brief This enum is used to specify the type of training data that should be generated */
 enum trainingDataType {TDTNONE=0, HYPERCUBE=1, HYPERSPHERE=2, AXISCENTRIC=3, SINUS=4};
 /** @brief Allows to specify whether we want to use a sigmoidal transfer function or a radial basis function */
 enum transferFunction {SIGMOID=0, RBF=1};
 
-/************************************************************************************************/
+/******************************************************************************/
 /** @brief  Reads a Gem::Geneva::trainingDataType item from a stream */
 std::istream& operator>>(std::istream& i, Gem::Geneva::trainingDataType& tdt);
 /** @brief Puts a Gem::Geneva::trainingDataType item into a stream */
@@ -239,9 +239,9 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::transferFunction& tF);
 /** @brief Puts a Gem::Geneva::transferFunction item into a stream. */
 std::ostream& operator<<(std::ostream& o, const Gem::Geneva::transferFunction& tF);
 
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * With this individual you can use other optimization methods instead of the standard
  * back-propagation algorithm to train feed-forward neural networks.
@@ -278,7 +278,7 @@ class GNeuralNetworkIndividual
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A constructor which initializes the individual with a suitable set of network layers. It
 	 * also loads the training data from file.
@@ -358,7 +358,7 @@ public:
 		}
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard copy constructor
 	 *
@@ -371,14 +371,14 @@ public:
 		, transferFunction_(tF)
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
 	virtual ~GNeuralNetworkIndividual()
 	{ /* nothing */	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A standard assignment operator
 	 *
@@ -390,7 +390,7 @@ public:
 		return *this;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for equality with another GNeuralNetworkIndividual object
 	 *
@@ -403,7 +403,7 @@ public:
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNeuralNetworkIndividual::operator==","cp", CE_SILENT);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for inequality with another GNeuralNetworkIndividual object
 	 *
@@ -415,7 +415,7 @@ public:
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNeuralNetworkIndividual::operator!=","cp", CE_SILENT);
 	}
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -453,7 +453,7 @@ public:
 		return evaluateDiscrepancies("GNeuralNetworkIndividual", caller, deviations, e);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This static function can be called in main() in order to create a suitable set of training
 	 * data for this class. It is added here as a means of testing the neural network individual.
@@ -537,7 +537,7 @@ public:
 		return nD;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This static function can be called in main() in order to create a suitable input file for
 	 * this class. It is added here as a means of testing this neural network individual. We create
@@ -667,7 +667,7 @@ public:
 		return nD;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates training data where one data set is evenly distributed in the range of [0,1.] in
 	 * each dimension, the other centers along the different coordinate axes. It is added here as
@@ -766,7 +766,7 @@ public:
 		return nD;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates training data where one data set is evenly distributed above a sin(x) curve, the
 	 * other evenly below it. This example only accepts two input nodes.
@@ -848,7 +848,7 @@ public:
 		return nD;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates a program which in turn creates a program suitable for visualization of optimization
 	 * results with the ROOT analysis framework (see http://root.cern.ch for further information).
@@ -1028,7 +1028,7 @@ public:
 		visProgram.close();
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates a C++ output file for the trained network, suitable for usage in
 	 * other projects. If you just want to retrieve the C++ description of the network,
@@ -1226,7 +1226,7 @@ public:
 	}
 
 protected:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GObject
 	 *
@@ -1247,7 +1247,7 @@ protected:
 		if(!nD_) nD_ = boost::shared_ptr<networkData>(new networkData(*(p_load->nD_)));
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Creates a deep clone of this object
 	 *
@@ -1257,7 +1257,7 @@ protected:
 		return new GNeuralNetworkIndividual(*this);
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The actual fitness calculation (i.e. the error calculation) takes place here. In the
 	 * case of a feed-forward network this fitness is equivalent to the error a network makes
@@ -1341,13 +1341,13 @@ protected:
 		return result;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 
 private:
 	/** @brief Default constructor intentionally private and empty */
 	GNeuralNetworkIndividual<tF>() :transferFunction_(tF) { /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A trap transfer function to capture invalid uses of this class
 	 */
@@ -1361,16 +1361,16 @@ private:
 		return 0.;
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	// Local variables
 	std::string networkDataFile_; ///< Holds the name of the file with the training data
 	boost::shared_ptr<networkData> nD_; ///< Holds the training data
 	const transferFunction transferFunction_; ///< Holds the id of the transfer function
 };
 
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 // Specializations of the transfer function for either SIGMOID or RBF
 
 /** @brief Specialization of the transfer function for case tF==SIGMOID */
@@ -1378,15 +1378,16 @@ template <> double GNeuralNetworkIndividual<SIGMOID>::transfer(const double&) co
 /** @brief Specialization of the transfer function for case tF==RBF */
 template <> double GNeuralNetworkIndividual<RBF>::transfer(const double&) const;
 
-/************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
 // Needed for testing purposes
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 #ifdef GEM_TESTING
 
@@ -1397,7 +1398,7 @@ template <> double GNeuralNetworkIndividual<RBF>::transfer(const double&) const;
 template <>
 boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> > TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >();
 
-/*************************************************************************************************/
+/******************************************************************************/
 /**
  * @brief As the Gem::Geneva::Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
@@ -1407,13 +1408,16 @@ boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> > TFac
 
 #endif /* GEM_TESTING */
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::trainingSet)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::networkData)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF>)
+
+/******************************************************************************/
 
 #endif /* GNEURALNETWORKINDIVIDUAL_HPP_ */

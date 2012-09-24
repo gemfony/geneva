@@ -54,12 +54,10 @@
 #include <common/GParserBuilder.hpp>
 #include <common/GExceptions.hpp>
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A factory class that returns GParameterSet-derivatives of type ind_type . These are
  * constructed according to specifications read from a configuration file. The actual work
@@ -71,7 +69,7 @@ class GIndividualFactoryT
 	:private boost::noncopyable
 {
 public:
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard constructor
 	 *
@@ -85,14 +83,14 @@ public:
 		, gpb()
 	{ /* nothing */ }
 
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GIndividualFactoryT()
 	{ /* nothing */ }
 
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Triggers the creation of objects of the desired type
 	 *
@@ -113,7 +111,7 @@ public:
 		return this->getIndividual_(id_++); // Retrieve the actual individual
 	}
 
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs necessary initialization work. This function will do nothing when
 	 * called more than once.
@@ -146,7 +144,7 @@ public:
 		}
 	}
 
-	/***************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Performs any required finalization work. This function does nothing when called more
 	 * than once.
@@ -167,7 +165,7 @@ public:
 	}
 
 protected:
-	/***************************************************************************************/
+	/***************************************************************************/
 	/** @brief Performs necessary initialization work */
 	virtual void init_() {}
 	/** @brief Performs any required finalization work */
@@ -178,7 +176,7 @@ protected:
 	virtual boost::shared_ptr<ind_type> getIndividual_(const std::size_t&) = 0;
 
 private:
-	/***************************************************************************************/
+	/***************************************************************************/
 	GIndividualFactoryT(); ///< The default constructor. Intentionally private and undefined
 
 	std::string configFile_; ///< The name of the configuration file
@@ -187,11 +185,11 @@ private:
 	bool finalized_;
 
 protected:
-	/***************************************************************************************/
+	/***************************************************************************/
 	Gem::Common::GParserBuilder gpb; ///< The parser who reads data from the configuration file
 };
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -54,11 +54,10 @@
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #endif /* GEM_TESTING */
 
-namespace Gem
-{
-namespace Geneva
-{
-/************************************************************************************************/
+namespace Gem {
+namespace Geneva {
+
+/******************************************************************************/
 /**
  * This is a very simple individual that allows external entities to set the fitness value,
  * thereby clearing the dirty flag. It can be used if the fitness calculation should take place
@@ -121,7 +120,7 @@ protected:
 	/** @brief The actual fitness calculation takes place here. */
 	virtual double fitnessCalculation();
 
-	/*********************************************************************************/
+	/***************************************************************************/
 #ifdef GEM_TESTING
 public:
 	/** @brief Applies modifications to this object. */
@@ -133,6 +132,8 @@ public:
 
 #endif /* GEM_TESTING */
 }; // End of class declaration
+
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

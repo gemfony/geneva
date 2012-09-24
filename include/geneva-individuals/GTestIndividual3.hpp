@@ -88,7 +88,7 @@ namespace Gem
 namespace Tests
 {
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * This individual tests different access methods for parameter objects inside
  * of the individual.
@@ -155,6 +155,8 @@ public:
 
 #endif /* GEM_TESTING */
 };
+
+/******************************************************************************/
 
 } /* namespace Tests */
 } /* namespace Gem */

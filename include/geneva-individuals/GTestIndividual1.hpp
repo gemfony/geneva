@@ -71,11 +71,10 @@
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GCommonEnums.hpp"
 
-namespace Gem
-{
-namespace Tests
-{
-/************************************************************************************************/
+namespace Gem {
+namespace Tests {
+
+/******************************************************************************/
 /**
  * This individual serves as the basis for unit tests of the individual hierarchy. At the time
  * of writing, it was included in order to be able to set the individual's personality without
@@ -156,6 +155,8 @@ public:
 
 #endif /* GEM_TESTING */
 };
+
+/******************************************************************************/
 
 } /* namespace Tests */
 } /* namespace Gem */
