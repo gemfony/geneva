@@ -37,7 +37,7 @@
 namespace Gem {
 namespace Courtier {
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Courtier::submissionReturnMode item into a stream
  *
@@ -51,7 +51,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Courtier::submissionReturnM
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Courtier::submissionReturnMode item from a stream
  *
@@ -72,7 +72,7 @@ std::istream& operator>>(std::istream& i, Gem::Courtier::submissionReturnMode& s
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Courtier::consumerMode item into a stream
  *
@@ -86,7 +86,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Courtier::consumerMode& cm)
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Courtier::consumerMode item from a stream
  *
@@ -107,7 +107,7 @@ std::istream& operator>>(std::istream& i, Gem::Courtier::consumerMode& cm) {
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Courtier::clientMode item into a stream
  *
@@ -121,7 +121,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Courtier::clientMode& cl) {
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Courtier::clientMode item from a stream
  *
@@ -142,7 +142,7 @@ std::istream& operator>>(std::istream& i, Gem::Courtier::clientMode& cl) {
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */

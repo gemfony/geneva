@@ -40,7 +40,7 @@ namespace Gem
 namespace Courtier
 {
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Assembles a query string from a given command, emitting a string of a given size.
  * This function is used in conjunction with Boost::Asio .
@@ -55,7 +55,7 @@ std::string assembleQueryString(const std::string& query, const std::size_t& sz)
   return query_stream.str();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Extracts the size of ASIO's data section from a C string.
  * Used in conjunction with Boost::Asio. See e.g. GAsioTCPClient.
@@ -76,7 +76,7 @@ std::size_t extractDataSize(const char* ds, const std::size_t& sz){
   return inboundDataSize;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */
