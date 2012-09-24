@@ -28,7 +28,6 @@ SET ( OPTIMIZATIONSOURCES
 	Geneva
 	GenevaHelperFunctionsT
 	GEvolutionaryAlgorithmFactory
-	GExternalEvaluatorConsumer
 	GFloatBiGaussAdaptor
 	GFloatCollection
 	GFloatGaussAdaptor

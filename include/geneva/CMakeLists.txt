@@ -35,7 +35,6 @@ SET ( OPTIMIZATIONINCLUDES
 	Geneva.hpp
 	GenevaHelperFunctionsT.hpp
 	GEvolutionaryAlgorithmFactory.hpp
-	GExternalEvaluatorConsumer.hpp
 	GFloatBiGaussAdaptor.hpp
 	GFloatCollection.hpp
 	GFloatGaussAdaptor.hpp
