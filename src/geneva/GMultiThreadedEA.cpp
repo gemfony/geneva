@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMultiThreadedEA)
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard constructor. No local, dynamically allocated data,
  * hence this function is empty.
@@ -49,7 +49,7 @@ GMultiThreadedEA::GMultiThreadedEA()
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor. Note that we do not copy storedServerMode_ as
  * it is used for internal caching only.
@@ -61,7 +61,7 @@ GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
    , nThreads_(cp.nThreads_)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor. We clear remaining work items in the
  * thread pool and wait for active tasks to finish.
@@ -69,7 +69,7 @@ GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
 GMultiThreadedEA::~GMultiThreadedEA()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator for GMultiThreadedEA objects.
  *
@@ -81,7 +81,7 @@ const GMultiThreadedEA& GMultiThreadedEA::operator=(const GMultiThreadedEA& cp) 
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data from another GMultiThreadedEA object.
  *
@@ -100,7 +100,7 @@ void GMultiThreadedEA::load_(const GObject *cp) {
 	// Note that we do not copy storedServerMode_ as it is used for internal caching only
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -110,7 +110,7 @@ GObject *GMultiThreadedEA::clone_() const  {
 	return new GMultiThreadedEA(*this);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GMultiThreadedEA object
  *
@@ -123,7 +123,7 @@ bool GMultiThreadedEA::operator==(const GMultiThreadedEA& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiThreadedEA::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GMultiThreadedEA object
  *
@@ -136,7 +136,7 @@ bool GMultiThreadedEA::operator!=(const GMultiThreadedEA& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiThreadedEA::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -173,7 +173,7 @@ boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(const GObje
 	return evaluateDiscrepancies("GMultiThreadedEA", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization
  */
@@ -206,7 +206,7 @@ void GMultiThreadedEA::init() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary clean-up work after the optimization has finished
  */
@@ -224,7 +224,7 @@ void GMultiThreadedEA::finalize() {
 	GBaseEA::finalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adapt all children in parallel. Evaluation is done in a seperate function (evaluateChildren).
  */
@@ -241,7 +241,7 @@ void GMultiThreadedEA::adaptChildren()
 	tp_->wait();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Evaluate all children (and possibly parents, depending on the iteration and sorting mode) in parallel
  */
@@ -278,7 +278,7 @@ void GMultiThreadedEA::evaluateChildren()
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -311,7 +311,7 @@ void GMultiThreadedEA::addConfigurationOptions (
 	);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -321,7 +321,7 @@ std::string GMultiThreadedEA::getIndividualCharacteristic() const {
 	return std::string("GENEVA_MTOPTALG");
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the number of threads for this population. If nThreads is set
  * to 0, an attempt will be made to set the number of threads to the
@@ -339,7 +339,7 @@ void GMultiThreadedEA::setNThreads(boost::uint16_t nThreads) {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the number of threads this population uses.
  *
@@ -350,7 +350,7 @@ boost::uint16_t GMultiThreadedEA::getNThreads() const  {
 }
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -365,7 +365,7 @@ bool GMultiThreadedEA::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -374,7 +374,7 @@ void GMultiThreadedEA::specificTestsNoFailureExpected_GUnitTests() {
 	GBaseEA::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -383,7 +383,7 @@ void GMultiThreadedEA::specificTestsFailuresExpected_GUnitTests() {
 	GBaseEA::specificTestsFailuresExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

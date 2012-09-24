@@ -37,7 +37,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A constructor with the ability to switch the parallelization mode. It initializes a
  * target item as needed.
@@ -49,14 +49,14 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 	: GOptimizationAlgorithmFactoryT<GBaseSwarm>(configFile, pm)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GSwarmAlgorithmFactory::~GSwarmAlgorithmFactory()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates items of this type
  *
@@ -90,7 +90,7 @@ boost::shared_ptr<GBaseSwarm> GSwarmAlgorithmFactory::getObject_(
 	return target;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to act on the configuration options received from the configuration file. Here
  * we can add the options described in describeLocalOptions to the object.
@@ -125,7 +125,7 @@ void GSwarmAlgorithmFactory::postProcess_(boost::shared_ptr<GBaseSwarm>& p_base)
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

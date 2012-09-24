@@ -40,7 +40,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSwarmPersonalityTraits)
 namespace Gem {
 namespace Geneva {
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -52,7 +52,7 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits()
 	, personal_best_quality_(0.)
 { /* nothing */ }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * The copy contructor
  *
@@ -66,14 +66,14 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits& 
 	, personal_best_quality_(cp.personal_best_quality_)
 { /* nothing */ }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor
  */
 GSwarmPersonalityTraits::~GSwarmPersonalityTraits()
 { /* nothing */ }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator for GSwarmPersonalityTraits objects.
  *
@@ -85,7 +85,7 @@ const GSwarmPersonalityTraits& GSwarmPersonalityTraits::operator=(const GSwarmPe
 	return *this;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GSwarmPersonalityTraits object
  *
@@ -98,7 +98,7 @@ bool GSwarmPersonalityTraits::operator==(const GSwarmPersonalityTraits& cp) cons
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSwarmPersonalityTraits::operator==","cp", CE_SILENT);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GSwarmPersonalityTraits object
  *
@@ -111,7 +111,7 @@ bool GSwarmPersonalityTraits::operator!=(const GSwarmPersonalityTraits& cp) cons
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSwarmPersonalityTraits::operator!=","cp", CE_SILENT);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -151,7 +151,7 @@ boost::optional<std::string> GSwarmPersonalityTraits::checkRelationshipWith(cons
 	return evaluateDiscrepancies("GEAPersonalityTraits", caller, deviations, e);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Sets the noPositionUpdate_ flag
  */
@@ -164,7 +164,7 @@ void GSwarmPersonalityTraits::setNoPositionUpdate() {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the current value of the noPositionUpdate_ flag
  *
@@ -179,7 +179,7 @@ bool GSwarmPersonalityTraits::noPositionUpdate() const {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves and resets the current value of the noPositionUpdate_ flag
  *
@@ -196,7 +196,7 @@ bool GSwarmPersonalityTraits::checkNoPositionUpdateAndReset() {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Allows to add a new personal best to the individual. Note that this function
  * will internally clone the argument and extract the GParameterBase objects
@@ -233,7 +233,7 @@ void GSwarmPersonalityTraits::registerPersonalBest(boost::shared_ptr<GParameterS
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the personally best individual
  *
@@ -248,7 +248,7 @@ boost::shared_ptr<GParameterSet> GSwarmPersonalityTraits::getPersonalBest() cons
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Resets the personally best individual by assigning a default-constructed
  * parameter set.
@@ -263,7 +263,7 @@ void GSwarmPersonalityTraits::resetPersonalBest() {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Retrieve quality of personally best individual
  *
@@ -278,7 +278,7 @@ double GSwarmPersonalityTraits::getPersonalBestQuality() const {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -288,7 +288,7 @@ GObject* GSwarmPersonalityTraits::clone_() const {
 	return new GSwarmPersonalityTraits(*this);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GSwarmPersonalityTraits object
  *
@@ -307,7 +307,7 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
 	personal_best_quality_ = p_load->personal_best_quality_;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Specifies in which of the populations neighborhood the individual lives
  *
@@ -317,7 +317,7 @@ void GSwarmPersonalityTraits::setNeighborhood(const std::size_t& neighborhood) {
 	neighborhood_ = neighborhood;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the position of the individual in the population
  *
@@ -328,7 +328,7 @@ std::size_t GSwarmPersonalityTraits::getNeighborhood(void) const {
 }
 
 #ifdef GEM_TESTING
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -343,7 +343,7 @@ bool GSwarmPersonalityTraits::modify_GUnitTests() {
 	return result;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -354,7 +354,7 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the noPositionUpdate_ flag
 		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
@@ -376,7 +376,7 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->noPositionUpdate() == false);
 	}
 
-	//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the neighborhood
 		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
@@ -388,10 +388,10 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -403,10 +403,11 @@ void GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
 
 
-	//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

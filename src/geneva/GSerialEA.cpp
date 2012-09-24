@@ -38,7 +38,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialEA)
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard constructor. No local, dynamically allocated data,
  * hence this function is empty.
@@ -47,7 +47,7 @@ GSerialEA::GSerialEA()
    : GBaseEA()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor
  *
@@ -57,7 +57,7 @@ GSerialEA::GSerialEA(const GSerialEA& cp)
    : GBaseEA(cp)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor. No local, dynamically allocated data,
  * hence this function is empty.
@@ -65,7 +65,7 @@ GSerialEA::GSerialEA(const GSerialEA& cp)
 GSerialEA::~GSerialEA()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator for GSerialEA objects.
  *
@@ -77,7 +77,7 @@ const GSerialEA& GSerialEA::operator=(const GSerialEA& cp) {
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data from another GSerialEA object.
  *
@@ -95,7 +95,7 @@ void GSerialEA::load_(const GObject *cp) {
 	// no local data ...
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -105,7 +105,7 @@ GObject *GSerialEA::clone_() const  {
 	return new GSerialEA(*this);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GSerialEA object
  *
@@ -118,7 +118,7 @@ bool GSerialEA::operator==(const GSerialEA& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialEA::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GSerialEA object
  *
@@ -131,7 +131,7 @@ bool GSerialEA::operator!=(const GSerialEA& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialEA::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -169,7 +169,7 @@ boost::optional<std::string> GSerialEA::checkRelationshipWith(const GObject& cp,
 	return evaluateDiscrepancies("GSerialEA", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization
  */
@@ -180,7 +180,7 @@ void GSerialEA::init() {
 	// Put own initialization code here
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary clean-up work after the optimization has finished
  */
@@ -191,7 +191,7 @@ void GSerialEA::finalize() {
 	GBaseEA::finalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -208,7 +208,7 @@ void GSerialEA::addConfigurationOptions (
 	// No local data
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -218,7 +218,7 @@ std::string GSerialEA::getIndividualCharacteristic() const {
 	return std::string("GENEVA_SERIALOPTALG");
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adapt all children in sequence. Evaluation is done in a seperate function (evaluateChildren).
  */
@@ -232,7 +232,7 @@ void GSerialEA::adaptChildren()
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Evaluate all children (and possibly parents, depending on the iteration)
  */
@@ -265,7 +265,7 @@ void GSerialEA::evaluateChildren()
 }
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -280,13 +280,13 @@ bool GSerialEA::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GSerialEA::specificTestsNoFailureExpected_GUnitTests() {
 
-	//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
 		boost::shared_ptr<GSerialEA> p_test = this->clone<GSerialEA>();
@@ -298,10 +298,10 @@ void GSerialEA::specificTestsNoFailureExpected_GUnitTests() {
 		p_test->GBaseEA::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -310,7 +310,7 @@ void GSerialEA::specificTestsFailuresExpected_GUnitTests() {
 	GBaseEA::specificTestsFailuresExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

@@ -41,7 +41,7 @@ namespace Gem
 namespace Geneva
 {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -51,7 +51,7 @@ GBrokerEA::GBrokerEA()
 	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The standard copy constructor
  *
@@ -63,7 +63,7 @@ GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	, nThreads_(cp.nThreads_)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor. We have no object-wide dynamically allocated data, hence
  * this function is empty.
@@ -71,7 +71,7 @@ GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 GBrokerEA::~GBrokerEA()
 { /* nothing */}
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator for GBrokerEA objects,
  *
@@ -83,7 +83,7 @@ const GBrokerEA& GBrokerEA::operator=(const GBrokerEA& cp) {
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GBrokerEA object, camouflaged as a
  * pointer to a GObject
@@ -103,7 +103,7 @@ void GBrokerEA::load_(const GObject * cp) {
 	// Note that we do not copy storedServerMode_ as it is used for internal caching only
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep copy of this object
  *
@@ -113,7 +113,7 @@ GObject *GBrokerEA::clone_() const {
 	return new GBrokerEA(*this);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GBrokerEA object
  *
@@ -126,7 +126,7 @@ bool GBrokerEA::operator==(const GBrokerEA& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBrokerEA::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GBrokerEA object
  *
@@ -139,7 +139,7 @@ bool GBrokerEA::operator!=(const GBrokerEA& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBrokerEA::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -179,7 +179,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
 	return evaluateDiscrepancies("GBrokerEA", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs any necessary initialization work before the start of the optimization cycle
  */
@@ -229,7 +229,7 @@ void GBrokerEA::init() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs any necessary finalization work after the end of the optimization cycle
  */
@@ -247,7 +247,7 @@ void GBrokerEA::finalize() {
 	GBaseEA::finalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether this algorithm communicates via the broker. This is an overload from the corresponding
  * GOptimizableI function
@@ -258,7 +258,7 @@ bool GBrokerEA::usesBroker() const {
 	return true;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adapt all children in parallel. Evaluation is done in a seperate function (evaluateChildren).
  */
@@ -275,7 +275,7 @@ void GBrokerEA::adaptChildren()
 	tp_->wait();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * We submit individuals to the broker and wait for processed items.
  */
@@ -312,7 +312,7 @@ void GBrokerEA::evaluateChildren() {
 	fixAfterJobSubmission();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Fixes the population after a job submission
  */
@@ -353,7 +353,7 @@ void GBrokerEA::fixAfterJobSubmission() {
 	// individuals might nevertheless have a better quality. We do not want to loose them.
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * We will at this point have a population with at least the default number
  * of individuals. More individuals are allowed. the population will be
@@ -386,7 +386,7 @@ void GBrokerEA::selectBest() {
 	// Everything should be back to normal ...
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -420,7 +420,7 @@ void GBrokerEA::addConfigurationOptions (
 	);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the number of threads this population uses for adaption. If nThreads is set
  * to 0, an attempt will be made to set the number of threads to the number of hardware
@@ -437,7 +437,7 @@ void GBrokerEA::setNThreads(boost::uint16_t nThreads) {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the number of threads this population uses for adaption
  *
@@ -447,7 +447,7 @@ boost::uint16_t GBrokerEA::getNThreads() const  {
 	return nThreads_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -458,7 +458,7 @@ std::string GBrokerEA::getIndividualCharacteristic() const {
 }
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -473,7 +473,7 @@ bool GBrokerEA::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -482,7 +482,7 @@ void GBrokerEA::specificTestsNoFailureExpected_GUnitTests() {
 	GBaseEA::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -491,7 +491,7 @@ void GBrokerEA::specificTestsFailuresExpected_GUnitTests() {
 	GBaseEA::specificTestsFailuresExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

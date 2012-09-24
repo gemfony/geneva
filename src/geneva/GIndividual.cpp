@@ -37,7 +37,7 @@
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor.
  */
@@ -58,7 +58,7 @@ GIndividual::GIndividual()
 	, pers_(PERSONALITY_NONE)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The standard copy constructor.
  *
@@ -85,13 +85,13 @@ GIndividual::GIndividual(const GIndividual& cp)
 	if(pers_ != PERSONALITY_NONE) pt_ptr_->GObject::load(cp.pt_ptr_);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor.
  */
 GIndividual::~GIndividual() { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GIndividual object
  *
@@ -104,7 +104,7 @@ bool GIndividual::operator==(const GIndividual& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GIndividual::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GIndividual object
  *
@@ -117,7 +117,7 @@ bool GIndividual::operator!=(const GIndividual& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GIndividual::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -165,7 +165,7 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(
 	return evaluateDiscrepancies("GIndividual", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GIndividual, camouflaged as a GObject
  *
@@ -191,7 +191,7 @@ void GIndividual::load_(const GObject* cp) {
 	if(pers_ != PERSONALITY_NONE) pt_ptr_->GObject::load(p_load->pt_ptr_);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The adaption interface. Triggers adaption of the individual, using each parameter object's adaptor.
  * Sets the dirty flag, as the parameters have been changed.
@@ -208,7 +208,7 @@ void GIndividual::adapt() {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Returns the last known fitness calculations of this object. Re-calculation
  * of the fitness is triggered, unless this is the server mode. By means of supplying
@@ -252,7 +252,7 @@ double GIndividual::fitness(const std::size_t& id) {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Returns the last known fitness calculation of this object, using the fitness function
  * with id 0.
@@ -263,7 +263,7 @@ double GIndividual::fitness() {
 	return fitness(0);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adapts and evaluates the individual in one go
  *
@@ -274,7 +274,7 @@ double GIndividual::adaptAndEvaluate() {
 	return doFitnessCalculation();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the cached (not necessarily up-to-date) fitness
  *
@@ -310,7 +310,7 @@ double GIndividual::getCachedFitness(bool& dirtyFlag, const std::size_t& id) con
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Enforces re-calculation of the fitness.
  *
@@ -332,7 +332,7 @@ double GIndividual::doFitnessCalculation() {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Registers a new, secondary result value of the custom fitness calculation. This is used in multi-criterion
  * optimization. fitnessCalculation() returns the main fitness value, but may also add further, secondary
@@ -344,7 +344,7 @@ void GIndividual::registerSecondaryResult(const double& secondaryValue) {
 	currentSecondaryFitness_.push_back(secondaryValue);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Determines the number of fitness criteria present for individual. Secondary fitness values are stored in
  * a std::vector, so we determine its size and add 1 for the main fitness value (which always needs to be present).
@@ -355,7 +355,7 @@ std::size_t GIndividual::getNumberOfFitnessCriteria() const {
 	return currentSecondaryFitness_.size() + 1;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Determines the number of secondary itness criteria present for individual.
  *
@@ -365,7 +365,7 @@ std::size_t GIndividual::getNumberOfSecondaryFitnessCriteria() const {
 	return currentSecondaryFitness_.size();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Determines whether more than one fitness criterion is present for this individual
  *
@@ -375,7 +375,7 @@ bool GIndividual::hasMultipleFitnessCriteria() const {
 	return (getNumberOfFitnessCriteria()>1?true:false);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the fitness to a given set of values and clears the dirty flag. This is meant for external
  * methods of performing the actual evaluation.
@@ -406,7 +406,7 @@ void GIndividual::setFitness_(const double& f, const std::vector<double>& sec_f_
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * (De-)activates the server mode.
  *
@@ -425,7 +425,7 @@ bool GIndividual::setServerMode(const bool& sM) {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether the server mode is set
  *
@@ -440,7 +440,7 @@ bool GIndividual::serverMode() const {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether the server mode is set
  *
@@ -450,7 +450,7 @@ bool GIndividual::getServerMode() const {
 	return serverMode();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether the dirty flag is set
  *
@@ -465,7 +465,7 @@ bool GIndividual::isDirty() const  {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Specify whether we want to work in maximization (true) or minimization
  * (false) mode. This function is protected. The idea is that GParameterSet provides a public
@@ -485,7 +485,7 @@ void GIndividual::setMaxMode_(const bool& mode) {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the maximize_ parameter
  *
@@ -500,7 +500,7 @@ bool GIndividual::getMaxMode() const {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the dirtyFlag_. This is a "one way" function, accessible to derived classes. Once the dirty flag
  * has been set, the only way to reset it is to calculate the fitness of this object.
@@ -515,7 +515,7 @@ void GIndividual::setDirtyFlag()  {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the dirtyFlag_ to any desired value
  *
@@ -533,7 +533,7 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Combines secondary evaluation results by adding the individual results
  *
@@ -548,7 +548,7 @@ double GIndividual::sumCombiner() const {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Combines secondary evaluation results by adding the absolute values of individual results
  *
@@ -563,7 +563,7 @@ double GIndividual::fabsSumCombiner() const {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Combines secondary evaluation results by calculation the square root of the squared sum. Note that we
  * only evaluate the secondary results here. It is assumed that the result of this function is returned as
@@ -580,7 +580,7 @@ double GIndividual::squaredSumCombiner() const {
 	return sqrt(result);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Combines secondary evaluation results by calculation the square root of the weighed squared sum. Note that we
  * only evaluate the secondary results here. It is assumed that the result of this function is returned as
@@ -610,7 +610,7 @@ double GIndividual::weighedSquaredSumCombiner(const std::vector<double>& weights
 	return sqrt(result);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -630,7 +630,7 @@ void GIndividual::addConfigurationOptions (
 	// from this class.
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the current personality of this individual
  *
@@ -678,7 +678,7 @@ personality_oa GIndividual::setPersonality(const personality_oa& pers) {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Resets the current personality to PERSONALITY_NONE
  */
@@ -691,7 +691,7 @@ void GIndividual::resetPersonality() {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the current personality of this individual
  *
@@ -706,7 +706,7 @@ personality_oa GIndividual::getPersonality() const {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This function returns the current personality traits base pointer. Note that there
  * is another version of the same command that does on-the-fly conversion of the
@@ -734,7 +734,7 @@ boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A wrapper for GIndividual::customUpdateOnStall() (or the corresponding overloaded
  * functions in derived classes) that does error-checking and sets the dirty flag.
@@ -756,7 +756,7 @@ bool GIndividual::updateOnStall() {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Updates the object's structure and/or parameters, if the optimization has
  * stalled. The quality of the object is likely to get worse. Hence it will
@@ -779,7 +779,7 @@ bool GIndividual::customUpdateOnStall() {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Actions to be performed when adapting this object. This function will be overloaded particularly
  * for the GParameterSet class.
@@ -787,7 +787,7 @@ bool GIndividual::customUpdateOnStall() {
 void GIndividual::customAdaptions()
 { /* nothing */}
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs all necessary (remote-)processing steps for this object.
  *
@@ -813,7 +813,7 @@ bool GIndividual::process(){
 	return true;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the current iteration of the parent optimization algorithm.
  *
@@ -828,7 +828,7 @@ void GIndividual::setAssignedIteration(const boost::uint32_t& parentAlgIteration
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Gives access to the parent optimization algorithm's iteration
  *
@@ -843,7 +843,7 @@ boost::uint32_t GIndividual::getAssignedIteration() const {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the globally best known fitness
  *
@@ -858,7 +858,7 @@ void GIndividual::setBestKnownFitness(const double& bnf) {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the value of the globally best known fitness
  *
@@ -873,7 +873,7 @@ double GIndividual::getBestKnownFitness() const {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify the number of optimization cycles without improvement
  *
@@ -888,7 +888,7 @@ void GIndividual::setNStalls(const boost::uint32_t& nStalls) {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of optimization cycles without improvement
  *
@@ -903,7 +903,7 @@ boost::uint32_t GIndividual::getNStalls() const {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Updates the random number generators contained in this object's GParameterBase-derivatives. This function
  * is filled with meaning in GParameterSet, but is empty for other GIndividual-derivatives.
@@ -911,7 +911,7 @@ boost::uint32_t GIndividual::getNStalls() const {
 void GIndividual::updateRNGs()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Restores the random number generators contained in this object's GParameterBase-derivatives. This function
  * is filled with meaning in GParameterSet, but is empty for other GIndividual-derivatives.
@@ -919,7 +919,7 @@ void GIndividual::updateRNGs()
 void GIndividual::restoreRNGs()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether all GParameterBase derivatives use local random number generators. This function
  * is filled with meaning in GParameterSet, but is empty for other GIndividual-derivatives. In this
@@ -933,7 +933,7 @@ bool GIndividual::localRNGsUsed() const {
 
 #ifdef GEM_TESTING
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -958,7 +958,7 @@ bool GIndividual::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -969,7 +969,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GObject::specificTestsNoFailureExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the server mode flag
 		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
@@ -980,7 +980,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->serverMode() == false);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the maximization mode flag
 		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
@@ -991,7 +991,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->getMaxMode() == false);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check setting of the dirty flag
 		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
@@ -1006,7 +1006,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty() == false);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the surrounding optimization algorithm's current iteration
 		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
@@ -1022,7 +1022,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the best known fitness so far
 		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
@@ -1038,7 +1038,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the number of consecutive stalls
 		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
@@ -1054,7 +1054,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check setting and retrieval of the current personality status and whether the personalities themselves can be accessed
 		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
@@ -1164,10 +1164,10 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -1178,7 +1178,7 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GObject::specificTestsFailuresExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 #ifdef DEBUG
 	{ // Test that retrieval of an EA personality traits object from an uninitialized pointer throws in DEBUG mode
@@ -1193,7 +1193,7 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 	}
 #endif /* DEBUG */
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 #ifdef DEBUG
 	{ // Test that retrieval of an EA personality traits object from an individual with SWARM personality throws
@@ -1207,7 +1207,7 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 	}
 #endif /* DEBUG */
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 #ifdef DEBUG
 	{ // Test that retrieval of a personality traits base object from an individual without personality throws
@@ -1222,10 +1222,10 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 	}
 #endif /* DEBUG */
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

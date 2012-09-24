@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedDoubleObject)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -47,7 +47,7 @@ GConstrainedDoubleObject::GConstrainedDoubleObject()
 	: GConstrainedFPT<double>()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with boundaries only. The value is set randomly.
  *
@@ -61,7 +61,7 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(
 	: GConstrainedFPT<double>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with value and boundaries
  *
@@ -77,7 +77,7 @@ GConstrainedDoubleObject::GConstrainedDoubleObject (
 	: GConstrainedFPT<double>(val, lowerBoundary, upperBoundary)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -87,7 +87,7 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(const GConstrainedDoubleObjec
 	: GConstrainedFPT<double>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization by contained value
  *
@@ -97,14 +97,14 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(const double& val)
 	: GConstrainedFPT<double>(val)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GConstrainedDoubleObject::~GConstrainedDoubleObject()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * An assignment operator for the contained value type
  *
@@ -115,7 +115,7 @@ double GConstrainedDoubleObject::operator=(const double& val) {
 	return GConstrainedFPT<double>::operator=(val);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -127,7 +127,7 @@ const GConstrainedDoubleObject& GConstrainedDoubleObject::operator=(const GConst
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -137,7 +137,7 @@ GObject* GConstrainedDoubleObject::clone_() const {
 	return new GConstrainedDoubleObject(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GConstrainedDoubleObject object
  *
@@ -150,7 +150,7 @@ bool GConstrainedDoubleObject::operator==(const GConstrainedDoubleObject& cp) co
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedDoubleObject::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GConstrainedDoubleObject object
  *
@@ -163,7 +163,7 @@ bool GConstrainedDoubleObject::operator!=(const GConstrainedDoubleObject& cp) co
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedDoubleObject::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -200,7 +200,7 @@ boost::optional<std::string> GConstrainedDoubleObject::checkRelationshipWith (
 	return evaluateDiscrepancies("GConstrainedDoubleObject", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
@@ -211,7 +211,7 @@ void GConstrainedDoubleObject::doubleStreamline(std::vector<double>& parVec) con
 	parVec.push_back(this->value());
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach boundaries of type double to the vectors.
  *
@@ -226,7 +226,7 @@ void GConstrainedDoubleObject::doubleBoundaries(
 	uBndVec.push_back(this->getUpperBoundary());
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Tell the audience that we own a double value
  *
@@ -236,7 +236,7 @@ std::size_t GConstrainedDoubleObject::countDoubleParameters() const {
 	return 1;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter. Note that we apply a transformation to
  * the parameter value, so that it lies inside of the allowed value range.
@@ -256,7 +256,7 @@ void GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>
 	pos++;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -274,7 +274,7 @@ void GConstrainedDoubleObject::load_(const GObject* cp){
 
 #ifdef GEM_TESTING
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -289,7 +289,7 @@ bool GConstrainedDoubleObject::modify_GUnitTests() {
 	return result;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -319,7 +319,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GConstrainedFPT<double>::specificTestsNoFailureExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check that assignment of a value with operator= works both for set and unset boundaries
 		boost::shared_ptr<GConstrainedDoubleObject> p_test = this->GObject::clone<GConstrainedDoubleObject>();
@@ -346,14 +346,14 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->value() == testVal);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check construction with two boundaries plus initialization with a random value and extraction of that value
 		boost::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.3, 0.6));
 		BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
 	}
 
-   //------------------------------------------------------------------------------
+   // --------------------------------------------------------------------------
 
    { // Check construction with two boundaries and a value and extraction of that value
       const double TESTVAL = 0.4;
@@ -362,7 +362,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
       BOOST_CHECK(testVal3 == TESTVAL);
    }
 
-   //------------------------------------------------------------------------------
+   // --------------------------------------------------------------------------
 
    { // Check that repeated retrieval of the value always yields the same value
       const double TESTVAL = 0.4;
@@ -376,7 +376,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
       }
    }
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	// Remove the test adaptor
 	this->resetAdaptor();
@@ -387,7 +387,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -418,7 +418,7 @@ void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

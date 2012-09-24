@@ -38,7 +38,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBaseEA::GEAOptimizationMonitor)
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor, As we do not have any individuals yet, we set the population
  * size, and number of parents to 0. It is the philosophy of this class not
@@ -71,7 +71,7 @@ GBaseEA::GBaseEA()
 	this->setDefaultPopulationSize(100,1);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor. Note that the generation number is reset to 0 and
  * is not copied from the other object. We assume that a new optimization run will
@@ -106,14 +106,14 @@ GBaseEA::GBaseEA(const GBaseEA& cp)
 	// applies to the copying of the optimization monitor.
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor. All work is done in the parent class.
  */
 GBaseEA::~GBaseEA()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The standard assignment operator.
  *
@@ -125,7 +125,7 @@ const GBaseEA& GBaseEA::operator=(const GBaseEA& cp) {
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GBaseEA object, camouflaged as a GObject.
  *
@@ -160,7 +160,7 @@ void GBaseEA::load_(const GObject * cp)
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GBaseEA object
  *
@@ -173,7 +173,7 @@ bool GBaseEA::operator==(const GBaseEA& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseEA::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GBaseEA object
  *
@@ -186,7 +186,7 @@ bool GBaseEA::operator!=(const GBaseEA& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseEA::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -235,7 +235,7 @@ boost::optional<std::string> GBaseEA::checkRelationshipWith(const GObject& cp,
 	return evaluateDiscrepancies("GBaseEA", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs
  * to be overloaded by the actual algorithms to return the correct type.
@@ -246,7 +246,7 @@ personality_oa GBaseEA::getOptimizationAlgorithm() const {
 	return PERSONALITY_EA;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the individual's personality types to EA
  */
@@ -255,7 +255,7 @@ void GBaseEA::setIndividualPersonalities() {
 	for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(PERSONALITY_EA);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Enforces a one-time selection policy of MUCOMMANU_SINGLEEVAL. This is used for updates of
  * the parents' structure in the optimize() function. As the quality of updated
@@ -266,7 +266,7 @@ void GBaseEA::setOneTimeMuCommaNu() {
 	oneTimeMuCommaNu_ = true;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Updates the parents' structure, using their updateOnStall function.
  *
@@ -283,7 +283,7 @@ bool GBaseEA::updateParentStructure() {
 	return updatePerformed;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Saves the state of the class to disc. The function adds the current generation
  * and the fitness to the base name. We do not save the entire population, but only
@@ -351,7 +351,7 @@ void GBaseEA::saveCheckpoint() const {
 	checkpointStream.close();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the state of the class from disc. We do not load the entire population,
  * but only the best individuals of a former optimization run, as these contain the
@@ -425,7 +425,7 @@ void GBaseEA::loadCheckpoint(const std::string& cpFile) {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Instruct the algorithm whether it should log old parents for one iteration
  *
@@ -435,7 +435,7 @@ void GBaseEA::setLogOldParents(bool logOldParents) {
 	logOldParents_ = logOldParents;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the current value of the logOldParents_ flag
  *
@@ -445,7 +445,7 @@ bool GBaseEA::oldParentsLogged() const {
 	return logOldParents_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieve the number of processible items in the current iteration.
  *
@@ -473,7 +473,7 @@ std::size_t GBaseEA::getNProcessableItems() const {
 	return 0;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds the option to increase the population by a given amount per iteration
  *
@@ -488,7 +488,7 @@ void GBaseEA::setPopulationGrowth(
 	maxPopulationSize_ = maxPopulationSize;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the growth rate of the population
  *
@@ -498,7 +498,7 @@ std::size_t GBaseEA::getGrowthRate() const {
 	return growthRate_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the maximum population size when growth is enabled
  *
@@ -508,7 +508,7 @@ std::size_t GBaseEA::getMaxPopulationSize() const {
 	return maxPopulationSize_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Returns the name of this optimization algorithm
  *
@@ -518,7 +518,7 @@ std::string GBaseEA::getAlgorithmName() const {
 	return std::string("Evolutionary Algorithm");
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Specifies the default size of the population plus the number of parents.
  * The population will be filled with additional individuals later, as required --
@@ -533,7 +533,7 @@ void GBaseEA::setDefaultPopulationSize(std::size_t popSize, std::size_t nParents
 	nParents_ = nParents;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This function implements the logic that constitutes evolutionary algorithms. The
  * function is called by GOptimizationAlgorithmT<Gem::Geneva::GIndividual> for each cycle of the optimization,
@@ -590,7 +590,7 @@ double GBaseEA::cycleLogic() {
 }
 
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The function checks that the population size meets the requirements and does some
  * tagging. It is called from within GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::optimize(), before the
@@ -658,7 +658,7 @@ void GBaseEA::init() {
 	defaultNChildren_ = getDefaultPopulationSize() - nParents_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Does any necessary finalization work
  */
@@ -667,7 +667,7 @@ void GBaseEA::finalize() {
 	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::finalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The function checks that the population size meets the requirements and resizes the
  * population to the appropriate size, if required. An obvious precondition is that at
@@ -718,7 +718,7 @@ void GBaseEA::adjustPopulation() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Increases the population size if requested by the user. This will happen until the population size exceeds
  * a predefined value, set with setPopulationGrowth() .
@@ -732,7 +732,7 @@ void GBaseEA::performScheduledPopulationGrowth() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the  best individual found. Note that this protected function will return the item itself.
  * Direct usage of this function should be avoided even by derived classes. We suggest to use the
@@ -754,7 +754,7 @@ boost::shared_ptr<GIndividual> GBaseEA::getBestIndividual() {
 	return data[0];
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves a list of the best individuals found. This might just be one individual.
  *
@@ -778,7 +778,7 @@ std::vector<boost::shared_ptr<GIndividual> > GBaseEA::getBestIndividuals() {
 	return bestIndividuals;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -933,7 +933,7 @@ void GBaseEA::addConfigurationOptions (
 	);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Set the interval in which micro training should be performed. Set the
  * interval to 0 in order to prevent micro training.
@@ -944,7 +944,7 @@ void GBaseEA::setMicroTrainingInterval(const boost::uint32_t& mti) {
 	microTrainingInterval_ = mti;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieve the interval in which micro training should be performed
  *
@@ -954,7 +954,7 @@ boost::uint32_t GBaseEA::getMicroTrainingInterval() const {
 	return microTrainingInterval_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieve the number of parents as set by the user. This is a fixed parameter and
  * should not be changed after it has first been set. Note that, if the size of the
@@ -967,7 +967,7 @@ std::size_t GBaseEA::getNParents() const {
 	return std::min(data.size(), nParents_);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Calculates the current number of children from the number of parents and the
  * size of the vector.
@@ -984,7 +984,7 @@ std::size_t GBaseEA::getNChildren() const {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the sorting scheme. In MUPLUSNU_SINGLEEVAL, new parents will be selected from the entire
  * population, including the old parents. In MUCOMMANU_SINGLEEVAL new parents will be selected
@@ -998,7 +998,7 @@ void GBaseEA::setSortingScheme(sortingMode smode) {
 	smode_=smode;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves information about the current sorting scheme (see
  * GBaseEA::setSortingScheme() for further information).
@@ -1009,7 +1009,7 @@ sortingMode GBaseEA::getSortingScheme() const {
 	return smode_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This function is called from GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::optimize() and performs the
  * actual recombination, based on the recombination schemes defined by the user.
@@ -1044,7 +1044,7 @@ void GBaseEA::recombine()
 	markIndividualPositions();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This function assigns a new value to each child individual according to the chosen
  * recombination scheme.
@@ -1115,7 +1115,7 @@ void GBaseEA::doRecombine() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This function implements the RANDOMDUPLICATIONSCHEME scheme. This functions uses BOOST's
  * numeric_cast function for safe conversion between std::size_t and uint16_t.
@@ -1144,7 +1144,7 @@ void GBaseEA::randomRecombine(boost::shared_ptr<GIndividual>& child) {
 	child->getPersonalityTraits<GEAPersonalityTraits>()->setParentId(parent_pos);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This function implements the VALUEDUPLICATIONSCHEME scheme. The range [0.,1.[ is divided
  * into nParents_ sub-areas with different size (the largest for the first parent,
@@ -1179,7 +1179,7 @@ void GBaseEA::valueRecombine(boost::shared_ptr<GIndividual>& p, const std::vecto
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Choose new parents, based on the selection scheme set by the user.
  */
@@ -1240,7 +1240,7 @@ void GBaseEA::selectBest()
 	markParents();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the adaption range in a given iteration and sorting scheme.
  *
@@ -1252,7 +1252,7 @@ boost::tuple<std::size_t,std::size_t> GBaseEA::getAdaptionRange() const {
 	return boost::tuple<std::size_t, std::size_t>(first, last);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the evaluation range in a given iteration and sorting scheme. Depending on the
  * iteration and sorting scheme, the start point will be different. The end-point is not meant
@@ -1294,7 +1294,7 @@ boost::tuple<std::size_t,std::size_t> GBaseEA::getEvaluationRange() const {
 	return boost::tuple<std::size_t, std::size_t>(first, last);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Selection, MUPLUSNU_SINGLEEVAL style. Note that not all individuals of the population (including parents)
  * are sorted -- only the nParents best individuals are identified. The quality of the population can only
@@ -1324,7 +1324,7 @@ void GBaseEA::sortMuPlusNuMode() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Selection, MUCOMMANU_SINGLEEVAL style. New parents are selected from children only. The quality
  * of the population may decrease occasionally from generation to generation, but the
@@ -1356,7 +1356,7 @@ void GBaseEA::sortMuCommaNuMode() {
 	std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Selection, MUNU1PRETAIN_SINGLEEVAL style. This is a hybrid between MUPLUSNU_SINGLEEVAL and MUCOMMANU_SINGLEEVAL
  * mode. If a better child was found than the best parent of the last generation,
@@ -1393,7 +1393,7 @@ void GBaseEA::sortMunu1pretainMode() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Selection according to the pareto tag, also taking into account the parents of a population (i.e. in MUPLUSNU
  * mode). This is used in conjunction with multi-criterion optimization. See e.g.
@@ -1479,7 +1479,7 @@ void GBaseEA::sortMuPlusNuParetoMode() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Selection according to the pareto tag, not taking into account the parents of a population (i.e. in MUCOMMANU
  * mode). This is used in conjunction with multi-criterion optimization. See e.g.
@@ -1575,7 +1575,7 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Determines whether the first individual dominates the second.
  *
@@ -1606,7 +1606,7 @@ bool GBaseEA::aDominatesB(
 	return true;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs a simulated annealing style sorting and selection
  */
@@ -1648,7 +1648,7 @@ void GBaseEA::sortSAMode() {
 	updateTemperature();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Calculates the simulated annealing probability for a child to replace a parent
  *
@@ -1672,7 +1672,7 @@ double GBaseEA::saProb(const double& qParent, const double& qChild) {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Updates the temperature. This function is used for simulated annealing.
  */
@@ -1680,7 +1680,7 @@ void GBaseEA::updateTemperature() {
 	t_ *= alpha_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Determines the strength of the temperature degradation. This function is used for simulated annealing.
  *
@@ -1697,7 +1697,7 @@ void GBaseEA::setTDegradationStrength(double alpha) {
 	alpha_ = alpha;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the temperature degradation strength. This function is used for simulated annealing.
  *
@@ -1707,7 +1707,7 @@ double GBaseEA::getTDegradationStrength() const {
 	return alpha_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the start temperature. This function is used for simulated annealing.
  *
@@ -1724,7 +1724,7 @@ void GBaseEA::setT0(double t0) {
 	t0_ = t0;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the start temperature. This function is used for simulated annealing.
  *
@@ -1734,7 +1734,7 @@ double GBaseEA::getT0() const {
 	return t0_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the current temperature. This function is used for simulated annealing.
  *
@@ -1744,7 +1744,7 @@ double GBaseEA::getT() const {
 	return t_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This helper function marks parents as parents and children as children.
  */
@@ -1755,7 +1755,7 @@ void GBaseEA::markParents() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This helper function marks children as children
  */
@@ -1766,7 +1766,7 @@ void GBaseEA::markChildren() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This helper function lets all individuals know about their position in the
  * population.
@@ -1777,7 +1777,7 @@ void GBaseEA::markIndividualPositions() {
 	for(it=data.begin(); it!=data.end(); ++it) (*it)->getPersonalityTraits<GEAPersonalityTraits>()->setPopulationPosition(pos++);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the defaultNChildren_ parameter. E.g. in GTransferPopulation::adaptChildren() ,
  * this factor controls when a population is considered to be complete. The corresponding
@@ -1790,7 +1790,7 @@ std::size_t GBaseEA::getDefaultNChildren() const {
 	return defaultNChildren_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Lets the user set the desired recombination method. No sanity checks for the
  * values are necessary, as we use an enum.
@@ -1801,7 +1801,7 @@ void GBaseEA::setRecombinationMethod(duplicationScheme recombinationMethod) {
 	recombinationMethod_ = recombinationMethod;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the value of the recombinationMethod_ variable
  *
@@ -1812,7 +1812,7 @@ duplicationScheme GBaseEA::getRecombinationMethod() const {
 }
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -1827,7 +1827,7 @@ bool GBaseEA::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Fills the collection with individuals.
  *
@@ -1846,7 +1846,7 @@ void GBaseEA::fillWithObjects(const std::size_t& nIndividuals) {
 	this->randomInit();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -1902,7 +1902,7 @@ void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -1911,10 +1911,11 @@ void GBaseEA::specificTestsFailuresExpected_GUnitTests() {
 	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::specificTestsFailuresExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
+
 #endif /* GEM_TESTING */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -1924,7 +1925,7 @@ GBaseEA::GEAOptimizationMonitor::GEAOptimizationMonitor()
 	, nMonitorInds_(0)
 { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -1937,14 +1938,14 @@ GBaseEA::GEAOptimizationMonitor::GEAOptimizationMonitor(const GBaseEA::GEAOptimi
 	, nMonitorInds_(cp.nMonitorInds_)
 { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GBaseEA::GEAOptimizationMonitor::~GEAOptimizationMonitor()
 { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -1956,7 +1957,7 @@ const GBaseEA::GEAOptimizationMonitor& GBaseEA::GEAOptimizationMonitor::operator
 	return *this;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GParameter Base object
  *
@@ -1969,7 +1970,7 @@ bool GBaseEA::GEAOptimizationMonitor::operator==(const GBaseEA::GEAOptimizationM
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseEA::GEAOptimizationMonitor::operator==","cp", CE_SILENT);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GEAOptimizationMonitor object
  *
@@ -1982,7 +1983,7 @@ bool GBaseEA::GEAOptimizationMonitor::operator!=(const GBaseEA::GEAOptimizationM
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseEA::GEAOptimizationMonitor::operator!=","cp", CE_SILENT);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -2022,7 +2023,7 @@ boost::optional<std::string> GBaseEA::GEAOptimizationMonitor::checkRelationshipW
 	return evaluateDiscrepancies("GBaseEA::GEAOptimizationMonitor", caller, deviations, e);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called once before the optimization starts
  *
@@ -2055,7 +2056,7 @@ std::string GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgor
 	return eaFirstInformation(ea);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called during each optimization cycle. It is possible to
  * extract quite comprehensive information in each iteration. For examples, see
@@ -2082,7 +2083,7 @@ std::string GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgor
 	return eaCycleInformation(ea);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called once at the end of the optimization cycle
  *
@@ -2111,7 +2112,7 @@ std::string GBaseEA::GEAOptimizationMonitor::lastInformation(GOptimizationAlgori
 	return result.str();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called once before the optimization starts, acting on evolutionary
  * algorithms
@@ -2137,7 +2138,7 @@ std::string GBaseEA::GEAOptimizationMonitor::eaFirstInformation(GBaseEA * const 
 	return result.str();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called during each optimization cycle, acting on evolutionary
  * algorithms
@@ -2179,7 +2180,7 @@ std::string GBaseEA::GEAOptimizationMonitor::eaCycleInformation(GBaseEA * const 
 	return result.str();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called once at the end of the optimization cycle acting
  * on evolutionary algorithms
@@ -2222,7 +2223,7 @@ std::string GBaseEA::GEAOptimizationMonitor::eaLastInformation(GBaseEA * const e
 	return result.str();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the dimensions of the canvas
  *
@@ -2234,7 +2235,7 @@ void GBaseEA::GEAOptimizationMonitor::setDims(const boost::uint16_t& xDim, const
 	yDim_ = yDim;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the dimension of the canvas in x-direction
  *
@@ -2244,7 +2245,7 @@ boost::uint16_t GBaseEA::GEAOptimizationMonitor::getXDim() const {
 	return xDim_;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the dimension of the canvas in y-direction
  *
@@ -2254,7 +2255,7 @@ boost::uint16_t GBaseEA::GEAOptimizationMonitor::getYDim() const {
 	return yDim_;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Sets the number of individuals in the population that should be monitored
  *
@@ -2271,7 +2272,7 @@ void GBaseEA::GEAOptimizationMonitor::setNMonitorIndividuals(const std::size_t& 
 	nMonitorInds_ = nMonitorInds;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the number of individuals that are being monitored
  *
@@ -2281,7 +2282,7 @@ std::size_t GBaseEA::GEAOptimizationMonitor::getNMonitorIndividuals() const {
 	return nMonitorInds_;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another object
  *
@@ -2299,7 +2300,7 @@ void GBaseEA::GEAOptimizationMonitor::load_(const GObject* cp) {
 	nMonitorInds_ = p_load->nMonitorInds_;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -2310,7 +2311,8 @@ GObject* GBaseEA::GEAOptimizationMonitor::clone_() const {
 }
 
 #ifdef GEM_TESTING
-/**********************************************************************************/
+
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
@@ -2323,7 +2325,7 @@ bool GBaseEA::GEAOptimizationMonitor::modify_GUnitTests() {
 	return result;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -2332,7 +2334,7 @@ void GBaseEA::GEAOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests(
 	GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -2341,7 +2343,8 @@ void GBaseEA::GEAOptimizationMonitor::specificTestsFailuresExpected_GUnitTests()
 	GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
+
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

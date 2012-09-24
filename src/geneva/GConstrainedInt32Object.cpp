@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedInt32Object)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -47,7 +47,7 @@ GConstrainedInt32Object::GConstrainedInt32Object()
 	: GConstrainedIntT<boost::int32_t>()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with boundaries only. A random value inside of the allowed ranges will
  * be assigned to the object.
@@ -62,7 +62,7 @@ GConstrainedInt32Object::GConstrainedInt32Object(
 	: GConstrainedIntT<boost::int32_t>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with value and boundaries
  *
@@ -78,7 +78,7 @@ GConstrainedInt32Object::GConstrainedInt32Object (
 	: GConstrainedIntT<boost::int32_t>(val, lowerBoundary, upperBoundary)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -88,7 +88,7 @@ GConstrainedInt32Object::GConstrainedInt32Object(const GConstrainedInt32Object& 
 	: GConstrainedIntT<boost::int32_t>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization by contained value
  *
@@ -98,14 +98,14 @@ GConstrainedInt32Object::GConstrainedInt32Object(const boost::int32_t& val)
 	: GConstrainedIntT<boost::int32_t>(val)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GConstrainedInt32Object::~GConstrainedInt32Object()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * An assignment operator for the contained value type
  *
@@ -116,7 +116,7 @@ boost::int32_t GConstrainedInt32Object::operator=(const boost::int32_t& val) {
 	return GConstrainedIntT<boost::int32_t>::operator=(val);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -128,7 +128,7 @@ const GConstrainedInt32Object& GConstrainedInt32Object::operator=(const GConstra
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -138,7 +138,7 @@ GObject* GConstrainedInt32Object::clone_() const {
 	return new GConstrainedInt32Object(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GConstrainedInt32Object object
  *
@@ -151,7 +151,7 @@ bool GConstrainedInt32Object::operator==(const GConstrainedInt32Object& cp) cons
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedInt32Object::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GConstrainedInt32Object object
  *
@@ -164,7 +164,7 @@ bool GConstrainedInt32Object::operator!=(const GConstrainedInt32Object& cp) cons
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedInt32Object::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -201,7 +201,7 @@ boost::optional<std::string> GConstrainedInt32Object::checkRelationshipWith (
 	return evaluateDiscrepancies("GConstrainedInt32Object", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
@@ -212,7 +212,7 @@ void GConstrainedInt32Object::int32Streamline(std::vector<boost::int32_t>& parVe
 	parVec.push_back(this->value());
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach boundaries of type boost::int32_t to the vectors.
  *
@@ -227,7 +227,7 @@ void GConstrainedInt32Object::int32Boundaries(
 	uBndVec.push_back(this->getUpperBoundary());
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Tell the audience that we own a boost::int32_t value
  *
@@ -237,7 +237,7 @@ std::size_t GConstrainedInt32Object::countInt32Parameters() const {
 	return 1;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter. Note that we apply a transformation
  * to the assigned value, so that it lies inside of the allowed value range.
@@ -257,7 +257,7 @@ void GConstrainedInt32Object::assignInt32ValueVector(const std::vector<boost::in
 	pos++;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -273,7 +273,7 @@ void GConstrainedInt32Object::load_(const GObject* cp){
 	// ... no local data
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers random initialization of the parameter object
  */
@@ -288,7 +288,7 @@ void GConstrainedInt32Object::randomInit_() {
 
 #ifdef GEM_TESTING
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -303,7 +303,7 @@ bool GConstrainedInt32Object::modify_GUnitTests() {
 	return result;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -334,7 +334,7 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -365,7 +365,7 @@ void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

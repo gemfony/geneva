@@ -40,14 +40,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32FlipAdaptor)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
 GInt32FlipAdaptor::GInt32FlipAdaptor()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -57,7 +57,7 @@ GInt32FlipAdaptor::GInt32FlipAdaptor(const GInt32FlipAdaptor& cp)
 	: GIntFlipAdaptorT<boost::int32_t>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a adaption probability
  *
@@ -67,14 +67,14 @@ GInt32FlipAdaptor::GInt32FlipAdaptor(const double& adProb)
 	: GIntFlipAdaptorT<boost::int32_t>(adProb)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GInt32FlipAdaptor::~GInt32FlipAdaptor()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -86,7 +86,7 @@ const GInt32FlipAdaptor& GInt32FlipAdaptor::operator=(const GInt32FlipAdaptor& c
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -96,7 +96,7 @@ GObject* GInt32FlipAdaptor::clone_() const {
 	return new GInt32FlipAdaptor(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GInt32FlipAdaptor object
  *
@@ -109,7 +109,7 @@ bool GInt32FlipAdaptor::operator==(const GInt32FlipAdaptor& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GInt32FlipAdaptor::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GInt32FlipAdaptor object
  *
@@ -122,7 +122,7 @@ bool GInt32FlipAdaptor::operator!=(const GInt32FlipAdaptor& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GInt32FlipAdaptor::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -158,7 +158,7 @@ boost::optional<std::string> GInt32FlipAdaptor::checkRelationshipWith(const GObj
 	return evaluateDiscrepancies("GInt32FlipAdaptor", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -174,7 +174,7 @@ void GInt32FlipAdaptor::load_(const GObject* cp){
 	// ... no local data
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the id of this adaptor
  *
@@ -190,7 +190,7 @@ Gem::Geneva::adaptorId GInt32FlipAdaptor::getAdaptorId() const {
  */
 
 #ifdef GEM_TESTING
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -208,7 +208,7 @@ bool GInt32FlipAdaptor::modify_GUnitTests() {
 	return result;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -219,7 +219,7 @@ void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GIntFlipAdaptorT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
 		boost::shared_ptr<GInt32FlipAdaptor> p_test = this->clone<GInt32FlipAdaptor>();
@@ -232,10 +232,10 @@ void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -249,7 +249,7 @@ void GInt32FlipAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	// no local data - nothing to test
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

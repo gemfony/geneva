@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBrokerGD)
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -48,7 +48,7 @@ GBrokerGD::GBrokerGD() :
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with the number of starting points and the size of the finite step
  */
@@ -60,7 +60,7 @@ GBrokerGD::GBrokerGD(
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor
  */
@@ -69,14 +69,14 @@ GBrokerGD::GBrokerGD(const GBrokerGD& cp)
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor.
  */
 GBrokerGD::~GBrokerGD()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator for GBrokerGD objects.
  *
@@ -88,7 +88,7 @@ const GBrokerGD& GBrokerGD::operator=(const GBrokerGD& cp) {
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GBrokerGD object
  *
@@ -103,7 +103,7 @@ bool GBrokerGD::operator==(const GBrokerGD& cp) const
 			"cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GBrokerGD object
  *
@@ -118,7 +118,7 @@ bool GBrokerGD::operator!=(const GBrokerGD& cp) const
 			"GBrokerGD::operator!=", "cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -157,7 +157,7 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 	return evaluateDiscrepancies("GBrokerGD", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether this algorithm communicates via the broker. This is an overload from the corresponding
  * GOptimizableI function
@@ -168,7 +168,7 @@ bool GBrokerGD::usesBroker() const {
 	return true;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data from another GBrokerGD object.
  *
@@ -184,7 +184,7 @@ void GBrokerGD::load_(const GObject *cp) {
 	// ... no local data
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -194,7 +194,7 @@ GObject *GBrokerGD::clone_() const {
 	return new GBrokerGD(*this);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization
  */
@@ -224,7 +224,7 @@ void GBrokerGD::init() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary clean-up work after the optimization has finished
  */
@@ -239,7 +239,7 @@ void GBrokerGD::finalize() {
 	GBaseGD::finalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -259,7 +259,7 @@ void GBrokerGD::addConfigurationOptions (
 	// no local data
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -269,7 +269,7 @@ std::string GBrokerGD::getIndividualCharacteristic() const {
 	return std::string("GENEVA_BROKEROPTALG");
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers fitness calculation of a number of individuals. This function performs the same task as done
  * in GBaseGD, albeit by delegating work to the broker. Items are evaluated up to a maximum position
@@ -342,7 +342,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 }
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -357,7 +357,7 @@ bool GBrokerGD::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -366,7 +366,7 @@ void GBrokerGD::specificTestsNoFailureExpected_GUnitTests() {
 	GBaseGD::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -375,17 +375,18 @@ void GBrokerGD::specificTestsFailuresExpected_GUnitTests() {
 	GBaseGD::specificTestsFailuresExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
 #ifdef GEM_TESTING
+
 // Tests of this class (and parent classes)
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * As Gem::Geneva::GBrokerGD has a protected default constructor, we need to provide a
  * specialization of the factory function that creates objects of this type.
@@ -397,7 +398,8 @@ boost::shared_ptr<Gem::Geneva::GBrokerGD> TFactory_GUnitTests<Gem::Geneva::GBrok
 	return p;
 }
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
 #endif /* GEM_TESTING */

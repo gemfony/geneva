@@ -43,7 +43,7 @@ namespace Gem
 namespace Geneva
 {
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * A factory function that returns the default adaptor for the base type "double"
  *
@@ -54,7 +54,7 @@ boost::shared_ptr<GAdaptorT<double> > getDefaultAdaptor<double>() {
 	return boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor());
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * A factory function that returns the default adaptor for the base type "float"
  *
@@ -65,7 +65,7 @@ boost::shared_ptr<GAdaptorT<float> > getDefaultAdaptor<float>() {
 	return boost::shared_ptr<GFloatGaussAdaptor>(new GFloatGaussAdaptor());
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * A factory function that returns the default adaptor for the base type "boost::int32_t"
  *
@@ -76,7 +76,7 @@ boost::shared_ptr<GAdaptorT<boost::int32_t> > getDefaultAdaptor<boost::int32_t>(
 	return boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor());
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * A factory function that returns the default adaptor for the base type "bool"
  *
@@ -87,7 +87,7 @@ boost::shared_ptr<GAdaptorT<bool> > getDefaultAdaptor<bool>() {
 	return boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor());
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialGD)
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -47,7 +47,7 @@ GSerialGD::GSerialGD()
 	: GBaseGD()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with the number of starting points and the size of the finite step
  */
@@ -59,7 +59,7 @@ GSerialGD::GSerialGD (
 	: GBaseGD(nStartingPoints, finiteStep, stepSize)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor
  */
@@ -67,14 +67,14 @@ GSerialGD::GSerialGD(const GSerialGD& cp)
 	: GBaseGD(cp)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor.
  */
 GSerialGD::~GSerialGD()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator for GSerialGD objects.
  *
@@ -86,7 +86,7 @@ const GSerialGD& GSerialGD::operator=(const GSerialGD& cp) {
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GSerialGD object
  *
@@ -99,7 +99,7 @@ bool GSerialGD::operator==(const GSerialGD& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialGD::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GSerialGD object
  *
@@ -112,7 +112,7 @@ bool GSerialGD::operator!=(const GSerialGD& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialGD::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -151,7 +151,7 @@ boost::optional<std::string> GSerialGD::checkRelationshipWith(
 	return evaluateDiscrepancies("GSerialGD", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data from another GSerialGD object.
  *
@@ -169,7 +169,7 @@ void GSerialGD::load_(const GObject *cp) {
 	// ... no local data
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -179,7 +179,7 @@ GObject *GSerialGD::clone_() const  {
 	return new GSerialGD(*this);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization
  */
@@ -190,7 +190,7 @@ void GSerialGD::init() {
 	// Add local configuration code here
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary clean-up work after the optimization has finished
  */
@@ -201,7 +201,7 @@ void GSerialGD::finalize() {
 	GBaseGD::finalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -218,7 +218,7 @@ void GSerialGD::addConfigurationOptions (
 	// no local data
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -228,7 +228,7 @@ std::string GSerialGD::getIndividualCharacteristic() const {
 	return std::string("GENEVA_SERIALOPTALG");
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs final optimization work. In the case of (networked) gradient descents, the starting points need
  * to be re-evaluated at the end of the optimization cycle, before the connection to the broker is cut.
@@ -240,7 +240,7 @@ std::string GSerialGD::getIndividualCharacteristic() const {
 // }
 // TODO: What for ?
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers fitness calculation of a number of individuals. This function can be overloaded to perform
  * fitness calculation in parallel, using threads or network communication.
@@ -296,7 +296,7 @@ double GSerialGD::doFitnessCalculation(const std::size_t& finalPos) {
 
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
@@ -309,7 +309,7 @@ bool GSerialGD::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -318,7 +318,7 @@ void GSerialGD::specificTestsNoFailureExpected_GUnitTests() {
 	GBaseGD::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -332,7 +332,7 @@ void GSerialGD::specificTestsFailuresExpected_GUnitTests() {
 } /* namespace Gem */
 
 
-/************************************************************************************************************/
+/******************************************************************************/
 #ifdef GEM_TESTING
 /**
  * A factory function that emits a GSerialGD object
@@ -346,3 +346,4 @@ template <> boost::shared_ptr<Gem::Geneva::GSerialGD> TFactory_GUnitTests<Gem::G
 }
 #endif /* GEM_TESTING */
 
+/******************************************************************************/

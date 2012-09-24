@@ -42,7 +42,7 @@ namespace Gem
 namespace Geneva
 {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -51,7 +51,7 @@ GBrokerSwarm::GBrokerSwarm()
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A constructor that initializes the swarm with the number of neighborhoods and the expected number of
  * members inside of them.
@@ -64,7 +64,7 @@ GBrokerSwarm::GBrokerSwarm(const std::size_t& nNeighborhoods, const std::size_t&
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The standard copy constructor
  *
@@ -75,7 +75,7 @@ GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm& cp)
     , Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor. We have no object-wide dynamically allocated data, hence
  * this function is empty.
@@ -83,7 +83,7 @@ GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm& cp)
 GBrokerSwarm::~GBrokerSwarm()
 { /* nothing */}
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator for GBrokerSwarm objects,
  *
@@ -95,7 +95,7 @@ const GBrokerSwarm& GBrokerSwarm::operator=(const GBrokerSwarm& cp) {
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GBrokerSwarm object, camouflaged as a
  * pointer to a GObject
@@ -112,7 +112,7 @@ void GBrokerSwarm::load_(const GObject * cp) {
 	// no local data
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep copy of this object
  *
@@ -122,7 +122,7 @@ GObject *GBrokerSwarm::clone_() const {
 	return new GBrokerSwarm(*this);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GBrokerSwarm object
  *
@@ -135,7 +135,7 @@ bool GBrokerSwarm::operator==(const GBrokerSwarm& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBrokerSwarm::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GBrokerSwarm object
  *
@@ -148,7 +148,7 @@ bool GBrokerSwarm::operator!=(const GBrokerSwarm& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBrokerSwarm::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -187,7 +187,7 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
 	return evaluateDiscrepancies("GBrokerSwarm", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs any necessary initialization work before the start of the optimization cycle
  */
@@ -217,7 +217,7 @@ void GBrokerSwarm::init() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs any necessary finalization work after the end of the optimization cycle
  */
@@ -232,7 +232,7 @@ void GBrokerSwarm::finalize() {
 	GBaseSwarm::finalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether this algorithm communicates via the broker. This is an overload from the corresponding
  * GOptimizableI function
@@ -243,7 +243,7 @@ bool GBrokerSwarm::usesBroker() const {
 	return true;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -261,7 +261,7 @@ void GBrokerSwarm::addConfigurationOptions (
 	// no local data
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -271,7 +271,7 @@ std::string GBrokerSwarm::getIndividualCharacteristic() const {
 	return std::string("GENEVA_BROKEROPTALG");
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a copy of the last iteration's individuals, if this is not the first iteration, then performs the standard position
  * update using GSwam::updatePositions(). We use the old individuals to fill in missing returns in
@@ -312,7 +312,7 @@ void GBrokerSwarm::updatePositions() {
 	GBaseSwarm::updatePositions();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers the fitness calculation of all individuals
  */
@@ -357,7 +357,7 @@ void GBrokerSwarm::updateFitness() {
 	// The population will be fixed in the overloaded GBrokerSwarm::adjustNeighborhoods() function
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Fixes the population after a job submission, possibly using stored copies of the previous iteration.
  */
@@ -452,7 +452,7 @@ void GBrokerSwarm::adjustNeighborhoods() {
 	oldIndividuals_.clear(); // Get rid of the copies
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether each neighborhood has the default size
  *
@@ -466,7 +466,7 @@ bool GBrokerSwarm::neighborhoodsHaveNominalValues() const {
 }
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -481,7 +481,7 @@ bool GBrokerSwarm::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -490,7 +490,7 @@ void GBrokerSwarm::specificTestsNoFailureExpected_GUnitTests() {
 	GBaseSwarm::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -499,7 +499,7 @@ void GBrokerSwarm::specificTestsFailuresExpected_GUnitTests() {
 	GBaseSwarm::specificTestsFailuresExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

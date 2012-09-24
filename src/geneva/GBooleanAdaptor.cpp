@@ -38,7 +38,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBooleanAdaptor)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -48,7 +48,7 @@ GBooleanAdaptor::GBooleanAdaptor()
 
 // Tested in this class
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -60,7 +60,7 @@ GBooleanAdaptor::GBooleanAdaptor(const GBooleanAdaptor& cp)
 
 // Tested in this class
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a adaption probability
  *
@@ -72,14 +72,14 @@ GBooleanAdaptor::GBooleanAdaptor(const double& adProb)
 
 // Tested in this class
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GBooleanAdaptor::~GBooleanAdaptor()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -91,7 +91,7 @@ const GBooleanAdaptor& GBooleanAdaptor::operator=(const GBooleanAdaptor& cp){
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -101,7 +101,7 @@ GObject* GBooleanAdaptor::clone_() const {
 	return new GBooleanAdaptor(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GBooleanAdaptor object
  *
@@ -114,7 +114,7 @@ bool GBooleanAdaptor::operator==(const GBooleanAdaptor& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBooleanAdaptor::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GBooleanAdaptor object
  *
@@ -127,7 +127,7 @@ bool GBooleanAdaptor::operator!=(const GBooleanAdaptor& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBooleanAdaptor::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -163,7 +163,7 @@ boost::optional<std::string> GBooleanAdaptor::checkRelationshipWith(const GObjec
 	return evaluateDiscrepancies("GBooleanAdaptor", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -179,7 +179,7 @@ void GBooleanAdaptor::load_(const GObject* cp){
 	// ... no local data
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the id of this adaptor
  *
@@ -194,7 +194,7 @@ Gem::Geneva::adaptorId GBooleanAdaptor::getAdaptorId() const {
  * ----------------------------------------------------------------------------------
  */
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The actual adaption logic
  *
@@ -211,7 +211,7 @@ void GBooleanAdaptor::customAdaptions(bool& value) {
 
 #ifdef GEM_TESTING
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -229,7 +229,7 @@ bool GBooleanAdaptor::modify_GUnitTests() {
 	return result;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -240,7 +240,7 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GIntFlipAdaptorT<bool>::specificTestsNoFailureExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check default construction
 		GBooleanAdaptor gba;
@@ -252,7 +252,7 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check construction with a given adaption probability
 		const double TRIALADPROB = 0.1;
@@ -265,7 +265,7 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check copy construction
 		const double TRIALADPROB = 0.1;
@@ -279,7 +279,7 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
 		boost::shared_ptr<GBooleanAdaptor> p_test = this->clone<GBooleanAdaptor>();
@@ -292,10 +292,10 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -309,7 +309,7 @@ void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	// no local data - nothing to test
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

@@ -38,14 +38,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleObjectCollection)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
 GDoubleObjectCollection::GDoubleObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a number of identical GDoubleObject objects
  */
@@ -56,7 +56,7 @@ GDoubleObjectCollection::GDoubleObjectCollection(
 	:GParameterTCollectionT<GDoubleObject>(nCp, tmpl_ptr)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -66,14 +66,14 @@ GDoubleObjectCollection::GDoubleObjectCollection(const GDoubleObjectCollection& 
 	: GParameterTCollectionT<GDoubleObject>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GDoubleObjectCollection::~GDoubleObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -85,7 +85,7 @@ const GDoubleObjectCollection& GDoubleObjectCollection::operator=(const GDoubleO
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -95,7 +95,7 @@ GObject* GDoubleObjectCollection::clone_() const {
 	return new GDoubleObjectCollection(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GDoubleObjectCollection object
  *
@@ -108,7 +108,7 @@ bool GDoubleObjectCollection::operator==(const GDoubleObjectCollection& cp) cons
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GDoubleObjectCollection::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GDoubleObjectCollection object
  *
@@ -121,7 +121,7 @@ bool GDoubleObjectCollection::operator!=(const GDoubleObjectCollection& cp) cons
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GDoubleObjectCollection::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -157,7 +157,7 @@ boost::optional<std::string> GDoubleObjectCollection::checkRelationshipWith(cons
 	return evaluateDiscrepancies("GDoubleObjectCollection", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -174,7 +174,7 @@ void GDoubleObjectCollection::load_(const GObject* cp){
 }
 
 #ifdef GEM_TESTING
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -189,7 +189,7 @@ bool GDoubleObjectCollection::modify_GUnitTests() {
 	return true;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Fills the collection with GDoubleObject objects
  */
@@ -222,7 +222,7 @@ void GDoubleObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) 
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -237,7 +237,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const double RANDLOWERBOUNDARY = 0.;
 	const double RANDUPPERBOUNDARY = 10.;
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
 		boost::shared_ptr<GDoubleObjectCollection> p_test = this->clone<GDoubleObjectCollection>();
@@ -249,7 +249,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		p_test->GParameterTCollectionT<GDoubleObject>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test the GParameterTCollectionT<T>::adaptImpl() implementation
 		boost::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
@@ -277,7 +277,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test initialization of GDouble objects with a fixed floating point value
 		boost::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
@@ -297,7 +297,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a fixed value
 		boost::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
@@ -320,7 +320,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a random number in a given range
 		boost::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
@@ -356,7 +356,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a random number in a the range [0,1[
 		boost::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
@@ -392,7 +392,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test addition of another object
 		boost::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
@@ -421,7 +421,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test subtraction of another object
 		boost::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
@@ -450,10 +450,10 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -464,7 +464,7 @@ void GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterTCollectionT<GDoubleObject>::specificTestsFailuresExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that fpAdd throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpAdd() )
 		boost::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
@@ -486,7 +486,7 @@ void GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK_THROW(p_test1->fpAdd(p_test2), Gem::Common::gemfony_error_condition);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that fpSubtract throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpSubtract() )
 		boost::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
@@ -508,10 +508,10 @@ void GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK_THROW(p_test1->fpSubtract(p_test2), Gem::Common::gemfony_error_condition);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

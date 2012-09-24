@@ -39,14 +39,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedFloatObjectCollection)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
 GConstrainedFloatObjectCollection::GConstrainedFloatObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a number of identical GConstrainedFloatObject objects
  */
@@ -57,7 +57,7 @@ GConstrainedFloatObjectCollection::GConstrainedFloatObjectCollection(
 	:GParameterTCollectionT<GConstrainedFloatObject>(nCp, tmpl_ptr)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -67,14 +67,14 @@ GConstrainedFloatObjectCollection::GConstrainedFloatObjectCollection(const GCons
 	: GParameterTCollectionT<GConstrainedFloatObject>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GConstrainedFloatObjectCollection::~GConstrainedFloatObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -86,7 +86,7 @@ const GConstrainedFloatObjectCollection& GConstrainedFloatObjectCollection::oper
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -96,7 +96,7 @@ GObject* GConstrainedFloatObjectCollection::clone_() const {
 	return new GConstrainedFloatObjectCollection(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GConstrainedFloatObjectCollection object
  *
@@ -109,7 +109,7 @@ bool GConstrainedFloatObjectCollection::operator==(const GConstrainedFloatObject
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedFloatObjectCollection::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GConstrainedFloatObjectCollection object
  *
@@ -122,7 +122,7 @@ bool GConstrainedFloatObjectCollection::operator!=(const GConstrainedFloatObject
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedFloatObjectCollection::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -158,7 +158,7 @@ boost::optional<std::string> GConstrainedFloatObjectCollection::checkRelationshi
 	return evaluateDiscrepancies("GConstrainedFloatObjectCollection", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -176,7 +176,7 @@ void GConstrainedFloatObjectCollection::load_(const GObject* cp){
 
 #ifdef GEM_TESTING
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -191,7 +191,7 @@ bool GConstrainedFloatObjectCollection::modify_GUnitTests() {
 	return true;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Fills the collection with GConstrainedFloatObject objects
  */
@@ -224,7 +224,7 @@ void GConstrainedFloatObjectCollection::fillWithObjects(const std::size_t& nAdde
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -239,7 +239,7 @@ void GConstrainedFloatObjectCollection::specificTestsNoFailureExpected_GUnitTest
 	const float RANDLOWERBOUNDARY = 0.;
 	const float RANDUPPERBOUNDARY = 10.;
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
 		boost::shared_ptr<GConstrainedFloatObjectCollection> p_test = this->clone<GConstrainedFloatObjectCollection>();
@@ -251,7 +251,7 @@ void GConstrainedFloatObjectCollection::specificTestsNoFailureExpected_GUnitTest
 		p_test->GParameterTCollectionT<GConstrainedFloatObject>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test the GParameterTCollectionT<T>::adaptImpl() implementation
 		boost::shared_ptr<GConstrainedFloatObjectCollection> p_test1 = this->clone<GConstrainedFloatObjectCollection>();
@@ -279,7 +279,7 @@ void GConstrainedFloatObjectCollection::specificTestsNoFailureExpected_GUnitTest
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test initialization of GConstrainedFloat objects with a fixed floating point value
 		boost::shared_ptr<GConstrainedFloatObjectCollection> p_test1 = this->clone<GConstrainedFloatObjectCollection>();
@@ -299,7 +299,7 @@ void GConstrainedFloatObjectCollection::specificTestsNoFailureExpected_GUnitTest
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a fixed value
 		boost::shared_ptr<GConstrainedFloatObjectCollection> p_test1 = this->clone<GConstrainedFloatObjectCollection>();
@@ -322,7 +322,7 @@ void GConstrainedFloatObjectCollection::specificTestsNoFailureExpected_GUnitTest
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a random number in a given range
 		boost::shared_ptr<GConstrainedFloatObjectCollection> p_test1 = this->clone<GConstrainedFloatObjectCollection>();
@@ -358,7 +358,7 @@ void GConstrainedFloatObjectCollection::specificTestsNoFailureExpected_GUnitTest
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a random number in a the range [0,1[
 		boost::shared_ptr<GConstrainedFloatObjectCollection> p_test1 = this->clone<GConstrainedFloatObjectCollection>();
@@ -394,7 +394,7 @@ void GConstrainedFloatObjectCollection::specificTestsNoFailureExpected_GUnitTest
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test addition of another object
 		boost::shared_ptr<GConstrainedFloatObjectCollection> p_test1 = this->clone<GConstrainedFloatObjectCollection>();
@@ -423,7 +423,7 @@ void GConstrainedFloatObjectCollection::specificTestsNoFailureExpected_GUnitTest
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test subtraction of another object
 		boost::shared_ptr<GConstrainedFloatObjectCollection> p_test1 = this->clone<GConstrainedFloatObjectCollection>();
@@ -452,10 +452,10 @@ void GConstrainedFloatObjectCollection::specificTestsNoFailureExpected_GUnitTest
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -466,7 +466,7 @@ void GConstrainedFloatObjectCollection::specificTestsFailuresExpected_GUnitTests
 	// Call the parent class'es function
 	GParameterTCollectionT<GConstrainedFloatObject>::specificTestsFailuresExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that fpAdd throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpAdd() )
 		boost::shared_ptr<GConstrainedFloatObjectCollection> p_test1 = this->clone<GConstrainedFloatObjectCollection>();
@@ -488,7 +488,7 @@ void GConstrainedFloatObjectCollection::specificTestsFailuresExpected_GUnitTests
 		BOOST_CHECK_THROW(p_test1->fpAdd(p_test2), Gem::Common::gemfony_error_condition);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that fpSubtract throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpSubtract() )
 		boost::shared_ptr<GConstrainedFloatObjectCollection> p_test1 = this->clone<GConstrainedFloatObjectCollection>();
@@ -510,10 +510,10 @@ void GConstrainedFloatObjectCollection::specificTestsFailuresExpected_GUnitTests
 		BOOST_CHECK_THROW(p_test1->fpSubtract(p_test2), Gem::Common::gemfony_error_condition);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

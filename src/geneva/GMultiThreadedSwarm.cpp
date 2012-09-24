@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMultiThreadedSwarm)
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor. No local, dynamically allocated data, hence this function is empty.
  */
@@ -48,7 +48,7 @@ GMultiThreadedSwarm::GMultiThreadedSwarm()
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard constructor. No local, dynamically allocated data, hence this function is empty.
  */
@@ -60,7 +60,7 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor.
  *
@@ -71,7 +71,7 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(const GMultiThreadedSwarm& cp)
    , nThreads_(cp.nThreads_)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor. We clear remaining work items in the
  * thread pool and wait for active tasks to finish.
@@ -79,7 +79,7 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(const GMultiThreadedSwarm& cp)
 GMultiThreadedSwarm::~GMultiThreadedSwarm()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator for GMultiThreadedSwarm objects.
  *
@@ -91,7 +91,7 @@ const GMultiThreadedSwarm& GMultiThreadedSwarm::operator=(const GMultiThreadedSw
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data from another GMultiThreadedSwarm object.
  *
@@ -108,7 +108,7 @@ void GMultiThreadedSwarm::load_(const GObject *cp) {
 	nThreads_ = p_load->nThreads_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GMultiThreadedSwarm object
  *
@@ -121,7 +121,7 @@ bool GMultiThreadedSwarm::operator==(const GMultiThreadedSwarm& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiThreadedSwarm::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GMultiThreadedSwarm object
  *
@@ -134,7 +134,7 @@ bool GMultiThreadedSwarm::operator!=(const GMultiThreadedSwarm& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiThreadedSwarm::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -172,7 +172,7 @@ boost::optional<std::string> GMultiThreadedSwarm::checkRelationshipWith(
 	return evaluateDiscrepancies("GMultiThreadedSwarm", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -182,7 +182,7 @@ GObject *GMultiThreadedSwarm::clone_() const  {
 	return new GMultiThreadedSwarm(*this);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization
  */
@@ -215,7 +215,7 @@ void GMultiThreadedSwarm::init() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary clean-up work after the optimization has finished
  */
@@ -233,7 +233,7 @@ void GMultiThreadedSwarm::finalize() {
 	GBaseSwarm::finalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -267,7 +267,7 @@ void GMultiThreadedSwarm::addConfigurationOptions (
 	);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -277,7 +277,7 @@ std::string GMultiThreadedSwarm::getIndividualCharacteristic() const {
 	return std::string("GENEVA_MTOPTALG");
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Updates the fitness of all individuals
  */
@@ -312,7 +312,7 @@ void GMultiThreadedSwarm::updateFitness() {
 	tp_->wait();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the number of threads for this population. If nThreads is set
  * to 0, an attempt will be made to set the number of threads to the
@@ -330,7 +330,7 @@ void GMultiThreadedSwarm::setNThreads(boost::uint16_t nThreads) {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the number of threads this population uses.
  *
@@ -341,7 +341,7 @@ boost::uint16_t GMultiThreadedSwarm::getNThreads() const  {
 }
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -356,7 +356,7 @@ bool GMultiThreadedSwarm::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -365,7 +365,7 @@ void GMultiThreadedSwarm::specificTestsNoFailureExpected_GUnitTests() {
 	GBaseSwarm::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -374,7 +374,7 @@ void GMultiThreadedSwarm::specificTestsFailuresExpected_GUnitTests() {
 	GBaseSwarm::specificTestsFailuresExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */
@@ -382,9 +382,9 @@ void GMultiThreadedSwarm::specificTestsFailuresExpected_GUnitTests() {
 
 #ifdef GEM_TESTING
 // Tests of this class (and parent classes)
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * As Gem::Geneva::GMultiThreadedSwarm has a protected default constructor, we need to provide a
  * specialization of the factory function that creates objects of this type.
@@ -396,7 +396,8 @@ boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> TFactory_GUnitTests<Gem::Gen
 	return p;
 }
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
 #endif /* GEM_TESTING */

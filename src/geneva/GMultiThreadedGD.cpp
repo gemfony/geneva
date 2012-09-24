@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMultiThreadedGD)
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -49,7 +49,7 @@ GMultiThreadedGD::GMultiThreadedGD()
    , storedServerMode_(false)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with the number of starting points and the size of the finite step
  */
@@ -63,7 +63,7 @@ GMultiThreadedGD::GMultiThreadedGD (
    , storedServerMode_(false)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor
  */
@@ -73,7 +73,7 @@ GMultiThreadedGD::GMultiThreadedGD(const GMultiThreadedGD& cp)
    , storedServerMode_(cp.storedServerMode_)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor. We clear remaining work items in the
  * thread pool and wait for active tasks to finish.
@@ -81,7 +81,7 @@ GMultiThreadedGD::GMultiThreadedGD(const GMultiThreadedGD& cp)
 GMultiThreadedGD::~GMultiThreadedGD()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator for GMultiThreadedGD objects.
  *
@@ -93,7 +93,7 @@ const GMultiThreadedGD& GMultiThreadedGD::operator=(const GMultiThreadedGD& cp) 
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GMultiThreadedGD object
  *
@@ -106,7 +106,7 @@ bool GMultiThreadedGD::operator==(const GMultiThreadedGD& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiThreadedGD::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GMultiThreadedGD object
  *
@@ -119,7 +119,7 @@ bool GMultiThreadedGD::operator!=(const GMultiThreadedGD& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiThreadedGD::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -157,7 +157,7 @@ boost::optional<std::string> GMultiThreadedGD::checkRelationshipWith(
 	return evaluateDiscrepancies("GMultiThreadedGD", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the number of threads for this population. If nThreads is set
  * to 0, an attempt will be made to set the number of threads to the
@@ -175,7 +175,7 @@ void GMultiThreadedGD::setNThreads(boost::uint16_t nThreads) {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the number of threads this population uses.
  *
@@ -185,7 +185,7 @@ boost::uint16_t GMultiThreadedGD::getNThreads() const  {
 	return nThreads_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data from another GMultiThreadedGD object.
  *
@@ -204,7 +204,7 @@ void GMultiThreadedGD::load_(const GObject *cp) {
 	// Note that we do not copy storedServerMode_ as it is used for internal caching only
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -214,7 +214,7 @@ GObject *GMultiThreadedGD::clone_() const  {
 	return new GMultiThreadedGD(*this);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization
  */
@@ -247,7 +247,7 @@ void GMultiThreadedGD::init() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary clean-up work after the optimization has finished
  */
@@ -265,7 +265,7 @@ void GMultiThreadedGD::finalize() {
 	GBaseGD::finalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -299,7 +299,7 @@ void GMultiThreadedGD::addConfigurationOptions (
 	);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -309,7 +309,7 @@ std::string GMultiThreadedGD::getIndividualCharacteristic() const {
 	return std::string("GENEVA_MTOPTALG");
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers fitness calculation of a number of individuals. This function performs the same task as done
  * in GBaseGD, albeit multi-threaded.
@@ -379,7 +379,7 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 }
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -394,7 +394,7 @@ bool GMultiThreadedGD::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -403,7 +403,7 @@ void GMultiThreadedGD::specificTestsNoFailureExpected_GUnitTests() {
 	GBaseGD::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -412,7 +412,7 @@ void GMultiThreadedGD::specificTestsFailuresExpected_GUnitTests() {
 	GBaseGD::specificTestsFailuresExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */
@@ -420,9 +420,9 @@ void GMultiThreadedGD::specificTestsFailuresExpected_GUnitTests() {
 
 #ifdef GEM_TESTING
 // Tests of this class (and parent classes)
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * As Gem::Geneva::GMultiThreadedGD has a protected default constructor, we need to provide a
  * specialization of the factory function that creates objects of this type.
@@ -434,7 +434,8 @@ boost::shared_ptr<Gem::Geneva::GMultiThreadedGD> TFactory_GUnitTests<Gem::Geneva
 	return p;
 }
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
 #endif /* GEM_TESTING */

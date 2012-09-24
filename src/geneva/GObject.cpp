@@ -38,7 +38,7 @@
 namespace Gem {
 namespace Geneva {
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor initializes the internal values of this class.
  * In particular, it sets the name of the Geneva object to "GObject"
@@ -47,7 +47,7 @@ GObject::GObject()
 	: mayBeSerialized_(true)
 { /* nothing */ }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -57,7 +57,7 @@ GObject::GObject(const GObject& cp)
 	: mayBeSerialized_(cp.mayBeSerialized_)
 { /* nothing */ }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * As no memory is dynamically allocated in GObject, no work has to
  * be done by this destructor.
@@ -65,7 +65,7 @@ GObject::GObject(const GObject& cp)
 GObject::~GObject()
 { /* nothing */ }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator
  *
@@ -77,7 +77,7 @@ const GObject& GObject::operator=(const GObject& cp){
 	return *this;
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -114,7 +114,7 @@ boost::optional<std::string> GObject::checkRelationshipWith(
 	return evaluateDiscrepancies("GMutableSetT<T>", caller, deviations, e);
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Returns an XML description of the derivative it is called for
  *
@@ -129,7 +129,7 @@ std::string GObject::report() const {
  * ----------------------------------------------------------------------------------
  */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Converts class to a serial representation that is then written to a stream.
  *
@@ -172,7 +172,7 @@ void GObject::toStream(std::ostream& oarchive_stream, const Gem::Common::seriali
  * ----------------------------------------------------------------------------------
  */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the object from a stream.
  *
@@ -220,7 +220,7 @@ void GObject::fromStream(std::istream& istr, const Gem::Common::serializationMod
  * ----------------------------------------------------------------------------------
  */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Converts the class to a text representation, using the currently set serialization mode for this
  * class. Note that you will have to take care yourself that serialization and de-serialization
@@ -240,7 +240,7 @@ std::string GObject::toString(const Gem::Common::serializationMode& serMod) cons
  * ----------------------------------------------------------------------------------
  */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Initializes the object from its string representation, using the currently set serialization mode.
  * Note that the string will likely describe a derivative of GObject, as GObject cannot be instantiated.
@@ -260,7 +260,7 @@ void GObject::fromString(const std::string& descr, const Gem::Common::serializat
  * ----------------------------------------------------------------------------------
  */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Writes a serial representation of this object to a file. Can be used for check-pointing.
  *
@@ -289,7 +289,7 @@ void GObject::toFile(const std::string& fileName, const Gem::Common::serializati
  * ----------------------------------------------------------------------------------
  */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads a serial representation of this object from file. Can be used for check-pointing.
  *
@@ -318,7 +318,7 @@ void GObject::fromFile(const std::string& fileName, const Gem::Common::serializa
  * ----------------------------------------------------------------------------------
  */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Writes a configuration file to disk
  *
@@ -337,7 +337,7 @@ void GObject::writeConfigFile(const std::string& configFile, const std::string& 
 	gpb.writeConfigFile(configFile, header, true);
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Reads a configuration file from disk
  *
@@ -355,7 +355,7 @@ void GObject::readConfigFile(const std::string& configFile) {
 	gpb.parseConfigFile(configFile);
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -369,7 +369,7 @@ void GObject::load_(const GObject *cp) {
 	mayBeSerialized_ = cp->mayBeSerialized_;
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * A specialization of the general clone for cases where no conversion takes place at all
  *
@@ -387,7 +387,7 @@ boost::shared_ptr<GObject> GObject::clone<GObject>(
  * ----------------------------------------------------------------------------------
  */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object, storing it in a boost::shared_ptr<GObject>
  *
@@ -402,7 +402,7 @@ boost::shared_ptr<GObject> GObject::clone() const {
  * ----------------------------------------------------------------------------------
  */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets a flag indicating whether this object may be serialized
  *
@@ -412,7 +412,7 @@ void GObject::setMayBeSerialized(const bool& mayBeSerialized) {
 	mayBeSerialized_ = mayBeSerialized;
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether this object may currently be serialized
  *
@@ -422,7 +422,7 @@ bool GObject::mayBeSerialized() const {
 	return mayBeSerialized_;
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -435,7 +435,7 @@ void GObject::addConfigurationOptions(
 	addConfigurationOptions(gpb, true);
 }
 */
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object. This is a protected, virtual version
  * of this function that is overloaded in derived classes.
@@ -451,7 +451,7 @@ void GObject::addConfigurationOptions(
 }
 
 #ifdef GEM_TESTING
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -464,7 +464,7 @@ bool GObject::modify_GUnitTests() {
 	return false;
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -474,7 +474,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	// no parent class
 
-	// ------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check cloning to GObject format
 		boost::shared_ptr<GObject> p_test = this->clone<GObject>();
@@ -483,7 +483,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test);
 	}
 
-	// ------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check cloning to GObject format, using a different method
 		boost::shared_ptr<GObject> p_test = this->clone();
@@ -492,7 +492,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test);
 	}
 
-	// ------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check that the report function returns a non-empty description
 		boost::shared_ptr<GObject> p_test = this->clone();
@@ -527,7 +527,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	// ------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check (de-)serialization from/to strings in three modes
 		boost::shared_ptr<GObject> p_test = this->clone();
@@ -537,7 +537,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
 	}
 
-	// ------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check (de-)serialization from/to a file in three different modes
 		using namespace boost::filesystem;
@@ -569,10 +569,10 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	// ------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -580,7 +580,7 @@ void GObject::specificTestsFailuresExpected_GUnitTests() {
 	// no parent class
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

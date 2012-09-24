@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBaseGD::GGDOptimizationMonitor)
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -58,7 +58,7 @@ GBaseGD::GBaseGD()
 	);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with the number of starting points and other parameters
  *
@@ -85,7 +85,7 @@ GBaseGD::GBaseGD(
 	);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor.
  *
@@ -102,14 +102,14 @@ GBaseGD::GBaseGD(const GBaseGD& cp)
 	// applies to the copying of the optimization monitor.
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GBaseGD::~GBaseGD()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs
  * to be overloaded by the actual algorithms to return the correct type.
@@ -120,7 +120,7 @@ personality_oa GBaseGD::getOptimizationAlgorithm() const {
 	return PERSONALITY_GD;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the number of starting points of the algorithm
  *
@@ -130,7 +130,7 @@ std::size_t GBaseGD::getNStartingPoints() const {
 	return nStartingPoints_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the number of starting points for the gradient descent
  *
@@ -148,7 +148,7 @@ void GBaseGD::setNStartingPoints(std::size_t nStartingPoints) {
 	nStartingPoints_ = nStartingPoints;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Set the size of the finite step of the adaption process
  *
@@ -166,7 +166,7 @@ void GBaseGD::setFiniteStep(float finiteStep) {
 	finiteStep_ = finiteStep;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieve the size of the finite step of the adaption process
  *
@@ -176,7 +176,7 @@ float GBaseGD::getFiniteStep() const {
 	return finiteStep_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets a multiplier for the adaption process
  *
@@ -194,7 +194,7 @@ void GBaseGD::setStepSize(float stepSize) {
 	stepSize_ = stepSize;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the current step size
  *
@@ -204,7 +204,7 @@ float GBaseGD::getStepSize() const {
 	return stepSize_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieve the number of processable items in the current iteration.
  *
@@ -214,7 +214,7 @@ std::size_t GBaseGD::getNProcessableItems() const {
 	return this->size(); // Evaluation always needs to be done for the entire population
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Returns the name of this optimization algorithm
  *
@@ -224,7 +224,7 @@ std::string GBaseGD::getAlgorithmName() const {
 	return std::string("Gradient Descent");
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator
  *
@@ -235,7 +235,7 @@ const GBaseGD& GBaseGD::operator=(const GBaseGD& cp) {
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GBaseGD object
  *
@@ -247,7 +247,7 @@ bool GBaseGD::operator==(const GBaseGD& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseGD::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GBaseGD object
  *
@@ -259,7 +259,7 @@ bool GBaseGD::operator!=(const GBaseGD& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseGD::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether this object fulfills a given expectation in relation to another object
  *
@@ -299,7 +299,7 @@ boost::optional<std::string> GBaseGD::checkRelationshipWith(
 	return evaluateDiscrepancies("GBaseGD", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads a checkpoint from disk
  *
@@ -373,7 +373,7 @@ void GBaseGD::loadCheckpoint(const std::string& cpFile) {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another population
  *
@@ -393,7 +393,7 @@ void GBaseGD::load_(const GObject *cp) {
 	stepSize_ = p_load->stepSize_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the individual's personality types to GradientDescent
  */
@@ -403,7 +403,7 @@ void GBaseGD::setIndividualPersonalities() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The actual business logic to be performed during each iteration. Returns the best achieved fitness
  *
@@ -423,7 +423,7 @@ double GBaseGD::cycleLogic() {
 	return doFitnessCalculation(this->size());
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Updates the individual parameters of children
  */
@@ -514,7 +514,7 @@ void GBaseGD::updateParentIndividuals() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the best individual of the population and returns it in Gem::Geneva::GIndividual format.
  * Note that this protected function will return the item itself. Direct usage of this function should
@@ -558,7 +558,7 @@ boost::shared_ptr<GIndividual> GBaseGD::getBestIndividual(){
 	return data[pos_best];
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves a list of the best individuals found. This might just be one individual.
  *
@@ -584,7 +584,7 @@ std::vector<boost::shared_ptr<GIndividual> > GBaseGD::getBestIndividuals() {
 	return bestIndividuals;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -650,7 +650,7 @@ void GBaseGD::addConfigurationOptions (
 	);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Does some preparatory work before the optimization starts
  */
@@ -662,7 +662,7 @@ void GBaseGD::init() {
 	markIndividualPositions();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Does any necessary finalization work
  */
@@ -671,7 +671,7 @@ void GBaseGD::finalize() {
 	GOptimizationAlgorithmT<GParameterSet>::finalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Resizes the population to the desired level and does some error checks.
  */
@@ -748,7 +748,7 @@ void GBaseGD::adjustPopulation() {
 #endif /* DEBUG */
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Saves the state of the class to disc.
  */
@@ -808,7 +808,7 @@ void GBaseGD::saveCheckpoint() const {
 	checkpointStream.close();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This helper function lets all individuals know about their position in the
  * population.
@@ -820,7 +820,7 @@ void GBaseGD::markIndividualPositions() {
 }
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
@@ -833,7 +833,7 @@ bool GBaseGD::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -842,7 +842,7 @@ void GBaseGD::specificTestsNoFailureExpected_GUnitTests() {
 	GOptimizationAlgorithmT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -852,14 +852,14 @@ void GBaseGD::specificTestsFailuresExpected_GUnitTests() {
 }
 #endif /* GEM_TESTING */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
 GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor()
 { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -869,14 +869,14 @@ GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor(const GBaseGD::GGDOptimi
 	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
   { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GBaseGD::GGDOptimizationMonitor::~GGDOptimizationMonitor()
 { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -888,7 +888,7 @@ const GBaseGD::GGDOptimizationMonitor& GBaseGD::GGDOptimizationMonitor::operator
 	return *this;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GParameter Base object
  *
@@ -901,7 +901,7 @@ bool GBaseGD::GGDOptimizationMonitor::operator==(const GBaseGD::GGDOptimizationM
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseGD::GGDOptimizationMonitor::operator==","cp", CE_SILENT);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GGDOptimizationMonitor object
  *
@@ -914,7 +914,7 @@ bool GBaseGD::GGDOptimizationMonitor::operator!=(const GBaseGD::GGDOptimizationM
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseGD::GGDOptimizationMonitor::operator!=","cp", CE_SILENT);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -955,7 +955,7 @@ boost::optional<std::string> GBaseGD::GGDOptimizationMonitor::checkRelationshipW
 	return evaluateDiscrepancies("GBaseGD::GGDOptimizationMonitor", caller, deviations, e);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the dimensions of the canvas
  *
@@ -967,7 +967,7 @@ void GBaseGD::GGDOptimizationMonitor::setDims(const boost::uint16_t& xDim, const
 	yDim_ = yDim;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the dimension of the canvas in x-direction
  *
@@ -977,7 +977,7 @@ boost::uint16_t GBaseGD::GGDOptimizationMonitor::getXDim() const {
 	return xDim_;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the dimension of the canvas in y-direction
  *
@@ -987,7 +987,7 @@ boost::uint16_t GBaseGD::GGDOptimizationMonitor::getYDim() const {
 	return yDim_;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called once before the optimization starts
  *
@@ -1013,7 +1013,7 @@ std::string GBaseGD::GGDOptimizationMonitor::firstInformation(GOptimizationAlgor
 	return gdFirstInformation(gd);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called during each optimization cycle. It is possible to
  * extract quite comprehensive information in each iteration. For examples, see
@@ -1040,7 +1040,7 @@ std::string GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgor
 	return gdCycleInformation(gd);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called once at the end of the optimization cycle
  *
@@ -1071,7 +1071,7 @@ std::string GBaseGD::GGDOptimizationMonitor::lastInformation(GOptimizationAlgori
 }
 
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called once before the optimization starts
  *
@@ -1093,7 +1093,7 @@ std::string GBaseGD::GGDOptimizationMonitor::gdFirstInformation(GBaseGD * const 
 	return result.str();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called during each optimization cycle
  *
@@ -1112,7 +1112,7 @@ std::string GBaseGD::GGDOptimizationMonitor::gdCycleInformation(GBaseGD * const 
 	return result.str();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called once at the end of the optimization cycle
  *
@@ -1146,7 +1146,7 @@ std::string GBaseGD::GGDOptimizationMonitor::gdLastInformation(GBaseGD * const g
 	return result.str();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another object
  *
@@ -1163,7 +1163,7 @@ void GBaseGD::GGDOptimizationMonitor::load_(const GObject* cp) {
 	// no local data
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -1174,7 +1174,8 @@ GObject* GBaseGD::GGDOptimizationMonitor::clone_() const {
 }
 
 #ifdef GEM_TESTING
-/**********************************************************************************/
+
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
@@ -1187,7 +1188,7 @@ bool GBaseGD::GGDOptimizationMonitor::modify_GUnitTests() {
 	return result;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -1196,7 +1197,7 @@ void GBaseGD::GGDOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests(
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -1205,7 +1206,8 @@ void GBaseGD::GGDOptimizationMonitor::specificTestsFailuresExpected_GUnitTests()
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
+
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

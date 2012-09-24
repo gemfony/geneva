@@ -37,7 +37,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A constructor with the ability to switch the parallelization mode. It initializes a
  * target item as needed.
@@ -49,14 +49,14 @@ GGradientDescentFactory::GGradientDescentFactory(
 	: GOptimizationAlgorithmFactoryT<GBaseGD>(configFile, pm)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GGradientDescentFactory::~GGradientDescentFactory()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates items of this type
  *
@@ -90,7 +90,7 @@ boost::shared_ptr<GBaseGD> GGradientDescentFactory::getObject_(
 	return target;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to describe local configuration options for gradient descents
  */
@@ -114,7 +114,7 @@ void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder&
 	GOptimizationAlgorithmFactoryT<GBaseGD>::describeLocalOptions_(gpb);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to act on the configuration options received from the configuration file. Here
  * we can add the options described in describeLocalOptions to the object.
@@ -152,7 +152,7 @@ void GGradientDescentFactory::postProcess_(boost::shared_ptr<GBaseGD>& p_base) {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

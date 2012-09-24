@@ -39,14 +39,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32Collection)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
 GInt32Collection::GInt32Collection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a number of random values in a given range
  *
@@ -62,7 +62,7 @@ GInt32Collection::GInt32Collection(
 	: GIntNumCollectionT<boost::int32_t>(nval, min, max)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a predefined value in all positions
  *
@@ -80,7 +80,7 @@ GInt32Collection::GInt32Collection(
 	: GIntNumCollectionT<boost::int32_t>(nval, val, min, max)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -90,14 +90,14 @@ GInt32Collection::GInt32Collection(const GInt32Collection& cp)
 	: GIntNumCollectionT<boost::int32_t>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GInt32Collection::~GInt32Collection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -109,7 +109,7 @@ const GInt32Collection& GInt32Collection::operator=(const GInt32Collection& cp){
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -119,7 +119,7 @@ GObject* GInt32Collection::clone_() const {
 	return new GInt32Collection(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GInt32Collection object
  *
@@ -132,7 +132,7 @@ bool GInt32Collection::operator==(const GInt32Collection& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GInt32Collection::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GInt32Collection object
  *
@@ -145,7 +145,7 @@ bool GInt32Collection::operator!=(const GInt32Collection& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GInt32Collection::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -182,7 +182,7 @@ boost::optional<std::string> GInt32Collection::checkRelationshipWith(
 	return evaluateDiscrepancies("GInt32Collection", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach our local values to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
@@ -196,7 +196,7 @@ void GInt32Collection::int32Streamline(std::vector<boost::int32_t>& parVec) cons
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach boundaries of type boost::int32_t to the vectors. Since this is an unbounded type,
  * we use the initialization boundaries as a replacement.
@@ -217,7 +217,7 @@ void GInt32Collection::int32Boundaries(
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Tell the audience that we own a number of boost::int32_t values
  *
@@ -227,7 +227,7 @@ std::size_t GInt32Collection::countInt32Parameters() const {
 	return this->size();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter
  */
@@ -248,7 +248,7 @@ void GInt32Collection::assignInt32ValueVector(const std::vector<boost::int32_t>&
 	  }
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -265,7 +265,7 @@ void GInt32Collection::load_(const GObject* cp){
 }
 
 #ifdef GEM_TESTING
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -280,7 +280,7 @@ bool GInt32Collection::modify_GUnitTests() {
 	return result;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -313,7 +313,7 @@ void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -346,7 +346,7 @@ void GInt32Collection::specificTestsFailuresExpected_GUnitTests() {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

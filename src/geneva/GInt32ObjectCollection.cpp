@@ -41,14 +41,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32ObjectCollection)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
 GInt32ObjectCollection::GInt32ObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a number of identical GConstrainedDoubleObject objects
  */
@@ -59,7 +59,7 @@ GInt32ObjectCollection::GInt32ObjectCollection(
 	:GParameterTCollectionT<GInt32Object>(nCp, tmpl_ptr)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -69,14 +69,14 @@ GInt32ObjectCollection::GInt32ObjectCollection(const GInt32ObjectCollection& cp)
 	: GParameterTCollectionT<GInt32Object>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GInt32ObjectCollection::~GInt32ObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -88,7 +88,7 @@ const GInt32ObjectCollection& GInt32ObjectCollection::operator=(const GInt32Obje
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -98,7 +98,7 @@ GObject* GInt32ObjectCollection::clone_() const {
 	return new GInt32ObjectCollection(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GInt32ObjectCollection object
  *
@@ -111,7 +111,7 @@ bool GInt32ObjectCollection::operator==(const GInt32ObjectCollection& cp) const 
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GInt32ObjectCollection::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GInt32ObjectCollection object
  *
@@ -124,7 +124,7 @@ bool GInt32ObjectCollection::operator!=(const GInt32ObjectCollection& cp) const 
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GInt32ObjectCollection::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -160,7 +160,7 @@ boost::optional<std::string> GInt32ObjectCollection::checkRelationshipWith(const
 	return evaluateDiscrepancies("GInt32ObjectCollection", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -177,7 +177,7 @@ void GInt32ObjectCollection::load_(const GObject* cp){
 }
 
 #ifdef GEM_TESTING
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -192,7 +192,7 @@ bool GInt32ObjectCollection::modify_GUnitTests() {
 	return true;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Fills the collection with GInt32Object objects
  */
@@ -225,7 +225,7 @@ void GInt32ObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -240,7 +240,7 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const double RANDLOWERBOUNDARY = 0.;
 	const double RANDUPPERBOUNDARY = 10.;
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
 		boost::shared_ptr<GInt32ObjectCollection> p_test = this->clone<GInt32ObjectCollection>();
@@ -252,7 +252,7 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		p_test->GParameterTCollectionT<GInt32Object>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that the fp-family of functions has no effect on this object (and contained objects)
 		boost::shared_ptr<GInt32ObjectCollection> p_test1 = this->clone<GInt32ObjectCollection>();
@@ -295,10 +295,10 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -307,7 +307,7 @@ void GInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	GParameterTCollectionT<GInt32Object>::specificTestsFailuresExpected_GUnitTests();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

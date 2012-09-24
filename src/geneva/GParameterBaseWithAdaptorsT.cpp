@@ -37,9 +37,9 @@
 namespace Gem {
 namespace Geneva {
 
-/***********************************************************************************************/
-/////////////////// Specialization for std::vector<bool> ////////////////////////////////////////
-/***********************************************************************************************/
+/******************************************************************************/
+/////////////////// Specialization for std::vector<bool> ///////////////////////
+/******************************************************************************/
 /**
  * This function applies the first adaptor of the adaptor sequence to a collection of values.
  * Note that the parameter of this function will get changed. This is a specialization of a
@@ -66,7 +66,7 @@ void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>& collecti
 	}
 }
 
-/***********************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva  */
 } /* namespace Gem */

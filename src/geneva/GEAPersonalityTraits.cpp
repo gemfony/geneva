@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEAPersonalityTraits)
 namespace Gem {
 namespace Geneva {
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -51,7 +51,7 @@ GEAPersonalityTraits::GEAPersonalityTraits()
 	, isOnParetoFront_(true)
 { /* nothing */ }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * The copy contructor
  *
@@ -65,14 +65,14 @@ GEAPersonalityTraits::GEAPersonalityTraits(const GEAPersonalityTraits& cp)
 	, isOnParetoFront_(cp.isOnParetoFront_)
 { /* nothing */ }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor
  */
 GEAPersonalityTraits::~GEAPersonalityTraits()
 { /* nothing */ }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator for GEAPersonalityTraits objects.
  *
@@ -84,7 +84,7 @@ const GEAPersonalityTraits& GEAPersonalityTraits::operator=(const GEAPersonality
 	return *this;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GEAPersonalityTraits object
  *
@@ -97,7 +97,7 @@ bool GEAPersonalityTraits::operator==(const GEAPersonalityTraits& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GEAPersonalityTraits::operator==","cp", CE_SILENT);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GEAPersonalityTraits object
  *
@@ -110,7 +110,7 @@ bool GEAPersonalityTraits::operator!=(const GEAPersonalityTraits& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GEAPersonalityTraits::operator!=","cp", CE_SILENT);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -150,7 +150,7 @@ boost::optional<std::string> GEAPersonalityTraits::checkRelationshipWith(const G
 	return evaluateDiscrepancies("GEAPersonalityTraits", caller, deviations, e);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -160,7 +160,7 @@ GObject* GEAPersonalityTraits::clone_() const {
 	return new GEAPersonalityTraits(*this);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GEAPersonalityTraits object
  *
@@ -179,7 +179,7 @@ void GEAPersonalityTraits::load_(const GObject* cp) {
 	isOnParetoFront_ = p_load->isOnParetoFront_;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether this is a parent individual
  *
@@ -194,7 +194,7 @@ bool GEAPersonalityTraits::isParent() const {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the current value of the parentCounter_ variable
  *
@@ -209,7 +209,7 @@ boost::uint32_t GEAPersonalityTraits::getParentCounter() const {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Marks an individual as a parent
  *
@@ -226,7 +226,7 @@ bool GEAPersonalityTraits::setIsParent() {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Marks an individual as a child
  *
@@ -243,7 +243,7 @@ bool GEAPersonalityTraits::setIsChild() {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Sets the position of the individual in the population
  *
@@ -258,7 +258,7 @@ void GEAPersonalityTraits::setPopulationPosition(const std::size_t& popPos) {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the position of the individual in the population
  *
@@ -273,7 +273,7 @@ std::size_t GEAPersonalityTraits::getPopulationPosition(void) const {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Stores the parent's id with this object.
  *
@@ -288,7 +288,7 @@ void GEAPersonalityTraits::setParentId(const std::size_t& parentId) {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the parent id's value. Note that this function will throw if
  * no parent id has been set.
@@ -314,7 +314,7 @@ std::size_t GEAPersonalityTraits::getParentId() const {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a parent id has been set
  *
@@ -330,7 +330,7 @@ bool GEAPersonalityTraits::parentIdSet() const {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Marks the parent id as unset
  */
@@ -344,7 +344,7 @@ void GEAPersonalityTraits::unsetParentId() {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Allows to check whether this individual lies on the pareto front (only yields
  * useful results after pareto-sorting in EA)
@@ -355,7 +355,7 @@ bool GEAPersonalityTraits::isOnParetoFront() const {
 	return isOnParetoFront_;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Allows to reset the pareto tag to "true"
  */
@@ -363,7 +363,7 @@ void GEAPersonalityTraits::resetParetoTag() {
 	isOnParetoFront_ = true;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify that this individual does not lie on the pareto front
  * of the current iteration
@@ -373,7 +373,7 @@ void GEAPersonalityTraits::setIsNotOnParetoFront() {
 }
 
 #ifdef GEM_TESTING
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -391,7 +391,7 @@ bool GEAPersonalityTraits::modify_GUnitTests() {
 	return result;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -402,7 +402,7 @@ void GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check that it is possible to mark this as a parent or child-entity
 		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
@@ -416,7 +416,7 @@ void GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isParent() == false);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 
 	{ // Check that the parent counter is incremented or reset correctly
@@ -443,7 +443,7 @@ void GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->getParentCounter() == 0);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check setting and retrieval of the individual's position in the population
 		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
@@ -454,7 +454,7 @@ void GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of valid parent ids
 		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
@@ -468,10 +468,10 @@ void GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -482,7 +482,7 @@ void GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that retrieval of the parent id throws, if the id isn't set
 		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
@@ -491,10 +491,10 @@ void GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK_THROW(p_test->getParentId(), Gem::Common::gemfony_error_condition);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

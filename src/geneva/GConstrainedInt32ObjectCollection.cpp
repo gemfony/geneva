@@ -38,14 +38,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedInt32ObjectCollection)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
 GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a number of identical GConstrainedDoubleObject objects
  */
@@ -56,7 +56,7 @@ GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(
 	:GParameterTCollectionT<GConstrainedInt32Object>(nCp, tmpl_ptr)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -66,14 +66,14 @@ GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(const GCons
 	: GParameterTCollectionT<GConstrainedInt32Object>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GConstrainedInt32ObjectCollection::~GConstrainedInt32ObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -85,7 +85,7 @@ const GConstrainedInt32ObjectCollection& GConstrainedInt32ObjectCollection::oper
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -95,7 +95,7 @@ GObject* GConstrainedInt32ObjectCollection::clone_() const {
 	return new GConstrainedInt32ObjectCollection(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GConstrainedInt32ObjectCollection object
  *
@@ -108,7 +108,7 @@ bool GConstrainedInt32ObjectCollection::operator==(const GConstrainedInt32Object
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedInt32ObjectCollection::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GConstrainedInt32ObjectCollection object
  *
@@ -121,7 +121,7 @@ bool GConstrainedInt32ObjectCollection::operator!=(const GConstrainedInt32Object
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedInt32ObjectCollection::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -157,7 +157,7 @@ boost::optional<std::string> GConstrainedInt32ObjectCollection::checkRelationshi
 	return evaluateDiscrepancies("GConstrainedInt32ObjectCollection", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -174,7 +174,7 @@ void GConstrainedInt32ObjectCollection::load_(const GObject* cp){
 }
 
 #ifdef GEM_TESTING
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -189,7 +189,7 @@ bool GConstrainedInt32ObjectCollection::modify_GUnitTests() {
 	return true;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Fills the collection with GConstrainedInt32Object objects
  */
@@ -222,7 +222,7 @@ void GConstrainedInt32ObjectCollection::fillWithObjects(const std::size_t& nAdde
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -237,7 +237,7 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 	const double RANDLOWERBOUNDARY = 0.;
 	const double RANDUPPERBOUNDARY = 10.;
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
 		boost::shared_ptr<GConstrainedInt32ObjectCollection> p_test = this->clone<GConstrainedInt32ObjectCollection>();
@@ -249,7 +249,7 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 		p_test->GParameterTCollectionT<GConstrainedInt32Object>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that the fp-family of functions has no effect on this object (and contained objects)
 		boost::shared_ptr<GConstrainedInt32ObjectCollection> p_test1 = this->clone<GConstrainedInt32ObjectCollection>();
@@ -292,10 +292,10 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 		BOOST_CHECK(*p_test1 == *p_test2);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -304,7 +304,7 @@ void GConstrainedInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests
 	GParameterTCollectionT<GConstrainedInt32Object>::specificTestsFailuresExpected_GUnitTests();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

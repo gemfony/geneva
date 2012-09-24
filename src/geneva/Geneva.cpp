@@ -37,23 +37,24 @@
 namespace Gem {
 namespace Geneva {
 
-/****************************************************************************************/
+/******************************************************************************/
 /**
  * A termination handler
  */
 void GTerminate() {
-	std::cout << "***********************************************************" << std::endl
-			  << "* Note that there seems to be a bug in some Boost         *" << std::endl
-			  << "* versions that prevents proper termination of Geneva.    *" << std::endl
-			  << "* If you see this message it means that you are using     *" << std::endl
-			  << "* one of the affected releases, so we have to force       *" << std::endl
-			  << "* termination. Since this happens when all work has       *" << std::endl
-			  << "* already been done, this will very likely have no effect *" << std::endl
-			  << "* on your results. So you can safely ignore this message. *" << std::endl
-			  << "***********************************************************" << std::endl;
+	std::cout
+	<< "***********************************************************" << std::endl
+	<< "* Note that there seems to be a bug in some Boost         *" << std::endl
+	<< "* versions that prevents proper termination of Geneva.    *" << std::endl
+	<< "* If you see this message it means that you are using     *" << std::endl
+	<< "* one of the affected releases, so we have to force       *" << std::endl
+	<< "* termination. Since this happens when all work has       *" << std::endl
+	<< "* already been done, this will very likely have no effect *" << std::endl
+	<< "* on your results. So you can safely ignore this message. *" << std::endl
+	<< "***********************************************************" << std::endl;
 }
 
-/****************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

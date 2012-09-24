@@ -39,14 +39,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedDoubleObjectCollection)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
 GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a number of identical GConstrainedDoubleObject objects
  */
@@ -57,7 +57,7 @@ GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(
 	:GParameterTCollectionT<GConstrainedDoubleObject>(nCp, tmpl_ptr)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -67,14 +67,14 @@ GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(const GCo
 	: GParameterTCollectionT<GConstrainedDoubleObject>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GConstrainedDoubleObjectCollection::~GConstrainedDoubleObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -86,7 +86,7 @@ const GConstrainedDoubleObjectCollection& GConstrainedDoubleObjectCollection::op
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -96,7 +96,7 @@ GObject* GConstrainedDoubleObjectCollection::clone_() const {
 	return new GConstrainedDoubleObjectCollection(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GConstrainedDoubleObjectCollection object
  *
@@ -109,7 +109,7 @@ bool GConstrainedDoubleObjectCollection::operator==(const GConstrainedDoubleObje
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedDoubleObjectCollection::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GConstrainedDoubleObjectCollection object
  *
@@ -122,7 +122,7 @@ bool GConstrainedDoubleObjectCollection::operator!=(const GConstrainedDoubleObje
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedDoubleObjectCollection::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -158,7 +158,7 @@ boost::optional<std::string> GConstrainedDoubleObjectCollection::checkRelationsh
 	return evaluateDiscrepancies("GConstrainedDoubleObjectCollection", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -176,7 +176,7 @@ void GConstrainedDoubleObjectCollection::load_(const GObject* cp){
 
 #ifdef GEM_TESTING
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -191,7 +191,7 @@ bool GConstrainedDoubleObjectCollection::modify_GUnitTests() {
 	return true;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Fills the collection with GConstrainedDoubleObject objects
  */
@@ -224,7 +224,7 @@ void GConstrainedDoubleObjectCollection::fillWithObjects(const std::size_t& nAdd
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -239,7 +239,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 	const double RANDLOWERBOUNDARY = 0.;
 	const double RANDUPPERBOUNDARY = 10.;
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test = this->clone<GConstrainedDoubleObjectCollection>();
@@ -251,7 +251,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		p_test->GParameterTCollectionT<GConstrainedDoubleObject>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test the GParameterTCollectionT<T>::adaptImpl() implementation
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
@@ -279,7 +279,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test initialization of GConstrainedDouble objects with a fixed floating point value
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
@@ -299,7 +299,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a fixed value
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
@@ -322,7 +322,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a random number in a given range
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
@@ -358,7 +358,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a random number in a the range [0,1[
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
@@ -394,7 +394,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test addition of another object
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
@@ -423,7 +423,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test subtraction of another object
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
@@ -452,10 +452,10 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -466,7 +466,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 	// Call the parent class'es function
 	GParameterTCollectionT<GConstrainedDoubleObject>::specificTestsFailuresExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that fpAdd throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpAdd() )
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
@@ -488,7 +488,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 		BOOST_CHECK_THROW(p_test1->fpAdd(p_test2), Gem::Common::gemfony_error_condition);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that fpSubtract throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpSubtract() )
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
@@ -510,10 +510,10 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 		BOOST_CHECK_THROW(p_test1->fpSubtract(p_test2), Gem::Common::gemfony_error_condition);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

@@ -35,12 +35,10 @@
 #include "geneva/GPersonalityTraits.hpp"
 
 
-/*********************************************************************************/
-
 namespace Gem {
 namespace Geneva {
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -48,7 +46,7 @@ GPersonalityTraits::GPersonalityTraits()
    : GObject()
 { /* nothing */ }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  */
@@ -56,7 +54,7 @@ GPersonalityTraits::GPersonalityTraits(const GPersonalityTraits& cp)
    : GObject(cp)
 { /* nothing */ }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor. No local, dynamically allocated data,
  * hence it does nothing.
@@ -64,7 +62,7 @@ GPersonalityTraits::GPersonalityTraits(const GPersonalityTraits& cp)
 GPersonalityTraits::~GPersonalityTraits()
 { /* nothing */ }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GPersonalityTraits object
  *
@@ -77,7 +75,7 @@ bool GPersonalityTraits::operator==(const GPersonalityTraits& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GPersonalityTraits::operator==","cp", CE_SILENT);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GPersonalityTraits object
  *
@@ -90,7 +88,7 @@ bool GPersonalityTraits::operator!=(const GPersonalityTraits& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GPersonalityTraits::operator!=","cp", CE_SILENT);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -126,7 +124,7 @@ boost::optional<std::string> GPersonalityTraits::checkRelationshipWith(const GOb
 	return evaluateDiscrepancies("GPersonalityTraits", caller, deviations, e);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GPersonalityTraits object
  *
@@ -143,7 +141,7 @@ void GPersonalityTraits::load_(const GObject *cp) {
 }
 
 #ifdef GEM_TESTING
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -158,7 +156,7 @@ bool GPersonalityTraits::modify_GUnitTests() {
 	return result;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -169,7 +167,7 @@ void GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	// No local data -- nothing to test
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -180,7 +178,7 @@ void GPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 	// No local data -- nothing to test
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

@@ -38,7 +38,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialSwarm)
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor. Intentionally empty, as it is only needed for de-serialization purposes
  */
@@ -46,7 +46,7 @@ GSerialSwarm::GSerialSwarm()
 	: GBaseSwarm()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard constructor. No local, dynamically allocated data, hence this function is empty.
  */
@@ -57,7 +57,7 @@ GSerialSwarm::GSerialSwarm(
    : GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor.
  *
@@ -67,14 +67,14 @@ GSerialSwarm::GSerialSwarm(const GSerialSwarm& cp)
    : GBaseSwarm(cp)
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor.
  */
 GSerialSwarm::~GSerialSwarm()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator for GSerialSwarm objects.
  *
@@ -86,7 +86,7 @@ const GSerialSwarm& GSerialSwarm::operator=(const GSerialSwarm& cp) {
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data from another GSerialSwarm object.
  *
@@ -104,7 +104,7 @@ void GSerialSwarm::load_(const GObject *cp) {
 	// no local data
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GSerialSwarm object
  *
@@ -117,7 +117,7 @@ bool GSerialSwarm::operator==(const GSerialSwarm& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialSwarm::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GSerialSwarm object
  *
@@ -130,7 +130,7 @@ bool GSerialSwarm::operator!=(const GSerialSwarm& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialSwarm::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -169,7 +169,7 @@ boost::optional<std::string> GSerialSwarm::checkRelationshipWith(
 	return evaluateDiscrepancies("GSerialSwarm", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -179,7 +179,7 @@ GObject *GSerialSwarm::clone_() const  {
 	return new GSerialSwarm(*this);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization
  */
@@ -190,7 +190,7 @@ void GSerialSwarm::init() {
 	// Add local initialization code here
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Necessary clean-up work after the optimization has finished
  */
@@ -201,7 +201,7 @@ void GSerialSwarm::finalize() {
 	GBaseSwarm::finalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -218,7 +218,7 @@ void GSerialSwarm::addConfigurationOptions (
 	// no local data
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -228,7 +228,7 @@ std::string GSerialSwarm::getIndividualCharacteristic() const {
 	return std::string("GENEVA_SERIALOPTALG");
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Updates the fitness of all individuals
  */
@@ -255,7 +255,7 @@ void GSerialSwarm::updateFitness() {
 }
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -270,7 +270,7 @@ bool GSerialSwarm::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -279,7 +279,7 @@ void GSerialSwarm::specificTestsNoFailureExpected_GUnitTests() {
 	GBaseSwarm::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -288,7 +288,7 @@ void GSerialSwarm::specificTestsFailuresExpected_GUnitTests() {
 	GBaseSwarm::specificTestsFailuresExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */
@@ -296,9 +296,9 @@ void GSerialSwarm::specificTestsFailuresExpected_GUnitTests() {
 
 #ifdef GEM_TESTING
 // Tests of this class (and parent classes)
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * As Gem::Geneva::GSerialSwarm has a protected default constructor, we need to provide a
  * specialization of the factory function that creates objects of this type.
@@ -316,7 +316,7 @@ boost::shared_ptr<Gem::Geneva::GSerialSwarm> TFactory_GUnitTests<Gem::Geneva::GS
 	return p;
 }
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 #endif /* GEM_TESTING */

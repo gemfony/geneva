@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSet)
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor.
  */
@@ -47,7 +47,7 @@ GParameterSet::GParameterSet()
 	: GMutableSetT<Gem::Geneva::GParameterBase>()
   { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor. Note that we cannot rely on the operator=() of the vector
  * here, as we do not know the actual type of T objects.
@@ -58,14 +58,14 @@ GParameterSet::GParameterSet(const GParameterSet& cp)
 	: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
   { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GParameterSet::~GParameterSet()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A Standard assignment operator
  *
@@ -77,7 +77,7 @@ const GParameterSet& GParameterSet::operator=(const GParameterSet& cp){
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GParameterSet object
  *
@@ -90,7 +90,7 @@ bool GParameterSet::operator==(const GParameterSet& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterSet::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GParameterSet object
  *
@@ -103,7 +103,7 @@ bool GParameterSet::operator!=(const GParameterSet& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterSet::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -140,7 +140,7 @@ boost::optional<std::string> GParameterSet::checkRelationshipWith(
 	return evaluateDiscrepancies("GParameterSet", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GParameterSet object, camouflaged as a GObject.
  *
@@ -158,7 +158,7 @@ void GParameterSet::load_(const GObject* cp){
 	// No local data
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -168,7 +168,7 @@ GObject* GParameterSet::clone_() const {
 	return new GParameterSet(*this);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The actual fitness calculation takes place here. Note: This function is a trap. You need to overload
  * this function in derived classes.
@@ -185,7 +185,7 @@ double GParameterSet::fitnessCalculation() {
 	return 0.;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A wrapper for GParameterSet::customUpdateOnStall() that restricts parameter set updates to parents
  * in the case of evolutionary algorithms in DEBUG mode.
@@ -223,7 +223,7 @@ bool GParameterSet::updateOnStall() {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to randomly initialize parameter members
  */
@@ -243,7 +243,7 @@ void GParameterSet::randomInit() {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This function performs a cross-over with another GParameterSet object with a given likelihood.
  * Items subject to cross-over may either be located in the GParameterSet-root or in one of the
@@ -315,7 +315,7 @@ void GParameterSet::crossOver(GParameterSet& cp, const double& likelihood) {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Specify whether we want to work in maximization (true) or minimization
  * (false) mode. This function is protected. The idea is that GParameterSet provides a public
@@ -335,7 +335,7 @@ void GParameterSet::setMaxMode(const bool& mode) {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Recursively initializes floating-point-based parameters with a given value. Allows e.g. to set all
  * floating point parameters to 0. "float" is used as the largest common denominator of float, double
@@ -359,7 +359,7 @@ void GParameterSet::fpFixedValueInit(const float& val) {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Multiplies floating-point-based parameters with a given value.
  *
@@ -382,7 +382,7 @@ void GParameterSet::fpMultiplyBy(const float& val) {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers multiplication of floating point parameters with a random floating point number in a given range
  *
@@ -405,7 +405,7 @@ void GParameterSet::fpMultiplyByRandom(const float& min, const float& max) {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers multiplication of floating point parameters with a random floating point number in the range [0,1[
  */
@@ -425,7 +425,7 @@ void GParameterSet::fpMultiplyByRandom() {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds the floating point parameters of another GParameterSet object to this one
  *
@@ -459,7 +459,7 @@ void GParameterSet::fpAdd(boost::shared_ptr<GParameterSet> p) {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Subtract the floating point parameters of another GParameterSet object from this one
  *
@@ -493,7 +493,7 @@ void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Emits a GParameterSet object that only has clones of our GParameterBase objects attached to it
  *
@@ -514,7 +514,7 @@ boost::shared_ptr<GParameterSet> GParameterSet::parameter_clone() const {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Updates the random number generators contained in this object's GParameterBase-derivatives
  */
@@ -530,7 +530,7 @@ void GParameterSet::updateRNGs() {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Restores the local random number generators contained in this object's GParameterBase-derivatives
  */
@@ -546,7 +546,7 @@ void GParameterSet::restoreRNGs() {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether all GParameterBase derivatives use local random number generators. The function will return
  * false if at least one object is found in this collection that does not use a local RNG.
@@ -569,7 +569,7 @@ bool GParameterSet::localRNGsUsed() const {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether all GParameterBase derivatives use the assigned random number generator. The function will return
  * false if at least one object is found in this collection that uses a local RNG.
@@ -592,7 +592,7 @@ bool GParameterSet::assignedRNGUsed() const {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Prevent shadowing of std::vector<GParameterBase>::at()
  *
@@ -626,7 +626,7 @@ void GParameterSet::customAdaptions() {
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -660,7 +660,7 @@ void GParameterSet::addConfigurationOptions (
 	);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -670,7 +670,7 @@ std::string GParameterSet::getIndividualCharacteristic() const {
 	return std::string("GENEVA_PARAMETERSET");
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Provides access to all data stored in the individual in a user defined selection
  *
@@ -680,7 +680,7 @@ void GParameterSet::custom_streamline(std::vector<boost::any>& var_vec)
 { /* nothing -- override in user-code */ }
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -695,7 +695,7 @@ bool GParameterSet::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -1110,7 +1110,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -1119,7 +1119,7 @@ void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
 	GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsFailuresExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

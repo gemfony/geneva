@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32GaussAdaptor)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor. Note that we need to use a different default value for sigma,
  * as there is a "natural" gap of 1 between integers, and the DEFAULTSIGMA might not be
@@ -49,7 +49,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor()
 	: GIntGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -59,7 +59,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor& cp)
 	: GIntGaussAdaptorT<boost::int32_t>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a adaption probability.  Note that we need to use a different default
  * value for sigma, as there is a "natural" gap of 1 between integers, and the DEFAULTSIGMA
@@ -110,14 +110,14 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(
 	: GIntGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GInt32GaussAdaptor::~GInt32GaussAdaptor()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -129,7 +129,7 @@ const GInt32GaussAdaptor& GInt32GaussAdaptor::operator=(const GInt32GaussAdaptor
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -139,7 +139,7 @@ GObject* GInt32GaussAdaptor::clone_() const {
 	return new GInt32GaussAdaptor(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GInt32GaussAdaptor object
  *
@@ -152,7 +152,7 @@ bool GInt32GaussAdaptor::operator==(const GInt32GaussAdaptor& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GInt32GaussAdaptor::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GInt32GaussAdaptor object
  *
@@ -165,7 +165,7 @@ bool GInt32GaussAdaptor::operator!=(const GInt32GaussAdaptor& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GInt32GaussAdaptor::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -202,7 +202,7 @@ boost::optional<std::string> GInt32GaussAdaptor::checkRelationshipWith(
 	return evaluateDiscrepancies("GInt32GaussAdaptor", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -218,7 +218,7 @@ void GInt32GaussAdaptor::load_(const GObject* cp){
 	// ... no local data
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the id of this adaptor
  *
@@ -234,7 +234,7 @@ Gem::Geneva::adaptorId GInt32GaussAdaptor::getAdaptorId() const {
  */
 
 #ifdef GEM_TESTING
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -249,7 +249,7 @@ bool GInt32GaussAdaptor::modify_GUnitTests() {
 	return result;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -257,7 +257,7 @@ void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GIntGaussAdaptorT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
 		boost::shared_ptr<GInt32GaussAdaptor> p_test = this->clone<GInt32GaussAdaptor>();
@@ -270,10 +270,10 @@ void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -282,7 +282,7 @@ void GInt32GaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	GIntGaussAdaptorT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

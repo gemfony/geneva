@@ -39,14 +39,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleGaussAdaptor)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -56,7 +56,7 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const GDoubleGaussAdaptor& cp)
 	: GFPGaussAdaptorT<double>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a adaption probability
  *
@@ -105,14 +105,14 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(
 	: GFPGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GDoubleGaussAdaptor::~GDoubleGaussAdaptor()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -124,7 +124,7 @@ const GDoubleGaussAdaptor& GDoubleGaussAdaptor::operator=(const GDoubleGaussAdap
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -134,7 +134,7 @@ GObject* GDoubleGaussAdaptor::clone_() const {
 	return new GDoubleGaussAdaptor(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GDoubleGaussAdaptor object
  *
@@ -147,7 +147,7 @@ bool GDoubleGaussAdaptor::operator==(const GDoubleGaussAdaptor& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GDoubleGaussAdaptor::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GDoubleGaussAdaptor object
  *
@@ -160,7 +160,7 @@ bool GDoubleGaussAdaptor::operator!=(const GDoubleGaussAdaptor& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GDoubleGaussAdaptor::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -197,7 +197,7 @@ boost::optional<std::string> GDoubleGaussAdaptor::checkRelationshipWith(
 	return evaluateDiscrepancies("GDoubleGaussAdaptor", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -213,7 +213,7 @@ void GDoubleGaussAdaptor::load_(const GObject* cp){
 	// ... no local data
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the id of this adaptor
  *
@@ -229,7 +229,7 @@ Gem::Geneva::adaptorId GDoubleGaussAdaptor::getAdaptorId() const {
  */
 
 #ifdef GEM_TESTING
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -247,7 +247,7 @@ bool GDoubleGaussAdaptor::modify_GUnitTests() {
 	return result;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -258,7 +258,7 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GFPGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
 		boost::shared_ptr<GDoubleGaussAdaptor> p_test = this->clone<GDoubleGaussAdaptor>();
@@ -271,15 +271,15 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	// Note to self: Test the effects of the adaptAdaptionProbability -- how often
 	// are the adaption settings adapted for a specific probability ?
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -291,7 +291,7 @@ void GDoubleGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	GFPGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

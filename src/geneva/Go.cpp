@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Go)
 namespace Gem {
 namespace Geneva {
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -94,7 +94,7 @@ Go::Go()
 }
 
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * A constructor that first parses the command line for relevant parameters and then
  * loads data from a configuration file
@@ -166,7 +166,7 @@ Go::Go(int argc, char **argv, const std::string& configFilename)
 	GRANDOMFACTORY->setArraySize(arraySize_);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * A constructor that is given the usual command line parameters, then loads the
  * rest of the data from a config file.
@@ -243,7 +243,7 @@ Go::Go(
 	GRANDOMFACTORY->setArraySize(arraySize_);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  */
@@ -306,14 +306,14 @@ Go::Go(const Go& cp)
 	GRANDOMFACTORY->setArraySize(arraySize_);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 Go::~Go()
 { /* nothing */ }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator
  *
@@ -325,7 +325,7 @@ const Go& Go::operator=(const Go& cp) {
 	return *this;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another Go object
  *
@@ -338,7 +338,7 @@ bool Go::operator==(const Go& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"Go::operator==","cp", CE_SILENT);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another Go object
  *
@@ -351,7 +351,7 @@ bool Go::operator!=(const Go& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"Go::operator!=","cp", CE_SILENT);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -431,7 +431,7 @@ boost::optional<std::string> Go::checkRelationshipWith(
 	return evaluateDiscrepancies("Go", caller, deviations, e);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another Go object
  *
@@ -492,7 +492,7 @@ void Go::load_(const GObject *cp) {
 	copyGenevaSmartPointer<GParameterSet>(p_load->bestIndividual_, bestIndividual_);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -502,7 +502,7 @@ GObject *Go::clone_() const {
 	return new Go(*this);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify an optimization monitor to be used with evolutionary algorithms.
  * Note that this function will take ownership of the monitor by cloning it.
@@ -520,7 +520,7 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseEA::GEAOptimizationM
 	ea_om_ptr_ = ea_om_ptr->clone<GBaseEA::GEAOptimizationMonitor>();
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify an optimization monitor to be used with swarm algorithms.
  * Note that this function will take ownership of the monitor by cloning it.
@@ -538,7 +538,7 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseSwarm::GSwarmOptimiz
 	swarm_om_ptr_ = swarm_om_ptr->clone<GBaseSwarm::GSwarmOptimizationMonitor>();
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify an optimization monitor to be used with gradient descents.
  * Note that this function will take ownership of the monitor by cloning it.
@@ -556,7 +556,7 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseGD::GGDOptimizationM
 	gd_om_ptr_ = gd_om_ptr->clone<GBaseGD::GGDOptimizationMonitor>();
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -566,7 +566,7 @@ std::string Go::getIndividualCharacteristic() const {
 	return std::string("GENEVA_GOWRAPPER");
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers execution of the client loop. Note that it is up to you to terminate
  * the program after calling this function.
@@ -590,7 +590,7 @@ bool Go::clientRun() {
 	}
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether server mode has been requested for this object
  *
@@ -600,7 +600,7 @@ bool Go::serverMode() const {
 	return serverMode_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether this object is running in client mode
  *
@@ -610,7 +610,7 @@ bool Go::clientMode() const {
 	return !serverMode_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /*
  * Specifies whether only the best individuals of a population should be copied.
  *
@@ -620,7 +620,7 @@ void Go::setCopyBestIndividualsOnly(const bool& copyBestOnly) {
 	copyBestOnly_ = copyBestOnly;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether only the best individuals are copied
  *
@@ -630,7 +630,7 @@ bool Go::onlyBestIndividualsAreCopied() const {
 	return copyBestOnly_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to randomly initialize parameter members. Note that for this wrapper object
  * this function doesn't make any sense. It is made available to satisfy a requirement
@@ -639,7 +639,7 @@ bool Go::onlyBestIndividualsAreCopied() const {
 void Go::randomInit()
 { /* nothing */ }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Fitness calculation for an optimization algorithm means optimization. The fitness is
  * then determined by the best individual which, after the end of the optimization cycle.
@@ -665,7 +665,7 @@ double Go::fitnessCalculation() {
 	return val;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the type of optimization algorithm to be used for the optimization
  *
@@ -675,7 +675,7 @@ void Go::setPersonality(const personality_oa& pers) {
 	pers_ = pers;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the type of optimization algorithm currently used for the optimization
  *
@@ -685,7 +685,7 @@ personality_oa Go::getPersonality() const {
 	return pers_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the parallelization mode used for the optimization
  *
@@ -695,7 +695,7 @@ void Go::setParallelizationMode(const parMode& parMode) {
 	parMode_ = parMode;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the parallelization mode currently used for the optimization
  *
@@ -705,7 +705,7 @@ parMode Go::getParallelizationMode() const {
 	return parMode_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to mark this object as belonging to a server as opposed to a client
  *
@@ -715,7 +715,7 @@ void Go::setServerMode(const bool& serverMode) {
 	serverMode_ = serverMode;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to check whether this object is working in server or client mode
  *
@@ -725,7 +725,7 @@ bool Go::getServerMode() const {
 	return serverMode_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the serialization mode used for network transfers
  *
@@ -735,7 +735,7 @@ void Go::setSerializationMode(const Gem::Common::serializationMode& serializatio
 	serializationMode_ = serializationMode;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the serialization mode currently used for network transfers
  */
@@ -743,7 +743,7 @@ Gem::Common::serializationMode Go::getSerializationMode() const {
 	return serializationMode_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the ip of the server
  *
@@ -753,7 +753,7 @@ void Go::setServerIp(const std::string& ip) {
 	ip_ = ip;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the ip of the server
  *
@@ -763,7 +763,7 @@ std::string Go::getServerIp() const {
 	return ip_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the port used to access the server
  *
@@ -773,7 +773,7 @@ void Go::setServerPort(const unsigned short& port) {
 	port_ = port;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the port currently used to access the server
  *
@@ -783,7 +783,7 @@ unsigned short Go::getServerPort() const {
 	return port_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the name of the configuration file from which further options will
  * be read.
@@ -794,7 +794,7 @@ void Go::setConfigFileName(const std::string& configFilename) {
 	configFilename_ = configFilename;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the name of the configuration file from which further options will
  * be read
@@ -805,7 +805,7 @@ std::string Go::getConfigFileName() const {
 	return configFilename_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify whether further information should be emitted after parsing the
  * command line and configuration file.
@@ -816,7 +816,7 @@ void Go::setVerbosity(const bool& verbose) {
 	verbose_ = verbose;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to check whether further information should be emitted after parsing the
  * command line and configuration file.
@@ -825,7 +825,7 @@ bool Go::getVerbosity() const {
 	return verbose_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify the number of failed data transfers before a client terminates
  * its work. Set this to 0 in order to loop indefinitely.
@@ -836,7 +836,7 @@ void Go::setMaxStalledDataTransfers(const boost::uint32_t& maxStalledDataTransfe
 	maxStalledDataTransfers_ = maxStalledDataTransfers;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of failed data transfers before a client terminates
  * its work. Set this to 0 in order to loop indefinitely.
@@ -847,7 +847,7 @@ boost::uint32_t Go::getMaxStalledDataTransfers() const {
 	return maxStalledDataTransfers_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify how often a client may try to connect the server without response
  * before terminating itself.
@@ -858,7 +858,7 @@ void Go::setMaxConnectionAttempts(const boost::uint32_t& maxConnectionAttempts) 
 	maxConnectionAttempts_ = maxConnectionAttempts;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the amount of times a client may try to connect the server without response
  * before terminating itself.
@@ -869,7 +869,7 @@ boost::uint32_t Go::getMaxConnectionAttempts() const {
 	return maxConnectionAttempts_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify whether a client should return results even though here was no
  * improvement.
@@ -880,7 +880,7 @@ void Go::setReturnRegardless(const bool& returnRegardless) {
 	returnRegardless_ = returnRegardless;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to check whether a client should return results even though here was no
  * improvement.
@@ -891,7 +891,7 @@ bool Go::getReturnRegardless() const {
 	return returnRegardless_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the number of threads that will simultaneously produce random numbers.
  *
@@ -901,7 +901,7 @@ void Go::setNProducerThreads(const boost::uint16_t& nProducerThreads) {
 	nProducerThreads_ = nProducerThreads;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of threads that will simultaneously produce random numbers.
  *
@@ -911,7 +911,7 @@ boost::uint16_t Go::getNProducerThreads() const {
 	return nProducerThreads_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the size of the array of random numbers transferred to proxies upon request.
  *
@@ -921,7 +921,7 @@ void Go::setArraySize(const std::size_t& arraySize) {
 	arraySize_ = arraySize;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the size of the array of random numbers transferred to proxies upon request.
  *
@@ -931,7 +931,7 @@ std::size_t Go::getArraySize() const {
 	return arraySize_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the number of threads that will simultaneously evaluate individuals.
  * Set this to 0 to set this number to the amount of CPU cores in your system.
@@ -942,7 +942,7 @@ void Go::setNEvaluationThreads(const boost::uint16_t& nEvaluationThreads) {
 	nEvaluationThreads_ = nEvaluationThreads;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of threads that will simultaneously evaluate individuals.
  *
@@ -952,7 +952,7 @@ boost::uint16_t Go::getNEvaluationThreads() const {
 	return nEvaluationThreads_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the number of processing units available for computation in networked mode.
  * This has an effect on the amount of time the algorithm waits for further arrivales from
@@ -964,7 +964,7 @@ void Go::setNProcessingUnits(const boost::uint32_t& nProcessingUnits) {
 	nProcessingUnits_ = nProcessingUnits;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of processing units available for computation in networked mode.
  *
@@ -974,7 +974,7 @@ boost::uint32_t Go::getNProcessingUnits() const {
 	return nProcessingUnits_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify the maximum amount of iterations in an optimization run
  *
@@ -984,7 +984,7 @@ void Go::setMaxIterations(const boost::uint32_t& maxIterations) {
 	maxIterations_ = maxIterations;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the maximum amount of iterations in an optimization run
  *
@@ -994,7 +994,7 @@ boost::uint32_t Go::getMaxIterations() const {
 	return maxIterations_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify the maximum amount of iterations without improvement before the
  * current optimization algorithm halts.
@@ -1005,7 +1005,7 @@ void Go::setMaxStallIteration(const boost::uint32_t& maxStallIteration) {
 	maxStallIteration_ = maxStallIteration;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the maximum amount of iterations without improvement in an
  * optimization run before the current optimization run halts.
@@ -1016,7 +1016,7 @@ boost::uint32_t Go::getMaxStallIteration() const {
 	return maxStallIteration_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify the maximum amount of minutes an optimization may last
  *
@@ -1026,7 +1026,7 @@ void Go::setMaxMinutes(const long& maxMinutes) {
 	maxMinutes_ = maxMinutes;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the maximum amount of minutes an optimization may last
  *
@@ -1036,7 +1036,7 @@ long Go::getMaxMinutes() const {
 	return maxMinutes_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify in which intervals information about the optimization's progress should be emitted
  *
@@ -1046,7 +1046,7 @@ void Go::setReportIteration(const boost::uint32_t& reportIteration) {
 	reportIteration_ = reportIteration;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to check in which intervals information about the optimization's progress should be emitted
  *
@@ -1056,7 +1056,7 @@ boost::uint32_t Go::getReportIteration() const {
 	return reportIteration_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify the offset with which the iteration counter should start. This is
  * important when using more than one optimization algorithm with different Go objects.
@@ -1067,7 +1067,7 @@ void Go::setOffset(const boost::uint32_t& offset) {
 	offset_ = offset;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the current offset with which the iteration counter will start
  *
@@ -1077,7 +1077,7 @@ boost::uint32_t Go::getIterationOffset() const {
 	return offset_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the default size of an evolutionary algorithm population
  *
@@ -1087,7 +1087,7 @@ void Go::setEAPopulationSize(const std::size_t& eaPopulationSize) {
 	eaPopulationSize_ = eaPopulationSize;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the default size of an evolutionary algorithm population
  *
@@ -1097,7 +1097,7 @@ std::size_t Go::getEAPopulationSize() const {
 	return eaPopulationSize_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the number of parents in an evolutionary algorithm population
  *
@@ -1107,7 +1107,7 @@ void Go::setEANParents(const std::size_t& eaNParents) {
 	eaNParents_ = eaNParents;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of parents in an evolutionary algorithm population
  *
@@ -1117,7 +1117,7 @@ std::size_t Go::getEANParents() const {
 	return eaNParents_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the recombination scheme used in evolutionary algorithms
  *
@@ -1127,7 +1127,7 @@ void Go::setEARecombinationScheme(const duplicationScheme& eaRecombinationScheme
 	eaRecombinationScheme_ = eaRecombinationScheme;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the recombination scheme used in evolutionary algorithms
  *
@@ -1137,7 +1137,7 @@ duplicationScheme Go::getEARecombinationScheme() const {
 	return eaRecombinationScheme_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the sorting scheme used in evolutionary algorithms
  *
@@ -1147,7 +1147,7 @@ void Go::setEASortingScheme(const sortingMode& eaSortingScheme) {
 	eaSortingScheme_ = eaSortingScheme;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the sorting scheme used in evolutionary algorithms
  *
@@ -1157,7 +1157,7 @@ sortingMode Go::getEASortingScheme() const {
 	return eaSortingScheme_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify whether evolutionary algorithms should track the relationship
  * between parents and children
@@ -1168,7 +1168,7 @@ void Go::setEATrackParentRelations(const bool& eaTrackParentRelations) {
 	eaTrackParentRelations_ = eaTrackParentRelations;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to check whether evolutionary algorithms should track the relationship
  * between parents and children
@@ -1179,7 +1179,7 @@ bool Go::getEATrackParentRelations() const {
 	return eaTrackParentRelations_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the growth rate of evolutionary algorithms
  *
@@ -1189,7 +1189,7 @@ void Go::setEAGrowthRate(const std::size_t& eaGrowthRate) {
 	eaGrowthRate_ = eaGrowthRate;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Returns the growth rate of evolutionary algorithms
  *
@@ -1199,7 +1199,7 @@ std::size_t Go::getEAGrowthRate() const {
 	return eaGrowthRate_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the maximum population size of population growth is enabled
  *
@@ -1209,7 +1209,7 @@ void Go::setEAMaxPopSize(const std::size_t& eaMaxPopSize) {
 	eaMaxPopSize_ = eaMaxPopSize;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Returns the maximum population size allowed if growth is enabled
  *
@@ -1219,7 +1219,7 @@ std::size_t Go::getEAMaxPopSize() const {
 	return eaMaxPopSize_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the number of neighborhoods in a swarm algorithm
  *
@@ -1229,7 +1229,7 @@ void Go::setSwarmNNeighborhoods(const std::size_t& swarmNNeighborhoods) {
 	swarmNNeighborhoods_ = swarmNNeighborhoods;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of neighborhoods in a swarm algorithm
  *
@@ -1239,7 +1239,7 @@ std::size_t Go::getSwarmNNeighborhoods() const {
 	return swarmNNeighborhoods_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the number of individuals in each neighborhood in a swarm algorithm
  *
@@ -1249,7 +1249,7 @@ void Go::setSwarmNNeighborhoodMembers(const std::size_t& swarmNNeighborhoodMembe
 	swarmNNeighborhoodMembers_ = swarmNNeighborhoodMembers;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of individuals in each neighborhood in a swarm algorithm
  *
@@ -1259,7 +1259,7 @@ std::size_t Go::getSwarmNNeighborhoodMembers() const {
 	return swarmNNeighborhoodMembers_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify whether missing individuals in a swarm algorithm should be initialized
  * randomly
@@ -1270,7 +1270,7 @@ void Go::setSwarmRandomFillUp(const bool& swarmRandomFillUp) {
 	swarmRandomFillUp_ = swarmRandomFillUp;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to check whether missing individuals in a swarm algorithm should be initialized
  * randomly
@@ -1281,7 +1281,7 @@ bool Go::getSwarmRandomFillUp() const {
 	return swarmRandomFillUp_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the desired value of the swarm algorithm's CPersonal parameter
  *
@@ -1291,7 +1291,7 @@ void Go::setSwarmCPersonal(const float& swarmCPersonal) {
 	swarmCPersonal_ = swarmCPersonal;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the current value of the swarm algorithm's CPersonal parameter
  *
@@ -1301,7 +1301,7 @@ float Go::getSwarmCPersonal() const {
 	return swarmCPersonal_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the desired value of the swarm algorithm's CLocal parameter
  *
@@ -1311,7 +1311,7 @@ void Go::setSwarmCNeighborhood(const float& swarmCNeighborhood) {
 	swarmCNeighborhood_ = swarmCNeighborhood;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the current value of the swarm algorithm's CLocal parameter
  *
@@ -1321,7 +1321,7 @@ float Go::getSwarmCNeighborhood() const {
 	return swarmCNeighborhood_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the desired value of the swarm algorithm's CVelocity parameter
  *
@@ -1331,7 +1331,7 @@ void Go::setSwarmCVelocity(const float& swarmCVelocity) {
 	swarmCVelocity_ = swarmCVelocity;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the current value of the swarm algorithm's CVelocity parameter
  *
@@ -1341,7 +1341,7 @@ float Go::getSwarmCVelocity() const {
 	return swarmCVelocity_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the desired update rule used in swarm algorithms
  *
@@ -1351,7 +1351,7 @@ void Go::setSwarmUpdateRule(const updateRule& swarmUpdateRule) {
 	swarmUpdateRule_ = swarmUpdateRule;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the current update rule used in swarm algorithms
  *
@@ -1361,7 +1361,7 @@ updateRule Go::getSwarmUpdateRule() const {
 	return swarmUpdateRule_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the number of simultaneous starting points in a gradient descent
  *
@@ -1371,7 +1371,7 @@ void Go::setGDNStartingPoints(const std::size_t& gdNStartingPoints) {
 	gdNStartingPoints_ = gdNStartingPoints;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of simultaneous starting points in a gradient descent
  *
@@ -1381,7 +1381,7 @@ std::size_t Go::getGDNStartingPoints() const {
 	return gdNStartingPoints_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the finite step size used in each iteration for each parameter in gradient
  * descents.
@@ -1392,7 +1392,7 @@ void Go::setGDFiniteStep(const float& gdFiniteStep) {
 	gdFiniteStep_ = gdFiniteStep;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Returns the finite step size used in each iteration for each parameter in gradient
  * descents.
@@ -1403,7 +1403,7 @@ float Go::getGDFiniteStep() const {
 	return gdFiniteStep_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the desired step size of gradient descents
  *
@@ -1413,7 +1413,7 @@ void Go::setGDStepSize(const float& gdStepSize) {
 	gdStepSize_ = gdStepSize;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Returns the current step size of gradient descents
  *
@@ -1423,7 +1423,7 @@ float Go::getGDStepSize() const {
 	return gdStepSize_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  *
  * @param argc The number of command line arguments
@@ -1501,7 +1501,7 @@ void Go::parseCommandLine(int argc, char **argv) {
 	}
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the configuration data from a given configuration file
  */
@@ -1612,7 +1612,7 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 	}
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

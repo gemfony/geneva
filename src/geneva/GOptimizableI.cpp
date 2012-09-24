@@ -37,21 +37,21 @@
 namespace Gem {
 namespace Geneva {
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
 GOptimizableI::GOptimizableI()
 { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GOptimizableI::~GOptimizableI()
 { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * This is a simple wrapper function that forces the class to start with offset 0
  */
@@ -59,7 +59,7 @@ void GOptimizableI::optimize() {
 	optimize(0);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs
  * to be overloaded by the actual algorithms to return the correct type.
@@ -70,7 +70,7 @@ personality_oa GOptimizableI::getOptimizationAlgorithm() const {
 	return PERSONALITY_NONE;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given algorithm type likes to communicate via the broker
  *
@@ -80,7 +80,7 @@ bool GOptimizableI::usesBroker() const {
 	return false;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedFloatCollection)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor. Protected, as it is only needed for de-serialization purposes.
  */
@@ -47,7 +47,7 @@ GConstrainedFloatCollection::GConstrainedFloatCollection()
 	: GConstrainedFPNumCollectionT<float> ()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialize with the lower and upper boundaries for data members of this class and
  * a number of random values within this range. Note that all action will take place in the
@@ -65,7 +65,7 @@ GConstrainedFloatCollection::GConstrainedFloatCollection (
 	: GConstrainedFPNumCollectionT<float> (size, lowerBoundary, upperBoundary)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialize with the lower and upper boundaries for data members of this class and
  * a fixed value for all items in the vector. Note that all action will take place in the
@@ -85,7 +85,7 @@ GConstrainedFloatCollection::GConstrainedFloatCollection (
 	: GConstrainedFPNumCollectionT<float> (size, val, lowerBoundary, upperBoundary)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The standard copy constructor
  *
@@ -95,14 +95,14 @@ GConstrainedFloatCollection::GConstrainedFloatCollection(const GConstrainedFloat
 	: GConstrainedFPNumCollectionT<float> (cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor
  */
 GConstrainedFloatCollection::~GConstrainedFloatCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The standard assignment operator.
  *
@@ -114,7 +114,7 @@ const GConstrainedFloatCollection& GConstrainedFloatCollection::operator=(const 
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GConstrainedFloatCollection object
  *
@@ -127,7 +127,7 @@ bool GConstrainedFloatCollection::operator==(const GConstrainedFloatCollection& 
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedFloatCollection::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GConstrainedFloatCollection object
  *
@@ -140,7 +140,7 @@ bool GConstrainedFloatCollection::operator!=(const GConstrainedFloatCollection& 
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedFloatCollection::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -179,7 +179,7 @@ boost::optional<std::string> GConstrainedFloatCollection::checkRelationshipWith(
 	return evaluateDiscrepancies("GConstrainedFloatCollection", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach our local values to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
@@ -192,7 +192,7 @@ void GConstrainedFloatCollection::floatStreamline(std::vector<float>& parVec) co
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach boundaries of type float to the vectors.
  *
@@ -211,7 +211,7 @@ void GConstrainedFloatCollection::floatBoundaries(
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Tell the audience that we own a number of float values
  *
@@ -221,7 +221,7 @@ std::size_t GConstrainedFloatCollection::countFloatParameters() const {
 	return this->size();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter. Note that we apply a transformation to the
  * vector, so that it lies inside of the allowed value range.
@@ -246,7 +246,7 @@ void GConstrainedFloatCollection::assignFloatValueVector(const std::vector<float
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GConstrainedFloatCollection object,
  * camouflaged as a GObject. We have no local data, so
@@ -267,7 +267,7 @@ void GConstrainedFloatCollection::load_(const GObject *cp){
 	// no local data ...
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -278,7 +278,7 @@ GObject* GConstrainedFloatCollection::clone_() const {
 }
 
 #ifdef GEM_TESTING
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -293,7 +293,7 @@ bool GConstrainedFloatCollection::modify_GUnitTests() {
 	return result;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -302,7 +302,7 @@ void GConstrainedFloatCollection::specificTestsNoFailureExpected_GUnitTests() {
 	GConstrainedFPNumCollectionT<float>::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -311,7 +311,7 @@ void GConstrainedFloatCollection::specificTestsFailuresExpected_GUnitTests() {
 	GConstrainedFPNumCollectionT<float>::specificTestsFailuresExpected_GUnitTests();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 
@@ -319,9 +319,10 @@ void GConstrainedFloatCollection::specificTestsFailuresExpected_GUnitTests() {
 } /* namespace Gem */
 
 #ifdef GEM_TESTING
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * As Gem::Geneva::GConstrainedFloatCollection has a private default constructor, we need to provide a
  * specialization of the factory function that creates objects of this type.
@@ -340,7 +341,8 @@ boost::shared_ptr<Gem::Geneva::GConstrainedFloatCollection> TFactory_GUnitTests<
 	return p;
 }
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
 #endif /* GEM_TESTING */

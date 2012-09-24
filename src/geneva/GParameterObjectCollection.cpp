@@ -38,7 +38,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterObjectCollection)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -46,7 +46,7 @@ GParameterObjectCollection::GParameterObjectCollection()
    : GParameterTCollectionT<GParameterBase>()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a number of identical GParameterBase objects
  */
@@ -57,7 +57,7 @@ GParameterObjectCollection::GParameterObjectCollection(
 	: GParameterTCollectionT<GParameterBase>(nCp, tmpl_ptr)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -67,14 +67,14 @@ GParameterObjectCollection::GParameterObjectCollection(const GParameterObjectCol
 	: GParameterTCollectionT<GParameterBase>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GParameterObjectCollection::~GParameterObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -88,7 +88,7 @@ const GParameterObjectCollection& GParameterObjectCollection::operator=(
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -98,7 +98,7 @@ GObject* GParameterObjectCollection::clone_() const {
 	return new GParameterObjectCollection(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GParameterObjectCollection object
  *
@@ -111,7 +111,7 @@ bool GParameterObjectCollection::operator==(const GParameterObjectCollection& cp
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterObjectCollection::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GParameterObjectCollection object
  *
@@ -124,7 +124,7 @@ bool GParameterObjectCollection::operator!=(const GParameterObjectCollection& cp
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterObjectCollection::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -160,7 +160,7 @@ boost::optional<std::string> GParameterObjectCollection::checkRelationshipWith(c
 	return evaluateDiscrepancies("GParameterObjectCollection", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -176,7 +176,7 @@ void GParameterObjectCollection::load_(const GObject* cp){
 	// ... no local data
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Prevent shadowing of std::vector<GParameterBase>::at()
  *
@@ -188,7 +188,7 @@ boost::shared_ptr<Gem::Geneva::GParameterBase> GParameterObjectCollection::at(co
 }
 
 #ifdef GEM_TESTING
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -203,7 +203,7 @@ bool GParameterObjectCollection::modify_GUnitTests() {
 	return true;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Fills the collection with GParameterBase derivatives
  */
@@ -272,7 +272,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	BOOST_CHECK_NO_THROW(this->push_back(gdo_ptr));
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -541,7 +541,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -550,7 +550,7 @@ void GParameterObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	GParameterTCollectionT<GParameterBase>::specificTestsFailuresExpected_GUnitTests();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

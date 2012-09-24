@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBooleanObjectCollection)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -48,7 +48,7 @@ GBooleanObjectCollection::GBooleanObjectCollection()
 
 // Tested in this file
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -60,7 +60,7 @@ GBooleanObjectCollection::GBooleanObjectCollection(const GBooleanObjectCollectio
 
 // Tested in this file
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a number of identical GBooleanObject objects
  */
@@ -73,7 +73,7 @@ GBooleanObjectCollection::GBooleanObjectCollection(
 
 // Tested in this file
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a number of GBoolean objects with a given probability for the value "true"
  */
@@ -88,14 +88,14 @@ GBooleanObjectCollection::GBooleanObjectCollection(
 
 // Tested in this file
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GBooleanObjectCollection::~GBooleanObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -107,7 +107,7 @@ const GBooleanObjectCollection& GBooleanObjectCollection::operator=(const GBoole
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -117,7 +117,7 @@ GObject* GBooleanObjectCollection::clone_() const {
 	return new GBooleanObjectCollection(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GBooleanObjectCollection object
  *
@@ -130,7 +130,7 @@ bool GBooleanObjectCollection::operator==(const GBooleanObjectCollection& cp) co
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBooleanObjectCollection::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GBooleanObjectCollection object
  *
@@ -143,7 +143,7 @@ bool GBooleanObjectCollection::operator!=(const GBooleanObjectCollection& cp) co
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBooleanObjectCollection::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -179,7 +179,7 @@ boost::optional<std::string> GBooleanObjectCollection::checkRelationshipWith(con
 	return evaluateDiscrepancies("GBooleanObjectCollection", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -197,7 +197,7 @@ void GBooleanObjectCollection::load_(const GObject* cp){
 
 #ifdef GEM_TESTING
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -212,7 +212,7 @@ bool GBooleanObjectCollection::modify_GUnitTests() {
 	return true;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Fills the collection with GBooleanObject objects
  */
@@ -245,7 +245,7 @@ void GBooleanObjectCollection::fillWithObjects(const std::size_t& nAddedObjects)
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -319,7 +319,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check construction with a number of GBooleanObject with a given probability for "true"
 		GBooleanObjectCollection gboc(nTests, 0.5);
@@ -341,7 +341,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that the fp-family of functions has no effect on this object (and contained objects)
 		boost::shared_ptr<GBooleanObjectCollection> p_test1 = this->clone<GBooleanObjectCollection>();
@@ -384,10 +384,10 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -396,7 +396,7 @@ void GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	GParameterTCollectionT<GBooleanObject>::specificTestsFailuresExpected_GUnitTests();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

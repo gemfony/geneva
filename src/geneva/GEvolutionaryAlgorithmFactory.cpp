@@ -37,7 +37,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A constructor with the ability to switch the parallelization mode. It initializes a
  * target item as needed.
@@ -49,14 +49,14 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	: GOptimizationAlgorithmFactoryT<GBaseEA>(configFile, pm)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates items of this type
  *
@@ -90,7 +90,7 @@ boost::shared_ptr<GBaseEA> GEvolutionaryAlgorithmFactory::getObject_(
 	return target;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to act on the configuration options received from the configuration file. Here
  * we can add the options described in describeLocalOptions to the object.
@@ -125,7 +125,7 @@ void GEvolutionaryAlgorithmFactory::postProcess_(boost::shared_ptr<GBaseEA>& p_b
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

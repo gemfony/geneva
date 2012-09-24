@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedDoubleCollection)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor. Protected, as it is only needed for de-serialization purposes.
  */
@@ -47,7 +47,7 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection()
 	: GConstrainedFPNumCollectionT<double> ()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialize with the lower and upper boundaries for data members of this class and
  * a number of random values within this range. Note that all action will take place in the
@@ -65,7 +65,7 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection (
 	: GConstrainedFPNumCollectionT<double> (size, lowerBoundary, upperBoundary)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialize with the lower and upper boundaries for data members of this class and
  * a fixed value for all items in the vector. Note that all action will take place in the
@@ -85,7 +85,7 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection (
 	: GConstrainedFPNumCollectionT<double> (size, val, lowerBoundary, upperBoundary)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The standard copy constructor
  *
@@ -95,14 +95,14 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection(const GConstrainedDou
 	: GConstrainedFPNumCollectionT<double> (cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor
  */
 GConstrainedDoubleCollection::~GConstrainedDoubleCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The standard assignment operator.
  *
@@ -114,7 +114,7 @@ const GConstrainedDoubleCollection& GConstrainedDoubleCollection::operator=(cons
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GConstrainedDoubleCollection object
  *
@@ -127,7 +127,7 @@ bool GConstrainedDoubleCollection::operator==(const GConstrainedDoubleCollection
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedDoubleCollection::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GConstrainedDoubleCollection object
  *
@@ -140,7 +140,7 @@ bool GConstrainedDoubleCollection::operator!=(const GConstrainedDoubleCollection
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedDoubleCollection::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -179,7 +179,7 @@ boost::optional<std::string> GConstrainedDoubleCollection::checkRelationshipWith
 	return evaluateDiscrepancies("GConstrainedDoubleCollection", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach our local values to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
@@ -192,7 +192,7 @@ void GConstrainedDoubleCollection::doubleStreamline(std::vector<double>& parVec)
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach boundaries of type double to the vectors.
  *
@@ -211,7 +211,7 @@ void GConstrainedDoubleCollection::doubleBoundaries(
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Tell the audience that we own a number of double values
  *
@@ -221,7 +221,7 @@ std::size_t GConstrainedDoubleCollection::countDoubleParameters() const {
 	return this->size();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter. Note that we apply a transformation to the
  * vector, so that it lies inside of the allowed value range.
@@ -246,7 +246,7 @@ void GConstrainedDoubleCollection::assignDoubleValueVector(const std::vector<dou
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GConstrainedDoubleCollection object,
  * camouflaged as a GObject. We have no local data, so
@@ -267,7 +267,7 @@ void GConstrainedDoubleCollection::load_(const GObject *cp){
 	// no local data ...
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -278,7 +278,7 @@ GObject* GConstrainedDoubleCollection::clone_() const {
 }
 
 #ifdef GEM_TESTING
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -293,7 +293,7 @@ bool GConstrainedDoubleCollection::modify_GUnitTests() {
 	return result;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -338,7 +338,7 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -347,7 +347,7 @@ void GConstrainedDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 	GConstrainedFPNumCollectionT<double>::specificTestsFailuresExpected_GUnitTests();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 
@@ -355,9 +355,10 @@ void GConstrainedDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 } /* namespace Gem */
 
 #ifdef GEM_TESTING
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * As Gem::Geneva::GConstrainedDoubleCollection has a private default constructor, we need to provide a
  * specialization of the factory function that creates objects of this type.
@@ -376,7 +377,8 @@ boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> TFactory_GUnitTests
 	return p;
 }
 
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
 #endif /* GEM_TESTING */

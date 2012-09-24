@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBooleanObject)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -49,7 +49,7 @@ GBooleanObject::GBooleanObject()
 
 // Tested in this file
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -61,7 +61,7 @@ GBooleanObject::GBooleanObject(const GBooleanObject& cp)
 
 // Tested in this file
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization by contained value
  *
@@ -73,7 +73,7 @@ GBooleanObject::GBooleanObject(const bool& val)
 
 // Tested in this file
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a given probability for "true"
  *
@@ -85,14 +85,14 @@ GBooleanObject::GBooleanObject(const double& probability) {
 
 // Tested in this file
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GBooleanObject::~GBooleanObject()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * An assignment operator
  *
@@ -103,7 +103,7 @@ bool GBooleanObject::operator=(const bool& val) {
 	return GParameterT<bool>::operator=(val);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -115,7 +115,7 @@ const GBooleanObject& GBooleanObject::operator=(const GBooleanObject& cp){
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -125,7 +125,7 @@ GObject* GBooleanObject::clone_() const {
 	return new GBooleanObject(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GBooleanObject object
  *
@@ -138,7 +138,7 @@ bool GBooleanObject::operator==(const GBooleanObject& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBooleanObject::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GBooleanObject object
  *
@@ -151,7 +151,7 @@ bool GBooleanObject::operator!=(const GBooleanObject& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBooleanObject::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Random initialization. This is a helper function, without it we'd
  * have to say things like "myGBooleanObject.GParameterBase::randomInit();".
@@ -165,7 +165,7 @@ void GBooleanObject::randomInit() {
  * ----------------------------------------------------------------------------------
  */
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers random initialization of the parameter object, with a given likelihood structure
  */
@@ -178,7 +178,7 @@ void GBooleanObject::randomInit(const double& probability) {
  * ----------------------------------------------------------------------------------
  */
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers random initialization of the parameter object, with a given likelihood structure.
  * This function holds the actual initialization logic, used in the publicly accessible
@@ -193,7 +193,7 @@ void GBooleanObject::randomInit_(const double& probability) {
  * ----------------------------------------------------------------------------------
  */
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers random initialization of the parameter object
  */
@@ -206,7 +206,7 @@ void GBooleanObject::randomInit_() {
  * ----------------------------------------------------------------------------------
  */
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -242,7 +242,7 @@ boost::optional<std::string> GBooleanObject::checkRelationshipWith(const GObject
 	return evaluateDiscrepancies("GBooleanObject", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
@@ -253,7 +253,7 @@ void GBooleanObject::booleanStreamline(std::vector<bool>& parVec) const {
 	parVec.push_back(this->value());
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach boundaries of type bool to the vectors. This function has been added for
  * completeness reasons only.
@@ -270,7 +270,7 @@ void GBooleanObject::booleanBoundaries(
 }
 
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Tell the audience that we own a bool value
  *
@@ -280,7 +280,7 @@ std::size_t GBooleanObject::countBoolParameters() const {
 	return 1;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter
  */
@@ -299,7 +299,7 @@ void GBooleanObject::assignBooleanValueVector(const std::vector<bool>& parVec, s
 	pos++;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -317,7 +317,7 @@ void GBooleanObject::load_(const GObject* cp){
 
 #ifdef GEM_TESTING
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -332,7 +332,7 @@ bool GBooleanObject::modify_GUnitTests() {
 	return result;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -359,7 +359,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterT<bool>::specificTestsNoFailureExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test default constructor
 		GBooleanObject gbo;
@@ -371,7 +371,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test copy construction and construction with value
 		GBooleanObject gbo1(false), gbo2(gbo1);
@@ -384,7 +384,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check construction with a given probability for the value "true"
 		std::size_t nTrue=0, nFalse=0;
@@ -405,7 +405,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that random initialization with equal probability for true and false will result in roughly the same amount of corresponding values
 		boost::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
@@ -436,7 +436,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that initialization with a probability of 1 for true will only result in true values
 		boost::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
@@ -459,7 +459,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(nTrue ==nTests);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that initialization with a probability of 0 for true will only result in false values
 		boost::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
@@ -521,7 +521,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check that random initialization can be blocked for equal distributions
 		boost::shared_ptr<GBooleanObject> p_test1 = this->clone<GBooleanObject>();
@@ -552,7 +552,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check that random initialization can be blocked for distributions with a given probability structure
 		boost::shared_ptr<GBooleanObject> p_test1 = this->clone<GBooleanObject>();
@@ -583,7 +583,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check that the fp-family of functions doesn't have an effect on this object
 		boost::shared_ptr<GBooleanObject> p_test1 = this->GObject::clone<GBooleanObject>();
@@ -627,7 +627,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test3 == *p_test2);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	// Restore the adaptor to pristine condition
 	this->resetAdaptor();
@@ -638,7 +638,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -669,7 +669,7 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

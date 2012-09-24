@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GConstrainedFloatObject)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -47,7 +47,7 @@ GConstrainedFloatObject::GConstrainedFloatObject()
 	: GConstrainedFPT<float>()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with boundaries only. The value is set randomly.
  *
@@ -61,7 +61,7 @@ GConstrainedFloatObject::GConstrainedFloatObject(
 	: GConstrainedFPT<float>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with value and boundaries
  *
@@ -77,7 +77,7 @@ GConstrainedFloatObject::GConstrainedFloatObject (
 	: GConstrainedFPT<float>(val, lowerBoundary, upperBoundary)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -87,7 +87,7 @@ GConstrainedFloatObject::GConstrainedFloatObject(const GConstrainedFloatObject& 
 	: GConstrainedFPT<float>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization by contained value
  *
@@ -97,14 +97,14 @@ GConstrainedFloatObject::GConstrainedFloatObject(const float& val)
 	: GConstrainedFPT<float>(val)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GConstrainedFloatObject::~GConstrainedFloatObject()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * An assignment operator for the contained value type
  *
@@ -115,7 +115,7 @@ float GConstrainedFloatObject::operator=(const float& val) {
 	return GConstrainedFPT<float>::operator=(val);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -127,7 +127,7 @@ const GConstrainedFloatObject& GConstrainedFloatObject::operator=(const GConstra
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -137,7 +137,7 @@ GObject* GConstrainedFloatObject::clone_() const {
 	return new GConstrainedFloatObject(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GConstrainedFloatObject object
  *
@@ -150,7 +150,7 @@ bool GConstrainedFloatObject::operator==(const GConstrainedFloatObject& cp) cons
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedFloatObject::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GConstrainedFloatObject object
  *
@@ -163,7 +163,7 @@ bool GConstrainedFloatObject::operator!=(const GConstrainedFloatObject& cp) cons
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedFloatObject::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -200,7 +200,7 @@ boost::optional<std::string> GConstrainedFloatObject::checkRelationshipWith (
 	return evaluateDiscrepancies("GConstrainedFloatObject", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
@@ -211,7 +211,7 @@ void GConstrainedFloatObject::floatStreamline(std::vector<float>& parVec) const 
 	parVec.push_back(this->value());
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach boundaries of type float to the vectors.
  *
@@ -226,7 +226,7 @@ void GConstrainedFloatObject::floatBoundaries(
 	uBndVec.push_back(this->getUpperBoundary());
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Tell the audience that we own a float value
  *
@@ -236,7 +236,7 @@ std::size_t GConstrainedFloatObject::countFloatParameters() const {
 	return 1;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter. Note that we apply a transformation to
  * the parameter value, so that it lies inside of the allowed value range.
@@ -256,7 +256,7 @@ void GConstrainedFloatObject::assignFloatValueVector(const std::vector<float>& p
 	pos++;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -274,7 +274,7 @@ void GConstrainedFloatObject::load_(const GObject* cp){
 
 #ifdef GEM_TESTING
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -289,7 +289,7 @@ bool GConstrainedFloatObject::modify_GUnitTests() {
 	return result;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -355,7 +355,7 @@ void GConstrainedFloatObject::specificTestsNoFailureExpected_GUnitTests() {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -386,7 +386,7 @@ void GConstrainedFloatObject::specificTestsFailuresExpected_GUnitTests() {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

@@ -38,14 +38,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFloatObjectCollection)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
 GFloatObjectCollection::GFloatObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a number of identical GFloatObject objects
  */
@@ -56,7 +56,7 @@ GFloatObjectCollection::GFloatObjectCollection(
 	:GParameterTCollectionT<GFloatObject>(nCp, tmpl_ptr)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -66,14 +66,14 @@ GFloatObjectCollection::GFloatObjectCollection(const GFloatObjectCollection& cp)
 	: GParameterTCollectionT<GFloatObject>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GFloatObjectCollection::~GFloatObjectCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -85,7 +85,7 @@ const GFloatObjectCollection& GFloatObjectCollection::operator=(const GFloatObje
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -95,7 +95,7 @@ GObject* GFloatObjectCollection::clone_() const {
 	return new GFloatObjectCollection(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GFloatObjectCollection object
  *
@@ -108,7 +108,7 @@ bool GFloatObjectCollection::operator==(const GFloatObjectCollection& cp) const 
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GFloatObjectCollection::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GFloatObjectCollection object
  *
@@ -121,7 +121,7 @@ bool GFloatObjectCollection::operator!=(const GFloatObjectCollection& cp) const 
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GFloatObjectCollection::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -157,7 +157,7 @@ boost::optional<std::string> GFloatObjectCollection::checkRelationshipWith(const
 	return evaluateDiscrepancies("GFloatObjectCollection", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -174,7 +174,7 @@ void GFloatObjectCollection::load_(const GObject* cp){
 }
 
 #ifdef GEM_TESTING
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -189,7 +189,7 @@ bool GFloatObjectCollection::modify_GUnitTests() {
 	return true;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Fills the collection with GFloatObject objects
  */
@@ -222,7 +222,7 @@ void GFloatObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -237,7 +237,7 @@ void GFloatObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const float RANDLOWERBOUNDARY = 0.;
 	const float RANDUPPERBOUNDARY = 10.;
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
 		boost::shared_ptr<GFloatObjectCollection> p_test = this->clone<GFloatObjectCollection>();
@@ -249,7 +249,7 @@ void GFloatObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		p_test->GParameterTCollectionT<GFloatObject>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test the GParameterTCollectionT<T>::adaptImpl() implementation
 		boost::shared_ptr<GFloatObjectCollection> p_test1 = this->clone<GFloatObjectCollection>();
@@ -277,7 +277,7 @@ void GFloatObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test initialization of GFloat objects with a fixed floating point value
 		boost::shared_ptr<GFloatObjectCollection> p_test1 = this->clone<GFloatObjectCollection>();
@@ -297,7 +297,7 @@ void GFloatObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a fixed value
 		boost::shared_ptr<GFloatObjectCollection> p_test1 = this->clone<GFloatObjectCollection>();
@@ -320,7 +320,7 @@ void GFloatObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a random number in a given range
 		boost::shared_ptr<GFloatObjectCollection> p_test1 = this->clone<GFloatObjectCollection>();
@@ -356,7 +356,7 @@ void GFloatObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a random number in a the range [0,1[
 		boost::shared_ptr<GFloatObjectCollection> p_test1 = this->clone<GFloatObjectCollection>();
@@ -392,7 +392,7 @@ void GFloatObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test addition of another object
 		boost::shared_ptr<GFloatObjectCollection> p_test1 = this->clone<GFloatObjectCollection>();
@@ -421,7 +421,7 @@ void GFloatObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test subtraction of another object
 		boost::shared_ptr<GFloatObjectCollection> p_test1 = this->clone<GFloatObjectCollection>();
@@ -450,10 +450,10 @@ void GFloatObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -464,7 +464,7 @@ void GFloatObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterTCollectionT<GFloatObject>::specificTestsFailuresExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that fpAdd throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpAdd() )
 		boost::shared_ptr<GFloatObjectCollection> p_test1 = this->clone<GFloatObjectCollection>();
@@ -486,7 +486,7 @@ void GFloatObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK_THROW(p_test1->fpAdd(p_test2), Gem::Common::gemfony_error_condition);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Test that fpSubtract throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpSubtract() )
 		boost::shared_ptr<GFloatObjectCollection> p_test1 = this->clone<GFloatObjectCollection>();
@@ -508,10 +508,10 @@ void GFloatObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK_THROW(p_test1->fpSubtract(p_test2), Gem::Common::gemfony_error_condition);
 	}
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

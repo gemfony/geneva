@@ -37,7 +37,7 @@
 namespace Gem {
 namespace Geneva {
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor. Adaptions are switched on by default.
  */
@@ -50,7 +50,7 @@ GParameterBase::GParameterBase()
 	, randomInitializationBlocked_(false)
 { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The standard copy constructor.
  *
@@ -65,7 +65,7 @@ GParameterBase::GParameterBase(const GParameterBase& cp)
 	, randomInitializationBlocked_(cp.randomInitializationBlocked_)
 { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor. No local data, hence nothing to do.
  */
@@ -74,7 +74,7 @@ GParameterBase::~GParameterBase()
 	if(gr_local) delete gr_local;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -92,7 +92,7 @@ void GParameterBase::load_(const GObject* cp){
 	randomInitializationBlocked_ = p_load->randomInitializationBlocked_;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Calls the function that does the actual adaption (which is in turn implemented
  * by derived classes. Will omit adaption if the adaptionsActive_ parameter is set.
@@ -101,12 +101,12 @@ void GParameterBase::adapt() {
 	if(adaptionsActive_) adaptImpl();
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Switches on adaptions for this object
  */
@@ -116,12 +116,12 @@ bool GParameterBase::setAdaptionsActive() {
 	return previous;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Disables adaptions for this object
  */
@@ -131,12 +131,12 @@ bool GParameterBase::setAdaptionsInactive() {
 	return previous;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Determines whether adaptions are performed for this object
  *
@@ -146,12 +146,12 @@ bool GParameterBase::adaptionsActive() const {
 	return adaptionsActive_;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GParameterBase object
  *
@@ -164,7 +164,7 @@ bool GParameterBase::operator==(const GParameterBase& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterBase::operator==","cp", CE_SILENT);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GParameterBase object
  *
@@ -177,7 +177,7 @@ bool GParameterBase::operator!=(const GParameterBase& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterBase::operator!=","cp", CE_SILENT);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -232,9 +232,9 @@ void GParameterBase::assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
 	gr = gr_cp;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 /***********************************************************************************/
@@ -254,9 +254,9 @@ void GParameterBase::resetGRandomPointer() {
 	gr = gr_local;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 /***********************************************************************************/
@@ -270,12 +270,12 @@ bool GParameterBase::usesLocalRNG() const {
 	return gr == gr_local;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether the assigned random number generator is used throughout
  *
@@ -285,7 +285,7 @@ bool GParameterBase::assignedRNGUsed() const {
 	return gr != gr_local;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Convenience function so we do not need to always cast  derived classes.
  * See GParameterBaseWithAdaptors::hasAdaptors() for the "real"
@@ -295,12 +295,12 @@ bool GParameterBase::hasAdaptor() const {
 	return false;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Triggers random initialization of the parameter(-collection). This is the public
  * version of this function, which only acts if initialization has not been blocked.
@@ -309,12 +309,12 @@ void GParameterBase::randomInit() {
 	if(!randomInitializationBlocked_) randomInit_();
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to identify whether we are dealing with a collection or an individual parameter.
  * This function needs to be overloaded for parameter collections so that it returns the
@@ -326,7 +326,7 @@ bool GParameterBase::isIndividualParameter() const {
 	return true;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to identify whether we are dealing with a collection or an individual parameter.
  * As GParameterBase derivates can be either individual parameters or parameter collections,
@@ -338,7 +338,7 @@ bool GParameterBase::isParameterCollection() const {
 	return !isIndividualParameter();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Initializes double-based parameters with a given value. Allows e.g. to set all
  * floating point parameters to 0.
@@ -348,24 +348,24 @@ bool GParameterBase::isParameterCollection() const {
 void GParameterBase::fpFixedValueInit(const float& val)
 { /* do nothing by default */ }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested (including overloads for FP numbers) in the most derived classes
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Multiplies double-based parameters with a given value.
  */
 void GParameterBase::fpMultiplyBy(const float& val)
 { /* do nothing by default */ }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested (including overloads for FP numbers) in the most derived classes
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Multiplies with a random floating point number in a given range. The actual
  * functionality needs to be added by derived classes, if they need this. I.e.,
@@ -379,12 +379,12 @@ void GParameterBase::fpMultiplyBy(const float& val)
 void GParameterBase::fpMultiplyByRandom(const float& min, const float& max)
 { /* do nothing by default */ }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested (including overloads for FP numbers) in the most derived classes
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Multiplies with a random floating point number in the range [0, 1[.  The actual
  * functionality needs to be added by derived classes, if they need this.  I.e.,
@@ -395,12 +395,12 @@ void GParameterBase::fpMultiplyByRandom(const float& min, const float& max)
 void GParameterBase::fpMultiplyByRandom()
 { /* do nothing by default */ }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested (including overloads for FP numbers) in the most derived classes
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Adds the floating point parameters of another GParameterBase object to this one.
  * The actual actions need to be defined by derived classes.
@@ -410,12 +410,12 @@ void GParameterBase::fpMultiplyByRandom()
 void GParameterBase::fpAdd(boost::shared_ptr<GParameterBase> p)
 { /* do nothing by default */ }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested (including overloads for FP numbers) in the most derived classes
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Subtracts the floating point parameters of another GParameterBase object from this one.
  * The actual actions need to be defined by derived classes.
@@ -425,12 +425,12 @@ void GParameterBase::fpAdd(boost::shared_ptr<GParameterBase> p)
 void GParameterBase::fpSubtract(boost::shared_ptr<GParameterBase> p)
 { /* do nothing by default */ }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested (including overloads for FP numbers) in the most derived classes
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to add all parameters of type float to the vector.
  *
@@ -443,7 +443,7 @@ void GParameterBase::streamline<float>(
 	this->floatStreamline(parVec);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to add all parameters of type double to the vector.
  *
@@ -456,7 +456,7 @@ void GParameterBase::streamline<double>(
 	this->doubleStreamline(parVec);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to add all parameters of type boost::int32_t to the vector.
  *
@@ -469,7 +469,7 @@ void GParameterBase::streamline<boost::int32_t>(
 	this->int32Streamline(parVec);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to add all parameters of type bool to the vector.
  *
@@ -482,7 +482,7 @@ void GParameterBase::streamline<bool>(
 	this->booleanStreamline(parVec);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Attach parameters of type double to the vector. This function does nothing by
  * default. Parameter types based on doubles need to overload this function and do
@@ -494,12 +494,12 @@ void GParameterBase::floatStreamline(
 	/* do nothing by default */
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * So far untested
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Attach parameters of type double to the vector. This function does nothing by
  * default. Parameter types based on doubles need to overload this function and do
@@ -511,12 +511,12 @@ void GParameterBase::doubleStreamline(
 	/* do nothing by default */
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * So far untested
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Attach parameters of type boost::int32_t to the vector. This function does nothing by
  * default. Parameter types based on boost::int32_t need to overload this function and do
@@ -528,12 +528,12 @@ void GParameterBase::int32Streamline(
 	/* do nothing by default */
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * So far untested
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Attach parameters of type bool to the vector. This function does nothing by
  * default. Parameter types based on bool need to overload this function and do
@@ -545,12 +545,12 @@ void GParameterBase::booleanStreamline(
 	/* do nothing by default */
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * So far untested
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the values of lower and upper boundaries of type float
  *
@@ -565,7 +565,7 @@ void GParameterBase::boundaries<float>(
 	this->floatBoundaries(lBndVec, uBndVec);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the values of lower and upper boundaries of type double
  *
@@ -580,7 +580,7 @@ void GParameterBase::boundaries<double>(
 	this->doubleBoundaries(lBndVec, uBndVec);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the values of lower and upper boundaries of type boost::int32_t
  *
@@ -595,7 +595,7 @@ void GParameterBase::boundaries<boost::int32_t>(
 	this->int32Boundaries(lBndVec, uBndVec);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the values of lower and upper boundaries of type bool
  *
@@ -610,7 +610,7 @@ void GParameterBase::boundaries<bool>(
 	this->booleanBoundaries(lBndVec, uBndVec);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Attach boundaries of type float to the vectors
  *
@@ -624,7 +624,7 @@ void GParameterBase::floatBoundaries(
 	/* do nothing by default */
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Attach boundaries of type double to the vectors
  *
@@ -638,7 +638,7 @@ void GParameterBase::doubleBoundaries(
 	/* do nothing by default */
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Attach boundaries of type boost::int32_t to the vectors
  *
@@ -652,7 +652,7 @@ void GParameterBase::int32Boundaries(
 	/* do nothing by default */
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Attach boundaries of type bool to the vectors
  *
@@ -666,7 +666,7 @@ void GParameterBase::booleanBoundaries(
 	/* do nothing by default */
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to count parameters of type float.
  *
@@ -677,7 +677,7 @@ std::size_t GParameterBase::countParameters<float>() const {
 	return this->countFloatParameters();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to count parameters of type double.
  *
@@ -688,7 +688,7 @@ std::size_t GParameterBase::countParameters<double>() const {
 	return this->countDoubleParameters();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to count parameters of type boost::int32_t.
  *
@@ -699,7 +699,7 @@ std::size_t GParameterBase::countParameters<boost::int32_t>() const {
 	return this->countInt32Parameters();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to count parameters of type bool.
  *
@@ -710,7 +710,7 @@ std::size_t GParameterBase::countParameters<bool>() const {
 	return this->countBoolParameters();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Count the number of float parameters. The actual work needs to be done by
  * derived classes, if they possess float parameters.
@@ -721,12 +721,12 @@ std::size_t GParameterBase::countFloatParameters() const {
 	return 0;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * So far untested
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Count the number of double parameters. The actual work needs to be done by
  * derived classes, if they possess double parameters.
@@ -737,12 +737,12 @@ std::size_t GParameterBase::countDoubleParameters() const {
 	return 0;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * So far untested
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Count the number of boost::int32_t parameters. The actual work needs to be done by
  * derived classes, if they possess boost::int32_t parameters.
@@ -753,12 +753,12 @@ std::size_t GParameterBase::countInt32Parameters() const {
 	return 0;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * So far untested
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Count the number of bool parameters. The actual work needs to be done by
  * derived classes, if they possess bool parameters.
@@ -769,12 +769,12 @@ std::size_t GParameterBase::countBoolParameters() const {
 	return 0;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * So far untested
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign the parameters inside of a vector the corresponding parameter objects.
  *
@@ -789,7 +789,7 @@ void GParameterBase::assignValueVector<float>(
 	this->assignFloatValueVector(parVec, pos);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign the parameters inside of a vector the corresponding parameter objects.
  *
@@ -804,7 +804,7 @@ void GParameterBase::assignValueVector<double>(
 	this->assignDoubleValueVector(parVec, pos);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign the parameters inside of a vector the corresponding parameter objects.
  *
@@ -819,7 +819,7 @@ void GParameterBase::assignValueVector<boost::int32_t>(
 	this->assignInt32ValueVector(parVec, pos);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign the parameters inside of a vector the corresponding parameter objects.
  *
@@ -834,7 +834,7 @@ void GParameterBase::assignValueVector<bool>(
 	this->assignBooleanValueVector(parVec, pos);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter
  */
@@ -842,12 +842,12 @@ void GParameterBase::assignFloatValueVector(const std::vector<float>& parVec, st
 	/* Do nothing by default */
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * So far untested
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter
  */
@@ -855,12 +855,12 @@ void GParameterBase::assignDoubleValueVector(const std::vector<double>& parVec, 
 	/* Do nothing by default */
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * So far untested
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter
  */
@@ -868,12 +868,12 @@ void GParameterBase::assignInt32ValueVector(const std::vector<boost::int32_t>& p
 	/* Do nothing by default */
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * So far untested
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter
  */
@@ -881,12 +881,12 @@ void GParameterBase::assignBooleanValueVector(const std::vector<bool>& parVec, s
 	/* Do nothing by default */
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * So far untested
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Specifies that no random initialization should occur anymore
  */
@@ -894,12 +894,12 @@ void GParameterBase::blockRandomInitialization() {
 	randomInitializationBlocked_ = true;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Specifies that no random initialization should occur anymore
  */
@@ -907,12 +907,12 @@ void GParameterBase::allowRandomInitialization() {
 	randomInitializationBlocked_ = false;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether initialization has been blocked
  */
@@ -920,13 +920,13 @@ bool GParameterBase::randomInitializationBlocked() const {
 	return randomInitializationBlocked_;
 }
 
-/* ----------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifdef GEM_TESTING
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -941,7 +941,7 @@ bool GParameterBase::modify_GUnitTests() {
 	return result;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -1093,10 +1093,10 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -1104,7 +1104,7 @@ void GParameterBase::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GObject::specificTestsFailuresExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
 	{ // Check that assigning a NULL pointer for the random number generator throws
 		boost::shared_ptr<GParameterBase> p_test = this->clone<GParameterBase>();
@@ -1116,7 +1116,7 @@ void GParameterBase::specificTestsFailuresExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
 
 	{ // Check that resetting the random number generator throws if gr_local is NULL
@@ -1132,10 +1132,10 @@ void GParameterBase::specificTestsFailuresExpected_GUnitTests() {
 		);
 	}
 
-	//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

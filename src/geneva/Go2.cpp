@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Go2)
 namespace Gem {
 namespace Geneva {
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Set a number of parameters of the random number factory
  *
@@ -61,9 +61,9 @@ void setRNFParameters(
 /** @brief Regulates access to the call_once facility*/
 boost::once_flag f_go2 = BOOST_ONCE_INIT;
 
-/**************************************************************************************/
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////////////
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -97,7 +97,7 @@ Go2::Go2()
 }
 
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * A constructor that first parses the command line for relevant parameters and then
  * loads data from a configuration file
@@ -138,7 +138,7 @@ Go2::Go2(int argc, char **argv)
 	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * A constructor that first parses the command line for relevant parameters and then
  * loads data from a configuration file
@@ -181,7 +181,7 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 }
 
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * A constructor that is given the usual command line parameters, then loads the
  * rest of the data from a config file.
@@ -230,7 +230,7 @@ Go2::Go2(
 	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  */
@@ -269,7 +269,7 @@ Go2::Go2(const Go2& cp)
 	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Copy construction without cloning
  */
@@ -298,7 +298,7 @@ Go2::Go2(const Go2& cp, bool noClone)
 	copyAlgorithmsVector(cp.algorithms_, algorithms_);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
@@ -308,7 +308,7 @@ Go2::~Go2() {
 	algorithms_.clear(); // Get rid of the optimization algorithms
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator
  *
@@ -320,7 +320,7 @@ const Go2& Go2::operator=(const Go2& cp) {
 	return *this;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another Go2 object
  *
@@ -333,7 +333,7 @@ bool Go2::operator==(const Go2& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"Go2::operator==","cp", CE_SILENT);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another Go2 object
  *
@@ -346,7 +346,7 @@ bool Go2::operator!=(const Go2& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"Go2::operator!=","cp", CE_SILENT);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -401,7 +401,7 @@ boost::optional<std::string> Go2::checkRelationshipWith(
 	return evaluateDiscrepancies("Go2", caller, deviations, e);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another Go2 object
  *
@@ -438,7 +438,7 @@ void Go2::load_(const GObject *cp) {
 	// Cross check other data has been added
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -448,7 +448,7 @@ GObject *Go2::clone_() const {
 	return new Go2(*this);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers execution of the client loop. Note that it is up to you to terminate
  * the program after calling this function.
@@ -468,7 +468,7 @@ int Go2::clientRun() {
 	return 0;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether this object is running in client mode
  *
@@ -478,7 +478,7 @@ bool Go2::clientMode() const {
 	return clientMode_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the parallelization mode used for the optimization. Note that
  * this setting will only have an effect on algorithms that have not been explicitly
@@ -491,7 +491,7 @@ void Go2::setParallelizationMode(const parMode& parMode) {
 	parMode_ = parMode;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the parallelization mode currently used for the optimization
  *
@@ -501,7 +501,7 @@ parMode Go2::getParallelizationMode() const {
 	return parMode_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to randomly initialize parameter members. Note that for this wrapper object
  * this function doesn't make any sense. It is made available to satisfy a requirement
@@ -510,7 +510,7 @@ parMode Go2::getParallelizationMode() const {
 void Go2::randomInit()
 { /* nothing */ }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Fitness calculation for an optimization algorithm means optimization. The fitness is
  * then determined by the best individual which, after the end of the optimization cycle.
@@ -536,7 +536,7 @@ double Go2::fitnessCalculation() {
 	return val;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to add an optimization algorithm to the chain
  *
@@ -554,7 +554,7 @@ void Go2::addAlgorithm(boost::shared_ptr<GOptimizableI> alg) {
 	algorithms_.push_back(alg);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Makes it easier to add algorithms. The idea is to call this function like this:
  *
@@ -570,7 +570,7 @@ Go2& Go2::operator&(boost::shared_ptr<GOptimizableI> alg) {
 	return *this;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to add an algorithm with unspecified parallelization mode to the chain. The
  * mode is then set internally accordoing to the value of the parMode_ variable. This
@@ -613,7 +613,7 @@ void Go2::addAlgorithm(personality_oa pers) {
 	}
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Facilitates adding of algorithms with unspecified parallelization mode
  *
@@ -624,7 +624,7 @@ Go2& Go2::operator&(personality_oa pers) {
 	return *this;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Perform the actual optimization cycle
  *
@@ -799,7 +799,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	sorted_ = true;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Resets the object to its start position
  */
@@ -811,7 +811,7 @@ void Go2::reset() {
 	this->load(tmpl_ptr);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the best individual found. This function returns a base pointer.
  * Conversion is done through a function stored in GOptimizableI.
@@ -850,7 +850,7 @@ boost::shared_ptr<Gem::Geneva::GIndividual> Go2::getBestIndividual() {
 	return this->front();
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves a list of the best individuals found. This function returns  base pointers.
  * Conversion is done through a function stored in GOptimizableI.
@@ -886,7 +886,7 @@ std::vector<boost::shared_ptr<Gem::Geneva::GIndividual> > Go2::getBestIndividual
 	return bestIndividuals;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -928,7 +928,7 @@ void Go2::addConfigurationOptions (
 	);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
@@ -938,7 +938,7 @@ std::string Go2::getIndividualCharacteristic() const {
 	return std::string("GENEVA_GO2WRAPPER");
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to mark this object as belonging to a client as opposed to a server
  *
@@ -948,7 +948,7 @@ void Go2::setClientMode(bool clientMode) {
 	clientMode_ = clientMode;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to check whether this object is working in server or client mode
  *
@@ -958,7 +958,7 @@ bool Go2::getClientMode() const {
 	return clientMode_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the serialization mode used for network transfers
  *
@@ -968,7 +968,7 @@ void Go2::setSerializationMode(const Gem::Common::serializationMode& serializati
 	serializationMode_ = serializationMode;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the serialization mode currently used for network transfers
  */
@@ -976,7 +976,7 @@ Gem::Common::serializationMode Go2::getSerializationMode() const {
 	return serializationMode_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the ip of the server
  *
@@ -986,7 +986,7 @@ void Go2::setServerIp(const std::string& ip) {
 	ip_ = ip;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the ip of the server
  *
@@ -996,7 +996,7 @@ std::string Go2::getServerIp() const {
 	return ip_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the port used to access the server
  *
@@ -1006,7 +1006,7 @@ void Go2::setServerPort(const unsigned short& port) {
 	port_ = port;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the port currently used to access the server
  *
@@ -1016,7 +1016,7 @@ unsigned short Go2::getServerPort() const {
 	return port_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify whether further information should be emitted after parsing the
  * command line and configuration file.
@@ -1027,7 +1027,7 @@ void Go2::setVerbosity(const bool& verbose) {
 	verbose_ = verbose;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to check whether further information should be emitted after parsing the
  * command line and configuration file.
@@ -1036,7 +1036,7 @@ bool Go2::getVerbosity() const {
 	return verbose_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify the number of failed data transfers before a client terminates
  * its work. Set this to 0 in order to loop indefinitely.
@@ -1047,7 +1047,7 @@ void Go2::setMaxStalledDataTransfers(const boost::uint32_t& maxStalledDataTransf
 	maxStalledDataTransfers_ = maxStalledDataTransfers;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of failed data transfers before a client terminates
  * its work. Set this to 0 in order to loop indefinitely.
@@ -1058,7 +1058,7 @@ boost::uint32_t Go2::getMaxStalledDataTransfers() const {
 	return maxStalledDataTransfers_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify how often a client may try to connect the server without response
  * before terminating itself.
@@ -1069,7 +1069,7 @@ void Go2::setMaxConnectionAttempts(const boost::uint32_t& maxConnectionAttempts)
 	maxConnectionAttempts_ = maxConnectionAttempts;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the amount of times a client may try to connect the server without response
  * before terminating itself.
@@ -1080,7 +1080,7 @@ boost::uint32_t Go2::getMaxConnectionAttempts() const {
 	return maxConnectionAttempts_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify whether a client should return results even though here was no
  * improvement.
@@ -1091,7 +1091,7 @@ void Go2::setReturnRegardless(const bool& returnRegardless) {
 	returnRegardless_ = returnRegardless;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to check whether a client should return results even though here was no
  * improvement.
@@ -1102,7 +1102,7 @@ bool Go2::getReturnRegardless() const {
 	return returnRegardless_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the number of threads that will simultaneously produce random numbers.
  *
@@ -1112,7 +1112,7 @@ void Go2::setNProducerThreads(const boost::uint16_t& nProducerThreads) {
 	nProducerThreads_ = nProducerThreads;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of threads that will simultaneously produce random numbers.
  *
@@ -1122,7 +1122,7 @@ boost::uint16_t Go2::getNProducerThreads() const {
 	return nProducerThreads_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the size of the array of random numbers transferred to proxies upon request.
  *
@@ -1132,7 +1132,7 @@ void Go2::setArraySize(const std::size_t& arraySize) {
 	arraySize_ = arraySize;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the size of the array of random numbers transferred to proxies upon request.
  *
@@ -1142,7 +1142,7 @@ std::size_t Go2::getArraySize() const {
 	return arraySize_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify the offset with which the iteration counter should start. This is
  * important when using more than one optimization algorithm with different Go2 objects.
@@ -1153,7 +1153,7 @@ void Go2::setOffset(const boost::uint32_t& offset) {
 	offset_ = offset;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieval of the current iteration
  */
@@ -1161,7 +1161,7 @@ uint32_t Go2::getIteration() const {
 	return iterationsConsumed_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Returns the name of this optimization algorithm
  *
@@ -1171,7 +1171,7 @@ std::string Go2::getAlgorithmName() const {
 	return std::string("Algorithm Combiner");
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the current offset with which the iteration counter will start
  *
@@ -1181,7 +1181,7 @@ boost::uint32_t Go2::getIterationOffset() const {
 	return offset_;
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  *
  * @param argc The number of command line arguments
@@ -1281,7 +1281,7 @@ void Go2::parseCommandLine(int argc, char **argv) {
 	}
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * Copying of the algorithms_ vector. This is a modified version of the
  * copyGenevaSmartPointerVector function, adapted to the needs of a GOptimizableI
@@ -1335,7 +1335,7 @@ void Go2::copyAlgorithmsVector(
 	}
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

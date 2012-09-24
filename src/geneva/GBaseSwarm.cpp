@@ -38,7 +38,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBaseSwarm::GSwarmOptimizationMonitor)
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor.
  */
@@ -75,7 +75,7 @@ GBaseSwarm::GBaseSwarm()
 	);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This constructor sets the number of neighborhoods and the number of individuals in them. Note that there
  * is no public default constructor, as it is only needed for de-serialization purposes.
@@ -116,7 +116,7 @@ GBaseSwarm::GBaseSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNe
 	);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor.
  *
@@ -158,14 +158,14 @@ GBaseSwarm::GBaseSwarm(const GBaseSwarm& cp)
 	// applies to the copying of the optimization monitor.
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor. Most work is done in the parent class.
  */
 GBaseSwarm::~GBaseSwarm()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs
  * to be overloaded by the actual algorithms to return the correct type.
@@ -177,7 +177,7 @@ personality_oa GBaseSwarm::getOptimizationAlgorithm() const {
 }
 
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * The standard assignment operator.
  *
@@ -189,7 +189,7 @@ const GBaseSwarm& GBaseSwarm::operator=(const GBaseSwarm& cp) {
 	return *this;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GBaseSwarm object, camouflaged as a GObject.
  *
@@ -275,7 +275,7 @@ void GBaseSwarm::load_(const GObject *cp)
 	// else {} // We do not need to do anything if both iterations are 0 as there is no global best at all
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GBaseSwarm object
  *
@@ -288,7 +288,7 @@ bool GBaseSwarm::operator==(const GBaseSwarm& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseSwarm::operator==","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GBaseSwarm object
  *
@@ -301,7 +301,7 @@ bool GBaseSwarm::operator!=(const GBaseSwarm& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseSwarm::operator!=","cp", CE_SILENT);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -365,7 +365,7 @@ boost::optional<std::string> GBaseSwarm::checkRelationshipWith(
 	return evaluateDiscrepancies("GBaseSwarm", caller, deviations, e);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the number of neighborhoods and the default number of members in them. All work is done inside of
  * the adjustPopulation function, inside of the GOptimizationAlgorithmT<>::optimize() function.
@@ -392,7 +392,7 @@ void GBaseSwarm::setDefaultPopulationSize(std::size_t nNeighborhoods, std::size_
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Sets the individual's personality types to Swarm
  */
@@ -402,7 +402,7 @@ void GBaseSwarm::setIndividualPersonalities() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Saves the state of the class to disc. The function adds the current generation
  * and the fitness to the base name. The entire object is saved. The function will
@@ -438,7 +438,7 @@ void GBaseSwarm::saveCheckpoint() const {
 	this->toFile(outputFile, getCheckpointSerializationMode());
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the state of the object from disc.
  *
@@ -448,7 +448,7 @@ void GBaseSwarm::loadCheckpoint(const std::string& cpFile) {
 	this->fromFile(cpFile, getCheckpointSerializationMode());
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Helper function that checks the content of two nNeighborhoodMembers_ arrays.
  *
@@ -473,7 +473,7 @@ bool GBaseSwarm::nNeighborhoodMembersEqual(
 	return true; // Make the compiler happy
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Helper function that returns the id of the first individual of a neighborhood. "NI" stands
  * for NeighborhoodIndividual. "neighborhood" is assumed to be a counter, starting at 0, with
@@ -486,7 +486,7 @@ std::size_t GBaseSwarm::getFirstNIPos(const std::size_t& neighborhood) const {
 	return getFirstNIPosVec(neighborhood, nNeighborhoodMembers_);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Helper function that returns the id of the first individual of a neighborhood, using a vector of neighborhood
  * sizes. "NI" stands for NeighborhoodIndividual. "neighborhood" is assumed to be a counter, starting at 0 and assuming
@@ -521,7 +521,7 @@ std::size_t GBaseSwarm::getFirstNIPosVec(
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Helper function that helps to determine the end of a neighborhood. "NI" stands
  * for NeighborhoodIndividual. "neighborhood" is assumed to be a counter, starting at 0, with a maximum
@@ -546,7 +546,7 @@ std::size_t GBaseSwarm::getLastNIPos(const std::size_t& neighborhood) const {
 	return getFirstNIPos(neighborhood) + nNeighborhoodMembers_[neighborhood];
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Updates the personal best of an individual
  *
@@ -567,7 +567,7 @@ void GBaseSwarm::updatePersonalBest(
 	p->getPersonalityTraits<GSwarmPersonalityTraits>()->registerPersonalBest(p);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Updates the personal best of an individual, if a better solution was found
  *
@@ -595,7 +595,7 @@ void GBaseSwarm::updatePersonalBestIfBetter(
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the best individual of the population. Note that this protected function will return the item
  * itself. Direct usage of this function should be avoided even by derived classes. We suggest to use the
@@ -619,7 +619,7 @@ boost::shared_ptr<GIndividual> GBaseSwarm::getBestIndividual(){
 	return global_best_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves a list of the best individuals found. This might just be one individual.
  *
@@ -645,7 +645,7 @@ std::vector<boost::shared_ptr<GIndividual> > GBaseSwarm::getBestIndividuals() {
 	return bestIndividuals;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object
  *
@@ -795,7 +795,7 @@ void GBaseSwarm::addConfigurationOptions (
 	);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Returns the name of this optimization algorithm
  *
@@ -805,7 +805,7 @@ std::string GBaseSwarm::getAlgorithmName() const {
 	return std::string("Swarm Algorithm");
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This function does some preparatory work and tagging required by swarm algorithms. It is called
  * from within GOptimizationAlgorithmT<GParameterSet>::optimize(), immediately before the actual optimization cycle starts.
@@ -815,7 +815,7 @@ void GBaseSwarm::init() {
 	GOptimizationAlgorithmT<GParameterSet>::init();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Does any necessary finalization work
  */
@@ -824,7 +824,7 @@ void GBaseSwarm::finalize() {
 	GOptimizationAlgorithmT<GParameterSet>::finalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization work relating directly to the optimization algorithm. Here we extract the individual
  * parameter boundaries. Note that we assume that the number of parameters is equal for all individuals
@@ -896,7 +896,7 @@ void GBaseSwarm::optimizationInit() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Finalization work relating directly to the optimization algorithm.
  */
@@ -909,7 +909,7 @@ void GBaseSwarm::optimizationFinalize() {
 	GOptimizationAlgorithmT<GParameterSet>::optimizationFinalize();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This function implements the logic that constitutes each cycle of a swarm algorithm. The
  * function is called by GOptimizationAlgorithmT<GParameterSet>::optimize() for each iteration of
@@ -935,7 +935,7 @@ double GBaseSwarm::cycleLogic() {
 	return bestLocalFitness;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Triggers an update of all individual's positions
  */
@@ -989,7 +989,7 @@ void GBaseSwarm::updatePositions() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Update the individual's positions. Note that we use a boost::tuple as an argument,
  * so that we do not have to pass too many parameters (problematic with boost::bind).
@@ -1128,7 +1128,7 @@ void GBaseSwarm::updateIndividualPositions(
 	ind->assignValueVector<double>(indVec);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Adjusts the velocity vector so that its parameters don't exceed the allowed value range.
  *
@@ -1184,7 +1184,7 @@ void GBaseSwarm::pruneVelocity(std::vector<double>& velVec) {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Prepares individuals for the fitness calculation and performs that calculation. Also updates the
  * personal best.
@@ -1217,7 +1217,7 @@ void GBaseSwarm::updateIndividualFitness(
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Updates the best individuals found. This function assumes that the population already contains individuals
  * and that the neighborhood and global bests have been initialized (possibly with dummy values). This should have
@@ -1294,7 +1294,7 @@ double GBaseSwarm::findBests() {
 	return global_best_->fitness(0);
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This function repairs the population by adding or removing missing or surplus items. It is meant to be
  * re-implemented by derived classes, such as GBrokerSwarm.
@@ -1302,7 +1302,7 @@ double GBaseSwarm::findBests() {
 void GBaseSwarm::adjustNeighborhoods()
 { /* nothing */ }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Resizes the population to the desired level and does some error checks. This function implements
  * the purely virtual function GOptimizationAlgorithmT<GParameterSet>::adjustPopulation() .
@@ -1388,7 +1388,7 @@ void GBaseSwarm::adjustPopulation() {
 	// all individuals to be calculated.
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Small helper function that helps to fill up a neighborhood, if there is just one entry in it.
  */
@@ -1431,7 +1431,7 @@ void GBaseSwarm::fillUpNeighborhood1() {
 	}
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set a static multiplier for personal distances.
  *
@@ -1441,7 +1441,7 @@ void GBaseSwarm::setCPersonal(double c_personal) {
 	c_personal_ = c_personal;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the static multiplier for personal distances
  *
@@ -1451,7 +1451,7 @@ double GBaseSwarm::getCPersonal() const {
 	return c_personal_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set a static multiplier for neighborhood distances.
  *
@@ -1461,7 +1461,7 @@ void GBaseSwarm::setCNeighborhood(double c_neighborhood) {
 	c_neighborhood_ = c_neighborhood;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the static multiplier for neighborhood distances
  *
@@ -1471,7 +1471,7 @@ double GBaseSwarm::getCNeighborhood() const {
 	return c_neighborhood_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set a static multiplier for global distances
  *
@@ -1481,7 +1481,7 @@ void GBaseSwarm::setCGlobal(double c_global) {
 	c_global_ = c_global;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the static multiplier for global distances
  *
@@ -1491,7 +1491,7 @@ double GBaseSwarm::getCGlobal() const {
 	return c_global_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set a static multiplier for velocities
  *
@@ -1501,7 +1501,7 @@ void GBaseSwarm::setCVelocity(double c_velocity) {
 	c_velocity_ = c_velocity;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the static multiplier for velocities
  *
@@ -1511,7 +1511,7 @@ double GBaseSwarm::getCVelocity() const {
 	return c_velocity_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the velocity range percentage
  *
@@ -1529,7 +1529,7 @@ void GBaseSwarm::setVelocityRangePercentage(double velocityRangePercentage) {
 	velocityRangePercentage_ = velocityRangePercentage;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the velocity range percentage
  *
@@ -1539,7 +1539,7 @@ double GBaseSwarm::getVelocityRangePercentage() const {
 	return velocityRangePercentage_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the number of neighborhoods
  *
@@ -1549,7 +1549,7 @@ std::size_t GBaseSwarm::getNNeighborhoods() const {
 	return nNeighborhoods_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the default number of individuals in each neighborhood
  *
@@ -1559,7 +1559,7 @@ std::size_t GBaseSwarm::getDefaultNNeighborhoodMembers() const {
 	return defaultNNeighborhoodMembers_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the current number of individuals in a given neighborhood
  *
@@ -1569,7 +1569,7 @@ std::size_t GBaseSwarm::getCurrentNNeighborhoodMembers(const std::size_t& neighb
 	return nNeighborhoodMembers_[neighborhood];
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to specify the update rule to be used by the swarm.
  *
@@ -1579,7 +1579,7 @@ void GBaseSwarm::setUpdateRule(updateRule ur) {
 	updateRule_ = ur;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the update rule currently used by the swarm.
  *
@@ -1589,7 +1589,7 @@ updateRule GBaseSwarm::getUpdateRule() const {
 	return updateRule_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * All individuals automatically added to a neighborhood will have equal value
  */
@@ -1597,7 +1597,7 @@ void GBaseSwarm::setNeighborhoodsEqualFillUp() {
 	randomFillUp_=false;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * All individuals automatically added to a neighborhood will have a random value
  */
@@ -1605,7 +1605,7 @@ void GBaseSwarm::setNeighborhoodsRandomFillUp(bool randomFillUp) {
 	randomFillUp_=randomFillUp;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to check whether neighborhoods are filled up with random individuals
  *
@@ -1615,7 +1615,7 @@ bool GBaseSwarm::neighborhoodsFilledUpRandomly() const {
 	return randomFillUp_;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieve the number of processable items in the current iteration.
  *
@@ -1627,7 +1627,7 @@ std::size_t GBaseSwarm::getNProcessableItems() const {
 
 
 #ifdef GEM_TESTING
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -1642,7 +1642,7 @@ bool GBaseSwarm::modify_GUnitTests() {
 	return result;
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -1651,7 +1651,7 @@ void GBaseSwarm::specificTestsNoFailureExpected_GUnitTests() {
 	GOptimizationAlgorithmT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -1660,10 +1660,10 @@ void GBaseSwarm::specificTestsFailuresExpected_GUnitTests() {
 	GOptimizationAlgorithmT<GParameterSet>::specificTestsFailuresExpected_GUnitTests();
 }
 
-/************************************************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -1672,7 +1672,7 @@ GBaseSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor()
 	, yDim_(DEFAULTYDIMOM)
 { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -1684,14 +1684,14 @@ GBaseSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor(const GBaseSwar
 	, yDim_(cp.yDim_)
   { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GBaseSwarm::GSwarmOptimizationMonitor::~GSwarmOptimizationMonitor()
 { /* nothing */ }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -1703,7 +1703,7 @@ const GBaseSwarm::GSwarmOptimizationMonitor& GBaseSwarm::GSwarmOptimizationMonit
 	return *this;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GParameter Base object
  *
@@ -1716,7 +1716,7 @@ bool GBaseSwarm::GSwarmOptimizationMonitor::operator==(const GBaseSwarm::GSwarmO
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseSwarm::GSwarmOptimizationMonitor::operator==","cp", CE_SILENT);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GSwarmOptimizationMonitor object
  *
@@ -1729,7 +1729,7 @@ bool GBaseSwarm::GSwarmOptimizationMonitor::operator!=(const GBaseSwarm::GSwarmO
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseSwarm::GSwarmOptimizationMonitor::operator!=","cp", CE_SILENT);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -1768,7 +1768,7 @@ boost::optional<std::string> GBaseSwarm::GSwarmOptimizationMonitor::checkRelatio
 	return evaluateDiscrepancies("GBaseSwarm::GSwarmOptimizationMonitor", caller, deviations, e);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Allows to set the dimensions of the canvas
  *
@@ -1780,7 +1780,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::setDims(const boost::uint16_t& xDim,
 	yDim_ = yDim;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the dimension of the canvas in x-direction
  *
@@ -1790,7 +1790,7 @@ boost::uint16_t GBaseSwarm::GSwarmOptimizationMonitor::getXDim() const {
 	return xDim_;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the dimension of the canvas in y-direction
  *
@@ -1800,7 +1800,7 @@ boost::uint16_t GBaseSwarm::GSwarmOptimizationMonitor::getYDim() const {
 	return yDim_;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called once before the optimization starts
  *
@@ -1826,7 +1826,7 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizatio
 	return swarmFirstInformation(swarm);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called during each optimization cycle. It is possible to
  * extract quite comprehensive information in each iteration. For examples, see
@@ -1853,7 +1853,7 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizatio
 	return swarmCycleInformation(swarm);
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called once at the end of the optimization cycle
  *
@@ -1884,7 +1884,7 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::lastInformation(GOptimization
 }
 
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called once before the optimization starts
  *
@@ -1906,7 +1906,7 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::swarmFirstInformation(GBaseSw
 	return result.str();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called during each optimization cycle
  *
@@ -1935,7 +1935,7 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::swarmCycleInformation(GBaseSw
 	return result.str();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * A function that is called once at the end of the optimization cycle
  *
@@ -1969,7 +1969,7 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::swarmLastInformation(GBaseSwa
 	return result.str();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another object
  *
@@ -1986,7 +1986,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::load_(const GObject* cp) {
 	yDim_ = p_load->yDim_;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -1997,7 +1997,7 @@ GObject* GBaseSwarm::GSwarmOptimizationMonitor::clone_() const {
 }
 
 #ifdef GEM_TESTING
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
@@ -2010,7 +2010,7 @@ bool GBaseSwarm::GSwarmOptimizationMonitor::modify_GUnitTests() {
 	return result;
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -2019,7 +2019,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::specificTestsNoFailureExpected_GUnit
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -2028,7 +2028,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::specificTestsFailuresExpected_GUnitT
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
 }
 
-/**********************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */

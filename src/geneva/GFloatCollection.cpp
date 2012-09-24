@@ -39,14 +39,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFloatCollection)
 namespace Gem {
 namespace Geneva {
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
 GFloatCollection::GFloatCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a number of random values in a given range
  *
@@ -62,7 +62,7 @@ GFloatCollection::GFloatCollection(
 	: GFPNumCollectionT<float>(nval, min, max)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Initialization with a number of predefined values in all positions
  *
@@ -80,7 +80,7 @@ GFloatCollection::GFloatCollection(
 	: GFPNumCollectionT<float>(nval, val, min, max)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The copy constructor
  *
@@ -90,14 +90,14 @@ GFloatCollection::GFloatCollection(const GFloatCollection& cp)
 	: GFPNumCollectionT<float>(cp)
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GFloatCollection::~GFloatCollection()
 { /* nothing */ }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator.
  *
@@ -109,7 +109,7 @@ const GFloatCollection& GFloatCollection::operator=(const GFloatCollection& cp){
 	return *this;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object.
  *
@@ -119,7 +119,7 @@ GObject* GFloatCollection::clone_() const {
 	return new GFloatCollection(*this);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GFloatCollection object
  *
@@ -132,7 +132,7 @@ bool GFloatCollection::operator==(const GFloatCollection& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GFloatCollection::operator==","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GFloatCollection object
  *
@@ -145,7 +145,7 @@ bool GFloatCollection::operator!=(const GFloatCollection& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GFloatCollection::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -182,7 +182,7 @@ boost::optional<std::string> GFloatCollection::checkRelationshipWith(
 	return evaluateDiscrepancies("GFloatCollection", caller, deviations, e);
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach our local values to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
@@ -196,7 +196,7 @@ void GFloatCollection::floatStreamline(std::vector<float>& parVec) const {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Attach boundaries of type float to the vectors
  *
@@ -216,7 +216,7 @@ void GFloatCollection::floatBoundaries(
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Tell the audience that we own a number of float values
  *
@@ -226,7 +226,7 @@ std::size_t GFloatCollection::countFloatParameters() const {
 	return this->size();
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter
  *
@@ -253,7 +253,7 @@ void GFloatCollection::assignFloatValueVector(
 	  }
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -270,7 +270,7 @@ void GFloatCollection::load_(const GObject* cp){
 }
 
 #ifdef GEM_TESTING
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -285,7 +285,7 @@ bool GFloatCollection::modify_GUnitTests() {
 	return result;
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Fills the collection with some random data
  */
@@ -313,7 +313,7 @@ void GFloatCollection::fillWithData(const std::size_t& nItems) {
 	BOOST_CHECK(!this->empty());
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -581,7 +581,7 @@ void GFloatCollection::specificTestsNoFailureExpected_GUnitTests() {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -614,7 +614,7 @@ void GFloatCollection::specificTestsFailuresExpected_GUnitTests() {
 	}
 }
 
-/*******************************************************************************************/
+/******************************************************************************/
 
 #endif /* GEM_TESTING */
 

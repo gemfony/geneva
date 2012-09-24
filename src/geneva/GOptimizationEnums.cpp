@@ -36,7 +36,7 @@
 namespace Gem {
 namespace Geneva {
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::parMode item into a stream
  *
@@ -50,7 +50,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::parMode& pm) {
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::parMode item from a stream
  *
@@ -71,7 +71,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::parMode& pm) {
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::duplicationScheme item into a stream
  *
@@ -85,7 +85,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::duplicationScheme& 
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::duplicationScheme item from a stream
  *
@@ -106,7 +106,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::duplicationScheme& rc) {
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::infoMode item into a stream
  *
@@ -120,7 +120,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::infoMode& im) {
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::infoMode item from a stream
  *
@@ -141,7 +141,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::infoMode& im) {
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::adaptorId item into a stream
  *
@@ -155,7 +155,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::adaptorId& aid) {
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::adaptorId item from a stream
  *
@@ -176,7 +176,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::adaptorId& aid) {
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::sortingMode item into a stream
  *
@@ -190,7 +190,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::sortingMode& smode)
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::sortingMode item from a stream
  *
@@ -211,7 +211,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::sortingMode& smode) {
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::personality item into a stream
  *
@@ -225,7 +225,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::personality_oa& per
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::personality item from a stream
  *
@@ -246,7 +246,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::personality_oa& pers) {
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::updateRule item into a stream
  *
@@ -260,7 +260,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::updateRule& ur) {
 	return o;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::updateRule item from a stream
  *
@@ -281,7 +281,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::updateRule& ur) {
 	return i;
 }
 
-/*********************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -38,7 +38,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GGDPersonalityTraits)
 namespace Gem {
 namespace Geneva {
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -47,7 +47,7 @@ GGDPersonalityTraits::GGDPersonalityTraits()
 	, popPos_(0)
 { /* nothing */ }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * The copy contructor
  *
@@ -58,14 +58,14 @@ GGDPersonalityTraits::GGDPersonalityTraits(const GGDPersonalityTraits& cp)
 	, popPos_(cp.popPos_)
 { /* nothing */ }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor
  */
 GGDPersonalityTraits::~GGDPersonalityTraits()
 { /* nothing */ }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator for GGDPersonalityTraits objects.
  *
@@ -77,7 +77,7 @@ const GGDPersonalityTraits& GGDPersonalityTraits::operator=(const GGDPersonality
 	return *this;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks for equality with another GGDPersonalityTraits object
  *
@@ -90,7 +90,7 @@ bool GGDPersonalityTraits::operator==(const GGDPersonalityTraits& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GGDPersonalityTraits::operator==","cp", CE_SILENT);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks for inequality with another GGDPersonalityTraits object
  *
@@ -103,7 +103,7 @@ bool GGDPersonalityTraits::operator!=(const GGDPersonalityTraits& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GGDPersonalityTraits::operator!=","cp", CE_SILENT);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -141,7 +141,7 @@ boost::optional<std::string> GGDPersonalityTraits::checkRelationshipWith(const G
 }
 
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -151,7 +151,7 @@ GObject* GGDPersonalityTraits::clone_() const {
 	return new GGDPersonalityTraits(*this);
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GGDPersonalityTraits object
  *
@@ -167,7 +167,7 @@ void GGDPersonalityTraits::load_(const GObject* cp) {
 	popPos_ = p_load->popPos_;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Sets the position of the individual in the population
  *
@@ -182,7 +182,7 @@ void GGDPersonalityTraits::setPopulationPosition(const std::size_t& popPos) {
  * ----------------------------------------------------------------------------------
  */
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Retrieves the position of the individual in the population
  *
@@ -198,7 +198,7 @@ std::size_t GGDPersonalityTraits::getPopulationPosition(void) const {
  */
 
 #ifdef GEM_TESTING
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  *
@@ -213,7 +213,7 @@ bool GGDPersonalityTraits::modify_GUnitTests() {
 	return result;
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
@@ -225,12 +225,12 @@ void GGDPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
 
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
@@ -241,12 +241,12 @@ void GGDPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-	//------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 #endif /* GEM_TESTING */
 
 } /* namespace Geneva */
