@@ -88,12 +88,12 @@
 #include "common/GHelperFunctions.hpp"
 #include "hap/GSeedManager.hpp"
 
-/****************************************************************************/
+/******************************************************************************/
 
 namespace Gem {
 namespace Hap {
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * Past implementations of random numbers for the Geneva library showed a
  * particular bottle neck in the random number generation. Every GObject
@@ -156,9 +156,9 @@ public:
 	/** @brief Allows to retrieve the size of the seeding queue */
 	std::size_t getSeedingQueueSize() const;
 
-	/*************************************************************************/
-
 private:
+	/***************************************************************************/
+
 	GRandomFactory(const GRandomFactory&); ///< Intentionally left undefined
 	const GRandomFactory& operator=(const GRandomFactory&);  ///< Intentionally left undefined
 
@@ -189,7 +189,7 @@ private:
 } /* namespace Hap */
 } /* namespace Gem */
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * A single, global random number factory is created as a singleton.
  */

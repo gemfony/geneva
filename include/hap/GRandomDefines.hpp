@@ -52,7 +52,7 @@
 namespace Gem {
 namespace Hap {
 
-/****************************************************************************/
+/******************************************************************************/
 // Some typedefs for the seed manager and random factory
 typedef boost::shared_ptr<boost::thread> thread_ptr;
 typedef boost::mt19937 mersenne_twister;
@@ -61,7 +61,7 @@ typedef boost::mt19937 mersenne_twister;
 typedef boost::mt19937::result_type initial_seed_type;
 typedef boost::mt19937::result_type seed_type;
 
-/****************************************************************************/
+/******************************************************************************/
 // Some constants needed for the random number generation
 
 const std::size_t DEFAULTARRAYSIZE = 1000; ///< Default size of the random number array
@@ -70,20 +70,20 @@ const boost::uint16_t DEFAULTFACTORYPUTWAIT = 5; ///< waiting time in millisecon
 const boost::uint16_t DEFAULTFACTORYGETWAIT = 5; ///< waiting time in milliseconds
 const boost::uint16_t DEFAULTSEEDQUEUEPUTWAIT = 50; ///< waiting time for seeding queue in milliseconds
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * The number of threads that simultaneously produce [0,1[ random numbers
  */
 const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * The maximum value of boost::int32_t, converted to a double value. This is
  * needed to scale the output of boost::rand48 to a maximum value of 1.
  */
 const double rnr_max = static_cast<double>(boost::numeric::bounds<boost::int32_t>::highest());
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * This seed will be used as the global setting if the seed hasn't
  * been set manually and could not be determined in a random way (e.g.
@@ -92,19 +92,19 @@ const double rnr_max = static_cast<double>(boost::numeric::bounds<boost::int32_t
  */
 const boost::uint32_t DEFAULTSTARTSEED=5489;
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * This value specifies the number of seeds in the queue
  */
 const std::size_t DEFAULTSEEDQUEUESIZE=2000;
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * The minimal size of the double buffer in the GRandomFactoryT
  */
 const std::size_t MINDOUBLEBUFFERSIZE=10000;
 
-/****************************************************************************/
+/******************************************************************************/
 
 } /* namespace Hap */
 } /* namespace Gem */

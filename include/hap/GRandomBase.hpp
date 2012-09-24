@@ -82,12 +82,12 @@
 #include "GRandomDefines.hpp"
 #include "GRandomFactory.hpp"
 
-/****************************************************************************/
+/******************************************************************************/
 
 namespace Gem {
 namespace Hap {
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * This class defines ways of obtaining different random number distributions
  * from "raw" random numbers, which can be obtained in derived classes using
@@ -97,11 +97,11 @@ class GRandomBase
 	: private boost::noncopyable
 {
 public:
-	/****************************************************************************/
+	/***************************************************************************/
 	/** @brief Helps to use this object as a generator for boost's PRNR distributions */
 	typedef double result_type;
 
-	/************************************************************************/
+	/***************************************************************************/
 	/** @brief The standard constructor */
 	GRandomBase();
 	/** @brief A standard destructor */
@@ -114,7 +114,7 @@ public:
 	/** @brief Returns the maximum value returned by evenRandom() */
 	result_type max() const;
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Returns the precision of the values returned by operator(). This
 	 * makes it possible to use GRandomBase as a generator for Boost's random
@@ -126,14 +126,14 @@ public:
 		return 	std::numeric_limits<GRandomBase::result_type>::digits;
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 
 	/** @brief This function returns true with a probability "probability", otherwise false */
 	bool weighted_bool(const double&);
 	/** @brief This function produces boolean values with a 50% likelihood each for true and false */
 	bool uniform_bool();
 
-	/************************************************************************/
+	/***************************************************************************/
 	/** @brief Uniformly distributed random numbers in the range [0,1[ */
 	template <typename fp_type>
 	fp_type uniform_01(
@@ -142,7 +142,7 @@ public:
 		return static_cast<float>(dbl_random01());
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Emits evenly distributed random numbers in the range [0,max[
 	 *
@@ -161,7 +161,7 @@ public:
 		return uniform_01<fp_type>() * max;
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Produces evenly distributed random numbers in the range [min,max[
 	 *
@@ -206,7 +206,7 @@ public:
 		}
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Produces gaussian-distributed floating point random numbers with sigma 1
 	 * and mean 0. This function is a trap. See the corresponding specializations
@@ -222,7 +222,7 @@ public:
 		);
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Produces gaussian-distributed random numbers with mean 0 and sigma "sigma"
 	 *
@@ -238,7 +238,7 @@ public:
 		return sigma * normal_distribution<fp_type>();
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Produces gaussian-distributed random numbers with
 	 * mean "mean" and sigma "sigma"
@@ -256,7 +256,7 @@ public:
 		return sigma * normal_distribution<fp_type>() + mean;
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function adds two gaussians with sigma "sigma" and a distance
 	 * "distance" from each other, centered around mean. The idea is to use
@@ -285,7 +285,7 @@ public:
 		}
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function adds two gaussians with sigmas "sigma1" and "sigma2" and a
 	 * distance "distance" from each other, centered around mean. The idea is to use
@@ -346,7 +346,7 @@ public:
 		return boost_uniform_int();
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function produces integer random numbers in the range of [0, max] .
 	 *
@@ -392,7 +392,7 @@ public:
 		return boost_uniform_smallint();
 	}
 
-	/****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function produces integer random numbers in the range of [0, max] .
 	 * The size of the integers is assumed to be small compared to int_type's value
@@ -414,19 +414,19 @@ public:
 	}
 
 protected:
-	/************************************************************************/
+	/***************************************************************************/
 	/** @brief Uniformly distributed double random numbers in the range [0,1[ */
 	virtual double dbl_random01() = 0;
 
 public:
-	/************************************************************************/
+	/***************************************************************************/
 	/** @brief The minimum value returned by evenRandom() */
 	const result_type min_value;
 	/** @brief The maximum value returned by evenRandom() */
 	const result_type max_value;
 
 private:
-	/************************************************************************/
+	/***************************************************************************/
 	/** @brief Two float gaussian random numbers are produced in one go. One number can be cached here */
 	float fltGaussCache_;
 	/** @brief Two double gaussian random numbers are produced in one go. One  number can be cached here */
@@ -441,8 +441,8 @@ private:
 	bool ldblGaussCacheAvailable_;
 };
 
-/****************************************************************************/
-// Specializationsof normal_distributions for the available floating point types
+/******************************************************************************/
+// Specializations of normal_distributions for the available floating point types
 
 /** @brief  Produces gaussian-distributed float random numbers with sigma 1 and mean 0 */
 template<> float GRandomBase::normal_distribution<float>();
@@ -451,7 +451,7 @@ template<> double GRandomBase::normal_distribution<double>();
 /** @brief Produces gaussian-distributed long double random numbers with sigma 1 and mean 0 */
 template<> long double GRandomBase::normal_distribution<long double>();
 
-/****************************************************************************/
+/******************************************************************************/
 
 } /* namespace Hap */
 } /* namespace Gem */

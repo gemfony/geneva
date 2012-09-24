@@ -89,12 +89,12 @@
 #include "common/GExceptions.hpp"
 #include "hap/GRandomDefines.hpp"
 
-/****************************************************************************/
+/******************************************************************************/
 
 namespace Gem {
 namespace Hap {
 
-/****************************************************************************/
+/******************************************************************************/
 /**
  * This class manages a set of seeds, making sure they are handed out in
  * pseudo random order themselves. The need for this class became clear when it
@@ -130,7 +130,7 @@ public:
 	std::size_t getQueueSize() const;
 
 private:
-	/*************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Wrapper function that attempts to create a start seed using different methods
 	 *
@@ -152,7 +152,7 @@ private:
 		return startSeed;
 	}
 
-	/*************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A private member function that allows to set the global
 	 * seed once, using a random number taken from /dev/urandom. As enough entropy
@@ -180,7 +180,7 @@ private:
 		return startSeed;
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to derive a seed from the current time. Note that, although we try to
 	 * add randomness, this might not give good results if many seeds are requested by
@@ -218,11 +218,11 @@ private:
 		return *seed_ptr;
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/** @brief Manages the production of seeds */
 	void seedProducer();
 
-	/************************************************************************/
+	/***************************************************************************/
 	// Variables and data structures
 
 	/** @brief Holds a predefined number of unique seeds */
@@ -234,6 +234,8 @@ private:
 	/** @brief Holds the producer thread */
 	thread_ptr seedThread_;
 };
+
+/******************************************************************************/
 
 } /* namespace Hap */
 } /* namespace Gem */
