@@ -79,7 +79,8 @@ namespace Gem
 namespace Courtier
 {
 
-/*********************************************************************************/
+/******************************************************************************/
+
 /**
  * This class forms the basis of a hierarchy of classes designed for client-side
  * network communication. Their task is to retrieve serialized objects from the server
@@ -92,7 +93,7 @@ class GBaseClientT
 	:private boost::noncopyable
 {
 public:
-	/*********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor.
 	 */
@@ -105,7 +106,8 @@ public:
 		, additionalDataTemplate_(boost::shared_ptr<processable_type>())
 	{ /* nothing*/ }
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/**
 	 * A constructor that accepts a model of the item to be processed. This can be
 	 * used to avoid having to transfer or reload data that doesn't change. Note that
@@ -123,14 +125,16 @@ public:
 	{ /* nothing*/ }
 
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/**
 	 * A standard destructor. We have no local, dynamically allocated data, hence it is empty.
 	 */
 	virtual ~GBaseClientT()
 	{ /* nothing */ }
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/**
 	 * This is the main loop of the client. It will continue to call the process()
 	 * function (defined by derived classes), until it returns false or the maximum
@@ -166,7 +170,8 @@ public:
 		}
 	}
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/**
 	 * Allows to set a maximum number of processing steps. If set to 0 or left unset,
 	 * processing will be done until process() returns false.
@@ -177,7 +182,8 @@ public:
 		processMax_ = processMax;
 	}
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/**
 	 * Retrieves the value of the processMax_ variable.
 	 *
@@ -187,7 +193,8 @@ public:
 		return processMax_;
 	}
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/**
 	 * Sets the maximum allowed processing time
 	 *
@@ -207,7 +214,8 @@ public:
 		maxDuration_ = maxDuration;
 	}
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/**
 	 * Retrieves the value of the maxDuration_ parameter.
 	 *
@@ -217,7 +225,8 @@ public:
 		return maxDuration_;
 	}
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/**
 	 * Specifies whether results should be returned regardless of the success achieved
 	 * in the processing step.
@@ -229,7 +238,8 @@ public:
 	}
 
 protected:
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/**
 	 * In order to allow derived classes to concentrate on network issues, all
 	 * unpacking, the calculation, and packing is done in the GBaseClientT class
@@ -288,28 +298,34 @@ protected:
 		return true;
 	} // boost::shared_ptr<processable_type> target will cease to exist at this point
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/** @brief Performs initialization work */
 	virtual bool init() { return true; }
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/** @brief Perform necessary finalization activities */
 	virtual bool finally() { return true; }
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/** @brief Retrieve work items from the server. To be defined by derived classes. */
 	virtual bool retrieve(std::string&, std::string&, std::string&) = 0;
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/** @brief Submit processed items to the server. To be defined by derived classes. */
 	virtual bool submit(const std::string&, const std::string&) = 0;
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/** @brief Custom halt condition for processing */
 	virtual bool customHalt(){ return false; }
 
 private:
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	/**
 	 * Checks whether a halt condition was reached. Either the maximum number of processing
 	 * steps was reached or the maximum allowed time was reached.
@@ -332,7 +348,8 @@ private:
 		return false;
 	}
 
-	/*********************************************************************************/
+	/***************************************************************************/
+
 	boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization
 	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization
 
@@ -344,7 +361,8 @@ private:
 	boost::shared_ptr<processable_type> additionalDataTemplate_; ///< Optionally holds a template of the object to be processed
 };
 
-/*********************************************************************************/
+/******************************************************************************/
+
 
 } /* namespace Courtier */
 } /* namespace Gem */

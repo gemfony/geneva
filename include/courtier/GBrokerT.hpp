@@ -82,18 +82,18 @@
 namespace Gem {
 namespace Courtier {
 
-/***********************************************************************************/
+/******************************************************************************/
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
 class buffer_not_present: public std::exception {};
 
-/**************************************************************************************/
+/******************************************************************************/
 
 /** @brief The maximum allowed port id. Note that, if we have no 64 bit integer types,
  * we will only be able to count up to roughly 4 billion. PORTIDTYPE is defined in
  * GBoundedBufferWithIdT.hpp, based on whether BOOST_HAS_LONG_LONG is defined or not. */
 const Gem::Common::PORTIDTYPE MAXPORTID = boost::numeric::bounds<Gem::Common::PORTIDTYPE>::highest()-1;
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * This class acts as the main interface between producers and consumers.
  */
@@ -106,7 +106,7 @@ class GBrokerT
 	typedef typename std::map<Gem::Common::PORTIDTYPE, GBoundedBufferWithIdT_Ptr> BufferPtrMap;
 
 public:
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor.
 	 */
@@ -118,7 +118,7 @@ public:
 		, buffersPresentProcessed_(false)
 	{ /* nothing */ }
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor. Notifies all consumers that they should stop, then waits
 	 * for their threads to terminate.
@@ -131,14 +131,14 @@ public:
 		finalize();
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initializes the broker. This function does nothing. Its only purpose is to control
 	 * initialization of the factory in the singleton.
 	 */
 	void init() { /* nothing */ }
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Shuts the broker down, together with all consumers.
 	 */
@@ -161,7 +161,7 @@ public:
 		finalized_ = true;
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function is used by producers to register a new GBufferPortT object
 	 * with the broker. A GBufferPortT object contains bounded buffers for raw (i.e.
@@ -237,7 +237,7 @@ public:
 		}
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds a new consumer to this class and starts its thread. Note that boost::bind
 	 * knows how to handle a shared_ptr.
@@ -260,7 +260,7 @@ public:
 		gc->async_startProcessing();
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves a "raw" item from a GBufferPortT. This function will block
 	 * if no item can be retrieved.
@@ -292,7 +292,7 @@ public:
 		return currentBuffer->getId();
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves a "raw" item from a GBufferPortT, observing a timeout. Note that upon
 	 * time-out an exception is thrown.
@@ -325,7 +325,7 @@ public:
 		return currentBuffer->getId();
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves a "raw" item from a GBufferPortT, observing a timeout. The function
 	 * will indicate failure to retrieve a valid item by returning a boolean.
@@ -362,7 +362,7 @@ public:
 		return currentBuffer->pop_back_bool(p, timeout);
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Puts a processed item into the processed queue. Note that the item will simply
 	 * be discarded if no target queue with the required id exists. The function will
@@ -393,7 +393,7 @@ public:
 		if(currentBuffer) currentBuffer->push_front(p);
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Puts a processed item into the processed queue, observing a timeout. The function
 	 * will throw a Gem::Courtier::buffer_not_present exception if the requested buffer
@@ -412,7 +412,7 @@ public:
 	) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 
-		//-----------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 		// Make sure processing can start (impossible, before any buffer
 		// port objects have been added)
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
@@ -420,7 +420,7 @@ public:
 		// Do not let execution start before the first buffer has been enrolled
 		while(!buffersPresentProcessed_) readyToGoProcessed_.wait(processedLock);
 
-		//-----------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 		// Cross-check that the id is indeed available and retrieve the buffer
 		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end()) {
 			currentBuffer = ProcessedBuffers_[id];
@@ -435,15 +435,15 @@ public:
 			return false; // Make the compiler happy
 		}
 
-		//-----------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 		// Add p to the correct buffer, which we now assume to be valid. If this
 		// cannot be done in time, let the audience know by returning false
 		return currentBuffer->push_front_bool(p, timeout);
 
-		//-----------------------------------------------------------------------------
+		//------------------------------------------------------------------------
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks whether any consumers have been enrolled at the time of calling. As
 	 * consumers are maintained inside of a thread group and consumers may be added
@@ -456,7 +456,7 @@ public:
 	}
 
 private:
-	/**********************************************************************************/
+	/***************************************************************************/
 	GBrokerT(const GBrokerT<carrier_type>&); ///< Intentionally left undefined
 	const GBrokerT& operator=(const GBrokerT<carrier_type>&); ///< Intentionally left undefined
 
@@ -481,7 +481,7 @@ private:
 	mutable boost::mutex consumerEnrolmentMutex_; ///< Protects the enrolment of consumers
 };
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * We require GBrokerT<T> to be a singleton. This ensures that, for a given T, one
  * and only one Broker object exists that is constructed before main begins. All
@@ -490,7 +490,7 @@ private:
 #define GBROKER(T)      Gem::Common::GSingletonT<Gem::Courtier::GBrokerT< T > >::Instance(0)
 #define RESETGBROKER(T) Gem::Common::GSingletonT<Gem::Courtier::GBrokerT< T > >::Instance(1)
 
-/**************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */

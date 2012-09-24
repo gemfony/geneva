@@ -76,14 +76,14 @@ namespace Gem
 namespace Courtier
 {
 
-/***********************************************************************/
-
+/******************************************************************************/
 /**
  * Global variables for failed transfers and connection attempts.
  */
 const boost::uint32_t ASIOMAXSTALLS=10;
 const boost::uint32_t ASIOMAXCONNECTIONATTEMPTS=10;
 
+/******************************************************************************/
 /**
  * This class is responsible for the client side of network communication
  * with Boost::Asio. Note that this class is noncopyable, as it is derived
@@ -94,7 +94,7 @@ class GAsioTCPClientT
  	: public Gem::Courtier::GBaseClientT<processable_type>
 {
 public:
-	/***********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization by server name/ip and port
 	 *
@@ -116,7 +116,7 @@ public:
 		tmpBuffer_ = new char[Gem::Courtier::COMMANDLENGTH];
 	}
 
-	/***********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization by server name/ip, port and a model for the item to
 	 * be processed.
@@ -143,7 +143,7 @@ public:
 		tmpBuffer_ = new char[Gem::Courtier::COMMANDLENGTH];
 	}
 
-	/***********************************************************************/
+	/***************************************************************************/
 	/**
 	 * The standard destructor.
 	 */
@@ -151,7 +151,7 @@ public:
 		delete [] tmpBuffer_;
 	}
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the maximum number of stalled connection attempts
 	 *
@@ -161,7 +161,7 @@ public:
 		maxStalls_ = maxStalls;
 	}
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the maximum allowed number of stalled attempts
 	 *
@@ -171,7 +171,7 @@ public:
 		return maxStalls_;
 	}
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets the maximum number of failed connection attempts before termination
 	 *
@@ -181,7 +181,7 @@ public:
 		maxConnectionAttempts_ = maxConnectionAttempts;
 	}
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the maximum allowed number of failed connection attempts
 	 *
@@ -192,7 +192,7 @@ public:
 	}
 
 protected:
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieve work items from the server.
 	 *
@@ -315,7 +315,7 @@ protected:
 		return false; // Make the compiler happy
 	}
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Submit processed items to the server.
 	 *
@@ -400,7 +400,7 @@ protected:
 	}
 
 private:
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * A small helper function that shuts down the socket and emits a return code
 	 *
@@ -413,7 +413,7 @@ private:
 		return returnCode;
 	}
 
-	/**********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Tries to make a connection to the remote site.
 	 *
@@ -451,7 +451,7 @@ private:
 		return true;
 	}
 
-	/**********************************************************************/
+	/***************************************************************************/
 
 	boost::uint32_t maxStalls_; ///< The maximum allowed number of stalled connection attempts
 	boost::uint32_t maxConnectionAttempts_; ///< The maximum allowed number of failed connection attempts
@@ -471,7 +471,7 @@ private:
 	boost::asio::ip::tcp::resolver::iterator end_; ///< end for endpoint iterator
 };
 
-/***********************************************************************/
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */

@@ -55,7 +55,7 @@
 namespace Gem {
 namespace Courtier {
 
-/*******************************************************************/
+/******************************************************************************/
 /**
  * This class adds a serial consumer to the collection of consumers.
  * This allows to use a single implementation of the available
@@ -67,7 +67,7 @@ class GSerialConsumerT
 	:public Gem::Courtier::GConsumer
 {
 public:
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor. Nothing special here.
 	 */
@@ -77,14 +77,14 @@ public:
 		, broker_(GBROKER(processable_type))
 	{ /* nothing */ }
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Standard destructor
 	 */
 	~GSerialConsumerT()
 	{ /* nothing */ }
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	 * Starts a single worker thread. Termination of the thread is
 	 * triggered by a call to GConsumer::shutdown().
@@ -93,7 +93,7 @@ public:
 		processingThread_ = boost::thread(boost::bind(&GSerialConsumerT<processable_type>::processItems, this));
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	* Finalization code. Sends all threads an interrupt signal.
 	* process() then waits for them to join.
@@ -122,7 +122,7 @@ private:
 	GSerialConsumerT(const GSerialConsumerT<processable_type>&); ///< Intentionally left undefined
 	const GSerialConsumerT<processable_type>& operator=(const GSerialConsumerT<processable_type>&); ///< Intentionally left undefined
 
-	/***************************************************************/
+	/***************************************************************************/
 	/**
 	* The function that gets new items from the broker, processes them
 	* and returns them when finished. As this function is the main
@@ -203,7 +203,7 @@ private:
 		}
 	}
 
-	/***************************************************************/
+	/***************************************************************************/
 
 	boost::thread processingThread_;
 	mutable boost::shared_mutex stopMutex_;
@@ -211,7 +211,7 @@ private:
 	boost::shared_ptr<GBrokerT<processable_type> > broker_; ///< A shortcut to the broker so we do not have to go through the singleton
 };
 
-/***************************************************************/
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */

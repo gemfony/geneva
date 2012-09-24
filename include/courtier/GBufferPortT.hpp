@@ -59,7 +59,7 @@
 namespace Gem {
 namespace Courtier {
 
-/*****************************************************************************/
+/******************************************************************************/
 /**
  * A GBufferPortT<T> consists of two GBoundedBufferWithIdT<T> objects, one intended for "raw"
  * items, the other for returning, processed items. While this class could
@@ -77,7 +77,7 @@ class GBufferPortT
 	:private boost::noncopyable
 {
 public:
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor. Note that, when using this constructor, the
 	 * GBoundedBufferWithIdT objects will assume the default sizes.
@@ -92,7 +92,7 @@ public:
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Here we initialize the two GBoundedBufferWithIdT objects with a given size.
 	 *
@@ -108,7 +108,7 @@ public:
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves a shared_ptr to the "original" queue, for consumption by the broker.
 	 *
@@ -118,7 +118,7 @@ public:
 		return original_;
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves a shared_ptr to the "processed" queue, for consumption by the broker.
 	 *
@@ -128,7 +128,7 @@ public:
 		return processed_;
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Puts an item into the original queue. This is the queue for "raw" objects.
 	 *
@@ -138,7 +138,7 @@ public:
 		original_->push_front(item);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Timed version of GBufferPortT::push_front_orig() . If the item could not be added
 	 * after a given amount of time, the function returns. Note that a time_out
@@ -151,7 +151,7 @@ public:
 		original_->push_front(item, timeout);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Timed version of GBufferPortT::push_front_orig() that return a boolean
 	 * indicating whether an item could be submitted
@@ -164,7 +164,7 @@ public:
 		return original_->push_front_bool(item, timeout);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves an item from the back of the "original_" queue. Blocks until
 	 * an item could be retrieved.
@@ -175,7 +175,7 @@ public:
 		original_->pop_back(item);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A version of GBufferPortT::push_back_orig() with the ability to time-out. Note
 	 * that an exception will be thrown by original_ if the time-out was reached. It
@@ -188,7 +188,7 @@ public:
 		original_->pop_back(item, timeout);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A version of GBufferPortT::push_back_orig() with the ability to time-out. Instead
 	 * of throwing an exception it will return a boolean indicating whether an item
@@ -202,7 +202,7 @@ public:
 		return original_->pop_back_bool(item, timeout);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Puts an item into the "processed" queue.
 	 *
@@ -212,7 +212,7 @@ public:
 		processed_->push_front(item);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Timed version of GBufferPortT::push_front_processed() . If the item could not
 	 * be added after a given amount of time, a timed_out exception will be thrown by
@@ -225,7 +225,7 @@ public:
 		processed_->push_front(item, timeout);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Timed version of GBufferPortT::push_front_processed() that returns a boolean
 	 * indicating whether an item could be submitted.
@@ -238,7 +238,7 @@ public:
 		return processed_->push_front_bool(item, timeout);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves an item from the "processed" queue. This function will usually be
 	 * called directly or indirectly by GTransferPopulation.
@@ -249,7 +249,7 @@ public:
 		processed_->pop_back(item);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A version of GBufferPortT::pop_back_processed() with the ability to time-out. If the
 	 * time-out was reached, processed_ will throw a time_out exception.
@@ -261,7 +261,7 @@ public:
 		processed_->pop_back(item, timeout);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 	/**
 	 * A version of GBufferPortT::pop_back_processed() with the ability to time-out.
 	 * Instead of throwing an exception, it will return a boolean indicating whether
@@ -275,13 +275,13 @@ public:
 		return processed_->pop_back_bool(item, timeout);
 	}
 
-	/*****************************************************************************/
+	/***************************************************************************/
 private:
 	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > original_; ///< The queue for raw objects
 	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > processed_; ///< The queue for processed objects
 };
 
-/*****************************************************************************/
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */

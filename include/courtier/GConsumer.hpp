@@ -75,7 +75,7 @@ namespace Gem
 namespace Courtier
 {
 
-/**************************************************************************************/
+/******************************************************************************/
 /**
  * This class forms the basis of a hierarchy of classes that take
  * objects from GBrokerT and process them, either locally or remotely.
@@ -108,7 +108,7 @@ private:
 	const GConsumer& operator=(const GConsumer&); ///< Intentionally left undefined
 };
 
-/**************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */

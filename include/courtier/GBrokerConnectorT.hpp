@@ -85,7 +85,7 @@
 namespace Gem {
 namespace Courtier {
 
-/************************************************************************************************************/
+/******************************************************************************/
 /**
  * This class centralizes some functionality and data that is needed to connect
  * to networked execution through Geneva's broker. This class helps to avoid
@@ -121,7 +121,7 @@ class GBrokerConnectorT
 public:
     typedef boost::shared_ptr<Gem::Courtier::GBufferPortT<boost::shared_ptr<T> > > GBufferPortT_ptr;
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * The default constructor
      */
@@ -142,7 +142,7 @@ public:
     	GBROKER(T)->enrol(CurrentBufferPort_);
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * The standard copy constructor
      *
@@ -165,7 +165,7 @@ public:
     	GBROKER(T)->enrol(CurrentBufferPort_);
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * The standard destructor. We have no object-wide dynamically allocated data, hence
      * this function is empty.
@@ -175,7 +175,7 @@ public:
     	CurrentBufferPort_.reset();
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * A standard assignment operator for GBrokerConnectorT<T> objects,
      *
@@ -187,7 +187,7 @@ public:
     	return *this;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Loads the data of another GBrokerConnector object
      *
@@ -207,7 +207,7 @@ public:
     	doLogging_ = cp->doLogging_;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Checks for equality with another GBrokerConnectorT<T> object
      *
@@ -220,7 +220,7 @@ public:
     	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBrokerConnectorT<T>::operator==","cp", CE_SILENT);
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Checks for inequality with another GBrokerConnectorT<T> object
      *
@@ -233,7 +233,7 @@ public:
     	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBrokerConnectorT<T>::operator!=","cp", CE_SILENT);
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Checks whether a given expectation for the relationship between this object and another object
      * is fulfilled.
@@ -274,7 +274,7 @@ public:
     	return evaluateDiscrepancies("GBrokerConnectorT<T>", caller, deviations, e);
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Sets the maximum turn-around time for the first individual. When this time
      * has passed, an exception should be thrown. Set the time out value to 0 if you
@@ -286,7 +286,7 @@ public:
     	firstTimeOut_ = firstTimeOut;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Retrieves the value of the firstTimeOut_ variable.
      *
@@ -296,7 +296,7 @@ public:
     	return firstTimeOut_;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Allows to set the extremes that the waitFactor_ variable may assume
      *
@@ -316,7 +316,7 @@ public:
     	maxWaitFactor_ = maxWaitFactor;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Returns the current value of the minWaitFactor_ variable
      *
@@ -326,7 +326,7 @@ public:
     	return minWaitFactor_;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Returns the current value of the maxWaitFactor_ variable
      *
@@ -336,7 +336,7 @@ public:
     	return maxWaitFactor_;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Allows to specify whether logging of arrival times of processed items should be
      * done. Note that only arrival times of items of the current submission are logged.
@@ -348,7 +348,7 @@ public:
     	doLogging_ = dl;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Allows to determine whether logging of arrival times has been activated.
      *
@@ -358,7 +358,7 @@ public:
     	return doLogging_;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Allows to retrieve the logging results. Note that this function also resets
      * the local arrivalTimes_ vector.
@@ -370,7 +370,7 @@ public:
     	arrivalTimes_.clear(); // Cannot declare this function as "const" because of this call
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Specifies whether item retrievals should wait for an unlimited amount of time
      * for processed items.
@@ -381,7 +381,7 @@ public:
     	boundlessWait_ = boundlessWait;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Checks whether item retrievals should wait for an unlimited amount of time
      * for processed items.
@@ -392,7 +392,7 @@ public:
     	return boundlessWait_;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Specifies how often work items should be resubmitted in the case a full return
      * of work items is expected.
@@ -403,7 +403,7 @@ public:
     	maxResubmissions_ = maxResubmissions;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Returns the maximum number of allowed resubmissions
      *
@@ -413,7 +413,7 @@ public:
     	return maxResubmissions_;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Allows to check whether all items have returned before the timeout of an iteration
      *
@@ -423,7 +423,7 @@ public:
     	return allItemsReturned_;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Retrieves the current waitFactor_ variable.
      *
@@ -433,7 +433,7 @@ public:
     	return waitFactor_;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Allows to set the amount by which the waitFactor is incremented or decremented
      * during automatic adaption
@@ -451,7 +451,7 @@ public:
     	waitFactorIncrement_ = wfi;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Allows to retrieve the amount by which the waitFactor is incremented or decremented
      * during automatic adaption
@@ -462,7 +462,7 @@ public:
     	return waitFactorIncrement_;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Submits and retrieves a set of work items. After the work has been performed,
      * the items contained in the workItems vector may have been changed. Note that,
@@ -528,7 +528,7 @@ public:
     	}
     }
 
-	/*********************************************************************************/
+	/***************************************************************************/
     /**
      * A wrapper for workOn that accepts a boost::tuple for the range
      *
@@ -547,7 +547,7 @@ public:
     	return workOn(workItems, boost::get<0>(range), boost::get<1>(range), srm);
     }
 
-	/*********************************************************************************/
+	/***************************************************************************/
     /**
      * A wrapper for workOn that acts on the entire vector
      *
@@ -564,7 +564,7 @@ public:
     	return workOn(workItems, (std::size_t)0, workItems.size(), srm);
     }
 
-	/*********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Adds local configuration options to a GParserBuilder object
 	 *
@@ -688,7 +688,7 @@ public:
 	}
 
 private:
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Submits and retrieves a set of work items. After the work has been performed,
      * the items contained in the workItems vector may have been changed. Note that
@@ -847,7 +847,7 @@ private:
     	return complete;
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Submits and retrieves a set of work items. If some items didn't return inside
      * of the allowed time frame, the function will resubmit them up to a configurable
@@ -1047,7 +1047,7 @@ private:
     	return complete;
     }
 
-	/**********************************************************************************/
+	/***************************************************************************/
     /**
      * Allows to perform any work necessary to be repeated for each new submission. In
      * particular, this function adjusts the waitFactor_ variable, so that it fits
@@ -1097,7 +1097,7 @@ private:
     	iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Prolongs the timeout. This is useful when there is a need for re-submission of
      * individuals, such as in gradient descents.
@@ -1107,7 +1107,7 @@ private:
     	maxAllowedElapsed_ += boost::posix_time::microseconds(boost::numeric_cast<long>(double(totalElapsedFirst_.total_microseconds()) * (waitFactor_ + 1.)));
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Allows to submit work items to the broker
      *
@@ -1117,7 +1117,7 @@ private:
     	CurrentBufferPort_->push_front_orig(gi);
     }
 
-    /**********************************************************************************/
+    /***************************************************************************/
     /**
      * Retrieval of the first work item. This function simply returns a boost::shared_ptr<T>
      * with the work item. Note that this function will throw if the maximum allowed time for
@@ -1161,7 +1161,7 @@ private:
 		return p;
 	}
 
-    /**********************************************************************************/
+    /***************************************************************************/
 	/**
 	 * Retrieval of the first work item and conversion to a target type. Note that
 	 * this function will throw if the maximum allowed time for the retrieval of
@@ -1222,7 +1222,7 @@ private:
 #endif /* DEBUG */
 	}
 
-    /**********************************************************************************/
+    /***************************************************************************/
 	/**
 	 * Retrieval of a work item. This function will return items as long as the elapsed
 	 * time hasn't surpassed the allotted time-frame. Once this has happened, it will
@@ -1283,7 +1283,7 @@ private:
 		return p;
 	}
 
-    /**********************************************************************************/
+    /***************************************************************************/
 	/**
 	 * Retrieval of a work item and conversion to a target type. This function will
 	 * return items as long as the elapsed time hasn't surpassed the allotted
@@ -1365,11 +1365,11 @@ private:
 #endif /* DEBUG */
 	}
 
-	/*********************************************************************************/
-    /**
-     * A simple comparison operator that helps to sort individuals according to their
-     * position in the population. Smaller position numbers will end up in front.
-     */
+	/***************************************************************************/
+	/**
+	 * A simple comparison operator that helps to sort individuals according to their
+	 * position in the population. Smaller position numbers will end up in front.
+	 */
 	template <typename work_item>
     struct courtierPosComp {
     	bool operator()(boost::shared_ptr<work_item> x, boost::shared_ptr<work_item> y) {
@@ -1378,7 +1378,7 @@ private:
     	}
     };
 
-    /**********************************************************************************/
+    /***************************************************************************/
 
 	double waitFactor_; ///< Affects the timeout for returning individuals
 	double minWaitFactor_; ///< The minimum allowed wait factor
@@ -1405,7 +1405,7 @@ private:
     GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
 };
 
-/************************************************************************************************************/
+/******************************************************************************/
 
 } /* Courtier */
 } /* Gem */

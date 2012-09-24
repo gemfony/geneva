@@ -71,7 +71,7 @@
 namespace Gem {
 namespace Courtier {
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * This class can serve as a base class for items to be submitted through the broker. You need to
  * re-implement the purely virtual functions in derived classes. Note that it is mandatory for
@@ -91,14 +91,14 @@ class GSubmissionContainerT {
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor
 	 */
 	GSubmissionContainerT()
 	{ /* nothing */ }
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 *
@@ -110,18 +110,18 @@ public:
 	{ /* nothing */ }
 
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GSubmissionContainerT()
 	{ /* nothing */ }
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/** @brief Allows derived classes to specify the tasks to be performed for this object */
 	virtual bool process() = 0;
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Loads user-specified data. This function can be overloaded by derived classes. It
 	 * is mainly intended to provide a mechanism to "deposit" an item at a remote site
@@ -135,7 +135,7 @@ public:
 	virtual void loadConstantData(boost::shared_ptr<submission_type>)
 	{ /* nothing */ }
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows the courtier library to associate an id with the container
 	 *
@@ -145,7 +145,7 @@ public:
 		id_ = id;
 	}
 
-	/**********************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows to retrieve the courtier-id associated with this container
 	 *
@@ -156,17 +156,17 @@ public:
 	}
 
 private:
-	/**********************************************************************************/
+	/***************************************************************************/
     /** @brief A two-part id that can be assigned to this container object */
     boost::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> id_;
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */
 
-/**************************************************************************************************/
+/******************************************************************************/
 /** @brief Mark this class as abstract. This is the content of
  * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
 namespace boost {
@@ -178,6 +178,6 @@ namespace boost {
 	}
 }
 
-/**************************************************************************************************/
+/******************************************************************************/
 
 #endif /* GSUBMISSIONCONTAINERBASE_HPP_ */

@@ -58,13 +58,13 @@
 namespace Gem {
 namespace Courtier {
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Needed so that server and client agree about the size of the headers and commands
  */
 const std::size_t COMMANDLENGTH=64;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default factor applied to the turn-around time
  * of the first item in the current iteration. Used to
@@ -78,13 +78,13 @@ const double DEFAULTBROKERWAITFACTOR = DEFAULTMAXBROKERWAITFACTOR;
 const double DEFAULTBROKERWAITFACTORINCREMENT = 0.1;
 const double DEFAULTMINPERCENTAGEOFTIMEOUT = 0.7;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * A 0 time period . timedHalt will not trigger if this duration is set
  */
 const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default allowed time in seconds for the first individual
  * in generation 0 to return. Set it to 0 to disable this timeout.
@@ -93,13 +93,13 @@ const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration
  */
 const std::string DEFAULTBROKERFIRSTTIMEOUT = EMPTYDURATION;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * The default maximum duration of the calculation.
  */
 const std::string DEFAULTDURATION = EMPTYDURATION;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * Needed by the broker connector
  */
@@ -111,7 +111,7 @@ enum submissionReturnMode {
 
 const std::size_t DEFAULTMAXRESUBMISSIONS = 5;
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * This enum marks different consumer modes
  */
@@ -121,7 +121,7 @@ enum consumerMode {
 	, ASIOTCPCONSUMER = 2
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * This enum marks different (usually networked) client modes
  */
@@ -129,7 +129,7 @@ enum clientMode {
 	ASIOTCPCLIENT = 0
 };
 
-/**********************************************************************************************/
+/******************************************************************************/
 /**
  * These two typedefs allow to steer the types of ids assigned to objects submitted to the broker
  */
@@ -139,7 +139,7 @@ typedef std::size_t     ID_TYPE_2;
 typedef ID_TYPE_1 SUBMISSIONCOUNTERTYPE;
 typedef ID_TYPE_2 POSITIONTYPE;
 
-/**********************************************************************************************/
+/******************************************************************************/
 
 /** @brief Puts a Gem::Courtier::submissionReturnMode into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Courtier::submissionReturnMode&);
@@ -159,7 +159,7 @@ std::ostream& operator<<(std::ostream&, const Gem::Courtier::clientMode&);
 /** @brief Reads a Gem::Courtier::clientMode item from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Courtier::clientMode&);
 
-/**********************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */
