@@ -808,6 +808,17 @@ public:
 
    /***************************************************************************/
    /**
+    * Adds a complete set of triangles to the canvas, using Gemfony's
+    * "circular" definition
+    */
+   void addTriangles(boost::shared_array<t_circle> ts, std::size_t nTriangles) {
+      for(std::size_t i=0; i<nTriangles; i++) {
+         this->addTriangle(ts[i]);
+      }
+   }
+
+   /***************************************************************************/
+   /**
     * Adds a triangle to the canvas, using a struct holding cartesic coordinates
     */
    void addTriangle(const t_cart& t) {
@@ -819,10 +830,44 @@ public:
       coord2D diff31, diff21, diffp1, pos_f;
 
       for(std::size_t i_x=0; i_x<xDim_; i_x++) {
+         // Calculate the pixel x-position
+         pos_f.x = float(i_x+1)*xDim_inv;
+
+         if(
+               pos_f.x < t.tr_one.x
+            && pos_f.x < t.tr_two.x
+            && pos_f.x < t.tr_three.x
+         ) {
+          continue;
+         }
+
+         if(
+               pos_f.x > t.tr_one.x
+            && pos_f.x > t.tr_two.x
+            && pos_f.x > t.tr_three.x
+         ) {
+          continue;
+         }
+
          for(std::size_t i_y=0; i_y<yDim_; i_y++) {
-            // Calculate the pixel position
-            pos_f.x = float(i_x+1)*xDim_inv;
+            // Calculate the pixel y-position
             pos_f.y = float(i_y+1)*yDim_inv;
+
+            if(
+                  pos_f.y < t.tr_one.y
+               && pos_f.y < t.tr_two.y
+               && pos_f.y < t.tr_three.y
+            ) {
+             continue;
+            }
+
+            if(
+                  pos_f.y > t.tr_one.y
+               && pos_f.y > t.tr_two.y
+               && pos_f.y > t.tr_three.y
+            ) {
+             continue;
+            }
 
             diff31 = t.tr_three - t.tr_one;
             diff21 = t.tr_two   - t.tr_one;
