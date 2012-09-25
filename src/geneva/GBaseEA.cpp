@@ -48,11 +48,9 @@ namespace Geneva {
 GBaseEA::GBaseEA()
 	: GOptimizationAlgorithmT<Gem::Geneva::GIndividual>()
 	, nParents_(0)
-	, microTrainingInterval_(DEFAULTMICROTRAININGINTERVAL)
 	, recombinationMethod_(DEFAULTDUPLICATIONSCHEME)
 	, smode_(DEFAULTSMODE)
 	, defaultNChildren_(0)
-	, oneTimeMuCommaNu_(false)
 	, growthRate_(0)
 	, maxPopulationSize_(0)
 	, t0_(SA_T0)
@@ -82,11 +80,9 @@ GBaseEA::GBaseEA()
 GBaseEA::GBaseEA(const GBaseEA& cp)
 	: GOptimizationAlgorithmT<Gem::Geneva::GIndividual>(cp)
 	, nParents_(cp.nParents_)
-	, microTrainingInterval_(cp.microTrainingInterval_)
 	, recombinationMethod_(cp.recombinationMethod_)
 	, smode_(cp.smode_)
 	, defaultNChildren_(cp.defaultNChildren_)
-	, oneTimeMuCommaNu_(cp.oneTimeMuCommaNu_)
 	, growthRate_(cp.growthRate_)
 	, maxPopulationSize_(cp.maxPopulationSize_)
 	, t0_(cp.t0_)
@@ -140,11 +136,9 @@ void GBaseEA::load_(const GObject * cp)
 
 	// ... and then our own data
 	nParents_ = p_load->nParents_;
-	microTrainingInterval_ = p_load->microTrainingInterval_;
 	recombinationMethod_ = p_load->recombinationMethod_;
 	smode_ = p_load->smode_;
 	defaultNChildren_ = p_load->defaultNChildren_;
-	oneTimeMuCommaNu_ = p_load->oneTimeMuCommaNu_;
 	maxPopulationSize_ = p_load->maxPopulationSize_;
 	growthRate_ = p_load->growthRate_;
 	t0_ = p_load->t0_;
@@ -219,11 +213,9 @@ boost::optional<std::string> GBaseEA::checkRelationshipWith(const GObject& cp,
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GBaseEA", nParents_, p_load->nParents_, "nParents_", "p_load->nParents_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseEA", microTrainingInterval_, p_load->microTrainingInterval_, "microTrainingInterval_", "p_load->microTrainingInterval_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseEA", recombinationMethod_, p_load->recombinationMethod_, "recombinationMethod_", "p_load->recombinationMethod_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseEA", smode_, p_load->smode_, "smode_", "p_load->smode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseEA", defaultNChildren_, p_load->defaultNChildren_, "defaultNChildren_", "p_load->defaultNChildren_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseEA", oneTimeMuCommaNu_, p_load->oneTimeMuCommaNu_, "oneTimeMuCommaNu_", "p_load->oneTimeMuCommaNu_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseEA", maxPopulationSize_, p_load->maxPopulationSize_, "maxPopulationSize_", "p_load->maxPopulationSize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseEA", growthRate_, p_load->growthRate_, "growthRate_", "p_load->growthRate_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseEA", t0_, p_load->t0_, "t0_", "p_load->t0_", e , limit));
@@ -253,34 +245,6 @@ personality_oa GBaseEA::getOptimizationAlgorithm() const {
 void GBaseEA::setIndividualPersonalities() {
 	GBaseEA::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(PERSONALITY_EA);
-}
-
-/******************************************************************************/
-/**
- * Enforces a one-time selection policy of MUCOMMANU_SINGLEEVAL. This is used for updates of
- * the parents' structure in the optimize() function. As the quality of updated
- * parents may decrease, it is important to ensure that the next generation's parents
- * are chosen from children with new structure.
- */
-void GBaseEA::setOneTimeMuCommaNu() {
-	oneTimeMuCommaNu_ = true;
-}
-
-/******************************************************************************/
-/**
- * Updates the parents' structure, using their updateOnStall function.
- *
- * @return A boolean indicating whether an update was performed
- */
-bool GBaseEA::updateParentStructure() {
-	bool updatePerformed=false;
-
-	GBaseEA::iterator it;
-	for(it=this->begin(); it!=this->begin() + nParents_; ++it) {
-		if((*it)->updateOnStall()) updatePerformed = true;
-	}
-
-	return updatePerformed;
 }
 
 /******************************************************************************/
@@ -566,13 +530,6 @@ double GBaseEA::cycleLogic() {
 
 	// find out the best individuals of the population
 	selectBest();
-
-	boost::uint32_t stallCounter = getStallCounter();
-	if(microTrainingInterval_ && stallCounter && stallCounter%microTrainingInterval_ == 0) {
-		if(updateParentStructure()) {
-			setOneTimeMuCommaNu();
-		}
-	}
 
 	// Retrieve the fitness of the best individual in the collection
 	bool isDirty = false;
@@ -935,27 +892,6 @@ void GBaseEA::addConfigurationOptions (
 
 /******************************************************************************/
 /**
- * Set the interval in which micro training should be performed. Set the
- * interval to 0 in order to prevent micro training.
- *
- * @param mti The desired new value of the mircoTrainingInterval_ variable
- */
-void GBaseEA::setMicroTrainingInterval(const boost::uint32_t& mti) {
-	microTrainingInterval_ = mti;
-}
-
-/******************************************************************************/
-/**
- * Retrieve the interval in which micro training should be performed
- *
- * @return The current value of the mircoTrainingInterval_ variable
- */
-boost::uint32_t GBaseEA::getMicroTrainingInterval() const {
-	return microTrainingInterval_;
-}
-
-/******************************************************************************/
-/**
  * Retrieve the number of parents as set by the user. This is a fixed parameter and
  * should not be changed after it has first been set. Note that, if the size of the
  * population is smaller than the alleged number of parents, the function will return
@@ -1202,20 +1138,12 @@ void GBaseEA::selectBest()
 	switch(smode_) {
 	//----------------------------------------------------------------------------
 	case MUPLUSNU_SINGLEEVAL:
-		if(oneTimeMuCommaNu_) {
-			sortMuCommaNuMode();
-			oneTimeMuCommaNu_=false;
-		}
-		else sortMuPlusNuMode();
+		sortMuPlusNuMode();
 		break;
 
 	//----------------------------------------------------------------------------
 	case MUNU1PRETAIN_SINGLEEVAL:
-		if(oneTimeMuCommaNu_) {
-			sortMuCommaNuMode();
-			oneTimeMuCommaNu_=false;
-		}
-		else sortMunu1pretainMode();
+		sortMunu1pretainMode();
 		break;
 
 	//----------------------------------------------------------------------------

@@ -70,13 +70,6 @@ class GEAOptimizationMonitor;
  */
 const sortingMode DEFAULTSMODE=MUPLUSNU_SINGLEEVAL;
 
-/**
- * The default number of generations without improvement after which
- * a micro-training should be started. A value of 0 means that no
- * micro-training will take place.
- */
-const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
-
 /******************************************************************************/
 /**
  * The GBaseEA class adds the notion of parents and children to
@@ -107,11 +100,9 @@ class GBaseEA
 
       ar & make_nvp("GOptimizationAlgorithmT_GIndividual", boost::serialization::base_object<GOptimizationAlgorithmT<GIndividual> >(*this))
       & BOOST_SERIALIZATION_NVP(nParents_)
-      & BOOST_SERIALIZATION_NVP(microTrainingInterval_)
       & BOOST_SERIALIZATION_NVP(recombinationMethod_)
       & BOOST_SERIALIZATION_NVP(smode_)
       & BOOST_SERIALIZATION_NVP(defaultNChildren_)
-      & BOOST_SERIALIZATION_NVP(oneTimeMuCommaNu_)
       & BOOST_SERIALIZATION_NVP(growthRate_)
       & BOOST_SERIALIZATION_NVP(maxPopulationSize_)
       & BOOST_SERIALIZATION_NVP(logOldParents_)
@@ -197,13 +188,6 @@ public:
          Gem::Common::GParserBuilder& gpb
          , const bool& showOrigin
    );
-
-   //------------------------------------------------------------------------------------------
-   // Settings specific to micro-training
-   /** @brief Set the interval in which micro training should be performed */
-   void setMicroTrainingInterval(const boost::uint32_t&);
-   /** @brief Retrieve the interval in which micro training should be performed */
-   boost::uint32_t getMicroTrainingInterval() const;
 
    //------------------------------------------------------------------------------------------
    // Settings for simulated annealing
@@ -385,10 +369,6 @@ private:
    };
 
    /***************************************************************************/
-   /** @brief Enforces a one-time selection policy of MUCOMMANU_SINGLEEVAL */
-   void setOneTimeMuCommaNu();
-   /** @brief Updates the parent's structure */
-   bool updateParentStructure();
 
    /** @brief Saves the state of the class to disc. Private, as we do not want to accidently trigger value calculation  */
    virtual void saveCheckpoint() const;
@@ -420,11 +400,9 @@ private:
    bool aDominatesB(boost::shared_ptr<GIndividual>, boost::shared_ptr<GIndividual>) const;
 
    std::size_t nParents_; ///< The number of parents
-   boost::uint32_t microTrainingInterval_; ///< The number of iterations without improvements after which a micro training should be started
    duplicationScheme recombinationMethod_; ///< The chosen recombination method
    sortingMode smode_; ///< The chosen sorting scheme
    std::size_t defaultNChildren_; ///< Expected number of children
-   bool oneTimeMuCommaNu_; ///< Specifies whether a one-time selection scheme of MUCOMMANU_SINGLEEVAL should be used
    std::size_t growthRate_; ///< Specifies the amount of individuals added per iteration
    std::size_t maxPopulationSize_; ///< Specifies the maximum amount of individuals in the population if growth is enabled
 
