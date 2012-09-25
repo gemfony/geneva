@@ -129,6 +129,14 @@ float triangle_circle_struct::getAlphaValue() const {
 
 /******************************************************************************/
 /**
+ * Translate to a string
+ */
+std::string triangle_circle_struct::toString() const {
+   return boost::lexical_cast<std::string>(*this);
+}
+
+/******************************************************************************/
+/**
  * Simplify debugging output
  */
 std::ostream& operator<<(std::ostream& out, const t_circle& tc) {
@@ -145,6 +153,33 @@ std::ostream& operator<<(std::ostream& out, const t_circle& tc) {
    << "alpha    = " << tc.a        << std::endl;
 
    return out;
+}
+
+/******************************************************************************/
+/**
+ * Simplify comparison of two t_circle structs
+ */
+bool operator==(const t_circle& a, const t_circle& b) {
+   if(a.middle.x != b.middle.x) return false;
+   if(a.middle.y != b.middle.y) return false;
+   if(a.radius   != b.radius  ) return false;
+   if(a.angle1   != b.angle1  ) return false;
+   if(a.angle2   != b.angle2  ) return false;
+   if(a.angle3   != b.angle3  ) return false;
+   if(a.r        != b.r       ) return false;
+   if(a.g        != b.g       ) return false;
+   if(a.b        != b.b       ) return false;
+   if(a.a        != b.a       ) return false;
+
+   return true;
+}
+
+/******************************************************************************/
+/**
+ * Simplify comparison of two t_circle structs
+ */
+bool operator!=(const t_circle& a, const t_circle& b) {
+   return !operator==(a,b);
 }
 
 /******************************************************************************/

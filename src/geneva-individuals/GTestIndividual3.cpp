@@ -343,6 +343,9 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
+   // Call the parent classes' functions
+   Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
+
 	const std::size_t NTESTS = 100;
 
 	//------------------------------------------------------------------------------

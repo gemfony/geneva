@@ -142,10 +142,16 @@ typedef struct triangle_circle_struct {
 
   /** @brief Needed for sorting */
   float getAlphaValue() const;
+  /** @brief Translate to a string */
+  std::string toString() const;
 } t_circle;
 
 /** @brief Simplify debugging output */
 std::ostream& operator<<(std::ostream&, const t_circle&);
+/** @brief Simplify comparison of two t_circle structs */
+bool operator==(const t_circle&, const t_circle&);
+/** @brief Simplify comparison of two t_circle structs */
+bool operator!=(const t_circle&, const t_circle&);
 
 /******************************************************************************/
 /**
