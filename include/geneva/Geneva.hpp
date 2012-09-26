@@ -116,7 +116,6 @@ public:
 #endif /* GEM_INT_FORCE_TERMINATION */
 
 		std::cout << "Done ..." << std::endl;
-
 		return 0;
 	}
 
