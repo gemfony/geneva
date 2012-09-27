@@ -384,7 +384,6 @@ bool GIndividual::hasMultipleFitnessCriteria() const {
  * @param sec_f_vec A vector of secondary fitness values
  */
 void GIndividual::setFitness_(const double& f, const std::vector<double>& sec_f_vec) {
-#ifdef DEBUG
 	if(sec_f_vec.size() != GIndividual::getNumberOfSecondaryFitnessCriteria()) {
 		raiseException(
 				"In GIndividual::setFitness_(...): Error!" << std::endl
@@ -392,7 +391,6 @@ void GIndividual::setFitness_(const double& f, const std::vector<double>& sec_f_
 				<< sec_f_vec.size() << " / " << GIndividual::getNumberOfSecondaryFitnessCriteria() << std::endl
 		);
 	}
-#endif /* DEBUG */
 
 	currentFitness_ = f;
 	currentSecondaryFitness_ = sec_f_vec;
