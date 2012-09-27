@@ -418,6 +418,12 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	// --------------------------------------------------------------------------
 
+	{ // Test setting and retrieval of initialization boundaries
+
+	}
+
+   // --------------------------------------------------------------------------
+
 	// Remove the test adaptor
 	this->resetAdaptor();
 

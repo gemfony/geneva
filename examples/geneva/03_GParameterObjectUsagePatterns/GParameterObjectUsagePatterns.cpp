@@ -46,8 +46,12 @@
 // All GRandom-related code is in the namespace Gem::Hap
 using namespace Gem::Geneva;
 
+/******************************************************************************/
+/**
+ * This example wants to demonstrate the basic usage of parameter objects
+ */
 int main(int argc, char **argv) {
-	//============================================================================
+	//===========================================================================
 	// Parameter Types
 
 	{ // Usage patterns for the GDoubleObject class
@@ -65,7 +69,7 @@ int main(int argc, char **argv) {
 		// Assignment, value setting and retrieval
 		o1 = 1.; // Assigning and setting a value
 		o2.setValue(2.);
-		o4 = o1; // Assignment of another object
+		o4 = o1; // Assignment to another object
 		std::cout << o4.value() << std::endl; // Value retrieval
 
 		//-----------------------------------------------------
@@ -693,7 +697,7 @@ int main(int argc, char **argv) {
 		//-----------------------------------------------------
 	}
 
-	//============================================================================
+	//===========================================================================
 	// Adaptors
 
 	{ // GDoubleGaussAdaptor
@@ -721,12 +725,12 @@ int main(int argc, char **argv) {
 
 		//-----------------------------------------------------
 		// Setting and retrieval of specific configuration parameters
+      a1.setSigmaRange(minSigma, maxSigma);
+      boost::tuple<double,double> t = a1.getSigmaRange();
+      std::cout << boost::get<0>(t) << " " << boost::get<1>(t) << std::endl;
+
 		a1.setSigma(sigma);
 		double sigma2 = a1.getSigma();
-
-		a1.setSigmaRange(minSigma, maxSigma);
-		boost::tuple<double,double> t = a1.getSigmaRange();
-		std::cout << boost::get<0>(t) << " " << boost::get<1>(t) << std::endl;
 
 		a1.setSigmaAdaptionRate(sigmaSigma);
 		double adaptionRate = a1.getSigmaAdaptionRate();
@@ -806,14 +810,14 @@ int main(int argc, char **argv) {
 				, boost::get<1>(sigma2Range)
 		);
 
+      // Set/get the lower and upper boundaries of delta
+      a1.setDeltaRange(0.,5.);
+      boost::tuple<double,double> deltaRange = a1.getDeltaRange();
+
 		// Set the initial distance between both peaks
 		// and retieve the current value
 		a1.setDelta(1.5);
 		double delta = a1.getDelta();
-
-		// Set/get the lower and upper boundaries of delta
-		a1.setDeltaRange(0.,5.);
-		boost::tuple<double,double> deltaRange = a1.getDeltaRange();
 
 		// Set/get the adaption rate of delta
 		a1.setDeltaAdaptionRate(0.8);
@@ -871,12 +875,12 @@ int main(int argc, char **argv) {
 
 		//-----------------------------------------------------
 		// Setting and retrieval of specific configuration parameters
-		a1.setSigma(sigma);
-		double sigma2 = a1.getSigma();
-
 		a1.setSigmaRange(minSigma, maxSigma);
 		boost::tuple<double,double> t = a1.getSigmaRange();
 		std::cout << boost::get<0>(t) << " " << boost::get<1>(t) << std::endl;
+
+      a1.setSigma(sigma);
+      double sigma2 = a1.getSigma();
 
 		a1.setSigmaAdaptionRate(sigmaSigma);
 		double adaptionRate = a1.getSigmaAdaptionRate();
@@ -966,7 +970,7 @@ int main(int argc, char **argv) {
 		//-----------------------------------------------------
 	}
 
-	//============================================================================
+	//===========================================================================
 
 	return 0;
 }
