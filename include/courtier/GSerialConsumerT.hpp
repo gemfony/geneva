@@ -73,7 +73,6 @@ public:
 	 */
 	GSerialConsumerT()
 		: Gem::Courtier::GConsumer()
-		, stop_(false)
 		, broker_(GBROKER(processable_type))
 	{ /* nothing */ }
 
@@ -96,15 +95,11 @@ public:
 	/***************************************************************************/
 	/**
 	* Finalization code. Sends all threads an interrupt signal.
-	* process() then waits for them to join.
 	*/
-	void shutdown() {
-		{
-			boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
-			stop_=true;
-			lock.unlock();
-		}
-
+	virtual void shutdown() {
+	   // This will set the GConsumer::stop_ flag
+	   GConsumer::shutdown();
+	   // Wait for our local threads to join
 		processingThread_.join();
 	}
 
@@ -136,15 +131,9 @@ private:
 
 			while(true){
 				// Have we been asked to stop ?
-				{
-					boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
-					if(stop_) {
-						lock.unlock();
-						break;
-					}
-				}
+			   if(GConsumer::stopped()) break;
 
-				// If we didn't get a valid item, start again with the while loop
+			   // If we didn't get a valid item, start again with the while loop
 				if(!broker_->get(id, p, timeout)) {
 					continue;
 				}
@@ -165,13 +154,9 @@ private:
 				// Return the item to the broker. The item will be discarded
 				// if the requested target queue cannot be found.
 				try {
-					while(!broker_->put(id, p, timeout)){
+					while(!broker_->put(id, p, timeout)){ // Items can get lost here
 						// Terminate if we have been asked to stop
-						boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
-						if(stop_) {
-							lock.unlock();
-							break;
-						}
+					   if(GConsumer::stopped()) break;
 					}
 				} catch (Gem::Courtier::buffer_not_present&) {
 					continue;
@@ -206,8 +191,6 @@ private:
 	/***************************************************************************/
 
 	boost::thread processingThread_;
-	mutable boost::shared_mutex stopMutex_;
-	mutable bool stop_; ///< Set to true if we are expected to stop
 	boost::shared_ptr<GBrokerT<processable_type> > broker_; ///< A shortcut to the broker so we do not have to go through the singleton
 };
 

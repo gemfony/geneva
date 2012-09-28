@@ -56,7 +56,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/thread.hpp>
 #include <boost/type_traits.hpp>
 
 #ifndef GCONSUMER_HPP_
@@ -69,11 +69,10 @@
 
 
 // Geneva headers go here
+#include "common/GParserBuilder.hpp"
 
-namespace Gem
-{
-namespace Courtier
-{
+namespace Gem {
+namespace Courtier {
 
 /******************************************************************************/
 /**
@@ -97,15 +96,28 @@ public:
 
 	/** @brief The actual business logic */
 	virtual void async_startProcessing() = 0;
-	/** @brief To be called from GConsumer::process() */
-	virtual void shutdown() = 0;
+
+	/** @brief Stop execution */
+	virtual void shutdown();
+	/** @brief Check whether the stop flag has been set */
+	bool stopped() const;
 
 	/** @brief A unique identifier for a given consumer */
 	virtual std::string getConsumerName() const = 0;
 
+   /** @brief Parses a given configuration file */
+   void parseConfigFile(const std::string&);
+
+protected:
+   /** @brief Adds local configuration options to a GParserBuilder object */
+   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+
 private:
 	GConsumer(const GConsumer&); ///< Intentionally left undefined
 	const GConsumer& operator=(const GConsumer&); ///< Intentionally left undefined
+
+   mutable boost::shared_mutex stopMutex_; ///< Regulate access to the stop_ variable
+   mutable bool stop_; ///< Set to true if we are expected to stop
 };
 
 /******************************************************************************/

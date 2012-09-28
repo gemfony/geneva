@@ -44,6 +44,7 @@ namespace Courtier
  * The default constructor
  */
 GConsumer::GConsumer()
+   : stop_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -52,6 +53,62 @@ GConsumer::GConsumer()
  */
 GConsumer::~GConsumer()
 { /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Stop execution. Note that this function requires unique access to the lock.
+ */
+void GConsumer::shutdown() {
+   boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
+   stop_=true;
+   lock.unlock();
+}
+
+/******************************************************************************/
+/**
+ * Check whether the stop flag has been set. Since we only read the flag, a
+ * shared_lock suffices.
+ */
+bool GConsumer::stopped() const {
+   boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
+   return stop_;
+}
+
+/******************************************************************************/
+/**
+ * Parses a given configuration file
+ *
+ * @param configFile The name of a configuration file
+ */
+void GConsumer::parseConfigFile(const std::string& configFile) {
+   // Create a parser builder object -- local options will be added to it
+   Gem::Common::GParserBuilder gpb;
+
+   // Add configuration options of this and of derived classes
+   addConfigurationOptions(gpb, true);
+
+   // Do the actual parsing. Note that this
+   // will try to write out a default configuration file,
+   // if no existing config file can be found
+   gpb.parseConfigFile(configFile);
+}
+
+/******************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object. We have no local
+ * data, hence this function is empty. It could have been declared purely virtual,
+ * however, we do not want to force derived classes to implement this function,
+ * as it might not always be needed.
+ *
+ * @param gpb The GParserBuilder object, to which configuration options will be added
+ * @param showOrigin Indicates, whether the origin of a configuration option should be shown in the configuration file
+ */
+void GConsumer::addConfigurationOptions(
+      Gem::Common::GParserBuilder& gpb
+      , const bool& showOrigin
+){
+   /* nothing -- no local data */
+}
 
 /******************************************************************************/
 

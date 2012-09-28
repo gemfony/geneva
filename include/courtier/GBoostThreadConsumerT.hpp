@@ -95,12 +95,11 @@ protected:
 public:
 	/***************************************************************************/
 	/**
-	 * The default constructor. Nothing special here.
+	 * The default constructor.
 	 */
 	GBoostThreadConsumerT()
 		: Gem::Courtier::GConsumer()
 		, maxThreads_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTGBTCMAXTHREADS)))
-		, stop_(false)
 		, broker_(GBROKER(processable_type))
 	   , workerTemplate_(new GDefaultWorker())
 	{ /* nothing */ }
@@ -147,12 +146,10 @@ public:
 	* process() then waits for them to join.
 	*/
 	void shutdown() {
-		{
-			boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
-			stop_=true;
-			lock.unlock();
-		}
+	   // Initiate the shutdown procedure
+	   GConsumer::shutdown();
 
+	   // Wait for local workers to terminate
 		gtg_.join_all();
 		workers_.clear();
 	}
@@ -185,7 +182,6 @@ public:
       for(std::size_t i=0; i<(maxThreads_*this->customMultiplier()); i++) {
          boost::shared_ptr<GWorker> p_worker = workerTemplate_->clone(i,this);
          gtg_.create_thread(boost::bind(&GBoostThreadConsumerT<processable_type>::GWorker::run, p_worker));
-
          workers_.push_back(p_worker);
       }
    }
@@ -219,6 +215,50 @@ protected:
       workerTemplate_ = workerTemplate;
    }
 
+   /***************************************************************************/
+   /**
+    * Adds local configuration options to a GParserBuilder object. We have only
+    * a single local option -- the number of threads
+    *
+    * @param gpb The GParserBuilder object, to which configuration options will be added
+    * @param showOrigin Indicates, whether the origin of a configuration option should be shown in the configuration file
+    */
+   virtual void addConfigurationOptions(
+         Gem::Common::GParserBuilder& gpb
+         , const bool& showOrigin
+   ){
+      std::string comment;
+
+      // Call our parent class'es function
+      GConsumer::addConfigurationOptions(gpb, showOrigin);
+
+      // Add local data
+      comment = ""; // Reset the comment string
+      if(showOrigin) {
+         comment += "[Origin] GBoostThreadConsumerT<processable_type>;";
+         comment += (std::string("with typeid(processable_type).name() = ") + typeid(processable_type).name() + ";");
+      }
+      comment += "Indicates the number of threads used to process workers.;";
+      comment += "Note that it is possible that an additional factor is applied,;";
+      comment += "e.g. in order to have a number of threads for each given entity;";
+      comment += "This is handled through the customMultiplier() function, which can;";
+      comment += "be overloaded in derived classes. It will return 1 by default.";
+      comment += "Setting maxThreads to 0 will result in an attempt to;";
+      comment += "automatically determine the number of hardware threads.";
+      if(showOrigin) comment += "[GBoostThreadConsumerT<>]";
+      gpb.registerFileParameter<boost::uint32_t>(
+         "maxThreads" // The name of the variable
+         , 0 // The default value
+         , boost::bind(
+            &GBoostThreadConsumerT<processable_type>::setMaxThreads
+            , this
+            , _1
+           )
+         , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+         , comment
+      );
+   }
+
 private:
    /***************************************************************************/
 
@@ -227,8 +267,6 @@ private:
 
 	std::size_t maxThreads_; ///< The maximum number of allowed threads in the pool
 	Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
-	mutable boost::shared_mutex stopMutex_;
-	mutable bool stop_; ///< Set to true if we are expected to stop
 	boost::shared_ptr<GBrokerT<processable_type> > broker_; ///< A shortcut to the broker so we do not have to go through the singleton
    std::vector<boost::shared_ptr<GWorker> > workers_; ///< Holds the worker objects
    boost::shared_ptr<GWorker> workerTemplate_; ///< All workers will be created as a clone of this worker
@@ -262,10 +300,10 @@ protected:
       GWorker(
             const GWorker& cp
             , const std::size_t& thread_id
-            , const GBoostThreadConsumerT<processable_type> *outer
+            , const GBoostThreadConsumerT<processable_type> *c_ptr
       )
          : thread_id_(thread_id)
-         , outer_(outer)
+         , outer_(c_ptr)
       { /* nothing */ }
 
       /************************************************************************/
@@ -281,34 +319,31 @@ protected:
        */
       void run() {
          try{
+            // Perform any setup work
+            processInit();
+
             boost::shared_ptr<processable_type> p;
             Gem::Common::PORTIDTYPE id;
             boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 
             while(true){
                // Have we been asked to stop ?
-               {
-                  boost::shared_lock<boost::shared_mutex> lock(outer_->stopMutex_);
-                  if(outer_->stop_) {
-                     lock.unlock();
-                     break;
-                  }
-               }
+               if(outer_->stopped()) break;
 
                // If we didn't get a valid item, start again with the while loop
                if(!outer_->broker_->get(id, p, timeout)) {
                   continue;
                }
 
-   #ifdef DEBUG
+#ifdef DEBUG
                // Check that we indeed got a valid item
                if(!p) { // We didn't get a valid item after all
                   raiseException(
-                     "In GBoostThreadConsumerT<processable_type>::GWorker::operator(): Error!" << std::endl
+                     "In GBoostThreadConsumerT<processable_type>::GWorker::run(): Error!" << std::endl
                      << "Got empty item when it shouldn't be empty!" << std::endl
                   );
                }
-   #endif /* DEBUG */
+#endif /* DEBUG */
 
                // Initiate the actual processing
                this->process(p);
@@ -316,13 +351,9 @@ protected:
                // Return the item to the broker. The item will be discarded
                // if the requested target queue cannot be found.
                try {
-                  while(!outer_->broker_->put(id, p, timeout)){
+                  while(!outer_->broker_->put(id, p, timeout)){ // This can lead to a loss of items
                      // Terminate if we have been asked to stop
-                     boost::shared_lock<boost::shared_mutex> lock(outer_->stopMutex_);
-                     if(outer_->stop_) {
-                        lock.unlock();
-                        break;
-                     }
+                     if(outer_->stopped()) break;
                   }
                } catch (Gem::Courtier::buffer_not_present&) {
                   continue;
@@ -330,11 +361,13 @@ protected:
             }
          }
          catch(boost::thread_interrupted&){ // Normal termination
+            // Perform any final work
+            processFinalize();
             return;
          }
          catch(std::exception& e) {
             std::ostringstream error;
-            error << "In GBoostThreadConsumerT<processable_type>::GWorker::operator():" << std::endl
+            error << "In GBoostThreadConsumerT<processable_type>::GWorker::run():" << std::endl
                   << "Caught std::exception with message" << std::endl
                   << e.what() << std::endl;
             std::cerr << error.str();
@@ -342,30 +375,19 @@ protected:
          }
          catch(boost::exception& e){
             std::ostringstream error;
-             error << "In GBoostThreadConsumerT<processable_type>::GWorker::operator():" << std::endl
+             error << "In GBoostThreadConsumerT<processable_type>::GWorker::run():" << std::endl
                    << "Caught boost::exception with message" << std::endl;
              std::cerr << error.str();
              std::terminate();
          }
          catch(...) {
             std::ostringstream error;
-            error << "In GBoostThreadConsumerT<processable_type>::GWorker::operator():" << std::endl
+            error << "In GBoostThreadConsumerT<processable_type>::GWorker::run():" << std::endl
                   << "Caught unknown exception." << std::endl;
             std::cerr << error.str();
             std::terminate();
          }
       }
-
-      /************************************************************************/
-      // Some purely virtual functions
-
-      /** @brief Creation of deep clones of this object('s derivatives) */
-      virtual boost::shared_ptr<GWorker> clone(
-            const std::size_t&
-            , const GBoostThreadConsumerT<processable_type> *
-      ) const = 0;
-      /** @brief Actual per-item work is done here -- Implement this in derived classes */
-      virtual void process(boost::shared_ptr<processable_type> p) = 0;
 
       /************************************************************************/
       /**
@@ -375,11 +397,70 @@ protected:
          return thread_id_;
       }
 
+      /************************************************************************/
+      /**
+       * Parses a given configuration file
+       *
+       * @param configFile The name of a configuration file
+       */
+      void parseConfigFile(const std::string& configFile) {
+         // Create a parser builder object -- local options will be added to it
+         Gem::Common::GParserBuilder gpb;
+
+         // Add configuration options of this and of derived classes
+         addConfigurationOptions(gpb, true);
+
+         // Do the actual parsing. Note that this
+         // will try to write out a default configuration file,
+         // if no existing config file can be found
+         gpb.parseConfigFile(configFile);
+      }
+
    protected:
+      /************************************************************************/
+      /**
+       * Initialization code for processing. Can be specified in derived classes.
+       */
+      virtual void processInit()
+      { /* nothing */ }
+
+      /************************************************************************/
+      /**
+       * Finalization code for processing. Can be specified in derived classes.
+       */
+      virtual void processFinalize()
+      { /* nothing */ }
+
+      /************************************************************************/
+      /**
+       * Adds local configuration options to a GParserBuilder object. We have no local
+       * data, hence this function is empty. It could have been declared purely virtual,
+       * however, we do not want to force derived classes to implement this function,
+       * as it might not always be needed.
+       *
+       * @param gpb The GParserBuilder object, to which configuration options will be added
+       * @param showOrigin Indicates, whether the origin of a configuration option should be shown in the configuration file
+       */
+      virtual void addConfigurationOptions(
+            Gem::Common::GParserBuilder& gpb
+            , const bool& showOrigin
+      ){ /* nothing -- no local data */ }
+
       /************************************************************************/
 
       std::size_t thread_id_; ///< The id of the thread running this class'es operator()
       const GBoostThreadConsumerT<processable_type> * outer_;
+
+      /************************************************************************/
+      // Some purely virtual functions
+   public:
+      /** @brief Creation of deep clones of this object('s derivatives) */
+      virtual boost::shared_ptr<GWorker> clone(
+            const std::size_t&
+            , const GBoostThreadConsumerT<processable_type> *
+      ) const = 0;
+      /** @brief Actual per-item work is done here -- Implement this in derived classes */
+      virtual void process(boost::shared_ptr<processable_type> p) = 0;
    };
 
    /***************************************************************************/

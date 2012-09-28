@@ -162,7 +162,7 @@ class GAsioServerSessionT
 
          // Retrieve an item
          while(!(GBROKER(processable_type)->get(id, p, timeout))) {
-            if(master_->stop()) break;
+            if(master_->GConsumer::stopped()) break;
 
             continue;
          }
@@ -206,10 +206,10 @@ class GAsioServerSessionT
             // Return the item to the broker. The item will be discarded
             // if the requested target queue cannot be found.
             while(true) {
-               if(master_->stop()) break;
+               if(master_->GConsumer::stopped()) break;
 
                try {
-                  if((GBROKER(processable_type)->put(id, p, timeout))) {
+                  if((GBROKER(processable_type)->put(id, p, timeout))) { // Can this be a source of data loss ?
                      // we have done our job -- break the loop
                      break;
                   } else {
@@ -420,7 +420,6 @@ class GAsioTCPConsumerT
    : listenerThreads_(listenerThreads>0?listenerThreads:Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
    , acceptor_(io_service_)
    , serializationMode_(sm)
-   , stop_(false)
    {
       // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
       boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
@@ -466,32 +465,12 @@ class GAsioTCPConsumerT
     */
    void shutdown() {
       // Set the stop criterion
-      {
-         boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
-         stop_ = true;
-         lock.unlock();
-      }
+      GConsumer::shutdown();
 
       // Terminate the io service
       io_service_.stop();
-
       // Wait for the threads in the group to exit
       gtg_.join_all();
-   }
-
-   /***************************************************************************/
-   /**
-    * Checks whether the stop criterion has been set
-    *
-    * @return true if the stop criterion has been set, otherwise false
-    */
-   bool stop() const {
-      bool result = false;
-      boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
-      result = stop_;
-      lock.unlock();
-
-      return result;
    }
 
    /***************************************************************************/
@@ -551,9 +530,6 @@ class GAsioTCPConsumerT
    boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
    Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
    Gem::Common::GThreadGroup gtg_;
-
-   bool stop_; ///< indicates whether server sessions should terminate
-   mutable boost::shared_mutex stopMutex_; ///< Protects access tp the stop_ variable
 
    GAsioTCPConsumerT(); ///< Default constructor intentionally private and undefined
    const GAsioTCPConsumerT<processable_type>& operator=(const GAsioTCPConsumerT<processable_type>&); ///< Intentionally left undefined
