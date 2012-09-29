@@ -451,7 +451,7 @@ template<> double GRandomBase::normal_distribution<double>();
 /** @brief Produces gaussian-distributed long double random numbers with sigma 1 and mean 0 */
 template<> long double GRandomBase::normal_distribution<long double>();
 /** @brief Avoid the cast for native double type */
-template <> double GRandomBase::uniform_01<double>(typename boost::enable_if<boost::is_floating_point<double> >::type*);
+template <> double GRandomBase::uniform_01<double>(boost::enable_if<boost::is_floating_point<double> >::type*);
 
 /******************************************************************************/
 

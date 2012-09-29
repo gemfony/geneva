@@ -238,7 +238,7 @@ long double GRandomBase::normal_distribution<long double>() {
 /** @brief Uniformly distributed random numbers in the range [0,1[ */
 template <>
 double GRandomBase::uniform_01(
-      typename boost::enable_if<boost::is_floating_point<double> >::type* dummy
+      boost::enable_if<boost::is_floating_point<double> >::type* dummy
 ) {
    return dbl_random01();
 }
