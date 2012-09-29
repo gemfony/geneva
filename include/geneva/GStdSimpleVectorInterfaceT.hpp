@@ -74,6 +74,7 @@
 
 // Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
 
 namespace Gem {
 namespace Geneva {

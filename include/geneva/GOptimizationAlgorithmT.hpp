@@ -34,6 +34,7 @@
 
 
 // Standard header files go here
+#include <iostream>
 
 // Boost header files go here
 
@@ -1689,12 +1690,14 @@ public:
 	    void informationFunction(const infoMode& im, GOptimizationAlgorithmT<ind_type> * const goa) {
 	    	if(quiet_) return;
 
+	    	std::ofstream summary; // The stream to which information is written
+
 	    	switch(im) {
 	    	case Gem::Geneva::INFOINIT:
 	    	{
 	    		// Make sure we have an output path
-	    		summary_.open(resultFile_.c_str());
-	    		if(!summary_) {
+	    		summary.open(resultFile_.c_str());
+	    		if(!summary) {
 	    			raiseException(
 	    					"In GOptimizationMonitorT<T>::informationFunction():" << std::endl
 	    					<< "Could not open output file \"" << resultFile_ << "\""
@@ -1702,24 +1705,24 @@ public:
 	    		}
 
 	    		// Emit the header and perform any necessary initialization work
-	    		summary_ << this->firstInformation(goa) << std::flush;
+	    		summary << this->firstInformation(goa) << std::endl;
 	    	}
 	    	break;
 
 	    	case Gem::Geneva::INFOPROCESSING:
 	    	{
 	    		// Regular information emitted during each iteration
-	    		summary_ << this->cycleInformation(goa) << std::flush;
+	    		summary << this->cycleInformation(goa) << std::endl;
 	    	}
 	    	break;
 
 	    	case Gem::Geneva::INFOEND:
 	    	{
 	    		// Emit any remaining information
-	    		summary_ << this->lastInformation(goa) << std::flush;
+	    		summary << this->lastInformation(goa) << std::endl;
 
 	    		// Clean up
-	    		summary_.close();
+	    		summary.close();
 	    	}
 	    	break;
 
@@ -1850,7 +1853,6 @@ public:
 		/************************************************************************/
 		bool quiet_; ///< Specifies whether any information should be emitted at all
 		std::string resultFile_; ///< Specifies where result information should be sent to
-		std::ofstream summary_; ///< The stream to which information is written (not serialized)
 
 #ifdef GEM_TESTING
 	public:

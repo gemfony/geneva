@@ -385,12 +385,13 @@ public:
 		std::ostringstream diag;
 		boost::tuple<fp_type,fp_type> sigmaRange = getSigmaRange();
 
-		diag << "Diagnostic message by GNumAdaptorT<num_type,fp_type>" << std::endl
-			 << "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
-			 << "and typeid(fp_type).name() = " << typeid(fp_type).name() << " :" << std::endl
-			 << "getSigma() = " << getSigma() << std::endl
-			 << "getSigmaRange() = " << boost::get<0>(sigmaRange) << " --> " << boost::get<1>(sigmaRange) << std::endl
-		     << "getSigmaAdaptionRate() = " << getSigmaAdaptionRate() << std::endl;
+		diag
+		<< "Diagnostic message by GNumAdaptorT<num_type,fp_type>" << std::endl
+		<< "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
+		<< "and typeid(fp_type).name() = " << typeid(fp_type).name() << " :" << std::endl
+		<< "getSigma() = " << getSigma() << std::endl
+		<< "getSigmaRange() = " << boost::get<0>(sigmaRange) << " --> " << boost::get<1>(sigmaRange) << std::endl
+		<< "getSigmaAdaptionRate() = " << getSigmaAdaptionRate() << std::endl;
 
 		return diag.str();
 	}
