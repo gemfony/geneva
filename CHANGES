@@ -7,14 +7,19 @@ Wishlist for version 1.1, yet unnamed, release-date unknown
 //-----------------------------------------------------------------------------------------------------
 * Version 1.0.0, yet unnamed, release-date unknown
 
+ - 
+
+//-----------------------------------------------------------------------------------------------------
+* Version 0.9.10, "Route Blanche" - September 30, 2012
+
 The main changes for this release include:
  - Streamlined the use of the workOn function family in GBrokerConnectorT.
  - Added an easier means to create ROOT plots from within Geneva
    ("GPlotDesigner").
  - Made constructors of simple collections more consistent with std::vector.
- - Added a custom threadpool library, as a temporary replacement until an
-   official Boost threadpool library becomes available. Removed usage of
-   external threadpool library from the code.
+ - Added a custom threadpool library, as a temporary replacement until
+   an official Boost threadpool library becomes available. Removed usage
+   of external threadpool library from the code.
  - Added a test-suite capable of comparing the minimization capabilities
    of all implemented algorithms in all parallelization modes, thus
    providing a means to further improve our algorithms.
