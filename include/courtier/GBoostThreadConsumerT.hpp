@@ -290,6 +290,7 @@ protected:
          , outer_(NULL)
       { /* nothing */ }
 
+   protected:
       /************************************************************************/
       /**
        * The copy constructor. We do not copy the thread id, as it is set by
@@ -304,6 +305,7 @@ protected:
          , outer_(c_ptr)
       { /* nothing */ }
 
+   public:
       /************************************************************************/
       /**
        * The destructor
@@ -475,6 +477,7 @@ protected:
       GDefaultWorker() : GWorker()
       { /* nothing */ }
 
+   protected:
       /************************************************************************/
       /**
        * The copy constructor.
@@ -486,6 +489,7 @@ protected:
       ) : GWorker(cp, thread_id, outer)
       { /* nothing */ }
 
+   public:
       /************************************************************************/
       /**
        * The destructor
