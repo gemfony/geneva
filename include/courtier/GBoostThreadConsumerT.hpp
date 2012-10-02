@@ -179,7 +179,7 @@ public:
       }
 #endif /* DEBUG */
 
-      for(std::size_t i=0; i<(maxThreads_*this->customMultiplier()); i++) {
+      for(std::size_t i=0; i<(maxThreads_*workerTemplate_->customMultiplier()); i++) {
          boost::shared_ptr<GWorker> p_worker = workerTemplate_->clone(i,this);
          gtg_.create_thread(boost::bind(&GBoostThreadConsumerT<processable_type>::GWorker::run, p_worker));
          workers_.push_back(p_worker);
@@ -187,16 +187,6 @@ public:
    }
 
 protected:
-   /***************************************************************************/
-   /**
-    * A custom multiplier for the number of threads. This function can be
-    * overloaded in derived classes, which can then make statements like: "We
-    * have n devices processing data -- start m threads per device"
-    */
-   virtual std::size_t customMultiplier() const {
-      return 1;
-   }
-
    /***************************************************************************/
    /**
     * Allows to register a different worker template with this class. This facility
@@ -359,13 +349,11 @@ protected:
                   continue;
                }
             }
-         }
-         catch(boost::thread_interrupted&){ // Normal termination
+         } catch(boost::thread_interrupted&){ // Normal termination
             // Perform any final work
             processFinalize();
             return;
-         }
-         catch(std::exception& e) {
+         } catch(std::exception& e) {
             std::ostringstream error;
             error << "In GBoostThreadConsumerT<processable_type>::GWorker::run():" << std::endl
                   << "Caught std::exception with message" << std::endl
@@ -414,6 +402,16 @@ protected:
          // will try to write out a default configuration file,
          // if no existing config file can be found
          gpb.parseConfigFile(configFile);
+      }
+
+      /************************************************************************/
+      /**
+       * A custom multiplier for the number of threads in the consumer. This function
+       * can be overloaded in derived classes, which can then make statements like:
+       * "We have n devices processing data -- start m threads per device"
+       */
+      virtual std::size_t customMultiplier() const {
+         return 1;
       }
 
    protected:
