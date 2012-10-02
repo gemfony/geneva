@@ -70,7 +70,8 @@
 namespace Gem {
 namespace Courtier {
 
-const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
+/** @brief The default number of threads per worker if the number of hardware threads cannot be determined */
+const boost::uint16_t DEFAULTTHREADSPERWORKER = 4;
 
 /******************************************************************************/
 /**
@@ -99,9 +100,9 @@ public:
 	 */
 	GBoostThreadConsumerT()
 		: Gem::Courtier::GConsumer()
-		, maxThreads_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTGBTCMAXTHREADS)))
+		, threadsPerWorker_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
 		, broker_(GBROKER(processable_type))
-	   , workerTemplate_(new GDefaultWorker())
+	   , workerTemplates_(1, boost::shared_ptr<GWorker>(new GDefaultWorker()))
 	{ /* nothing */ }
 
    /***************************************************************************/
@@ -121,12 +122,12 @@ public:
 	*
 	* @param maxThreads The maximum number of allowed threads
 	*/
-	void setMaxThreads(const std::size_t& maxThreads) {
-		if(maxThreads == 0) {
-			maxThreads_ = boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTGBTCMAXTHREADS));
+	void setNThreadsPerWorker(const std::size_t& tpw) {
+		if(tpw == 0) {
+			threadsPerWorker_ = boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER));
 		}
 		else {
-			maxThreads_ = maxThreads;
+			threadsPerWorker_ = tpw;
 		}
 	}
 
@@ -136,8 +137,8 @@ public:
 	*
 	* @return The maximum number of allowed threads
 	*/
-	std::size_t getMaxThreads(void) const  {
-		return maxThreads_;
+	std::size_t getNThreadsPerWorker(void) const  {
+		return threadsPerWorker_;
 	}
 
    /***************************************************************************/
@@ -164,6 +165,14 @@ public:
 	  return std::string("GBoostThreadConsumerT");
 	}
 
+	/***************************************************************************/
+	/**
+	 * Retrieves the number of workers registered with this class
+	 */
+	std::size_t getNWorkers() const {
+	   return workerTemplates_.size();
+	}
+
    /***************************************************************************/
    /**
    * Starts the worker threads. This function will not block.
@@ -171,38 +180,41 @@ public:
    */
    virtual void async_startProcessing() {
 #ifdef DEBUG
-      if(!workerTemplate_) { // Is a template empty ?
+      if(workerTemplates_.empty()) { // Is the template vector empty ?
          raiseException(
             "In GBoostThreadConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
-            << "workerTemplate_ is empty when it should not be empty" << std::endl
+            << "The workerTemplates_ vector is empty when it should not be empty" << std::endl
          );
       }
 #endif /* DEBUG */
 
-      for(std::size_t i=0; i<(maxThreads_*workerTemplate_->customMultiplier()); i++) {
-         boost::shared_ptr<GWorker> p_worker = workerTemplate_->clone(i,this);
-         gtg_.create_thread(boost::bind(&GBoostThreadConsumerT<processable_type>::GWorker::run, p_worker));
-         workers_.push_back(p_worker);
+      // Start threadsPerWorker_ threads for each registered worker template
+      for(std::size_t w=0; w<workerTemplates_.size(); w++) {
+         for(std::size_t i=0; i<threadsPerWorker_; i++) {
+            boost::shared_ptr<GWorker> p_worker = (workerTemplates_.at(w))->clone(i,this);
+            gtg_.create_thread(boost::bind(&GBoostThreadConsumerT<processable_type>::GWorker::run, p_worker));
+            workers_.push_back(p_worker);
+         }
       }
    }
 
 protected:
    /***************************************************************************/
    /**
-    * Allows to register a different worker template with this class. This facility
+    * Allows to register a set of worker templates with this class. This facility
     * is meant to be used by derived classes only, hence this function is protected.
     */
-   void registerWorkerTemplate(boost::shared_ptr<GWorker> workerTemplate) {
+   void registerWorkerTemplates(const std::vector<boost::shared_ptr<GWorker> >& workerTemplates) {
 #ifdef DEBUG
-      if(!workerTemplate_) { // Is a template empty ?
+      if(workerTemplates_.empty()) { // Is the template vector empty ?
          raiseException(
-            "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
-            << "workerTemplate is empty when it should not be empty" << std::endl
+            "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
+            << "workerTemplates vector is empty when it should not be empty" << std::endl
          );
       }
 #endif /* DEBUG */
 
-      workerTemplate_ = workerTemplate;
+      workerTemplates_ = workerTemplates;
    }
 
    /***************************************************************************/
@@ -228,11 +240,7 @@ protected:
          comment += "[Origin] GBoostThreadConsumerT<processable_type>;";
          comment += (std::string("with typeid(processable_type).name() = ") + typeid(processable_type).name() + ";");
       }
-      comment += "Indicates the number of threads used to process workers.;";
-      comment += "Note that it is possible that an additional factor is applied,;";
-      comment += "e.g. in order to have a number of threads for each given entity;";
-      comment += "This is handled through the customMultiplier() function, which can;";
-      comment += "be overloaded in derived classes. It will return 1 by default.";
+      comment += "Indicates the number of threads used to process each worker.;";
       comment += "Setting maxThreads to 0 will result in an attempt to;";
       comment += "automatically determine the number of hardware threads.";
       if(showOrigin) comment += "[GBoostThreadConsumerT<>]";
@@ -240,7 +248,7 @@ protected:
          "maxThreads" // The name of the variable
          , 0 // The default value
          , boost::bind(
-            &GBoostThreadConsumerT<processable_type>::setMaxThreads
+            &GBoostThreadConsumerT<processable_type>::setNThreadsPerWorker
             , this
             , _1
            )
@@ -255,11 +263,11 @@ private:
 	GBoostThreadConsumerT(const GBoostThreadConsumerT<processable_type>&); ///< Intentionally left undefined
 	const GBoostThreadConsumerT<processable_type>& operator=(const GBoostThreadConsumerT<processable_type>&); ///< Intentionally left undefined
 
-	std::size_t maxThreads_; ///< The maximum number of allowed threads in the pool
+	std::size_t threadsPerWorker_; ///< The maximum number of allowed threads in the pool
 	Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
 	boost::shared_ptr<GBrokerT<processable_type> > broker_; ///< A shortcut to the broker so we do not have to go through the singleton
    std::vector<boost::shared_ptr<GWorker> > workers_; ///< Holds the worker objects
-   boost::shared_ptr<GWorker> workerTemplate_; ///< All workers will be created as a clone of this worker
+   std::vector<boost::shared_ptr<GWorker> > workerTemplates_; ///< All workers will be created as a clone of these workers
 
 protected:
    /***************************************************************************/
@@ -402,16 +410,6 @@ protected:
          // will try to write out a default configuration file,
          // if no existing config file can be found
          gpb.parseConfigFile(configFile);
-      }
-
-      /************************************************************************/
-      /**
-       * A custom multiplier for the number of threads in the consumer. This function
-       * can be overloaded in derived classes, which can then make statements like:
-       * "We have n devices processing data -- start m threads per device"
-       */
-      virtual std::size_t customMultiplier() const {
-         return 1;
       }
 
    protected:

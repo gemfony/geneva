@@ -177,7 +177,7 @@ int main(int argc, char **argv){
     	std::cout << "Using the GBoostThreadConsumerT consumer." << std::endl;
 		// Create a consumer and make it known to the global broker
 		boost::shared_ptr< GBoostThreadConsumerT<GIndividual> > gbtc(new GBoostThreadConsumerT<GIndividual>());
-		gbtc->setMaxThreads(nEvaluationThreads);
+		gbtc->setNThreadsPerWorker(nEvaluationThreads);
 		GBROKER(Gem::Geneva::GIndividual)->enrol(gbtc);
 
 		// Create the actual broker population and set parameters as needed

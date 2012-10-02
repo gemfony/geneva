@@ -244,7 +244,7 @@ int main(int argc, char **argv){
 
 	  if(addLocalConsumer) {
 		  boost::shared_ptr<GBoostThreadConsumerT<GIndividual> > gbtc(new GBoostThreadConsumerT<GIndividual>());
-		  gbtc->setMaxThreads(nEvaluationThreads);
+		  gbtc->setNThreadsPerWorker(nEvaluationThreads);
 		  GBROKER(Gem::Geneva::GIndividual)->enrol(gbtc);
 	  }
 
