@@ -969,8 +969,6 @@ public:
 
    /** @brief The assignment operator */
    const GCanvas8& operator=(const GCanvas8&);
-   /** @brief Find out the deviation between this and another canvas */
-   // virtual float diff(const GCanvas<8>&) const;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -1012,9 +1010,6 @@ public:
 
    /** @brief The assignment operator */
    const GCanvas16& operator=(const GCanvas16&);
-
-   /** @brief Find out the deviation between this and another canvas */
-   // virtual float diff(const GCanvas16&) const;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -1056,9 +1051,6 @@ public:
 
    /** @brief The assignment operator */
    const GCanvas24& operator=(const GCanvas24&);
-
-   /** @brief Find out the deviation between this and another canvas */
-   // virtual float diff(const GCanvas24&) const;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -1100,9 +1092,6 @@ public:
 
    /** @brief The assignment operator */
    const GCanvas32& operator=(const GCanvas32&);
-
-   /** @brief Find out the deviation between this and another canvas */
-   // virtual float diff(const GCanvas32&) const;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
