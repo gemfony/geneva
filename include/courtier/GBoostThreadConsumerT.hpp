@@ -198,11 +198,11 @@ public:
       }
    }
 
-protected:
    /***************************************************************************/
    /**
-    * Allows to register a set of worker templates with this class. This facility
-    * is meant to be used by derived classes only, hence this function is protected.
+    * Allows to register a set of worker templates with this class. Note that all
+    * existing worker templates will be deleted. The class will not take ownership
+    * of the worker templates.
     */
    void registerWorkerTemplates(const std::vector<boost::shared_ptr<GWorker> >& workerTemplates) {
 #ifdef DEBUG
@@ -212,11 +212,42 @@ protected:
             << "workerTemplates vector is empty when it should not be empty" << std::endl
          );
       }
+
+      for(std::size_t i=0; i<workerTemplates.size(); i++) {
+         if(!workerTemplates.at(i)) { // Does the template point somewhere ?
+            raiseException(
+               "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
+               << "Found empty worker template pointer in position " << i << std::endl
+            );
+         }
+      }
 #endif /* DEBUG */
 
+      workerTemplates_.clear();
       workerTemplates_ = workerTemplates;
    }
 
+   /***************************************************************************/
+   /**
+    * Allows to register a single worker template with this class. Note that all
+    * existing worker templates will be deleted. The class will not take ownership
+    * of the worker template.
+    */
+   void registerWorkerTemplate(boost::shared_ptr<GWorker> workerTemplate) {
+#ifdef DEBUG
+      if(!workerTemplate) { // Does the template point somewhere ?
+         raiseException(
+               "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
+               << "Found empty worker template pointer" << std::endl
+          );
+      }
+#endif /* DEBUG */
+
+      workerTemplates_.clear();
+      workerTemplates_.push_back(workerTemplate);
+   }
+
+protected:
    /***************************************************************************/
    /**
     * Adds local configuration options to a GParserBuilder object. We have only
