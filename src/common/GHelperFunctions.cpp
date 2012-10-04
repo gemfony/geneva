@@ -76,6 +76,15 @@ unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
  * @return The data contained in the file
  */
 std::string loadTextDataFromFile(const std::string& fileName) {
+   // Check that the file exists
+   if(!bf::exists(bf::path(fileName))) {
+      raiseException(
+         "In loadTextDataFromFile(): Error!" << std::endl
+         << "Tried to load data from file " << fileName << std::endl
+         << "Which does not exist" << std::endl
+      );
+   }
+
    std::ifstream sourceFileStream(fileName.c_str());
    std::string sourceFile (
             std::istreambuf_iterator<char>(sourceFileStream)

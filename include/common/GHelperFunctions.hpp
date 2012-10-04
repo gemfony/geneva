@@ -53,7 +53,10 @@
 // Boost headers go here
 #include <boost/thread.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/tuple/tuple.hpp>
+
+namespace bf=boost::filesystem;
 
 #ifndef GHELPERFUNCTIONS_HPP_
 #define GHELPERFUNCTIONS_HPP_
@@ -67,10 +70,8 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 
-namespace Gem
-{
-namespace Common
-{
+namespace Gem {
+namespace Common {
 
 /******************************************************************************/
 /** @brief Calculates the mean and the standard deviation for a vector of doubles */

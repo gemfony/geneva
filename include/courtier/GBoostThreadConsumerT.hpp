@@ -88,11 +88,10 @@ private:
 	// Make sure processable_type adheres to the GSubmissionContainerT interface
 	BOOST_MPL_ASSERT((boost::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>));
 
-protected:
+public:
    class GWorker; ///< Forward declaration
    class GDefaultWorker; ///< Forward declaration
 
-public:
 	/***************************************************************************/
 	/**
 	 * The default constructor.
@@ -246,6 +245,49 @@ public:
       workerTemplates_.push_back(workerTemplate);
    }
 
+   /***************************************************************************/
+   /**
+    * Sets up a consumer and registers it with the broker. This function accepts
+    * a set of workers as argument.
+    */
+   static void setup(
+      const std::string& configFile
+      , std::vector<boost::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> > workers_ptr
+   ) {
+      boost::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
+      consumer_ptr->registerWorkerTemplates(workers_ptr);
+      consumer_ptr->parseConfigFile(configFile);
+      GBROKER(processable_type)->enrol(consumer_ptr);
+   }
+
+   /***************************************************************************/
+   /**
+    * Sets up a consumer and registers it with the broker. This function accepts
+    * a worker as argument.
+    */
+   static void setup(
+      const std::string& configFile
+      , boost::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> worker_ptr
+   ) {
+      boost::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
+      consumer_ptr->registerWorkerTemplate(worker_ptr);
+      consumer_ptr->parseConfigFile(configFile);
+      GBROKER(processable_type)->enrol(consumer_ptr);
+   }
+
+   /***************************************************************************/
+   /**
+    * Sets up a consumer and registers it with the broker. This function uses
+    * the default worker.
+    */
+   static void setup(
+      const std::string& configFile
+   ) {
+      boost::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
+      consumer_ptr->parseConfigFile(configFile);
+      GBROKER(processable_type)->enrol(consumer_ptr);
+   }
+
 protected:
    /***************************************************************************/
    /**
@@ -299,7 +341,7 @@ private:
    std::vector<boost::shared_ptr<GWorker> > workers_; ///< Holds the current worker objects
    std::vector<boost::shared_ptr<GWorker> > workerTemplates_; ///< All workers will be created as a clone of these workers
 
-protected:
+public:
    /***************************************************************************/
    /**
     * A nested class that performs the actual work inside of a thread. It is
