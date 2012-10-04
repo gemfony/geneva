@@ -32,7 +32,6 @@
  * http://www.gemfony.com .
  */
 
-
 // Standard headers go here
 
 // Includes check for correct Boost version(s)
@@ -297,7 +296,7 @@ private:
 	std::size_t threadsPerWorker_; ///< The maximum number of allowed threads in the pool
 	Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
 	boost::shared_ptr<GBrokerT<processable_type> > broker_; ///< A shortcut to the broker so we do not have to go through the singleton
-   std::vector<boost::shared_ptr<GWorker> > workers_; ///< Holds the worker objects
+   std::vector<boost::shared_ptr<GWorker> > workers_; ///< Holds the current worker objects
    std::vector<boost::shared_ptr<GWorker> > workerTemplates_; ///< All workers will be created as a clone of these workers
 
 protected:

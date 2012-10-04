@@ -398,16 +398,6 @@ const GCanvas8& GCanvas8::operator=(const GCanvas8& cp) {
 
 /******************************************************************************/
 /**
- * Find out the deviation between this and another canvas
- */
-/*
-float GCanvas8::diff(const GCanvas<8>& cp) const {
-   return GCanvas<8>::diff(cp);
-}
-*/
-
-/******************************************************************************/
-/**
   * Convenience function for the calculation of the difference between two canvasses
   */
 float operator-(const GCanvas8& x, const GCanvas8& y) {
@@ -468,15 +458,6 @@ const GCanvas16& GCanvas16::operator=(const GCanvas16& cp) {
 
 /******************************************************************************/
 /**
- * Find out the deviation between this and another canvas
- */
-/*
-float GCanvas16::diff(const GCanvas16& cp) const {
-   return GCanvas<16>::diff(cp);
-}
-*/
-/******************************************************************************/
-/**
   * Convenience function for the calculation of the difference between two canvasses
   */
 float operator-(const GCanvas16& x, const GCanvas16& y) {
@@ -535,15 +516,6 @@ const GCanvas24& GCanvas24::operator=(const GCanvas24& cp) {
    return *this;
 }
 
-/******************************************************************************/
-/**
- * Find out the deviation between this and another canvas
- */
-/*
-float GCanvas24::diff(const GCanvas24& cp) const {
-   return GCanvas<24>::diff(cp);
-}
-*/
 /******************************************************************************/
 /**
   * Convenience function for the calculation of the difference between two canvasses
