@@ -681,9 +681,14 @@ void GBaseEA::adjustPopulation() {
  * a predefined value, set with setPopulationGrowth() .
  */
 void GBaseEA::performScheduledPopulationGrowth() {
-	if(growthRate_ != 0 && this->size() < maxPopulationSize_) {
+	if(
+	      growthRate_ != 0
+	      && (this->getDefaultPopulationSize() + growthRate_ <= maxPopulationSize_)
+	      && (this->size() < maxPopulationSize_)
+	) {
 		// Set a new default population size
-		this->setDefaultPopulationSize(this->size() + growthRate_, this->getNParents());
+		this->setDefaultPopulationSize(this->getDefaultPopulationSize() + growthRate_, this->getNParents());
+
 		// Add missing items as copies of the last individual in the list
 		this->resize_clone(getDefaultPopulationSize(), data[0]);
 	}

@@ -316,8 +316,8 @@ protected:
       comment += "Setting maxThreads to 0 will result in an attempt to;";
       comment += "automatically determine the number of hardware threads.";
       if(showOrigin) comment += "[GBoostThreadConsumerT<>]";
-      gpb.registerFileParameter<boost::uint32_t>(
-         "maxThreads" // The name of the variable
+      gpb.registerFileParameter<std::size_t>(
+         "threadsPerWorker" // The name of the variable
          , 0 // The default value
          , boost::bind(
             &GBoostThreadConsumerT<processable_type>::setNThreadsPerWorker
@@ -360,6 +360,7 @@ public:
       GWorker()
          : thread_id_(0)
          , outer_(NULL)
+         , parsed_(false)
       { /* nothing */ }
 
    protected:
@@ -375,6 +376,7 @@ public:
       )
          : thread_id_(thread_id)
          , outer_(c_ptr)
+         , parsed_(cp.parsed_)
       { /* nothing */ }
 
    public:
@@ -469,11 +471,13 @@ public:
 
       /************************************************************************/
       /**
-       * Parses a given configuration file
+       * Parses a given configuration file. Note that parsing is done but once.
        *
        * @param configFile The name of a configuration file
        */
       void parseConfigFile(const std::string& configFile) {
+         if(parsed_) return;
+
          // Create a parser builder object -- local options will be added to it
          Gem::Common::GParserBuilder gpb;
 
@@ -484,6 +488,8 @@ public:
          // will try to write out a default configuration file,
          // if no existing config file can be found
          gpb.parseConfigFile(configFile);
+
+         parsed_ = true;
       }
 
    protected:
@@ -521,9 +527,15 @@ public:
       std::size_t thread_id_; ///< The id of the thread running this class'es operator()
       const GBoostThreadConsumerT<processable_type> * outer_;
 
+   private:
+      /************************************************************************/
+
+      bool parsed_; ///< Indicates whether parsing has been completed
+
+   public:
       /************************************************************************/
       // Some purely virtual functions
-   public:
+
       /** @brief Creation of deep clones of this object('s derivatives) */
       virtual boost::shared_ptr<GWorker> clone(
             const std::size_t&

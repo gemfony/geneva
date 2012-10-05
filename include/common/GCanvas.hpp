@@ -784,19 +784,26 @@ public:
    void addTriangle(const t_circle& t) {
       t_cart t_c;
 
-      float angle1 =          t.angle1 * float(2.*M_PI/3.);
-      float angle2 = angle1 + t.angle2 * float(2.*M_PI/3.);
-      float angle3 = angle2 + t.angle3 * float(2.*M_PI/3.);
+#ifdef DEBUG
+      // Check that angles are in consecutive order
+      if(t.angle1 <= 0.f || t.angle2 <= t.angle1 || t.angle3 <= t.angle2 || t.angle3 >= 1.f) {
+         raiseException(
+               "In GCanvas<>::addTriangel(): Error!" << std::endl
+               << "Angles are not in consecutive oder: " << std::endl
+               << t.angle1 << " / " << t.angle2 << " / " << t.angel3 << std::endl
+         );
+      }
+#endif /* DEBUG */
 
       // and store them in the structs holding the cartesic coordinates
-      t_c.tr_one.x = t.middle.x + t.radius*GCos(angle1*2.0f*float(M_PI));
-      t_c.tr_one.y = t.middle.y + t.radius*GSin(angle1*2.0f*float(M_PI));
+      t_c.tr_one.x = t.middle.x + t.radius*GCos(t.angle1*2.0f*float(M_PI));
+      t_c.tr_one.y = t.middle.y + t.radius*GSin(t.angle1*2.0f*float(M_PI));
 
-      t_c.tr_two.x = t.middle.x + t.radius*GCos(angle2*2.0f*float(M_PI));
-      t_c.tr_two.y = t.middle.y + t.radius*GSin(angle2*2.0f*float(M_PI));
+      t_c.tr_two.x = t.middle.x + t.radius*GCos(t.angle2*2.0f*float(M_PI));
+      t_c.tr_two.y = t.middle.y + t.radius*GSin(t.angle2*2.0f*float(M_PI));
 
-      t_c.tr_three.x = t.middle.x + t.radius*GCos(angle3*2.0f*float(M_PI));
-      t_c.tr_three.y = t.middle.y + t.radius*GSin(angle3*2.0f*float(M_PI));
+      t_c.tr_three.x = t.middle.x + t.radius*GCos(t.angle3*2.0f*float(M_PI));
+      t_c.tr_three.y = t.middle.y + t.radius*GSin(t.angle3*2.0f*float(M_PI));
 
       t_c.r = t.r;
       t_c.g = t.g;
@@ -832,6 +839,7 @@ public:
       for(std::size_t i_x=0; i_x<xDim_; i_x++) {
          // Calculate the pixel x-position
          pos_f.x = float(i_x+1)*xDim_inv;
+
          if(
                pos_f.x < t.tr_one.x
             && pos_f.x < t.tr_two.x
@@ -847,9 +855,11 @@ public:
          ) {
           continue;
          }
+
          for(std::size_t i_y=0; i_y<yDim_; i_y++) {
             // Calculate the pixel y-position
             pos_f.y = float(i_y+1)*yDim_inv;
+
             if(
                   pos_f.y < t.tr_one.y
                && pos_f.y < t.tr_two.y
@@ -913,6 +923,9 @@ public:
 
       return boost::tuple<float,float,float>(averageRed, averageGreen, averageBlue);
    }
+
+   /***************************************************************************/
+   // Converts the three angles
 
    /***************************************************************************/
 

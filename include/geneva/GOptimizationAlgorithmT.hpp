@@ -198,28 +198,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Checks whether a better solution was found and updates the stallCounter_ variable
-	 * as necessary.
-	 *
-	 * @param bestEval The best known evaluation of the current iteration
-	 * @return A boolean indicating whether a better solution was found
-	 */
-	bool ifProgress(const double& bestEval) {
-		// Check whether an improvement has been achieved
-		bool better = isBetter(bestEval, bestPastFitness_);
-		if(better) {
-			bestPastFitness_ = bestEval;
-			stallCounter_ = 0;
-		}
-		else {
-			stallCounter_++;
-		}
-
-		return better;
-	}
-
-	/***************************************************************************/
-	/**
 	 * Allows to set the number of generations after which a checkpoint should be written.
 	 * A negative value will result in automatic checkpointing, whenever a better solution
 	 * was found.
@@ -473,10 +451,11 @@ public:
 			// Let all individuals know the current iteration
 			markIteration();
 
+			// Run the actual business logic and update the stall counter
+			updateStallCounter(bestCurrentFitness_ = cycleLogic());
+
 			// Check whether a better value was found, and do the check-pointing, if necessary.
-			// Uses the output of the function that contains the actual business logic of a
-			// given optimization algorithm.
-			checkpoint(ifProgress(bestCurrentFitness_ = cycleLogic()));
+			checkpoint(progress());
 
 			// Let all individuals know about the best fitness known so far
 			markBestFitness();
@@ -535,6 +514,17 @@ public:
 
 		(this->optimizationMonitor_ptr_)->informationFunction(im, this);
 	}
+
+   /***************************************************************************/
+   /**
+    * Checks whether a better solution was found. If so, the stallCounter_
+    * variable will have been set to 0
+    *
+    * @return A boolean indicating whether a better solution was found
+    */
+   bool progress() const {
+      return (0==stallCounter_);
+   }
 
 	/***************************************************************************/
 	/**
@@ -1308,6 +1298,19 @@ protected:
 	}
 
 private:
+   /***************************************************************************/
+   /**
+    * Update the stall counter
+    */
+   void updateStallCounter(const double& bestEval) {
+      if(isBetter(bestEval, bestPastFitness_)) {
+         bestPastFitness_ = bestEval;
+         stallCounter_ = 0;
+      } else {
+         stallCounter_++;
+      }
+   }
+
 	/***************************************************************************/
 	/**
 	 * This function returns true once a given time (set with
