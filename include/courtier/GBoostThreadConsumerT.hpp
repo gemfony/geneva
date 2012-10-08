@@ -70,7 +70,7 @@ namespace Gem {
 namespace Courtier {
 
 /** @brief The default number of threads per worker if the number of hardware threads cannot be determined */
-const boost::uint16_t DEFAULTTHREADSPERWORKER = 4;
+const boost::uint16_t DEFAULTTHREADSPERWORKER = 1;
 
 /******************************************************************************/
 /**
@@ -113,12 +113,12 @@ public:
 
    /***************************************************************************/
 	/**
-	* Sets the maximum number of threads. Note that this function
+	* Sets the number of threads per worker. Note that this function
 	* will only have an effect before the threads have been started.
-	* If maxThreads is set to 0, an attempt will be made to automatically
+	* If threadsPerWorker is set to 0, an attempt will be made to automatically
 	* determine a suitable number of threads.
 	*
-	* @param maxThreads The maximum number of allowed threads
+	* @param tpw The maximum number of allowed threads
 	*/
 	void setNThreadsPerWorker(const std::size_t& tpw) {
 		if(tpw == 0) {
@@ -223,6 +223,8 @@ public:
 
       workerTemplates_.clear();
       workerTemplates_ = workerTemplates;
+
+      assert(workerTemplates.size() == workerTemplates_.size());
    }
 
    /***************************************************************************/
@@ -252,10 +254,10 @@ public:
     */
    static void setup(
       const std::string& configFile
-      , std::vector<boost::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> > workers_ptr
+      , std::vector<boost::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> > workers
    ) {
       boost::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
-      consumer_ptr->registerWorkerTemplates(workers_ptr);
+      consumer_ptr->registerWorkerTemplates(workers);
       consumer_ptr->parseConfigFile(configFile);
       GBROKER(processable_type)->enrol(consumer_ptr);
    }
@@ -313,7 +315,7 @@ protected:
          comment += (std::string("with typeid(processable_type).name() = ") + typeid(processable_type).name() + ";");
       }
       comment += "Indicates the number of threads used to process each worker.;";
-      comment += "Setting maxThreads to 0 will result in an attempt to;";
+      comment += "Setting threadsPerWorker to 0 will result in an attempt to;";
       comment += "automatically determine the number of hardware threads.";
       if(showOrigin) comment += "[GBoostThreadConsumerT<>]";
       gpb.registerFileParameter<std::size_t>(
