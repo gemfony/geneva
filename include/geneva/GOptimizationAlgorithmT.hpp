@@ -1693,13 +1693,12 @@ public:
 	    void informationFunction(const infoMode& im, GOptimizationAlgorithmT<ind_type> * const goa) {
 	    	if(quiet_) return;
 
-	    	std::ofstream summary; // The stream to which information is written
-
 	    	switch(im) {
 	    	case Gem::Geneva::INFOINIT:
 	    	{
 	    		// Make sure we have an output path
-	    		summary.open(resultFile_.c_str());
+            std::ofstream summary;
+            summary.open(resultFile_.c_str()); // Will overwrite the file
 	    		if(!summary) {
 	    			raiseException(
 	    					"In GOptimizationMonitorT<T>::informationFunction():" << std::endl
@@ -1708,21 +1707,31 @@ public:
 	    		}
 
 	    		// Emit the header and perform any necessary initialization work
-	    		summary << this->firstInformation(goa) << std::endl;
+	    		summary << this->firstInformation(goa) << std::flush;
+
+	    		summary.close();
 	    	}
 	    	break;
 
 	    	case Gem::Geneva::INFOPROCESSING:
 	    	{
-	    		// Regular information emitted during each iteration
-	    		summary << this->cycleInformation(goa) << std::endl;
+            std::ofstream summary; // The stream to which information is written
+            summary.open(resultFile_.c_str(), std::ofstream::app);
+
+            // Regular information emitted during each iteration
+	    		summary << this->cycleInformation(goa) << std::flush;
+
+	    		summary.close();
 	    	}
 	    	break;
 
 	    	case Gem::Geneva::INFOEND:
 	    	{
+            std::ofstream summary; // The stream to which information is written
+            summary.open(resultFile_.c_str(), std::ofstream::app);
+
 	    		// Emit any remaining information
-	    		summary << this->lastInformation(goa) << std::endl;
+	    		summary << this->lastInformation(goa) << std::flush;
 
 	    		// Clean up
 	    		summary.close();

@@ -2012,7 +2012,6 @@ std::string GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgor
 	}
 #endif /* DEBUG */
 	GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
-
 	return eaCycleInformation(ea);
 }
 
