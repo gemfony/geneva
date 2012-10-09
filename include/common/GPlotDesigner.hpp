@@ -443,7 +443,7 @@ public:
 	 */
 	boost::shared_ptr<GDataCollector1T<y_type> > projectY(
 			std::size_t=DEFAULTNBINSGPD
-			, boost::tuple<y_type, y_type> = boost::tuple<x_type, y_type>()
+			, boost::tuple<x_type, y_type> = boost::tuple<x_type, y_type>()
 	) const {
 		raiseException(
 				"In GDataCollector2T<>::projectY(range, nBins): Error!" << std::endl
@@ -487,7 +487,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Allows to add data of type boost::tuple<x_type, x_type> to the collection in
+	 * Allows to add data of type boost::tuple<x_type, y_type> to the collection in
 	 * an intuitive way.
 	 *
 	 * @param point The data item to be added to the collection
@@ -651,7 +651,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Allows to add data of type boost::tuple<x_type, x_type> to the collection in
+	 * Allows to add data of type boost::tuple<x_type, y_type> to the collection in
 	 * an intuitive way.
 	 *
 	 * @param point The data item to be added to the collection
