@@ -202,7 +202,7 @@ GRgb::GRgb(float red, float green, float blue): r(red), g(green), b(blue)
 /**
  * Initialization with colors held in a boost::tuple
  */
-GRgb::GRgb(const boost::tuple<float,float,float>& color)
+GRgb::GRgb(boost::tuple<float,float,float> color)
 : r(boost::get<0>(color))
 , g(boost::get<1>(color))
 , b(boost::get<2>(color))
@@ -248,7 +248,7 @@ void GRgb::setColor(float red, float green, float blue) {
 /**
  * Explicit reset of colors, using a boost::tuple
  */
-void GRgb::setColor(const boost::tuple<float, float, float>& color) {
+void GRgb::setColor(boost::tuple<float, float, float> color) {
    r=boost::get<0>(color);
    g=boost::get<1>(color);
    b=boost::get<2>(color);
@@ -269,7 +269,7 @@ GColumn::GColumn()
  */
 GColumn::GColumn(
       const std::size_t& sz
-      , const boost::tuple<float,float,float>& color
+      , boost::tuple<float,float,float> color
 )
    : columnData_(sz)
 {
@@ -359,8 +359,8 @@ GCanvas8::GCanvas8()
  * Initialization with dimensions and colors
  */
 GCanvas8::GCanvas8(
-      const boost::tuple<std::size_t, std::size_t>& dim
-      , const boost::tuple<float,float,float>& color
+      boost::tuple<std::size_t, std::size_t> dim
+      , boost::tuple<float,float,float> color
 ) : GCanvas<8>(dim,color)
 { /* nothing */ }
 
@@ -419,8 +419,8 @@ GCanvas16::GCanvas16()
  * Initialization with dimensions and colors
  */
 GCanvas16::GCanvas16(
-      const boost::tuple<std::size_t, std::size_t>& dim
-      , const boost::tuple<float,float,float>& color
+      boost::tuple<std::size_t, std::size_t> dim
+      , boost::tuple<float,float,float> color
 ) : GCanvas<16>(dim,color)
 { /* nothing */ }
 
@@ -479,8 +479,8 @@ GCanvas24::GCanvas24()
  * Initialization with dimensions and colors
  */
 GCanvas24::GCanvas24(
-      const boost::tuple<std::size_t, std::size_t>& dim
-      , const boost::tuple<float,float,float>& color
+      boost::tuple<std::size_t, std::size_t> dim
+      , boost::tuple<float,float,float> color
 ) : GCanvas<24>(dim,color)
 { /* nothing */ }
 
@@ -539,8 +539,8 @@ GCanvas32::GCanvas32()
  * Initialization with dimensions and colors
  */
 GCanvas32::GCanvas32(
-      const boost::tuple<std::size_t, std::size_t>& dim
-      , const boost::tuple<float,float,float>& color
+      boost::tuple<std::size_t, std::size_t> dim
+      , boost::tuple<float,float,float> color
 ) : GCanvas<32>(dim,color)
 { /* nothing */ }
 

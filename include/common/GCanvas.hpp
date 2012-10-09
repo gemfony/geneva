@@ -193,7 +193,7 @@ public:
    /** @brief Initialization with colors */
    GRgb(float, float, float);
    /** @brief Initialization with colors held in a boost::tuple */
-   GRgb(const boost::tuple<float,float,float>&);
+   GRgb(boost::tuple<float,float,float>);
    /** @brief Copy Construction */
    GRgb(const GRgb&);
    /** @brief Destructor */
@@ -205,7 +205,7 @@ public:
    /** @brief Explicit reset of colors */
    void setColor(float, float, float);
    /** @brief Explicit reset of colors, using a boost::tuple */
-   void setColor(const boost::tuple<float, float, float>&);
+   void setColor(boost::tuple<float, float, float>);
 
    float r; ///< red
    float g; ///< green
@@ -234,7 +234,7 @@ public:
    /** @brief Initialization with dimensions and colors */
    GColumn(
          const std::size_t&
-         , const boost::tuple<float,float,float>& = boost::tuple<float,float,float>(0.f,0.f,0.f)
+         , boost::tuple<float,float,float> = boost::tuple<float,float,float>(0.f,0.f,0.f)
    );
    /** @brief Copy construction */
    GColumn(const GColumn&);
@@ -303,8 +303,8 @@ public:
     * Initialization with dimensions and colors. The default color is black.
     */
    GCanvas(
-       const boost::tuple<std::size_t, std::size_t>& dim
-       , const boost::tuple<float,float,float>& color = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
+       boost::tuple<std::size_t, std::size_t> dim
+       , boost::tuple<float,float,float> color = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
    )
       : xDim_(boost::get<0>(dim))
       , yDim_(boost::get<1>(dim))
@@ -746,7 +746,7 @@ public:
     * @param
     */
    void reset(
-         const boost::tuple<std::size_t, std::size_t>& dimension
+         boost::tuple<std::size_t, std::size_t> dimension
          , const float& red
          , const float& green
          , const float& blue
@@ -766,8 +766,8 @@ public:
     * Resets the canvas to a given color and dimension
     */
    void reset(
-         const boost::tuple<std::size_t, std::size_t>& dimension
-         , const boost::tuple<float,float,float>& color
+         boost::tuple<std::size_t, std::size_t> dimension
+         , boost::tuple<float,float,float> color
    ) {
       this->reset(
           dimension
@@ -970,8 +970,8 @@ public:
    GCanvas8();
    /** @brief Initialization with dimensions and colors */
    GCanvas8(
-         const boost::tuple<std::size_t, std::size_t>&
-         , const boost::tuple<float,float,float>& = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
+         boost::tuple<std::size_t, std::size_t>
+         , boost::tuple<float,float,float> = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
    );
    /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
    GCanvas8(const std::string&);
@@ -1011,8 +1011,8 @@ public:
    GCanvas16();
    /** @brief Initialization with dimensions and colors */
    GCanvas16(
-         const boost::tuple<std::size_t, std::size_t>&
-         , const boost::tuple<float,float,float>& = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
+         boost::tuple<std::size_t, std::size_t>
+         , boost::tuple<float,float,float> = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
    );
    /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
    GCanvas16(const std::string&);
@@ -1052,8 +1052,8 @@ public:
    GCanvas24();
    /** @brief Initialization with dimensions and colors */
    GCanvas24(
-         const boost::tuple<std::size_t, std::size_t>&
-         , const boost::tuple<float,float,float>& = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
+         boost::tuple<std::size_t, std::size_t>
+         , boost::tuple<float,float,float> = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
    );
    /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
    GCanvas24(const std::string&);
@@ -1093,8 +1093,8 @@ public:
    GCanvas32();
    /** @brief Initialization with dimensions and colors */
    GCanvas32(
-         const boost::tuple<std::size_t, std::size_t>&
-         , const boost::tuple<float,float,float>& = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
+         boost::tuple<std::size_t, std::size_t>
+         , boost::tuple<float,float,float> = boost::tuple<float,float,float>(0.f, 0.f, 0.f)
    );
    /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
    GCanvas32(const std::string&);
