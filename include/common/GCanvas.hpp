@@ -300,7 +300,8 @@ public:
 
    /***************************************************************************/
    /**
-    * Initialization with dimensions and colors. The default color is black.
+    * Initialization with dimensions and background colors. The default
+    * background color is black.
     */
    GCanvas(
        boost::tuple<std::size_t, std::size_t> dim

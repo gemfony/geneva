@@ -54,6 +54,7 @@
 #include <boost/cast.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/logic/tribool.hpp>
+#include <boost/math/special_functions/next.hpp>
 #include <boost/date_time.hpp>
 #include <boost/variant.hpp>
 #include <boost/limits.hpp>
@@ -74,14 +75,51 @@
 // Our own headers go here
 #include "common/GExceptions.hpp"
 
-namespace Gem
-{
-namespace Common
-{
+namespace Gem {
+namespace Common {
 
 /******************************************************************************/
 /**
- * Find the minimum and maximum component in a vector of undefined types. This
+ * Checks that a value is contained in a given range
+ *
+ * @param val The value to be checked for containment
+ * @param min The lower boundary (included)
+ * @param max The upper boundary (possibly included)
+ * @param lowerOpen Determines whether the lower boundary must be smaller or may be equal to val (default: closed)
+ * @param upperOpen Determines whether the upper boundary must be larger or may be equal to val (default: closed)
+ */
+const bool LOWERCLOSED = false;
+const bool LOWEROPEN = true;
+const bool UPPERCLOSED = false;
+const bool UPPEROPEN = true;
+
+template <typename fp_type>
+bool valueIsInRange(
+   fp_type val
+   , fp_type min
+   , fp_type max
+   , bool lowerOpen = false
+   , bool upperOpen = false
+   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+) {
+   if(lowerOpen) {
+      if(val < boost::math::float_next<fp_type>(min)) return false;
+   } else {
+      if(val < min) return false;
+   }
+
+   if(upperOpen) {
+      if(val > boost::math::float_prior<fp_type>(max)) return false;
+   } else {
+      if(val > max) return false;
+   }
+
+   return true;
+}
+
+/******************************************************************************/
+/**
+ * Finds the minimum and maximum component in a vector of undefined types. This
  * function requires that x_type_undet can be compared using the usual operators.
  *
  * @param extDat The vector holding the data, for which extreme values should be calculated
