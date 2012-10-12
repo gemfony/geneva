@@ -363,6 +363,7 @@ public:
          : thread_id_(0)
          , outer_(NULL)
          , parsed_(false)
+         , runLoopHasCommenced_(false)
       { /* nothing */ }
 
    protected:
@@ -379,6 +380,7 @@ public:
          : thread_id_(thread_id)
          , outer_(c_ptr)
          , parsed_(cp.parsed_)
+         , runLoopHasCommenced_(false)
       { /* nothing */ }
 
    public:
@@ -395,8 +397,7 @@ public:
        */
       void run() {
          try{
-            // Perform any setup work
-            processInit();
+            runLoopHasCommenced_=false;
 
             boost::shared_ptr<processable_type> p;
             Gem::Common::PORTIDTYPE id;
@@ -420,6 +421,14 @@ public:
                   );
                }
 #endif /* DEBUG */
+
+               // Perform setup work once for the loop, as soon as we have
+               // a processable item. Such setup work might require information
+               // from that item, so we pass it to the function.
+               if(!runLoopHasCommenced_) {
+                  processInit(p);
+                  runLoopHasCommenced_ = true;
+               }
 
                // Initiate the actual processing
                this->process(p);
@@ -498,8 +507,10 @@ public:
       /************************************************************************/
       /**
        * Initialization code for processing. Can be specified in derived classes.
+       *
+       * @param p A pointer to a processable item meant to allow item-based setup
        */
-      virtual void processInit()
+      virtual void processInit(boost::shared_ptr<processable_type> p)
       { /* nothing */ }
 
       /************************************************************************/
@@ -533,6 +544,7 @@ public:
       /************************************************************************/
 
       bool parsed_; ///< Indicates whether parsing has been completed
+      bool runLoopHasCommenced_; ///< Allows to check whether the while loop inside of the run function has started
 
    public:
       /************************************************************************/

@@ -78,43 +78,125 @@
 namespace Gem {
 namespace Common {
 
+const bool GWARNINGONLY = true;
+const bool GERRORONLY = false;
+
 /******************************************************************************/
 /**
- * Checks that a value is contained in a given range
+ * Checks that a floating point value is contained in a given range
  *
  * @param val The value to be checked for containment
  * @param min The lower boundary (included)
  * @param max The upper boundary (possibly included)
  * @param lowerOpen Determines whether the lower boundary must be smaller or may be equal to val (default: closed)
  * @param upperOpen Determines whether the upper boundary must be larger or may be equal to val (default: closed)
+ * @param warnOnly Will warn only if the condition isn't met
+ * @return The value being checked
  */
-const bool LOWERCLOSED = false;
-const bool LOWEROPEN = true;
-const bool UPPERCLOSED = false;
-const bool UPPEROPEN = true;
+const bool GFPLOWERCLOSED = false;
+const bool GFPLOWEROPEN = true;
+const bool GFPUPPERCLOSED = false;
+const bool GFPUPPEROPEN = true;
 
 template <typename fp_type>
-bool valueIsInRange(
+fp_type checkValueRange(
    fp_type val
    , fp_type min
    , fp_type max
    , bool lowerOpen = false
    , bool upperOpen = false
+   , bool warnOnly = false
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
+   bool result = true;
+
    if(lowerOpen) {
-      if(val < boost::math::float_next<fp_type>(min)) return false;
+      if(val < boost::math::float_next<fp_type>(min)) result=false;
    } else {
-      if(val < min) return false;
+      if(val < min) result=false;
    }
 
    if(upperOpen) {
-      if(val > boost::math::float_prior<fp_type>(max)) return false;
+      if(val > boost::math::float_prior<fp_type>(max)) result=false;
    } else {
-      if(val > max) return false;
+      if(val > max) result=false;
    }
 
-   return true;
+   if(false==result) {
+      if(warnOnly) {
+         std::cerr << "Warning:" << std::endl
+               << "In checkValueRange<fp_type>(): Error!" << std::endl
+               << "Value " << val << " outside of recommended range " << std::endl
+               << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl;
+      } else {
+         raiseException(
+               "In checkValueRange<fp_type>(): Error!" << std::endl
+               << "Value " << val << " outside of allowed range " << std::endl
+               << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl
+         );
+      }
+   }
+
+   return val;
+}
+
+/******************************************************************************/
+/**
+ * Checks that an integral value is contained in a given range
+ *
+ * @param val The value to be checked for containment
+ * @param min The lower boundary (included)
+ * @param max The upper boundary (possibly included)
+ * @param lowerOpen Determines whether the lower boundary must be smaller or may be equal to val (default: closed)
+ * @param upperOpen Determines whether the upper boundary must be larger or may be equal to val (default: closed)
+ * @param warnOnly Will warn only if the condition isn't met
+ * @return The value being checked
+ */
+const bool GINTLOWERCLOSED = false;
+const bool GINTLOWEROPEN = true;
+const bool GINTUPPERCLOSED = false;
+const bool GINTUPPEROPEN = true;
+
+template <typename int_type>
+int_type checkValueRange(
+   int_type val
+   , int_type min
+   , int_type max
+   , bool lowerOpen = false
+   , bool upperOpen = false
+   , bool warnOnly = false
+   , typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
+) {
+   bool result = true;
+
+   if(lowerOpen) {
+      if(val <= min) result=false;
+   } else {
+      if(val < min) result=false;
+   }
+
+   if(upperOpen) {
+      if(val >= max) result=false;
+   } else {
+      if(val > max) result=false;
+   }
+
+   if(false==result) {
+      if(warnOnly) {
+         std::cerr << "Warning:" << std::endl
+               << "In checkValueRange<int_type>(): Error!" << std::endl
+               << "Value " << val << " outside of recommended range " << std::endl
+               << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl;
+      } else {
+         raiseException(
+               "In checkValueRange<int_type>(): Error!" << std::endl
+               << "Value " << val << " outside of allowed range " << std::endl
+               << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl
+         );
+      }
+   }
+
+   return val;
 }
 
 /******************************************************************************/
