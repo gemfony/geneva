@@ -424,7 +424,7 @@ public:
 	 */
 	boost::shared_ptr<GDataCollector1T<x_type> > projectX(
 			std::size_t=DEFAULTNBINSGPD
-			, boost::tuple<x_type, y_type> = boost::tuple<x_type, y_type>()
+			, boost::tuple<x_type, x_type> = boost::tuple<x_type, x_type>()
 	) const {
 		raiseException(
 				"In GDataCollector2T<>::projectX(range, nBins): Error!" << std::endl
@@ -443,7 +443,7 @@ public:
 	 */
 	boost::shared_ptr<GDataCollector1T<y_type> > projectY(
 			std::size_t=DEFAULTNBINSGPD
-			, boost::tuple<x_type, y_type> = boost::tuple<x_type, y_type>()
+			, boost::tuple<y_type, y_type> = boost::tuple<y_type, y_type>()
 	) const {
 		raiseException(
 				"In GDataCollector2T<>::projectY(range, nBins): Error!" << std::endl
@@ -558,12 +558,12 @@ protected:
 /** @brief Specialization for <x_type, y_type> = <double, double> */
 template<>
 boost::shared_ptr<GDataCollector1T<double> >
-GDataCollector2T<double, double>::projectX(std::size_t	, boost::tuple<double, double>) const;
+GDataCollector2T<double, double>::projectX(std::size_t, boost::tuple<double, double>) const;
 
 /** @brief Specialization for <x_type, y_type> = <double, double> */
 template<>
 boost::shared_ptr<GDataCollector1T<double> >
-GDataCollector2T<double, double>::projectY(std::size_t	, boost::tuple<double, double>) const;
+GDataCollector2T<double, double>::projectY(std::size_t, boost::tuple<double, double>) const;
 
 /******************************************************************************/
 /**
