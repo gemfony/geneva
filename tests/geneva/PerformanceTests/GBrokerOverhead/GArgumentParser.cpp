@@ -170,17 +170,17 @@ namespace Gem
 	  ("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
 	   "Specifies how many processing units are available in networked mode")
 	  ("adProb", po::value<double>(&adProb)->default_value(DEFAULTGDAADPROB),
-		"Specifies the likelihood for adaptions to be actually carried out")
+	   "Specifies the likelihood for adaptions to be actually carried out")
 	  ("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
-		"Number of calls to adapt() after which adaption parameters should be modified")
+	   "Number of calls to adapt() after which adaption parameters should be modified")
 	  ("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
-		"The width of the gaussian used for the adaption of double values")
+	   "The width of the gaussian used for the adaption of double values")
 	  ("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
-		"The adaption rate of sigma")
+	   "The adaption rate of sigma")
 	  ("minSigma", po::value<double>(&minSigma)->default_value(DEFAULTMINSIGMA),
-		"The minimum allowed value for sigma")
+	   "The minimum allowed value for sigma")
 	  ("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
-		"The maximum allowed value for sigma")
+	   "The maximum allowed value for sigma")
 	  ("parDim", po::value<std::size_t>(&parDim)->default_value(DEFAULTPARDIM),
 	   "The amount of variables in the parabola")
 	  ("minVar", po::value<double>(&minVar)->default_value(DEFAULTMINVAR),
@@ -188,9 +188,9 @@ namespace Gem
 	  ("maxVar", po::value<double>(&maxVar)->default_value(DEFAULTMAXVAR),
 	   "The upper boundary for all variables")
 	  ("evalFunction", po::value<boost::uint16_t>(&evalFunction),
-		"The id of the evaluation function")
+	   "The id of the evaluation function")
 	  ;
-	
+
 	po::variables_map vm;
 	std::ifstream ifs(configFile.c_str());
 	if(!ifs.good()) {
@@ -206,7 +206,7 @@ namespace Gem
 	  std::cout << config << std::endl;
 	  return false;
 	}
-	
+
 	// Check the number of parents in the super-population
 	if(2*nParents > populationSize){
 	  std::cout << "Error: Invalid number of parents inpopulation" << std::endl
@@ -247,9 +247,9 @@ namespace Gem
 		    << "reportIteration = " << reportIteration << std::endl
 		    << "rScheme = " << (boost::uint16_t)rScheme << std::endl
 		    << "sortingScheme = " << smode << std::endl
-	       << "nProcessingUnits = " << nProcessingUnits << std::endl
+		    << "nProcessingUnits = " << nProcessingUnits << std::endl
  		    << "adProb = " << adProb << std::endl
-			 << "adaptionThreshold = " << adaptionThreshold << std::endl
+		    << "adaptionThreshold = " << adaptionThreshold << std::endl
 		    << "sigma = " << sigma << std::endl
 		    << "sigmaSigma " << sigmaSigma << std::endl
 		    << "minSigma " << minSigma << std::endl
