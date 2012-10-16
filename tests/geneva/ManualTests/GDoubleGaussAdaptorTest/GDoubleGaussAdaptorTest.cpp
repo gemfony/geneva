@@ -127,11 +127,11 @@ int main(int argc, char **argv) {
 
 	// Register the plots (and projections) with the plot designer
 	gpd.registerPlotter(gmutpar_iter_ptr);
-	gpd.registerPlotter(gmutpar_iter_ptr->projectY());
+	gpd.registerPlotter(gmutpar_iter_ptr->projectY(DEFAULTNBINSGPD, boost::tuple<double, double>()));
 	gpd.registerPlotter(gmutpardiff_iter_ptr);
-	gpd.registerPlotter(gmutpardiff_iter_ptr->projectY());
+	gpd.registerPlotter(gmutpardiff_iter_ptr->projectY(DEFAULTNBINSGPD, boost::tuple<double, double>()));
 	gpd.registerPlotter(gsigma_iter_ptr);
-	gpd.registerPlotter(gsigma_iter_ptr->projectY());
+	gpd.registerPlotter(gsigma_iter_ptr->projectY(DEFAULTNBINSGPD, boost::tuple<double, double>()));
 
 	// Write the result to disk
 	gpd.writeToFile("result.C");

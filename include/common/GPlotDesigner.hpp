@@ -423,8 +423,8 @@ public:
 	 * if available.
 	 */
 	boost::shared_ptr<GDataCollector1T<x_type> > projectX(
-			std::size_t=DEFAULTNBINSGPD
-			, boost::tuple<x_type, x_type> = boost::tuple<x_type, x_type>()
+			std::size_t
+			, boost::tuple<x_type, x_type>
 	) const {
 		raiseException(
 				"In GDataCollector2T<>::projectX(range, nBins): Error!" << std::endl
@@ -442,8 +442,8 @@ public:
 	 * if available.
 	 */
 	boost::shared_ptr<GDataCollector1T<y_type> > projectY(
-			std::size_t=DEFAULTNBINSGPD
-			, boost::tuple<y_type, y_type> = boost::tuple<y_type, y_type>()
+			std::size_t
+			, boost::tuple<y_type, y_type>
 	) const {
 		raiseException(
 				"In GDataCollector2T<>::projectY(range, nBins): Error!" << std::endl

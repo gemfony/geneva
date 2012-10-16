@@ -165,15 +165,15 @@ int main(int argc, char **argv) {
 
 	// Register the plots (and projections) with the plot designer
 	gpd.registerPlotter(gmutpar_iter_ptr);
-	gpd.registerPlotter(gmutpar_iter_ptr->projectY());
+	gpd.registerPlotter(gmutpar_iter_ptr->projectY(DEFAULTNBINSGPD, boost::tuple<float, float>()));
 	gpd.registerPlotter(gmutpardiff_iter_ptr);
-	gpd.registerPlotter(gmutpardiff_iter_ptr->projectY());
+	gpd.registerPlotter(gmutpardiff_iter_ptr->projectY(DEFAULTNBINSGPD, boost::tuple<float, float>()));
 	gpd.registerPlotter(gsigma1_iter_ptr);
-	gpd.registerPlotter(gsigma1_iter_ptr->projectY());
+	gpd.registerPlotter(gsigma1_iter_ptr->projectY(DEFAULTNBINSGPD, boost::tuple<float, float>()));
 	gpd.registerPlotter(gsigma2_iter_ptr);
-	gpd.registerPlotter(gsigma2_iter_ptr->projectY());
+	gpd.registerPlotter(gsigma2_iter_ptr->projectY(DEFAULTNBINSGPD, boost::tuple<float, float>()));
 	gpd.registerPlotter(gdelta_iter_ptr);
-	gpd.registerPlotter(gdelta_iter_ptr->projectY());
+	gpd.registerPlotter(gdelta_iter_ptr->projectY(DEFAULTNBINSGPD, boost::tuple<float, float>()));
 
 	// Write the result to disk
 	gpd.writeToFile("result.C");
