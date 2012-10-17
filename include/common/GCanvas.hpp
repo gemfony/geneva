@@ -787,7 +787,7 @@ public:
 
 #ifdef DEBUG
       // Check that angles are in consecutive order
-      if(t.angle1 <= 0.f || t.angle2 <= t.angle1 || t.angle3 <= t.angle2 || t.angle3 >= 1.f) {
+      if(t.angle1 < 0.f || t.angle2 <= t.angle1 || t.angle3 <= t.angle2 || t.angle3 >= 1.f) {
          raiseException(
                "In GCanvas<>::addTriangel(): Error!" << std::endl
                << "Angles are not in consecutive oder: " << std::endl
