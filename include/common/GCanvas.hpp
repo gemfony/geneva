@@ -791,7 +791,7 @@ public:
          raiseException(
                "In GCanvas<>::addTriangel(): Error!" << std::endl
                << "Angles are not in consecutive oder: " << std::endl
-               << t.angle1 << " / " << t.angle2 << " / " << t.angel3 << std::endl
+               << t.angle1 << " / " << t.angle2 << " / " << t.angle3 << std::endl
          );
       }
 #endif /* DEBUG */
