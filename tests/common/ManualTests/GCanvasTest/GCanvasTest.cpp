@@ -53,9 +53,9 @@ int main(int argc, char**argv) {
    t_circle t_c;
    t_c.middle = coord2D(0.5f,0.5f);
    t_c.radius = 0.1f;
-   t_c.angle1 = float(0.5*M_PI);
-   t_c.angle2 = float(0.5*M_PI);
-   t_c.angle3 = float(0.5*M_PI);
+   t_c.angle1 = float(0.0);
+   t_c.angle2 = float(0.25);
+   t_c.angle3 = float(0.5);
    t_c.r = 1.f;
    t_c.g = 0.f;
    t_c.b = 0.f;
