@@ -452,6 +452,9 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
    using boost::unit_test_framework::test_suite;
    using boost::unit_test_framework::test_case;
 
+   // Call the parent classes' functions
+   Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
+
    //------------------------------------------------------------------------------
 
    {
@@ -508,6 +511,9 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests() {
 
    using boost::unit_test_framework::test_suite;
    using boost::unit_test_framework::test_case;
+
+   // Call the parent classes' functions
+   Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests();
 
    //------------------------------------------------------------------------------
 
