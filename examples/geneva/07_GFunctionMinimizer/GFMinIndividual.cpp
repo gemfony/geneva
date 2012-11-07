@@ -36,10 +36,8 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFMinIndividual)
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /********************************************************************************************/
 /**

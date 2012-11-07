@@ -131,13 +131,16 @@ protected:
 	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
 	virtual void finalize();
 
+   /** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
+   virtual double cycleLogic();
+
 	/** @brief Updates all individual's positions */
 	virtual void updatePositions();
 	/** @brief Triggers the fitness calculation of all individuals */
 	virtual void updateFitness();
 
    /** @brief Fixes the population after a job submission */
-   virtual void adjustNeighborhoods();
+   void adjustNeighborhoods();
    /** @brief Checks whether each neighborhood has the default size */
    bool neighborhoodsHaveNominalValues() const;
 

@@ -251,19 +251,16 @@ protected:
 	/** @brief Finalization work relating directly to the optimization algorithm. */
 	virtual void optimizationFinalize();
 
-	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
+	/** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
 	virtual double cycleLogic();
-
-	/** @brief Resizes the population to the desired level and does some error checks */
-	virtual void adjustPopulation();
 
 	/** @brief Saves the state of the class to disc. */
 	virtual void saveCheckpoint() const;
 
 	/** @brief Updates the best individuals found */
 	virtual double findBests();
-	/** @brief Adjusts each neighborhood so it has the correct size */
-	virtual void adjustNeighborhoods();
+	/** @brief Resizes the population to the desired level and does some error checks */
+	virtual void adjustPopulation();
 
 	/** @brief Helper function that returns the id of the first individual of a neighborhood */
 	std::size_t getFirstNIPos(const std::size_t&) const;
@@ -288,14 +285,13 @@ protected:
 	/** @brief Triggers the fitness calculation */
 	virtual void updateIndividualFitness(
 			const boost::uint32_t&
-			, const std::size_t&
 			, boost::shared_ptr<GParameterSet>
 	);
 
 	/** @brief Updates the fitness of all individuals */
 	virtual void updateFitness() = 0;
-    /** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
-    void pruneVelocity(std::vector<double>&);
+   /** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
+   void pruneVelocity(std::vector<double>&);
 
 	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
 	std::size_t defaultNNeighborhoodMembers_; ///< The desired number of individuals belonging to each neighborhood

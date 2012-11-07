@@ -76,7 +76,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GPODExpectationChecksT.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GMathHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GBrokerT.hpp"
@@ -105,16 +105,17 @@ class GBrokerConnectorT
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_NVP(waitFactor_)
-      	 & BOOST_SERIALIZATION_NVP(minWaitFactor_)
-      	 & BOOST_SERIALIZATION_NVP(maxWaitFactor_)
-    	 & BOOST_SERIALIZATION_NVP(waitFactorIncrement_)
-    	 & BOOST_SERIALIZATION_NVP(boundlessWait_)
-    	 & BOOST_SERIALIZATION_NVP(maxResubmissions_)
-		 & BOOST_SERIALIZATION_NVP(allItemsReturned_)
-		 & BOOST_SERIALIZATION_NVP(percentOfTimeoutNeeded_)
-		 & BOOST_SERIALIZATION_NVP(firstTimeOut_)
-		 & BOOST_SERIALIZATION_NVP(doLogging_);
+      ar
+      & BOOST_SERIALIZATION_NVP(waitFactor_)
+      & BOOST_SERIALIZATION_NVP(minWaitFactor_)
+      & BOOST_SERIALIZATION_NVP(maxWaitFactor_)
+    	& BOOST_SERIALIZATION_NVP(waitFactorIncrement_)
+    	& BOOST_SERIALIZATION_NVP(boundlessWait_)
+    	& BOOST_SERIALIZATION_NVP(maxResubmissions_)
+    	& BOOST_SERIALIZATION_NVP(allItemsReturned_)
+    	& BOOST_SERIALIZATION_NVP(percentOfTimeoutNeeded_)
+    	& BOOST_SERIALIZATION_NVP(firstTimeOut_)
+    	& BOOST_SERIALIZATION_NVP(doLogging_);
     }
     ///////////////////////////////////////////////////////////////////////
 

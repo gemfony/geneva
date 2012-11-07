@@ -48,3 +48,7 @@ ADD_SUBDIRECTORY (
 ADD_SUBDIRECTORY (
   09_GNeuralNetwork
 )
+
+ADD_SUBDIRECTORY (
+  10_GStarter
+)

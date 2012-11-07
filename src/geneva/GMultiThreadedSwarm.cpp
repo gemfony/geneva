@@ -46,6 +46,7 @@ namespace Geneva {
 GMultiThreadedSwarm::GMultiThreadedSwarm()
    : GBaseSwarm()
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+   , storedServerMode_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -58,6 +59,7 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(
 )
    : GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+   , storedServerMode_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -69,6 +71,7 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(
 GMultiThreadedSwarm::GMultiThreadedSwarm(const GMultiThreadedSwarm& cp)
    : GBaseSwarm(cp)
    , nThreads_(cp.nThreads_)
+   , storedServerMode_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -298,7 +301,6 @@ void GMultiThreadedSwarm::updateFitness() {
 					    &GMultiThreadedSwarm::updateIndividualFitness
 						, this
 						, iteration
-						, neighborhood
 						, (*current)
 					)
 				)

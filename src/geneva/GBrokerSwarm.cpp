@@ -37,10 +37,8 @@
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBrokerSwarm)
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 /**
@@ -49,6 +47,7 @@ namespace Geneva
 GBrokerSwarm::GBrokerSwarm()
 	: GBaseSwarm()
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
+	, storedServerMode_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -59,9 +58,13 @@ GBrokerSwarm::GBrokerSwarm()
  * @param nNeighborhoods The number of neighborhoods
  * @param nNeighborhoodMembers The expected number of members inside of them
  */
-GBrokerSwarm::GBrokerSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
+GBrokerSwarm::GBrokerSwarm(
+      const std::size_t& nNeighborhoods
+      , const std::size_t& nNeighborhoodMembers
+)
 	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
+   , storedServerMode_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -73,6 +76,7 @@ GBrokerSwarm::GBrokerSwarm(const std::size_t& nNeighborhoods, const std::size_t&
 GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm& cp)
 	: GBaseSwarm(cp)
     , Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
+    , storedServerMode_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -312,6 +316,26 @@ void GBrokerSwarm::updatePositions() {
 	GBaseSwarm::updatePositions();
 }
 
+
+/******************************************************************************/
+/**
+ * This function implements the logic that constitutes each cycle of a swarm algorithm. It
+ * adds code to repair the population in case of incomplete returns to our parent class'es
+ * function.
+ *
+ * @return The value of the best individual found
+ */
+double GBrokerSwarm::cycleLogic() {
+   // Perform the actual business logic
+   double bestResult = GBaseSwarm::cycleLogic();
+
+   // Makes sure that each neighborhood has the right size before the next cycle starts
+   adjustNeighborhoods();
+
+   // Let the audience know
+   return bestResult;
+}
+
 /******************************************************************************/
 /**
  * Triggers the fitness calculation of all individuals
@@ -326,6 +350,7 @@ void GBrokerSwarm::updateFitness() {
 	// Now submit work items and wait for results
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
 			data
+			// , EXPECTFULLRETURN
 			, ACCEPTOLDERITEMS
 	);
 

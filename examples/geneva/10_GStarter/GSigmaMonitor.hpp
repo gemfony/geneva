@@ -39,8 +39,8 @@
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
 
-#ifndef GOPTIMIZATIONMONITOR_HPP_
-#define GOPTIMIZATIONMONITOR_HPP_
+#ifndef GSIGMAMONITOR_HPP_
+#define GSIGMAMONITOR_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -48,18 +48,23 @@
 #endif
 
 // Geneva header files go here
+#include "common/GPlotDesigner.hpp" // Ease recording of essential information
 #include "geneva/GBaseEA.hpp" // Get access to the GEAOptimizationMonitor class
-#include "GFMinIndividual.hpp" // The individual to be optimized
+#include "GStarterIndividual.hpp" // The individual to be optimized
 
 namespace Gem {
 namespace Geneva {
+
+const std::size_t P_XDIM=1200;
+const std::size_t P_YDIM=1400;
 
 /************************************************************************************************/
 /**
  * This class implements an optimization monitor for Evolutionary Algorithms. Its main purpose is
  * to find out information about the development of sigma over the course of the optimization for
  * the best individuals. This monitor is thus targeted at a specific type of individual. Note that
- * the class uses ROOT scripts for the output of its results.
+ * the class uses ROOT scripts for the output of its results. It will also record the quality of
+ * the best solutions found.
  */
 class GSigmaMonitor
 	:public GBaseEA::GEAOptimizationMonitor
@@ -70,7 +75,11 @@ public:
 	 * The default constructor
 	 */
 	GSigmaMonitor(const std::string fileName)
-		: fileName_(fileName)
+		: bestSigma_(1000000.)
+      , fileName_(fileName)
+      , gpd_("Progress information", 1, 2)
+      , progressPlotter_(new Gem::Common::GGraph2D())
+      , sigmaPlotter_(new Gem::Common::GGraph2D())
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -83,6 +92,9 @@ public:
 		: GBaseEA::GEAOptimizationMonitor(cp)
 		, bestSigma_(cp.bestSigma_)
 		, fileName_(cp.fileName_)
+	   , gpd_("Progress information", 1, 2) // We do not want to copy progress information of another object
+      , progressPlotter_(new Gem::Common::GGraph2D())
+      , sigmaPlotter_(new Gem::Common::GGraph2D())
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -100,7 +112,22 @@ protected:
      * @param cp A constant pointer to the evolutionary algorithm that is calling us
      */
     virtual std::string eaFirstInformation(GBaseEA * const ea) {
-    	// We just call the parent classes eaFirstInformation function,
+      // Initialize the plots we want to record
+      progressPlotter_->setPlotMode(Gem::Common::CURVE);
+      progressPlotter_->setPlotLabel("Fitness as a function of the iteration");
+      progressPlotter_->setXAxisLabel("Iteration");
+      progressPlotter_->setYAxisLabel("Best Result (lower is better)");
+
+      sigmaPlotter_->setPlotMode(Gem::Common::CURVE);
+      sigmaPlotter_->setPlotLabel("Development of sigma (aka \\\"step width\\\")");
+      sigmaPlotter_->setXAxisLabel("Iteration");
+      sigmaPlotter_->setYAxisLabel("Sigma");
+
+      gpd_.setCanvasDimensions(P_XDIM, P_YDIM);
+      gpd_.registerPlotter(progressPlotter_);
+      gpd_.registerPlotter(sigmaPlotter_);
+
+    	// We call the parent classes eaFirstInformation function,
     	// as we do not want to change its actions
     	return GBaseEA::GEAOptimizationMonitor::eaFirstInformation(ea);
     }
@@ -116,10 +143,11 @@ protected:
     virtual std::string eaCycleInformation(GBaseEA * const ea) {
     	// Extract the requested data. First retrieve the best individual.
     	// It can always be found in the first position with evolutionary algorithms
-    	boost::shared_ptr<GFMinIndividual> p = ea->clone_at<GFMinIndividual>(0);
+    	boost::shared_ptr<GStarterIndividual> p = ea->clone_at<GStarterIndividual>(0);
 
-    	// Retrieve the average sigma value and add it to our local storage
-    	bestSigma_.push_back(p->getAverageSigma());
+    	// Retrieve the best fitness and average sigma value and add it to our local storage
+    	(*progressPlotter_) & boost::tuple<double,double>((double)ea->getIteration(), p->fitness(0));
+    	(*sigmaPlotter_)    & boost::tuple<double,double>((double)ea->getIteration(), p->getAverageSigma());
 
     	//---------------------------------------------------------
     	// Call our parent class'es function
@@ -134,75 +162,12 @@ protected:
      */
     virtual std::string eaLastInformation(GBaseEA * const ea) {
     	// Write out the result
-    	this->writeResult();
+    	gpd_.writeToFile(fileName_);
 
     	// We just call the parent classes eaLastInformation function,
     	// as we do not want to change its actions
     	return GBaseEA::GEAOptimizationMonitor::eaLastInformation(ea);
     }
-
-	/********************************************************************************************/
-	/**
-	 * Writes out a ROOT script with the results to a file
-	 *
-	 * @param fileName The name of the file to which the results should be written
-	 */
-	void writeResult() const {
-		// Open the requested file. No error-checks - this is a demo
-		std::ofstream result(fileName_.c_str());
-
-		// Write out the data
-		result
-		<< "{" << std::endl
-		<< "  gROOT->Reset();" << std::endl
-		<< "  gStyle->SetOptTitle(0);" << std::endl
-		<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,1024,768);" << std::endl
-		<< std::endl
-		<< "  std::vector<long> iteration;" << std::endl
-		<< "  std::vector<double> sigma;" << std::endl
-		<< std::endl
-		<< "  // Fill with results" << std::endl;
-
-		std::size_t iteration = 0;
-		std::vector<double>::const_iterator sigma_it;
-		for(sigma_it=bestSigma_.begin(); sigma_it!=bestSigma_.end(); ++sigma_it) {
-			result
-			<< "  iteration.push_back(" << iteration++ << ");" << std::endl
-			<< "  sigma.push_back(" << *sigma_it << ");" << std::endl;
-		}
-
-		result
-		<< std::endl
-		<< "  // Transfer the results into a TGraph object" << std::endl
-		<< "  double iteration_arr[iteration.size()];" << std::endl
-		<< "  double sigma_arr[sigma.size()];" << std::endl
-		<< std::endl
-		<< "  for(std::size_t i=0; i<iteration.size(); i++) {" << std::endl
-		<< "     iteration_arr[i] = (double)iteration[i];"
-		<< "     sigma_arr[i] = sigma[i];" << std::endl
-		<< "  }" << std::endl
-		<< std::endl
-		<< "  // Create a TGraph object" << std::endl
-		<< "  TGraph *sGraph = new TGraph(sigma.size(), iteration_arr, sigma_arr);" << std::endl
-		<< std::endl
-		<< "  // Set the axis titles" << std::endl
-		<< "  sGraph->GetXaxis()->SetTitle(\"Iteration\");" << std::endl
-		<< "  sGraph->GetYaxis()->SetTitleOffset(1.1);" << std::endl
-		<< "  sGraph->GetYaxis()->SetTitle(\"Average Sigma\");" << std::endl
-		<< std::endl
-		<< "  // Set the line color to red"
-		<< "  sGraph->SetLineColor(2);" << std::endl
-		<< std::endl
-		<< "  // Set the y-axis to a logarithmic scale" << std::endl
-		<< "  cc->SetLogy();"
-		<< std::endl
-		<< "  // Do the actual drawing" << std::endl
-		<< "  sGraph->Draw(\"ALP\");" << std::endl
-		<< "}" << std::endl;
-
-		// Clean up
-		result.close();
-	}
 
 	/********************************************************************************************/
     /**
@@ -239,7 +204,10 @@ private:
 	GSigmaMonitor(); ///< Default constructor; Intentionally private and undefined
 
 	std::vector<double> bestSigma_; ///< Holds the best sigma value of each iteration
-	std::string fileName_;
+	std::string fileName_; ///< The name of the output file
+	Gem::Common::GPlotDesigner gpd_; ///< Ease recording of essential information
+	boost::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
+	boost::shared_ptr<Gem::Common::GGraph2D> sigmaPlotter_; ///< Records progress information about the current sigma
 };
 
 /************************************************************************************************/
@@ -247,4 +215,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GOPTIMIZATIONMONITOR_HPP_ */
+#endif /* GSIGMAMONITOR_HPP_ */

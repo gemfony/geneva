@@ -1674,6 +1674,7 @@ void GFreeFormPlotter::setFooterData(const std::string& fD) {
 /**
  * The standard constructor
  *
+ * @param The label of the canvas
  * @param c_x_div The number of plots in x-direction
  * @param c_y_div The number of plots in y-direction
  */

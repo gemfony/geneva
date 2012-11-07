@@ -60,7 +60,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GMathHelperFunctionsT.hpp"
 #include "common/GCommonEnums.hpp"
 
 namespace Gem {

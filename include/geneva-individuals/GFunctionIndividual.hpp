@@ -192,7 +192,8 @@ public:
 			const double&,
 			const std::string&,
 			const std::string&,
-			const bool&) const;
+			const bool&
+	) const;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);

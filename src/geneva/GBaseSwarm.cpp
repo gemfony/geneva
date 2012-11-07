@@ -579,8 +579,8 @@ void GBaseSwarm::updatePersonalBestIfBetter(
 #ifdef DEBUG
 	if(p->isDirty()) {
 		raiseException(
-				"In GBaseSwarm::updatePersonalBestIfBetter():" << std::endl
-				<< "p has the dirty flag set:" << p->isDirty() << std::endl
+				"In GBaseSwarm::updatePersonalBestIfBetter(): Error!" << std::endl
+				<< "dirty flag of individual is set." << std::endl
 		);
 	}
 #endif /* DEBUG */
@@ -918,61 +918,79 @@ void GBaseSwarm::optimizationFinalize() {
  * @return The value of the best individual found
  */
 double GBaseSwarm::cycleLogic() {
-	// First update the positions
+	// First update the positions and neighborhood ids
 	updatePositions();
 
 	// Now update each individual's fitness
 	updateFitness();
 
 	// Search for the personal, neighborhood and globally best individuals and
-	// update the lists of best solutions, if necessary
-	double bestLocalFitness = findBests();
-
-	// Makes sure that each neighborhood has the right size before the next cycle starts
-	adjustNeighborhoods();
-
-	// Let the audience know
-	return bestLocalFitness;
+	// update the lists of best solutions, if necessary. Return the result to
+	// the audience
+	return findBests();
 }
 
 /******************************************************************************/
 /**
- * Triggers an update of all individual's positions
+ * Triggers an update of all individual's positions. Also makes sure each
+ * individual has the correct neighborhood id
  */
 void GBaseSwarm::updatePositions() {
 	std::size_t neighborhood_offset = 0;
 	GBaseSwarm::iterator start = this->begin();
 
+#ifdef DEBUG
+   // Cross-check that we have the nominal amount of individuals
+   if(this->size() != nNeighborhoods_*defaultNNeighborhoodMembers_) {
+      raiseException(
+            "In GBaseSwarm::updatePositions(): Error!" << std::endl
+            << "Invalid number of individuals found." << std::endl
+            << "Expected " << nNeighborhoods_*defaultNNeighborhoodMembers_ << " but got " << this->size() << std::endl
+      );
+   }
+#endif /* DEBUG */
+
 	// First update all positions
-	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+	for(std::size_t n=0; n<nNeighborhoods_; n++) {
 #ifdef DEBUG
 		if(afterFirstIteration()) {
-			if(!neighborhood_bests_[neighborhood]) {
+			if(!neighborhood_bests_[n]) {
 				raiseException(
 						"In GBaseSwarm::updatePositions():" << std::endl
-						<< "neighborhood_bests_[" << neighborhood << "] is empty."
+						<< "neighborhood_bests_[" << n << "] is empty."
 				);
 			}
 
-			if(neighborhood==0 && !global_best_) { // Only check for the first neighborhood
+			if(n==0 && !global_best_) { // Only check for the first n
 				raiseException(
 						"In GBaseSwarm::updatePositions():" << std::endl
 						<< "global_best_ is empty."
 				);
 			}
 		}
+
+	   // Check that the number if individuals in each neighborhoods has the expected value
+		if(nNeighborhoodMembers_[n] != defaultNNeighborhoodMembers_) {
+		   raiseException(
+		         "In GBaseSwarm::updatePositions(): Error!" << std::endl
+		         << "Invalid number of members in neighborhood " << n << ": " << nNeighborhoodMembers_[n] << std::endl
+		   );
+		}
 #endif /* DEBUG */
 
-		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
+		for(std::size_t member=0; member<nNeighborhoodMembers_[n]; member++) {
 			GBaseSwarm::iterator current = start + neighborhood_offset;
 
-			// Note: global/neighborhood bests and velocities haven't been determined yet in the first iteration and are not needed there
+			// Update the neighborhood ids
+			this->at(neighborhood_offset)->getPersonalityTraits<GSwarmPersonalityTraits>()->setNeighborhood(n);
+
+			// Note: global/n bests and velocities haven't been determined yet in the first iteration and are not needed there
 			if(afterFirstIteration() && !(*current)->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
 				// Update the swarm positions:
 				updateIndividualPositions(
-					neighborhood
+					n
 					, (*current)
-					, neighborhood_bests_[neighborhood]
+					, neighborhood_bests_[n]
 					, global_best_
 					, velocities_[neighborhood_offset]
 					, boost::make_tuple(
@@ -1195,12 +1213,8 @@ void GBaseSwarm::pruneVelocity(std::vector<double>& velVec) {
  */
 void GBaseSwarm::updateIndividualFitness(
 	  const boost::uint32_t& iteration
-	  , const std::size_t& neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
 ){
-	// Let the personality know in which neighborhood it is
-	ind->getPersonalityTraits<GSwarmPersonalityTraits>()->setNeighborhood(neighborhood);
-
 	// Trigger the fitness calculation (if necessary). Make sure
 	// that fitness calculation is indeed allowed at this point.
 	bool originalServerMode = ind->setServerMode(false);
@@ -1280,7 +1294,7 @@ double GBaseSwarm::findBests() {
 		}
 	}
 
-	// Compare the best neighborhood individual with the globally best indivdual and
+	// Compare the best neighborhood individual with the globally best individual and
 	// update it, if necessary. Initialize it in the first generation.
 	if(inFirstIteration()) {
 		global_best_= neighborhood_bests_[bestCurrentLocalId]->clone<GParameterSet>();
@@ -1293,14 +1307,6 @@ double GBaseSwarm::findBests() {
 
 	return global_best_->fitness(0);
 }
-
-/******************************************************************************/
-/**
- * This function repairs the population by adding or removing missing or surplus items. It is meant to be
- * re-implemented by derived classes, such as GBrokerSwarm.
- */
-void GBaseSwarm::adjustNeighborhoods()
-{ /* nothing */ }
 
 /******************************************************************************/
 /**

@@ -245,7 +245,6 @@ void GSerialSwarm::updateFitness() {
 			// Update the fitness
 			updateIndividualFitness(
 				iteration
-				, neighborhood
 				, (*current)
 			);
 
