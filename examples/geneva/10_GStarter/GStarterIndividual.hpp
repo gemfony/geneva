@@ -254,7 +254,6 @@ private:
 
 	/***************************************************************************/
 
-#ifdef GEM_TESTING // Test code
 public:
    /** @brief Applies modifications to this object. */
    virtual bool modify_GUnitTests();
@@ -262,7 +261,6 @@ public:
    virtual void specificTestsNoFailureExpected_GUnitTests();
    /** @brief Performs self tests that are expected to fail. */
    virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GEM_TESTING */
 };
 
 /** @brief Allows to output a GStarterIndividual or convert it to a string using boost::lexical_cast */

@@ -1136,6 +1136,53 @@ public:
 		//------------------------------------------------------------------------------
 	}
 
+#else /* GEM_TESTING */
+
+/******************************************************************************/
+/**
+ * Applies modifications to this object. This is function is a trap, as it
+ * should not be called if GEM_TESTING isn't set. However, its existence is
+ * mandatory, as otherwise this class will have a different API depending on
+ * whether GEM_TESTING is set or not.
+ */
+bool modify_GUnitTests() {
+   raiseException(
+      "In GAdaptorT<>::modify_GUnitTests(): Error!" << std::endl
+      << "Function was called even though GEM_TESTING hasn't been set." << std::endl
+   );
+
+   // Make the compiler happy
+   return true;
+}
+
+/******************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is function is a trap,
+ * as it should not be called if GEM_TESTING isn't set. However, its existence is
+ * mandatory, as otherwise this class will have a different API depending on
+ * whether GEM_TESTING is set or not.
+ */
+void specificTestsNoFailureExpected_GUnitTests() {
+   raiseException(
+      "In GAdaptorT<>::specificTestsNoFailureExpected_GUnitTests(): Error!" << std::endl
+      << "Function was called even though GEM_TESTING hasn't been set." << std::endl
+   );
+}
+
+/******************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is function is a trap, as
+ * it should not be called if GEM_TESTING isn't set. However, its existence is
+ * mandatory, as otherwise this class will have a different API depending on
+ * whether GEM_TESTING is set or not.
+ */
+void specificTestsFailuresExpected_GUnitTests() {
+   raiseException(
+      "In GAdaptorT<>::specificTestsFailuresExpected_GUnitTests(): Error!" << std::endl
+      << "Function was called even though GEM_TESTING hasn't been set." << std::endl
+   );
+}
+
 #endif /* GEM_TESTING */
 };
 
