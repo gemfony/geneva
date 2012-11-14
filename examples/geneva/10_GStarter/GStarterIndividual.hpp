@@ -55,6 +55,7 @@
 #include "common/GFactoryT.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
 #include "geneva/GDoubleCollection.hpp"
+#include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GConstrainedDoubleCollection.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GDoubleBiGaussAdaptor.hpp"

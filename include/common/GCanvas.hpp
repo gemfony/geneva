@@ -841,6 +841,7 @@ public:
          // Calculate the pixel x-position
          pos_f.x = float(i_x+1)*xDim_inv;
 
+	 /*
          if(
                pos_f.x < t.tr_one.x
             && pos_f.x < t.tr_two.x
@@ -856,11 +857,13 @@ public:
          ) {
           continue;
          }
+	 */
 
          for(std::size_t i_y=0; i_y<yDim_; i_y++) {
             // Calculate the pixel y-position
             pos_f.y = float(i_y+1)*yDim_inv;
 
+	    /*
             if(
                   pos_f.y < t.tr_one.y
                && pos_f.y < t.tr_two.y
@@ -876,6 +879,7 @@ public:
             ) {
              continue;
             }
+	    */
 
             diff31 = t.tr_three - t.tr_one;
             diff21 = t.tr_two   - t.tr_one;

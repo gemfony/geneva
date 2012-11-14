@@ -29,6 +29,26 @@
  * http://www.gemfony.com .
  */
 
+// Standard headers go here
+#include <vector>
+#include <sstream>
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <cmath>
+#include <fstream>
+#include <typeinfo>
+
+// Includes check for correct Boost version(s)
+#include "GGlobalDefines.hpp"
+
+// Boost headers go here
+#include <boost/thread.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/type_traits.hpp>
+
 #ifndef GMATHHELPERFUNCTIONST_HPP_
 #define GMATHHELPERFUNCTIONST_HPP_
 
