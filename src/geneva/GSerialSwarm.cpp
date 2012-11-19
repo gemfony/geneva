@@ -253,7 +253,6 @@ void GSerialSwarm::updateFitness() {
 	}
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -261,12 +260,18 @@ void GSerialSwarm::updateFitness() {
  * @return A boolean which indicates whether modifications were made
  */
 bool GSerialSwarm::modify_GUnitTests() {
-	bool result = false;
+#ifdef GEM_TESTING
+   bool result = false;
 
 	// Call the parent class'es function
 	if(GBaseSwarm::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GSerialSwarm::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -274,8 +279,13 @@ bool GSerialSwarm::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GSerialSwarm::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GBaseSwarm::specificTestsNoFailureExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GSerialSwarm::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -283,12 +293,16 @@ void GSerialSwarm::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GSerialSwarm::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GBaseSwarm::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GSerialSwarm::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

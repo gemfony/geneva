@@ -819,18 +819,22 @@ void GBaseGD::markIndividualPositions() {
 	}
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
 bool GBaseGD::modify_GUnitTests() {
-	bool result = false;
+#ifdef GEM_TESTING
+   bool result = false;
 
 	// Call the parent class'es function
 	if(GOptimizationAlgorithmT<GParameterSet>::modify_GUnitTests()) result = true;
 
 	return result;
+#else /* GEM_TESTING */
+   condnotset("GBaseGD::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -838,8 +842,12 @@ bool GBaseGD::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBaseGD::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseGD::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -847,10 +855,13 @@ void GBaseGD::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBaseGD::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::specificTestsFailuresExpected_GUnitTests();
-}
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseGD::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
+}
 
 /******************************************************************************/
 /**
@@ -1173,19 +1184,23 @@ GObject* GBaseGD::GGDOptimizationMonitor::clone_() const {
 	return new GBaseGD::GGDOptimizationMonitor(*this);
 }
 
-#ifdef GEM_TESTING
-
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
 bool GBaseGD::GGDOptimizationMonitor::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
 	if(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseGD::GGDOptimizationMonitor::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -1193,8 +1208,12 @@ bool GBaseGD::GGDOptimizationMonitor::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBaseGD::GGDOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseGD::GGDOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -1202,13 +1221,15 @@ void GBaseGD::GGDOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests(
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBaseGD::GGDOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseGD::GGDOptimizationMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

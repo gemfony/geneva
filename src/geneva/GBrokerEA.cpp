@@ -457,7 +457,6 @@ std::string GBrokerEA::getIndividualCharacteristic() const {
 	return std::string("GENEVA_BROKEROPTALG");
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -465,12 +464,18 @@ std::string GBrokerEA::getIndividualCharacteristic() const {
  * @return A boolean which indicates whether modifications were made
  */
 bool GBrokerEA::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
 	if(GBaseEA::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBrokerEA::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -478,8 +483,13 @@ bool GBrokerEA::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBrokerEA::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GBaseEA::specificTestsNoFailureExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBrokerEA::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -487,13 +497,16 @@ void GBrokerEA::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBrokerEA::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GBaseEA::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBrokerEA::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

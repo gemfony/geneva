@@ -442,7 +442,6 @@ private:
 	/** @brief Checks for inequality with a std::vector<T> object. Intentionally left undefined */
 	bool operator!=(const std::vector<T>& cp_data) const;
 
-#ifdef GEM_TESTING
 public:
    /***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -452,7 +451,6 @@ public:
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing here yet */  }
    /***************************************************************************/
-#endif /* GEM_TESTING */
 };
 
 /******************************************************************************/

@@ -163,7 +163,6 @@ private:
 
 	/***************************************************************************/
 
-#ifdef GEM_TESTING
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
@@ -171,7 +170,6 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GEM_TESTING */
 };
 
 /******************************************************************************/

@@ -189,7 +189,6 @@ Gem::Geneva::adaptorId GFloatBiGaussAdaptor::getAdaptorId() const {
  * ----------------------------------------------------------------------------------
  */
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -197,7 +196,8 @@ Gem::Geneva::adaptorId GFloatBiGaussAdaptor::getAdaptorId() const {
  * @return A boolean which indicates whether modifications were made
  */
 bool GFloatBiGaussAdaptor::modify_GUnitTests() {
-	using boost::unit_test_framework::test_suite;
+#ifdef GEM_TESTING
+   using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	bool result = false;
@@ -206,6 +206,11 @@ bool GFloatBiGaussAdaptor::modify_GUnitTests() {
 	if(GFPBiGaussAdaptorT<float>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GFloatBiGaussAdaptor::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -213,6 +218,7 @@ bool GFloatBiGaussAdaptor::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GFloatBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -238,6 +244,10 @@ void GFloatBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	// --------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GFloatBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -245,15 +255,19 @@ void GFloatBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GFloatBiGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
 	GFPBiGaussAdaptorT<float>::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GFloatBiGaussAdaptor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

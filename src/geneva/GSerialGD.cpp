@@ -293,20 +293,23 @@ double GSerialGD::doFitnessCalculation(const std::size_t& finalPos) {
 	return bestFitness;
 }
 
-
-
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
 bool GSerialGD::modify_GUnitTests() {
-	bool result = false;
+#ifdef GEM_TESTING
+   bool result = false;
 
 	// Call the parent class'es function
 	if(GBaseGD::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GSerialGD::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -314,8 +317,13 @@ bool GSerialGD::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GSerialGD::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GBaseGD::specificTestsNoFailureExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GSerialGD::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -323,10 +331,16 @@ void GSerialGD::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GSerialGD::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GBaseGD::specificTestsFailuresExpected_GUnitTests();
-}
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GSerialGD::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
+}
+
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -176,7 +176,6 @@ void GInt32ObjectCollection::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -184,12 +183,18 @@ void GInt32ObjectCollection::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GInt32ObjectCollection::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	this->fillWithObjects(10);
 
 	// Call the parent class'es function
 	GParameterTCollectionT<GInt32Object>::modify_GUnitTests();
 
 	return true;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GInt32ObjectCollection::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -197,6 +202,7 @@ bool GInt32ObjectCollection::modify_GUnitTests() {
  * Fills the collection with GInt32Object objects
  */
 void GInt32ObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
+#ifdef GEM_TESTING
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
@@ -223,6 +229,10 @@ void GInt32ObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gio_ptr));
 	}
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GInt32ObjectCollection::fillWithObjects", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -230,6 +240,7 @@ void GInt32ObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Some settings
 	const std::size_t nAddedObjects = 10;
 	const std::size_t nTests = 100;
@@ -296,6 +307,10 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	// --------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -303,12 +318,16 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GParameterTCollectionT<GInt32Object>::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

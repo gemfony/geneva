@@ -277,7 +277,6 @@ GObject* GConstrainedDoubleCollection::clone_() const {
 	return new GConstrainedDoubleCollection(*this);
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -285,12 +284,18 @@ GObject* GConstrainedDoubleCollection::clone_() const {
  * @return A boolean which indicates whether modifications were made
  */
 bool GConstrainedDoubleCollection::modify_GUnitTests() {
-	bool result = false;
+#ifdef GEM_TESTING
+   bool result = false;
 
 	// Call the parent classes' functions
 	if(GConstrainedFPNumCollectionT<double>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedDoubleCollection::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -298,6 +303,7 @@ bool GConstrainedDoubleCollection::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent classes' functions
 	GConstrainedFPNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests();
 
@@ -336,6 +342,10 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	//---------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -343,13 +353,16 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GConstrainedDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent classes' functions
 	GConstrainedFPNumCollectionT<double>::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBrokerEA::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

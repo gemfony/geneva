@@ -137,7 +137,6 @@ protected:
 	/** @brief The default constructor. Intentionally protected	 */
 	GConstrainedDoubleCollection();
 
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object */
@@ -147,8 +146,6 @@ public:
 	/** @brief Performs self tests that are expected to fail */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 	/***************************************************************************/
-#endif /* GEM_TESTING */
-
 };
 
 /******************************************************************************/

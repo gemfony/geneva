@@ -39,8 +39,8 @@
 // Boost headers go here
 #include <boost/tuple/tuple.hpp>
 
-#ifndef GEVOLUTIONARYALGORITHM_HPP_
-#define GEVOLUTIONARYALGORITHM_HPP_
+#ifndef GBASEEA_HPP_
+#define GBASEEA_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -413,7 +413,6 @@ private:
    bool logOldParents_; ///< If set, a copy of the old parent individuals will be kept and the id of the parent individual will be recorded
    std::vector<boost::shared_ptr<GIndividual> > oldParents_; ///< Holds the last generation's parents, if logOldParents_ is set
 
-#ifdef GEM_TESTING
 public:
    /***************************************************************************/
    /** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -424,7 +423,6 @@ public:
    virtual void specificTestsNoFailureExpected_GUnitTests();
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
    virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GEM_TESTING */
 
 public:
    /***************************************************************************/
@@ -514,7 +512,6 @@ public:
       boost::uint16_t yDim_; ///< The dimension of the canvas in y-direction
       std::size_t nMonitorInds_; ///< The number if individuals that should be monitored
 
-#ifdef GEM_TESTING
      public:
       /** @brief Applies modifications to this object. This is needed for testing purposes */
       virtual bool modify_GUnitTests();
@@ -522,9 +519,6 @@ public:
       virtual void specificTestsNoFailureExpected_GUnitTests();
       /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
       virtual void specificTestsFailuresExpected_GUnitTests();
-
-      /************************************************************************/
-#endif /* GEM_TESTING */
      };
 
    /***************************************************************************/
@@ -540,4 +534,4 @@ public:
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBaseEA)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBaseEA::GEAOptimizationMonitor)
 
-#endif /* GEVOLUTIONARYALGORITHM_HPP_ */
+#endif /* GBASEEA_HPP_ */

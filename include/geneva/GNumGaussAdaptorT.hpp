@@ -467,7 +467,6 @@ protected: // For performance reasons, so we do not have to go through access fu
 	fp_type minSigma_; ///< minimum allowed value for sigma_
 	fp_type maxSigma_; ///< maximum allowed value for sigma_
 
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/**
@@ -476,6 +475,7 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
+#ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
@@ -489,6 +489,11 @@ public:
 		result = true;
 
 		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GNumGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -496,6 +501,7 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
@@ -632,6 +638,10 @@ public:
 		}
 
 		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+      condnotset("GNumGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -639,6 +649,7 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
@@ -689,9 +700,11 @@ public:
 
 		//------------------------------------------------------------------------------
 
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+      condnotset("GNumGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
-#endif /* GEM_TESTING */
 };
 
 /******************************************************************************/

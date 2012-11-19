@@ -173,7 +173,6 @@ void GConstrainedInt32ObjectCollection::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -181,12 +180,18 @@ void GConstrainedInt32ObjectCollection::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GConstrainedInt32ObjectCollection::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	this->fillWithObjects(10);
 
 	// Call the parent class'es function
 	GParameterTCollectionT<GConstrainedInt32Object>::modify_GUnitTests();
 
 	return true;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedInt32ObjectCollection::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -194,6 +199,7 @@ bool GConstrainedInt32ObjectCollection::modify_GUnitTests() {
  * Fills the collection with GConstrainedInt32Object objects
  */
 void GConstrainedInt32ObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
+#ifdef GEM_TESTING
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
@@ -220,6 +226,10 @@ void GConstrainedInt32ObjectCollection::fillWithObjects(const std::size_t& nAdde
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gcio_ptr));
 	}
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedInt32ObjectCollection::fillWithObjects", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -227,6 +237,7 @@ void GConstrainedInt32ObjectCollection::fillWithObjects(const std::size_t& nAdde
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Some settings
 	const std::size_t nAddedObjects = 10;
 	const std::size_t nTests = 100;
@@ -293,6 +304,10 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 	}
 
 	// --------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -300,13 +315,16 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GConstrainedInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GParameterTCollectionT<GConstrainedInt32Object>::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

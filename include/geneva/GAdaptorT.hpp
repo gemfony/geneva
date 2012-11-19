@@ -624,7 +624,6 @@ private:
 	boost::logic::tribool adaptionMode_; ///< false == never adapt; indeterminate == adapt with adProb_ probability; true == always adapt
 	double adaptAdaptionProbability_; ///< Influences the likelihood for the adaption of the adaption parameters
 
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/**
@@ -633,6 +632,7 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
+#ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
@@ -652,6 +652,11 @@ public:
 		result = true;
 
 		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -659,6 +664,7 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
@@ -1042,6 +1048,10 @@ public:
 		}
 
 		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -1049,6 +1059,7 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes.
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
@@ -1134,56 +1145,12 @@ public:
 		}
 
 		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
-#else /* GEM_TESTING */
-
-/******************************************************************************/
-/**
- * Applies modifications to this object. This is function is a trap, as it
- * should not be called if GEM_TESTING isn't set. However, its existence is
- * mandatory, as otherwise this class will have a different API depending on
- * whether GEM_TESTING is set or not.
- */
-bool modify_GUnitTests() {
-   raiseException(
-      "In GAdaptorT<>::modify_GUnitTests(): Error!" << std::endl
-      << "Function was called even though GEM_TESTING hasn't been set." << std::endl
-   );
-
-   // Make the compiler happy
-   return true;
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to succeed. This is function is a trap,
- * as it should not be called if GEM_TESTING isn't set. However, its existence is
- * mandatory, as otherwise this class will have a different API depending on
- * whether GEM_TESTING is set or not.
- */
-void specificTestsNoFailureExpected_GUnitTests() {
-   raiseException(
-      "In GAdaptorT<>::specificTestsNoFailureExpected_GUnitTests(): Error!" << std::endl
-      << "Function was called even though GEM_TESTING hasn't been set." << std::endl
-   );
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to fail. This is function is a trap, as
- * it should not be called if GEM_TESTING isn't set. However, its existence is
- * mandatory, as otherwise this class will have a different API depending on
- * whether GEM_TESTING is set or not.
- */
-void specificTestsFailuresExpected_GUnitTests() {
-   raiseException(
-      "In GAdaptorT<>::specificTestsFailuresExpected_GUnitTests(): Error!" << std::endl
-      << "Function was called even though GEM_TESTING hasn't been set." << std::endl
-   );
-}
-
-#endif /* GEM_TESTING */
 };
 
 /******************************************************************************/

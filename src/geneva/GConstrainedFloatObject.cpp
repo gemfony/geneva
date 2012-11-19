@@ -272,8 +272,6 @@ void GConstrainedFloatObject::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GEM_TESTING
-
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -281,12 +279,19 @@ void GConstrainedFloatObject::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GConstrainedFloatObject::modify_GUnitTests() {
+#ifdef GEM_TESTING
+
 	bool result = false;
 
 	// Call the parent class'es function
 	if(GConstrainedFPT<float>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedFloatObject::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -294,6 +299,8 @@ bool GConstrainedFloatObject::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GConstrainedFloatObject::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
+
 	// Some general settings
 	const float testVal = 42.;
 	const float testVal2 = 17.;
@@ -353,6 +360,10 @@ void GConstrainedFloatObject::specificTestsNoFailureExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedFloatObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -360,6 +371,9 @@ void GConstrainedFloatObject::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GConstrainedFloatObject::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
+
+   //------------------------------------------------------------------------------
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<float> > storedAdaptor;
@@ -384,11 +398,15 @@ void GConstrainedFloatObject::specificTestsFailuresExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+   //------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedFloatObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -679,7 +679,6 @@ std::string GParameterSet::getIndividualCharacteristic() const {
 void GParameterSet::custom_streamline(std::vector<boost::any>& var_vec)
 { /* nothing -- override in user-code */ }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -687,12 +686,18 @@ void GParameterSet::custom_streamline(std::vector<boost::any>& var_vec)
  * @return A boolean which indicates whether modifications were made
  */
 bool GParameterSet::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
 	if(GMutableSetT<Gem::Geneva::GParameterBase>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GParameterSet::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -700,6 +705,8 @@ bool GParameterSet::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
+
 	// Call the parent class'es function
 	GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
 
@@ -1108,6 +1115,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	//---------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GParameterSet::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -1115,12 +1126,16 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GParameterSet::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

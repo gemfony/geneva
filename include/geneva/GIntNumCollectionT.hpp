@@ -262,19 +262,24 @@ protected:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
 	virtual bool modify_GUnitTests() {
+#ifdef GEM_TESTING
 		bool result = false;
 
 		// Call the parent class'es function
 		if(GNumCollectionT<int_type>::modify_GUnitTests()) result = true;
 
 		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GIntNumCollectionT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -282,6 +287,7 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		// A few general settings
 		const std::size_t nItems = 100;
 		const int_type LOWERINITBOUNDARY =  int_type(0); // non-negative value, as int_type might be negative
@@ -377,6 +383,10 @@ public:
 		}
 
 		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+      condnotset("GIntNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -384,12 +394,16 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		// Call the parent class'es function
 		GNumCollectionT<int_type>::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+      condnotset("GIntNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
-#endif /* GEM_TESTING */
 };
 
 /******************************************************************************/

@@ -49,7 +49,7 @@
 // Geneva headers go here
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterT.hpp"
-#include "geneva/GConstrainedValueLimit.hpp"
+#include "geneva/GConstrainedValueLimitT.hpp"
 #include "common/GExceptions.hpp"
 
 namespace Gem {
@@ -564,8 +564,6 @@ private:
 	T lowerBoundary_; ///< The lower allowed boundary for our value
 	T upperBoundary_; ///< The upper allowed boundary for our value
 
-
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/**
@@ -574,12 +572,18 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
-		bool result = false;
+#ifdef GEM_TESTING
+      bool result = false;
 
 		// Call the parent classes' functions
 		if(GParameterT<T>::modify_GUnitTests()) result = true;
 
 		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GConstrainedNumT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -587,6 +591,7 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		// Some general settings
 		const T testVal = T(42);
 		const T lowerBoundary = T(0);
@@ -713,6 +718,10 @@ public:
 		}
 
 		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GConstrainedNumT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -720,6 +729,7 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsFailuresExpected_GUnitTests();
 
@@ -790,11 +800,14 @@ public:
 		}
 
 		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+      condnotset("GConstrainedNumT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
 
-#endif /* GEM_TESTING */
 };
 
 } /* namespace Geneva */

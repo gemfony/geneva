@@ -174,8 +174,6 @@ void GConstrainedDoubleObjectCollection::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GEM_TESTING
-
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -183,12 +181,18 @@ void GConstrainedDoubleObjectCollection::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GConstrainedDoubleObjectCollection::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	this->fillWithObjects(10);
 
 	// Call the parent class'es function
 	GParameterTCollectionT<GConstrainedDoubleObject>::modify_GUnitTests();
 
 	return true;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedDoubleObjectCollection::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -196,9 +200,12 @@ bool GConstrainedDoubleObjectCollection::modify_GUnitTests() {
  * Fills the collection with GConstrainedDoubleObject objects
  */
 void GConstrainedDoubleObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
+#ifdef GEM_TESTING
+   //---------------------------------------------------------------------------
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
+	//---------------------------------------------------------------------------
 	// Add GConstrainedDoubleObject items with adaptors to p_test1
 	for(std::size_t i=0; i<nAddedObjects; i++) {
 		// Create a suitable adaptor
@@ -222,6 +229,12 @@ void GConstrainedDoubleObjectCollection::fillWithObjects(const std::size_t& nAdd
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gcdo_ptr));
 	}
+
+	//---------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedDoubleObjectCollection::fillWithObjects", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -229,6 +242,7 @@ void GConstrainedDoubleObjectCollection::fillWithObjects(const std::size_t& nAdd
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Some settings
 	const std::size_t nAddedObjects = 10;
 	const std::size_t nTests = 100;
@@ -453,6 +467,10 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 	}
 
 	// --------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -460,6 +478,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Some settings
 	const std::size_t nAddedObjects = 10;
 
@@ -511,11 +530,13 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 	}
 
 	// --------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -264,7 +264,6 @@ void GInt32Collection::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -272,12 +271,18 @@ void GInt32Collection::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GInt32Collection::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
 	if(GIntNumCollectionT<boost::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GInt32Collection::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -285,6 +290,7 @@ bool GInt32Collection::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
@@ -311,6 +317,10 @@ void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GInt32Collection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -318,6 +328,7 @@ void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GInt32Collection::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
@@ -344,10 +355,13 @@ void GInt32Collection::specificTestsFailuresExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GInt32Collection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

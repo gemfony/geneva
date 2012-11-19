@@ -277,7 +277,6 @@ GObject* GConstrainedFloatCollection::clone_() const {
 	return new GConstrainedFloatCollection(*this);
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -285,12 +284,18 @@ GObject* GConstrainedFloatCollection::clone_() const {
  * @return A boolean which indicates whether modifications were made
  */
 bool GConstrainedFloatCollection::modify_GUnitTests() {
-	bool result = false;
+#ifdef GEM_TESTING
+   bool result = false;
 
 	// Call the parent classes' functions
 	if(GConstrainedFPNumCollectionT<float>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedFloatCollection::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -298,8 +303,13 @@ bool GConstrainedFloatCollection::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GConstrainedFloatCollection::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent classes' functions
 	GConstrainedFPNumCollectionT<float>::specificTestsNoFailureExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedFloatCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -307,13 +317,16 @@ void GConstrainedFloatCollection::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GConstrainedFloatCollection::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent classes' functions
 	GConstrainedFPNumCollectionT<float>::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GEM_TESTING::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

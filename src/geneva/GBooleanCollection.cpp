@@ -321,9 +321,6 @@ void GBooleanCollection::assignBooleanValueVector(const std::vector<bool>& parVe
    }
 }
 
-
-#ifdef GEM_TESTING
-
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -331,12 +328,18 @@ void GBooleanCollection::assignBooleanValueVector(const std::vector<bool>& parVe
  * @return A boolean which indicates whether modifications were made
  */
 bool GBooleanCollection::modify_GUnitTests() {
+#ifdef GEM_TESTING
    bool result = false;
 
    // Call the parent class'es function
    if(GParameterCollectionT<bool>::modify_GUnitTests()) result = true;
 
    return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanCollection::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -344,6 +347,7 @@ bool GBooleanCollection::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
    // A few settings
    const std::size_t nItems = 10000;
    const bool FIXEDVALUEINIT = true;
@@ -741,6 +745,10 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
    if(adaptorStored) {
       this->addAdaptor(storedAdaptor);
    }
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -748,6 +756,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
    // A few settings
    std::size_t nItems = 10000;
 
@@ -811,11 +820,13 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
    if(adaptorStored) {
       this->addAdaptor(storedAdaptor);
    }
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

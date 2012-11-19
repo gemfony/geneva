@@ -288,7 +288,6 @@ protected:
 		}
 	}
 
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/**
@@ -297,6 +296,8 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
+#ifdef GEM_TESTING
+
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
@@ -306,6 +307,11 @@ public:
 		if(GNumBiGaussAdaptorT<fp_type, fp_type>::modify_GUnitTests()) result = true;
 
 		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GFPBiGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -313,11 +319,17 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
+
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GNumBiGaussAdaptorT<fp_type, fp_type>::specificTestsNoFailureExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GFPBiGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -325,14 +337,19 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
+
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
 		GNumBiGaussAdaptorT<fp_type, fp_type>::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+      condnotset("GFPBiGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
-#endif /* GEM_TESTING */
 };
 
 /******************************************************************************/

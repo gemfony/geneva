@@ -286,8 +286,6 @@ void GConstrainedInt32Object::randomInit_() {
  * ----------------------------------------------------------------------------------
  */
 
-#ifdef GEM_TESTING
-
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -295,12 +293,18 @@ void GConstrainedInt32Object::randomInit_() {
  * @return A boolean which indicates whether modifications were made
  */
 bool GConstrainedInt32Object::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
 	if(GConstrainedIntT<boost::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedInt32Object::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -308,6 +312,7 @@ bool GConstrainedInt32Object::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
@@ -332,6 +337,10 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -339,6 +348,7 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
@@ -363,11 +373,13 @@ void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

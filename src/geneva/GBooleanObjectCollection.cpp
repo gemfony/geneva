@@ -195,8 +195,6 @@ void GBooleanObjectCollection::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GEM_TESTING
-
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -204,12 +202,18 @@ void GBooleanObjectCollection::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GBooleanObjectCollection::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	this->fillWithObjects(10);
 
 	// Call the parent class'es function
 	GParameterTCollectionT<GBooleanObject>::modify_GUnitTests();
 
 	return true;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanObjectCollection::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -217,6 +221,7 @@ bool GBooleanObjectCollection::modify_GUnitTests() {
  * Fills the collection with GBooleanObject objects
  */
 void GBooleanObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
+#ifdef GEM_TESTING
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
@@ -243,6 +248,10 @@ void GBooleanObjectCollection::fillWithObjects(const std::size_t& nAddedObjects)
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gbo_ptr));
 	}
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanObjectCollection::fillWithObjects", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -250,6 +259,7 @@ void GBooleanObjectCollection::fillWithObjects(const std::size_t& nAddedObjects)
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Some settings
 	const std::size_t nAddedObjects = 10;
 	const std::size_t nTests = 10000;
@@ -385,6 +395,10 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	// --------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -392,13 +406,16 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GParameterTCollectionT<GBooleanObject>::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

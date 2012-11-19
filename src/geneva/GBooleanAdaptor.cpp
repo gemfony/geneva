@@ -209,8 +209,6 @@ void GBooleanAdaptor::customAdaptions(bool& value) {
  * ----------------------------------------------------------------------------------
  */
 
-#ifdef GEM_TESTING
-
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -218,6 +216,7 @@ void GBooleanAdaptor::customAdaptions(bool& value) {
  * @return A boolean which indicates whether modifications were made
  */
 bool GBooleanAdaptor::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -227,6 +226,10 @@ bool GBooleanAdaptor::modify_GUnitTests() {
 	if(GIntFlipAdaptorT<bool>::modify_GUnitTests()) result = true;
 
 	return result;
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanAdaptor::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -234,6 +237,7 @@ bool GBooleanAdaptor::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -293,6 +297,10 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	// --------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -300,6 +308,7 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -307,11 +316,13 @@ void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	GIntFlipAdaptorT<bool>::specificTestsFailuresExpected_GUnitTests();
 
 	// no local data - nothing to test
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

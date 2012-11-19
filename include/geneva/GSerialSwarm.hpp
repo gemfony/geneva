@@ -124,7 +124,6 @@ protected:
 	/** @brief Updates the fitness of all individuals */
 	virtual void updateFitness();
 
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -133,7 +132,6 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GEM_TESTING */
 };
 
 } /* namespace Geneva */

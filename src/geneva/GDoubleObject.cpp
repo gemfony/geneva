@@ -269,7 +269,6 @@ void GDoubleObject::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -277,12 +276,18 @@ void GDoubleObject::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GDoubleObject::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
 	if(GNumFPT<double>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GDoubleObject::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -290,6 +295,7 @@ bool GDoubleObject::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// A few settings
 	const std::size_t nTests = 10000;
 
@@ -431,6 +437,10 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GDoubleObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -438,6 +448,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
@@ -476,11 +487,13 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GDoubleObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

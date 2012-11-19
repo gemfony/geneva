@@ -59,7 +59,7 @@
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterCollectionT.hpp"
-#include "geneva/GConstrainedValueLimit.hpp"
+#include "geneva/GConstrainedValueLimitT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -412,7 +412,6 @@ private:
 	num_type lowerBoundary_; ///< The lower allowed boundary for our value
 	num_type upperBoundary_; ///< The upper allowed boundary for our value
 
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/**
@@ -421,12 +420,18 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
-		bool result = false;
+#ifdef GEM_TESTING
+      bool result = false;
 
 		// Call the parent classes' functions
 		if(GParameterCollectionT<num_type>::modify_GUnitTests()) result = true;
 
 		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedNumCollectionT<>::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -434,8 +439,12 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterCollectionT<num_type>::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -443,12 +452,15 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterCollectionT<num_type>::specificTestsFailuresExpected_GUnitTests();
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
-#endif /* GEM_TESTING */
-
+	/***************************************************************************/
 };
 
 /******************************************************************************/

@@ -129,7 +129,6 @@ protected:
 	/** @brief Triggers fitness calculation of a number of individuals */
 	virtual double doFitnessCalculation(const std::size_t&);
 
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -138,7 +137,6 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GEM_TESTING */
 };
 
 } /* namespace Geneva */

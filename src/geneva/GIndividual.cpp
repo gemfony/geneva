@@ -929,8 +929,6 @@ bool GIndividual::localRNGsUsed() const {
 	return true;
 }
 
-#ifdef GEM_TESTING
-
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -938,6 +936,8 @@ bool GIndividual::localRNGsUsed() const {
  * @return A boolean which indicates whether modifications were made
  */
 bool GIndividual::modify_GUnitTests() {
+#ifdef GEM_TESTING
+
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -954,6 +954,11 @@ bool GIndividual::modify_GUnitTests() {
 	nStalls_++;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GIndividual::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -961,6 +966,7 @@ bool GIndividual::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -1163,6 +1169,10 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	// --------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -1170,6 +1180,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GIndividual::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -1221,11 +1232,14 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 #endif /* DEBUG */
 
 	// --------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
 
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

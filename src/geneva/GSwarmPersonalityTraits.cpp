@@ -327,7 +327,6 @@ std::size_t GSwarmPersonalityTraits::getNeighborhood(void) const {
 	return neighborhood_;
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -335,12 +334,18 @@ std::size_t GSwarmPersonalityTraits::getNeighborhood(void) const {
  * @return A boolean which indicates whether modifications were made
  */
 bool GSwarmPersonalityTraits::modify_GUnitTests() {
-	bool result = false;
+#ifdef GEM_TESTING
+   bool result = false;
 
 	// Call the parent class'es function
 	if(GPersonalityTraits::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GSwarmPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -348,6 +353,7 @@ bool GSwarmPersonalityTraits::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -389,6 +395,10 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	//---------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -396,6 +406,7 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -405,10 +416,13 @@ void GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 
 	//---------------------------------------------------------------------------
 	//---------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

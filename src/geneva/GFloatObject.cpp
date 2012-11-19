@@ -269,7 +269,6 @@ void GFloatObject::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -277,12 +276,18 @@ void GFloatObject::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GFloatObject::modify_GUnitTests() {
-	bool result = false;
+#ifdef GEM_TESTING
+   bool result = false;
 
 	// Call the parent class'es function
 	if(GNumFPT<float>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GFloatObject::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -290,6 +295,7 @@ bool GFloatObject::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GFloatObject::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// A few settings
 	const std::size_t nTests = 10000;
 
@@ -425,6 +431,10 @@ void GFloatObject::specificTestsNoFailureExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GFloatObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -432,6 +442,7 @@ void GFloatObject::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GFloatObject::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<float> > storedAdaptor;
@@ -470,11 +481,15 @@ void GFloatObject::specificTestsFailuresExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+	// --------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GFloatObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

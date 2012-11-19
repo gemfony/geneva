@@ -77,7 +77,7 @@ namespace Geneva {
 
 /******************************************************************************/
 /** @brief A termination handler */
-void GTerminate();
+void GTerminateImproperBoostTermination();
 
 /******************************************************************************/
 /**
@@ -111,7 +111,7 @@ public:
 		RESETGRANDOMFACTORY;
 
 #ifdef GEM_INT_FORCE_TERMINATION // Defined in GGlobalDefines.hpp.in
-		std::set_terminate(GTerminate);
+		std::set_terminate(GTerminateImproperBoostTermination);
 		std::terminate();
 #endif /* GEM_INT_FORCE_TERMINATION */
 

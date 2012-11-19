@@ -48,6 +48,7 @@
 // Geneva headers go here
 #include "hap/GRandomT.hpp"
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GParameterBase.hpp"
@@ -249,7 +250,6 @@ protected:
 	 */
 	virtual void dummyFunction() { /* nothing */ }
 
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/**
@@ -258,6 +258,7 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
+#ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
@@ -274,6 +275,11 @@ public:
 		}
 
 		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GMutableSetT<>::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -281,6 +287,7 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
@@ -289,6 +296,10 @@ public:
 		GStdPtrVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
 
 		// no local data, nothing to test
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GMutableSetT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -296,6 +307,7 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
@@ -304,10 +316,13 @@ public:
 		GStdPtrVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
 
 		// no local data, nothing to test
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GMutableSetT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
-#endif /* GEM_TESTING */
 };
 
 } /* namespace Geneva */

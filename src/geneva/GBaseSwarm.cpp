@@ -1631,8 +1631,6 @@ std::size_t GBaseSwarm::getNProcessableItems() const {
 	return this->size(); // All items in the population are updated in each iteration and need to be processed
 }
 
-
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -1640,12 +1638,18 @@ std::size_t GBaseSwarm::getNProcessableItems() const {
  * @return A boolean which indicates whether modifications were made
  */
 bool GBaseSwarm::modify_GUnitTests() {
-	bool result = false;
+#ifdef GEM_TESTING
+   bool result = false;
 
 	// Call the parent class'es function
 	if(GOptimizationAlgorithmT<GParameterSet>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseSwarm::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -1653,8 +1657,13 @@ bool GBaseSwarm::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBaseSwarm::specificTestsNoFailureExpected_GUnitTests() {
-	// Call the parent class'es function
+#ifdef GEM_TESTING
+   // Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseSwarm::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -1662,12 +1671,14 @@ void GBaseSwarm::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBaseSwarm::specificTestsFailuresExpected_GUnitTests() {
-	// Call the parent class'es function
+#ifdef GEM_TESTING
+   // Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::specificTestsFailuresExpected_GUnitTests();
-}
 
-/******************************************************************************/
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseSwarm::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
+}
 
 /******************************************************************************/
 /**
@@ -2002,18 +2013,23 @@ GObject* GBaseSwarm::GSwarmOptimizationMonitor::clone_() const {
 	return new GBaseSwarm::GSwarmOptimizationMonitor(*this);
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
 bool GBaseSwarm::GSwarmOptimizationMonitor::modify_GUnitTests() {
-	bool result = false;
+#ifdef GEM_TESTING
+   bool result = false;
 
 	// Call the parent class'es function
 	if(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseSwarm::GSwarmOptimizationMonitor::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -2021,8 +2037,13 @@ bool GBaseSwarm::GSwarmOptimizationMonitor::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBaseSwarm::GSwarmOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseSwarm::GSwarmOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -2030,12 +2051,15 @@ void GBaseSwarm::GSwarmOptimizationMonitor::specificTestsNoFailureExpected_GUnit
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBaseSwarm::GSwarmOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseSwarm::GSwarmOptimizationMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

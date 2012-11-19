@@ -187,7 +187,6 @@ boost::shared_ptr<Gem::Geneva::GParameterBase> GParameterObjectCollection::at(co
 	return data.at(pos);
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -195,12 +194,18 @@ boost::shared_ptr<Gem::Geneva::GParameterBase> GParameterObjectCollection::at(co
  * @return A boolean which indicates whether modifications were made
  */
 bool GParameterObjectCollection::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	this->fillWithObjects();
 
 	// Call the parent class'es function
 	GParameterTCollectionT<GParameterBase>::modify_GUnitTests();
 
 	return true;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GParameterObjectCollection::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -208,6 +213,7 @@ bool GParameterObjectCollection::modify_GUnitTests() {
  * Fills the collection with GParameterBase derivatives
  */
 void GParameterObjectCollection::fillWithObjects() {
+#ifdef GEM_TESTING
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
@@ -270,6 +276,10 @@ void GParameterObjectCollection::fillWithObjects() {
 
 	// Add the object to the collection
 	BOOST_CHECK_NO_THROW(this->push_back(gdo_ptr));
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GParameterObjectCollection::fillWithObjects", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -277,6 +287,7 @@ void GParameterObjectCollection::fillWithObjects() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Some settings
 	const double LOWERINITBOUNDARY = -10;
 	const double UPPERINITBOUNDARY =  10;
@@ -539,6 +550,10 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -546,12 +561,16 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GParameterObjectCollection::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GParameterTCollectionT<GParameterBase>::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

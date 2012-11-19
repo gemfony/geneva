@@ -199,7 +199,6 @@ private:
 	/** @brief Lets individuals know about their position in the population */
 	void markIndividualPositions();
 
-#ifdef GEM_TESTING
 public
    /***************************************************************************/:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -208,7 +207,6 @@ public
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GEM_TESTING */
 
 public:
 	/***************************************************************************/
@@ -289,7 +287,6 @@ public:
 		boost::uint16_t xDim_; ///< The dimension of the canvas in x-direction
 		boost::uint16_t yDim_; ///< The dimension of the canvas in y-direction
 
-	#ifdef GEM_TESTING
 	public:
 		/** @brief Applies modifications to this object. This is needed for testing purposes */
 		virtual bool modify_GUnitTests();
@@ -299,7 +296,6 @@ public:
 		virtual void specificTestsFailuresExpected_GUnitTests();
 
 		/************************************************************************/
-	#endif /* GEM_TESTING */
 	};
 
    /***************************************************************************/

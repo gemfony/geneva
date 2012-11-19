@@ -269,7 +269,6 @@ void GDoubleCollection::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -277,12 +276,18 @@ void GDoubleCollection::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GDoubleCollection::modify_GUnitTests() {
-	bool result = false;
+#ifdef GEM_TESTING
+   bool result = false;
 
 	// Call the parent class'es function
 	if(GFPNumCollectionT<double>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GDoubleCollection::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -290,6 +295,7 @@ bool GDoubleCollection::modify_GUnitTests() {
  * Fills the collection with some random data
  */
 void GDoubleCollection::fillWithData(const std::size_t& nItems) {
+#ifdef GEM_TESTING
 	// Make sure the collection is empty
 	BOOST_CHECK_NO_THROW(this->clear());
 
@@ -311,6 +317,10 @@ void GDoubleCollection::fillWithData(const std::size_t& nItems) {
 	// Cross-check the size
 	BOOST_CHECK(this->size() == nItems);
 	BOOST_CHECK(!this->empty());
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GDoubleCollection::fillWithData", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -318,6 +328,7 @@ void GDoubleCollection::fillWithData(const std::size_t& nItems) {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// A few settings
 	const std::size_t nItems = 10000;
 	const std::size_t nTests = 10;
@@ -579,6 +590,10 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GDoubleCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -586,6 +601,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
@@ -612,11 +628,13 @@ void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GDoubleCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -287,7 +287,6 @@ protected:
 	 */
 	mutable T val_;
 
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/**
@@ -296,12 +295,18 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
-		bool result = false;
+#ifdef GEM_TESTING
+      bool result = false;
 
 		// Call the parent classes' functions
 		if(GParameterBaseWithAdaptorsT<T>::modify_GUnitTests()) result = true;
 
 		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GParameterT<>::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -309,10 +314,15 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests();
 
 		// All tests of our local functions are made in derived classes
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GParameterT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -320,11 +330,15 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+      condnotset("GParameterT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
-#endif /* GEM_TESTING */
 };
 
 

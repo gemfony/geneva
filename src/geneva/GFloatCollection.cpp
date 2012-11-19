@@ -269,7 +269,6 @@ void GFloatCollection::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -277,12 +276,18 @@ void GFloatCollection::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GFloatCollection::modify_GUnitTests() {
-	bool result = false;
+#ifdef GEM_TESTING
+   bool result = false;
 
 	// Call the parent class'es function
 	if(GFPNumCollectionT<float>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GFloatCollection::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -290,6 +295,7 @@ bool GFloatCollection::modify_GUnitTests() {
  * Fills the collection with some random data
  */
 void GFloatCollection::fillWithData(const std::size_t& nItems) {
+#ifdef GEM_TESTING
 	// Make sure the collection is empty
 	BOOST_CHECK_NO_THROW(this->clear());
 
@@ -311,6 +317,10 @@ void GFloatCollection::fillWithData(const std::size_t& nItems) {
 	// Cross-check the size
 	BOOST_CHECK(this->size() == nItems);
 	BOOST_CHECK(!this->empty());
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GFloatCollection::fillWithData", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -318,6 +328,7 @@ void GFloatCollection::fillWithData(const std::size_t& nItems) {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GFloatCollection::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// A few settings
 	const std::size_t nItems = 10000;
 	const std::size_t nTests = 10;
@@ -579,6 +590,10 @@ void GFloatCollection::specificTestsNoFailureExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GFloatCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -586,6 +601,7 @@ void GFloatCollection::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GFloatCollection::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<float> > storedAdaptor;
@@ -612,11 +628,14 @@ void GFloatCollection::specificTestsFailuresExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GFloatCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

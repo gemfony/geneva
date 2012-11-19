@@ -418,7 +418,6 @@ protected:
 		: GConstrainedNumCollectionT<fp_type> ()
 	{ /* nothing */ }
 
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/**
@@ -427,12 +426,17 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
+#ifdef GEM_TESTING
 		bool result = false;
 
 		// Call the parent classes' functions
 		if(GConstrainedNumCollectionT<fp_type>::modify_GUnitTests()) result = true;
 
 		return result;
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedFPNumCollectionT<>::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -440,8 +444,12 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GConstrainedNumCollectionT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedFPNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -449,12 +457,13 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GConstrainedNumCollectionT<fp_type>::specificTestsFailuresExpected_GUnitTests();
-	}
-
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedFPNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
-
+	}
 };
 
 /******************************************************************************/

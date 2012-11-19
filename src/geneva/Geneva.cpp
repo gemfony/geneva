@@ -41,7 +41,7 @@ namespace Geneva {
 /**
  * A termination handler
  */
-void GTerminate() {
+void GTerminateImproperBoostTermination() {
 	std::cout
 	<< "***********************************************************" << std::endl
 	<< "* Note that there seems to be a bug in some Boost         *" << std::endl

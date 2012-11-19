@@ -63,15 +63,19 @@ namespace Common {
 /** @brief General error class to be thrown in the case of severe errors */
 class gemfony_error_condition : public std::exception {
 public:
-	gemfony_error_condition(const std::string& description) throw() { description_ = description; }
-	virtual ~gemfony_error_condition()  throw() {;}
+   /** @brief The standard constructor */
+	gemfony_error_condition(const std::string&) throw();
+	/** @brief The destructor */
+	virtual ~gemfony_error_condition()  throw();
 
-	virtual const char* what() const throw() {
-		return description_.c_str();
-	}
+	/** @brief Emits information when thrown */
+	virtual const char* what() const throw();
 
 private:
-	std::string description_;
+	/** @brief The default constructor: Intentionally private and undefined */
+	gemfony_error_condition();
+
+	std::string description_; ///< Holds the actual error description
 };
 
 /******************************************************************************/
@@ -105,6 +109,10 @@ private:
        << "================================================" << std::endl;                               \
     throw(Gem::Common::gemfony_error_condition(error.str()));                                            \
   }                                                                                                      \
+
+/******************************************************************************/
+/** @brief Raise an exception if a given define wasn't set */
+void condnotset(const std::string&, const std::string&);
 
 /******************************************************************************/
 

@@ -4,6 +4,7 @@ SET ( COMMONSOURCES
 	GCanvas
 	GCommonEnums
 	GDefaultValueT
+	GExceptions
 	GHelperFunctions
 	GMathHelperFunctions
 	GParserBuilder

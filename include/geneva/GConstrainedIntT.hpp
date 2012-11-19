@@ -364,7 +364,6 @@ private:
 		return reverted;
 	}
 
-#ifdef GEM_TESTING
 public:
 	/***************************************************************************/
 	/**
@@ -373,12 +372,18 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
-		bool result = false;
+#ifdef GEM_TESTING
+      bool result = false;
 
 		// Call the parent classes' functions
 		if(GConstrainedNumT<int_type>::modify_GUnitTests()) result = true;
 
 		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedIntT<>::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -386,6 +391,7 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		// Some general settings
 		const int_type minLower = -50; // NOTE: This will fail if int_type is unsigned; GConstrainedIntT has been designed for signed types only
 		const int_type maxLower =  50;
@@ -570,6 +576,10 @@ public:
 		}
 
 		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedIntT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
 	/***************************************************************************/
@@ -577,11 +587,16 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GConstrainedNumT<int_type>::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GConstrainedIntT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 	}
 
-#endif /* GEM_TESTING */
+   /***************************************************************************/
 };
 
 } /* namespace Geneva */

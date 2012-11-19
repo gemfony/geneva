@@ -450,7 +450,6 @@ void GObject::addConfigurationOptions(
 	// No local data, no relevant parent classes, hence nothing to do
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -458,10 +457,16 @@ void GObject::addConfigurationOptions(
  * @return A boolean which indicates whether modifications were made
  */
 bool GObject::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	// There is no modifiable parent class and no local data,
 	// so there is nothing we can do here in this function.
 
 	return false;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GObject::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -469,6 +474,7 @@ bool GObject::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GObject::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -570,6 +576,10 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	// --------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -577,11 +587,15 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GObject::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// no parent class
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

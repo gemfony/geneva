@@ -1744,7 +1744,6 @@ duplicationScheme GBaseEA::getRecombinationMethod() const {
 	return recombinationMethod_;
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -1752,12 +1751,19 @@ duplicationScheme GBaseEA::getRecombinationMethod() const {
  * @return A boolean which indicates whether modifications were made
  */
 bool GBaseEA::modify_GUnitTests() {
+#ifdef GEM_TESTING
+
 	bool result = false;
 
 	// Call the parent class'es function
 	if(GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+	condnotset("GBaseEA::modify_GUnitTests", "GEM_TESTING");
+	return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -1767,6 +1773,7 @@ bool GBaseEA::modify_GUnitTests() {
  * @param nIndividuals The number of individuals that should be added to the collection
  */
 void GBaseEA::fillWithObjects(const std::size_t& nIndividuals) {
+#ifdef GEM_TESTING
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
@@ -1777,6 +1784,10 @@ void GBaseEA::fillWithObjects(const std::size_t& nIndividuals) {
 
 	// Make sure we have unique data items
 	this->randomInit();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseEA::fillWithObjects", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -1784,7 +1795,7 @@ void GBaseEA::fillWithObjects(const std::size_t& nIndividuals) {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
-
+#ifdef GEM_TESTING
 	//------------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
@@ -1833,6 +1844,10 @@ void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseEA::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -1840,13 +1855,14 @@ void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBaseEA::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::specificTestsFailuresExpected_GUnitTests();
-}
 
-/******************************************************************************/
-
+#else /* GEM_TESTING */
+   condnotset("GBaseEA::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
+}
 
 /******************************************************************************/
 /**
@@ -2242,19 +2258,23 @@ GObject* GBaseEA::GEAOptimizationMonitor::clone_() const {
 	return new GBaseEA::GEAOptimizationMonitor(*this);
 }
 
-#ifdef GEM_TESTING
-
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
 bool GBaseEA::GEAOptimizationMonitor::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
 	if(GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseEA::GEAOptimizationMonitor::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -2262,8 +2282,13 @@ bool GBaseEA::GEAOptimizationMonitor::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBaseEA::GEAOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
-	// Call the parent class'es function
+#ifdef GEM_TESTING
+   // Call the parent class'es function
 	GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBaseEA::GEAOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -2271,13 +2296,16 @@ void GBaseEA::GEAOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests(
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBaseEA::GEAOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
-	// Call the parent class'es function
+#ifdef GEM_TESTING
+   // Call the parent class'es function
 	GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */
+   condnotset("GBaseEA::GEAOptimizationMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

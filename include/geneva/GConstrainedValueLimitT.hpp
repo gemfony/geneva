@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedValueLimit.hpp
+ * @file GConstrainedValueLimitT.hpp
  */
 
 /*
@@ -47,8 +47,8 @@
 #include <boost/limits.hpp>
 #include <boost/logic/tribool.hpp>
 
-#ifndef GCONSTRAINEDVALUELIMIT_HPP_
-#define GCONSTRAINEDVALUELIMIT_HPP_
+#ifndef GCONSTRAINEDVALUELIMITT_HPP_
+#define GCONSTRAINEDVALUELIMITT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -114,4 +114,4 @@ struct GConstrainedValueLimit<boost::int32_t>
 } /* Geneva */
 } /* Gem */
 
-#endif /* GCONSTRAINEDVALUELIMIT_HPP_ */
+#endif /* GCONSTRAINEDVALUELIMITT_HPP_ */

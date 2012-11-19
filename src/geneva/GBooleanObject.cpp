@@ -315,8 +315,6 @@ void GBooleanObject::load_(const GObject* cp){
 	// ... no local data
 }
 
-#ifdef GEM_TESTING
-
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -324,12 +322,18 @@ void GBooleanObject::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GBooleanObject::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
 	if(GParameterT<bool>::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanObject::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -337,6 +341,7 @@ bool GBooleanObject::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Some general settings
 	const bool FIXEDVALUEINIT = true;
     const double LOWERBND = 0.8, UPPERBND = 1.2;
@@ -636,6 +641,10 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -643,6 +652,8 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
+
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<bool> > storedAdaptor;
@@ -667,11 +678,13 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBooleanObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

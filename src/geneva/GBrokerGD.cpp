@@ -341,7 +341,6 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	return bestFitness;
 }
 
-#ifdef GEM_TESTING
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -349,12 +348,19 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
  * @return A boolean which indicates whether modifications were made
  */
 bool GBrokerGD::modify_GUnitTests() {
+#ifdef GEM_TESTING
+
 	bool result = false;
 
 	// Call the parent class'es function
 	if(GBaseGD::modify_GUnitTests()) result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBrokerGD::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -362,8 +368,13 @@ bool GBrokerGD::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBrokerGD::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	// Call the parent class'es function
 	GBaseGD::specificTestsNoFailureExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBrokerGD::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -371,12 +382,16 @@ void GBrokerGD::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBrokerGD::specificTestsFailuresExpected_GUnitTests() {
-	// Call the parent class'es function
+#ifdef GEM_TESTING
+   // Call the parent class'es function
 	GBaseGD::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GBrokerGD::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */
