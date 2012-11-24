@@ -868,6 +868,8 @@ void GBaseGD::specificTestsFailuresExpected_GUnitTests() {
  * The default constructor
  */
 GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor()
+   : xDim_(0)
+   , yDim_(0)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -878,6 +880,8 @@ GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor()
  */
 GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor(const GBaseGD::GGDOptimizationMonitor& cp)
 	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
+	, xDim_(cp.xDim_)
+	, yDim_(cp.yDim_)
   { /* nothing */ }
 
 /******************************************************************************/

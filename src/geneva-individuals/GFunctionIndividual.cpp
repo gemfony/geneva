@@ -549,6 +549,479 @@ boost::tuple<double,double> GFunctionIndividualFactory::getVarBoundaries() const
 
 /******************************************************************************/
 /**
+ * Set the minimum and maximum boundaries of the variables
+ */
+void GFunctionIndividualFactory::setVarBoundaries(boost::tuple<double,double> boundaries) {
+   double min = boost::get<0>(boundaries);
+   double max = boost::get<1>(boundaries);
+
+   if(min>=max) {
+      raiseException(
+            "In GFunctionIndividualFactory::setVarBoundaries(): Error!" << std::endl
+            << "Received invalid boundaries " << min << " / " << max << std::endl
+      );
+   }
+
+   setMinVar(min);
+   setMaxVar(max);
+}
+
+/******************************************************************************/
+/**
+ * Get the value of the adaptionThreshold_ variable
+ */
+boost::uint32_t GFunctionIndividualFactory::getAdaptionThreshold() const
+{
+   return adaptionThreshold_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the adaptionThreshold_ variable
+ */
+void GFunctionIndividualFactory::setAdaptionThreshold(
+      boost::uint32_t adaptionThreshold)
+{
+   adaptionThreshold_ = adaptionThreshold;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the adProb_ variable
+ */
+double GFunctionIndividualFactory::getAdProb() const
+{
+   return adProb_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the adProb_ variable
+ */
+void GFunctionIndividualFactory::setAdProb(double adProb)
+{
+   adProb_ = adProb;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the delta_ variable
+ */
+double GFunctionIndividualFactory::getDelta() const
+{
+   return delta_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the delta_ variable
+ */
+void GFunctionIndividualFactory::setDelta(double delta)
+{
+   delta_ = delta;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the iM_ variable
+ */
+initMode GFunctionIndividualFactory::getIM() const
+{
+   return iM_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the iM_ variable
+ */
+void GFunctionIndividualFactory::setIM(initMode m)
+{
+   iM_ = m;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the maxDelta_ variable
+ */
+double GFunctionIndividualFactory::getMaxDelta() const
+{
+   return maxDelta_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the maxDelta_ variable
+ */
+void GFunctionIndividualFactory::setMaxDelta(double maxDelta)
+{
+   maxDelta_ = maxDelta;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the maxSigma1_ variable
+ */
+double GFunctionIndividualFactory::getMaxSigma1() const
+{
+   return maxSigma1_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the maxSigma1_ variable
+ */
+void GFunctionIndividualFactory::setMaxSigma1(double maxSigma1)
+{
+   maxSigma1_ = maxSigma1;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the maxSigma2_ variable
+ */
+double GFunctionIndividualFactory::getMaxSigma2() const
+{
+   return maxSigma2_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the maxSigma2_ variable
+ */
+void GFunctionIndividualFactory::setMaxSigma2(double maxSigma2)
+{
+   maxSigma2_ = maxSigma2;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the maxVar_ variable
+ */
+double GFunctionIndividualFactory::getMaxVar() const
+{
+   return maxVar_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the maxVar_ variable
+ */
+void GFunctionIndividualFactory::setMaxVar(double maxVar)
+{
+   maxVar_ = maxVar;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the minDelta_ variable
+ */
+double GFunctionIndividualFactory::getMinDelta() const
+{
+   return minDelta_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the minDelta_ variable
+ */
+void GFunctionIndividualFactory::setMinDelta(double minDelta)
+{
+   minDelta_ = minDelta;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the allowed value range of delta
+ */
+boost::tuple<double, double> GFunctionIndividualFactory::getDeltaRange() const {
+   return boost::tuple<double, double>(minDelta_, maxDelta_);
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the allowed value range of delta
+ */
+void GFunctionIndividualFactory::setDeltaRange(boost::tuple<double, double> range) {
+   double min = boost::get<0>(range);
+   double max = boost::get<1>(range);
+
+   if(min < 0) {
+      raiseException(
+                  "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
+                  << "min must be >= 0. Got : " << max << std::endl
+      );
+   }
+
+   if(min >= max) {
+      raiseException(
+            "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
+            << "Invalid range specified: " << min << " / " << max << std::endl
+      );
+   }
+
+   minDelta_ = min;
+   maxDelta_ = max;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the minSigma1_ variable
+ */
+double GFunctionIndividualFactory::getMinSigma1() const
+{
+   return minSigma1_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the minSigma1_ variable
+ */
+void GFunctionIndividualFactory::setMinSigma1(double minSigma1)
+{
+   minSigma1_ = minSigma1;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the allowed value range of sigma1_
+ */
+boost::tuple<double, double> GFunctionIndividualFactory::getSigma1Range() const {
+   return boost::tuple<double, double>(minSigma1_, maxSigma1_);
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the allowed value range of sigma1_
+ */
+void GFunctionIndividualFactory::setSigma1Range(boost::tuple<double, double> range) {
+   double min = boost::get<0>(range);
+   double max = boost::get<1>(range);
+
+   if(min < 0) {
+      raiseException(
+                  "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
+                  << "min must be >= 0. Got : " << max << std::endl
+      );
+   }
+
+   if(min >= max) {
+      raiseException(
+            "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
+            << "Invalid range specified: " << min << " / " << max << std::endl
+      );
+   }
+
+   minSigma1_ = min;
+   maxSigma1_ = max;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the minSigma2_ variable
+ */
+double GFunctionIndividualFactory::getMinSigma2() const
+{
+   return minSigma2_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the minSigma2_ variable
+ */
+void GFunctionIndividualFactory::setMinSigma2(double minSigma2)
+{
+   minSigma2_ = minSigma2;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the allowed value range of sigma2_
+ */
+boost::tuple<double, double> GFunctionIndividualFactory::getSigma2Range() const {
+   return boost::tuple<double, double>(minSigma2_, maxSigma2_);
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the allowed value range of sigma2_
+ */
+void GFunctionIndividualFactory::setSigma2Range(boost::tuple<double, double> range) {
+   double min = boost::get<0>(range);
+   double max = boost::get<1>(range);
+
+   if(min < 0) {
+      raiseException(
+                  "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
+                  << "min must be >= 0. Got : " << max << std::endl
+      );
+   }
+
+   if(min >= max) {
+      raiseException(
+            "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
+            << "Invalid range specified: " << min << " / " << max << std::endl
+      );
+   }
+
+   minSigma2_ = min;
+   maxSigma2_ = max;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the minVar_ variable
+ */
+double GFunctionIndividualFactory::getMinVar() const
+{
+   return minVar_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the minVar_ variable
+ */
+void GFunctionIndividualFactory::setMinVar(double minVar)
+{
+   minVar_ = minVar;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the parDim_ variable
+ */
+std::size_t GFunctionIndividualFactory::getParDim() const
+{
+   return parDim_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the pT_ variable
+ */
+parameterType GFunctionIndividualFactory::getPT() const
+{
+   return pT_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the pT_ variable
+ */
+void GFunctionIndividualFactory::setPT(parameterType pt)
+{
+   pT_ = pt;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the sigma1_ variable
+ */
+double GFunctionIndividualFactory::getSigma1() const
+{
+   return sigma1_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the sigma1_ variable
+ */
+void GFunctionIndividualFactory::setSigma1(double sigma1)
+{
+   sigma1_ = sigma1;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the sigma2_ variable
+ */
+double GFunctionIndividualFactory::getSigma2() const
+{
+   return sigma2_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the sigma2_ variable
+ */
+void GFunctionIndividualFactory::setSigma2(double sigma2)
+{
+   sigma2_ = sigma2;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the sigmaDelta_ variable
+ */
+double GFunctionIndividualFactory::getSigmaDelta() const
+{
+   return sigmaDelta_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the sigmaDelta_ variable
+ */
+void GFunctionIndividualFactory::setSigmaDelta(double sigmaDelta)
+{
+   sigmaDelta_ = sigmaDelta;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the sigmaSigma1_ variable
+ */
+double GFunctionIndividualFactory::getSigmaSigma1() const
+{
+   return sigmaSigma1_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the sigmaSigma1_ variable
+ */
+void GFunctionIndividualFactory::setSigmaSigma1(double sigmaSigma1)
+{
+   sigmaSigma1_ = sigmaSigma1;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the sigmaSigma2_ variable
+ */
+double GFunctionIndividualFactory::getSigmaSigma2() const
+{
+   return sigmaSigma2_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the sigmaSigma2_ variable
+ */
+void GFunctionIndividualFactory::setSigmaSigma2(double sigmaSigma2)
+{
+   sigmaSigma2_ = sigmaSigma2;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the useBiGaussian_ variable
+ */
+bool GFunctionIndividualFactory::getUseBiGaussian() const
+{
+   return useBiGaussian_;
+}
+
+/******************************************************************************/
+/**
+ * Set the value of the useBiGaussian_ variable
+ */
+void GFunctionIndividualFactory::setUseBiGaussian(bool useBiGaussian)
+{
+   useBiGaussian_ = useBiGaussian;
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type

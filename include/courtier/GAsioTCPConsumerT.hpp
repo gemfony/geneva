@@ -494,6 +494,16 @@ class GAsioTCPConsumerT
       return std::string("GAsioTCPConsumerT");
    }
 
+   /***************************************************************************/
+   /**
+    * Returns an indication whether full return can be expected from this
+    * consumer. Since evaluation is performed remotely, we assume that this
+    * is not the case.
+    */
+   virtual bool capableOfFullReturn() const {
+      return false;
+   }
+
  private:
    /***************************************************************************/
    /**

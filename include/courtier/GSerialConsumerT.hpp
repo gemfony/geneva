@@ -103,7 +103,7 @@ public:
 		processingThread_.join();
 	}
 
-	/*********************************************************************/
+	/***************************************************************************/
 	/**
 	* A unique identifier for a given consumer
 	*
@@ -113,7 +113,19 @@ public:
 	  return std::string("GSerialConsumerT");
 	}
 
+   /***************************************************************************/
+   /**
+    * Returns an indication whether full return can be expected from this
+    * consumer. Since evaluation is performed aerially, we assume that this
+    * is possible and return true.
+    */
+   virtual bool capableOfFullReturn() const {
+      return true;
+   }
+
 private:
+   /***************************************************************************/
+
 	GSerialConsumerT(const GSerialConsumerT<processable_type>&); ///< Intentionally left undefined
 	const GSerialConsumerT<processable_type>& operator=(const GSerialConsumerT<processable_type>&); ///< Intentionally left undefined
 

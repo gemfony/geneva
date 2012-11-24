@@ -164,6 +164,16 @@ public:
 	}
 
 	/***************************************************************************/
+   /**
+    * Returns an indication whether full return can be expected from this
+    * consumer. Since evaluation is performed in threads, we assume that this
+    * is possible and return true.
+    */
+   virtual bool capableOfFullReturn() const {
+      return true;
+   }
+
+	/***************************************************************************/
 	/**
 	 * Retrieves the number of workers registered with this class
 	 */

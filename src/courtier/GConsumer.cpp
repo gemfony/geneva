@@ -76,6 +76,15 @@ bool GConsumer::stopped() const {
 
 /******************************************************************************/
 /**
+ * Returns an indication whether a full return of work items can be expected
+ * from the consonumer. By default we asusme that a full return is not possible.
+ */
+bool GConsumer::capableOfFullReturn() const {
+   return false;
+}
+
+/******************************************************************************/
+/**
  * Parses a given configuration file
  *
  * @param configFile The name of a configuration file

@@ -47,6 +47,7 @@ GGradientDescentFactory::GGradientDescentFactory(
 	, const parMode& pm
 )
 	: GOptimizationAlgorithmFactoryT<GBaseGD>(configFile, pm)
+	, maxResubmissions_(0)
 { /* nothing */ }
 
 /******************************************************************************/

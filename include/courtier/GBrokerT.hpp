@@ -455,6 +455,33 @@ public:
 		return consumerCollection_.size()>0?true:false;
 	}
 
+  	/***************************************************************************/
+        /**
+	 * This function checks all registered consumers to see whether all of them
+	 * are capable of full return. If so, it returns true. If at least one is 
+	 * found that is not capable of full return, it returns false.
+	 */
+         bool capableOfFullReturn() const {
+#ifdef DEBUG
+	   if(!hasConsumers()) {
+	     raiseException(
+			    "In GBrokerT<carrier_type>::capableOfFullReturn(): Error!" << std::endl
+			    << "No consumers registered" << std::endl
+             );
+	   }
+#endif /* DEBUG */
+
+	   bool result = true;
+	   std::vector<boost::shared_ptr<GConsumer> >::const_iterator cit;
+	   for(cit=consumerCollection_.begin(); cit!=consumerCollection_.end(); ++cit) {
+	     if(!(*cit)->capableOfFullReturn()) {
+	       result = false;
+	     }
+	   }
+
+	   return result;
+	 }
+  
 private:
 	/***************************************************************************/
 	GBrokerT(const GBrokerT<carrier_type>&); ///< Intentionally left undefined

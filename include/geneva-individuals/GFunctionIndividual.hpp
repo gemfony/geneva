@@ -393,10 +393,103 @@ public:
 	/** @brief The destructor */
 	virtual ~GFunctionIndividualFactory();
 
-	/** @brief (Re-)Set the dimension of the function */
-	void setParDim(std::size_t);
-	/** @brief Extract the minimum and maximum boundaries of the variables */
-	boost::tuple<double,double> getVarBoundaries() const;
+	/**************************************************************************/
+	// Getters and setters
+
+	/** @brief Allows to retrieve the adaptionThreshold_ variable */
+   boost::uint32_t getAdaptionThreshold() const;
+   /** @brief Set the value of the adaptionThreshold_ variable */
+   void setAdaptionThreshold(boost::uint32_t adaptionThreshold);
+
+   /** @brief Allows to retrieve the adProb_ variable */
+   double getAdProb() const;
+   /** @brief Set the value of the adProb_ variable */
+   void setAdProb(double adProb);
+
+   /** @brief Allows to retrieve the iM_ variable */
+   initMode getIM() const;
+   /** @brief Set the value of the iM_ variable */
+   void setIM(initMode im);
+
+   /** @brief Allows to retrieve the parDim_ variable */
+   std::size_t getParDim() const;
+   /** @brief (Re-)Set the dimension of the function */
+   void setParDim(std::size_t);
+
+   /** @brief Allows to retrieve the pT_ variable */
+   parameterType getPT() const;
+   /** @brief Set the value of the pT_ variable */
+   void setPT(parameterType pt);
+
+   /** @brief Allows to retrieve the useBiGaussian_ variable */
+   bool getUseBiGaussian() const;
+   /** @brief Set the value of the useBiGaussian_ variable */
+   void setUseBiGaussian(bool useBiGaussian);
+
+   /** @brief Allows to retrieve the minVar_ variable */
+   double getMinVar() const;
+   /** @brief Allows to retrieve the maxVar_ variable */
+   double getMaxVar() const;
+   /** @brief Extract the minimum and maximum boundaries of the variables */
+   boost::tuple<double,double> getVarBoundaries() const;
+   /** @brief Set the minimum and maximum boundaries of the variables */
+   void setVarBoundaries(boost::tuple<double,double>);
+
+   /** @brief Allows to retrieve the delta_ variable */
+   double getDelta() const;
+   /** @brief Set the value of the delta_ variable */
+   void setDelta(double delta);
+   /** @brief Allows to retrieve the minDelta_ variable */
+   double getMinDelta() const;
+   /** @brief Allows to retrieve the maxDelta_ variable */
+   double getMaxDelta() const;
+   /** @brief Allows to retrieve the allowed value range of delta */
+   boost::tuple<double, double> getDeltaRange() const;
+   /** @brief Allows to set the allowed value range of delta */
+   void setDeltaRange(boost::tuple<double, double>);
+
+   /** @brief Allows to retrieve the minSigma1_ variable */
+   double getMinSigma1() const;
+   /** @brief Allows to retrieve the maxSigma1_ variable */
+   double getMaxSigma1() const;
+   /** @brief Allows to retrieve the allowed value range of sigma1_ */
+   boost::tuple<double, double> getSigma1Range() const;
+   /** @brief Allows to set the allowed value range of sigma1_ */
+   void setSigma1Range(boost::tuple<double, double>);
+
+   /** @brief Allows to retrieve the minSigma2_ variable */
+   double getMinSigma2() const;
+   /** @brief Allows to retrieve the maxSigma2_ variable */
+   double getMaxSigma2() const;
+   /** @brief Allows to retrieve the allowed value range of sigma2_ */
+   boost::tuple<double, double> getSigma2Range() const;
+   /** @brief Allows to set the allowed value range of sigma2_ */
+   void setSigma2Range(boost::tuple<double, double>);
+
+   /** @brief Allows to retrieve the sigma1_ variable */
+   double getSigma1() const;
+   /** @brief Set the value of the sigma1_ variable */
+   void setSigma1(double sigma1);
+
+   /** @brief Allows to retrieve the sigma2_ variable */
+   double getSigma2() const;
+   /** @brief Set the value of the sigma2_ variable */
+   void setSigma2(double sigma2);
+
+   /** @brief Allows to retrieve the sigmaDelta_ variable */
+   double getSigmaDelta() const;
+   /** @brief Set the value of the sigmaDelta_ variable */
+   void setSigmaDelta(double sigmaDelta);
+
+   /** @brief Allows to retrieve the sigmaSigma1_ variable */
+   double getSigmaSigma1() const;
+   /** @brief Set the value of the sigmaSigma1_ variable */
+   void setSigmaSigma1(double sigmaSigma1);
+
+   /** @brief Allows to retrieve the sigmaSigma2_ variable */
+   double getSigmaSigma2() const;
+   /** @brief Set the value of the sigmaSigma2_ variable */
+   void setSigmaSigma2(double sigmaSigma2);
 
 protected:
 	/** @brief Creates individuals of this type */
@@ -407,6 +500,26 @@ protected:
 	virtual void postProcess_(boost::shared_ptr<GFunctionIndividual>&);
 
 private:
+   /** @brief Set the value of the minVar_ variable */
+   void setMinVar(double minVar);
+   /** @brief Set the value of the maxVar_ variable */
+   void setMaxVar(double maxVar);
+
+   /** @brief Set the value of the minDelta_ variable */
+   void setMinDelta(double minDelta);
+   /** @brief Set the value of the maxDelta_ variable */
+   void setMaxDelta(double maxDelta);
+
+   /** @brief Set the value of the minSigma1_ variable */
+   void setMinSigma1(double minSigma1);
+   /** @brief Set the value of the maxSigma1_ variable */
+   void setMaxSigma1(double maxSigma1);
+
+   /** @brief Set the value of the minSigma2_ variable */
+   void setMinSigma2(double minSigma2);
+   /** @brief Set the value of the maxSigma2_ variable */
+   void setMaxSigma2(double maxSigma2);
+
 	/** @brief The default constructor. Intentionally private and undefined */
 	GFunctionIndividualFactory();
 

@@ -105,6 +105,9 @@ public:
 	/** @brief A unique identifier for a given consumer */
 	virtual std::string getConsumerName() const = 0;
 
+	/** @brief Returns an indication whether full return can be expected from the consumer */
+	virtual bool capableOfFullReturn() const;
+
    /** @brief Parses a given configuration file */
    void parseConfigFile(const std::string&);
 

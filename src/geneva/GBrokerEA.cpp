@@ -49,6 +49,7 @@ GBrokerEA::GBrokerEA()
 	: GBaseEA()
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
 	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+	, storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -61,6 +62,7 @@ GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	: GBaseEA(cp)
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
 	, nThreads_(cp.nThreads_)
+	, storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/

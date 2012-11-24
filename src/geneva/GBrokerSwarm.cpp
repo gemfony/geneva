@@ -47,7 +47,7 @@ namespace Geneva {
 GBrokerSwarm::GBrokerSwarm()
 	: GBaseSwarm()
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
-	, storedServerMode_(false)
+	, storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -64,7 +64,7 @@ GBrokerSwarm::GBrokerSwarm(
 )
 	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
 	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
-   , storedServerMode_(false)
+   , storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -76,7 +76,7 @@ GBrokerSwarm::GBrokerSwarm(
 GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm& cp)
 	: GBaseSwarm(cp)
     , Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
-    , storedServerMode_(false)
+    , storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/

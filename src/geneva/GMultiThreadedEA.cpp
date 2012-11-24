@@ -47,6 +47,7 @@ namespace Geneva {
 GMultiThreadedEA::GMultiThreadedEA()
    : GBaseEA()
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+   , storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -59,6 +60,7 @@ GMultiThreadedEA::GMultiThreadedEA()
 GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
    : GBaseEA(cp)
    , nThreads_(cp.nThreads_)
+   , storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/

@@ -46,6 +46,7 @@ namespace Geneva {
 GBrokerGD::GBrokerGD() :
 	GBaseGD()
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
+	, storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -58,6 +59,7 @@ GBrokerGD::GBrokerGD(
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize)
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
+	, storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -67,6 +69,7 @@ GBrokerGD::GBrokerGD(
 GBrokerGD::GBrokerGD(const GBrokerGD& cp)
 	: GBaseGD(cp)
 	, Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
+	, storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
