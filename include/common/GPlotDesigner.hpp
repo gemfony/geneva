@@ -370,6 +370,56 @@ private:
 
 /******************************************************************************/
 /**
+ * A wrapper for ROOT's TH1I class (1-d integer data)
+ */
+class GHistogram1I : public GDataCollector1T<boost::int32_t> {
+public:
+   /** @brief The standard constructor */
+   GHistogram1I(
+      const std::size_t&
+      , const double&
+      , const double&
+   );
+   /** @brief Initialization with a range in the form of a tuple */
+   GHistogram1I(
+      const std::size_t&
+      , const boost::tuple<double,double>&
+   );
+   /** @brief A copy constructor */
+   GHistogram1I(const GHistogram1I&);
+
+   /** @brief The destructor */
+   ~GHistogram1I();
+
+   /** @brief The assignment operator */
+   const GHistogram1I &operator=(const GHistogram1I&);
+
+   /** @brief Retrieve specific header settings for this plot */
+   virtual std::string headerData() const;
+   /** @brief Retrieves the actual data sets */
+   virtual std::string bodyData() const;
+   /** @brief Retrieves specific draw commands for this plot */
+   virtual std::string footerData() const;
+
+   /** @brief Retrieve the number of bins in x-direction */
+   std::size_t getNBinsX() const;
+
+   /** @brief Retrieve the lower boundary of the plot */
+   double getMinX() const;
+   /** @brief Retrieve the upper boundary of the plot */
+   double getMaxX() const;
+
+private:
+   GHistogram1I(); ///< The default constructor -- intentionally private and undefined
+
+   std::size_t nBinsX_; ///< The number of bins in the histogram
+
+   double minX_; ///< The lower boundary of the histogram
+   double maxX_; ///< The upper boundary of the histogram
+};
+
+/******************************************************************************/
+/**
  * A data collector for 2-d data of user-defined type
  */
 template <typename x_type, typename y_type>

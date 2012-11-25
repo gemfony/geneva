@@ -274,16 +274,12 @@ public:
 
 				// We are dealing with descending (nBelowLowerBoundary is even) and
 				// ascending ranges (nBelowLowerBoundary is odd), which need to be treated differently
-				if(nBelowLowerBoundary%2 == 0) { // nBelowLowerBoundary is even
-					// Transfer the value into the allowed region
-					mapping = val + (value_range * (nBelowLowerBoundary + 1));
-				}
-				else { // nBelowLowerBoundary is odd
-					// Transfer the value into the allowed region
-					mapping = val + (value_range * (nBelowLowerBoundary + 1));
 
-					// Revert the value to a descending sequence
-					mapping = revert(mapping);
+            // Transfer the value into the allowed region
+            mapping = val + (value_range * (nBelowLowerBoundary + 1));
+				if(nBelowLowerBoundary%2 == 0) { // nBelowLowerBoundary is even
+               // Revert the value to a descending sequence
+               mapping = revert(mapping);
 				}
 			}
 			else { // val > getUpperBoundary()
@@ -293,16 +289,12 @@ public:
 
 				// We are dealing with descending (nAboveUpperBoundary is even) and
 				// ascending ranges (nAboveUpperBoundary is odd), which need to be treated differently
-				if(nAboveUpperBoundary%2 == 0) { // nAboveUpperBoundary is even
-					// Transfer into the allowed region
-					mapping = val - (value_range * (nAboveUpperBoundary + 1));
 
+				// Transfer into the allowed region
+				mapping = val - (value_range * (nAboveUpperBoundary + 1));
+				if(nAboveUpperBoundary%2 == 0) { // nAboveUpperBoundary is even
 					// Revert, as we are dealing with a descending value range
 					mapping = revert(mapping);
-				}
-				else { // nAboveUpperBoundary is odd
-					// Transfer into the allowed region
-					mapping = val - (value_range * (nAboveUpperBoundary + 1));
 				}
 			}
 

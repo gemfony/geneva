@@ -895,6 +895,192 @@ double GHistogram1D::getMaxX() const {
 /**
  * The standard constructor
  */
+GHistogram1I::GHistogram1I(
+   const std::size_t& nBinsX
+   , const double& minX
+   , const double& maxX
+)
+   : GDataCollector1T<boost::int32_t>()
+   , nBinsX_(nBinsX)
+   , minX_(minX)
+   , maxX_(maxX)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with a range in the form of a tuple
+ */
+GHistogram1I::GHistogram1I(
+   const std::size_t& nBinsX
+   , const boost::tuple<double,double>& rangeX
+)
+   : GDataCollector1T<boost::int32_t>()
+   , nBinsX_(nBinsX)
+   , minX_(boost::get<0>(rangeX))
+   , maxX_(boost::get<1>(rangeX))
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * A copy constructor
+ *
+ * @param cp a copy of another GHistogram1I object
+ */
+GHistogram1I::GHistogram1I(const GHistogram1I& cp)
+   : GDataCollector1T<boost::int32_t>(cp)
+   , nBinsX_(cp.nBinsX_)
+   , minX_(cp. minX_)
+   , maxX_(cp.maxX_)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GHistogram1I::~GHistogram1I()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The assignment operator
+ *
+ * @param cp A copy of another GHistogram1I object
+ */
+const GHistogram1I &GHistogram1I::operator=(const GHistogram1I& cp) {
+   // Copy our parent class'es data ...
+   GDataCollector1T<boost::int32_t>::operator=(cp);
+
+   // ... and then our local data
+   nBinsX_ = cp.nBinsX_;
+   minX_ = cp. minX_;
+   maxX_ = cp.maxX_;
+
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Retrieve specific header settings for this plot
+ */
+std::string GHistogram1I::headerData() const {
+   std::ostringstream header_data;
+
+   std::string comment;
+   if(dsMarker_ != "") {
+      comment = "// " + dsMarker_;
+   }
+
+   std::string histName = "hist_" + boost::lexical_cast<std::string>(id());
+
+   header_data
+      << "  TH1I *" << histName << " = new TH1I(\"" << histName << "\", \"" << histName << "\"," << nBinsX_ << ", " << minX_ << ", " << maxX_ << ");" << (comment!=""?comment:"") << std::endl
+      << std::endl;
+
+   return header_data.str();
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the actual data sets
+ */
+std::string GHistogram1I::bodyData() const {
+   std::ostringstream body_data;
+
+   std::string comment;
+   if(dsMarker_ != "") {
+      comment = "// " + dsMarker_;
+   } else {
+      comment = "";
+   }
+
+   std::string histName = "hist_" + boost::lexical_cast<std::string>(id());
+
+   std::vector<boost::int32_t>::const_iterator it;
+   std::size_t posCounter = 0;
+   for(it=data_.begin(); it!=data_.end(); ++it) {
+      body_data
+         << "  " << histName << "->Fill(" << *it << ");" << (posCounter==0?comment:("")) << std::endl;
+      posCounter++;
+   }
+
+   body_data << std::endl;
+
+   return body_data.str();
+}
+
+/******************************************************************************/
+/**
+ * Retrieves specific draw commands for this plot
+ */
+std::string GHistogram1I::footerData() const {
+   std::ostringstream footer_data;
+
+   std::string histName = "hist_" + boost::lexical_cast<std::string>(id());
+
+   if(plot_label_ != "") {
+      footer_data
+         << "  " << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+   }  else {
+      footer_data
+         << "  " << histName << "->SetTitle(\" \");" << std::endl;
+   }
+
+   std::string comment;
+   if(dsMarker_ != "") {
+      footer_data << "// " + dsMarker_ << std::endl;
+   }
+
+   // Check whether custom drawing arguments have been set
+   std::string dA = "";
+   if(drawingArguments() != "") {
+      dA = drawingArguments();
+   }
+
+   footer_data
+       << "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+       << "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+      << "  " << histName << "->Draw(\""<< dA << "\");" << std::endl
+      << std::endl;
+
+   return footer_data.str();
+}
+
+/******************************************************************************/
+/**
+ * Retrieve the number of bins in x-direction
+ *
+ * @return The number of bins in x-direction
+ */
+std::size_t GHistogram1I::getNBinsX() const {
+   return nBinsX_;
+}
+
+/******************************************************************************/
+/**
+ * Retrieve the lower boundary of the plot
+ *
+ * @return The lower boundary of the plot
+ */
+double GHistogram1I::getMinX() const {
+   return minX_;
+}
+
+/******************************************************************************/
+/**
+ * Retrieve the upper boundary of the plot
+ *
+ * @return The upper boundary of the plot
+ */
+double GHistogram1I::getMaxX() const {
+   return maxX_;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The standard constructor
+ */
 GHistogram2D::GHistogram2D(
 	const std::size_t& nBinsX
 	, const std::size_t& nBinsY

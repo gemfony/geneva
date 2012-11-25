@@ -53,114 +53,84 @@
 #include <boost/cstdint.hpp>
 
 // Geneva header files go here
+#include "common/GPlotDesigner.hpp"
 #include "geneva/GConstrainedInt32Object.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/GInt32FlipAdaptor.hpp"
 
 using namespace Gem::Geneva;
+using namespace Gem::Common;
 using namespace boost;
 
-const boost::uint32_t NTESTS=10000;
+const boost::uint32_t NTESTS=100000;
 
 int main(int argc, char **argv){
-	GConstrainedInt32Object gint13(-1, 3); // lower boundary -1, upper Boundary 3
-	GConstrainedInt32Object gint02(0, 2); // lower boundary 0.5, upper Boundary 2
+   double internalValue = 0., externalValue = 0.;
 
-	double internalValue = 0., externalValue = 0.;
+   boost::shared_ptr<GHistogram1I> multipleFlipMutation_ptr(new GHistogram1I(50, 0.5,50.5));
+   multipleFlipMutation_ptr->setPlotLabel("Occurance of different values when flip-mutating, starting with 1");
 
-	std::ofstream mapping("mapping.C");
+   boost::shared_ptr<GGraph2D> multipleFlipProgress_ptr(new GGraph2D());
+   multipleFlipProgress_ptr->setPlotMode(Gem::Common::SCATTER);
+   multipleFlipProgress_ptr->setPlotLabel("Current value of a GConstrainedInt32Object after repeated flip mutations");
+   multipleFlipProgress_ptr->setXAxisLabel("iteration");
+   multipleFlipProgress_ptr->setYAxisLabel("value");
 
-	// Essentially the following will create a C++ program as input for the
-	// Root interpreter. It will then display the results of this test.
-	mapping << "{" << std::endl
-	        << "  gROOT->Reset();" << std::endl
-	        << "  gStyle->SetOptTitle(0);" << std::endl
-	        << std::endl
-		    << "  double x13[" << NTESTS << "], y13[" << NTESTS << "];" << std::endl
-		    << "  double x13adapt[" << NTESTS << "], y13adapt[" << NTESTS << "];" << std::endl
-		    << "  double x02[" << NTESTS << "], y02[" << NTESTS << "];" << std::endl
-		    << std::endl;
+   boost::shared_ptr<GHistogram1I> multipleGaussMutation_ptr(new GHistogram1I(50, 0.5,50.5));
+   multipleGaussMutation_ptr->setPlotLabel("Occurance of different values when gauss-mutating, starting with 1");
 
-	for(boost::uint32_t i=0; i<NTESTS; i++){
-		internalValue=-10.+20.*double(i)/double(NTESTS);
+   boost::shared_ptr<GGraph2D> multipleGaussProgress_ptr(new GGraph2D());
+   multipleGaussProgress_ptr->setPlotMode(Gem::Common::SCATTER);
+   multipleGaussProgress_ptr->setPlotLabel("Current value of a GConstrainedInt32Object after repeated gauss mutations");
+   multipleGaussProgress_ptr->setXAxisLabel("iteration");
+   multipleGaussProgress_ptr->setYAxisLabel("value");
 
-		externalValue = double(gint13.transfer(boost::int32_t(internalValue)));
-		mapping << "  x13[" << i << "] = " << internalValue << ";" << std::endl
-		        << "  y13[" << i << "] = " << externalValue << ";" << std::endl;
-	}
+   boost::shared_ptr<GGraph2D> mapping_ptr(new GGraph2D());
+   mapping_ptr->setPlotLabel("Mapping from internal to external value");
 
-	for(boost::uint32_t i=0; i<NTESTS; i++){
-		internalValue=-10.+20.*double(i)/double(NTESTS);
+   GConstrainedInt32Object gMultFlipMut(1, 1, 50);
+   boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
+   gMultFlipMut.addAdaptor(gifa_ptr);
 
-		externalValue = double(gint02.transfer(boost::int32_t(internalValue)));
-		mapping << "  x02[" << i << "] = " << internalValue << ";" << std::endl
-		        << "  y02[" << i << "] = " << externalValue << ";" << std::endl;
-	}
+   GConstrainedInt32Object gMultGaussMut(1, 1, 50);
+   boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(
+         5. // sigma
+         , 0.8 // sigmaSigma
+         , 1. // minSigma
+         , 10. // maxSigma
+         , 1. // adProb
+         )
+   );
+   gMultGaussMut.addAdaptor(giga_ptr);
 
-	// Set up and register an adaptor for gint13, so it
-	// knows how to be adapted. We want a sigma of 0.5, sigma-adaption of 0.8 and
-	// a minimum sigma of 0.02. The adaptor will be deleted automatically by the
-	// GConstrainedIntT<boost::int32_t>.
-	boost::shared_ptr<GInt32GaussAdaptor> gdga(new GInt32GaussAdaptor(0.5,0.8,0.02,2.));
-	gint13.addAdaptor(gdga);
+   GConstrainedInt32Object gint13(-1, 3); // lower boundary -1, upper Boundary 3
 
-	// Check that an adaptor is actually present
-	if(!gint13.hasAdaptor()) {
-		std::cout << "Error: No adaptor present!" << std::endl;
-		std::terminate();
-	}
+   // Mutate and register results
+   for(boost::uint32_t i=0; i<NTESTS; i++) {
+      *multipleFlipMutation_ptr & gMultFlipMut.value();
+      *multipleFlipProgress_ptr & boost::tuple<double,double>((double)i, (double)gMultFlipMut.value());
+      gMultFlipMut.adapt();
 
-	// TODO: Check, warum geht operator=(0) nicht ??? Danach ist der Adaptor weg ...
-	// gint13.setValue(0); // We can assign a value inside of the allowed value range
-	gint13 = 0;
+      *multipleGaussMutation_ptr & gMultGaussMut.value();
+      *multipleGaussProgress_ptr & boost::tuple<double,double>((double)i, (double)gMultGaussMut.value());
+      gMultGaussMut.adapt();
 
-	for(boost::uint32_t i=0; i<NTESTS; i++){
-		// Check that an adaptor is actually present
-		if(!gint13.hasAdaptor()) {
-			std::cout << "Error: No adaptor present in iteration " << i << "!" << std::endl;
-			std::terminate();
-		}
+      internalValue=-30.+50.*double(i)/double(NTESTS);
 
-		// adapt the value and have a look at the
-		// internal and external values.
-		gint13.adapt();
+      externalValue = double(gint13.transfer(boost::int32_t(internalValue)));
+      *mapping_ptr & boost::tuple<double,double>(internalValue, externalValue);
+   }
 
-		mapping << " x13adapt[" << i << "] = " << gint13.getInternalValue() << ";" << std::endl
-			    << " y13adapt[" << i << "] = " << gint13.value() << ";" << std::endl;
-	}
+   GPlotDesigner gpd("Manual tests of GConstrainedInt32Object", 2,3);
 
-	mapping << std::endl
-	        << "  TGraph *tg13 = new TGraph(" << NTESTS << ", x13, y13);" << std::endl
-	        << "  TGraph *tg13adapt = new TGraph(" << NTESTS << ", x13adapt, y13adapt);" << std::endl
-	        << "  TGraph *tg02 = new TGraph(" << NTESTS << ", x02, y02);" << std::endl
-	        << std::endl
-	        << "  tg13->SetMarkerStyle(21);" << std::endl
-	        << "  tg13->SetMarkerSize(0.2);" << std::endl
-	        << "  tg13->SetMarkerColor(4);" << std::endl
-	        << "  tg13adapt->SetMarkerStyle(21);" << std::endl
-	        << "  tg13adapt->SetMarkerSize(0.2);" << std::endl
-	        << "  tg13adapt->SetMarkerColor(3);" << std::endl
-	        << "  tg02->SetMarkerStyle(21);" << std::endl
-	        << "  tg02->SetMarkerSize(0.2);" << std::endl
-	        << "  tg02->SetMarkerColor(2);" << std::endl
-	        << std::endl
-	        << "  tg13->Draw(\"AP\");" << std::endl
-	        << "  tg02->Draw(\"P\");" << std::endl
-	        << "  tg13adapt->Draw(\"P\");" << std::endl
-		    << std::endl
-		    << "  TLine *xaxis = new TLine(-12.,0.,12.,0.);" << std::endl
-		    << "  TLine *yaxis = new TLine(0.,-1.4,0.,3.4);" << std::endl
-		    << std::endl
-		    << "  xaxis->Draw();" << std::endl
-		    << "  yaxis->Draw();" << std::endl
-		    << std::endl
-		    << "  TPaveText *pt = new TPaveText(0.349138,0.872881,0.637931,0.963983,\"blNDC\");" << std::endl
-		    << "  pt->SetBorderSize(2);" << std::endl
-		    << "  pt->SetFillColor(19);" << std::endl
-		    << "  pt->AddText(\"Test of the GConstrainedInt32Object class\");" << std::endl
-		    << "  pt->Draw();" << std::endl
-	        << "}" << std::endl;
+   gpd.setCanvasDimensions(1200,1200);
+   gpd.registerPlotter(multipleFlipMutation_ptr);
+   gpd.registerPlotter(multipleFlipProgress_ptr);
+   gpd.registerPlotter(multipleGaussMutation_ptr);
+   gpd.registerPlotter(multipleGaussProgress_ptr);
+   gpd.registerPlotter(mapping_ptr);
 
-	mapping.close();
+   gpd.writeToFile("result.C");
 
 	return 0;
 }
