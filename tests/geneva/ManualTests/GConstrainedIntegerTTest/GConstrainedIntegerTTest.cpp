@@ -65,8 +65,6 @@ using namespace boost;
 const boost::uint32_t NTESTS=100000;
 
 int main(int argc, char **argv){
-   double internalValue = 0., externalValue = 0.;
-
    boost::shared_ptr<GHistogram1I> multipleFlipMutation_ptr(new GHistogram1I(50, 0.5,50.5));
    multipleFlipMutation_ptr->setPlotLabel("Occurance of different values when flip-mutating, starting with 1");
 
@@ -85,6 +83,7 @@ int main(int argc, char **argv){
    multipleGaussProgress_ptr->setXAxisLabel("iteration");
    multipleGaussProgress_ptr->setYAxisLabel("value");
 
+   double internalValue = 0., externalValue = 0.;
    boost::shared_ptr<GGraph2D> mapping_ptr(new GGraph2D());
    mapping_ptr->setPlotLabel("Mapping from internal to external value");
 
