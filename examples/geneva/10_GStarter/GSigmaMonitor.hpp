@@ -75,8 +75,7 @@ public:
 	 * The default constructor
 	 */
 	GSigmaMonitor(const std::string fileName)
-		: bestSigma_(1000000.)
-      , fileName_(fileName)
+      : fileName_(fileName)
       , gpd_("Progress information", 1, 2)
       , progressPlotter_(new Gem::Common::GGraph2D())
       , sigmaPlotter_(new Gem::Common::GGraph2D())
@@ -90,7 +89,6 @@ public:
 	 */
 	GSigmaMonitor(const GSigmaMonitor& cp)
 		: GBaseEA::GEAOptimizationMonitor(cp)
-		, bestSigma_(cp.bestSigma_)
 		, fileName_(cp.fileName_)
 	   , gpd_("Progress information", 1, 2) // We do not want to copy progress information of another object
       , progressPlotter_(new Gem::Common::GGraph2D())
@@ -185,7 +183,6 @@ protected:
 
     	// Load local data
     	fileName_ = p_load->fileName_;
-    	bestSigma_ = p_load->bestSigma_;
     }
 
 	/********************************************************************************************/
@@ -203,7 +200,6 @@ private:
 
 	GSigmaMonitor(); ///< Default constructor; Intentionally private and undefined
 
-	std::vector<double> bestSigma_; ///< Holds the best sigma value of each iteration
 	std::string fileName_; ///< The name of the output file
 	Gem::Common::GPlotDesigner gpd_; ///< Ease recording of essential information
 	boost::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
