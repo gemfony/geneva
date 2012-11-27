@@ -58,16 +58,29 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------
 	// Server mode, serial or multi-threaded execution
 
-	// Create a factory for GFunctionIndividual objects and perform
-	// any necessary initial work.
-	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
-
-	// Make an individual known to the optimizer
-	go.push_back(gfi());
-
 	// Add an evolutionary algorithm in multi-threaded mode
 	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", PARMODE_MULTITHREADED);
-	go & ea();
+
+	// Retrieve an evolutionary algorithm
+	boost::shared_ptr<GBaseEA> ea_ptr = ea();
+
+	// Retrieve the default population size
+	std::size_t popSize = ea_ptr->getDefaultPopulationSize();
+
+   // Create a factory for GFunctionIndividual objects and perform
+   // any necessary initial work.
+   GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+
+	// Add the desired number of individuals
+	for(std::size_t i=0; i<popSize; i++) {
+	   // Make an individual known to the optimizer
+	   boost::shared_ptr<GParameterSet> ind_ptr = gfi();
+	   ind_ptr->randomInit();
+	   go.push_back(ind_ptr);
+	}
+
+	// Add the algorithm to the Go2 object
+	go & ea_ptr;
 
 	// Perform the actual optimization
 	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();

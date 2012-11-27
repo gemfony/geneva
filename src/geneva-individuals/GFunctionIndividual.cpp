@@ -510,7 +510,6 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& config
 	, minDelta_(GFI_DEF_MINDELTA)
 	, maxDelta_(GFI_DEF_MAXDELTA)
 	, parDim_(GFI_DEF_PARDIM)
-	, parDimLocal_(0)
 	, minVar_(GFI_DEF_MINVAR)
 	, maxVar_(GFI_DEF_MAXVAR)
 	, pT_(GFI_DEF_PARAMETERTYPE)
@@ -536,7 +535,7 @@ void GFunctionIndividualFactory::setParDim(std::size_t parDim) {
 		);
 	}
 
-	parDimLocal_ = parDim;
+	parDim_ = parDim;
 }
 
 /******************************************************************************/
@@ -1053,7 +1052,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The probability for random adaption of values in evolutionary algorithms;";
 	gpb.registerFileParameter<double>(
 		"adProb"
-		, adProb_
+		, adProb_.reference()
 		, GFI_DEF_ADPROB
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1063,7 +1062,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The number of calls to an adaptor after which adaption takes place;";
 	gpb.registerFileParameter<boost::uint32_t>(
 		"adaptionThreshold"
-		, adaptionThreshold_
+		, adaptionThreshold_.reference()
 		, GFI_DEF_ADAPTIONTHRESHOLD
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1073,7 +1072,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "Whether to use a double gaussion for the adaption of parmeters in ES;";
 	gpb.registerFileParameter<bool>(
 		"useBiGaussian"
-		, useBiGaussian_
+		, useBiGaussian_.reference()
 		, GFI_DEF_USEBIGAUSSIAN
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1083,7 +1082,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The sigma for gauss-adaption in ES;(or the sigma of the left peak of a double gaussian);";
 	gpb.registerFileParameter<double>(
 		"sigma1"
-		, sigma1_
+		, sigma1_.reference()
 		, GFI_DEF_SIGMA1
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1093,7 +1092,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "Influences the self-adaption of gauss-mutation in ES;";
 	gpb.registerFileParameter<double>(
 		"sigmaSigma1"
-		, sigmaSigma1_
+		, sigmaSigma1_.reference()
 		, GFI_DEF_SIGMASIGMA1
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1103,7 +1102,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The minimum value of sigma1;";
 	gpb.registerFileParameter<double>(
 		"minSigma1"
-		, minSigma1_
+		, minSigma1_.reference()
 		, GFI_DEF_MINSIGMA1
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1113,7 +1112,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The maximum value of sigma1;";
 	gpb.registerFileParameter<double>(
 		"maxSigma1"
-		, maxSigma1_
+		, maxSigma1_.reference()
 		, GFI_DEF_MAXSIGMA1
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1123,7 +1122,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The sigma of the right peak of a double gaussian (if any);";
 	gpb.registerFileParameter<double>(
 		"sigma2"
-		, sigma2_
+		, sigma2_.reference()
 		, GFI_DEF_SIGMA2
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1133,7 +1132,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "Influences the self-adaption of gauss-mutation in ES;";
 	gpb.registerFileParameter<double>(
 		"sigmaSigma2"
-		, sigmaSigma2_
+		, sigmaSigma2_.reference()
 		, GFI_DEF_SIGMASIGMA2
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1143,7 +1142,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The minimum value of sigma2;";
 	gpb.registerFileParameter<double>(
 		"minSigma2"
-		, minSigma2_
+		, minSigma2_.reference()
 		, GFI_DEF_MINSIGMA2
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1153,7 +1152,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The maximum value of sigma2;";
 	gpb.registerFileParameter<double>(
 		"maxSigma2"
-		, maxSigma2_
+		, maxSigma2_.reference()
 		, GFI_DEF_MAXSIGMA2
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1163,7 +1162,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The start distance between both peaks used for bi-gaussian mutations in ES;";
 	gpb.registerFileParameter<double>(
 		"delta"
-		, delta_
+		, delta_.reference()
 		, GFI_DEF_DELTA
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1173,7 +1172,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The width of the gaussian used for mutations of the delta parameter;";
 	gpb.registerFileParameter<double>(
 		"sigmaDelta"
-		, sigmaDelta_
+		, sigmaDelta_.reference()
 		, GFI_DEF_SIGMADELTA
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1183,7 +1182,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The minimum allowed value of delta;";
 	gpb.registerFileParameter<double>(
 		"minDelta"
-		, minDelta_
+		, minDelta_.reference()
 		, GFI_DEF_MINDELTA
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1193,7 +1192,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The maximum allowed value of delta;";
 	gpb.registerFileParameter<double>(
 		"maxDelta"
-		, maxDelta_
+		, maxDelta_.reference()
 		, GFI_DEF_MAXDELTA
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1203,7 +1202,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The number of dimensions used for the demo function;";
 	gpb.registerFileParameter<std::size_t>(
 		"parDim"
-		, parDim_
+		, parDim_.reference()
 		, GFI_DEF_PARDIM
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1213,7 +1212,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The lower boundary of the initialization range for parameters;";
 	gpb.registerFileParameter<double>(
 		"minVar"
-		, minVar_
+		, minVar_.reference()
 		, GFI_DEF_MINVAR
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1223,7 +1222,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "The upper boundary of the initialization range for parameters;";
 	gpb.registerFileParameter<double>(
 		"maxVar"
-		, maxVar_
+		, maxVar_.reference()
 		, GFI_DEF_MAXVAR
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1233,7 +1232,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "Indicates what type of parameter object should be used;(0) GDoubleCollection;(1) GConstrainedDoubleCollection;(2) GDoubleObjectCollection; (3) GConstrainedDoubleObjectCollection";
 	gpb.registerFileParameter<parameterType>(
 		"parameterType"
-		, pT_
+		, pT_.reference()
 		, GFI_DEF_PARAMETERTYPE
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1243,7 +1242,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment += "Indicates how the parameters are initialized;(0) randomly;(1) with a value on the perimeter of the allowed or recommended value range";
 	gpb.registerFileParameter<initMode>(
 		"initMode"
-		, iM_
+		, iM_.reference()
 		, GFI_DEF_INITMODE
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
@@ -1284,7 +1283,8 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GFunctionIndivid
 	}
 
 	// Find out about the amount of data items to be added
-	std::size_t nData = parDimLocal_?parDimLocal_:parDim_;
+	// std::size_t nData = parDimLocal_?parDimLocal_:parDim_;
+	std::size_t nData = parDim_;
 
 	// Find out about the position that should be set to minVar_. Unless randomInit is set,
 	// all other positions will be set to the mean value of minVar_ and maxVar_.

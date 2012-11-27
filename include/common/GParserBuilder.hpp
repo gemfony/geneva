@@ -82,6 +82,107 @@ namespace Common {
 // Forward declaration
 class GParserBuilder;
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Gives access to a reference to parm_ a single time. When this has happened,
+ * only an explicit reset allows to gain access to a parameter-reference again.
+ * It is however possible to explicitly set the parameter.
+ */
+template <typename T>
+class GOneTimeRefParameterT
+   :private boost::noncopyable
+{
+public:
+   /***************************************************************************/
+   /**
+    * The standard constructor
+    */
+   explicit GOneTimeRefParameterT(const T& def = T(NULL))
+      : parm_(def)
+      , parmDummy_(def)
+      , parmSet_(false)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Returns a reference to the parameter, if it hasn't been set. Otherwise
+    * it will return a reference to the dummy parameter.
+    */
+   T& reference() {
+      if(parmSet_) {
+         return parmDummy_;
+      } else {
+         parmSet_ = true;
+         return parm_;
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether a parameter has already been set
+    */
+   bool parmSet() const {
+      return parmSet_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Explicit reset of the "dirty" flag
+    */
+   void reset() {
+      parmSet_ = false;
+   }
+
+   /***************************************************************************/
+   /**
+    * Returns the parameter value
+    */
+   T value() const {
+      return parm_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to explicitly set the value of the parameter
+    */
+   void setValue(const T& parm) {
+      parm_ = parm;
+      parmSet_ = true;
+   }
+
+   /***************************************************************************/
+   /**
+    * Explicit assignment of a T value
+    */
+   void operator=(const T& parm) {
+      this->setValue(parm);
+   }
+
+   /***************************************************************************/
+   /**
+    * Automatic conversion
+    */
+   operator T() {
+      return parm_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Automatic conversion for constant callers
+    */
+   operator T() const {
+      return parm_;
+   }
+
+private:
+   /***************************************************************************/
+
+   T parm_; ///< Stores the actual setting
+   T parmDummy_; ///< Returned instead of parm_ if the latter has already been set
+   bool parmSet_; ///< Set to true if the parameter has been set already
+};
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

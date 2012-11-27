@@ -523,27 +523,26 @@ private:
 	/** @brief The default constructor. Intentionally private and undefined */
 	GFunctionIndividualFactory();
 
-	double adProb_;
-	boost::uint32_t adaptionThreshold_;
-	bool useBiGaussian_;
-	double sigma1_;
-	double sigmaSigma1_;
-	double minSigma1_;
-	double maxSigma1_;
-	double sigma2_;
-	double sigmaSigma2_;
-	double minSigma2_;
-	double maxSigma2_;
-	double delta_;
-	double sigmaDelta_;
-	double minDelta_;
-	double maxDelta_;
-	std::size_t parDim_;
-	std::size_t parDimLocal_;
-	double minVar_;
-	double maxVar_;
-	parameterType pT_;
-	initMode iM_;
+	Gem::Common::GOneTimeRefParameterT<double> adProb_;
+	Gem::Common::GOneTimeRefParameterT<boost::uint32_t> adaptionThreshold_;
+	Gem::Common::GOneTimeRefParameterT<bool> useBiGaussian_;
+	Gem::Common::GOneTimeRefParameterT<double> sigma1_;
+	Gem::Common::GOneTimeRefParameterT<double> sigmaSigma1_;
+	Gem::Common::GOneTimeRefParameterT<double> minSigma1_;
+	Gem::Common::GOneTimeRefParameterT<double> maxSigma1_;
+	Gem::Common::GOneTimeRefParameterT<double> sigma2_;
+	Gem::Common::GOneTimeRefParameterT<double> sigmaSigma2_;
+	Gem::Common::GOneTimeRefParameterT<double> minSigma2_;
+	Gem::Common::GOneTimeRefParameterT<double> maxSigma2_;
+	Gem::Common::GOneTimeRefParameterT<double> delta_;
+	Gem::Common::GOneTimeRefParameterT<double> sigmaDelta_;
+	Gem::Common::GOneTimeRefParameterT<double> minDelta_;
+	Gem::Common::GOneTimeRefParameterT<double> maxDelta_;
+	Gem::Common::GOneTimeRefParameterT<std::size_t> parDim_;
+	Gem::Common::GOneTimeRefParameterT<double> minVar_;
+	Gem::Common::GOneTimeRefParameterT<double> maxVar_;
+	Gem::Common::GOneTimeRefParameterT<parameterType> pT_;
+	Gem::Common::GOneTimeRefParameterT<initMode> iM_;
 };
 
 /******************************************************************************/

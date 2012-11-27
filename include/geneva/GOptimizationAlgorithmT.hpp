@@ -763,7 +763,7 @@ public:
 	 *
 	 * @param etr A boolean which specifies whether reasons for the termination of the optimization run should be emitted
 	 */
-	void setEmitTerminationReason(bool emitTerminatioReason) {
+	void setEmitTerminationReason(bool emitTerminatioReason = true) {
 		emitTerminationReason_ = emitTerminatioReason;
 	}
 
@@ -1343,7 +1343,10 @@ private:
 	bool qualityHalt() const {
 		if(isBetter(bestPastFitness_, qualityThreshold_)) {
 			if(emitTerminationReason_) {
-				std::cerr << "Terminating optimization run because quality threshold has been reached." << std::endl;
+				std::cerr << "Terminating optimization run because" << std::endl
+				          << "quality threshold " << qualityThreshold_ << " has been reached." << std::endl
+				          << "Best quality found was " << bestPastFitness_ << std::endl
+				          << "with termination in iteration " << iteration_ << std::endl;
 			}
 
 			return true;
@@ -1361,7 +1364,8 @@ private:
 	bool stallHalt() const {
 		if(stallCounter_ > maxStallIteration_) {
 			if(emitTerminationReason_) {
-				std::cout << "Terminating optimization run because maximum number of stalls has been exceeded." << std::endl;
+				std::cout << "Terminating optimization run because" << std::endl
+				          << "maximum number of stalls " << maxStallIteration_ << " has been exceeded." << std::endl;
 			}
 
 			return true;
@@ -1379,7 +1383,8 @@ private:
 	bool iterationHalt() const {
 		if(iteration_ >= (maxIteration_ + offset_)) {
 			if(emitTerminationReason_) {
-				std::cout << "Terminating optimization run because iteration threshold has been reached." << std::endl;
+				std::cout << "Terminating optimization run because" << std::endl
+				          << "iteration threshold " << maxIteration_ << " has been reached." << std::endl;
 			}
 
 			return true;
