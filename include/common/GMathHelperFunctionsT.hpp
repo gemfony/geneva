@@ -48,6 +48,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/math/special_functions.hpp>
 
 #ifndef GMATHHELPERFUNCTIONST_HPP_
 #define GMATHHELPERFUNCTIONST_HPP_

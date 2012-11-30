@@ -1291,7 +1291,7 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GFunctionIndivid
 	std::size_t perimeterPos = gr.uniform_int<std::size_t>(nData);
 
 	// Set up the data collections
-	switch(pT_) {
+	switch(pT_.value()) {
 	case USEGDOUBLECOLLECTION:
 	{
 		// Set up a collection, each initialized with a random number in the range [min,max[
