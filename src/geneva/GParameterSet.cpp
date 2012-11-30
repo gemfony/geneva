@@ -338,8 +338,8 @@ void GParameterSet::setMaxMode(const bool& mode) {
 /******************************************************************************/
 /**
  * Recursively initializes floating-point-based parameters with a given value. Allows e.g. to set all
- * floating point parameters to 0. "float" is used as the largest common denominator of float, double
- * and long double.
+ * floating point parameters to 0. "float" is used as the largest common denominator of float and double
+ * types.
  *
  * @param val The value to be assigned to the parameters
  */

@@ -48,10 +48,8 @@ GRandomBase::GRandomBase()
 	, max_value(GRandomBase::result_type(1.))
 	, fltGaussCache_(float(0.))
 	, dblGaussCache_(double(0.))
-	, ldblGaussCache_((long double)0.)
 	, fltGaussCacheAvailable_(false)
 	, dblGaussCacheAvailable_(false)
-	, ldblGaussCacheAvailable_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -193,45 +191,6 @@ double GRandomBase::normal_distribution<double>() {
 #endif
 	}
 }
-
-/******************************************************************************/
-/**
- * Produces gaussian-distributed long double random numbers with sigma 1 and mean 0
- *
- * @return double random numbers with a gaussian distribution
- */
-#ifdef _GLIBCXX_HAVE_LOGL
-template<>
-long double GRandomBase::normal_distribution<long double>() {
-	using namespace Gem::Common;
-
-	if(ldblGaussCacheAvailable_) {
-		ldblGaussCacheAvailable_ = false;
-		return ldblGaussCache_;
-	}
-	else {
-#ifdef GEM_HAP_USE_BOXMULLER
-		long double rnr1 = uniform_01<long double>();
-		long double rnr2 = uniform_01<long double>();
-		ldblGaussCache_ = GSqrt(GFabs(-2. * GLog(1.l - rnr1))) * GCos(2.l * (long double)M_PI	* rnr2);
-		ldblGaussCacheAvailable_ = true;
-		return GSqrt(GFabs(-2.l * GLog(1.l - rnr1))) * GSin(2. * (long double)M_PI	* rnr2);
-#else // GEM_HAP_USE_BOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than GEM_HAP_USE_BOXMULLER
-		long double q, u1, u2;
-		do {
-			u1 = 2.l* uniform_01<long double>() - 1.l;
-			u2 = 2.l* uniform_01<long double>() - 1.l;
-			q = u1*u1 + u2*u2;
-		} while (q > 1.0l);
-		q = GSqrt((-2.l*GLog(q))/q);
-		ldblGaussCache_ = u2 * q;
-		ldblGaussCacheAvailable_ = true;
-		return u1 * q;
-#endif
-	}
-}
-#endif /* _GLIBCXX_HAVE_LOGL */
-
 
 /******************************************************************************/
 

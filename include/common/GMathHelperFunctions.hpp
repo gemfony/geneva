@@ -56,29 +56,21 @@ namespace Common {
 float GMax(const float&, const float&);
 /** @brief Calculates the maximum value of two double values */
 double GMax(const double&, const double&);
-/** @brief Calculates the maximum value of two long double values */
-long double GMax(const long double&, const long double&);
 
 /** @brief Calculates the minimum value of two float values */
 float GMin(const float&, const float&);
 /** @brief Calculates the minimum value of two double values */
 double GMin(const double&, const double&);
-/** @brief Calculates the minimum value of two long double values */
-long double GMin(const long double&, const long double&);
 
 /** @brief Calculates the floor value of a float value */
 float GFloor(const float&);
 /** @brief Calculates the floor value of a double value */
 double GFloor(const double&);
-/** @brief Calculates the floor value of a long double value */
-long double GFloor(const long double&);
 
 /** @brief Calculates the fabs value of a float value */
 float GFabs(const float&);
 /** @brief Calculates the fabs value of a double value */
 double GFabs(const double&);
-/** @brief Calculates the fabs value of a long double value */
-long double GFabs(const long double&);
 
 /** @brief Calculates the abs value of an int value */
 int GIabs(const int&);
@@ -89,22 +81,16 @@ long GIabs(const long&);
 float GSqrt(const float&);
 /** @brief Calculates the sqrt value of a double value */
 double GSqrt(const double&);
-/** @brief Calculates the sqrt value of a long double value */
-long double GSqrt(const long double&);
 
 /** @brief Calculates the sin value of a float value */
 float GSin(const float&);
 /** @brief Calculates the sin value of a double value */
 double GSin(const double&);
-/** @brief Calculates the sin value of a long double value */
-long double GSin(const long double&);
 
 /** @brief Calculates the cos value of a float value */
 float GCos(const float&);
 /** @brief Calculates the cos value of a double value */
 double GCos(const double&);
-/** @brief Calculates the cos value of a long double value */
-long double GCos(const long double&);
 
 /** @brief Calculates the log value of a float value */
 float GLog(const float&);
@@ -115,39 +101,21 @@ double GLog(const double&);
 float GPow(const float&, const float&);
 /** @brief Calculates the pow value of a float value */
 double GPow(const double&, const double&);
-/** @brief Calculates the pow value of a float value */
-long double GPow(const long double&, const long double&);
 
 /** @brief Performs alpha blending for floats */
 float GMix(const float&, const float&, const float&);
 /** @brief Performs alpha blending for doubles */
 double GMix(const double&, const double&, const double&);
-/** @brief Performs alpha blending for long doubles */
-long double GMix(const long double&, const long double&, const long double&);
-
-#ifdef _GLIBCXX_HAVE_LOGL
-/** @brief Calculates the log value of a long double value */
-long double GLog(const long double&);
-#endif /* _GLIBCXX_HAVE_LOGL */
 
 /** @brief Calculates the exp value of a float value */
 float GExp(const float&);
 /** @brief Calculates the exp value of a double value */
 double GExp(const double&);
 
-#ifdef _GLIBCXX_HAVE_EXPL
-/** @brief Calculates the exp value of a long double value */
-long double GExp(const long double&);
-#endif /* _GLIBCXX_HAVE_EXPL */
-
 /** @brief Calculates the pow value of a float value */
 float GPow(const float&, const float&);
 /** @brief Calculates the pow value of a float value */
 double GPow(const double&, const double&);
-/** @brief Calculates the pow value of a float value */
-#ifdef _GLIBCXX_HAVE_POWL
-long double GPow(const long double&, const long double&);
-#endif /* _GLIBCXX_HAVE_POWL */
 
 /******************************************************************************/
 

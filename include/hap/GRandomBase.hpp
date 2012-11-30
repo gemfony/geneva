@@ -431,14 +431,10 @@ private:
 	float fltGaussCache_;
 	/** @brief Two double gaussian random numbers are produced in one go. One  number can be cached here */
 	double dblGaussCache_;
-	/** @brief Two long double gaussian random numbers are produced in one go. One  number can be cached here */
-	long double ldblGaussCache_;
 	/** @brief Specifies whether a valid cached float gaussian is available */
 	bool fltGaussCacheAvailable_;
 	/** @brief Specifies whether a valid cached double gaussian is available */
 	bool dblGaussCacheAvailable_;
-	/** @brief Specifies whether a valid cached long double gaussian is available */
-	bool ldblGaussCacheAvailable_;
 };
 
 /******************************************************************************/
@@ -448,8 +444,6 @@ private:
 template<> float GRandomBase::normal_distribution<float>();
 /** @brief Produces gaussian-distributed double random numbers with sigma 1 and mean 0 */
 template<> double GRandomBase::normal_distribution<double>();
-/** @brief Produces gaussian-distributed long double random numbers with sigma 1 and mean 0 */
-template<> long double GRandomBase::normal_distribution<long double>();
 /** @brief Avoid the cast for native double type */
 template <> double GRandomBase::uniform_01<double>(boost::enable_if<boost::is_floating_point<double> >::type*);
 

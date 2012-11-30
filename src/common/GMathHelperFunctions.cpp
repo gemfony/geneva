@@ -60,14 +60,6 @@ double GMax(const double& x, const double& y) {
 
 /******************************************************************************/
 /**
- * Calculates the maximum value of two long double values
- */
-long double GMax(const long double& x, const long double& y) {
-   return fmaxl(x,y);
-}
-
-/******************************************************************************/
-/**
  * Calculates the minimum value of two float values
  */
 float GMin(const float& x, const float& y) {
@@ -80,14 +72,6 @@ float GMin(const float& x, const float& y) {
  */
 double GMin(const double& x, const double& y) {
    return fmin(x,y);
-}
-
-/******************************************************************************/
-/**
- * Calculates the minimum value of two long double values
- */
-long double GMin(const long double& x, const long double& y) {
-   return fminl(x,y);
 }
 
 /******************************************************************************/
@@ -114,17 +98,6 @@ double GFloor(const double& x) {
 
 /******************************************************************************/
 /**
- * Calculates the floor value of a long double value
- *
- * @param x The value for which floor should be calculated
- * @return The floor value of x
- */
-long double GFloor(const long double& x) {
-	return floorl(x);
-}
-
-/******************************************************************************/
-/**
  * Calculates the fabs value of a float value
  *
  * @param x The value for which fabs should be calculated
@@ -143,17 +116,6 @@ float GFabs(const float& x) {
  */
 double GFabs(const double& x) {
 	return fabs(x);
-}
-
-/******************************************************************************/
-/**
- * Calculates the fabs value of a long double value
- *
- * @param x The value for which fabs should be calculated
- * @return The fabs value of x
- */
-long double GFabs(const long double& x) {
-	return fabsl(x);
 }
 
 /******************************************************************************/
@@ -202,17 +164,6 @@ double GSqrt(const double& x) {
 
 /******************************************************************************/
 /**
- * Calculates the sqrt value of a long double value
- *
- * @param x The value for which sqrt should be calculated
- * @return The sqrt value of x
- */
-long double GSqrt(const long double& x) {
-	return sqrtl(x);
-}
-
-/******************************************************************************/
-/**
  * Calculates the sin value of a float value
  *
  * @param x The value for which sin should be calculated
@@ -231,17 +182,6 @@ float GSin(const float& x) {
  */
 double GSin(const double& x) {
 	return sin(x);
-}
-
-/******************************************************************************/
-/**
- * Calculates the sin value of a long double value
- *
- * @param x The value for which sin should be calculated
- * @return The sin value of x
- */
-long double GSin(const long double& x) {
-	return sinl(x);
 }
 
 /******************************************************************************/
@@ -268,17 +208,6 @@ double GCos(const double& x) {
 
 /******************************************************************************/
 /**
- * Calculates the cos value of a long double value
- *
- * @param x The value for which cos should be calculated
- * @return The cos value of x
- */
-long double GCos(const long double& x) {
-	return cosl(x);
-}
-
-/******************************************************************************/
-/**
  * Calculates the log value of a float value
  *
  * @param x The value for which log should be calculated
@@ -298,19 +227,6 @@ float GLog(const float& x) {
 double GLog(const double& x) {
 	return log(x);
 }
-
-/******************************************************************************/
-/**
- * Calculates the log value of a long double value
- *
- * @param x The value for which log should be calculated
- * @return The log value of x
- */
-#ifdef _GLIBCXX_HAVE_LOGL
-long double GLog(const long double& x) {
-	return logl(x);
-}
-#endif /* _GLIBCXX_HAVE_LOGL */
 
 /******************************************************************************/
 /**
@@ -336,19 +252,6 @@ double GExp(const double& x) {
 
 /******************************************************************************/
 /**
- * Calculates the exp value of a long double value
- *
- * @param x The value for which exp should be calculated
- * @return The exp value of x
- */
-#ifdef _GLIBCXX_HAVE_EXPL
-long double GExp(const long double& x) {
-	return expl(x);
-}
-#endif /* _GLIBCXX_HAVE_EXPL */
-
-/******************************************************************************/
-/**
  * Calculates the pow value of a float value
  */
 float GPow(const float& x, const float& y) {
@@ -362,16 +265,6 @@ float GPow(const float& x, const float& y) {
 double GPow(const double& x, const double& y) {
    return pow(x, y);
 }
-
-/******************************************************************************/
-/**
- * Calculates the pow value of a long value
- */
-#ifdef _GLIBCXX_HAVE_POWL
-long double GPow(const long double& x, const long double& y) {
-   return powl(x, y);
-}
-#endif /* _GLIBCXX_HAVE_POWL */
 
 /******************************************************************************/
 /**
@@ -413,27 +306,6 @@ double GMix(
 #endif
 
    return bottom*(1.-alpha) + top*alpha;
-}
-
-/******************************************************************************/
-/**
- * Performs alpha blending for long doubles
- */
-long double GMix(
-      const long double& bottom
-      , const long double& top
-      , const long double& alpha
-) {
-#ifdef DEBUG
-   if(alpha < 0.l || alpha > 1.l) {
-      raiseException(
-            "In GMix<long double>(): Error!" << std::endl
-            << "alpha should be in the range [0.l,1.l], but has value " << alpha << std::endl
-      );
-   }
-#endif
-
-   return bottom*(1.l-alpha) + top*alpha;
 }
 
 /******************************************************************************/
