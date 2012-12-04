@@ -341,7 +341,6 @@ public:
 
 };
 
-
 /******************************************************************************/
 /**
  * The default constructor. Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
@@ -349,7 +348,7 @@ public:
 template <typename T>
 GParameterT<T>::GParameterT()
 	: GParameterBaseWithAdaptorsT<T>()
-	, val_(Gem::Common::GDefaultValueT<bool>())
+	, val_(Gem::Common::GDefaultValueT<T>())
 { /* nothing */ }
 
 /******************************************************************************/
