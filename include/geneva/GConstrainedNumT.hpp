@@ -88,10 +88,10 @@ public:
 	 * The default constructor
 	 */
 	GConstrainedNumT()
-		: GParameterT<T>()
-		, lowerBoundary_(-GConstrainedValueLimit<T>::max())
-		, upperBoundary_( GConstrainedValueLimit<T>::max())
-    { /* nothing */ }
+		: GParameterT<T>(GConstrainedValueLimitT<T>::lowest())
+		, lowerBoundary_(GConstrainedValueLimitT<T>::lowest())
+		, upperBoundary_(GConstrainedValueLimitT<T>::highest())
+   { /* nothing */ }
 
 
 	/***************************************************************************/
@@ -103,9 +103,19 @@ public:
 	 */
 	explicit GConstrainedNumT(const T& val)
 		: GParameterT<T>(val)
-		, lowerBoundary_(-GConstrainedValueLimit<T>::max())
-		, upperBoundary_( GConstrainedValueLimit<T>::max())
-	{ /* nothing */	}
+		, lowerBoundary_(GConstrainedValueLimitT<T>::lowest())
+		, upperBoundary_(GConstrainedValueLimitT<T>::highest())
+	{
+      // Check that the value is inside of the allowed value range
+      if(val < lowerBoundary_ || val > upperBoundary_) {
+         raiseException(
+               "In GConstrainedNumT<T>::GConstrainedNumT(val):" << std::endl
+               << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+               << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+               << "upperBoundary_ = " << upperBoundary_
+         );
+      }
+	}
 
 	/***************************************************************************/
 	/**
@@ -119,24 +129,24 @@ public:
 		, lowerBoundary_(lowerBoundary)
 		, upperBoundary_(upperBoundary)
 	{
-		// Naturally the upper boundary should be > the lower boundary
-		if(lowerBoundary_ > upperBoundary_) {
+		// Naturally the upper boundary should be >= the lower boundary
+		if(lowerBoundary_ >= upperBoundary_) {
 			raiseException(
 					"In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
-					<< "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+					<< "lowerBoundary_ = " << lowerBoundary_ << "is >= than" << std::endl
 					<< "upperBoundary_ = " << upperBoundary_
 			);
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
-		if(lowerBoundary < -GConstrainedValueLimit<T>::max() || upperBoundary > GConstrainedValueLimit<T>::max()) {
+		if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() || upperBoundary > GConstrainedValueLimitT<T>::highest()) {
 			raiseException(
 					"In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
 					<< "lower and/or upper limit outside of allowed value range:" << std::endl
 					<< "lowerBoundary = " << lowerBoundary << std::endl
 					<< "upperBoundary = " << upperBoundary << std::endl
-					<< "-GConstrainedValueLimit<T>::max() = " << -GConstrainedValueLimit<T>::max() << std::endl
-					<< " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max()
+					<< "GConstrainedValueLimit<T>::lowest()  = " << GConstrainedValueLimitT<T>::lowest() << std::endl
+					<< "GConstrainedValueLimit<T>::highest() = " << GConstrainedValueLimitT<T>::highest()
 			);
 		}
 	}
@@ -155,23 +165,23 @@ public:
 		, upperBoundary_(upperBoundary)
 	{
 		// Do some error checking
-		if(lowerBoundary_ > upperBoundary_) {
+		if(lowerBoundary_ >= upperBoundary_) {
 			raiseException(
 					"In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << std::endl
-					<< "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+					<< "lowerBoundary_ = " << lowerBoundary_ << "is >= than" << std::endl
 					<< "upperBoundary_ = " << upperBoundary_
 			);
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
-		if(lowerBoundary < -GConstrainedValueLimit<T>::max() || upperBoundary > GConstrainedValueLimit<T>::max()) {
+		if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() || upperBoundary > GConstrainedValueLimitT<T>::highest()) {
 			raiseException(
 					"In GConstrainedNumT<T>::GConstrainedNumT(val, lower,upper):" << std::endl
 					<< "lower and/or upper limit outside of allowed value range:" << std::endl
 					<< "lowerBoundary = " << lowerBoundary << std::endl
 					<< "upperBoundary = " << upperBoundary << std::endl
-					<< "-GConstrainedValueLimit<T>::max() = " << -GConstrainedValueLimit<T>::max() << std::endl
-					<< " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max()
+					<< "GConstrainedValueLimitT<T>::lowest()  = " << GConstrainedValueLimitT<T>::lowest() << std::endl
+					<< "GConstrainedValueLimitT<T>::highest() = " <<  GConstrainedValueLimitT<T>::highest()
 			);
 		}
 
@@ -331,7 +341,7 @@ public:
 	 * Resets the boundaries to the maximum allowed value.
 	 */
 	void resetBoundaries() {
-		this->setBoundaries(-GConstrainedValueLimit<T>::max(), GConstrainedValueLimit<T>::max());
+		this->setBoundaries(GConstrainedValueLimitT<T>::lowest(), GConstrainedValueLimitT<T>::highest());
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -352,7 +362,7 @@ public:
 	 * @param upperBoundary The new upper boundary for this object
 	 */
 	virtual void setBoundaries(const T& lowerBoundary, const T& upperBoundary) {
-		const T currentValue = GParameterT<T>::value();
+		const T currentValue = this->value(); // Store the externally visible value
 
 		// Check that the boundaries make sense
 		if(lowerBoundary > upperBoundary) {
@@ -364,14 +374,14 @@ public:
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
-		if(lowerBoundary < -GConstrainedValueLimit<T>::max() || upperBoundary > GConstrainedValueLimit<T>::max()) {
+		if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() || upperBoundary > GConstrainedValueLimitT<T>::highest()) {
 			raiseException(
 					"In GConstrainedNumT<T>::setBoundaries(const T&, const T&):" << std::endl
 					<< "lower and/or upper limit outside of allowed value range:" << std::endl
 					<< "lowerBoundary = " << lowerBoundary << std::endl
 					<< "upperBoundary = " << upperBoundary << std::endl
-					<< "-GConstrainedValueLimit<T>::max() = " << -GConstrainedValueLimit<T>::max() << std::endl
-					<< " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max()
+					<< "GConstrainedValueLimitT<T>::lowest() = " << GConstrainedValueLimitT<T>::lowest() << std::endl
+					<< " GConstrainedValueLimit<T>::highest() = " <<  GConstrainedValueLimitT<T>::highest()
 			);
 		}
 
@@ -388,9 +398,7 @@ public:
 		lowerBoundary_ = lowerBoundary;
 		upperBoundary_ = upperBoundary;
 
-		// Re-set the internal representation of the value -- we might be in a different
-		// region of the transformation internally, and the mapping will likely depend on
-		// the boundaries.
+		// Re-set the internal representation of the value
 		GParameterT<T>::setValue(currentValue);
 	}
 
@@ -452,14 +460,14 @@ public:
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
-		if(lowerBoundary < -GConstrainedValueLimit<T>::max() || upperBoundary > GConstrainedValueLimit<T>::max()) {
+		if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() || upperBoundary > GConstrainedValueLimitT<T>::highest()) {
 			raiseException(
 					"In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
 					<< "lower and/or upper limit outside of allowed value range:" << std::endl
 					<< "lowerBoundary = " << lowerBoundary << std::endl
 					<< "upperBoundary = " << upperBoundary << std::endl
-					<< "-GConstrainedValueLimit<T>::max() = " << -GConstrainedValueLimit<T>::max() << std::endl
-					<< " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max()
+					<< "GConstrainedValueLimitT<T>::lowest() = " << GConstrainedValueLimitT<T>::lowest() << std::endl
+					<< " GConstrainedValueLimit<T>::highest() = " <<  GConstrainedValueLimitT<T>::highest()
 			);
 		}
 
@@ -477,8 +485,10 @@ public:
 		lowerBoundary_ = lowerBoundary;
 		upperBoundary_ = upperBoundary;
 
-		// Set the desired value
-		this->setValue(val);
+      // Set the internal representation of the value -- we might be in a different
+      // region of the transformation internally, and the mapping will likely depend on
+      // the boundaries.
+      GParameterT<T>::setValue(val);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -498,13 +508,13 @@ public:
 	 * @return The transformed value of val_
 	 */
 	virtual T value() const {
-		T mapping = transfer(GParameterT<T>::value());
+		T mapping = this->transfer(GParameterT<T>::value());
 
 		// Reset internal value -- possible because it is declared mutable in
 		// GParameterT<T>. Resetting the internal value prevents divergence through
 		// extensive mutation and also speeds up the previous part of the transfer
 		// function
-		GParameterT<T>::setValue_(mapping);
+      GParameterT<T>::setValue_(mapping);
 
 		return mapping;
 	}
@@ -530,9 +540,12 @@ public:
 	 */
 
 	/***************************************************************************/
-	/** @brief The transfer function needed to calculate the externally visible
-	 * value. Declared public so we can do tests of the value transformation. */
+	/**
+	 * The transfer function needed to calculate the externally visible
+	 * value. Declared public so we can do tests of the value transformation.
+	 */
 	virtual T transfer(const T&) const = 0;
+
 
 protected:
 	/***************************************************************************/
@@ -608,13 +621,13 @@ public:
 
 			// Make sure we can freely assign values
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
-			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<T>::max());
+			BOOST_CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<T>::lowest());
 
 			// GConstrainedDoubleObject assigns the float prior to the specified boundary
 			if(typeid(T) == typeid(double)) {
-				BOOST_CHECK(p_test->getUpperBoundary() ==  boost::math::template float_prior<T>(GConstrainedValueLimit<T>::max()));
+				BOOST_CHECK(p_test->getUpperBoundary() ==  boost::math::template float_prior<T>(GConstrainedValueLimitT<T>::highest()));
 			} else {
-				BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<T>::max());
+				BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimitT<T>::highest());
 			}
 		}
 
@@ -627,7 +640,8 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Assign a valid value
-			BOOST_CHECK_NO_THROW(p_test->setValue(testVal));
+			// BOOST_CHECK_NO_THROW(p_test->setValue(testVal));
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, 30, 50));
 
 			// Check with the local value() function that the value has been set
 			BOOST_CHECK(p_test->value() == testVal);
