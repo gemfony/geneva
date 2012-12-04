@@ -45,8 +45,6 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/limits.hpp>
-#include <boost/logic/tribool.hpp>
-
 #ifndef GCONSTRAINEDVALUELIMITT_HPP_
 #define GCONSTRAINEDVALUELIMITT_HPP_
 
@@ -63,50 +61,67 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * This struct defines limits used for constrained parameter types
+ * This struct defines limits used for constrained parameter types in the
+ * optimization process.
  */
 template <typename T>
-struct GConstrainedValueLimit
+struct GConstrainedValueLimitT
 {
-	static T max() {
-		return boost::numeric::bounds<T>::highest();
+   static T highest() {
+      return boost::numeric::bounds<T>::highest();
+   }
+
+	static T lowest() {
+	   return boost::numeric::bounds<T>::lowest();
 	}
 };
 
 /******************************************************************************/
 /**
- * Specialization of GConstrainedValueLimit for double values.
+ * Specialization of GConstrainedValueLimitT for double values.
  */
 template <>
-struct GConstrainedValueLimit<double>
+struct GConstrainedValueLimitT<double>
 {
-	static double max() {
+	static double highest() {
 		return MAXCONSTRAINEDDOUBLE;
 	}
+
+   static double lowest() {
+      return -MAXCONSTRAINEDDOUBLE;
+   }
 };
 
 /******************************************************************************/
 /**
- * Specialization of GConstrainedValueLimit for float values.
+ * Specialization of GConstrainedValueLimitT for float values.
  */
 template <>
-struct GConstrainedValueLimit<float>
+struct GConstrainedValueLimitT<float>
 {
-	static float max() {
+	static float highest() {
 		return MAXCONSTRAINEDFLOAT;
 	}
+
+   static float lowest() {
+      return -MAXCONSTRAINEDFLOAT;
+   }
 };
 
 /******************************************************************************/
 /**
- * Specialization of GConstrainedValueLimit for boost::int32_t values.
+ * Specialization of GConstrainedValueLimitT for boost::int32_t values.
  */
 template <>
-struct GConstrainedValueLimit<boost::int32_t>
+struct GConstrainedValueLimitT<boost::int32_t>
 {
-	static boost::int32_t max() {
+	static boost::int32_t highest() {
 		return MAXCONSTRAINEDINT32;
 	}
+
+   static boost::int32_t lowest() {
+      return -MAXCONSTRAINEDINT32;
+   }
 };
 
 /******************************************************************************/
