@@ -10,6 +10,8 @@ Wishlist for version 1.1, yet unnamed, release-date unknown
 The main changes for this release include:
  - Ported to Boost 1.52
  - Added a new example "GStarter" meant as a starting point for the users' own projects
+ - Removed non-portable "long double" functions from GMathHelperFunctions.hpp/cpp
+ - Moved GConstrainedValueLimitT<T> from "max()" to "lowest()/highest()"
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012
