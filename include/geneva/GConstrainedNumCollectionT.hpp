@@ -119,13 +119,13 @@ public:
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
-		if(lowerBoundary < -GConstrainedValueLimit<num_type>::max() || upperBoundary > GConstrainedValueLimit<num_type>::max()) {
+		if(lowerBoundary < GConstrainedValueLimitT<num_type>::lowest() || upperBoundary > GConstrainedValueLimitT<num_type>::highest()) {
 			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, lower,upper):" << std::endl
 					  << "lower and/or upper limit outside of allowed value range:" << std::endl
 					  << "lowerBoundary = " << lowerBoundary << std::endl
 					  << "upperBoundary = " << upperBoundary << std::endl
-					  << "-GConstrainedValueLimit<num_type>::max() = " << -GConstrainedValueLimit<num_type>::max() << std::endl
-					  << " GConstrainedValueLimit<num_type>::max() = " <<  GConstrainedValueLimit<num_type>::max();
+					  << "GConstrainedValueLimit<num_type>::lowest() = " << GConstrainedValueLimitT<num_type>::lowest() << std::endl
+					  << "GConstrainedValueLimit<num_type>::highest() = " << GConstrainedValueLimitT<num_type>::highest();
 			std::terminate();
 		}
 	}
@@ -159,13 +159,13 @@ public:
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
-		if(lowerBoundary < -GConstrainedValueLimit<num_type>::max() || upperBoundary > GConstrainedValueLimit<num_type>::max()) {
+		if(lowerBoundary < GConstrainedValueLimitT<num_type>::lowest() || upperBoundary > GConstrainedValueLimitT<num_type>::highest()) {
 			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
 					  << "lower and/or upper limit outside of allowed value range:" << std::endl
 					  << "lowerBoundary = " << lowerBoundary << std::endl
 					  << "upperBoundary = " << upperBoundary << std::endl
-					  << "-GConstrainedValueLimit<num_type>::max() = " << -GConstrainedValueLimit<num_type>::max() << std::endl
-					  << " GConstrainedValueLimit<num_type>::max() = " <<  GConstrainedValueLimit<num_type>::max();
+					  << "GConstrainedValueLimit<num_type>::lowest() = " << GConstrainedValueLimitT<num_type>::lowest() << std::endl
+					  << "GConstrainedValueLimit<num_type>::highest() = " << GConstrainedValueLimitT<num_type>::highest();
 			std::terminate();
 		}
 
@@ -261,7 +261,7 @@ public:
 	 * Resets the boundaries to the maximum allowed value.
 	 */
 	void resetBoundaries() {
-		this->setBoundaries(-GConstrainedValueLimit<num_type>::max(), GConstrainedValueLimit<num_type>::max());
+		this->setBoundaries(GConstrainedValueLimitT<num_type>::lowest(), GConstrainedValueLimitT<num_type>::highest());
 	}
 
 	/***************************************************************************/
