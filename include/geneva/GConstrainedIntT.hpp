@@ -255,8 +255,10 @@ public:
 	 */
 	virtual int_type transfer(const int_type& val) const {
 		// Find out the size of the confined area
+	   int_type lowerBoundary = GConstrainedNumT<int_type>::getLowerBoundary();
+	   int_type upperBoundary = GConstrainedNumT<int_type>::getUpperBoundary();
 
-		if(val >= GConstrainedNumT<int_type>::getLowerBoundary() && val <= GConstrainedNumT<int_type>::getUpperBoundary()) {
+		if(val >= lowerBoundary && val <= upperBoundary) {
 			return val;
 		}
 		else {
@@ -265,12 +267,12 @@ public:
 
 			// Find out the size of the value range. Note that both boundaries
 			// are included, so that we need to add 1 to the difference.
-			std::size_t value_range = GConstrainedNumT<int_type>::getUpperBoundary() - GConstrainedNumT<int_type>::getLowerBoundary() + 1;
+			std::size_t value_range = upperBoundary - lowerBoundary + 1;
 
-			if(val < GConstrainedNumT<int_type>::getLowerBoundary()) {
+			if(val < lowerBoundary) {
 				// Find out how many full value ranges val is below the lower boundary.
 				// We use integer division here, so 13/4 would be 3.
-				std::size_t nBelowLowerBoundary = (GConstrainedNumT<int_type>::getLowerBoundary() - (val + 1)) / value_range;
+				std::size_t nBelowLowerBoundary = (lowerBoundary - (val + 1)) / value_range;
 
 				// We are dealing with descending (nBelowLowerBoundary is even) and
 				// ascending ranges (nBelowLowerBoundary is odd), which need to be treated differently
@@ -285,7 +287,7 @@ public:
 			else { // val > getUpperBoundary()
 				// Find out how many full value ranges val is above the upper boundary.
 				// We use integer division here, so 13/4 would be 3.
-				std::size_t nAboveUpperBoundary = (val - GConstrainedNumT<int_type>::getUpperBoundary() - 1) / value_range;
+				std::size_t nAboveUpperBoundary = (val - upperBoundary - 1) / value_range;
 
 				// We are dealing with descending (nAboveUpperBoundary is even) and
 				// ascending ranges (nAboveUpperBoundary is odd), which need to be treated differently
@@ -490,15 +492,15 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimit<T>) with the setValue(val, lower, upper) function throws
+		{ // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimitT<T>) with the setValue(val, lower, upper) function throws
 			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Check that the boundaries have the expected values
-			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<int_type>::max());
-			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<int_type>::max());
+			BOOST_CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<int_type>::lowest());
+			BOOST_CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
 
 			// Try to set a boundary to a bad value
 			BOOST_CHECK_THROW(p_test->setValue(0, 0, boost::numeric::bounds<int_type>::highest()), Gem::Common::gemfony_error_condition);
@@ -506,15 +508,15 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimit<T>)  with the setValue(val, lower, upper) function throws
+		{ // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimitT<T>)  with the setValue(val, lower, upper) function throws
 			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Check that the boundaries have the expected values
-			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<int_type>::max());
-			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<int_type>::max());
+			BOOST_CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<int_type>::lowest());
+			BOOST_CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
 
 			// Try to set a boundary to a bad value
 			BOOST_CHECK_THROW(p_test->setValue(0, boost::numeric::bounds<int_type>::lowest(), 100), Gem::Common::gemfony_error_condition);
@@ -522,15 +524,15 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimit<T>) with the setBoundaries(lower, upper) function throws
+		{ // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimitT<T>) with the setBoundaries(lower, upper) function throws
 			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Check that the boundaries have the expected values
-			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<int_type>::max());
-			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<int_type>::max());
+			BOOST_CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<int_type>::lowest());
+			BOOST_CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
 
 			// Try to set a boundary to a bad value
 			BOOST_CHECK_THROW(p_test->setBoundaries(0, boost::numeric::bounds<int_type>::highest()), Gem::Common::gemfony_error_condition);
@@ -538,15 +540,15 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimit<T>) with the setBoundaries(lower, upper) function throws
+		{ // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimitT<T>) with the setBoundaries(lower, upper) function throws
 			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Check that the boundaries have the expected values
-			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<int_type>::max());
-			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<int_type>::max());
+			BOOST_CHECK(p_test->getLowerBoundary() == GConstrainedValueLimitT<int_type>::lowest());
+			BOOST_CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<int_type>::highest());
 
 			// Try to set a boundary to a bad value
 			BOOST_CHECK_THROW(p_test->setBoundaries(boost::numeric::bounds<int_type>::lowest(), 100), Gem::Common::gemfony_error_condition);
