@@ -181,7 +181,7 @@ public:
    * will not the survive beyond the end of the stream-chain.
    */
   template <typename T>
-  S operator<<(T& t) {
+  S operator<<(const T& t) {
     S s;
     s << t;
     return s;

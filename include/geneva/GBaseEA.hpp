@@ -219,10 +219,10 @@ public:
 #ifdef DEBUG
       // Check that the parent id is in a valid range
       if(parentId >= this->getNParents()) {
-         raiseException(
-               "In GBaseEA::getParentIndividual<>() : Error" << std::endl
-               << "Requested parent id which does not exist: " << parentId << " / " << this->getNParents()
-         );
+         glogger
+         << "In GBaseEA::getParentIndividual<>() : Error" << std::endl
+         << "Requested parent id which does not exist: " << parentId << " / " << this->getNParents() << std::endl
+         << GEXCEPTION;
       }
 
       // Retrieve a pointer to the parent individual
@@ -230,19 +230,19 @@ public:
 
       // Check that the pointer actually points somewhere
       if(!parent_ptr) {
-         raiseException(
-               "In GBaseEA::getParentIndividual<>() : Error" << std::endl
-               << "Tried to access uninitialized parent individual."
-         );
+         glogger
+         << "In GBaseEA::getParentIndividual<>() : Error" << std::endl
+         << "Tried to access uninitialized parent individual." << std::endl
+         << GEXCEPTION;
       }
 
       boost::shared_ptr<individual_type> converted_parent_pointer = boost::dynamic_pointer_cast<individual_type>(parent_ptr);
 
       if(converted_parent_pointer) return converted_parent_pointer;
       else {
-         raiseException(
-               "In GBaseEA::getParentIndividual<>(): Conversion error"
-         );
+         glogger
+         << "In GBaseEA::getParentIndividual<>(): Conversion error" << std::endl
+         << GEXCEPTION;
       }
 #else
       return boost::static_pointer_cast<individual_type>(*(this->begin() + parentId));
@@ -266,18 +266,18 @@ public:
 #ifdef DEBUG
       // Check that we have indeed logged parents
       if(!logOldParents_) {
-         raiseException(
-               "In GBaseEA::getOldParentIndividual<>() : Error" << std::endl
-               << "Requested logged parent individual when no logging is done"
-         );
+         glogger
+         << "In GBaseEA::getOldParentIndividual<>() : Error" << std::endl
+         << "Requested logged parent individual when no logging is done" << std::endl
+         << GEXCEPTION;
       }
 
       // Check that the parent id is in a valid range
       if(parentId >= oldParents_.size()) {
-         raiseException(
-               "In GBaseEA::getOldParentIndividual<>() : Error" << std::endl
-               << "Requested parent id which does not exist: " << parentId << " / " << oldParents_.size()
-         );
+         glogger
+         << "In GBaseEA::getOldParentIndividual<>() : Error" << std::endl
+         << "Requested parent id which does not exist: " << parentId << " / " << oldParents_.size() << std::endl
+         << GEXCEPTION;
       }
 
       // Retrieve a pointer to the parent individual
@@ -285,19 +285,19 @@ public:
 
       // Check that the pointer actually points somewhere
       if(!parent_ptr) {
-         raiseException(
-               "In GBaseEA::getOldParentIndividual<>() : Error" << std::endl
-               << "Tried to access uninitialized parent individual."
-         );
+         glogger
+         << "In GBaseEA::getOldParentIndividual<>() : Error" << std::endl
+         << "Tried to access uninitialized parent individual." << std::endl
+         << GEXCEPTION;
       }
 
       boost::shared_ptr<individual_type> converted_parent_pointer = boost::dynamic_pointer_cast<individual_type>(parent_ptr);
 
       if(converted_parent_pointer) return converted_parent_pointer;
       else {
-         raiseException(
-               "In GBaseEA::getOldParentIndividual<>() : Conversion error"
-         );
+         glogger
+         << "In GBaseEA::getOldParentIndividual<>() : Conversion error" << std::endl
+         << GEXCEPTION;
       }
 #else
       return boost::static_pointer_cast<individual_type>(*(oldParents_.begin() + parentId));

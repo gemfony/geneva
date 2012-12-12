@@ -287,10 +287,9 @@ public:
 	void setAdaptionProbability(const double& probability) {
 		// Check the supplied probability value
 		if(probability < 0. || probability > 1.) {
-			raiseException(
-					"In GAdaptorT<T>::setAdaptionProbability(const double&):" << std::endl
-					<< "Bad probability value given: " << probability
-			);
+			glogger
+			<< "In GAdaptorT<T>::setAdaptionProbability(const double&):" << std::endl
+			<< "Bad probability value given: " << probability << GEXCEPTION;
 		}
 
 		adProb_ = probability;
@@ -327,10 +326,9 @@ public:
 	void setAdaptAdaptionProbability(const double& probability) {
 		// Check the supplied probability value
 		if(probability < 0. || probability > 1.) {
-			raiseException(
-					"In GAdaptorT<T>::setAdaptAdaptionProbability(const double&) :" << std::endl
-					<< "Bad probability value given: " << probability
-			);
+			glogger
+			<<	"In GAdaptorT<T>::setAdaptAdaptionProbability(const double&) :" << std::endl
+			<< "Bad probability value given: " << probability << GEXCEPTION;
 		}
 
 		adaptAdaptionProbability_ = probability;
@@ -474,10 +472,9 @@ public:
 	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
 #ifdef DEBUG
 		if(!gr_cp) {
-			raiseException(
-					"In GAdaptorT<T>::assignGRandomPointer() :" << std::endl
-					<< "Tried to assign NULL pointer"
-			);
+		   glogger
+		   << "In GAdaptorT<T>::assignGRandomPointer() :" << std::endl
+		   << "Tried to assign NULL pointer" << GEXCEPTION;
 		}
 #endif
 
@@ -497,10 +494,9 @@ public:
 	virtual void resetGRandomPointer() {
 		if(gr_local) gr = gr_local;
 		else {
-			raiseException(
-					"In GAdaptorT<T>::resetGRandomPointer() :" << std::endl
-					<< "Tried to assign NULL pointer"
-			);
+			glogger
+			<< "In GAdaptorT<T>::resetGRandomPointer() :" << std::endl
+			<< "Tried to assign NULL pointer" << GEXCEPTION;
 		}
 	}
 

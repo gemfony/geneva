@@ -264,10 +264,10 @@ void GBaseEA::saveCheckpoint() const {
 
 #ifdef DEBUG // Cross check so we do not accidently trigger value calculation
 	if(this->at(0)->isDirty()) {
-		raiseException(
-				"In GBaseEA::saveCheckpoint():" << std::endl
-				<< "Error: class member in position " << std::distance(this->begin(),it) << " has the dirty flag set."
-		);
+		glogger
+		<< "In GBaseEA::saveCheckpoint():" << std::endl
+      << "Error: class member in position " << std::distance(this->begin(),it) << " has the dirty flag set." << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 	double newValue = this->at(0)->fitness(0);
@@ -279,10 +279,10 @@ void GBaseEA::saveCheckpoint() const {
 	// Create the output stream and check that it is in good order
 	std::ofstream checkpointStream(outputFile.c_str());
 	if(!checkpointStream) {
-		raiseException(
-				"In GBaseEA::saveCheckpoint()" << std::endl
-				<< "Error: Could not open output file" << outputFile.c_str()
-		);
+		glogger
+		<< "In GBaseEA::saveCheckpoint()" << std::endl
+      << "Error: Could not open output file" << outputFile.c_str() << std::endl
+      << GEXCEPTION;
 	}
 
 	switch(getCheckpointSerializationMode()) {
@@ -327,19 +327,19 @@ void GBaseEA::loadCheckpoint(const std::string& cpFile) {
 
 	// Check that the file indeed exists
 	if(!boost::filesystem::exists(cpFile)) {
-		raiseException(
-				"In GBaseEA::loadCheckpoint(const std::string&)" << std::endl
-				<< "Got invalid checkpoint file name " << cpFile
-		);
+	   glogger
+	   << "In GBaseEA::loadCheckpoint(const std::string&)" << std::endl
+      << "Got invalid checkpoint file name " << cpFile << std::endl
+      << GEXCEPTION;
 	}
 
 	// Create the input stream and check that it is in good order
 	std::ifstream checkpointStream(cpFile.c_str());
 	if(!checkpointStream) {
-		raiseException(
-				"In GBaseEA::loadCheckpoint(const std::string&)" << std::endl
-				<< "Error: Could not open input file"
-		);
+	   glogger
+	   << "In GBaseEA::loadCheckpoint(const std::string&)" << std::endl
+      << "Error: Could not open input file" << std::endl
+      << GEXCEPTION;
 	}
 
 	switch(getCheckpointSerializationMode()) {
@@ -537,9 +537,9 @@ double GBaseEA::cycleLogic() {
 
 #ifdef DEBUG
 	if(isDirty) {
-		raiseException(
-				"In GBaseEA::cycleLogic(): Found dirty individual when it should not be"
-		);
+	   glogger
+	   << "In GBaseEA::cycleLogic(): Found dirty individual when it should not be" << std::endl
+	   << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
@@ -596,12 +596,11 @@ void GBaseEA::init() {
 		case MUCOMMANU_PARETO:
 			error << "MUCOMMANU_PARETO" << std::endl;
 			break;
-		}
+		};
 
-		raiseException(
-				error.str()
-		);
-
+		glogger
+		<< error.str()
+		<< GEXCEPTION;
 	}
 
 	// Let parents know they are parents
@@ -635,31 +634,31 @@ void GBaseEA::finalize() {
 void GBaseEA::adjustPopulation() {
 	// Has the population size been set at all ?
 	if(getDefaultPopulationSize() == 0) {
-		raiseException(
-				"In GBaseEA::adjustPopulation() :" << std::endl
-				<< "The population size is 0." << std::endl
-				<< "Did you call GOptimizationAlgorithmT<Gem::Geneva::GIndividual>:setDefaultPopulationSize() ?"
-		);
+		glogger
+		<< "In GBaseEA::adjustPopulation() :" << std::endl
+      << "The population size is 0." << std::endl
+      << "Did you call GOptimizationAlgorithmT<Gem::Geneva::GIndividual>:setDefaultPopulationSize() ?" << std::endl
+      << GEXCEPTION;
 	}
 
 	// Check how many individuals have been added already. At least one is required.
 	std::size_t this_sz = data.size();
 	if(this_sz == 0) {
-		raiseException(
-				"In GBaseEA::adjustPopulation() :" << std::endl
-				<< "size of population is 0. Did you add any individuals?" << std::endl
-				<< "We need at least one local individual"
-		);
+	   glogger
+	   << "In GBaseEA::adjustPopulation() :" << std::endl
+      << "size of population is 0. Did you add any individuals?" << std::endl
+      << "We need at least one local individual" << std::endl
+      << GEXCEPTION;
 	}
 
 	// Do the smart pointers actually point to any objects ?
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it) {
 		if(!(*it)) { // shared_ptr can be implicitly converted to bool
-			raiseException(
-					"In GBaseEA::adjustPopulation() :" << std::endl
-					<< "Found empty smart pointer."
-			);
+		   glogger
+		   << "In GBaseEA::adjustPopulation() :" << std::endl
+         << "Found empty smart pointer." << std::endl
+         << GEXCEPTION;
 		}
 	}
 
@@ -706,10 +705,10 @@ void GBaseEA::performScheduledPopulationGrowth() {
 boost::shared_ptr<GIndividual> GBaseEA::getBestIndividual() {
 #ifdef DEBUG
 		if(data.empty()) {
-			raiseException(
-					"In GBaseEA::getBestIndividual() :" << std::endl
-					<< "Tried to access individual at position 0 even though population is empty."
-			);
+		   glogger
+		   << "In GBaseEA::getBestIndividual() :" << std::endl
+         << "Tried to access individual at position 0 even though population is empty." << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -725,10 +724,10 @@ boost::shared_ptr<GIndividual> GBaseEA::getBestIndividual() {
 std::vector<boost::shared_ptr<GIndividual> > GBaseEA::getBestIndividuals() {
 	// Some error checking
 	if(nParents_ == 0) {
-		raiseException(
-			"In GBaseEA::getBestIndividuals() :" << std::endl
-			<< "no parents found" << std::endl
-		);
+	   glogger
+	   << "In GBaseEA::getBestIndividuals() :" << std::endl
+      << "no parents found" << std::endl
+      << GEXCEPTION;
 	}
 
 	std::vector<boost::shared_ptr<GIndividual> > bestIndividuals;
@@ -967,11 +966,11 @@ void GBaseEA::recombine()
 	// children is present. If individuals can get lost in your setting,
 	// you must add mechanisms to "repair" the population.
 	if((data.size()-nParents_) < defaultNChildren_){
-		raiseException(
-				"In GBaseEA::recombine():" << std::endl
-				<< "Too few children. Got " << data.size()-nParents_ << "," << std::endl
-				<< "but was expecting at least " << defaultNChildren_
-		);
+	   glogger
+	   << "In GBaseEA::recombine():" << std::endl
+      << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
+      << "but was expecting at least " << defaultNChildren_ << std::endl
+      << GEXCEPTION;
 	}
 #endif
 
@@ -1113,10 +1112,10 @@ void GBaseEA::valueRecombine(boost::shared_ptr<GIndividual>& p, const std::vecto
 	}
 
 	if(!done) {
-		raiseException(
-				"In GBaseEA::valueRecombine():" << std::endl
-				<< "Could not recombine."
-		);
+	   glogger
+	   << "In GBaseEA::valueRecombine():" << std::endl
+      << "Could not recombine." << std::endl
+      << GEXCEPTION;
 	}
 }
 
@@ -1132,11 +1131,11 @@ void GBaseEA::selectBest()
 	// you must add mechanisms to "repair" the population before this
 	// function is called
 	if((data.size()-nParents_) < defaultNChildren_){
-		raiseException(
-				"In GBaseEA::select():" << std::endl
-				<< "Too few children. Got " << data.size()-nParents_ << "," << std::endl
-				<< "but was expecting at least " << defaultNChildren_
-		);
+	   glogger
+	   << "In GBaseEA::select():" << std::endl
+      << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
+      << "but was expecting at least " << defaultNChildren_ << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
@@ -1215,10 +1214,10 @@ boost::tuple<std::size_t,std::size_t> GBaseEA::getEvaluationRange() const {
 
 		default:
 		{
-			raiseException(
-				"In GBaseEA::getEvaluationRange(): Error" << std::endl
-				<< "Incorrect sorting scheme requested: " << getSortingScheme() << std::endl
-			);
+		   glogger
+		   << "In GBaseEA::getEvaluationRange(): Error" << std::endl
+         << "Incorrect sorting scheme requested: " << getSortingScheme() << std::endl
+         << GEXCEPTION;
 		}
 			break;
 		}
@@ -1239,10 +1238,10 @@ void GBaseEA::sortMuPlusNuMode() {
 	GBaseEA::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
 		if((*it)->isDirty()) {
-			raiseException(
-				"In GBaseEA::sortMuplusnuMode(): Error!" << std::endl
-				<< "In iteration " << getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set." << std::endl
-			);
+		   glogger
+		   << "In GBaseEA::sortMuplusnuMode(): Error!" << std::endl
+         << "In iteration " << getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set." << std::endl
+         << GEXCEPTION;
 		}
 	}
 #endif /* DEBUG */
@@ -1269,10 +1268,10 @@ void GBaseEA::sortMuCommaNuMode() {
 	GBaseEA::iterator it;
 	for(it=this->begin()+nParents_; it!=this->end(); ++it) {
 		if((*it)->isDirty()) {
-			raiseException(
-				"In GBaseEA::sortMucommanuMode(): Error!" << std::endl
-				<< "In iteration " << getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set." << std::endl
-			);
+		   glogger
+		   << "In GBaseEA::sortMucommanuMode(): Error!" << std::endl
+         << "In iteration " << getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set." << std::endl
+         << GEXCEPTION;
 		}
 	}
 #endif /* DEBUG */
@@ -1525,10 +1524,10 @@ bool GBaseEA::aDominatesB(
 #ifdef DEBUG
 	std::size_t nCriteriaB = b->getNumberOfFitnessCriteria();
 	if(nCriteriaA != nCriteriaB) {
-		raiseException(
-				"In GBaseEA::aDominatesB(): Error!" << std::endl
-				<< "Number of fitness criteria differ: " << nCriteriaA << " / " << nCriteriaB << std::endl
-		);
+	   glogger
+	   << "In GBaseEA::aDominatesB(): Error!" << std::endl
+      << "Number of fitness criteria differ: " << nCriteriaA << " / " << nCriteriaB << std::endl
+      << GEXCEPTION;
 	}
 #endif
 
@@ -1621,10 +1620,10 @@ void GBaseEA::updateTemperature() {
  */
 void GBaseEA::setTDegradationStrength(double alpha) {
 	if(alpha <=0.) {
-		raiseException(
-				"In GBaseEA::setTDegradationStrength(const double&):" << std::endl
-				<< "Got negative alpha: " << alpha
-		);
+	   glogger
+	   << "In GBaseEA::setTDegradationStrength(const double&):" << std::endl
+      << "Got negative alpha: " << alpha << std::endl
+      << GEXCEPTION;
 	}
 
 	alpha_ = alpha;
@@ -1648,10 +1647,10 @@ double GBaseEA::getTDegradationStrength() const {
  */
 void GBaseEA::setT0(double t0) {
 	if(t0 <=0.) {
-		raiseException(
-				"In GBaseEA::setT0(const double&):" << std::endl
-				<< "Got negative start temperature: " << t0
-		);
+	   glogger
+	   << "In GBaseEA::setT0(const double&):" << std::endl
+      << "Got negative start temperature: " << t0 << std::endl
+      << GEXCEPTION;
 	}
 
 	t0_ = t0;
@@ -1986,10 +1985,10 @@ std::string GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgor
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != PERSONALITY_EA) {
-		raiseException(
-				"In GBaseEA::GEAOptimizationMonitor::firstInformation():" << std::endl
-				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
-		);
+	   glogger
+	   << "In GBaseEA::GEAOptimizationMonitor::firstInformation():" << std::endl
+      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 	GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
@@ -2021,10 +2020,10 @@ std::string GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgor
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != PERSONALITY_EA) {
-		raiseException(
-				"In GBaseEA::GEAOptimizationMonitor::cycleInformation():" << std::endl
-				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
-		);
+	   glogger
+	   <<  "In GBaseEA::GEAOptimizationMonitor::cycleInformation():" << std::endl
+      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 	GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
@@ -2042,10 +2041,10 @@ std::string GBaseEA::GEAOptimizationMonitor::lastInformation(GOptimizationAlgori
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != PERSONALITY_EA) {
-		raiseException(
-				"In GBaseEA::GEAOptimizationMonitor::lastInformation():" << std::endl
-				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
-		);
+	   glogger
+	   << "In GBaseEA::GEAOptimizationMonitor::lastInformation():" << std::endl
+      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 	GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
@@ -2211,10 +2210,10 @@ boost::uint16_t GBaseEA::GEAOptimizationMonitor::getYDim() const {
  */
 void GBaseEA::GEAOptimizationMonitor::setNMonitorIndividuals(const std::size_t& nMonitorInds) {
 	if(nMonitorInds == 0) {
-		raiseException(
-				"In GBaseEA::GEAOptimizationMonitor::setNMonitorIndividuals():" << std::endl
-				<< "Number of monitored individuals is set to 0."
-		);
+	   glogger
+	   << "In GBaseEA::GEAOptimizationMonitor::setNMonitorIndividuals():" << std::endl
+      << "Number of monitored individuals is set to 0." << std::endl
+      << GEXCEPTION;
 	}
 
 	nMonitorInds_ = nMonitorInds;
