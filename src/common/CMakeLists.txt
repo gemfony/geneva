@@ -6,6 +6,7 @@ SET ( COMMONSOURCES
 	GDefaultValueT
 	GExceptions
 	GHelperFunctions
+	GLogger
 	GMathHelperFunctions
 	GParserBuilder
 	GPlotDesigner

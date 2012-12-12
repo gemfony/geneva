@@ -61,6 +61,26 @@ namespace Common {
 
 /******************************************************************************/
 /**
+ * Different log and exception types
+ */
+enum logType {
+   EXCEPTION
+   , TERMINATION
+   , WARNING
+   , LOGGING
+   , FILE
+   , STDOUT
+   , STDERR
+};
+
+/******************************************************************************/
+/** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Common::logType&);
+/** @brief Reads a Gem::Common::logType from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Common::logType&);
+
+/******************************************************************************/
+/**
  * The default number of bins in histograms, used in GPlotDesigner
  */
 const std::size_t DEFAULTNBINSGPD = 100;

@@ -39,6 +39,41 @@ namespace Common {
 
 /******************************************************************************/
 /**
+ * Puts a Gem::Common::logType item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param lt the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::Common::logType& lt){
+   boost::uint16_t tmp = static_cast<boost::uint16_t>(lt);
+   o << tmp;
+   return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::logType item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param lt The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::Common::logType& lt){
+   boost::uint16_t tmp;
+   i >> tmp;
+
+#ifdef DEBUG
+   lt = boost::numeric_cast<Gem::Common::logType>(tmp);
+#else
+   lt = static_cast<Gem::Common::logType>(tmp);
+#endif /* DEBUG */
+
+   return i;
+}
+
+/******************************************************************************/
+/**
  * Puts a Gem::Common::triboolStates item into a stream
  *
  * @param o The ostream the item should be added to

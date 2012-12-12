@@ -12,6 +12,8 @@ The main changes for this release include:
  - Added a new example "GStarter" meant as a starting point for the users' own projects
  - Removed non-portable "long double" functions from GMathHelperFunctions.hpp/cpp
  - Moved GConstrainedValueLimitT<T> from "max()" to "lowest()/highest()"
+ - Added a simple logging framework, including exception handling, that allows to 
+   stream information to be logged.
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012
