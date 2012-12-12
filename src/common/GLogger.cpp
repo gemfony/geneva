@@ -89,7 +89,7 @@ void GConsoleLogger::logWithSource(
       const std::string& msg
       , const std::string& extension
 ) const {
-   this->log(msg + "\n" + extension);
+   this->log(std::string("Message from source \"") + extension + "\":\n" + msg);
 }
 
 /******************************************************************************/
@@ -100,15 +100,6 @@ void GConsoleLogger::logWithSource(
  */
 GFileLogger::GFileLogger(void)
    : fname_("Gemfony.log")
-   , first_(true)
-{ /* nothing */ }
-
-/*******************************************************************************/
-/**
- * A constructor that accepts the name of the log file as argument.
- */
-GFileLogger::GFileLogger(const std::string& fname)
-   : fname_(fname)
    , first_(true)
 { /* nothing */ }
 
@@ -231,19 +222,6 @@ bool GManipulator::hasAccompInfo() const {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-// Some related defines
-
-#define GEXCEPTION   GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::EXCEPTION)
-#define GTERMINATION GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::TERMINATION)
-#define GWARNING     GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::WARNING)
-#define GLOGGING     GManipulator(Gem::Common::LOGGING)
-#define GFILE        GManipulator(Gem::Common::FILE)
-#define GSTDOUT      GManipulator(Gem::Common::STDOUT)
-#define GSTDERR      GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::STDERR)
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 /**
  * The default constructor.
  */
@@ -303,7 +281,7 @@ GLogStreamer& GLogStreamer::operator<< (std::ostream& ( *val )(std::ostream&)){
  * Needed for ostringstream
  */
 GLogStreamer& GLogStreamer::operator<< (std::ios& ( *val )(std::ios&)){
-   oss_ << val; // ugly downcast
+   oss_ << val;
    return *this;
 }
 
@@ -312,7 +290,7 @@ GLogStreamer& GLogStreamer::operator<< (std::ios& ( *val )(std::ios&)){
  *  Needed for ostringstream
  */
 GLogStreamer& GLogStreamer::operator<< (std::ios_base& ( *val )(std::ios_base&)){
-   oss_ << val; // ugly downcast
+   oss_ << val;
    return *this;
 }
 
@@ -352,7 +330,7 @@ void GLogStreamer::operator<<(const GManipulator& gm){
          // The logger's routines will in addition try to print on the console. Note
          // that we ignore any "source" information, as this is already contained
          // in the logged message.
-         GFileLogger gfl(std::string("GENEVA-EXCEPTION.log"));
+         GFileLogger gfl("GENEVA-EXCEPTION.log");
          gfl.log(error.str());
 
          // Send the exception out. This done globally, so an exception
@@ -387,7 +365,7 @@ void GLogStreamer::operator<<(const GManipulator& gm){
          // The logger's routines will in addition try to print on the console. Note
          // that we ignore any "source" information, as this is already contained
          // in the logged message.
-         GFileLogger gfl(std::string("GENEVA-TERMINATION.log"));
+         GFileLogger gfl("GENEVA-TERMINATION.log");
          gfl.log(error.str());
 
          // Initiate the termination sequence.

@@ -61,6 +61,15 @@ const char* gemfony_error_condition::what() const throw() {
 }
 
 /******************************************************************************/
+/**
+ * This function allows to output a gemfony_error_condition to a stream
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::Common::gemfony_error_condition& g) {
+   o << g.what();
+   return o;
+}
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

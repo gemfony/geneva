@@ -79,6 +79,10 @@ private:
 };
 
 /******************************************************************************/
+/** @brief This function allows to output a gemfony_error_condition to a stream */
+std::ostream& operator<<(std::ostream&, const Gem::Common::gemfony_error_condition&);
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

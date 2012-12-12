@@ -14,6 +14,7 @@ The main changes for this release include:
  - Moved GConstrainedValueLimitT<T> from "max()" to "lowest()/highest()"
  - Added a simple logging framework, including exception handling, that allows to 
    stream information to be logged.
+ - Gave gemfony_error_condition the ability to be streamed
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

@@ -1,0 +1,6 @@
+This directory contains a manual test / usage demo of the GLogger class.
+It allows to stream data to a logger in a simple way like this:
+
+glogger << "Some information " << 1 << " " << 2 << someStreamableType << GLOGGER;
+
+It also allows to raise exceptions in the same, easy way, using the modifier GEXCEPTION.

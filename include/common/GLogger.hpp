@@ -129,8 +129,6 @@ class GFileLogger :public GBaseLogTarget
 public:
 /** @brief A standard constructor */
     GFileLogger(void);
-    /** @brief This constructor accepts the name of the log file as argument */
-    explicit GFileLogger(const std::string&);
     /** @brief This constructor accepts a boost path to a file name as argument */
     explicit GFileLogger(const boost::filesystem::path&);
     /** @brief The standard destructor */
@@ -355,6 +353,19 @@ private:
    std::string accompInfo_; ///< Holds accompanying information
    logType logType_; ///< Holds the type of logging event used for instantiating the manipulator
 };
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+// Some related defines
+
+#define GEXCEPTION   GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::EXCEPTION)
+#define GTERMINATION GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::TERMINATION)
+#define GWARNING     GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::WARNING)
+#define GLOGGING     GManipulator(Gem::Common::LOGGING)
+#define GFILE        GManipulator(Gem::Common::FILE)
+#define GSTDOUT      GManipulator(Gem::Common::STDOUT)
+#define GSTDERR      GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::STDERR)
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

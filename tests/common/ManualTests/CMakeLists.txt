@@ -10,5 +10,6 @@ ADD_DEPENDENCIES ( "common-tests-manual"
 )
 
 ADD_SUBDIRECTORY ( GCanvasTest )
+ADD_SUBDIRECTORY ( GLoggerTest )
 ADD_SUBDIRECTORY ( GPlotDesignerTest )
 ADD_SUBDIRECTORY ( GThreadPoolTest )

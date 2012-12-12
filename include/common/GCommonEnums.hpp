@@ -64,13 +64,13 @@ namespace Common {
  * Different log and exception types
  */
 enum logType {
-   EXCEPTION
-   , TERMINATION
-   , WARNING
-   , LOGGING
-   , FILE
-   , STDOUT
-   , STDERR
+   EXCEPTION = 0
+   , TERMINATION = 1
+   , WARNING = 2
+   , LOGGING = 3
+   , FILE = 4
+   , STDOUT = 5
+   , STDERR = 6
 };
 
 /******************************************************************************/
