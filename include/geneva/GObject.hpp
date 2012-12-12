@@ -122,6 +122,7 @@
 #include "common/GDefaultValueT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GLogger.hpp"
 #include "common/GSerializableI.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSerializeTupleT.hpp"
@@ -264,10 +265,9 @@ public:
 		boost::shared_ptr<clone_type> p = boost::dynamic_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
 		if(p) return p;
 		else {
-			raiseException(
-					"In boost::shared_ptr<clone_type> GObject::clone<load_type>() :" << std::endl
-					<< "Invalid conversion"
-			);
+		   glogger
+		   << "In boost::shared_ptr<clone_type> GObject::clone<load_type>() :" << std::endl
+         << "Invalid conversion" << GEXCEPTION;
 		}
 #else
 		return boost::static_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
@@ -304,10 +304,9 @@ protected:
 #ifdef DEBUG
 		// Check that this object is not accidentally assigned to itself.
 		if (load_ptr == this) {
-			raiseException(
-					"In GObject::selfAssignmentCheck<load_type>() :" << std::endl
-					<< "Tried to assign an object to or compare with itself."
-			);
+			glogger
+			<< "In GObject::selfAssignmentCheck<load_type>() :" << std::endl
+			<< "Tried to assign an object to or compare with itself." << GEXCEPTION;
 		}
 #endif
 	}
@@ -334,10 +333,9 @@ protected:
 		const load_type *p = dynamic_cast<const load_type *>(load_ptr);
 		if(p) return p;
 		else {
-			raiseException(
-					"In const GObject* GObject::gobject_conversion<load_type>() :" << std::endl
-					<< "Invalid conversion to type with type name " << typeid(load_type).name() << std::endl
-			);
+		   glogger
+		   << "In const GObject* GObject::gobject_conversion<load_type>() :" << std::endl
+		   << "Invalid conversion to type with type name " << typeid(load_type).name() << std::endl << GEXCEPTION;
 		}
 #else
 		return static_cast<const load_type *>(load_ptr);
@@ -371,10 +369,9 @@ protected:
 		boost::shared_ptr<load_type> p = boost::dynamic_pointer_cast<load_type>(load_ptr);
 		if(p) return p;
 		else {
-			raiseException(
-					"In boost::shared_ptr<load_type> GObject::gobject_conversion<load_type>() :" << std::endl
-					<< "Invalid conversion"
-			);
+		   glogger
+		   << "In boost::shared_ptr<load_type> GObject::gobject_conversion<load_type>() :" << std::endl
+		   << "Invalid conversion" << GEXCEPTION;
 		}
 #else
 		return boost::static_pointer_cast<load_type>(load_ptr);

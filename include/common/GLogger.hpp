@@ -377,19 +377,6 @@ private:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-// Some related defines
-
-#define GEXCEPTION   GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::EXCEPTION)
-#define GTERMINATION GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::TERMINATION)
-#define GWARNING     GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::WARNING)
-#define GLOGGING     GManipulator(Gem::Common::LOGGING)
-#define GFILE        GManipulator(Gem::Common::FILE)
-#define GSTDOUT      GManipulator(Gem::Common::STDOUT)
-#define GSTDERR      GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::STDERR)
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 /**
 * Every entity in Geneva should be able to throw exceptions, regardless of whether
 * this happens from within a thread a in the context of serial execution. The output
@@ -461,12 +448,27 @@ private:
 } /* namespace Common */
 } /* namespace Gem */
 
-/***********************************************************************************/
+/******************************************************************************/
 /**
 * We currently require the global GLogStreamer object to be a singleton
 */
 typedef Gem::Common::GSingletonT<Gem::Common::GLogger<Gem::Common::GLogStreamer> > log_singleton;
 #define glogger_ptr log_singleton::Instance(0)
 #define glogger (*(log_singleton::Instance(0)))
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+// Some related defines
+
+#define GEXCEPTION   Gem::Common::GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::EXCEPTION)
+#define GTERMINATION Gem::Common::GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::TERMINATION)
+#define GWARNING     Gem::Common::GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::WARNING)
+#define GLOGGING     Gem::Common::GManipulator(Gem::Common::LOGGING)
+#define GFILE        Gem::Common::GManipulator(Gem::Common::FILE)
+#define GSTDOUT      Gem::Common::GManipulator(Gem::Common::STDOUT)
+#define GSTDERR      Gem::Common::GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::STDERR)
+
+/******************************************************************************/
 
 #endif /* GEXCEPTIONSTREAMER_HPP_ */
