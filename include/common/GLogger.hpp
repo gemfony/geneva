@@ -239,10 +239,20 @@ public:
   /**
    * Allows S-objects to submit strings to the log targets. Note that this
    * function is thread-safe and thus may be called from different threads.
+   * Note that this function throws if no logging targets have been registered.
    */
   void log(const std::string& message) const {
      // Make sure only one entity outputs data
      boost::mutex::scoped_lock lk(logger_mutex_);
+
+#ifdef DEBUG
+     if(logVector_.empty()) {
+        raiseException(
+              "In GLogger<S>::log(): Error!" << std::endl
+              << "No logging targets have been registered." << std::endl
+        );
+     }
+#endif /* DEBUG */
 
      // Do the actual logging
      std::vector<boost::shared_ptr<GBaseLogTarget> >::const_iterator cit;
@@ -255,10 +265,20 @@ public:
   /**
    * Allows S-objects to submit strings to the log targets. Note that this
    * function is thread-safe and thus may be called from different threads.
+   * Note that this function throws if no logging targets have been registered.
    */
   void logWithSource(const std::string& message, const std::string& extension) const {
      // Make sure only one entity outputs data
      boost::mutex::scoped_lock lk(logger_mutex_);
+
+#ifdef DEBUG
+     if(logVector_.empty()) {
+        raiseException(
+              "In GLogger<S>::logWithSource(): Error!" << std::endl
+              << "No logging targets have been registered." << std::endl
+        );
+     }
+#endif /* DEBUG */
 
      // Do the actual logging
      std::vector<boost::shared_ptr<GBaseLogTarget> >::const_iterator cit;
