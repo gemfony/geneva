@@ -139,10 +139,10 @@ std::size_t GBaseGD::getNStartingPoints() const {
 void GBaseGD::setNStartingPoints(std::size_t nStartingPoints) {
 	// Do some error checking
 	if(nStartingPoints == 0) {
-		raiseException(
-				"In GBaseGD::setNStartingPoints(const std::size_t&):" << std::endl
-				<< "Got invalid number of starting points."
-		);
+	   glogger
+	   << "In GBaseGD::setNStartingPoints(const std::size_t&):" << std::endl
+      << "Got invalid number of starting points." << std::endl
+      << GEXCEPTION;
 	}
 
 	nStartingPoints_ = nStartingPoints;
@@ -157,10 +157,10 @@ void GBaseGD::setNStartingPoints(std::size_t nStartingPoints) {
 void GBaseGD::setFiniteStep(float finiteStep) {
 	// Do some error checking
 	if(finiteStep <= 0.) {
-		raiseException(
-				"In GBaseGD::setFiniteStep(const float&):" << std::endl
-				<< "Got invalid finite step size: " << finiteStep
-		);
+	   glogger
+	   << "In GBaseGD::setFiniteStep(const float&):" << std::endl
+      << "Got invalid finite step size: " << finiteStep << std::endl
+      << GEXCEPTION;
 	}
 
 	finiteStep_ = finiteStep;
@@ -185,10 +185,10 @@ float GBaseGD::getFiniteStep() const {
 void GBaseGD::setStepSize(float stepSize) {
 	// Do some error checking
 	if(stepSize <= 0.) {
-		raiseException(
-				"In GBaseGD::setStepSize(const float&):" << std::endl
-				<< "Got invalid step size: " << stepSize
-		);
+	   glogger
+	   << "In GBaseGD::setStepSize(const float&):" << std::endl
+      << "Got invalid step size: " << stepSize << std::endl
+      << GEXCEPTION;
 	}
 
 	stepSize_ = stepSize;
@@ -311,19 +311,19 @@ void GBaseGD::loadCheckpoint(const std::string& cpFile) {
 
 	// Check that the file indeed exists
 	if(!boost::filesystem::exists(cpFile)) {
-		raiseException(
-				"In GBaseGD::loadCheckpoint(const std::string&)" << std::endl
-				<< "Got invalid checkpoint file name " << cpFile
-		);
+	   glogger
+	   << "In GBaseGD::loadCheckpoint(const std::string&)" << std::endl
+      << "Got invalid checkpoint file name " << cpFile << std::endl
+      << GEXCEPTION;
 	}
 
 	// Create the input stream and check that it is in good order
 	std::ifstream checkpointStream(cpFile.c_str());
 	if(!checkpointStream) {
-		raiseException(
-				"In GBaseGD::loadCheckpoint(const std::string&)" << std::endl
-				<< "Error: Could not open input file"
-		);
+	   glogger
+	   << "In GBaseGD::loadCheckpoint(const std::string&)" << std::endl
+      << "Error: Could not open input file" << std::endl
+      << GEXCEPTION;
 	}
 
 	switch(getCheckpointSerializationMode()) {
@@ -473,10 +473,10 @@ void GBaseGD::updateParentIndividuals() {
 #ifdef DEBUG
 		// Make sure the parents are clean
 		if(this->at(i)->isDirty()) {
-			raiseException(
-					"In GBaseGD::updateParentIndividuals():" << std::endl
-					<< "Found individual in position " << i << " with active dirty flag"
-			);
+		   glogger
+		   << "In GBaseGD::updateParentIndividuals():" << std::endl
+         << "Found individual in position " << i << " with active dirty flag" << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -528,19 +528,19 @@ boost::shared_ptr<GIndividual> GBaseGD::getBestIndividual(){
 #ifdef DEBUG
 	// Check that data is present at all
 	if(data.size() < nStartingPoints_) {
-		raiseException(
-				"In GBaseGD::getBestIndividual() : Error!" << std::endl
-				<< "Population has fewer individuals than starting points: " << data.size() << " / " << nStartingPoints_
-		);
+	   glogger
+	   << "In GBaseGD::getBestIndividual() : Error!" << std::endl
+      << "Population has fewer individuals than starting points: " << data.size() << " / " << nStartingPoints_ << std::endl
+      << GEXCEPTION;
 	}
 
 	// Check that no parent is in "dirty" state
 	for(std::size_t i=0; i<nStartingPoints_; i++) {
 		if(data.at(i)->isDirty()) {
-			raiseException(
-					"In GBaseGD::getBestIndividual() : Error!" << std::endl
-					<< "Found dirty parent at position : " << i
-			);
+		   glogger
+		   << "In GBaseGD::getBestIndividual() : Error!" << std::endl
+         << "Found dirty parent at position : " << i << std::endl
+         << GEXCEPTION;
 		}
 	}
 #endif /* DEBUG */
@@ -567,10 +567,10 @@ boost::shared_ptr<GIndividual> GBaseGD::getBestIndividual(){
 std::vector<boost::shared_ptr<GIndividual> > GBaseGD::getBestIndividuals() {
 	// Some error checking
 	if(nStartingPoints_ == 0) {
-		raiseException(
-			"In GBaseGD::getBestIndividuals() :" << std::endl
-			<< "no starting points found" << std::endl
-		);
+	   glogger
+	   << "In GBaseGD::getBestIndividuals() :" << std::endl
+      << "no starting points found" << std::endl
+      << GEXCEPTION;
 	}
 
 	std::vector<boost::shared_ptr<GIndividual> > bestIndividuals;
@@ -683,10 +683,10 @@ void GBaseGD::adjustPopulation() {
 
 	// We need at least one individual
 	if(nStart == 0) {
-		raiseException(
-				"In GBaseGD::adjustPopulation():" << std::endl
-				<< "You didn't add any individuals to the collection. We need at least one."
-		);
+	   glogger
+	   << "In GBaseGD::adjustPopulation():" << std::endl
+      << "You didn't add any individuals to the collection. We need at least one." << std::endl
+      << GEXCEPTION;
 	}
 
 	// Update the number of floating point parameters in the individuals
@@ -694,20 +694,20 @@ void GBaseGD::adjustPopulation() {
 
 	// Check that the first individual has floating point parameters (double for the moment)
 	if(nFPParmsFirst_ == 0) {
-		raiseException(
-				"In GBaseGD::adjustPopulation():" << std::endl
-				<< "No floating point parameters in individual."
-		);
+	   glogger
+	   << "In GBaseGD::adjustPopulation():" << std::endl
+      << "No floating point parameters in individual." << std::endl
+      << GEXCEPTION;
 	}
 
 	// Check that all individuals currently available have the same amount of parameters
 	for(std::size_t i=1; i<this->size(); i++) {
 		if(this->at(i)->countParameters<double>() != nFPParmsFirst_) {
-			raiseException(
-					"In GBaseGD::adjustPopulation():" << std::endl
-					<< "Found individual in position " <<  i << " with different" << std::endl
-					<< "number of floating point parameters than the first one: " << this->at(i)->countParameters<double>() << "/" << nFPParmsFirst_
-			);
+		   glogger
+		   << "In GBaseGD::adjustPopulation():" << std::endl
+         << "Found individual in position " <<  i << " with different" << std::endl
+         << "number of floating point parameters than the first one: " << this->at(i)->countParameters<double>() << "/" << nFPParmsFirst_ << std::endl
+         << GEXCEPTION;
 		}
 	}
 
