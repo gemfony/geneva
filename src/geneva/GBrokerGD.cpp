@@ -219,10 +219,10 @@ void GBrokerGD::init() {
 		}
 
 		if(storedServerMode_ != (*it)->setServerMode(true)) {
-			raiseException(
-				"In GBrokerGD::init():" << std::endl
-				<< "Not all server mode flags have the same value!"
-			);
+		   glogger
+		   << "In GBrokerGD::init():" << std::endl
+         << "Not all server mode flags have the same value!" << std::endl
+         << GEXCEPTION;
 		}
 	}
 }
@@ -289,26 +289,26 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 
 #ifdef DEBUG
 	if(finalPos > this->size()) {
-		raiseException(
-				"In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
-				<< "Got invalid final position: " << finalPos << "/" << this->size()
-		);
+	   glogger
+	   << "In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
+      << "Got invalid final position: " << finalPos << "/" << this->size() << std::endl
+      << GEXCEPTION;
 	}
 
 	if(finalPos < nStartingPoints) {
-		raiseException(
-				"In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
-				<< "We require finalPos to be at least " << nStartingPoints << ", but got " << finalPos
-		);
+	   glogger
+	   << "In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
+      << "We require finalPos to be at least " << nStartingPoints << ", but got " << finalPos << std::endl
+      << GEXCEPTION;
 	}
 
 	for (std::size_t i = 0; i < finalPos; i++) {
 		// Make sure the evaluated individuals have the dirty flag set
 		if(afterFirstIteration() && !this->at(i)->isDirty()) {
-			raiseException(
-					"In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
-					<< "Found individual in position " << i << " whose dirty flag isn't set"
-			);
+		   glogger
+		   << "In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
+         << "Found individual in position " << i << " whose dirty flag isn't set" << std::endl
+         << GEXCEPTION;
 		}
 	}
 #endif /* DEBUG */
@@ -323,10 +323,10 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	);
 
 	if(!complete) {
-		raiseException(
-				"In GBrokerGD::doFitnessCalculation(): Error!" << std::endl
-				<< "No complete set of items received" << std::endl
-		);
+	   glogger
+	   << "In GBrokerGD::doFitnessCalculation(): Error!" << std::endl
+      << "No complete set of items received" << std::endl
+      << GEXCEPTION;
 	}
 
 	//--------------------------------------------------------------------------------

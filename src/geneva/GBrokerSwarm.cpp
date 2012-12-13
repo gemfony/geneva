@@ -213,10 +213,10 @@ void GBrokerSwarm::init() {
 		}
 
 		if(storedServerMode_ != (*it)->setServerMode(true)) {
-			raiseException(
-				"In GBrokerSwarm::init():" << std::endl
-				<< "Not all server mode flags have the same value!"
-			);
+		   glogger
+		   << "In GBrokerSwarm::init():" << std::endl
+         << "Not all server mode flags have the same value!" << std::endl
+         << GEXCEPTION;
 		}
 	}
 }
@@ -287,18 +287,18 @@ void GBrokerSwarm::updatePositions() {
 	// Check that all neighborhoods have the default size
 	for(std::size_t n=0; n<nNeighborhoods_; n++) {
 		if(nNeighborhoodMembers_[n] != defaultNNeighborhoodMembers_) {
-			raiseException(
-					"In GBrokerSwarm::updatePositions(): Error!" << std::endl
-					<< "nNeighborhoodMembers_[" << n << "] has invalid size " << nNeighborhoodMembers_[n] << std::endl
-					<< "but expected size " << defaultNNeighborhoodMembers_ << std::endl
-			);
+		   glogger
+		   << "In GBrokerSwarm::updatePositions(): Error!" << std::endl
+         << "nNeighborhoodMembers_[" << n << "] has invalid size " << nNeighborhoodMembers_[n] << std::endl
+         << "but expected size " << defaultNNeighborhoodMembers_ << std::endl
+         << GEXCEPTION;
 		}
 
 		if(this->size() != nNeighborhoods_*defaultNNeighborhoodMembers_) {
-			raiseException(
-					"In GBrokerSwarm::updatePositions(): Error!" << std::endl
-					<< "The population has an incorrect size of " << this->size() << ", expected " << nNeighborhoods_*defaultNNeighborhoodMembers_ << std::endl
-			);
+		   glogger
+		   << "In GBrokerSwarm::updatePositions(): Error!" << std::endl
+         << "The population has an incorrect size of " << this->size() << ", expected " << nNeighborhoods_*defaultNNeighborhoodMembers_ << std::endl
+         << GEXCEPTION;
 		}
 	}
 #endif
@@ -392,12 +392,12 @@ void GBrokerSwarm::adjustNeighborhoods() {
 #ifdef DEBUG
 	// Check that oldIndividuals_ has the desired size in iterations other than the first
 	if(afterFirstIteration() && oldIndividuals_.size() != defaultNNeighborhoodMembers_*nNeighborhoods_) {
-		raiseException(
-				"In GBrokerSwarm::adjustNeighborhoods(): Error!" << std::endl
-				<< "oldIndividuals_ has incorrect size! Expected" << std::endl
-				<< "defaultNNeighborhoodMembers_*nNeighborhoods_ = " << defaultNNeighborhoodMembers_*nNeighborhoods_ << std::endl
-				<< "but found " << oldIndividuals_.size()
-		);
+	   glogger
+	   << "In GBrokerSwarm::adjustNeighborhoods(): Error!" << std::endl
+      << "oldIndividuals_ has incorrect size! Expected" << std::endl
+      << "defaultNNeighborhoodMembers_*nNeighborhoods_ = " << defaultNNeighborhoodMembers_*nNeighborhoods_ << std::endl
+      << "but found " << oldIndividuals_.size() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
@@ -438,10 +438,10 @@ void GBrokerSwarm::adjustNeighborhoods() {
 #ifdef DEBUG
 				// At least one individual must have returned.
 				if(this->empty()) {
-					raiseException(
-							"In GBrokerSwarm::adjustNeighborhoods(): Error!" << std::endl
-							<< "No items found in the population. Cannot fix." << std::endl
-					);
+				   glogger
+				   << "In GBrokerSwarm::adjustNeighborhoods(): Error!" << std::endl
+               << "No items found in the population. Cannot fix." << std::endl
+               << GEXCEPTION;
 				}
 #endif
 
@@ -467,10 +467,10 @@ void GBrokerSwarm::adjustNeighborhoods() {
 #ifdef DEBUG
 	// Check that the population has the expected size
 	if(this->size() != nNeighborhoods_*defaultNNeighborhoodMembers_) {
-		raiseException(
-				"In GBrokerSwarm::adjustNeighborhoods(): Error!" << std::endl
-				<< "The population has an incorrect size of " << this->size() << ", expected " << nNeighborhoods_*defaultNNeighborhoodMembers_ << std::endl
-		);
+	   glogger
+	   << "In GBrokerSwarm::adjustNeighborhoods(): Error!" << std::endl
+      << "The population has an incorrect size of " << this->size() << ", expected " << nNeighborhoods_*defaultNNeighborhoodMembers_ << std::endl
+      << GEXCEPTION;
 	}
 #endif
 

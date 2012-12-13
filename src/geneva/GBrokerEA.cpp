@@ -194,11 +194,11 @@ void GBrokerEA::init() {
 		for(it=this->begin(); it!=this->end(); ++it) {
 			if((*it)->getIndividualCharacteristic() == "GENEVA_BROKEROPTALG"
 			   || (*it)->getIndividualCharacteristic() == "GENEVA_GO2WRAPPER") {
-				raiseException(
-						"In GBrokerEA::optimize(): Error" << std::endl
-						<< "GBrokerEA or Go2 stored as an individual inside of" << std::endl
-						<< "the population." << std::endl
-				);
+			   glogger
+			   << "In GBrokerEA::optimize(): Error" << std::endl
+            << "GBrokerEA or Go2 stored as an individual inside of" << std::endl
+            << "the population." << std::endl
+            << GEXCEPTION;
 			}
 		}
 	}
@@ -223,10 +223,10 @@ void GBrokerEA::init() {
 		}
 
 		if(storedServerMode_ != (*it)->setServerMode(true)) {
-			raiseException(
-				"In GBrokerEA::init():" << std::endl
-				<< "Not all server mode flags have the same value!"
-			);
+		   glogger
+		   << "In GBrokerEA::init():" << std::endl
+         << "Not all server mode flags have the same value!" << std::endl
+         << GEXCEPTION;
 		}
 	}
 }
@@ -293,10 +293,10 @@ void GBrokerEA::evaluateChildren() {
 	// through this function
 	for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
 	   if(!this->at(i)->isDirty()) {
-	      raiseException(
-	            "In GBrokerEA::evaluateChildren(): Error!" << std::endl
-	            << "Tried to evaluate \"clean\" children." << std::endl
-	      );
+	      glogger
+	      << "In GBrokerEA::evaluateChildren(): Error!" << std::endl
+         << "Tried to evaluate \"clean\" children." << std::endl
+         << GEXCEPTION;
 	   }
 	}
 #endif
@@ -372,10 +372,10 @@ void GBrokerEA::selectBest() {
 	// Make sure our population is not smaller than its nominal size -- this
 	// should have been taken care of in fixAfterJobSubmission() .
 	if(data.size() < getDefaultPopulationSize()) {
-		raiseException(
-			"In GBrokerEA::selectBest(): Error!" << std::endl
-			<< "Size of population is smaller than expected: " << data.size() << " / " << getDefaultPopulationSize() << std::endl
-		);
+	   glogger
+	   << "In GBrokerEA::selectBest(): Error!" << std::endl
+      << "Size of population is smaller than expected: " << data.size() << " / " << getDefaultPopulationSize() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
