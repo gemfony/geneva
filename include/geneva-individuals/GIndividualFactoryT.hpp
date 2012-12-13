@@ -50,9 +50,10 @@
 #endif
 
 // Geneva header files go here
-#include <geneva/GParameterSet.hpp>
-#include <common/GParserBuilder.hpp>
-#include <common/GExceptions.hpp>
+#include "geneva/GParameterSet.hpp"
+#include "common/GParserBuilder.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -100,10 +101,10 @@ public:
 #ifdef DEBUG
 		// It is an error if this function is called on a finalized object
 		if(finalized_) {
-			raiseException(
-					"In GIndividualFactoryT<ind_type>::operator()(): Error!" << std::endl
-					<< "Tried to retrieve individual when object has already been finalized!"
-			);
+		   glogger
+		   << "In GIndividualFactoryT<ind_type>::operator()(): Error!" << std::endl
+         << "Tried to retrieve individual when object has already been finalized!" << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -120,10 +121,10 @@ public:
 		if(!initialized_) {
 			// It is an error if this function is called on a finalized object
 			if(finalized_) {
-				raiseException(
-						"In GIndividualFactoryT<ind_type>::init(): Error!" << std::endl
-						<< "Tried to initialize object which has already been finalized"
-				);
+			   glogger
+			   << "In GIndividualFactoryT<ind_type>::init(): Error!" << std::endl
+            << "Tried to initialize object which has already been finalized" << std::endl
+            << GEXCEPTION;
 			}
 
 			// Execute the user-defined configuration specifications
@@ -131,10 +132,10 @@ public:
 
 			// Read the configuration parameters from file
 			if(!gpb.parseConfigFile(configFile_)) {
-				raiseException(
-						"In GIndividualFactoryT<ind_type>::init(): Error!" << std::endl
-						<< "Could not parse configuration file " << configFile_
-				);
+			   glogger
+			   << "In GIndividualFactoryT<ind_type>::init(): Error!" << std::endl
+            << "Could not parse configuration file " << configFile_ << std::endl
+            << GEXCEPTION;
 			}
 
 			// Perform the user-defined initialization work
@@ -152,10 +153,10 @@ public:
 	virtual void finalize(){
 		// The object should always have been initialized before the finalize() function is called
 		if(!initialized_) {
-			raiseException(
-					"In GIndividualFactoryT<ind_type>::finalize(): Error!" << std::endl
-					<< "Function called on un-initialized object"
-			);
+		   glogger
+		   << "In GIndividualFactoryT<ind_type>::finalize(): Error!" << std::endl
+         << "Function called on un-initialized object" << std::endl
+         << GEXCEPTION;
 		}
 
 		if(!finalized_) {

@@ -262,10 +262,10 @@ void networkData::saveToDisk(const std::string& networkDataFile) const {
 	std::ofstream trDat(networkDataFile.c_str());
 
 	if(!trDat.good()){
-		raiseException(
-				"In networkData::saveToDisk(const std::string&) : Error!" << std::endl
-				<< "Data file " << networkDataFile << " could not be opened for writing."
-		);
+	   glogger
+	   << "In networkData::saveToDisk(const std::string&) : Error!" << std::endl
+      << "Data file " << networkDataFile << " could not be opened for writing." << std::endl
+      << GEXCEPTION;
 	}
 
 	// Load the data, using the Boost.Serialization library
@@ -298,7 +298,9 @@ void networkData::loadFromDisk(const std::string& networkDataFile) {
 			error << "File does not exist." << std::endl;
 		}
 
-		raiseException(error.str());
+		glogger
+		<< error.str() << std::endl
+		<< GEXCEPTION;
 	}
 
 	// Load the data into nD, using the Boost.Serialization library

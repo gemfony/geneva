@@ -262,10 +262,10 @@ boost::shared_array<float> GTestIndividual3::getPlainData() const {
 
 #ifdef DEBUG
    if(this->size() != GTI_DEF_NITEMS) {
-      raiseException(
-         "In GTestIndividual3::getPlainData(): Error!" << std::endl
-         << "Invalid number of entries in this class " << this->size() << " / " << GTI_DEF_NITEMS << std::endl
-      );
+      glogger
+      << "In GTestIndividual3::getPlainData(): Error!" << std::endl
+      << "Invalid number of entries in this class " << this->size() << " / " << GTI_DEF_NITEMS << std::endl
+      << GEXCEPTION;
    }
 #endif /* DEBUG */
 

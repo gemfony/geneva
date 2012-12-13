@@ -405,10 +405,10 @@ double GFunctionIndividual::fitnessCalculation(){
 #ifdef DEBUG
 		// Check the size of the parameter vector -- must be at least 2
 		if(parameterSize < 2) {
-			raiseException(
-					"In GFunctionIndividual::fitnessCalculation() / ROSENBROCK: Error!" << std::endl
-					<< "Need to use at least two input dimensions, but got " << parameterSize
-			);
+		   glogger
+		   << "In GFunctionIndividual::fitnessCalculation() / ROSENBROCK: Error!" << std::endl
+         << "Need to use at least two input dimensions, but got " << parameterSize << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -425,10 +425,10 @@ double GFunctionIndividual::fitnessCalculation(){
 #ifdef DEBUG
 		// Check the size of the parameter vector -- must be at least 2
 		if(parameterSize < 2) {
-			raiseException(
-					"In GFunctionIndividual::fitnessCalculation() / ACKLEY: Error!" << std::endl
-					<< "Need to use at least two input dimensions, but got " << parameterSize
-			);
+		   glogger
+		   << "In GFunctionIndividual::fitnessCalculation() / ACKLEY: Error!" << std::endl
+         << "Need to use at least two input dimensions, but got " << parameterSize << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -529,10 +529,10 @@ GFunctionIndividualFactory::~GFunctionIndividualFactory()
  */
 void GFunctionIndividualFactory::setParDim(std::size_t parDim) {
 	if(parDim == 0) {
-		raiseException(
-			"In GFunctionIndividualFactory::setParDim(): Error!" << std::endl
-			<< "Dimension of the function is set to 0" << std::endl
-		);
+	   glogger
+	   << "In GFunctionIndividualFactory::setParDim(): Error!" << std::endl
+	   << "Dimension of the function is set to 0" << std::endl
+	   << GEXCEPTION;
 	}
 
 	parDim_ = parDim;
@@ -555,10 +555,10 @@ void GFunctionIndividualFactory::setVarBoundaries(boost::tuple<double,double> bo
    double max = boost::get<1>(boundaries);
 
    if(min>=max) {
-      raiseException(
-            "In GFunctionIndividualFactory::setVarBoundaries(): Error!" << std::endl
-            << "Received invalid boundaries " << min << " / " << max << std::endl
-      );
+      glogger
+      << "In GFunctionIndividualFactory::setVarBoundaries(): Error!" << std::endl
+      << "Received invalid boundaries " << min << " / " << max << std::endl
+      << GEXCEPTION;
    }
 
    setMinVar(min);
@@ -745,17 +745,17 @@ void GFunctionIndividualFactory::setDeltaRange(boost::tuple<double, double> rang
    double max = boost::get<1>(range);
 
    if(min < 0) {
-      raiseException(
-                  "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
-                  << "min must be >= 0. Got : " << max << std::endl
-      );
+      glogger
+      << "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
+      << "min must be >= 0. Got : " << max << std::endl
+      << GEXCEPTION;
    }
 
    if(min >= max) {
-      raiseException(
-            "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
-            << "Invalid range specified: " << min << " / " << max << std::endl
-      );
+      glogger
+      << "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
+      << "Invalid range specified: " << min << " / " << max << std::endl
+      << GEXCEPTION;
    }
 
    minDelta_ = min;
@@ -797,17 +797,17 @@ void GFunctionIndividualFactory::setSigma1Range(boost::tuple<double, double> ran
    double max = boost::get<1>(range);
 
    if(min < 0) {
-      raiseException(
-                  "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
-                  << "min must be >= 0. Got : " << max << std::endl
-      );
+      glogger
+      << "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
+      << "min must be >= 0. Got : " << max << std::endl
+      << GEXCEPTION;
    }
 
    if(min >= max) {
-      raiseException(
-            "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
-            << "Invalid range specified: " << min << " / " << max << std::endl
-      );
+      glogger
+      << "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
+      << "Invalid range specified: " << min << " / " << max << std::endl
+      << GEXCEPTION;
    }
 
    minSigma1_ = min;
@@ -849,17 +849,17 @@ void GFunctionIndividualFactory::setSigma2Range(boost::tuple<double, double> ran
    double max = boost::get<1>(range);
 
    if(min < 0) {
-      raiseException(
-                  "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
-                  << "min must be >= 0. Got : " << max << std::endl
-      );
+      glogger
+      << "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
+      << "min must be >= 0. Got : " << max << std::endl
+      << GEXCEPTION;
    }
 
    if(min >= max) {
-      raiseException(
-            "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
-            << "Invalid range specified: " << min << " / " << max << std::endl
-      );
+      glogger
+      << "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
+      << "Invalid range specified: " << min << " / " << max << std::endl
+      << GEXCEPTION;
    }
 
    minSigma2_ = min;
@@ -1381,10 +1381,10 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GFunctionIndivid
 
 	default:
 	{
-		raiseException(
-				"In GFunctionIndividualFactory::postProcess_(): Error!"
-				<< "Found invalid pT_: " << pT_ << std::endl
-		);
+	   glogger
+	   << "In GFunctionIndividualFactory::postProcess_(): Error!"
+      << "Found invalid pT_: " << pT_ << std::endl
+      << GEXCEPTION;
 	}
 		break;
 	}

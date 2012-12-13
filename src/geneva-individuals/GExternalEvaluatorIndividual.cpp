@@ -217,10 +217,10 @@ Gem::Geneva::GObject* GExternalEvaluatorIndividual::clone_() const {
  * @return The value of this object
  */
 double GExternalEvaluatorIndividual::fitnessCalculation(){
-	raiseException(
-			"In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
-			<< "This function is not supposed to be called for this individual." << std::endl
-	);
+   glogger
+   << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
+   << "This function is not supposed to be called for this individual." << std::endl
+   << GEXCEPTION;
 
 	// Make the exception
 	return 0.;
