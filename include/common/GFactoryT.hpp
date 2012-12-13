@@ -117,10 +117,10 @@ public:
 
 		// Read the configuration parameters from file
 		if(!gpb.parseConfigFile(configFile_)) {
-			raiseException(
-					"In GFactoryT<T>::operator(): Error!" << std::endl
-					<< "Could not parse configuration file " << configFile_ << std::endl
-			);
+		   glogger
+		   << "In GFactoryT<T>::operator(): Error!" << std::endl
+         << "Could not parse configuration file " << configFile_ << std::endl
+         << GEXCEPTION;
 		}
 
 		// Allow the factory to act on configuration options received

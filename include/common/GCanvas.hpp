@@ -90,6 +90,7 @@
 #endif
 
 // Geneva header files go here
+#include "common/GLogger.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "common/GMathHelperFunctions.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
@@ -476,10 +477,10 @@ public:
       using namespace Gem::Common;
 
       if(cp.dimensions() != this->dimensions()) {
-         raiseException(
-            "In GCanvas::diff(): Error!" << std::endl
-            << "Dimensions differ: " << cp.dimensions() << " / " << this->dimensions() << std::endl
-         );
+         glogger
+         << "In GCanvas::diff(): Error!" << std::endl
+         << "Dimensions differ: " << cp.dimensions() << " / " << this->dimensions() << std::endl
+         << GEXCEPTION;
       }
 
       float result = 0.f;
@@ -563,10 +564,9 @@ public:
          // The file should start with a header, which should read "P3". Complain if this isn't the case
          if(!header_found) {
             if(s != "P3") {
-               raiseException(
-                     "Error: Header should be \"P3\", but got " << s << std::endl
-               );
-
+               glogger
+               << "Error: Header should be \"P3\", but got " << s << std::endl
+               << GEXCEPTION;
             }
 
             header_found = true;
@@ -581,15 +581,15 @@ public:
             std::copy (istream_iterator<std::size_t>(iss), istream_iterator<std::size_t>(), back_inserter(v));
 
             if(v.size() != 2) { // We should have received exactly two numbers
-               raiseException(
-                     "Error: Got invalid number of dimensions: " << v.size() << std::endl
-               );
+               glogger
+               << "Error: Got invalid number of dimensions: " << v.size() << std::endl
+               << GEXCEPTION;
             }
 
             if(v[0] <= 0 || v[1] <= 0) {
-               raiseException(
-                     "Error: Got invalid dimensions: " << v[0] << " / " << v[1] << std::endl
-               );
+               glogger
+               << "Error: Got invalid dimensions: " << v[0] << " / " << v[1] << std::endl
+               << GEXCEPTION;
             }
 
             xDim_ = v[0];
@@ -615,18 +615,18 @@ public:
             copy (istream_iterator<std::size_t>(iss), istream_iterator<std::size_t>(), back_inserter(v));
 
             if(v.size() != 1) { // We should have received exactly one number
-               raiseException(
-                     "Error: Did not find specification of the number of colors" << std::endl
-                     << "or an invalid number of specifications: " << v.size() << std::endl
-               );
+               glogger
+               << "Error: Did not find specification of the number of colors" << std::endl
+               << "or an invalid number of specifications: " << v.size() << std::endl
+               << GEXCEPTION;
             }
 
             // We only accept a single color depth for now. Except for this check, we
             // do nothing in this block
             if(v[0] != MAXCOLOR) {
-               raiseException(
-                     "Error: Got invalid color depth " << v[0] << std::endl
-               );
+               glogger
+               << "Error: Got invalid color depth " << v[0] << std::endl
+               << GEXCEPTION;
             }
 
             color_depth_found = true;
@@ -668,11 +668,11 @@ public:
       // v should now contain all per-pixel information. Check the size - as
       // we are reading triplets, the size of the vector is known.
       if(v.size() != 3*xDim_*yDim_) {
-         raiseException(
-               "Error: got invalid number of entries in line." << std::endl
-               << "Expected " << 3*xDim_*yDim_ << ", but got " << v.size() << std::endl
-               << "Note: xDim_ = " << xDim_ << ", yDim_ = " << yDim_ << std::endl
-         );
+         glogger
+         << "Error: got invalid number of entries in line." << std::endl
+         << "Expected " << 3*xDim_*yDim_ << ", but got " << v.size() << std::endl
+         << "Note: xDim_ = " << xDim_ << ", yDim_ = " << yDim_ << std::endl
+         << GEXCEPTION;
       }
 
       // Add all pixel data to the canvas
@@ -701,10 +701,10 @@ public:
       // Hand the string over to loadFromPPM() -- it will do the rest
 #ifdef DEBUG
       if(imageData.empty()) {
-         raiseException(
-              "GCanvas::loadFromFile(): Error!" << std::endl
-              << "File data was empty" << std::endl
-         );
+         glogger
+         << "GCanvas::loadFromFile(): Error!" << std::endl
+         << "File data was empty" << std::endl
+         << GEXCEPTION;
       }
 #endif
 
@@ -719,10 +719,10 @@ public:
       std::ofstream result(fileName.c_str());
 
       if(!result) {
-         raiseException(
-              "In GCanvas<>::toFile(): Error!" << std::endl
-              << "Could not open output file " << fileName << std::endl
-         );
+         glogger
+         << "In GCanvas<>::toFile(): Error!" << std::endl
+         << "Could not open output file " << fileName << std::endl
+         << GEXCEPTION;
       }
 
       result << this->toPPM();
@@ -788,11 +788,11 @@ public:
 #ifdef DEBUG
       // Check that angles are in consecutive order
       if(t.angle1 < 0.f || t.angle2 <= t.angle1 || t.angle3 <= t.angle2 || t.angle3 >= 1.f) {
-         raiseException(
-               "In GCanvas<>::addTriangel(): Error!" << std::endl
-               << "Angles are not in consecutive oder: " << std::endl
-               << t.angle1 << " / " << t.angle2 << " / " << t.angle3 << std::endl
-         );
+         glogger
+         << "In GCanvas<>::addTriangel(): Error!" << std::endl
+         << "Angles are not in consecutive oder: " << std::endl
+         << t.angle1 << " / " << t.angle2 << " / " << t.angle3 << std::endl
+         << GEXCEPTION;
       }
 #endif /* DEBUG */
 

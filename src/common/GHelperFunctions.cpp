@@ -78,11 +78,11 @@ unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
 std::string loadTextDataFromFile(const std::string& fileName) {
    // Check that the file exists
    if(!bf::exists(bf::path(fileName))) {
-      raiseException(
-         "In loadTextDataFromFile(): Error!" << std::endl
-         << "Tried to load data from file " << fileName << std::endl
-         << "Which does not exist" << std::endl
-      );
+      glogger
+      << "In loadTextDataFromFile(): Error!" << std::endl
+      << "Tried to load data from file " << fileName << std::endl
+      << "Which does not exist" << std::endl
+      << GEXCEPTION;
    }
 
    std::ifstream sourceFileStream(fileName.c_str());
@@ -111,11 +111,11 @@ void runExternalCommand(const std::string& command) {
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
 	if(errorCode) {
-		raiseException(
-				"In runExternalCommand(): Error" << std::endl
-				<< "Command: " << command << std::endl
-				<< "Error code: " << errorCode
-		);
+	   glogger
+	   << "In runExternalCommand(): Error" << std::endl
+      << "Command: " << command << std::endl
+      << "Error code: " << errorCode << std::endl
+      << GEXCEPTION;
 	}
 }
 
@@ -139,10 +139,10 @@ std::string serializationModeToString(const serializationMode& s) {
 		break;
 	default:
 	{
-		raiseException(
-				"In serializationModeToString(): Error!" << std::endl
-				<< "Incorrect serialization mode requested: " << s << std::endl
-		);
+	   glogger
+	   << "In serializationModeToString(): Error!" << std::endl
+      << "Incorrect serialization mode requested: " << s << std::endl
+      << GEXCEPTION;
 		break;
 	}
 	}

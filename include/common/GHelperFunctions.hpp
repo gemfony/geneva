@@ -66,9 +66,10 @@ namespace bf=boost::filesystem;
 #pragma once
 #endif
 
-// Our own headers go here
+// Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
 
 namespace Gem {
 namespace Common {

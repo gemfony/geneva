@@ -74,6 +74,7 @@
 
 // Geneva header files go here
 #include <common/GExceptions.hpp>
+#include <common/GLogger.hpp>
 #include <common/GCommonEnums.hpp>
 
 namespace Gem {
@@ -310,10 +311,10 @@ public:
 	 */
 	virtual void executeCallBackFunction() {
 		if(!callBack_) {
-			raiseException(
-				"In GSingleParsableParameter::executeCallBackFunction(): Error" << std::endl
-				<< "Tried to execute call-back function without a stored function" << std::endl
-			);
+		   glogger
+		   << "In GSingleParsableParameter::executeCallBackFunction(): Error" << std::endl
+         << "Tried to execute call-back function without a stored function" << std::endl
+         << GEXCEPTION;
 		}
 
 		// Execute the function
@@ -328,10 +329,10 @@ public:
 	 */
 	void registerCallBackFunction(boost::function<void(parameter_type)> callBack) {
 		if(!callBack) {
-			raiseException(
-				"In GSingleParsableParameter::registerCallBackFunction(): Error" << std::endl
-				<< "Tried to register an empty call-back function" << std::endl
-			);
+		   glogger
+		   << "In GSingleParsableParameter::registerCallBackFunction(): Error" << std::endl
+         << "Tried to register an empty call-back function" << std::endl
+         << GEXCEPTION;
 		}
 
 		callBack_ = callBack;
@@ -435,10 +436,10 @@ public:
 	 */
 	virtual void executeCallBackFunction() {
 		if(!callBack_) {
-			raiseException(
-				"In GCombinedParsableParameter::executeCallBackFunction(): Error" << std::endl
-				<< "Tried to execute call-back function without a stored function" << std::endl
-			);
+		   glogger
+		   << "In GCombinedParsableParameter::executeCallBackFunction(): Error" << std::endl
+         << "Tried to execute call-back function without a stored function" << std::endl
+         << GEXCEPTION;
 		}
 
 		// Execute the function
@@ -453,10 +454,10 @@ public:
 	 */
 	void registerCallBackFunction(boost::function<void(par_type0, par_type1)> callBack) {
 		if(!callBack) {
-			raiseException(
-				"In GCombinedParsableParameter::registerCallBackFunction(): Error" << std::endl
-				<< "Tried to register an empty call-back function" << std::endl
-			);
+		   glogger
+		   << "In GCombinedParsableParameter::registerCallBackFunction(): Error" << std::endl
+         << "Tried to register an empty call-back function" << std::endl
+         << GEXCEPTION;
 		}
 
 		callBack_ = callBack;
@@ -571,10 +572,10 @@ public:
 	 */
 	virtual void executeCallBackFunction() {
 		if(!callBack_) {
-			raiseException(
-				"In GVectorParsableParameter::executeCallBackFunction(): Error" << std::endl
-				<< "Tried to execute call-back function without a stored function" << std::endl
-			);
+		   glogger
+		   << "In GVectorParsableParameter::executeCallBackFunction(): Error" << std::endl
+         << "Tried to execute call-back function without a stored function" << std::endl
+         << GEXCEPTION;
 		}
 
 		// Execute the function
@@ -589,10 +590,10 @@ public:
 	 */
 	void registerCallBackFunction(boost::function<void(std::vector<parameter_type>)> callBack) {
 		if(!callBack) {
-			raiseException(
-				"In GVectorParsableParameter::registerCallBackFunction(): Error" << std::endl
-				<< "Tried to register an empty call-back function" << std::endl
-			);
+		   glogger
+		   << "In GVectorParsableParameter::registerCallBackFunction(): Error" << std::endl
+         << "Tried to register an empty call-back function" << std::endl
+         << GEXCEPTION;
 		}
 
 		callBack_ = callBack;
@@ -633,10 +634,10 @@ protected:
 
 		// Do some error checking
 		if(def_val_.empty()) {
-			raiseException(
-				"In GVectorParsableParameter::save(): Error!" << std::endl
-				<< "You need to provide at least one default value" << std::endl
-			);
+		   glogger
+		   << "In GVectorParsableParameter::save(): Error!" << std::endl
+         << "You need to provide at least one default value" << std::endl
+         << GEXCEPTION;
 		}
 
 		// Add the comments
@@ -751,10 +752,10 @@ protected:
 
 		// Do some error checking
 		if(def_val_.empty()) {
-			raiseException(
-				"In GVectorReferenceParsableParameter::save(): Error!" << std::endl
-				<< "You need to provide at least one default value" << std::endl
-			);
+		   glogger
+		   << "In GVectorReferenceParsableParameter::save(): Error!" << std::endl
+         << "You need to provide at least one default value" << std::endl
+         << GEXCEPTION;
 		}
 
 		// Add the comments
@@ -828,10 +829,10 @@ public:
 	 */
 	virtual void executeCallBackFunction() {
 		if(!callBack_) {
-			raiseException(
-				"In GArrayParsableParameter::executeCallBackFunction(): Error" << std::endl
-				<< "Tried to execute call-back function without a stored function" << std::endl
-			);
+		   glogger
+		   << "In GArrayParsableParameter::executeCallBackFunction(): Error" << std::endl
+         << "Tried to execute call-back function without a stored function" << std::endl
+         << GEXCEPTION;
 		}
 
 		// Execute the function
@@ -846,10 +847,10 @@ public:
 	 */
 	void registerCallBackFunction(boost::function<void(boost::array<parameter_type,N>)> callBack) {
 		if(!callBack) {
-			raiseException(
-				"In GArrayParsableParameter::registerCallBackFunction(): Error" << std::endl
-				<< "Tried to register an empty call-back function" << std::endl
-			);
+		   glogger
+		   << "In GArrayParsableParameter::registerCallBackFunction(): Error" << std::endl
+         << "Tried to register an empty call-back function" << std::endl
+         << GEXCEPTION;
 		}
 
 		callBack_ = callBack;
@@ -885,10 +886,10 @@ protected:
 
 		// Do some error checking
 		if(def_val_.empty()) {
-			raiseException(
-				"In GArrayParsableParameter::save(): Error!" << std::endl
-				<< "You need to provide at least one default value" << std::endl
-			);
+		   glogger
+		   << "In GArrayParsableParameter::save(): Error!" << std::endl
+         << "You need to provide at least one default value" << std::endl
+         << GEXCEPTION;
 		}
 
 		// Add the comments
@@ -996,10 +997,10 @@ protected:
 
 		// Do some error checking
 		if(def_val_.empty()) {
-			raiseException(
-				"In GArrayReferenceParsableParameter::save(): Error!" << std::endl
-				<< "You need to provide at least one default value" << std::endl
-			);
+		   glogger
+		   << "In GArrayReferenceParsableParameter::save(): Error!" << std::endl
+         << "You need to provide at least one default value" << std::endl
+         << GEXCEPTION;
 		}
 
 		// Add the comments

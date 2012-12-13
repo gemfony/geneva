@@ -60,6 +60,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
 #include "common/GCommonEnums.hpp"
 
@@ -242,12 +243,12 @@ public:
 			x=boost::numeric_cast<x_type>(x_undet);
 		}
 		catch(bad_numeric_cast &e) {
-			raiseException(
-				"In GDataCollector1T::operator&(const T&): Error!" << std::endl
-				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-				<< "with the message " << std::endl
-				<< e.what() << std::endl
-			);
+		   glogger
+		   << "In GDataCollector1T::operator&(const T&): Error!" << std::endl
+         << "Encountered invalid cast with boost::numeric_cast," << std::endl
+         << "with the message " << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
 		}
 
 		// Add the converted data to our collection
@@ -285,12 +286,12 @@ public:
 				x=boost::numeric_cast<x_type>(*cit);
 			}
 			catch(bad_numeric_cast &e) {
-				raiseException(
-					"In GDataCollector1T::operator&(const std::vector<T>&): Error!" << std::endl
-					<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-					<< "with the message " << std::endl
-					<< e.what() << std::endl
-				);
+			   glogger
+			   << "In GDataCollector1T::operator&(const std::vector<T>&): Error!" << std::endl
+            << "Encountered invalid cast with boost::numeric_cast," << std::endl
+            << "with the message " << std::endl
+            << e.what() << std::endl
+            << GEXCEPTION;
 			}
 
 			// Add the converted data to our collection
@@ -476,10 +477,10 @@ public:
 			std::size_t
 			, boost::tuple<x_type, x_type>
 	) const {
-		raiseException(
-				"In GDataCollector2T<>::projectX(range, nBins): Error!" << std::endl
-				<< "Function was called for class with un-implemented types" << std::endl
-		);
+	   glogger
+	   << "In GDataCollector2T<>::projectX(range, nBins): Error!" << std::endl
+      << "Function was called for class with un-implemented types" << std::endl
+      << GEXCEPTION;
 
 		// Make the compiler happy
 		return boost::shared_ptr<GDataCollector1T<x_type> >();
@@ -495,10 +496,10 @@ public:
 			std::size_t
 			, boost::tuple<y_type, y_type>
 	) const {
-		raiseException(
-				"In GDataCollector2T<>::projectY(range, nBins): Error!" << std::endl
-				<< "Function was called for class with un-implemented types" << std::endl
-		);
+	   glogger
+	   << "In GDataCollector2T<>::projectY(range, nBins): Error!" << std::endl
+      << "Function was called for class with un-implemented types" << std::endl
+      << GEXCEPTION;
 
 		// Make the compiler happy
 		return boost::shared_ptr<GDataCollector1T<y_type> >();
@@ -524,12 +525,12 @@ public:
 			y=boost::numeric_cast<y_type>(boost::get<1>(point_undet));
 		}
 		catch(bad_numeric_cast &e) {
-			raiseException(
-				"In GDataCollector2T::operator&(const boost::tuple<S,T>&): Error!" << std::endl
-				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-				<< "with the message " << std::endl
-				<< e.what() << std::endl
-			);
+		   glogger
+		   << "In GDataCollector2T::operator&(const boost::tuple<S,T>&): Error!" << std::endl
+         << "Encountered invalid cast with boost::numeric_cast," << std::endl
+         << "with the message " << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
 		}
 
 		data_.push_back(boost::tuple<x_type,y_type>(x,y));
@@ -570,12 +571,12 @@ public:
 				y=boost::numeric_cast<y_type>(boost::get<1>(*cit));
 			}
 			catch(bad_numeric_cast &e) {
-				raiseException(
-					"In GDataCollector2T::operator&(const std::vector<boost::tuple<S,T> >&): Error!" << std::endl
-					<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-					<< "with the message " << std::endl
-					<< e.what() << std::endl
-				);
+			   glogger
+			   << "In GDataCollector2T::operator&(const std::vector<boost::tuple<S,T> >&): Error!" << std::endl
+            << "Encountered invalid cast with boost::numeric_cast," << std::endl
+            << "with the message " << std::endl
+            << e.what() << std::endl
+            << GEXCEPTION;
 			}
 
 			data_.push_back(boost::tuple<x_type,y_type>(x,y));
@@ -688,12 +689,12 @@ public:
 			ey=boost::numeric_cast<y_type>(boost::get<3>(point_undet));
 		}
 		catch(bad_numeric_cast &e) {
-			raiseException(
-				"In GDataCollector2ET::operator&(const boost::tuple<S,S,T,T>&): Error!" << std::endl
-				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-				<< "with the message " << std::endl
-				<< e.what() << std::endl
-			);
+		   glogger
+		   << "In GDataCollector2ET::operator&(const boost::tuple<S,S,T,T>&): Error!" << std::endl
+         << "Encountered invalid cast with boost::numeric_cast," << std::endl
+         << "with the message " << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
 		}
 
 		data_.push_back(boost::tuple<x_type,x_type,y_type,y_type>(x,ex,y,ey));
@@ -738,12 +739,12 @@ public:
 				ey = boost::numeric_cast<y_type>(boost::get<3>(*cit));
 			}
 			catch(bad_numeric_cast &e) {
-				raiseException(
-					"In GDataCollector2ET::operator&(const std::vector<boost::tuple<S,S,T,T> >&): Error!" << std::endl
-					<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-					<< "with the message " << std::endl
-					<< e.what() << std::endl
-				);
+			   glogger
+			   << "In GDataCollector2ET::operator&(const std::vector<boost::tuple<S,S,T,T> >&): Error!" << std::endl
+            << "Encountered invalid cast with boost::numeric_cast," << std::endl
+            << "with the message " << std::endl
+            << e.what() << std::endl
+            << GEXCEPTION;
 			}
 
 			data_.push_back(boost::tuple<x_type,x_type,y_type,y_type>(x,ex,y,ey));

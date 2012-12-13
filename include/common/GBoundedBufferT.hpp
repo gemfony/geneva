@@ -80,7 +80,6 @@
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
-#include "common/GExceptions.hpp"
 
 // Boost headers go here
 
@@ -105,6 +104,8 @@
 
 
 // Geneva headers go here
+#include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
 
 namespace Gem {
 namespace Common {
@@ -318,9 +319,9 @@ public:
 
 #ifdef DEBUG
 		if(container_.empty()) {
-			raiseException(
-				"In GBoundedBufferT<T>::pop_back(item): Container is empty when it shouldn't be!" << std::endl
-			);
+		   glogger
+		   << "In GBoundedBufferT<T>::pop_back(item): Container is empty when it shouldn't be!" << std::endl
+		   << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -356,9 +357,9 @@ public:
 
 #ifdef DEBUG
 		if(container_.empty()) {
-			raiseException(
-				"In GBoundedBufferT<T>::pop_back(item,timeout): Container is empty when it shouldn't be!" << std::endl
-			);
+		   glogger
+		   << "In GBoundedBufferT<T>::pop_back(item,timeout): Container is empty when it shouldn't be!" << std::endl
+		   << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -396,9 +397,9 @@ public:
 
 #ifdef DEBUG
 		if(container_.empty()) {
-			raiseException(
-				"In GBoundedBufferT<T>::pop_back_bool(item,timeout): Container is empty when it shouldn't be!" << std::endl
-			);
+		   glogger
+		   << "In GBoundedBufferT<T>::pop_back_bool(item,timeout): Container is empty when it shouldn't be!" << std::endl
+		   << GEXCEPTION;
 		}
 #endif /* DEBUG */
 

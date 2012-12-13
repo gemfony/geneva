@@ -58,6 +58,10 @@
 #pragma once
 #endif
 
+// Geneva headers go here
+#include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
+
 namespace Gem {
 namespace Common {
 
@@ -112,11 +116,11 @@ fp_type checkValueRange(
                << "Value " << val << " outside of recommended range " << std::endl
                << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl;
       } else {
-         raiseException(
-               "In checkValueRange<fp_type>(): Error!" << std::endl
-               << "Value " << val << " outside of allowed range " << std::endl
-               << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl
-         );
+         glogger
+         << "In checkValueRange<fp_type>(): Error!" << std::endl
+         << "Value " << val << " outside of allowed range " << std::endl
+         << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl
+         << GEXCEPTION;
       }
    }
 
@@ -171,11 +175,11 @@ int_type checkValueRange(
                << "Value " << val << " outside of recommended range " << std::endl
                << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl;
       } else {
-         raiseException(
-               "In checkValueRange<int_type>(): Error!" << std::endl
-               << "Value " << val << " outside of allowed range " << std::endl
-               << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl
-         );
+         glogger
+         << "In checkValueRange<int_type>(): Error!" << std::endl
+         << "Value " << val << " outside of allowed range " << std::endl
+         << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl
+         << GEXCEPTION;
       }
    }
 
@@ -194,10 +198,10 @@ template <typename x_type_undet>
 boost::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_undet>& extDat) {
    // Do some error checking
    if(extDat.size() < (std::size_t)2) {
-      raiseException(
-            "In GBasePlotter::getMinMax(1D): Error!" << std::endl
-            << "Got vector of invalid size " << extDat.size() << std::endl
-      );
+      glogger
+      << "In GBasePlotter::getMinMax(1D): Error!" << std::endl
+      << "Got vector of invalid size " << extDat.size() << std::endl
+      << GEXCEPTION;
    }
 
    x_type_undet min=extDat.at(0), max=min;
@@ -224,10 +228,10 @@ boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>
 getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet> >& extDat) {
    // Do some error checking
    if(extDat.size() < (std::size_t)2) {
-      raiseException(
-            "In GBasePlotter::getMinMax(2D): Error!" << std::endl
-            << "Got vector of invalid size " << extDat.size() << std::endl
-      );
+      glogger
+      << "In GBasePlotter::getMinMax(2D): Error!" << std::endl
+      << "Got vector of invalid size " << extDat.size() << std::endl
+      << GEXCEPTION;
    }
 
    x_type_undet minX=boost::get<0>(extDat.at(0)), maxX = minX;
@@ -257,10 +261,10 @@ boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_unde
 getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet> >& extDat) {
    // Do some error checking
    if(extDat.size() < (std::size_t)2) {
-      raiseException(
-            "In GBasePlotter::getMinMax(3D): Error!" << std::endl
-            << "Got vector of invalid size " << extDat.size() << std::endl
-      );
+      glogger
+      << "In GBasePlotter::getMinMax(3D): Error!" << std::endl
+      << "Got vector of invalid size " << extDat.size() << std::endl
+      << GEXCEPTION;
    }
 
    x_type_undet minX=boost::get<0>(extDat.at(0)), maxX = minX;
@@ -295,10 +299,10 @@ T GMean(
 
 #ifdef DEBUG
    if(parVec.empty()) {
-      raiseException(
-         "In T GMean(const std::vector<T>&): Error!" << std::endl
-         << "parVec has size 0" << std::endl
-      );
+      glogger
+      << "In T GMean(const std::vector<T>&): Error!" << std::endl
+      << "parVec has size 0" << std::endl
+      << GEXCEPTION;
    }
 #endif /* DEBUG */
 
@@ -327,10 +331,10 @@ boost::tuple<T,T> GStandardDeviation(
 
 #ifdef DEBUG
    if(parVec.size() == 0) {
-      raiseException(
-         "In boost::tuple<T,T> GStandardDeviation(const std::vector<T>&): Error!" << std::endl
-         << "parVec is empty" << std::endl
-      );
+      glogger
+      << "In boost::tuple<T,T> GStandardDeviation(const std::vector<T>&): Error!" << std::endl
+      << "parVec is empty" << std::endl
+      << GEXCEPTION;
    }
 #endif /* DEBUG */
 
@@ -370,18 +374,18 @@ void GVecStandardDeviation(
 #ifdef DEBUG
    // Check that there are entries in the vector
    if(parVec.size() == 0) {
-      raiseException(
-         "In void GVecStandardDeviation(): Error!" << std::endl
-         << "parVec is empty" << std::endl
-      );
+      glogger
+      << "In void GVecStandardDeviation(): Error!" << std::endl
+      << "parVec is empty" << std::endl
+      << GEXCEPTION;
    }
 
    // Check that the first entry has at least one component
    if(parVec.at(0).empty()) {
-      raiseException(
-         "In void GVecStandardDeviation(): Error!" << std::endl
-         << "parVec has empty component" << std::endl
-      );
+      glogger
+      << "In void GVecStandardDeviation(): Error!" << std::endl
+      << "parVec has empty component" << std::endl
+      << GEXCEPTION;
    }
 
    // Check that all entries have the same size
@@ -389,10 +393,10 @@ void GVecStandardDeviation(
       std::size_t sizeFirst = parVec.at(0).size();
       for(std::size_t pos=1; pos<parVec.size(); pos++) {
          if(parVec.at(pos).size() != sizeFirst) {
-            raiseException(
-               "In void GVecStandardDeviation(): Error!" << std::endl
-               << "Found parVec component of different size: " << sizeFirst << " / " << " / " << pos << " / " << parVec.at(pos).size() << std::endl
-            );
+            glogger
+            << "In void GVecStandardDeviation(): Error!" << std::endl
+            << "Found parVec component of different size: " << sizeFirst << " / " << " / " << pos << " / " << parVec.at(pos).size() << std::endl
+            << GEXCEPTION;
          }
       }
    }
@@ -473,10 +477,10 @@ void subtractVec (
 #ifdef DEBUG
    // Do some error checking
    if(a.size() != b.size()) {
-      raiseException(
-            "In subtractVec(std::vector<T>, const std::vector<T>&): Error!" << std::endl
-            << "Found invalid sizes: " << a.size() << " / " << b.size() << std::endl
-      );
+      glogger
+      << "In subtractVec(std::vector<T>, const std::vector<T>&): Error!" << std::endl
+      << "Found invalid sizes: " << a.size() << " / " << b.size() << std::endl
+      << GEXCEPTION;
    }
 #endif /* DEBUG */
 
@@ -506,10 +510,10 @@ void addVec (
 #ifdef DEBUG
    // Do some error checking
    if(a.size() != b.size()) {
-      raiseException(
-            "In addVec(std::vector<T>, const std::vector<T>&): Error!" << std::endl
-            << "Found invalid sizes: " << a.size() << " / " << b.size() << std::endl
-      );
+      glogger
+      << "In addVec(std::vector<T>, const std::vector<T>&): Error!" << std::endl
+      << "Found invalid sizes: " << a.size() << " / " << b.size() << std::endl
+      << GEXCEPTION;
    }
 #endif /* DEBUG */
 

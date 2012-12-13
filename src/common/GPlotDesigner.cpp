@@ -1335,10 +1335,10 @@ std::string GHistogram2D::footerData() const {
 
 		default:
 		{
-			raiseException(
-				"In GHistogram2D::footerData(): Error!" << std::endl
-				<< "Encountered unknown drawing option " << dropt_ << std::endl
-			);
+		   glogger
+		   << "In GHistogram2D::footerData(): Error!" << std::endl
+         << "Encountered unknown drawing option " << dropt_ << std::endl
+         << GEXCEPTION;
 		}
 		break;
 
@@ -1346,10 +1346,10 @@ std::string GHistogram2D::footerData() const {
 	}
 
 	footer_data
-	    << "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-	    << "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-		<< "  " << histName << "->Draw(\""<< dA << "\");" << std::endl
-		<< std::endl;
+	<< "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< "  " << histName << "->Draw(\""<< dA << "\");" << std::endl
+	<< std::endl;
 
 	return footer_data.str();
 }
@@ -1488,10 +1488,10 @@ void GFunctionPlotter1D::setNSamplesX(std::size_t nSamplesX) {
 std::string GFunctionPlotter1D::headerData() const {
 	// Check the extreme values for consistency
 	if(boost::get<0>(xExtremes_) >= boost::get<1>(xExtremes_)) {
-		raiseException(
-			"In GFunctionPlotter1D::headerData(): Error!" << std::endl
-			<< "lower boundary >= upper boundary: " << boost::get<0>(xExtremes_) << " / " << boost::get<1>(xExtremes_) << std::endl
-		);
+	   glogger
+	   << "In GFunctionPlotter1D::headerData(): Error!" << std::endl
+      << "lower boundary >= upper boundary: " << boost::get<0>(xExtremes_) << " / " << boost::get<1>(xExtremes_) << std::endl
+      << GEXCEPTION;
 	}
 
 	std::ostringstream result;
@@ -1651,17 +1651,17 @@ void GFunctionPlotter2D::setNSamplesY(std::size_t nSamplesY) {
 std::string GFunctionPlotter2D::headerData() const {
 	// Check the extreme values for consistency
 	if(boost::get<0>(xExtremes_) >= boost::get<1>(xExtremes_)) {
-		raiseException(
-			"In GFunctionPlotter2D::headerData(): Error!" << std::endl
-			<< "lower boundary(x) >= upper boundary(x): " << boost::get<0>(xExtremes_) << " / " << boost::get<1>(xExtremes_) << std::endl
-		);
+	   glogger
+	   << "In GFunctionPlotter2D::headerData(): Error!" << std::endl
+      << "lower boundary(x) >= upper boundary(x): " << boost::get<0>(xExtremes_) << " / " << boost::get<1>(xExtremes_) << std::endl
+      << GEXCEPTION;
 	}
 
 	if(boost::get<0>(yExtremes_) >= boost::get<1>(yExtremes_)) {
-		raiseException(
-			"In GFunctionPlotter2D::headerData(): Error!" << std::endl
-			<< "lower boundary(y) >= upper boundary(y): " << boost::get<0>(yExtremes_) << " / " << boost::get<1>(yExtremes_) << std::endl
-		);
+	   glogger
+	   << "In GFunctionPlotter2D::headerData(): Error!" << std::endl
+      << "lower boundary(y) >= upper boundary(y): " << boost::get<0>(yExtremes_) << " / " << boost::get<1>(yExtremes_) << std::endl
+      << GEXCEPTION;
 	}
 
 	std::ostringstream result;
@@ -1996,10 +1996,10 @@ void GPlotDesigner::registerPlotter(boost::shared_ptr<GBasePlotter> plotter_ptr)
 		plotter_ptr->setId(plotters_.size());
 		plotters_.push_back(plotter_ptr);
 	} else {
-		raiseException(
-			"GPlotDesigner::registerPlotter(): Error!" << std::endl
-			<< "Got empty plotter" << std::endl
-		);
+	   glogger
+	   << "GPlotDesigner::registerPlotter(): Error!" << std::endl
+      << "Got empty plotter" << std::endl
+      << GEXCEPTION;
 	}
 }
 

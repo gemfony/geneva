@@ -78,11 +78,11 @@ GParsableI::~GParsableI()
  */
 std::string GParsableI::optionName(std::size_t pos) const {
 	if(optionName_.size() <= pos) {
-		raiseException(
-			"In GParsableI::optionName(std::size_t): Error!" << std::endl
-			<< "Tried to access item at position " << pos << std::endl
-			<< "where the size of the vector is " << optionName_.size() << std::endl
-		);
+		glogger
+		<< "In GParsableI::optionName(std::size_t): Error!" << std::endl
+      << "Tried to access item at position " << pos << std::endl
+      << "where the size of the vector is " << optionName_.size() << std::endl
+      << GEXCEPTION;
 	}
 
 	return optionName_.at(pos);
@@ -94,11 +94,11 @@ std::string GParsableI::optionName(std::size_t pos) const {
  */
 std::string GParsableI::comment(std::size_t pos) const {
 	if(comment_.size() <= pos) {
-		raiseException(
-			"In GParsableI::comment_(std::size_t): Error!" << std::endl
-			<< "Tried to access item at position " << pos << std::endl
-			<< "where the size of the vector is " << comment_.size() << std::endl
-		);
+		glogger
+		<< "In GParsableI::comment_(std::size_t): Error!" << std::endl
+      << "Tried to access item at position " << pos << std::endl
+      << "where the size of the vector is " << comment_.size() << std::endl
+      << GEXCEPTION;
 	}
 
 	return comment_.at(pos);
@@ -164,10 +164,10 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
 		} else { // configFile exists
 			// Is it a regular file ?
 			if(!bf::is_regular_file(configFile)) {
-				raiseException(
-						"In GParserBuilder::parseConfigFile(): Error!" << std::endl
-						<< configFile << " exists but is no regular file." << std::endl
-				);
+				glogger
+				<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
+            << configFile << " exists but is no regular file." << std::endl
+            << GEXCEPTION;
 			}
 
 			// We require the file to have the json extension
@@ -176,10 +176,10 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
 #else
 			if(bf::path(configFile).extension() != ".json") {
 #endif
-				raiseException(
-						"In GParserBuilder::parseConfigFile(): Error!" << std::endl
-						<< configFile << " does not have the required extension \".json\"" << std::endl
-				);
+				glogger
+				<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
+            << configFile << " does not have the required extension \".json\"" << std::endl
+            << GEXCEPTION;
 			}
 		}
 
@@ -237,26 +237,26 @@ void GParserBuilder::writeConfigFile(
 	{
 		// Is configFile a directory ?
 		if(is_directory(configFile)) {
-			raiseException(
-				"In GParserBuilder::writeConfigFile(): Error!" << std::endl
-				<< configFile << " is a directory." << std::endl
-			);
+			glogger
+			<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+         << configFile << " is a directory." << std::endl
+         << GEXCEPTION;
 		}
 
 		// We do not allow to overwrite existing files
 		if(exists(configFile) && is_regular_file(configFile)) {
-			raiseException(
-				"In GParserBuilder::writeConfigFile(): Error!" << std::endl
-				<< "You have specified an existing file (" << configFile << ")." << std::endl
-			);
+		   glogger
+		   << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+         << "You have specified an existing file (" << configFile << ")." << std::endl
+         << GEXCEPTION;
 		}
 
 		// Check that the target path exists and is a directory
 		if(!exists(bf::path(configFile).remove_filename()) || !is_directory(bf::path(configFile).remove_filename())) {
-			raiseException(
-				"In GParserBuilder::writeConfigFile(): Error!" << std::endl
-				<< "The target path " << bf::path(configFile).remove_filename() << " does not exist or is no directory."
-			);
+		   glogger
+		   << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+         << "The target path " << bf::path(configFile).remove_filename() << " does not exist or is no directory." << std::endl
+         << GEXCEPTION;
 		}
 
 		// Check that the configuration file has the required extension
@@ -265,26 +265,26 @@ void GParserBuilder::writeConfigFile(
 #else
 		if(bf::path(configFile).extension() != ".json") { // This is a hack
 #endif
-			raiseException(
-				"In GParserBuilder::writeConfigFile(): Error!" << std::endl
-				<< configFile << " does not have the required extension \".json\"" << std::endl
-			);
+		   glogger
+		   << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+         << configFile << " does not have the required extension \".json\"" << std::endl
+         << GEXCEPTION;
 		}
 	}
 
 	// Open the required configuration file
 	std::ofstream ofs(configFile.c_str());
 	if (!ofs.good()) {
-		raiseException(
-			"In GParserBuilder::writeConfigFile(): Error writing the configuration file " << configFile << std::endl
-		);
+		glogger
+		<< "In GParserBuilder::writeConfigFile(): Error writing the configuration file " << configFile << std::endl
+		<< GEXCEPTION;
 	}
 
 	// Do some error checking
 	if(parameter_proxies_.size() == 0) {
-		raiseException(
-			"In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
-		);
+		glogger
+		<< "In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
+		<< GEXCEPTION;
 	}
 
 	// Output the header
