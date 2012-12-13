@@ -234,10 +234,10 @@ void GConstrainedDoubleCollection::assignDoubleValueVector(const std::vector<dou
 #ifdef DEBUG
 		  // Do we have a valid position ?
 		  if(pos >= parVec.size()) {
-			  raiseException(
-					  "In GConstrainedDoubleCollection::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
-					  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-			  );
+		     glogger
+		     << "In GConstrainedDoubleCollection::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
+           << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+           << GEXCEPTION;
 		  }
 #endif
 
