@@ -57,9 +57,9 @@
 #pragma once
 #endif
 
-
 // Hap headers go here
-#include "GRandomBase.hpp"
+#include "hap/GRandomBase.hpp"
+#include "common/GLogger.hpp"
 
 namespace Gem {
 namespace Hap {
@@ -154,10 +154,10 @@ private:
 
 #ifdef DEBUG
 		if(!grf_) {
-         raiseException(
-               "In GRandomT<RANDOMPROXY>::getNewP01(): Error!" << std::endl
-               << "No connection to GRandomFactory object."
-         );
+		   glogger
+		   << "In GRandomT<RANDOMPROXY>::getNewP01(): Error!" << std::endl
+         << "No connection to GRandomFactory object." << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 

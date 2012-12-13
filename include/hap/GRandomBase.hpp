@@ -78,9 +78,9 @@
 
 // Hap headers go here
 #include "common/GMathHelperFunctions.hpp"
-#include "GHapEnums.hpp"
-#include "GRandomDefines.hpp"
-#include "GRandomFactory.hpp"
+#include "hap/GHapEnums.hpp"
+#include "hap/GRandomDefines.hpp"
+#include "hap/GRandomFactory.hpp"
 
 /******************************************************************************/
 
@@ -216,10 +216,10 @@ public:
 	 */
 	template<typename fp_type>
 	fp_type normal_distribution() {
-		raiseException(
-			"In GRandomBase::normal_distribution<fp_type>(): Error!" << std::endl
-			<< "function called with incorrect type"
-		);
+	   glogger
+	   << "In GRandomBase::normal_distribution<fp_type>(): Error!" << std::endl
+      << "function called with incorrect type" << std::endl
+      << GEXCEPTION;
 	}
 
 	/***************************************************************************/
