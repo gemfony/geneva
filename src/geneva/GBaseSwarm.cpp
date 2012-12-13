@@ -412,10 +412,10 @@ void GBaseSwarm::saveCheckpoint() const {
 #ifdef DEBUG
 	// Check that the global best has been initialized
 	if(!global_best_) {
-		raiseException(
-				"In GBaseSwarm::saveCheckpoint():" << std::endl
-				<< "global_best_ has not yet been initialized!"
-		);
+	   glogger
+	   << "In GBaseSwarm::saveCheckpoint():" << std::endl
+      << "global_best_ has not yet been initialized!" << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
@@ -424,10 +424,10 @@ void GBaseSwarm::saveCheckpoint() const {
 
 #ifdef DEBUG
 	if(isDirty) {
-		raiseException(
-				"In GBaseSwarm::saveCheckpoint():" << std::endl
-				<< "global_best_ has dirty flag set!"
-		);
+	   glogger
+	   << "In GBaseSwarm::saveCheckpoint():" << std::endl
+      << "global_best_ has dirty flag set!" << std::endl
+      << GEXCEPTION;
 	}
 #endif
 
@@ -501,12 +501,12 @@ std::size_t GBaseSwarm::getFirstNIPosVec(
 ) const {
 #ifdef DEBUG
 	if(neighborhood >= nNeighborhoods_) {
-		raiseException(
-				"In GBaseSwarm::getFirstNIPosVec():" << std::endl
-				<< "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
-				<< "The number of neighborhoods is " << nNeighborhoods_ << "," << std::endl
-				<< "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "."
-		);
+	   glogger
+	   << "In GBaseSwarm::getFirstNIPosVec():" << std::endl
+      << "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
+      << "The number of neighborhoods is " << nNeighborhoods_ << "," << std::endl
+      << "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "." << std::endl
+      << GEXCEPTION;
 	}
 #endif
 
@@ -534,12 +534,12 @@ std::size_t GBaseSwarm::getFirstNIPosVec(
 std::size_t GBaseSwarm::getLastNIPos(const std::size_t& neighborhood) const {
 #ifdef DEBUG
 	if(neighborhood >= nNeighborhoods_) {
-		raiseException(
-				"In GBaseSwarm::getLastNIPos():" << std::endl
-				<< "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
-				<< "The number of neighborhoods is " << nNeighborhoods_ << " ." << std::endl
-				<< "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "."
-		);
+	   glogger
+	   << "In GBaseSwarm::getLastNIPos():" << std::endl
+      << "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
+      << "The number of neighborhoods is " << nNeighborhoods_ << " ." << std::endl
+      << "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "." << std::endl
+      << GEXCEPTION;
 	}
 #endif
 
@@ -557,10 +557,10 @@ void GBaseSwarm::updatePersonalBest(
 ) {
 #ifdef DEBUG
 	if(p->isDirty()) {
-		raiseException(
-				"In GBaseSwarm::updatePersonalBest():" << std::endl
-				<< "p has its dirty flag set: " << p->isDirty() << std::endl
-		);
+	   glogger
+	   << "In GBaseSwarm::updatePersonalBest():" << std::endl
+      << "p has its dirty flag set: " << p->isDirty() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
@@ -578,10 +578,10 @@ void GBaseSwarm::updatePersonalBestIfBetter(
 ) {
 #ifdef DEBUG
 	if(p->isDirty()) {
-		raiseException(
-				"In GBaseSwarm::updatePersonalBestIfBetter(): Error!" << std::endl
-				<< "dirty flag of individual is set." << std::endl
-		);
+	   glogger
+	   << "In GBaseSwarm::updatePersonalBestIfBetter(): Error!" << std::endl
+      << "dirty flag of individual is set." << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
@@ -608,10 +608,10 @@ boost::shared_ptr<GIndividual> GBaseSwarm::getBestIndividual(){
 #ifdef DEBUG
 	// Check that global_best_ actually points somewhere
 	if(!global_best_) {
-		raiseException(
-				"In GBaseSwarm::getBestIndividual() : Error" << std::endl
-				<< "Tried to access uninitialized globally best individual."
-		);
+	   glogger
+	   << "In GBaseSwarm::getBestIndividual() : Error" << std::endl
+      << "Tried to access uninitialized globally best individual." << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
@@ -628,10 +628,10 @@ boost::shared_ptr<GIndividual> GBaseSwarm::getBestIndividual(){
 std::vector<boost::shared_ptr<GIndividual> > GBaseSwarm::getBestIndividuals() {
 	// Some error checking
 	if(nNeighborhoods_ == 0) {
-		raiseException(
-			"In GBaseSwarm::getBestIndividuals() :" << std::endl
-			<< "no neighborhoods found" << std::endl
-		);
+	   glogger
+	   << "In GBaseSwarm::getBestIndividuals() :" << std::endl
+      << "no neighborhoods found" << std::endl
+      << GEXCEPTION;
 	}
 
 	std::vector<boost::shared_ptr<GIndividual> > bestIndividuals;
@@ -840,11 +840,11 @@ void GBaseSwarm::optimizationInit() {
 #ifdef DEBUG
 	// Size matters!
 	if(dblLowerParameterBoundaries_.size() != dblUpperParameterBoundaries_.size()) {
-		raiseException(
-				"In GBaseSwarm::optimizationInit(): Error!" << std::endl
-				<< "Found invalid sizes: "
-				<< dblLowerParameterBoundaries_.size() << " / " << dblUpperParameterBoundaries_.size() << std::endl
-		);
+	   glogger
+	   << "In GBaseSwarm::optimizationInit(): Error!" << std::endl
+      << "Found invalid sizes: "
+      << dblLowerParameterBoundaries_.size() << " / " << dblUpperParameterBoundaries_.size() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
@@ -873,12 +873,12 @@ void GBaseSwarm::optimizationInit() {
 #ifdef DEBUG
 		// Check that the number of parameters equals those in the velocity boundaries
 		if(velVec.size() != dblLowerParameterBoundaries_.size() || velVec.size() != dblVelVecMax_.size()) {
-			raiseException(
-					"In GBaseSwarm::optimizationInit(): Error! (2)" << std::endl
-					<< "Found invalid sizes: " << velVec.size()
-					<< " / " << dblLowerParameterBoundaries_.size() << std::endl
-					<< " / " << dblVelVecMax_.size() << std::endl
-			);
+		   glogger
+		   << "In GBaseSwarm::optimizationInit(): Error! (2)" << std::endl
+         << "Found invalid sizes: " << velVec.size()
+         << " / " << dblLowerParameterBoundaries_.size() << std::endl
+         << " / " << dblVelVecMax_.size() << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -942,11 +942,11 @@ void GBaseSwarm::updatePositions() {
 #ifdef DEBUG
    // Cross-check that we have the nominal amount of individuals
    if(this->size() != nNeighborhoods_*defaultNNeighborhoodMembers_) {
-      raiseException(
-            "In GBaseSwarm::updatePositions(): Error!" << std::endl
-            << "Invalid number of individuals found." << std::endl
-            << "Expected " << nNeighborhoods_*defaultNNeighborhoodMembers_ << " but got " << this->size() << std::endl
-      );
+      glogger
+      << "In GBaseSwarm::updatePositions(): Error!" << std::endl
+      << "Invalid number of individuals found." << std::endl
+      << "Expected " << nNeighborhoods_*defaultNNeighborhoodMembers_ << " but got " << this->size() << std::endl
+      << GEXCEPTION;
    }
 #endif /* DEBUG */
 
@@ -955,26 +955,26 @@ void GBaseSwarm::updatePositions() {
 #ifdef DEBUG
 		if(afterFirstIteration()) {
 			if(!neighborhood_bests_[n]) {
-				raiseException(
-						"In GBaseSwarm::updatePositions():" << std::endl
-						<< "neighborhood_bests_[" << n << "] is empty."
-				);
+			   glogger
+			   << "In GBaseSwarm::updatePositions():" << std::endl
+            << "neighborhood_bests_[" << n << "] is empty." << std::endl
+            << GEXCEPTION;
 			}
 
 			if(n==0 && !global_best_) { // Only check for the first n
-				raiseException(
-						"In GBaseSwarm::updatePositions():" << std::endl
-						<< "global_best_ is empty."
-				);
+			   glogger
+			   << "In GBaseSwarm::updatePositions():" << std::endl
+            << "global_best_ is empty." << std::endl
+            << GEXCEPTION;
 			}
 		}
 
 	   // Check that the number if individuals in each neighborhoods has the expected value
 		if(nNeighborhoodMembers_[n] != defaultNNeighborhoodMembers_) {
-		   raiseException(
-		         "In GBaseSwarm::updatePositions(): Error!" << std::endl
-		         << "Invalid number of members in neighborhood " << n << ": " << nNeighborhoodMembers_[n] << std::endl
-		   );
+		  glogger
+		  << "In GBaseSwarm::updatePositions(): Error!" << std::endl
+        << "Invalid number of members in neighborhood " << n << ": " << nNeighborhoodMembers_[n] << std::endl
+        << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -1036,10 +1036,10 @@ void GBaseSwarm::updateIndividualPositions(
 #ifdef DEBUG
 	// Do some error checking
 	if(!ind) {
-		raiseException(
-				"In GBaseSwarm::updateIndividualPositions():" << std::endl
-				<< "Found empty individual \"ind\""
-		);
+	   glogger
+	   << "In GBaseSwarm::updateIndividualPositions():" << std::endl
+      << "Found empty individual \"ind\"" << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
@@ -1049,31 +1049,31 @@ void GBaseSwarm::updateIndividualPositions(
 	// Further error checks
 #ifdef DEBUG
 	if(!personal_best) {
-		raiseException(
-				"In GBaseSwarm::updateIndividualPositions():" << std::endl
-				<< "Found empty individual \"personal_best\""
-		);
+	   glogger
+	   << "In GBaseSwarm::updateIndividualPositions():" << std::endl
+      << "Found empty individual \"personal_best\"" << std::endl
+      << GEXCEPTION;
 	}
 
 	if(!neighborhood_best) {
-		raiseException(
-				"In GBaseSwarm::updateIndividualPositions():" << std::endl
-				<< "Found empty individual \"neighborhood_best\""
-		);
+	   glogger
+	   << "In GBaseSwarm::updateIndividualPositions():" << std::endl
+      << "Found empty individual \"neighborhood_best\"" << std::endl
+      << GEXCEPTION;
 	}
 
 	if(!global_best) {
-		raiseException(
-				"In GBaseSwarm::updateIndividualPositions():" << std::endl
-				<< "Found empty individual \"global_best\""
-		);
+	   glogger
+	   << "In GBaseSwarm::updateIndividualPositions():" << std::endl
+      << "Found empty individual \"global_best\"" << std::endl
+      << GEXCEPTION;
 	}
 
 	if(!velocity) {
-		raiseException(
-				"In GBaseSwarm::updateIndividualPositions():" << std::endl
-				<< "Found empty individual \"velocity\""
-		);
+	   glogger
+	   << "In GBaseSwarm::updateIndividualPositions():" << std::endl
+      << "Found empty individual \"velocity\"" << std::endl
+      << GEXCEPTION;
 	}
 
 #endif /* DEBUG */
@@ -1111,10 +1111,10 @@ void GBaseSwarm::updateIndividualPositions(
 
 	default:
 		{
-			raiseException(
-					"GBaseSwarm::updateIndividualPositions(): Error!" << std::endl
-					<< "Invalid update rule requested: " << updateRule_ << std::endl
-			);
+		   glogger
+		   << "GBaseSwarm::updateIndividualPositions(): Error!" << std::endl
+         << "Invalid update rule requested: " << updateRule_ << std::endl
+         << GEXCEPTION;
 		}
 		break;
 	}
@@ -1155,10 +1155,10 @@ void GBaseSwarm::updateIndividualPositions(
 void GBaseSwarm::pruneVelocity(std::vector<double>& velVec) {
 #ifdef DEBUG
 	if(velVec.size() != dblVelVecMax_.size()) {
-		raiseException(
-				"In GBaseSwarm::pruneVelocity(): Error!" << std::endl
-				<< "Found invalid vector sizes: " << velVec.size() << " / " << dblVelVecMax_.size() << std::endl
-		);
+	   glogger
+	   << "In GBaseSwarm::pruneVelocity(): Error!" << std::endl
+      << "Found invalid vector sizes: " << velVec.size() << " / " << dblVelVecMax_.size() << std::endl
+      << GEXCEPTION;
 	}
 
 #endif
@@ -1170,10 +1170,10 @@ void GBaseSwarm::pruneVelocity(std::vector<double>& velVec) {
 	for(std::size_t i=0; i<velVec.size(); i++) {
 #ifdef DEBUG
 		if(dblVelVecMax_[i] <= 0.) {
-			raiseException(
-					"In GBaseSwarm::pruneVelocity(): Error!" << std::endl
-					<< "Found invalid max value: " << dblVelVecMax_[i] << std::endl
-			);
+		   glogger
+		   << "In GBaseSwarm::pruneVelocity(): Error!" << std::endl
+         << "Found invalid max value: " << dblVelVecMax_[i] << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -1191,10 +1191,10 @@ void GBaseSwarm::pruneVelocity(std::vector<double>& velVec) {
 		for(std::size_t i=0; i<velVec.size(); i++) {
 #ifdef DEBUG
 			if(maxPercentage <= 0.) {
-				raiseException(
-						"In GBaseSwarm::pruneVelocity(): Error!" << std::endl
-						<< "Invalid maxPercentage: " << maxPercentage << std::endl
-				);
+			   glogger
+			   << "In GBaseSwarm::pruneVelocity(): Error!" << std::endl
+            << "Invalid maxPercentage: " << maxPercentage << std::endl
+            << GEXCEPTION;
 			}
 #endif
 			velVec[i] /= maxPercentage;
@@ -1247,10 +1247,10 @@ double GBaseSwarm::findBests() {
 	GBaseSwarm::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
 		if((*it)->isDirty()) {
-			raiseException(
-					"In GBaseSwarm::findBests(): Error!" << std::endl
-					<< "Found individual whose dirty flag is set." << std::endl
-			);
+		   glogger
+		   << "In GBaseSwarm::findBests(): Error!" << std::endl
+         << "Found individual whose dirty flag is set." << std::endl
+         << GEXCEPTION;
 		}
 	}
 #endif /* DEBUG */
@@ -1319,12 +1319,12 @@ void GBaseSwarm::adjustPopulation() {
 	const std::size_t nNeighborhoods = getNNeighborhoods();
 
 	if(currentSize==0) {
-		raiseException(
-				"In GBaseSwarm::adjustPopulation() :" << std::endl
-				<< "No individuals found in the population." << std::endl
-				<< "You need to add at least one individual before" << std::endl
-				<< "the call to this function."
-		);
+	   glogger
+	   << "In GBaseSwarm::adjustPopulation() :" << std::endl
+      << "No individuals found in the population." << std::endl
+      << "You need to add at least one individual before" << std::endl
+      << "the call to this function." << std::endl
+      << GEXCEPTION;
 	}
 	else if(currentSize==1) {
 		// Fill up with random items to the number of neighborhoods
@@ -1382,11 +1382,11 @@ void GBaseSwarm::adjustPopulation() {
 	// As the above switch statement is quite complicated, cross check that we now
 	// indeed have at least the required number of individuals
 	if(this->size() < defaultPopSize) {
-		raiseException(
-				"In GBaseSwarm::adjustPopulation() :" << std::endl
-				<< "Expected at least a population size of " << defaultPopSize << std::endl
-				<< "but found a size of " << this->size() << ", which is too small."
-		);
+	   glogger
+	   << "In GBaseSwarm::adjustPopulation() :" << std::endl
+      << "Expected at least a population size of " << defaultPopSize << std::endl
+      << "but found a size of " << this->size() << ", which is too small." << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
@@ -1401,10 +1401,10 @@ void GBaseSwarm::adjustPopulation() {
 void GBaseSwarm::fillUpNeighborhood1() {
 	// Do some error checking
 	if(this->size() != nNeighborhoods_) {
-		raiseException(
-				"In GBaseSwarm::fillUpNeighborhood1():" << std::endl
-				<< "Invalid size: " << this->size() << " Expected " << nNeighborhoods_
-		);
+	   glogger
+	   << "In GBaseSwarm::fillUpNeighborhood1():" << std::endl
+      << "Invalid size: " << this->size() << " Expected " << nNeighborhoods_ << std::endl
+      << GEXCEPTION;
 	}
 
 	if(defaultNNeighborhoodMembers_==1) return; // nothing to do
@@ -1421,10 +1421,10 @@ void GBaseSwarm::fillUpNeighborhood1() {
 			if(randomFillUp_) {
 #ifdef DEBUG
 				if(!(*(this->begin()+n+1))) {
-					raiseException(
-							"In GBaseSwarm::fillUpNeighborhood1():" << std::endl
-							<< "Found empty position " << n
-					);
+				   glogger
+				   << "In GBaseSwarm::fillUpNeighborhood1():" << std::endl
+               << "Found empty position " << n << std::endl
+               << GEXCEPTION;
 				}
 #endif /* DEBUG */
 
@@ -1526,10 +1526,10 @@ double GBaseSwarm::getCVelocity() const {
 void GBaseSwarm::setVelocityRangePercentage(double velocityRangePercentage) {
 	// Do some error checking
 	if(velocityRangePercentage <= 0. || velocityRangePercentage > 1.) {
-		raiseException(
-				"In GBaseSwarm::setVelocityRangePercentage()" << std::endl
-				<< "Invalid velocityRangePercentage: " << velocityRangePercentage << std::endl
-		);
+	   glogger
+	   << "In GBaseSwarm::setVelocityRangePercentage()" << std::endl
+      << "Invalid velocityRangePercentage: " << velocityRangePercentage << std::endl
+      << GEXCEPTION;
 	}
 
 	velocityRangePercentage_ = velocityRangePercentage;
@@ -1831,10 +1831,10 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizatio
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != PERSONALITY_SWARM) {
-		raiseException(
-				"In GBaseSwarm::GSwarmOptimizationMonitor::firstInformation():" << std::endl
-				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
-		);
+	   glogger
+	   << "In GBaseSwarm::GSwarmOptimizationMonitor::firstInformation():" << std::endl
+      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 	GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);
@@ -1859,10 +1859,10 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizatio
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != PERSONALITY_SWARM) {
-		raiseException(
-				"In GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation():" << std::endl
-				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
-		);
+	   glogger
+	   << "In GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation():" << std::endl
+      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 	GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);
@@ -1882,10 +1882,10 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::lastInformation(GOptimization
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != PERSONALITY_SWARM) {
-		raiseException(
-				"In GBaseSwarm::GSwarmOptimizationMonitor::lastInformation():" << std::endl
-				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
-		);
+	   glogger
+	   << "In GBaseSwarm::GSwarmOptimizationMonitor::lastInformation():" << std::endl
+      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 	GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);

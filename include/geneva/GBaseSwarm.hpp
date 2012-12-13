@@ -207,27 +207,27 @@ public:
 #ifdef DEBUG
 		// Check that the neighborhood is in a valid range
 		if(neighborhood >= nNeighborhoods_) {
-			raiseException(
-					"In GBaseSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
-					<< "Requested neighborhood which does not exist: " << neighborhood << " / " << nNeighborhoods_
-			);
+		   glogger
+		   << "In GBaseSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
+         << "Requested neighborhood which does not exist: " << neighborhood << " / " << nNeighborhoods_ << std::endl
+         << GEXCEPTION;
 		}
 
 		// Check that pointer actually points somewhere
 		if(!neighborhood_bests_[neighborhood]) {
-			raiseException(
-					"In GBaseSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
-					<< "Tried to access uninitialized best individual in neighborhood."
-			);
+		   glogger
+		   << "In GBaseSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
+         << "Tried to access uninitialized best individual in neighborhood." << std::endl
+         << GEXCEPTION;
 		}
 
 		boost::shared_ptr<parameterset_type> p = boost::dynamic_pointer_cast<parameterset_type>(neighborhood_bests_[neighborhood]);
 
 		if(p) return p;
 		else {
-			raiseException(
-					"In GBaseSwarm::getBestNeighborhoodIndividual<>() : Conversion error"
-			);
+		   glogger
+		   << "In GBaseSwarm::getBestNeighborhoodIndividual<>() : Conversion error" << std::endl
+		   << GEXCEPTION;
 		}
 #else
 		return boost::static_pointer_cast<parameterset_type>(neighborhood_bests_[neighborhood]);

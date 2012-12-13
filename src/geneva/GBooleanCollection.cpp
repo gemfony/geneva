@@ -166,10 +166,10 @@ void GBooleanCollection::randomInit_() {
 void GBooleanCollection::randomInit_(const double& probability) {
    // Do some error checking
    if(probability<0. || probability>1.) {
-      raiseException(
-            "In GBooleanCollection::randomInit_(" << probability << "):" << std::endl
-            << "Requested probability outside of allowed range [0:1]"
-      );
+      glogger
+      << "In GBooleanCollection::randomInit_(" << probability << "):" << std::endl
+      << "Requested probability outside of allowed range [0:1]" << std::endl
+      << GEXCEPTION;
    }
 
    for(std::size_t i=0; i<this->size(); i++) (*this)[i] = gr->weighted_bool(probability);
@@ -309,10 +309,10 @@ void GBooleanCollection::assignBooleanValueVector(const std::vector<bool>& parVe
 #ifdef DEBUG
       // Do we have a valid position ?
       if(pos >= parVec.size()) {
-         raiseException(
-               "In GBooleanCollection::assignBooleanValueVector(const std::vector<bool>&, std::size_t&):" << std::endl
-               << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-         );
+         glogger
+         << "In GBooleanCollection::assignBooleanValueVector(const std::vector<bool>&, std::size_t&):" << std::endl
+         << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+         << GEXCEPTION;
       }
 #endif
 
