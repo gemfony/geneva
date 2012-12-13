@@ -55,10 +55,8 @@
 #include "hap/GRandomBase.hpp"
 #include "hap/GRandomT.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 /* The GConstrainedFPT class represents a floating point type, such as a double,

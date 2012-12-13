@@ -283,22 +283,22 @@ public:
 
 			// Check that the value is inside the allowed range
 			if(currentValues[pos] < lower || currentValues[pos] > upper){
-				raiseException(
-						"In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&) :" << std::endl
-						<< "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
-						<< "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
-						<< "with existing value  " << currentValues[pos] << " at position " << pos << " outside of this range."
-				);
+			   glogger
+			   << "In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&) :" << std::endl
+            << "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
+            << "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
+            << "with existing value  " << currentValues[pos] << " at position " << pos << " outside of this range." << std::endl
+            << GEXCEPTION;
 			}
 		}
 
 		// Check that the boundaries make sense
 		if(lower > upper) {
-			raiseException(
-					"In GConstrainedNumT<num_type>::setBoundaries(const num_type&, const num_type&)" << std::endl
-					<< "with typeid(num_type).name() = " << typeid(num_type).name() << " :" << std::endl
-					<< "Lower and/or upper boundary has invalid value : " << lower << " " << upper
-			);
+		   glogger
+		   << "In GConstrainedNumT<num_type>::setBoundaries(const num_type&, const num_type&)" << std::endl
+         << "with typeid(num_type).name() = " << typeid(num_type).name() << " :" << std::endl
+         << "Lower and/or upper boundary has invalid value : " << lower << " " << upper << std::endl
+         << GEXCEPTION;
 		}
 
 		lowerBoundary_ = lower;
@@ -324,13 +324,13 @@ public:
 	virtual void setValue(const std::size_t& pos, const num_type& val)  {
 		// Do some error checking
 		if(val < lowerBoundary_ || val > upperBoundary_) {
-			raiseException(
-					"In GConstrainedNumCollectionT<num_type>::setValue(pos, val):" << std::endl
-					<< "In position " << pos << ":" << std::endl
- 					<< "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-					<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
-					<< "upperBoundary_ = " << upperBoundary_
-			);
+		   glogger
+		   << "In GConstrainedNumCollectionT<num_type>::setValue(pos, val):" << std::endl
+         << "In position " << pos << ":" << std::endl
+         << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+         << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+         << "upperBoundary_ = " << upperBoundary_ << std::endl
+         << GEXCEPTION;
 		}
 
 		// O.k., assign value

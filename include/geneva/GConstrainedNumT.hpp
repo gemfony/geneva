@@ -108,12 +108,12 @@ public:
 	{
       // Check that the value is inside of the allowed value range
       if(val < lowerBoundary_ || val > upperBoundary_) {
-         raiseException(
-               "In GConstrainedNumT<T>::GConstrainedNumT(val):" << std::endl
-               << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-               << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-               << "upperBoundary_ = " << upperBoundary_
-         );
+         glogger
+         << "In GConstrainedNumT<T>::GConstrainedNumT(val):" << std::endl
+         << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+         << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+         << "upperBoundary_ = " << upperBoundary_ << std::endl
+         << GEXCEPTION;
       }
 	}
 
@@ -131,23 +131,23 @@ public:
 	{
 		// Naturally the upper boundary should be >= the lower boundary
 		if(lowerBoundary_ >= upperBoundary_) {
-			raiseException(
-					"In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
-					<< "lowerBoundary_ = " << lowerBoundary_ << "is >= than" << std::endl
-					<< "upperBoundary_ = " << upperBoundary_
-			);
+		   glogger
+		   << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
+         << "lowerBoundary_ = " << lowerBoundary_ << "is >= than" << std::endl
+         << "upperBoundary_ = " << upperBoundary_ << std::endl
+         << GEXCEPTION;
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() || upperBoundary > GConstrainedValueLimitT<T>::highest()) {
-			raiseException(
-					"In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
-					<< "lower and/or upper limit outside of allowed value range:" << std::endl
-					<< "lowerBoundary = " << lowerBoundary << std::endl
-					<< "upperBoundary = " << upperBoundary << std::endl
-					<< "GConstrainedValueLimit<T>::lowest()  = " << GConstrainedValueLimitT<T>::lowest() << std::endl
-					<< "GConstrainedValueLimit<T>::highest() = " << GConstrainedValueLimitT<T>::highest()
-			);
+		   glogger
+		   << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
+         << "lower and/or upper limit outside of allowed value range:" << std::endl
+         << "lowerBoundary = " << lowerBoundary << std::endl
+         << "upperBoundary = " << upperBoundary << std::endl
+         << "GConstrainedValueLimit<T>::lowest()  = " << GConstrainedValueLimitT<T>::lowest() << std::endl
+         << "GConstrainedValueLimit<T>::highest() = " << GConstrainedValueLimitT<T>::highest() << std::endl
+         << GEXCEPTION;
 		}
 	}
 
@@ -166,33 +166,33 @@ public:
 	{
 		// Do some error checking
 		if(lowerBoundary_ >= upperBoundary_) {
-			raiseException(
-					"In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << std::endl
-					<< "lowerBoundary_ = " << lowerBoundary_ << "is >= than" << std::endl
-					<< "upperBoundary_ = " << upperBoundary_
-			);
+		   glogger
+		   << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << std::endl
+         << "lowerBoundary_ = " << lowerBoundary_ << "is >= than" << std::endl
+         << "upperBoundary_ = " << upperBoundary_ << std::endl
+         << GEXCEPTION;
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() || upperBoundary > GConstrainedValueLimitT<T>::highest()) {
-			raiseException(
-					"In GConstrainedNumT<T>::GConstrainedNumT(val, lower,upper):" << std::endl
-					<< "lower and/or upper limit outside of allowed value range:" << std::endl
-					<< "lowerBoundary = " << lowerBoundary << std::endl
-					<< "upperBoundary = " << upperBoundary << std::endl
-					<< "GConstrainedValueLimitT<T>::lowest()  = " << GConstrainedValueLimitT<T>::lowest() << std::endl
-					<< "GConstrainedValueLimitT<T>::highest() = " <<  GConstrainedValueLimitT<T>::highest()
-			);
+		   glogger
+		   << "In GConstrainedNumT<T>::GConstrainedNumT(val, lower,upper):" << std::endl
+		   << "lower and/or upper limit outside of allowed value range:" << std::endl
+         << "lowerBoundary = " << lowerBoundary << std::endl
+         << "upperBoundary = " << upperBoundary << std::endl
+         << "GConstrainedValueLimitT<T>::lowest()  = " << GConstrainedValueLimitT<T>::lowest() << std::endl
+         << "GConstrainedValueLimitT<T>::highest() = " <<  GConstrainedValueLimitT<T>::highest() << std::endl
+         << GEXCEPTION;
 		}
 
 		// Check that the value is inside of the allowed value range
 		if(val < lowerBoundary_ || val > upperBoundary_) {
-			raiseException(
-					"In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << std::endl
-					<< "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-					<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
-					<< "upperBoundary_ = " << upperBoundary_
-			);
+		   glogger
+		   << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << std::endl
+         << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+         << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+         << "upperBoundary_ = " << upperBoundary_ << std::endl
+         << GEXCEPTION;
 		}
 	}
 
@@ -366,33 +366,33 @@ public:
 
 		// Check that the boundaries make sense
 		if(lowerBoundary > upperBoundary) {
-			raiseException(
-					"In GConstrainedNumT<T>::setBoundaries(const T&, const T&)" << std::endl
-					<< "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
-					<< "Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary
-			);
+		   glogger
+		   << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&)" << std::endl
+         << "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
+         << "Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary << std::endl
+         << GEXCEPTION;
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() || upperBoundary > GConstrainedValueLimitT<T>::highest()) {
-			raiseException(
-					"In GConstrainedNumT<T>::setBoundaries(const T&, const T&):" << std::endl
-					<< "lower and/or upper limit outside of allowed value range:" << std::endl
-					<< "lowerBoundary = " << lowerBoundary << std::endl
-					<< "upperBoundary = " << upperBoundary << std::endl
-					<< "GConstrainedValueLimitT<T>::lowest() = " << GConstrainedValueLimitT<T>::lowest() << std::endl
-					<< " GConstrainedValueLimit<T>::highest() = " <<  GConstrainedValueLimitT<T>::highest()
-			);
+		   glogger
+		   << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&):" << std::endl
+         << "lower and/or upper limit outside of allowed value range:" << std::endl
+         << "lowerBoundary = " << lowerBoundary << std::endl
+         << "upperBoundary = " << upperBoundary << std::endl
+         << "GConstrainedValueLimitT<T>::lowest() = " << GConstrainedValueLimitT<T>::lowest() << std::endl
+         << " GConstrainedValueLimit<T>::highest() = " <<  GConstrainedValueLimitT<T>::highest() << std::endl
+         << GEXCEPTION;
 		}
 
 		// Check that the value is inside the allowed range
 		if(currentValue < lowerBoundary || currentValue > upperBoundary){
-			raiseException(
-					"In GConstrainedNumT<T>::setBoundaries(const T&, const T&) :" << std::endl
-					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
-					<< "Attempt to set new boundaries [" << lowerBoundary << ":" << upperBoundary << "]" << std::endl
-					<< "with existing value  " << currentValue << " outside of this range."
-			);
+		   glogger
+		   << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&) :" << std::endl
+         << "with typeid(T).name() = " << typeid(T).name() << std::endl
+         << "Attempt to set new boundaries [" << lowerBoundary << ":" << upperBoundary << "]" << std::endl
+         << "with existing value  " << currentValue << " outside of this range." << std::endl
+         << GEXCEPTION;
 		}
 
 		lowerBoundary_ = lowerBoundary;
@@ -421,12 +421,12 @@ public:
 	virtual void setValue(const T& val)  {
 		// Do some error checking
 		if(val < lowerBoundary_ || val > upperBoundary_) {
-			raiseException(
-					"In GConstrainedNumT<T>::setValue(val):" << std::endl
-					<< "Assigned value = " << val << " is outside of its allowed boundaries: " << std::endl
-					<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
-					<< "upperBoundary_ = " << upperBoundary_
-			);
+		   glogger
+		   << "In GConstrainedNumT<T>::setValue(val):" << std::endl
+         << "Assigned value = " << val << " is outside of its allowed boundaries: " << std::endl
+         << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+         << "upperBoundary_ = " << upperBoundary_ << std::endl
+         << GEXCEPTION;
 		}
 
 		// O.k., assign value
@@ -452,33 +452,33 @@ public:
 
 		// Do the boundaries make sense ?
 		if(lowerBoundary > upperBoundary) {
-			raiseException(
-					"In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
-					<< "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-					<< "upperBoundary_ = " << upperBoundary_
-			);
+		   glogger
+		   << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
+         << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+         << "upperBoundary_ = " << upperBoundary_ << std::endl
+         << GEXCEPTION;
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < GConstrainedValueLimitT<T>::lowest() || upperBoundary > GConstrainedValueLimitT<T>::highest()) {
-			raiseException(
-					"In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
-					<< "lower and/or upper limit outside of allowed value range:" << std::endl
-					<< "lowerBoundary = " << lowerBoundary << std::endl
-					<< "upperBoundary = " << upperBoundary << std::endl
-					<< "GConstrainedValueLimitT<T>::lowest() = " << GConstrainedValueLimitT<T>::lowest() << std::endl
-					<< " GConstrainedValueLimit<T>::highest() = " <<  GConstrainedValueLimitT<T>::highest()
-			);
+		   glogger
+		   << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
+         << "lower and/or upper limit outside of allowed value range:" << std::endl
+         << "lowerBoundary = " << lowerBoundary << std::endl
+         << "upperBoundary = " << upperBoundary << std::endl
+         << "GConstrainedValueLimitT<T>::lowest() = " << GConstrainedValueLimitT<T>::lowest() << std::endl
+         << " GConstrainedValueLimit<T>::highest() = " <<  GConstrainedValueLimitT<T>::highest() << std::endl
+         << GEXCEPTION;
 		}
 
 		// Check that the value is inside of the allowed value range
 		if(val < lowerBoundary || val > upperBoundary) {
-			raiseException(
-					"In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
-					<< "Assigned value = " << val << " is outside of its allowed boundaries: " << std::endl
-					<< "lowerBoundary  = " << lowerBoundary << std::endl
-					<< "upperBoundary  = " << upperBoundary
-			);
+		   glogger
+		   << "In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
+         << "Assigned value = " << val << " is outside of its allowed boundaries: " << std::endl
+         << "lowerBoundary  = " << lowerBoundary << std::endl
+         << "upperBoundary  = " << upperBoundary << std::endl
+         << GEXCEPTION;
 		}
 
 		// O.k., assign the boundaries

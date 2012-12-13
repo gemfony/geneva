@@ -250,13 +250,13 @@ public:
 		// Sigma1 must be in the allowed value range
 		if(sigma1 < minSigma1_ || sigma1 > maxSigma1_)
 		{
-			raiseException(
-					"In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma1(const fp_type&):" << std::endl
-					<< "sigma1 is not in the allowed range: " << std::endl
-					<< minSigma1_ << " <= " << sigma1 << " < " << maxSigma1_ << std::endl
-					<< "If you want to use these values you need to" << std::endl
-					<< "adapt the allowed range first."
-			);
+		   glogger
+		   << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma1(const fp_type&):" << std::endl
+         << "sigma1 is not in the allowed range: " << std::endl
+         << minSigma1_ << " <= " << sigma1 << " < " << maxSigma1_ << std::endl
+         << "If you want to use these values you need to" << std::endl
+         << "adapt the allowed range first." << std::endl
+         << GEXCEPTION;
 		}
 
 		sigma1_ = sigma1;
@@ -291,11 +291,11 @@ public:
 
 		// Do some error checks
 		if(tmpMinSigma1<=0. || tmpMinSigma1 >= maxSigma1){
-			raiseException(
-					"In GNumBiGaussAdaptorT::setSigma1Range(const fp_type&, const fp_type&):" << std::endl
-					<< "Invalid values for minSigma1 and maxSigma1 given:" << std::endl
-					<< tmpMinSigma1 << "," << maxSigma1
-			);
+		   glogger
+		   << "In GNumBiGaussAdaptorT::setSigma1Range(const fp_type&, const fp_type&):" << std::endl
+         << "Invalid values for minSigma1 and maxSigma1 given:" << std::endl
+         << tmpMinSigma1 << "," << maxSigma1 << std::endl
+         << GEXCEPTION;
 		} // maxSigma1 will automatically be > 0. now
 
 		minSigma1_ = tmpMinSigma1;
@@ -370,13 +370,13 @@ public:
 		// Sigma1 must be in the allowed value range
 		if(sigma2 < minSigma2_ || sigma2 > maxSigma2_)
 		{
-			raiseException(
-					"In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma2(const fp_type&):" << std::endl
-					<< "sigma2 is not in the allowed range: " << std::endl
-					<< minSigma2_ << " <= " << sigma2 << " < " << maxSigma2_ << std::endl
-					<< "If you want to use these values you need to" << std::endl
-					<< "adapt the allowed range first."
-			);
+		   glogger
+		   << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma2(const fp_type&):" << std::endl
+		   << "sigma2 is not in the allowed range: " << std::endl
+         << minSigma2_ << " <= " << sigma2 << " < " << maxSigma2_ << std::endl
+         << "If you want to use these values you need to" << std::endl
+         << "adapt the allowed range first." << std::endl
+         << GEXCEPTION;
 		}
 
 		sigma2_ = sigma2;
@@ -411,11 +411,11 @@ public:
 
 		// Do some error checks
 		if(tmpMinSigma2<=0. || tmpMinSigma2 >= maxSigma2){
-			raiseException(
-					"In GNumBiGaussAdaptorT::setSigma2Range(const fp_type&, const fp_type&):" << std::endl
-					<< "Invalid values for minSigma2 and maxSigma2 given:" << std::endl
-					<< tmpMinSigma2 << "," << maxSigma2
-			);
+		   glogger
+		   << "In GNumBiGaussAdaptorT::setSigma2Range(const fp_type&, const fp_type&):" << std::endl
+         << "Invalid values for minSigma2 and maxSigma2 given:" << std::endl
+         << tmpMinSigma2 << "," << maxSigma2 << std::endl
+         << GEXCEPTION;
 		} // maxSigma1 will automatically be > 0. now
 
 		minSigma2_ = tmpMinSigma2;
@@ -489,13 +489,13 @@ public:
 		// Delta must be in the allowed value range
 		if(delta < minDelta_ || delta > maxDelta_)
 		{
-			raiseException(
-					"In GNumBiGaussAdaptorT::setDelta(const fp_type&):" << std::endl
-					<< "delta is not in the allowed range: " << std::endl
-					<< minDelta_ << " <= " << delta << " < " << maxDelta_ << std::endl
-					<< "If you want to use these values you need to" << std::endl
-					<< "adapt the allowed range first."
-			);
+		   glogger
+		   << "In GNumBiGaussAdaptorT::setDelta(const fp_type&):" << std::endl
+         << "delta is not in the allowed range: " << std::endl
+         << minDelta_ << " <= " << delta << " < " << maxDelta_ << std::endl
+         << "If you want to use these values you need to" << std::endl
+         << "adapt the allowed range first." << std::endl
+         << GEXCEPTION;
 		}
 
 		delta_ = delta;
@@ -531,11 +531,11 @@ public:
 
 		// Do some error checks
 		if(tmpMinDelta<0. || tmpMinDelta >= maxDelta){
-			raiseException(
-					"In GNumBiGaussAdaptorT<num_type, fp_type>::setDeltaRange(const fp_type&, const fp_type&):" << std::endl
-					<< "Invalid values for minDelta and maxDelta given:" << std::endl
-					<< tmpMinDelta << "," << maxDelta
-			);
+		   glogger
+		   << "In GNumBiGaussAdaptorT<num_type, fp_type>::setDeltaRange(const fp_type&, const fp_type&):" << std::endl
+		   << "Invalid values for minDelta and maxDelta given:" << std::endl
+         << tmpMinDelta << "," << maxDelta << std::endl
+         << GEXCEPTION;
 		} // maxDelta will automatically be > 0. now
 
 		minDelta_ = tmpMinDelta;

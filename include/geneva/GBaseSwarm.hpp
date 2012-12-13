@@ -228,6 +228,9 @@ public:
 		   glogger
 		   << "In GBaseSwarm::getBestNeighborhoodIndividual<>() : Conversion error" << std::endl
 		   << GEXCEPTION;
+
+		   // Make the compiler happy
+		   return boost::shared_ptr<parameterset_type>();
 		}
 #else
 		return boost::static_pointer_cast<parameterset_type>(neighborhood_bests_[neighborhood]);

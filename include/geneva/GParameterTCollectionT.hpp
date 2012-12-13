@@ -326,10 +326,10 @@ public:
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
-			raiseException(
-					"In GParameterTCollectionT<T>::fpAdd():" << std::endl
-					<< "Collections have different sizes: " << this->size() << " " << p->size()
-			);
+		   glogger
+		   << "In GParameterTCollectionT<T>::fpAdd():" << std::endl
+         << "Collections have different sizes: " << this->size() << " " << p->size() << std::endl
+         << GEXCEPTION;
 		}
 
 		// Call fpAdd on all objects stored in this collection
@@ -358,10 +358,10 @@ public:
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
-			raiseException(
-					"In GParameterTCollectionT<T>::fpSubtract():" << std::endl
-					<< "Collections have different sizes: " << this->size() << " " << p->size()
-			);
+		   glogger
+		   << "In GParameterTCollectionT<T>::fpSubtract():" << std::endl
+         << "Collections have different sizes: " << this->size() << " " << p->size() << std::endl
+         << GEXCEPTION;
 		}
 
 		// Call fpAdd on all objects stored in this collection
@@ -600,10 +600,10 @@ public:
 	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
 		// Do some error checking
 		if(!gr_cp) {
-			raiseException(
-					"In GParameterTCollectionT<T>::assignGRandomPointer():" << std::endl
-					<< "Tried to assign a NULL pointer"
-			);
+		   glogger
+		   << "In GParameterTCollectionT<T>::assignGRandomPointer():" << std::endl
+         << "Tried to assign a NULL pointer" << std::endl
+         << GEXCEPTION;
 		}
 
 		// Assign the foreign pointer to all objects stored in this collection

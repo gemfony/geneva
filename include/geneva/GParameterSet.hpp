@@ -48,6 +48,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GParameterBase.hpp"
@@ -62,8 +63,8 @@
 #include "geneva/GInt32Collection.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
 #include "hap/GRandomT.hpp"
-#endif /* GEM_TESTING */
 
+#endif /* GEM_TESTING */
 
 namespace Gem {
 
@@ -193,9 +194,12 @@ public:
 		if(p) {
 		   return p;
 		} else {
-			raiseException(
-					"In GParameterSet::at<>() : Conversion error"
-			);
+		   glogger
+		   << "In GParameterSet::at<>() : Conversion error" << std::endl
+		   << GEXCEPTION;
+
+		   // Make the compiler happy
+		   return boost::shared_ptr<par_type>();
 		}
 #else
 		return boost::static_pointer_cast<par_type>(data[pos]);
@@ -299,10 +303,10 @@ public:
 	void assignValueVector(const std::vector<par_type>& parVec) {
 #ifdef DEBUG
 		if(countParameters<par_type>() != parVec.size()) {
-			raiseException(
-					"In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << std::endl
-					<< "Sizes don't match: " <<  countParameters<par_type>() << " / " << parVec.size()
-			);
+		   glogger
+		   << "In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << std::endl
+         << "Sizes don't match: " <<  countParameters<par_type>() << " / " << parVec.size() << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 

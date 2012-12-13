@@ -243,6 +243,9 @@ public:
          glogger
          << "In GBaseEA::getParentIndividual<>(): Conversion error" << std::endl
          << GEXCEPTION;
+
+         // Make the compiler happy
+         return boost::shared_ptr<individual_type>();
       }
 #else
       return boost::static_pointer_cast<individual_type>(*(this->begin() + parentId));
@@ -298,6 +301,9 @@ public:
          glogger
          << "In GBaseEA::getOldParentIndividual<>() : Conversion error" << std::endl
          << GEXCEPTION;
+
+         // Make the compiler happy
+         return boost::shared_ptr<individual_type>();
       }
 #else
       return boost::static_pointer_cast<individual_type>(*(oldParents_.begin() + parentId));

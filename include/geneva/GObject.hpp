@@ -267,7 +267,11 @@ public:
 		else {
 		   glogger
 		   << "In boost::shared_ptr<clone_type> GObject::clone<load_type>() :" << std::endl
-         << "Invalid conversion" << GEXCEPTION;
+         << "Invalid conversion" << std::endl
+         << GEXCEPTION;
+
+		   // Make the compiler happy
+		   return boost::shared_ptr<clone_type>();
 		}
 #else
 		return boost::static_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
@@ -306,7 +310,8 @@ protected:
 		if (load_ptr == this) {
 			glogger
 			<< "In GObject::selfAssignmentCheck<load_type>() :" << std::endl
-			<< "Tried to assign an object to or compare with itself." << GEXCEPTION;
+			<< "Tried to assign an object to or compare with itself." << std::endl
+			<< GEXCEPTION;
 		}
 #endif
 	}
@@ -335,7 +340,11 @@ protected:
 		else {
 		   glogger
 		   << "In const GObject* GObject::gobject_conversion<load_type>() :" << std::endl
-		   << "Invalid conversion to type with type name " << typeid(load_type).name() << std::endl << GEXCEPTION;
+		   << "Invalid conversion to type with type name " << typeid(load_type).name() << std::endl
+		   << GEXCEPTION;
+
+		   // Make the compiler happy
+		   return (load_type *)NULL;
 		}
 #else
 		return static_cast<const load_type *>(load_ptr);
@@ -371,7 +380,8 @@ protected:
 		else {
 		   glogger
 		   << "In boost::shared_ptr<load_type> GObject::gobject_conversion<load_type>() :" << std::endl
-		   << "Invalid conversion" << GEXCEPTION;
+		   << "Invalid conversion" << std::endl
+		   << GEXCEPTION;
 		}
 #else
 		return boost::static_pointer_cast<load_type>(load_ptr);

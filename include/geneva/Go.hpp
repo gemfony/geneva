@@ -368,10 +368,10 @@ public:
 #ifdef DEBUG
 		// Check that bestIndividual_ actually points somewhere
 		if(!bestIndividual_) {
-			raiseException(
-					"In Go::getBestIndividual<>() : Error" << std::endl
-					<< "Tried to access uninitialized best individual."
-			);
+		   glogger
+		   << "In Go::getBestIndividual<>() : Error" << std::endl
+         << "Tried to access uninitialized best individual." << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -398,11 +398,11 @@ public:
 
 		// We need at least one individual to start with
 		if(this->empty()) {
-			raiseException(
-					"In Go::optimize():" << std::endl
-					<< "You need to register at least one individual." << std::endl
-					<< "Found none."
-			);
+		   glogger
+		   << "In Go::optimize():" << std::endl
+         << "You need to register at least one individual." << std::endl
+         << "Found none." << std::endl
+         << GEXCEPTION;
 		}
 
 		// Which algorithm are we supposed to use ?
@@ -421,10 +421,10 @@ public:
 
 		case PERSONALITY_NONE:
 			{
-				raiseException(
-						"In Go::optimize():" << std::endl
-						<< "No optimization algorithm was specified."
-				);
+			   glogger
+			   << "In Go::optimize():" << std::endl
+            << "No optimization algorithm was specified." << std::endl
+            << GEXCEPTION;
 			}
 			break;
 		};
@@ -445,10 +445,10 @@ public:
 	static void writeConfigurationFile(const std::string& configFile) {
 		std::ofstream cf(configFile.c_str());
 		if(!cf) {
-			raiseException(
-					"In Go::writeConfigurationFile() :" << std::endl
-					<< "Could not open output file " << configFile
-			);
+		   glogger
+		   << "In Go::writeConfigurationFile() :" << std::endl
+         << "Could not open output file " << configFile << std::endl
+         << GEXCEPTION;
 		}
 
 		cf << "################################################################" << std::endl

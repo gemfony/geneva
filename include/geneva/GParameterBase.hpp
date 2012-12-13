@@ -137,10 +137,10 @@ public:
 	template <typename par_type>
 	void streamline(std::vector<par_type>& parVec) const
 	{
-		raiseException(
-				"In GParameterBase::streamline(std::vector<>&)" << std::endl
-				<< "Function called for unsupported type!"
-		);
+	   glogger
+	   << "In GParameterBase::streamline(std::vector<>&)" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
 	}
 
 	/***************************************************************************/
@@ -167,10 +167,10 @@ public:
 			std::vector<par_type>& lBndVec
 			, std::vector<par_type>& uBndVec
 	) const	{
-		raiseException(
-				"In GParameterBase::boundaries(std::vector<>&)" << std::endl
-				<< "Function called for unsupported type!"
-		);
+	   glogger
+	   << "In GParameterBase::boundaries(std::vector<>&)" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
 	}
 
 	/***************************************************************************/
@@ -194,10 +194,13 @@ public:
 	template <typename par_type>
 	std::size_t countParameters() const
 	{
-		raiseException(
-				"In GParameterBase::countParameters()" << std::endl
-				<< "Function called for unsupported type!"
-		);
+	   glogger
+	   << "In GParameterBase::countParameters()" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
+
+	   // Make the compiler happy
+	   return (std::size_t)0;
 	}
 
 	/***************************************************************************/
@@ -223,10 +226,10 @@ public:
 	template <typename par_type>
 	void assignValueVector(const std::vector<par_type>& parVec, std::size_t& pos)
 	{
-		raiseException(
-				"In GParameterBase::assignValueVector()" << std::endl
-				<< "Function called for unsupported type!"
-		);
+	   glogger
+	   << "In GParameterBase::assignValueVector()" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
 	}
 
 	/***************************************************************************/
@@ -287,10 +290,13 @@ public:
 		boost::shared_ptr<load_type> p = boost::dynamic_pointer_cast<load_type>(load_ptr);
 		if(p) return p;
 		else {
-			raiseException(
-					"In boost::shared_ptr<load_type> GParameterBase::gobject_conversion<load_type>() :" << std::endl
-					<< "Invalid conversion"
-			);
+		   glogger
+		   << "In boost::shared_ptr<load_type> GParameterBase::gobject_conversion<load_type>() :" << std::endl
+         << "Invalid conversion" << std::endl
+         << GEXCEPTION;
+
+		   // Make the compiler happy
+		   return boost::shared_ptr<load_type>();
 		}
 #else
 		return boost::static_pointer_cast<load_type>(load_ptr);

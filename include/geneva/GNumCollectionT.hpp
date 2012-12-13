@@ -246,12 +246,12 @@ public:
 	) {
 		// Do some error checking
 		if(lowerInitBoundary >= upperInitBoundary) {
-			raiseException(
-					"In GNumCollectionT<T>::setInitBoundaries():" << std::endl
-					<< "Invalid boundaries provided: " << std::endl
-					<< "lowerInitBoundary = " << lowerInitBoundary << std::endl
-					<< "upperInitBoundary = " << upperInitBoundary
-			);
+		   glogger
+		   << "In GNumCollectionT<T>::setInitBoundaries():" << std::endl
+         << "Invalid boundaries provided: " << std::endl
+         << "lowerInitBoundary = " << lowerInitBoundary << std::endl
+         << "upperInitBoundary = " << upperInitBoundary << std::endl
+         << GEXCEPTION;
 		}
 
 		lowerInitBoundary_ = lowerInitBoundary;

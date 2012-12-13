@@ -76,6 +76,7 @@
 
 // Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GLogger.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GObjectExpectationChecksT.hpp"
 
@@ -308,10 +309,10 @@ public:
 	template <typename item_type>
 	size_type count(const boost::shared_ptr<item_type>& item) const {
 		if(!item) { // Check that item actually contains something useful
-			raiseException(
-					"In GParameterTCollectionT<T>::count(item):"
-					<< "Tried to count an empty smart pointer."
-			);
+		   glogger
+		   << "In GParameterTCollectionT<T>::count(item):"
+		   << "Tried to count an empty smart pointer." << std::endl
+		   << GEXCEPTION;
 		}
 
 		if(typeid(item_type) == typeid(T)) {
@@ -337,10 +338,10 @@ public:
 	template <typename item_type>
 	const_iterator find(const boost::shared_ptr<item_type>& item) const {
 		if(!item) { // Check that item actually contains something useful
-			raiseException(
-					"In GParameterTCollectionT<T>::find(item):"
-					<< "Tried to find an empty smart pointer."
-			);
+		   glogger
+		   << "In GParameterTCollectionT<T>::find(item):"
+         << "Tried to find an empty smart pointer." << std::endl
+         << GEXCEPTION;
 		}
 
 		if(typeid(item_type) == typeid(T)) {
@@ -429,10 +430,10 @@ public:
 	 */
 	iterator insert_noclone(iterator pos, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
-			raiseException(
-					"In GParameterTCollectionT<T>::insert_noclone(pos, item_ptr):"
-					<< "Tried to insert an empty smart pointer."
-			);
+		   glogger
+		   << "In GParameterTCollectionT<T>::insert_noclone(pos, item_ptr):"
+         << "Tried to insert an empty smart pointer." << std::endl
+         << GEXCEPTION;
 		}
 
 		return data.insert(pos, item_ptr);
@@ -455,10 +456,10 @@ public:
 	 */
 	iterator insert_clone(iterator pos, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
-			raiseException(
-					"In GParameterTCollectionT<T>::insert_clone(pos, item_ptr):"
-					<< "Tried to insert an empty smart pointer."
-			);
+		   glogger
+		   << "In GParameterTCollectionT<T>::insert_clone(pos, item_ptr):"
+         << "Tried to insert an empty smart pointer." << std::endl
+         << GEXCEPTION;
 		}
 
 		return data.insert(pos, item_ptr->GObject::template clone<T>());
@@ -498,10 +499,10 @@ public:
 	 */
 	void insert_clone(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
-			raiseException(
-					"In GParameterTCollectionT<T>::insert_clone(pos, amount, item):"
-					<< "Tried to insert an empty smart pointer."
-			);
+		   glogger
+		   << "In GParameterTCollectionT<T>::insert_clone(pos, amount, item):" << std::endl
+         << "Tried to insert an empty smart pointer." << std::endl
+         << GEXCEPTION;
 		}
 
 		std::size_t iterator_pos = pos - data.begin();
@@ -529,10 +530,10 @@ public:
 	 */
 	void insert_noclone(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
-			raiseException(
-					"In GParameterTCollectionT<T>::insert_noclone(pos, amount, item):"
-					<< "Tried to insert an empty smart pointer."
-			);
+		   glogger
+		   << "In GParameterTCollectionT<T>::insert_noclone(pos, amount, item):" << std::endl
+         << "Tried to insert an empty smart pointer." << std::endl
+         << GEXCEPTION;
  		}
 
 		std::size_t iterator_pos = pos - data.begin();
@@ -577,10 +578,10 @@ public:
 	 */
 	void push_back_noclone(boost::shared_ptr<T> item_ptr){
 		if(!item_ptr) { // Check that item actually contains something useful
-			raiseException(
-					"In GParameterTCollectionT<T>::push_back(item):"
-					<< "Tried to insert an empty smart pointer."
-			);
+		   glogger
+		   << "In GParameterTCollectionT<T>::push_back(item):" << std::endl
+         << "Tried to insert an empty smart pointer." << std::endl
+         << GEXCEPTION;
 		}
 
 		data.push_back(item_ptr);
@@ -602,10 +603,10 @@ public:
 	 */
 	void push_back_clone(boost::shared_ptr<T> item_ptr){
 		if(!item_ptr) { // Check that item actually contains something useful
-			raiseException(
-					"In GStdPtrVectorInterface<T>::push_back_clone(item):"
-					<< "Tried to insert an empty smart pointer."
-			);
+		   glogger
+		   << "In GStdPtrVectorInterface<T>::push_back_clone(item):" << std::endl
+         << "Tried to insert an empty smart pointer." << std::endl
+         << GEXCEPTION;
 		}
 
 		data.push_back(item_ptr->GObject::template clone<T>());
@@ -631,12 +632,12 @@ public:
 	 */
 	void resize(size_type amount) {
 		if(this->empty() && amount != 0) {
-			raiseException(
-					"In GStdPtrVectorInterface<T>::resize(size_type):"
-					<< "Tried to increase the size even though the vector is empty." << std::endl
-					<< "Use a resize-version that allows you to specify the objects" << std::endl
-					<< "to be added."
-			);
+		   glogger
+		   << "In GStdPtrVectorInterface<T>::resize(size_type):" << std::endl
+         << "Tried to increase the size even though the vector is empty." << std::endl
+         << "Use a resize-version that allows you to specify the objects" << std::endl
+         << "to be added." << std::endl
+         << GEXCEPTION;
 		}
 
 		this->resize_clone(amount, this->at(0));
@@ -684,10 +685,10 @@ public:
 		else if(amount > dataSize) {
 			// Check that item is not empty
 			if(!item_ptr) { // Check that item actually contains something useful
-				raiseException(
-						"In GParameterTCollectionT<T>::resize(amount, item):"
-						<< "Tried to insert an empty smart pointer."
-				);
+			   glogger
+			   << "In GParameterTCollectionT<T>::resize(amount, item):" << std::endl
+            << "Tried to insert an empty smart pointer." << std::endl
+            << GEXCEPTION;
 			}
 
 			// Create a (amount - dataSize -1) clones
@@ -723,10 +724,10 @@ public:
 		else if(amount > dataSize) {
 			// Check that item is not empty
 			if(!item_ptr) { // Check that item actually contains something useful
-				raiseException(
-						"In GParameterTCollectionT<T>::resize(amount, item):"
-						<< "Tried to insert an empty smart pointer."
-				);
+			   glogger
+			   << "In GParameterTCollectionT<T>::resize(amount, item):" << std::endl
+			   << "Tried to insert an empty smart pointer." << std::endl
+			   << GEXCEPTION;
 			}
 
 			for(std::size_t i=dataSize; i<amount; i++) {
@@ -775,10 +776,10 @@ public:
 #ifdef DEBUG
 		// Do some error checking
 		if(pos >= minSize) {
-			raiseException(
-				"In GStdPtrVectorInterfaceT::crossOver(cp,pos): Error!" << std::endl
-				<< "Invalid position " << pos << " / " << this->size() << " / " << cp.size() << std::endl
-			);
+		   glogger
+		   << "In GStdPtrVectorInterfaceT::crossOver(cp,pos): Error!" << std::endl
+         << "Invalid position " << pos << " / " << this->size() << " / " << cp.size() << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -909,18 +910,19 @@ public:
 		boost::shared_ptr<derivedType> dereference() const {
 #ifdef DEBUG
 			if(current_ == end_) {
-				raiseException(
-						"In conversion_iterator::dereference(): Error:" << std::endl
-						<< "current position at end of sequence"
-				);
+			   glogger
+			   << "In conversion_iterator::dereference(): Error:" << std::endl
+            << "current position at end of sequence" << std::endl
+            << GEXCEPTION;
 			}
 
 			if(p) return p;
 			else {
-				raiseException(
-						"In conversion_iterator::dereference(): Error: empty pointer"
-				);
-				return boost::shared_ptr<derivedType>(); // Make the compiler happy / empty pointer
+			   glogger
+			   << "In conversion_iterator::dereference(): Error: empty pointer" << std::endl
+			   << GEXCEPTION;
+
+			   return boost::shared_ptr<derivedType>(); // Make the compiler happy / empty pointer
 			}
 #else
 			return p;
@@ -978,9 +980,9 @@ protected:
 				result = (*item == *(boost::dynamic_pointer_cast<item_type>(cont_item)));
 			}
 			catch(...) {
-				raiseException(
-						"Unknown error in bool vi_equal_to::operator()"
-				);
+			   glogger
+			   << "Unknown error in bool vi_equal_to::operator()" << std::endl
+			   << GEXCEPTION;
 			}
 #else
 			result = (*item == *(boost::static_pointer_cast<item_type>(cont_item)));

@@ -75,6 +75,7 @@
 // Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -391,10 +392,10 @@ public:
 #ifdef DEBUG
 		// Do some error checking
 		if(pos >= minSize) {
-			raiseException(
-				"In GStdSimpleVectorInterfaceT::crossOver(cp,pos): Error!" << std::endl
-				<< "Invalid position " << pos << " / " << this->size() << " / " << cp.size() << std::endl
-			);
+		   glogger
+         << "In GStdSimpleVectorInterfaceT::crossOver(cp,pos): Error!" << std::endl
+         << "Invalid position " << pos << " / " << this->size() << " / " << cp.size() << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 

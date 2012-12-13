@@ -148,10 +148,10 @@ public:
 
 		// Cross check that we indeed got a valid set of individuals
 		if(bestBaseIndividuals.empty()) {
-			raiseException(
-				"In GOptimizableI::getBestIndividuals(): Error!" << std::endl
-				<< "Received empty collection of best individuals." << std::endl
-			);
+		   glogger
+		   << "In GOptimizableI::getBestIndividuals(): Error!" << std::endl
+         << "Received empty collection of best individuals." << std::endl
+         << GEXCEPTION;
 		}
 
 		for(it=bestBaseIndividuals.begin(); it!=bestBaseIndividuals.end(); ++it) {

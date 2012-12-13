@@ -264,10 +264,10 @@ public:
 
 		// Do some error checking
 		if(this->size() != p->size()) {
-			raiseException(
-					"In GFPNumCollectionT<fp_type>::fpAdd():" << std::endl
-					<< "Collection sizes don't match: " << this->size() << " " << p->size()
-			);
+		   glogger
+		   << "In GFPNumCollectionT<fp_type>::fpAdd():" << std::endl
+         << "Collection sizes don't match: " << this->size() << " " << p->size() << std::endl
+         << GEXCEPTION;
 		}
 
 		typename GFPNumCollectionT<fp_type>::iterator it, it_p;
@@ -294,10 +294,10 @@ public:
 
 		// Do some error checking
 		if(this->size() != p->size()) {
-			raiseException(
-					"In GFPNumCollectionT<fp_type>::fpSubtract():" << std::endl
-					<< "Collection sizes don't match: " << this->size() << " " << p->size()
-			);
+		   glogger
+		   << "In GFPNumCollectionT<fp_type>::fpSubtract():" << std::endl
+         << "Collection sizes don't match: " << this->size() << " " << p->size() << std::endl
+         << GEXCEPTION;
 		}
 
 		typename GFPNumCollectionT<fp_type>::iterator it, it_p;

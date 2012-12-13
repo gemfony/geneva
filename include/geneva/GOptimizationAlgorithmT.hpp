@@ -229,17 +229,17 @@ public:
 	void setCheckpointBaseName(std::string cpDirectory, std::string cpBaseName) {
 		// Do some basic checks
 		if(cpBaseName == "empty" || cpBaseName.empty()) {
-			raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
-					<< "Error: Invalid cpBaseName: " << cpBaseName
-			);
+		   glogger
+		   << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+         << "Error: Invalid cpBaseName: " << cpBaseName << std::endl
+         << GEXCEPTION;
 		}
 
 		if(cpDirectory == "empty" || cpDirectory.empty()) {
-			raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
-					<< "Error: Invalid cpDirectory: " << cpDirectory << std::endl
-			);
+		   glogger
+		   << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+         << "Error: Invalid cpDirectory: " << cpDirectory << std::endl
+         << GEXCEPTION;
 		}
 
 		cpBaseName_ = cpBaseName;
@@ -251,16 +251,16 @@ public:
 				<< "Directory " << cpDirectory << " does not exist and will be created automatically." << std::endl;
 
 			if(!boost::filesystem::create_directory(cpDirectory)) {
-				raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Error!" << std::endl
-					<< "Could not create directory " << cpDirectory << std::endl
-				);
+			   glogger
+			   << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Error!" << std::endl
+            << "Could not create directory " << cpDirectory << std::endl
+            << GEXCEPTION;
 			}
 		} else if(!boost::filesystem::is_directory(cpDirectory)) {
-			raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Error!" << std::endl
-					<< cpDirectory << " exists but is no directory." << std::endl
-			);
+		   glogger
+		   << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Error!" << std::endl
+         << cpDirectory << " exists but is no directory." << std::endl
+         << GEXCEPTION;
 		}
 
 		// Add a trailing slash to the directory name, if necessary
@@ -402,10 +402,10 @@ public:
 	virtual void optimize(const boost::uint32_t& offset) {
 		// Check that we are dealing with an "authorized" optimization algorithm
 		if(this->getOptimizationAlgorithm() == PERSONALITY_NONE) {
-			raiseException(
-					"In GOptimizationAlgorithmT<T>::optimize():" << std::endl
-					<< "The id of the optimization algorithm hasn't been set."
-			);
+		   glogger
+		   << "In GOptimizationAlgorithmT<T>::optimize():" << std::endl
+         << "The id of the optimization algorithm hasn't been set." << std::endl
+         << GEXCEPTION;
 		}
 
 		// Reset the generation counter
@@ -505,10 +505,10 @@ public:
 	virtual void doInfo(const infoMode& im) {
 #ifdef DEBUG
 		if(!optimizationMonitor_ptr_) {
-			raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::doInfo():" << std::endl
-					<< "optimizationMonitor_ptr_ is empty when it shouldn't be."
-			);
+		   glogger
+		   << "In GOptimizationAlgorithmT<ind_type>::doInfo():" << std::endl
+         << "optimizationMonitor_ptr_ is empty when it shouldn't be." << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -538,10 +538,10 @@ public:
 	void registerOptimizationMonitor(boost::shared_ptr<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> om_ptr) {
 #ifdef DEBUG
 		if(!om_ptr) {
-			raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::registerOptimizationMonitor():" << std::endl
-					<< "om_ptr is empty when it shouldn't be."
-			);
+		   glogger
+		   << "In GOptimizationAlgorithmT<ind_type>::registerOptimizationMonitor():" << std::endl
+         << "om_ptr is empty when it shouldn't be." << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -623,10 +623,10 @@ public:
 
 		// Only allow "real" values
 		if(maxDuration.is_special() || maxDuration.is_negative()) {
-			raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::setMaxTime() :" << std::endl
-					<< "Invalid maxDuration."
-			);
+		   glogger
+		   << "In GOptimizationAlgorithmT<ind_type>::setMaxTime() :" << std::endl
+         << "Invalid maxDuration." << std::endl
+         << GEXCEPTION;
 		}
 
 		maxDuration_ = maxDuration;
@@ -797,19 +797,22 @@ public:
 	) {
 #ifdef DEBUG
 		if(pos >= this->size()) {
-			raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Error" << std::endl
-					<< "Tried to access position " << pos << " which is >= array size " << this->size()
-			);
+		   glogger
+		   << "In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Error" << std::endl
+         << "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl
+         << GEXCEPTION;
 		}
 
 		boost::shared_ptr<target_type> p = boost::dynamic_pointer_cast<target_type>(this->at(pos));
 
 		if(p) return p;
 		else {
-			raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Conversion error"
-			);
+		   glogger
+		   << "In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Conversion error" << std::endl
+		   << GEXCEPTION;
+
+		   // Make the compiler happy
+		   return boost::shared_ptr<target_type>();
 		}
 #else
 		return boost::static_pointer_cast<target_type>((*this)[pos]);
@@ -1140,10 +1143,10 @@ protected:
 		// is this the current fitness ? We should at this stage never
 		// run across an unevaluated individual.
 		if(dirty) {
-			raiseException(
-					"In GOptimizationAlgorithmT<ind_type>::fitnessCalculation():" << std::endl
-					<< "Came across dirty individual"
-			);
+		   glogger
+		   << "In GOptimizationAlgorithmT<ind_type>::fitnessCalculation():" << std::endl
+         << "Came across dirty individual" << std::endl
+         << GEXCEPTION;
 		}
 		return val;
 	}
@@ -1453,21 +1456,21 @@ private:
 	void setLocalMaxMode() {
 		// Do some error checking
 		if(this->empty()) {
-			raiseException(
-					"In GOptimizationAlgorithmT::setLocalMaxMode():" << std::endl
-					<< "There should at least be one individual present at this stage." << std::endl
-					<< "Found none."
-			);
+		   glogger
+		   << "In GOptimizationAlgorithmT::setLocalMaxMode():" << std::endl
+         << "There should at least be one individual present at this stage." << std::endl
+         << "Found none." << std::endl
+         << GEXCEPTION;
 		}
 
 		bool localMaxMode = this->at(0)->getMaxMode();
 		for(std::size_t i=1; i<this->size(); i++) {
 			if(this->at(i)->getMaxMode() != localMaxMode) {
-				raiseException(
-						"In GOptimizationAlgorithmT::setLocalMaxMode():" << std::endl
-						<< "Found individual with maximization mode " << this->at(i)->getMaxMode() << " in position " << i << std::endl
-						<< "where " << localMaxMode << " was expected."
-				);
+			   glogger
+			   << "In GOptimizationAlgorithmT::setLocalMaxMode():" << std::endl
+            << "Found individual with maximization mode " << this->at(i)->getMaxMode() << " in position " << i << std::endl
+            << "where " << localMaxMode << " was expected." << std::endl
+            << GEXCEPTION;
 			}
 		}
 
@@ -1719,10 +1722,10 @@ public:
             std::ofstream summary;
             summary.open(resultFile_.c_str()); // Will overwrite the file
 	    		if(!summary) {
-	    			raiseException(
-	    					"In GOptimizationMonitorT<T>::informationFunction():" << std::endl
-	    					<< "Could not open output file \"" << resultFile_ << "\""
-	    			);
+	    		   glogger
+	    		   << "In GOptimizationMonitorT<T>::informationFunction():" << std::endl
+               << "Could not open output file \"" << resultFile_ << "\"" << std::endl
+               << GEXCEPTION;
 	    		}
 
 	    		// Emit the header and perform any necessary initialization work
@@ -1759,9 +1762,9 @@ public:
 
 	    	default:
 	    	{
-	    		raiseException(
-	    				"Received invalid infoMode " << im << std::endl
-	    		);
+	    	   glogger
+	    	   << "Received invalid infoMode " << im << std::endl
+	    	   << GEXCEPTION;
 	    	}
 	    	break;
 	    	};

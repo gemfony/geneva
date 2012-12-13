@@ -321,10 +321,10 @@ public:
 #ifdef DEBUG
 		// Cross-check that the sizes match
 		if(this->size() != p->size()) {
-			raiseException(
-					"In GConstrainedFPNumCollectionT<fp_type>::fpAdd():" << std::endl
-					<< "Sizes of vectors don't match: " << this->size() << "/" << p->size()
-			);
+		   glogger
+		   << "In GConstrainedFPNumCollectionT<fp_type>::fpAdd():" << std::endl
+         << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+         << GEXCEPTION;
 		}
 #endif
 
@@ -353,10 +353,10 @@ public:
 #ifdef DEBUG
 		// Cross-check that the sizes match
 		if(this->size() != p->size()) {
-			raiseException(
-					"In GConstrainedFPNumCollectionT<fp_type>::fpAdd():" << std::endl
-					<< "Sizes of vectors don't match: " << this->size() << "/" << p->size()
-			);
+		   glogger
+		   << "In GConstrainedFPNumCollectionT<fp_type>::fpAdd():" << std::endl
+         << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+         << GEXCEPTION;
 		}
 #endif
 

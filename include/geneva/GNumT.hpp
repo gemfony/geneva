@@ -228,12 +228,12 @@ public:
 	void setInitBoundaries(const T& lowerInitBoundary, const T& upperInitBoundary) {
 		// Do some error checking
 		if(lowerInitBoundary >= upperInitBoundary) {
-			raiseException(
-					"In GNumT<T>::setInitBoundaries():" << std::endl
-					<< "Invalid boundaries provided: " << std::endl
-					<< "lowerInitBoundary = " << lowerInitBoundary << std::endl
-					<< "upperInitBoundary = " << upperInitBoundary
-			);
+		   glogger
+		   << "In GNumT<T>::setInitBoundaries():" << std::endl
+         << "Invalid boundaries provided: " << std::endl
+         << "lowerInitBoundary = " << lowerInitBoundary << std::endl
+         << "upperInitBoundary = " << upperInitBoundary << std::endl
+         << GEXCEPTION;
 		}
 
 		lowerInitBoundary_ = lowerInitBoundary;

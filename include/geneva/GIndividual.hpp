@@ -216,18 +216,21 @@ public:
 #ifdef DEBUG
 		// Check that pt_ptr_ actually points somewhere
 		if(!pt_ptr_) {
-			raiseException(
-					"In GIndividual::getPersonalityTraits<personality_type>() : Empty personality pointer found"
-			);
+		   glogger
+		   << "In GIndividual::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl
+		   << GEXCEPTION;
 		}
 
 		boost::shared_ptr<personality_type> p = boost::dynamic_pointer_cast<personality_type>(pt_ptr_);
 
 		if(p) return p;
 		else {
-			raiseException(
-					"In GIndividual::getPersonalityTraits<personality_type>() : Conversion error"
-			);
+		   glogger
+		   << "In GIndividual::getPersonalityTraits<personality_type>() : Conversion error" << std::endl
+		   << GEXCEPTION;
+
+		   // Make the compiler happy
+		   return boost::shared_ptr<personality_type>();
 		}
 #else
 		return boost::static_pointer_cast<personality_type>(pt_ptr_);

@@ -241,13 +241,13 @@ public:
 		// Sigma must be in the allowed value range.
 		if(sigma < minSigma_ || sigma > maxSigma_)
 		{
-			raiseException(
-					"In GNumGaussAdaptorT::setSigma(const fp_type&):" << std::endl
-					<< "sigma is not in the allowed range: " << std::endl
-					<< minSigma_ << " <= " << sigma << " < " << maxSigma_ << std::endl
-					<< "If you want to use these values you need to" << std::endl
-					<< "adapt the allowed range first."
-			);
+		   glogger
+		   << "In GNumGaussAdaptorT::setSigma(const fp_type&):" << std::endl
+		   << "sigma is not in the allowed range: " << std::endl
+         << minSigma_ << " <= " << sigma << " < " << maxSigma_ << std::endl
+         << "If you want to use these values you need to" << std::endl
+         << "adapt the allowed range first." << std::endl
+         << GEXCEPTION;
 		}
 
 		sigma_ = sigma;
@@ -282,10 +282,10 @@ public:
 
 		// Do some error checks
 		if(tmpMinSigma<fp_type(0.) || tmpMinSigma >= maxSigma){
-			raiseException(
-					"In GNumGaussAdaptorT<num_type, fp_type>::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
-					<< "Invalid values for minSigma and maxSigma given:" << tmpMinSigma << " " << maxSigma
-			);
+		   glogger
+		   << "In GNumGaussAdaptorT<num_type, fp_type>::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
+		   << "Invalid values for minSigma and maxSigma given:" << tmpMinSigma << " " << maxSigma << std::endl
+		   << GEXCEPTION;
 		} // maxSigma will automatically be > 0. now
 
 		minSigma_ = tmpMinSigma;

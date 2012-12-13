@@ -123,9 +123,12 @@ public:
 
 		if(p) return p;
 		else {
-			raiseException(
-					"In GParameterObjectCollection::at<>() : Conversion error"
-			);
+		   glogger
+		   << "In GParameterObjectCollection::at<>() : Conversion error" << std::endl
+		   << GEXCEPTION;
+
+		   // Make the compiler happy
+		   return boost::shared_ptr<parameter_type>();
 		}
 #else
 		return boost::static_pointer_cast<parameter_type>(data[pos]);

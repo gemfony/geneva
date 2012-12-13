@@ -149,10 +149,10 @@ void copyGenevaSmartPointerVector(
  */
 template <typename T>
 boost::shared_ptr<GAdaptorT<T> > getDefaultAdaptor() {
-	raiseException(
-			"In getDefaultAdaptor():" << std::endl
-			<< "Function called with invalid type."
-	);
+   glogger
+   << "In getDefaultAdaptor():" << std::endl
+   << "Function called with invalid type." << std::endl
+   << GEXCEPTION;
 }
 
 // Specializations for float, double, boost::int32_t and bool
