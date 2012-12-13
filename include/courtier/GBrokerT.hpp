@@ -72,6 +72,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
 #include "common/GBoundedBufferWithIdT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"
@@ -464,10 +465,10 @@ public:
          bool capableOfFullReturn() const {
 #ifdef DEBUG
 	   if(!hasConsumers()) {
-	     raiseException(
-			    "In GBrokerT<carrier_type>::capableOfFullReturn(): Error!" << std::endl
-			    << "No consumers registered" << std::endl
-             );
+	      glogger
+	      << "In GBrokerT<carrier_type>::capableOfFullReturn(): Error!" << std::endl
+         << "No consumers registered" << std::endl
+         << GEXCEPTION;
 	   }
 #endif /* DEBUG */
 

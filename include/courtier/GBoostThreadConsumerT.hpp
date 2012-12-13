@@ -62,6 +62,7 @@
 
 #include "common/GThreadGroup.hpp"
 #include "common/GHelperFunctions.hpp"
+#include "common/GLogger.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GConsumer.hpp"
 #include "courtier/GSubmissionContainerT.hpp"
@@ -189,10 +190,10 @@ public:
    virtual void async_startProcessing() {
 #ifdef DEBUG
       if(workerTemplates_.empty()) { // Is the template vector empty ?
-         raiseException(
-            "In GBoostThreadConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
-            << "The workerTemplates_ vector is empty when it should not be empty" << std::endl
-         );
+         glogger
+         << "In GBoostThreadConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
+         << "The workerTemplates_ vector is empty when it should not be empty" << std::endl
+         << GEXCEPTION;
       }
 #endif /* DEBUG */
 
@@ -215,18 +216,18 @@ public:
    void registerWorkerTemplates(const std::vector<boost::shared_ptr<GWorker> >& workerTemplates) {
 #ifdef DEBUG
       if(workerTemplates_.empty()) { // Is the template vector empty ?
-         raiseException(
-            "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
-            << "workerTemplates vector is empty when it should not be empty" << std::endl
-         );
+         glogger
+         << "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
+         << "workerTemplates vector is empty when it should not be empty" << std::endl
+         << GEXCEPTION;
       }
 
       for(std::size_t i=0; i<workerTemplates.size(); i++) {
          if(!workerTemplates.at(i)) { // Does the template point somewhere ?
-            raiseException(
-               "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
-               << "Found empty worker template pointer in position " << i << std::endl
-            );
+            glogger
+            << "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
+            << "Found empty worker template pointer in position " << i << std::endl
+            << GEXCEPTION;
          }
       }
 #endif /* DEBUG */
@@ -246,10 +247,10 @@ public:
    void registerWorkerTemplate(boost::shared_ptr<GWorker> workerTemplate) {
 #ifdef DEBUG
       if(!workerTemplate) { // Does the template point somewhere ?
-         raiseException(
-               "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
-               << "Found empty worker template pointer" << std::endl
-          );
+         glogger
+         << "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
+         << "Found empty worker template pointer" << std::endl
+         << GEXCEPTION;
       }
 #endif /* DEBUG */
 
@@ -425,10 +426,10 @@ public:
 #ifdef DEBUG
                // Check that we indeed got a valid item
                if(!p) { // We didn't get a valid item after all
-                  raiseException(
-                     "In GBoostThreadConsumerT<processable_type>::GWorker::run(): Error!" << std::endl
-                     << "Got empty item when it shouldn't be empty!" << std::endl
-                  );
+                  glogger
+                  << "In GBoostThreadConsumerT<processable_type>::GWorker::run(): Error!" << std::endl
+                  << "Got empty item when it shouldn't be empty!" << std::endl
+                  << GEXCEPTION;
                }
 #endif /* DEBUG */
 
@@ -615,10 +616,10 @@ public:
       ) const {
 #ifdef DEBUG
          if(!outer) {
-           raiseException(
-               "In GBoostThreadConsumerT<processable_type>::GWorker::clone(): Error!" << std::endl
-               << "Got empty pointer!" << std::endl
-           );
+            glogger
+            << "In GBoostThreadConsumerT<processable_type>::GWorker::clone(): Error!" << std::endl
+            << "Got empty pointer!" << std::endl
+            << GEXCEPTION;
          }
 #endif /* DEBUG */
 
@@ -635,10 +636,10 @@ public:
    #ifdef DEBUG
          if(p) p->process();
          else {
-            raiseException(
-                  "In GBoostThreadConsumerT<processable_type>::GWorker::process(): Error!" << std::endl
-                  << "Received empty pointer for processable object" << std::endl
-            );
+            glogger
+            << "In GBoostThreadConsumerT<processable_type>::GWorker::process(): Error!" << std::endl
+            << "Received empty pointer for processable object" << std::endl
+            << GEXCEPTION;
          }
    #else
          p->process();

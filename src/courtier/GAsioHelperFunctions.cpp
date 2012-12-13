@@ -68,9 +68,9 @@ std::size_t extractDataSize(const char* ds, const std::size_t& sz){
   std::istringstream is(std::string(ds, sz));
   std::size_t inboundDataSize = 0;
   if (!(is >> std::hex >> inboundDataSize)) {
-	  raiseException(
-			  "In extractDataSize: Got invalid header!"
-	  );
+     glogger
+     << "In extractDataSize: Got invalid header!" << std::endl
+     << GEXCEPTION;
   }
 
   return inboundDataSize;

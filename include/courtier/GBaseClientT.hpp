@@ -72,6 +72,7 @@
 
 // Geneva headers go here
 #include "common/GSerializationHelperFunctionsT.hpp"
+#include "common/GLogger.hpp"
 #include "courtier/GCourtierEnums.hpp"
 
 namespace Gem
@@ -205,10 +206,10 @@ public:
 
 		// Only allow "real" values
 		if(maxDuration.is_special() || maxDuration.is_negative()) {
-			raiseException(
-					"In GBaseClientT<T>::setMaxTime():" << std::endl
-					<< "Invalid maxDuration."
-			);
+		   glogger
+		   << "In GBaseClientT<T>::setMaxTime():" << std::endl
+         << "Invalid maxDuration." << std::endl
+         << GEXCEPTION;
 		}
 
 		maxDuration_ = maxDuration;

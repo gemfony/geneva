@@ -75,6 +75,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
 #include "common/GPODExpectationChecksT.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
@@ -307,10 +308,10 @@ public:
     void setWaitFactorExtremes(double minWaitFactor, double maxWaitFactor) {
     	// Do some error checking
     	if(minWaitFactor < 0. || minWaitFactor >= maxWaitFactor) {
-    		raiseException(
-    				"In GBrokerConnectorT<T>::setWaitFactorExtremes(): Error!" << std::endl
-    				<< "Got invalid extreme values: " << minWaitFactor << " / " << maxWaitFactor << std::endl
-    		);
+    	   glogger
+    	   << "In GBrokerConnectorT<T>::setWaitFactorExtremes(): Error!" << std::endl
+         << "Got invalid extreme values: " << minWaitFactor << " / " << maxWaitFactor << std::endl
+         << GEXCEPTION;
     	}
 
     	minWaitFactor_ = minWaitFactor;
@@ -443,10 +444,10 @@ public:
      */
     void setWaitFactorIncrement(double wfi) {
     	if(wfi <= 0.) {
-    		raiseException(
-    			"In GBrokerConnectorT<T>::setWaitFactorIncrement(): Error!" << std::endl
-    			<< "Received invalid wait factor increment: " << wfi << std::endl
-    		);
+    	   glogger
+    	   << "In GBrokerConnectorT<T>::setWaitFactorIncrement(): Error!" << std::endl
+         << "Received invalid wait factor increment: " << wfi << std::endl
+         << GEXCEPTION;
     	}
 
     	waitFactorIncrement_ = wfi;
@@ -520,9 +521,9 @@ public:
 
     	default:
 			{
-				raiseException(
-					"In GBrokerConnectorT<>::workOn(): Received invalid submissionReturnMode: " << srm << std::endl
-				);
+			   glogger
+			   << "In GBrokerConnectorT<>::workOn(): Received invalid submissionReturnMode: " << srm << std::endl
+			   << GEXCEPTION;
 			}
 			return false; // Make the compiler happy
 			break;
@@ -722,24 +723,24 @@ private:
 #ifdef DEBUG
     	// Do some error checking
     	if(workItems.empty()) {
-    		raiseException(
-    				"In GBrokerConnectorT<T>::workOnIncompleteReturnAllowed(): Error!" << std::endl
-    				<< "workItems_ vector is empty." << std::endl
-    		);
+    	   glogger
+    	   << "In GBrokerConnectorT<T>::workOnIncompleteReturnAllowed(): Error!" << std::endl
+         << "workItems_ vector is empty." << std::endl
+         << GEXCEPTION;
     	}
 
     	if(end <= start) {
-    		raiseException(
-    				"In GBrokerConnectorT<T>::workOnIncompleteReturnAllowed(): Error!" << std::endl
-    				<< "Invalid start or end-values: " << start << " / " << end << std::endl
-    		);
+    	   glogger
+    	   << "In GBrokerConnectorT<T>::workOnIncompleteReturnAllowed(): Error!" << std::endl
+         << "Invalid start or end-values: " << start << " / " << end << std::endl
+         << GEXCEPTION;
     	}
 
     	if(end > workItems.size()) {
-    		raiseException(
-    				"In GBrokerConnectorT<T>::workOnIncompleteReturnAllowed(): Error!" << std::endl
-    				<< "Last id " << end << " exceeds size of vector " << workItems.size() << std::endl
-    		);
+    	   glogger
+    	   << "In GBrokerConnectorT<T>::workOnIncompleteReturnAllowed(): Error!" << std::endl
+         << "Last id " << end << " exceeds size of vector " << workItems.size() << std::endl
+         << GEXCEPTION;
     	}
 #endif /* DEBUG */
 
@@ -882,24 +883,24 @@ private:
 #ifdef DEBUG
     	// Do some error checking
     	if(workItems.empty()) {
-    		raiseException(
-    				"In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
-    				<< "workItems_ vector is empty." << std::endl
-    		);
+    	   glogger
+    	   << "In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
+         << "workItems_ vector is empty." << std::endl
+         << GEXCEPTION;
     	}
 
     	if(end <= start) {
-    		raiseException(
-    				"In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
-    				<< "Invalid start or end-values: " << start << " / " << end << std::endl
-    		);
+    	   glogger
+    	   << "In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
+         << "Invalid start or end-values: " << start << " / " << end << std::endl
+         << GEXCEPTION;
     	}
 
     	if(end > workItems.size()) {
-    		raiseException(
-    				"In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
-    				<< "Last id " << end << " exceeds size of vector " << workItems.size() << std::endl
-    		);
+    	   glogger
+    	   << "In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
+         << "Last id " << end << " exceeds size of vector " << workItems.size() << std::endl
+         << GEXCEPTION;
     	}
 #endif /* DEBUG */
 
@@ -1005,11 +1006,11 @@ private:
     	if(complete) {
 #ifdef DEBUG
     		if(returnedItems.size() != expectedNumber) {
-    			raiseException(
-    					"In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
-    					<< "Expected " << expectedNumber << " items to have returned" << std::endl
-    					<< "but received " << returnedItems.size() << std::endl
-    			);
+    		   glogger
+    		   << "In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
+            << "Expected " << expectedNumber << " items to have returned" << std::endl
+            << "but received " << returnedItems.size() << std::endl
+            << GEXCEPTION;
     		}
 #endif /* DEBUG */
 
@@ -1020,11 +1021,11 @@ private:
     			using namespace boost;
 
     			if(boost::get<1>(returnedItems[i]->getCourtierId()) != start+i){
-    				raiseException(
-    						"In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
-							<< "Expected item with position id " << boost::get<1>(returnedItems[i]->getCourtierId()) << std::endl
-							<< "to have id " << start+i << " instead." << std::endl
-    				);
+    			   glogger
+    			   << "In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
+               << "Expected item with position id " << boost::get<1>(returnedItems[i]->getCourtierId()) << std::endl
+               << "to have id " << start+i << " instead." << std::endl
+               << GEXCEPTION;
     			}
     		}
 #endif /* DEBUG */
@@ -1136,12 +1137,12 @@ private:
 			// to a rather high value or to alternatively disable it completely by setting it
 			// to EMPTYDURATION.
 			if(!CurrentBufferPort_->pop_back_processed_bool(p, firstTimeOut_)) {
-				raiseException(
-						"In GBrokerConnectorT<T>::retrieveFirstItem():" << std::endl
-						<< "Timeout for first item reached." << std::endl
-						<< "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
-						<< "You can change this value with the setFirstTimeOut() function."
-				);
+			   glogger
+			   << "In GBrokerConnectorT<T>::retrieveFirstItem():" << std::endl
+            << "Timeout for first item reached." << std::endl
+            << "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
+            << "You can change this value with the setFirstTimeOut() function." << std::endl
+            << GEXCEPTION;
 			}
 		}
 		else { // Wait indefinitely for the first item to return
@@ -1181,12 +1182,12 @@ private:
 			// to a rather high value or to alternatively disable it completely by setting it
 			// to EMPTYDURATION.
 			if(!CurrentBufferPort_->pop_back_processed_bool(p, firstTimeOut_)) {
-				raiseException(
-						"In GBrokerConnectorT<T>::retrieveFirstItem<target_type>():" << std::endl
-						<< "Timeout for first item reached." << std::endl
-						<< "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
-						<< "You can change this value with the setFirstTimeOut() function."
-				);
+			   glogger
+			   << "In GBrokerConnectorT<T>::retrieveFirstItem<target_type>():" << std::endl
+            << "Timeout for first item reached." << std::endl
+            << "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
+            << "You can change this value with the setFirstTimeOut() function." << std::endl
+            << GEXCEPTION;
 			}
 		}
 		else { // Wait indefinitely for the first item to return
@@ -1209,14 +1210,21 @@ private:
 #ifdef DEBUG
 		// Check that p actually points somewhere
 		if(!p) {
-			raiseException("In GBrokerConnectorT<T>::retrieveFirstItem<target_type>(): Empty pointer found");
+		   glogger
+		   << "In GBrokerConnectorT<T>::retrieveFirstItem<target_type>(): Empty pointer found" << std::endl
+		   << GEXCEPTION;
 		}
 
 		boost::shared_ptr<target_type> p_converted = boost::dynamic_pointer_cast<target_type>(p);
 
 		if(p_converted) return p_converted;
 		else {
-			raiseException("In GBrokerConnectorT<T>::retrieveFirstItem<target_type>(): Conversion error");
+		   glogger
+		   << "In GBrokerConnectorT<T>::retrieveFirstItem<target_type>(): Conversion error" << std::endl
+		   << GEXCEPTION;
+
+		   // Make the compiler happy
+		   return boost::shared_ptr<target_type>();
 		}
 #else
 		return boost::static_pointer_cast<target_type>(p);
@@ -1254,10 +1262,10 @@ private:
 			} else { // o.k., p now holds a valid pointer
 #ifdef DEBUG
 				if(maxAllowedElapsed_.total_microseconds() == 0) {
-					raiseException(
-							"In GBrokerConnectorT<T>::retrieveItem(): Error!" << std::endl
-							<< "maxAllowedElapsed_ is 0" << std::endl
-					);
+				   glogger
+				   << "In GBrokerConnectorT<T>::retrieveItem(): Error!" << std::endl
+               << "maxAllowedElapsed_ is 0" << std::endl
+               << GEXCEPTION;
 				}
 #endif
 
@@ -1267,10 +1275,10 @@ private:
 				percentOfTimeoutNeeded_ = double(currentElapsed.total_microseconds()) / double(maxAllowedElapsed_.total_microseconds());
 #ifdef DEBUG
 				if(percentOfTimeoutNeeded_ > 1. || percentOfTimeoutNeeded_ < 0) {
-					raiseException(
-							"In GBrokerConnectorT<T>::retrieveItem(): Error!" << std::endl
-							<< "Invalid percentage of time out: " << percentOfTimeoutNeeded_ << std::endl
-					);
+				   glogger
+				   << "In GBrokerConnectorT<T>::retrieveItem(): Error!" << std::endl
+               << "Invalid percentage of time out: " << percentOfTimeoutNeeded_ << std::endl
+               << GEXCEPTION;
 				}
 #endif /* DEBUG */
 			}
@@ -1317,10 +1325,10 @@ private:
 			} else { // o.k., p now holds a valid pointer
 #ifdef DEBUG
 				if(maxAllowedElapsed_.total_microseconds() == 0) {
-					raiseException(
-							"In GBrokerConnectorT<T>::retrieveItem<target_type>(): Error!" << std::endl
-							<< "maxAllowedElapsed_ is 0" << std::endl
-					);
+				   glogger
+				   << "In GBrokerConnectorT<T>::retrieveItem<target_type>(): Error!" << std::endl
+               << "maxAllowedElapsed_ is 0" << std::endl
+               << GEXCEPTION;
 				}
 #endif
 
@@ -1330,10 +1338,10 @@ private:
 				percentOfTimeoutNeeded_ = double(currentElapsed.total_microseconds()) / double(maxAllowedElapsed_.total_microseconds());
 #ifdef DEBUG
 				if(percentOfTimeoutNeeded_ > 1. || percentOfTimeoutNeeded_ < 0) {
-					raiseException(
-							"In GBrokerConnectorT<T>::retrieveItem(): Error!" << std::endl
-							<< "Invalid percentage of time out: " << percentOfTimeoutNeeded_ << std::endl
-					);
+				   glogger
+				   << "In GBrokerConnectorT<T>::retrieveItem(): Error!" << std::endl
+               << "Invalid percentage of time out: " << percentOfTimeoutNeeded_ << std::endl
+               << GEXCEPTION;
 				}
 #endif /* DEBUG */
 			}
@@ -1348,18 +1356,21 @@ private:
 #ifdef DEBUG
 		// Check that p actually points somewhere
 		if(!p) {
-			raiseException(
-					"In GBrokerConnectorT<T>::retrieveItem<target_type>(): Empty pointer found"
-			);
+		   glogger
+		   << "In GBrokerConnectorT<T>::retrieveItem<target_type>(): Empty pointer found" << std::endl
+		   << GEXCEPTION;
 		}
 
 		p_converted = boost::dynamic_pointer_cast<target_type>(p);
 
 		if(p_converted) return p_converted;
 		else {
-			raiseException(
-					"In GBrokerConnectorT<T>::retrieveItem<target_type>(): Conversion error"
-			);
+		   glogger
+		   << "In GBrokerConnectorT<T>::retrieveItem<target_type>(): Conversion error" << std::endl
+		   << GEXCEPTION;
+
+		   // Make the compiler happy
+		   return boost::shared_ptr<target_type>();
 		}
 #else
 		return boost::static_pointer_cast<target_type>(p);

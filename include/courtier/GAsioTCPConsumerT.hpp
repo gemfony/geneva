@@ -195,10 +195,10 @@ class GAsioServerSessionT
 
             // Complain if this is an empty item
             if(!p) {
-               raiseException(
-                     "In GAsioServerSessionT<>::processRequest(): Error!" << std::endl
-                     << "Received empty item when filled item was expected!" << std::endl
-               );
+               glogger
+               << "In GAsioServerSessionT<>::processRequest(): Error!" << std::endl
+               << "Received empty item when filled item was expected!" << std::endl
+               << GEXCEPTION;
             }
 
             Gem::Common::PORTIDTYPE id = boost::lexical_cast<Gem::Common::PORTIDTYPE>(portid);
