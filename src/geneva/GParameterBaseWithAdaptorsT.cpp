@@ -51,10 +51,10 @@ template<>
 void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>& collection) {
 #ifdef DEBUG
 		if(!adaptor_) {
-			raiseException(
-					"In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
-					<< "Error: No adaptor was found."
-			);
+		   glogger
+		   << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
+         << "Error: No adaptor was found." << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 

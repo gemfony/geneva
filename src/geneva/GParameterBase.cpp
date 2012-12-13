@@ -223,10 +223,10 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
  */
 void GParameterBase::assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
 		if(!gr_cp) {
-			raiseException(
-					"In GParameterBase::assignGRandomPointer() :" << std::endl
-					<< "Tried to assign NULL pointer"
-			);
+		   glogger
+		   << "In GParameterBase::assignGRandomPointer() :" << std::endl
+         << "Tried to assign NULL pointer" << std::endl
+         << GEXCEPTION;
 		}
 
 	gr = gr_cp;
@@ -245,10 +245,10 @@ void GParameterBase::assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
 void GParameterBase::resetGRandomPointer() {
 	if(gr_local) gr = gr_local;
 	else {
-		raiseException(
-				"In GParameterBase::resetGRandomPointer() :" << std::endl
-				<< "Tried to assign NULL pointer"
-		);
+	   glogger
+	   << "In GParameterBase::resetGRandomPointer() :" << std::endl
+      << "Tried to assign NULL pointer" << std::endl
+      << GEXCEPTION;
 	}
 
 	gr = gr_local;

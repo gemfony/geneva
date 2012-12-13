@@ -236,10 +236,10 @@ void GInt32Collection::assignInt32ValueVector(const std::vector<boost::int32_t>&
 #ifdef DEBUG
 		  // Do we have a valid position ?
 		  if(pos >= parVec.size()) {
-			  raiseException(
-					  "In GInt32Collection::assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&):" << std::endl
-					  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-			  );
+		     glogger
+		     << "In GInt32Collection::assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&):" << std::endl
+           << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+           << GEXCEPTION;
 		  }
 #endif
 

@@ -739,11 +739,11 @@ void GBaseGD::adjustPopulation() {
 	// each of size nFPParmsFirst_.
 #ifdef DEBUG
 	if(this->size() != nStartingPoints_*(nFPParmsFirst_ + 1)) {
-		raiseException(
-				"In GBaseGD::adjustPopulation():" << std::endl
-				<< "Population size is " << this->size() << std::endl
-				<< "but expected " << nStartingPoints_*(nFPParmsFirst_ + 1)
-		);
+	   glogger
+	   << "In GBaseGD::adjustPopulation():" << std::endl
+      << "Population size is " << this->size() << std::endl
+      << "but expected " << nStartingPoints_*(nFPParmsFirst_ + 1) << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 }
@@ -772,10 +772,10 @@ void GBaseGD::saveCheckpoint() const {
 	// Create the output stream and check that it is in good order
 	std::ofstream checkpointStream(outputFile.c_str());
 	if(!checkpointStream) {
-		raiseException(
-				"In GBaseGD::saveCheckpoint()" << std::endl
-				<< "Error: Could not open output file " << outputFile.c_str()
-		);
+	   glogger
+	   << "In GBaseGD::saveCheckpoint()" << std::endl
+      << "Error: Could not open output file " << outputFile.c_str() << std::endl
+      << GEXCEPTION;
 	}
 
 	switch(getCheckpointSerializationMode()) {
@@ -1016,10 +1016,10 @@ std::string GBaseGD::GGDOptimizationMonitor::firstInformation(GOptimizationAlgor
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
-		raiseException(
-				"In GBaseGD::GGDOptimizationMonitor::firstInformation():" << std::endl
-				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
-		);
+	   glogger
+	   << "In GBaseGD::GGDOptimizationMonitor::firstInformation():" << std::endl
+      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 	GBaseGD * const gd = static_cast<GBaseGD * const>(goa);
@@ -1044,10 +1044,10 @@ std::string GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgor
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
-		raiseException(
-				"In GBaseGD::GGDOptimizationMonitor::cycleInformation():" << std::endl
-				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
-		);
+	   glogger
+	   << "In GBaseGD::GGDOptimizationMonitor::cycleInformation():" << std::endl
+      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 	GBaseGD * const gd = static_cast<GBaseGD * const>(goa);
@@ -1067,10 +1067,10 @@ std::string GBaseGD::GGDOptimizationMonitor::lastInformation(GOptimizationAlgori
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
-		raiseException(
-				"In GBaseGD::GGDOptimizationMonitor::lastInformation():" << std::endl
-				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
-		);
+	   glogger
+	   << "In GBaseGD::GGDOptimizationMonitor::lastInformation():" << std::endl
+      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
+      << GEXCEPTION;
 	}
 #endif /* DEBUG */
 	GBaseGD * const gd = static_cast<GBaseGD * const>(goa);

@@ -241,10 +241,10 @@ void GDoubleCollection::assignDoubleValueVector(
 #ifdef DEBUG
 		  // Do we have a valid position ?
 		  if(pos >= parVec.size()) {
-			  raiseException(
-					  "In GDoubleCollection::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
-					  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-			  );
+		     glogger
+		     << "In GDoubleCollection::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
+           << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+           << GEXCEPTION;
 		  }
 #endif
 

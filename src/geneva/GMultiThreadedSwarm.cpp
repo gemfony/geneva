@@ -210,10 +210,10 @@ void GMultiThreadedSwarm::init() {
 		}
 
 		if(storedServerMode_ != (*it)->setServerMode(true)) {
-			raiseException(
-				"In GMultiThreadedSwarm::init():" << std::endl
-				<< "Not all server mode flags have the same vaue!"
-			);
+		   glogger
+		   << "In GMultiThreadedSwarm::init():" << std::endl
+         << "Not all server mode flags have the same vaue!" << std::endl
+         << GEXCEPTION;
 		}
 	}
 }

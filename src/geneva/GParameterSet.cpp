@@ -176,10 +176,10 @@ GObject* GParameterSet::clone_() const {
  * @return The fitness of this object
  */
 double GParameterSet::fitnessCalculation() {
-	raiseException(
-			"In GParameterSet::fitnessCalculation()" << std::endl
-			<< "Function called directly which should not happen"
-	);
+   glogger
+   << "In GParameterSet::fitnessCalculation()" << std::endl
+   << "Function called directly which should not happen" << std::endl
+   << GEXCEPTION;
 
 	// Make the compiler happy
 	return 0.;
@@ -204,10 +204,10 @@ bool GParameterSet::updateOnStall() {
 	{
 		// This function should only be called for parents. Check ...
 		if(!getPersonalityTraits<GEAPersonalityTraits>()->isParent()) {
-			raiseException(
-					"In GParameterSet::updateOnStall() (called for EA personality):" << std::endl
-					<< "This function should only be called for parent individuals."
-			);
+		   glogger
+		   << "In GParameterSet::updateOnStall() (called for EA personality):" << std::endl
+         << "This function should only be called for parent individuals." << std::endl
+         << GEXCEPTION;
 		}
 	}
 #endif /* DEBUG */
@@ -256,10 +256,10 @@ void GParameterSet::crossOver(GParameterSet& cp, const double& likelihood) {
 #ifdef DEBUG
 	// Do some error checking
 	if(likelihood < 0. || likelihood > 1.) {
-		raiseException(
-			"In GParameterSet::crossOver(): Error!" << std::endl
-			<< "Received invalid likelihood: " << likelihood << std::endl
-		);
+	   glogger
+	   << "In GParameterSet::crossOver(): Error!" << std::endl
+	   << "Received invalid likelihood: " << likelihood << std::endl
+	   << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
@@ -434,10 +434,10 @@ void GParameterSet::fpMultiplyByRandom() {
 void GParameterSet::fpAdd(boost::shared_ptr<GParameterSet> p) {
 	// Some error checking
 	if(p->size() != this->size()) {
-		raiseException(
-				"In GParameterSet::fpAdd():" << std::endl
-				<< "Sizes do not match: " << this->size() << " " << p->size()
-		);
+	   glogger
+	   << "In GParameterSet::fpAdd():" << std::endl
+      << "Sizes do not match: " << this->size() << " " << p->size() << std::endl
+      << GEXCEPTION;
 	}
 
 	// Loop over all GParameterBase objects in this and the other object
@@ -468,10 +468,10 @@ void GParameterSet::fpAdd(boost::shared_ptr<GParameterSet> p) {
 void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
 	// Some error checking
 	if(p->size() != this->size()) {
-		raiseException(
-				"In GParameterSet::fpAdd():" << std::endl
-				<< "Sizes do not match: " << this->size() << " " << p->size()
-		);
+	   glogger
+	   << "In GParameterSet::fpAdd():" << std::endl
+      << "Sizes do not match: " << this->size() << " " << p->size() << std::endl
+      << GEXCEPTION;
 	}
 
 	// Loop over all GParameterBase objects in this and the other object

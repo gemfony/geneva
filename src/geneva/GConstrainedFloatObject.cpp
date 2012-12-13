@@ -245,10 +245,10 @@ void GConstrainedFloatObject::assignFloatValueVector(const std::vector<float>& p
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
-		raiseException(
-				"In GConstrainedFloatObject::assignFloatValueVector(const std::vector<float>&, std::size_t&):" << std::endl
-				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-		);
+	   glogger
+	   << "In GConstrainedFloatObject::assignFloatValueVector(const std::vector<float>&, std::size_t&):" << std::endl
+      << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+      << GEXCEPTION;
 	}
 #endif
 

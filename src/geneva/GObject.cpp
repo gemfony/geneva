@@ -275,7 +275,7 @@ void GObject::toFile(const std::string& fileName, const Gem::Common::serializati
 	if(!ofstr) {
 	   glogger
 	   << "In GObject::toFile():" << std::endl
-	   << "Problems connecting to file " << fileName
+	   << "Problems connecting to file " << fileName << std::endl
 	   << GEXCEPTION;
 	}
 
@@ -304,7 +304,7 @@ void GObject::fromFile(const std::string& fileName, const Gem::Common::serializa
 	if(!ifstr) {
 	   glogger
 	   << "In GObject::fromFile():" << std::endl
-	   << "Problems connecting to file " << fileName
+	   << "Problems connecting to file " << fileName << std::endl
 	   << GEXCEPTION;
 	}
 

@@ -253,17 +253,17 @@ double GSerialGD::doFitnessCalculation(const std::size_t& finalPos) {
 
 #ifdef DEBUG
 	if(finalPos > this->size()) {
-		raiseException(
-				"In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
-				<< "Got invalid final position: " << finalPos << "/" << this->size()
-		);
+	   glogger
+	   << "In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
+      << "Got invalid final position: " << finalPos << "/" << this->size() << std::endl
+      << GEXCEPTION;
 	}
 
 	if(finalPos < getNStartingPoints()) {
-		raiseException(
-				"In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
-				<< "We require finalPos to be at least " << getNStartingPoints() << ", but got " << finalPos
-		);
+	   glogger
+	   << "In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
+      << "We require finalPos to be at least " << getNStartingPoints() << ", but got " << finalPos << std::endl
+      << GEXCEPTION;
 	}
 #endif
 
@@ -273,10 +273,10 @@ double GSerialGD::doFitnessCalculation(const std::size_t& finalPos) {
 #ifdef DEBUG
 		// Make sure the evaluated individuals have the dirty flag set
 		if(afterFirstIteration() && !this->at(i)->isDirty()) {
-			raiseException(
-					"In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
-					<< "In iteration " << this->getIteration() << ": Found individual in position " << i << " whose dirty flag isn't set"
-			);
+		   glogger
+		   << "In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
+         << "In iteration " << this->getIteration() << ": Found individual in position " << i << " whose dirty flag isn't set" << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 

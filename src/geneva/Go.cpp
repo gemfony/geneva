@@ -501,10 +501,10 @@ GObject *Go::clone_() const {
  */
 void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseEA::GEAOptimizationMonitor> ea_om_ptr) {
 	if(!ea_om_ptr) {
-		raiseException(
-				"In Go::registerOptimizationMonitor():" << std::endl
-				<< "Empty optimization monitor pointer found for EA"
-		);
+	   glogger
+	   << "In Go::registerOptimizationMonitor():" << std::endl
+      << "Empty optimization monitor pointer found for EA" << std::endl
+      << GEXCEPTION;
 	}
 
 	ea_om_ptr_ = ea_om_ptr->clone<GBaseEA::GEAOptimizationMonitor>();
@@ -519,10 +519,10 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseEA::GEAOptimizationM
  */
 void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseSwarm::GSwarmOptimizationMonitor> swarm_om_ptr) {
 	if(!swarm_om_ptr) {
-		raiseException(
-				"In Go::registerOptimizationMonitor():" << std::endl
-				<< "Empty optimization monitor pointer found for SWARM"
-		);
+	   glogger
+	   << "In Go::registerOptimizationMonitor():" << std::endl
+      << "Empty optimization monitor pointer found for SWARM" << std::endl
+      << GEXCEPTION;
 	}
 
 	swarm_om_ptr_ = swarm_om_ptr->clone<GBaseSwarm::GSwarmOptimizationMonitor>();
@@ -537,10 +537,10 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseSwarm::GSwarmOptimiz
  */
 void Go::registerOptimizationMonitor(boost::shared_ptr<GBaseGD::GGDOptimizationMonitor> gd_om_ptr) {
 	if(!gd_om_ptr) {
-		raiseException(
-				"In Go::registerOptimizationMonitor():" << std::endl
-				<< "Empty optimization monitor pointer found for GD"
-		);
+	   glogger
+	   << "In Go::registerOptimizationMonitor():" << std::endl
+      << "Empty optimization monitor pointer found for GD" << std::endl
+      << GEXCEPTION;
 	}
 
 	gd_om_ptr_ = gd_om_ptr->clone<GBaseGD::GGDOptimizationMonitor>();
@@ -646,10 +646,10 @@ double Go::fitnessCalculation() {
 	// is this the current fitness ? We should at this stage never
 	// run across an unevaluated individual.
 	if(dirty) {
-		raiseException(
-				"In Go::fitnessCalculation():" << std::endl
-				<< "Came across dirty individual"
-		);
+	   glogger
+	   << "In Go::fitnessCalculation():" << std::endl
+      << "Came across dirty individual" << std::endl
+      << GEXCEPTION;
 	}
 
 	return val;
@@ -1481,10 +1481,10 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 
 	// Check the name of the configuration file
 	if (!bf::exists(configFile)) {
-		raiseException(
-				"In Go::parseConfigurationFile():" << std::endl
-				<< "Invalid file name given for configuration file: \"" << configFile << "\""
-		);
+	   glogger
+	   << "In Go::parseConfigurationFile():" << std::endl
+      << "Invalid file name given for configuration file: \"" << configFile << "\"" << std::endl
+      << GEXCEPTION;
 	}
 
 	try {

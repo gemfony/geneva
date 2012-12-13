@@ -239,10 +239,10 @@ void GMultiThreadedGD::init() {
 		}
 
 		if(storedServerMode_ != (*it)->setServerMode(true)) {
-			raiseException(
-				"In GMultiThreadedGD::init():" << std::endl
-				<< "Not all server mode flags have the same value!"
-			);
+		   glogger
+		   << "In GMultiThreadedGD::init():" << std::endl
+         << "Not all server mode flags have the same value!" << std::endl
+         << GEXCEPTION;
 		}
 	}
 }
@@ -324,17 +324,17 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 
 #ifdef DEBUG
 	if(finalPos > this->size()) {
-		raiseException(
-				"In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
-				<< "Got invalid final position: " << finalPos << "/" << this->size()
-		);
+	   glogger
+	   << "In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
+      << "Got invalid final position: " << finalPos << "/" << this->size() << std::endl
+      << GEXCEPTION;
 	}
 
 	if(finalPos < nStartingPoints) {
-		raiseException(
-				"In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
-				<< "We require finalPos to be at least " << nStartingPoints << ", but got " << finalPos
-		);
+	   glogger
+	   << "In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
+      << "We require finalPos to be at least " << nStartingPoints << ", but got " << finalPos << std::endl
+      << GEXCEPTION;
 	}
 #endif
 
@@ -343,10 +343,10 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 #ifdef DEBUG
 		// Make sure the evaluated individuals have the dirty flag set
 		if(afterFirstIteration() && !(*it)->isDirty()) {
-			raiseException(
-					"In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
-					<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set"
-			);
+		   glogger
+		   << "In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
+         << "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set" << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 

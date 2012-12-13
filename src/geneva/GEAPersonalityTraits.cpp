@@ -298,10 +298,10 @@ void GEAPersonalityTraits::setParentId(const std::size_t& parentId) {
 std::size_t GEAPersonalityTraits::getParentId() const {
 	if(parentId_ >= 0) return parentId_;
 	else {
-		raiseException(
-				"In GEAPersonalityTraits::getParentId():" << std::endl
-				<< "parentId_ is unset"
-		);
+	   glogger
+	   << "In GEAPersonalityTraits::getParentId():" << std::endl
+      << "parentId_ is unset" << std::endl
+      << GEXCEPTION;
 	}
 
 	// Make the compiler happy

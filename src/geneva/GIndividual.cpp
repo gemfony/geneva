@@ -223,10 +223,10 @@ double GIndividual::fitness(const std::size_t& id) {
 	if (dirtyFlag_) {
 		// Re-evaluation is not allowed on the server
 		if (serverMode_) {
-			raiseException(
-					"In GIndividual::fitness():" << std::endl
-					<< "Tried to perform re-evaluation in server-mode"
-			);
+		   glogger
+		   << "In GIndividual::fitness():" << std::endl
+         << "Tried to perform re-evaluation in server-mode" << std::endl
+         << GEXCEPTION;
 		}
 
 		// Make sure the secondary fitness vector is empty
@@ -290,11 +290,11 @@ double GIndividual::getCachedFitness(bool& dirtyFlag, const std::size_t& id) con
 	} else {
 #ifdef DEBUG
 		if(currentSecondaryFitness_.size() < id) {
-			raiseException(
-					"In GIndividual::getCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
-					<< "Got invalid result id: " << id << std::endl
-					<< "where maximum allowed id would be " << currentSecondaryFitness_.size()-1 << std::endl
-			);
+		   glogger
+		   << "In GIndividual::getCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
+         << "Got invalid result id: " << id << std::endl
+         << "where maximum allowed id would be " << currentSecondaryFitness_.size()-1 << std::endl
+         << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -385,11 +385,11 @@ bool GIndividual::hasMultipleFitnessCriteria() const {
  */
 void GIndividual::setFitness_(const double& f, const std::vector<double>& sec_f_vec) {
 	if(sec_f_vec.size() != GIndividual::getNumberOfSecondaryFitnessCriteria()) {
-		raiseException(
-				"In GIndividual::setFitness_(...): Error!" << std::endl
-				<< "Invalid size of secondary fitness vector: " << std::endl
-				<< sec_f_vec.size() << " / " << GIndividual::getNumberOfSecondaryFitnessCriteria() << std::endl
-		);
+	   glogger
+	   << "In GIndividual::setFitness_(...): Error!" << std::endl
+      << "Invalid size of secondary fitness vector: " << std::endl
+      << sec_f_vec.size() << " / " << GIndividual::getNumberOfSecondaryFitnessCriteria() << std::endl
+      << GEXCEPTION;
 	}
 
 	currentFitness_ = f;
@@ -592,10 +592,10 @@ double GIndividual::weighedSquaredSumCombiner(const std::vector<double>& weights
 	std::vector<double>::const_iterator cit_eval, cit_weights;
 
 	if(currentSecondaryFitness_.size() != weights.size()) {
-		raiseException(
-				"In GIndividual::weighedSquaredSumCombine(): Error!" << std::endl
-				<< "Sizes of currentSecondaryFitness_ and the weights vector don't match: " << currentSecondaryFitness_.size() << " / " << weights.size() << std::endl
-		);
+	   glogger
+	   << "In GIndividual::weighedSquaredSumCombine(): Error!" << std::endl
+      << "Sizes of currentSecondaryFitness_ and the weights vector don't match: " << currentSecondaryFitness_.size() << " / " << weights.size() << std::endl
+      << GEXCEPTION;
 	}
 
 	for(cit_eval=currentSecondaryFitness_.begin(), cit_weights=weights.begin();
@@ -716,10 +716,10 @@ boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
 #ifdef DEBUG
 	// Do some error checking
 	if(!pt_ptr_) {
-		raiseException(
-				"In GIndividual::getPersonalityTraits():" << std::endl
-				<< "Pointer to personality traits object is empty."
-		);
+	   glogger
+	   << "In GIndividual::getPersonalityTraits():" << std::endl
+      << "Pointer to personality traits object is empty." << std::endl
+      << GEXCEPTION;
 	}
 #endif
 

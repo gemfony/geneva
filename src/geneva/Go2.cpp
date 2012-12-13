@@ -516,10 +516,10 @@ double Go2::fitnessCalculation() {
 	// is this the current fitness ? We should at this stage never
 	// run across an unevaluated individual.
 	if(dirty) {
-		raiseException(
-				"In Go2::fitnessCalculation():" << std::endl
-				<< "Came across dirty individual"
-		);
+	   glogger
+	   << "In Go2::fitnessCalculation():" << std::endl
+      << "Came across dirty individual" << std::endl
+      << GEXCEPTION;
 	}
 
 	return val;
@@ -534,10 +534,10 @@ double Go2::fitnessCalculation() {
 void Go2::addAlgorithm(boost::shared_ptr<GOptimizableI> alg) {
 	// Check that the pointer is not empty
 	if(!alg) {
-		raiseException(
-			"In Go2::addAlgorithm(): Error!" << std::endl
-			<< "Tried to register an empty pointer" << std::endl
-		);
+	   glogger
+	   << "In Go2::addAlgorithm(): Error!" << std::endl
+      << "Tried to register an empty pointer" << std::endl
+      << GEXCEPTION;
 	}
 
 	algorithms_.push_back(alg);
@@ -572,10 +572,10 @@ void Go2::addAlgorithm(personality_oa pers) {
 	switch(pers) {
 	case PERSONALITY_NONE:
 		{
-			raiseException(
-				"In Go2::addAlgorithm(personality_oa): Error!" << std::endl
-				<< "Got PERSONALITY_NONE" << std::endl
-			);
+		   glogger
+		   << "In Go2::addAlgorithm(personality_oa): Error!" << std::endl
+         << "Got PERSONALITY_NONE" << std::endl
+         << GEXCEPTION;
 		}
 		break;
 
@@ -637,11 +637,11 @@ void Go2::optimize(const boost::uint32_t& offset) {
 
 	// Check that individuals have been registered
 	if(this->empty()) {
-		raiseException(
-			"In Go2::optimize(): Error!" << std::endl
-			<< "No individuals have been registered." << std::endl
-			<< "No way to continue." << std::endl
-		)
+	   glogger
+	   << "In Go2::optimize(): Error!" << std::endl
+      << "No individuals have been registered." << std::endl
+      << "No way to continue." << std::endl
+      << GEXCEPTION;
 	}
 
 	// Retrieve the minimization/maximization mode of the first individual
@@ -651,10 +651,10 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	GMutableSetT<GParameterSet>::iterator ind_it;
 	for(ind_it=this->begin()+1; ind_it!=this->end(); ++ind_it) {
 		if((*ind_it)->getMaxMode() != maxmode) {
-			raiseException(
-				"In Go2::optimize(): Error!" << std::endl
-				<< "Found inconsistent min/max modes" << std::endl
-			);
+		   glogger
+		   << "In Go2::optimize(): Error!" << std::endl
+         << "Found inconsistent min/max modes" << std::endl
+         << GEXCEPTION;
 		}
 	}
 
@@ -764,10 +764,10 @@ void Go2::optimize(const boost::uint32_t& offset) {
 
 		default:
 		{
-			raiseException(
-				"In Go2::optimize(): Error!" << std::endl
-				<< "Came across invalid algorithm" << std::endl
-			);
+		   glogger
+		   << "In Go2::optimize(): Error!" << std::endl
+         << "Came across invalid algorithm" << std::endl
+         << GEXCEPTION;
 		}
 			break;
 
@@ -812,26 +812,26 @@ boost::shared_ptr<Gem::Geneva::GIndividual> Go2::getBestIndividual() {
 
 	// Do some error checking
 	if(this->empty()) {
-		raiseException(
-			"In Go2::getBestIndividual(): Error!" << std::endl
-			<< "No individuals found"
-		);
+	   glogger
+	   << "In Go2::getBestIndividual(): Error!" << std::endl
+      << "No individuals found" << std::endl
+      << GEXCEPTION;
 
 		for(it=this->begin(); it!=this->end(); ++it) {
 			if((*it)->isDirty()) {
-				raiseException(
-					"In Go2::getBestIndividual(): Error!" << std::endl
-					<< "Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set" << std::endl
-				);
+			   glogger
+			   << "In Go2::getBestIndividual(): Error!" << std::endl
+            << "Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set" << std::endl
+            << GEXCEPTION;
 			}
 		}
 
 		if(!sorted_) {
-			raiseException(
-				"In Go2::getBestIndividual(): Error!" << std::endl
-				<< "Tried to retrieve best individual" << std::endl
-				<< "from an unsorted population."
-			);
+		   glogger
+		   << "In Go2::getBestIndividual(): Error!" << std::endl
+         << "Tried to retrieve best individual" << std::endl
+         << "from an unsorted population." << std::endl
+         << GEXCEPTION;
 		}
 	}
 
@@ -851,17 +851,17 @@ std::vector<boost::shared_ptr<Gem::Geneva::GIndividual> > Go2::getBestIndividual
 
 	// Do some error checking
 	if(this->empty()) {
-		raiseException(
-			"In Go2::getBestIndividuals(): Error!" << std::endl
-			<< "No individuals found"
-		);
+	   glogger
+	   <<"In Go2::getBestIndividuals(): Error!" << std::endl
+      << "No individuals found" << std::endl
+      << GEXCEPTION;
 
 		for(it=this->begin(); it!=this->end(); ++it) {
 			if((*it)->isDirty()) {
-				raiseException(
-					"In Go2::getBestIndividuals(): Error!" << std::endl
-					<< "Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set" << std::endl
-				);
+			   glogger
+			   << "In Go2::getBestIndividuals(): Error!" << std::endl
+            << "Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set" << std::endl
+            << GEXCEPTION;
 			}
 		}
 	}
@@ -1212,10 +1212,10 @@ void Go2::parseCommandLine(int argc, char **argv) {
 				personality_oa num_alg = boost::lexical_cast<personality_oa>(alg);
 
 				if(num_alg != PERSONALITY_EA && num_alg != PERSONALITY_GD && num_alg != PERSONALITY_SWARM) {
-					raiseException(
-						"In Go2::parseCommandLine(): Error!" << std::endl
-						<< "Received invalid personality " << num_alg << std::endl
-					);
+				   glogger
+				   << "In Go2::parseCommandLine(): Error!" << std::endl
+               << "Received invalid personality " << num_alg << std::endl
+               << GEXCEPTION;
 				}
 
 				if(!alg.empty()) {

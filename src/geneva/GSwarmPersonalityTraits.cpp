@@ -209,18 +209,18 @@ void GSwarmPersonalityTraits::registerPersonalBest(boost::shared_ptr<GParameterS
 #ifdef DEBUG
 	// Does it point anywhere ?
 	if(!p) {
-		raiseException(
-				"In GSwarmPersonalityTraits::registerPersonalBest():" << std::endl
-				<< "Got empty smart pointer."
-		);
+	   glogger
+	   << "In GSwarmPersonalityTraits::registerPersonalBest():" << std::endl
+      << "Got empty smart pointer." << std::endl
+      << GEXCEPTION;
 	}
 
 	// Is the dirty flag set ?
 	if(p->isDirty()) {
-		raiseException(
-				"In GSwarmPersonalityTraits::registerPersonalBest():" << std::endl
-				<< "Got individual whose dirty flag is set."
-		);
+	   glogger
+	   << "In GSwarmPersonalityTraits::registerPersonalBest():" << std::endl
+      << "Got individual whose dirty flag is set." << std::endl
+      << GEXCEPTION;
 	}
 #endif
 

@@ -246,10 +246,10 @@ void GConstrainedInt32Object::assignInt32ValueVector(const std::vector<boost::in
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
-		raiseException(
-				"In GConstrainedInt32Object::assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&):" << std::endl
-				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
-		);
+	   glogger
+	   << "In GConstrainedInt32Object::assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&):" << std::endl
+      << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+      << GEXCEPTION;
 	}
 #endif
 

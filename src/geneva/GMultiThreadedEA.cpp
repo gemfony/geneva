@@ -200,10 +200,10 @@ void GMultiThreadedEA::init() {
 		}
 
 		if(storedServerMode_ != (*it)->setServerMode(true)) {
-			raiseException(
-				"In GMultiThreadedEA::init():" << std::endl
-				<< "Not all server mode flags have the same value!"
-			);
+		   glogger
+		   << "In GMultiThreadedEA::init():" << std::endl
+		   << "Not all server mode flags have the same value!" << std::endl
+		   << GEXCEPTION;
 		}
 	}
 }
@@ -257,10 +257,10 @@ void GMultiThreadedEA::evaluateChildren()
    // through this function
    for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
       if(!this->at(i)->isDirty()) {
-         raiseException(
-               "In GSerialEA::evaluateChildren(): Error!" << std::endl
-               << "Tried to evaluate \"clean\" children." << std::endl
-         );
+         glogger
+         << "In GSerialEA::evaluateChildren(): Error!" << std::endl
+         << "Tried to evaluate \"clean\" children." << std::endl
+         << GEXCEPTION;
       }
    }
 #endif
