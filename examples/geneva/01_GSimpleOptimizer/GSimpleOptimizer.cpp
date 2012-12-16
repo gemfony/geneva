@@ -36,9 +36,11 @@
 #include <iostream>
 
 // Boost header files go here
+#include <boost/bind.hpp>
+#include <boost/ref.hpp>
 
 // Geneva header files go here
-#include <geneva/Go2.hpp>
+#include "geneva/Go2.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -56,31 +58,24 @@ int main(int argc, char **argv) {
 	}
 
 	//---------------------------------------------------------------------
-	// Server mode, serial or multi-threaded execution
-
-	// Add an evolutionary algorithm in multi-threaded mode
-	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", PARMODE_MULTITHREADED);
-
-	// Retrieve an evolutionary algorithm
-	boost::shared_ptr<GBaseEA> ea_ptr = ea();
-
-	// Retrieve the default population size
-	std::size_t popSize = ea_ptr->getDefaultPopulationSize();
 
    // Create a factory for GFunctionIndividual objects and perform
    // any necessary initial work.
    GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
-	// Add the desired number of individuals
-	for(std::size_t i=0; i<popSize; i++) {
-	   // Make an individual known to the optimizer
-	   boost::shared_ptr<GParameterSet> ind_ptr = gfi();
-	   ind_ptr->randomInit();
-	   go.push_back(ind_ptr);
-	}
+	// Add an evolutionary algorithm in multi-threaded mode. The
+   // FunctionIndividual-factory will take care of the creation
+   // of individuals
+   boost::function<boost::shared_ptr<GIndividual>()> gfi_fun
+         = boost::bind(&GFunctionIndividualFactory::get<GIndividual>, boost::ref(gfi));
+	GEvolutionaryAlgorithmFactory ea(
+	      "./config/GEvolutionaryAlgorithm.json"
+	      , PARMODE_MULTITHREADED
+	      , gfi_fun
+	);
 
-	// Add the algorithm to the Go2 object
-	go & ea_ptr;
+	// Add an EA-object to the Go2 object
+	go & ea();
 
 	// Perform the actual optimization
 	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();

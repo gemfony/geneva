@@ -161,7 +161,6 @@ int main(int argc, char **argv){
 	// Create a factory for GFunctionIndividual objects and perform
 	// any necessary initial work.
 	GFunctionIndividualFactory gfi("./GFunctionIndividual.json");
-	gfi.init();
 
   // Create the first set of parent populations.
   std::vector<boost::shared_ptr<GBaseEA> > parentPopulations;

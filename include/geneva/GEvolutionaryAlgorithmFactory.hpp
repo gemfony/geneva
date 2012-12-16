@@ -38,6 +38,7 @@
 // Boost header files go here
 #include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/function.hpp>
 
 #ifndef GEVOLUTIONARYALGORITHMFACTORY_HPP_
 #define GEVOLUTIONARYALGORITHMFACTORY_HPP_
@@ -69,7 +70,16 @@ class GEvolutionaryAlgorithmFactory
 {
 public:
 	/** @brief The standard constructor */
-	GEvolutionaryAlgorithmFactory(const std::string&, const parMode&);
+	GEvolutionaryAlgorithmFactory(
+	      const std::string&
+	      , const parMode&
+	);
+	/** @brief Adds a content creator in addition to the standard values */
+   GEvolutionaryAlgorithmFactory(
+         const std::string&
+         , const parMode&
+         , boost::function<boost::shared_ptr<GIndividual>()>&
+   );
 	/** @brief The destructor */
 	virtual ~GEvolutionaryAlgorithmFactory();
 

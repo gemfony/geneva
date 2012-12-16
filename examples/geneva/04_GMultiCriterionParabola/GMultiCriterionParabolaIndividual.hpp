@@ -53,13 +53,12 @@
 // Geneva header files go here
 #include <geneva/GParameterSet.hpp>
 #include <geneva/GConstrainedDoubleObject.hpp>
-#include <geneva-individuals/GIndividualFactoryT.hpp>
+#include <common/GFactoryT.hpp>
 #include <common/GParserBuilder.hpp>
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
+
 /******************************************************************/
 /**
  * This individual implements several, possibly conflicting evaluation
@@ -85,8 +84,8 @@ class GMultiCriterionParabolaIndividual
 	/**************************************************************/
 
 public:
-	/** @brief The standard constructor */
-	GMultiCriterionParabolaIndividual(const std::size_t&, const double&, const double&, const std::vector<double>&);
+	/** @brief The default constructor */
+	GMultiCriterionParabolaIndividual();
 	/** @brief A standard copy constructor */
 	GMultiCriterionParabolaIndividual(const GMultiCriterionParabolaIndividual&);
 	/** @brief The destructor */
@@ -94,6 +93,15 @@ public:
 
 	/** @brief A standard assignment operator */
 	const GMultiCriterionParabolaIndividual& operator=(const GMultiCriterionParabolaIndividual&);
+
+	/** @brief Add local configuration options to the parser */
+	void addConfigurationOptions (
+	   Gem::Common::GParserBuilder&
+	   , const bool&
+	);
+
+	/** @brief Initialize with stored values */
+	void init();
 
 protected:
 	/** @brief Loads the data of another GMultiCriterionParabolaIndividual */
@@ -105,9 +113,6 @@ protected:
 	virtual double fitnessCalculation();
 
 private:
-	/** @brief The default constructor. Intentionally private. */
-	GMultiCriterionParabolaIndividual();
-
 	/** @brief Make the class accessible to Boost.Serialization */
 	friend class boost::serialization::access;
 
@@ -115,6 +120,7 @@ private:
 	double par_min_; ///< The lower boundary of the initialization range
 	double par_max_; ///< The upper boundary of the initialization range
 	std::vector<double> minima_; ///< The desired minima of the parabolas
+   std::string minima_string_;
 };
 
 /******************************************************************/
@@ -124,7 +130,7 @@ private:
  * A factory for GMultiCriterionParabolaIndividual objects
  */
 class GMultiCriterionParabolaIndividualFactory
-	:public GIndividualFactoryT<GMultiCriterionParabolaIndividual>
+	:public Gem::Common::GFactoryT<GMultiCriterionParabolaIndividual>
 {
 public:
 	/** @brief The standard constructor for this class */
@@ -133,19 +139,12 @@ public:
 	virtual ~GMultiCriterionParabolaIndividualFactory();
 
 protected:
-	/** @brief Necessary initialization work */
-	virtual void init_();
-	/** @brief Allows to describe configuration options of this class */
-	virtual void describeConfigurationOptions_();
-	/** @brief Creates individuals of the desired type */
-	virtual boost::shared_ptr<GMultiCriterionParabolaIndividual> getIndividual_(const std::size_t&);
-
-private:
-	std::size_t nPar_;
-	double par_min_;
-	double par_max_;
-	std::vector<double> minima_;
-	std::string minima_string_;
+   /** @brief Creates individuals of this type */
+   virtual boost::shared_ptr<GMultiCriterionParabolaIndividual> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+   /** @brief Allows to describe local configuration options in derived classes */
+   virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+   /** @brief Allows to act on the configuration options received from the configuration file */
+   virtual void postProcess_(boost::shared_ptr<GMultiCriterionParabolaIndividual>&);
 };
 
 

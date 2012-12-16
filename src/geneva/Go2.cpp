@@ -615,7 +615,9 @@ Go2& Go2::operator&(personality_oa pers) {
 
 /******************************************************************************/
 /**
- * Perform the actual optimization cycle
+ * Perform the actual optimization cycle. Note that we assume that individuals
+ * have either been registered with the Go2 object or with the first algorithm
+ * which has been added to the object.
  *
  * @param offset An offset at which the first algorithm should start
  */
@@ -1267,7 +1269,7 @@ void Go2::copyAlgorithmsVector(
 	std::size_t size_to = to.size();
 
 	if(size_from==size_to) { // The most likely case
-		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(), it_to!=to.end(); ++it_from, ++it_to) {
+		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
 			const boost::shared_ptr<GObject> go_from = boost::dynamic_pointer_cast<GObject>(*it_from);
 			boost::shared_ptr<GObject>       go_to   = boost::dynamic_pointer_cast<GObject>(*it_to);
 

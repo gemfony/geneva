@@ -52,6 +52,20 @@ GGradientDescentFactory::GGradientDescentFactory(
 
 /******************************************************************************/
 /**
+ * A constructor with the ability to switch the parallelization mode and
+ * to add a content creator. It initializes a target item as needed.
+ */
+GGradientDescentFactory::GGradientDescentFactory(
+   const std::string& configFile
+   , const parMode& pm
+   , boost::function<boost::shared_ptr<GParameterSet>()>&contentCreator
+)
+   : GOptimizationAlgorithmFactoryT<GBaseGD>(configFile, pm, contentCreator)
+   , maxResubmissions_(0)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * The destructor
  */
 GGradientDescentFactory::~GGradientDescentFactory()

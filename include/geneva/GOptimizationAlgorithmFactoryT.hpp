@@ -38,6 +38,8 @@
 // Boost header files go here
 #include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 #ifndef GOPTIMIZATIONALGORITHMFACTORYT_HPP_
 #define GOPTIMIZATIONALGORITHMFACTORYT_HPP_
@@ -66,7 +68,7 @@ const boost::uint16_t FACT_DEF_NEVALUATIONTHREADS=0;
 
 /******************************************************************************/
 /**
- * This class is a specialization of the GFactoryT<> class for optimization algorithms
+ * This class is a specialization of the GFactoryT<> class for optimization algorithms.
  */
 template <typename T>
 class GOptimizationAlgorithmFactoryT
@@ -89,6 +91,28 @@ public:
       , doLogging_(false)
       , boundlessWait_(false)
 		, waitFactorIncrement_(Gem::Courtier::DEFAULTBROKERWAITFACTORINCREMENT)
+		, contentCreator_()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * A constructor which also adds a content creation function
+	 */
+	GOptimizationAlgorithmFactoryT
+	(
+	      const std::string& configFile
+	      , const parMode& pm
+	      , boost::function<boost::shared_ptr<typename T::individual_type>()> &contentCreator
+	)
+	: Gem::Common::GFactoryT<T>(configFile)
+	  , pm_(pm)
+	  , nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+	  , minWaitFactor_(Gem::Courtier::DEFAULTMINBROKERWAITFACTOR)
+	  , maxWaitFactor_(Gem::Courtier::DEFAULTMAXBROKERWAITFACTOR)
+	  , doLogging_(false)
+	  , boundlessWait_(false)
+	  , waitFactorIncrement_(Gem::Courtier::DEFAULTBROKERWAITFACTORINCREMENT)
+	  , contentCreator_(contentCreator)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -97,6 +121,32 @@ public:
 	 */
 	virtual ~GOptimizationAlgorithmFactoryT()
 	{ /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Triggers the creation of objects of the desired type
+    *
+    * @return An object of the desired algorithm type
+    */
+   virtual boost::shared_ptr<T> get() {
+      // Retrieve a work item using the methods implemented in our parent class
+      boost::shared_ptr<T> p_alg = Gem::Common::GFactoryT<T>::get();
+
+      // If we have been given a factory function for individuals, fill the object with data
+      if(contentCreator_) { // Has a content creation object been registered ? If so, add individuals to the population
+         for(std::size_t ind=0; ind<p_alg->getDefaultPopulationSize(); ind++) {
+            boost::shared_ptr<typename T::individual_type> p_ind = contentCreator_();
+            if(!p_ind) { // No valid item received, the factory has run empty
+               break;
+            } else {
+               p_alg->push_back(p_ind);
+            }
+         }
+      }
+
+      // Return the filled object to the audience
+      return p_alg;
+   }
 
 protected:
 	/***************************************************************************/
@@ -212,6 +262,8 @@ protected:
 	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
 	bool boundlessWait_; ///< Indicates whether the retrieveItem call should wait for an unlimited amount of time
 	double waitFactorIncrement_; ///< The amount by which the waitFactor_ may be incremented or decremented
+
+	boost::function<boost::shared_ptr<typename T::individual_type>()> contentCreator_; ///< Holds a function capable of filling the collection with individuals
 
 private:
 	/***************************************************************************/

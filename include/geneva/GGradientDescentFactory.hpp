@@ -38,6 +38,7 @@
 // Boost header files go here
 #include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/function.hpp>
 
 #ifndef GGRADIENTDESCENTFACTORY_HPP_
 #define GGRADIENTDESCENTFACTORY_HPP_
@@ -69,7 +70,16 @@ class GGradientDescentFactory
 {
 public:
 	/** @brief The standard constructor */
-	GGradientDescentFactory(const std::string&, const parMode&);
+	GGradientDescentFactory(
+	      const std::string&
+	      , const parMode&
+	);
+   /** @brief A constructor that also adds a content creation function */
+   GGradientDescentFactory(
+         const std::string&
+         , const parMode&
+         , boost::function<boost::shared_ptr<GParameterSet>()>&
+   );
 	/** @brief The destructor */
 	virtual ~GGradientDescentFactory();
 

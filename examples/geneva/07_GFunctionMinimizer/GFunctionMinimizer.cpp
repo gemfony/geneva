@@ -62,7 +62,6 @@ int main(int argc, char **argv) {
 	// Create a factory for GFMinIndividual objects and perform
 	// any necessary initial work.
 	GFMinIndividualFactory gfi("./config/GFMinIndividual.json");
-	gfi.init();
 
 	// Retrieve an individual from the factory and make it known to the optimizer
 	go.push_back(gfi());

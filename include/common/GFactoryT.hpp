@@ -54,10 +54,8 @@
 #include <common/GParserBuilder.hpp>
 #include <common/GExceptions.hpp>
 
-namespace Gem
-{
-namespace Common
-{
+namespace Gem {
+namespace Common {
 
 /******************************************************************************/
 /**
@@ -97,51 +95,70 @@ public:
 	 * @return An individual of the desired type
 	 */
 	boost::shared_ptr<T> operator()() {
-		// Make sure the initialization code has been executed.
-		// This function will do nothing when called more than once
-		this->init();
+	   return this->get();
+	}
 
-		// Create a parser builder object. It will be destroyed at
-		// the end of this function and thus cannot cause trouble
-		// due to registered call-backs and references
-		Gem::Common::GParserBuilder gpb;
+   /***************************************************************************/
+	/**
+	 * Allows the creation of objects of the desired type in the old-fashioned way
+	 */
+	virtual boost::shared_ptr<T> get() {
+      // Make sure the initialization code has been executed.
+      // This function will do nothing when called more than once
+      this->globalInit();
 
-		// Add specific configuration options for the derived factory.
-		// These may correspond to local variables
-		this->describeLocalOptions_(gpb);
+      // Create a parser builder object. It will be destroyed at
+      // the end of this function and thus cannot cause trouble
+      // due to registered call-backs and references
+      Gem::Common::GParserBuilder gpb;
 
-		// Retrieve the actual object. It may, in the process of its
-		// creation, add further configuration options and call-backs to
-		// the parser
-		boost::shared_ptr<T> p = this->getObject_(gpb, id_++);
+      // Add specific configuration options for the derived factory.
+      // These may correspond to local variables
+      this->describeLocalOptions_(gpb);
 
-		// Read the configuration parameters from file
-		if(!gpb.parseConfigFile(configFile_)) {
-		   glogger
-		   << "In GFactoryT<T>::operator(): Error!" << std::endl
+      // Retrieve the actual object. It may, in the process of its
+      // creation, add further configuration options and call-backs to
+      // the parser
+      boost::shared_ptr<T> p = this->getObject_(gpb, id_++);
+
+      // Read the configuration parameters from file
+      if(!gpb.parseConfigFile(configFile_)) {
+         glogger
+         << "In GFactoryT<T>::operator(): Error!" << std::endl
          << "Could not parse configuration file " << configFile_ << std::endl
          << GEXCEPTION;
-		}
+      }
 
-		// Allow the factory to act on configuration options received
-		// in the parsing process.
-		this->postProcess_(p);
+      // Allow the factory to act on configuration options received
+      // in the parsing process.
+      this->postProcess_(p);
 
-		// Let the audience know
-		return p;
+      // Let the audience know
+      return p;
 	}
 
 	/***************************************************************************/
 	/**
-	 * Performs necessary initialization work. This function will do nothing when
-	 * called more than once.
+	 * Retrieves an object of the desired type and converts it to a target type
 	 */
-	virtual void init() {
-		if(!initialized_) {
-			// Perform the user-defined initialization work
-			this->init_();
-			initialized_ = true;
-		}
+	template <typename dT> // "dT" stands for "derived type"
+	boost::shared_ptr<dT> get() {
+
+#ifdef DEBUG
+      boost::shared_ptr<dT> p = boost::dynamic_pointer_cast<dT>(this->get());
+      if(p) return p;
+      else {
+         glogger
+         << "In boost::shared_ptr<dT> GFactoryT<T>::get<dT>() :" << std::endl
+         << "Invalid conversion" << std::endl
+         << GEXCEPTION;
+
+         // Make the compiler happy
+         return boost::shared_ptr<dT>();
+      }
+#else
+      return boost::static_pointer_cast<dT>(this->get());
+#endif /* DEBUG */
 	}
 
 	/***************************************************************************/
@@ -154,7 +171,7 @@ public:
 	void writeConfigFile(const std::string& header) {
 		// Make sure the initialization code has been executed.
 		// This function will do nothing when called more than once
-		this->init();
+		this->globalInit();
 
 		// Create a parser builder object. It will be destroyed at
 		// the end of this function and thus cannot cause trouble
@@ -194,6 +211,21 @@ protected:
 	virtual void postProcess_(boost::shared_ptr<T>&) = 0;
 
 private:
+   /***************************************************************************/
+   /**
+    * Performs necessary global initialization work. This function is meant for
+    * initialization work performed just one prior to the creation of the first
+    * item. It will do nothing when called more than once. All real work is done
+    * in the "init_()" function, which may be overloaded by the user.
+    */
+   void globalInit() {
+      if(!initialized_) {
+         // Perform the user-defined initialization work
+         this->init_();
+         initialized_ = true;
+      }
+   }
+
 	/***************************************************************************/
 	GFactoryT(); ///< The default constructor. Intentionally private and undefined
 

@@ -491,6 +491,9 @@ public:
    /** @brief Set the value of the sigmaSigma2_ variable */
    void setSigmaSigma2(double sigmaSigma2);
 
+   // End getters and setters
+   /**************************************************************************/
+
 protected:
 	/** @brief Creates individuals of this type */
 	virtual boost::shared_ptr<GFunctionIndividual> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);

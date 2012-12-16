@@ -307,10 +307,10 @@ void GDelayIndividualFactory::init_() {
 		sleepTokens.push_back(*s);
 	}
 	if(sleepTokens.empty()) { // No sleep tokens were provided
-		raiseException(
-				"In GDelayIndividualFactory::init_(): Error!" << std::endl
-				<< "You did not provide any delay timings"
-		);
+	   glogger
+	   << "In GDelayIndividualFactory::init_(): Error!" << std::endl
+      << "You did not provide any delay timings" << std::endl
+      << GEXCEPTION;
 	}
 
 	sleepSeconds_.clear();
@@ -332,10 +332,10 @@ void GDelayIndividualFactory::init_() {
 					sleepSeconds_.push_back(boost::lexical_cast<long>(*d));
 				}
 				catch(...) {
-					raiseException(
-							"In GDelayIndividualFactory::init_(): Error (1)!" << std::endl
-							<< "Could not transfer string " << *d << " to a numeric value"
-					);
+				   glogger
+				   << "In GDelayIndividualFactory::init_(): Error (1)!" << std::endl
+               << "Could not transfer string " << *d << " to a numeric value" << std::endl
+               << GEXCEPTION;
 				}
 				break;
 
@@ -344,19 +344,19 @@ void GDelayIndividualFactory::init_() {
 					sleepMilliSeconds_.push_back(boost::lexical_cast<long>(*d));
 				}
 				catch(...) {
-					raiseException(
-							"In GDelayIndividualFactory::init_(): Error (2)!" << std::endl
-							<< "Could not transfer string " << *d << " to a numeric value"
-					);
+				   glogger
+				   << "In GDelayIndividualFactory::init_(): Error (2)!" << std::endl
+               << "Could not transfer string " << *d << " to a numeric value" << std::endl
+               << GEXCEPTION;
 				}
 				break;
 
 			default:
 				{
-					raiseException(
-							"In GDelayIndividualFactory::init_(): Error!" << std::endl
-							<< "tokenCounter has reached invalid value " << tokenCounter
-					);
+				   glogger
+				   << "In GDelayIndividualFactory::init_(): Error!" << std::endl
+               << "tokenCounter has reached invalid value " << tokenCounter << std::endl
+               << GEXCEPTION;
 				}
 				break;
 			}
@@ -383,7 +383,7 @@ void GDelayIndividualFactory::describeConfigurationOptions_() {
 /********************************************************************************************/
 /**
  * Creates individuals of the desired type. We return valid individuals as often as there
- * are test cases in the delays_ string.
+ * are test cases in the delays_ string. Otherwise an empty shared_ptr is returned.
  *
  * @param id An enumerator to the number of calls to this function
  * @return An object of the desired type
@@ -421,8 +421,6 @@ boost::shared_ptr<GDelayIndividual> GDelayIndividualFactory::getIndividual_(cons
 
 		// Assign to the result item
 		result = gdi_ptr;
-	} else {
-		std::cout << "Reached the end of production." << std::endl;
 	}
 
 	return result;

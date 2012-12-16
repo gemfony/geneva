@@ -51,6 +51,19 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 
 /******************************************************************************/
 /**
+ * A constructor with the ability to switch the parallelization mode and
+ * to add a content creator. It initializes a target item as needed.
+ */
+GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
+   const std::string& configFile
+   , const parMode& pm
+   , boost::function<boost::shared_ptr<GIndividual>()>&contentCreator
+)
+   : GOptimizationAlgorithmFactoryT<GBaseEA>(configFile, pm, contentCreator)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * The destructor
  */
 GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()

@@ -15,6 +15,7 @@ The main changes for this release include:
  - Added a simple logging framework, including exception handling, that allows to 
    stream information to be logged.
  - Gave gemfony_error_condition the ability to be streamed
+ - Removed the deprecated GIndividualFactoryT class in favour of the more general GFactoryT
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

@@ -51,6 +51,19 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 
 /******************************************************************************/
 /**
+ * A constructor with the ability to switch the parallelization mode and
+ * to add a content creator. It initializes a target item as needed.
+ */
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
+   const std::string& configFile
+   , const parMode& pm
+   , boost::function<boost::shared_ptr<GParameterSet>()>& contentCreator
+)
+   : GOptimizationAlgorithmFactoryT<GBaseSwarm>(configFile, pm, contentCreator)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * The destructor
  */
 GSwarmAlgorithmFactory::~GSwarmAlgorithmFactory()

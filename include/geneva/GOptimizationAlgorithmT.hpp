@@ -73,6 +73,9 @@ public:
 	// Forward declaration, as this class is only defined at the end of this file
 	class GOptimizationMonitorT;
 
+	// Allow external entities to determine the type used for the individuals
+	typedef ind_type individual_type;
+
 private:
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

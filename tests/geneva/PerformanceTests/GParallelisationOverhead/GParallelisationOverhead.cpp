@@ -52,14 +52,14 @@ using namespace Gem::Geneva;
 using namespace Gem::Tests;
 
 int main(int argc, char **argv) {
-	Go go(argc, argv, "GParallelisationOverhead.cfg");
+   Go2::init();
+   Go2 go(argc, argv, "./config/Go2.json");
 
-	//---------------------------------------------------------------------
-	// Client mode
-	if(go.clientMode()) {
-		go.clientRun();
-		return 0;
-	}
+   //---------------------------------------------------------------------
+   // Client mode
+   if(go.clientMode()) {
+      return go.clientRun();
+   }
 
 	//---------------------------------------------------------------------
 	// Server mode, serial or multi-threaded execution
@@ -67,7 +67,6 @@ int main(int argc, char **argv) {
 	// Create a factory for GFunctionIndividual objects and perform
 	// any necessary initial work.
 	GDelayIndividualFactory gdif("./GDelayIndividual.json");
-	gdif.init();
 
 	//---------------------------------------------------------------------
 	// Prepare the output files used to record the measurements

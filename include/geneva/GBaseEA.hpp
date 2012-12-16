@@ -89,7 +89,7 @@ const sortingMode DEFAULTSMODE=MUPLUSNU_SINGLEEVAL;
  * as implied by the population size and the number of parents set at the beginning.
  */
 class GBaseEA
-:public GOptimizationAlgorithmT<GIndividual>
+   :public GOptimizationAlgorithmT<GIndividual>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;

@@ -38,6 +38,7 @@
 // Boost header files go here
 #include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/function.hpp>
 
 #ifndef GSWARMALGORITHMFACTORY_HPP_
 #define GSWARMALGORITHMFACTORY_HPP_
@@ -70,7 +71,16 @@ class GSwarmAlgorithmFactory
 {
 public:
 	/** @brief The standard constructor */
-	GSwarmAlgorithmFactory(const std::string&, const parMode&);
+	GSwarmAlgorithmFactory(
+	      const std::string&
+	      , const parMode&
+	);
+	/** @brief Adds a content creator in addition */
+   GSwarmAlgorithmFactory(
+         const std::string&
+         , const parMode&
+         , boost::function<boost::shared_ptr<GParameterSet>()>&
+   );
 	/** @brief The destructor */
 	virtual ~GSwarmAlgorithmFactory();
 

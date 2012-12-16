@@ -211,7 +211,6 @@ int main(int argc, char **argv){
 	// Create a factory for GFunctionIndividual objects and perform
 	// any necessary initial work.
 	GFunctionIndividualFactory gfi("./GFunctionIndividual.json");
-	gfi.init();
 
 	// Add individuals to the population.
 	// NOTE: Unlike evolutionary algorithms, we do not have to add an adaptor to the population
