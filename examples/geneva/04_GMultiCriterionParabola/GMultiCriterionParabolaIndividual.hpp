@@ -130,7 +130,7 @@ private:
  * A factory for GMultiCriterionParabolaIndividual objects
  */
 class GMultiCriterionParabolaIndividualFactory
-	:public Gem::Common::GFactoryT<GMultiCriterionParabolaIndividual>
+	:public Gem::Common::GFactoryT<GMultiCriterionParabolaIndividual, GParameterSet>
 {
 public:
 	/** @brief The standard constructor for this class */

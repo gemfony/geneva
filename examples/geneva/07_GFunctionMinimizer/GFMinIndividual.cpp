@@ -291,7 +291,7 @@ double GFMinIndividual::noisyParabola(const std::vector<double>& parVec) const {
  * @param configFile The name of the configuration file
  */
 GFMinIndividualFactory::GFMinIndividualFactory(const std::string& configFile)
-	: Gem::Common::GFactoryT<GFMinIndividual>(configFile)
+	: Gem::Common::GFactoryT<GFMinIndividual, GParameterSet>(configFile)
 	, adProb_(GFI_DEF_ADPROB)
 	, sigma_(GFI_DEF_SIGMA)
 	, sigmaSigma_(GFI_DEF_SIGMASIGMA)
@@ -419,7 +419,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder& 
 	);
 
 	// Allow our parent class to describe its options
-	Gem::Common::GFactoryT<GFMinIndividual>::describeLocalOptions_(gpb);
+	Gem::Common::GFactoryT<GFMinIndividual, GParameterSet>::describeLocalOptions_(gpb);
 }
 
 /********************************************************************************************/

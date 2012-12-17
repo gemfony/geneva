@@ -493,7 +493,7 @@ double GFunctionIndividual::fitnessCalculation(){
  * @param configFile The name of the configuration file
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& configFile)
-	: Gem::Common::GFactoryT<GFunctionIndividual>(configFile)
+	: Gem::Common::GFactoryT<GFunctionIndividual, GParameterSet>(configFile)
 	, adProb_(GFI_DEF_ADPROB)
 	, adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD)
 	, useBiGaussian_(GFI_DEF_USEBIGAUSSIAN)
@@ -1250,7 +1250,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 
 
 	// Allow our parent class to describe its options
-	Gem::Common::GFactoryT<GFunctionIndividual>::describeLocalOptions_(gpb);
+	Gem::Common::GFactoryT<GFunctionIndividual, GParameterSet>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/

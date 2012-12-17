@@ -72,7 +72,7 @@ const boost::uint16_t FACT_DEF_NEVALUATIONTHREADS=0;
  */
 template <typename T>
 class GOptimizationAlgorithmFactoryT
-	: public Gem::Common::GFactoryT<T>
+	: public Gem::Common::GFactoryT<T,T>
 {
 public:
 	/***************************************************************************/
@@ -83,7 +83,7 @@ public:
 	      const std::string& configFile
 	      , const parMode& pm
 	)
-		: Gem::Common::GFactoryT<T>(configFile)
+		: Gem::Common::GFactoryT<T,T>(configFile)
 		, pm_(pm)
 		, nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 		, minWaitFactor_(Gem::Courtier::DEFAULTMINBROKERWAITFACTOR)
@@ -104,7 +104,7 @@ public:
 	      , const parMode& pm
 	      , boost::function<boost::shared_ptr<typename T::individual_type>()> &contentCreator
 	)
-	: Gem::Common::GFactoryT<T>(configFile)
+	: Gem::Common::GFactoryT<T,T>(configFile)
 	  , pm_(pm)
 	  , nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 	  , minWaitFactor_(Gem::Courtier::DEFAULTMINBROKERWAITFACTOR)
@@ -130,7 +130,7 @@ public:
     */
    virtual boost::shared_ptr<T> get() {
       // Retrieve a work item using the methods implemented in our parent class
-      boost::shared_ptr<T> p_alg = Gem::Common::GFactoryT<T>::get();
+      boost::shared_ptr<T> p_alg = Gem::Common::GFactoryT<T,T>::get();
 
       // If we have been given a factory function for individuals, fill the object with data
       if(contentCreator_) { // Has a content creation object been registered ? If so, add individuals to the population

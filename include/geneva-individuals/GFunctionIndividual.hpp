@@ -54,7 +54,6 @@
 // Geneva header files go here
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "hap/GRandomT.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GConstrainedDoubleCollection.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
@@ -62,6 +61,7 @@
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
+#include "hap/GRandomT.hpp"
 
 namespace Gem
 {
@@ -385,7 +385,7 @@ private:
  * A factory for GFunctionIndividual objects
  */
 class GFunctionIndividualFactory
-	: public Gem::Common::GFactoryT<GFunctionIndividual>
+	: public Gem::Common::GFactoryT<GFunctionIndividual, GParameterSet>
 {
 public:
 	/** @brief The standard constructor */

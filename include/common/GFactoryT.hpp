@@ -41,6 +41,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/utility.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/type_traits.hpp>
 
 #ifndef GFACTORYT_HPP_
 #define GFACTORYT_HPP_
@@ -53,6 +55,7 @@
 // Geneva header files go here
 #include <common/GParserBuilder.hpp>
 #include <common/GExceptions.hpp>
+#include <common/GHelperFunctionsT.hpp>
 
 namespace Gem {
 namespace Common {
@@ -62,13 +65,18 @@ namespace Common {
  * A factory class that returns objects of type T . The class comprises a framework
  * for reading additional configuration options from a configuration file. The actual setup
  * work needs to be done in functions that are implemented in derived classes for each target
- * object individually, or in specializations of this class.
+ * object individually, or in specializations of this class. "prod_type" is the type of
+ * object produced in he getObject_() function. It must be convertible to the "emitter_type",
+ * which is emitted by the get() function.
  */
-template <typename T>
+template <typename prod_type, typename emitter_type>
 class GFactoryT
 	:private boost::noncopyable
 {
 public:
+	// Make sure base_type can be converted to prod_type
+   // BOOST_MPL_ASSERT((boost::is_convertible(prod_type *, emitter_type *)));
+
 	/***************************************************************************/
 	/**
 	 * The standard constructor
@@ -94,7 +102,7 @@ public:
 	 *
 	 * @return An individual of the desired type
 	 */
-	boost::shared_ptr<T> operator()() {
+	boost::shared_ptr<emitter_type> operator()() {
 	   return this->get();
 	}
 
@@ -102,7 +110,7 @@ public:
 	/**
 	 * Allows the creation of objects of the desired type in the old-fashioned way
 	 */
-	virtual boost::shared_ptr<T> get() {
+	virtual boost::shared_ptr<emitter_type> get() {
       // Make sure the initialization code has been executed.
       // This function will do nothing when called more than once
       this->globalInit();
@@ -119,12 +127,12 @@ public:
       // Retrieve the actual object. It may, in the process of its
       // creation, add further configuration options and call-backs to
       // the parser
-      boost::shared_ptr<T> p = this->getObject_(gpb, id_++);
+      boost::shared_ptr<prod_type> p = this->getObject_(gpb, id_++);
 
       // Read the configuration parameters from file
       if(!gpb.parseConfigFile(configFile_)) {
          glogger
-         << "In GFactoryT<T>::operator(): Error!" << std::endl
+         << "In GFactoryT<prod_type>::operator(): Error!" << std::endl
          << "Could not parse configuration file " << configFile_ << std::endl
          << GEXCEPTION;
       }
@@ -134,31 +142,17 @@ public:
       this->postProcess_(p);
 
       // Let the audience know
-      return p;
+      return Gem::Common::convertSmartPointer<prod_type, emitter_type>(p);
 	}
 
 	/***************************************************************************/
 	/**
-	 * Retrieves an object of the desired type and converts it to a target type
+	 * Retrieves an object of the desired type and converts it to a target type,
+	 * if possible.
 	 */
-	template <typename dT> // "dT" stands for "derived type"
-	boost::shared_ptr<dT> get() {
-
-#ifdef DEBUG
-      boost::shared_ptr<dT> p = boost::dynamic_pointer_cast<dT>(this->get());
-      if(p) return p;
-      else {
-         glogger
-         << "In boost::shared_ptr<dT> GFactoryT<T>::get<dT>() :" << std::endl
-         << "Invalid conversion" << std::endl
-         << GEXCEPTION;
-
-         // Make the compiler happy
-         return boost::shared_ptr<dT>();
-      }
-#else
-      return boost::static_pointer_cast<dT>(this->get());
-#endif /* DEBUG */
+	template <typename tT> // "tT" stands for "target type"
+	boost::shared_ptr<tT> get() {
+	   return Gem::Common::convertSmartPointer<emitter_type, tT>(this->get());
 	}
 
 	/***************************************************************************/
@@ -183,7 +177,7 @@ public:
 
 		// Retrieve an object (will be discarded at the end of this function)
 		// Here, further options may be added to the parser builder.
-		boost::shared_ptr<T> p = this->getObject_(gpb, id_++);
+		boost::shared_ptr<prod_type> p = this->getObject_(gpb, id_++);
 
 		// Allow the factory to act on configuration options received
 		// in the parsing process.
@@ -206,9 +200,9 @@ protected:
 	/** @brief Allows to describe local configuration options in derived classes */
 	virtual void describeLocalOptions_(Gem::Common::GParserBuilder& gpb) {};
 	/** @brief Creates individuals of the desired type */
-	virtual boost::shared_ptr<T> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
+	virtual boost::shared_ptr<prod_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(boost::shared_ptr<T>&) = 0;
+	virtual void postProcess_(boost::shared_ptr<prod_type>&) = 0;
 
 private:
    /***************************************************************************/

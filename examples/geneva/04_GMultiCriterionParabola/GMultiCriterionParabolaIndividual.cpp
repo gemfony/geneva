@@ -236,7 +236,7 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation(){
  * @param cF The name of the configuration file
  */
 GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFactory(const std::string& cF)
-	: GFactoryT<GMultiCriterionParabolaIndividual>(cF)
+	: Gem::Common::GFactoryT<GMultiCriterionParabolaIndividual, GParameterSet>(cF)
 { /* nothing */ }
 
 /******************************************************************************/

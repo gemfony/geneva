@@ -597,7 +597,7 @@ std::ostream& operator<<(std::ostream& stream, const GStarterIndividual& gsi) {
  * @param configFile The name of the configuration file
  */
 GStarterIndividualFactory::GStarterIndividualFactory(const std::string& configFile)
-	: Gem::Common::GFactoryT<GStarterIndividual>(configFile)
+	: Gem::Common::GFactoryT<GStarterIndividual, GParameterSet>(configFile)
 	, adProb_(GFI_DEF_ADPROB)
 	, sigma_(GFI_DEF_SIGMA)
 	, sigmaSigma_(GFI_DEF_SIGMASIGMA)
@@ -742,7 +742,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
    );
 
 	// Allow our parent class to describe its options
-	Gem::Common::GFactoryT<GStarterIndividual>::describeLocalOptions_(gpb);
+	Gem::Common::GFactoryT<GStarterIndividual, GParameterSet>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/

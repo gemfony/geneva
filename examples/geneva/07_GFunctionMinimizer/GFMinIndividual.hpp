@@ -165,7 +165,7 @@ private:
  * A factory for GFMinIndividual objects
  */
 class GFMinIndividualFactory
-	: public Gem::Common::GFactoryT<GFMinIndividual>
+	: public Gem::Common::GFactoryT<GFMinIndividual, GParameterSet>
 {
 public:
 	/** @brief The standard constructor */

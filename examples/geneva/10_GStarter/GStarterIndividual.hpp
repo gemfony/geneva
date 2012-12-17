@@ -273,7 +273,7 @@ std::ostream& operator<<(std::ostream&, const GStarterIndividual&);
  * A factory for GStarterIndividual objects
  */
 class GStarterIndividualFactory
-	: public Gem::Common::GFactoryT<GStarterIndividual>
+	: public Gem::Common::GFactoryT<GStarterIndividual,GParameterSet>
 {
 public:
 	/** @brief The standard constructor */

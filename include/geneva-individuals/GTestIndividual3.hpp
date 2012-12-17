@@ -79,7 +79,6 @@
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "common/GFactoryT.hpp"
 #include "common/GMathHelperFunctions.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
 

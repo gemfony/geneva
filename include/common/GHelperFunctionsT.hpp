@@ -155,6 +155,30 @@ void copySmartPointerVector(
 }
 
 /******************************************************************************/
+/**
+ * This function converts a smart pointer to a target type, throwing an exception
+ * if the conversion cannot be done.
+ */
+template <typename source_type, typename target_type>
+boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type> p) {
+#ifdef DEBUG
+      boost::shared_ptr<target_type> p = boost::dynamic_pointer_cast<target_type>(p);
+      if(p) return p;
+      else {
+         glogger
+         << "In boost::shared_ptr<dT> convertSmartPointer(boost::shared_ptr<source_type> p) :" << std::endl
+         << "Invalid conversion" << std::endl
+         << GEXCEPTION;
+
+         // Make the compiler happy
+         return boost::shared_ptr<target_type>();
+      }
+#else
+      return boost::static_pointer_cast<target_type>(p);
+#endif /* DEBUG */
+}
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
