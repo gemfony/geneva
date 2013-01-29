@@ -57,10 +57,8 @@
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GBrokerEA.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 // Default settings
@@ -79,7 +77,7 @@ public:
 	/**
 	 * The standard constructor
 	 */
-	GOptimizationAlgorithmFactoryT(
+	GOptimizationAlgorithmFactoryT (
 	      const std::string& configFile
 	      , const parMode& pm
 	)
@@ -98,8 +96,7 @@ public:
 	/**
 	 * A constructor which also adds a content creation function
 	 */
-	GOptimizationAlgorithmFactoryT
-	(
+	GOptimizationAlgorithmFactoryT (
 	      const std::string& configFile
 	      , const parMode& pm
 	      , boost::function<boost::shared_ptr<typename T::individual_type>()> &contentCreator

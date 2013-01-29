@@ -230,7 +230,7 @@ int main(int argc, char **argv){
   // If this is a client in networked mode, we can just start the listener and
   // leave when it has finished
   if(parallelizationMode==2 && !serverMode) {
-    boost::shared_ptr<GAsioTCPClientT<GIndividual> > p(new GAsioTCPClientT<GIndividual>(ip, boost::lexical_cast<std::string>(port)));
+    boost::shared_ptr<GAsioTCPClientT<GParameterSet> > p(new GAsioTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
     p->setMaxStalls(0); // An infinite number of stalled data retrievals
     p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
@@ -247,7 +247,7 @@ int main(int argc, char **argv){
   //***************************************************************************
 
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
-  std::vector<boost::shared_ptr<GIndividual> > parentIndividuals;
+  std::vector<boost::shared_ptr<GParameterSet> > parentIndividuals;
   switch(tF) {
   case Gem::Geneva::SIGMOID:
 	  for(std::size_t p = 0 ; p<nParents; p++) {
@@ -320,8 +320,8 @@ int main(int argc, char **argv){
   case 2: // Networked execution (server-side)
     {
       // Create a network consumer and enrol it with the broker
-      boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port, 0, serMode));
-      GBROKER(Gem::Geneva::GIndividual)->enrol(gatc);
+      boost::shared_ptr<GAsioTCPConsumerT<GParameterSet> > gatc(new GAsioTCPConsumerT<GParameterSet>(port, 0, serMode));
+      GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 
       // Create the actual broker population
       boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());

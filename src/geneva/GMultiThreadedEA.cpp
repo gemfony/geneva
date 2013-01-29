@@ -151,20 +151,21 @@ bool GMultiThreadedEA::operator!=(const GMultiThreadedEA& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(
+      const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
 	const GMultiThreadedEA *p_load = GObject::gobject_conversion<GMultiThreadedEA>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
-    std::vector<boost::optional<std::string> > deviations;
+   std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
 	deviations.push_back(GBaseEA::checkRelationshipWith(cp, e, limit, "GMultiThreadedEA", y_name, withMessages));
@@ -192,7 +193,7 @@ void GMultiThreadedEA::init() {
 
 	// Set the server mode and store the original flag
 	bool first = true;
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it){
 		if(first){
 			storedServerMode_ = (*it)->getServerMode();
@@ -214,7 +215,7 @@ void GMultiThreadedEA::init() {
  */
 void GMultiThreadedEA::finalize() {
 	// Restore the original values
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it) {
 		(*it)->setServerMode(storedServerMode_);
 	}
@@ -233,10 +234,10 @@ void GMultiThreadedEA::finalize() {
 void GMultiThreadedEA::adaptChildren()
 {
 	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
 	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
-		tp_->schedule(boost::function<void()>(boost::bind(&GIndividual::adapt, *it)));
+		tp_->schedule(boost::function<void()>(boost::bind(&GParameterSet::adapt, *it)));
 	}
 
 	// Wait for all threads in the pool to complete their work
@@ -250,7 +251,7 @@ void GMultiThreadedEA::adaptChildren()
 void GMultiThreadedEA::evaluateChildren()
 {
 	boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
 #ifdef DEBUG
    // There should be no situation in which a "clean" individual is submitted
@@ -258,7 +259,7 @@ void GMultiThreadedEA::evaluateChildren()
    for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
       if(!this->at(i)->isDirty()) {
          glogger
-         << "In GSerialEA::evaluateChildren(): Error!" << std::endl
+         << "In GMultiThreadedEA::evaluateChildren(): Error!" << std::endl
          << "Tried to evaluate \"clean\" children." << std::endl
          << GEXCEPTION;
       }
@@ -268,7 +269,7 @@ void GMultiThreadedEA::evaluateChildren()
 	// Make evaluation possible and initiate the worker threads
 	for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
 		(*it)->setServerMode(false);
-		tp_->schedule(boost::function<double()>(boost::bind(&GIndividual::doFitnessCalculation, *it)));
+		tp_->schedule(boost::function<double()>(boost::bind(&GParameterSet::doFitnessCalculation, *it)));
 	}
 
 	// Wait for all threads in the pool to complete their work

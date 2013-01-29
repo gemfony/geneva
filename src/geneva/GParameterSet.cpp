@@ -200,6 +200,7 @@ bool GParameterSet::updateOnStall() {
 		break;
 
 	case PERSONALITY_EA:
+	case PERSONALITY_SA:
 #ifdef DEBUG
 	{
 		// This function should only be called for parents. Check ...
@@ -212,6 +213,16 @@ bool GParameterSet::updateOnStall() {
 	}
 #endif /* DEBUG */
 	break;
+
+   case PERSONALITY_MPEA:
+   default:
+   {
+      glogger
+      << "In GParameterSet::updateOnStall(): Error!" << std::endl
+      << "Encountered incorrect personality " << getPersonality() << std::endl
+      << GEXCEPTION;
+   }
+      break;
 
 	}
 

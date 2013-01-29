@@ -1,5 +1,5 @@
 /**
- * @file GSerialEA.cpp
+ * @file GSerialSA.cpp
  */
 
 /*
@@ -31,9 +31,9 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.com .
  */
-#include "geneva/GSerialEA.hpp"
+#include "geneva/GSerialSA.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialEA)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialSA)
 
 namespace Gem {
 namespace Geneva {
@@ -43,18 +43,18 @@ namespace Geneva {
  * A standard constructor. No local, dynamically allocated data,
  * hence this function is empty.
  */
-GSerialEA::GSerialEA()
-   : GBaseEA()
+GSerialSA::GSerialSA()
+   : GBaseSA()
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard copy constructor
  *
- * @param cp Reference to another GSerialEA object
+ * @param cp Reference to another GSerialSA object
  */
-GSerialEA::GSerialEA(const GSerialEA& cp)
-   : GBaseEA(cp)
+GSerialSA::GSerialSA(const GSerialSA& cp)
+   : GBaseSA(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -62,37 +62,37 @@ GSerialEA::GSerialEA(const GSerialEA& cp)
  * The standard destructor. No local, dynamically allocated data,
  * hence this function is empty.
  */
-GSerialEA::~GSerialEA()
+GSerialSA::~GSerialSA()
 { /* nothing */ }
 
 /******************************************************************************/
 /**
- * A standard assignment operator for GSerialEA objects.
+ * A standard assignment operator for GSerialSA objects.
  *
- * @param cp Reference to another GSerialEA object
+ * @param cp Reference to another GSerialSA object
  * @return A constant reference to this object
  */
-const GSerialEA& GSerialEA::operator=(const GSerialEA& cp) {
-	GSerialEA::load_(&cp);
-	return *this;
+const GSerialSA& GSerialSA::operator=(const GSerialSA& cp) {
+   GSerialSA::load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/
 /**
- * Loads the data from another GSerialEA object.
+ * Loads the data from another GSerialSA object.
  *
- * @param vp Pointer to another GSerialEA object, camouflaged as a GObject
+ * @param vp Pointer to another GSerialSA object, camouflaged as a GObject
  */
-void GSerialEA::load_(const GObject *cp) {
-	// Convert GObject pointer to local format
-	// const GSerialEA *p_load = this->gobject_conversion<GSerialEA>(cp);
-	// Uncomment the previous line and comment the following line if you wish to use local data
-	GObject::selfAssignmentCheck<GSerialEA>(cp);
+void GSerialSA::load_(const GObject *cp) {
+   // Convert GObject pointer to local format
+   // const GSerialSA *p_load = this->gobject_conversion<GSerialSA>(cp);
+   // Uncomment the previous line and comment the following line if you wish to use local data
+   GObject::selfAssignmentCheck<GSerialSA>(cp);
 
-	// First load our parent class'es data ...
-	GBaseEA::load_(cp);
+   // First load our parent class'es data ...
+   GBaseSA::load_(cp);
 
-	// no local data ...
+   // no local data ...
 }
 
 /******************************************************************************/
@@ -101,34 +101,34 @@ void GSerialEA::load_(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GSerialEA::clone_() const  {
-	return new GSerialEA(*this);
+GObject *GSerialSA::clone_() const  {
+   return new GSerialSA(*this);
 }
 
 /******************************************************************************/
 /**
- * Checks for equality with another GSerialEA object
+ * Checks for equality with another GSerialSA object
  *
- * @param  cp A constant reference to another GSerialEA object
+ * @param  cp A constant reference to another GSerialSA object
  * @return A boolean indicating whether both objects are equal
  */
-bool GSerialEA::operator==(const GSerialEA& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialEA::operator==","cp", CE_SILENT);
+bool GSerialSA::operator==(const GSerialSA& cp) const {
+   using namespace Gem::Common;
+   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialSA::operator==","cp", CE_SILENT);
 }
 
 /******************************************************************************/
 /**
- * Checks for inequality with another GSerialEA object
+ * Checks for inequality with another GSerialSA object
  *
- * @param  cp A constant reference to another GSerialEA object
+ * @param  cp A constant reference to another GSerialSA object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GSerialEA::operator!=(const GSerialEA& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialEA::operator!=","cp", CE_SILENT);
+bool GSerialSA::operator!=(const GSerialSA& cp) const {
+   using namespace Gem::Common;
+   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialSA::operator!=","cp", CE_SILENT);
 }
 
 /******************************************************************************/
@@ -144,51 +144,51 @@ bool GSerialEA::operator!=(const GSerialEA& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GSerialEA::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
+boost::optional<std::string> GSerialSA::checkRelationshipWith(const GObject& cp,
+      const Gem::Common::expectation& e,
+      const double& limit,
+      const std::string& caller,
+      const std::string& y_name,
+      const bool& withMessages) const
 {
     using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	// const GSerialEA *p_load = GObject::gobject_conversion<GSerialEA>(&cp);
-	// Uncomment the previous line and comment the following line if you wish to use local data
-	GObject::selfAssignmentCheck<GSerialEA>(&cp);
+   // Check that we are indeed dealing with a GParamterBase reference
+   // const GSerialSA *p_load = GObject::gobject_conversion<GSerialSA>(&cp);
+   // Uncomment the previous line and comment the following line if you wish to use local data
+   GObject::selfAssignmentCheck<GSerialSA>(&cp);
 
-	// Will hold possible deviations from the expectation, including explanations
+   // Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
-	// Check our parent class'es data ...
-	deviations.push_back(GBaseEA::checkRelationshipWith(cp, e, limit, "GSerialEA", y_name, withMessages));
+   // Check our parent class'es data ...
+   deviations.push_back(GBaseSA::checkRelationshipWith(cp, e, limit, "GSerialSA", y_name, withMessages));
 
-	// ... no local data
+   // ... no local data
 
-	return evaluateDiscrepancies("GSerialEA", caller, deviations, e);
+   return evaluateDiscrepancies("GSerialSA", caller, deviations, e);
 }
 
 /******************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization
  */
-void GSerialEA::init() {
-	// GBaseEA sees exactly the environment it would when called from its own class
-	GBaseEA::init();
+void GSerialSA::init() {
+   // GBaseSA sees exactly the environment it would when called from its own class
+   GBaseSA::init();
 
-	// Put own initialization code here
+   // Put own initialization code here
 }
 
 /******************************************************************************/
 /**
  * Necessary clean-up work after the optimization has finished
  */
-void GSerialEA::finalize() {
+void GSerialSA::finalize() {
     // Put own finalization code here
 
-	// GBaseEA sees exactly the environment it would when called from its own class
-	GBaseEA::finalize();
+   // GBaseSA sees exactly the environment it would when called from its own class
+   GBaseSA::finalize();
 }
 
 /******************************************************************************/
@@ -198,14 +198,14 @@ void GSerialEA::finalize() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GSerialEA::addConfigurationOptions (
-	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
+void GSerialSA::addConfigurationOptions (
+   Gem::Common::GParserBuilder& gpb
+   , const bool& showOrigin
 ) {
-	// Call our parent class'es function
-	GBaseEA::addConfigurationOptions(gpb, showOrigin);
+   // Call our parent class'es function
+   GBaseSA::addConfigurationOptions(gpb, showOrigin);
 
-	// No local data
+   // No local data
 }
 
 /******************************************************************************/
@@ -214,32 +214,32 @@ void GSerialEA::addConfigurationOptions (
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
  * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
  */
-std::string GSerialEA::getIndividualCharacteristic() const {
-	return std::string("GENEVA_SERIALOPTALG");
+std::string GSerialSA::getIndividualCharacteristic() const {
+   return std::string("GENEVA_SERIALOPTALG");
 }
 
 /******************************************************************************/
 /**
  * Adapt all children in sequence. Evaluation is done in a seperate function (evaluateChildren).
  */
-void GSerialEA::adaptChildren()
+void GSerialSA::adaptChildren()
 {
-	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+   boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
+   std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
-	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
-		(*it)->adapt();
-	}
+   for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
+      (*it)->adapt();
+   }
 }
 
 /******************************************************************************/
 /**
  * Evaluate all children (and possibly parents, depending on the iteration)
  */
-void GSerialEA::evaluateChildren()
+void GSerialSA::evaluateChildren()
 {
-	boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+   boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
+   std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
 #ifdef DEBUG
    // There should be no situation in which a "clean" individual is submitted
@@ -247,21 +247,21 @@ void GSerialEA::evaluateChildren()
    for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
       if(!this->at(i)->isDirty()) {
          glogger
-         << "In GSerialEA::evaluateChildren(): Error!" << std::endl
+         << "In GSerialSA::evaluateChildren(): Error!" << std::endl
          << "Tried to evaluate \"clean\" children." << std::endl
          << GEXCEPTION;
       }
    }
 #endif
 
-	for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
-		// Make re-evaluation accessible
-		(*it)->setServerMode(false);
-		// Perform the actual evaluation
-		(*it)->doFitnessCalculation();
-		// Make re-evaluation impossible
-		(*it)->setServerMode(true);
-	}
+   for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
+      // Make re-evaluation accessible
+      (*it)->setServerMode(false);
+      // Perform the actual evaluation
+      (*it)->doFitnessCalculation();
+      // Make re-evaluation impossible
+      (*it)->setServerMode(true);
+   }
 }
 
 /******************************************************************************/
@@ -270,17 +270,17 @@ void GSerialEA::evaluateChildren()
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GSerialEA::modify_GUnitTests() {
+bool GSerialSA::modify_GUnitTests() {
 #ifdef GEM_TESTING
-	bool result = false;
+   bool result = false;
 
-	// Call the parent class'es function
-	if(GBaseEA::modify_GUnitTests()) result = true;
+   // Call the parent class'es function
+   if(GBaseSA::modify_GUnitTests()) result = true;
 
-	return result;
+   return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GSerialEA::modify_GUnitTests", "GEM_TESTING");
+   condnotset("GSerialSA::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -289,27 +289,17 @@ bool GSerialEA::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GSerialEA::specificTestsNoFailureExpected_GUnitTests() {
+void GSerialSA::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 
-   GBaseEA::specificTestsNoFailureExpected_GUnitTests();
+   // Call the parent class'es function
+   GBaseSA::specificTestsNoFailureExpected_GUnitTests();
 
-	//---------------------------------------------------------------------------
-
-	{ // Call the parent class'es function
-		boost::shared_ptr<GSerialEA> p_test = this->clone<GSerialEA>();
-
-		// Fill p_test with individuals
-		p_test->fillWithObjects();
-
-		// Run the parent class'es tests
-		p_test->GBaseEA::specificTestsNoFailureExpected_GUnitTests();
-	}
-
-	//---------------------------------------------------------------------------
+   //---------------------------------------------------------------------------
+   //---------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GSerialEA::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   condnotset("GSerialSA::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -317,13 +307,13 @@ void GSerialEA::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GSerialEA::specificTestsFailuresExpected_GUnitTests() {
+void GSerialSA::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-	// Call the parent class'es function
-	GBaseEA::specificTestsFailuresExpected_GUnitTests();
+   // Call the parent class'es function
+   GBaseSA::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GSerialEA::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   condnotset("GSerialSA::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

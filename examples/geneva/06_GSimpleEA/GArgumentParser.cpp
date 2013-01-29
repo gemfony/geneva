@@ -166,8 +166,6 @@ bool parseConfigFile(
 		, boost::uint16_t& xDim
 		, boost::uint16_t& yDim
 		, bool& followProgress
-		, bool& trackParentRelations
-		, bool& drawArrows
 ) {
 	boost::uint16_t recombinationScheme = 0;
 	boost::uint16_t sortingScheme = 0;
@@ -235,10 +233,6 @@ bool parseConfigFile(
 	        "The y-dimension of the canvas for the result print(s)")
 	       ("followProgress", po::value<bool>(&followProgress)->default_value(DEFAULTFOLLOWPROGRESS),
 	    	"Specifies whether snapshots should be taken in regular intervals")
-	       ("trackParentRelations", po::value<bool>(&trackParentRelations)->default_value(DEFAULTTRACKPARENTRELATIONS),
-	    	"If set, tracks old parents and their relationship with current individuals")
-	       ("drawArrows", po::value<bool>(&drawArrows)->default_value(DEFAULTDRAWARROWS),
-	    	"If set, triggers the drawing of arrows from old parents to children")
 	    ;
 
 		po::variables_map vm;
@@ -320,8 +314,6 @@ bool parseConfigFile(
 					<< "xDim = " << xDim << std::endl
 					<< "yDim = " << yDim << std::endl
 					<< "followProgress = " << (followProgress?"true":"false") << std::endl
-					<< "trackParentRelations = " << (trackParentRelations?"true":"false") << std::endl
-					<< "drawArrows = " << drawArrows << std::endl
 					<< std::endl;
 		}
 	} catch (...) {

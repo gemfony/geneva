@@ -3,7 +3,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( OPTIMIZATIONINCLUDES
 	GAdaptorT.hpp
 	GBaseEA.hpp
+	GBaseParChildPersonalityTraits.hpp
+	GBaseParChildT.hpp
 	GBaseGD.hpp
+	GBaseSA.hpp
 	GBaseSwarm.hpp
 	GBooleanAdaptor.hpp
 	GBooleanCollection.hpp
@@ -11,6 +14,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GBooleanObjectCollection.hpp
 	GBrokerEA.hpp
 	GBrokerGD.hpp
+	GBrokerSA.hpp
 	GBrokerSwarm.hpp
 	GConstrainedDoubleCollection.hpp
 	GConstrainedDoubleObject.hpp
@@ -54,8 +58,11 @@ SET ( OPTIMIZATIONINCLUDES
 	GIntFlipAdaptorT.hpp
 	GIntGaussAdaptorT.hpp
 	GIntNumCollectionT.hpp
+	GMPEAPersonalityTraits.hpp
+	GMultiPopulationEAT.hpp
 	GMultiThreadedEA.hpp
 	GMultiThreadedGD.hpp
+	GMultiThreadedSA.hpp	
 	GMultiThreadedSwarm.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp
@@ -66,7 +73,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumFPT.hpp
 	GNumIntT.hpp
 	GNumT.hpp
-	Go.hpp
 	Go2.hpp
 	GObject.hpp
 	GObjectExpectationChecksT.hpp
@@ -83,9 +89,12 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterTCollectionT.hpp
 	GPersonalityTraits.hpp
 	GRateableI.hpp
+	GSAPersonalityTraits.hpp
 	GSerialEA.hpp
 	GSerialGD.hpp
+	GSerialSA.hpp
 	GSerialSwarm.hpp
+	GSimulatedAnnealingFactory.hpp
 	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp
 	GSwarmAlgorithmFactory.hpp

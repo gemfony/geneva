@@ -36,10 +36,8 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GDelayIndividual)
 
-namespace Gem
-{
-namespace Tests
-{
+namespace Gem {
+namespace Tests {
 
 /********************************************************************************************/
 /**

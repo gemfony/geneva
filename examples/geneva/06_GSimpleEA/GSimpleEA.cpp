@@ -93,8 +93,6 @@ int main(int argc, char **argv){
   boost::uint16_t xDim;
   boost::uint16_t yDim;
   bool followProgress;
-  bool trackParentRelations;
-  bool drawArrows;
   bool addLocalConsumer;
 
   if(!parseCommandLine(
@@ -135,8 +133,6 @@ int main(int argc, char **argv){
 		 , xDim
 		 , yDim
 		 , followProgress
-		 , trackParentRelations
-		 , drawArrows
      ))
     { exit(1); }
 
@@ -172,8 +168,6 @@ int main(int argc, char **argv){
   pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
   pm_ptr->setXExtremes(minVar, maxVar);
   pm_ptr->setYExtremes(minVar, maxVar);
-  pm_ptr->setTrackParentRelations(trackParentRelations);
-  pm_ptr->setDrawArrows(drawArrows);
 
   //***************************************************************************
   // Create a factory for GFunctionIndividual objects and perform
@@ -273,7 +267,6 @@ int main(int argc, char **argv){
   pop_ptr->setRecombinationMethod(rScheme);
   pop_ptr->setSortingScheme(smode);
   pop_ptr->registerOptimizationMonitor(pm_ptr);
-  pop_ptr->setLogOldParents(trackParentRelations);
   
   // Do the actual optimization
   pop_ptr->optimize();

@@ -661,7 +661,23 @@ personality_oa GIndividual::setPersonality(const personality_oa& pers) {
 	case PERSONALITY_SWARM:
 		pt_ptr_ = boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits());
 		break;
+
+   case PERSONALITY_SA:
+      pt_ptr_ = boost::shared_ptr<GSAPersonalityTraits>(new GSAPersonalityTraits());
+      break;
+
+   case PERSONALITY_MPEA:
+      pt_ptr_ = boost::shared_ptr<GMPEAPersonalityTraits>(new GMPEAPersonalityTraits());
+      break;
+
+   default:
+      glogger
+      << "In GIndividual::setPersonality(): Error!" << std::endl
+      << "Tried to set unknown personality type " << pers << std::endl
+      << GEXCEPTION;
+      break;
 	}
+
 
 	// Update our local personality
 	pers_ = pers;

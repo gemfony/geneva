@@ -125,9 +125,6 @@ public:
 	/** @brief Returns information about the type of optimization algorithm */
 	virtual personality_oa getOptimizationAlgorithm() const;
 
-	/** @brief Sets the individual's personality types to GradientDescent */
-	void setIndividualPersonalities();
-
 	/** @brief Retrieves the number of starting points of the algorithm */
 	std::size_t getNStartingPoints() const;
 	/** @brief Allows to set the number of starting points for the gradient descent */
@@ -143,8 +140,8 @@ public:
 	/** @brief Retrieves the current step size */
 	float getStepSize() const;
 
-	/** @brief Retrieves the number of processable items for the current iteration */
-	virtual std::size_t getNProcessableItems() const;
+   /** @brief Retrieves the number of processable items for the current iteration */
+   virtual std::size_t getNProcessableItems() const;
 
 	/** @brief Returns the name of this optimization algorithm */
 	virtual std::string getAlgorithmName() const;

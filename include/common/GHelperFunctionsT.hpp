@@ -74,6 +74,7 @@
 
 // Our own headers go here
 #include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
 
 namespace Gem {
 namespace Common {
@@ -160,13 +161,13 @@ void copySmartPointerVector(
  * if the conversion cannot be done.
  */
 template <typename source_type, typename target_type>
-boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type> p) {
+boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type> p_raw) {
 #ifdef DEBUG
-      boost::shared_ptr<target_type> p = boost::dynamic_pointer_cast<target_type>(p);
+      boost::shared_ptr<target_type> p = boost::dynamic_pointer_cast<target_type>(p_raw);
       if(p) return p;
       else {
          glogger
-         << "In boost::shared_ptr<dT> convertSmartPointer(boost::shared_ptr<source_type> p) :" << std::endl
+         << "In boost::shared_ptr<dT> convertSmartPointer(boost::shared_ptr<source_type> p_raw) :" << std::endl
          << "Invalid conversion" << std::endl
          << GEXCEPTION;
 
@@ -174,7 +175,7 @@ boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type
          return boost::shared_ptr<target_type>();
       }
 #else
-      return boost::static_pointer_cast<target_type>(p);
+      return boost::static_pointer_cast<target_type>(p_raw);
 #endif /* DEBUG */
 }
 

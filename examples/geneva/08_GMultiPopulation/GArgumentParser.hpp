@@ -80,7 +80,7 @@ namespace Gem
     const boost::uint32_t DEFAULTMAXITERATIONSSUPER=20;
     const long DEFAULTMAXMINUTESSUPER=0;
     const boost::uint32_t DEFAULTREPORTITERATIONSUPER=1;
-    const sortingMode DEFAULTSORTINGSCHEMESUPER=MUPLUSNU_SINGLEEVAL;
+    const sortingModeMP DEFAULTSORTINGSCHEMESUPER=MUPLUSNU_SINGLEEVAL_MP;
     const duplicationScheme DEFAULTRSCHEMESUPER=VALUEDUPLICATIONSCHEME;
     const std::size_t DEFAULTPOPULATIONSIZESUB=100;
     const std::size_t DEFAULTNPARENTSSUB=5; // Allow to explore the parameter space from many starting points
@@ -112,11 +112,6 @@ namespace Gem
     bool parseCommandLine(
     		int argc, char **argv
 		  , std::string& configFile
-		  , boost::uint16_t& parallelizationMode
-		  , bool& serverMode
-		  , std::string& ip
-		  , unsigned short& port
-		  , Gem::Common::serializationMode& serMode
 	);
 
     bool parseConfigFile(
@@ -129,7 +124,7 @@ namespace Gem
 		  , long& maxMinutesSuper
 		  , boost::uint32_t& reportIterationSuper
 		  , duplicationScheme& rSchemeSuper
-		  , sortingMode& smodeSuper
+		  , sortingModeMP& smodeSuper
 		  , std::size_t& populationSizeSub
 		  , std::size_t& nParentsSub
 		  , boost::uint32_t& maxIterationsSub

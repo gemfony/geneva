@@ -38,7 +38,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/Geneva.hpp>
+#include <geneva/Go2.hpp>
 
 // The individual that should be optimized
 #include "GMultiCriterionParabolaIndividual.hpp"
@@ -46,8 +46,8 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Geneva::init();
-	Go go(argc, argv, "GMultiCriterionParabola.cfg");
+	Go2::init();
+	Go2 go(argc, argv, "Go2.json");
 
 	//---------------------------------------------------------------------
 	// Client mode (networked)
@@ -72,7 +72,5 @@ int main(int argc, char **argv) {
 	// Do something with the best result
 
 	// Terminate
-	Geneva::finalize();
-	std::cout << "Done ..." << std::endl;
-	return 0;
+	return Go2::finalize();
 }

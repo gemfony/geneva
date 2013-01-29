@@ -51,7 +51,7 @@
 #include "courtier/GBrokerConnectorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GBaseGD.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GParameterSet.hpp"
 
 #ifdef GEM_TESTING
 #include "geneva-individuals/GTestIndividual1.hpp"
@@ -66,7 +66,7 @@ namespace Geneva {
  */
 class GBrokerGD
 	: public GBaseGD
-	, public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
+	, public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -76,8 +76,8 @@ class GBrokerGD
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseGD)
-		   & make_nvp("GBrokerConnectorT_GIndividual",
-		         boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this));
+		   & make_nvp("GBrokerConnectorT_GParameterSet",
+		         boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GParameterSet> >(*this));
 	}
 
 	///////////////////////////////////////////////////////////////////////

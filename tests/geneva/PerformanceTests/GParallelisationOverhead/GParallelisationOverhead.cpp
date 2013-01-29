@@ -43,7 +43,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/Go.hpp>
+#include <geneva/Go2.hpp>
 
 // The individual that should be optimized
 #include "GDelayIndividual.hpp"

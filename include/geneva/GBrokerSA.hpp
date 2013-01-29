@@ -1,5 +1,5 @@
 /**
- * @file GBrokerEA.hpp
+ * @file GBrokerSA.hpp
  */
 
 /*
@@ -37,8 +37,8 @@
 
 // Boost headers go here
 
-#ifndef GBROKEREA_HPP_
-#define GBROKEREA_HPP_
+#ifndef GBROKERSA_HPP_
+#define GBROKERSA_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -48,16 +48,15 @@
 // Geneva headers go here
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GBrokerConnectorT.hpp"
-#include "geneva/GEAPersonalityTraits.hpp"
-#include "geneva/GBaseEA.hpp"
+#include "geneva/GSAPersonalityTraits.hpp"
+#include "geneva/GBaseSA.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GThreadPool.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
+
 /******************************************************************************/
 /**
  * This population handles evolutionary algorithm-based optimization in environments
@@ -69,8 +68,8 @@ namespace Geneva
  * Serialization in a network context only happens below the level of this population,
  * it is itself usually not shipped over a network connection.
  */
-class GBrokerEA
-   : public GBaseEA
+class GBrokerSA
+   : public GBaseSA
    , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>
 {
    ///////////////////////////////////////////////////////////////////////
@@ -80,7 +79,8 @@ class GBrokerEA
    void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseEA)
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSA)
       & make_nvp("GBrokerConnectorT_GParameterSet", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GParameterSet> >(*this))
       & BOOST_SERIALIZATION_NVP(nThreads_);
    }
@@ -88,19 +88,19 @@ class GBrokerEA
 
 public:
    /** @brief The standard constructor */
-   GBrokerEA();
+   GBrokerSA();
    /** @brief A standard copy constructor */
-   GBrokerEA(const GBrokerEA&);
+   GBrokerSA(const GBrokerSA&);
    /** @brief The standard destructor */
-   virtual ~GBrokerEA();
+   virtual ~GBrokerSA();
 
    /** @brief A standard assignment operator */
-   const GBrokerEA& operator=(const GBrokerEA&);
+   const GBrokerSA& operator=(const GBrokerSA&);
 
-   /** @brief Checks for equality with another GBrokerEA object */
-   bool operator==(const GBrokerEA&) const;
-   /** @brief Checks for inequality with another GBrokerEA object */
-   bool operator!=(const GBrokerEA&) const;
+   /** @brief Checks for equality with another GBrokerSA object */
+   bool operator==(const GBrokerSA&) const;
+   /** @brief Checks for inequality with another GBrokerSA object */
+   bool operator!=(const GBrokerSA&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
    virtual boost::optional<std::string> checkRelationshipWith(
@@ -163,7 +163,7 @@ private:
    class indParentComp {
    public:
       bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
-         return (x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GEAPersonalityTraits>()->isParent());
+         return (x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GSAPersonalityTraits>()->isParent());
       }
    };
 
@@ -183,7 +183,7 @@ private:
       { /* nothing */ }
 
       bool operator()(boost::shared_ptr<GParameterSet> x) {
-         if(x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() && x->getAssignedIteration() != current_iteration_) {
+         if(x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() && x->getAssignedIteration() != current_iteration_) {
             return true;
          } else {
             return false;
@@ -217,6 +217,6 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBrokerEA)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBrokerSA)
 
-#endif /* GBROKEREA_HPP_ */
+#endif /* GBROKERSA_HPP_ */

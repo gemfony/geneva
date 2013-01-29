@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 	// Client mode
 	if(go.clientMode()) {
 		return go.clientRun();
-	}
+	} // Execution will end here in client mode
 
 	//---------------------------------------------------------------------
 
@@ -63,11 +63,11 @@ int main(int argc, char **argv) {
    // any necessary initial work.
    GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
-	// Add an evolutionary algorithm in multi-threaded mode. The
-   // FunctionIndividual-factory will take care of the creation
+	// Add an evolutionary algorithm in multi-threaded mode.
+   // GFunctionIndividualFactory will take care of the creation
    // of individuals
-   boost::function<boost::shared_ptr<GIndividual>()> gfi_fun
-         = boost::bind(&GFunctionIndividualFactory::get<GIndividual>, boost::ref(gfi));
+   boost::function<boost::shared_ptr<GParameterSet>()> gfi_fun
+          = boost::bind(&GFunctionIndividualFactory::get<GParameterSet>, boost::ref(gfi));
 	GEvolutionaryAlgorithmFactory ea(
 	      "./config/GEvolutionaryAlgorithm.json"
 	      , PARMODE_MULTITHREADED
@@ -79,6 +79,8 @@ int main(int argc, char **argv) {
 
 	// Perform the actual optimization
 	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
+
+	// Here you can do something with the best individual ("p") found
 
 	// Terminate
 	return Go2::finalize();

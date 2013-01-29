@@ -211,7 +211,7 @@ float GBaseGD::getStepSize() const {
  * @return The number of processable items in the current iteration
  */
 std::size_t GBaseGD::getNProcessableItems() const {
-	return this->size(); // Evaluation always needs to be done for the entire population
+   return this->size(); // Evaluation always needs to be done for the entire population
 }
 
 /******************************************************************************/
@@ -391,16 +391,6 @@ void GBaseGD::load_(const GObject *cp) {
 	nFPParmsFirst_ = p_load->nFPParmsFirst_;
 	finiteStep_ = p_load->finiteStep_;
 	stepSize_ = p_load->stepSize_;
-}
-
-/******************************************************************************/
-/**
- * Sets the individual's personality types to GradientDescent
- */
-void GBaseGD::setIndividualPersonalities() {
-	for(GBaseGD::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->setPersonality(PERSONALITY_GD);
-	}
 }
 
 /******************************************************************************/

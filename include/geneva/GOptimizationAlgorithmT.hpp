@@ -64,7 +64,7 @@ namespace Geneva {
  * a given amount of time. The class also defines the interface functions common to these
  * algorithms, such as a general call to "optimize()".
  */
-template <typename ind_type = Gem::Geneva::GIndividual>
+template <typename ind_type>
 class GOptimizationAlgorithmT
 	: public GMutableSetT<ind_type>
 	, public GOptimizableI
@@ -1082,8 +1082,13 @@ protected:
 	virtual GObject* clone_() const = 0;
 
 	/***************************************************************************/
-	/** @brief Allows derived classes to set the personality type of the individuals */
-	virtual void setIndividualPersonalities() = 0;
+	/**
+	 * Allows to set the personality type of the individuals
+	 */
+	virtual void setIndividualPersonalities() {
+      typename GOptimizationAlgorithmT<ind_type>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(this->getOptimizationAlgorithm());
+	}
 
 	/***************************************************************************/
 	/**

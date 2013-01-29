@@ -282,19 +282,27 @@ enum adaptorId {
 
 /******************************************************************************/
 /**
- * The selection mode in populations. MUPLUSNU_SINGLEEVAL means that new parents are selected from old
+ * The selection mode in EA populations. MUPLUSNU_SINGLEEVAL means that new parents are selected from old
  * parents and their children. MUCOMMNU means that new parents are selected from children only.
  * MUNU1PRETAIN_SINGLEEVAL means that the best parent of the last generation will also become a new parent
- * (unless a better child was found). All other parents are selected from children only. SA_SINGLEEVAL
- * is a selection scheme used in simulated annealing.
+ * (unless a better child was found). All other parents are selected from children only.
  */
 enum sortingMode {
 	  MUPLUSNU_SINGLEEVAL = 0
 	, MUCOMMANU_SINGLEEVAL = 1
 	, MUNU1PRETAIN_SINGLEEVAL = 2
-	, SA_SINGLEEVAL = 3
-	, MUPLUSNU_PARETO = 4
-	, MUCOMMANU_PARETO = 5
+	, MUPLUSNU_PARETO = 3
+	, MUCOMMANU_PARETO = 4
+};
+
+/******************************************************************************/
+/**
+ * The selection mode in MPEA populations.
+ */
+enum sortingModeMP {
+     MUPLUSNU_SINGLEEVAL_MP = 0
+   , MUCOMMANU_SINGLEEVAL_MP = 1
+   , MUNU1PRETAIN_SINGLEEVAL_MP = 2
 };
 
 /******************************************************************************/
@@ -312,9 +320,11 @@ const double SA_ALPHA = 0.95; ///< The degradation strength in simulated anneali
  */
 enum personality_oa {
 	  PERSONALITY_NONE = 0
-	, PERSONALITY_EA = 1
-	, PERSONALITY_GD = 2
-	, PERSONALITY_SWARM = 3
+	, PERSONALITY_EA = 1 // Evolutionary algorithms
+	, PERSONALITY_GD = 2 // Gradient descents
+	, PERSONALITY_SWARM = 3 // Swarm algorithms
+	, PERSONALITY_SA = 4 // Simulated annealing
+	, PERSONALITY_MPEA = 5 // Multi population
 };
 
 /******************************************************************************/
@@ -408,6 +418,12 @@ std::ostream& operator<<(std::ostream&, const Gem::Geneva::sortingMode&);
 
 /** @brief Reads a Gem::Geneva::sortingMode from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Geneva::sortingMode&);
+
+/** @brief Puts a Gem::Geneva::sortingModeMP into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::sortingModeMP&);
+
+/** @brief Reads a Gem::Geneva::sortingModeMP from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::sortingModeMP&);
 
 /** @brief Puts a Gem::Geneva::personality_oa into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Geneva::personality_oa&);

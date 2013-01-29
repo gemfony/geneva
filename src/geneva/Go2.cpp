@@ -444,8 +444,8 @@ GObject *Go2::clone_() const {
  */
 int Go2::clientRun() {
 	// Instantiate the client worker
-	boost::shared_ptr<Gem::Courtier::GAsioTCPClientT<Gem::Geneva::GIndividual> >
-		p(new Gem::Courtier::GAsioTCPClientT<Gem::Geneva::GIndividual>(ip_, boost::lexical_cast<std::string>(port_)));
+	boost::shared_ptr<Gem::Courtier::GAsioTCPClientT<Gem::Geneva::GParameterSet> >
+		p(new Gem::Courtier::GAsioTCPClientT<Gem::Geneva::GParameterSet>(ip_, boost::lexical_cast<std::string>(port_)));
 
 	p->setMaxStalls(maxStalledDataTransfers_); // Set to 0 to allow an infinite number of stalls
 	p->setMaxConnectionAttempts(maxConnectionAttempts_); // Set to 0 to allow an infinite number of failed connection attempts
@@ -527,17 +527,27 @@ double Go2::fitnessCalculation() {
 
 /******************************************************************************/
 /**
- * Allows to add an optimization algorithm to the chain
+ * Allows to add an optimization algorithm to the chain. If any individuals have
+ * been registered, the algorithm will unload them.
  *
  * @param alg A base pointer to another optimization algorithm
  */
-void Go2::addAlgorithm(boost::shared_ptr<GOptimizableI> alg) {
+void Go2::addAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > alg) {
 	// Check that the pointer is not empty
 	if(!alg) {
 	   glogger
 	   << "In Go2::addAlgorithm(): Error!" << std::endl
       << "Tried to register an empty pointer" << std::endl
       << GEXCEPTION;
+	}
+
+	if(!alg->empty()) { // Have individuals been registered ?
+	   GOptimizationAlgorithmT<GParameterSet>::iterator it;
+	   for(it=alg->begin(); it!=alg->end(); ++it) {
+	      this->push_back(*it);
+	   }
+
+	   alg->clear();
 	}
 
 	algorithms_.push_back(alg);
@@ -554,7 +564,7 @@ void Go2::addAlgorithm(boost::shared_ptr<GOptimizableI> alg) {
  * @param alg A base pointer to another optimization algorithm
  * @return A reference to this object
  */
-Go2& Go2::operator&(boost::shared_ptr<GOptimizableI> alg) {
+Go2& Go2::operator&(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > alg) {
 	this->addAlgorithm(alg);
 	return *this;
 }
@@ -562,7 +572,7 @@ Go2& Go2::operator&(boost::shared_ptr<GOptimizableI> alg) {
 /******************************************************************************/
 /**
  * Allows to add an algorithm with unspecified parallelization mode to the chain. The
- * mode is then set internally accordoing to the value of the parMode_ variable. This
+ * mode is then set internally according to the value of the parMode_ variable. This
  * allows to dynamically change the parallelization mode e.g. with a command-line
  * parameter.
  *
@@ -593,12 +603,28 @@ void Go2::addAlgorithm(personality_oa pers) {
 		}
 		break;
 
+   case PERSONALITY_SA:
+      {
+         GSimulatedAnnealingFactory gsaf("config/GSimulatedAnnealing.json", parMode_);
+         this->addAlgorithm(gsaf());
+      }
+      break;
+
 	case PERSONALITY_SWARM:
 		{
-			GSwarmAlgorithmFactory gsaf("config/GSwarmAlgorithm.json", parMode_);
-			this->addAlgorithm(gsaf());
+			GSwarmAlgorithmFactory gswaf("config/GSwarmAlgorithm.json", parMode_);
+			this->addAlgorithm(gswaf());
 		}
 		break;
+
+	default:
+      {
+         glogger
+         << "In Go2::addAlgorithm(): Error!" << std::endl
+         << "Encountered invalid algorithm type " << pers << std::endl
+         << GEXCEPTION;
+      }
+      break;
 	}
 }
 
@@ -631,9 +657,11 @@ void Go2::optimize(const boost::uint32_t& offset) {
 
 	// Check that algorithms have indeed been registered
 	if(algorithms_.empty()) {
-		std::cerr << "No algorithms have been registered." << std::endl
-				  << "Adding evolutionary algorithm with" << std::endl
-				  << "default settings" << std::endl;
+		std::cerr
+		<< "No algorithms have been registered." << std::endl
+		<< "Adding evolutionary algorithm with" << std::endl
+		<< "default settings" << std::endl;
+
 		this->addAlgorithm(PERSONALITY_EA);
 	}
 
@@ -650,7 +678,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	bool maxmode = this->front()->getMaxMode();
 
 	// Check that all individuals have the same mode
-	GMutableSetT<GParameterSet>::iterator ind_it;
+	GOptimizationAlgorithmT<GParameterSet>::iterator ind_it;
 	for(ind_it=this->begin()+1; ind_it!=this->end(); ++ind_it) {
 		if((*ind_it)->getMaxMode() != maxmode) {
 		   glogger
@@ -663,20 +691,20 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	// Loop over all algorithms
 	iterationsConsumed_ = offset_;
 	sorted_ = false;
-	std::vector<boost::shared_ptr<GOptimizableI> >::iterator alg_it;
+	std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >::iterator alg_it;
 	for(alg_it=algorithms_.begin(); alg_it!=algorithms_.end(); ++alg_it) {
-		boost::shared_ptr<GOptimizableI> p_base = (*alg_it);
+		boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > p_base = (*alg_it);
 
 		// If this is a broker-based population, check whether we need to enrol a consumer
-		if(p_base->usesBroker() && !GBROKER(Gem::Geneva::GIndividual)->hasConsumers()) {
+		if(p_base->usesBroker() && !GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
 			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual>(
+			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet> > gatc(new Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>(
 					port_
 					, 0 // Try to automatically determine the number of listener threads
 					, serializationMode_
 					)
 			);
-			GBROKER(Gem::Geneva::GIndividual)->enrol(gatc);
+			GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 		}
 
 		switch(p_base->getOptimizationAlgorithm()) {
@@ -693,7 +721,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			assert(this->empty());
 
 			// Do the actual optimization
-			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_);
+			bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
 
 			// Make sure we start with the correct iteration in the next algorithm
 			iterationsConsumed_ = p_base->getIteration();
@@ -708,6 +736,34 @@ void Go2::optimize(const boost::uint32_t& offset) {
 		}
 			break;
 
+      case PERSONALITY_SA:
+      {
+         // Add the individuals to the EA. Note that it needs to be converted for this purpose
+         boost::shared_ptr<GBaseSA> p_derived = boost::dynamic_pointer_cast<GBaseSA>(p_base);
+         for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {
+            p_derived->push_back(*ind_it);
+         }
+
+         // Remove our local copies
+         this->clear();
+         assert(this->empty());
+
+         // Do the actual optimization
+         bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
+
+         // Make sure we start with the correct iteration in the next algorithm
+         iterationsConsumed_ = p_base->getIteration();
+
+         // Unload the individuals from the last algorithm and store them again in this object
+         std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->GOptimizableI::getBestIndividuals<GParameterSet>();
+         std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
+         for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
+            this->push_back(*best_it);
+         }
+         bestIndividuals.clear();
+      }
+         break;
+
 		case PERSONALITY_SWARM:
 		{
 			// Add the individuals to the Swarm. Note that it needs to be converted for this purpose
@@ -721,7 +777,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			assert(this->empty());
 
 			// Do the actual optimization
-			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_);
+			bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
 
 			// Make sure we start with the correct iteration in the next algorithm
 			iterationsConsumed_ = p_base->getIteration();
@@ -749,7 +805,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			assert(this->empty());
 
 			// Do the actual optimization
-			bestIndividual_ = p_base->optimize<GParameterSet>(iterationsConsumed_);
+			bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
 
 			// Make sure we start with the correct iteration in the next algorithm
 			iterationsConsumed_ = p_base->getIteration();
@@ -1213,7 +1269,7 @@ void Go2::parseCommandLine(int argc, char **argv) {
 				boost::trim(alg);
 				personality_oa num_alg = boost::lexical_cast<personality_oa>(alg);
 
-				if(num_alg != PERSONALITY_EA && num_alg != PERSONALITY_GD && num_alg != PERSONALITY_SWARM) {
+				if(num_alg != PERSONALITY_EA && num_alg != PERSONALITY_GD && num_alg != PERSONALITY_SA && num_alg != PERSONALITY_SWARM) {
 				   glogger
 				   << "In Go2::parseCommandLine(): Error!" << std::endl
                << "Received invalid personality " << num_alg << std::endl
@@ -1259,11 +1315,11 @@ void Go2::parseCommandLine(int argc, char **argv) {
  * derivative. Note that this must be considered a hack.
  */
 void Go2::copyAlgorithmsVector(
-	const std::vector<boost::shared_ptr<GOptimizableI> >& from
-	, std::vector<boost::shared_ptr<GOptimizableI> >& to
+	const std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >& from
+	, std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >& to
 ) {
-	std::vector<boost::shared_ptr<GOptimizableI> >::const_iterator it_from;
-	std::vector<boost::shared_ptr<GOptimizableI> >::iterator it_to;
+	std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >::const_iterator it_from;
+	std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >::iterator it_to;
 
 	std::size_t size_from = from.size();
 	std::size_t size_to = to.size();
@@ -1288,7 +1344,7 @@ void Go2::copyAlgorithmsVector(
 		// Then attach copies of the remaining items
 		for(it_from=from.begin()+size_to; it_from!=from.end(); ++it_from) {
 			to.push_back(
-				boost::dynamic_pointer_cast<GOptimizableI>((boost::dynamic_pointer_cast<GObject>(*it_from))->GObject::clone())
+				boost::dynamic_pointer_cast<GOptimizationAlgorithmT<GParameterSet> >((boost::dynamic_pointer_cast<GObject>(*it_from))->GObject::clone())
 			);
 		}
 	}

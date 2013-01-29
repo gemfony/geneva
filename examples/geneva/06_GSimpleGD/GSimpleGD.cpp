@@ -94,8 +94,6 @@ int main(int argc, char **argv){
   boost::uint16_t xDim;
   boost::uint16_t yDim;
   bool followProgress;
-  bool trackParentRelations;
-  bool drawArrows;
   std::size_t nStartingPoints;
   float finiteStep;
   float stepSize;

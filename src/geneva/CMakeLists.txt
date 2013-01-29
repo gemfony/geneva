@@ -3,6 +3,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( OPTIMIZATIONSOURCES
 	GBaseEA
 	GBaseGD
+	GBaseParChildPersonalityTraits
+	GBaseSA
 	GBaseSwarm
 	GBooleanAdaptor
 	GBooleanCollection
@@ -10,6 +12,7 @@ SET ( OPTIMIZATIONSOURCES
 	GBooleanObjectCollection
 	GBrokerEA
 	GBrokerGD
+	GBrokerSA
 	GBrokerSwarm
 	GConstrainedDoubleCollection
 	GConstrainedDoubleObject
@@ -41,10 +44,11 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32GaussAdaptor
 	GInt32Object
 	GInt32ObjectCollection
+	GMPEAPersonalityTraits
 	GMultiThreadedEA
 	GMultiThreadedGD
+	GMultiThreadedSA
 	GMultiThreadedSwarm
-	Go
 	Go2
 	GObject
 	GOptimizableI
@@ -55,9 +59,12 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterObjectCollection
 	GParameterSet
 	GPersonalityTraits
+	GSAPersonalityTraits
 	GSerialEA
 	GSerialGD
+	GSerialSA
 	GSerialSwarm
+	GSimulatedAnnealingFactory
 	GSwarmAlgorithmFactory
 	GSwarmPersonalityTraits
 )

@@ -47,11 +47,6 @@ namespace Gem
   bool parseCommandLine(
   		int argc, char **argv
 		  , std::string& configFile
-		  , boost::uint16_t& parallelizationMode
-		  , bool& serverMode
-		  , std::string& ip
-		  , unsigned short& port
-		  , Gem::Common::serializationMode& serMode
   ) {
 	  try{
 		  // Check the command line options. Uses the Boost program options library.
@@ -60,13 +55,6 @@ namespace Gem
 			  ("help,h", "emit help message")
 			  ("configFile,c", po::value<std::string>(&configFile)->default_value(DEFAULTCONFIGFILE),
 				"The name of the configuration file holding further configuration options")
-			  ("parallelizationMode,p", po::value<boost::uint16_t>(&parallelizationMode)->default_value(DEFAULTPARALLELIZATIONMODEAP),
-				"Whether or not to run this optimization in serial mode (0), multi-threaded (1) or networked (2) mode")
-			  ("serverMode,s","Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")
-			  ("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP), "The ip of the server")
-			  ("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT), "The port of the server")
-			  ("serMode", po::value<Gem::Common::serializationMode>(&serMode)->default_value(DEFAULTSERMODE),
-			   "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 		  ;
 
 		  po::variables_map vm;
@@ -79,35 +67,9 @@ namespace Gem
 			  return false;
 		  }
 
-		  if (vm.count("parallelizationMode")) {
-			  if(parallelizationMode > 2) {
-				  std::cout << "Error: the \"-p\" or \"--parallelizationMode\" option may only assume the"<< std::endl
-						  << "values 0 (serial), 1 (multi-threaded) or 2 (mt-consumer). Leaving ..." << std::endl;
-				  return false;
-			  }
-		  }
-
-		  std::string parModeString;
-		  switch(parallelizationMode) {
-		  case 0:
-			  parModeString = "serial";
-			  break;
-		  case 1:
-			  parModeString = "multi-threaded";
-			  break;
-		  case 2:
-			  parModeString = "networked";
-			  break;
-		  };
-
 		  std::cout << std::endl
 				  << "Running with the following command line options:" << std::endl
 				  << "configFile = " << configFile << std::endl
-				  << "parallelizationMode = " << parModeString << std::endl
-				  << "serverMode = " << (serverMode?"true":"false") << std::endl
-				  << "ip = " << ip << std::endl
-				  << "port = " << port << std::endl
-				  << "serMode = " << serMode << std::endl
 				  << std::endl;
 	  }
 	  catch(...){
@@ -133,7 +95,7 @@ namespace Gem
 		  , long& maxMinutesSuper
 		  , boost::uint32_t& reportIterationSuper
 		  , duplicationScheme& rSchemeSuper
-		  , sortingMode& smodeSuper
+		  , sortingModeMP& smodeSuper
 		  , std::size_t& populationSizeSub
 		  , std::size_t& nParentsSub
 		  , boost::uint32_t& maxIterationsSub
@@ -185,7 +147,7 @@ namespace Gem
 	   "The number of iterations after which information should be emitted in the super-population")
 	  ("rSchemeSuper",po::value<boost::uint16_t>(&recombinationSchemeSuper)->default_value(DEFAULTRSCHEMESUPER),
 	   "The recombination scheme for the super-population")
-	  ("sortingSchemeSuper", po::value<sortingMode>(&smodeSuper)->default_value(DEFAULTSORTINGSCHEMESUPER),
+	  ("sortingSchemeSuper", po::value<sortingModeMP>(&smodeSuper)->default_value(DEFAULTSORTINGSCHEMESUPER),
 	   "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode in the super-population")
 	  ("populationSizeSub",po::value<std::size_t>(&populationSizeSub)->default_value(DEFAULTPOPULATIONSIZESUB),
 	   "The size of the sub-population")

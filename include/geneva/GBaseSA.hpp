@@ -1,5 +1,5 @@
 /**
- * @file GBaseEA.hpp
+ * @file GBaseSA.hpp
  */
 
 /*
@@ -37,8 +37,8 @@
 // Boost headers go here
 #include <boost/tuple/tuple.hpp>
 
-#ifndef GBASEEA_HPP_
-#define GBASEEA_HPP_
+#ifndef GBASESA_HPP_
+#define GBASESA_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -54,22 +54,13 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GBaseParChildT.hpp"
-#include "geneva/GEAPersonalityTraits.hpp"
-
-#ifdef GEM_TESTING
-#include "geneva-individuals/GTestIndividual1.hpp"
-#endif /* GEM_TESTING */
+#include "geneva/GSAPersonalityTraits.hpp"
 
 namespace Gem {
 namespace Geneva {
 
 // Forward declaration
-class GEAOptimizationMonitor;
-
-/**
- * The default sorting mode
- */
-const sortingMode DEFAULTSMODE=MUCOMMANU_SINGLEEVAL;
+class GSAOptimizationMonitor;
 
 /******************************************************************************/
 /**
@@ -78,7 +69,7 @@ const sortingMode DEFAULTSMODE=MUCOMMANU_SINGLEEVAL;
  * base class. The class also adds an infrastructure for simulated annealing
  * to the class.
  */
-class GBaseEA
+class GBaseSA
    :public GBaseParChildT<GParameterSet>
 {
    ///////////////////////////////////////////////////////////////////////
@@ -90,25 +81,27 @@ class GBaseEA
 
       ar
       & make_nvp("GBaseParChildT_GParameterSet", boost::serialization::base_object<GBaseParChildT<GParameterSet> >(*this))
-      & BOOST_SERIALIZATION_NVP(smode_);
+      & BOOST_SERIALIZATION_NVP(t0_)
+      & BOOST_SERIALIZATION_NVP(t_)
+      & BOOST_SERIALIZATION_NVP(alpha_);
    }
    ///////////////////////////////////////////////////////////////////////
 
 public:
    /** @brief The default constructor */
-   GBaseEA();
+   GBaseSA();
    /** @brief A standard copy constructor */
-   GBaseEA(const GBaseEA&);
+   GBaseSA(const GBaseSA&);
    /** @brief The destructor */
-   virtual ~GBaseEA();
+   virtual ~GBaseSA();
 
    /** @brief A standard assignment operator */
-   const GBaseEA& operator=(const GBaseEA&);
+   const GBaseSA& operator=(const GBaseSA&);
 
-   /** @brief Checks for equality with another GBaseEA object */
-   bool operator==(const GBaseEA&) const;
-   /** @brief Checks for inequality with another GBaseEA object */
-   bool operator!=(const GBaseEA&) const;
+   /** @brief Checks for equality with another GBaseSA object */
+   bool operator==(const GBaseSA&) const;
+   /** @brief Checks for inequality with another GBaseSA object */
+   bool operator!=(const GBaseSA&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
    virtual boost::optional<std::string> checkRelationshipWith(
@@ -123,11 +116,6 @@ public:
    /** @brief Returns information about the type of optimization algorithm */
    virtual personality_oa getOptimizationAlgorithm() const;
 
-   /** @brief Set the sorting scheme for this population */
-   void setSortingScheme(sortingMode);
-   /** @brief Retrieve the current sorting scheme for this population */
-   sortingMode getSortingScheme() const;
-
    /** @brief Returns the name of this optimization algorithm */
    virtual std::string getAlgorithmName() const;
 
@@ -136,6 +124,17 @@ public:
          Gem::Common::GParserBuilder& gpb
          , const bool& showOrigin
    );
+
+   /** @brief Determines the strength of the temperature degradation */
+   void setTDegradationStrength(double);
+   /** @brief Retrieves the temperature degradation strength */
+   double getTDegradationStrength() const;
+   /** @brief Sets the start temperature */
+   void setT0(double);
+   /** @brief Retrieves the start temperature */
+   double getT0() const;
+   /** @brief Retrieves the current temperature */
+   double getT() const;
 
 protected:
    /***************************************************************************/
@@ -163,37 +162,21 @@ protected:
    virtual void finalize();
 
 private:
-   /***************************************************************************/
-   /**
-    * A simple comparison operator that helps to sort individuals according to their
-    * pareto status
-    */
-   class indParetoComp {
-   public:
-      bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
-         return x->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront() > y->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront();
-      }
-   };
+   /** Performs a simulated annealing style sorting and selection */
+   void sortSAMode();
+   /** @brief Calculates the Simulated Annealing probability for a child to replace a parent */
+   double saProb(const double&, const double&);
+   /** @brief Updates the temperature (used for simulated annealing) */
+   void updateTemperature();
 
-   /***************************************************************************/
-   /** @brief Selection according to the pareto tag in MUPLUSNU mode (i.e. taking into account the parents) */
-   void sortMuPlusNuParetoMode();
-   /** @brief Selection according to the pareto tag in MUCOMMANU mode (i.e. not taking into account the parents) */
-   void sortMuCommaNuParetoMode();
-   /** @brief Determines whether the first individual dominates the second */
-   bool aDominatesB(boost::shared_ptr<GParameterSet>, boost::shared_ptr<GParameterSet>) const;
-
-   /***************************************************************************/
-   // Local data
-
-   sortingMode smode_; ///< The chosen sorting scheme
+   double t0_; ///< The start temperature, used in simulated annealing
+   double t_; ///< The current temperature, used in simulated annealing
+   double alpha_; ///< A constant used in the cooling schedule in simulated annealing
 
 public:
    /***************************************************************************/
    /** @brief Applies modifications to this object. This is needed for testing purposes */
    virtual bool modify_GUnitTests();
-   /** @brief Fills the collection with individuals */
-   void fillWithObjects(const std::size_t& = 10);
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
    virtual void specificTestsNoFailureExpected_GUnitTests();
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
@@ -207,7 +190,7 @@ public:
     * This nested class defines the interface of optimization monitors, as used
     * by default in the Geneva library for evolutionary algorithms.
     */
-   class GEAOptimizationMonitor
+   class GSAOptimizationMonitor
    : public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
      {
       ///////////////////////////////////////////////////////////////////////
@@ -227,18 +210,18 @@ public:
 
      public:
       /** @brief The default constructor */
-      GEAOptimizationMonitor();
+      GSAOptimizationMonitor();
       /** @brief The copy constructor */
-      GEAOptimizationMonitor(const GEAOptimizationMonitor&);
+      GSAOptimizationMonitor(const GSAOptimizationMonitor&);
       /** @brief The destructor */
-      virtual ~GEAOptimizationMonitor();
+      virtual ~GSAOptimizationMonitor();
 
       /** @brief A standard assignment operator */
-      const GEAOptimizationMonitor& operator=(const GEAOptimizationMonitor&);
+      const GSAOptimizationMonitor& operator=(const GSAOptimizationMonitor&);
       /** @brief Checks for equality with another GParameter Base object */
-      virtual bool operator==(const GEAOptimizationMonitor&) const;
-      /** @brief Checks for inequality with another GEAOptimizationMonitor object */
-      virtual bool operator!=(const GEAOptimizationMonitor&) const;
+      virtual bool operator==(const GSAOptimizationMonitor&) const;
+      /** @brief Checks for inequality with another GSAOptimizationMonitor object */
+      virtual bool operator!=(const GSAOptimizationMonitor&) const;
 
       /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
       virtual boost::optional<std::string> checkRelationshipWith(
@@ -264,11 +247,11 @@ public:
 
      protected:
       /** @brief A function that is called once before the optimization starts */
-      virtual std::string eaFirstInformation(GBaseEA * const);
+      virtual std::string saFirstInformation(GBaseSA * const);
       /** @brief A function that is called during each optimization cycle */
-      virtual std::string eaCycleInformation(GBaseEA * const);
+      virtual std::string saCycleInformation(GBaseSA * const);
       /** @brief A function that is called once at the end of the optimization cycle */
-      virtual std::string eaLastInformation(GBaseEA * const);
+      virtual std::string saLastInformation(GBaseSA * const);
 
       /** @brief A function that is called once before the optimization starts */
       virtual std::string firstInformation(GOptimizationAlgorithmT<GParameterSet> * const);
@@ -306,7 +289,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBaseEA)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBaseEA::GEAOptimizationMonitor)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBaseSA)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBaseSA::GSAOptimizationMonitor)
 
-#endif /* GBASEEA_HPP_ */
+#endif /* GBASESA_HPP_ */

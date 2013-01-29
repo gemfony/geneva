@@ -242,8 +242,6 @@ protected:
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const = 0;
-	/** @brief Allows to set the personality type of the individuals */
-	virtual void setIndividualPersonalities();
 
 	/** @brief Does some preparatory work before the optimization starts */
 	virtual void init();

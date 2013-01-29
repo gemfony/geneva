@@ -47,7 +47,7 @@ namespace Geneva
  */
 GBrokerEA::GBrokerEA()
 	: GBaseEA()
-	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
+	, Gem::Courtier::GBrokerConnectorT<GParameterSet>()
 	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 	, storedServerMode_(true)
 { /* nothing */ }
@@ -60,7 +60,7 @@ GBrokerEA::GBrokerEA()
  */
 GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	: GBaseEA(cp)
-	, Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
+	, Gem::Courtier::GBrokerConnectorT<GParameterSet>(cp)
 	, nThreads_(cp.nThreads_)
 	, storedServerMode_(true)
 { /* nothing */ }
@@ -97,7 +97,7 @@ void GBrokerEA::load_(const GObject * cp) {
 
 	// Load the parent classes' data ...
 	GBaseEA::load_(cp);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::load(p_load);
+	Gem::Courtier::GBrokerConnectorT<GParameterSet>::load(p_load);
 
 	// ... and then our own
 	nThreads_ = p_load->nThreads_;
@@ -173,7 +173,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GBaseEA::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
-	deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
+	deviations.push_back(GBrokerConnectorT<GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
@@ -187,10 +187,10 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
  */
 void GBrokerEA::init() {
 	// Prevent usage of this brokered algorithms inside of this broker population - check type of individuals
-	// Note that evolutionary algorithms may store arbitrary "GIndividual"-derivatives, hence it is also possible
+	// Note that evolutionary algorithms may store arbitrary "GParameterSet"-derivatives, hence it is also possible
 	// to store brokered optimization algorithms in it, which does not make sense.
 	{
-		std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+		std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			if((*it)->getIndividualCharacteristic() == "GENEVA_BROKEROPTALG"
 			   || (*it)->getIndividualCharacteristic() == "GENEVA_GO2WRAPPER") {
@@ -215,7 +215,7 @@ void GBrokerEA::init() {
 
 	// Set the server mode and store the original flag
 	bool first = true;
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it){
 		if(first){
 			storedServerMode_ = (*it)->getServerMode();
@@ -237,7 +237,7 @@ void GBrokerEA::init() {
  */
 void GBrokerEA::finalize() {
 	// Restore the original values
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it) {
 		(*it)->setServerMode(storedServerMode_);
 	}
@@ -267,10 +267,10 @@ bool GBrokerEA::usesBroker() const {
 void GBrokerEA::adaptChildren()
 {
 	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
 	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
-		tp_->schedule(boost::function<void()>(boost::bind(&GIndividual::adapt, *it)));
+		tp_->schedule(boost::function<void()>(boost::bind(&GParameterSet::adapt, *it)));
 	}
 
 	// Wait for all threads in the pool to complete their work
@@ -303,7 +303,7 @@ void GBrokerEA::evaluateChildren() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
+	Gem::Courtier::GBrokerConnectorT<GParameterSet>::workOn(
 			data
 			, range
 			, Gem::Courtier::ACCEPTOLDERITEMS
@@ -319,7 +319,7 @@ void GBrokerEA::evaluateChildren() {
  * Fixes the population after a job submission
  */
 void GBrokerEA::fixAfterJobSubmission() {
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 	std::size_t np = getNParents();
 	boost::uint32_t iteration=getIteration();
 
@@ -330,7 +330,7 @@ void GBrokerEA::fixAfterJobSubmission() {
 	data.erase(std::remove_if(data.begin(), data.end(), isOldParent(iteration)), data.end());
 
 	// Make it known to remaining old individuals that they are now part of a new iteration
-	std::for_each(data.begin(), data.end(), boost::bind(&GIndividual::setAssignedIteration, _1, iteration));
+	std::for_each(data.begin(), data.end(), boost::bind(&GParameterSet::setAssignedIteration, _1, iteration));
 
 	// Make sure that parents are at the beginning of the array.
 	sort(data.begin(), data.end(), indParentComp());
@@ -403,7 +403,7 @@ void GBrokerEA::addConfigurationOptions (
 
 	// Call our parent class'es function
 	GBaseEA::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnectorT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 
 	// Add local data
 	comment = ""; // Reset the comment string

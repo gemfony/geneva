@@ -65,12 +65,12 @@
 #include <geneva/GBrokerGD.hpp>
 #include <geneva/GBaseSwarm.hpp>
 #include <geneva/GSerialSwarm.hpp>
+#include <geneva/GSerialGD.hpp>
 #include <geneva/GMultiThreadedSwarm.hpp>
 #include <geneva/GBrokerSwarm.hpp>
 #include <geneva/GIndividual.hpp>
 #include <geneva/GMultiThreadedEA.hpp>
 #include <geneva/GDoubleObject.hpp>
-#include <geneva/Go.hpp>
 
 namespace Gem {
 namespace Geneva {

@@ -161,6 +161,8 @@ public:
 		return bestIndividuals;
 	}
 
+	/***************************************************************************/
+
 	/** @brief Returns information about the type of optimization algorithm. */
 	virtual personality_oa getOptimizationAlgorithm() const;
 

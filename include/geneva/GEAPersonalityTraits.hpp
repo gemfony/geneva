@@ -32,8 +32,6 @@
  * http://www.gemfony.com .
  */
 
-
-
 // Standard headers go here
 
 // Boost headers go here
@@ -48,7 +46,7 @@
 
 
 // Geneva headers go here
-#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/GBaseParChildPersonalityTraits.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -58,7 +56,8 @@ namespace Geneva {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to evolutionary algorithms.
  */
-class GEAPersonalityTraits :public GPersonalityTraits
+class GEAPersonalityTraits
+   : public GBaseParChildPersonalityTraits
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -66,10 +65,7 @@ class GEAPersonalityTraits :public GPersonalityTraits
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
-	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-	     & BOOST_SERIALIZATION_NVP(parentCounter_)
-	     & BOOST_SERIALIZATION_NVP(popPos_)
-	     & BOOST_SERIALIZATION_NVP(parentId_)
+	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits)
 	     & BOOST_SERIALIZATION_NVP(isOnParetoFront_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -100,30 +96,6 @@ public:
 	      , const bool&
 	) const;
 
-	/** @brief Marks an individual as a parent*/
-	bool setIsParent();
-	/** @brief Marks an individual as a child */
-	bool setIsChild();
-
-	/** @brief Checks whether this is a parent individual */
-	bool isParent() const ;
-	/** @brief Retrieves the current value of the parentCounter_ variable */
-	boost::uint32_t getParentCounter() const ;
-
-	/** @brief Sets the position of the individual in the population */
-	void setPopulationPosition(const std::size_t&) ;
-	/** @brief Retrieves the position of the individual in the population */
-	std::size_t getPopulationPosition(void) const ;
-
-	/** @brief Stores the parent's id with this object */
-	void setParentId(const std::size_t&);
-	/** @brief Retrieves the parent id's value */
-	std::size_t getParentId() const;
-	/** @brief Checks whether a parent id has been set */
-	bool parentIdSet() const;
-	/** @brief Marks the parent id as unset */
-	void unsetParentId();
-
 	/** @brief Allows to check whether this individual lies on the pareto front (only yields useful results after pareto-sorting in EA) */
 	bool isOnParetoFront() const;
 	/** @brief Allows to reset the pareto tag to "true" */
@@ -138,12 +110,6 @@ protected:
 	virtual GObject* clone_() const;
 
 private:
-	/** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
-	boost::uint32_t parentCounter_;
-	/** @brief Stores the current position in the population */
-	std::size_t popPos_;
-	/** @brief The id of the old parent individual. This is intentionally a signed value. A negative value refers to an unset parent id */
-	boost::int16_t parentId_;
 	/** @brief Determines whether the individual lies on the pareto front */
 	bool isOnParetoFront_;
 

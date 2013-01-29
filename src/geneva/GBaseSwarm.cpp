@@ -394,16 +394,6 @@ void GBaseSwarm::setDefaultPopulationSize(std::size_t nNeighborhoods, std::size_
 
 /******************************************************************************/
 /**
- * Sets the individual's personality types to Swarm
- */
-void GBaseSwarm::setIndividualPersonalities() {
-	for(GBaseSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->setPersonality(PERSONALITY_SWARM);
-	}
-}
-
-/******************************************************************************/
-/**
  * Saves the state of the class to disc. The function adds the current generation
  * and the fitness to the base name. The entire object is saved. The function will
  * throw if no global best has been established yet.

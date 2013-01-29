@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GBrokerGD::GBrokerGD() :
 	GBaseGD()
-	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
+	, Gem::Courtier::GBrokerConnectorT<GParameterSet>()
 	, storedServerMode_(true)
 { /* nothing */ }
 
@@ -58,7 +58,7 @@ GBrokerGD::GBrokerGD(
 		, const float& finiteStep, const float& stepSize
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize)
-	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
+	, Gem::Courtier::GBrokerConnectorT<GParameterSet>()
 	, storedServerMode_(true)
 { /* nothing */ }
 
@@ -68,7 +68,7 @@ GBrokerGD::GBrokerGD(
  */
 GBrokerGD::GBrokerGD(const GBrokerGD& cp)
 	: GBaseGD(cp)
-	, Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
+	, Gem::Courtier::GBrokerConnectorT<GParameterSet>(cp)
 	, storedServerMode_(true)
 { /* nothing */ }
 
@@ -153,7 +153,7 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GBaseGD::checkRelationshipWith(cp, e, limit, "GBrokerGD",	y_name, withMessages));
-	deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerGD", y_name, withMessages));
+	deviations.push_back(GBrokerConnectorT<GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerGD", y_name, withMessages));
 
 	// no local data
 
@@ -182,7 +182,7 @@ void GBrokerGD::load_(const GObject *cp) {
 
 	// Load the parent classes' data ...
 	GBaseGD::load_(cp);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::load(p_load);
+	Gem::Courtier::GBrokerConnectorT<GParameterSet>::load(p_load);
 
 	// ... no local data
 }
@@ -257,7 +257,7 @@ void GBrokerGD::addConfigurationOptions (
 
 	// Call our parent class'es function
 	GBaseGD::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnectorT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 
 	// no local data
 }
@@ -316,7 +316,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
 	boost::tuple<std::size_t,std::size_t> range(0, finalPos);
-	complete = GBrokerConnectorT<GIndividual>::workOn(
+	complete = GBrokerConnectorT<GParameterSet>::workOn(
 			data
 			, range
 			, EXPECTFULLRETURN

@@ -63,6 +63,7 @@
 #include "geneva/GBooleanObjectCollection.hpp"
 #include "geneva/GBrokerEA.hpp"
 #include "geneva/GBrokerGD.hpp"
+#include "geneva/GBrokerSA.hpp"
 #include "geneva/GBrokerSwarm.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GDoubleObject.hpp"
@@ -83,18 +84,23 @@
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/GGradientDescentFactory.hpp"
+#include "geneva/GSimulatedAnnealingFactory.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GMultiThreadedGD.hpp"
+#include "geneva/GMultiThreadedSA.hpp"
 #include "geneva/GMultiThreadedSwarm.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizableI.hpp"
+#include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GSerialEA.hpp"
 #include "geneva/GSerialGD.hpp"
+#include "geneva/GSerialSA.hpp"
 #include "geneva/GSerialSwarm.hpp"
+#include "geneva/GSimulatedAnnealingFactory.hpp"
 #include "geneva/GSwarmAlgorithmFactory.hpp"
 
 namespace Gem {
@@ -222,9 +228,9 @@ public:
 	virtual double fitnessCalculation();
 
 	/** @brief Allows to add an optimization algorithm to the chain */
-	void addAlgorithm(boost::shared_ptr<GOptimizableI>);
+	void addAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >);
 	/** @brief Makes it easier to add algorithms */
-	Go2& operator&(boost::shared_ptr<GOptimizableI>);
+	Go2& operator&(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >);
 
 	/** @brief Allows to add an algorithm with unspecified parallelization mode to the chain */
 	void addAlgorithm(personality_oa);
@@ -347,7 +353,10 @@ private:
 	/** @brief Copy construction without cloning */
 	Go2(const Go2&, bool);
 	/** @brief Copying of the algorithms_ vector */
-	void copyAlgorithmsVector(const std::vector<boost::shared_ptr<GOptimizableI> >&, std::vector<boost::shared_ptr<GOptimizableI> >&);
+	void copyAlgorithmsVector(
+	      const std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >&
+	      , std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >&
+	);
 
 	/***************************************************************************/
 	// These parameters can enter the object through the constructor
@@ -384,7 +393,7 @@ private:
 
     //----------------------------------------------------------------------------------------------------------------
     // The list of "chained" optimization algorithms
-    std::vector<boost::shared_ptr<GOptimizableI> > algorithms_;
+    std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > > algorithms_;
 
     //----------------------------------------------------------------------------------------------------------------
     // A clone of our pristine conditions, needed for the reset functionality

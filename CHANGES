@@ -15,12 +15,17 @@ The main changes for this release include:
  - Added a simple logging framework, including exception handling, that allows to 
    stream information to be logged.
  - Gave gemfony_error_condition the ability to be streamed
- - Removed the deprecated GIndividualFactoryT class in favour of the more general GFactoryT
+ - Removed the deprecated GIndividualFactoryT class in favor of the more general GFactoryT
  - Removed the deprecated utilities directory and application
  - Made GFactoryT distinguish between the type being produced by user-functions and the 
    type being emitted by operator()() or get(). This will likely break user-code. You can get
    the old behavior by making both template arguments the same, or by calling the get<T>() function
    with a template argument equal to the desired type like this: get<GFunctionIndividual>()
+ - Separated Simulated Annealing from Evolutionary Algorithms, making it a first-class citizen
+ - Separated Multipopulations from Evolutionary Algorithms, making them an first class citizen
+ - Evolutionary Algorithms are now based on GParameterSet (just like all other "basic" optimization
+   algorithms -- i.e. except for multi-populations)
+ - Removed the deprecated Go class in favor of Go2 and updated all examples
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

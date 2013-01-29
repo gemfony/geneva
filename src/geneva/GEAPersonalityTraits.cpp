@@ -44,10 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GEAPersonalityTraits::GEAPersonalityTraits()
-	: GPersonalityTraits()
-	, parentCounter_(0)
-	, popPos_(0)
-	, parentId_(-1) // means "unset"
+	: GBaseParChildPersonalityTraits()
 	, isOnParetoFront_(true)
 { /* nothing */ }
 
@@ -58,10 +55,7 @@ GEAPersonalityTraits::GEAPersonalityTraits()
  * @param cp A copy of another GEAPersonalityTraits object
  */
 GEAPersonalityTraits::GEAPersonalityTraits(const GEAPersonalityTraits& cp)
-	: GPersonalityTraits(cp)
-	, parentCounter_(cp.parentCounter_)
-	, popPos_(cp.popPos_)
-	, parentId_(cp.parentId_)
+	: GBaseParChildPersonalityTraits(cp)
 	, isOnParetoFront_(cp.isOnParetoFront_)
 { /* nothing */ }
 
@@ -139,12 +133,9 @@ boost::optional<std::string> GEAPersonalityTraits::checkRelationshipWith(const G
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GPersonalityTraits::checkRelationshipWith(cp, e, limit, "GEAPersonalityTraits", y_name, withMessages));
+	deviations.push_back(GBaseParChildPersonalityTraits::checkRelationshipWith(cp, e, limit, "GEAPersonalityTraits", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", parentCounter_, p_load->parentCounter_, "parentCounter_", "p_load->parentCounter_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", popPos_, p_load->popPos_, "popPos_", "p_load->popPos_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", parentId_, p_load->parentId_, "parentId_", "p_load->parentId_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", isOnParetoFront_, p_load->isOnParetoFront_, "isOnParetoFront_", "p_load->isOnParetoFront_", e , limit));
 
 	return evaluateDiscrepancies("GEAPersonalityTraits", caller, deviations, e);
@@ -173,176 +164,8 @@ void GEAPersonalityTraits::load_(const GObject* cp) {
 	GObject::load_(cp);
 
 	// Then load our local data
-	parentCounter_ = p_load->parentCounter_;
-	popPos_ = p_load->popPos_;
-	parentId_ = p_load->parentId_;
 	isOnParetoFront_ = p_load->isOnParetoFront_;
 }
-
-/******************************************************************************/
-/**
- * Checks whether this is a parent individual
- *
- * @return A boolean indicating whether this object is a parent at this time
- */
-bool GEAPersonalityTraits::isParent() const {
-	return (parentCounter_>0)?true:false;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Retrieves the current value of the parentCounter_ variable
- *
- * @return The current value of the parentCounter_ variable
- */
-boost::uint32_t GEAPersonalityTraits::getParentCounter() const {
-	return parentCounter_;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Marks an individual as a parent
- *
- * @return A boolean indicating whether this individual was previously a parent (true) or a child (false)
- */
-bool GEAPersonalityTraits::setIsParent() {
-	bool previous=(parentCounter_>0)?true:false;
-	parentCounter_++;
-	return previous;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Marks an individual as a child
- *
- * @return A boolean indicating whether this individual was previously a parent (true) or a child (false)
- */
-bool GEAPersonalityTraits::setIsChild() {
-	bool previous=(parentCounter_>0)?true:false;
-	parentCounter_=0;
-	return previous;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Sets the position of the individual in the population
- *
- * @param popPos The new position of this individual in the population
- */
-void GEAPersonalityTraits::setPopulationPosition(const std::size_t& popPos) {
-	popPos_ = popPos;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Retrieves the position of the individual in the population
- *
- * @return The current position of this individual in the population
- */
-std::size_t GEAPersonalityTraits::getPopulationPosition(void) const {
-	return popPos_;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Stores the parent's id with this object.
- *
- * @param parentId The id of the individual's parent
- */
-void GEAPersonalityTraits::setParentId(const std::size_t& parentId) {
-	parentId_ = (boost::int16_t) parentId;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Retrieves the parent id's value. Note that this function will throw if
- * no parent id has been set.
- *
- * @return The parent's id
- */
-std::size_t GEAPersonalityTraits::getParentId() const {
-	if(parentId_ >= 0) return parentId_;
-	else {
-	   glogger
-	   << "In GEAPersonalityTraits::getParentId():" << std::endl
-      << "parentId_ is unset" << std::endl
-      << GEXCEPTION;
-	}
-
-	// Make the compiler happy
-	return std::size_t(0);
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * Tested in GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Checks whether a parent id has been set
- *
- * @return A boolean which indicates whether the parent id has been set
- */
-bool GEAPersonalityTraits::parentIdSet() const {
-	if(parentId_ >= 0) return true;
-	else return false;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Marks the parent id as unset
- */
-void GEAPersonalityTraits::unsetParentId() {
-	parentId_ = -1;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GEAPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * Tested in GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
 
 /******************************************************************************/
 /**
@@ -383,13 +206,9 @@ bool GEAPersonalityTraits::modify_GUnitTests() {
    bool result = false;
 
 	// Call the parent class'es function
-	if(GPersonalityTraits::modify_GUnitTests()) result = true;
-
-	// A relatively harmless modification is a change of the parentCounter variable
-	parentCounter_++;
+	if(GBaseParChildPersonalityTraits::modify_GUnitTests()) result = true;
 
 	return result;
-
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GEAPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
@@ -406,74 +225,9 @@ void GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
+	GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
 
-	// --------------------------------------------------------------------------
-
-	{ // Check that it is possible to mark this as a parent or child-entity
-		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
-
-		// Mark this object as belonging to a parent and check the correct setting
-		BOOST_CHECK_NO_THROW(p_test->setIsParent());
-		BOOST_CHECK(p_test->isParent() == true);
-
-		// Mark this object as belonging to a child and check the correct setting
-		BOOST_CHECK_NO_THROW(p_test->setIsChild());
-		BOOST_CHECK(p_test->isParent() == false);
-	}
-
-	// --------------------------------------------------------------------------
-
-
-	{ // Check that the parent counter is incremented or reset correctly
-		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
-
-		// Mark this object as belonging to a child and check the correct setting
-		BOOST_CHECK_NO_THROW(p_test->setIsChild());
-		BOOST_CHECK(p_test->isParent() == false);
-
-		// Check that the parent counter is now 0
-		BOOST_CHECK(p_test->getParentCounter() == 0);
-
-		// Mark the individual as a parent a number of times and check the parent counter
-		for(boost::uint32_t i=1; i<=10; i++) {
-			BOOST_CHECK_NO_THROW(p_test->setIsParent());
-			BOOST_CHECK(p_test->getParentCounter() == i);
-		}
-
-		// Mark the individual as a child and check the parent counter again
-		BOOST_CHECK_NO_THROW(p_test->setIsChild());
-		BOOST_CHECK(p_test->isParent() == false);
-
-		// Check that the parent counter is now 0
-		BOOST_CHECK(p_test->getParentCounter() == 0);
-	}
-
-	// --------------------------------------------------------------------------
-
-	{ // Check setting and retrieval of the individual's position in the population
-		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
-
-		for(std::size_t i=0; i<10; i++) {
-			BOOST_CHECK_NO_THROW(p_test->setPopulationPosition(i));
-			BOOST_CHECK(p_test->getPopulationPosition() == i);
-		}
-	}
-
-	// --------------------------------------------------------------------------
-
-	{ // Test setting and retrieval of valid parent ids
-		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
-
-		for(std::size_t i=0; i<10; i++) {
-			BOOST_CHECK_NO_THROW(p_test->setParentId(i));
-			BOOST_CHECK(p_test->getParentId() == i);
-			BOOST_CHECK(p_test->parentIdSet() == true);
-			BOOST_CHECK_NO_THROW(p_test->unsetParentId());
-			BOOST_CHECK(p_test->parentIdSet() == false);
-		}
-	}
-
+   // --------------------------------------------------------------------------
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -491,17 +245,9 @@ void GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+	GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
 
 	// --------------------------------------------------------------------------
-
-	{ // Test that retrieval of the parent id throws, if the id isn't set
-		boost::shared_ptr<GEAPersonalityTraits> p_test = this->clone<GEAPersonalityTraits>();
-
-		BOOST_CHECK_NO_THROW(p_test->unsetParentId());
-		BOOST_CHECK_THROW(p_test->getParentId(), Gem::Common::gemfony_error_condition);
-	}
-
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

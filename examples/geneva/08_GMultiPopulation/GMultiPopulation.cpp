@@ -43,6 +43,7 @@
 
 // Geneva header files go here
 #include "geneva/Geneva.hpp"
+#include "geneva/GMultiPopulationEAT.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -60,7 +61,6 @@ using namespace Gem::Hap;
  */
 int main(int argc, char **argv){
   std::string configFile;		  
-  boost::uint16_t parallelizationMode;
   bool serverMode;
   std::string ip;
   unsigned short port;
@@ -72,7 +72,7 @@ int main(int argc, char **argv){
   long maxMinutesSuper;
   boost::uint32_t reportIterationSuper;
   duplicationScheme rSchemeSuper;
-  sortingMode smodeSuper;
+  sortingModeMP smodeSuper;
   std::size_t populationSizeSub;
   std::size_t nParentsSub;
   boost::uint32_t maxIterationsSub;
@@ -94,13 +94,10 @@ int main(int argc, char **argv){
   double adProb;
   Gem::Common::serializationMode serMode;
 
-  if(!parseCommandLine(argc, argv,
-		       configFile,			  
-		       parallelizationMode,
-		       serverMode,
-		       ip,
-		       port,
-		       serMode)
+  if(!parseCommandLine(
+        argc, argv,
+        configFile
+    )
      ||
      !parseConfigFile(configFile,
 		      nProducerThreads,
@@ -140,27 +137,9 @@ int main(int argc, char **argv){
   GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
   //***************************************************************************
-  // If this is a client in networked mode, we can just start the listener and
-  // return when it has finished
-  if(parallelizationMode==2 && !serverMode) {
-    boost::shared_ptr<GAsioTCPClientT<GIndividual> > p(new GAsioTCPClientT<GIndividual>(ip, boost::lexical_cast<std::string>(port)));
-
-    p->setMaxStalls(0); // An infinite number of stalled data retrievals
-    p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
-
-    // Prevent return of unsuccessful adaption attempts to the server
-    p->returnResultIfUnsuccessful(returnRegardless);
-
-    // Start the actual processing loop
-    p->run();
-
-    return 0;
-  }
-
-  //***************************************************************************
-	// Create a factory for GFunctionIndividual objects and perform
-	// any necessary initial work.
-	GFunctionIndividualFactory gfi("./GFunctionIndividual.json");
+  // Create a factory for GFunctionIndividual objects and perform
+  // any necessary initial work.
+  GFunctionIndividualFactory gfi("./GFunctionIndividual.json");
 
   // Create the first set of parent populations.
   std::vector<boost::shared_ptr<GBaseEA> > parentPopulations;
@@ -205,69 +184,28 @@ int main(int argc, char **argv){
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // We can now start creating populations. We refer to them through the base class
 
-  // This smart pointer will hold the different population types
-  boost::shared_ptr<GBaseEA> super_pop_ptr;
+  // This EA population can hold derivatives of GOptimizationAlgorithmT<GParameterSet>
+  GMultiPopulationEAT<GParameterSet> gmp;
 
-  // Create the actual populations
-  switch (parallelizationMode) {
-    //-----------------------------------------------------------------------------------------------------
-  case 0: // Serial execution
-    // Create an empty population
-    super_pop_ptr = boost::shared_ptr<GSerialEA>(new GSerialEA());
-    break;
-
-    //-----------------------------------------------------------------------------------------------------
-  case 1: // Multi-threaded execution
-    {
-      // Create the multi-threaded population
-      boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
-
-      // Population-specific settings
-      popPar_ptr->setNThreads(nEvaluationThreads);
-
-      // Assignment to the base pointer
-      super_pop_ptr = popPar_ptr;
-    }
-    break;
-
-    //-----------------------------------------------------------------------------------------------------
-  case 2: // Networked execution (server-side)
-    {
-      // Create a network consumer and enrol it with the broker
-      boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port, 0, serMode));
-      GBROKER(Gem::Geneva::GIndividual)->enrol(gatc);
-
-      // Create the actual broker population
-      boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
-
-      // Assignment to the base pointer
-      super_pop_ptr = popBroker_ptr;
-    }
-    break;
-  }
-
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Now we have suitable populations and can fill them with data
 
   // Add individuals to the population
   for(std::size_t psuper = 0 ; psuper<nParentsSuper; psuper++) {
-	  super_pop_ptr->push_back(parentPopulations[psuper]);
+	  gmp.push_back(parentPopulations[psuper]);
   }
  
   // Specify some general population settings
-  super_pop_ptr->setDefaultPopulationSize(populationSizeSuper,nParentsSuper);
-  super_pop_ptr->setMaxIteration(maxIterationsSuper);
-  super_pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutesSuper));
-  super_pop_ptr->setReportIteration(reportIterationSuper);
-  super_pop_ptr->setRecombinationMethod(rSchemeSuper);
-  super_pop_ptr->setSortingScheme(smodeSuper);
-  super_pop_ptr->setEmitTerminationReason(true);
+  gmp.setDefaultPopulationSize(populationSizeSuper,nParentsSuper);
+  gmp.setMaxIteration(maxIterationsSuper);
+  gmp.setMaxTime(boost::posix_time::minutes(maxMinutesSuper));
+  gmp.setReportIteration(reportIterationSuper);
+  gmp.setRecombinationMethod(rSchemeSuper);
+  gmp.setSortingScheme(smodeSuper);
+  gmp.setEmitTerminationReason(true);
   
   // Do the actual optimization
-  super_pop_ptr->optimize();
+  gmp.optimize();
 
   //--------------------------------------------------------------------------------------------
   // Terminate Geneva

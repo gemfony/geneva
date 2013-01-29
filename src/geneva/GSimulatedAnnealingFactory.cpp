@@ -1,5 +1,5 @@
 /**
- * @file GEvolutionaryAlgorithmFactory.cpp
+ * @file GSimulatedAnnealingFactory.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/GSimulatedAnnealingFactory.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -42,11 +42,11 @@ namespace Geneva {
  * A constructor with the ability to switch the parallelization mode. It initializes a
  * target item as needed.
  */
-GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
-	const std::string& configFile
-	, const parMode& pm
+GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
+   const std::string& configFile
+   , const parMode& pm
 )
-	: GOptimizationAlgorithmFactoryT<GBaseEA>(configFile, pm)
+   : GOptimizationAlgorithmFactoryT<GBaseSA>(configFile, pm)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -54,19 +54,19 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
  * A constructor with the ability to switch the parallelization mode and
  * to add a content creator. It initializes a target item as needed.
  */
-GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory (
+GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
    const std::string& configFile
    , const parMode& pm
    , boost::function<boost::shared_ptr<GParameterSet>()>&contentCreator
 )
-   : GOptimizationAlgorithmFactoryT<GBaseEA>(configFile, pm, contentCreator)
+   : GOptimizationAlgorithmFactoryT<GBaseSA>(configFile, pm, contentCreator)
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
+GSimulatedAnnealingFactory::~GSimulatedAnnealingFactory()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -75,32 +75,32 @@ GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GBaseEA> GEvolutionaryAlgorithmFactory::getObject_(
-	Gem::Common::GParserBuilder& gpb
-	, const std::size_t& id
+boost::shared_ptr<GBaseSA> GSimulatedAnnealingFactory::getObject_(
+   Gem::Common::GParserBuilder& gpb
+   , const std::size_t& id
 ) {
-	// Will hold the result
-	boost::shared_ptr<GBaseEA> target;
+   // Will hold the result
+   boost::shared_ptr<GBaseSA> target;
 
-	// Fill the target pointer as required
-	switch(pm_) {
-	case PARMODE_SERIAL:
-		target = boost::shared_ptr<GSerialEA>(new GSerialEA());
-		break;
+   // Fill the target pointer as required
+   switch(pm_) {
+   case PARMODE_SERIAL:
+      target = boost::shared_ptr<GSerialSA>(new GSerialSA());
+      break;
 
-	case PARMODE_MULTITHREADED:
-		target = boost::shared_ptr<GMultiThreadedEA>(new GMultiThreadedEA());
-		break;
+   case PARMODE_MULTITHREADED:
+      target = boost::shared_ptr<GMultiThreadedSA>(new GMultiThreadedSA());
+      break;
 
-	case PARMODE_BROKERAGE:
-		target = boost::shared_ptr<GBrokerEA>(new GBrokerEA());
-		break;
-	}
+   case PARMODE_BROKERAGE:
+      target = boost::shared_ptr<GBrokerSA>(new GBrokerSA());
+      break;
+   }
 
-	// Make the local configuration options known (up to the level of GBaseEA)
-	target->GBaseEA::addConfigurationOptions(gpb, true);
+   // Make the local configuration options known (up to the level of GBaseSA)
+   target->GBaseSA::addConfigurationOptions(gpb, true);
 
-	return target;
+   return target;
 }
 
 /******************************************************************************/
@@ -110,33 +110,33 @@ boost::shared_ptr<GBaseEA> GEvolutionaryAlgorithmFactory::getObject_(
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GEvolutionaryAlgorithmFactory::postProcess_(boost::shared_ptr<GBaseEA>& p_base) {
-	// Convert the object to the correct target type
-	switch(pm_) {
-	case PARMODE_SERIAL:
-		// nothing
-		break;
+void GSimulatedAnnealingFactory::postProcess_(boost::shared_ptr<GBaseSA>& p_base) {
+   // Convert the object to the correct target type
+   switch(pm_) {
+   case PARMODE_SERIAL:
+      // nothing
+      break;
 
-	case PARMODE_MULTITHREADED:
-		{
-			boost::shared_ptr<GMultiThreadedEA> p = boost::dynamic_pointer_cast<GMultiThreadedEA>(p_base);
-			p->setNThreads(nEvaluationThreads_);
-		}
-		break;
+   case PARMODE_MULTITHREADED:
+      {
+         boost::shared_ptr<GMultiThreadedSA> p = boost::dynamic_pointer_cast<GMultiThreadedSA>(p_base);
+         p->setNThreads(nEvaluationThreads_);
+      }
+      break;
 
-	case PARMODE_BROKERAGE:
-		{
-			boost::shared_ptr<GBrokerEA> p = boost::dynamic_pointer_cast<GBrokerEA>(p_base);
+   case PARMODE_BROKERAGE:
+      {
+         boost::shared_ptr<GBrokerSA> p = boost::dynamic_pointer_cast<GBrokerSA>(p_base);
 
-			p->setFirstTimeOut(firstTimeOut_);
-			p->setWaitFactorExtremes(minWaitFactor_, maxWaitFactor_);
-			p->doLogging(doLogging_);
-			p->setBoundlessWait(boundlessWait_);
-			p->setWaitFactorIncrement(waitFactorIncrement_);
-			p->setNThreads(nEvaluationThreads_);
-		}
-		break;
-	}
+         p->setFirstTimeOut(firstTimeOut_);
+         p->setWaitFactorExtremes(minWaitFactor_, maxWaitFactor_);
+         p->doLogging(doLogging_);
+         p->setBoundlessWait(boundlessWait_);
+         p->setWaitFactorIncrement(waitFactorIncrement_);
+         p->setNThreads(nEvaluationThreads_);
+      }
+      break;
+   }
 }
 
 /******************************************************************************/

@@ -213,6 +213,41 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::sortingMode& smode) {
 
 /******************************************************************************/
 /**
+ * Puts a Gem::Geneva::sortingModeMP item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param smode the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::sortingModeMP& smode) {
+   boost::uint16_t tmp = static_cast<boost::uint16_t>(smode);
+   o << tmp;
+   return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Geneva::sortingModeMP item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param smode The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::Geneva::sortingModeMP& smode) {
+   boost::uint16_t tmp;
+   i >> tmp;
+
+#ifdef DEBUG
+   smode = boost::numeric_cast<Gem::Geneva::sortingModeMP>(tmp);
+#else
+   smode = static_cast<Gem::Geneva::sortingModeMP>(tmp);
+#endif /* DEBUG */
+
+   return i;
+}
+
+/******************************************************************************/
+/**
  * Puts a Gem::Geneva::personality item into a stream
  *
  * @param o The ostream the item should be added to

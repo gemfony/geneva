@@ -1,5 +1,5 @@
 /**
- * @file GEvolutionaryAlgorithmFactory.hpp
+ * @file GSimulatedAnnealingFactory.hpp
  */
 
 /*
@@ -40,8 +40,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/function.hpp>
 
-#ifndef GEVOLUTIONARYALGORITHMFACTORY_HPP_
-#define GEVOLUTIONARYALGORITHMFACTORY_HPP_
+#ifndef GSIMULATEDANNEALINGFACTORY_HPP_
+#define GSIMULATEDANNEALINGFACTORY_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -51,47 +51,45 @@
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
 #include "geneva/GOptimizationAlgorithmFactoryT.hpp"
-#include "geneva/GBaseEA.hpp"
-#include "geneva/GSerialEA.hpp"
-#include "geneva/GMultiThreadedEA.hpp"
-#include "geneva/GBrokerEA.hpp"
+#include "geneva/GBaseSA.hpp"
+#include "geneva/GSerialSA.hpp"
+#include "geneva/GMultiThreadedSA.hpp"
+#include "geneva/GBrokerSA.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 /**
  * This class is a specialization of the GFactoryT<> class for evolutionary algorithms.
  */
-class GEvolutionaryAlgorithmFactory
-	: public GOptimizationAlgorithmFactoryT<GBaseEA>
+class GSimulatedAnnealingFactory
+   : public GOptimizationAlgorithmFactoryT<GBaseSA>
 {
 public:
-	/** @brief The standard constructor */
-	GEvolutionaryAlgorithmFactory(
-	      const std::string&
-	      , const parMode&
-	);
-	/** @brief Adds a content creator in addition to the standard values */
-   GEvolutionaryAlgorithmFactory(
+   /** @brief The standard constructor */
+   GSimulatedAnnealingFactory(
+         const std::string&
+         , const parMode&
+   );
+   /** @brief Adds a content creator in addition to the standard values */
+   GSimulatedAnnealingFactory(
          const std::string&
          , const parMode&
          , boost::function<boost::shared_ptr<GParameterSet>()>&
    );
-	/** @brief The destructor */
-	virtual ~GEvolutionaryAlgorithmFactory();
+   /** @brief The destructor */
+   virtual ~GSimulatedAnnealingFactory();
 
 protected:
-	/** @brief Creates individuals of this type */
-	virtual boost::shared_ptr<GBaseEA> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
-	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(boost::shared_ptr<GBaseEA>&);
+   /** @brief Creates individuals of this type */
+   virtual boost::shared_ptr<GBaseSA> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+   /** @brief Allows to act on the configuration options received from the configuration file */
+   virtual void postProcess_(boost::shared_ptr<GBaseSA>&);
 
 private:
-	/** @brief The default constructor. Intentionally private and undefined */
-	GEvolutionaryAlgorithmFactory();
+   /** @brief The default constructor. Intentionally private and undefined */
+   GSimulatedAnnealingFactory();
 };
 
 /******************************************************************************/
@@ -99,4 +97,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GEVOLUTIONARYALGORITHMFACTORY_HPP_ */
+#endif /* GSIMULATEDANNEALINGFACTORY_HPP_ */

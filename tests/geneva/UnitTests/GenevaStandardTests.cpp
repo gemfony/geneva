@@ -77,7 +77,6 @@ using namespace boost::unit_test;
 #include "geneva/GSerialGD.hpp"
 #include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
-#include "geneva/Go.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva-individuals/GTestIndividual1.hpp"
 #include "geneva-individuals/GTestIndividual3.hpp"
@@ -150,7 +149,6 @@ public:
 			, GMultiThreadedSwarm
 			, GSerialGD
 			, GMultiThreadedGD
-			, Go
 		>
 		algorithm_types;
 

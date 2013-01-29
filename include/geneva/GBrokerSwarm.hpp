@@ -64,7 +64,7 @@ namespace Geneva
  */
 class GBrokerSwarm
   : public GBaseSwarm
-  , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
+  , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -74,8 +74,8 @@ class GBrokerSwarm
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSwarm)
-		   & make_nvp("GBrokerConnectorT_GIndividual",
-		         boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this));
+		   & make_nvp("GBrokerConnectorT_GParameterSet",
+		         boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GParameterSet> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
