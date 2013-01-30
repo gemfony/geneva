@@ -63,14 +63,10 @@ int main(int argc, char **argv) {
    // any necessary initial work.
 	boost::shared_ptr<GFunctionIndividualFactory>
 	   gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
-   // GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
 	// Add an evolutionary algorithm in multi-threaded mode.
    // GFunctionIndividualFactory will take care of the creation
    // of individuals
-
-	/* boost::function<boost::shared_ptr<GParameterSet>()> gfi_fun
-          = boost::bind(&GFunctionIndividualFactory::get<GParameterSet>, boost::ref(gfi)); */
 	GEvolutionaryAlgorithmFactory ea(
 	      "./config/GEvolutionaryAlgorithm.json"
 	      , PARMODE_MULTITHREADED
