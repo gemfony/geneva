@@ -57,9 +57,9 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
    const std::string& configFile
    , const parMode& pm
-   , boost::function<boost::shared_ptr<GParameterSet>()>& contentCreator
+   , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
-   : GOptimizationAlgorithmFactoryT<GBaseSwarm>(configFile, pm, contentCreator)
+   : GOptimizationAlgorithmFactoryT<GBaseSwarm>(configFile, pm, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/

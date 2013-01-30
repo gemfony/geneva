@@ -79,7 +79,7 @@ public:
    GSwarmAlgorithmFactory(
          const std::string&
          , const parMode&
-         , boost::function<boost::shared_ptr<GParameterSet>()>&
+         , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
 	/** @brief The destructor */
 	virtual ~GSwarmAlgorithmFactory();

@@ -57,9 +57,9 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
    const std::string& configFile
    , const parMode& pm
-   , boost::function<boost::shared_ptr<GParameterSet>()>&contentCreator
+   , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
-   : GOptimizationAlgorithmFactoryT<GBaseSA>(configFile, pm, contentCreator)
+   : GOptimizationAlgorithmFactoryT<GBaseSA>(configFile, pm, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/

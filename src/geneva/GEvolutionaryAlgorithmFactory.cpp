@@ -57,9 +57,9 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory (
    const std::string& configFile
    , const parMode& pm
-   , boost::function<boost::shared_ptr<GParameterSet>()>&contentCreator
+   , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
-   : GOptimizationAlgorithmFactoryT<GBaseEA>(configFile, pm, contentCreator)
+   : GOptimizationAlgorithmFactoryT<GBaseEA>(configFile, pm, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/

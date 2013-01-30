@@ -58,9 +58,9 @@ GGradientDescentFactory::GGradientDescentFactory(
 GGradientDescentFactory::GGradientDescentFactory(
    const std::string& configFile
    , const parMode& pm
-   , boost::function<boost::shared_ptr<GParameterSet>()>&contentCreator
+   , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
-   : GOptimizationAlgorithmFactoryT<GBaseGD>(configFile, pm, contentCreator)
+   : GOptimizationAlgorithmFactoryT<GBaseGD>(configFile, pm, contentCreatorPtr)
    , maxResubmissions_(0)
 { /* nothing */ }
 

@@ -89,7 +89,7 @@ public:
       , doLogging_(false)
       , boundlessWait_(false)
 		, waitFactorIncrement_(Gem::Courtier::DEFAULTBROKERWAITFACTORINCREMENT)
-		, contentCreator_()
+		, contentCreatorPtr_()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -99,7 +99,7 @@ public:
 	GOptimizationAlgorithmFactoryT (
 	      const std::string& configFile
 	      , const parMode& pm
-	      , boost::function<boost::shared_ptr<typename prod_type::individual_type>()> &contentCreator
+	      , boost::shared_ptr<Gem::Common::GFactoryT<typename prod_type::individual_type> > contentCreatorPtr
 	)
 	: Gem::Common::GFactoryT<prod_type>(configFile)
 	  , pm_(pm)
@@ -109,7 +109,7 @@ public:
 	  , doLogging_(false)
 	  , boundlessWait_(false)
 	  , waitFactorIncrement_(Gem::Courtier::DEFAULTBROKERWAITFACTORINCREMENT)
-	  , contentCreator_(contentCreator)
+	  , contentCreatorPtr_(contentCreatorPtr)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -130,9 +130,9 @@ public:
       boost::shared_ptr<prod_type> p_alg = Gem::Common::GFactoryT<prod_type>::get();
 
       // If we have been given a factory function for individuals, fill the object with data
-      if(contentCreator_) { // Has a content creation object been registered ? If so, add individuals to the population
+      if(contentCreatorPtr_) { // Has a content creation object been registered ? If so, add individuals to the population
          for(std::size_t ind=0; ind<p_alg->getDefaultPopulationSize(); ind++) {
-            boost::shared_ptr<typename prod_type::individual_type> p_ind = contentCreator_();
+            boost::shared_ptr<typename prod_type::individual_type> p_ind = (*contentCreatorPtr_)();
             if(!p_ind) { // No valid item received, the factory has run empty
                break;
             } else {
@@ -260,7 +260,8 @@ protected:
 	bool boundlessWait_; ///< Indicates whether the retrieveItem call should wait for an unlimited amount of time
 	double waitFactorIncrement_; ///< The amount by which the waitFactor_ may be incremented or decremented
 
-	boost::function<boost::shared_ptr<typename prod_type::individual_type>()> contentCreator_; ///< Holds a function capable of filling the collection with individuals
+	boost::shared_ptr<Gem::Common::GFactoryT<typename prod_type::individual_type> > contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
+	// boost::function<boost::shared_ptr<typename prod_type::individual_type>()> contentCreator_; ///< Holds a function capable of filling the collection with individuals
 
 private:
 	/***************************************************************************/
