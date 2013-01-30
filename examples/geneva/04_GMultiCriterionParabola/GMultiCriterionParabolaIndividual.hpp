@@ -130,7 +130,7 @@ private:
  * A factory for GMultiCriterionParabolaIndividual objects
  */
 class GMultiCriterionParabolaIndividualFactory
-	:public Gem::Common::GFactoryT<GMultiCriterionParabolaIndividual, GParameterSet>
+	:public Gem::Common::GFactoryT<GParameterSet>
 {
 public:
 	/** @brief The standard constructor for this class */
@@ -140,11 +140,11 @@ public:
 
 protected:
    /** @brief Creates individuals of this type */
-   virtual boost::shared_ptr<GMultiCriterionParabolaIndividual> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+   virtual boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
    /** @brief Allows to describe local configuration options in derived classes */
    virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
    /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual void postProcess_(boost::shared_ptr<GMultiCriterionParabolaIndividual>&);
+   virtual void postProcess_(boost::shared_ptr<GParameterSet>&);
 };
 
 

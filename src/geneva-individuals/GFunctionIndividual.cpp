@@ -493,7 +493,7 @@ double GFunctionIndividual::fitnessCalculation(){
  * @param configFile The name of the configuration file
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& configFile)
-	: Gem::Common::GFactoryT<GFunctionIndividual, GParameterSet>(configFile)
+	: Gem::Common::GFactoryT<GParameterSet>(configFile)
 	, adProb_(GFI_DEF_ADPROB)
 	, adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD)
 	, useBiGaussian_(GFI_DEF_USEBIGAUSSIAN)
@@ -1025,7 +1025,7 @@ void GFunctionIndividualFactory::setUseBiGaussian(bool useBiGaussian)
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GFunctionIndividual> GFunctionIndividualFactory::getObject_(
+boost::shared_ptr<GParameterSet> GFunctionIndividualFactory::getObject_(
 	Gem::Common::GParserBuilder& gpb
 	, const std::size_t& id
 ) {
@@ -1250,7 +1250,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 
 
 	// Allow our parent class to describe its options
-	Gem::Common::GFactoryT<GFunctionIndividual, GParameterSet>::describeLocalOptions_(gpb);
+	Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -1261,7 +1261,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GFunctionIndividual>& p) {
+void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& p) {
 	// Set up a random number generator
 	Gem::Hap::GRandom gr;
 

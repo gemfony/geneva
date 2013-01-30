@@ -385,7 +385,7 @@ private:
  * A factory for GFunctionIndividual objects
  */
 class GFunctionIndividualFactory
-	: public Gem::Common::GFactoryT<GFunctionIndividual, GParameterSet>
+	: public Gem::Common::GFactoryT<GParameterSet>
 {
 public:
 	/** @brief The standard constructor */
@@ -496,11 +496,11 @@ public:
 
 protected:
 	/** @brief Creates individuals of this type */
-	virtual boost::shared_ptr<GFunctionIndividual> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+	virtual boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
 	/** @brief Allows to describe local configuration options in derived classes */
 	virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(boost::shared_ptr<GFunctionIndividual>&);
+	virtual void postProcess_(boost::shared_ptr<GParameterSet>&);
 
 private:
    /** @brief Set the value of the minVar_ variable */

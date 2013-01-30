@@ -597,7 +597,7 @@ std::ostream& operator<<(std::ostream& stream, const GStarterIndividual& gsi) {
  * @param configFile The name of the configuration file
  */
 GStarterIndividualFactory::GStarterIndividualFactory(const std::string& configFile)
-	: Gem::Common::GFactoryT<GStarterIndividual, GParameterSet>(configFile)
+	: Gem::Common::GFactoryT<GParameterSet>(configFile)
 	, adProb_(GFI_DEF_ADPROB)
 	, sigma_(GFI_DEF_SIGMA)
 	, sigmaSigma_(GFI_DEF_SIGMASIGMA)
@@ -618,7 +618,7 @@ GStarterIndividualFactory::~GStarterIndividualFactory()
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GStarterIndividual> GStarterIndividualFactory::getObject_(
+boost::shared_ptr<GParameterSet> GStarterIndividualFactory::getObject_(
 	Gem::Common::GParserBuilder& gpb
 	, const std::size_t& id
 ) {
@@ -742,7 +742,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
    );
 
 	// Allow our parent class to describe its options
-	Gem::Common::GFactoryT<GStarterIndividual, GParameterSet>::describeLocalOptions_(gpb);
+	Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -754,7 +754,11 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GStarterIndividualFactory::postProcess_(boost::shared_ptr<GStarterIndividual>& p) {
+void GStarterIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& p_base) {
+   // Convert the base pointer to our local type
+   boost::shared_ptr<GStarterIndividual> p
+      = Gem::Common::convertSmartPointer<GParameterSet, GStarterIndividual>(p_base);
+
    // We simply use a static function defined in the GStartIndividual header
    // to set up all parameter objects. It is used both here in the factory and
    // in one of the constructors.

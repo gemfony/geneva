@@ -62,21 +62,16 @@ namespace Common {
 
 /******************************************************************************/
 /**
- * A factory class that returns objects of type T . The class comprises a framework
+ * A factory class that returns objects of type prod_type . The class comprises a framework
  * for reading additional configuration options from a configuration file. The actual setup
  * work needs to be done in functions that are implemented in derived classes for each target
- * object individually, or in specializations of this class. "prod_type" is the type of
- * object produced in he getObject_() function. It must be convertible to the "emitter_type",
- * which is emitted by the get() function.
+ * object individually, or in specializations of this class.
  */
-template <typename prod_type, typename emitter_type>
+template <typename prod_type>
 class GFactoryT
 	:private boost::noncopyable
 {
 public:
-	// Make sure base_type can be converted to prod_type
-   // BOOST_MPL_ASSERT((boost::is_convertible(prod_type *, emitter_type *)));
-
 	/***************************************************************************/
 	/**
 	 * The standard constructor
@@ -102,7 +97,7 @@ public:
 	 *
 	 * @return An individual of the desired type
 	 */
-	boost::shared_ptr<emitter_type> operator()() {
+	boost::shared_ptr<prod_type> operator()() {
 	   return this->get();
 	}
 
@@ -110,7 +105,7 @@ public:
 	/**
 	 * Allows the creation of objects of the desired type in the old-fashioned way
 	 */
-	virtual boost::shared_ptr<emitter_type> get() {
+	virtual boost::shared_ptr<prod_type> get() {
       // Make sure the initialization code has been executed.
       // This function will do nothing when called more than once
       this->globalInit();
@@ -142,7 +137,7 @@ public:
       this->postProcess_(p);
 
       // Let the audience know
-      return Gem::Common::convertSmartPointer<prod_type, emitter_type>(p);
+      return p;
 	}
 
 	/***************************************************************************/
@@ -152,7 +147,7 @@ public:
 	 */
 	template <typename tT> // "tT" stands for "target type"
 	boost::shared_ptr<tT> get() {
-	   return Gem::Common::convertSmartPointer<emitter_type, tT>(this->get());
+	   return Gem::Common::convertSmartPointer<prod_type, tT>(this->get());
 	}
 
 	/***************************************************************************/

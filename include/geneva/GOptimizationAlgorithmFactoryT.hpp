@@ -68,9 +68,9 @@ const boost::uint16_t FACT_DEF_NEVALUATIONTHREADS=0;
 /**
  * This class is a specialization of the GFactoryT<> class for optimization algorithms.
  */
-template <typename T>
+template <typename prod_type>
 class GOptimizationAlgorithmFactoryT
-	: public Gem::Common::GFactoryT<T,T>
+	: public Gem::Common::GFactoryT<prod_type>
 {
 public:
 	/***************************************************************************/
@@ -81,7 +81,7 @@ public:
 	      const std::string& configFile
 	      , const parMode& pm
 	)
-		: Gem::Common::GFactoryT<T,T>(configFile)
+		: Gem::Common::GFactoryT<prod_type>(configFile)
 		, pm_(pm)
 		, nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 		, minWaitFactor_(Gem::Courtier::DEFAULTMINBROKERWAITFACTOR)
@@ -99,9 +99,9 @@ public:
 	GOptimizationAlgorithmFactoryT (
 	      const std::string& configFile
 	      , const parMode& pm
-	      , boost::function<boost::shared_ptr<typename T::individual_type>()> &contentCreator
+	      , boost::function<boost::shared_ptr<typename prod_type::individual_type>()> &contentCreator
 	)
-	: Gem::Common::GFactoryT<T,T>(configFile)
+	: Gem::Common::GFactoryT<prod_type>(configFile)
 	  , pm_(pm)
 	  , nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 	  , minWaitFactor_(Gem::Courtier::DEFAULTMINBROKERWAITFACTOR)
@@ -125,14 +125,14 @@ public:
     *
     * @return An object of the desired algorithm type
     */
-   virtual boost::shared_ptr<T> get() {
+   virtual boost::shared_ptr<prod_type> get() {
       // Retrieve a work item using the methods implemented in our parent class
-      boost::shared_ptr<T> p_alg = Gem::Common::GFactoryT<T,T>::get();
+      boost::shared_ptr<prod_type> p_alg = Gem::Common::GFactoryT<prod_type>::get();
 
       // If we have been given a factory function for individuals, fill the object with data
       if(contentCreator_) { // Has a content creation object been registered ? If so, add individuals to the population
          for(std::size_t ind=0; ind<p_alg->getDefaultPopulationSize(); ind++) {
-            boost::shared_ptr<typename T::individual_type> p_ind = contentCreator_();
+            boost::shared_ptr<typename prod_type::individual_type> p_ind = contentCreator_();
             if(!p_ind) { // No valid item received, the factory has run empty
                break;
             } else {
@@ -245,9 +245,9 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates individuals of this type */
-	virtual boost::shared_ptr<T> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
+	virtual boost::shared_ptr<prod_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(boost::shared_ptr<T>&) = 0;
+	virtual void postProcess_(boost::shared_ptr<prod_type>&) = 0;
 
 	parMode pm_; ///< Holds information about the desired parallelization mode
 
@@ -260,7 +260,7 @@ protected:
 	bool boundlessWait_; ///< Indicates whether the retrieveItem call should wait for an unlimited amount of time
 	double waitFactorIncrement_; ///< The amount by which the waitFactor_ may be incremented or decremented
 
-	boost::function<boost::shared_ptr<typename T::individual_type>()> contentCreator_; ///< Holds a function capable of filling the collection with individuals
+	boost::function<boost::shared_ptr<typename prod_type::individual_type>()> contentCreator_; ///< Holds a function capable of filling the collection with individuals
 
 private:
 	/***************************************************************************/

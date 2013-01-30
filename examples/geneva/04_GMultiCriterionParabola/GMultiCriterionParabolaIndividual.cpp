@@ -236,7 +236,7 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation(){
  * @param cF The name of the configuration file
  */
 GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFactory(const std::string& cF)
-	: Gem::Common::GFactoryT<GMultiCriterionParabolaIndividual, GParameterSet>(cF)
+	: Gem::Common::GFactoryT<GParameterSet>(cF)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -262,7 +262,7 @@ void GMultiCriterionParabolaIndividualFactory::describeLocalOptions_(Gem::Common
  * @param id The id of the individual to be created
  * @return An individual of the desired type
  */
-boost::shared_ptr<GMultiCriterionParabolaIndividual> GMultiCriterionParabolaIndividualFactory::getObject_(
+boost::shared_ptr<GParameterSet> GMultiCriterionParabolaIndividualFactory::getObject_(
       Gem::Common::GParserBuilder& gpb
       , const std::size_t& id
 ) {
@@ -278,8 +278,11 @@ boost::shared_ptr<GMultiCriterionParabolaIndividual> GMultiCriterionParabolaIndi
 /******************************************************************************/
 
 void GMultiCriterionParabolaIndividualFactory::postProcess_(
-      boost::shared_ptr<GMultiCriterionParabolaIndividual>& p
+      boost::shared_ptr<GParameterSet>& p_base
 ) {
+   boost::shared_ptr<GMultiCriterionParabolaIndividual> p
+      = Gem::Common::convertSmartPointer<GParameterSet, GMultiCriterionParabolaIndividual>(p_base);
+
    p->init();
 }
 

@@ -291,7 +291,7 @@ double GFMinIndividual::noisyParabola(const std::vector<double>& parVec) const {
  * @param configFile The name of the configuration file
  */
 GFMinIndividualFactory::GFMinIndividualFactory(const std::string& configFile)
-	: Gem::Common::GFactoryT<GFMinIndividual, GParameterSet>(configFile)
+	: Gem::Common::GFactoryT<GParameterSet>(configFile)
 	, adProb_(GFI_DEF_ADPROB)
 	, sigma_(GFI_DEF_SIGMA)
 	, sigmaSigma_(GFI_DEF_SIGMASIGMA)
@@ -315,7 +315,7 @@ GFMinIndividualFactory::~GFMinIndividualFactory()
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GFMinIndividual> GFMinIndividualFactory::getObject_(
+boost::shared_ptr<GParameterSet> GFMinIndividualFactory::getObject_(
 	Gem::Common::GParserBuilder& gpb
 	, const std::size_t& id
 ) {
@@ -419,7 +419,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder& 
 	);
 
 	// Allow our parent class to describe its options
-	Gem::Common::GFactoryT<GFMinIndividual, GParameterSet>::describeLocalOptions_(gpb);
+	Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
 }
 
 /********************************************************************************************/
@@ -430,7 +430,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder& 
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GFMinIndividualFactory::postProcess_(boost::shared_ptr<GFMinIndividual>& p) {
+void GFMinIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& p) {
 	// Set up a collection with parDim_ values
 	boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(parDim_, minVar_, maxVar_));
 
