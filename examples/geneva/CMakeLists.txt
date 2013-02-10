@@ -52,3 +52,7 @@ ADD_SUBDIRECTORY (
 ADD_SUBDIRECTORY (
   10_GStarter
 )
+
+ADD_SUBDIRECTORY (
+  11_GMetaOptimizer
+)

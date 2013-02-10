@@ -22,6 +22,8 @@ The main changes for this release include:
  - Evolutionary Algorithms are now based on GParameterSet (just like all other "basic" optimization
    algorithms -- i.e. except for multi-populations)
  - Removed the deprecated Go class in favor of Go2 and updated all examples
+ - Added an example that illustrates meta-optimization (i.e. usage of an evolutionary algorithm to
+   optimize the configuration parameters of an optimization algorithm
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

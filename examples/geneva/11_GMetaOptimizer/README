@@ -1,0 +1,5 @@
+This directory contains a performance tuning application that
+allows to find optimal optimization parameters for a given individual 
+type. The target function is the average amount of calls to the 
+individual's objective function, which needs to be minimized.
+ 

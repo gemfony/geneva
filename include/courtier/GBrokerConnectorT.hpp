@@ -95,7 +95,7 @@ namespace Courtier {
 template <typename T>
 class GBrokerConnectorT
 {
-    ///////////////////////////////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////////
 	// NOTE: In order to actually (de-)serialize this class, you will have
 	// to make it known to the Boost.Serialization library, once you have
 	// specified T. You can do so with the BOOST_CLASS_EXPORT_KEY /
@@ -128,17 +128,17 @@ public:
      * The default constructor
      */
     GBrokerConnectorT()
-        : waitFactor_(DEFAULTBROKERWAITFACTOR)
+      : waitFactor_(DEFAULTBROKERWAITFACTOR)
 		, minWaitFactor_(DEFAULTMINBROKERWAITFACTOR)
 		, maxWaitFactor_(DEFAULTMAXBROKERWAITFACTOR)
 		, waitFactorIncrement_(DEFAULTBROKERWAITFACTORINCREMENT)
     	, boundlessWait_(false)
     	, maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
-        , allItemsReturned_(true)
+      , allItemsReturned_(true)
     	, percentOfTimeoutNeeded_(0.)
     	, submission_counter_(0)
-        , firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTBROKERFIRSTTIMEOUT))
-        , doLogging_(false)
+      , firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTBROKERFIRSTTIMEOUT))
+      , doLogging_(false)
     	, CurrentBufferPort_(new Gem::Courtier::GBufferPortT<boost::shared_ptr<T> >())
     {
     	GBROKER(T)->enrol(CurrentBufferPort_);
@@ -1383,14 +1383,14 @@ private:
 	 * position in the population. Smaller position numbers will end up in front.
 	 */
 	template <typename work_item>
-    struct courtierPosComp {
-    	bool operator()(boost::shared_ptr<work_item> x, boost::shared_ptr<work_item> y) {
-    		using namespace boost;
-    		return boost::get<1>(x->getCourtierId()) < boost::get<1>(y->getCourtierId());
-    	}
-    };
+	struct courtierPosComp {
+	   bool operator()(boost::shared_ptr<work_item> x, boost::shared_ptr<work_item> y) {
+	      using namespace boost;
+	      return boost::get<1>(x->getCourtierId()) < boost::get<1>(y->getCourtierId());
+	   }
+	};
 
-    /***************************************************************************/
+	/***************************************************************************/
 
 	double waitFactor_; ///< Affects the timeout for returning individuals
 	double minWaitFactor_; ///< The minimum allowed wait factor
@@ -1398,23 +1398,23 @@ private:
 	double waitFactorIncrement_; ///< The amount by which the waitFactor_ may be incremented or decremented
 	bool boundlessWait_; ///< Indicates whether the retrieveItem call should wait for an unlimited amount of time
 
-    std::size_t maxResubmissions_; ///< The maximum number of resubmissions allowed if a full return of submitted items is expected
+	std::size_t maxResubmissions_; ///< The maximum number of resubmissions allowed if a full return of submitted items is expected
 
 	bool allItemsReturned_; ///< Indicates whether all items have returned before the timeout
 	double percentOfTimeoutNeeded_; ///< Makes a note what percentage of the maximum timeout was needed in one iteration
 
 	SUBMISSIONCOUNTERTYPE submission_counter_; ///< Counts the number of submissions initiated by this object. NOTE: not serialized!
 
-    boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
-    boost::posix_time::ptime iterationStartTime_; ///< Temporary that holds the start time for the retrieval of items in a given iteration
-    boost::posix_time::time_duration totalElapsedFirst_; ///< Temporary that holds the total elapsed time needed for retrieval of the first individual
-    boost::posix_time::time_duration maxAllowedElapsed_; ///< Temporary that holds the maximum allowed elapsed time for all other individuals (as a function of totalElapsedFirst_
-    boost::posix_time::time_duration totalElapsed_; ///< Temporary that holds the total elapsed time since the start of the retrieval procedure
+	boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
+	boost::posix_time::ptime iterationStartTime_; ///< Temporary that holds the start time for the retrieval of items in a given iteration
+	boost::posix_time::time_duration totalElapsedFirst_; ///< Temporary that holds the total elapsed time needed for retrieval of the first individual
+	boost::posix_time::time_duration maxAllowedElapsed_; ///< Temporary that holds the maximum allowed elapsed time for all other individuals (as a function of totalElapsedFirst_
+	boost::posix_time::time_duration totalElapsed_; ///< Temporary that holds the total elapsed time since the start of the retrieval procedure
 
-    bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
-    std::vector<std::vector<boost::uint32_t> >  arrivalTimes_; ///< Holds the actual arrival times. Note: Neither serialized nor copied
+	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
+	std::vector<std::vector<boost::uint32_t> >  arrivalTimes_; ///< Holds the actual arrival times. Note: Neither serialized nor copied
 
-    GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
+	GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
 };
 
 /******************************************************************************/
