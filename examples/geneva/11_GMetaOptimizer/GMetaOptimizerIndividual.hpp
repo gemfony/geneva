@@ -54,7 +54,10 @@
 // Geneva header files go here
 #include "common/GFactoryT.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/GConstrainedInt32Object.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
+#include "geneva/GInt32GaussAdaptor.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GConstrainedDoubleCollection.hpp"
@@ -63,7 +66,6 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
-#include "common/GParserBuilder.hpp"
 
 namespace Gem {
 namespace Geneva {
