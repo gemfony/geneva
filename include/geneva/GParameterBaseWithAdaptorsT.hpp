@@ -272,21 +272,10 @@ public:
 		   // Make the compiler happy
 		   return boost::shared_ptr<adaptor_type>();
 		}
-
-		boost::shared_ptr<adaptor_type> p = boost::dynamic_pointer_cast<adaptor_type>(adaptor_);
-
-		if(p) return p;
-		else {
-		   glogger
-		   << "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>() : Conversion error!" << std::endl
-		   << GEXCEPTION;
-
-         // Make the compiler happy
-         return boost::shared_ptr<adaptor_type>();
-		}
-#else
-		return boost::static_pointer_cast<adaptor_type>(adaptor_);
 #endif /* DEBUG */
+
+		// Does error checks on the conversion internally
+		return Gem::Common::convertSmartPointer<GAdaptorT<T>,adaptor_type>(adaptor_);
 	}
 
 	/* ----------------------------------------------------------------------------------

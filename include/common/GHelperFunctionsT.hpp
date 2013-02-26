@@ -163,12 +163,24 @@ void copySmartPointerVector(
 template <typename source_type, typename target_type>
 boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type> p_raw) {
 #ifdef DEBUG
+      // Check that we have indeed been given an item and that the pointer isn't empty
+      if(!p_raw) {
+         glogger
+         << "In boost::shared_ptr<dT> convertSmartPointer(boost::shared_ptr<source_type> p_raw) :" << std::endl
+         << "Error: Pointer is empty." << std::endl
+         << GEXCEPTION;
+
+         // Make the compiler happy
+         return boost::shared_ptr<target_type>();
+      }
+
+      // Do the actual conversion
       boost::shared_ptr<target_type> p = boost::dynamic_pointer_cast<target_type>(p_raw);
       if(p) return p;
       else {
          glogger
          << "In boost::shared_ptr<dT> convertSmartPointer(boost::shared_ptr<source_type> p_raw) :" << std::endl
-         << "Invalid conversion" << std::endl
+         << "Error: Invalid conversion" << std::endl
          << GEXCEPTION;
 
          // Make the compiler happy

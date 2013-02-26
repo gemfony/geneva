@@ -161,7 +161,7 @@ void GGDPersonalityTraits::load_(const GObject* cp) {
 	const GGDPersonalityTraits *p_load = gobject_conversion<GGDPersonalityTraits>(cp);
 
 	// Load the parent class'es data
-	GObject::load_(cp);
+	GPersonalityTraits::load_(cp);
 
 	// and then the local data
 	popPos_ = p_load->popPos_;

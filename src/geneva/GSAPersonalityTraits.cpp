@@ -159,7 +159,7 @@ void GSAPersonalityTraits::load_(const GObject* cp) {
    const GSAPersonalityTraits *p_load = gobject_conversion<GSAPersonalityTraits>(cp);
 
    // Load the parent class'es data
-   GObject::load_(cp);
+   GBaseParChildPersonalityTraits::load_(cp);
 
    // Then load our local data
    // no local data ...

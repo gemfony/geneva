@@ -18,12 +18,15 @@ The main changes for this release include:
  - Removed the deprecated GIndividualFactoryT class in favor of the more general GFactoryT
  - Removed the deprecated utilities directory and application
  - Separated Simulated Annealing from Evolutionary Algorithms, making it a first-class citizen
- - Separated Multipopulations from Evolutionary Algorithms, making them an first class citizen
+ - Separated multi-populations from Evolutionary Algorithms, making them an first class citizen
  - Evolutionary Algorithms are now based on GParameterSet (just like all other "basic" optimization
    algorithms -- i.e. except for multi-populations)
  - Removed the deprecated Go class in favor of Go2 and updated all examples
  - Added an example that illustrates meta-optimization (i.e. usage of an evolutionary algorithm to
    optimize the configuration parameters of an optimization algorithm
+ - Centralized conversion of smart pointers using a Gem::Common function
+ - Removed manual creation of ROOT output files in favor of GPlotDesigner
+ - Simplified the optimization monitor infrastructure
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

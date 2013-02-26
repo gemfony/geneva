@@ -860,6 +860,8 @@ void GBaseGD::specificTestsFailuresExpected_GUnitTests() {
 GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor()
    : xDim_(0)
    , yDim_(0)
+   , resultFile_(DEFAULTRESULTFILEOM)
+   , fitnessGraph_(new Gem::Common::GGraph2D())
 { /* nothing */ }
 
 /******************************************************************************/
@@ -872,7 +874,9 @@ GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor(const GBaseGD::GGDOptimi
 	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
 	, xDim_(cp.xDim_)
 	, yDim_(cp.yDim_)
-  { /* nothing */ }
+	, resultFile_(cp.resultFile_)
+	, fitnessGraph_(new Gem::Common::GGraph2D())
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -943,11 +947,7 @@ boost::optional<std::string> GBaseGD::GGDOptimizationMonitor::checkRelationshipW
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	// const GBaseGD::GGDOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseGD::GGDOptimizationMonitor >(&cp);
-	// Uncomment the above line if you are assigning data in this function.
-
-    // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GBaseGD::GGDOptimizationMonitor>(&cp);
+	const GBaseGD::GGDOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseGD::GGDOptimizationMonitor >(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -955,10 +955,37 @@ boost::optional<std::string> GBaseGD::GGDOptimizationMonitor::checkRelationshipW
 	// Check our parent class'es data ...
 	deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GBaseGD::GGDOptimizationMonitor", y_name, withMessages));
 
-	// ... there is no local data
+	// ... and then our local data
+   deviations.push_back(checkExpectation(withMessages, "GBaseGD::GGDOptimizationMonitor", xDim_, p_load->xDim_, "xDim_", "p_load->xDim_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBaseGD::GGDOptimizationMonitor", yDim_, p_load->yDim_, "yDim_", "p_load->yDim_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBaseGD::GGDOptimizationMonitor", resultFile_, p_load->resultFile_, "resultFile_", "p_load->resultFile_", e , limit));
+
 
 	return evaluateDiscrepancies("GBaseGD::GGDOptimizationMonitor", caller, deviations, e);
 }
+
+/******************************************************************************/
+/**
+ * Allows to specify a different name for the result file
+ *
+ * @param resultFile The desired name of the result file
+ */
+void GBaseGD::GGDOptimizationMonitor::setResultFileName(
+      const std::string& resultFile
+) {
+  resultFile_ = resultFile;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the current value of the result file name
+ *
+ * @return The current name of the result file
+ */
+std::string GBaseGD::GGDOptimizationMonitor::getResultFileName() const {
+  return resultFile_;
+}
+
 
 /******************************************************************************/
 /**
@@ -967,9 +994,19 @@ boost::optional<std::string> GBaseGD::GGDOptimizationMonitor::checkRelationshipW
  * @param xDim The desired dimension of the canvas in x-direction
  * @param yDim The desired dimension of the canvas in y-direction
  */
-void GBaseGD::GGDOptimizationMonitor::setDims(const boost::uint16_t& xDim, const boost::uint16_t& yDim) {
+void GBaseGD::GGDOptimizationMonitor::setDims(const boost::uint32_t& xDim, const boost::uint32_t& yDim) {
 	xDim_ = xDim;
 	yDim_ = yDim;
+}
+
+/******************************************************************************/
+/**
+ * Retrieve the dimensions as a tuple
+ *
+ * @return The dimensions of the canvas as a tuple
+ */
+boost::tuple<boost::uint32_t, boost::uint32_t> GBaseGD::GGDOptimizationMonitor::getDims() const {
+   return boost::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
 }
 
 /******************************************************************************/
@@ -978,7 +1015,7 @@ void GBaseGD::GGDOptimizationMonitor::setDims(const boost::uint16_t& xDim, const
  *
  * @return The dimension of the canvas in x-direction
  */
-boost::uint16_t GBaseGD::GGDOptimizationMonitor::getXDim() const {
+boost::uint32_t GBaseGD::GGDOptimizationMonitor::getXDim() const {
 	return xDim_;
 }
 
@@ -988,7 +1025,7 @@ boost::uint16_t GBaseGD::GGDOptimizationMonitor::getXDim() const {
  *
  * @return The dimension of the canvas in y-direction
  */
-boost::uint16_t GBaseGD::GGDOptimizationMonitor::getYDim() const {
+boost::uint32_t GBaseGD::GGDOptimizationMonitor::getYDim() const {
 	return yDim_;
 }
 
@@ -997,25 +1034,21 @@ boost::uint16_t GBaseGD::GGDOptimizationMonitor::getYDim() const {
  * A function that is called once before the optimization starts
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
- * @return A string containing information to written to the output file (if any)
  */
-std::string GBaseGD::GGDOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-	// This should always be the first statement in a custom optimization monitor
-	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::firstInformation(goa);
-
-	// Perform the conversion to the target algorithm
+void GBaseGD::GGDOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 #ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
-	   glogger
-	   << "In GBaseGD::GGDOptimizationMonitor::firstInformation():" << std::endl
+   if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
+      glogger
+      << "In GBaseGD::GGDOptimizationMonitor::cycleInformation():" << std::endl
       << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
       << GEXCEPTION;
-	}
+   }
 #endif /* DEBUG */
-	GBaseGD * const gd = static_cast<GBaseGD * const>(goa);
 
-	// Output the header to the summary stream
-	return gdFirstInformation(gd);
+   // Configure the plotter
+   fitnessGraph_->setXAxisLabel("Iteration");
+   fitnessGraph_->setYAxisLabel("Fitness");
+   fitnessGraph_->setPlotMode(Gem::Common::CURVE);
 }
 
 /******************************************************************************/
@@ -1025,24 +1058,12 @@ std::string GBaseGD::GGDOptimizationMonitor::firstInformation(GOptimizationAlgor
  * the standard overloads provided for the various optimization algorithms.
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
- * @return A string containing information to written to the output file (if any)
  */
-std::string GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-	// Let the audience know what the parent has to say
-	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::cycleInformation(goa);
-
+void GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 	// Perform the conversion to the target algorithm
-#ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
-	   glogger
-	   << "In GBaseGD::GGDOptimizationMonitor::cycleInformation():" << std::endl
-      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
-      << GEXCEPTION;
-	}
-#endif /* DEBUG */
 	GBaseGD * const gd = static_cast<GBaseGD * const>(goa);
 
-	return gdCycleInformation(gd);
+	*fitnessGraph_ & boost::tuple<double,double>(gd->getIteration(), gd->getBestFitness());
 }
 
 /******************************************************************************/
@@ -1050,105 +1071,17 @@ std::string GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgor
  * A function that is called once at the end of the optimization cycle
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
- * @return A string containing information to written to the output file (if any)
  */
-std::string GBaseGD::GGDOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+void GBaseGD::GGDOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+   Gem::Common::GPlotDesigner gpd(
+         "Fitness of best individual"
+         , 1, 1 // A single plot / grid of dimension 1/1
+   );
 
-	// Perform the conversion to the target algorithm
-#ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
-	   glogger
-	   << "In GBaseGD::GGDOptimizationMonitor::lastInformation():" << std::endl
-      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
-      << GEXCEPTION;
-	}
-#endif /* DEBUG */
-	GBaseGD * const gd = static_cast<GBaseGD * const>(goa);
+   gpd.setCanvasDimensions(xDim_, yDim_);
+   gpd.registerPlotter(fitnessGraph_);
 
-	// Do the actual information gathering
-	std::ostringstream result;
-	result << gdLastInformation(gd);
-
-	// This should always be the last statement in a custom optimization monitor
-	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::lastInformation(goa);
-
-	return result.str();
-}
-
-
-/******************************************************************************/
-/**
- * A function that is called once before the optimization starts
- *
- * @param gd The object for which information should be collected
- */
-std::string GBaseGD::GGDOptimizationMonitor::gdFirstInformation(GBaseGD * const gd) {
-	std::ostringstream result;
-
-	// Output the header to the summary stream
-	result << "{" << std::endl
-		   << "  gROOT->Reset();" << std::endl
-		   << "  gStyle->SetOptTitle(0);" << std::endl
-		   << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDim_ << "," << yDim_ << ");" << std::endl
-		   << std::endl
-		   << "  std::vector<long> iteration;" << std::endl
-		   << "  std::vector<double> evaluation;" << std::endl
-		   << std::endl;
-
-	return result.str();
-}
-
-/******************************************************************************/
-/**
- * A function that is called during each optimization cycle
- *
- * @param gd The object for which information should be collected
- */
-std::string GBaseGD::GGDOptimizationMonitor::gdCycleInformation(GBaseGD * const gd) {
-	std::ostringstream result;
-	bool isDirty = false;
-	double currentEvaluation = 0.;
-
-
-	result << "  iteration.push_back(" << gd->getIteration() << ");" << std::endl
-		   << "  evaluation.push_back(" <<  gd->getBestFitness() << ");" << std::endl
-	       << std::endl; // Improves readability when following the output with "tail -f"
-
-	return result.str();
-}
-
-/******************************************************************************/
-/**
- * A function that is called once at the end of the optimization cycle
- *
- * @param gd The object for which information should be collected
- */
-std::string GBaseGD::GGDOptimizationMonitor::gdLastInformation(GBaseGD * const gd) {
-	std::ostringstream result;
-
-	// Output final print logic to the stream
-	result << "  // Transfer the vectors into arrays" << std::endl
-		   << "  double iteration_arr[iteration.size()];" << std::endl
-		   << "  double evaluation_arr[evaluation.size()];" << std::endl
-		   << std::endl
-		   << "  for(std::size_t i=0; i<iteration.size(); i++) {" << std::endl
-		   << "     iteration_arr[i] = (double)iteration[i];" << std::endl
-		   << "     evaluation_arr[i] = evaluation[i];" << std::endl
-		   << "  }" << std::endl
-		   << std::endl
-		   << "  // Create a TGraph object" << std::endl
-		   << "  TGraph *evGraph = new TGraph(evaluation.size(), iteration_arr, evaluation_arr);" << std::endl
-		   << std::endl
-		   << "  // Set the axis titles" << std::endl
-		   << "  evGraph->GetXaxis()->SetTitle(\"Iteration\");" << std::endl
-		   << "  evGraph->GetYaxis()->SetTitleOffset(1.1);" << std::endl
-		   << "  evGraph->GetYaxis()->SetTitle(\"Fitness\");" << std::endl
-		   << std::endl
-		   << "  // Do the actual drawing" << std::endl
-		   << "  evGraph->Draw(\"APL\");" << std::endl
-		   << "}" << std::endl;
-
-	return result.str();
+   gpd.writeToFile(this->getResultFileName());
 }
 
 /******************************************************************************/
@@ -1158,14 +1091,15 @@ std::string GBaseGD::GGDOptimizationMonitor::gdLastInformation(GBaseGD * const g
  * cp A pointer to another GGDOptimizationMonitor object, camouflaged as a GObject
  */
 void GBaseGD::GGDOptimizationMonitor::load_(const GObject* cp) {
-	// const GBaseGD::GGDOptimizationMonitor *p_load = gobject_conversion<GBaseGD::GGDOptimizationMonitor>(cp);
-    // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GBaseGD::GGDOptimizationMonitor>(cp);
+	const GBaseGD::GGDOptimizationMonitor *p_load = gobject_conversion<GBaseGD::GGDOptimizationMonitor>(cp);
 
 	// Load the parent classes' data ...
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);
 
-	// no local data
+	// ... and then our local data
+	xDim_ = p_load->xDim_;
+	yDim_ = p_load->yDim_;
+	resultFile_ = p_load->resultFile_;
 }
 
 /******************************************************************************/

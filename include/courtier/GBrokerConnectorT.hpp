@@ -78,6 +78,7 @@
 #include "common/GLogger.hpp"
 #include "common/GPODExpectationChecksT.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GBrokerT.hpp"
@@ -1205,30 +1206,8 @@ private:
     		arrivalTimes_.back().push_back(totalElapsedFirst_.total_milliseconds());
     	}
 
-		// Convert the item to the target type. Note that there is a specialization
-		// of this function in case target_type == T
-#ifdef DEBUG
-		// Check that p actually points somewhere
-		if(!p) {
-		   glogger
-		   << "In GBrokerConnectorT<T>::retrieveFirstItem<target_type>(): Empty pointer found" << std::endl
-		   << GEXCEPTION;
-		}
-
-		boost::shared_ptr<target_type> p_converted = boost::dynamic_pointer_cast<target_type>(p);
-
-		if(p_converted) return p_converted;
-		else {
-		   glogger
-		   << "In GBrokerConnectorT<T>::retrieveFirstItem<target_type>(): Conversion error" << std::endl
-		   << GEXCEPTION;
-
-		   // Make the compiler happy
-		   return boost::shared_ptr<target_type>();
-		}
-#else
-		return boost::static_pointer_cast<target_type>(p);
-#endif /* DEBUG */
+    	// Return the retrieved item. Does error checks on the conversion internally
+      return Gem::Common::convertSmartPointer<T, target_type>(p);
 	}
 
     /***************************************************************************/
@@ -1352,29 +1331,8 @@ private:
     		arrivalTimes_.back().push_back(currentElapsed.total_milliseconds());
     	}
 
-		// If we have reached this point, we should have a valid p. Convert to the target type.
-#ifdef DEBUG
-		// Check that p actually points somewhere
-		if(!p) {
-		   glogger
-		   << "In GBrokerConnectorT<T>::retrieveItem<target_type>(): Empty pointer found" << std::endl
-		   << GEXCEPTION;
-		}
-
-		p_converted = boost::dynamic_pointer_cast<target_type>(p);
-
-		if(p_converted) return p_converted;
-		else {
-		   glogger
-		   << "In GBrokerConnectorT<T>::retrieveItem<target_type>(): Conversion error" << std::endl
-		   << GEXCEPTION;
-
-		   // Make the compiler happy
-		   return boost::shared_ptr<target_type>();
-		}
-#else
-		return boost::static_pointer_cast<target_type>(p);
-#endif /* DEBUG */
+      // Return the retrieved item. Does error checks on the conversion internally
+      return Gem::Common::convertSmartPointer<T, target_type>(p);
 	}
 
 	/***************************************************************************/

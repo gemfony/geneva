@@ -49,6 +49,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GPlotDesigner.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
@@ -200,7 +201,7 @@ public:
 	 * @return A converted shared_ptr to the best individual of a given neighborhood
 	 */
 	template <typename parameterset_type>
-	inline boost::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
+	boost::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
 			std::size_t neighborhood
 		  , typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
 	){
@@ -211,30 +212,14 @@ public:
 		   << "In GBaseSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
          << "Requested neighborhood which does not exist: " << neighborhood << " / " << nNeighborhoods_ << std::endl
          << GEXCEPTION;
-		}
-
-		// Check that pointer actually points somewhere
-		if(!neighborhood_bests_[neighborhood]) {
-		   glogger
-		   << "In GBaseSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
-         << "Tried to access uninitialized best individual in neighborhood." << std::endl
-         << GEXCEPTION;
-		}
-
-		boost::shared_ptr<parameterset_type> p = boost::dynamic_pointer_cast<parameterset_type>(neighborhood_bests_[neighborhood]);
-
-		if(p) return p;
-		else {
-		   glogger
-		   << "In GBaseSwarm::getBestNeighborhoodIndividual<>() : Conversion error" << std::endl
-		   << GEXCEPTION;
 
 		   // Make the compiler happy
 		   return boost::shared_ptr<parameterset_type>();
 		}
-#else
-		return boost::static_pointer_cast<parameterset_type>(neighborhood_bests_[neighborhood]);
 #endif /* DEBUG */
+
+      // Does error checks on the conversion internally
+      return Gem::Common::convertSmartPointer<GParameterSet, parameterset_type>(neighborhood_bests_[neighborhood]);
 	}
 
 protected:
@@ -366,7 +351,8 @@ public:
 
 	      ar & make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this))
 	         & BOOST_SERIALIZATION_NVP(xDim_)
-	         & BOOST_SERIALIZATION_NVP(yDim_);
+	         & BOOST_SERIALIZATION_NVP(yDim_)
+	         & BOOST_SERIALIZATION_NVP(resultFile_);
 	    }
 	    ///////////////////////////////////////////////////////////////////////
 
@@ -402,20 +388,18 @@ public:
 	    /** @brief Retrieve the y-dimension of the output canvas */
 	    boost::uint16_t getYDim() const;
 
+	    /** @brief Allows to set the name of the result file */
+	    void setResultFileName(const std::string&);
+	    /** @brief Allows to retrieve the name of the result file */
+	    std::string getResultFileName() const;
+
 	protected:
 	    /** @brief A function that is called once before the optimization starts */
-	    virtual std::string firstInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	    virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const);
 	    /** @brief A function that is called during each optimization cycle */
-	    virtual std::string cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	    virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const);
 	    /** @brief A function that is called once at the end of the optimization cycle */
-	    virtual std::string lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
-
-	    /** @brief A function that is called once before the optimization starts */
-	    virtual std::string swarmFirstInformation(GBaseSwarm * const);
-	    /** @brief A function that is called during each optimization cycle */
-	    virtual std::string swarmCycleInformation(GBaseSwarm * const);
-	    /** @brief A function that is called once at the end of the optimization cycle */
-	    virtual std::string swarmLastInformation(GBaseSwarm * const);
+	    virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
 
 	    /** @brief Loads the data of another object */
 	    virtual void load_(const GObject*);
@@ -425,6 +409,10 @@ public:
 	private:
 		boost::uint16_t xDim_; ///< The dimension of the canvas in x-direction
 		boost::uint16_t yDim_; ///< The dimension of the canvas in y-direction
+
+		std::string resultFile_; ///< The name of the file to which data is emitted
+
+      boost::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_; ///< Holds the fitness data until plotted
 
 	public:
 		/** @brief Applies modifications to this object. This is needed for testing purposes */

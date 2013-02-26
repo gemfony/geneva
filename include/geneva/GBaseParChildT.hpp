@@ -532,7 +532,7 @@ public:
     * @return A converted shared_ptr to the parent
     */
    template <typename parent_type>
-   inline boost::shared_ptr<parent_type> getParentIndividual(
+   boost::shared_ptr<parent_type> getParentIndividual(
          std::size_t parentId
          , typename boost::enable_if<boost::is_base_of<GIndividual, parent_type> >::type* dummy = 0
    ){
@@ -543,33 +543,14 @@ public:
          << "In GBaseEA::getParentIndividual<>() : Error" << std::endl
          << "Requested parent id which does not exist: " << parentId << " / " << this->getNParents() << std::endl
          << GEXCEPTION;
-      }
-
-      // Retrieve a pointer to the parent individual
-      boost::shared_ptr<GIndividual> parent_ptr = *(this->begin() + parentId);
-
-      // Check that the pointer actually points somewhere
-      if(!parent_ptr) {
-         glogger
-         << "In GBaseEA::getParentIndividual<>() : Error" << std::endl
-         << "Tried to access uninitialized parent individual." << std::endl
-         << GEXCEPTION;
-      }
-
-      boost::shared_ptr<parent_type> converted_parent_pointer = boost::dynamic_pointer_cast<parent_type>(parent_ptr);
-
-      if(converted_parent_pointer) return converted_parent_pointer;
-      else {
-         glogger
-         << "In GBaseEA::getParentIndividual<>(): Conversion error" << std::endl
-         << GEXCEPTION;
 
          // Make the compiler happy
          return boost::shared_ptr<parent_type>();
       }
-#else
-      return boost::static_pointer_cast<parent_type>(*(this->begin() + parentId));
 #endif /* DEBUG */
+
+      // Does error checks on the conversion internally
+      return Gem::Common::convertSmartPointer<GIndividual, parent_type>(*(this->begin() + parentId));
    }
 
    /***************************************************************************/

@@ -49,6 +49,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GPlotDesigner.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
@@ -204,7 +205,8 @@ public:
          & make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this))
          & BOOST_SERIALIZATION_NVP(xDim_)
          & BOOST_SERIALIZATION_NVP(yDim_)
-         & BOOST_SERIALIZATION_NVP(nMonitorInds_);
+         & BOOST_SERIALIZATION_NVP(nMonitorInds_)
+         & BOOST_SERIALIZATION_NVP(resultFile_);
       }
       ///////////////////////////////////////////////////////////////////////
 
@@ -245,20 +247,18 @@ public:
       /** @brief Retrieves the number of individuals that are being monitored */
       std::size_t getNMonitorIndividuals() const;
 
+      /** @brief Allows to set the name of the result file */
+      void setResultFileName(const std::string&);
+      /** @brief Allows to retrieve the name of the result file */
+      std::string getResultFileName() const;
+
      protected:
       /** @brief A function that is called once before the optimization starts */
-      virtual std::string saFirstInformation(GBaseSA * const);
+      virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const);
       /** @brief A function that is called during each optimization cycle */
-      virtual std::string saCycleInformation(GBaseSA * const);
+      virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const);
       /** @brief A function that is called once at the end of the optimization cycle */
-      virtual std::string saLastInformation(GBaseSA * const);
-
-      /** @brief A function that is called once before the optimization starts */
-      virtual std::string firstInformation(GOptimizationAlgorithmT<GParameterSet> * const);
-      /** @brief A function that is called during each optimization cycle */
-      virtual std::string cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const);
-      /** @brief A function that is called once at the end of the optimization cycle */
-      virtual std::string lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+      virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
 
       /** @brief Loads the data of another object */
       virtual void load_(const GObject*);
@@ -266,9 +266,12 @@ public:
       virtual GObject* clone_() const;
 
      private:
-      boost::uint16_t xDim_; ///< The dimension of the canvas in x-direction
-      boost::uint16_t yDim_; ///< The dimension of the canvas in y-direction
+      boost::uint16_t xDim_;     ///< The dimension of the canvas in x-direction
+      boost::uint16_t yDim_;     ///< The dimension of the canvas in y-direction
       std::size_t nMonitorInds_; ///< The number if individuals that should be monitored
+      std::string resultFile_;     ///< The name of the file to which data is emitted
+
+      std::vector<boost::shared_ptr<Gem::Common::GGraph2D> > fitnessGraphVec_;
 
      public:
       /** @brief Applies modifications to this object. This is needed for testing purposes */

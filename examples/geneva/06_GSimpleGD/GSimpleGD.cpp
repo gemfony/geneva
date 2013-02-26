@@ -50,9 +50,6 @@
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
 
-// Holds the optimization monitor
-// #include "GInfoFunction.hpp"
-
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
@@ -226,7 +223,6 @@ int main(int argc, char **argv){
   pop_ptr->setMaxIteration(maxIterations);
   pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
   pop_ptr->setReportIteration(reportIteration);
-  // pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om_ptr, _1, _2));
   
   // Do the actual optimization
   pop_ptr->optimize();

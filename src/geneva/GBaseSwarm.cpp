@@ -1671,12 +1671,16 @@ void GBaseSwarm::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * The default constructor
  */
 GBaseSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor()
 	: xDim_(DEFAULTXDIMOM)
 	, yDim_(DEFAULTYDIMOM)
+   , resultFile_(DEFAULTRESULTFILEOM)
+   , fitnessGraph_(new Gem::Common::GGraph2D())
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1689,6 +1693,8 @@ GBaseSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor(const GBaseSwar
 	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
 	, xDim_(cp.xDim_)
 	, yDim_(cp.yDim_)
+   , resultFile_(cp.resultFile_)
+   , fitnessGraph_(new Gem::Common::GGraph2D())
   { /* nothing */ }
 
 /******************************************************************************/
@@ -1771,8 +1777,31 @@ boost::optional<std::string> GBaseSwarm::GSwarmOptimizationMonitor::checkRelatio
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm::GSwarmOptimizationMonitor", xDim_, p_load->xDim_, "xDim_", "p_load->xDim_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm::GSwarmOptimizationMonitor", yDim_, p_load->yDim_, "yDim_", "p_load->yDim_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm::GSwarmOptimizationMonitor", resultFile_, p_load->resultFile_, "resultFile_", "p_load->resultFile_", e , limit));
 
 	return evaluateDiscrepancies("GBaseSwarm::GSwarmOptimizationMonitor", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Allows to specify a different name for the result file
+ *
+ * @param resultFile The desired name of the result file
+ */
+void GBaseSwarm::GSwarmOptimizationMonitor::setResultFileName(
+      const std::string& resultFile
+) {
+  resultFile_ = resultFile;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the current value of the result file name
+ *
+ * @return The current name of the result file
+ */
+std::string GBaseSwarm::GSwarmOptimizationMonitor::getResultFileName() const {
+  return resultFile_;
 }
 
 /******************************************************************************/
@@ -1812,25 +1841,21 @@ boost::uint16_t GBaseSwarm::GSwarmOptimizationMonitor::getYDim() const {
  * A function that is called once before the optimization starts
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
- * @return A string containing information to written to the output file (if any)
  */
-std::string GBaseSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-	// This should always be the first statement in a custom optimization monitor
-	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::firstInformation(goa);
-
-	// Perform the conversion to the target algorithm
+void GBaseSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 #ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != PERSONALITY_SWARM) {
-	   glogger
-	   << "In GBaseSwarm::GSwarmOptimizationMonitor::firstInformation():" << std::endl
+   if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
+      glogger
+      << "In GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation():" << std::endl
       << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
       << GEXCEPTION;
-	}
+   }
 #endif /* DEBUG */
-	GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);
 
-	// Output the header to the summary stream
-	return swarmFirstInformation(swarm);
+   // Configure the plotter
+   fitnessGraph_->setXAxisLabel("Iteration");
+   fitnessGraph_->setYAxisLabel("Fitness");
+   fitnessGraph_->setPlotMode(Gem::Common::CURVE);
 }
 
 /******************************************************************************/
@@ -1840,24 +1865,12 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizatio
  * the standard overloads provided for the various optimization algorithms.
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
- * @return A string containing information to written to the output file (if any)
  */
-std::string GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-	// Let the audience know what the parent has to say
-	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::cycleInformation(goa);
+void GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+   // Perform the conversion to the target algorithm
+   GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);
 
-	// Perform the conversion to the target algorithm
-#ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != PERSONALITY_SWARM) {
-	   glogger
-	   << "In GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation():" << std::endl
-      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
-      << GEXCEPTION;
-	}
-#endif /* DEBUG */
-	GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);
-
-	return swarmCycleInformation(swarm);
+   *fitnessGraph_ & boost::tuple<double,double>(swarm->getIteration(), swarm->getBestFitness());
 }
 
 /******************************************************************************/
@@ -1865,115 +1878,17 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizatio
  * A function that is called once at the end of the optimization cycle
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
- * @return A string containing information to written to the output file (if any)
  */
-std::string GBaseSwarm::GSwarmOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+void GBaseSwarm::GSwarmOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+   Gem::Common::GPlotDesigner gpd(
+         "Fitness of best individual"
+         , 1, 1 // A single plot / grid of dimension 1/1
+   );
 
-	// Perform the conversion to the target algorithm
-#ifdef DEBUG
-	if(goa->getOptimizationAlgorithm() != PERSONALITY_SWARM) {
-	   glogger
-	   << "In GBaseSwarm::GSwarmOptimizationMonitor::lastInformation():" << std::endl
-      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
-      << GEXCEPTION;
-	}
-#endif /* DEBUG */
-	GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);
+   gpd.setCanvasDimensions(xDim_, yDim_);
+   gpd.registerPlotter(fitnessGraph_);
 
-	// Do the actual information gathering
-	std::ostringstream result;
-	result << swarmLastInformation(swarm);
-
-	// This should always be the last statement in a custom optimization monitor
-	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::lastInformation(goa);
-
-	return result.str();
-}
-
-
-/******************************************************************************/
-/**
- * A function that is called once before the optimization starts
- *
- * @param swarm The object for which information should be collected
- */
-std::string GBaseSwarm::GSwarmOptimizationMonitor::swarmFirstInformation(GBaseSwarm * const swarm) {
-	std::ostringstream result;
-
-	// Output the header to the summary stream
-	result << "{" << std::endl
-		   << "  gROOT->Reset();" << std::endl
-		   << "  gStyle->SetOptTitle(0);" << std::endl
-		   << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDim_ << "," << yDim_ << ");" << std::endl
-		   << std::endl
-		   << "  std::vector<long> iteration;" << std::endl
-		   << "  std::vector<double> evaluation;" << std::endl
-		   << std::endl;
-
-	return result.str();
-}
-
-/******************************************************************************/
-/**
- * A function that is called during each optimization cycle
- *
- * @param swarm The object for which information should be collected
- */
-std::string GBaseSwarm::GSwarmOptimizationMonitor::swarmCycleInformation(GBaseSwarm * const swarm) {
-	std::ostringstream result;
-	bool isDirty = false;
-	double currentEvaluation = 0.;
-
-	// Retrieve the current iteration
-	boost::uint32_t iteration = swarm->getIteration();
-
-	result << "  iteration.push_back(" << iteration << ");" << std::endl;
-
-	// Get access to the best inidividual
-	boost::shared_ptr<GParameterSet> gsi_ptr = swarm->GOptimizableI::getBestIndividual<GParameterSet>();
-
-	// Retrieve the fitness of this individual
-	currentEvaluation = gsi_ptr->getCachedFitness(isDirty);
-
-	// Write information to the output stream
-	result << "  evaluation.push_back(" <<  currentEvaluation << ");" << (isDirty?" // dirty flag is set":"") << std::endl
-	       << std::endl; // Improves readability when following the output with "tail -f"
-
-	return result.str();
-}
-
-/******************************************************************************/
-/**
- * A function that is called once at the end of the optimization cycle
- *
- * @param swarm The object for which information should be collected
- */
-std::string GBaseSwarm::GSwarmOptimizationMonitor::swarmLastInformation(GBaseSwarm * const swarm) {
-	std::ostringstream result;
-
-	// Output final print logic to the stream
-	result << "  // Transfer the vectors into arrays" << std::endl
-		   << "  double iteration_arr[iteration.size()];" << std::endl
-		   << "  double evaluation_arr[evaluation.size()];" << std::endl
-		   << std::endl
-		   << "  for(std::size_t i=0; i<iteration.size(); i++) {" << std::endl
-		   << "     iteration_arr[i] = (double)iteration[i];" << std::endl
-		   << "     evaluation_arr[i] = evaluation[i];" << std::endl
-		   << "  }" << std::endl
-		   << std::endl
-		   << "  // Create a TGraph object" << std::endl
-		   << "  TGraph *evGraph = new TGraph(evaluation.size(), iteration_arr, evaluation_arr);" << std::endl
-		   << std::endl
-		   << "  // Set the axis titles" << std::endl
-		   << "  evGraph->GetXaxis()->SetTitle(\"Iteration\");" << std::endl
-		   << "  evGraph->GetYaxis()->SetTitleOffset(1.1);" << std::endl
-		   << "  evGraph->GetYaxis()->SetTitle(\"Fitness\");" << std::endl
-		   << std::endl
-		   << "  // Do the actual drawing" << std::endl
-		   << "  evGraph->Draw(\"APL\");" << std::endl
-		   << "}" << std::endl;
-
-	return result.str();
+   gpd.writeToFile(this->getResultFileName());
 }
 
 /******************************************************************************/
@@ -1991,6 +1906,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::load_(const GObject* cp) {
 	// ... and then our local data
 	xDim_ = p_load->xDim_;
 	yDim_ = p_load->yDim_;
+	resultFile_ = p_load->resultFile_;
 }
 
 /******************************************************************************/

@@ -48,6 +48,7 @@
 
 // Geneva headers go here
 #include "courtier/GBrokerConnectorT.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizableI.hpp"
@@ -794,7 +795,7 @@ public:
 	 * @return A converted version of the GIndividual object, as required by the user
 	 */
 	template <typename target_type>
-	inline boost::shared_ptr<target_type> individual_cast(
+	boost::shared_ptr<target_type> individual_cast(
 			 const std::size_t& pos
 		   , typename boost::enable_if<boost::is_base_of<GIndividual, target_type> >::type* dummy = 0
 	) {
@@ -804,22 +805,14 @@ public:
 		   << "In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Error" << std::endl
          << "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl
          << GEXCEPTION;
-		}
-
-		boost::shared_ptr<target_type> p = boost::dynamic_pointer_cast<target_type>(this->at(pos));
-
-		if(p) return p;
-		else {
-		   glogger
-		   << "In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Conversion error" << std::endl
-		   << GEXCEPTION;
 
 		   // Make the compiler happy
 		   return boost::shared_ptr<target_type>();
 		}
-#else
-		return boost::static_pointer_cast<target_type>((*this)[pos]);
 #endif /* DEBUG */
+
+		// Does error checks on the conversion internally
+		return Gem::Common::convertSmartPointer<ind_type, target_type>(this->at(pos));
 	}
 
 	/***************************************************************************/
@@ -1591,8 +1584,7 @@ public:
 	 * This nested class defines the interface of optimization monitors, as used
 	 * in the Geneva library. It also provides users with some basic information.
 	 */
-	class GOptimizationMonitorT
-		: public GObject
+	class GOptimizationMonitorT : public GObject
 	{
 	    ///////////////////////////////////////////////////////////////////////
 	    friend class boost::serialization::access;
@@ -1602,8 +1594,7 @@ public:
 	      using boost::serialization::make_nvp;
 
 	      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-	      	 & BOOST_SERIALIZATION_NVP(quiet_)
-	      	 & BOOST_SERIALIZATION_NVP(resultFile_);
+	      	& BOOST_SERIALIZATION_NVP(quiet_);
 	    }
 	    ///////////////////////////////////////////////////////////////////////
 
@@ -1613,8 +1604,8 @@ public:
 	     * The default constructor
 	     */
 	    GOptimizationMonitorT()
-	    	: quiet_(false)
-	    	, resultFile_(DEFAULTRESULTFILEOM)
+	    	: GObject()
+	    	, quiet_(false)
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -1626,7 +1617,6 @@ public:
 	    GOptimizationMonitorT(const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp)
 	    	: GObject(cp)
 	    	, quiet_(cp.quiet_)
-	    	, resultFile_(cp.resultFile_)
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -1650,7 +1640,7 @@ public:
 
 	    /************************************************************************/
 	    /**
-	     * Checks for equality with another GParameter Base object
+	     * Checks for equality with another GOptimizationMonitorT object
 	     *
 	     * @param  cp A constant reference to another GOptimizationMonitorT object
 	     * @return A boolean indicating whether both objects are equal
@@ -1708,65 +1698,47 @@ public:
 
 	    	// ... and then our local data
 			EXPECTATIONCHECK(quiet_);
-			EXPECTATIONCHECK(resultFile_);
 
 	    	return evaluateDiscrepancies("GOptimizationMonitorT", caller, deviations, e);
 	    }
 
 	    /************************************************************************/
 	    /**
-	     * The actual information function
+	     * The actual information function. It is up to the user to define what happens
+	     * in each step. This function only enforces the emission of simple progress
+	     * information to the command line in each iteration (unless the "quiet_" variable
+	     * has been set.
 	     *
 	     * @param im The mode in which the information function is called
 	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
 	     */
-	    void informationFunction(const infoMode& im, GOptimizationAlgorithmT<ind_type> * const goa) {
+	    void informationFunction(
+	          const infoMode& im
+	          , GOptimizationAlgorithmT<ind_type> * const goa
+	    ) {
 	    	if(quiet_) return;
 
 	    	switch(im) {
 	    	case Gem::Geneva::INFOINIT:
 	    	{
-	    		// Make sure we have an output path
-            std::ofstream summary;
-            summary.open(resultFile_.c_str()); // Will overwrite the file
-	    		if(!summary) {
-	    		   glogger
-	    		   << "In GOptimizationMonitorT<T>::informationFunction():" << std::endl
-               << "Could not open output file \"" << resultFile_ << "\"" << std::endl
-               << GEXCEPTION;
-	    		}
-
-	    		// Emit the header and perform any necessary initialization work
-	    		summary << this->firstInformation(goa) << std::flush;
-
-	    		summary.close();
+	    	   if(!quiet_) std::cout << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
+	    	   this->firstInformation(goa);
 	    	}
-	    	break;
+	    	   break;
 
 	    	case Gem::Geneva::INFOPROCESSING:
 	    	{
-            std::ofstream summary; // The stream to which information is written
-            summary.open(resultFile_.c_str(), std::ofstream::app);
-
-            // Regular information emitted during each iteration
-	    		summary << this->cycleInformation(goa) << std::flush;
-
-	    		summary.close();
+	    	   if(!quiet_) std::cout << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentFitness() << std::endl;
+	    		this->cycleInformation(goa);
 	    	}
-	    	break;
+	    		break;
 
 	    	case Gem::Geneva::INFOEND:
 	    	{
-            std::ofstream summary; // The stream to which information is written
-            summary.open(resultFile_.c_str(), std::ofstream::app);
-
-	    		// Emit any remaining information
-	    		summary << this->lastInformation(goa) << std::flush;
-
-	    		// Clean up
-	    		summary.close();
+	    	   this->lastInformation(goa);
+	    	   if(!quiet_) std::cout << "End of optimization reached in algorithm \""<< goa->getAlgorithmName() << "\"" << std::endl;
 	    	}
-	    	break;
+	    		break;
 
 	    	default:
 	    	{
@@ -1804,67 +1776,35 @@ public:
 	    	return quiet_;
 	    }
 
-	    /************************************************************************/
-	    /**
-	     * Allows to specify a different name for the result file
-	     *
-	     * @param resultFile The desired name of the result file
-	     */
-	    void setResultFileName(const std::string& resultFile) {
-	    	resultFile_ = resultFile;
-	    }
-
-	    /************************************************************************/
-	    /**
-	     * Allows to retrieve the current value of the result file name
-	     *
-	     * @return The current name of the result file
-	     */
-	    std::string getResultFileName() const {
-	    	return resultFile_;
-	    }
-
 	protected:
 	    /************************************************************************/
 	    /**
 	     * A function that is called once before the optimization starts
 	     *
 	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
-	     * @return A string containing information to written to the output file (if any)
 	     */
-	    virtual std::string firstInformation(GOptimizationAlgorithmT<ind_type> * const goa) {
-	    	std::ostringstream result;
-	    	result << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
-	    	return result.str();
-	    }
+	    virtual void firstInformation(GOptimizationAlgorithmT<ind_type> * const goa)
+	    { /* nothing */ }
 
 	    /************************************************************************/
 	    /**
 	     * A function that is called during each optimization cycle. It is possible to
-	     * extract quite comprehensive information in each iteration. For examples, see
-	     * the standard overloads provided for the various optimization algorithms.
+	     * extract quite comprehensive information in each iteration. Have a look at
+	     * the examples accompanying Geneva for further information.
 	     *
 	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
-	     * @return A string containing information to written to the output file (if any)
 	     */
-	    virtual std::string cycleInformation(GOptimizationAlgorithmT<ind_type> * const goa) {
-	    	std::ostringstream result;
-	    	result << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentFitness() << std::endl;
-	    	return result.str();
-	    }
+	    virtual void cycleInformation(GOptimizationAlgorithmT<ind_type> * const goa)
+	    { /* nothing */ }
 
 	    /************************************************************************/
 	    /**
 	     * A function that is called once at the end of the optimization cycle
 	     *
 	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
-		 * @return A string containing information to written to the output file (if any)
 	     */
-	    virtual std::string lastInformation(GOptimizationAlgorithmT<ind_type> * const goa) {
-	    	std::ostringstream result;
-	    	result << "End of optimization reached in algorithm \""<< goa->getAlgorithmName() << "\"" << std::endl;
-	    	return result.str();
-	    }
+	    virtual void lastInformation(GOptimizationAlgorithmT<ind_type> * const goa)
+	    { /* nothing */ }
 
 	    /************************************************************************/
 	    /**
@@ -1880,7 +1820,6 @@ public:
 
 	    	// ... and then our local data
 	    	quiet_ = p_load->quiet_;
-	    	resultFile_ = p_load->resultFile_;
 	    }
 
 	    /************************************************************************/
@@ -1894,7 +1833,6 @@ public:
 	private:
 		/************************************************************************/
 		bool quiet_; ///< Specifies whether any information should be emitted at all
-		std::string resultFile_; ///< Specifies where result information should be sent to
 
 	public:
 		/************************************************************************/

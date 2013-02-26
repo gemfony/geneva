@@ -117,13 +117,14 @@ bool GEAPersonalityTraits::operator!=(const GEAPersonalityTraits& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GEAPersonalityTraits::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+boost::optional<std::string> GEAPersonalityTraits::checkRelationshipWith(
+      const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
@@ -161,7 +162,7 @@ void GEAPersonalityTraits::load_(const GObject* cp) {
 	const GEAPersonalityTraits *p_load = gobject_conversion<GEAPersonalityTraits>(cp);
 
 	// Load the parent class'es data
-	GObject::load_(cp);
+	GBaseParChildPersonalityTraits::load_(cp);
 
 	// Then load our local data
 	isOnParetoFront_ = p_load->isOnParetoFront_;

@@ -157,12 +157,13 @@ bool GBaseSA::operator!=(const GBaseSA& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GBaseSA::checkRelationshipWith(const GObject& cp,
-      const Gem::Common::expectation& e,
-      const double& limit,
-      const std::string& caller,
-      const std::string& y_name,
-      const bool& withMessages) const
+boost::optional<std::string> GBaseSA::checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages) const
 {
     using namespace Gem::Common;
 
@@ -529,6 +530,7 @@ GBaseSA::GSAOptimizationMonitor::GSAOptimizationMonitor()
    : xDim_(DEFAULTXDIMOM)
    , yDim_(DEFAULTYDIMOM)
    , nMonitorInds_(0)
+   , resultFile_(DEFAULTRESULTFILEOM)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -542,6 +544,7 @@ GBaseSA::GSAOptimizationMonitor::GSAOptimizationMonitor(const GBaseSA::GSAOptimi
    , xDim_(cp.xDim_)
    , yDim_(cp.yDim_)
    , nMonitorInds_(cp.nMonitorInds_)
+   , resultFile_(cp.resultFile_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -625,8 +628,32 @@ boost::optional<std::string> GBaseSA::GSAOptimizationMonitor::checkRelationshipW
    deviations.push_back(checkExpectation(withMessages, "GBaseSA::GSAOptimizationMonitor", xDim_, p_load->xDim_, "xDim_", "p_load->xDim_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GBaseSA::GSAOptimizationMonitor", yDim_, p_load->yDim_, "yDim_", "p_load->yDim_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GBaseSA::GSAOptimizationMonitor", nMonitorInds_, p_load->nMonitorInds_, "nMonitorInds_", "p_load->nMonitorInds_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBaseSA::GSAOptimizationMonitor", resultFile_, p_load->resultFile_, "resultFile_", "p_load->resultFile_", e , limit));
 
    return evaluateDiscrepancies("GBaseSA::GSAOptimizationMonitor", caller, deviations, e);
+}
+
+
+/******************************************************************************/
+/**
+ * Allows to specify a different name for the result file
+ *
+ * @param resultFile The desired name of the result file
+ */
+void GBaseSA::GSAOptimizationMonitor::setResultFileName(
+      const std::string& resultFile
+) {
+  resultFile_ = resultFile;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the current value of the result file name
+ *
+ * @return The current name of the result file
+ */
+std::string GBaseSA::GSAOptimizationMonitor::getResultFileName() const {
+  return resultFile_;
 }
 
 /******************************************************************************/
@@ -634,47 +661,8 @@ boost::optional<std::string> GBaseSA::GSAOptimizationMonitor::checkRelationshipW
  * A function that is called once before the optimization starts
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
- * @return A string containing information to written to the output file (if any)
  */
-std::string GBaseSA::GSAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-   // This should always be the first statement in a custom optimization monitor
-   std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::firstInformation(goa);
-
-   // Perform the conversion to the target algorithm
-#ifdef DEBUG
-   if(goa->getOptimizationAlgorithm() != PERSONALITY_SA) {
-      glogger
-      << "In GBaseSA::GSAOptimizationMonitor::firstInformation():" << std::endl
-      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
-      << GEXCEPTION;
-   }
-#endif /* DEBUG */
-   GBaseSA * const sa = static_cast<GBaseSA * const>(goa);
-
-   // Determine a suitable number of monitored individuals, if it hasn't already
-   // been set externally. We allow a maximum of 3 monitored individuals by default
-   // (or the number of parents, if <= 3).
-   if(nMonitorInds_ == 0) {
-      nMonitorInds_ = std::min(sa->getNParents(), std::size_t(3));
-   }
-
-   // Output the header to the summary stream
-   return saFirstInformation(sa);
-}
-
-/******************************************************************************/
-/**
- * A function that is called during each optimization cycle. It is possible to
- * extract quite comprehensive information in each iteration. For examples, see
- * the standard overloads provided for the various optimization algorithms.
- *
- * @param goa A pointer to the current optimization algorithm for which information should be emitted
- * @return A string containing information to written to the output file (if any)
- */
-std::string GBaseSA::GSAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-   // Let the audience know what the parent has to say
-   std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::cycleInformation(goa);
-
+void GBaseSA::GSAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
    // Perform the conversion to the target algorithm
 #ifdef DEBUG
    if(goa->getOptimizationAlgorithm() != PERSONALITY_SA) {
@@ -684,8 +672,68 @@ std::string GBaseSA::GSAOptimizationMonitor::cycleInformation(GOptimizationAlgor
       << GEXCEPTION;
    }
 #endif /* DEBUG */
+
+   // Convert the base pointer to the target type
    GBaseSA * const sa = static_cast<GBaseSA * const>(goa);
-   return saCycleInformation(sa);
+
+#ifdef DEBUG
+   if(nMonitorInds_ > sa->size()) {
+      glogger
+      <<  "In GBaseSA::GSAOptimizationMonitor::cycleInformation():" << std::endl
+      << "Provided number of monitored individuals is larger than the population: " << std::endl
+      << nMonitorInds_ << " / " << sa->size() << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   // Determine a suitable number of monitored individuals, if it hasn't already
+   // been set externally. We allow a maximum of 3 monitored individuals by default
+   // (or the number of parents, if <= 3). Setting the number to 0 will result in
+   // the same number of individuals being monitored as the number of parents.
+   if(nMonitorInds_ == 0) {
+      nMonitorInds_ = std::min(sa->getNParents(), std::size_t(3));
+   }
+
+   // Set up the plotters
+   for(std::size_t ind=0; ind<nMonitorInds_; ind++) {
+      boost::shared_ptr<Gem::Common::GGraph2D> graph(new Gem::Common::GGraph2D());
+      graph->setXAxisLabel("Iteration");
+      graph->setYAxisLabel("Fitness");
+      graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
+      graph->setPlotMode(Gem::Common::CURVE);
+
+      fitnessGraphVec_.push_back(graph);
+   }
+}
+
+/******************************************************************************/
+/**
+ * A function that is called during each optimization cycle. It is possible to
+ * extract quite comprehensive information in each iteration. For examples, see
+ * the standard overloads provided for the various optimization algorithms.
+ *
+ * @param goa A pointer to the current optimization algorithm for which information should be emitted
+ */
+void GBaseSA::GSAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+   bool isDirty = false;
+   double currentEvaluation = 0.;
+
+   // Convert the base pointer to the target type
+   GBaseSA * const sa = static_cast<GBaseSA * const>(goa);
+
+   // Retrieve the current iteration
+   boost::uint32_t iteration = sa->getIteration();
+
+   for(std::size_t ind=0; ind<nMonitorInds_; ind++) {
+      // Get access to the individual
+      boost::shared_ptr<GParameterSet> gi_ptr = sa->individual_cast<GParameterSet>(ind);
+
+      // Retrieve the fitness of this individual
+      isDirty = false;
+      currentEvaluation = gi_ptr->getCachedFitness(isDirty);
+
+      *(fitnessGraphVec_.at(ind)) & boost::tuple<double,double>(iteration, currentEvaluation);
+   }
 }
 
 /******************************************************************************/
@@ -693,131 +741,21 @@ std::string GBaseSA::GSAOptimizationMonitor::cycleInformation(GOptimizationAlgor
  * A function that is called once at the end of the optimization cycle
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
- * @return A string containing information to written to the output file (if any)
  */
-std::string GBaseSA::GSAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-   // Perform the conversion to the target algorithm
-#ifdef DEBUG
-   if(goa->getOptimizationAlgorithm() != PERSONALITY_SA) {
-      glogger
-      << "In GBaseSA::GSAOptimizationMonitor::lastInformation():" << std::endl
-      << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
-      << GEXCEPTION;
-   }
-#endif /* DEBUG */
-   GBaseSA * const sa = static_cast<GBaseSA * const>(goa);
+void GBaseSA::GSAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+   Gem::Common::GPlotDesigner gpd(
+         std::string("Fitness of ") + boost::lexical_cast<std::string>(nMonitorInds_) + std::string(" best SA individuals")
+         , 1, nMonitorInds_
+   );
 
-   // Do the actual information gathering
-   std::ostringstream result;
-   result << saLastInformation(sa);
+   gpd.setCanvasDimensions(xDim_, yDim_);
 
-   // This should always be the last statement in a custom optimization monitor
-   std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::lastInformation(goa);
-
-   return result.str();
-}
-
-/******************************************************************************/
-/**
- * A function that is called once before the optimization starts, acting on
- * Simulated Annealing algorithms
- */
-std::string GBaseSA::GSAOptimizationMonitor::saFirstInformation(GBaseSA * const sa) {
-   std::ostringstream result;
-
-   // Output the header to the summary stream
-   result << "{" << std::endl
-         << "  gROOT->Reset();" << std::endl
-         << "  gStyle->SetOptTitle(0);" << std::endl
-         << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDim_ << "," << yDim_ << ");" << std::endl
-         << "  cc->Divide(1," << nMonitorInds_ << ");" << std::endl
-         << std::endl;
-
-   result << "  std::vector<long> iteration;" << std::endl
-         << std::endl;
-   for(std::size_t i=0; i<nMonitorInds_; i++) {
-      result << "  std::vector<double> evaluation" << i << ";" << std::endl
-            << std::endl;
+   std::vector<boost::shared_ptr<Gem::Common::GGraph2D> >::iterator it;
+   for(it=fitnessGraphVec_.begin(); it!=fitnessGraphVec_.end(); ++it) {
+      gpd.registerPlotter(*it);
    }
 
-   return result.str();
-}
-
-/******************************************************************************/
-/**
- * A function that is called during each optimization cycle, acting on evolutionary
- * algorithms
- *
- */
-std::string GBaseSA::GSAOptimizationMonitor::saCycleInformation(GBaseSA * const sa) {
-   std::ostringstream result;
-
-   bool isDirty = false;
-   double currentEvaluation = 0.;
-
-   // Retrieve the current iteration
-   boost::uint32_t iteration = sa->getIteration();
-
-   result << "  iteration.push_back(" << iteration << ");" << std::endl;
-
-   for(std::size_t i=0; i<nMonitorInds_; i++) {
-      // Get access to the individual
-      boost::shared_ptr<GParameterSet> gi_ptr = sa->individual_cast<GParameterSet>(i);
-
-      // Retrieve the fitness of this individual
-      isDirty = false;
-      currentEvaluation = gi_ptr->getCachedFitness(isDirty);
-
-      // Write information to the output stream
-      result << "  evaluation" << i << ".push_back(" <<  currentEvaluation << ");" << (isDirty?" // dirty flag is set":"") << std::endl;
-   }
-
-   result << std::endl; // Improves readability of the output data
-
-   return result.str();
-}
-
-/******************************************************************************/
-/**
- * A function that is called once at the end of the optimization cycle acting
- * on evolutionary algorithms
- *
- */
-std::string GBaseSA::GSAOptimizationMonitor::saLastInformation(GBaseSA * const sa) {
-   std::ostringstream result;
-
-   // Output final print logic to the stream
-   result << "  // Transfer the vectors into arrays" << std::endl
-         << "  double iteration_arr[iteration.size()];" << std::endl;
-
-   for(std::size_t i=0; i<nMonitorInds_; i++) {
-      result << "  double evaluation" << i << "_arr[evaluation" << i << ".size()];" << std::endl
-            << std::endl
-            << "  for(std::size_t i=0; i<iteration.size(); i++) {" << std::endl
-            << "     iteration_arr[i] = (double)iteration[i];"
-            << "     evaluation" << i << "_arr[i] = evaluation" << i << "[i];" << std::endl
-            << "  }" << std::endl
-            << std::endl
-            << "  // Create a TGraph object" << std::endl
-            << "  TGraph *evGraph" << i << " = new TGraph(evaluation" << i << ".size(), iteration_arr, evaluation" << i << "_arr);" << std::endl
-            << "  // Set the axis titles" << std::endl
-            << "  evGraph" << i << "->GetXaxis()->SetTitle(\"Iteration\");" << std::endl
-            << "  evGraph" << i << "->GetYaxis()->SetTitleOffset(1.1);" << std::endl
-            << "  evGraph" << i << "->GetYaxis()->SetTitle(\"Fitness\");" << std::endl
-            << std::endl;
-   }
-
-   result << "  // Do the actual drawing" << std::endl;
-
-   for(std::size_t i=0; i<nMonitorInds_; i++) {
-      result << "  cc->cd(" << i+1 << ");" << std::endl
-            << "  evGraph" << i << "->Draw(\"APL\");" << std::endl;
-   }
-
-   result << "  cc->cd();" << std::endl
-         << "}" << std::endl;
-
-   return result.str();
+   gpd.writeToFile(this->getResultFileName());
 }
 
 /******************************************************************************/
@@ -859,13 +797,6 @@ boost::uint16_t GBaseSA::GSAOptimizationMonitor::getYDim() const {
  * @oaram nMonitorInds The number of individuals in the population that should be monitored
  */
 void GBaseSA::GSAOptimizationMonitor::setNMonitorIndividuals(const std::size_t& nMonitorInds) {
-   if(nMonitorInds == 0) {
-      glogger
-      << "In GBaseSA::GSAOptimizationMonitor::setNMonitorIndividuals():" << std::endl
-      << "Number of monitored individuals is set to 0." << std::endl
-      << GEXCEPTION;
-   }
-
    nMonitorInds_ = nMonitorInds;
 }
 
@@ -895,6 +826,7 @@ void GBaseSA::GSAOptimizationMonitor::load_(const GObject* cp) {
    xDim_ = p_load->xDim_;
    yDim_ = p_load->yDim_;
    nMonitorInds_ = p_load->nMonitorInds_;
+   resultFile_ = p_load->resultFile_;
 }
 
 /******************************************************************************/

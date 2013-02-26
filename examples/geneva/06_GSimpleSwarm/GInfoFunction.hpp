@@ -419,9 +419,11 @@ protected:
 	 * been given for the current iteration. In the way it is implemented here, this
 	 * function only makes sense for two-dimensional optimization problems. It is thus
 	 * used for illustration purposes only.
-	 *
 	 */
-	virtual std::string swarmCycleInformation(GBaseSwarm * const swarm) {
+	virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+      // Convert the base pointer to the target type
+      GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);
+
 		if(followProgress_) {
 			boost::uint32_t iteration = swarm->getIteration();
 			std::string outputFileName = snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".C";
@@ -563,7 +565,7 @@ protected:
 				// Check that we indeed only have two dimensions
 				if(x_ref.size() != 2) {
 					std::ostringstream error;
-					error << "In progressMonitor::swarmCycleInformation(): Error!" << std::endl
+					error << "In progressMonitor::cycleInformation(): Error!" << std::endl
 						  << "Found GDoubleCollection with invalid number of entries: " << x_ref.size() << std::endl;
 					throw(Gem::Common::gemfony_error_condition(error.str()));
 				}
@@ -597,7 +599,7 @@ protected:
 		//-----------------------------------------------------------------------------------------
 
 		// Make sure the usual iteration work is performed
-		return GSerialSwarm::GSwarmOptimizationMonitor::swarmCycleInformation(swarm);
+		GSerialSwarm::GSwarmOptimizationMonitor::cycleInformation(goa);
 	}
 
 private:

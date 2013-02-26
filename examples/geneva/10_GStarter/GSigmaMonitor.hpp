@@ -109,7 +109,7 @@ protected:
      *
      * @param cp A constant pointer to the evolutionary algorithm that is calling us
      */
-    virtual std::string eaFirstInformation(GBaseEA * const ea) {
+    virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
       // Initialize the plots we want to record
       progressPlotter_->setPlotMode(Gem::Common::CURVE);
       progressPlotter_->setPlotLabel("Fitness as a function of the iteration");
@@ -125,9 +125,9 @@ protected:
       gpd_.registerPlotter(progressPlotter_);
       gpd_.registerPlotter(sigmaPlotter_);
 
-    	// We call the parent classes eaFirstInformation function,
+    	// We call the parent classes firstInformation function,
     	// as we do not want to change its actions
-    	return GBaseEA::GEAOptimizationMonitor::eaFirstInformation(ea);
+    	GBaseEA::GEAOptimizationMonitor::firstInformation(goa);
     }
 
 	/********************************************************************************************/
@@ -138,7 +138,10 @@ protected:
      *
      * @param cp A constant pointer to the evolutionary algorithm that is calling us
      */
-    virtual std::string eaCycleInformation(GBaseEA * const ea) {
+    virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+      // Convert the base pointer to the target type
+      GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
+
     	// Extract the requested data. First retrieve the best individual.
     	// It can always be found in the first position with evolutionary algorithms
     	boost::shared_ptr<GStarterIndividual> p = ea->clone_at<GStarterIndividual>(0);
@@ -149,7 +152,7 @@ protected:
 
     	//---------------------------------------------------------
     	// Call our parent class'es function
-    	return GBaseEA::GEAOptimizationMonitor::eaCycleInformation(ea);
+    	GBaseEA::GEAOptimizationMonitor::cycleInformation(goa);
     }
 
 	/********************************************************************************************/
@@ -158,13 +161,13 @@ protected:
      *
      * @param cp A constant pointer to the evolutionary algorithm that is calling us
      */
-    virtual std::string eaLastInformation(GBaseEA * const ea) {
+    virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
     	// Write out the result
     	gpd_.writeToFile(fileName_);
 
     	// We just call the parent classes eaLastInformation function,
     	// as we do not want to change its actions
-    	return GBaseEA::GEAOptimizationMonitor::eaLastInformation(ea);
+    	GBaseEA::GEAOptimizationMonitor::lastInformation(goa);
     }
 
 	/********************************************************************************************/

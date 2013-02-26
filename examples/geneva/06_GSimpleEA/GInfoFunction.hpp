@@ -87,17 +87,18 @@ class progressMonitor
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GBaseEA_GEAOptimizationMonitor", boost::serialization::base_object<GBaseEA::GEAOptimizationMonitor>(*this))
-	  	 & BOOST_SERIALIZATION_NVP(xDimProgress_)
-	  	 & BOOST_SERIALIZATION_NVP(yDimProgress_)
-	  	 & BOOST_SERIALIZATION_NVP(df_)
-	  	 & BOOST_SERIALIZATION_NVP(followProgress_)
-	  	 & BOOST_SERIALIZATION_NVP(snapshotBaseName_)
-	  	 & BOOST_SERIALIZATION_NVP(minX_)
-	  	 & BOOST_SERIALIZATION_NVP(maxX_)
-	  	 & BOOST_SERIALIZATION_NVP(minY_)
-	  	 & BOOST_SERIALIZATION_NVP(maxY_)
-	  	 & BOOST_SERIALIZATION_NVP(outputPath_);
+	  ar
+	  & make_nvp("GBaseEA_GEAOptimizationMonitor", boost::serialization::base_object<GBaseEA::GEAOptimizationMonitor>(*this))
+	  & BOOST_SERIALIZATION_NVP(xDimProgress_)
+	  & BOOST_SERIALIZATION_NVP(yDimProgress_)
+	  & BOOST_SERIALIZATION_NVP(df_)
+	  & BOOST_SERIALIZATION_NVP(followProgress_)
+	  & BOOST_SERIALIZATION_NVP(snapshotBaseName_)
+	  & BOOST_SERIALIZATION_NVP(minX_)
+	  & BOOST_SERIALIZATION_NVP(maxX_)
+	  & BOOST_SERIALIZATION_NVP(minY_)
+	  & BOOST_SERIALIZATION_NVP(maxY_)
+	  & BOOST_SERIALIZATION_NVP(outputPath_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -140,6 +141,13 @@ public:
 		, minY_(cp.minY_)
 		, maxY_(cp.maxY_)
 		, outputPath_(cp.outputPath_)
+	{ /* nothing */ }
+
+	/**********************************************************************************/
+	/**
+	 * A simple destructor
+	 */
+	virtual ~progressMonitor()
 	{ /* nothing */ }
 
 	/**********************************************************************************/
@@ -422,7 +430,10 @@ protected:
 	 * used for illustration purposes only.
 	 *
 	 */
-	virtual std::string eaCycleInformation(GBaseEA * const ea) {
+	virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+	   // Convert the base pointer to the target type
+	   GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
+
 		if(followProgress_) {
 			boost::uint32_t iteration = ea->getIteration();
 			std::string outputFileName = snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".C";
@@ -439,7 +450,7 @@ protected:
 			std::ofstream ofs((outputPath_ + outputFileName).c_str());
 			if(!ofs) {
 				std::ostringstream error;
-				error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
+				error << "In progressMonitor::cycleInformation(): Error!" << std::endl
 						<< "Could not open output file " << outputFileName << std::endl;
 				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
@@ -453,7 +464,7 @@ protected:
 			// Check that the dirty flag isn't set
 			if(isDirty) {
 				std::ostringstream error;
-				error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
+				error << "In progressMonitor::cycleInformation(): Error!" << std::endl
 						<< "Globally best individual has dirty flag set when it shouldn't" << std::endl;
 				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
@@ -567,7 +578,7 @@ protected:
 		//-----------------------------------------------------------------------------------------
 
 		// Make sure the usual iteration work is performed
-		return GBaseEA::GEAOptimizationMonitor::eaCycleInformation(ea);
+		GBaseEA::GEAOptimizationMonitor::cycleInformation(goa);
 	}
 
 private:

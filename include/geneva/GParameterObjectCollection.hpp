@@ -114,25 +114,24 @@ public:
 	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
 	template <typename parameter_type>
-	inline const boost::shared_ptr<parameter_type> at(
+	const boost::shared_ptr<parameter_type> at(
 			  const std::size_t& pos
 			, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
 	)  const {
 #ifdef DEBUG
-		boost::shared_ptr<parameter_type> p = boost::dynamic_pointer_cast<parameter_type>(data.at(pos));
+	   if(this->empty() || pos >= this->size()) {
+	      glogger
+	      << "In GParameterObjectCollection::at<>(): Error!" << std::endl
+	      << "Tried to access position " << pos << " while size is " << this->size() << std::endl
+	      << GEXCEPTION;
 
-		if(p) return p;
-		else {
-		   glogger
-		   << "In GParameterObjectCollection::at<>() : Conversion error" << std::endl
-		   << GEXCEPTION;
-
-		   // Make the compiler happy
-		   return boost::shared_ptr<parameter_type>();
-		}
-#else
-		return boost::static_pointer_cast<parameter_type>(data[pos]);
+	      // Make the compiler happy
+	      return boost::shared_ptr<parameter_type>();
+ 	   }
 #endif /* DEBUG */
+
+	   // Does error checks on the conversion internally
+      return Gem::Common::convertSmartPointer<GParameterBase, parameter_type>(data.at(pos));
 	}
 
 protected:

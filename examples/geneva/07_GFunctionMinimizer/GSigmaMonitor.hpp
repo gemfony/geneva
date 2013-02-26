@@ -54,7 +54,7 @@
 namespace Gem {
 namespace Geneva {
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * This class implements an optimization monitor for Evolutionary Algorithms. Its main purpose is
  * to find out information about the development of sigma over the course of the optimization for
@@ -65,7 +65,7 @@ class GSigmaMonitor
 	:public GBaseEA::GEAOptimizationMonitor
 {
 public:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor
 	 */
@@ -73,7 +73,7 @@ public:
 		: fileName_(fileName)
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 *
@@ -85,7 +85,7 @@ public:
 		, fileName_(cp.fileName_)
 	{ /* nothing */ }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
@@ -93,19 +93,7 @@ public:
 	{ /* nothing */ }
 
 protected:
-	/********************************************************************************************/
-    /**
-     * A function that is called once before the optimization starts
-     *
-     * @param cp A constant pointer to the evolutionary algorithm that is calling us
-     */
-    virtual std::string eaFirstInformation(GBaseEA * const ea) {
-    	// We just call the parent classes eaFirstInformation function,
-    	// as we do not want to change its actions
-    	return GBaseEA::GEAOptimizationMonitor::eaFirstInformation(ea);
-    }
-
-	/********************************************************************************************/
+	/***************************************************************************/
     /**
      * A function that is called during each optimization cycle. The function first collects
      * the requested data, then calls the parent class'es eaCycleInformation() function, as
@@ -113,7 +101,10 @@ protected:
      *
      * @param cp A constant pointer to the evolutionary algorithm that is calling us
      */
-    virtual std::string eaCycleInformation(GBaseEA * const ea) {
+    virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+      // Convert the base pointer to the target type
+      GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
+
     	// Extract the requested data. First retrieve the best individual.
     	// It can always be found in the first position with evolutionary algorithms
     	boost::shared_ptr<GFMinIndividual> p = ea->clone_at<GFMinIndividual>(0);
@@ -123,25 +114,25 @@ protected:
 
     	//---------------------------------------------------------
     	// Call our parent class'es function
-    	return GBaseEA::GEAOptimizationMonitor::eaCycleInformation(ea);
+    	GBaseEA::GEAOptimizationMonitor::cycleInformation(goa);
     }
 
-	/********************************************************************************************/
+	/***************************************************************************/
     /**
      * A function that is called once at the end of the optimization cycle
      *
      * @param cp A constant pointer to the evolutionary algorithm that is calling us
      */
-    virtual std::string eaLastInformation(GBaseEA * const ea) {
+    virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
     	// Write out the result
     	this->writeResult();
 
     	// We just call the parent classes eaLastInformation function,
     	// as we do not want to change its actions
-    	return GBaseEA::GEAOptimizationMonitor::eaLastInformation(ea);
+    	GBaseEA::GEAOptimizationMonitor::lastInformation(goa);
     }
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Writes out a ROOT script with the results to a file
 	 *
@@ -204,7 +195,7 @@ protected:
 		result.close();
 	}
 
-	/********************************************************************************************/
+	/***************************************************************************/
     /**
      * Loads the data of another object
      *
@@ -223,7 +214,7 @@ protected:
     	bestSigma_ = p_load->bestSigma_;
     }
 
-	/********************************************************************************************/
+	/***************************************************************************/
     /**
      * Creates a deep clone of this object
      *
@@ -234,7 +225,7 @@ protected:
 	}
 
 private:
-	/********************************************************************************************/
+	/***************************************************************************/
 
 	GSigmaMonitor(); ///< Default constructor; Intentionally private and undefined
 
@@ -242,7 +233,7 @@ private:
 	std::string fileName_;
 };
 
-/************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

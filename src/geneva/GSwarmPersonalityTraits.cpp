@@ -298,7 +298,7 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
 	const GSwarmPersonalityTraits *p_load = this->gobject_conversion<GSwarmPersonalityTraits>(cp);
 
 	// Load the parent class'es data
-	GObject::load_(cp);
+	GPersonalityTraits::load_(cp);
 
 	// and then the local data
 	neighborhood_ = p_load->neighborhood_;

@@ -49,6 +49,7 @@
 // Geneva header files go here
 #include "courtier/GSubmissionContainerT.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GMutableI.hpp"
@@ -216,28 +217,20 @@ public:
 			typename boost::enable_if<boost::is_base_of<GPersonalityTraits, personality_type> >::type* dummy = 0
 	) {
 #ifdef DEBUG
-		// Check that pt_ptr_ actually points somewhere
-		if(!pt_ptr_) {
-		   glogger
-		   << "In GIndividual::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl
-		   << GEXCEPTION;
-		}
+      // Check that pt_ptr_ actually points somewhere
+      if(!pt_ptr_) {
+         glogger
+         << "In GIndividual::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl
+         << "This should not happen." << std::endl
+         << GEXCEPTION;
 
-		boost::shared_ptr<personality_type> p = boost::dynamic_pointer_cast<personality_type>(pt_ptr_);
-
-		if(p) return p;
-		else {
-		   glogger
-		   << "In GIndividual::getPersonalityTraits<personality_type>() : Conversion error" << std::endl
-		   << GEXCEPTION;
-
-		   // Make the compiler happy
-		   return boost::shared_ptr<personality_type>();
-		}
-#else
-		return boost::static_pointer_cast<personality_type>(pt_ptr_);
+         // Make the compiler happy
+         return boost::shared_ptr<personality_type>();
+      }
 #endif /* DEBUG */
 
+	   // Does error checks on the conversion internally
+      return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(pt_ptr_);
 	}
 
 	/* ----------------------------------------------------------------------------------

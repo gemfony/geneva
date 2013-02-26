@@ -188,22 +188,8 @@ public:
 			  const std::size_t& pos
 			, typename boost::enable_if<boost::is_base_of<GParameterBase, par_type> >::type* dummy = 0
 	)  const {
-#ifdef DEBUG
-		boost::shared_ptr<par_type> p = boost::dynamic_pointer_cast<par_type>(data.at(pos));
-
-		if(p) {
-		   return p;
-		} else {
-		   glogger
-		   << "In GParameterSet::at<>() : Conversion error" << std::endl
-		   << GEXCEPTION;
-
-		   // Make the compiler happy
-		   return boost::shared_ptr<par_type>();
-		}
-#else
-		return boost::static_pointer_cast<par_type>(data[pos]);
-#endif /* DEBUG */
+      // Does error checks on the conversion internally
+      return Gem::Common::convertSmartPointer<GParameterBase, par_type>(data.at(pos));
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -215,7 +201,7 @@ public:
 	/**
 	 * Retrieve information about the total number of parameters of type
 	 * par_type in the individual. Note that the GParameterBase-template
-	 * function will throw if this function is called for un unsupported type.
+	 * function will throw if this function is called for an unsupported type.
 	 */
 	template <typename par_type>
 	std::size_t countParameters() const {

@@ -105,6 +105,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GPlotDesigner.hpp"
 #include "common/GLogger.hpp"
 
 namespace Gem {
@@ -239,7 +240,7 @@ public:
 		// Update the puts_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		puts_.push_back(currentTime);
-		entries_.push_back(boost::make_tuple<std::size_t, long>(container_.size(), currentTime));
+		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
@@ -267,7 +268,7 @@ public:
 		// Update the puts_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		puts_.push_back(currentTime);
-		entries_.push_back(boost::make_tuple<std::size_t, long>(container_.size(), currentTime));
+		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
@@ -296,7 +297,7 @@ public:
 		// Update the puts_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		puts_.push_back(currentTime);
-		entries_.push_back(boost::make_tuple<std::size_t, long>(container_.size(), currentTime));
+		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
@@ -332,7 +333,7 @@ public:
 		// Update the gets_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		gets_.push_back(currentTime);
-		entries_.push_back(boost::make_tuple<std::size_t, long>(container_.size(), currentTime));
+		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
@@ -370,7 +371,7 @@ public:
 		// Update the gets_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		gets_.push_back(currentTime);
-		entries_.push_back(boost::make_tuple<std::size_t, long>(container_.size(), currentTime));
+		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
@@ -410,7 +411,7 @@ public:
 		// Update the gets_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		gets_.push_back(currentTime);
-		entries_.push_back(boost::make_tuple<std::size_t, long>(container_.size(), currentTime));
+		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		lock.unlock();
@@ -548,67 +549,47 @@ private:
 	 * the root analysis framework (see http://root.cern.ch)
 	 */
 	void emitPutAndGetTimes() {
-		long totalMicroseconds = (endTime_ - startTime_).total_microseconds();
+      long totalMicroseconds = (endTime_ - startTime_).total_microseconds();
 
-		std::ofstream result((boost::lexical_cast<std::string>(this) + "-result.C").c_str());
+      // Create the plot objects
+		boost::shared_ptr<GHistogram1D> gets_ptr(new GHistogram1D(1000, 0, totalMicroseconds));
+		gets_ptr->setPlotLabel(std::string("timing of pop_back calls (") +  name_ + std::string(" / ") + boost::posix_time::to_simple_string(startTime_) + std::string(")"));
+		gets_ptr->setXAxisLabel("microsceonds after start");
+		gets_ptr->setYAxisLabel("number of pop_back calls");
 
-		result
-			<< "{" << std::endl
-			<< "  gROOT->Reset();" << std::endl
-			<< "  gStyle->SetOptStat(0);" << std::endl
-			<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,1200);" << std::endl
-			<< "  cc->Divide(1,3);"
-			<< std::endl
-			<< "  TH1F *gets = new TH1F(\"gets\", \"timing of pop_back calls (" << name_ << " / " << startTime_ << ")\", 1000, 0, " << totalMicroseconds << ");" << std::endl
-			<< "  TH1F *puts = new TH1F(\"puts\", \"timing of push_front calls (" << name_ << " / " << startTime_ <<")\", 1000, 0, " << totalMicroseconds << ");" << std::endl
-			<< "  Int_t currentEntries[" << entries_.size() << "];" << std::endl
-			<< "  Int_t entryTimes[" << entries_.size() << "];" << std::endl
-			<< std::endl;
+		boost::shared_ptr<GHistogram1D> puts_ptr(new GHistogram1D(1000, 0, totalMicroseconds));
+		puts_ptr->setPlotLabel(std::string("timing of push_front calls (") +  name_ + std::string(" / ") + boost::posix_time::to_simple_string(startTime_) + std::string(")"));
+      puts_ptr->setXAxisLabel("microsceonds after start");
+      puts_ptr->setYAxisLabel("number of push_front calls");
 
-		for(std::size_t i=0; i<gets_.size(); i++) {
-			result << "  gets->Fill(" << gets_[i] << ");" << std::endl;
-		}
-		result << std::endl;
+		boost::shared_ptr<GGraph2D> entries_ptr(new GGraph2D());
+		entries_ptr->setPlotLabel("buffer size");
+		entries_ptr->setXAxisLabel("microsceonds after start");
+		entries_ptr->setYAxisLabel("number of remaining entries in the buffer");
 
-		for(std::size_t i=0; i<puts_.size(); i++) {
-			result << "  puts->Fill(" << puts_[i] << ");" << std::endl;
-		}
-		result << std::endl;
+		// Fill with data
+      for(std::size_t i=0; i<gets_.size(); i++) *gets_ptr & gets_[i];
+      for(std::size_t i=0; i<puts_.size(); i++) *puts_ptr & puts_[i];
+      for(std::size_t i=0; i<entries_.size(); i++) *entries_ptr & entries_[i];
 
-		for(std::size_t i=0; i<entries_.size(); i++) {
-			result << "  currentEntries[" << i << "] = " << boost::get<0>(entries_[i]) << ";" << std::endl
-				   << "  entryTimes[" << i << "] = " << boost::get<1>(entries_[i]) << ";" << std::endl;
-		}
+      // Create the canvas object and save it to disk
+      GPlotDesigner gpd("GBoundedBufferT timings", 1,3);
 
-		result
-		    << "  TGraph *entries = new TGraph(" << entries_.size() << ", entryTimes, currentEntries);" << std::endl
-		    << "  entries->SetTitle(\"buffer size\");" << std::endl
-		    << std::endl
-		    << "  cc->cd(1);" << std::endl
-		    << "  puts->GetXaxis()->SetTitle(\"microseconds\");" << std::endl
-		    << "  puts->GetYaxis()->SetTitle(\"number of submissions\");" << std::endl
-		    << "  puts->Draw();" << std::endl
-			<< "  cc->cd(2);" << std::endl
-		    << "  gets->GetXaxis()->SetTitle(\"microseconds\");" << std::endl
-		    << "  gets->GetYaxis()->SetTitle(\"number of retrievals\");" << std::endl
-			<< "  gets->Draw();" << std::endl
-			<< "  cc->cd(3);" << std::endl
-			<< "  entries->GetXaxis()->SetTitle(\"microseconds\");" << std::endl
-			<< "  entries->GetYaxis()->SetTitle(\"number of entries\");" << std::endl
-		    << "  entries->GetXaxis()->SetLimits(0., double(" << totalMicroseconds << "));" << std::endl
-			<< "  entries->Draw(\"AP\");" << std::endl
-			<< "  cc->cd();" << std::endl
-			<< "}" << std::endl;
+      gpd.setCanvasDimensions(800,1200);
+      gpd.registerPlotter(gets_ptr);
+      gpd.registerPlotter(puts_ptr);
+      gpd.registerPlotter(entries_ptr);
 
-		result.close();
+      gpd.writeToFile((boost::lexical_cast<std::string>(this) + "-result.C").c_str());
 	}
+
 	/***************************************************************************/
 
 	std::string name_; ///< A name to be assigned to this object
 
 	boost::posix_time::ptime startTime_; ///< Holds information about the construction time of this object
 	boost::posix_time::ptime endTime_; ///< Holds information about the destruction time of this object
-	std::vector<boost::tuple<std::size_t, long> > entries_;
+	std::vector<boost::tuple<long, std::size_t> > entries_;
 
 	std::vector<long> gets_, puts_; ///< Holds information about submission- and retrieval-times
 

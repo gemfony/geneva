@@ -47,6 +47,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GPlotDesigner.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
@@ -214,86 +215,93 @@ public:
 	 * by default in the Geneva library for evolutionary algorithms.
 	 */
 	class GGDOptimizationMonitor
-		: public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
-	{
-	    ///////////////////////////////////////////////////////////////////////
-	    friend class boost::serialization::access;
+	: public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
+	  {
+	   ///////////////////////////////////////////////////////////////////////
+	   friend class boost::serialization::access;
 
-	    template<typename Archive>
-	    void serialize(Archive & ar, const unsigned int){
+	   template<typename Archive>
+	   void serialize(Archive & ar, const unsigned int){
 	      using boost::serialization::make_nvp;
 
-	      ar & make_nvp("GOptimizationMonitorT_GParameterSet",
-	            boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this));
-	    }
-	    ///////////////////////////////////////////////////////////////////////
+	      ar
+	      & make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this))
+	      & BOOST_SERIALIZATION_NVP(xDim_)
+	      & BOOST_SERIALIZATION_NVP(yDim_)
+	      & BOOST_SERIALIZATION_NVP(resultFile_);
+	   }
+	   ///////////////////////////////////////////////////////////////////////
 
-	public:
-	    /** @brief The default constructor */
-	    GGDOptimizationMonitor();
-	    /** @brief The copy constructor */
-	    GGDOptimizationMonitor(const GGDOptimizationMonitor&);
-	    /** @brief The destructor */
-	    virtual ~GGDOptimizationMonitor();
+	  public:
+	   /** @brief The default constructor */
+	   GGDOptimizationMonitor();
+	   /** @brief The copy constructor */
+	   GGDOptimizationMonitor(const GGDOptimizationMonitor&);
+	   /** @brief The destructor */
+	   virtual ~GGDOptimizationMonitor();
 
-	    /** @brief A standard assignment operator */
-	    const GGDOptimizationMonitor& operator=(const GGDOptimizationMonitor&);
-	    /** @brief Checks for equality with another GParameter Base object */
-	    virtual bool operator==(const GGDOptimizationMonitor&) const;
-	    /** @brief Checks for inequality with another GGDOptimizationMonitor object */
-	    virtual bool operator!=(const GGDOptimizationMonitor&) const;
+	   /** @brief A standard assignment operator */
+	   const GGDOptimizationMonitor& operator=(const GGDOptimizationMonitor&);
+	   /** @brief Checks for equality with another GParameter Base object */
+	   virtual bool operator==(const GGDOptimizationMonitor&) const;
+	   /** @brief Checks for inequality with another GGDOptimizationMonitor object */
+	   virtual bool operator!=(const GGDOptimizationMonitor&) const;
 
-	    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-	    virtual boost::optional<std::string> checkRelationshipWith(
-	    		const GObject&
-	    		, const Gem::Common::expectation&
-	    		, const double&
-	    		, const std::string&
-	    		, const std::string&
-	    		, const bool&
-	    ) const;
+	   /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
+	   virtual boost::optional<std::string> checkRelationshipWith(
+	         const GObject&
+	         , const Gem::Common::expectation&
+	         , const double&
+	         , const std::string&
+	         , const std::string&
+	         , const bool&
+	   ) const;
 
-	    /** @brief Set the dimension of the output canvas */
-	    void setDims(const boost::uint16_t&, const boost::uint16_t&);
-	    /** @brief Retrieve the x-dimension of the output canvas */
-	    boost::uint16_t getXDim() const;
-	    /** @brief Retrieve the y-dimension of the output canvas */
-	    boost::uint16_t getYDim() const;
+	   /** @brief Set the dimension of the output canvas */
+	   void setDims(const boost::uint32_t&, const boost::uint32_t&);
+	   /** @brief Retrieve the dimensions as a tuple */
+	   boost::tuple<boost::uint32_t, boost::uint32_t> getDims() const;
+	   /** @brief Retrieve the x-dimension of the output canvas */
+	   boost::uint32_t getXDim() const;
+	   /** @brief Retrieve the y-dimension of the output canvas */
+	   boost::uint32_t getYDim() const;
 
-	protected:
-	    /** @brief A function that is called once before the optimization starts */
-	    virtual std::string firstInformation(GOptimizationAlgorithmT<GParameterSet> * const);
-	    /** @brief A function that is called during each optimization cycle */
-	    virtual std::string cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const);
-	    /** @brief A function that is called once at the end of the optimization cycle */
-	    virtual std::string lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	   /** @brief Allows to set the name of the result file */
+	   void setResultFileName(const std::string&);
+	   /** @brief Allows to retrieve the name of the result file */
+	   std::string getResultFileName() const;
 
-	    /** @brief A function that is called once before the optimization starts */
-	    virtual std::string gdFirstInformation(GBaseGD * const);
-	    /** @brief A function that is called during each optimization cycle */
-	    virtual std::string gdCycleInformation(GBaseGD * const);
-	    /** @brief A function that is called once at the end of the optimization cycle */
-	    virtual std::string gdLastInformation(GBaseGD * const);
+	  protected:
+	   /** @brief A function that is called once before the optimization starts */
+	   virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	   /** @brief A function that is called during each optimization cycle */
+	   virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	   /** @brief A function that is called once at the end of the optimization cycle */
+	   virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
 
-	    /** @brief Loads the data of another object */
-	    virtual void load_(const GObject*);
-	    /** @brief Creates a deep clone of this object */
-		virtual GObject* clone_() const;
+	   /** @brief Loads the data of another object */
+	   virtual void load_(const GObject*);
+	   /** @brief Creates a deep clone of this object */
+	   virtual GObject* clone_() const;
 
-	private:
-		boost::uint16_t xDim_; ///< The dimension of the canvas in x-direction
-		boost::uint16_t yDim_; ///< The dimension of the canvas in y-direction
+	  private:
+	   boost::uint32_t xDim_; ///< The dimension of the canvas in x-direction
+	   boost::uint32_t yDim_; ///< The dimension of the canvas in y-direction
 
-	public:
-		/** @brief Applies modifications to this object. This is needed for testing purposes */
-		virtual bool modify_GUnitTests();
-		/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-		virtual void specificTestsNoFailureExpected_GUnitTests();
-		/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-		virtual void specificTestsFailuresExpected_GUnitTests();
+	   std::string resultFile_; ///< The name of the file to which data is emitted
 
-		/************************************************************************/
-	};
+	   boost::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_; ///< Holds the fitness data until plotted
+
+	  public:
+	   /** @brief Applies modifications to this object. This is needed for testing purposes */
+	   virtual bool modify_GUnitTests();
+	   /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	   virtual void specificTestsNoFailureExpected_GUnitTests();
+	   /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	   virtual void specificTestsFailuresExpected_GUnitTests();
+
+	   /************************************************************************/
+	  };
 
    /***************************************************************************/
    /////////////////////////////////////////////////////////////////////////////
