@@ -227,11 +227,11 @@ protected:
 	 */
 	virtual void load_(const GObject* cp){
 		// Convert cp into local format
-	    const GMutableSetT<T> *p_load = this->template gobject_conversion<GMutableSetT<T> >(cp);
+	  const GMutableSetT<T> *p_load = this->template gobject_conversion<GMutableSetT<T> >(cp);
 
-	    // No local data - load the parent class'es data
-	    GIndividual::load_(cp);
-		GStdPtrVectorInterfaceT<T>::operator=(*p_load);
+	  // No local data - load the parent class'es data
+	  GIndividual::load_(cp);
+	  GStdPtrVectorInterfaceT<T>::operator=(*p_load);
 	}
 
 	/***************************************************************************/
