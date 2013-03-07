@@ -74,7 +74,7 @@
 #include "geneva/GConstrainedInt32Object.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
+#include "geneva-individuals/GExternalSetterIndividual.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GSingletonT.hpp"

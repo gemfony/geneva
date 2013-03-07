@@ -1,5 +1,5 @@
 /**
- * @file GExternalEvaluatorIndividual.hpp
+ * @file GExternalSetterIndividual.hpp
  */
 
 /*
@@ -38,8 +38,8 @@
 
 // Boost header files go here
 
-#ifndef GEXTERNALEVALUATORINDIVIDUAL_HPP_
-#define GEXTERNALEVALUATORINDIVIDUAL_HPP_
+#ifndef GEXTERNALSETTERINDIVIDUAL_HPP_
+#define GEXTERNALSETTERINDIVIDUAL_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
@@ -65,7 +65,7 @@ namespace Geneva {
  * want different behavior (e.g. in order to benchmark external against internal calculation),
  * you need to overload and re-implement the function in derived classes.
  */
-class GExternalEvaluatorIndividual
+class GExternalSetterIndividual
 	:public Gem::Geneva::GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
@@ -81,19 +81,19 @@ class GExternalEvaluatorIndividual
 
 public:
 	/** @brief The default constructor */
-	GExternalEvaluatorIndividual();
+	GExternalSetterIndividual();
 	/** @brief The copy constructor */
-	GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual&);
+	GExternalSetterIndividual(const GExternalSetterIndividual&);
 	/** @brief The standard destructor */
-	virtual ~GExternalEvaluatorIndividual();
+	virtual ~GExternalSetterIndividual();
 
 	/** @brief A standard assignment operator */
-	const GExternalEvaluatorIndividual& operator=(const GExternalEvaluatorIndividual&);
+	const GExternalSetterIndividual& operator=(const GExternalSetterIndividual&);
 
-	/** @brief Checks for equality with another GExternalEvaluatorIndividual object */
-	bool operator==(const GExternalEvaluatorIndividual& cp) const;
-	/** @brief Checks for inequality with another GExternalEvaluatorIndividual object */
-	bool operator!=(const GExternalEvaluatorIndividual& cp) const;
+	/** @brief Checks for equality with another GExternalSetterIndividual object */
+	bool operator==(const GExternalSetterIndividual& cp) const;
+	/** @brief Checks for inequality with another GExternalSetterIndividual object */
+	bool operator!=(const GExternalSetterIndividual& cp) const;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
@@ -112,7 +112,7 @@ public:
 	void setFitness(const double&, const std::vector<double>&);
 
 protected:
-	/** @brief Loads the data of another GExternalEvaluatorIndividual */
+	/** @brief Loads the data of another GExternalSetterIndividual */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const;
@@ -138,6 +138,6 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GExternalEvaluatorIndividual)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GExternalSetterIndividual)
 
-#endif /* GEXTERNALEVALUATORINDIVIDUAL_HPP_ */
+#endif /* GEXTERNALSETTERINDIVIDUAL_HPP_ */

@@ -1,5 +1,5 @@
 /**
- * @file GExternalEvaluatorIndividual.cpp
+ * @file GExternalSetterIndividual.cpp
  */
 
 /*
@@ -32,9 +32,9 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
+#include "geneva-individuals/GExternalSetterIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GExternalEvaluatorIndividual)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GExternalSetterIndividual)
 
 namespace Gem
 {
@@ -45,7 +45,7 @@ namespace Geneva
 /**
  * The default constructor.
  */
-GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
+GExternalSetterIndividual::GExternalSetterIndividual()
 : GParameterSet()
 { /* empty */ }
 
@@ -53,9 +53,9 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
 /**
  * The copy constructor
  *
- * @param cp A constant reference to another GExternalEvaluatorIndividual object
+ * @param cp A constant reference to another GExternalSetterIndividual object
  */
-GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual& cp)
+GExternalSetterIndividual::GExternalSetterIndividual(const GExternalSetterIndividual& cp)
 : Gem::Geneva::GParameterSet(cp)
 {	/* nothing */ }
 
@@ -63,29 +63,29 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvalua
 /**
  * The standard destructor
  */
-GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual()
+GExternalSetterIndividual::~GExternalSetterIndividual()
 { /* nothing */	}
 
 /******************************************************************************/
 /**
  * A standard assignment operator
  *
- * @param cp A copy of another GExternalEvaluatorIndividual object
+ * @param cp A copy of another GExternalSetterIndividual object
  * @return A constant reference to this object
  */
-const GExternalEvaluatorIndividual& GExternalEvaluatorIndividual::operator=(const GExternalEvaluatorIndividual& cp){
-	GExternalEvaluatorIndividual::load_(&cp);
+const GExternalSetterIndividual& GExternalSetterIndividual::operator=(const GExternalSetterIndividual& cp){
+	GExternalSetterIndividual::load_(&cp);
 	return *this;
 }
 
 /*******************************************************************************************/
 /**
- * Checks for equality with another GExternalEvaluatorIndividual object
+ * Checks for equality with another GExternalSetterIndividual object
  *
- * @param  cp A constant reference to another GExternalEvaluatorIndividual object
+ * @param  cp A constant reference to another GExternalSetterIndividual object
  * @return A boolean indicating whether both objects are equal
  */
-bool GExternalEvaluatorIndividual::operator==(const GExternalEvaluatorIndividual& cp) const {
+bool GExternalSetterIndividual::operator==(const GExternalSetterIndividual& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GExternalEvaluatorIndividual::operator==","cp", CE_SILENT);
@@ -93,12 +93,12 @@ bool GExternalEvaluatorIndividual::operator==(const GExternalEvaluatorIndividual
 
 /*******************************************************************************************/
 /**
- * Checks for inequality with another GExternalEvaluatorIndividual object
+ * Checks for inequality with another GExternalSetterIndividual object
  *
- * @param  cp A constant reference to another GExternalEvaluatorIndividual object
+ * @param  cp A constant reference to another GExternalSetterIndividual object
  * @return A boolean indicating whether both objects are in-equal
  */
-bool GExternalEvaluatorIndividual::operator!=(const GExternalEvaluatorIndividual& cp) const {
+bool GExternalSetterIndividual::operator!=(const GExternalSetterIndividual& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GExternalEvaluatorIndividual::operator!=","cp", CE_SILENT);
@@ -117,7 +117,7 @@ bool GExternalEvaluatorIndividual::operator!=(const GExternalEvaluatorIndividual
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GExternalEvaluatorIndividual::checkRelationshipWith(
+boost::optional<std::string> GExternalSetterIndividual::checkRelationshipWith(
 		const GObject& cp,
 		const Gem::Common::expectation& e,
 		const double& limit,
@@ -129,8 +129,8 @@ boost::optional<std::string> GExternalEvaluatorIndividual::checkRelationshipWith
 	using namespace Gem::Geneva;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	// const GExternalEvaluatorIndividual *p_load = gobject_conversion<GExternalEvaluatorIndividual>(&cp);
-	GObject::selfAssignmentCheck<GExternalEvaluatorIndividual>(&cp);
+	// const GExternalSetterIndividual *p_load = gobject_conversion<GExternalSetterIndividual>(&cp);
+	GObject::selfAssignmentCheck<GExternalSetterIndividual>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -151,7 +151,7 @@ boost::optional<std::string> GExternalEvaluatorIndividual::checkRelationshipWith
  * @param f The primary fitness value
  * @param sec_f_vec A vector of secondary fitness values
  */
-void GExternalEvaluatorIndividual::setFitness(
+void GExternalSetterIndividual::setFitness(
 		const double& f
 		, const std::vector<double>& sec_f_vec
 ) {
@@ -166,7 +166,7 @@ void GExternalEvaluatorIndividual::setFitness(
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GExternalEvaluatorIndividual::addConfigurationOptions (
+void GExternalSetterIndividual::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -180,18 +180,18 @@ void GExternalEvaluatorIndividual::addConfigurationOptions (
 
 /******************************************************************************/
 /**
- * Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GObject.
+ * Loads the data of another GExternalSetterIndividual, camouflaged as a GObject.
  *
- * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GObject
+ * @param cp A copy of another GExternalSetterIndividual, camouflaged as a GObject
  */
-void GExternalEvaluatorIndividual::load_(const GObject* cp)
+void GExternalSetterIndividual::load_(const GObject* cp)
 {
 	using namespace Gem::Common;
 	using namespace Gem::Geneva;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	// const GExternalEvaluatorIndividual *p_load = gobject_conversion<GExternalEvaluatorIndividual>(cp);
-	GObject::selfAssignmentCheck<GExternalEvaluatorIndividual>(cp);
+	// const GExternalSetterIndividual *p_load = gobject_conversion<GExternalSetterIndividual>(cp);
+	GObject::selfAssignmentCheck<GExternalSetterIndividual>(cp);
 
 	// Load our parent's data
 	GParameterSet::load_(cp);
@@ -205,8 +205,8 @@ void GExternalEvaluatorIndividual::load_(const GObject* cp)
  *
  * @return A deep clone of this object, camouflaged as a GObject
  */
-Gem::Geneva::GObject* GExternalEvaluatorIndividual::clone_() const {
-	return new GExternalEvaluatorIndividual(*this);
+Gem::Geneva::GObject* GExternalSetterIndividual::clone_() const {
+	return new GExternalSetterIndividual(*this);
 }
 
 /******************************************************************************/
@@ -216,7 +216,7 @@ Gem::Geneva::GObject* GExternalEvaluatorIndividual::clone_() const {
  * @param id The id of the target function (ignored here)
  * @return The value of this object
  */
-double GExternalEvaluatorIndividual::fitnessCalculation(){
+double GExternalSetterIndividual::fitnessCalculation(){
    glogger
    << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
    << "This function is not supposed to be called for this individual." << std::endl
@@ -235,7 +235,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation(){
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GExternalEvaluatorIndividual::modify_GUnitTests() {
+bool GExternalSetterIndividual::modify_GUnitTests() {
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -255,7 +255,7 @@ bool GExternalEvaluatorIndividual::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GExternalEvaluatorIndividual::specificTestsNoFailureExpected_GUnitTests() {
+void GExternalSetterIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	using namespace Gem::Geneva;
 
 	using boost::unit_test_framework::test_suite;
@@ -269,7 +269,7 @@ void GExternalEvaluatorIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Check that we can set the value of this object and that it isn't dirty afterwards
 		double f = 0.; // For the fitness value
 		const double FITNESS = 3.0;
-		boost::shared_ptr<GExternalEvaluatorIndividual> p_test = this->GObject::clone<GExternalEvaluatorIndividual>();
+		boost::shared_ptr<GExternalSetterIndividual> p_test = this->GObject::clone<GExternalSetterIndividual>();
 		boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(1.));
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.,0.6,0.,2.));
 		gdo_ptr->addAdaptor(gdga_ptr);
@@ -291,7 +291,7 @@ void GExternalEvaluatorIndividual::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GExternalEvaluatorIndividual::specificTestsFailuresExpected_GUnitTests() {
+void GExternalSetterIndividual::specificTestsFailuresExpected_GUnitTests() {
 	using namespace Gem::Geneva;
 
 	using boost::unit_test_framework::test_suite;
@@ -303,7 +303,7 @@ void GExternalEvaluatorIndividual::specificTestsFailuresExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 	{ // Check that calling the fitness function throws
-		boost::shared_ptr<GExternalEvaluatorIndividual> p_test = this->GObject::clone<GExternalEvaluatorIndividual>();
+		boost::shared_ptr<GExternalSetterIndividual> p_test = this->GObject::clone<GExternalSetterIndividual>();
 		boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(1.));
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.,0.6,0.,2.));
 		gdo_ptr->addAdaptor(gdga_ptr);
@@ -318,7 +318,7 @@ void GExternalEvaluatorIndividual::specificTestsFailuresExpected_GUnitTests() {
 
 	{ // Check that supplying secondary fitness values when no corresponding variables have been registered throws
 		const double FITNESS = 3.0;
-		boost::shared_ptr<GExternalEvaluatorIndividual> p_test = this->GObject::clone<GExternalEvaluatorIndividual>();
+		boost::shared_ptr<GExternalSetterIndividual> p_test = this->GObject::clone<GExternalSetterIndividual>();
 		std::vector<double> x_vec;
 		x_vec.push_back(1.);
 		x_vec.push_back(2.);
