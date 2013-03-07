@@ -63,10 +63,8 @@
 #include "geneva/GParameterSet.hpp"
 #include "hap/GRandomT.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 /**

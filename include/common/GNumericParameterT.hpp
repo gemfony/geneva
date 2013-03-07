@@ -262,7 +262,7 @@ public:
     * Retrieves the parameter type name as a string. This function needs to
     * be overloaded for different parameter types.
     */
-   std::string getParameterType() const {
+   virtual std::string getParameterType() const {
       glogger
       << "In GNumericParameterT::getParameterType(): Function called for unknown type."
       << GEXCEPTION;
