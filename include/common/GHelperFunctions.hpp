@@ -75,10 +75,6 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
-/** @brief Calculates the mean and the standard deviation for a vector of doubles */
-boost::tuple<double,double> getStandardDeviation(const std::vector<double>&);
-
-/******************************************************************************/
 /** @brief This function tries to determine a suitable number of threads for the current architecture */
 unsigned int getNHardwareThreads(const unsigned int& defaultNThreads = Gem::Common::DEFAULTNHARDWARETHREADS);
 
