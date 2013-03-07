@@ -62,7 +62,7 @@ namespace Geneva {
  * This is a very simple individual that allows external entities to set the fitness value,
  * thereby clearing the dirty flag. It can be used if the fitness calculation should take place
  * outside of the individual. The fitnessCalculation() function will throw by default. If you
- * want different behaviour (e.g. in order to benchmark external against internal calculation),
+ * want different behavior (e.g. in order to benchmark external against internal calculation),
  * you need to overload and re-implement the function in derived classes.
  */
 class GExternalEvaluatorIndividual

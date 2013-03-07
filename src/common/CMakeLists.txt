@@ -8,6 +8,7 @@ SET ( COMMONSOURCES
 	GHelperFunctions
 	GLogger
 	GMathHelperFunctions
+	GNumericParameterT
 	GParserBuilder
 	GPlotDesigner
 	GPODExpectationChecksT

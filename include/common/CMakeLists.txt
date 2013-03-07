@@ -43,6 +43,7 @@ SET ( GENEVACOMMONINCLUDES
 	GLogger.hpp
 	GMathHelperFunctions.hpp
 	GMathHelperFunctionsT.hpp
+	GNumericParameterT.hpp
 	GParserBuilder.hpp
 	GPlotDesigner.hpp
 	GPODExpectationChecksT.hpp
