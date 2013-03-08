@@ -382,7 +382,7 @@ public:
 #endif /* DEBUG */
 
       ptr.put(baseName + ".nvar", this->size());
-      ptr.put(baseName + ".type", std::string("gpct"));
+      ptr.put(baseName + ".type", this->name());
       ptr.put(baseName + ".baseType", this->baseType());
       ptr.put(baseName + ".isLeaf", this->isLeaf());
       ptr.put(baseName + ".lowerBoundary", this->getLowerBoundary());
