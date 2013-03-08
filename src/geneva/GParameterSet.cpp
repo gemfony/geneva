@@ -692,6 +692,39 @@ void GParameterSet::custom_streamline(std::vector<boost::any>& var_vec)
 
 /******************************************************************************/
 /**
+ * Transformation of the individual's parameter objects into a boost::property_tree object
+ */
+void GParameterSet::toPropertyTree(
+      pt::ptree& ptr
+      , const std::string& baseName
+) const {
+#ifdef DEBUG
+   // Check if the object is empty. If so, complain
+   if(this->empty()) {
+      glogger
+      << "In GParameterSet::toPropertyTree(): Error!" << std::endl
+      << "Object is empty." << std::endl
+      << GEXCEPTION;
+   }
+#endif
+
+   ptr.put(baseName + ".nvar", this->size());
+   ptr.put(baseName + ".type", std::string("gps"));
+
+   // Loop over all parameter objects and ask them to add their
+   // data to our ptree object
+   std::string base;
+   std::size_t pos;
+   GParameterSet::const_iterator cit;
+   for(cit=this->begin(); cit!=this->end(); ++cit) {
+      pos = cit - this->begin();
+      base = baseName + ".var" + boost::lexical_cast<std::string>(pos);
+      (*cit)->toPropertyTree(ptr, base);
+   }
+}
+
+/******************************************************************************/
+/**
  * Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made

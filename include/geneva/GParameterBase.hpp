@@ -263,6 +263,11 @@ public:
 			, const bool&
 	) const;
 
+   /** @brief Converts the local data to a boost::property_tree node */
+   virtual void toPropertyTree(pt::ptree&, const std::string&) const = 0;
+   /** @brief Returns a human-readable name for the base type of derived objects */
+   virtual std::string baseType() const;
+
 	/** @brief Assigns a random number generator from another object. */
 	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *);
 	/** @brief Re-connects the local random number generator to gr */

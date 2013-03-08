@@ -234,6 +234,31 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
+	/***************************************************************************/
+	/**
+	 * Converts the local data to a boost::property_tree node
+	 *
+	 * @param ptr The boost::property_tree object the data should be saved to
+	 * @param baseName The name assigned to the object
+	 */
+	virtual void toPropertyTree(
+	      pt::ptree& ptr
+	      , const std::string& baseName
+	) const {
+	   ptr.put(baseName + ".nvar", 1);
+	   ptr.put(baseName + ".type", std::string("gpt"));
+	   ptr.put(baseName + ".baseType", this->baseType());
+	   ptr.put(baseName + ".value0", this->value());
+	}
+
+   /***************************************************************************/
+   /**
+    * Returns a human-readable name for the base type of derived objects
+    */
+   virtual std::string baseType() const {
+      return std::string("unknown");
+   }
+
 protected:
 	/***************************************************************************/
 	/**
@@ -384,6 +409,13 @@ GParameterT<T>:: ~GParameterT()
 { /* nothing */ }
 
 /******************************************************************************/
+
+/** @brief Returns a human-readable name for the base type of derived objects */
+template<> std::string GParameterT<double>::baseType() const;
+/** @brief Returns a human-readable name for the base type of derived objects */
+template<> std::string GParameterT<boost::int32_t>::baseType() const;
+/** @brief Returns a human-readable name for the base type of derived objects */
+template<> std::string GParameterT<bool>::baseType() const;
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -1,0 +1,156 @@
+//-----------------------------------------------------------------
+// This configuration file was automatically created by GParserBuilder
+// File creation date: 2013-Mar-08 09:40:27
+//-----------------------------------------------------------------
+
+{
+    "adProb":
+    {
+        "comment": "The probability for random adaption of values in evolutionary algorithms",
+        "default": "1",
+        "value": "1"
+    },
+    "adaptionThreshold":
+    {
+        "comment": "The number of calls to an adaptor after which adaption takes place",
+        "default": "1",
+        "value": "1"
+    },
+    "useBiGaussian":
+    {
+        "comment": "Whether to use a double gaussion for the adaption of parmeters in ES",
+        "default": "false",
+        "value": "false"
+    },
+    "sigma1":
+    {
+        "comment": "The sigma for gauss-adaption in ES",
+        "comment": "(or the sigma of the left peak of a double gaussian)",
+        "default": "0.5",
+        "value": "0.5"
+    },
+    "sigmaSigma1":
+    {
+        "comment": "Influences the self-adaption of gauss-mutation in ES",
+        "default": "0.8",
+        "value": "0.8"
+    },
+    "minSigma1":
+    {
+        "comment": "The minimum value of sigma1",
+        "default": "0.001",
+        "value": "0.001"
+    },
+    "maxSigma1":
+    {
+        "comment": "The maximum value of sigma1",
+        "default": "2",
+        "value": "2"
+    },
+    "sigma2":
+    {
+        "comment": "The sigma of the right peak of a double gaussian (if any)",
+        "default": "0.5",
+        "value": "0.5"
+    },
+    "sigmaSigma2":
+    {
+        "comment": "Influences the self-adaption of gauss-mutation in ES",
+        "default": "0.8",
+        "value": "0.8"
+    },
+    "minSigma2":
+    {
+        "comment": "The minimum value of sigma2",
+        "default": "0.001",
+        "value": "0.001"
+    },
+    "maxSigma2":
+    {
+        "comment": "The maximum value of sigma2",
+        "default": "2",
+        "value": "2"
+    },
+    "delta":
+    {
+        "comment": "The start distance between both peaks used for bi-gaussian mutations in ES",
+        "default": "0.5",
+        "value": "0.5"
+    },
+    "sigmaDelta":
+    {
+        "comment": "The width of the gaussian used for mutations of the delta parameter",
+        "default": "0.8",
+        "value": "0.8"
+    },
+    "minDelta":
+    {
+        "comment": "The minimum allowed value of delta",
+        "default": "0.001",
+        "value": "0.001"
+    },
+    "maxDelta":
+    {
+        "comment": "The maximum allowed value of delta",
+        "default": "2",
+        "value": "2"
+    },
+    "parDim":
+    {
+        "comment": "The number of dimensions used for the demo function",
+        "default": "2",
+        "value": "2"
+    },
+    "minVar":
+    {
+        "comment": "The lower boundary of the initialization range for parameters",
+        "default": "-10",
+        "value": "-10"
+    },
+    "maxVar":
+    {
+        "comment": "The upper boundary of the initialization range for parameters",
+        "default": "10",
+        "value": "10"
+    },
+    "parameterType":
+    {
+        "comment": "Indicates what type of parameter object should be used",
+        "comment": "(0) GDoubleCollection",
+        "comment": "(1) GConstrainedDoubleCollection",
+        "comment": "(2) GDoubleObjectCollection",
+        "comment": " (3) GConstrainedDoubleObjectCollection",
+        "default": "0",
+        "value": "0"
+    },
+    "initMode":
+    {
+        "comment": "Indicates how the parameters are initialized",
+        "comment": "(0) randomly",
+        "comment": "(1) with a value on the perimeter of the allowed or recommended value range",
+        "default": "0",
+        "value": "0"
+    },
+    "maximize":
+    {
+        "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
+        "comment": "Note that minimization is the by far most common option.",
+        "comment": "[GParameterset]",
+        "default": "0",
+        "value": "0"
+    },
+    "demoFunction":
+    {
+        "comment": "Specifies which demo function should be used:",
+        "comment": "0: Parabola",
+        "comment": "1: Berlich",
+        "comment": "2: Rosenbrock",
+        "comment": "3: Ackley",
+        "comment": "4: Rastrigin",
+        "comment": "5: Schwefel",
+        "comment": "6: Salomon",
+        "comment": "[GFunctionIndividual]",
+        "default": "0",
+        "value": "0"
+    }
+}

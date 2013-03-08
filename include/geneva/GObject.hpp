@@ -71,6 +71,7 @@
 #include <boost/numeric/conversion/bounds.hpp> // get rid of the numeric_limits<double>::min() vs. numeric_limits<int>::min() problem
 #include <boost/optional.hpp>
 #include <boost/program_options.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -131,6 +132,10 @@
 #ifdef GEM_TESTING
 #include "common/GUnitTestFrameworkT.hpp"
 #endif /* GEM_TESTING */
+
+// aliases for ease of use
+namespace bf = boost::filesystem;
+namespace pt = boost::property_tree;
 
 namespace Gem {
 namespace Geneva {

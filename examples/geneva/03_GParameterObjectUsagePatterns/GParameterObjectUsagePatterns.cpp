@@ -39,11 +39,13 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
 // Geneva header files go here
 #include "geneva/Go2.hpp" // Includes all of the parameter object types
+#include "geneva-individuals/GFunctionIndividual.hpp"
 
-// All GRandom-related code is in the namespace Gem::Hap
 using namespace Gem::Geneva;
 
 /******************************************************************************/
@@ -51,6 +53,39 @@ using namespace Gem::Geneva;
  * This example wants to demonstrate the basic usage of parameter objects
  */
 int main(int argc, char **argv) {
+   //===========================================================================
+   // Parameter Sets
+
+   { // Conversion of parameter object data to boost::property_tree
+      // Create a factory for GFunctionIndividual objects and perform
+      // any necessary initial work.
+      boost::shared_ptr<GFunctionIndividualFactory>
+         gfi_ptr(new GFunctionIndividualFactory("./GFunctionIndividual.json"));
+
+      boost::shared_ptr<GParameterSet> gfi_test = gfi_ptr->get();
+
+      // Add some more data
+      gfi_test->push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject()));
+      gfi_test->push_back(boost::shared_ptr<GDoubleObject>(new GDoubleObject()));
+      gfi_test->push_back(boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject()));
+      gfi_test->push_back(boost::shared_ptr<GInt32Object>(new GInt32Object()));
+      gfi_test->push_back(boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object()));
+
+      boost::shared_ptr<GParameterObjectCollection> gpoc_ptr(new GParameterObjectCollection());
+      gpoc_ptr->push_back(boost::shared_ptr<GDoubleObject>(new GDoubleObject()));
+      gpoc_ptr->push_back(boost::shared_ptr<GDoubleObject>(new GDoubleObject()));
+      gpoc_ptr->push_back(boost::shared_ptr<GDoubleObject>(new GDoubleObject()));
+      gpoc_ptr->push_back(boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(5, -10., 10.)));
+
+      gfi_test->push_back(gpoc_ptr);
+
+      boost::property_tree::ptree ptr;
+      gfi_test->toPropertyTree(ptr);
+
+      boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+      boost::property_tree::write_xml("result.xml", ptr, std::locale(), settings);
+   }
+
 	//===========================================================================
 	// Parameter Types
 

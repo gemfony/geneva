@@ -103,7 +103,7 @@ public:
    /**
     * The destructor
     */
-    ~GNumericParameterT()
+    virtual ~GNumericParameterT()
     { /* nothing */ }
 
    /***************************************************************************/

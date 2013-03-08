@@ -217,6 +217,14 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
 
 /***********************************************************************************/
 /**
+ * Returns a human-readable name for the base type of derived objects
+ */
+std::string GParameterBase::baseType() const {
+   return std::string("unknown");
+}
+
+/***********************************************************************************/
+/**
  * Assign a random number generator from another object.
  *
  * @param gr_cp A reference to another object's GRandomBase object derivative

@@ -747,6 +747,40 @@ protected:
 	 * ----------------------------------------------------------------------------------
 	 */
 
+   /***************************************************************************/
+	/**
+	 * Converts the local data to a boost::property_tree node
+	 *
+	 * @param ptr The boost::property_tree object the data should be saved to
+	 * @param id The id assigned to this object
+	 */
+	virtual void toPropertyTree(
+	      pt::ptree& ptr
+	      , const std::string& baseName
+	) const {
+	   // Check that the object isn't empty
+	   if(this->empty()) {
+	      glogger
+	      << "In GParameterTCollectionT<T>::toPropertyTree(): Error!" << std::endl
+	      << "Object is empty!" << std::endl
+	      << GEXCEPTION;
+	   }
+
+	   ptr.put(baseName + ".nvar", this->size());
+      ptr.put(baseName + ".type", std::string("gptct"));
+
+      // Loop over all parameter objects and ask them to add their
+      // data to our ptree object
+      std::string base;
+      std::size_t pos;
+      typename GParameterTCollectionT<T>::const_iterator cit;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         pos = cit - this->begin();
+         base = baseName + ".var" + boost::lexical_cast<std::string>(pos);
+         (*cit)->toPropertyTree(ptr, base);
+      }
+	}
+
 public:
 	/***************************************************************************/
 	/**

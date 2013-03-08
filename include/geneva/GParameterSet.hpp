@@ -170,6 +170,9 @@ public:
 	/** @brief Provides access to all data stored in the individual in a user defined selection */
 	virtual void custom_streamline(std::vector<boost::any>&);
 
+	/** @brief Transformation of the individual's parameter objects into a boost::property_tree object */
+	void toPropertyTree(pt::ptree&, const std::string& = "parameterset") const;
+
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 

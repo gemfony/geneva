@@ -74,6 +74,9 @@ class GParameterCollectionT
 	}
 	///////////////////////////////////////////////////////////////////////
 
+	// Make sure this class can only be instantiated with T as an arithmetic type
+	BOOST_MPL_ASSERT((boost::is_arithmetic<T>));
+
 public:
 	/***************************************************************************/
 	/**
@@ -288,6 +291,47 @@ public:
 		this->at(pos) = val;
 	}
 
+	/***************************************************************************/
+	/**
+	 * Converts the local data to a boost::property_tree node
+	 *
+	 * @param ptr The boost::property_tree object the data should be saved to
+	 * @param id The id assigned to this object
+	 */
+	virtual void toPropertyTree(
+	      pt::ptree& ptr
+	      , const std::string& baseName
+	) const {
+#ifdef DEBUG
+	   // Check that the object isn't empty
+	   if(this->empty()) {
+	      glogger
+	      << "In GParameterCollection<T>::toPropertyTree(): Error!" << std::endl
+	      << "Object is empty!" << std::endl
+	      << GEXCEPTION;
+	   }
+#endif /* DEBUG */
+
+	   ptr.put(baseName + ".nvar", this->size());
+	   ptr.put(baseName + ".type", std::string("gpct"));
+	   ptr.put(baseName + ".baseType", this->baseType());
+
+	   typename GParameterCollectionT<T>::const_iterator cit;
+	   std::size_t pos;
+	   for(cit=this->begin(); cit!=this->end(); ++cit) {
+	      pos = cit - this->begin();
+	      ptr.put(baseName + ".value" + boost::lexical_cast<std::string>(pos), *cit);
+	   }
+	}
+
+	/***************************************************************************/
+   /**
+    * Returns a human-readable name for the base type of derived objects
+    */
+   virtual std::string baseType() const {
+      return std::string("unknown");
+   }
+
 protected:
 	/***************************************************************************/
 	/**
@@ -375,6 +419,12 @@ public:
 	/******************************************************************************/
 };
 
+/** @brief Returns a human-readable name for the base type of derived objects */
+template<> std::string GParameterCollectionT<double>::baseType() const;
+/** @brief Returns a human-readable name for the base type of derived objects */
+template<> std::string GParameterCollectionT<boost::int32_t>::baseType() const;
+/** @brief Returns a human-readable name for the base type of derived objects */
+template<> std::string GParameterCollectionT<bool>::baseType() const;
 
 } /* namespace Geneva */
 } /* namespace Gem */

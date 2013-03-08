@@ -56,8 +56,10 @@ SET ( OPTIMIZATIONSOURCES
 	GOptimizationEnums
 	GParameterBase
 	GParameterBaseWithAdaptorsT
+	GParameterCollectionT
 	GParameterObjectCollection
 	GParameterSet
+	GParameterT
 	GPersonalityTraits
 	GSAPersonalityTraits
 	GSerialEA

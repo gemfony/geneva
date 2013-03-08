@@ -547,6 +547,25 @@ public:
 	virtual T transfer(const T&) const = 0;
 
 
+   /***************************************************************************/
+   /**
+    * Converts the local data to a boost::property_tree node
+    *
+    * @param ptr The boost::property_tree object the data should be saved to
+    * @param baseName The name assigned to the object
+    */
+   virtual void toPropertyTree(
+         pt::ptree& ptr
+         , const std::string& baseName
+   ) const {
+      ptr.put(baseName + ".nvar", 1);
+      ptr.put(baseName + ".type", std::string("gpt"));
+      ptr.put(baseName + ".baseType", this->baseType());
+      ptr.put(baseName + ".value0", this->value());
+      ptr.put(baseName + ".lowerBoundary", this->getLowerBoundary());
+      ptr.put(baseName + ".upperBoundary", this->getUpperBoundary());
+   }
+
 protected:
 	/***************************************************************************/
 	/**
