@@ -561,6 +561,7 @@ public:
       ptr.put(baseName + ".nvar", 1);
       ptr.put(baseName + ".type", std::string("gpt"));
       ptr.put(baseName + ".baseType", this->baseType());
+      ptr.put(baseName + ".isLeaf", this->isLeaf());
       ptr.put(baseName + ".value0", this->value());
       ptr.put(baseName + ".lowerBoundary", this->getLowerBoundary());
       ptr.put(baseName + ".upperBoundary", this->getUpperBoundary());

@@ -62,6 +62,8 @@ int main(int argc, char **argv) {
       boost::shared_ptr<GFunctionIndividualFactory>
          gfi_ptr(new GFunctionIndividualFactory("./GFunctionIndividual.json"));
 
+      // Note: This object already contains a parameter object, in
+      // addition to those added below.
       boost::shared_ptr<GParameterSet> gfi_test = gfi_ptr->get();
 
       // Add some more data
@@ -84,6 +86,8 @@ int main(int argc, char **argv) {
 
       boost::property_tree::xml_writer_settings<char> settings('\t', 1);
       boost::property_tree::write_xml("result.xml", ptr, std::locale(), settings);
+
+      // Now run this program and see the file "result.xml" for the output
    }
 
 	//===========================================================================

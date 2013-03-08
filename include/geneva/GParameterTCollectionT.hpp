@@ -768,6 +768,7 @@ protected:
 
 	   ptr.put(baseName + ".nvar", this->size());
       ptr.put(baseName + ".type", std::string("gptct"));
+      ptr.put(baseName + ".isLeaf", this->isLeaf());
 
       // Loop over all parameter objects and ask them to add their
       // data to our ptree object

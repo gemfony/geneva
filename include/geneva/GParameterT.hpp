@@ -248,6 +248,7 @@ public:
 	   ptr.put(baseName + ".nvar", 1);
 	   ptr.put(baseName + ".type", std::string("gpt"));
 	   ptr.put(baseName + ".baseType", this->baseType());
+	   ptr.put(baseName + ".isLeaf", this->isLeaf());
 	   ptr.put(baseName + ".value0", this->value());
 	}
 
@@ -257,6 +258,14 @@ public:
     */
    virtual std::string baseType() const {
       return std::string("unknown");
+   }
+
+   /***************************************************************************/
+   /**
+    * Lets the audience know whether this is a leaf or a branch object
+    */
+   virtual bool isLeaf() const {
+      return true;
    }
 
 protected:

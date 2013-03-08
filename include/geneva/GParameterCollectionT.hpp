@@ -315,6 +315,7 @@ public:
 	   ptr.put(baseName + ".nvar", this->size());
 	   ptr.put(baseName + ".type", std::string("gpct"));
 	   ptr.put(baseName + ".baseType", this->baseType());
+	   ptr.put(baseName + ".isLeaf", this->isLeaf());
 
 	   typename GParameterCollectionT<T>::const_iterator cit;
 	   std::size_t pos;
@@ -330,6 +331,14 @@ public:
     */
    virtual std::string baseType() const {
       return std::string("unknown");
+   }
+
+   /***************************************************************************/
+   /**
+    * Lets the audience know whether this is a leaf or a branch object
+    */
+   virtual bool isLeaf() const {
+      return true;
    }
 
 protected:

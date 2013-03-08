@@ -267,6 +267,8 @@ public:
    virtual void toPropertyTree(pt::ptree&, const std::string&) const = 0;
    /** @brief Returns a human-readable name for the base type of derived objects */
    virtual std::string baseType() const;
+   /** @brief Lets the audience know whether this is a leaf or a branch object */
+   virtual bool isLeaf() const;
 
 	/** @brief Assigns a random number generator from another object. */
 	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *);

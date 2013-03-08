@@ -225,6 +225,14 @@ std::string GParameterBase::baseType() const {
 
 /***********************************************************************************/
 /**
+ * Lets the audience know whether this is a leaf or a branch object
+ */
+bool GParameterBase::isLeaf() const {
+   return false;
+}
+
+/***********************************************************************************/
+/**
  * Assign a random number generator from another object.
  *
  * @param gr_cp A reference to another object's GRandomBase object derivative
