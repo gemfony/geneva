@@ -197,6 +197,14 @@ boost::optional<std::string> GDoubleGaussAdaptor::checkRelationshipWith(
 	return evaluateDiscrepancies("GDoubleGaussAdaptor", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GDoubleGaussAdaptor::name() const {
+   return std::string("GDoubleGaussAdaptor");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject

@@ -171,6 +171,14 @@ boost::optional<std::string> GSerialEA::checkRelationshipWith(const GObject& cp,
 
 /******************************************************************************/
 /**
+ * Emits a name for this class / object
+ */
+std::string GSerialEA::name() const {
+   return std::string("GSerialEA");
+}
+
+/******************************************************************************/
+/**
  * Necessary initialization work before the start of the optimization
  */
 void GSerialEA::init() {

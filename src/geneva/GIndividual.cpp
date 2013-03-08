@@ -165,6 +165,14 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(
 	return evaluateDiscrepancies("GIndividual", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GIndividual::name() const {
+   return std::string("GIndividual");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GIndividual, camouflaged as a GObject

@@ -365,6 +365,14 @@ boost::optional<std::string> GBaseSwarm::checkRelationshipWith(
 	return evaluateDiscrepancies("GBaseSwarm", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GBaseSwarm::name() const {
+   return std::string("GBaseSwarm");
+}
+
 /******************************************************************************/
 /**
  * Sets the number of neighborhoods and the default number of members in them. All work is done inside of

@@ -567,6 +567,14 @@ public:
       ptr.put(baseName + ".upperBoundary", this->getUpperBoundary());
    }
 
+   /***************************************************************************/
+   /**
+    * Emits a name for this class / object
+    */
+   virtual std::string name() const {
+      return std::string("GConstrainedNumT");
+   }
+
 protected:
 	/***************************************************************************/
 	/**

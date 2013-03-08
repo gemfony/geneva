@@ -157,6 +157,14 @@ boost::optional<std::string> GConstrainedInt32ObjectCollection::checkRelationshi
 	return evaluateDiscrepancies("GConstrainedInt32ObjectCollection", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GConstrainedInt32ObjectCollection::name() const {
+   return std::string("GConstrainedInt32ObjectCollection");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject

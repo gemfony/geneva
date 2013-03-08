@@ -175,6 +175,14 @@ boost::optional<std::string> GBaseEA::checkRelationshipWith(const GObject& cp,
 	return evaluateDiscrepancies("GBaseEA", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GBaseEA::name() const {
+   return std::string("GBaseEA");
+}
+
 /******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs

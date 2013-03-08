@@ -162,6 +162,14 @@ boost::optional<std::string> GParameterObjectCollection::checkRelationshipWith(c
 
 /******************************************************************************/
 /**
+ * Emits a name for this class / object
+ */
+std::string GParameterObjectCollection::name() const {
+   return std::string("GParameterObjectCollection");
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GParameterObjectCollection object, camouflaged as a GObject

@@ -153,6 +153,14 @@ boost::optional<std::string> GSwarmPersonalityTraits::checkRelationshipWith(cons
 
 /******************************************************************************/
 /**
+ * Emits a name for this class / object
+ */
+std::string GSwarmPersonalityTraits::name() const {
+   return std::string("GSwarmPersonalityTraits");
+}
+
+/******************************************************************************/
+/**
  * Sets the noPositionUpdate_ flag
  */
 void GSwarmPersonalityTraits::setNoPositionUpdate() {

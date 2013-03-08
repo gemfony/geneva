@@ -198,6 +198,14 @@ public:
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
+   /***************************************************************************/
+   /**
+    * Emits a name for this class / object
+    */
+   virtual std::string name() const {
+      return std::string("GIntGaussAdaptorT");
+   }
+
 protected:
 	/***************************************************************************/
 	/**

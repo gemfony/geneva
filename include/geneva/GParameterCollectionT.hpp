@@ -341,6 +341,14 @@ public:
       return true;
    }
 
+   /***************************************************************************/
+   /**
+    * Emits a name for this class / object
+    */
+   virtual std::string name() const {
+      return std::string("GParameterCollectionT");
+   }
+
 protected:
 	/***************************************************************************/
 	/**

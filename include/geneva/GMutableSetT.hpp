@@ -207,6 +207,14 @@ public:
 		// No local data
 	}
 
+   /***************************************************************************/
+   /**
+    * Emits a name for this class / object
+    */
+   virtual std::string name() const {
+      return std::string("GMutableSetT");
+   }
+
 protected:
 	/***************************************************************************/
    /**

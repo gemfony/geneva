@@ -126,6 +126,9 @@ public:
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&);
 
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GConstrainedDoubleCollection object */

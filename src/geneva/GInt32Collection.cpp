@@ -182,6 +182,14 @@ boost::optional<std::string> GInt32Collection::checkRelationshipWith(
 	return evaluateDiscrepancies("GInt32Collection", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GInt32Collection::name() const {
+   return std::string("GInt32Collection");
+}
+
 /******************************************************************************/
 /**
  * Attach our local values to the vector. This is used to collect all parameters of this type

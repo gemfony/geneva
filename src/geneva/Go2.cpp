@@ -391,6 +391,14 @@ boost::optional<std::string> Go2::checkRelationshipWith(
 	return evaluateDiscrepancies("Go2", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string Go2::name() const {
+   return std::string("Go2");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another Go2 object

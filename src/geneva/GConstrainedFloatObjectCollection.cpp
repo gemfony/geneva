@@ -158,6 +158,14 @@ boost::optional<std::string> GConstrainedFloatObjectCollection::checkRelationshi
 	return evaluateDiscrepancies("GConstrainedFloatObjectCollection", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GConstrainedFloatObjectCollection::name() const {
+   return std::string("GConstrainedFloatObjectCollection");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject

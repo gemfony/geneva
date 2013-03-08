@@ -103,6 +103,9 @@ public:
 	/** @brief Retrieves the position of the individual in the population */
 	std::size_t getPopulationPosition(void) const ;
 
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 protected:
 	/** @brief Loads the data of another GGDPersonalityTraits object */
 	virtual void load_(const GObject*);

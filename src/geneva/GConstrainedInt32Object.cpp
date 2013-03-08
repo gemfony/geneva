@@ -201,6 +201,14 @@ boost::optional<std::string> GConstrainedInt32Object::checkRelationshipWith (
 	return evaluateDiscrepancies("GConstrainedInt32Object", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GConstrainedInt32Object::name() const {
+   return std::string("GConstrainedInt32Object");
+}
+
 /******************************************************************************/
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type

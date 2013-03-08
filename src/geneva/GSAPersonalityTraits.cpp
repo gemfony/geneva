@@ -141,6 +141,14 @@ boost::optional<std::string> GSAPersonalityTraits::checkRelationshipWith(const G
 
 /******************************************************************************/
 /**
+ * Emits a name for this class / object
+ */
+std::string GSAPersonalityTraits::name() const {
+   return std::string("GSAPersonalityTraits");
+}
+
+/******************************************************************************/
+/**
  * Creates a deep clone of this object
  *
  * @return A clone of this object, camouflaged as a GObject

@@ -158,6 +158,14 @@ boost::optional<std::string> GFloatBiGaussAdaptor::checkRelationshipWith(
 	return evaluateDiscrepancies("GFloatBiGaussAdaptor", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GFloatBiGaussAdaptor::name() const {
+   return std::string("GFloatBiGaussAdaptor");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject

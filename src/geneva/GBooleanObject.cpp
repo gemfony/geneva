@@ -242,6 +242,14 @@ boost::optional<std::string> GBooleanObject::checkRelationshipWith(const GObject
 	return evaluateDiscrepancies("GBooleanObject", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GBooleanObject::name() const {
+   return std::string("GBooleanObject");
+}
+
 /******************************************************************************/
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type

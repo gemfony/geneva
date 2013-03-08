@@ -182,6 +182,14 @@ boost::optional<std::string> GDoubleCollection::checkRelationshipWith(
 	return evaluateDiscrepancies("GDoubleCollection", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GDoubleCollection::name() const {
+   return std::string("GDoubleCollection");
+}
+
 /******************************************************************************/
 /**
  * Attach our local values to the vector. This is used to collect all parameters of this type

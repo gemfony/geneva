@@ -175,6 +175,14 @@ boost::optional<std::string> GMultiThreadedSwarm::checkRelationshipWith(
 	return evaluateDiscrepancies("GMultiThreadedSwarm", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GMultiThreadedSwarm::name() const {
+   return std::string("GMultiThreadedSwarm");
+}
+
 /******************************************************************************/
 /**
  * Creates a deep clone of this object

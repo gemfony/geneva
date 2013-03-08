@@ -157,6 +157,14 @@ boost::optional<std::string> GFloatObjectCollection::checkRelationshipWith(const
 	return evaluateDiscrepancies("GFloatObjectCollection", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GFloatObjectCollection::name() const {
+   return std::string("GFloatObjectCollection");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject

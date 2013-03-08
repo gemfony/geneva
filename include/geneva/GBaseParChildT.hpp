@@ -559,6 +559,14 @@ public:
    /** @brief Returns information about the type of optimization algorithm */
    virtual personality_oa getOptimizationAlgorithm() const = 0;
 
+   /***************************************************************************/
+   /**
+    * Emits a name for this class / object
+    */
+   virtual std::string name() const {
+      return std::string("GBaseParChildT");
+   }
+
 protected:
    /***************************************************************************/
    /** @brief Creates a deep clone of this object */

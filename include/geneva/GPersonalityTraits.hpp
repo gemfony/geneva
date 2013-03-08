@@ -99,6 +99,9 @@ public:
 	      , const bool&
 	) const;
 
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 protected:
 	/** @brief Loads the data of another GPersonalityTraits object */
 	virtual void load_(const GObject*);

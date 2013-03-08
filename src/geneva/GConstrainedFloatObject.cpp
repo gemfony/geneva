@@ -200,6 +200,14 @@ boost::optional<std::string> GConstrainedFloatObject::checkRelationshipWith (
 	return evaluateDiscrepancies("GConstrainedFloatObject", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GConstrainedFloatObject::name() const {
+   return std::string("GConstrainedFloatObject");
+}
+
 /******************************************************************************/
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type

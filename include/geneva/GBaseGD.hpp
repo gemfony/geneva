@@ -153,6 +153,9 @@ public:
 		, const bool& showOrigin
 	);
 
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another population */

@@ -148,6 +148,14 @@ boost::optional<std::string> GBaseParChildPersonalityTraits::checkRelationshipWi
    return evaluateDiscrepancies("GBaseParChildPersonalityTraits", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GBaseParChildPersonalityTraits::name() const {
+   return std::string("GBaseParChildPersonalityTraits");
+}
+
 /******************************************************************************/
 /**
  * Creates a deep clone of this object

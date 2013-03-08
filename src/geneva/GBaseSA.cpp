@@ -184,6 +184,14 @@ boost::optional<std::string> GBaseSA::checkRelationshipWith(
    return evaluateDiscrepancies("GBaseSA", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GBaseSA::name() const {
+   return std::string("GBaseSA");
+}
+
 /******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs

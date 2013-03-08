@@ -121,6 +121,9 @@ public:
    /** @brief Marks the parent id as unset */
    void unsetParentId();
 
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 protected:
    /** @brief Loads the data of another GBaseParChildPersonalityTraits object */
    virtual void load_(const GObject*);

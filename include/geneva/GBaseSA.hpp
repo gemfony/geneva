@@ -137,6 +137,9 @@ public:
    /** @brief Retrieves the current temperature */
    double getT() const;
 
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 protected:
    /***************************************************************************/
    /** @brief Loads the data of another population */

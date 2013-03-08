@@ -126,6 +126,14 @@ boost::optional<std::string> GPersonalityTraits::checkRelationshipWith(const GOb
 
 /******************************************************************************/
 /**
+ * Emits a name for this class / object
+ */
+std::string GPersonalityTraits::name() const {
+   return std::string("GPersonalityTraits");
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GPersonalityTraits object
  *
  * @param cp A copy of another GPersonalityTraits object, camouflaged as a GObject

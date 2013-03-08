@@ -1033,6 +1033,11 @@ public:
 		return std::string("GENEVA_OPTIMIZATIONALGORITHM");
 	}
 
+	/***************************************************************************/
+	/** @brief Emits a name for this class / object */
+	virtual std::string name() const {
+	   return std::string("GOptimizationAlgorithmT");
+	}
 
 protected:
 	/***************************************************************************/

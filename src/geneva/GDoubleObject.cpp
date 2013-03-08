@@ -197,6 +197,14 @@ boost::optional<std::string> GDoubleObject::checkRelationshipWith(const GObject&
 	return evaluateDiscrepancies("GDoubleObject", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GDoubleObject::name() const {
+   return std::string("GDoubleObject");
+}
+
 /******************************************************************************/
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type

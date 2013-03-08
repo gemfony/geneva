@@ -179,6 +179,14 @@ boost::optional<std::string> GConstrainedDoubleCollection::checkRelationshipWith
 	return evaluateDiscrepancies("GConstrainedDoubleCollection", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GConstrainedDoubleCollection::name() const {
+   return std::string("GConstrainedDoubleCollection");
+}
+
 /******************************************************************************/
 /**
  * Attach our local values to the vector. This is used to collect all parameters of this type

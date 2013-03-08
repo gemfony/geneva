@@ -222,6 +222,9 @@ public:
       return Gem::Common::convertSmartPointer<GParameterSet, parameterset_type>(neighborhood_bests_[neighborhood]);
 	}
 
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 protected:
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);

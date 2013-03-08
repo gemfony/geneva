@@ -176,6 +176,15 @@ boost::optional<std::string> GMultiThreadedSA::checkRelationshipWith(
    return evaluateDiscrepancies("GMultiThreadedSA", caller, deviations, e);
 }
 
+
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GMultiThreadedSA::name() const {
+   return std::string("GMultiThreadedSA");
+}
+
 /******************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization

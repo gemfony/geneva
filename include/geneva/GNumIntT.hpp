@@ -241,6 +241,13 @@ public:
 		return evaluateDiscrepancies("GNumIntT<int_type>", caller, deviations, e);
 	}
 
+   /***************************************************************************/
+   /**
+    * Emits a name for this class / object
+    */
+   virtual std::string name() const {
+      return std::string("GNumIntT");
+   }
 
 protected:
 	/***************************************************************************/

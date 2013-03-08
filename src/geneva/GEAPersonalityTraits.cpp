@@ -142,6 +142,14 @@ boost::optional<std::string> GEAPersonalityTraits::checkRelationshipWith(
 	return evaluateDiscrepancies("GEAPersonalityTraits", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GEAPersonalityTraits::name() const {
+   return std::string("GEAPersonalityTraits");
+}
+
 /******************************************************************************/
 /**
  * Creates a deep clone of this object

@@ -197,6 +197,14 @@ boost::optional<std::string> GFloatObject::checkRelationshipWith(const GObject& 
 	return evaluateDiscrepancies("GFloatObject", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GFloatObject::name() const {
+   return std::string("GFloatObject");
+}
+
 /******************************************************************************/
 /**
  * Attach our local value to the vector. This is used to collect all parameters of this type

@@ -179,6 +179,14 @@ boost::optional<std::string> GBrokerSA::checkRelationshipWith(
    return evaluateDiscrepancies("GBrokerSA", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GBrokerSA::name() const {
+   return std::string("GBrokerSA");
+}
+
 /******************************************************************************/
 /**
  * Performs any necessary initialization work before the start of the optimization cycle

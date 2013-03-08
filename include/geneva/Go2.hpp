@@ -336,6 +336,10 @@ public:
 		return GOptimizableI::optimize<individual_type>(offset);
 	}
 
+   /***************************************************************************/
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another Go2 object */

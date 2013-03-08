@@ -158,6 +158,14 @@ boost::optional<std::string> GInt32FlipAdaptor::checkRelationshipWith(const GObj
 	return evaluateDiscrepancies("GInt32FlipAdaptor", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GInt32FlipAdaptor::name() const {
+   return std::string("GInt32FlipAdaptor");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject

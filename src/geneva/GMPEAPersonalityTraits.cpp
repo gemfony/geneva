@@ -139,6 +139,14 @@ boost::optional<std::string> GMPEAPersonalityTraits::checkRelationshipWith(const
    return evaluateDiscrepancies("GMPEAPersonalityTraits", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GMPEAPersonalityTraits::name() const {
+   return std::string("GMPEAPersonalityTraits");
+}
+
 /******************************************************************************/
 /**
  * Creates a deep clone of this object

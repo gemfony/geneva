@@ -126,6 +126,9 @@ public:
 	/** @brief Subtract the floating point parameters of another GParameterBase object from this one */
 	virtual void fpSubtract(boost::shared_ptr<GParameterBase>);
 
+	/** @brief Emits a name for this class / object */
+	virtual std::string name() const;
+
 	/***************************************************************************/
 	/**
 	 * Allows to add all parameters of a specific type to the vector. This function is a

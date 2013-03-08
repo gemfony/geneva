@@ -103,6 +103,9 @@ public:
 	/** @brief Allows to specify that this individual does not lie on the pareto front of the current iteration */
 	void setIsNotOnParetoFront();
 
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 protected:
 	/** @brief Loads the data of another GEAPersonalityTraits object */
 	virtual void load_(const GObject*);

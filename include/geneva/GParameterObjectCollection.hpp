@@ -103,6 +103,9 @@ public:
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 	/***************************************************************************/
 	/**
 	 * This function returns a parameter item at a given position of the data set.

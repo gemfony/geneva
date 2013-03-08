@@ -88,7 +88,7 @@ const GExternalSetterIndividual& GExternalSetterIndividual::operator=(const GExt
 bool GExternalSetterIndividual::operator==(const GExternalSetterIndividual& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GExternalEvaluatorIndividual::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GExternalSetterIndividual::operator==","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
@@ -101,7 +101,7 @@ bool GExternalSetterIndividual::operator==(const GExternalSetterIndividual& cp) 
 bool GExternalSetterIndividual::operator!=(const GExternalSetterIndividual& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GExternalEvaluatorIndividual::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GExternalSetterIndividual::operator!=","cp", CE_SILENT);
 }
 
 /******************************************************************************/
@@ -136,11 +136,11 @@ boost::optional<std::string> GExternalSetterIndividual::checkRelationshipWith(
 	std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(Gem::Geneva::GParameterSet::checkRelationshipWith(cp, e, limit, "GExternalEvaluatorIndividual", y_name, withMessages));
+	deviations.push_back(Gem::Geneva::GParameterSet::checkRelationshipWith(cp, e, limit, "GExternalSetterIndividual", y_name, withMessages));
 
 	// ... no local data
 
-	return evaluateDiscrepancies("GExternalEvaluatorIndividual", caller, deviations, e);
+	return evaluateDiscrepancies("GExternalSetterIndividual", caller, deviations, e);
 }
 
 /******************************************************************************/
@@ -218,7 +218,7 @@ Gem::Geneva::GObject* GExternalSetterIndividual::clone_() const {
  */
 double GExternalSetterIndividual::fitnessCalculation(){
    glogger
-   << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
+   << "In GExternalSetterIndividual::fitnessCalculation(): Error!" << std::endl
    << "This function is not supposed to be called for this individual." << std::endl
    << GEXCEPTION;
 

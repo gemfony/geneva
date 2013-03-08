@@ -160,6 +160,14 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 	return evaluateDiscrepancies("GBrokerGD", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GBrokerGD::name() const {
+   return std::string("GBrokerGD");
+}
+
 /******************************************************************************/
 /**
  * Checks whether this algorithm communicates via the broker. This is an overload from the corresponding

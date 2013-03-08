@@ -163,6 +163,14 @@ boost::optional<std::string> GBooleanAdaptor::checkRelationshipWith(const GObjec
 	return evaluateDiscrepancies("GBooleanAdaptor", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GBooleanAdaptor::name() const {
+   return std::string("GBooleanAdaptor");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject

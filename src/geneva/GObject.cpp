@@ -131,6 +131,14 @@ std::string GObject::report() const {
 
 /******************************************************************************/
 /**
+ * Emits a name for this class / object
+ */
+std::string GObject::name() const {
+   return std::string("GObject");
+}
+
+/******************************************************************************/
+/**
  * Converts class to a serial representation that is then written to a stream.
  *
  * @param oarchive_stream The output stream the object should be written to

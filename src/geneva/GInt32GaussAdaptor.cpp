@@ -202,6 +202,14 @@ boost::optional<std::string> GInt32GaussAdaptor::checkRelationshipWith(
 	return evaluateDiscrepancies("GInt32GaussAdaptor", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GInt32GaussAdaptor::name() const {
+   return std::string("GInt32GaussAdaptor");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject

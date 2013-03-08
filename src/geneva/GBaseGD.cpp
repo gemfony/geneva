@@ -299,6 +299,14 @@ boost::optional<std::string> GBaseGD::checkRelationshipWith(
 	return evaluateDiscrepancies("GBaseGD", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GBaseGD::name() const {
+   return std::string("GBaseGD");
+}
+
 /******************************************************************************/
 /**
  * Loads a checkpoint from disk

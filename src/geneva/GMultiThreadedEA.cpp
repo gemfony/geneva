@@ -176,6 +176,14 @@ boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(
 	return evaluateDiscrepancies("GMultiThreadedEA", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GMultiThreadedEA::name() const {
+   return std::string("GMultiThreadedEA");
+}
+
 /******************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization

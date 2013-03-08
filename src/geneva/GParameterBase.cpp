@@ -217,6 +217,14 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
 
 /***********************************************************************************/
 /**
+ * Emits a name for this class / object
+ */
+std::string GParameterBase::name() const {
+   return std::string("GParameterBase");
+}
+
+/***********************************************************************************/
+/**
  * Returns a human-readable name for the base type of derived objects
  */
 std::string GParameterBase::baseType() const {

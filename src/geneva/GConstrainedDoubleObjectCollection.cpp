@@ -158,6 +158,14 @@ boost::optional<std::string> GConstrainedDoubleObjectCollection::checkRelationsh
 	return evaluateDiscrepancies("GConstrainedDoubleObjectCollection", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GConstrainedDoubleObjectCollection::name() const {
+   return std::string("GConstrainedDoubleObjectCollection");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject

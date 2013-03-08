@@ -368,6 +368,14 @@ public:
 		}
 	}
 
+   /***************************************************************************/
+   /**
+    * Emits a name for this class / object
+    */
+   virtual std::string name() const {
+      return std::string("GConstrainedFPNumCollectionT");
+   }
+
 protected:
 	/***************************************************************************/
 	/**

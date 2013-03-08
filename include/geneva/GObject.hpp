@@ -201,6 +201,9 @@ public:
 	/** @brief Returns an XML description of the derivative it is called for */
 	std::string report() const;
 
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 	/** @brief Writes a configuration file to disk */
 	void writeConfigFile(const std::string&, const std::string&);
 	/** @brief Reads a configuration file from disk */

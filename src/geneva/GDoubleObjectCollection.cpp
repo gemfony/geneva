@@ -157,6 +157,14 @@ boost::optional<std::string> GDoubleObjectCollection::checkRelationshipWith(cons
 	return evaluateDiscrepancies("GDoubleObjectCollection", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GDoubleObjectCollection::name() const {
+   return std::string("GDoubleObjectCollection");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject

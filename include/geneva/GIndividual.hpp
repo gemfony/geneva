@@ -264,6 +264,9 @@ public:
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
 	virtual std::string getIndividualCharacteristic() const = 0;
 
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GIndividual */

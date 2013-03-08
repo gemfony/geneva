@@ -179,6 +179,14 @@ boost::optional<std::string> GBooleanObjectCollection::checkRelationshipWith(con
 	return evaluateDiscrepancies("GBooleanObjectCollection", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GBooleanObjectCollection::name() const {
+   return std::string("GBooleanObjectCollection");
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject

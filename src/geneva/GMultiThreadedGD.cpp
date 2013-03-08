@@ -157,6 +157,14 @@ boost::optional<std::string> GMultiThreadedGD::checkRelationshipWith(
 	return evaluateDiscrepancies("GMultiThreadedGD", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GMultiThreadedGD::name() const {
+   return std::string("GMultiThreadedGD");
+}
+
 /******************************************************************************/
 /**
  * Sets the number of threads for this population. If nThreads is set

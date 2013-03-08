@@ -140,6 +140,13 @@ boost::optional<std::string> GGDPersonalityTraits::checkRelationshipWith(const G
 	return evaluateDiscrepancies("GGDPersonalityTraits", caller, deviations, e);
 }
 
+/***********************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GGDPersonalityTraits::name() const {
+   return std::string("GGDPersonalityTraits");
+}
 
 /******************************************************************************/
 /**

@@ -171,6 +171,14 @@ boost::optional<std::string> GSerialSwarm::checkRelationshipWith(
 
 /******************************************************************************/
 /**
+ * Emits a name for this class / object
+ */
+std::string GSerialSwarm::name() const {
+   return std::string("GSerialSwarm");
+}
+
+/******************************************************************************/
+/**
  * Creates a deep clone of this object
  *
  * @return A deep copy of this object, camouflaged as a GObject

@@ -153,6 +153,14 @@ boost::optional<std::string> GSerialGD::checkRelationshipWith(
 
 /******************************************************************************/
 /**
+ * Emits a name for this class / object
+ */
+std::string GSerialGD::name() const {
+   return std::string("GSerialGD");
+}
+
+/******************************************************************************/
+/**
  * Loads the data from another GSerialGD object.
  *
  * @param vp Pointer to another GSerialGD object, camouflaged as a GObject

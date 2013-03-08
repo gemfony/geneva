@@ -124,6 +124,9 @@ public:
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const;
 
+   /** @brief Emits a name for this class / object */
+   virtual std::string name() const;
+
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
