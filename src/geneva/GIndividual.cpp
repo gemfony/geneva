@@ -506,6 +506,17 @@ bool GIndividual::getMaxMode() const {
  * ----------------------------------------------------------------------------------
  */
 
+/***************************************************************************/
+/**
+ * Helper function that emits the worst case value depending on whether maximization
+ * or minimization is performed.
+ *
+ * @return The worst case value, depending on maximization or minimization
+ */
+double GIndividual::getWorstCase() const {
+   return (this->getMaxMode()?-DBL_MAX:DBL_MAX);
+}
+
 /******************************************************************************/
 /**
  * Sets the dirtyFlag_. This is a "one way" function, accessible to derived classes. Once the dirty flag

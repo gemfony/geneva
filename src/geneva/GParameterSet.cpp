@@ -716,8 +716,9 @@ void GParameterSet::toPropertyTree(
    }
 #endif
 
+   ptr.put(baseName + ".iteration", this->getAssignedIteration());
    ptr.put(baseName + ".nvar", this->size());
-   ptr.put(baseName + ".type", std::string("gps"));
+   ptr.put(baseName + ".type", std::string("GParameterSet"));
 
    // Loop over all parameter objects and ask them to add their
    // data to our ptree object

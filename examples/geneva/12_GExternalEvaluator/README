@@ -1,0 +1,4 @@
+This directory contains a Geneva application that uses an external 
+application for setup of individuals and evaluation of candidate
+solutions. A sample evaluation program written in Python is available
+in the scripts subdirectory.

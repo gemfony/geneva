@@ -58,6 +58,7 @@
 #include "geneva/GConstrainedDoubleCollection.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
@@ -97,6 +98,7 @@ enum parameterType {
 	, USEGCONSTRAINEDOUBLECOLLECTION = 1
 	, USEGDOUBLEOBJECTCOLLECTION = 2
 	, USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION = 3
+	, USEGCONSTRAINEDDOUBLEOBJECT = 4
 };
 
 // Make sure parameterType can be streamed
@@ -489,7 +491,7 @@ public:
    /** @brief Set the value of the sigmaSigma2_ variable */
    void setSigmaSigma2(double sigmaSigma2);
 
-   // End getters and setters
+   // End of public getters and setters
    /**************************************************************************/
 
 protected:

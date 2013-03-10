@@ -66,6 +66,9 @@ int main(int argc, char **argv) {
       // addition to those added below.
       boost::shared_ptr<GParameterSet> gfi_test = gfi_ptr->get();
 
+      gfi_test->push_back(boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(-7,17)));
+      gfi_test->push_back(boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(-5,5)));
+
       // Add some more data
       gfi_test->push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject()));
       gfi_test->push_back(boost::shared_ptr<GDoubleObject>(new GDoubleObject()));

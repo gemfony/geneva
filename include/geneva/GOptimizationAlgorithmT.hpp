@@ -438,8 +438,8 @@ public:
 		if(reportIteration_) doInfo(INFOINIT);
 
 		// We want to know if no better values were found for a longer period of time
-		bestPastFitness_ = getWorstCase();
-		bestCurrentFitness_ = getWorstCase();
+		bestPastFitness_ = this->getWorstCase();
+		bestCurrentFitness_ = this->getWorstCase();
 		stallCounter_ = 0;
 
 		// Give derived classes the opportunity to perform any necessary preparatory work.
@@ -1205,17 +1205,6 @@ protected:
 			if(newValue > oldValue) return true;
 			else return false;
 		}
-	}
-
-	/***************************************************************************/
-	/**
-	 * Helper function that emits the worst case value depending on whether maximization
-	 * or minimization is performed.
-	 *
-	 * @return The worst case value, depending on maximization or minimization
-	 */
-	double getWorstCase() const {
-		return (this->getMaxMode()?-DBL_MAX:DBL_MAX);
 	}
 
 	/***************************************************************************/

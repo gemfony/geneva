@@ -1227,7 +1227,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	);
 
 	comment = "";
-	comment += "Indicates what type of parameter object should be used;(0) GDoubleCollection;(1) GConstrainedDoubleCollection;(2) GDoubleObjectCollection; (3) GConstrainedDoubleObjectCollection";
+	comment += "Indicates what type of parameter object should be used;(0) GDoubleCollection;(1) GConstrainedDoubleCollection;(2) GDoubleObjectCollection; (3) GConstrainedDoubleObjectCollection; [4] GConstrainedDoubleObject;";
 	gpb.registerFileParameter<parameterType>(
 		"parameterType"
 		, pT_.reference()
@@ -1376,6 +1376,26 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 		p->push_back(gcdoc_ptr);
 	}
 		break;
+
+	case USEGCONSTRAINEDDOUBLEOBJECT:
+	{
+      // Fill the individual with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
+      // Note that addAdaptor() itself will take care of cloning the adaptor
+      for(std::size_t i=0; i<nData; i++) {
+         boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_, maxVar_));
+         if(INITPERIMETER == iM_) {
+            if(i == perimeterPos) {
+               *gcdo_ptr = minVar_;
+            } else {
+               *gcdo_ptr = (maxVar_ - minVar_)/2.;
+            }
+         }
+
+         gcdo_ptr->addAdaptor(gat_ptr);
+         p->push_back(gcdo_ptr);
+      }
+	}
+	   break;
 
 	default:
 	{

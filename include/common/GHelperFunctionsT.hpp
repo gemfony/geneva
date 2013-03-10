@@ -17,12 +17,8 @@
  * and http://scc.kit.edu .
  *
  * Geneva is free software: you can redistribute and/or modify it under
- * the terms of version 3 of the GNU Affero General Public License,
- * or, at your option, under the terms of version 2 of the GNU General
- *
- * NOTE THAT THIS DUAL-LICENSING OPTION DOES NOT APPLY TO ANY OTHER FILES OF THE
- * Public License, as published by the Free Software Foundation.
- * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
+ * the terms of version 3 of the GNU Affero General Public License
+ * as published by the Free Software Foundation.
  *
  * Geneva is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -30,7 +26,6 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * version 3 and of version 2 of the GNU General Public License
  * along with the Geneva library. If not, see <http://www.gnu.org/licenses/>.
  *
  * For further information on Gemfony scientific and Geneva, visit

@@ -56,3 +56,7 @@ ADD_SUBDIRECTORY (
 ADD_SUBDIRECTORY (
   11_GMetaOptimizer
 )
+
+ADD_SUBDIRECTORY (
+  12_GExternalEvaluator
+)

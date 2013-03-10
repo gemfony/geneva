@@ -86,7 +86,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * The destructor
+	 * The destructor.
 	 */
 	virtual ~GFactoryT()
 	{ /* nothing */ }
@@ -103,7 +103,7 @@ public:
 
    /***************************************************************************/
 	/**
-	 * Allows the creation of objects of the desired type in the old-fashioned way
+	 * Allows the creation of objects of the desired type.
 	 */
 	virtual boost::shared_ptr<prod_type> get() {
       // Make sure the initialization code has been executed.
@@ -203,7 +203,7 @@ private:
    /***************************************************************************/
    /**
     * Performs necessary global initialization work. This function is meant for
-    * initialization work performed just one prior to the creation of the first
+    * initialization work performed just prior to the creation of the first
     * item. It will do nothing when called more than once. All real work is done
     * in the "init_()" function, which may be overloaded by the user.
     */

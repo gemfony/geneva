@@ -175,6 +175,8 @@ public:
 
 	/** @brief Allows to retrieve the maximize_ parameter */
 	bool getMaxMode() const;
+	/** @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode */
+	double getWorstCase() const;
 
 	/** @brief Allows to set the current iteration of the parent optimization algorithm. */
 	void setAssignedIteration(const boost::uint32_t&);
