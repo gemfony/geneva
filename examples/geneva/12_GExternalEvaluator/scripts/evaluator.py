@@ -45,12 +45,14 @@ def init():
     Perform initialization work, for instance to set up the optimization environment.
     """
     print("Initializing the optimization environment...")
+    # Nothing to do...
 
 def finalize():
     """
     Perform finalization work, for instance to clean up the optimization environment.
     """
     print("Cleaning up the optimization environment...")
+    # Nothing to do...
 
 def setup(setup_file):
     """
@@ -133,10 +135,10 @@ def evaluate(in_file):
     # print("Evaluating result for the given parameters...")
     (iteration, x, y, z, w) = read_input(in_file)
 
-    # ATM we just calculate a parabola...
+    # ATM we just calculate a 4D parabola...
     result = x**2 + y**2 + w**2 + z**2
 
-    #cmd = 'exe' + _params 
+    #cmd = 'executable' + 'arguments' 
     #os.system(cmd)
 
     return (iteration, result)
@@ -163,7 +165,8 @@ def write_output(out_file, iteration, result):
 
 def archive_output(iteration, result):
     """
-    Archive the calculated results.
+    Archive the calculated results (for instance, this could mean
+    to store the results in a DB).
     """
     print("Archiving the results...")
     # Nothing to do at the moment
@@ -182,7 +185,8 @@ def read_input(in_file):
 
     root = xmltree.getroot()
     #
-    # Error handling needed here
+    # More error handling needed here, in case the XML file
+    # doesn't have the expected structure
     #
     iteration = int(root.find("./iteration").text)
     # nr_results = int(root.find("./nResultsExpected").text)
