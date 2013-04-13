@@ -3,6 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( OPTIMIZATIONSOURCES
 	GBaseEA
 	GBaseGD
+	# GBaseParameterScan
 	GBaseParChildPersonalityTraits
 	GBaseSA
 	GBaseSwarm
@@ -62,6 +63,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterT
 	GPersonalityTraits
 	GSAPersonalityTraits
+	GScanPar
 	GSerialEA
 	GSerialGD
 	GSerialSA

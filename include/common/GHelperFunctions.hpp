@@ -51,10 +51,12 @@
 #include "GGlobalDefines.hpp"
 
 // Boost headers go here
+#include <boost/algorithm/string.hpp>
 #include <boost/thread.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <boost/tokenizer.hpp>
 
 namespace bf=boost::filesystem;
 

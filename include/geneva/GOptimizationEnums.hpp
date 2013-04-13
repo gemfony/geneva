@@ -325,6 +325,7 @@ enum personality_oa {
 	, PERSONALITY_SWARM = 3 // Swarm algorithms
 	, PERSONALITY_SA = 4 // Simulated annealing
 	, PERSONALITY_MPEA = 5 // Multi population
+	, PERSONALITY_PS = 6 // Parameter scans
 };
 
 /******************************************************************************/

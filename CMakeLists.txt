@@ -99,7 +99,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		# (and, according to the authors' opinion, irrelevant in this context) warnings
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
 	ELSEIF(CMAKE_CXX_COMPILER MATCHES "clang")
-		SET( MSG_COMPILER "clang")		
+		SET( MSG_COMPILER "clang")
 		ADD_DEFINITIONS ("-std=c++11 -stdlib=libc++ -DDEBUG -g -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread")
 	ELSE() # e.g. g++
 		SET( MSG_COMPILER "gcc")

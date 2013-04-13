@@ -195,7 +195,7 @@ private:
 	std::size_t nStartingPoints_; ///< The number of starting positions in the parameter space
 	std::size_t nFPParmsFirst_; ///< The amount of floating point values in the first individual
 	float finiteStep_; ///< The size of the incremental adaption of the feature vector
-	float stepSize_; ///< A multiplicative factor for the adaption
+	float stepSize_; ///< A multiplicative factor for the adaption  TODO: why float ???
 
 	/** @brief Lets individuals know about their position in the population */
 	void markIndividualPositions();
