@@ -288,7 +288,7 @@ void GBaseParameterScan::addConfigurationOptions (
    std::vector<std::string> defaultStrParVec; // The default values
    defaultStrParVec.push_back("d 0 0.3 0.7 10"); // double value in position 0, scan from 0.3-0.7 (inclusive) in 10 steps
    defaultStrParVec.push_back("f 1 0.3 0.7 10"); // float value in position 1, scan from 0.3-0.7 (inclusive) in 10 steps
-   defaultStrParVec.push_back("i32 2 5 8 10");     // 32 bit integer in position 2, scan from 5-8 (inclusive). 10 steps are specified. Higher number of steps than possible will be ignored, except for random mode.
+   defaultStrParVec.push_back("i 2 5 8 10");     // 32 bit integer in position 2, scan from 5-8 (inclusive). 10 steps are specified. Higher number of steps than possible will be ignored, except for random mode.
    defaultStrParVec.push_back("b 3 0 1 10");     // Boolean in position 3; false and true will be tested. Note that the "boundaries" still need to be specified. 10 steps are specified. A number of steps other than 2 will be ignored, except for random mode.
 
    comment = ""; // Reset the comment string
@@ -312,7 +312,39 @@ void GBaseParameterScan::addConfigurationOptions (
  * Fills vectors with parameter values
  */
 void GBaseParameterScan::parseParameterValues(std::vector<std::string> parStrVec) {
+   std::vector<std::string>::iterator it;
+   for(it=parStrVec.begin(); it!=parStrVec.end(); ++it) {
+      // Remove white-space characters at the edges of the string
+      boost::trim(*it);
 
+      // Check that the parameter string isn't empty
+      if(it->empty()) {
+         glogger
+         << "In GBaseParameterScan::parseParameterValues(): Error!" << std::endl
+         << "Parameter string in position " << it-parStrVec.begin() << " seems to be empty" << std::endl
+         << GEXCEPTION;
+      }
+
+      // Retrieve the first character
+      char first = it->at(0);
+
+      // Act on the character -- This will result in a collection of parameter objects,
+      // which can be used to extract allowed parameter values
+      if(first == "d") {
+         dVec_.push_back(boost::shared_ptr<dScanPar>(new dScanPar(*it, scanRandomly_)));
+      } else if(first == f) {
+         fVec_.push_back(boost::shared_ptr<fScanPar>(new fScanPar(*it, scanRandomly_)));
+      } else if(first == i) {
+         int32Vec_.push_back(boost::shared_ptr<int32ScanPar>(new int32ScanPar(*it, scanRandomly_)));
+      } else if(first == b) {
+         bVec_.push_back(boost::shared_ptr<bScanPar>(new bScanPar(*it, scanRandomly_)));
+      } else { // Raise an exception
+         glogger
+         << "In GBaseParameterScan::parseParameterValues(): Error!" << std::endl
+         << "Parameter string in position " << it-parStrVec.begin() << " has invalid type: \"" << first << "\"" << std::endl
+         << GEXCEPTION;
+      }
+   }
 }
 
 /******************************************************************************/

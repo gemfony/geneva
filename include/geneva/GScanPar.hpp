@@ -53,6 +53,7 @@
 // Geneva headers go here
 #include "hap/GRandomT.hpp"
 #include "geneva/GObject.hpp"
+#include "geneva/GStdSimpleVectorInterfaceT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -67,10 +68,72 @@ class g_end_of_par : public std::exception { /* nothing */ };
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * This function fills a given std::vector<T> with items. It needs to be re-implemented
+ * in concrete specializations. This generic function is just a trap.
+ */
+template <typename T>
+std::vector<T> fillWithData(
+      std::size_t /*nSteps*/
+      , T /* lower */
+      , T /* upper */
+      , bool /* randomFill */
+) {
+   glogger
+   << "In generic function template <typename T> std::vector<T> fillWithData(): Error!" << std::endl
+   << "This function should never be called directly. Use one of the specializations." << std::endl
+   << GEXCEPTION;
+
+   // Make the compiler happy
+   return std::vector<T>();
+}
+
+/** @bool Returns a set of boolean data items */
+template <>
+std::vector<bool> fillWithData<bool>(
+      std::size_t /*nSteps*/
+      , bool /* lower */
+      , bool /* upper */
+      , bool /* randomFill */
+);
+
+/** @brief Returns a set of boost::int32_t data items */
+template <>
+std::vector<boost::int32_t> fillWithData<boost::int32_t>(
+      std::size_t /*nSteps*/
+      , boost::int32_t /* lower */
+      , boost::int32_t /* upper */
+      , bool /* randomFill */
+);
+
+/** @brief Returns a set of float data items */
+template <>
+std::vector<float> fillWithData<float>(
+      std::size_t /*nSteps*/
+      , float /* lower */
+      , float /* upper */
+      , bool /* randomFill */
+);
+
+/** @brief Returns a set of double data items */
+template <>
+std::vector<double> fillWithData<double>(
+      std::size_t /*nSteps*/
+      , double /* lower */
+      , double /* upper */
+      , bool /* randomFill */
+);
+
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * Basic parameter functionality
  */
 template <typename T>
-class baseScanParT {
+class baseScanParT
+   : public GStdSimpleVectorInterfaceT<T>
+{
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
@@ -78,12 +141,10 @@ class baseScanParT {
    void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_NVP(pos)
-         & BOOST_SERIALIZATION_NVP(nSteps)
-         & BOOST_SERIALIZATION_NVP(lower)
-         & BOOST_SERIALIZATION_NVP(upper)
-         & BOOST_SERIALIZATION_NVP(typeDescription)
-         & BOOST_SERIALIZATION_NVP(currentStep);
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GStdSimpleVectorInterfaceT<T>)
+      & BOOST_SERIALIZATION_NVP(pos)
+      & BOOST_SERIALIZATION_NVP(typeDescription);
    }
 
    ///////////////////////////////////////////////////////////////////////
@@ -92,19 +153,28 @@ public:
    /** The standard constructor */
    baseScanParT(
          std::size_t p
-         , std::size_t nS
-         , T l
-         , T u
+         , std::size_t nSteps
+         , T lower
+         , T upper
+         , bool randomScan
+         , std::string t // typeDescription
    )
-      : pos(p)
-      , nSteps(nS)
-      , lower(l)
-      , upper(u)
-      , currentStep(0)
-   { /* nothing */ }
+      : GStdSimpleVectorInterfaceT<T>()
+      , pos(p)
+      , typeDescription(t)
+   { // Fill the object with data
+      this->data = fillWithData<T>(nSteps, lower, upper, randomScan);
+   }
 
    /** A constructor that splits an input string into tokens */
-   baseScanParT(const std::string& desc) {
+   baseScanParT(
+         const std::string& desc
+         , bool randomScan
+   )
+      : GStdSimpleVectorInterfaceT<T>()
+      , pos(0)
+      , typeDescription("")
+   {
       std::vector<std::string> tokens;
       boost::split(tokens, desc, boost::is_any_of(" "));
 
@@ -122,69 +192,43 @@ public:
       }
 
       // Assign tokens to our local variables
-      typeDescription = tokens.at(0);
-      pos             = boost::lexical_cast<std::size_t>(tokens.at(1));
-      lower           = boost::lexical_cast<T>(tokens.at(2));
-      upper           = boost::lexical_cast<T>(tokens.at(3));
-      nSteps          = boost::lexical_cast<std::size_t>(tokens.at(4));
+      typeDescription    = tokens.at(0);
+      pos                = boost::lexical_cast<std::size_t>(tokens.at(1));
+      T lower            = boost::lexical_cast<T>(tokens.at(2));
+      T upper            = boost::lexical_cast<T>(tokens.at(3));
+      std::size_t nSteps = boost::lexical_cast<std::size_t>(tokens.at(4));
+
+      // Fill the object with data
+      this->data = fillWithData<T>(nSteps, lower, upper, randomScan);
    }
+
+   /** The copy constructor */
+   baseScanParT(const baseScanParT<T>& cp)
+      : GStdSimpleVectorInterfaceT<T>(cp)
+      , pos(cp.pos)
+      , typeDescription(cp.typeDescription)
+   { /* nothing */ }
 
    /** The destructor */
    virtual ~baseScanParT()
    { /* nothing */ }
 
-   /** Returns all allowed values for this type */
-   std::vector<T> getValues(bool random=false) const {
-      T item;
-      std::vector<T> result;
-
-      while(true) {
-         try {
-            item = this->next(random);
-         } catch(g_end_of_par& g) {
-            break; // Terminate the loop
-         }
-
-         result.push_back(item);
-      }
-
-      return result;
+   /** Retrieve the position of this object */
+   std::size_t getPos() const {
+      return pos;
    }
 
-   /** Retrieves the next value or throws, if there are no more values */
-   T next(bool random=false) const {
-      if(currentStep++ < (random?nSteps:this->getMaxSteps())) {
-         return getNextValue(currentStep-1, random);
-      } else {
-         currentStep=0; // Rewind the counter
-         throw g_end_of_par();
-      }
-
-      // Make the compiler happy
-      return T(0);
+   /** @brief Retrieve the type descriptor */
+   std::string getTypeDescriptor() const {
+      return typeDescription;
    }
 
 protected:
-   /** @brief Retrieves the next value in the chain */
-   virtual T getNextValue(std::size_t, bool) const = 0;
-   /** @brief Retrieves the maximum number of steps for a given type if not in random mode */
-   virtual std::size_t getMaxSteps() const = 0;
-
    std::size_t pos; ///< The position of the parameter
-   std::size_t nSteps; ///< Holds the number of parameters to scan for this value
-
-   T lower; ///< Holds the lower boundary of this type
-   T upper; ///< Holds the upper boundary of this type
-
-   mutable Gem::Hap::GRandom gr; ///< Random number generator
-
    std::string typeDescription; ///< Holds an identifier for the type described by this class
 
    /** @brief The default constructor -- only needed for de-serialization, hence protected */
-   baseScanParT() :currentStep(0) { /* nothing */ }
-
-private:
-   mutable std::size_t currentStep;
+   baseScanParT() { /* nothing */ }
 };
 
 /******************************************************************************/
@@ -215,17 +259,12 @@ public:
       , std::size_t nS
       , bool l
       , bool u
+      , bool s
   );
   /** @brief Construction from the specification string */
-  bScanPar(const std::string&);
+  bScanPar(const std::string&, bool);
   /** @brief The destructor */
   virtual ~bScanPar();
-
-protected:
-  /** @brief Retrieves the next value in the chain */
-  virtual bool getNextValue(std::size_t, bool) const;
-  /** @brief Retrieves the maximum number of steps for a given type if not in random mode */
-  virtual std::size_t getMaxSteps() const;
 
 private:
   /** @brief The default constructor -- only needed for de-serialization, hence private */
@@ -236,77 +275,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class holds integer parameters
- */
-template <typename int_type>
-class iScanParT
-   :public baseScanParT<int_type>
-{
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
-
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
-      using boost::serialization::make_nvp;
-
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<int_type>);
-   }
-
-   ///////////////////////////////////////////////////////////////////////
-
-  // Make sure this class only accepts unsigned integer types
-  BOOST_MPL_ASSERT((boost::is_integral<int_type>));
-
-public:
-  /** @brief Construction from local variables */
-  iScanParT(
-      std::size_t p
-      , std::size_t nS
-      , int_type l
-      , int_type u
-  )
-      : baseScanParT<int_type>(p, nS, l, u)
-  { /* nothing */ }
-
-  /** @brief Construction from the specification string */
-  iScanParT(const std::string& desc)
-      : baseScanParT<int_type>(desc)
-  { /* nothing */ }
-
-  /** @brief The destructor */
-  virtual ~iScanParT()
-  { /* nothing */ }
-
-protected:
-  /** @brief Retrieves the next value in the chain */
-  virtual int_type getNextValue(
-        std::size_t cv
-        , bool random
-  ) const {
-     if(random) {
-        return this->gr.template uniform_int<int_type>(this->lower, this->upper+1); // uniform_int excludes the upper boundary
-     } else {
-        return this->lower + int_type(cv);
-     }
-  }
-
-  /** @brief Retrieves the maximum number of steps for a given type if not in random mode */
-  virtual std::size_t getMaxSteps() const {
-     return (this->upper - this->lower + 1);
-  }
-
-  /** @brief The default constructor; only needed for (de-)serialization, hence protected */
-  iScanParT() : baseScanParT<int_type>() { /* nothing */ }
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * A derivative of iScanParT for boost::int32_t values
+ * A derivative of baseScanParT for boost::int32_t values
  */
 class int32ScanPar
-   :public iScanParT<boost::int32_t>
+   :public baseScanParT<boost::int32_t>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -315,7 +287,7 @@ class int32ScanPar
    void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(iScanParT<boost::int32_t>);
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<boost::int32_t>);
    }
 
    ///////////////////////////////////////////////////////////////////////
@@ -327,10 +299,11 @@ public:
        , std::size_t
        , boost::int32_t
        , boost::int32_t
+       , bool s
    );
 
    /** @brief Construction from the specification string */
-   int32ScanPar(const std::string&);
+   int32ScanPar(const std::string&,bool);
 
 private:
    /** @brief The default constructor -- only needed for de-serialization, hence private */
@@ -341,77 +314,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class holds integer parameters
- */
-template <typename fp_type>
-class fpScanParT
-   :public baseScanParT<fp_type>
-{
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
-
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
-      using boost::serialization::make_nvp;
-
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<fp_type>);
-   }
-
-   ///////////////////////////////////////////////////////////////////////
-
-  // Make sure this class only accepts unsigned integer types
-  BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
-
-public:
-  /** @brief Construction from local variables */
-  fpScanParT(
-      std::size_t p
-      , std::size_t nS
-      , fp_type l
-      , fp_type u
-  )
-      : baseScanParT<fp_type>(p, nS, l, u)
-  { /* nothing */ }
-
-  /** @brief Construction from the specification string */
-  fpScanParT(const std::string& desc)
-      : baseScanParT<fp_type>(desc)
-  { /* nothing */ }
-
-  /** @brief The destructor */
-  virtual ~fpScanParT()
-  { /* nothing */ }
-
-protected:
-  /** @brief Retrieves the next value in the chain */
-  virtual fp_type getNextValue(
-        std::size_t cv
-        , bool random
-  ) const {
-     if(random) {
-        return this->gr.template uniform_real<fp_type>(this->lower, this->upper);
-     } else {
-        return this->lower + (this->upper-this->lower)*fp_type(cv)/fp_type(this->getMaxSteps() - 1);
-     }
-  }
-
-  /** @brief Retrieves the maximum number of steps for a given type if not in random mode */
-  virtual std::size_t getMaxSteps() const {
-     return this->nSteps;
-  }
-
-  /** @brief The default constructor; only needed for (de-)serialization, hence protected */
-  fpScanParT() : baseScanParT<fp_type>() { /* nothing */ }
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
  * A derivative of fpScanParT for double values
  */
 class dScanPar
-   :public fpScanParT<double>
+   :public baseScanParT<double>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -420,7 +326,7 @@ class dScanPar
    void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(fpScanParT<double>);
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<double>);
    }
 
    ///////////////////////////////////////////////////////////////////////
@@ -432,10 +338,14 @@ public:
        , std::size_t
        , double
        , double
+       , bool s
    );
 
    /** @brief Construction from the specification string */
-   dScanPar(const std::string&);
+   dScanPar(
+         const std::string&
+         , bool s
+   );
 
 private:
    /** @brief The default constructor -- only needed for de-serialization, hence private */
@@ -450,7 +360,7 @@ private:
  * A derivative of fpScanParT for float values
  */
 class fScanPar
-   :public fpScanParT<float>
+   :public baseScanParT<float>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -459,7 +369,7 @@ class fScanPar
    void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(fpScanParT<float>);
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<float>);
    }
 
    ///////////////////////////////////////////////////////////////////////
@@ -471,10 +381,14 @@ public:
        , std::size_t
        , float
        , float
+       , bool s
    );
 
    /** @brief Construction from the specification string */
-   fScanPar(const std::string&);
+   fScanPar(
+         const std::string&
+         , bool s
+   );
 
 private:
    /** @brief The default constructor -- only needed for de-serialization, hence private */
@@ -494,3 +408,4 @@ BOOST_CLASS_EXPORT_KEY(Gem::Geneva::dScanPar)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar)
 
 #endif /* GSCANPAR_HPP_ */
+

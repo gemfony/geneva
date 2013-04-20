@@ -73,9 +73,11 @@
 #endif
 
 // Geneva headers go here
-#include "common/GHelperFunctionsT.hpp"
+
 #include "common/GExceptions.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
+#include "common/GPODExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Geneva {

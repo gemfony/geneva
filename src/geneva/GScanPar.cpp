@@ -46,6 +46,131 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * Returns a set of boolean data items
+ */
+template <>
+std::vector<bool> fillWithData<bool>(
+      std::size_t nSteps
+      , bool      lower
+      , bool      upper
+      , bool      randomFill
+) {
+   std::vector<bool> result;
+
+   if(randomFill) { // Fill with the expected number of random entries
+      Gem::Hap::GRandom gr;
+      for(std::size_t i=0; i<nSteps; i++) {
+         result.push_back(gr.uniform_bool());
+      }
+   } else { // Just the two allowed values
+      result.push_back(false);
+      result.push_back(true);
+   }
+
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Returns a set of boost::int32_t data items
+ */
+template <>
+std::vector<boost::int32_t> fillWithData<boost::int32_t>(
+      std::size_t      nSteps // will only be used for random entries
+      , boost::int32_t lower
+      , boost::int32_t upper // inclusive
+      , bool           randomFill
+) {
+   std::vector<boost::int32_t> result;
+
+   if(randomFill) { // Fill with the expected number of random entries
+      Gem::Hap::GRandom gr;
+      for(std::size_t i=0; i<nSteps; i++) {
+         result.push_back(gr.uniform_int<boost::int32_t>(lower, upper+1)); // uniform_int excludes the upper boundary
+      }
+   } else {
+      for(boost::int32_t i=lower; i<=upper; i++) {
+         result.push_back(i);
+      }
+   }
+
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Returns a set of float data items
+ */
+template <>
+std::vector<float> fillWithData<float>(
+      std::size_t nSteps
+      , float     lower
+      , float     upper
+      , bool      randomFill
+) {
+   std::vector<float> result;
+
+   if(randomFill) {
+      for(std::size_t i=0; i<nSteps; i++) {
+         Gem::Hap::GRandom gr;
+         result.push_back(gr.uniform_real<float>(lower, upper));
+      }
+   } else {
+      // We require at least 2 steps, unless we are are in random mode
+      if(nSteps<2) {
+         glogger
+         << "In std::vector<float> fillWithData<float>(): Error!" << std::endl
+         << "Number of reqsted steps is too low: " << nSteps << std::endl
+         << GEXCEPTION;
+      }
+
+      for(std::size_t i=0; i<nSteps; i++) {
+         result.push_back(lower + (upper-lower)*float(i)/float(nSteps-1));
+      }
+   }
+
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Returns a set of double data items
+ */
+template <>
+std::vector<double> fillWithData<double>(
+      std::size_t nSteps
+      , double    lower
+      , double    upper
+      , bool      randomFill
+) {
+   std::vector<double> result;
+
+   if(randomFill) {
+      Gem::Hap::GRandom gr;
+      for(std::size_t i=0; i<nSteps; i++) {
+         result.push_back(gr.uniform_real<double>(lower, upper));
+      }
+   } else {
+      // We require at least 2 steps, unless we are are in random mode
+      if(nSteps<2) {
+         glogger
+         << "In std::vector<float> fillWithData<float>(): Error!" << std::endl
+         << "Number of reqsted steps is too low: " << nSteps << std::endl
+         << GEXCEPTION;
+      }
+
+      for(std::size_t i=0; i<nSteps; i++) {
+         result.push_back(lower + (upper-lower)*double(i)/double(nSteps-1));
+      }
+   }
+
+   return result;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * The default constructor. Only needed for de-serialization.
  */
 bScanPar::bScanPar()
@@ -61,16 +186,20 @@ bScanPar::bScanPar(
     , std::size_t nS
     , bool l
     , bool u
+    , bool s
 )
-   : baseScanParT(p,nS, l, u)
+   : baseScanParT(p,nS,l,u,s,"b")
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Construction from the specification string
  */
-bScanPar::bScanPar(const std::string& desc)
-   : baseScanParT<bool>(desc)
+bScanPar::bScanPar(
+      const std::string& desc
+      , bool s
+)
+   : baseScanParT<bool>(desc, s)
 {
    if(this->typeDescription != "b") {
       glogger
@@ -89,37 +218,13 @@ bScanPar::~bScanPar()
 { /* nothing */ }
 
 /******************************************************************************/
-/**
- * Retrieves the next value in the chain
- */
-bool bScanPar::getNextValue(
-      std::size_t cv
-      , bool random
-) const {
-   if(random) {
-      return gr.uniform_bool();
-   } else {
-      if(cv%2 == 0) return false;
-      else return true;
-   }
-}
-
-/******************************************************************************/
-/**
- * Retrieves the maximum number of steps for a given type if not in random mode
- */
-std::size_t bScanPar::getMaxSteps() const {
-   return 2; // There only are two boolean values
-}
-
-/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * The default constructor. Only needed for de-serialization.
  */
 int32ScanPar::int32ScanPar()
-   : iScanParT<boost::int32_t>()
+   : baseScanParT<boost::int32_t>()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -131,19 +236,23 @@ int32ScanPar::int32ScanPar(
     , std::size_t nS
     , boost::int32_t l
     , boost::int32_t u
+    , bool s
 )
-   : iScanParT<boost::int32_t>(p,nS,l,u)
+   : baseScanParT<boost::int32_t>(p,nS,l,u,s,"i")
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Construction from the specification string
  */
-int32ScanPar::int32ScanPar(const std::string& desc)
-   : iScanParT<boost::int32_t>(desc)
+int32ScanPar::int32ScanPar(
+      const std::string& desc
+      , bool s
+)
+   : baseScanParT<boost::int32_t>(desc,s)
 {
    // Check that we are indeed dealing with a boolean description
-   if(this->typeDescription != "i32") {
+   if(this->typeDescription != "i") {
       glogger
       << "int32ScanPar::int32ScanPar(): Error!" << std::endl
       << "Not a description of a boost::int32_t parameter:" << std::endl
@@ -159,7 +268,7 @@ int32ScanPar::int32ScanPar(const std::string& desc)
  * The default constructor. Only needed for de-serialization.
  */
 dScanPar::dScanPar()
-   : fpScanParT<double>()
+   : baseScanParT<double>()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -171,16 +280,20 @@ dScanPar::dScanPar(
     , std::size_t nS
     , double l
     , double u
+    , bool s
 )
-   : fpScanParT<double>(p,nS,l,u)
+   : baseScanParT<double>(p,nS,l,u,s,"d")
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Construction from the specification string
  */
-dScanPar::dScanPar(const std::string& desc)
-   : fpScanParT<double>(desc)
+dScanPar::dScanPar(
+      const std::string& desc
+      , bool s
+)
+   : baseScanParT<double>(desc,s)
 {
    // Check that we are indeed dealing with a boolean description
    if(this->typeDescription != "d") {
@@ -199,7 +312,7 @@ dScanPar::dScanPar(const std::string& desc)
  * The default constructor. Only needed for de-serialization.
  */
 fScanPar::fScanPar()
-   : fpScanParT<float>()
+   : baseScanParT<float>()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -211,16 +324,20 @@ fScanPar::fScanPar(
     , std::size_t nS
     , float l
     , float u
+    , bool s
 )
-   : fpScanParT<float>(p,nS,l,u)
+   : baseScanParT<float>(p,nS,l,u,s,"f")
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Construction from the specification string
  */
-fScanPar::fScanPar(const std::string& desc)
-   : fpScanParT<float>(desc)
+fScanPar::fScanPar(
+      const std::string& desc
+      , bool s
+)
+   : baseScanParT<float>(desc,s)
 {
    // Check that we are indeed dealing with a boolean description
    if(this->typeDescription != "f") {

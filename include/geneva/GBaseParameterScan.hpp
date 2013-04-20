@@ -102,7 +102,11 @@ class GBaseParameterScan :public GOptimizationAlgorithmT<GParameterSet>
       ar
       & make_nvp("GOptimizationAlgorithmT_GParameterSet",
             boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
-      & BOOST_SERIALIZATION_NVP(scanRandomly_);
+      & BOOST_SERIALIZATION_NVP(scanRandomly_)
+      & BOOST_SERIALIZATION_NVP(bVec_)
+      & BOOST_SERIALIZATION_NVP(int32Vec_)
+      & BOOST_SERIALIZATION_NVP(dVec_)
+      & BOOST_SERIALIZATION_NVP(fVec_);
    }
 
    ///////////////////////////////////////////////////////////////////////
@@ -190,9 +194,12 @@ private:
    /** @brief Fills vectors with parameter values */
    void parseParameterValues(std::vector<std::string>);
 
-   struct dPar
-
    bool scanRandomly_; ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
+
+   std::vector<boost::shared_ptr<bScanPar> > bVec_; ///< Holds boolean parameters to be scanned
+   std::vector<boost::shared_ptr<int32ScanPar> > int32Vec_; ///< Holds 32 bit integer parameters to be scanned
+   std::vector<boost::shared_ptr<dScanPar> > dVec_; ///< Holds double values to be scanned
+   std::vector<boost::shared_ptr<fScanPar> > fVec_; ///< Holds float values to be scanned
 
 public
 /***************************************************************************/:
