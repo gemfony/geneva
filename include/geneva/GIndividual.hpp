@@ -172,6 +172,8 @@ public:
 
 	/** @brief Check whether the dirty flag is set */
 	bool isDirty() const ;
+   /** @brief Sets the dirtyFlag_ */
+   void setDirtyFlag();
 
 	/** @brief Allows to retrieve the maximize_ parameter */
 	bool getMaxMode() const;
@@ -285,8 +287,6 @@ protected:
 	virtual void customAdaptions();
 	/** @brief Updates the object's structure and/or parameters, if the optimization has stalled */
 	virtual bool customUpdateOnStall();
-	/** @brief Sets the dirtyFlag_ */
-	void setDirtyFlag();
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode_(const bool&);
 	/** @brief Sets the dirtyFlag_ to any desired value */

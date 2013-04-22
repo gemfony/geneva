@@ -45,6 +45,7 @@ namespace Geneva {
  */
 GBaseParameterScan::GBaseParameterScan()
    : GOptimizationAlgorithmT<GParameterSet>()
+   , atBeginning_(true)
    , scanRandomly_(true)
 {
    // Register the default optimization monitor
@@ -63,6 +64,7 @@ GBaseParameterScan::GBaseParameterScan()
  */
 GBaseParameterScan::GBaseParameterScan(const GBaseParameterScan& cp)
    : GOptimizationAlgorithmT<GParameterSet>(cp)
+   , atBeginning_(cp.atBeginning_)
    , scanRandomly_(cp.scanRandomly_)
 {
    // Copying / setting of the optimization algorithm id is done by the parent class. The same
@@ -174,7 +176,10 @@ boost::optional<std::string> GBaseParameterScan::checkRelationshipWith(
     deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithmT<GParameterSet>", y_name, withMessages));
 
    // ... and then our local data
+   deviations.push_back(checkExpectation(withMessages, "GBaseParameterScan", atBeginning_, p_load->atBeginning_, "atBeginning_", "p_load->atBeginning_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GBaseParameterScan", scanRandomly_, p_load->scanRandomly_, "scanRandomly_", "p_load->scanRandomly_", e , limit));
+
+   // We do not check our temporary parameter objects
 
    return evaluateDiscrepancies("GBaseParameterScan", caller, deviations, e);
 }
@@ -194,7 +199,7 @@ std::string GBaseParameterScan::name() const {
  * @param cpFile The name of the file the checkpoint should be loaded from
  */
 void GBaseParameterScan::loadCheckpoint(const std::string& cpFile) {
-   // TODO
+   this->fromFile(cpFile, getCheckpointSerializationMode());
 }
 
 /******************************************************************************/
@@ -211,7 +216,10 @@ void GBaseParameterScan::load_(const GObject *cp) {
    GOptimizationAlgorithmT<GParameterSet>::load_(cp);
 
    // ... and then our own data
+   atBeginning_  = p_load->atBeginning_;
    scanRandomly_ = p_load->scanRandomly_;
+
+   // TODO: Need to load bVec etc. here
 }
 
 /******************************************************************************/
@@ -221,12 +229,206 @@ void GBaseParameterScan::load_(const GObject *cp) {
  * @return The value of the best individual found
  */
 double GBaseParameterScan::cycleLogic() {
-   // Fill our population with new individuals
-   // TODO
+   double result = 0.;
 
+   // Fill our population with new values
+   updateIndividuals();
 
    // Trigger value calculation for all individuals
-   return doFitnessCalculation(this->size());
+   // This function is purely virtual and needs to be
+   // re-implemented in derived classes
+   result=doFitnessCalculation(this->size());
+
+   // This function will sort the population according to
+   // its primary fitness value
+   sortPopulation();
+
+   // Let the audience know
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Adds new values to the population's individuals. Note that this function
+ * may resize the population and set the default population size, if there
+ * is no sufficient number of data sets to be evaluated left.
+ */
+void GBaseParameterScan::updateIndividuals() {
+   std::size_t indPos = 0;
+   std::vector<bool> bData;
+   std::vector<boost::int32_t> iData;
+   std::vector<float> fData;
+   std::vector<double> dData;
+
+   while(true) {
+      //------------------------------------------------------------------------
+      // Retrieve a work item
+      boost::shared_ptr<parSet> pS = getParameterSet();
+
+      // Check if it is empty. If so, break the loop.
+      // There are no parameter sets left. Likely not all individuals
+      // of the population have been used. We need to resize it in
+      // this case so we do not calculate the fitness of unaltered individuals.
+      if(!pS) {
+         // Note that, as a result, the population may be empty.
+         // Hence we leave the first (i.e. best) individual of the last iteration in place.
+         // It would be a better solution to introduce a custom halt
+         // criterion, triggered by a variable set by getNextParameterSet()
+         // (to be checked before delivery of a valid item)
+         this->resize(std::max(indPos,1));
+         break;
+      }
+
+      //------------------------------------------------------------------------
+      // Fill the parameter set data into the current individual
+
+      // Retrieve the parameter vectors
+      this->at(indPos)->streamline<bool>(bData);
+      this->at(indPos)->streamline<boost::int32_t>(iData);
+      this->at(indPos)->streamline<float>(fData);
+      this->at(indPos)->streamline<double>(dData);
+
+      // Add the data items from the parSet object to the vectors
+
+      // 1) For boolean data
+      std::vector<singleBPar>::iterator b_it;
+      for(b_it=pS->bParVec.begin(); b_it!=ps->bParVec.end(); ++b_it) {
+         this->addDataPoint<bool>(*b_it, bData);
+      }
+
+      // 2) For boost::int32_t data
+      std::vector<singleInt32Par>::iterator i_it;
+      for(i_it=pS->iParVec.begin(); i_it!=ps->iParVec.end(); ++i_it) {
+         this->addDataPoint<boost::int32_t>(*i_it, iData);
+      }
+
+      std::vector<singleFPar>::iterator f_it;
+      for(f_it=pS->fParVec.begin(); f_it!=ps->fParVec.end(); ++f_it) {
+         this->addDataPoint<float>(*f_it, fData);
+      }
+
+      std::vector<singleDPar>::iterator d_it;
+      for(d_it=pS->dParVec.begin(); d_it!=ps->dParVec.end(); ++d_it) {
+         this->addDataPoint<double>(*d_it, dData);
+      }
+
+      // Copy the data back into the individual
+      this->at(indPos)->assignValueVector<bool>(bData);
+      this->at(indPos)->assignValueVector<boost::int32_t>(iData);
+      this->at(indPos)->assignValueVector<float>(fData);
+      this->at(indPos)->assignValueVector<double>(dData);
+
+      // Mark the individual as "dirty", so it gets re-evaluated the
+      // next time the fitness() function is called
+      this->at(indPos)->setDirtyFlag();
+
+      //------------------------------------------------------------------------
+      // We do not want to exceed the boundaries of the population
+      if(++indPos >= this->getDefaultPopulationSize()) break;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Resets all parameter objects
+ */
+void GBaseParameterScan::reset() {
+   atBeginning_ = true;
+
+   std::vector<boost::shared_ptr<bScanPar> >::iterator b_it;
+   for(b_it=bVec.begin(); b_it!=bVec.end(); ++b_it) {
+      (*b_it)->resetPosition();
+   }
+
+   std::vector<boost::shared_ptr<iScanPar> >::iterator i_it;
+   for(i_it=int32Vec.begin(); i_it!=int32Vec.end(); ++i_it) {
+      (*i_it)->resetPosition();
+   }
+
+   std::vector<boost::shared_ptr<fScanPar> >::iterator f_it;
+   for(f_it=fVec.begin(); f_it!=fVec.end(); ++f_it) {
+      (*f_it)->resetPosition();
+   }
+
+   std::vector<boost::shared_ptr<dScanPar> >::iterator d_it;
+   for(d_it=dVec.begin(); d_it!=dVec.end(); ++d_it) {
+      (*d_it)->resetPosition();
+   }
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the next available parameter set. Returns an empty pointer if
+ * the last parameter set was obtained.
+ */
+boost::shared_ptr<parSet> GBaseParameterScan::getParameterSet() {
+   // Check whether we have reached the final parameter position
+   if(atEndOfParameters()) return boost::shared_ptr<parSet>();
+
+   // Extract the relevant data and store it in a parSet object
+   boost::shared_ptr<parSet> result(new parSet());
+
+   // TODO
+
+   // Switch to the next parameter position
+   switchToNextParameterSet();
+
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Checks whether the end of all parameter sets has been reached. The rationale
+ * of this function is: If the scanning process has already started (meaning, that
+ * the "atBeginning_" parameter is set to false) and we find that all counters
+ * have rolled over, we must have gone through the entire data set.
+ */
+bool GBaseParameterScan::atEndOfParameters() const {
+   if(!atBeginning_) {
+      // See if we can find a parameter object whose data pointer is not
+      // in the initial position. If so, not all counters have rolled over yet
+      std::vector<boost::shared_ptr<bScanPar> >::iterator b_it;
+      for(b_it=bVec.begin(); b_it!=bVec.end(); ++b_it) {
+         if((*b_it)->isAtFirstPosition()) return false;
+      }
+
+      std::vector<boost::shared_ptr<iScanPar> >::iterator i_it;
+      for(i_it=int32Vec.begin(); i_it!=int32Vec.end(); ++i_it) {
+         if((*i_it)->isAtFirstPosition()) return false;
+      }
+
+      std::vector<boost::shared_ptr<fScanPar> >::iterator f_it;
+      for(f_it=fVec.begin(); f_it!=fVec.end(); ++f_it) {
+         if((*f_it)->isAtFirstPosition()) return false;
+      }
+
+      std::vector<boost::shared_ptr<dScanPar> >::iterator d_it;
+      for(d_it=dVec.begin(); d_it!=dVec.end(); ++d_it) {
+         if((*d_it)->isAtFirstPosition()) return false;
+      }
+   }
+
+   return true;
+}
+
+/******************************************************************************/
+/**
+ * Switches to the next parameter set
+ */
+void GBaseParameterScan::switchToNextParameterSet() {
+
+}
+
+/******************************************************************************/
+/**
+ * This function will sort the population according to its primary fitness value.
+ */
+void GBaseParameterScan::sortPopulation() {
+   if(true == this->getMaxMode()) { // Maximization
+      std::sort((this->data).begin(), (this->data).end(), boost::bind(&GParameterSet::fitness, _1, 0) > boost::bind(&GParameterSet::fitness, _2, 0));
+   } else { // Minimization
+      std::sort((this->data).begin(), (this->data).end(), boost::bind(&GParameterSet::fitness, _1, 0) < boost::bind(&GParameterSet::fitness, _2, 0));
+   }
 }
 
 /******************************************************************************/
@@ -240,17 +442,29 @@ double GBaseParameterScan::cycleLogic() {
  * @return A shared_ptr to the best individual of the population
  */
 boost::shared_ptr<GIndividual> GBaseParameterScan::getBestIndividual(){
-   // TODO
+#ifdef DEBUG
+   if(this->empty()) {
+      glogger
+      << "In GBaseParameterScan::getBestIndividual() :" << std::endl
+      << "Tried to access individual at position 0 even though population is empty." << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   return this->at(0);
 }
 
 /******************************************************************************/
 /**
- * Retrieves a list of the best individuals found. This might just be one individual.
+ * Retrieves a list of the best individuals found. For now we only return a single
+ * (the best individual).
  *
  * @return A list of the best individuals found
  */
 std::vector<boost::shared_ptr<GIndividual> > GBaseParameterScan::getBestIndividuals() {
-   // TODO
+   std::vector<boost::shared_ptr<GIndividual> > result;
+   result.push_back(this->getBestIndividual());
+   return result;
 }
 
 /******************************************************************************/
@@ -332,12 +546,16 @@ void GBaseParameterScan::parseParameterValues(std::vector<std::string> parStrVec
       // which can be used to extract allowed parameter values
       if(first == "d") {
          dVec_.push_back(boost::shared_ptr<dScanPar>(new dScanPar(*it, scanRandomly_)));
+         dPos_.push_back(0);
       } else if(first == f) {
          fVec_.push_back(boost::shared_ptr<fScanPar>(new fScanPar(*it, scanRandomly_)));
+         fPos_.push_back(0);
       } else if(first == i) {
          int32Vec_.push_back(boost::shared_ptr<int32ScanPar>(new int32ScanPar(*it, scanRandomly_)));
+         int32Pos_.push_back(0);
       } else if(first == b) {
          bVec_.push_back(boost::shared_ptr<bScanPar>(new bScanPar(*it, scanRandomly_)));
+         bPos_.push_back(0);
       } else { // Raise an exception
          glogger
          << "In GBaseParameterScan::parseParameterValues(): Error!" << std::endl
@@ -375,7 +593,7 @@ void GBaseParameterScan::adjustPopulation() {
 
    // Do some error checking ...
 
-   // We need at least one individual
+   // An empty population is an error
    if(nStart == 0) {
       glogger
       << "In GBaseParameterScan::adjustPopulation(): Error!" << std::endl
@@ -390,7 +608,7 @@ void GBaseParameterScan::adjustPopulation() {
       nStart = 1;
    }
 
-   // Check that we have a valid population size
+   // Check that we have a valid default population size
    if(0 == this->getDefaultPopulationSize()) {
       glogger
       << "In GBaseParameterScan::adjustPopulation(): Error!" << std::endl
@@ -406,10 +624,26 @@ void GBaseParameterScan::adjustPopulation() {
 
 /******************************************************************************/
 /**
- * Saves the state of the class to disc.
+ * Saves the state of the object to disc. We simply serialize the entire object.
  */
 void GBaseParameterScan::saveCheckpoint() const {
-   // TODO
+   bool isDirty;
+   double newValue = this->getBestIndividual()->getCachedFitness(isDirty);
+
+#ifdef DEBUG
+   if(isDirty) {
+      glogger
+      << "In GBaseParameterScan::saveCheckpoint():" << std::endl
+      << "Best individual has dirty flag set!" << std::endl
+      << GEXCEPTION;
+   }
+#endif
+
+   // Determine a suitable name for the output file
+   std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(this->getIteration()) + "_"
+      + boost::lexical_cast<std::string>(newValue) + "_" + getCheckpointBaseName();
+
+   this->toFile(outputFile, getCheckpointSerializationMode());
 }
 
 /******************************************************************************/
@@ -456,6 +690,8 @@ void GBaseParameterScan::specificTestsFailuresExpected_GUnitTests() {
 #endif /* GEM_TESTING */
 }
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * The default constructor

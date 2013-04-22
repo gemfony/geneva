@@ -34,10 +34,10 @@
 
 #include "geneva/GScanPar.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::bScanPar)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::int32ScanPar)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::dScanPar)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::fScanPar)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::bScanPar);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::int32ScanPar);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::dScanPar);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::fScanPar);
 
 namespace Gem {
 namespace Geneva {

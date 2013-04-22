@@ -90,37 +90,37 @@ std::vector<T> fillWithData(
 /** @bool Returns a set of boolean data items */
 template <>
 std::vector<bool> fillWithData<bool>(
-      std::size_t /*nSteps*/
-      , bool /* lower */
-      , bool /* upper */
-      , bool /* randomFill */
+      std::size_t /* nSteps */
+      , bool      /* lower */
+      , bool      /* upper */
+      , bool      /* randomFill */
 );
 
 /** @brief Returns a set of boost::int32_t data items */
 template <>
 std::vector<boost::int32_t> fillWithData<boost::int32_t>(
-      std::size_t /*nSteps*/
+      std::size_t      /* nSteps */
       , boost::int32_t /* lower */
       , boost::int32_t /* upper */
-      , bool /* randomFill */
+      , bool           /* randomFill */
 );
 
 /** @brief Returns a set of float data items */
 template <>
 std::vector<float> fillWithData<float>(
-      std::size_t /*nSteps*/
-      , float /* lower */
-      , float /* upper */
-      , bool /* randomFill */
+      std::size_t /* nSteps */
+      , float     /* lower */
+      , float     /* upper */
+      , bool      /* randomFill */
 );
 
 /** @brief Returns a set of double data items */
 template <>
 std::vector<double> fillWithData<double>(
-      std::size_t /*nSteps*/
-      , double /* lower */
-      , double /* upper */
-      , bool /* randomFill */
+      std::size_t /* nSteps */
+      , double    /* lower */
+      , double    /* upper */
+      , bool      /* randomFill */
 );
 
 
@@ -144,13 +144,17 @@ class baseScanParT
       ar
       & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GStdSimpleVectorInterfaceT<T>)
       & BOOST_SERIALIZATION_NVP(pos)
+      & BOOST_SERIALIZATION_NVP(currentItem)
       & BOOST_SERIALIZATION_NVP(typeDescription);
    }
 
    ///////////////////////////////////////////////////////////////////////
 
 public:
-   /** The standard constructor */
+   /***************************************************************************/
+   /**
+    * The standard constructor
+    */
    baseScanParT(
          std::size_t p
          , std::size_t nSteps
@@ -161,18 +165,23 @@ public:
    )
       : GStdSimpleVectorInterfaceT<T>()
       , pos(p)
+      , currentItem(0)
       , typeDescription(t)
    { // Fill the object with data
       this->data = fillWithData<T>(nSteps, lower, upper, randomScan);
    }
 
-   /** A constructor that splits an input string into tokens */
+   /***************************************************************************/
+   /**
+    * A constructor that splits an input string into tokens
+    */
    baseScanParT(
          const std::string& desc
          , bool randomScan
    )
       : GStdSimpleVectorInterfaceT<T>()
       , pos(0)
+      , currentItem(0)
       , typeDescription("")
    {
       std::vector<std::string> tokens;
@@ -202,31 +211,93 @@ public:
       this->data = fillWithData<T>(nSteps, lower, upper, randomScan);
    }
 
-   /** The copy constructor */
+   /***************************************************************************/
+   /**
+    * The copy constructor
+    */
    baseScanParT(const baseScanParT<T>& cp)
       : GStdSimpleVectorInterfaceT<T>(cp)
       , pos(cp.pos)
+      , currentItem(cp.currentItem)
       , typeDescription(cp.typeDescription)
    { /* nothing */ }
 
-   /** The destructor */
+   /***************************************************************************/
+   /**
+    * The destructor
+    */
    virtual ~baseScanParT()
    { /* nothing */ }
 
-   /** Retrieve the position of this object */
+   /***************************************************************************/
+   /**
+    * Retrieve the position of this object
+    */
    std::size_t getPos() const {
       return pos;
    }
 
-   /** @brief Retrieve the type descriptor */
+   /***************************************************************************/
+   /**
+    * Retrieve the current item
+    */
+   T getCurrentItem() const {
+      return currentItem;
+   }
+
+   /***************************************************************************/
+   /**
+    * Switch to the next position in the vector or rewind
+    */
+   void goToNextItem() {
+      if(++currentItem >= this->size()) {
+         currentItem = 0;
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks whether currentItem points to the last item in the array
+    */
+   bool isAtTerminalPosition() const {
+      if(currentItem >= (this->size()-1)) return true;
+      else return false;
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks whether currentItem points to the first item in the array
+    */
+   bool isAtFirstPosition() const {
+      if(0 == currentItem) return true;
+      else return false;
+   }
+
+   /***************************************************************************/
+   /**
+    * Resets the current position
+    */
+   void resetPosition() {
+      currentItem = 0;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieve the type descriptor
+    */
    std::string getTypeDescriptor() const {
       return typeDescription;
    }
 
 protected:
+   /***************************************************************************/
+   // Data
+
    std::size_t pos; ///< The position of the parameter
+   std::size_t currentItem; ///< The current position in the data vector
    std::string typeDescription; ///< Holds an identifier for the type described by this class
 
+   /***************************************************************************/
    /** @brief The default constructor -- only needed for de-serialization, hence protected */
    baseScanParT() { /* nothing */ }
 };
@@ -255,11 +326,11 @@ class bScanPar
 public:
   /** @brief Construction from local variables */
   bScanPar(
-      std::size_t p
-      , std::size_t nS
-      , bool l
-      , bool u
-      , bool s
+      std::size_t
+      , std::size_t
+      , bool
+      , bool
+      , bool
   );
   /** @brief Construction from the specification string */
   bScanPar(const std::string&, bool);
@@ -299,7 +370,7 @@ public:
        , std::size_t
        , boost::int32_t
        , boost::int32_t
-       , bool s
+       , bool
    );
 
    /** @brief Construction from the specification string */
@@ -338,13 +409,13 @@ public:
        , std::size_t
        , double
        , double
-       , bool s
+       , bool
    );
 
    /** @brief Construction from the specification string */
    dScanPar(
          const std::string&
-         , bool s
+         , bool
    );
 
 private:
@@ -381,13 +452,13 @@ public:
        , std::size_t
        , float
        , float
-       , bool s
+       , bool
    );
 
    /** @brief Construction from the specification string */
    fScanPar(
          const std::string&
-         , bool s
+         , bool
    );
 
 private:
@@ -402,10 +473,10 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::bScanPar)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::int32ScanPar)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::dScanPar)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::bScanPar);
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::int32ScanPar);
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::dScanPar);
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar);
 
 #endif /* GSCANPAR_HPP_ */
 

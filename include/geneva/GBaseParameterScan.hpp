@@ -68,6 +68,25 @@ namespace Geneva {
 class GParameterScanOptimizationMonitor;
 
 /******************************************************************************/
+// A number of typedefs that indicate the position and value of a parameter
+// inside of an individual
+typedef boost::tuple<bool,           std::size_t> singleBPar;
+typedef boost::tuple<boost::int32_t, std::size_t> singleInt32Par;
+typedef boost::tuple<float,          std::size_t> singleFPar;
+typedef boost::tuple<double,         std::size_t> singleDPar;
+
+/******************************************************************************/
+/**
+ * This struct holds the entire data to be updated inside of an individual
+ */
+struct parSet {
+  std::vector<singleBPar> bParVec;
+  std::vector<singleInt32Par> iParVec;
+  std::vector<singleFPar> fParVec;
+  std::vector<singleDPar> dParVec;
+};
+
+/******************************************************************************/
 /**
  * This algorithm scans a given parameter range, either in a random order,
  * or on a grid. On a grid, for each integer- or floating point-coordinate to be scanned,
@@ -90,7 +109,8 @@ class GParameterScanOptimizationMonitor;
  * by those parameters intended to be modified). The optimization monitor associated
  * with this class will simply store all parameters and results in an XML file.
  */
-class GBaseParameterScan :public GOptimizationAlgorithmT<GParameterSet>
+class GBaseParameterScan
+   :public GOptimizationAlgorithmT<GParameterSet>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -100,8 +120,8 @@ class GBaseParameterScan :public GOptimizationAlgorithmT<GParameterSet>
       using boost::serialization::make_nvp;
 
       ar
-      & make_nvp("GOptimizationAlgorithmT_GParameterSet",
-            boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
+      & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
+      & BOOST_SERIALIZATION_NVP(atBeginning_)
       & BOOST_SERIALIZATION_NVP(scanRandomly_)
       & BOOST_SERIALIZATION_NVP(bVec_)
       & BOOST_SERIALIZATION_NVP(int32Vec_)
@@ -190,16 +210,53 @@ protected:
 
 private:
    /***************************************************************************/
+   /**
+    * Adds a given data point to a data vector
+    */
+   template <typename dType>
+   void addDataPoint(
+         const boost::tuple<dType, std::size_t>& dataPoint
+         , std::vector<dType> dataVec
+   ) {
+      dType       lData = boost::get<0>(dataPoint);
+      std::size_t lPos  = boost::get<1>(dataPoint);
 
+#ifdef DEBUG
+         // Check that we haven't exceeded the size of the boolean data vector
+         if(lPos >= dataVec.size()) {
+            glogger
+            << "In GBaseParameterScan::addDataPoint(): Error!" << std::endl
+            << "Got position beyond end of data vector: " << lPos << " / " << dataVec.size() << std::endl
+            << GEXCEPTION;
+         }
+#endif /* DEBUG */
+
+         dataVec.at(lPos) = lData;
+   }
+
+   /***************************************************************************/
+   /** @brief Resets all parameter objects */
+   void reset();
+   /** @brief Adds new parameter sets to the population */
+   void updateIndividuals();
+   /** @brief Retrieves the next available parameter set */
+   boost::shared_ptr<parSet> getParameterSet();
+   /** @brief Checks whether the end of all parameter sets has been reached */
+   bool atEndOfParameters() const;
+   /** @brief Switches to the next parameter set */
+   void switchToNextParameterSet();
+   /** @brief Sorts the population according to the primary fitness values */
+   void sortPopulation();
    /** @brief Fills vectors with parameter values */
    void parseParameterValues(std::vector<std::string>);
 
+   bool atBeginning_;  ///< Indicates whether the optimization process is at the beginning of the cycle
    bool scanRandomly_; ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
 
-   std::vector<boost::shared_ptr<bScanPar> > bVec_; ///< Holds boolean parameters to be scanned
+   std::vector<boost::shared_ptr<bScanPar> >     bVec_; ///< Holds boolean parameters to be scanned
    std::vector<boost::shared_ptr<int32ScanPar> > int32Vec_; ///< Holds 32 bit integer parameters to be scanned
-   std::vector<boost::shared_ptr<dScanPar> > dVec_; ///< Holds double values to be scanned
-   std::vector<boost::shared_ptr<fScanPar> > fVec_; ///< Holds float values to be scanned
+   std::vector<boost::shared_ptr<dScanPar> >     dVec_; ///< Holds double values to be scanned
+   std::vector<boost::shared_ptr<fScanPar> >     fVec_; ///< Holds float values to be scanned
 
 public
 /***************************************************************************/:
@@ -219,8 +276,8 @@ public:
     * by default in the Geneva library for evolutionary algorithms.
     */
    class GParameterScanOptimizationMonitor
-   : public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
-     {
+      :public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
+   {
       ///////////////////////////////////////////////////////////////////////
       friend class boost::serialization::access;
 
@@ -299,7 +356,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBaseParameterScan)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBaseParameterScan::GParameterScanOptimizationMonitor)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBaseParameterScan);
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBaseParameterScan::GParameterScanOptimizationMonitor);
 
 #endif /* GBASEPARAMETERSCAN_HPP_ */
