@@ -241,7 +241,7 @@ protected:
 	virtual void optimizationFinalize();
 
 	/** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
-	virtual double cycleLogic();
+	virtual boost::tuple<double,bool> cycleLogic();
 
 	/** @brief Saves the state of the class to disc. */
 	virtual void saveCheckpoint() const;

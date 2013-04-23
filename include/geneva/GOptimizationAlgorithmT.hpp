@@ -105,6 +105,7 @@ private:
 	     & BOOST_SERIALIZATION_NVP(maxDuration_)
 	     & BOOST_SERIALIZATION_NVP(emitTerminationReason_)
 	     & BOOST_SERIALIZATION_NVP(halted_)
+	     & BOOST_SERIALIZATION_NVP(cycleLogicHalt_)
 	     & BOOST_SERIALIZATION_NVP(optimizationMonitor_ptr_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -134,6 +135,7 @@ public:
 		, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
 		, emitTerminationReason_(false)
 		, halted_(false)
+		, cycleLogicHalt_(false)
 		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
 	{ /* nothing */ }
 
@@ -163,6 +165,7 @@ public:
 		, maxDuration_(cp.maxDuration_)
 		, emitTerminationReason_(cp.emitTerminationReason_)
 		, halted_(cp.halted_)
+		, cycleLogicHalt_(cp.cycleLogicHalt_)
 		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>())
 	{ /* nothing */ }
 
@@ -389,6 +392,7 @@ public:
 		EXPECTATIONCHECK(maxDuration_);
 		EXPECTATIONCHECK(emitTerminationReason_);
 		EXPECTATIONCHECK(halted_);
+		EXPECTATIONCHECK(cycleLogicHalt_);
 		EXPECTATIONCHECK(optimizationMonitor_ptr_);
 
 		return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
@@ -418,8 +422,9 @@ public:
 		// Set the iteration offset
 		offset_ = offset;
 
-		// Let the audience know that the optimization process hasn't been halted yet
-		halted_ = false;
+		// Let the algorithm know that the optimization process hasn't been halted yet
+		halted_ = false; // general halt criterion
+		cycleLogicHalt_ = false; // triggered by a corresponding output from cycleLogic()
 
 		// Resize the population to the desired size and do some error checks
 		adjustPopulation();
@@ -455,8 +460,17 @@ public:
 			// Let all individuals know the current iteration
 			markIteration();
 
-			// Run the actual business logic and update the stall counter
-			updateStallCounter(bestCurrentFitness_ = cycleLogic());
+			// Run the actual business logic. It may happen (e.g. in parameter scans, that
+			// it makes sense to terminate the optimization process. This can be indicated here.
+			boost::tuple<double, bool> bestResult = cycleLogic();
+
+			// Check if we have been asked to terminate the loop
+			if(boost::get<1>(bestResult)) {
+			   cycleLogicHalt_ = true;
+			}
+
+			// Extract the fitness value and update the stall counter
+			updateStallCounter(bestCurrentFitness_ = boost::get<0>(bestResult));
 
 			// Check whether a better value was found, and do the check-pointing, if necessary.
 			checkpoint(progress());
@@ -1072,6 +1086,7 @@ protected:
 		maxDuration_ = p_load->maxDuration_;
 		emitTerminationReason_ = p_load->emitTerminationReason_;
 		halted_ = p_load->halted_;
+		cycleLogicHalt_ = p_load->cycleLogicHalt_;
 		this->optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 	}
 
@@ -1103,7 +1118,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	virtual double cycleLogic() = 0;
+	virtual boost::tuple<double,bool> cycleLogic() = 0;
 
 	/***************************************************************************/
 	/**
@@ -1309,6 +1324,22 @@ private:
       }
    }
 
+   /***************************************************************************/
+   /**
+    * This function returns true once a given flag has been set as a result
+    * of a corresponding return value from cycleLogic().
+    */
+   bool cycleLogicHalt() const {
+      if(cycleLogicHalt_) {
+         std::cerr
+         << "Terminating at request of the cycleLogic() function." << std::endl
+         << "This is likely normal." << std::endl;
+         return true;
+      } else {
+         return false;
+      }
+   }
+
 	/***************************************************************************/
 	/**
 	 * This function returns true once a given time (set with
@@ -1322,7 +1353,8 @@ private:
 		ptime currentTime = microsec_clock::local_time();
 		if((currentTime - startTime_) >= maxDuration_) {
 			if(emitTerminationReason_) {
-				std::cerr << "Terminating optimization run because maximum time frame has been exceeded." << std::endl;
+				std::cerr
+				<< "Terminating optimization run because maximum time frame has been exceeded." << std::endl;
 			}
 
 			return true;
@@ -1341,10 +1373,11 @@ private:
 	bool qualityHalt() const {
 		if(isBetter(bestPastFitness_, qualityThreshold_)) {
 			if(emitTerminationReason_) {
-				std::cerr << "Terminating optimization run because" << std::endl
-				          << "quality threshold " << qualityThreshold_ << " has been reached." << std::endl
-				          << "Best quality found was " << bestPastFitness_ << std::endl
-				          << "with termination in iteration " << iteration_ << std::endl;
+				std::cerr
+				<< "Terminating optimization run because" << std::endl
+				<< "quality threshold " << qualityThreshold_ << " has been reached." << std::endl
+				<< "Best quality found was " << bestPastFitness_ << std::endl
+				<< "with termination in iteration " << iteration_ << std::endl;
 			}
 
 			return true;
@@ -1362,8 +1395,9 @@ private:
 	bool stallHalt() const {
 		if(stallCounter_ > maxStallIteration_) {
 			if(emitTerminationReason_) {
-				std::cout << "Terminating optimization run because" << std::endl
-				          << "maximum number of stalls " << maxStallIteration_ << " has been exceeded." << std::endl;
+				std::cout
+				<< "Terminating optimization run because" << std::endl
+				<< "maximum number of stalls " << maxStallIteration_ << " has been exceeded." << std::endl;
 			}
 
 			return true;
@@ -1381,8 +1415,9 @@ private:
 	bool iterationHalt() const {
 		if(iteration_ >= (maxIteration_ + offset_)) {
 			if(emitTerminationReason_) {
-				std::cout << "Terminating optimization run because" << std::endl
-				          << "iteration threshold " << maxIteration_ << " has been reached." << std::endl;
+				std::cout
+				<< "Terminating optimization run because" << std::endl
+				<< "iteration threshold " << maxIteration_ << " has been reached." << std::endl;
 			}
 
 			return true;
@@ -1400,7 +1435,8 @@ private:
 	bool customHalt_() const {
 		if(customHalt()) {
 			if(emitTerminationReason_) {
-				std::cerr << "Terminating optimization run because custom halt criterion has triggered." << std::endl;
+				std::cerr
+				<< "Terminating optimization run because custom halt criterion has triggered." << std::endl;
 			}
 
 			return true;
@@ -1420,6 +1456,9 @@ private:
 	 */
 	bool halt() const
 	{
+	   // Has cycleLogic() asked for a termination ?
+	   if(cycleLogicHalt()) return true;
+
 		// Have we exceeded the maximum number of iterations and
 		// do we indeed intend to stop in this case ?
 		if(maxIteration_ && iterationHalt()) return true;
@@ -1515,6 +1554,7 @@ private:
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_; ///< Set to true when halt() has returned "true"
+	bool cycleLogicHalt_; ///< Set as a result of a corresponding return by cycleLogic()
 	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 
 public:

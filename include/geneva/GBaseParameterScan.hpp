@@ -121,7 +121,6 @@ class GBaseParameterScan
 
       ar
       & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
-      & BOOST_SERIALIZATION_NVP(atBeginning_)
       & BOOST_SERIALIZATION_NVP(scanRandomly_)
       & BOOST_SERIALIZATION_NVP(bVec_)
       & BOOST_SERIALIZATION_NVP(int32Vec_)
@@ -186,7 +185,7 @@ protected:
    virtual GObject *clone_() const = 0;
 
    /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-   virtual double cycleLogic();
+   virtual boost::tuple<double,bool> cycleLogic();
    /** @brief Does some preparatory work before the optimization starts */
    virtual void init();
    /** @brief Does any necessary finalization work */
@@ -236,21 +235,18 @@ private:
 
    /***************************************************************************/
    /** @brief Resets all parameter objects */
-   void reset();
+   void resetParameterObjects();
    /** @brief Adds new parameter sets to the population */
-   void updateIndividuals();
+   bool updateIndividuals();
    /** @brief Retrieves the next available parameter set */
    boost::shared_ptr<parSet> getParameterSet();
-   /** @brief Checks whether the end of all parameter sets has been reached */
-   bool atEndOfParameters() const;
    /** @brief Switches to the next parameter set */
-   void switchToNextParameterSet();
+   bool switchToNextParameterSet();
    /** @brief Sorts the population according to the primary fitness values */
    void sortPopulation();
    /** @brief Fills vectors with parameter values */
    void parseParameterValues(std::vector<std::string>);
 
-   bool atBeginning_;  ///< Indicates whether the optimization process is at the beginning of the cycle
    bool scanRandomly_; ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
 
    std::vector<boost::shared_ptr<bScanPar> >     bVec_; ///< Holds boolean parameters to be scanned

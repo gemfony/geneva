@@ -45,7 +45,6 @@ namespace Geneva {
  */
 GBaseParameterScan::GBaseParameterScan()
    : GOptimizationAlgorithmT<GParameterSet>()
-   , atBeginning_(true)
    , scanRandomly_(true)
 {
    // Register the default optimization monitor
@@ -64,7 +63,6 @@ GBaseParameterScan::GBaseParameterScan()
  */
 GBaseParameterScan::GBaseParameterScan(const GBaseParameterScan& cp)
    : GOptimizationAlgorithmT<GParameterSet>(cp)
-   , atBeginning_(cp.atBeginning_)
    , scanRandomly_(cp.scanRandomly_)
 {
    // Copying / setting of the optimization algorithm id is done by the parent class. The same
@@ -176,10 +174,9 @@ boost::optional<std::string> GBaseParameterScan::checkRelationshipWith(
     deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithmT<GParameterSet>", y_name, withMessages));
 
    // ... and then our local data
-   deviations.push_back(checkExpectation(withMessages, "GBaseParameterScan", atBeginning_, p_load->atBeginning_, "atBeginning_", "p_load->atBeginning_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GBaseParameterScan", scanRandomly_, p_load->scanRandomly_, "scanRandomly_", "p_load->scanRandomly_", e , limit));
 
-   // We do not check our temporary parameter objects
+   // TODO: We do not check our temporary parameter objects yet (bVec_ etc.)
 
    return evaluateDiscrepancies("GBaseParameterScan", caller, deviations, e);
 }
@@ -216,7 +213,6 @@ void GBaseParameterScan::load_(const GObject *cp) {
    GOptimizationAlgorithmT<GParameterSet>::load_(cp);
 
    // ... and then our own data
-   atBeginning_  = p_load->atBeginning_;
    scanRandomly_ = p_load->scanRandomly_;
 
    // TODO: Need to load bVec etc. here
@@ -228,23 +224,25 @@ void GBaseParameterScan::load_(const GObject *cp) {
  *
  * @return The value of the best individual found
  */
-double GBaseParameterScan::cycleLogic() {
-   double result = 0.;
-
-   // Fill our population with new values
-   updateIndividuals();
+boost::tuple<double, bool> GBaseParameterScan::cycleLogic() {
+   bool terminate;
+   if(updateIndividuals()) {
+      terminate = false;
+   } else {
+      terminate = true;
+   }
 
    // Trigger value calculation for all individuals
    // This function is purely virtual and needs to be
    // re-implemented in derived classes
-   result=doFitnessCalculation(this->size());
+   double result=doFitnessCalculation(this->size());
 
    // This function will sort the population according to
    // its primary fitness value
    sortPopulation();
 
    // Let the audience know
-   return result;
+   return boost::tuple<double,bool>(result,terminate);
 }
 
 /******************************************************************************/
@@ -252,8 +250,12 @@ double GBaseParameterScan::cycleLogic() {
  * Adds new values to the population's individuals. Note that this function
  * may resize the population and set the default population size, if there
  * is no sufficient number of data sets to be evaluated left.
+ *
+ * @return A boolean indicating whether the optimization may continue (true) or stop (false)
  */
-void GBaseParameterScan::updateIndividuals() {
+bool GBaseParameterScan::updateIndividuals() {
+   bool result = true;
+
    std::size_t indPos = 0;
    std::vector<bool> bData;
    std::vector<boost::int32_t> iData;
@@ -264,20 +266,6 @@ void GBaseParameterScan::updateIndividuals() {
       //------------------------------------------------------------------------
       // Retrieve a work item
       boost::shared_ptr<parSet> pS = getParameterSet();
-
-      // Check if it is empty. If so, break the loop.
-      // There are no parameter sets left. Likely not all individuals
-      // of the population have been used. We need to resize it in
-      // this case so we do not calculate the fitness of unaltered individuals.
-      if(!pS) {
-         // Note that, as a result, the population may be empty.
-         // Hence we leave the first (i.e. best) individual of the last iteration in place.
-         // It would be a better solution to introduce a custom halt
-         // criterion, triggered by a variable set by getNextParameterSet()
-         // (to be checked before delivery of a valid item)
-         this->resize(std::max(indPos,1));
-         break;
-      }
 
       //------------------------------------------------------------------------
       // Fill the parameter set data into the current individual
@@ -302,11 +290,13 @@ void GBaseParameterScan::updateIndividuals() {
          this->addDataPoint<boost::int32_t>(*i_it, iData);
       }
 
+      // 3) For float values
       std::vector<singleFPar>::iterator f_it;
       for(f_it=pS->fParVec.begin(); f_it!=ps->fParVec.end(); ++f_it) {
          this->addDataPoint<float>(*f_it, fData);
       }
 
+      // 4) For double values
       std::vector<singleDPar>::iterator d_it;
       for(d_it=pS->dParVec.begin(); d_it!=ps->dParVec.end(); ++d_it) {
          this->addDataPoint<double>(*d_it, dData);
@@ -322,100 +312,80 @@ void GBaseParameterScan::updateIndividuals() {
       // next time the fitness() function is called
       this->at(indPos)->setDirtyFlag();
 
+      // We were successful
+      result = true;
+
+      //------------------------------------------------------------------------
+      // Make sure we continue with the next parameter set in the next iteration
+      if(!this->switchToNextParameterSet()) {
+         // Let the audience know that the optimization may be stopped
+         result = false;
+
+         // Reset all parameter objects for the next run (if desired)
+         this->resetParameterObjects();
+
+         // Resize the population, so we only have modified individuals
+         this->resize(indPos);
+
+         // Terminate the loop
+         break;
+      }
+
       //------------------------------------------------------------------------
       // We do not want to exceed the boundaries of the population
       if(++indPos >= this->getDefaultPopulationSize()) break;
    }
-}
-
-/******************************************************************************/
-/**
- * Resets all parameter objects
- */
-void GBaseParameterScan::reset() {
-   atBeginning_ = true;
-
-   std::vector<boost::shared_ptr<bScanPar> >::iterator b_it;
-   for(b_it=bVec.begin(); b_it!=bVec.end(); ++b_it) {
-      (*b_it)->resetPosition();
-   }
-
-   std::vector<boost::shared_ptr<iScanPar> >::iterator i_it;
-   for(i_it=int32Vec.begin(); i_it!=int32Vec.end(); ++i_it) {
-      (*i_it)->resetPosition();
-   }
-
-   std::vector<boost::shared_ptr<fScanPar> >::iterator f_it;
-   for(f_it=fVec.begin(); f_it!=fVec.end(); ++f_it) {
-      (*f_it)->resetPosition();
-   }
-
-   std::vector<boost::shared_ptr<dScanPar> >::iterator d_it;
-   for(d_it=dVec.begin(); d_it!=dVec.end(); ++d_it) {
-      (*d_it)->resetPosition();
-   }
-}
-
-/******************************************************************************/
-/**
- * Retrieves the next available parameter set. Returns an empty pointer if
- * the last parameter set was obtained.
- */
-boost::shared_ptr<parSet> GBaseParameterScan::getParameterSet() {
-   // Check whether we have reached the final parameter position
-   if(atEndOfParameters()) return boost::shared_ptr<parSet>();
-
-   // Extract the relevant data and store it in a parSet object
-   boost::shared_ptr<parSet> result(new parSet());
-
-   // TODO
-
-   // Switch to the next parameter position
-   switchToNextParameterSet();
 
    return result;
 }
 
 /******************************************************************************/
 /**
- * Checks whether the end of all parameter sets has been reached. The rationale
- * of this function is: If the scanning process has already started (meaning, that
- * the "atBeginning_" parameter is set to false) and we find that all counters
- * have rolled over, we must have gone through the entire data set.
+ * Resets all parameter objects
  */
-bool GBaseParameterScan::atEndOfParameters() const {
-   if(!atBeginning_) {
-      // See if we can find a parameter object whose data pointer is not
-      // in the initial position. If so, not all counters have rolled over yet
-      std::vector<boost::shared_ptr<bScanPar> >::iterator b_it;
-      for(b_it=bVec.begin(); b_it!=bVec.end(); ++b_it) {
-         if((*b_it)->isAtFirstPosition()) return false;
-      }
-
-      std::vector<boost::shared_ptr<iScanPar> >::iterator i_it;
-      for(i_it=int32Vec.begin(); i_it!=int32Vec.end(); ++i_it) {
-         if((*i_it)->isAtFirstPosition()) return false;
-      }
-
-      std::vector<boost::shared_ptr<fScanPar> >::iterator f_it;
-      for(f_it=fVec.begin(); f_it!=fVec.end(); ++f_it) {
-         if((*f_it)->isAtFirstPosition()) return false;
-      }
-
-      std::vector<boost::shared_ptr<dScanPar> >::iterator d_it;
-      for(d_it=dVec.begin(); d_it!=dVec.end(); ++d_it) {
-         if((*d_it)->isAtFirstPosition()) return false;
-      }
+void GBaseParameterScan::resetParameterObjects() {
+   std::vector<boost::shared_ptr<bScanPar> >::iterator b_it;
+   for(b_it=bVec_.begin(); b_it!=bVec_.end(); ++b_it) {
+      (*b_it)->resetPosition();
    }
 
-   return true;
+   std::vector<boost::shared_ptr<iScanPar> >::iterator i_it;
+   for(i_it=int32Vec_.begin(); i_it!=int32Vec_.end(); ++i_it) {
+      (*i_it)->resetPosition();
+   }
+
+   std::vector<boost::shared_ptr<fScanPar> >::iterator f_it;
+   for(f_it=fVec_.begin(); f_it!=fVec_.end(); ++f_it) {
+      (*f_it)->resetPosition();
+   }
+
+   std::vector<boost::shared_ptr<dScanPar> >::iterator d_it;
+   for(d_it=dVec_.begin(); d_it!=dVec_.end(); ++d_it) {
+      (*d_it)->resetPosition();
+   }
+}
+
+/******************************************************************************/
+/**
+ * Retrieves a parameter set by filling the current parameter combinations
+ * into a parSet object.
+ */
+boost::shared_ptr<parSet> GBaseParameterScan::getParameterSet() {
+   // Extract the relevant data and store it in a parSet object
+   boost::shared_ptr<parSet> result(new parSet());
+
+   // TODO -- Return a parameter set
+
+   return result;
 }
 
 /******************************************************************************/
 /**
  * Switches to the next parameter set
+ *
+ * @return A boolean indicating whether there is a following parameter set (true) or not (false)
  */
-void GBaseParameterScan::switchToNextParameterSet() {
+bool GBaseParameterScan::switchToNextParameterSet() {
 
 }
 

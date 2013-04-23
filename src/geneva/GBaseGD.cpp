@@ -407,7 +407,7 @@ void GBaseGD::load_(const GObject *cp) {
  *
  * @return The value of the best individual found
  */
-double GBaseGD::cycleLogic() {
+boost::tuple<double,bool> GBaseGD::cycleLogic() {
 	if(afterFirstIteration()) {
 		// Update the parameters of the parent individuals. This
 		// only makes sense once the individuals have been evaluated
@@ -417,8 +417,8 @@ double GBaseGD::cycleLogic() {
 	// Update the individual parameters in each dimension of the "children"
 	this->updateChildParameters();
 
-	// Trigger value calculation for all individuals (including parents)
-	return doFitnessCalculation(this->size());
+	// Trigger value calculation for all individuals (including parents) and let the audience know
+	return boost::tuple<double,bool>(doFitnessCalculation(this->size()), false);
 }
 
 /******************************************************************************/

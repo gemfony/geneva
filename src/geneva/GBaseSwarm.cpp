@@ -915,7 +915,7 @@ void GBaseSwarm::optimizationFinalize() {
  *
  * @return The value of the best individual found
  */
-double GBaseSwarm::cycleLogic() {
+boost::tuple<double,bool> GBaseSwarm::cycleLogic() {
 	// First update the positions and neighborhood ids
 	updatePositions();
 
@@ -925,7 +925,7 @@ double GBaseSwarm::cycleLogic() {
 	// Search for the personal, neighborhood and globally best individuals and
 	// update the lists of best solutions, if necessary. Return the result to
 	// the audience
-	return findBests();
+	return boost::tuple<double,bool>(findBests(),false);
 }
 
 /******************************************************************************/

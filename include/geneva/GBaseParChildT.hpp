@@ -760,7 +760,7 @@ protected:
     *
     * @return The value of the best individual found
     */
-   virtual double cycleLogic() {
+   virtual boost::tuple<double,bool> cycleLogic() {
       // If this is not the first iteration, check whether we need to increase the population
       if(GOptimizationAlgorithmT<ind_type>::afterFirstIteration()) {
          performScheduledPopulationGrowth();
@@ -788,7 +788,7 @@ protected:
       }
 #endif /* DEBUG */
 
-      return bestFitness;
+      return boost::tuple<double,bool>(bestFitness,false);
    }
 
    /***************************************************************************/
