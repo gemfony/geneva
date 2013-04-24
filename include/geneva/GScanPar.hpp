@@ -134,7 +134,7 @@ public:
    virtual ~scanParI(){ /* nothing */ }
 
    virtual std::size_t getPos() const = 0;
-   virtual void goToNextItem() = 0;
+   virtual bool goToNextItem() = 0;
    virtual bool isAtTerminalPosition() const = 0;
    virtual bool isAtFirstPosition() const = 0;
    virtual void resetPosition() = 0;
@@ -266,11 +266,15 @@ public:
    /***************************************************************************/
    /**
     * Switch to the next position in the vector or rewind
+    *
+    * @return A boolean indicating whether a warp has taken place
     */
-   virtual void goToNextItem() {
+   virtual bool goToNextItem() {
       if(++currentItem >= this->size()) {
          currentItem = 0;
+         return true;
       }
+      return false;
    }
 
    /***************************************************************************/

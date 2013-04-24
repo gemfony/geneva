@@ -3,7 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( OPTIMIZATIONSOURCES
 	GBaseEA
 	GBaseGD
-	# GBaseParameterScan
+	GBaseParameterScan
 	GBaseParChildPersonalityTraits
 	GBaseSA
 	GBaseSwarm

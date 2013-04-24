@@ -240,13 +240,17 @@ private:
    /** @brief Resets all parameter objects */
    void resetParameterObjects();
    /** @brief Adds new parameter sets to the population */
-   bool updateIndividuals();
+   void updateIndividuals();
    /** @brief Retrieves the next available parameter set */
    boost::shared_ptr<parSet> getParameterSet();
    /** @brief Switches to the next parameter set */
    bool switchToNextParameterSet();
    /** @brief Sorts the population according to the primary fitness values */
    void sortPopulation();
+   /** @brief Fills all parameter objects into the allParVec_ vector */
+   void fillAllParVec();
+   /** @brief Clears the allParVec_ vector */
+   void clearAllParVec();
    /** @brief Fills vectors with parameter values */
    void parseParameterValues(std::vector<std::string>);
 
@@ -258,8 +262,10 @@ private:
    std::vector<boost::shared_ptr<dScanPar> >     dVec_; ///< Holds double values to be scanned
    std::vector<boost::shared_ptr<fScanPar> >     fVec_; ///< Holds float values to be scanned
 
-public
-/***************************************************************************/:
+   std::vector<boost::shared_ptr<scanParI> >     allParVec_; /// Holds pointers to all parameter objects
+
+public:
+   /***************************************************************************/
    /** @brief Applies modifications to this object. This is needed for testing purposes */
    virtual bool modify_GUnitTests();
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -356,7 +362,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBaseParameterScan);
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBaseParameterScan::GParameterScanOptimizationMonitor);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBaseParameterScan)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBaseParameterScan::GParameterScanOptimizationMonitor)
 
 #endif /* GBASEPARAMETERSCAN_HPP_ */

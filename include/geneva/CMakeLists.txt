@@ -3,7 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( OPTIMIZATIONINCLUDES
 	GAdaptorT.hpp
 	GBaseEA.hpp
-	# GBaseParameterScan.hpp
+	GBaseParameterScan.hpp
 	GBaseParChildPersonalityTraits.hpp
 	GBaseParChildT.hpp
 	GBaseGD.hpp
