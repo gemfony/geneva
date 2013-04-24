@@ -235,6 +235,14 @@ void GBaseSA::finalize() {
 
 /******************************************************************************/
 /**
+ * Retrieve a GPersonalityTraits object belonging to this algorithm
+ */
+boost::shared_ptr<GPersonalityTraits> GBaseSA::getPersonalityTraits() const {
+   return boost::shared_ptr<GSAPersonalityTraits>(new GSAPersonalityTraits());
+}
+
+/******************************************************************************/
+/**
  * Performs a simulated annealing style sorting and selection
  */
 void GBaseSA::sortSAMode() {

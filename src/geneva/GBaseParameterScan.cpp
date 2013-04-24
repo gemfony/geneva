@@ -668,6 +668,14 @@ void GBaseParameterScan::finalize() {
 
 /******************************************************************************/
 /**
+ * Retrieve a GPersonalityTraits object belonging to this algorithm
+ */
+boost::shared_ptr<GPersonalityTraits> GBaseParameterScan::getPersonalityTraits() const {
+   return boost::shared_ptr<GPSPersonalityTraits>(new GPSPersonalityTraits());
+}
+
+/******************************************************************************/
+/**
  * Resizes the population to the desired level and does some error checks.
  */
 void GBaseParameterScan::adjustPopulation() {

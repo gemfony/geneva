@@ -226,6 +226,14 @@ void GBaseEA::finalize() {
 
 /******************************************************************************/
 /**
+ * Retrieve a GPersonalityTraits object belonging to this algorithm
+ */
+boost::shared_ptr<GPersonalityTraits> GBaseEA::getPersonalityTraits() const {
+   return boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits());
+}
+
+/******************************************************************************/
+/**
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added

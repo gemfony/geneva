@@ -208,6 +208,19 @@ bool GParameterSet::updateOnStall() {
 		break;
 
 	case PERSONALITY_EA:
+#ifdef DEBUG
+   {
+      // This function should only be called for parents. Check ...
+      if(!getPersonalityTraits<GSAPersonalityTraits>()->isParent()) {
+         glogger
+         << "In GParameterSet::updateOnStall() (called for SA personality):" << std::endl
+         << "This function should only be called for parent individuals." << std::endl
+         << GEXCEPTION;
+      }
+   }
+#endif /* DEBUG */
+   break;
+
 	case PERSONALITY_SA:
 #ifdef DEBUG
 	{

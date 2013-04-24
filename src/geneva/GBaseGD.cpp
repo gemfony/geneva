@@ -671,6 +671,14 @@ void GBaseGD::finalize() {
 
 /******************************************************************************/
 /**
+ * Retrieve a GPersonalityTraits object belonging to this algorithm
+ */
+boost::shared_ptr<GPersonalityTraits> GBaseGD::getPersonalityTraits() const {
+   return boost::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits());
+}
+
+/******************************************************************************/
+/**
  * Resizes the population to the desired level and does some error checks.
  */
 void GBaseGD::adjustPopulation() {

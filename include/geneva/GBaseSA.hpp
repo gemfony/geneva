@@ -165,6 +165,9 @@ protected:
    /** @brief Does any necessary finalization work */
    virtual void finalize();
 
+   /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
+   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const;
+
 private:
    /** Performs a simulated annealing style sorting and selection */
    void sortSAMode();

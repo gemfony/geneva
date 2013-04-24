@@ -81,8 +81,11 @@ GIndividual::GIndividual(const GIndividual& cp)
 	, pers_(cp.pers_)
 {
 	// We need to take care of the personality pointer manually
-	setPersonality(pers_); // this call will also make sure that a suitable personality object is being created
-	if(pers_ != PERSONALITY_NONE) pt_ptr_->GObject::load(cp.pt_ptr_);
+	if(pers_ != PERSONALITY_NONE) {
+	   setPersonality(pers_, cp.pt_ptr_);
+	} else {
+	   setPersonality(pers_);
+	}
 }
 
 /******************************************************************************/
@@ -195,8 +198,12 @@ void GIndividual::load_(const GObject* cp) {
 	serverMode_ = p_load->serverMode_;
 	maximize_ = p_load->maximize_;
 	assignedIteration_ = p_load->assignedIteration_;
-	setPersonality(p_load->pers_);
-	if(pers_ != PERSONALITY_NONE) pt_ptr_->GObject::load(p_load->pt_ptr_);
+	pers_ = p_load->pers_;
+	if(pers_ != PERSONALITY_NONE) {
+	   pt_ptr_->GObject::load(p_load->pt_ptr_);
+	} else {
+	   pt_ptr_.reset();
+	}
 }
 
 /******************************************************************************/
@@ -651,59 +658,33 @@ void GIndividual::addConfigurationOptions (
 /**
  * Sets the current personality of this individual
  *
- * TODO: Remove this dependency on GXXPersonalityTraits
- *
  * @param pers The desired personality of this individual
  * @return The previous personality of this individual
  */
-personality_oa GIndividual::setPersonality(const personality_oa& pers) {
-	// Make a note of the current (soon to be previous) personality_oa
+personality_oa GIndividual::setPersonality(
+      const personality_oa& pers
+      , boost::shared_ptr<GPersonalityTraits> gpt
+) {
+   // Make sure we haven't been given an empty pointer
+   if(pers != PERSONALITY_NONE && !gpt) {
+      glogger
+      << "In GIndividual::setPersonality(): Error!" << std::endl
+      << "Received empty personality traits pointer" << std::endl
+      << "for personality " << pers << std::endl
+      << GEXCEPTION;
+   }
+
+   // Make a note of the current (soon to be previous) personality_oa
 	personality_oa previous = pers_;
 
 	// Do nothing if this particular personality type has already been set
 	if(pers_==pers && pt_ptr_)  return pers_; // A suitable personality has already been added
 
-	// Create suitable personality objects
-	switch(pers) {
-	case PERSONALITY_NONE:
-		pt_ptr_.reset();
-		break;
+	// Add the personality traits object to our local pointer
+	pt_ptr_ = gpt;
 
-	case PERSONALITY_EA:
-		pt_ptr_ = boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits());
-		break;
-
-	case PERSONALITY_GD:
-		pt_ptr_ = boost::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits());
-		break;
-
-	case PERSONALITY_SWARM:
-		pt_ptr_ = boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits());
-		break;
-
-   case PERSONALITY_SA:
-      pt_ptr_ = boost::shared_ptr<GSAPersonalityTraits>(new GSAPersonalityTraits());
-      break;
-
-   case PERSONALITY_MPEA:
-      pt_ptr_ = boost::shared_ptr<GMPEAPersonalityTraits>(new GMPEAPersonalityTraits());
-      break;
-
-   case PERSONALITY_PS:
-      pt_ptr_ = boost::shared_ptr<GPSPersonalityTraits>(new GPSPersonalityTraits());
-      break;
-
-   default:
-      glogger
-      << "In GIndividual::setPersonality(): Error!" << std::endl
-      << "Tried to set unknown personality type " << pers << std::endl
-      << GEXCEPTION;
-      break;
-	}
-
-
-	// Update our local personality
-	pers_ = pers;
+   // Update our local personality
+   pers_ = pers;
 
 	// Let the audience know the previous personality type
 	return previous;
@@ -1097,117 +1078,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		}
 	}
 
-	// --------------------------------------------------------------------------
-
-	{ // Check setting and retrieval of the current personality status and whether the personalities themselves can be accessed
-		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
-		boost::shared_ptr<GPersonalityTraits> p_pt;
-
-		// Reset the personality type
-		BOOST_CHECK_NO_THROW(p_test->resetPersonality());
-		BOOST_CHECK_MESSAGE(
-				p_test->getPersonality() == PERSONALITY_NONE
-				,  "\n"
-				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
-				<< "expected PERSONALITY_NONE\n"
-		);
-
-		// Set the personality type to EA
-		personality_oa previous;
-		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_EA));
-		BOOST_CHECK_MESSAGE(
-				previous == PERSONALITY_NONE
-				,  "\n"
-				<< "previous = " << previous << "\n"
-				<< "expected PERSONALITY_NONE"
-		);
-		BOOST_CHECK_MESSAGE(
-				p_test->getPersonality() == PERSONALITY_EA
-				,  "\n"
-				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
-				<< "expected EA\n"
-		);
-
-		// Try to retrieve a GEAPersonalityTraits object and check that the smart pointer actually points somewhere
-		boost::shared_ptr<GEAPersonalityTraits> p_pt_ea;
-		BOOST_CHECK_NO_THROW(p_pt_ea = p_test->getPersonalityTraits<GEAPersonalityTraits>());
-		BOOST_CHECK(p_pt_ea);
-		p_pt_ea.reset();
-
-		// Retrieve a base pointer to the EA object and check that it points somewhere
-		BOOST_CHECK_NO_THROW(p_pt = p_test->getPersonalityTraits());
-		BOOST_CHECK(p_pt);
-		p_pt.reset();
-
-		// Set the personality type to GD
-		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_GD));
-		BOOST_CHECK_MESSAGE(
-				previous == PERSONALITY_EA
-				,  "\n"
-				<< "previous = " << previous << "\n"
-				<< "expected EA"
-		);
-		BOOST_CHECK_MESSAGE(
-				p_test->getPersonality() == PERSONALITY_GD
-				,  "\n"
-				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
-				<< "expected GD\n"
-		);
-
-		// Try to retrieve a GGDPersonalityTraits object and check that the smart pointer actually points somewhere
-		boost::shared_ptr<GGDPersonalityTraits> p_pt_gd;
-		BOOST_CHECK_NO_THROW(p_pt_gd = p_test->getPersonalityTraits<GGDPersonalityTraits>());
-		BOOST_CHECK(p_pt_gd);
-		p_pt_gd.reset();
-
-		// Retrieve a base pointer to the GD object and check that it points somewhere
-		BOOST_CHECK_NO_THROW(p_pt = p_test->getPersonalityTraits());
-		BOOST_CHECK(p_pt);
-		p_pt.reset();
-
-		// Set the personality type to SWARM
-		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_SWARM));
-		BOOST_CHECK_MESSAGE(
-				previous == PERSONALITY_GD
-				,  "\n"
-				<< "previous = " << previous << "\n"
-				<< "expected GD"
-		);
-		BOOST_CHECK_MESSAGE(
-				p_test->getPersonality() == PERSONALITY_SWARM
-				,  "\n"
-				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
-				<< "expected SWARM\n"
-		);
-
-		// Try to retrieve a GSwarmPersonalityTraits object and check that the smart pointer actually points somewhere
-		boost::shared_ptr<GSwarmPersonalityTraits> p_pt_swarm;
-		BOOST_CHECK_NO_THROW(p_pt_swarm = p_test->getPersonalityTraits<GSwarmPersonalityTraits>());
-		BOOST_CHECK(p_pt_swarm);
-		p_pt_swarm.reset();
-
-		// Retrieve a base pointer to the SWARM object and check that it points somewhere
-		BOOST_CHECK_NO_THROW(p_pt = p_test->getPersonalityTraits());
-		BOOST_CHECK(p_pt);
-		p_pt.reset();
-
-		// Set the personality type to PERSONALITY_NONE
-		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_NONE));
-		BOOST_CHECK_MESSAGE(
-				previous == PERSONALITY_SWARM
-				,  "\n"
-				<< "previous = " << previous << "\n"
-				<< "expected SWARM"
-		);
-		BOOST_CHECK_MESSAGE(
-				p_test->getPersonality() == PERSONALITY_NONE
-				,  "\n"
-				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
-				<< "expected PERSONALITY_NONE\n"
-		);
-	}
-
-	// --------------------------------------------------------------------------
+   // --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -1226,51 +1097,8 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GObject::specificTestsFailuresExpected_GUnitTests();
 
-	// --------------------------------------------------------------------------
-
-#ifdef DEBUG
-	{ // Test that retrieval of an EA personality traits object from an uninitialized pointer throws in DEBUG mode
-		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
-
-		// Make sure the personality type is set to PERSONALITY_NONE
-		BOOST_CHECK_NO_THROW(p_test->resetPersonality());
-
-		// Trying to retrieve an EA personality object should throw
-		boost::shared_ptr<GEAPersonalityTraits> p_pt_ea;
-		BOOST_CHECK_THROW(p_pt_ea = p_test->getPersonalityTraits<GEAPersonalityTraits>(), Gem::Common::gemfony_error_condition);
-	}
-#endif /* DEBUG */
-
-	// --------------------------------------------------------------------------
-
-#ifdef DEBUG
-	{ // Test that retrieval of an EA personality traits object from an individual with SWARM personality throws
-		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
-
-		// Make sure the personality type is set to SWARM
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(PERSONALITY_SWARM));
-
-		// Trying to retrieve an EA personality object should throw
-		BOOST_CHECK_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>(), Gem::Common::gemfony_error_condition);
-	}
-#endif /* DEBUG */
-
-	// --------------------------------------------------------------------------
-
-#ifdef DEBUG
-	{ // Test that retrieval of a personality traits base object from an individual without personality throws
-		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
-
-		// Make sure the personality type is set to PERSONALITY_NONE
-		BOOST_CHECK_NO_THROW(p_test->resetPersonality());
-
-		// Trying to retrieve an EA personality object should throw
-		boost::shared_ptr<GPersonalityTraits> p_pt;
-		BOOST_CHECK_THROW(p_pt = p_test->getPersonalityTraits(), Gem::Common::gemfony_error_condition);
-	}
-#endif /* DEBUG */
-
-	// --------------------------------------------------------------------------
+   // --------------------------------------------------------------------------
+   // --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

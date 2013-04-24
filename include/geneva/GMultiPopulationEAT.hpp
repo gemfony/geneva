@@ -579,6 +579,15 @@ protected:
       GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::finalize();
    }
 
+
+   /***************************************************************************/
+   /**
+    * Retrieve a GPersonalityTraits object belonging to this algorithm
+    */
+   boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const {
+      return boost::shared_ptr<GMPEAPersonalityTraits>(new GMPEAPersonalityTraits());
+   }
+
 private:
    /***************************************************************************/
    // Local data

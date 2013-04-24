@@ -240,6 +240,9 @@ protected:
 	/** @brief Finalization work relating directly to the optimization algorithm. */
 	virtual void optimizationFinalize();
 
+   /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
+   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const;
+
 	/** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
 	virtual double cycleLogic();
 

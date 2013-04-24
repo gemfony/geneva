@@ -909,6 +909,14 @@ void GBaseSwarm::optimizationFinalize() {
 
 /******************************************************************************/
 /**
+ * Retrieve a GPersonalityTraits object belonging to this algorithm
+ */
+boost::shared_ptr<GPersonalityTraits> GBaseSwarm::getPersonalityTraits() const {
+   return boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits());
+}
+
+/******************************************************************************/
+/**
  * This function implements the logic that constitutes each cycle of a swarm algorithm. The
  * function is called by GOptimizationAlgorithmT<GParameterSet>::optimize() for each iteration of
  * the optimization,

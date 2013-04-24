@@ -54,12 +54,7 @@
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GMutableI.hpp"
 #include "geneva/GRateableI.hpp"
-#include "geneva/GEAPersonalityTraits.hpp"
-#include "geneva/GGDPersonalityTraits.hpp"
-#include "geneva/GSwarmPersonalityTraits.hpp"
-#include "geneva/GSAPersonalityTraits.hpp"
-#include "geneva/GMPEAPersonalityTraits.hpp"
-#include "geneva/GPSPersonalityTraits.hpp"
+#include "geneva/GPersonalityTraits.hpp"
 
 namespace Gem {
 namespace Tests {
@@ -249,7 +244,10 @@ public:
 	boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
 
 	/** @brief Sets the current personality of this individual */
-	personality_oa setPersonality(const personality_oa&);
+	personality_oa setPersonality(
+	      const personality_oa&
+	      , boost::shared_ptr<GPersonalityTraits> = boost::shared_ptr<GPersonalityTraits>()
+	);
 	/** @brief Resets the current personality to PERSONALITY_NONE */
 	void resetPersonality();
 

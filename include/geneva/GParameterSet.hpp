@@ -53,6 +53,10 @@
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GParameterBase.hpp"
 
+// TODO: Remove this dependency
+#include "geneva/GEAPersonalityTraits.hpp"
+#include "geneva/GSAPersonalityTraits.hpp"
+
 #ifdef GEM_TESTING
 #include "geneva/GBooleanObject.hpp"
 #include "geneva/GConstrainedInt32Object.hpp"
@@ -63,7 +67,6 @@
 #include "geneva/GInt32Collection.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
 #include "hap/GRandomT.hpp"
-
 #endif /* GEM_TESTING */
 
 namespace Gem {

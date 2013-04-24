@@ -54,6 +54,7 @@
 #include "geneva/GOptimizableI.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GParameterSet.hpp"
+#include "geneva/GPersonalityTraits.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -1085,7 +1086,8 @@ protected:
 	 */
 	virtual void setIndividualPersonalities() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(this->getOptimizationAlgorithm());
+      for(it=this->begin(); it!=this->end(); ++it)
+         (*it)->setPersonality(this->getOptimizationAlgorithm(), this->getPersonalityTraits());
 	}
 
 	/***************************************************************************/
@@ -1241,6 +1243,10 @@ protected:
 			(*it)->restoreRNGs();
 		}
 	}
+
+   /***************************************************************************/
+   /** @brief Retrieve a personality trait object belong to this algorithm */
+   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const = 0;
 
 	/***************************************************************************/
 	/**

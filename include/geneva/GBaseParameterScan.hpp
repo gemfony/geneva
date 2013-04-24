@@ -55,7 +55,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GBaseParChildT.hpp"
-#include "geneva/GEAPersonalityTraits.hpp"
+#include "geneva/GPSPersonalityTraits.hpp"
 
 #ifdef GEM_TESTING
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -192,6 +192,9 @@ protected:
    virtual void finalize();
    /** @brief Performs final optimization work */
    // virtual void optimizationFinalize();
+
+   /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
+   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const;
 
    /** @brief Resizes the population to the desired level and does some error checks */
    virtual void adjustPopulation();
