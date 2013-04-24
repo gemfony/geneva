@@ -34,10 +34,10 @@
 
 #include "geneva/GScanPar.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::bScanPar);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::int32ScanPar);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::dScanPar);
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::fScanPar);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::bScanPar)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::int32ScanPar)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::dScanPar)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::fScanPar)
 
 namespace Gem {
 namespace Geneva {
@@ -212,10 +212,26 @@ bScanPar::bScanPar(
 
 /******************************************************************************/
 /**
+ * The copy constructor
+ */
+bScanPar::bScanPar(const bScanPar& cp)
+   :baseScanParT<bool>(cp)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * The destructor
  */
 bScanPar::~bScanPar()
 { /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Cloning of this object
+ */
+boost::shared_ptr<bScanPar> bScanPar::clone() const {
+   return boost::shared_ptr<bScanPar>(new bScanPar(*this));
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -259,6 +275,29 @@ int32ScanPar::int32ScanPar(
       << "\"" << desc << "\"" << std::endl
       << GTERMINATION;
    }
+}
+
+/******************************************************************************/
+/**
+ * The copy constructor
+ */
+int32ScanPar::int32ScanPar(const int32ScanPar& cp)
+   : baseScanParT<boost::int32_t>(cp)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+int32ScanPar::~int32ScanPar()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Cloning
+ */
+boost::shared_ptr<int32ScanPar> int32ScanPar::clone() const {
+   return boost::shared_ptr<int32ScanPar>(new int32ScanPar(*this));
 }
 
 /******************************************************************************/
@@ -306,6 +345,29 @@ dScanPar::dScanPar(
 }
 
 /******************************************************************************/
+/**
+ * The copy constructor
+ */
+dScanPar::dScanPar(const dScanPar& cp)
+   : baseScanParT<double>(cp)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+dScanPar::~dScanPar()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Cloning
+ */
+boost::shared_ptr<dScanPar> dScanPar::clone() const {
+   return boost::shared_ptr<dScanPar>(new dScanPar(*this));
+}
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
@@ -347,6 +409,29 @@ fScanPar::fScanPar(
       << "\"" << desc << "\"" << std::endl
       << GTERMINATION;
    }
+}
+
+/******************************************************************************/
+/**
+ * The copy constructor
+ */
+fScanPar::fScanPar(const fScanPar& cp)
+   : baseScanParT<float>(cp)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+fScanPar::~fScanPar()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Cloning
+ */
+boost::shared_ptr<fScanPar> fScanPar::clone() const {
+   return boost::shared_ptr<fScanPar>(new fScanPar(*this));
 }
 
 /******************************************************************************/

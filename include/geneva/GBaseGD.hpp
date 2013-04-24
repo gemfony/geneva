@@ -164,7 +164,7 @@ protected:
 	virtual GObject *clone_() const = 0;
 
 	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	virtual boost::tuple<double,bool> cycleLogic();
+	virtual double cycleLogic();
 	/** @brief Does some preparatory work before the optimization starts */
 	virtual void init();
 	/** @brief Does any necessary finalization work */

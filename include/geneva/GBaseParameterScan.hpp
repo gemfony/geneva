@@ -185,7 +185,7 @@ protected:
    virtual GObject *clone_() const = 0;
 
    /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-   virtual boost::tuple<double,bool> cycleLogic();
+   virtual double cycleLogic();
    /** @brief Does some preparatory work before the optimization starts */
    virtual void init();
    /** @brief Does any necessary finalization work */
@@ -206,6 +206,9 @@ protected:
    virtual boost::shared_ptr<GIndividual> getBestIndividual();
    /** @brief Retrieves a list of the best individuals found */
    virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
+
+   /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned */
+   virtual bool customHalt() const;
 
 private:
    /***************************************************************************/
@@ -247,7 +250,8 @@ private:
    /** @brief Fills vectors with parameter values */
    void parseParameterValues(std::vector<std::string>);
 
-   bool scanRandomly_; ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
+   bool cycleLogicHalt_; ///< Temporary flag used to specify that the optimization should be halted
+   bool scanRandomly_;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
 
    std::vector<boost::shared_ptr<bScanPar> >     bVec_; ///< Holds boolean parameters to be scanned
    std::vector<boost::shared_ptr<int32ScanPar> > int32Vec_; ///< Holds 32 bit integer parameters to be scanned

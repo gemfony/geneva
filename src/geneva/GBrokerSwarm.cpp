@@ -333,9 +333,9 @@ void GBrokerSwarm::updatePositions() {
  *
  * @return The value of the best individual found
  */
-boost::tuple<double,bool> GBrokerSwarm::cycleLogic() {
+double GBrokerSwarm::cycleLogic() {
    // Perform the actual business logic
-   boost::tuple<double,bool> bestResult = GBaseSwarm::cycleLogic();
+   double bestResult = GBaseSwarm::cycleLogic();
 
    // Makes sure that each neighborhood has the right size before the next cycle starts
    adjustNeighborhoods();

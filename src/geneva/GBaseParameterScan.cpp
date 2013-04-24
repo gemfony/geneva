@@ -45,12 +45,13 @@ namespace Geneva {
  */
 GBaseParameterScan::GBaseParameterScan()
    : GOptimizationAlgorithmT<GParameterSet>()
+   , cycleLogicHalt_(false)
    , scanRandomly_(true)
 {
    // Register the default optimization monitor
    this->registerOptimizationMonitor(
          boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
-               new GBaseParameterScanOptimizationMonitor()
+               new GParameterScanOptimizationMonitor()
          )
    );
 }
@@ -63,6 +64,7 @@ GBaseParameterScan::GBaseParameterScan()
  */
 GBaseParameterScan::GBaseParameterScan(const GBaseParameterScan& cp)
    : GOptimizationAlgorithmT<GParameterSet>(cp)
+   , cycleLogicHalt_(cp.cycleLogicHalt_)
    , scanRandomly_(cp.scanRandomly_)
 {
    // Copying / setting of the optimization algorithm id is done by the parent class. The same
@@ -175,6 +177,7 @@ boost::optional<std::string> GBaseParameterScan::checkRelationshipWith(
 
    // ... and then our local data
    deviations.push_back(checkExpectation(withMessages, "GBaseParameterScan", scanRandomly_, p_load->scanRandomly_, "scanRandomly_", "p_load->scanRandomly_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBaseParameterScan", cycleLogicHalt_, p_load->cycleLogicHalt_, "cycleLogicHalt_", "p_load->cycleLogicHalt_", e , limit));
 
    // TODO: We do not check our temporary parameter objects yet (bVec_ etc.)
 
@@ -213,6 +216,7 @@ void GBaseParameterScan::load_(const GObject *cp) {
    GOptimizationAlgorithmT<GParameterSet>::load_(cp);
 
    // ... and then our own data
+   cycleLogicHalt_ = p_load->cycleLogicHalt_;
    scanRandomly_ = p_load->scanRandomly_;
 
    // TODO: Need to load bVec etc. here
@@ -224,12 +228,12 @@ void GBaseParameterScan::load_(const GObject *cp) {
  *
  * @return The value of the best individual found
  */
-boost::tuple<double, bool> GBaseParameterScan::cycleLogic() {
+double GBaseParameterScan::cycleLogic() {
    bool terminate;
    if(updateIndividuals()) {
-      terminate = false;
+      cycleLogicHalt_ = false;
    } else {
-      terminate = true;
+      cycleLogicHalt_ = true;
    }
 
    // Trigger value calculation for all individuals
@@ -242,7 +246,7 @@ boost::tuple<double, bool> GBaseParameterScan::cycleLogic() {
    sortPopulation();
 
    // Let the audience know
-   return boost::tuple<double,bool>(result,terminate);
+   return result;
 }
 
 /******************************************************************************/
@@ -280,25 +284,25 @@ bool GBaseParameterScan::updateIndividuals() {
 
       // 1) For boolean data
       std::vector<singleBPar>::iterator b_it;
-      for(b_it=pS->bParVec.begin(); b_it!=ps->bParVec.end(); ++b_it) {
+      for(b_it=pS->bParVec.begin(); b_it!=pS->bParVec.end(); ++b_it) {
          this->addDataPoint<bool>(*b_it, bData);
       }
 
       // 2) For boost::int32_t data
       std::vector<singleInt32Par>::iterator i_it;
-      for(i_it=pS->iParVec.begin(); i_it!=ps->iParVec.end(); ++i_it) {
+      for(i_it=pS->iParVec.begin(); i_it!=pS->iParVec.end(); ++i_it) {
          this->addDataPoint<boost::int32_t>(*i_it, iData);
       }
 
       // 3) For float values
       std::vector<singleFPar>::iterator f_it;
-      for(f_it=pS->fParVec.begin(); f_it!=ps->fParVec.end(); ++f_it) {
+      for(f_it=pS->fParVec.begin(); f_it!=pS->fParVec.end(); ++f_it) {
          this->addDataPoint<float>(*f_it, fData);
       }
 
       // 4) For double values
       std::vector<singleDPar>::iterator d_it;
-      for(d_it=pS->dParVec.begin(); d_it!=ps->dParVec.end(); ++d_it) {
+      for(d_it=pS->dParVec.begin(); d_it!=pS->dParVec.end(); ++d_it) {
          this->addDataPoint<double>(*d_it, dData);
       }
 
@@ -349,7 +353,7 @@ void GBaseParameterScan::resetParameterObjects() {
       (*b_it)->resetPosition();
    }
 
-   std::vector<boost::shared_ptr<iScanPar> >::iterator i_it;
+   std::vector<boost::shared_ptr<int32ScanPar> >::iterator i_it;
    for(i_it=int32Vec_.begin(); i_it!=int32Vec_.end(); ++i_it) {
       (*i_it)->resetPosition();
    }
@@ -371,10 +375,30 @@ void GBaseParameterScan::resetParameterObjects() {
  * into a parSet object.
  */
 boost::shared_ptr<parSet> GBaseParameterScan::getParameterSet() {
-   // Extract the relevant data and store it in a parSet object
+   // Create a new parSet object
    boost::shared_ptr<parSet> result(new parSet());
 
-   // TODO -- Return a parameter set
+   // Extract the relevant data and store it in a parSet object
+   // 1) For boolean objects
+   std::vector<boost::shared_ptr<bScanPar> >::iterator b_it;
+   for(b_it=bVec_.begin(); b_it!=bVec_.end(); ++b_it) {
+      (result->bParVec).push_back((*b_it)->getCurrentItem());
+   }
+   // 2) For boost::int32_t objects
+   std::vector<boost::shared_ptr<int32ScanPar> >::iterator i_it;
+   for(i_it=int32Vec_.begin(); i_it!=int32Vec_.end(); ++i_it) {
+      (result->iParVec).push_back((*i_it)->getCurrentItem());
+   }
+   // 3) For float objects
+   std::vector<boost::shared_ptr<fScanPar> >::iterator f_it;
+   for(f_it=fVec_.begin(); f_it!=fVec_.end(); ++f_it) {
+      (result->fParVec).push_back((*f_it)->getCurrentItem());
+   }
+   // 4) For double objects
+   std::vector<boost::shared_ptr<dScanPar> >::iterator d_it;
+   for(d_it=dVec_.begin(); d_it!=dVec_.end(); ++d_it) {
+      (result->dParVec).push_back((*d_it)->getCurrentItem());
+   }
 
    return result;
 }
@@ -383,10 +407,20 @@ boost::shared_ptr<parSet> GBaseParameterScan::getParameterSet() {
 /**
  * Switches to the next parameter set
  *
- * @return A boolean indicating whether there is a following parameter set (true) or not (false)
+ * @return A boolean indicating whether there indeed is a following
+ * parameter set (true) or whether we have reached the end of the
+ * collection (false)
  */
 bool GBaseParameterScan::switchToNextParameterSet() {
+   std::size_t bSize = bVec_.size();
+   std::size_t iSize = int32Vec_.size();
+   std::size_t fSize = fVec_.size();
+   std::size_t dSize = dVec_.size();
 
+   std::size_t allCounter = 0;
+   std::size_t maxCounter = bSize + iSize + fSize + dSize;
+
+   return false;
 }
 
 /******************************************************************************/
@@ -439,6 +473,22 @@ std::vector<boost::shared_ptr<GIndividual> > GBaseParameterScan::getBestIndividu
 
 /******************************************************************************/
 /**
+ * A custom halt criterion for the optimization, allowing to stop the loop
+ * when no items are left to be scanned
+ */
+bool GBaseParameterScan::customHalt() const {
+   if(this->cycleLogicHalt_) {
+      std::cerr
+      << "Terminating the loop as no items are left to be" << std::endl
+      << "scanned in parameter scan." << std::endl;
+      return true;
+   } else {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
@@ -477,15 +527,15 @@ void GBaseParameterScan::addConfigurationOptions (
 
    comment = ""; // Reset the comment string
    comment += "Specification of the parameters to be used;";
-   comment += "in the parameter scan.;"
+   comment += "in the parameter scan.;";
    gpb.registerFileParameter<std::string>(
       "parameterOptions"
+      , defaultStrParVec
       , boost::bind(
-            &GBaseParameterScan::defaultStrParVec
+            &GBaseParameterScan::parseParameterValues // The call-back function
             , this
             , _1
         )
-      , parseParameterValues // The call-back function
       , Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
       , comment
    );
@@ -516,16 +566,12 @@ void GBaseParameterScan::parseParameterValues(std::vector<std::string> parStrVec
       // which can be used to extract allowed parameter values
       if(first == "d") {
          dVec_.push_back(boost::shared_ptr<dScanPar>(new dScanPar(*it, scanRandomly_)));
-         dPos_.push_back(0);
-      } else if(first == f) {
+      } else if(first == "f") {
          fVec_.push_back(boost::shared_ptr<fScanPar>(new fScanPar(*it, scanRandomly_)));
-         fPos_.push_back(0);
-      } else if(first == i) {
+      } else if(first == "i") {
          int32Vec_.push_back(boost::shared_ptr<int32ScanPar>(new int32ScanPar(*it, scanRandomly_)));
-         int32Pos_.push_back(0);
-      } else if(first == b) {
+      } else if(first == "b") {
          bVec_.push_back(boost::shared_ptr<bScanPar>(new bScanPar(*it, scanRandomly_)));
-         bPos_.push_back(0);
       } else { // Raise an exception
          glogger
          << "In GBaseParameterScan::parseParameterValues(): Error!" << std::endl
@@ -542,6 +588,9 @@ void GBaseParameterScan::parseParameterValues(std::vector<std::string> parStrVec
 void GBaseParameterScan::init() {
    // To be performed before any other action
    GOptimizationAlgorithmT<GParameterSet>::init();
+
+   // Reset the custom halt criterion
+   cycleLogicHalt_ = false;
 }
 
 /******************************************************************************/
@@ -598,7 +647,7 @@ void GBaseParameterScan::adjustPopulation() {
  */
 void GBaseParameterScan::saveCheckpoint() const {
    bool isDirty;
-   double newValue = this->getBestIndividual()->getCachedFitness(isDirty);
+   double newValue = this->getBestIndividual()->GIndividual::getCachedFitness(isDirty);
 
 #ifdef DEBUG
    if(isDirty) {
@@ -666,7 +715,7 @@ void GBaseParameterScan::specificTestsFailuresExpected_GUnitTests() {
 /**
  * The default constructor
  */
-GBaseParameterScan::GBaseParameterScanOptimizationMonitor::GBaseParameterScanOptimizationMonitor()
+GBaseParameterScan::GParameterScanOptimizationMonitor::GParameterScanOptimizationMonitor()
    : resultFile_(DEFAULTRESULTFILEOM)
 { /* nothing */ }
 
@@ -674,9 +723,9 @@ GBaseParameterScan::GBaseParameterScanOptimizationMonitor::GBaseParameterScanOpt
 /**
  * The copy constructor
  *
- * @param cp A copy of another GBaseParameterScanOptimizationMonitor object
+ * @param cp A copy of another GParameterScanOptimizationMonitor object
  */
-GBaseParameterScan::GBaseParameterScanOptimizationMonitor::GBaseParameterScanOptimizationMonitor(const GBaseParameterScan::GBaseParameterScanOptimizationMonitor& cp)
+GBaseParameterScan::GParameterScanOptimizationMonitor::GParameterScanOptimizationMonitor(const GBaseParameterScan::GParameterScanOptimizationMonitor& cp)
    : GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
    , resultFile_(cp.resultFile_)
 { /* nothing */ }
@@ -685,18 +734,18 @@ GBaseParameterScan::GBaseParameterScanOptimizationMonitor::GBaseParameterScanOpt
 /**
  * The destructor
  */
-GBaseParameterScan::GBaseParameterScanOptimizationMonitor::~GBaseParameterScanOptimizationMonitor()
+GBaseParameterScan::GParameterScanOptimizationMonitor::~GParameterScanOptimizationMonitor()
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard assignment operator.
  *
- * @param cp A copy of another GBaseParameterScanOptimizationMonitor object
+ * @param cp A copy of another GParameterScanOptimizationMonitor object
  * @return A constant reference to this object
  */
-const GBaseParameterScan::GBaseParameterScanOptimizationMonitor& GBaseParameterScan::GBaseParameterScanOptimizationMonitor::operator=(const GBaseParameterScan::GBaseParameterScanOptimizationMonitor& cp){
-   GBaseParameterScan::GBaseParameterScanOptimizationMonitor::load_(&cp);
+const GBaseParameterScan::GParameterScanOptimizationMonitor& GBaseParameterScan::GParameterScanOptimizationMonitor::operator=(const GBaseParameterScan::GParameterScanOptimizationMonitor& cp){
+   GBaseParameterScan::GParameterScanOptimizationMonitor::load_(&cp);
    return *this;
 }
 
@@ -704,26 +753,26 @@ const GBaseParameterScan::GBaseParameterScanOptimizationMonitor& GBaseParameterS
 /**
  * Checks for equality with another GParameter Base object
  *
- * @param  cp A constant reference to another GBaseParameterScanOptimizationMonitor object
+ * @param  cp A constant reference to another GParameterScanOptimizationMonitor object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBaseParameterScan::GBaseParameterScanOptimizationMonitor::operator==(const GBaseParameterScan::GBaseParameterScanOptimizationMonitor& cp) const {
+bool GBaseParameterScan::GParameterScanOptimizationMonitor::operator==(const GBaseParameterScan::GParameterScanOptimizationMonitor& cp) const {
    using namespace Gem::Common;
    // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseParameterScan::GBaseParameterScanOptimizationMonitor::operator==","cp", CE_SILENT);
+   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseParameterScan::GParameterScanOptimizationMonitor::operator==","cp", CE_SILENT);
 }
 
 /******************************************************************************/
 /**
- * Checks for inequality with another GBaseParameterScanOptimizationMonitor object
+ * Checks for inequality with another GParameterScanOptimizationMonitor object
  *
- * @param  cp A constant reference to another GBaseParameterScanOptimizationMonitor object
+ * @param  cp A constant reference to another GParameterScanOptimizationMonitor object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBaseParameterScan::GBaseParameterScanOptimizationMonitor::operator!=(const GBaseParameterScan::GBaseParameterScanOptimizationMonitor& cp) const {
+bool GBaseParameterScan::GParameterScanOptimizationMonitor::operator!=(const GBaseParameterScan::GParameterScanOptimizationMonitor& cp) const {
    using namespace Gem::Common;
    // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseParameterScan::GBaseParameterScanOptimizationMonitor::operator!=","cp", CE_SILENT);
+   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseParameterScan::GParameterScanOptimizationMonitor::operator!=","cp", CE_SILENT);
 }
 
 /******************************************************************************/
@@ -739,7 +788,7 @@ bool GBaseParameterScan::GBaseParameterScanOptimizationMonitor::operator!=(const
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GBaseParameterScan::GBaseParameterScanOptimizationMonitor::checkRelationshipWith(
+boost::optional<std::string> GBaseParameterScan::GParameterScanOptimizationMonitor::checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -750,19 +799,18 @@ boost::optional<std::string> GBaseParameterScan::GBaseParameterScanOptimizationM
    using namespace Gem::Common;
 
    // Check that we are indeed dealing with a GParamterBase reference
-   const GBaseParameterScan::GBaseParameterScanOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseParameterScan::GBaseParameterScanOptimizationMonitor >(&cp);
+   const GBaseParameterScan::GParameterScanOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseParameterScan::GParameterScanOptimizationMonitor >(&cp);
 
    // Will hold possible deviations from the expectation, including explanations
    std::vector<boost::optional<std::string> > deviations;
 
    // Check our parent class'es data ...
-   deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GBaseParameterScan::GBaseParameterScanOptimizationMonitor", y_name, withMessages));
+   deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GBaseParameterScan::GParameterScanOptimizationMonitor", y_name, withMessages));
 
    // ... and then our local data
-   deviations.push_back(checkExpectation(withMessages, "GBaseParameterScan::GBaseParameterScanOptimizationMonitor", resultFile_, p_load->resultFile_, "resultFile_", "p_load->resultFile_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBaseParameterScan::GParameterScanOptimizationMonitor", resultFile_, p_load->resultFile_, "resultFile_", "p_load->resultFile_", e , limit));
 
-
-   return evaluateDiscrepancies("GBaseParameterScan::GBaseParameterScanOptimizationMonitor", caller, deviations, e);
+   return evaluateDiscrepancies("GBaseParameterScan::GParameterScanOptimizationMonitor", caller, deviations, e);
 }
 
 /******************************************************************************/
@@ -771,7 +819,7 @@ boost::optional<std::string> GBaseParameterScan::GBaseParameterScanOptimizationM
  *
  * @param resultFile The desired name of the result file
  */
-void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::setResultFileName(
+void GBaseParameterScan::GParameterScanOptimizationMonitor::setResultFileName(
       const std::string& resultFile
 ) {
   resultFile_ = resultFile;
@@ -783,7 +831,7 @@ void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::setResultFileNam
  *
  * @return The current name of the result file
  */
-std::string GBaseParameterScan::GBaseParameterScanOptimizationMonitor::getResultFileName() const {
+std::string GBaseParameterScan::GParameterScanOptimizationMonitor::getResultFileName() const {
   return resultFile_;
 }
 
@@ -793,11 +841,11 @@ std::string GBaseParameterScan::GBaseParameterScanOptimizationMonitor::getResult
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
-void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+void GBaseParameterScan::GParameterScanOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 #ifdef DEBUG
    if(goa->getOptimizationAlgorithm() != PERSONALITY_PS) {
       glogger
-      << "In GBaseParameterScan::GBaseParameterScanOptimizationMonitor::cycleInformation():" << std::endl
+      << "In GBaseParameterScan::GParameterScanOptimizationMonitor::cycleInformation():" << std::endl
       << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl
       << GEXCEPTION;
    }
@@ -814,7 +862,7 @@ void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::firstInformation
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
-void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+void GBaseParameterScan::GParameterScanOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
    // Perform the conversion to the target algorithm
    GBaseParameterScan * const gd = static_cast<GBaseParameterScan * const>(goa);
 
@@ -827,7 +875,7 @@ void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::cycleInformation
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
-void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+void GBaseParameterScan::GParameterScanOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
    // TODO
 }
 
@@ -835,10 +883,10 @@ void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::lastInformation(
 /**
  * Loads the data of another object
  *
- * cp A pointer to another GBaseParameterScanOptimizationMonitor object, camouflaged as a GObject
+ * @param cp A pointer to another GParameterScanOptimizationMonitor object, camouflaged as a GObject
  */
-void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::load_(const GObject* cp) {
-   const GBaseParameterScan::GBaseParameterScanOptimizationMonitor *p_load = gobject_conversion<GBaseParameterScan::GBaseParameterScanOptimizationMonitor>(cp);
+void GBaseParameterScan::GParameterScanOptimizationMonitor::load_(const GObject* cp) {
+   const GBaseParameterScan::GParameterScanOptimizationMonitor *p_load = gobject_conversion<GBaseParameterScan::GParameterScanOptimizationMonitor>(cp);
 
    // Load the parent classes' data ...
    GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);
@@ -853,15 +901,15 @@ void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::load_(const GObj
  *
  * @return A deep clone of this object
  */
-GObject* GBaseParameterScan::GBaseParameterScanOptimizationMonitor::clone_() const {
-   return new GBaseParameterScan::GBaseParameterScanOptimizationMonitor(*this);
+GObject* GBaseParameterScan::GParameterScanOptimizationMonitor::clone_() const {
+   return new GBaseParameterScan::GParameterScanOptimizationMonitor(*this);
 }
 
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
-bool GBaseParameterScan::GBaseParameterScanOptimizationMonitor::modify_GUnitTests() {
+bool GBaseParameterScan::GParameterScanOptimizationMonitor::modify_GUnitTests() {
 #ifdef GEM_TESTING
    bool result = false;
 
@@ -871,7 +919,7 @@ bool GBaseParameterScan::GBaseParameterScanOptimizationMonitor::modify_GUnitTest
    return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBaseParameterScan::GBaseParameterScanOptimizationMonitor::modify_GUnitTests", "GEM_TESTING");
+   condnotset("GBaseParameterScan::GParameterScanOptimizationMonitor::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -880,12 +928,12 @@ bool GBaseParameterScan::GBaseParameterScanOptimizationMonitor::modify_GUnitTest
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
+void GBaseParameterScan::GParameterScanOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
    // Call the parent class'es function
    GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBaseParameterScan::GBaseParameterScanOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   condnotset("GBaseParameterScan::GParameterScanOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -893,12 +941,12 @@ void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::specificTestsNoF
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GBaseParameterScan::GBaseParameterScanOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
+void GBaseParameterScan::GParameterScanOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
    // Call the parent class'es function
    GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBaseParameterScan::GBaseParameterScanOptimizationMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   condnotset("GBaseParameterScan::GParameterScanOptimizationMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

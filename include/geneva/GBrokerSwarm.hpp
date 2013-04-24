@@ -135,7 +135,7 @@ protected:
 	virtual void finalize();
 
    /** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
-   virtual boost::tuple<double,bool> cycleLogic();
+   virtual double cycleLogic();
 
 	/** @brief Updates all individual's positions */
 	virtual void updatePositions();

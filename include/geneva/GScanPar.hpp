@@ -123,6 +123,23 @@ std::vector<double> fillWithData<double>(
       , bool      /* randomFill */
 );
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * An interface class for parameter scan objects
+ */
+class scanParI {
+public:
+   virtual ~scanParI(){ /* nothing */ }
+
+   virtual std::size_t getPos() const = 0;
+   virtual void goToNextItem() = 0;
+   virtual bool isAtTerminalPosition() const = 0;
+   virtual bool isAtFirstPosition() const = 0;
+   virtual void resetPosition() = 0;
+   virtual std::string getTypeDescriptor() const = 0;
+};
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +150,7 @@ std::vector<double> fillWithData<double>(
 template <typename T>
 class baseScanParT
    : public GStdSimpleVectorInterfaceT<T>
+   , public scanParI
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -233,7 +251,7 @@ public:
    /**
     * Retrieve the position of this object
     */
-   std::size_t getPos() const {
+   virtual std::size_t getPos() const {
       return pos;
    }
 
@@ -249,7 +267,7 @@ public:
    /**
     * Switch to the next position in the vector or rewind
     */
-   void goToNextItem() {
+   virtual void goToNextItem() {
       if(++currentItem >= this->size()) {
          currentItem = 0;
       }
@@ -259,7 +277,7 @@ public:
    /**
     * Checks whether currentItem points to the last item in the array
     */
-   bool isAtTerminalPosition() const {
+   virtual bool isAtTerminalPosition() const {
       if(currentItem >= (this->size()-1)) return true;
       else return false;
    }
@@ -268,7 +286,7 @@ public:
    /**
     * Checks whether currentItem points to the first item in the array
     */
-   bool isAtFirstPosition() const {
+   virtual bool isAtFirstPosition() const {
       if(0 == currentItem) return true;
       else return false;
    }
@@ -277,7 +295,7 @@ public:
    /**
     * Resets the current position
     */
-   void resetPosition() {
+   virtual void resetPosition() {
       currentItem = 0;
    }
 
@@ -285,7 +303,7 @@ public:
    /**
     * Retrieve the type descriptor
     */
-   std::string getTypeDescriptor() const {
+   virtual std::string getTypeDescriptor() const {
       return typeDescription;
    }
 
@@ -300,6 +318,9 @@ protected:
    /***************************************************************************/
    /** @brief The default constructor -- only needed for de-serialization, hence protected */
    baseScanParT() { /* nothing */ }
+
+   /** @brief Needs to be re-implemented for derivatives of GStdSimpleVectorInterfaceT<> */
+   virtual void dummyFunction(){};
 };
 
 /******************************************************************************/
@@ -334,8 +355,13 @@ public:
   );
   /** @brief Construction from the specification string */
   bScanPar(const std::string&, bool);
+  /** @brief Copy constructor */
+  bScanPar(const bScanPar&);
   /** @brief The destructor */
   virtual ~bScanPar();
+
+  /** @brief Cloning of this object */
+  boost::shared_ptr<bScanPar> clone() const;
 
 private:
   /** @brief The default constructor -- only needed for de-serialization, hence private */
@@ -372,9 +398,15 @@ public:
        , boost::int32_t
        , bool
    );
-
    /** @brief Construction from the specification string */
    int32ScanPar(const std::string&,bool);
+   /** @brief Copy constructor */
+   int32ScanPar(const int32ScanPar&);
+   /** @brief The destructor */
+   virtual ~int32ScanPar();
+
+   /** @brief Cloning of this object */
+   boost::shared_ptr<int32ScanPar> clone() const;
 
 private:
    /** @brief The default constructor -- only needed for de-serialization, hence private */
@@ -411,12 +443,18 @@ public:
        , double
        , bool
    );
-
    /** @brief Construction from the specification string */
    dScanPar(
          const std::string&
          , bool
    );
+   /** @brief The copy constructor */
+   dScanPar(const dScanPar&);
+   /** @brief The destructor */
+   virtual ~dScanPar();
+
+   /** @brief Cloning of this object */
+   boost::shared_ptr<dScanPar> clone() const;
 
 private:
    /** @brief The default constructor -- only needed for de-serialization, hence private */
@@ -454,12 +492,18 @@ public:
        , float
        , bool
    );
-
    /** @brief Construction from the specification string */
    fScanPar(
          const std::string&
          , bool
    );
+   /** @brief The copy constructor */
+   fScanPar(const fScanPar&);
+   /** @brief The destructor */
+   virtual ~fScanPar();
+
+   /** @brief Cloning of this object */
+   boost::shared_ptr<fScanPar> clone() const;
 
 private:
    /** @brief The default constructor -- only needed for de-serialization, hence private */
@@ -473,10 +517,10 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::bScanPar);
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::int32ScanPar);
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::dScanPar);
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar);
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::bScanPar)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::int32ScanPar)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::dScanPar)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar)
 
 #endif /* GSCANPAR_HPP_ */
 
