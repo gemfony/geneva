@@ -59,6 +59,7 @@
 #include "geneva/GSwarmPersonalityTraits.hpp"
 #include "geneva/GSAPersonalityTraits.hpp"
 #include "geneva/GMPEAPersonalityTraits.hpp"
+#include "geneva/GPSPersonalityTraits.hpp"
 
 namespace Gem {
 namespace Tests {

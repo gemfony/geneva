@@ -89,6 +89,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterT.hpp
 	GParameterTCollectionT.hpp
 	GPersonalityTraits.hpp
+	GPSPersonalityTraits.hpp
 	GRateableI.hpp
 	GSAPersonalityTraits.hpp
 	GScanPar.hpp

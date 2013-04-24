@@ -689,6 +689,10 @@ personality_oa GIndividual::setPersonality(const personality_oa& pers) {
       pt_ptr_ = boost::shared_ptr<GMPEAPersonalityTraits>(new GMPEAPersonalityTraits());
       break;
 
+   case PERSONALITY_PS:
+      pt_ptr_ = boost::shared_ptr<GPSPersonalityTraits>(new GPSPersonalityTraits());
+      break;
+
    default:
       glogger
       << "In GIndividual::setPersonality(): Error!" << std::endl
