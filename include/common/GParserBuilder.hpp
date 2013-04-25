@@ -193,24 +193,20 @@ private:
  * which a call-back function has been assigned. It also stores some
  * information common to all parameter types.
  */
-class GParsableI :boost::noncopyable
+class GParsableI
+   :boost::noncopyable
 {
-	// We want GParserBuilder to be able to call our load- and save functions
-	friend class GParserBuilder;
-
 public:
 	/** @brief A constructor for individual items */
 	GParsableI(
 		const std::string&
 		, const std::string&
-		, const bool&
 	);
 
 	/** @brief A constructor for vectors */
 	GParsableI(
 		const std::vector<std::string>&
 		, const std::vector<std::string>&
-		, const bool&
 	);
 
 	/** @brief The destructor */
@@ -222,38 +218,29 @@ public:
 	std::string optionName(std::size_t = 0) const;
 	/** @brief Retrieves the comment that was assigned to this variable at a given position */
 	std::string comment(std::size_t = 0) const;
-	/** @brief Checks whether this is an essential variable at a given position */
-	bool isEssential() const;
 
-	/***************************************************************************/
-	/**
-	 * Create a std::vector<T> from a single element
-	 */
-	template <typename T>
-	static std::vector<T> makeVector(const T& item) {
-		std::vector<T> result;
-		result.push_back(item);
-		return result;
-	}
+   /***************************************************************************/
+   /**
+    * Create a std::vector<T> from a single element
+    */
+   template <typename T>
+   static std::vector<T> makeVector(const T& item) {
+      std::vector<T> result;
+      result.push_back(item);
+      return result;
+   }
 
-	/***************************************************************************/
-	/**
-	 * Create a std::vector<T> from two elements
-	 */
-	template <typename T>
-	static std::vector<T> makeVector(const T& item1, const T& item2) {
-		std::vector<T> result;
-		result.push_back(item1);
-		result.push_back(item2);
-		return result;
-	}
-
-protected:
-	/***************************************************************************/
-	/** @brief Loads data from a property_tree object */
-	virtual void load(const boost::property_tree::ptree&) = 0;
-	/** @brief Saves data to a property tree object */
-	virtual void save(boost::property_tree::ptree&) const = 0;
+   /***************************************************************************/
+   /**
+    * Create a std::vector<T> from two elements
+    */
+   template <typename T>
+   static std::vector<T> makeVector(const T& item1, const T& item2) {
+      std::vector<T> result;
+      result.push_back(item1);
+      result.push_back(item2);
+      return result;
+   }
 
 private:
 	/***************************************************************************/
@@ -262,7 +249,54 @@ private:
 
 	std::vector<std::string> optionName_; ///< The name of this parameter
 	std::vector<std::string> comment_; ///< A comment assigned to this parameter
-	bool isEssential_; ///< Indicates whether this is an essential variable
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class specifies the interface of parsable file parameters, to
+ * which a call-back function has been assigned. Note that this class cannot
+ * be copied, as the parent class is derived from boost::noncopyable.
+ */
+class GFileParsableI
+   : public GParsableI
+{
+   // We want GParserBuilder to be able to call our private load- and save functions
+   friend class GParserBuilder;
+
+public:
+   /** @brief A constructor for individual items */
+   GFileParsableI(
+      const std::string&
+      , const std::string&
+      , const bool&
+   );
+   /** @brief A constructor for vectors */
+   GFileParsableI(
+      const std::vector<std::string>&
+      , const std::vector<std::string>&
+      , const bool&
+   );
+   /** @brief The destructor */
+   virtual ~GFileParsableI();
+
+   /** @brief Checks whether this is an essential variable at a given position */
+   bool isEssential() const;
+
+protected:
+   /***************************************************************************/
+   /** @brief Loads data from a property_tree object */
+   virtual void load(const boost::property_tree::ptree&) = 0;
+   /** @brief Saves data to a property tree object */
+   virtual void save(boost::property_tree::ptree&) const = 0;
+
+private:
+   /***************************************************************************/
+   /** @brief The default constructor. Intentionally private and undefined */
+   GFileParsableI();
+
+   bool isEssential_; ///< Indicates whether this is an essential variable
 };
 
 /******************************************************************************/
@@ -273,7 +307,8 @@ private:
  * function has been assigned.
  */
 template <typename parameter_type>
-struct GSingleParsableParameterT	:public GParsableI
+struct GSingleParsableParameterT
+   : public GFileParsableI
 {
 	// We want GParserBuilder to be able to call our load- and save functions
 	friend class GParserBuilder;
@@ -289,7 +324,7 @@ public:
 		, const bool& isEssentialVar
 		, const parameter_type& defVal
 	)
-		: GParsableI(
+		: GFileParsableI(
 			optionNameVar
 			, commentVar
 			, isEssentialVar
@@ -391,7 +426,8 @@ private:
  * function has been assigned.
  */
 template <typename par_type0, typename par_type1>
-struct GCombinedParsableParameterT :public GParsableI
+struct GCombinedParsableParameterT
+   : public GFileParsableI
 {
 	// We want GParserBuilder to be able to call our load- and save functions
 	friend class GParserBuilder;
@@ -411,9 +447,9 @@ public:
 		, const bool& isEssentialVar
 		, const std::string& combined_label
 	)
-		: GParsableI(
-			GParsableI::makeVector(optionNameVar0, optionNameVar1)
-			, GParsableI::makeVector(commentVar0, commentVar1)
+		: GFileParsableI(
+			GFileParsableI::makeVector(optionNameVar0, optionNameVar1)
+			, GFileParsableI::makeVector(commentVar0, commentVar1)
 			, isEssentialVar
 		  )
 		, par0_(defVal0)
@@ -534,7 +570,8 @@ private:
  * you plan to write out a parameter file.
  */
 template <typename parameter_type>
-class GVectorParsableParameter :public GParsableI
+class GVectorParsableParameterT
+   : public GFileParsableI
 {
 	// We want GParserBuilder to be able to call our load- and save functions
 	friend class GParserBuilder;
@@ -544,15 +581,15 @@ public:
 	/**
 	 * Initializes the parameters
 	 */
-	GVectorParsableParameter(
+	GVectorParsableParameterT(
 		const std::string& optionNameVar
 		, const std::string& commentVar
 		, const std::vector<parameter_type>& def_val
 		, const bool& isEssentialVar
 	)
-		: GParsableI(
-			GParsableI::makeVector(optionNameVar)
-			, GParsableI::makeVector(commentVar)
+		: GFileParsableI(
+		      GFileParsableI::makeVector(optionNameVar)
+			, GFileParsableI::makeVector(commentVar)
 			, isEssentialVar
 		  )
 	    , def_val_(def_val)
@@ -563,7 +600,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GVectorParsableParameter()
+	virtual ~GVectorParsableParameterT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -676,7 +713,7 @@ private:
  * you plan to write out a parameter file.
  */
 template <typename parameter_type>
-class GVectorReferenceParsableParameter :public GParsableI
+class GVectorReferenceParsableParameterT :public GFileParsableI
 {
 	// We want GParserBuilder to be able to call our load- and save functions
 	friend class GParserBuilder;
@@ -686,16 +723,16 @@ public:
 	/**
 	 * Initializes the parameters
 	 */
-	GVectorReferenceParsableParameter(
+	GVectorReferenceParsableParameterT(
 		std::vector<parameter_type>& stored_reference
 		, const std::string& optionNameVar
 		, const std::string& commentVar
 		, const std::vector<parameter_type>& def_val
 		, const bool& isEssentialVar
 	)
-		: GParsableI(
-			GParsableI::makeVector(optionNameVar)
-			, GParsableI::makeVector(commentVar)
+		: GFileParsableI(
+		      GFileParsableI::makeVector(optionNameVar)
+			, GFileParsableI::makeVector(commentVar)
 			, isEssentialVar
 		  )
 	    , stored_reference_(stored_reference)
@@ -707,7 +744,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GVectorReferenceParsableParameter()
+	virtual ~GVectorReferenceParsableParameterT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -791,7 +828,8 @@ private:
  * This class enforces a fixed number of items in the array.
  */
 template <typename parameter_type, std::size_t N>
-class GArrayParsableParameter :public GParsableI
+class GArrayParsableParameterT
+   : public GFileParsableI
 {
 	// We want GParserBuilder to be able to call our load- and save functions
 	friend class GParserBuilder;
@@ -801,15 +839,15 @@ public:
 	/**
 	 * Initializes the parameters
 	 */
-	GArrayParsableParameter(
+	GArrayParsableParameterT(
 		const std::string& optionNameVar
 		, const std::string& commentVar
 		, const boost::array<parameter_type,N>& def_val
 		, const bool& isEssentialVar
 	)
-		: GParsableI(
-			GParsableI::makeVector(optionNameVar)
-			, GParsableI::makeVector(commentVar)
+		: GFileParsableI(
+		   GFileParsableI::makeVector(optionNameVar)
+			, GFileParsableI::makeVector(commentVar)
 			, isEssentialVar
 		  )
 	    , def_val_(def_val)
@@ -820,7 +858,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GArrayParsableParameter()
+	virtual ~GArrayParsableParameterT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -925,7 +963,8 @@ private:
  * identical type). This class enforces a fixed number of items in the array.
  */
 template <typename parameter_type, std::size_t N>
-class GArrayReferenceParsableParameter :public GParsableI
+class GArrayReferenceParsableParameterT
+   : public GFileParsableI
 {
 	// We want GParserBuilder to be able to call our load- and save functions
 	friend class GParserBuilder;
@@ -935,16 +974,16 @@ public:
 	/**
 	 * Initializes the parameters
 	 */
-	GArrayReferenceParsableParameter(
+	GArrayReferenceParsableParameterT(
 		boost::array<parameter_type,N>& stored_reference
 		, const std::string& optionNameVar
 		, const std::string& commentVar
 		, const boost::array<parameter_type,N>& def_val
 		, const bool& isEssentialVar
 	)
-		: GParsableI(
-			GParsableI::makeVector(optionNameVar)
-			, GParsableI::makeVector(commentVar)
+		: GFileParsableI(
+		   GFileParsableI::makeVector(optionNameVar)
+			, GFileParsableI::makeVector(commentVar)
 			, isEssentialVar
 		  )
 	    , stored_reference_(stored_reference)
@@ -956,7 +995,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GArrayReferenceParsableParameter()
+	virtual ~GArrayReferenceParsableParameterT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -1036,7 +1075,8 @@ private:
  * the parsed value to the reference.
  */
 template <typename parameter_type>
-class GReferenceParsableParameter :public GParsableI
+class GReferenceParsableParameterT
+   : public GFileParsableI
 {
 	// We want GParserBuilder to be able to call our load- and save functions
 	friend class GParserBuilder;
@@ -1049,16 +1089,16 @@ public:
 	 * @param storedReference A reference to a variable in which parsed values should be stored
 	 * @param defVal The default value of this variable
 	 */
-	GReferenceParsableParameter(
+	GReferenceParsableParameterT(
 		parameter_type& storedReference
 		, const std::string& optionNameVar
 		, const std::string& commentVar
 		, const bool& isEssentialVar
 		, parameter_type defVal
 	)
-		: GParsableI(
-			GParsableI::makeVector(optionNameVar)
-			, GParsableI::makeVector(commentVar)
+		: GFileParsableI(
+		   GFileParsableI::makeVector(optionNameVar)
+			, GFileParsableI::makeVector(commentVar)
 			, isEssentialVar
 		  )
 		, storedReference_(storedReference)
@@ -1111,7 +1151,7 @@ protected:
 
 private:
 	/***************************************************************************/
-	GReferenceParsableParameter(); ///< The default constructor. Intentionally private and undefined
+	GReferenceParsableParameterT(); ///< The default constructor. Intentionally private and undefined
 
 	parameter_type& storedReference_; ///< Holds the reference to which the parsed value will be assigned
 	parameter_type par_; ///< Holds the individual parameter
@@ -1232,8 +1272,8 @@ public:
 		, bool isEssential = true
 		, std::string comment = ""
 	) {
-		boost::shared_ptr<GReferenceParsableParameter<parameter_type> >
-			refParm_ptr(new GReferenceParsableParameter<parameter_type>(
+		boost::shared_ptr<GReferenceParsableParameterT<parameter_type> >
+			refParm_ptr(new GReferenceParsableParameterT<parameter_type>(
 					parameter
 					, optionName
 					, comment
@@ -1259,8 +1299,8 @@ public:
 		, const bool& isEssential = true
 		, const std::string& comment = ""
 	) {
-		boost::shared_ptr<GVectorParsableParameter<parameter_type> >
-			vecParm_ptr(new GVectorParsableParameter<parameter_type> (
+		boost::shared_ptr<GVectorParsableParameterT<parameter_type> >
+			vecParm_ptr(new GVectorParsableParameterT<parameter_type> (
 					optionName
 					, comment
 					, def_val
@@ -1286,8 +1326,8 @@ public:
 		, const bool& isEssential = true
 		, const std::string& comment = ""
 	) {
-		boost::shared_ptr<GVectorReferenceParsableParameter<parameter_type> >
-			vecRefParm_ptr(new GVectorReferenceParsableParameter<parameter_type> (
+		boost::shared_ptr<GVectorReferenceParsableParameterT<parameter_type> >
+			vecRefParm_ptr(new GVectorReferenceParsableParameterT<parameter_type> (
 					stored_reference
 					, optionName
 					, comment
@@ -1314,8 +1354,8 @@ public:
 		, const bool& isEssential = true
 		, const std::string& comment = ""
 	) {
-		boost::shared_ptr<GArrayParsableParameter<parameter_type,N> >
-			arrayParm_ptr(new GArrayParsableParameter<parameter_type,N> (
+		boost::shared_ptr<GArrayParsableParameterT<parameter_type,N> >
+			arrayParm_ptr(new GArrayParsableParameterT<parameter_type,N> (
 					optionName
 					, comment
 					, def_val
@@ -1343,8 +1383,8 @@ public:
 		, const bool& isEssential = true
 		, const std::string& comment = ""
 	) {
-		boost::shared_ptr<GArrayReferenceParsableParameter<parameter_type,N> >
-			arrayRefParm_ptr(new GArrayReferenceParsableParameter<parameter_type,N> (
+		boost::shared_ptr<GArrayReferenceParsableParameterT<parameter_type,N> >
+			arrayRefParm_ptr(new GArrayReferenceParsableParameterT<parameter_type,N> (
 					stored_reference
 					, optionName
 					, comment
@@ -1360,7 +1400,7 @@ public:
 private:
 	/***************************************************************************/
 
-	std::vector<boost::shared_ptr<GParsableI> > parameter_proxies_; ///< Holds parameter proxies
+	std::vector<boost::shared_ptr<GFileParsableI> > parameter_proxies_; ///< Holds parameter proxies
 };
 
 /******************************************************************************/

@@ -38,17 +38,17 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * A constructor for individual items
  */
 GParsableI::GParsableI(
 	const std::string& optionNameVar
 	, const std::string& commentVar
-	, const bool& isEssentialVar
 )
 	: optionName_(GParsableI::makeVector(optionNameVar))
 	, comment_(GParsableI::makeVector(commentVar))
-	, isEssential_(isEssentialVar)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -58,11 +58,9 @@ GParsableI::GParsableI(
 GParsableI::GParsableI(
 	const std::vector<std::string>& optionNameVec
 	, const std::vector<std::string>& commentVec
-	, const bool& isEssentialVar
 )
 	: optionName_(optionNameVec)
 	, comment_(commentVec)
-	, isEssential_(isEssentialVar)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -105,11 +103,46 @@ std::string GParsableI::comment(std::size_t pos) const {
 }
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A constructor for individual items
+ */
+GFileParsableI::GFileParsableI(
+   const std::string& optionNameVar
+   , const std::string& commentVar
+   , const bool& isEssentialVar
+)
+   : GParsableI(optionNameVar, commentVar)
+   , isEssential_(isEssentialVar)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * A constructor for vectors
+ */
+GFileParsableI::GFileParsableI(
+   const std::vector<std::string>& optionNameVec
+   , const std::vector<std::string>& commentVec
+   , const bool& isEssentialVar
+)
+   : GParsableI(optionNameVec, commentVec)
+   , isEssential_(isEssentialVar)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GFileParsableI::~GFileParsableI()
+{ /* nothing */ }
+
+/******************************************************************************/
 /**
  * Checks whether this is an essential variable
  */
-bool GParsableI::isEssential() const {
-	return isEssential_;
+bool GFileParsableI::isEssential() const {
+   return isEssential_;
 }
 
 /******************************************************************************/
@@ -187,7 +220,7 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
 		pt::read_json(configFile, ptr);
 
 		// Load the data into our objects and execute the relevant call-back functions
-		std::vector<boost::shared_ptr<GParsableI> >::iterator it;
+		std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
 		for(it=parameter_proxies_.begin(); it!=parameter_proxies_.end(); ++it) {
 			(*it)->load(ptr);
 			(*it)->executeCallBackFunction();
@@ -304,7 +337,7 @@ void GParserBuilder::writeConfigFile(
 	ptree pt;
 
 	// Output variables and values
-	std::vector<boost::shared_ptr<GParsableI> >::const_iterator cit;
+	std::vector<boost::shared_ptr<GFileParsableI> >::const_iterator cit;
 	for(cit=parameter_proxies_.begin(); cit!=parameter_proxies_.end(); ++cit) {
 		// Only write out the parameter(s) if they are either essential or it
 		// has been requested to write out all parameters regardless
