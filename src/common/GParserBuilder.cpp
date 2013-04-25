@@ -149,6 +149,37 @@ bool GFileParsableI::isEssential() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * A constructor for individual items
+ */
+GCLParsableI::GCLParsableI(
+   const std::string& optionNameVar
+   , const std::string& commentVar
+)
+   : GParsableI(optionNameVar, commentVar)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * A constructor for vectors
+ */
+GCLParsableI::GCLParsableI(
+   const std::vector<std::string>& optionNameVec
+   , const std::vector<std::string>& commentVec
+)
+   : GParsableI(optionNameVec, commentVec)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GCLParsableI::~GCLParsableI()
+{ /* nothing */ }
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * The default constructor
  *
  * @param configurationFile The name of the configuration file
