@@ -273,7 +273,7 @@ private:
  * function has been assigned.
  */
 template <typename parameter_type>
-struct GSingleParsableParameter	:public GParsableI
+struct GSingleParsableParameterT	:public GParsableI
 {
 	// We want GParserBuilder to be able to call our load- and save functions
 	friend class GParserBuilder;
@@ -283,7 +283,7 @@ public:
 	/**
 	 * Initializes the parameter and sets values in the parent class
 	 */
-	explicit GSingleParsableParameter(
+	explicit GSingleParsableParameterT(
 		const std::string& optionNameVar
 		, const std::string& commentVar
 		, const bool& isEssentialVar
@@ -302,7 +302,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GSingleParsableParameter()
+	virtual ~GSingleParsableParameterT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -375,7 +375,7 @@ protected:
 
 private:
 	/***************************************************************************/
-	GSingleParsableParameter(); ///< The default constructor. Intentionally private and undefined
+	GSingleParsableParameterT(); ///< The default constructor. Intentionally private and undefined
 
 	parameter_type par_; ///< Holds the individual parameter
 	parameter_type def_val_; ///< Holds the parameter's default value
@@ -391,7 +391,7 @@ private:
  * function has been assigned.
  */
 template <typename par_type0, typename par_type1>
-struct GCombinedParsableParameter :public GParsableI
+struct GCombinedParsableParameterT :public GParsableI
 {
 	// We want GParserBuilder to be able to call our load- and save functions
 	friend class GParserBuilder;
@@ -401,7 +401,7 @@ public:
 	/**
 	 * Initializes the parameters
 	 */
-	GCombinedParsableParameter(
+	GCombinedParsableParameterT(
 		const std::string& optionNameVar0
 		, const std::string& commentVar0
 		, const par_type0& defVal0
@@ -427,7 +427,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GCombinedParsableParameter()
+	virtual ~GCombinedParsableParameterT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -511,7 +511,7 @@ protected:
 
 private:
 	/***************************************************************************/
-	GCombinedParsableParameter(); ///< The default constructor. Intentionally private and undefined
+	GCombinedParsableParameterT(); ///< The default constructor. Intentionally private and undefined
 
 	par_type0 par0_; ///< Holds the first parameter
 	par_type1 par1_; ///< Holds the second parameter
@@ -1162,8 +1162,8 @@ public:
 		, bool isEssential = true
 		, std::string comment = ""
 	) {
-		boost::shared_ptr<GSingleParsableParameter<parameter_type> >
-			singleParm_ptr(new GSingleParsableParameter<parameter_type>(
+		boost::shared_ptr<GSingleParsableParameterT<parameter_type> >
+			singleParm_ptr(new GSingleParsableParameterT<parameter_type>(
 					optionName
 					, comment
 					, isEssential
@@ -1195,8 +1195,8 @@ public:
 		, std::string comment1 = ""
 		, std::string comment2 = ""
 	) {
-		boost::shared_ptr<GCombinedParsableParameter<par_type1, par_type2> >
-			combParm_ptr(new GCombinedParsableParameter<par_type1, par_type2>(
+		boost::shared_ptr<GCombinedParsableParameterT<par_type1, par_type2> >
+			combParm_ptr(new GCombinedParsableParameterT<par_type1, par_type2>(
 					optionName1
 					, comment1
 					, def_val1
