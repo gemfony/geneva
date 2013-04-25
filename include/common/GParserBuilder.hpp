@@ -47,6 +47,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
+#include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/lexical_cast.hpp>
@@ -211,8 +212,6 @@ public:
 
 	/** @brief The destructor */
 	virtual ~GParsableI();
-	/** @brief Executes a stored call-back function */
-	virtual void executeCallBackFunction() = 0;
 
 	/** @brief Retrieves the option name at a given position */
 	std::string optionName(std::size_t = 0) const;
@@ -281,6 +280,9 @@ public:
    /** @brief The destructor */
    virtual ~GFileParsableI();
 
+   /** @brief Executes a stored call-back function */
+   virtual void executeCallBackFunction() = 0;
+
    /** @brief Checks whether this is an essential variable at a given position */
    bool isEssential() const;
 
@@ -326,6 +328,12 @@ public:
    );
    /** @brief The destructor */
    virtual ~GCLParsableI();
+
+protected:
+   /** @brief Saves data to a property tree object */
+   virtual void save(boost::program_options::options_description&) const = 0;
+   /** @brief Returns the content of this object as a std::string */
+   virtual std::string content() const = 0;
 
 private:
    /***************************************************************************/
@@ -1196,6 +1204,74 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * This class wraps a reference to individual command line parameters.
+ */
+template <typename parameter_type>
+class GCLReferenceParsableParameterT
+   : public GCLParsableI
+{
+   // We want GParserBuilder to be able to call our private functions
+   friend class GParserBuilder;
+
+public:
+   /***************************************************************************/
+   /**
+    * A constructor that initializes the internal reference
+    *
+    * @param storedReference A reference to a variable in which parsed values should be stored
+    * @param defVal The default value of this variable
+    */
+   GCLReferenceParsableParameterT(
+      parameter_type& storedReference
+      , const std::string& optionNameVar
+      , const std::string& commentVar
+      , parameter_type defVal
+   )
+      : GCLParsableI(
+         GCLParsableI::makeVector(optionNameVar)
+         , GCLParsableI::makeVector(commentVar)
+        )
+      , storedReference_(storedReference)
+      , def_val_(defVal)
+   { /* nothing */ }
+
+protected:
+   /***************************************************************************/
+   /**
+    * Saves data to a property tree object
+    */
+   virtual void save(boost::program_options::options_description& desc) const {
+      namespace po = boost::program_options;
+      desc.add_options() (
+            (this->optionName()).c_str()
+            , po::value<parameter_type>(&storedReference_)->default_value(def_val_)
+            , (this->comment()).c_str()
+      );
+   }
+
+   /***************************************************************************/
+   /**
+    * Returns the content of this object as a std::string
+    */
+   virtual std::string content() const {
+      std::ostringstream result;
+      result << this->optionName() << " :\t" << storedReference_ << "\t" << ((storedReference_!=def_val_)?"default: " + boost::lexical_cast<std::string>(def_val_):std::string(""));
+      return result.str();
+   }
+
+private:
+   /***************************************************************************/
+   GCLReferenceParsableParameterT(); ///< The default constructor. Intentionally private and undefined
+
+   parameter_type& storedReference_; ///< Holds the reference to which the parsed value will be assigned
+   parameter_type def_val_; ///< Holds the default value
+};
+
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * This class implements a "parser builder", that allows to easily specify
  * the options that the parser should search for in a configuration file.
  * Results of the parsing process will be written directly into the supplied
@@ -1215,12 +1291,15 @@ public:
 
 	/** @brief Tries to parse a given configuration file for a set of options */
 	bool parseConfigFile(const std::string&);
-
 	/** @brief Writes out a configuration file */
 	void writeConfigFile(const std::string& = "", const std::string& = "", bool = true) const;
+	/** @brief Provides information on the number of file configuration options stored in this class */
+	std::size_t numberOfFileOptions() const;
 
-	/** @brief Provides information on the number of configuration options stored in this class */
-	std::size_t numberOfOptions() const;
+	/** @brief Parses the commandline for options */
+	bool parseCommandLine(int, char **,bool=false);
+   /** @brief Provides information on the number of command line configuration options stored in this class */
+   std::size_t numberOfCLOptions() const;
 
 	/***************************************************************************/
 	/**
@@ -1248,7 +1327,7 @@ public:
 		singleParm_ptr->registerCallBackFunction(callBack);
 
 		// Store for later usage
-		parameter_proxies_.push_back(singleParm_ptr);
+		file_parameter_proxies_.push_back(singleParm_ptr);
 	}
 
 	/***************************************************************************/
@@ -1285,7 +1364,7 @@ public:
 		combParm_ptr->registerCallBackFunction(callBack);
 
 		// Store one and two for later usage
-		parameter_proxies_.push_back(combParm_ptr);
+		file_parameter_proxies_.push_back(combParm_ptr);
 	}
 
 	/***************************************************************************/
@@ -1317,7 +1396,7 @@ public:
 			);
 
 		// Store for later usage
-		parameter_proxies_.push_back(refParm_ptr);
+		file_parameter_proxies_.push_back(refParm_ptr);
 	}
 
 	/***************************************************************************/
@@ -1345,7 +1424,7 @@ public:
 		vecParm_ptr->registerCallBackFunction(callBack);
 
 		// Store for later usage
-		parameter_proxies_.push_back(vecParm_ptr);
+		file_parameter_proxies_.push_back(vecParm_ptr);
 	}
 
 	/***************************************************************************/
@@ -1371,7 +1450,7 @@ public:
 			);
 
 		// Store for later usage
-		parameter_proxies_.push_back(vecRefParm_ptr);
+		file_parameter_proxies_.push_back(vecRefParm_ptr);
 	}
 
 	/***************************************************************************/
@@ -1401,13 +1480,13 @@ public:
 		arrayParm_ptr->registerCallBackFunction(callBack);
 
 		// Store for later usage
-		parameter_proxies_.push_back(arrayParm_ptr);
+		file_parameter_proxies_.push_back(arrayParm_ptr);
 	}
 
 	/***************************************************************************/
 	/**
 	 * Adds a reference to an array of configurable type but fixed size
-	 * to the collection
+	 * to the file parameter collection
 	 */
 	template <typename parameter_type, std::size_t N>
 	void registerFileParameter(
@@ -1428,14 +1507,49 @@ public:
 			);
 
 		// Store for later usage
-		parameter_proxies_.push_back(arrayRefParm_ptr);
+		file_parameter_proxies_.push_back(arrayRefParm_ptr);
 	}
+
+	/***************************************************************************/
+   /**
+    * Adds a reference to a configurable type to the command line parameters.
+    *
+    * @param optionName The name of the option
+    * @param parameter The parameter into which the value will be written
+    * @param def_val A default value to be used if the corresponding parameter was not found in the configuration file
+    * @param comment A comment to be associated with the parameter in configuration files
+    */
+   template <typename parameter_type>
+   void registerCLParameter(
+      std::string optionName
+      , parameter_type& parameter
+      , parameter_type def_val
+      , std::string comment = ""
+   ) {
+      boost::shared_ptr<GCLReferenceParsableParameterT<parameter_type> >
+         refParm_ptr(new GCLReferenceParsableParameterT<parameter_type>(
+               parameter
+               , optionName
+               , comment
+               , def_val
+            )
+         );
+
+      // Store for later usage
+      cl_parameter_proxies_.push_back(refParm_ptr);
+   }
+
 
 private:
 	/***************************************************************************/
 
-	std::vector<boost::shared_ptr<GFileParsableI> > parameter_proxies_; ///< Holds parameter proxies
+	std::vector<boost::shared_ptr<GFileParsableI> > file_parameter_proxies_; ///< Holds file parameter proxies
+	std::vector<boost::shared_ptr<GCLParsableI> >   cl_parameter_proxies_;   ///< Holds command line parameter proxies
 };
+
+/******************************************************************************/
+// Indicates whether help was requested using the -h or --help switch on the command line
+const bool GCL_HELP_REQUESTED = true;
 
 /******************************************************************************/
 

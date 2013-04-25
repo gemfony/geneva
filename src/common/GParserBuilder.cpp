@@ -252,7 +252,7 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
 
 		// Load the data into our objects and execute the relevant call-back functions
 		std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
-		for(it=parameter_proxies_.begin(); it!=parameter_proxies_.end(); ++it) {
+		for(it=file_parameter_proxies_.begin(); it!=file_parameter_proxies_.end(); ++it) {
 			(*it)->load(ptr);
 			(*it)->executeCallBackFunction();
 		}
@@ -345,7 +345,7 @@ void GParserBuilder::writeConfigFile(
 	}
 
 	// Do some error checking
-	if(parameter_proxies_.size() == 0) {
+	if(file_parameter_proxies_.size() == 0) {
 		glogger
 		<< "In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
 		<< GEXCEPTION;
@@ -360,16 +360,17 @@ void GParserBuilder::writeConfigFile(
 			ofs << "// " << *h << std::endl;
 		}
 	}
-	ofs << "// File creation date: " << boost::posix_time::second_clock::local_time() << std::endl
-		<< "//-----------------------------------------------------------------" << std::endl
-		<< std::endl;
+	ofs
+	<< "// File creation date: " << boost::posix_time::second_clock::local_time() << std::endl
+	<< "//-----------------------------------------------------------------" << std::endl
+	<< std::endl;
 
 	// Create a property tree object;
 	ptree pt;
 
 	// Output variables and values
 	std::vector<boost::shared_ptr<GFileParsableI> >::const_iterator cit;
-	for(cit=parameter_proxies_.begin(); cit!=parameter_proxies_.end(); ++cit) {
+	for(cit=file_parameter_proxies_.begin(); cit!=file_parameter_proxies_.end(); ++cit) {
 		// Only write out the parameter(s) if they are either essential or it
 		// has been requested to write out all parameters regardless
 		if(!writeAll && !(*cit)->isEssential()) continue;
@@ -383,7 +384,6 @@ void GParserBuilder::writeConfigFile(
 
 	// Close the file handle
 	ofs.close();
-
 }
 
 /******************************************************************************/
@@ -392,8 +392,82 @@ void GParserBuilder::writeConfigFile(
  *
  * @return The number of configuration options stored in this class
  */
-std::size_t GParserBuilder::numberOfOptions() const {
-	return parameter_proxies_.size();
+std::size_t GParserBuilder::numberOfFileOptions() const {
+	return file_parameter_proxies_.size();
+}
+
+/******************************************************************************/
+/**
+ * Parses the commandline for options
+ *
+ * @param argc The argument count
+ * @param argv The argument vector
+ * @param verbose If set to true, the function will emit information about the parsed parameters
+ * @return A boolean indicating whether help was requested (true) or not (false)
+ */
+bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
+   namespace po = boost::program_options;
+
+   bool result = false;
+
+   try {
+      std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
+      po::options_description desc(usageString.c_str());
+
+      // We always want --help and -h to be available
+      desc.add_options() ("help,h", "Emit help message");
+
+      // Add further options from the parameter objects
+      std::vector<boost::shared_ptr<GCLParsableI> >::iterator it;
+      for(it=cl_parameter_proxies_.begin(); it!=cl_parameter_proxies_.end(); ++it) {
+         (*it)->save(desc);
+      }
+
+      // Do the actual parsing
+      po::variables_map vm;
+      po::store(po::parse_command_line(argc, argv, desc), vm);
+      po::notify(vm);
+
+      // Emit a help message, if necessary and let the caller of this function know
+      if (vm.count("help")) {
+         std::cout << desc << std::endl;
+         result=true;
+      } else {
+         if(verbose) {
+            std::cout
+            << "GParserBuilder::parseCommandLine():" << std::endl
+            << "Working with the following options:" << std::endl;
+            for(it=cl_parameter_proxies_.begin(); it!=cl_parameter_proxies_.end(); ++it) {
+               std::cout << (*it)->content() << std::endl;
+            }
+            std::cout << std::endl;
+         }
+      }
+   }
+   catch(const po::error& e) {
+      std::cerr
+      << "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
+      << "Error parsing the command line:" << std::endl
+      << e.what() << std::endl;
+      exit(1);
+   }
+   catch(...) {
+      std::cerr
+      << "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
+      << "Unknown error while parsing the command line" << std::endl;
+      exit(1);
+   }
+
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Provides information on the number of command line configuration options
+ * stored in this class
+ */
+std::size_t GParserBuilder::numberOfCLOptions() const {
+   return cl_parameter_proxies_.size();
 }
 
 /******************************************************************************/

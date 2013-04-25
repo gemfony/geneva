@@ -92,24 +92,31 @@ void setGlobalBoostArray(boost::array<int,ARRAYSIZE> par) {
  * This example illustrates the usage options of the GParserBuilder class
  */
 int main(int argc, char **argv) {
-	int creationSwitcher = 0;
-	const std::string fileName = "./config/configFile.json";
-
-	// This is simple-minded
-	if(argc!=2) {
-		usage();
-	}
-	try {
-		creationSwitcher = boost::lexical_cast<int>(argv[1]);
-	} catch(...) {
-		usage();
-	}
-	if(creationSwitcher != 0 && creationSwitcher != 1) {
-		usage();
-	}
+	int creationSwitcher;
+	std::string fileName;
 
 	// Create the parser builder
 	Gem::Common::GParserBuilder gpb;
+
+	// Register some command line options
+	gpb.registerCLParameter<int>(
+	      "creationSwitcher,c"
+	      , creationSwitcher
+	      , 0
+	      , "Allows to switch between configuration file creation (0) and file parsing (1)"
+	);
+
+	gpb.registerCLParameter<std::string>(
+	      "fileName,f"
+	      , fileName
+	      , "./config/configFile.json"
+	      , "The name of the file information should be written to or read from"
+	);
+
+	// Parse the command line and leave if the help flag was given
+	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+	   exit(0);
+	}
 
 	//----------------------------------------------------------------
 	// Example 1: Registering a call-back function (which in this
@@ -225,7 +232,7 @@ int main(int argc, char **argv) {
 	//----------------------------------------------------------------
 
 	// Check the number of registered options
-	std::cout << "Got " << gpb.numberOfOptions() << " options." << std::endl;
+	std::cout << "Got " << gpb.numberOfFileOptions() << " options." << std::endl;
 
 	// Depending on the command line argument, write or read a configuration file
 	switch(creationSwitcher) {

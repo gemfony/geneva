@@ -179,7 +179,7 @@ public:
 		this->postProcess_(p);
 
 		// Write out the configuration file, if options have been registered
-		if(gpb.numberOfOptions() > 0) {
+		if(gpb.numberOfFileOptions() > 0) {
 			gpb.writeConfigFile(configFile_, header, true);
 		} else {
 			std::cout
