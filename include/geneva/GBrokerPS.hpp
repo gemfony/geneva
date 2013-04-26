@@ -1,5 +1,5 @@
 /**
- * @file GMultiThreadedPS.hpp
+ * @file GBrokerPS.hpp
  */
 
 /*
@@ -35,10 +35,9 @@
 // Standard headers go here
 
 // Boost headers go here
-#include <boost/cast.hpp>
 
-#ifndef GMULTITHREADEDPS_HPP_
-#define GMULTITHREADEDPS_HPP_
+#ifndef GBROKERPS_HPP_
+#define GBROKERPS_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -49,26 +48,25 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctions.hpp"
-#include "common/GThreadWrapper.hpp"
-#include "common/GThreadPool.hpp"
-#include "geneva/GBasePS.hpp"
-#include "geneva/GIndividual.hpp"
+#include "courtier/GBrokerConnectorT.hpp"
 #include "geneva/GObject.hpp"
+#include "geneva/GBasePS.hpp"
+#include "geneva/GParameterSet.hpp"
 
 #ifdef GEM_TESTING
 #include "geneva-individuals/GTestIndividual1.hpp"
 #endif /* GEM_TESTING */
-
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
 /**
- * A multi-threaded version of the GBasePS class
+ * A networked version of the GBasePS class
  */
-class GMultiThreadedPS
-   :public GBasePS
+class GBrokerPS
+   : public GBasePS
+   , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -78,26 +76,27 @@ class GMultiThreadedPS
       using boost::serialization::make_nvp;
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePS)
-         & BOOST_SERIALIZATION_NVP(nThreads_);
+         & make_nvp("GBrokerConnectorT_GParameterSet",
+               boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GParameterSet> >(*this));
    }
 
    ///////////////////////////////////////////////////////////////////////
 
 public:
    /** @brief The default constructor */
-   GMultiThreadedPS();
+   GBrokerPS();
    /** @brief A standard copy constructor */
-   GMultiThreadedPS(const GMultiThreadedPS&);
+   GBrokerPS(const GBrokerPS&);
    /** @brief The destructor */
-   virtual ~GMultiThreadedPS();
+   virtual ~GBrokerPS();
 
    /** @brief A standard assignment operator */
-   const GMultiThreadedPS& operator=(const GMultiThreadedPS&);
+   const GBrokerPS& operator=(const GBrokerPS&);
 
-   /** @brief Checks for equality with another GMultiThreadedPS object */
-   bool operator==(const GMultiThreadedPS&) const;
-   /** @brief Checks for inequality with another GMultiThreadedPS object */
-   bool operator!=(const GMultiThreadedPS&) const;
+   /** @brief Checks for equality with another GBrokerPS object */
+   bool operator==(const GBrokerPS&) const;
+   /** @brief Checks for inequality with another GBrokerPS object */
+   bool operator!=(const GBrokerPS&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
    virtual boost::optional<std::string> checkRelationshipWith(
@@ -109,10 +108,8 @@ public:
          , const bool&
    ) const;
 
-   /** @brief Sets the maximum number of threads */
-   void setNThreads(boost::uint16_t);
-   /** @brief Retrieves the maximum number of threads */
-   boost::uint16_t getNThreads() const ;
+   /** @brief Checks whether a given algorithm type likes to communicate via the broker */
+   virtual bool usesBroker() const;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
    virtual void addConfigurationOptions (
@@ -132,6 +129,7 @@ protected:
    /** @brief Creates a deep clone of this object */
    virtual GObject *clone_() const;
 
+   /** @brief Performs necessary initialization work */
    virtual void init();
    /** @brief Does any necessary finalization work */
    virtual void finalize();
@@ -140,10 +138,7 @@ protected:
    virtual double doFitnessCalculation(const std::size_t&);
 
 private:
-   boost::uint16_t nThreads_; ///< The number of threads
-   bool storedServerMode_; ///< Temporary storage for individual server mode flags during optimization runs
-
-   boost::shared_ptr<Gem::Common::GThreadPool> tp_; ///< Temporarily holds a thread pool
+   bool storedServerMode_; ///< Indicates whether an individual runs in server mode
 
 public:
    /***************************************************************************/
@@ -155,13 +150,15 @@ public:
    virtual void specificTestsFailuresExpected_GUnitTests();
 };
 
+/******************************************************************************/
+
 } /* namespace Geneva */
 } /* namespace Gem */
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMultiThreadedPS)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBrokerPS)
 
 /******************************************************************************/
 
-#endif /* GMULTITHREADEDPS_HPP_ */
+#endif /* GBROKERPS_HPP_ */

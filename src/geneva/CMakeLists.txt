@@ -13,6 +13,7 @@ SET ( OPTIMIZATIONSOURCES
 	GBooleanObjectCollection
 	GBrokerEA
 	GBrokerGD
+	GBrokerPS
 	GBrokerSA
 	GBrokerSwarm
 	GConstrainedDoubleCollection

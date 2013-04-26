@@ -1,5 +1,5 @@
 /**
- * @file GMultiThreadedPS.cpp
+ * @file GBrokerPS.cpp
  */
 
 /*
@@ -32,9 +32,9 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GMultiThreadedPS.hpp"
+#include "geneva/GBrokerPS.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMultiThreadedPS)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBrokerPS)
 
 namespace Gem {
 namespace Geneva {
@@ -43,66 +43,69 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GMultiThreadedPS::GMultiThreadedPS()
-   : GBasePS()
-   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-   , storedServerMode_(false)
+GBrokerPS::GBrokerPS() :
+   GBasePS()
+   , Gem::Courtier::GBrokerConnectorT<GParameterSet>()
+   , storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard copy constructor
  */
-GMultiThreadedPS::GMultiThreadedPS(const GMultiThreadedPS& cp)
+GBrokerPS::GBrokerPS(const GBrokerPS& cp)
    : GBasePS(cp)
-   , nThreads_(cp.nThreads_)
-   , storedServerMode_(cp.storedServerMode_)
+   , Gem::Courtier::GBrokerConnectorT<GParameterSet>(cp)
+   , storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
 /**
- * The destructor. We clear remaining work items in the
- * thread pool and wait for active tasks to finish.
+ * The destructor.
  */
-GMultiThreadedPS::~GMultiThreadedPS()
+GBrokerPS::~GBrokerPS()
 { /* nothing */ }
 
 /******************************************************************************/
 /**
- * A standard assignment operator for GMultiThreadedPS objects.
+ * A standard assignment operator for GBrokerPS objects.
  *
- * @param cp Reference to another GMultiThreadedPS object
+ * @param cp Reference to another GBrokerPS object
  * @return A constant reference to this object
  */
-const GMultiThreadedPS& GMultiThreadedPS::operator=(const GMultiThreadedPS& cp) {
-   GMultiThreadedPS::load_(&cp);
+const GBrokerPS& GBrokerPS::operator=(const GBrokerPS& cp) {
+   GBrokerPS::load_(&cp);
    return *this;
 }
 
 /******************************************************************************/
 /**
- * Checks for equality with another GMultiThreadedPS object
+ * Checks for equality with another GBrokerPS object
  *
- * @param  cp A constant reference to another GMultiThreadedPS object
+ * @param  cp A constant reference to another GBrokerPS object
  * @return A boolean indicating whether both objects are equal
  */
-bool GMultiThreadedPS::operator==(const GMultiThreadedPS& cp) const {
+bool GBrokerPS::operator==(const GBrokerPS& cp) const
+{
    using namespace Gem::Common;
    // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiThreadedPS::operator==","cp", CE_SILENT);
+   return !checkRelationshipWith(cp, CE_EQUALITY, 0., "GBrokerPS::operator==",
+         "cp", CE_SILENT);
 }
 
 /******************************************************************************/
 /**
- * Checks for inequality with another GMultiThreadedPS object
+ * Checks for inequality with another GBrokerPS object
  *
- * @param  cp A constant reference to another GMultiThreadedPS object
+ * @param  cp A constant reference to another GBrokerPS object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GMultiThreadedPS::operator!=(const GMultiThreadedPS& cp) const {
+bool GBrokerPS::operator!=(const GBrokerPS& cp) const
+{
    using namespace Gem::Common;
    // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiThreadedPS::operator!=","cp", CE_SILENT);
+   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,
+         "GBrokerPS::operator!=", "cp", CE_SILENT);
 }
 
 /******************************************************************************/
@@ -118,84 +121,65 @@ bool GMultiThreadedPS::operator!=(const GMultiThreadedPS& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GMultiThreadedPS::checkRelationshipWith(
-      const GObject& cp,
-      const Gem::Common::expectation& e,
-      const double& limit,
-      const std::string& caller,
-      const std::string& y_name,
-      const bool& withMessages
+boost::optional<std::string> GBrokerPS::checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
 ) const {
-    using namespace Gem::Common;
+   using namespace Gem::Common;
+   using namespace Gem::Courtier;
 
    // Check that we are indeed dealing with a GParamterBase reference
-   const GMultiThreadedPS *p_load = GObject::gobject_conversion<GMultiThreadedPS>(&cp);
+   const GBrokerPS *p_load = GObject::gobject_conversion<GBrokerPS>(&cp);
 
    // Will hold possible deviations from the expectation, including explanations
-    std::vector<boost::optional<std::string> > deviations;
+   std::vector < boost::optional<std::string> > deviations;
 
-   // Check our parent class'es data ...
-   deviations.push_back(GBasePS::checkRelationshipWith(cp, e, limit, "GMultiThreadedPS", y_name, withMessages));
+   // Check our parent classes' data ...
+   deviations.push_back(GBasePS::checkRelationshipWith(cp, e, limit, "GBrokerPS",   y_name, withMessages));
+   deviations.push_back(GBrokerConnectorT<GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerPS", y_name, withMessages));
 
-   // ... and then our local data
-   deviations.push_back(checkExpectation(withMessages, "GMultiThreadedPS", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
+   // no local data
 
-   return evaluateDiscrepancies("GMultiThreadedPS", caller, deviations, e);
+   return evaluateDiscrepancies("GBrokerPS", caller, deviations, e);
 }
 
 /***********************************************************************************/
 /**
  * Emits a name for this class / object
  */
-std::string GMultiThreadedPS::name() const {
-   return std::string("GMultiThreadedPS");
+std::string GBrokerPS::name() const {
+   return std::string("GBrokerPS");
 }
 
 /******************************************************************************/
 /**
- * Sets the number of threads for this population. If nThreads is set
- * to 0, an attempt will be made to set the number of threads to the
- * number of hardware threading units (e.g. number of cores or hyperthreading
- * units).
+ * Checks whether this algorithm communicates via the broker. This is an overload from the corresponding
+ * GOptimizableI function
  *
- * @param nThreads The number of threads this class uses
+ * @return A boolean indicating whether this algorithm communicates via the broker
  */
-void GMultiThreadedPS::setNThreads(boost::uint16_t nThreads) {
-   if(nThreads == 0) {
-      nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
-   }
-   else {
-      nThreads_ = nThreads;
-   }
+bool GBrokerPS::usesBroker() const {
+   return true;
 }
 
 /******************************************************************************/
 /**
- * Retrieves the number of threads this population uses.
+ * Loads the data from another GBrokerPS object.
  *
- * @return The maximum number of allowed threads
+ * @param vp Pointer to another GBrokerPS object, camouflaged as a GObject
  */
-boost::uint16_t GMultiThreadedPS::getNThreads() const  {
-   return nThreads_;
-}
+void GBrokerPS::load_(const GObject *cp) {
+   const GBrokerPS *p_load = gobject_conversion<GBrokerPS> (cp);
 
-/******************************************************************************/
-/**
- * Loads the data from another GMultiThreadedPS object.
- *
- * @param vp Pointer to another GMultiThreadedPS object, camouflaged as a GObject
- */
-void GMultiThreadedPS::load_(const GObject *cp) {
-   // Convert GObject pointer to local format
-   const GMultiThreadedPS *p_load = this->gobject_conversion<GMultiThreadedPS>(cp);
-
-   // First load our parent class'es data ...
+   // Load the parent classes' data ...
    GBasePS::load_(cp);
+   Gem::Courtier::GBrokerConnectorT<GParameterSet>::load(p_load);
 
-   // ... and then our own
-   nThreads_ = p_load->nThreads_;
-
-   // Note that we do not copy storedServerMode_ as it is used for internal caching only
+   // ... no local data. We do not load storedServerMode_, which is a temporary
 }
 
 /******************************************************************************/
@@ -204,20 +188,17 @@ void GMultiThreadedPS::load_(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GMultiThreadedPS::clone_() const  {
-   return new GMultiThreadedPS(*this);
+GObject *GBrokerPS::clone_() const {
+   return new GBrokerPS(*this);
 }
 
 /******************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization
  */
-void GMultiThreadedPS::init() {
-   // GBasePS sees exactly the environment it would when called from its own class
+void GBrokerPS::init() {
+   // GGradientDesccent sees exactly the environment it would when called from its own class
    GBasePS::init();
-
-   // Initialize our thread pool
-   tp_.reset(new Gem::Common::GThreadPool(nThreads_));
 
    // We want to confine re-evaluation to defined places. However, we also want to restore
    // the original flags. We thus record the previous setting when setting the flag to true.
@@ -234,7 +215,7 @@ void GMultiThreadedPS::init() {
 
       if(storedServerMode_ != (*it)->setServerMode(true)) {
          glogger
-         << "In GMultiThreadedPS::init():" << std::endl
+         << "In GBrokerPS::init():" << std::endl
          << "Not all server mode flags have the same value!" << std::endl
          << GEXCEPTION;
       }
@@ -245,15 +226,12 @@ void GMultiThreadedPS::init() {
 /**
  * Necessary clean-up work after the optimization has finished
  */
-void GMultiThreadedPS::finalize() {
+void GBrokerPS::finalize() {
    // Restore the original values
    std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
    for(it=data.begin(); it!=data.end(); ++it) {
       (*it)->setServerMode(storedServerMode_);
    }
-
-   // Terminate our thread pool
-   tp_.reset();
 
    // GBasePS sees exactly the environment it would when called from its own class
    GBasePS::finalize();
@@ -266,7 +244,7 @@ void GMultiThreadedPS::finalize() {
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GMultiThreadedPS::addConfigurationOptions (
+void GBrokerPS::addConfigurationOptions (
    Gem::Common::GParserBuilder& gpb
    , const bool& showOrigin
 ) {
@@ -274,23 +252,9 @@ void GMultiThreadedPS::addConfigurationOptions (
 
    // Call our parent class'es function
    GBasePS::addConfigurationOptions(gpb, showOrigin);
+   Gem::Courtier::GBrokerConnectorT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 
-   // add local data
-   comment = ""; // Reset the comment string
-   comment += "The number of evaluation threads;";
-   comment += "0 means: determine automatically;";
-   if(showOrigin) comment += "[GMultiThreadedPS]";
-   gpb.registerFileParameter<boost::uint16_t>(
-      "nEvaluationThreads" // The name of the variable
-      , 0 // The default value
-      , boost::bind(
-         &GMultiThreadedPS::setNThreads
-         , this
-         , _1
-      )
-      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-      , comment
-   );
+   // no local data
 }
 
 /******************************************************************************/
@@ -299,53 +263,59 @@ void GMultiThreadedPS::addConfigurationOptions (
  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
  * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
  */
-std::string GMultiThreadedPS::getIndividualCharacteristic() const {
-   return std::string("GENEVA_MTOPTALG");
+std::string GBrokerPS::getIndividualCharacteristic() const {
+   return std::string("GENEVA_BROKEROPTALG");
 }
 
 /******************************************************************************/
 /**
  * Triggers fitness calculation of a number of individuals. This function performs the same task as done
- * in GBasePS, albeit multi-threaded.
+ * in GBasePS, albeit by delegating work to the broker. Items are evaluated up to a maximum position
+ * in the vector. Note that we always start the evaluation with the first item in the vector.
  *
  * @param finalPos The position in the vector up to which the fitness calculation should be performed
  * @return The best fitness found amongst all parents
  */
-double GMultiThreadedPS::doFitnessCalculation(const std::size_t& finalPos) {
-   GMultiThreadedPS::iterator it; // An iterator that allows us to loop over the collection
-   double bestFitness = getWorstCase(); // Holds the best fitness found so far
+double GBrokerPS::doFitnessCalculation(const std::size_t& finalPos) {
+   using namespace Gem::Courtier;
+   bool complete = false;
 
-   // Trigger value calculation for all individuals (including parents)
-   for(it=this->begin(); it!=this->end(); ++it) {
 #ifdef DEBUG
+   for (std::size_t i = 0; i < finalPos; i++) {
       // Make sure the evaluated individuals have the dirty flag set
-      if(!(*it)->isDirty()) {
+      if(!this->at(i)->isDirty()) {
          glogger
-         << "In GMultiThreadedPS::doFitnessCalculation(const std::size_t&):" << std::endl
-         << "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set" << std::endl
+         << "In GBrokerPS::doFitnessCalculation(const std::size_t&):" << std::endl
+         << "Found individual in position " << i << " whose dirty flag isn't set" << std::endl
          << GEXCEPTION;
       }
+   }
 #endif /* DEBUG */
 
-      // Make sure we are allowed to perform value calculation
-      (*it)->setServerMode(false);
+   //--------------------------------------------------------------------------------
+   // Submit all work items and wait for their return
+   boost::tuple<std::size_t,std::size_t> range(0, this->size());
+   complete = GBrokerConnectorT<GParameterSet>::workOn(
+         data
+         , range
+         , EXPECTFULLRETURN
+   );
 
-      // Submit the actual task
-      tp_->schedule(boost::function<double()>(boost::bind(&GParameterSet::fitness, *it, 0)));
+   if(!complete) {
+      glogger
+      << "In GBrokerPS::doFitnessCalculation(): Error!" << std::endl
+      << "No complete set of items received" << std::endl
+      << GEXCEPTION;
    }
 
-   // wait for the pool to run out of tasks
-   tp_->wait();
-
-   // Retrieve information about the best fitness found and disallow re-evaluation
+   //--------------------------------------------------------------------------------
+   // Retrieve information about the best fitness found
+   double bestFitness = getWorstCase(); // Holds the best fitness found so far
    double fitnessFound = 0.;
-   for(it=this->begin(); it!=this->begin() + finalPos; ++it) {
-      // Prevents re-evaluation
-      (*it)->setServerMode(true);
+   for (std::size_t i = 0; i < this->size(); i++) {
+      fitnessFound = this->at(i)->fitness();
 
-      fitnessFound = (*it)->fitness(0);
-
-      if(isBetter(fitnessFound, bestFitness)) {
+      if (isBetter(fitnessFound, bestFitness)) {
          bestFitness = fitnessFound;
       }
    }
@@ -359,8 +329,9 @@ double GMultiThreadedPS::doFitnessCalculation(const std::size_t& finalPos) {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GMultiThreadedPS::modify_GUnitTests() {
+bool GBrokerPS::modify_GUnitTests() {
 #ifdef GEM_TESTING
+
    bool result = false;
 
    // Call the parent class'es function
@@ -369,7 +340,7 @@ bool GMultiThreadedPS::modify_GUnitTests() {
    return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GMultiThreadedPS::modify_GUnitTests", "GEM_TESTING");
+   condnotset("GBrokerPS::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -378,13 +349,13 @@ bool GMultiThreadedPS::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GMultiThreadedPS::specificTestsNoFailureExpected_GUnitTests() {
+void GBrokerPS::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
    // Call the parent class'es function
    GBasePS::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GMultiThreadedPS::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   condnotset("GBrokerPS::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -392,13 +363,13 @@ void GMultiThreadedPS::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GMultiThreadedPS::specificTestsFailuresExpected_GUnitTests() {
+void GBrokerPS::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
    // Call the parent class'es function
    GBasePS::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GMultiThreadedPS::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   condnotset("GBrokerPS::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -406,4 +377,3 @@ void GMultiThreadedPS::specificTestsFailuresExpected_GUnitTests() {
 
 } /* namespace Geneva */
 } /* namespace Gem */
-

@@ -15,6 +15,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GBooleanObjectCollection.hpp
 	GBrokerEA.hpp
 	GBrokerGD.hpp
+	GBrokerPS.hpp
 	GBrokerSA.hpp
 	GBrokerSwarm.hpp
 	GConstrainedDoubleCollection.hpp
