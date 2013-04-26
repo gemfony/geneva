@@ -57,10 +57,6 @@
 #include "geneva/GBaseParChildT.hpp"
 #include "geneva/GPSPersonalityTraits.hpp"
 
-#ifdef GEM_TESTING
-#include "geneva-individuals/GFunctionIndividual.hpp"
-#endif /* GEM_TESTING */
-
 namespace Gem {
 namespace Geneva {
 
