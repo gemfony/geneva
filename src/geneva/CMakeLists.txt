@@ -3,7 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( OPTIMIZATIONSOURCES
 	GBaseEA
 	GBaseGD
-	GBaseParameterScan
+	GBasePS
 	GBaseParChildPersonalityTraits
 	GBaseSA
 	GBaseSwarm
@@ -48,6 +48,7 @@ SET ( OPTIMIZATIONSOURCES
 	GMPEAPersonalityTraits
 	GMultiThreadedEA
 	GMultiThreadedGD
+	GMultiThreadedPS
 	GMultiThreadedSA
 	GMultiThreadedSwarm
 	Go2
@@ -67,6 +68,7 @@ SET ( OPTIMIZATIONSOURCES
 	GScanPar
 	GSerialEA
 	GSerialGD
+	GSerialPS
 	GSerialSA
 	GSerialSwarm
 	GSimulatedAnnealingFactory

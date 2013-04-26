@@ -1,5 +1,5 @@
 /**
- * @file GBaseParameterScan.hpp
+ * @file GBasePS.hpp
  */
 
 /*
@@ -36,8 +36,8 @@
 
 // Boost headers go here
 
-#ifndef GBASEPARAMETERSCAN_HPP_
-#define GBASEPARAMETERSCAN_HPP_
+#ifndef GBASEPS_HPP_
+#define GBASEPS_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -65,7 +65,7 @@ namespace Gem {
 namespace Geneva {
 
 // Forward declaration
-class GParameterScanOptimizationMonitor;
+class GPSOptimizationMonitor;
 
 /******************************************************************************/
 // A number of typedefs that indicate the position and value of a parameter
@@ -109,7 +109,7 @@ struct parSet {
  * by those parameters intended to be modified). The optimization monitor associated
  * with this class will simply store all parameters and results in an XML file.
  */
-class GBaseParameterScan
+class GBasePS
    :public GOptimizationAlgorithmT<GParameterSet>
 {
    ///////////////////////////////////////////////////////////////////////
@@ -132,19 +132,19 @@ class GBaseParameterScan
 
 public:
    /** @brief The default constructor */
-   GBaseParameterScan();
+   GBasePS();
    /** @brief A standard copy constructor */
-   GBaseParameterScan(const GBaseParameterScan&);
+   GBasePS(const GBasePS&);
    /** @brief The destructor */
-   virtual ~GBaseParameterScan();
+   virtual ~GBasePS();
 
    /** @brief A standard assignment operator */
-   const GBaseParameterScan& operator=(const GBaseParameterScan&);
+   const GBasePS& operator=(const GBasePS&);
 
-   /** @brief Checks for equality with another GBaseParameterScan object */
-   bool operator==(const GBaseParameterScan&) const;
-   /** @brief Checks for inequality with another GBaseParameterScan object */
-   bool operator!=(const GBaseParameterScan&) const;
+   /** @brief Checks for equality with another GBasePS object */
+   bool operator==(const GBasePS&) const;
+   /** @brief Checks for inequality with another GBasePS object */
+   bool operator!=(const GBasePS&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
    virtual boost::optional<std::string> checkRelationshipWith(
@@ -230,7 +230,7 @@ private:
          // Check that we haven't exceeded the size of the boolean data vector
          if(lPos >= dataVec.size()) {
             glogger
-            << "In GBaseParameterScan::addDataPoint(): Error!" << std::endl
+            << "In GBasePS::addDataPoint(): Error!" << std::endl
             << "Got position beyond end of data vector: " << lPos << " / " << dataVec.size() << std::endl
             << GEXCEPTION;
          }
@@ -284,7 +284,7 @@ public:
     * This class defines the interface of optimization monitors, as used
     * by default in the Geneva library for evolutionary algorithms.
     */
-   class GParameterScanOptimizationMonitor
+   class GPSOptimizationMonitor
       :public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
    {
       ///////////////////////////////////////////////////////////////////////
@@ -302,18 +302,18 @@ public:
 
      public:
       /** @brief The default constructor */
-      GParameterScanOptimizationMonitor();
+      GPSOptimizationMonitor();
       /** @brief The copy constructor */
-      GParameterScanOptimizationMonitor(const GParameterScanOptimizationMonitor&);
+      GPSOptimizationMonitor(const GPSOptimizationMonitor&);
       /** @brief The destructor */
-      virtual ~GParameterScanOptimizationMonitor();
+      virtual ~GPSOptimizationMonitor();
 
       /** @brief A standard assignment operator */
-      const GParameterScanOptimizationMonitor& operator=(const GParameterScanOptimizationMonitor&);
+      const GPSOptimizationMonitor& operator=(const GPSOptimizationMonitor&);
       /** @brief Checks for equality with another GParameter Base object */
-      virtual bool operator==(const GParameterScanOptimizationMonitor&) const;
-      /** @brief Checks for inequality with another GParameterScanOptimizationMonitor object */
-      virtual bool operator!=(const GParameterScanOptimizationMonitor&) const;
+      virtual bool operator==(const GPSOptimizationMonitor&) const;
+      /** @brief Checks for inequality with another GPSOptimizationMonitor object */
+      virtual bool operator!=(const GPSOptimizationMonitor&) const;
 
       /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
       virtual boost::optional<std::string> checkRelationshipWith(
@@ -365,7 +365,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBaseParameterScan)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBaseParameterScan::GParameterScanOptimizationMonitor)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBasePS)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBasePS::GPSOptimizationMonitor)
 
-#endif /* GBASEPARAMETERSCAN_HPP_ */
+#endif /* GBASEPS_HPP_ */

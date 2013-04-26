@@ -3,7 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( OPTIMIZATIONINCLUDES
 	GAdaptorT.hpp
 	GBaseEA.hpp
-	GBaseParameterScan.hpp
+	GBasePS.hpp
 	GBaseParChildPersonalityTraits.hpp
 	GBaseParChildT.hpp
 	GBaseGD.hpp
@@ -63,6 +63,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GMultiPopulationEAT.hpp
 	GMultiThreadedEA.hpp
 	GMultiThreadedGD.hpp
+	GMultiThreadedPS.hpp
 	GMultiThreadedSA.hpp	
 	GMultiThreadedSwarm.hpp
 	GMutableI.hpp
@@ -95,6 +96,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GScanPar.hpp
 	GSerialEA.hpp
 	GSerialGD.hpp
+	GSerialPS.hpp
 	GSerialSA.hpp
 	GSerialSwarm.hpp
 	GSimulatedAnnealingFactory.hpp
