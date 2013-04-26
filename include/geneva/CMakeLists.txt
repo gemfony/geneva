@@ -87,6 +87,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterBaseWithAdaptorsT.hpp
 	GParameterCollectionT.hpp
 	GParameterObjectCollection.hpp
+	GParameterScanFactory.hpp
 	GParameterSet.hpp
 	GParameterT.hpp
 	GParameterTCollectionT.hpp

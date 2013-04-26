@@ -61,6 +61,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterBaseWithAdaptorsT
 	GParameterCollectionT
 	GParameterObjectCollection
+	GParameterScanFactory
 	GParameterSet
 	GParameterT
 	GPersonalityTraits

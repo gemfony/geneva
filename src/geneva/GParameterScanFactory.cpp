@@ -1,5 +1,5 @@
 /**
- * @file GGradientDescentFactory.cpp
+ * @file GParameterScanFactory.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GGradientDescentFactory.hpp"
+#include "geneva/GParameterScanFactory.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -42,12 +42,12 @@ namespace Geneva {
  * A constructor with the ability to switch the parallelization mode. It initializes a
  * target item as needed.
  */
-GGradientDescentFactory::GGradientDescentFactory(
-	const std::string& configFile
-	, const parMode& pm
+GParameterScanFactory::GParameterScanFactory(
+   const std::string& configFile
+   , const parMode& pm
 )
-	: GOptimizationAlgorithmFactoryT<GBaseGD>(configFile, pm)
-	, maxResubmissions_(0)
+   : GOptimizationAlgorithmFactoryT<GBasePS>(configFile, pm)
+   , maxResubmissions_(0)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -55,12 +55,12 @@ GGradientDescentFactory::GGradientDescentFactory(
  * A constructor with the ability to switch the parallelization mode and
  * to add a content creator. It initializes a target item as needed.
  */
-GGradientDescentFactory::GGradientDescentFactory(
+GParameterScanFactory::GParameterScanFactory(
    const std::string& configFile
    , const parMode& pm
    , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
-   : GOptimizationAlgorithmFactoryT<GBaseGD>(configFile, pm, contentCreatorPtr)
+   : GOptimizationAlgorithmFactoryT<GBasePS>(configFile, pm, contentCreatorPtr)
    , maxResubmissions_(0)
 { /* nothing */ }
 
@@ -68,7 +68,7 @@ GGradientDescentFactory::GGradientDescentFactory(
 /**
  * The destructor
  */
-GGradientDescentFactory::~GGradientDescentFactory()
+GParameterScanFactory::~GParameterScanFactory()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -77,56 +77,56 @@ GGradientDescentFactory::~GGradientDescentFactory()
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GBaseGD> GGradientDescentFactory::getObject_(
-	Gem::Common::GParserBuilder& gpb
-	, const std::size_t& id
+boost::shared_ptr<GBasePS> GParameterScanFactory::getObject_(
+   Gem::Common::GParserBuilder& gpb
+   , const std::size_t& id
 ) {
-	// Will hold the result
-	boost::shared_ptr<GBaseGD> target;
+   // Will hold the result
+   boost::shared_ptr<GBasePS> target;
 
-	// Fill the target pointer as required
-	switch(pm_) {
-	case PARMODE_SERIAL:
-		target = boost::shared_ptr<GSerialGD>(new GSerialGD());
-		break;
+   // Fill the target pointer as required
+   switch(pm_) {
+   case PARMODE_SERIAL:
+      target = boost::shared_ptr<GSerialPS>(new GSerialPS());
+      break;
 
-	case PARMODE_MULTITHREADED:
-		target = boost::shared_ptr<GMultiThreadedGD>(new GMultiThreadedGD());
-		break;
+   case PARMODE_MULTITHREADED:
+      target = boost::shared_ptr<GMultiThreadedPS>(new GMultiThreadedPS());
+      break;
 
-	case PARMODE_BROKERAGE:
-		target = boost::shared_ptr<GBrokerGD>(new GBrokerGD());
-		break;
-	}
+   case PARMODE_BROKERAGE:
+      target = boost::shared_ptr<GBrokerPS>(new GBrokerPS());
+      break;
+   }
 
-	// Make the local configuration options known
-	target->GBaseGD::addConfigurationOptions(gpb, true);
+   // Make the local configuration options known
+   target->GBasePS::addConfigurationOptions(gpb, true);
 
-	return target;
+   return target;
 }
 
 /******************************************************************************/
 /**
  * Allows to describe local configuration options for gradient descents
  */
-void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder& gpb) {
-	// Describe our own options
-	using namespace Gem::Courtier;
+void GParameterScanFactory::describeLocalOptions_(Gem::Common::GParserBuilder& gpb) {
+   // Describe our own options
+   using namespace Gem::Courtier;
 
-	std::string comment;
+   std::string comment;
 
-	comment = "";
-	comment += "The maximum number of allowed re-submissions in an iteration;";
-	gpb.registerFileParameter<std::size_t>(
-		"maxResubmissions"
-		, maxResubmissions_
-		, DEFAULTMAXRESUBMISSIONS
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
+   comment = "";
+   comment += "The maximum number of allowed re-submissions in an iteration;";
+   gpb.registerFileParameter<std::size_t>(
+      "maxResubmissions"
+      , maxResubmissions_
+      , DEFAULTMAXRESUBMISSIONS
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
 
-	// Allow our parent class to describe its options
-	GOptimizationAlgorithmFactoryT<GBaseGD>::describeLocalOptions_(gpb);
+   // Allow our parent class to describe its options
+   GOptimizationAlgorithmFactoryT<GBasePS>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -136,35 +136,35 @@ void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder&
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GGradientDescentFactory::postProcess_(boost::shared_ptr<GBaseGD>& p_base) {
-	// Convert the object to the correct target type
-	switch(pm_) {
-	case PARMODE_SERIAL:
-		// nothing
-		break;
+void GParameterScanFactory::postProcess_(boost::shared_ptr<GBasePS>& p_base) {
+   // Convert the object to the correct target type
+   switch(pm_) {
+   case PARMODE_SERIAL:
+      // nothing
+      break;
 
-	case PARMODE_MULTITHREADED:
-		{
-			boost::shared_ptr<GMultiThreadedGD> p = boost::dynamic_pointer_cast<GMultiThreadedGD>(p_base);
-			p->setNThreads(nEvaluationThreads_);
-		}
-		break;
+   case PARMODE_MULTITHREADED:
+      {
+         boost::shared_ptr<GMultiThreadedPS> p = boost::dynamic_pointer_cast<GMultiThreadedPS>(p_base);
+         p->setNThreads(nEvaluationThreads_);
+      }
+      break;
 
-	case PARMODE_BROKERAGE:
-		{
-			boost::shared_ptr<GBrokerGD> p = boost::dynamic_pointer_cast<GBrokerGD>(p_base);
+   case PARMODE_BROKERAGE:
+      {
+         boost::shared_ptr<GBrokerPS> p = boost::dynamic_pointer_cast<GBrokerPS>(p_base);
 
-			p->setFirstTimeOut(firstTimeOut_);
-			p->setWaitFactorExtremes(minWaitFactor_, maxWaitFactor_);
-			p->doLogging(doLogging_);
-			p->setBoundlessWait(boundlessWait_);
-			p->setWaitFactorIncrement(waitFactorIncrement_);
+         p->setFirstTimeOut(firstTimeOut_);
+         p->setWaitFactorExtremes(minWaitFactor_, maxWaitFactor_);
+         p->doLogging(doLogging_);
+         p->setBoundlessWait(boundlessWait_);
+         p->setWaitFactorIncrement(waitFactorIncrement_);
 
-			// This differs from e.g. GEvolutionaryAlgorithmFactory
-			p->setMaxResubmissions(maxResubmissions_);
-		}
-		break;
-	}
+         // This differs from e.g. GEvolutionaryAlgorithmFactory
+         p->setMaxResubmissions(maxResubmissions_);
+      }
+      break;
+   }
 }
 
 /******************************************************************************/

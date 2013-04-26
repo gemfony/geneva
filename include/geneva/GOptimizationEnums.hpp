@@ -330,12 +330,6 @@ enum personality_oa {
 
 /******************************************************************************/
 /**
- * The maximum number of resubmissions allowed in broker-based gradient descents
- */
-const std::size_t DEFAULTMAXGDRESUBMISSIONS = 5;
-
-/******************************************************************************/
-/**
  * The default value for the GSerialEA::markOldParents_ flag. This is used mostly
  * for logging purposes. If set, the algorithm will keep a copy of the parents from which the
  * children originated and will mark their id in the individual's personality traits.
