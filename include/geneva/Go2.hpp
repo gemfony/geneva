@@ -86,6 +86,7 @@
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/GGradientDescentFactory.hpp"
+#include "geneva/GParameterScanFactory.hpp"
 #include "geneva/GSimulatedAnnealingFactory.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GMultiThreadedEA.hpp"

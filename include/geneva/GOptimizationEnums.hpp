@@ -324,8 +324,8 @@ enum personality_oa {
 	, PERSONALITY_GD = 2 // Gradient descents
 	, PERSONALITY_SWARM = 3 // Swarm algorithms
 	, PERSONALITY_SA = 4 // Simulated annealing
-	, PERSONALITY_MPEA = 5 // Multi population
-	, PERSONALITY_PS = 6 // Parameter scans
+	, PERSONALITY_PS = 5 // Parameter scans
+   , PERSONALITY_MPEA = 6 // Multi population
 };
 
 /******************************************************************************/

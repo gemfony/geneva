@@ -611,6 +611,13 @@ void Go2::addAlgorithm(personality_oa pers) {
 		}
 		break;
 
+	case PERSONALITY_PS:
+      {
+         GParameterScanFactory gpsf("config/GParameterScan.json", parMode_);
+         this->addAlgorithm(gpsf());
+      }
+		break;
+
    case PERSONALITY_SA:
       {
          GSimulatedAnnealingFactory gsaf("config/GSimulatedAnnealing.json", parMode_);
@@ -827,6 +834,34 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			bestIndividuals.clear();
 		}
 			break;
+
+      case PERSONALITY_PS:
+      {
+         // Add the individuals to the GD. Note that it needs to be converted for this purpose
+         boost::shared_ptr<GBasePS> p_derived = boost::dynamic_pointer_cast<GBasePS>(p_base);
+         for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {
+            p_derived->push_back(*ind_it);
+         }
+
+         // Remove our local copies
+         this->clear();
+         assert(this->empty());
+
+         // Do the actual optimization
+         bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
+
+         // Make sure we start with the correct iteration in the next algorithm
+         iterationsConsumed_ = p_base->getIteration();
+
+         // Unload the individuals from the last algorithm and store them again in this object
+         std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->GOptimizableI::getBestIndividuals<GParameterSet>();
+         std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
+         for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
+            this->push_back(*best_it);
+         }
+         bestIndividuals.clear();
+      }
+         break;
 
 		default:
 		{
@@ -1238,7 +1273,12 @@ void Go2::parseCommandLine(int argc, char **argv) {
 				("parallelizationMode,p", po::value<parMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
 				"The desired parallelization mode (this will only affect algorithms with generic parallelization mode")
 				("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms)->default_value(GO2_DEF_OPTALGS),
-				"A comma-separated list of optimization algorithms. E.g. \"1,2,3\". (1) means \"Evolutionary Algorithms\", (2) means \"Gradient Descents\", (3) means \"Swarm Algorithms\"")
+				"A comma-separated list of optimization algorithms. E.g. \"1,2,3\". "
+				"(1) means \"Evolutionary Algorithms\", "
+				"(2) means \"Gradient Descents\", "
+				"(3) means \"Swarm Algorithms\","
+				"(4) means \"Simulated Annealing\","
+				"(5) means \"Parameter Scan\"")
 				("clientMode,c", "Makes this program behave as a networked client")
 				("ip", po::value<std::string>(&ip_)->default_value(GO2_DEF_IP),
 				"The ip of the server")
@@ -1277,7 +1317,14 @@ void Go2::parseCommandLine(int argc, char **argv) {
 				boost::trim(alg);
 				personality_oa num_alg = boost::lexical_cast<personality_oa>(alg);
 
-				if(num_alg != PERSONALITY_EA && num_alg != PERSONALITY_GD && num_alg != PERSONALITY_SA && num_alg != PERSONALITY_SWARM) {
+				if(
+				      num_alg != PERSONALITY_EA &&    // 1
+				      num_alg != PERSONALITY_GD &&    // 2
+				      num_alg != PERSONALITY_SA &&    // 3
+				      num_alg != PERSONALITY_SWARM && // 4
+				      num_alg != PERSONALITY_SA &&    // 5
+				      num_alg != PERSONALITY_PS       // 7
+				) {
 				   glogger
 				   << "In Go2::parseCommandLine(): Error!" << std::endl
                << "Received invalid personality " << num_alg << std::endl
