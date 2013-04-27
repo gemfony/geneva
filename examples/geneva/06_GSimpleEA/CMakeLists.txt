@@ -102,7 +102,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 )
 
 SET ( CONFIGFILE
-	# nothing for now
+	GSimpleEA.cfg
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
