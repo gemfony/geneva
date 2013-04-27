@@ -222,17 +222,17 @@ private:
       dType       lData = boost::get<0>(dataPoint);
       std::size_t lPos  = boost::get<1>(dataPoint);
 
-#ifdef DEBUG
-         // Check that we haven't exceeded the size of the boolean data vector
-         if(lPos >= dataVec.size()) {
-            glogger
-            << "In GBasePS::addDataPoint(): Error!" << std::endl
-            << "Got position beyond end of data vector: " << lPos << " / " << dataVec.size() << std::endl
-            << GEXCEPTION;
-         }
-#endif /* DEBUG */
+      // std::cout << lData << " " << lPos << " " << dataVec.size() << std::endl;
 
-         dataVec.at(lPos) = lData;
+      // Check that we haven't exceeded the size of the boolean data vector
+      if(lPos >= dataVec.size()) {
+         glogger
+         << "In GBasePS::addDataPoint(): Error!" << std::endl
+         << "Got position beyond end of data vector: " << lPos << " / " << dataVec.size() << std::endl
+         << GEXCEPTION;
+      }
+
+      dataVec.at(lPos) = lData;
    }
 
    /***************************************************************************/

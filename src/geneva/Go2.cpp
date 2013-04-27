@@ -1323,7 +1323,7 @@ void Go2::parseCommandLine(int argc, char **argv) {
 				      num_alg != PERSONALITY_SA &&    // 3
 				      num_alg != PERSONALITY_SWARM && // 4
 				      num_alg != PERSONALITY_SA &&    // 5
-				      num_alg != PERSONALITY_PS       // 7
+				      num_alg != PERSONALITY_PS       // 6
 				) {
 				   glogger
 				   << "In Go2::parseCommandLine(): Error!" << std::endl

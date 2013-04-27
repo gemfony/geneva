@@ -236,6 +236,7 @@ enum parMode {
 	PARMODE_SERIAL = 0
 	, PARMODE_MULTITHREADED = 1
 	, PARMODE_BROKERAGE = 2
+	, PARMODE_LAST = PARMODE_BROKERAGE
 };
 
 /**
@@ -254,6 +255,7 @@ enum duplicationScheme {
 	  DEFAULTDUPLICATIONSCHEME = 0
 	, RANDOMDUPLICATIONSCHEME = 1
 	, VALUEDUPLICATIONSCHEME = 2
+	, DUPLICATIONSCHEME_LAST = VALUEDUPLICATIONSCHEME
 };
 
 /******************************************************************************/
@@ -261,9 +263,10 @@ enum duplicationScheme {
  * The info function can be called in these three modes
  */
 enum infoMode {
-	  INFOINIT
-	, INFOPROCESSING
-	, INFOEND
+	  INFOINIT = 0
+	, INFOPROCESSING = 1
+	, INFOEND = 2
+	, INFOMODE_LAST = INFOEND
 };
 
 /******************************************************************************/
@@ -278,6 +281,7 @@ enum adaptorId {
 	, GINT32GAUSSADAPTOR
 	, GBOOLEANADAPTOR
 	, GINT32FLIPADAPTOR
+	, ADAPTORIDE_LAST = GINT32FLIPADAPTOR
 };
 
 /******************************************************************************/
@@ -293,6 +297,7 @@ enum sortingMode {
 	, MUNU1PRETAIN_SINGLEEVAL = 2
 	, MUPLUSNU_PARETO = 3
 	, MUCOMMANU_PARETO = 4
+	, SORTINGMODE_LAST = MUCOMMANU_PARETO
 };
 
 /******************************************************************************/
@@ -303,6 +308,7 @@ enum sortingModeMP {
      MUPLUSNU_SINGLEEVAL_MP = 0
    , MUCOMMANU_SINGLEEVAL_MP = 1
    , MUNU1PRETAIN_SINGLEEVAL_MP = 2
+   , SORTINGMODEMP_LAST = MUNU1PRETAIN_SINGLEEVAL_MP
 };
 
 /******************************************************************************/
@@ -326,6 +332,7 @@ enum personality_oa {
 	, PERSONALITY_SA = 4 // Simulated annealing
 	, PERSONALITY_PS = 5 // Parameter scans
    , PERSONALITY_MPEA = 6 // Multi population
+   , PERSONALITY_OA_LAST = PERSONALITY_MPEA
 };
 
 /******************************************************************************/
@@ -376,6 +383,7 @@ const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 10; ///< The default number of m
 enum updateRule {
 	  SWARM_UPDATERULE_LINEAR = 0
 	, SWARM_UPDATERULE_CLASSIC = 1
+	, UPDATERULE_LAST = SWARM_UPDATERULE_CLASSIC
 };
 
 /******************************************************************************/
