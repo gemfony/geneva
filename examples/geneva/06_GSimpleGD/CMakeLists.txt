@@ -102,8 +102,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 )
 
 SET ( CONFIGFILE
-	GSimpleGD.cfg
-	GFunctionIndividual.cfg
+	# nothing for now
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

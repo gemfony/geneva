@@ -76,10 +76,6 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
-/** @brief A termination handler */
-void GTerminateImproperBoostTermination();
-
-/******************************************************************************/
 /**
  * This class serves as a hold-all for functions governing the overall running and progress
  * of optimizations carried out with Geneva. Most notably, this class holds the startup
@@ -92,7 +88,7 @@ public:
 	 * Initialization code for the Geneva library collection. Most notably, we enforce
 	 * the initialization of various singletons needed for Geneva.
 	 */
-	static void init() {
+	static void xinit() {
 		GRANDOMFACTORY->init();
 		GBROKER(Gem::Geneva::GIndividual)->init();
 	}
@@ -103,7 +99,7 @@ public:
 	 * shutdown of various singleton services needed for Geneva. Note that we shut down
 	 * in reverse order to the startup procedure.
 	 */
-	static int finalize() {
+	static int xfinalize() {
 		GBROKER(Gem::Geneva::GIndividual)->finalize();
 		RESETGBROKER(Gem::Geneva::GIndividual);
 
@@ -111,7 +107,7 @@ public:
 		RESETGRANDOMFACTORY;
 
 #ifdef GEM_INT_FORCE_TERMINATION // Defined in GGlobalDefines.hpp.in
-		std::set_terminate(GTerminateImproperBoostTermination);
+		std::set_terminate(Geneva::GTerminateImproperBoostTermination);
 		std::terminate();
 #endif /* GEM_INT_FORCE_TERMINATION */
 
@@ -120,6 +116,24 @@ public:
 	}
 
 	/***************************************************************************/
+	/**
+	 * A termination handler
+	 */
+	static void xGTerminateImproperBoostTermination() {
+	   std::cout
+	   << "***********************************************************" << std::endl
+	   << "* Note that there seems to be a bug in some Boost         *" << std::endl
+	   << "* versions that prevents proper termination of Geneva.    *" << std::endl
+	   << "* If you see this message it means that you are using     *" << std::endl
+	   << "* one of the affected releases, so we have to force       *" << std::endl
+	   << "* termination. Since this happens when all work has       *" << std::endl
+	   << "* already been done, this will very likely have no effect *" << std::endl
+	   << "* on your results. So you can safely ignore this message. *" << std::endl
+	   << "***********************************************************" << std::endl;
+	}
+
+	/***************************************************************************/
+
 };
 
 /******************************************************************************/

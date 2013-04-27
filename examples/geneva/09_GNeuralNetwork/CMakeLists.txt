@@ -101,7 +101,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 )
 
 SET ( CONFIGFILE
-	GNeuralNetwork.cfg
+	# Nothing for now
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

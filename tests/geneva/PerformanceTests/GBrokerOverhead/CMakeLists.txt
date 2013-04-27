@@ -8,7 +8,7 @@ SET (${EXECUTABLENAME}_SRCS
 )
 
 SET (CONFIGURATIONFILES
-    GBrokerOverhead.cfg
+	# nothing for now
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

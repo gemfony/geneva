@@ -102,7 +102,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 )
 
 SET ( CONFIGFILE
-	GMultiPopulation.cfg
+	# Nothing for now
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

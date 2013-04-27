@@ -41,7 +41,7 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "geneva/Geneva.hpp"
+#include "geneva/Go2.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -80,11 +80,11 @@ int main(int argc, char **argv){
   double maxSigma;
   double adProb;
 
-  if(!parseCommandLine(argc, argv,
+  if(!Gem::Tests::parseCommandLine(argc, argv,
 		       configFile,
 		       parallelizationMode)
      ||
-     !parseConfigFile(configFile,
+     !Gem::Tests::parseConfigFile(configFile,
 		      nProducerThreads,
 		      nEvaluationThreads,
 		      populationSize,
@@ -108,7 +108,7 @@ int main(int argc, char **argv){
     { exit(1); }
 
   // Initialize the Geneva library
-  Geneva::init();
+  Go2::init();
 
   // Random numbers are our most valuable good. Set the number of threads
   GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
@@ -175,7 +175,7 @@ int main(int argc, char **argv){
     {
     	std::cout << "Using the GBoostThreadConsumerT consumer." << std::endl;
 		// Create a consumer and make it known to the global broker
-		boost::shared_ptr< GBoostThreadConsumerT<GIndividual> > gbtc(new GBoostThreadConsumerT<GIndividual>());
+		boost::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<GIndividual> > gbtc(new Gem::Courtier::GBoostThreadConsumerT<GIndividual>());
 		gbtc->setNThreadsPerWorker(nEvaluationThreads);
 		GBROKER(Gem::Geneva::GIndividual)->enrol(gbtc);
 
@@ -210,7 +210,7 @@ int main(int argc, char **argv){
 
   //--------------------------------------------------------------------------------------------
   // Shut down the Geneva library collection
-  Geneva::finalize();
+  Go2::finalize();
 
   std::cout << "Done ..." << std::endl;
   return 0;

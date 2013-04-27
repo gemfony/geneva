@@ -42,7 +42,7 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "geneva/Geneva.hpp"
+#include "geneva/Go2.hpp"
 #include "geneva/GMultiPopulationEAT.hpp"
 
 // The individual that should be optimized
@@ -131,7 +131,7 @@ int main(int argc, char **argv){
     { exit(1); }
 
   // Initialize Geneva
-  Geneva::init();
+  Go2::init();
 
   // Random numbers are our most valuable good. Set the number of threads
   GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
@@ -209,7 +209,7 @@ int main(int argc, char **argv){
 
   //--------------------------------------------------------------------------------------------
   // Terminate Geneva
-  Geneva::finalize();
+  Go2::finalize();
 
   std::cout << "Done ..." << std::endl;
   return 0;

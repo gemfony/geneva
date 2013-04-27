@@ -82,7 +82,6 @@
 #include "geneva/GInt32Collection.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/Geneva.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/GGradientDescentFactory.hpp"
@@ -297,18 +296,34 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Initialization code for the Geneva library collection.
+	 * Initialization code for the Geneva library collection. Most notably, we
+	 * enforce the initialization of various singletons needed for Geneva.
 	 */
 	static void init() {
-		Geneva::init();
+      GRANDOMFACTORY->init();
+      GBROKER(Gem::Geneva::GIndividual)->init();
 	}
 
 	/***************************************************************************/
 	/**
-	 * Finalization code for the Geneva library collection.
+	 * Finalization code for the Geneva library collection. Most notably, we enforce
+    * shutdown of various singleton services needed for Geneva. Note that we shut down
+    * in reverse order to the startup procedure.
 	 */
 	static int finalize() {
-		return Geneva::finalize();
+      GBROKER(Gem::Geneva::GIndividual)->finalize();
+      RESETGBROKER(Gem::Geneva::GIndividual);
+
+      GRANDOMFACTORY->finalize();
+      RESETGRANDOMFACTORY;
+
+#ifdef GEM_INT_FORCE_TERMINATION // Defined in GGlobalDefines.hpp.in
+      std::set_terminate(Go2::GTerminateImproperBoostTermination);
+      std::terminate();
+#endif /* GEM_INT_FORCE_TERMINATION */
+
+      std::cout << "Done ..." << std::endl;
+      return 0;
 	}
 
 	/***************************************************************************/
@@ -366,6 +381,23 @@ private:
 	      const std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >&
 	      , std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >&
 	);
+
+   /***************************************************************************/
+   /**
+    * A termination handler
+    */
+   static void GTerminateImproperBoostTermination() {
+      std::cout
+      << "***********************************************************" << std::endl
+      << "* Note that there seems to be a bug in some Boost         *" << std::endl
+      << "* versions that prevents proper termination of Geneva.    *" << std::endl
+      << "* If you see this message it means that you are using     *" << std::endl
+      << "* one of the affected releases, so we have to force       *" << std::endl
+      << "* termination. Since this happens when all work has       *" << std::endl
+      << "* already been done, this will very likely have no effect *" << std::endl
+      << "* on your results. So you can safely ignore this message. *" << std::endl
+      << "***********************************************************" << std::endl;
+   }
 
 	/***************************************************************************/
 	// These parameters can enter the object through the constructor
