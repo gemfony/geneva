@@ -43,6 +43,23 @@
 #include <boost/property_tree/xml_parser.hpp>
 
 // Geneva header files go here
+#include "geneva/GBooleanCollection.hpp"
+#include "geneva/GBooleanObject.hpp"
+#include "geneva/GBooleanObjectCollection.hpp"
+#include "geneva/GDoubleCollection.hpp"
+#include "geneva/GDoubleObject.hpp"
+#include "geneva/GDoubleObjectCollection.hpp"
+#include "geneva/GConstrainedDoubleCollection.hpp"
+#include "geneva/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/GInt32Object.hpp"
+#include "geneva/GInt32ObjectCollection.hpp"
+#include "geneva/GConstrainedInt32ObjectCollection.hpp"
+#include "geneva/GConstrainedInt32Object.hpp"
+#include "geneva/GInt32FlipAdaptor.hpp"
+#include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/GInt32Collection.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/Go2.hpp" // Includes all of the parameter object types
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
