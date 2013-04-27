@@ -67,6 +67,9 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------
 	// Server mode, serial or multi-threaded execution
 
+	// Create a clone in order to reset the Go2 object to its original settings later
+	Go2 goTmp = *(go.clone<Go2>());
+
 	// Load benchmark configuration options
 	GOptimizationBenchmarkConfig gbc("./config/GOptimizationBenchmark.json");
 
@@ -128,8 +131,8 @@ int main(int argc, char **argv) {
 			bestResult.push_back(p->fitness());
 			std::cout << "Best result in iteration " << test+1 << "/" << nTests << " with dimension " << *it << " has fitness " << p->fitness() << std::endl;
 
-			// Clear the go object
-			go.reset();
+			// Reset the go object
+			go = goTmp;
 		}
 
 		// Post process the vector, extracting mean and sigma

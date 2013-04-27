@@ -110,8 +110,6 @@ const boost::uint16_t GO2_DEF_NPRODUCERTHREADS=0;
 const boost::uint32_t GO2_DEF_OFFSET=0;
 const std::string GO2_DEF_OPTALGS="";
 
-const bool NOCLONE = true;
-
 /******************************************************************************/
 /** @brief Set a number of parameters of the random number factory */
 void setRNFParameters(const boost::uint16_t&);
@@ -226,9 +224,6 @@ public:
 
 	/** @brief Perform the actual optimization cycle */
 	virtual void optimize(const boost::uint32_t& = 0);
-
-	/** @brief Resets the object to its start position */
-	void reset();
 
 	/***************************************************************************/
 	// The following is a trivial list of getters and setters
@@ -357,8 +352,6 @@ protected:
 
 private:
 	/***************************************************************************/
-	/** @brief Copy construction without cloning */
-	Go2(const Go2&, bool);
 	/** @brief Copying of the algorithms_ vector */
 	void copyAlgorithmsVector(
 	      const std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >&
@@ -418,10 +411,6 @@ private:
     //----------------------------------------------------------------------------------------------------------------
     // The list of "chained" optimization algorithms
     std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > > algorithms_;
-
-    //----------------------------------------------------------------------------------------------------------------
-    // A clone of our pristine conditions, needed for the reset functionality
-    boost::shared_ptr<Go2> tmpl_ptr;
 };
 
 /******************************************************************************/

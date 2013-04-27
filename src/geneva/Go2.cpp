@@ -85,11 +85,6 @@ Go2::Go2()
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
 	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
-
-	//--------------------------------------------
-	// Store a local clone of this object so we can
-	// restore the original settings later
-	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
 }
 
 
@@ -126,11 +121,6 @@ Go2::Go2(int argc, char **argv)
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
 	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
-
-	//--------------------------------------------
-	// Store a local clone of this object so we can
-	// restore the original settings later
-	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
 }
 
 /******************************************************************************/
@@ -167,11 +157,6 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
 	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
-
-	//--------------------------------------------
-	// Store a local clone of this object so we can
-	// restore the original settings later
-	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
 }
 
 
@@ -216,11 +201,6 @@ Go2::Go2(
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
 	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
-
-	//--------------------------------------------
-	// Store a local clone of this object so we can
-	// restore the original settings later
-	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
 }
 
 /******************************************************************************/
@@ -254,39 +234,6 @@ Go2::Go2(const Go2& cp)
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
 	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
-
-	//--------------------------------------------
-	// Store a local clone of this object so we can
-	// restore the original settings later
-	tmpl_ptr = boost::shared_ptr<Go2>(new Go2(*this, NOCLONE));
-}
-
-/******************************************************************************/
-/**
- * Copy construction without cloning
- */
-Go2::Go2(const Go2& cp, bool noClone)
-	: GMutableSetT<GParameterSet>(cp)
-	, clientMode_(cp.clientMode_)
-	, serializationMode_(cp.serializationMode_)
-	, ip_(cp.ip_)
-	, port_(cp.port_)
-	, configFilename_(cp.configFilename_)
-	, parMode_(cp.parMode_)
-	, verbose_(cp.verbose_)
-	, maxStalledDataTransfers_(cp.maxStalledDataTransfers_)
-	, maxConnectionAttempts_(cp.maxConnectionAttempts_)
-	, returnRegardless_(cp.returnRegardless_)
-	, nProducerThreads_(cp.nProducerThreads_)
-	, offset_(cp.offset_)
-	, sorted_(cp.sorted_)
-	, iterationsConsumed_(0)
-{
-	// Copy the best individual over (if any)
-	copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
-
-	// Copy the algorithms vector over
-	copyAlgorithmsVector(cp.algorithms_, algorithms_);
 }
 
 /******************************************************************************/
@@ -887,18 +834,6 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	}
 
 	sorted_ = true;
-}
-
-/******************************************************************************/
-/**
- * Resets the object to its start position
- */
-void Go2::reset() {
-	/* this->clear(); // Get rid of the local individuals
-	bestIndividual_.reset(); // Get rid of the stored best individual
-	algorithms_.clear(); // Get rid of the optimization algorithms */
-
-	this->load(tmpl_ptr);
 }
 
 /******************************************************************************/
