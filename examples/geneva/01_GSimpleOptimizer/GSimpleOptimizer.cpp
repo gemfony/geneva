@@ -73,8 +73,9 @@ int main(int argc, char **argv) {
 	      , gfi_ptr
 	);
 
-	// Add an EA-object to the Go2 object
-	go & ea();
+	// Add a default optimization algorithm to the Go2 object
+	// go & ea(); // This is how you can register an algorithm to be used first under all circumstances
+	go.registerDefaultAlgorithm(ea());
 
 	// Perform the actual optimization
 	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();

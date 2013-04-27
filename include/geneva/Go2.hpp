@@ -338,6 +338,9 @@ public:
    /** @brief Emits a name for this class / object */
    virtual std::string name() const;
 
+   /** @brief Allows to register a default algorithm. */
+   void registerDefaultAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >);
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another Go2 object */
@@ -411,6 +414,8 @@ private:
     //----------------------------------------------------------------------------------------------------------------
     // The list of "chained" optimization algorithms
     std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > > algorithms_;
+    // The default algorithm (if any)
+    boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > default_algorithm_;
 };
 
 /******************************************************************************/

@@ -225,7 +225,7 @@ Go2::Go2(const Go2& cp)
 	, iterationsConsumed_(0)
 {
 	// Copy the best individual over (if any)
-	Gem::Geneva::copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
+	copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
 
 	// Copy the algorithms vector over
 	copyAlgorithmsVector(cp.algorithms_, algorithms_);
@@ -234,6 +234,10 @@ Go2::Go2(const Go2& cp)
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
 	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
+
+   //--------------------------------------------
+	// Copy the default algorithm over, if any
+	copyGenevaSmartPointer<GOptimizationAlgorithmT<GParameterSet> >(cp.default_algorithm_, default_algorithm_);
 }
 
 /******************************************************************************/
@@ -332,18 +336,48 @@ boost::optional<std::string> Go2::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go2", sorted_, p_load->sorted_, "sorted_", "p_load->sorted_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", iterationsConsumed_, p_load->iterationsConsumed_, "iterationsConsumed_", "p_load->iterationsConsumed_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", bestIndividual_, p_load->bestIndividual_, "bestIndividual_", "p_load->bestIndividual_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go2", default_algorithm_, p_load->default_algorithm_, "default_algorithm_", "p_load->default_algorithm_", e , limit));
 
 	// TODO: Compare algorithms; cross check other data has been added
 
 	return evaluateDiscrepancies("Go2", caller, deviations, e);
 }
 
-/***********************************************************************************/
+/******************************************************************************/
 /**
  * Emits a name for this class / object
  */
 std::string Go2::name() const {
    return std::string("Go2");
+}
+
+/******************************************************************************/
+/**
+ * Allows to register a default algorithm to be used when no other algorithms
+ * have been specified. When others have been specified, this algorithm will
+ * not be used. Note that any individuals registered with the default algorithm
+ * will be copied into the Go2 object.
+ */
+void Go2::registerDefaultAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > default_algorithm) {
+   // Check that the pointer isn't empty
+   if(!default_algorithm) {
+      glogger
+      << "In Go2::registerDefaultAlgorithm(): Error!" << std::endl
+      << "Got empty algorithm." << std::endl
+      << GEXCEPTION;
+   }
+
+   if(!default_algorithm->empty()) { // Have individuals been registered ?
+      GOptimizationAlgorithmT<GParameterSet>::iterator it;
+      for(it=default_algorithm->begin(); it!=default_algorithm->end(); ++it) {
+         this->push_back(*it);
+      }
+
+      default_algorithm->clear();
+   }
+
+   // Register the algorithm
+   default_algorithm_ = default_algorithm;
 }
 
 /******************************************************************************/
@@ -375,6 +409,7 @@ void Go2::load_(const GObject *cp) {
 	iterationsConsumed_ = p_load->iterationsConsumed_;
 
 	copyGenevaSmartPointer<GParameterSet>(p_load->bestIndividual_, bestIndividual_);
+	copyGenevaSmartPointer<GOptimizationAlgorithmT<GParameterSet> >(p_load->default_algorithm_, default_algorithm_);
 
 	// Copy the algorithms vector over
 	copyAlgorithmsVector(p_load->algorithms_, algorithms_);
@@ -610,21 +645,24 @@ Go2& Go2::operator&(personality_oa pers) {
  * @param offset An offset at which the first algorithm should start
  */
 void Go2::optimize(const boost::uint32_t& offset) {
-	// Add algorithms that have been specified on the command line
-	std::vector<personality_oa>::iterator pers_it;
-	for(pers_it=optimization_algorithms_.begin(); pers_it!=optimization_algorithms_.end(); ++pers_it) {
-		this->addAlgorithm(*pers_it);
-	}
-
+   // Algorithms specified manually in main() take precedence
+   // before those specified on the command line
+   if(!optimization_algorithms_.empty()) {
+      // Add algorithms that have been specified on the command line
+      std::vector<personality_oa>::iterator pers_it;
+      for(pers_it=optimization_algorithms_.begin(); pers_it!=optimization_algorithms_.end(); ++pers_it) {
+         this->addAlgorithm(*pers_it);
+      }
+   }
 
 	// Check that algorithms have indeed been registered
-	if(algorithms_.empty()) {
-		std::cerr
+	if(algorithms_.empty() && !default_algorithm_) {
+		glogger
 		<< "No algorithms have been registered." << std::endl
-		<< "Adding evolutionary algorithm with" << std::endl
-		<< "default settings" << std::endl;
-
-		this->addAlgorithm(PERSONALITY_EA);
+      << "No way to continue." << std::endl
+      << GEXCEPTION;
+	} else { // Fill with our default algorithm
+	   algorithms_.push_back(default_algorithm_->clone<GOptimizationAlgorithmT<GParameterSet> >());
 	}
 
 	// Check that individuals have been registered
