@@ -147,7 +147,8 @@ class Go2
 	     & BOOST_SERIALIZATION_NVP(nProducerThreads_)
 	     & BOOST_SERIALIZATION_NVP(offset_)
 	     & BOOST_SERIALIZATION_NVP(sorted_)
-	     & BOOST_SERIALIZATION_NVP(bestIndividual_);
+	     & BOOST_SERIALIZATION_NVP(bestIndividual_)
+	     & BOOST_SERIALIZATION_NVP(default_algorithm_);
 	     // & BOOST_SERIALIZATION_NVP(algorithms_);
 	}
 	///////////////////////////////////////////////////////////////////////

@@ -76,7 +76,7 @@ namespace Gem
     // Default settings
     const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
     const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
-    const std::size_t DEFAULTPOPULATIONSIZE=100;
+    const std::size_t DEFAULTPOPULATIONSIZE09=100;
     const std::size_t DEFAULTNPARENTS=5; // Allow to explore the parameter space from many starting points
     const boost::uint32_t DEFAULTMAXITERATIONS=2000;
     const long DEFAULTMAXMINUTES=10;

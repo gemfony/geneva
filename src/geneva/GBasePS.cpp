@@ -565,6 +565,21 @@ void GBasePS::addConfigurationOptions (
    // Call our parent class'es function
    GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 
+   comment = ""; // Reset the first comment string
+   comment += "The total size of the population;";
+   if(showOrigin) comment += " [GBasePS]";
+   gpb.registerFileParameter<std::size_t>(
+      "size" // The name of the first variable
+      , DEFAULTPOPULATIONSIZE
+      , boost::bind(
+         &GBasePS::setDefaultPopulationSize
+         , this
+         , _1
+        )
+      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+      , comment
+   );
+
    comment = ""; // Reset the comment string
    comment += "Indicates whether scans should be done randomly;";
    comment += "(1) or on a grid (0);";

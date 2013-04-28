@@ -187,7 +187,7 @@ bool parseConfigFile(
 			"The amount of random number producer threads")
 			("nEvaluationThreads", po::value<boost::uint16_t>(&nEvaluationThreads)->default_value(DEFAULTNEVALUATIONTHREADS),
 			"The amount of threads processing individuals simultaneously")
-			("populationSize", po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
+			("populationSize", po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE06),
 			"The size of the super-population")
 			("nParents", po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
 			"The number of parents in the population") // Needs to be treated separately

@@ -122,7 +122,7 @@ public:
 		, maxIteration_(DEFAULTMAXIT)
 		, maxStallIteration_(DEFAULTMAXSTALLIT)
 		, reportIteration_(DEFAULTREPORTITER)
-		, defaultPopulationSize_(0)
+		, defaultPopulationSize_(DEFAULTPOPULATIONSIZE)
 		, bestPastFitness_(0.) // will be set appropriately in the optimize() function
 		, bestCurrentFitness_(0.) // will be set appropriately in the optimize() function
 		, stallCounter_(0)

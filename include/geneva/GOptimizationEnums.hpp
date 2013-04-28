@@ -67,6 +67,11 @@ const boost::uint16_t DEFAULTNBOOSTTHREADS = 2;
 
 /******************************************************************************/
 /**
+ * The general default population size
+ */
+const std::size_t DEFAULTPOPULATIONSIZE = 100;
+
+/**
  * The default population size in evolutionary algorithms
  */
 const std::size_t DEFAULTEAPOPULATIONSIZE = 100;
