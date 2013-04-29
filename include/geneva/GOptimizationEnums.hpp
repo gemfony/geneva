@@ -84,8 +84,15 @@ const std::size_t DEFAULTEANPARENTS = 1;
 /******************************************************************************/
 /**
  * The default name of the output file of the optimization monitor base class
+ * for output in ROOT format
  */
-const std::string DEFAULTRESULTFILEOM = "./result.C";
+const std::string DEFAULTROOTRESULTFILEOM = "./result.C";
+
+/**
+ * The default name of the output file of the optimization monitor base class
+ * for output in CSV format
+ */
+const std::string DEFAULTCSVRESULTFILEOM = "./result.csv";
 
 /**
  * The default dimension of the canvas in x-direction

@@ -546,7 +546,7 @@ GBaseSA::GSAOptimizationMonitor::GSAOptimizationMonitor()
    : xDim_(DEFAULTXDIMOM)
    , yDim_(DEFAULTYDIMOM)
    , nMonitorInds_(0)
-   , resultFile_(DEFAULTRESULTFILEOM)
+   , resultFile_(DEFAULTROOTRESULTFILEOM)
 { /* nothing */ }
 
 /******************************************************************************/

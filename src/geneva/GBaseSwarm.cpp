@@ -1695,7 +1695,7 @@ void GBaseSwarm::specificTestsFailuresExpected_GUnitTests() {
 GBaseSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor()
 	: xDim_(DEFAULTXDIMOM)
 	, yDim_(DEFAULTYDIMOM)
-   , resultFile_(DEFAULTRESULTFILEOM)
+   , resultFile_(DEFAULTROOTRESULTFILEOM)
    , fitnessGraph_(new Gem::Common::GGraph2D())
 { /* nothing */ }
 

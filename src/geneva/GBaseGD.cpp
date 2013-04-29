@@ -876,7 +876,7 @@ void GBaseGD::specificTestsFailuresExpected_GUnitTests() {
 GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor()
    : xDim_(0)
    , yDim_(0)
-   , resultFile_(DEFAULTRESULTFILEOM)
+   , resultFile_(DEFAULTROOTRESULTFILEOM)
    , fitnessGraph_(new Gem::Common::GGraph2D())
 { /* nothing */ }
 

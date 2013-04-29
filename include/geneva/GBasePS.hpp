@@ -33,6 +33,7 @@
  */
 
 // Standard headers go here
+#include <fstream>
 
 // Boost headers go here
 
@@ -83,6 +84,14 @@ struct parSet {
 };
 
 /******************************************************************************/
+/** @brief A simple output operator for parSet object, mostly meant for debugging */
+std::ostream& operator<<(std::ostream& os, const parSet& pS);
+
+/******************************************************************************/
+/** @brief The default number of "best" individuals to be kept during the algorithm run */
+const std::size_t DEFAULTNMONITORINDS = 10;
+
+/******************************************************************************/
 /**
  * This algorithm scans a given parameter range, either in a random order,
  * or on a grid. On a grid, for each integer- or floating point-coordinate to be scanned,
@@ -118,6 +127,7 @@ class GBasePS
       ar
       & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
       & BOOST_SERIALIZATION_NVP(scanRandomly_)
+      & BOOST_SERIALIZATION_NVP(nMonitorInds_)
       & BOOST_SERIALIZATION_NVP(bVec_)
       & BOOST_SERIALIZATION_NVP(int32Vec_)
       & BOOST_SERIALIZATION_NVP(dVec_)
@@ -173,6 +183,11 @@ public:
    /** @brief Emits a name for this class / object */
    virtual std::string name() const;
 
+   /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run */
+   void setNMonitorInds(std::size_t);
+   /** @brief Allows to retrieve  the number of "best" individuals to be monitored over the course of the algorithm run */
+   std::size_t getNMonitorInds() const;
+
 protected:
    /***************************************************************************/
    /** @brief Loads the data of another population */
@@ -217,12 +232,10 @@ private:
    template <typename dType>
    void addDataPoint(
          const boost::tuple<dType, std::size_t>& dataPoint
-         , std::vector<dType> dataVec
+         , std::vector<dType>& dataVec
    ) {
       dType       lData = boost::get<0>(dataPoint);
       std::size_t lPos  = boost::get<1>(dataPoint);
-
-      // std::cout << lData << " " << lPos << " " << dataVec.size() << std::endl;
 
       // Check that we haven't exceeded the size of the boolean data vector
       if(lPos >= dataVec.size()) {
@@ -236,6 +249,8 @@ private:
    }
 
    /***************************************************************************/
+   /** @brief Updates the best individuals found */
+   void updateBests();
    /** @brief Resets all parameter objects */
    void resetParameterObjects();
    /** @brief Adds new parameter sets to the population */
@@ -256,12 +271,16 @@ private:
    bool cycleLogicHalt_; ///< Temporary flag used to specify that the optimization should be halted
    bool scanRandomly_;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
 
-   std::vector<boost::shared_ptr<bScanPar> >     bVec_; ///< Holds boolean parameters to be scanned
-   std::vector<boost::shared_ptr<int32ScanPar> > int32Vec_; ///< Holds 32 bit integer parameters to be scanned
-   std::vector<boost::shared_ptr<dScanPar> >     dVec_; ///< Holds double values to be scanned
-   std::vector<boost::shared_ptr<fScanPar> >     fVec_; ///< Holds float values to be scanned
+   std::size_t nMonitorInds_; ///< The number of best individuals of the entire run to be kept
 
-   std::vector<boost::shared_ptr<scanParI> >     allParVec_; /// Holds pointers to all parameter objects
+   std::vector<boost::shared_ptr<bScanPar> >      bVec_; ///< Holds boolean parameters to be scanned
+   std::vector<boost::shared_ptr<int32ScanPar> >  int32Vec_; ///< Holds 32 bit integer parameters to be scanned
+   std::vector<boost::shared_ptr<dScanPar> >      dVec_; ///< Holds double values to be scanned
+   std::vector<boost::shared_ptr<fScanPar> >      fVec_; ///< Holds float values to be scanned
+
+   std::vector<boost::shared_ptr<scanParI> >      allParVec_; /// Holds pointers to all parameter objects
+
+   std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals_; ///< Holds the best individuals found during the run
 
 public:
    /***************************************************************************/
@@ -292,7 +311,7 @@ public:
 
          ar
          & make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this))
-         & BOOST_SERIALIZATION_NVP(resultFile_);
+         & BOOST_SERIALIZATION_NVP(csvResultFile_);
       }
       ///////////////////////////////////////////////////////////////////////
 
@@ -322,9 +341,9 @@ public:
       ) const;
 
       /** @brief Allows to set the name of the result file */
-      void setResultFileName(const std::string&);
+      void setCSVResultFileName(const std::string&);
       /** @brief Allows to retrieve the name of the result file */
-      std::string getResultFileName() const;
+      std::string getCSVResultFileName() const;
 
      protected:
       /** @brief A function that is called once before the optimization starts */
@@ -340,7 +359,7 @@ public:
       virtual GObject* clone_() const;
 
      private:
-      std::string resultFile_; ///< The name of the file to which data is emitted
+      std::string csvResultFile_; ///< The name of the file to which data is emitted
 
      public:
       /** @brief Applies modifications to this object. This is needed for testing purposes */

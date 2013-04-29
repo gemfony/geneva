@@ -27,6 +27,7 @@ The main changes for this release include:
  - Centralized conversion of smart pointers using a Gem::Common function
  - Removed manual creation of ROOT output files in favor of GPlotDesigner
  - Simplified the optimization monitor infrastructure
+ - Added a first parameter scan algorithm
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

@@ -41,12 +41,79 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * A simple output operator for parSet object, mostly meant for debugging
+ */
+std::ostream& operator<<(std::ostream& os, const parSet& pS) {
+   os
+   << "###########################################################" << std::endl
+   << "# New parSet object:" << std::endl;
+
+   // Boolean data
+   if(!pS.bParVec.empty()) {
+      os << "# Boolean data" << std::endl;
+      std::vector<singleBPar>::const_iterator cit;
+      for(cit=pS.bParVec.begin(); cit!=pS.bParVec.end(); ++cit) {
+         os << (boost::get<1>(*cit)?"true":"false") << ":" << boost::get<0>(*cit);
+         if(cit+1 != pS.bParVec.end()) {
+            os << ", ";
+         }
+      }
+      os << std::endl;
+   }
+
+   // boost::int32_t data
+   if(!pS.iParVec.empty()) {
+      os << "# boost::int32_t data" << std::endl;
+      std::vector<singleInt32Par>::const_iterator cit;
+      for(cit=pS.iParVec.begin(); cit!=pS.iParVec.end(); ++cit) {
+         os << boost::get<1>(*cit) << ":" << boost::get<0>(*cit);
+         if(cit+1 != pS.iParVec.end()) {
+            os << ", ";
+         }
+      }
+      os << std::endl;
+   }
+
+   // float data
+   if(!pS.fParVec.empty()) {
+      os << "# float data" << std::endl;
+      std::vector<singleFPar>::const_iterator cit;
+      for(cit=pS.fParVec.begin(); cit!=pS.fParVec.end(); ++cit) {
+         os << boost::get<1>(*cit) << ":" << boost::get<0>(*cit);
+         if(cit+1 != pS.fParVec.end()) {
+            os << ", ";
+         }
+      }
+      os << std::endl;
+   }
+
+   // double data
+   if(!pS.dParVec.empty()) {
+      os << "# double data" << std::endl;
+      std::vector<singleDPar>::const_iterator cit;
+      for(cit=pS.dParVec.begin(); cit!=pS.dParVec.end(); ++cit) {
+         os << boost::get<1>(*cit) << ":" << boost::get<0>(*cit);
+         if(cit+1 != pS.dParVec.end()) {
+            os << ", ";
+         }
+      }
+      os << std::endl;
+   }
+
+   return os;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * The default constructor
  */
 GBasePS::GBasePS()
    : GOptimizationAlgorithmT<GParameterSet>()
    , cycleLogicHalt_(false)
    , scanRandomly_(true)
+   , nMonitorInds_(DEFAULTNMONITORINDS)
 {
    // Register the default optimization monitor
    this->registerOptimizationMonitor(
@@ -66,6 +133,7 @@ GBasePS::GBasePS(const GBasePS& cp)
    : GOptimizationAlgorithmT<GParameterSet>(cp)
    , cycleLogicHalt_(cp.cycleLogicHalt_)
    , scanRandomly_(cp.scanRandomly_)
+   , nMonitorInds_(cp.nMonitorInds_)
 {
    // Copying / setting of the optimization algorithm id is done by the parent class. The same
    // applies to the copying of the optimization monitor.
@@ -197,8 +265,10 @@ boost::optional<std::string> GBasePS::checkRelationshipWith(
     deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithmT<GParameterSet>", y_name, withMessages));
 
    // ... and then our local data
-   deviations.push_back(checkExpectation(withMessages, "GBasePS", scanRandomly_, p_load->scanRandomly_, "scanRandomly_", "p_load->scanRandomly_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GBasePS", cycleLogicHalt_, p_load->cycleLogicHalt_, "cycleLogicHalt_", "p_load->cycleLogicHalt_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBasePS", scanRandomly_, p_load->scanRandomly_, "scanRandomly_", "p_load->scanRandomly_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBasePS", nMonitorInds_, p_load->nMonitorInds_, "nMonitorInds_", "p_load->nMonitorInds_", e , limit));
+
 
    // We do not check our temporary parameter objects yet (bVec_ etc.)
 
@@ -211,6 +281,24 @@ boost::optional<std::string> GBasePS::checkRelationshipWith(
  */
 std::string GBasePS::name() const {
    return std::string("GBasePS");
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the number of "best" individuals to be monitored
+ * over the course of the algorithm run
+ */
+void GBasePS::setNMonitorInds(std::size_t nMonitorInds) {
+   nMonitorInds_ = nMonitorInds;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve  the number of "best" individuals to be monitored
+ * over the course of the algorithm run
+ */
+std::size_t GBasePS::getNMonitorInds() const {
+   return nMonitorInds_;
 }
 
 /******************************************************************************/
@@ -228,7 +316,8 @@ void GBasePS::load_(const GObject *cp) {
 
    // ... and then our own data
    cycleLogicHalt_ = p_load->cycleLogicHalt_;
-   scanRandomly_ = p_load->scanRandomly_;
+   scanRandomly_   = p_load->scanRandomly_;
+   nMonitorInds_   = p_load->nMonitorInds_;
 
    // Load the parameter objects
    bVec_.clear();
@@ -274,6 +363,9 @@ double GBasePS::cycleLogic() {
    // This function will sort the population according to
    // its primary fitness value
    sortPopulation();
+
+   // Updates the vector of best individuals found so far
+   updateBests();
 
    // Let the audience know
    return result;
@@ -355,7 +447,7 @@ void GBasePS::updateIndividuals() {
          this->resetParameterObjects();
 
          // Resize the population, so we only have modified individuals
-         this->resize(indPos);
+         this->resize(indPos+1);
 
          // Terminate the loop
          break;
@@ -364,6 +456,53 @@ void GBasePS::updateIndividuals() {
       //------------------------------------------------------------------------
       // We do not want to exceed the boundaries of the population
       if(++indPos >= this->getDefaultPopulationSize()) break;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Updates the best individuals found
+ */
+void GBasePS::updateBests() {
+   // Some error checks
+#ifdef DEBUG
+   if(this->empty()) {
+      glogger
+      << "In GBasePS::updateBests(): Error!" << std::endl
+      << "Algorithm does not contain any individuals." << std::endl
+      << GEXCEPTION;
+   }
+
+   if(this->getIteration() > 0 && bestIndividuals_.empty()) {
+      glogger
+      << "In GBasePS::updateBests(): Error!" << std::endl
+      << "Vector of best individuals is empty when it shouldn't be."
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   if(this->getIteration() > 0) {
+      // Note: The best individuals are found in the beginning of this population
+      for(std::size_t ind=0; ind<std::min(nMonitorInds_,this->size()); ind++) {
+         // Compare the fitness of the best individual with the last individual
+         // in the bestIndividuals_ vector. If it is better, replace it.
+         if(isBetter(this->at(ind)->fitness(0),bestIndividuals_.back()->fitness(0))) {
+            // Copy a clone over
+            bestIndividuals_.back() = this->at(ind)->clone<GParameterSet>();
+
+            // Sort the "bests" vector for the next iteration
+            if(true == this->getMaxMode()) { // Maximization
+               std::sort(bestIndividuals_.begin(), bestIndividuals_.end(), boost::bind(&GParameterSet::fitness, _1, 0) > boost::bind(&GParameterSet::fitness, _2, 0));
+            } else { // Minimization
+               std::sort(bestIndividuals_.begin(), bestIndividuals_.end(), boost::bind(&GParameterSet::fitness, _1, 0) < boost::bind(&GParameterSet::fitness, _2, 0));
+            }
+         }
+      }
+   } else {  // No update has taken place yet
+      // We clone the nMonitorInds_ best individuals and store them in the bestIndividuals_ vector
+      for(std::size_t ind=0; ind<std::min(nMonitorInds_,this->size()); ind++) {
+         bestIndividuals_.push_back(this->at(ind)->clone<GParameterSet>());
+      }
    }
 }
 
@@ -406,22 +545,26 @@ boost::shared_ptr<parSet> GBasePS::getParameterSet() {
    // 1) For boolean objects
    std::vector<boost::shared_ptr<bScanPar> >::iterator b_it;
    for(b_it=bVec_.begin(); b_it!=bVec_.end(); ++b_it) {
-      (result->bParVec).push_back((*b_it)->getCurrentItem());
+      boost::tuple<bool, std::size_t> item((*b_it)->getCurrentItem(), (*b_it)->getPos());
+      (result->bParVec).push_back(item);
    }
    // 2) For boost::int32_t objects
    std::vector<boost::shared_ptr<int32ScanPar> >::iterator i_it;
    for(i_it=int32Vec_.begin(); i_it!=int32Vec_.end(); ++i_it) {
-      (result->iParVec).push_back((*i_it)->getCurrentItem());
+      boost::tuple<boost::int32_t, std::size_t> item((*i_it)->getCurrentItem(), (*i_it)->getPos());
+      (result->iParVec).push_back(item);
    }
    // 3) For float objects
    std::vector<boost::shared_ptr<fScanPar> >::iterator f_it;
    for(f_it=fVec_.begin(); f_it!=fVec_.end(); ++f_it) {
-      (result->fParVec).push_back((*f_it)->getCurrentItem());
+      boost::tuple<float, std::size_t> item((*f_it)->getCurrentItem(), (*f_it)->getPos());
+      (result->fParVec).push_back(item);
    }
    // 4) For double objects
    std::vector<boost::shared_ptr<dScanPar> >::iterator d_it;
    for(d_it=dVec_.begin(); d_it!=dVec_.end(); ++d_it) {
-      (result->dParVec).push_back((*d_it)->getCurrentItem());
+      boost::tuple<double, std::size_t> item((*d_it)->getCurrentItem(), (*d_it)->getPos());
+      (result->dParVec).push_back(item);
    }
 
    return result;
@@ -509,15 +652,16 @@ void GBasePS::clearAllParVec() {
  */
 boost::shared_ptr<GIndividual> GBasePS::getBestIndividual(){
 #ifdef DEBUG
-   if(this->empty()) {
+   if(bestIndividuals_.empty()) {
       glogger
       << "In GBasePS::getBestIndividual() :" << std::endl
-      << "Tried to access individual at position 0 even though population is empty." << std::endl
+      << "Tried to access individual at position 0 of bestIndividuals_" << std::endl
+      << "even though population is empty." << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
-   return this->at(0);
+   return bestIndividuals_.at(0);
 }
 
 /******************************************************************************/
@@ -529,7 +673,9 @@ boost::shared_ptr<GIndividual> GBasePS::getBestIndividual(){
  */
 std::vector<boost::shared_ptr<GIndividual> > GBasePS::getBestIndividuals() {
    std::vector<boost::shared_ptr<GIndividual> > result;
-   result.push_back(this->getBestIndividual());
+   for(std::size_t ind=0; ind<bestIndividuals_.size(); ind++) {
+      result.push_back(bestIndividuals_.at(ind));
+   }
    return result;
 }
 
@@ -664,6 +810,9 @@ void GBasePS::init() {
 
    // Reset the custom halt criterion
    cycleLogicHalt_ = false;
+
+   // Remove all previous "best individuals"
+   bestIndividuals_.clear();
 
    // Make sure we start with a fresh central vector of parameter objects
    this->clearAllParVec();
@@ -813,7 +962,7 @@ void GBasePS::specificTestsFailuresExpected_GUnitTests() {
  * The default constructor
  */
 GBasePS::GPSOptimizationMonitor::GPSOptimizationMonitor()
-   : resultFile_(DEFAULTRESULTFILEOM)
+   : csvResultFile_(DEFAULTCSVRESULTFILEOM)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -824,7 +973,7 @@ GBasePS::GPSOptimizationMonitor::GPSOptimizationMonitor()
  */
 GBasePS::GPSOptimizationMonitor::GPSOptimizationMonitor(const GBasePS::GPSOptimizationMonitor& cp)
    : GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
-   , resultFile_(cp.resultFile_)
+   , csvResultFile_(cp.csvResultFile_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -905,7 +1054,7 @@ boost::optional<std::string> GBasePS::GPSOptimizationMonitor::checkRelationshipW
    deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GBasePS::GPSOptimizationMonitor", y_name, withMessages));
 
    // ... and then our local data
-   deviations.push_back(checkExpectation(withMessages, "GBasePS::GPSOptimizationMonitor", resultFile_, p_load->resultFile_, "resultFile_", "p_load->resultFile_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBasePS::GPSOptimizationMonitor", csvResultFile_, p_load->csvResultFile_, "csvResultFile_", "p_load->csvResultFile_", e , limit));
 
    return evaluateDiscrepancies("GBasePS::GPSOptimizationMonitor", caller, deviations, e);
 }
@@ -916,10 +1065,10 @@ boost::optional<std::string> GBasePS::GPSOptimizationMonitor::checkRelationshipW
  *
  * @param resultFile The desired name of the result file
  */
-void GBasePS::GPSOptimizationMonitor::setResultFileName(
-      const std::string& resultFile
+void GBasePS::GPSOptimizationMonitor::setCSVResultFileName(
+      const std::string& csvResultFile
 ) {
-  resultFile_ = resultFile;
+   csvResultFile_ = csvResultFile;
 }
 
 /******************************************************************************/
@@ -928,8 +1077,8 @@ void GBasePS::GPSOptimizationMonitor::setResultFileName(
  *
  * @return The current name of the result file
  */
-std::string GBasePS::GPSOptimizationMonitor::getResultFileName() const {
-  return resultFile_;
+std::string GBasePS::GPSOptimizationMonitor::getCSVResultFileName() const {
+  return csvResultFile_;
 }
 
 /******************************************************************************/
@@ -948,7 +1097,10 @@ void GBasePS::GPSOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
    }
 #endif /* DEBUG */
 
-   // TODO
+   std::ofstream result(csvResultFile_.c_str());
+   result
+   << "# Parameter scan results" << std::endl;
+   result.close();
 }
 
 /******************************************************************************/
@@ -963,7 +1115,21 @@ void GBasePS::GPSOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
    // Perform the conversion to the target algorithm
    GBasePS * const gd = static_cast<GBasePS * const>(goa);
 
-   // TODO
+   // Open the result file in append mode
+   std::ofstream result(csvResultFile_.c_str(), std::ofstream::app);
+
+   result
+   << std::endl
+   << "################################################################################" << std::endl
+   << "# Iteration " << gd->getIteration() << " with " << gd->size() << " values" << std::endl
+   << "#" << std::endl;
+
+   GBasePS::iterator it;
+   for(it=gd->begin(); it!=gd->end(); ++it) {
+      result << (*it)->toCSV();
+   }
+
+   result.close();
 }
 
 /******************************************************************************/
@@ -973,7 +1139,7 @@ void GBasePS::GPSOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
 void GBasePS::GPSOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-   // TODO
+   // nothing
 }
 
 /******************************************************************************/
@@ -989,7 +1155,7 @@ void GBasePS::GPSOptimizationMonitor::load_(const GObject* cp) {
    GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);
 
    // ... and then our local data
-   resultFile_ = p_load->resultFile_;
+   csvResultFile_ = p_load->csvResultFile_;
 }
 
 /******************************************************************************/

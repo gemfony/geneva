@@ -175,6 +175,9 @@ public:
 
 	/** @brief Transformation of the individual's parameter objects into a boost::property_tree object */
 	void toPropertyTree(pt::ptree&, const std::string& = "parameterset") const;
+	/** @brief Transformation of the individual's parameter objects into a list of comma-separated values */
+	std::string toCSV() const;
+
 	/** @brief Emits a name for this class / object */
 	virtual std::string name() const;
 

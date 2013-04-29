@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GParameterSet::GParameterSet()
 	: GMutableSetT<Gem::Geneva::GParameterBase>()
-  { /* nothing */ }
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -56,7 +56,7 @@ GParameterSet::GParameterSet()
  */
 GParameterSet::GParameterSet(const GParameterSet& cp)
 	: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
-  { /* nothing */ }
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -743,6 +743,97 @@ void GParameterSet::toPropertyTree(
       base = baseName + ".var" + boost::lexical_cast<std::string>(pos);
       (*cit)->toPropertyTree(ptr, base);
    }
+}
+
+/******************************************************************************/
+/**
+ * Transformation of the individual's parameter objects into a list of
+ * comma-separated values
+ */
+std::string GParameterSet::toCSV() const {
+   std::ostringstream result;
+
+   std::vector<bool> bData;
+   std::vector<boost::int32_t> iData;
+   std::vector<float> fData;
+   std::vector<double> dData;
+
+   // Prepare a new header
+
+   // Retrieve the parameter vectors
+   this->streamline<bool>(bData);
+   this->streamline<boost::int32_t>(iData);
+   this->streamline<float>(fData);
+   this->streamline<double>(dData);
+
+   std::size_t bSize = bData.size();
+   std::size_t iSize = iData.size();
+   std::size_t fSize = fData.size();
+   std::size_t dSize = dData.size();
+
+   std::size_t sumSize = bSize+iSize+fSize+dSize;
+
+   // Prepare a header for this individual
+   bool dirtyFlag = false;
+   result
+   << "#-------------------------------------------------------------------------------" << std::endl
+   << "# New parameter set with " << sumSize << " values and fitness " << this->getCachedFitness(dirtyFlag) << (dirtyFlag?" (dirty)":"") << ":" << std::endl;
+
+   // Add the data items from the parSet object to the vectors
+
+   // 1) For boolean data
+   if(bSize) { // not empty
+      result << "# " << bSize << " boolean values" << std::endl;
+      std::vector<bool>::iterator b_it;
+      for(b_it=bData.begin(); b_it!=bData.end(); ++b_it) {
+         result << *b_it;
+         if(b_it+1 != bData.end()) {
+            result << ",";
+         }
+      }
+      result << std::endl;
+   }
+
+   // 2) For boost::int32_t data
+   if(iSize) { // not empty
+      result << "# " << bSize << " boost::int32_t values" << std::endl;
+      std::vector<boost::int32_t>::iterator i_it;
+      for(i_it=iData.begin(); i_it!=iData.end(); ++i_it) {
+         result << *i_it;
+         if(i_it+1 != iData.end()) {
+            result << ",";
+         }
+      }
+      result << std::endl;
+   }
+
+   // 3) For float values
+   if(fSize) { // not empty
+      result << "# " << fSize << " float values" << std::endl;
+      std::vector<float>::iterator f_it;
+      for(f_it=fData.begin(); f_it!=fData.end(); ++f_it) {
+         result << *f_it;
+         if(f_it+1 != fData.end()) {
+            result << ",";
+         }
+      }
+      result << std::endl;
+   }
+
+   // 4) For double values
+   if(dSize) { // not empty
+      result << "# " << dSize << " double values" << std::endl;
+      std::vector<double>::iterator d_it;
+      for(d_it=dData.begin(); d_it!=dData.end(); ++d_it) {
+         result << *d_it;
+         if(d_it+1 != dData.end()) {
+            result << ", ";
+         }
+      }
+      result << std::endl;
+   }
+
+   return result.str();
 }
 
 /******************************************************************************/
