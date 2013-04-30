@@ -184,12 +184,20 @@ boost::optional<std::string> GBaseSA::checkRelationshipWith(
    return evaluateDiscrepancies("GBaseSA", caller, deviations, e);
 }
 
-/***********************************************************************************/
+/******************************************************************************/
 /**
  * Emits a name for this class / object
  */
 std::string GBaseSA::name() const {
    return std::string("GBaseSA");
+}
+
+/******************************************************************************/
+/**
+ * Emits a short identifier sting without white spaces for the class/object
+ */
+std::string GBaseSA::nickname() const {
+   return std::string("sa");
 }
 
 /******************************************************************************/

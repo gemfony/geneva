@@ -1036,10 +1036,10 @@ public:
 	}
 
 	/***************************************************************************/
-	/** @brief Emits a name for this class / object */
-	virtual std::string name() const {
-	   return std::string("GOptimizationAlgorithmT");
-	}
+	/** @brief Emits a name for this class / object; this can be a long name with spaces */
+	virtual std::string name() const = 0;
+	/** @brief Emits a short identifier sting without white spaces for the class/object */
+	virtual std::string nickname() const = 0;
 
 protected:
 	/***************************************************************************/

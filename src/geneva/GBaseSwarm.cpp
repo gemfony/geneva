@@ -365,12 +365,20 @@ boost::optional<std::string> GBaseSwarm::checkRelationshipWith(
 	return evaluateDiscrepancies("GBaseSwarm", caller, deviations, e);
 }
 
-/***********************************************************************************/
+/******************************************************************************/
 /**
  * Emits a name for this class / object
  */
 std::string GBaseSwarm::name() const {
    return std::string("GBaseSwarm");
+}
+
+/******************************************************************************/
+/**
+ * Emits a short identifier sting without white spaces for the class/object
+ */
+std::string GBaseSwarm::nickname() const {
+   return std::string("swarm");
 }
 
 /******************************************************************************/

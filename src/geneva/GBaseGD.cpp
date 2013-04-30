@@ -299,12 +299,20 @@ boost::optional<std::string> GBaseGD::checkRelationshipWith(
 	return evaluateDiscrepancies("GBaseGD", caller, deviations, e);
 }
 
-/***********************************************************************************/
+/******************************************************************************/
 /**
  * Emits a name for this class / object
  */
 std::string GBaseGD::name() const {
    return std::string("GBaseGD");
+}
+
+/******************************************************************************/
+/**
+ * Emits a short identifier sting without white spaces for the class/object
+ */
+std::string GBaseGD::nickname() const {
+   return std::string("gd");
 }
 
 /******************************************************************************/

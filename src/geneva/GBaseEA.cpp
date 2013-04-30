@@ -175,12 +175,20 @@ boost::optional<std::string> GBaseEA::checkRelationshipWith(const GObject& cp,
 	return evaluateDiscrepancies("GBaseEA", caller, deviations, e);
 }
 
-/***********************************************************************************/
+/******************************************************************************/
 /**
  * Emits a name for this class / object
  */
 std::string GBaseEA::name() const {
    return std::string("GBaseEA");
+}
+
+/******************************************************************************/
+/**
+ * Emits a short identifier sting without white spaces for the class/object
+ */
+std::string GBaseEA::nickname() const {
+   return std::string("ea");
 }
 
 /******************************************************************************/

@@ -139,6 +139,8 @@ public:
 
    /** @brief Emits a name for this class / object */
    virtual std::string name() const;
+   /** @brief Emits a short identifier sting without white spaces for the class/object */
+   virtual std::string nickname() const;
 
 protected:
    /***************************************************************************/

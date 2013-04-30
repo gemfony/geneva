@@ -182,6 +182,8 @@ public:
 
    /** @brief Emits a name for this class / object */
    virtual std::string name() const;
+   /** @brief Emits a short identifier sting without white spaces for the class/object */
+   virtual std::string nickname() const;
 
    /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run */
    void setNMonitorInds(std::size_t);
