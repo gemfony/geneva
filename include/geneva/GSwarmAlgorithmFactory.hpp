@@ -70,6 +70,10 @@ class GSwarmAlgorithmFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:
+   /** @brief The default constructor */
+   GSwarmAlgorithmFactory();
+   /** @brief Initialization with the name of the config file and the default parallelization mode */
+   explicit GSwarmAlgorithmFactory(const std::string&);
 	/** @brief The standard constructor */
 	GSwarmAlgorithmFactory(
 	      const std::string&
@@ -89,10 +93,6 @@ protected:
 	virtual boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
 	/** @brief Allows to act on the configuration options received from the configuration file */
 	virtual void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&);
-
-private:
-	/** @brief The default constructor. Intentionally private and undefined */
-	GSwarmAlgorithmFactory();
 };
 /******************************************************************************/
 

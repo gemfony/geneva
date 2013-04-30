@@ -74,9 +74,28 @@ class GOptimizationAlgorithmFactoryT
 	: public Gem::Common::GFactoryT<prod_type>
 {
 public:
-	/***************************************************************************/
+   /***************************************************************************/
 	/**
 	 * The standard constructor
+	 */
+   explicit GOptimizationAlgorithmFactoryT (
+         const std::string& configFile
+   )
+      : Gem::Common::GFactoryT<prod_type>(configFile)
+      , pm_(DEFAULTPARALLELIZATIONMODE)
+      , nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+      , minWaitFactor_(Gem::Courtier::DEFAULTMINBROKERWAITFACTOR)
+      , maxWaitFactor_(Gem::Courtier::DEFAULTMAXBROKERWAITFACTOR)
+      , doLogging_(false)
+      , boundlessWait_(false)
+      , waitFactorIncrement_(Gem::Courtier::DEFAULTBROKERWAITFACTORINCREMENT)
+      , contentCreatorPtr_()
+   { /* nothing */ }
+
+
+	/***************************************************************************/
+	/**
+	 * Initialization with configuration file and parallelization mode
 	 */
 	GOptimizationAlgorithmFactoryT (
 	      const std::string& configFile
@@ -122,7 +141,8 @@ public:
 
    /***************************************************************************/
    /**
-    * Triggers the creation of objects of the desired type
+    * Triggers the creation of objects of the desired type with the preset
+    * parallelization mode.
     *
     * @return An object of the desired algorithm type
     */
@@ -148,6 +168,29 @@ public:
 
    /***************************************************************************/
    /**
+    * Triggers the creation of objects of the desired type with a user-defined
+    * parallelization mode. The function will internally store the previous
+    * parallelization mode and reset it to the desired type when done.
+    *
+    * @param pm A user-defined parallelization mode
+    * @return An object of the desired algorithm type
+    */
+   virtual boost::shared_ptr<prod_type> get(parMode pm) {
+      // Store the previous value
+      parMode previous_pm = pm_;
+      // Set the parallelization mode
+      pm_ = pm;
+      // Retrieve an item of the desired type
+      boost::shared_ptr<prod_type> result = this->get();
+      // Reset the parallelization mode to its original value
+      pm_ = previous_pm;
+
+      // Let the audience know
+      return result;
+   }
+
+   /***************************************************************************/
+   /**
     * Triggers the creation of objects of the desired type and converts them
     * to a given target type. Will throw if conversion is unsuccessful.
     *
@@ -156,6 +199,46 @@ public:
    template <typename target_type>
    boost::shared_ptr<target_type> get() {
       return Gem::Common::convertSmartPointer<prod_type, target_type>(this->get());
+   }
+
+   /***************************************************************************/
+   /**
+    * Triggers the creation of objects of the desired type with a user-defined
+    * parallelization mode and converts them to a given target type. Will throw
+    * if conversion is unsuccessful. The function will internally store the previous
+    * parallelization mode and reset it to the desired type when done.
+    *
+    * @return A converted copy of the desired production type
+    */
+   template <typename target_type>
+   boost::shared_ptr<target_type> get(parMode pm) {
+      parMode previous_pm = pm_;
+      // Set the parallelization mode
+      pm_ = pm;
+      // Retrieve a work item of the production type
+      boost::shared_ptr<prod_type> result = this->get();
+      // Reset the parallelization mode to its original value
+      pm_ = previous_pm;
+
+      // Return a converted pointer
+      return Gem::Common::convertSmartPointer<prod_type, target_type>(result);
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to register a content creator
+    */
+   void registerContentCreator(
+         boost::shared_ptr<Gem::Common::GFactoryT<typename prod_type::individual_type> > cc_ptr
+   ) {
+      if(!cc_ptr) {
+         glogger
+         << "In GOptiomizationAlgorithmFactoryT<T>::registerContentCreator(): Error!" << std::endl
+         << "Tried to register an empty pointer" << std::endl
+         << GEXCEPTION;
+      }
+
+      contentCreatorPtr_ = cc_ptr;
    }
 
 protected:

@@ -39,6 +39,24 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * The default constructor
+ */
+GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("/config/GEvolutionaryAlgorithm.json")
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with the name of the config file and the default parallelization mode
+ */
+GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
+      const std::string& configFile
+)
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * A constructor with the ability to switch the parallelization mode. It initializes a
  * target item as needed.
  */

@@ -142,6 +142,15 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Sets a new name for the configuration file. Will only have an effect for
+	 * the next individual
+	 */
+	void setConfigFile(std::string configFile) {
+	   configFile_ = configFile;
+	}
+
+	/***************************************************************************/
+	/**
 	 * Retrieves an object of the desired type and converts it to a target type,
 	 * if possible.
 	 */

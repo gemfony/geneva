@@ -39,6 +39,24 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * The default constructor
+ */
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("/config/GSwarmAlgorithm.json")
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with the name of the config file and the default parallelization mode
+ */
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
+      const std::string& configFile
+)
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * A constructor with the ability to switch the parallelization mode. It initializes a
  * target item as needed.
  */

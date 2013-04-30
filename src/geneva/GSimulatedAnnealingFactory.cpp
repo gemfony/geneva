@@ -39,6 +39,24 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * The default constructor
+ */
+GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("/config/GSimulatedAnnealing.json")
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with the name of the config file and the default parallelization mode
+ */
+GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
+      const std::string& configFile
+)
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * A constructor with the ability to switch the parallelization mode. It initializes a
  * target item as needed.
  */

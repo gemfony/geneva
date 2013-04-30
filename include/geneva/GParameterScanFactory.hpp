@@ -67,6 +67,10 @@ class GParameterScanFactory
    : public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:
+   /** @brief The default constructor */
+   GParameterScanFactory();
+   /** @brief Initialization with the name of the config file and the default parallelization mode */
+   explicit GParameterScanFactory(const std::string&);
    /** @brief The standard constructor */
    GParameterScanFactory(
          const std::string&
@@ -90,9 +94,6 @@ protected:
    virtual void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&);
 
 private:
-   /** @brief The default constructor. Intentionally private and undefined */
-   GParameterScanFactory();
-
    std::size_t maxResubmissions_; ///< The maximum number of allowed re-submissions in an iteration
 };
 
