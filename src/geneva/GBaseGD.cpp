@@ -40,6 +40,10 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+/** A short identifier suitable for storage in a std::map */
+const std::string GBaseGD::nickname = "gd";
+
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -305,14 +309,6 @@ boost::optional<std::string> GBaseGD::checkRelationshipWith(
  */
 std::string GBaseGD::name() const {
    return std::string("GBaseGD");
-}
-
-/******************************************************************************/
-/**
- * Emits a short identifier sting without white spaces for the class/object
- */
-std::string GBaseGD::nickname() const {
-   return std::string("gd");
 }
 
 /******************************************************************************/

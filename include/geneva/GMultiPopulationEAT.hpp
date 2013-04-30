@@ -332,14 +332,6 @@ public:
       return std::string("GMultiPopulationEAT");
    }
 
-   /******************************************************************************/
-   /**
-    * Emits a short identifier sting without white spaces for the class/object
-    */
-   virtual std::string nickname() const {
-      return std::string("mpea");
-   }
-
 protected:
    /***************************************************************************/
    /**

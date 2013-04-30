@@ -106,6 +106,10 @@ std::ostream& operator<<(std::ostream& os, const parSet& pS) {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+/** A short identifier suitable for storage in a std::map */
+const std::string GBasePS::nickname = "ps";
+
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -281,14 +285,6 @@ boost::optional<std::string> GBasePS::checkRelationshipWith(
  */
 std::string GBasePS::name() const {
    return std::string("GBasePS");
-}
-
-/******************************************************************************/
-/**
- * Emits a short identifier sting without white spaces for the class/object
- */
-std::string GBasePS::nickname() const {
-   return std::string("ps");
 }
 
 /******************************************************************************/

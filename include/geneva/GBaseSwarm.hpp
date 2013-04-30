@@ -102,6 +102,9 @@ class GBaseSwarm
 	///////////////////////////////////////////////////////////////////////
 
 public:
+   /** @brief An easy identifier for the class */
+   static const std::string nickname; // Initialized in the .cpp definition file
+
 	/** @brief The default constructor */
 	GBaseSwarm();
 	/** @brief Initialization with neighborhood sizes and amount of individuals in each neighborhood */
@@ -224,8 +227,6 @@ public:
 
    /** @brief Emits a name for this class / object */
    virtual std::string name() const;
-   /** @brief Emits a short identifier sting without white spaces for the class/object */
-   virtual std::string nickname() const;
 
 protected:
 	/** @brief Loads the data of another population */

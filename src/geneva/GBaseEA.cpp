@@ -39,6 +39,10 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+/** A short identifier suitable for storage in a std::map */
+const std::string GBaseEA::nickname = "ea";
+
+/******************************************************************************/
 /**
  * The default constructor, As we do not have any individuals yet, we set the population
  * size, and number of parents to 0. It is the philosophy of this class not
@@ -181,14 +185,6 @@ boost::optional<std::string> GBaseEA::checkRelationshipWith(const GObject& cp,
  */
 std::string GBaseEA::name() const {
    return std::string("GBaseEA");
-}
-
-/******************************************************************************/
-/**
- * Emits a short identifier sting without white spaces for the class/object
- */
-std::string GBaseEA::nickname() const {
-   return std::string("ea");
 }
 
 /******************************************************************************/
