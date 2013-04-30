@@ -210,12 +210,10 @@ void GIndividual::load_(const GObject* cp) {
 /**
  * The adaption interface. Triggers adaption of the individual, using each parameter object's adaptor.
  * Sets the dirty flag, as the parameters have been changed.
- *
- * TODO: Check why immediate evaluation is done here (is this still the case ???)
  */
 void GIndividual::adapt() {
-	customAdaptions(); // The actual mutation and adaption process
-	GIndividual::setDirtyFlag(true);
+	this->customAdaptions(); // The actual mutation and adaption process
+	GIndividual::setDirtyFlag(); // Make sure the individual is re-evaluated when fitness() is called next time
 }
 
 /* ----------------------------------------------------------------------------------

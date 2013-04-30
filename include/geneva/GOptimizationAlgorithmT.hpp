@@ -702,11 +702,12 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Returns the current offset used to calculate the current iteration
+	 * Returns the current offset used to calculate the current iteration. This
+	 * is identical to the iteration the optimization starts with.
 	 *
 	 * @return The current iteration offset
 	 */
-	boost::uint32_t getIterationOffset() const {
+	boost::uint32_t getStartIteration() const {
 		return offset_;
 	}
 

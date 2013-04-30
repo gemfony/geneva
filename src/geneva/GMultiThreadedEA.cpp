@@ -262,13 +262,14 @@ void GMultiThreadedEA::evaluateChildren()
 	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
 #ifdef DEBUG
-   // There should be no situation in which a "clean" individual is submitted
+   // There should be no situation in which a "clean" child is submitted
    // through this function
-   for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
+   for(std::size_t i=this->getNParents(); i<this->size(); i++) {
       if(!this->at(i)->isDirty()) {
          glogger
          << "In GMultiThreadedEA::evaluateChildren(): Error!" << std::endl
-         << "Tried to evaluate \"clean\" children." << std::endl
+         << "Tried to evaluate children in range " << boost::get<0>(range) << " - " << boost::get<1>(range) << std::endl
+         << "but found \"clean\" individual in position " << i << std::endl
          << GEXCEPTION;
       }
    }
@@ -276,6 +277,7 @@ void GMultiThreadedEA::evaluateChildren()
 
 	// Make evaluation possible and initiate the worker threads
 	for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
+	   // Do the actual scheduling
 		(*it)->setServerMode(false);
 		tp_->schedule(boost::function<double()>(boost::bind(&GParameterSet::doFitnessCalculation, *it)));
 	}

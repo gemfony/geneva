@@ -709,157 +709,28 @@ void Go2::optimize(const boost::uint32_t& offset) {
 			GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 		}
 
-		switch(p_base->getOptimizationAlgorithm()) {
-		case PERSONALITY_EA:
-         {
-            // Add the individuals to the EA. Note that it needs to be converted for this purpose
-            boost::shared_ptr<GBaseEA> p_derived = boost::dynamic_pointer_cast<GBaseEA>(p_base);
-            for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {
-               p_derived->push_back(*ind_it);
-            }
+      // Add the individuals to the algorithm.
+      for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {
+         p_base->push_back(*ind_it);
+      }
 
-            // Remove our local copies
-            this->clear();
-            assert(this->empty());
+      // Remove our local copies
+      this->clear();
 
-            // Do the actual optimization
-            bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
+      // Do the actual optimization
+      bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
 
-            // Make sure we start with the correct iteration in the next algorithm
-            iterationsConsumed_ = p_base->getIteration();
+      // Make sure we start with the correct iteration in the next algorithm
+      iterationsConsumed_ = p_base->getIteration();
 
-            // Unload the individuals from the last algorithm and store them again in this object
-            std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->GOptimizableI::getBestIndividuals<GParameterSet>();
-            std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
-            for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
-               this->push_back(*best_it);
-            }
-            bestIndividuals.clear();
-         }
-			break;
-
-      case PERSONALITY_SA:
-         {
-            // Add the individuals to the EA. Note that it needs to be converted for this purpose
-            boost::shared_ptr<GBaseSA> p_derived = boost::dynamic_pointer_cast<GBaseSA>(p_base);
-            for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {
-               p_derived->push_back(*ind_it);
-            }
-
-            // Remove our local copies
-            this->clear();
-            assert(this->empty());
-
-            // Do the actual optimization
-            bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
-
-            // Make sure we start with the correct iteration in the next algorithm
-            iterationsConsumed_ = p_base->getIteration();
-
-            // Unload the individuals from the last algorithm and store them again in this object
-            std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->GOptimizableI::getBestIndividuals<GParameterSet>();
-            std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
-            for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
-               this->push_back(*best_it);
-            }
-            bestIndividuals.clear();
-         }
-         break;
-
-		case PERSONALITY_SWARM:
-         {
-            // Add the individuals to the Swarm. Note that it needs to be converted for this purpose
-            boost::shared_ptr<GBaseSwarm> p_derived = boost::dynamic_pointer_cast<GBaseSwarm>(p_base);
-            for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {
-               p_derived->push_back(*ind_it);
-            }
-
-            // Remove our local copies
-            this->clear();
-            assert(this->empty());
-
-            // Do the actual optimization
-            bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
-
-            // Make sure we start with the correct iteration in the next algorithm
-            iterationsConsumed_ = p_base->getIteration();
-
-            // Unload the individuals from the last algorithm and store them again in this object
-            std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->GOptimizableI::getBestIndividuals<GParameterSet>();
-            std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
-            for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
-               this->push_back(*best_it);
-            }
-            bestIndividuals.clear();
-         }
-			break;
-
-		case PERSONALITY_GD:
-         {
-            // Add the individuals to the GD. Note that it needs to be converted for this purpose
-            boost::shared_ptr<GBaseGD> p_derived = boost::dynamic_pointer_cast<GBaseGD>(p_base);
-            for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {
-               p_derived->push_back(*ind_it);
-            }
-
-            // Remove our local copies
-            this->clear();
-            assert(this->empty());
-
-            // Do the actual optimization
-            bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
-
-            // Make sure we start with the correct iteration in the next algorithm
-            iterationsConsumed_ = p_base->getIteration();
-
-            // Unload the individuals from the last algorithm and store them again in this object
-            std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->GOptimizableI::getBestIndividuals<GParameterSet>();
-            std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
-            for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
-               this->push_back(*best_it);
-            }
-            bestIndividuals.clear();
-         }
-			break;
-
-      case PERSONALITY_PS:
-         {
-            // Add the individuals to the GD. Note that it needs to be converted for this purpose
-            boost::shared_ptr<GBasePS> p_derived = boost::dynamic_pointer_cast<GBasePS>(p_base);
-            for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {
-               p_derived->push_back(*ind_it);
-            }
-
-            // Remove our local copies
-            this->clear();
-            assert(this->empty());
-
-            // Do the actual optimization
-            bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
-
-            // Make sure we start with the correct iteration in the next algorithm
-            iterationsConsumed_ = p_base->getIteration();
-
-            // Unload the individuals from the last algorithm and store them again in this object
-            std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_derived->GOptimizableI::getBestIndividuals<GParameterSet>();
-            std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
-            for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
-               this->push_back(*best_it);
-            }
-            bestIndividuals.clear();
-         }
-         break;
-
-		default:
-         {
-            glogger
-            << "In Go2::optimize(): Error!" << std::endl
-            << "Came across invalid algorithm" << std::endl
-            << GEXCEPTION;
-         }
-			break;
-
-		}
+      // Unload the individuals from the last algorithm and store them again in this object
+      std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_base->getBestIndividuals<GParameterSet>();
+      std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
+      for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
+         this->push_back(*best_it);
+      }
+      bestIndividuals.clear();
+      p_base->clear();
 	}
 
 	// Sort the individuals according to their fitness so we have it easier later on

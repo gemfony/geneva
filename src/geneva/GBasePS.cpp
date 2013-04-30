@@ -472,16 +472,18 @@ void GBasePS::updateBests() {
       << "Algorithm does not contain any individuals." << std::endl
       << GEXCEPTION;
    }
-
-   if(this->getIteration() > 0 && bestIndividuals_.empty()) {
-      glogger
-      << "In GBasePS::updateBests(): Error!" << std::endl
-      << "Vector of best individuals is empty when it shouldn't be."
-      << GEXCEPTION;
-   }
 #endif /* DEBUG */
 
-   if(this->getIteration() > 0) {
+   if(this->getIteration() > this->getStartIteration()) {
+#ifdef DEBUG
+      if(this->getIteration() > this->getStartIteration() && bestIndividuals_.empty()) {
+         glogger
+         << "In GBasePS::updateBests(): Error!" << std::endl
+         << "Vector of best individuals is empty when it shouldn't be."
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
       // Note: The best individuals are found in the beginning of this population
       for(std::size_t ind=0; ind<std::min(nMonitorInds_,this->size()); ind++) {
          // Compare the fitness of the best individual with the last individual
