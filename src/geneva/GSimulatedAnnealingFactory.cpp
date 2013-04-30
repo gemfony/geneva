@@ -46,7 +46,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
    const std::string& configFile
    , const parMode& pm
 )
-   : GOptimizationAlgorithmFactoryT<GBaseSA>(configFile, pm)
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -59,7 +59,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
    , const parMode& pm
    , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
-   : GOptimizationAlgorithmFactoryT<GBaseSA>(configFile, pm, contentCreatorPtr)
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -75,7 +75,7 @@ GSimulatedAnnealingFactory::~GSimulatedAnnealingFactory()
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GBaseSA> GSimulatedAnnealingFactory::getObject_(
+boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GSimulatedAnnealingFactory::getObject_(
    Gem::Common::GParserBuilder& gpb
    , const std::size_t& id
 ) {
@@ -110,7 +110,7 @@ boost::shared_ptr<GBaseSA> GSimulatedAnnealingFactory::getObject_(
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GSimulatedAnnealingFactory::postProcess_(boost::shared_ptr<GBaseSA>& p_base) {
+void GSimulatedAnnealingFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
    // Convert the object to the correct target type
    switch(pm_) {
    case PARMODE_SERIAL:
@@ -119,14 +119,16 @@ void GSimulatedAnnealingFactory::postProcess_(boost::shared_ptr<GBaseSA>& p_base
 
    case PARMODE_MULTITHREADED:
       {
-         boost::shared_ptr<GMultiThreadedSA> p = boost::dynamic_pointer_cast<GMultiThreadedSA>(p_base);
+         boost::shared_ptr<GMultiThreadedSA> p
+            = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedSA>(p_base);
          p->setNThreads(nEvaluationThreads_);
       }
       break;
 
    case PARMODE_BROKERAGE:
       {
-         boost::shared_ptr<GBrokerSA> p = boost::dynamic_pointer_cast<GBrokerSA>(p_base);
+         boost::shared_ptr<GBrokerSA> p
+            = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSA>(p_base);
 
          p->setFirstTimeOut(firstTimeOut_);
          p->setWaitFactorExtremes(minWaitFactor_, maxWaitFactor_);

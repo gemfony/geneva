@@ -69,7 +69,6 @@
 #include "geneva/GGDPersonalityTraits.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GGlobalOptionsT.hpp"
 #include "common/GCommonEnums.hpp"
 
 namespace Gem {

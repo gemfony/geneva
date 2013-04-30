@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 
 	// Create an evolutionary algorithm in multi-threaded mode
 	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", PARMODE_MULTITHREADED);
-	boost::shared_ptr<GBaseEA> ea_ptr = ea();
+	boost::shared_ptr<GBaseEA> ea_ptr = ea.get<GBaseEA>();
 
 	// Register the monitor with the algorithm
 	ea_ptr->registerOptimizationMonitor(mon_ptr);

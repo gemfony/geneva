@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
          , gmoi_ptr
    );
 
-   boost::shared_ptr<GBaseEA> ea_ptr = ea_factory();
+   boost::shared_ptr<GBaseEA> ea_ptr = ea_factory.get<GBaseEA>();
 
    // Create an optimization monitor and register it with the optimizer
    boost::shared_ptr<GOptOptMonitor> mon_ptr(new GOptOptMonitor("./optProgress.C"));

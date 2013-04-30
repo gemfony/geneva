@@ -67,7 +67,7 @@ namespace Geneva
  * for swarm algorithms.
  */
 class GSwarmAlgorithmFactory
-	: public GOptimizationAlgorithmFactoryT<GBaseSwarm>
+	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:
 	/** @brief The standard constructor */
@@ -86,9 +86,9 @@ public:
 
 protected:
 	/** @brief Creates individuals of this type */
-	virtual boost::shared_ptr<GBaseSwarm> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+	virtual boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(boost::shared_ptr<GBaseSwarm>&);
+	virtual void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&);
 
 private:
 	/** @brief The default constructor. Intentionally private and undefined */

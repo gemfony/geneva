@@ -28,6 +28,7 @@ The main changes for this release include:
  - Removed manual creation of ROOT output files in favor of GPlotDesigner
  - Simplified the optimization monitor infrastructure
  - Added a first parameter scan algorithm
+ - Gave optimization algorithm factories a common base class so generic access becomes easier
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

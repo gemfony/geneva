@@ -71,7 +71,6 @@
 #include "geneva/GMPEAPersonalityTraits.hpp"
 #include "geneva/GPSPersonalityTraits.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GGlobalOptionsT.hpp"
 #include "common/GCommonEnums.hpp"
 
 namespace Gem {

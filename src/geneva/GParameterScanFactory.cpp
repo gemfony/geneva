@@ -46,7 +46,7 @@ GParameterScanFactory::GParameterScanFactory(
    const std::string& configFile
    , const parMode& pm
 )
-   : GOptimizationAlgorithmFactoryT<GBasePS>(configFile, pm)
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm)
    , maxResubmissions_(0)
 { /* nothing */ }
 
@@ -60,7 +60,7 @@ GParameterScanFactory::GParameterScanFactory(
    , const parMode& pm
    , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
-   : GOptimizationAlgorithmFactoryT<GBasePS>(configFile, pm, contentCreatorPtr)
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
    , maxResubmissions_(0)
 { /* nothing */ }
 
@@ -77,7 +77,7 @@ GParameterScanFactory::~GParameterScanFactory()
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GBasePS> GParameterScanFactory::getObject_(
+boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GParameterScanFactory::getObject_(
    Gem::Common::GParserBuilder& gpb
    , const std::size_t& id
 ) {
@@ -126,7 +126,7 @@ void GParameterScanFactory::describeLocalOptions_(Gem::Common::GParserBuilder& g
    );
 
    // Allow our parent class to describe its options
-   GOptimizationAlgorithmFactoryT<GBasePS>::describeLocalOptions_(gpb);
+   GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -136,7 +136,7 @@ void GParameterScanFactory::describeLocalOptions_(Gem::Common::GParserBuilder& g
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GParameterScanFactory::postProcess_(boost::shared_ptr<GBasePS>& p_base) {
+void GParameterScanFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
    // Convert the object to the correct target type
    switch(pm_) {
    case PARMODE_SERIAL:
@@ -145,14 +145,16 @@ void GParameterScanFactory::postProcess_(boost::shared_ptr<GBasePS>& p_base) {
 
    case PARMODE_MULTITHREADED:
       {
-         boost::shared_ptr<GMultiThreadedPS> p = boost::dynamic_pointer_cast<GMultiThreadedPS>(p_base);
+         boost::shared_ptr<GMultiThreadedPS> p
+            = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedPS>(p_base);
          p->setNThreads(nEvaluationThreads_);
       }
       break;
 
    case PARMODE_BROKERAGE:
       {
-         boost::shared_ptr<GBrokerPS> p = boost::dynamic_pointer_cast<GBrokerPS>(p_base);
+         boost::shared_ptr<GBrokerPS> p
+            = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerPS>(p_base);
 
          p->setFirstTimeOut(firstTimeOut_);
          p->setWaitFactorExtremes(minWaitFactor_, maxWaitFactor_);

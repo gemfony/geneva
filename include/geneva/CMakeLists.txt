@@ -38,7 +38,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GDoubleObject.hpp
 	GDoubleObjectCollection.hpp
 	GEAPersonalityTraits.hpp
-	Geneva.hpp
 	GenevaHelperFunctionsT.hpp
 	GEvolutionaryAlgorithmFactory.hpp
 	GFloatBiGaussAdaptor.hpp
@@ -77,6 +76,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumIntT.hpp
 	GNumT.hpp
 	Go2.hpp
+	GOAFactoryStore.hpp
 	GObject.hpp
 	GObjectExpectationChecksT.hpp
 	GOptimizableI.hpp

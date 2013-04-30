@@ -76,7 +76,6 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva-individuals/GExternalSetterIndividual.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GGlobalOptionsT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GMathHelperFunctions.hpp"

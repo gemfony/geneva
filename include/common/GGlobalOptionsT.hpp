@@ -73,9 +73,6 @@ namespace Common {
  * the global object before both are started. A command line option can
  * then steer whether the program acts as a server or client, and both
  * will have the same options.
- *
- * NOTE: THIS CLASS IS STILL ENTIRELY UNTESTED. USE WITH CARE AND REPORT ANY
- * ERROR YOU FIND.
  */
 template <typename T>
 class GGlobalOptionsT {
@@ -89,13 +86,14 @@ public:
 	 * @param value The value that should be retrieved
 	 * @return A boolean indicating whether retrieval of the option was successful
 	 */
-	bool getOption(const std::string& key, T& value) const {
+	bool get(const std::string& key, T& value) const {
 		if(kvp_.find(key) != kvp_.end()) {
 			value = kvp_[key];
 			return true;
 		}
-		else
-			return false;
+		else {
+		   return false;
+		}
 	}
 
 	/***********************************************************************/
@@ -103,7 +101,7 @@ public:
 	 * Retrieves an option from the map, returning it as the function result.
 	 * Note that this function does not check for availability of the option.
 	 */
-	T getOption(const std::string& key) {
+	T get(const std::string& key) {
 		return kvp_[key];
 	}
 
@@ -114,9 +112,26 @@ public:
 	 * @param key The name of the option
 	 * @param value The value of the option
 	 */
-	void setOption(const std::string& key, const T& value) {
+	void set(const std::string& key, const T& value) {
 		kvp_[key] = value;
 	}
+
+	/************************************************************************/
+	/**
+	 * Sets a new option once or returns an error, if the option already exists
+	 *
+	 * @param key The name of the option
+    * @param value The value of the option
+	 * @return A boolean indicating whether creation of the new option was successful
+	 */
+	bool setOnce(const std::string& key, const T& value) {
+	   if(exists(key)) {
+	      return false;
+	   }
+	   kvp_[key] = value;
+	   return true;
+	}
+
 	/************************************************************************/
 	/**
 	 * Removes an option from the map, if available
@@ -124,7 +139,7 @@ public:
 	 * @param key The name of the option that should be removed
 	 * @return A boolean indicating whether the option was indeed available
 	 */
-	bool removeOption(const std::string& key) {
+	bool remove(const std::string& key) {
 		typename std::map<std::string, T>::iterator it = kvp_.end();
 		if(it == kvp_.end()) return false;
 		else {
@@ -140,7 +155,7 @@ public:
 	 * @param key The name of the option that should be checked for existence
 	 * @return A boolean that indicates whether a given option is available
 	 */
-	bool hasOption(const std::string& key) const {
+	bool exists(const std::string& key) const {
 		if(kvp_.find(key) != kvp_.end()) return true;
 		else return false;
 	}

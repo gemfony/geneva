@@ -50,6 +50,7 @@
 #endif
 
 // Geneva headers go here
+#include "common/GHelperFunctionsT.hpp"
 #include "common/GFactoryT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "geneva/GBaseEA.hpp"
@@ -101,7 +102,7 @@ public:
 	      , const parMode& pm
 	      , boost::shared_ptr<Gem::Common::GFactoryT<typename prod_type::individual_type> > contentCreatorPtr
 	)
-	: Gem::Common::GFactoryT<prod_type>(configFile)
+	  : Gem::Common::GFactoryT<prod_type>(configFile)
 	  , pm_(pm)
 	  , nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 	  , minWaitFactor_(Gem::Courtier::DEFAULTMINBROKERWAITFACTOR)
@@ -143,6 +144,18 @@ public:
 
       // Return the filled object to the audience
       return p_alg;
+   }
+
+   /***************************************************************************/
+   /**
+    * Triggers the creation of objects of the desired type and converts them
+    * to a given target type. Will throw if conversion is unsuccessful.
+    *
+    * @return A converted copy of the desired production type
+    */
+   template <typename target_type>
+   boost::shared_ptr<target_type> get() {
+      return Gem::Common::convertSmartPointer<prod_type, target_type>(this->get());
    }
 
 protected:

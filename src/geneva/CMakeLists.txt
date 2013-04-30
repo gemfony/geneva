@@ -30,7 +30,6 @@ SET ( OPTIMIZATIONSOURCES
 	GDoubleObject
 	GDoubleObjectCollection
 	GEAPersonalityTraits
-	# Geneva
 	GenevaHelperFunctionsT
 	GEvolutionaryAlgorithmFactory
 	GFloatBiGaussAdaptor

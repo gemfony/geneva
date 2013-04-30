@@ -424,7 +424,7 @@ double GMetaOptimizerIndividual::fitnessCalculation(){
 
    std::cout << "============================================" << std::endl;
    for(std::size_t opt=0; opt<nRunsPerOptimization_; opt++) {
-      ea_ptr = ea();
+      ea_ptr = ea.get<GBaseEA>();
 
       assert(0 == ea_ptr->getIteration());
 
