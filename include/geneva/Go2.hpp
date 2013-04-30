@@ -89,6 +89,7 @@
 #include "geneva/GSerialSwarm.hpp"
 #include "geneva/GSimulatedAnnealingFactory.hpp"
 #include "geneva/GSwarmAlgorithmFactory.hpp"
+#include "geneva/GOAFactoryStore.hpp"
 
 namespace Gem {
 namespace Geneva {

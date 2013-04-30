@@ -35,6 +35,7 @@
 // Standard header files go here
 
 // Boost header files go here
+#include <boost/shared_ptr.hpp>
 
 #ifndef GOAFACTORYSTORE_HPP_
 #define GOAFACTORYSTORE_HPP_
@@ -46,8 +47,13 @@
 
 // Geneva headers go here
 #include "common/GGlobalOptionsT.hpp"
-
+#include "GOptimizationAlgorithmFactoryT.hpp"
+#include "GParameterSet.hpp"
 
 // A global store for optimization algorithm factories
+// Specialization for string options
+typedef Gem::Geneva::GOptimizationAlgorithmFactoryT<Gem::Geneva::GParameterSet> goa_factory;
+typedef Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<boost::shared_ptr<goa_factory> > > GOAStore;
+#define GOAFactoryStore GOAStore::Instance(0)
 
 #endif /* GOAFACTORYSTORE_HPP_ */
