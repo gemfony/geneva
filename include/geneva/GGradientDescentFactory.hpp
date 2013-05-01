@@ -55,11 +55,11 @@
 #include "geneva/GSerialGD.hpp"
 #include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GBrokerGD.hpp"
+#include "geneva/GOAInitializerT.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 /**
@@ -69,6 +69,9 @@ class GGradientDescentFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:
+   /** @brief An easy identifier for the class */
+   static const std::string nickname; // Initialized in the .cpp definition file
+
    /** @brief The default constructor */
    GGradientDescentFactory();
    /** @brief Initialization with the name of the config file and the default parallelization mode */

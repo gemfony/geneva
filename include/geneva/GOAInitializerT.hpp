@@ -1,5 +1,5 @@
 /**
- * @file GEvolutionaryAlgorithmFactory.hpp
+ * @file GOAInitializerT.hpp
  */
 
 /*
@@ -33,15 +33,15 @@
  */
 
 // Standard header files go here
-#include <string>
+#include <iostream>
 
 // Boost header files go here
-#include <boost/date_time.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/type_traits.hpp>
+#include <boost/mpl/assert.hpp>
 
-#ifndef GEVOLUTIONARYALGORITHMFACTORY_HPP_
-#define GEVOLUTIONARYALGORITHMFACTORY_HPP_
+#ifndef GOAINITIALIZERT_HPP_
+#define GOAINITIALIZERT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -49,15 +49,13 @@
 #endif
 
 // Geneva headers go here
-#include "courtier/GCourtierEnums.hpp"
-#include "geneva/GOptimizationAlgorithmFactoryT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GGlobalOptionsT.hpp"
+#include "geneva/GOAFactoryStore.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
+#include "geneva/GOptimizationAlgorithmFactoryT.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GBaseEA.hpp"
-#include "geneva/GSerialEA.hpp"
-#include "geneva/GMultiThreadedEA.hpp"
-#include "geneva/GBrokerEA.hpp"
-#include "geneva/GOAInitializerT.hpp"
+#include "geneva/GOAFactoryStore.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -66,38 +64,33 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class is a specialization of the GFactoryT<> class for evolutionary algorithms.
+ * This base class takes care of adding optimization algorithm factories to
+ * the global algorithm store
  */
-class GEvolutionaryAlgorithmFactory
-	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
-{
+template <typename oa_type>
+class GOAInitializerT {
+   // Make sure oa_type has the expected type
+   BOOST_MPL_ASSERT((boost::is_base_of<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > , oa_type>));
+
 public:
-   /** @brief An easy identifier for the class */
-   static const std::string nickname; // Initialized in the .cpp definition file
+   /** @brief The initializing constructor */
+   inline GOAInitializerT() {
+      // Create a smart pointer holding the algorithm
+      boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > > p(new oa_type());
 
-	/** @brief The default constructor */
-   GEvolutionaryAlgorithmFactory();
-   /** @brief Initialization with the name of the config file and the default parallelization mode */
-   explicit GEvolutionaryAlgorithmFactory(const std::string&);
-	/** @brief The standard constructor */
-	GEvolutionaryAlgorithmFactory(
-	      const std::string&
-	      , const parMode&
-	);
-	/** @brief Adds a content creator in addition to the standard values */
-   GEvolutionaryAlgorithmFactory(
-         const std::string&
-         , const parMode&
-         , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
-   );
-	/** @brief The destructor */
-	virtual ~GEvolutionaryAlgorithmFactory();
-
-protected:
-	/** @brief Creates individuals of this type */
-	virtual boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
-	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&);
+      // We require that the algorithm has a default
+      // constructor and the static "nickname" data member
+      if(!GOAFactoryStore->setOnce(oa_type::nickname, p)) { // Algorithm factory already exists in the store
+         glogger
+         << "In GOAInitializerT<op_type>::GOAInitializerT(): Error!" << std::endl
+         << "Identifier " << oa_type::nickname << " already exists in store." << std::endl
+         << GTERMINATION;
+      } else {
+         std::cout << "Registered factory for algorithm \"" << oa_type::nickname << "\" in the store." << std::endl;
+      }
+   }
+   /** @brief An empty destructor */
+   virtual inline ~GOAInitializerT() { /* nothing */ }
 };
 
 /******************************************************************************/
@@ -107,4 +100,4 @@ protected:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GEVOLUTIONARYALGORITHMFACTORY_HPP_ */
+#endif /* GOAINITIALIZERT_HPP_ */

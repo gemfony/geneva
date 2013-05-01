@@ -75,6 +75,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumFPT.hpp
 	GNumIntT.hpp
 	GNumT.hpp
+	GOAInitializerT.hpp
 	Go2.hpp
 	GOAFactoryStore.hpp
 	GObject.hpp

@@ -38,6 +38,14 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+/** A short identifier suitable for storage in a std::map */
+const std::string GParameterScanFactory::nickname = "ps";
+
+/******************************************************************************/
+/** This will register the factory in the global factory store */
+GOAInitializerT<GParameterScanFactory> GPSStoreRegistrant;
+
+/******************************************************************************/
 /**
  * The default constructor
  */

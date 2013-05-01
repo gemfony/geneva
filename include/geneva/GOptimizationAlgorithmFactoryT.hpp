@@ -66,6 +66,8 @@ namespace Geneva {
 const boost::uint16_t FACT_DEF_NEVALUATIONTHREADS=0;
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class is a specialization of the GFactoryT<> class for optimization algorithms.
  */
@@ -74,6 +76,10 @@ class GOptimizationAlgorithmFactoryT
 	: public Gem::Common::GFactoryT<prod_type>
 {
 public:
+   /***************************************************************************/
+	// Let the audience know what type of algorithm will be produced
+	typedef prod_type pType;
+
    /***************************************************************************/
 	/**
 	 * The standard constructor
@@ -365,6 +371,8 @@ private:
 	GOptimizationAlgorithmFactoryT();
 };
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 } /* namespace Geneva */

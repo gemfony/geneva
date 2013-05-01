@@ -55,6 +55,7 @@
 #include "geneva/GSerialSA.hpp"
 #include "geneva/GMultiThreadedSA.hpp"
 #include "geneva/GBrokerSA.hpp"
+#include "geneva/GOAInitializerT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -67,6 +68,9 @@ class GSimulatedAnnealingFactory
    : public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:
+   /** @brief An easy identifier for the class */
+   static const std::string nickname; // Initialized in the .cpp definition file
+
    /** @brief The default constructor */
    GSimulatedAnnealingFactory();
    /** @brief Initialization with the name of the config file and the default parallelization mode */

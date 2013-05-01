@@ -55,11 +55,10 @@
 #include "geneva/GSerialSwarm.hpp"
 #include "geneva/GMultiThreadedSwarm.hpp"
 #include "geneva/GBrokerSwarm.hpp"
+#include "geneva/GOAInitializerT.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 /**
@@ -70,6 +69,9 @@ class GSwarmAlgorithmFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:
+   /** @brief An easy identifier for the class */
+   static const std::string nickname; // Initialized in the .cpp definition file
+
    /** @brief The default constructor */
    GSwarmAlgorithmFactory();
    /** @brief Initialization with the name of the config file and the default parallelization mode */

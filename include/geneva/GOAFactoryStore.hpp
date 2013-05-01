@@ -47,12 +47,12 @@
 
 // Geneva headers go here
 #include "common/GGlobalOptionsT.hpp"
-#include "GOptimizationAlgorithmFactoryT.hpp"
-#include "GParameterSet.hpp"
+#include "geneva/GOptimizationAlgorithmFactoryT.hpp"
+#include "geneva/GParameterSet.hpp"
 
 // A global store for optimization algorithm factories
 // Specialization for string options
-typedef Gem::Geneva::GOptimizationAlgorithmFactoryT<Gem::Geneva::GParameterSet> goa_factory;
+typedef Gem::Geneva::GOptimizationAlgorithmFactoryT<Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet> > goa_factory;
 typedef Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<boost::shared_ptr<goa_factory> > > GOAStore;
 #define GOAFactoryStore GOAStore::Instance(0)
 

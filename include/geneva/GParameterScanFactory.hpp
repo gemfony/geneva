@@ -55,6 +55,7 @@
 #include "geneva/GSerialPS.hpp"
 #include "geneva/GMultiThreadedPS.hpp"
 #include "geneva/GBrokerPS.hpp"
+#include "geneva/GOAInitializerT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -67,6 +68,9 @@ class GParameterScanFactory
    : public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:
+   /** @brief An easy identifier for the class */
+   static const std::string nickname; // Initialized in the .cpp definition file
+
    /** @brief The default constructor */
    GParameterScanFactory();
    /** @brief Initialization with the name of the config file and the default parallelization mode */

@@ -112,7 +112,7 @@ public:
 	 * @param key The name of the option
 	 * @param value The value of the option
 	 */
-	void set(const std::string& key, const T& value) {
+	void set(const std::string& key, T value) {
 		kvp_[key] = value;
 	}
 
@@ -124,8 +124,8 @@ public:
     * @param value The value of the option
 	 * @return A boolean indicating whether creation of the new option was successful
 	 */
-	bool setOnce(const std::string& key, const T& value) {
-	   if(exists(key)) {
+	bool setOnce(const std::string& key, T value) {
+	   if(this->exists(key)) {
 	      return false;
 	   }
 	   kvp_[key] = value;

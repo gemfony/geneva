@@ -38,6 +38,14 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+/** A short identifier suitable for storage in a std::map */
+const std::string GEvolutionaryAlgorithmFactory::nickname = "ea";
+
+/******************************************************************************/
+/** This will register the factory in the global factory store */
+GOAInitializerT<GEvolutionaryAlgorithmFactory> GEVAStoreRegistrant;
+
+/******************************************************************************/
 /**
  * The default constructor
  */
