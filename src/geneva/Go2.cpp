@@ -235,7 +235,7 @@ Go2::Go2(const Go2& cp)
 
    //--------------------------------------------
 	// Copy the default algorithm over, if any
-	copyGenevaSmartPointer<GOptimizationAlgorithmT<GParameterSet> >(cp.default_algorithm_, default_algorithm_);
+	copyGenevaSmartPointer<GOABase>(cp.default_algorithm_, default_algorithm_);
 }
 
 /******************************************************************************/
@@ -336,7 +336,7 @@ boost::optional<std::string> Go2::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go2", bestIndividual_, p_load->bestIndividual_, "bestIndividual_", "p_load->bestIndividual_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", default_algorithm_, p_load->default_algorithm_, "default_algorithm_", "p_load->default_algorithm_", e , limit));
 
-	// TODO: Compare algorithms; cross check other data has been added
+	// TODO: Compare algorithms; cross check whether other data has been added
 
 	return evaluateDiscrepancies("Go2", caller, deviations, e);
 }
@@ -356,7 +356,7 @@ std::string Go2::name() const {
  * not be used. Note that any individuals registered with the default algorithm
  * will be copied into the Go2 object.
  */
-void Go2::registerDefaultAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > default_algorithm) {
+void Go2::registerDefaultAlgorithm(boost::shared_ptr<GOABase> default_algorithm) {
    // Check that the pointer isn't empty
    if(!default_algorithm) {
       glogger
@@ -366,7 +366,7 @@ void Go2::registerDefaultAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GPa
    }
 
    if(!default_algorithm->empty()) { // Have individuals been registered ?
-      GOptimizationAlgorithmT<GParameterSet>::iterator it;
+      GOABase::iterator it;
       for(it=default_algorithm->begin(); it!=default_algorithm->end(); ++it) {
          this->push_back(*it);
       }
@@ -392,7 +392,7 @@ void Go2::registerDefaultAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GPa
  */
 void Go2::registerDefaultAlgorithm(const std::string& oa) {
    // Retrieve the algorithm from the global store
-   boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > > p;
+   boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
    if(!GOAFactoryStore->get(oa, p)) {
       glogger
       << "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
@@ -432,7 +432,7 @@ void Go2::load_(const GObject *cp) {
 	iterationsConsumed_ = p_load->iterationsConsumed_;
 
 	copyGenevaSmartPointer<GParameterSet>(p_load->bestIndividual_, bestIndividual_);
-	copyGenevaSmartPointer<GOptimizationAlgorithmT<GParameterSet> >(p_load->default_algorithm_, default_algorithm_);
+	copyGenevaSmartPointer<GOABase>(p_load->default_algorithm_, default_algorithm_);
 
 	// Copy the algorithms vector over
 	copyGenevaSmartPointerVector(p_load->algorithms_, algorithms_);
@@ -545,7 +545,7 @@ double Go2::fitnessCalculation() {
  *
  * @param alg A base pointer to another optimization algorithm
  */
-void Go2::addAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > alg) {
+void Go2::addAlgorithm(boost::shared_ptr<GOABase> alg) {
 	// Check that the pointer is not empty
 	if(!alg) {
 	   glogger
@@ -555,7 +555,7 @@ void Go2::addAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> 
 	}
 
 	if(!alg->empty()) { // Have individuals been registered ?
-	   GOptimizationAlgorithmT<GParameterSet>::iterator it;
+	   GOABase::iterator it;
 	   for(it=alg->begin(); it!=alg->end(); ++it) {
 	      this->push_back(*it);
 	   }
@@ -577,7 +577,7 @@ void Go2::addAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> 
  * @param alg A base pointer to another optimization algorithm
  * @return A reference to this object
  */
-Go2& Go2::operator&(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > alg) {
+Go2& Go2::operator&(boost::shared_ptr<GOABase> alg) {
 	this->addAlgorithm(alg);
 	return *this;
 }
@@ -698,7 +698,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	// Check that algorithms have indeed been registered. If not, try to add a default algorithm (if available)
 	if(algorithms_.empty()) {
 	   if(default_algorithm_) { // Fill with our default algorithm
-	      algorithms_.push_back(default_algorithm_->clone<GOptimizationAlgorithmT<GParameterSet> >());
+	      algorithms_.push_back(default_algorithm_->clone<GOABase>());
 	   } else {
          glogger
          << "No algorithms have been registered." << std::endl
@@ -737,7 +737,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	bool maxmode = this->front()->getMaxMode();
 
 	// Check that all individuals have the same mode
-	GOptimizationAlgorithmT<GParameterSet>::iterator ind_it;
+	GOABase::iterator ind_it;
 	for(ind_it=this->begin()+1; ind_it!=this->end(); ++ind_it) {
 		if((*ind_it)->getMaxMode() != maxmode) {
 		   glogger
@@ -750,20 +750,20 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	// Loop over all algorithms
 	iterationsConsumed_ = offset_;
 	sorted_ = false;
-	std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >::iterator alg_it;
+	std::vector<boost::shared_ptr<GOABase> >::iterator alg_it;
 	for(alg_it=algorithms_.begin(); alg_it!=algorithms_.end(); ++alg_it) {
-		boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > p_base = (*alg_it);
+		boost::shared_ptr<GOABase> p_base = (*alg_it);
 
 		// If this is a broker-based population, check whether we need to enrol a consumer
-		if(p_base->usesBroker() && !GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
+		if(p_base->usesBroker() && !GBROKER(Gem::Geneva::GIndividual)->hasConsumers()) {
 			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet> > gatc(new Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>(
+			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual>(
 					port_
 					, 0 // Try to automatically determine the number of listener threads
 					, serializationMode_
 					)
 			);
-			GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
+			GBROKER(Gem::Geneva::GIndividual)->enrol(gatc);
 		}
 
       // Add the individuals to the algorithm.

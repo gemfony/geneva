@@ -117,6 +117,10 @@ const std::string GO2_DEF_OPTALGS="";
 void setRNFParameters(const boost::uint16_t&);
 
 /******************************************************************************/
+/** Syntactic sugar -- make the code easier to read */
+typedef Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet> GOABase;
+
+/******************************************************************************/
 /**
  * This class allows to "chain" a number of optimization algorithms so that a given
  * set of individuals can be optimized using more than one algorithm in sequence. The
@@ -189,9 +193,9 @@ public:
 	virtual double fitnessCalculation();
 
 	/** @brief Allows to add an optimization algorithm to the chain */
-	void addAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >);
+	void addAlgorithm(boost::shared_ptr<GOABase>);
 	/** @brief Makes it easier to add algorithms */
-	Go2& operator&(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >);
+	Go2& operator&(boost::shared_ptr<GOABase>);
 
 	/** @brief Allows to add an algorithm with unspecified parallelization mode to the chain */
 	void addAlgorithm(personality_oa);
@@ -287,7 +291,7 @@ public:
    virtual std::string name() const;
 
    /** @brief Allows to register a default algorithm. */
-   void registerDefaultAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >);
+   void registerDefaultAlgorithm(boost::shared_ptr<GOABase>);
    /** @brief Allows to register a default algorithm. */
    void registerDefaultAlgorithm(const std::string& default_algorithm);
 
@@ -356,9 +360,9 @@ private:
 
     //----------------------------------------------------------------------------------------------------------------
     // The list of "chained" optimization algorithms
-    std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > > algorithms_;
+    std::vector<boost::shared_ptr<GOABase> > algorithms_;
     // The default algorithm (if any)
-    boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > default_algorithm_;
+    boost::shared_ptr<GOABase> default_algorithm_;
     // Holds an object capable of producing objects of the desired type
     boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr_;
 };
