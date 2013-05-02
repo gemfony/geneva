@@ -50,7 +50,7 @@ GOAInitializerT<GSimulatedAnnealingFactory> GSAStoreRegistrant;
  * The default constructor
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("/config/GSimulatedAnnealing.json")
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GSimulatedAnnealing.json")
 { /* nothing */ }
 
 /******************************************************************************/

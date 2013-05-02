@@ -53,8 +53,6 @@ using namespace Gem::Tests;
 typedef boost::tuple<double,double,double,double> xyWE; // xy-values with errors
 
 int main(int argc, char **argv) {
-	Go2::init();
-
 	// Create the algorithm container
 	Go2 go(argc, argv, "./config/Go2.json");
 
@@ -176,7 +174,4 @@ int main(int argc, char **argv) {
 
 	// Emit the result file
 	gpd.writeToFile(gbc.getResultFileName());
-
-	// Terminate
-	return Go2::finalize();
 }

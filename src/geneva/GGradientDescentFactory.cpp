@@ -50,7 +50,7 @@ GOAInitializerT<GGradientDescentFactory> GGDStoreRegistrant;
  * The default constructor
  */
 GGradientDescentFactory::GGradientDescentFactory()
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("/config/GGradientDescent.json")
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GGradientDescent.json")
 { /* nothing */ }
 
 /******************************************************************************/

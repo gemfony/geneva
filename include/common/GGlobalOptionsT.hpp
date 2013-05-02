@@ -86,7 +86,7 @@ public:
 	 * @param value The value that should be retrieved
 	 * @return A boolean indicating whether retrieval of the option was successful
 	 */
-	bool get(const std::string& key, T& value) const {
+	bool get(const std::string& key, T& value) {
 		if(kvp_.find(key) != kvp_.end()) {
 			value = kvp_[key];
 			return true;

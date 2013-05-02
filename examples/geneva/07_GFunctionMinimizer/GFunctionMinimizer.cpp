@@ -47,7 +47,6 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Go2::init();
 	Go2 go(argc, argv, "./config/Go2.json");
 
 	//---------------------------------------------------------------------
@@ -83,8 +82,5 @@ int main(int argc, char **argv) {
 	boost::shared_ptr<GFMinIndividual> bestIndividual_ptr = go.optimize<GFMinIndividual>();
 
 	// Do something with the best result
-    // [...]
-
-	// Terminate
-	return Go2::finalize();
+   // [...]
 }

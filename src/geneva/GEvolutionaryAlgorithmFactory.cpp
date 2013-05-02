@@ -50,7 +50,7 @@ GOAInitializerT<GEvolutionaryAlgorithmFactory> GEVAStoreRegistrant;
  * The default constructor
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("/config/GEvolutionaryAlgorithm.json")
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GEvolutionaryAlgorithm.json")
 { /* nothing */ }
 
 /******************************************************************************/

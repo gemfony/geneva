@@ -34,8 +34,6 @@
 
 #include "geneva/Go2.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Go2)
-
 namespace Gem {
 namespace Geneva {
 
@@ -55,7 +53,7 @@ void setRNFParameters(
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 }
 
-/** @brief Regulates access to the call_once facility*/
+// Regulates access to the call_once facility
 boost::once_flag f_go2 = BOOST_ONCE_INIT;
 
 /******************************************************************************/
@@ -228,7 +226,7 @@ Go2::Go2(const Go2& cp)
 	copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
 
 	// Copy the algorithms vector over
-	copyAlgorithmsVector(cp.algorithms_, algorithms_);
+	copyGenevaSmartPointerVector(cp.algorithms_, algorithms_);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -382,6 +380,31 @@ void Go2::registerDefaultAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GPa
 
 /******************************************************************************/
 /**
+ * Allows to register a default algorithm to be used when no other algorithms
+ * have been specified. When others have been specified, this algorithm will
+ * not be used. Note that any individuals registered with the default algorithm
+ * will be copied into the Go2 object. This function takes the algorithm from a
+ * global algorithm factory store. The algorithm needs to be specified using a
+ * small nickname, such as "ea" for "Evolutionary Algorithms". See the available
+ * algorithms in the Geneva distribution for further information.
+ *
+ * @param oa A small mnemomic for the optimization algorithm
+ */
+void Go2::registerDefaultAlgorithm(const std::string& oa) {
+   // Retrieve the algorithm from the global store
+   boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > > p;
+   if(!GOAFactoryStore->get(oa, p)) {
+      glogger
+      << "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
+      << "Got invalid algorithm mnemomic " << oa << std::endl
+      << GEXCEPTION;
+   }
+
+   this->registerDefaultAlgorithm(p->get(parMode_));
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another Go2 object
  *
  * @param cp A copy of another Go2 object, camouflaged as a GObject
@@ -412,7 +435,7 @@ void Go2::load_(const GObject *cp) {
 	copyGenevaSmartPointer<GOptimizationAlgorithmT<GParameterSet> >(p_load->default_algorithm_, default_algorithm_);
 
 	// Copy the algorithms vector over
-	copyAlgorithmsVector(p_load->algorithms_, algorithms_);
+	copyGenevaSmartPointerVector(p_load->algorithms_, algorithms_);
 
 	// Cross check other data has been added
 }
@@ -461,7 +484,7 @@ bool Go2::clientMode() const {
 /**
  * Allows to set the parallelization mode used for the optimization. Note that
  * this setting will only have an effect on algorithms that have not been explicitly
- * added to Go2 and only to thos algorithms that have been added after the parMode_
+ * added to Go2 and only to those algorithms that have been added after the parMode_
  * has been set.
  *
  * @param parMode The parallelization mode used for the optimization
@@ -636,6 +659,23 @@ Go2& Go2::operator&(personality_oa pers) {
 	return *this;
 }
 
+/***************************************************************************/
+/**
+ * Allows to register a content creator
+ */
+void Go2::registerContentCreator (
+      boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > cc_ptr
+) {
+   if(!cc_ptr) {
+      glogger
+      << "In Go2::registerContentCreator(): Error!" << std::endl
+      << "Tried to register an empty pointer" << std::endl
+      << GEXCEPTION;
+   }
+
+   contentCreatorPtr_ = cc_ptr;
+}
+
 /******************************************************************************/
 /**
  * Perform the actual optimization cycle. Note that we assume that individuals
@@ -651,7 +691,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
       // Add algorithms that have been specified on the command line
       std::vector<personality_oa>::iterator pers_it;
       for(pers_it=optimization_algorithms_.begin(); pers_it!=optimization_algorithms_.end(); ++pers_it) {
-         this->addAlgorithm(*pers_it);
+         this->addAlgorithm(*pers_it); // This will also copy any registered individuals over to us
       }
    }
 
@@ -668,12 +708,29 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	}
 
 	// Check that individuals have been registered
-	if(this->empty()) {
+	if(!contentCreatorPtr_ && this->empty()) {
 	   glogger
 	   << "In Go2::optimize(): Error!" << std::endl
-      << "No individuals have been registered." << std::endl
+      << "Neither a content creator nor individuals have been registered." << std::endl
       << "No way to continue." << std::endl
       << GEXCEPTION;
+	} else {
+	   for(std::size_t ind=0; ind<algorithms_.at(0)->getDefaultPopulationSize(); ind++) {
+         boost::shared_ptr<GParameterSet> p_ind = (*contentCreatorPtr_)();
+         if(!p_ind) { // No valid item received, the factory has run empty
+            if(this->empty()) { // Still empty ?
+               glogger
+               << "In Go2::optimize(): Error!" << std::endl
+               << "The content creator did not deliver any individuals" << std::endl
+               << "and none have been registered so far." << std::endl
+               << "No way to continue." << std::endl
+               << GEXCEPTION;
+            }
+            break;
+         } else {
+            this->push_back(p_ind);
+         }
+	   }
 	}
 
 	// Retrieve the minimization/maximization mode of the first individual
@@ -1210,59 +1267,29 @@ void Go2::parseCommandLine(int argc, char **argv) {
 }
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
- * Copying of the algorithms_ vector. This is a modified version of the
- * copyGenevaSmartPointerVector function, adapted to the needs of a GOptimizableI
- * derivative. Note that this must be considered a hack.
+ * The default constructor
  */
-void Go2::copyAlgorithmsVector(
-	const std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >& from
-	, std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >& to
-) {
-	std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >::const_iterator it_from;
-	std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >::iterator it_to;
-
-	std::size_t size_from = from.size();
-	std::size_t size_to = to.size();
-
-	if(size_from==size_to) { // The most likely case
-		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
-			const boost::shared_ptr<GObject> go_from = boost::dynamic_pointer_cast<GObject>(*it_from);
-			boost::shared_ptr<GObject>       go_to   = boost::dynamic_pointer_cast<GObject>(*it_to);
-
-			copyGenevaSmartPointer(go_from, go_to);
-		}
-	}
-	else if(size_from > size_to) {
-		// First copy the data of the first size_to items
-		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
-			const boost::shared_ptr<GObject> go_from = boost::dynamic_pointer_cast<GObject>(*it_from);
-			boost::shared_ptr<GObject>       go_to   = boost::dynamic_pointer_cast<GObject>(*it_to);
-
-			copyGenevaSmartPointer(go_from, go_to);
-		}
-
-		// Then attach copies of the remaining items
-		for(it_from=from.begin()+size_to; it_from!=from.end(); ++it_from) {
-			to.push_back(
-				boost::dynamic_pointer_cast<GOptimizationAlgorithmT<GParameterSet> >((boost::dynamic_pointer_cast<GObject>(*it_from))->GObject::clone())
-			);
-		}
-	}
-	else if(size_from < size_to) {
-		// First copy the initial size_foreight items over
-		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
-			const boost::shared_ptr<GObject> go_from = boost::dynamic_pointer_cast<GObject>(*it_from);
-			boost::shared_ptr<GObject>       go_to   = boost::dynamic_pointer_cast<GObject>(*it_to);
-
-			copyGenevaSmartPointer(go_from, go_to);
-		}
-
-		// Then resize the local vector. Surplus items will vanish
-		to.resize(size_from);
-	}
+GenevaInitializer::GenevaInitializer() {
+   Go2::init();
 }
 
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GenevaInitializer::~GenevaInitializer() {
+   Go2::finalize();
+}
+
+/******************************************************************************/
+// Create an instance of this class
+GenevaInitializer gi;
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 } /* namespace Geneva */

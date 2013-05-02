@@ -52,7 +52,6 @@ using namespace Gem::Geneva;
 using namespace Gem::Tests;
 
 int main(int argc, char **argv) {
-   Go2::init();
    Go2 go(argc, argv, "./config/Go2.json");
 
    //---------------------------------------------------------------------
@@ -197,6 +196,5 @@ int main(int argc, char **argv) {
 	result.close();
 	shortResult.close();
 
-	std::cout << "Done ..." << std::endl;
 	return 0;
 }

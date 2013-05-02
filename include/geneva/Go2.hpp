@@ -48,6 +48,7 @@
 
 
 // Geneva headers go here
+#include "common/GFactoryT.hpp"
 #include "common/GExceptions.hpp"
 #include "hap/GRandomFactory.hpp"
 #include "hap/GRandomT.hpp"
@@ -120,40 +121,13 @@ void setRNFParameters(const boost::uint16_t&);
  * This class allows to "chain" a number of optimization algorithms so that a given
  * set of individuals can be optimized using more than one algorithm in sequence. The
  * class also hides the details of client/server mode, consumer initialization, etc.
- *
- * NOTE: This class might currently not be thread-safe (nor even reentrant)
+ * While it is derived from GOptimizableI, it is not currently meant to be used as an
+ * individual. Hence the ability to serialize the class has been removed.
  */
 class Go2
 	: public GMutableSetT<GParameterSet>
 	, public GOptimizableI
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
-
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
-
-	  ar & make_nvp("GMutableSetT_GParameterSet", boost::serialization::base_object<GMutableSetT<GParameterSet> >(*this))
-	     & BOOST_SERIALIZATION_NVP(clientMode_)
-	     & BOOST_SERIALIZATION_NVP(serializationMode_)
-	     & BOOST_SERIALIZATION_NVP(ip_)
-	     & BOOST_SERIALIZATION_NVP(port_)
-	     & BOOST_SERIALIZATION_NVP(configFilename_)
-	     & BOOST_SERIALIZATION_NVP(parMode_)
-	     & BOOST_SERIALIZATION_NVP(verbose_)
-	     & BOOST_SERIALIZATION_NVP(maxStalledDataTransfers_)
-	     & BOOST_SERIALIZATION_NVP(maxConnectionAttempts_)
-	     & BOOST_SERIALIZATION_NVP(returnRegardless_)
-	     & BOOST_SERIALIZATION_NVP(nProducerThreads_)
-	     & BOOST_SERIALIZATION_NVP(offset_)
-	     & BOOST_SERIALIZATION_NVP(sorted_)
-	     & BOOST_SERIALIZATION_NVP(bestIndividual_)
-	     & BOOST_SERIALIZATION_NVP(default_algorithm_);
-	     // & BOOST_SERIALIZATION_NVP(algorithms_);
-	}
-	///////////////////////////////////////////////////////////////////////
-
 public:
 	/** @brief The default constructor */
 	Go2();
@@ -224,6 +198,10 @@ public:
 	/** @brief Facilitates adding of algorithms with unspecified parallelization mode */
 	Go2& operator&(personality_oa);
 
+   /** @brief Allows to register a content creator */
+   void registerContentCreator(
+         boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
+   );
 	/** @brief Perform the actual optimization cycle */
 	virtual void optimize(const boost::uint32_t& = 0);
 
@@ -342,6 +320,8 @@ public:
 
    /** @brief Allows to register a default algorithm. */
    void registerDefaultAlgorithm(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >);
+   /** @brief Allows to register a default algorithm. */
+   void registerDefaultAlgorithm(const std::string& default_algorithm);
 
 protected:
 	/***************************************************************************/
@@ -356,13 +336,6 @@ protected:
 	std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
 
 private:
-	/***************************************************************************/
-	/** @brief Copying of the algorithms_ vector */
-	void copyAlgorithmsVector(
-	      const std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >&
-	      , std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > >&
-	);
-
    /***************************************************************************/
    /**
     * A termination handler
@@ -418,13 +391,30 @@ private:
     std::vector<boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > > algorithms_;
     // The default algorithm (if any)
     boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > default_algorithm_;
+    // Holds an object capable of producing objects of the desired type
+    boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr_;
 };
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class performs some necessary initialization and finalization work, so
+ * the user does not need to do this manually in main()
+ */
+class GenevaInitializer {
+public:
+	/** @brief The default constructor */
+   inline GenevaInitializer();
+   /** @brief The destructor */
+   inline ~GenevaInitializer();
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
-
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Go2)
 
 #endif /* GO2_HPP_ */

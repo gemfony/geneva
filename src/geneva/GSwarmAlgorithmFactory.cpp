@@ -50,7 +50,7 @@ GOAInitializerT<GSwarmAlgorithmFactory> GSwarmStoreRegistrant;
  * The default constructor
  */
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("/config/GSwarmAlgorithm.json")
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GSwarmAlgorithm.json")
 { /* nothing */ }
 
 /******************************************************************************/

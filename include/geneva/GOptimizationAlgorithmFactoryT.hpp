@@ -363,7 +363,6 @@ protected:
 	double waitFactorIncrement_; ///< The amount by which the waitFactor_ may be incremented or decremented
 
 	boost::shared_ptr<Gem::Common::GFactoryT<typename prod_type::individual_type> > contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
-	// boost::function<boost::shared_ptr<typename prod_type::individual_type>()> contentCreator_; ///< Holds a function capable of filling the collection with individuals
 
 private:
 	/***************************************************************************/

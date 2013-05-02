@@ -46,7 +46,6 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Go2::init();
 	Go2 go(argc, argv, "Go2.json");
 
 	//---------------------------------------------------------------------
@@ -70,7 +69,4 @@ int main(int argc, char **argv) {
 	boost::shared_ptr<GMultiCriterionParabolaIndividual> bestIndividual_ptr = go.optimize<GMultiCriterionParabolaIndividual>();
 
 	// Do something with the best result
-
-	// Terminate
-	return Go2::finalize();
 }

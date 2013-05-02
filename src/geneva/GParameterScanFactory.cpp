@@ -50,7 +50,7 @@ GOAInitializerT<GParameterScanFactory> GPSStoreRegistrant;
  * The default constructor
  */
 GParameterScanFactory::GParameterScanFactory()
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("/config/GParameterScan.json")
+   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GParameterScan.json")
 { /* nothing */ }
 
 /******************************************************************************/

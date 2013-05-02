@@ -137,9 +137,6 @@ int main(int argc, char **argv){
     { exit(1); }
 
   //***************************************************************************
-  // Initialize Geneva
-  Go2::init();
-
   // Random numbers are our most valuable good. Set the number of threads
   GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
@@ -273,7 +270,5 @@ int main(int argc, char **argv){
 
   //--------------------------------------------------------------------------------------------
   // Terminate
-  Go2::finalize();
-  std::cout << "Done ..." << std::endl;
   return(0);
 }

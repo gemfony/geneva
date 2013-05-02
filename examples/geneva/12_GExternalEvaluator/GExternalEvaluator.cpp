@@ -46,7 +46,6 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Go2::init();
 	Go2 go(argc, argv, "./config/Go2.json");
 
 	//---------------------------------------------------------------------
@@ -80,7 +79,4 @@ int main(int argc, char **argv) {
 	// Here you can do something with the best individual ("p") found
 	// Note that the "archive" call is specific to the GExternalEvaluatorIndividual
 	p->archive();
-
-	// Terminate
-	return Go2::finalize();
 }
