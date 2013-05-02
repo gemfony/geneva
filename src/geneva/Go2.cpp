@@ -1272,8 +1272,12 @@ void Go2::parseCommandLine(int argc, char **argv) {
 /**
  * The default constructor
  */
-GenevaInitializer::GenevaInitializer() {
-   Go2::init();
+GenevaInitializer::GenevaInitializer()
+   : grf_(GRANDOMFACTORY)
+   , gbr_(GBROKER(Gem::Geneva::GIndividual))
+{
+   grf_->init();
+   gbr_->init();
 }
 
 /******************************************************************************/
@@ -1281,7 +1285,13 @@ GenevaInitializer::GenevaInitializer() {
  * The destructor
  */
 GenevaInitializer::~GenevaInitializer() {
-   Go2::finalize();
+   gbr_->finalize();
+   grf_->finalize();
+
+#ifdef GEM_INT_FORCE_TERMINATION // Defined in GGlobalDefines.hpp.in
+   std::set_terminate(Go2::GTerminateImproperBoostTermination);
+   std::terminate();
+#endif /* GEM_INT_FORCE_TERMINATION */
 }
 
 /******************************************************************************/

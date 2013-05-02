@@ -254,38 +254,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Initialization code for the Geneva library collection. Most notably, we
-	 * enforce the initialization of various singletons needed for Geneva.
-	 */
-	static void init() {
-      GRANDOMFACTORY->init();
-      GBROKER(Gem::Geneva::GIndividual)->init();
-	}
-
-	/***************************************************************************/
-	/**
-	 * Finalization code for the Geneva library collection. Most notably, we enforce
-    * shutdown of various singleton services needed for Geneva. Note that we shut down
-    * in reverse order to the startup procedure.
-	 */
-	static int finalize() {
-      GBROKER(Gem::Geneva::GIndividual)->finalize();
-      RESETGBROKER(Gem::Geneva::GIndividual);
-
-      GRANDOMFACTORY->finalize();
-      RESETGRANDOMFACTORY;
-
-#ifdef GEM_INT_FORCE_TERMINATION // Defined in GGlobalDefines.hpp.in
-      std::set_terminate(Go2::GTerminateImproperBoostTermination);
-      std::terminate();
-#endif /* GEM_INT_FORCE_TERMINATION */
-
-      std::cout << "Done ..." << std::endl;
-      return 0;
-	}
-
-	/***************************************************************************/
-	/**
 	 * Starts the optimization cycle and returns the best individual found, converted to
 	 * the desired target type. This is a convenience overload of the corresponding
 	 * GOptimizableI function.
@@ -408,6 +376,12 @@ public:
    inline GenevaInitializer();
    /** @brief The destructor */
    inline ~GenevaInitializer();
+
+private:
+   // Local copies of the factory and broker pointers. Needed so we are
+   // sure the corresponding objects still exist when the destructor is called.
+   boost::shared_ptr<Gem::Hap::GRandomFactory> grf_;
+   boost::shared_ptr<Gem::Courtier::GBrokerT<GIndividual> > gbr_;
 };
 
 /******************************************************************************/
