@@ -1,5 +1,5 @@
 /**
- * @file GOAFactoryStore.hpp
+ * @file GOAMonitorStore.hpp
  */
 
 /*
@@ -37,8 +37,8 @@
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
 
-#ifndef GOAFACTORYSTORE_HPP_
-#define GOAFACTORYSTORE_HPP_
+#ifndef GOAMONITORSTORE_HPP_
+#define GOAMONITORSTORE_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -47,12 +47,14 @@
 
 // Geneva headers go here
 #include "common/GGlobalOptionsT.hpp"
-#include "geneva/GOptimizationAlgorithmFactoryT.hpp"
+#include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GParameterSet.hpp"
 
-// A global store for optimization algorithm factories
-typedef Gem::Geneva::GOptimizationAlgorithmFactoryT<Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet> > goa_factory;
-typedef Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<boost::shared_ptr<goa_factory> > > GOAStore;
-#define GOAFactoryStore GOAStore::Instance(0)
+// A global store for optimization algorithm monitors. The idea is that algorithms adding an
+// algorithm with a nickname of e.g. "ea" can check in this store whether any specific monitors have
+// been registered.
+typedef Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT goam_factory;
+typedef Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<boost::shared_ptr<goam_factory> > > GOAMStore;
+#define GOAMonitorStore GOAMStore::Instance(0)
 
-#endif /* GOAFACTORYSTORE_HPP_ */
+#endif /* GOAMONITORSTORE_HPP_ */

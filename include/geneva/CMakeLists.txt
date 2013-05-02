@@ -78,6 +78,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GOAInitializerT.hpp
 	Go2.hpp
 	GOAFactoryStore.hpp
+	GOAMonitorStore.hpp
 	GObject.hpp
 	GObjectExpectationChecksT.hpp
 	GOptimizableI.hpp
