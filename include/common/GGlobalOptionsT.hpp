@@ -161,8 +161,29 @@ public:
 	}
 
 	/************************************************************************/
+	/**
+	 * Allows to find out the number of registered options
+	 */
+	std::size_t size() const {
+	   return kvp_.size();
+	}
+
+	/************************************************************************/
+	/**
+	 * Retrieves a vector of all keys
+	 */
+	std::string getKeyVector() const {
+	   std::string result;
+	   typename std::map<std::string, T>::const_iterator cit;
+	   for(cit=kvp_.begin(); cit!=kvp_.end(); ++cit) {
+	      result += cit->first + ", ";
+	   }
+	   return result;
+	}
 
 private:
+   /************************************************************************/
+	// Holds the actual data
 	std::map<std::string, T> kvp_;
 };
 

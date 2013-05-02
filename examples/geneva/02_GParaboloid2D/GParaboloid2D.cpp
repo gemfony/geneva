@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 	go.push_back(p);
 
 	// Add an evolutionary algorithm to the Go2 class.
-	go & PERSONALITY_EA;
+	go & "ea";
 
 	// Perform the actual optimization
 	boost::shared_ptr<GParaboloidIndividual2D>

@@ -388,15 +388,15 @@ void Go2::registerDefaultAlgorithm(boost::shared_ptr<GOABase> default_algorithm)
  * small nickname, such as "ea" for "Evolutionary Algorithms". See the available
  * algorithms in the Geneva distribution for further information.
  *
- * @param oa A small mnemomic for the optimization algorithm
+ * @param mn A small mnemomic for the optimization algorithm
  */
-void Go2::registerDefaultAlgorithm(const std::string& oa) {
+void Go2::registerDefaultAlgorithm(const std::string& mn) {
    // Retrieve the algorithm from the global store
    boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
-   if(!GOAFactoryStore->get(oa, p)) {
+   if(!GOAFactoryStore->get(mn, p)) {
       glogger
       << "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
-      << "Got invalid algorithm mnemomic " << oa << std::endl
+      << "Got invalid algorithm mnemomic " << mn << std::endl
       << GEXCEPTION;
    }
 
@@ -582,81 +582,30 @@ Go2& Go2::operator&(boost::shared_ptr<GOABase> alg) {
 	return *this;
 }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * Allows to add an algorithm with unspecified parallelization mode to the chain. The
- * mode is then set internally according to the value of the parMode_ variable. This
- * allows to dynamically change the parallelization mode e.g. with a command-line
- * parameter.
- *
- * @param per The desired optimization algorithm
+ * Allows to add an optimization algorithm through its mnemomic
  */
-void Go2::addAlgorithm(personality_oa pers) {
-	switch(pers) {
-	case PERSONALITY_NONE:
-		{
-		   glogger
-		   << "In Go2::addAlgorithm(personality_oa): Error!" << std::endl
-         << "Got PERSONALITY_NONE" << std::endl
-         << GEXCEPTION;
-		}
-		break;
+void Go2::addAlgorithm(const std::string& mn) {
+   // Retrieve the algorithm from the global store
+   boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
+   if(!GOAFactoryStore->get(mn, p)) {
+      glogger
+      << "In Go2::addAlgorithm(std::string): Error!" << std::endl
+      << "Got invalid algorithm mnemomic " << mn << std::endl
+      << GEXCEPTION;
+   }
 
-	case PERSONALITY_EA:
-		{
-			GEvolutionaryAlgorithmFactory geaf("config/GEvolutionaryAlgorithm.json", parMode_);
-			this->addAlgorithm(geaf());
-		}
-		break;
-
-	case PERSONALITY_GD:
-		{
-			GGradientDescentFactory ggdf("config/GGradientDescent.json", parMode_);
-			this->addAlgorithm(ggdf());
-		}
-		break;
-
-	case PERSONALITY_PS:
-      {
-         GParameterScanFactory gpsf("config/GParameterScan.json", parMode_);
-         this->addAlgorithm(gpsf());
-      }
-		break;
-
-   case PERSONALITY_SA:
-      {
-         GSimulatedAnnealingFactory gsaf("config/GSimulatedAnnealing.json", parMode_);
-         this->addAlgorithm(gsaf());
-      }
-      break;
-
-	case PERSONALITY_SWARM:
-		{
-			GSwarmAlgorithmFactory gswaf("config/GSwarmAlgorithm.json", parMode_);
-			this->addAlgorithm(gswaf());
-		}
-		break;
-
-	default:
-      {
-         glogger
-         << "In Go2::addAlgorithm(): Error!" << std::endl
-         << "Encountered invalid algorithm type " << pers << std::endl
-         << GEXCEPTION;
-      }
-      break;
-	}
+   this->addAlgorithm(p->get(parMode_));
 }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * Facilitates adding of algorithms with unspecified parallelization mode
- *
- * @param per The desired optimization algorithm
+ * Makes it easier to add algorithms through their mnemomics
  */
-Go2& Go2::operator&(personality_oa pers) {
-	this->addAlgorithm(pers);
-	return *this;
+Go2& Go2::operator&(const std::string& mn) {
+   this->addAlgorithm(mn);
+   return *this;
 }
 
 /***************************************************************************/
@@ -687,11 +636,11 @@ void Go2::registerContentCreator (
 void Go2::optimize(const boost::uint32_t& offset) {
    // Algorithms specified manually in main() take precedence
    // before those specified on the command line
-   if(!optimization_algorithms_.empty()) {
+   if(!cl_algorithms_.empty()) {
       // Add algorithms that have been specified on the command line
-      std::vector<personality_oa>::iterator pers_it;
-      for(pers_it=optimization_algorithms_.begin(); pers_it!=optimization_algorithms_.end(); ++pers_it) {
-         this->addAlgorithm(*pers_it); // This will also copy any registered individuals over to us
+      std::vector<boost::shared_ptr<GOABase> >::iterator pers_it;
+      for(pers_it=cl_algorithms_.begin(); pers_it!=cl_algorithms_.end(); ++pers_it) {
+         this->addAlgorithm(*pers_it);
       }
    }
 
@@ -708,28 +657,30 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	}
 
 	// Check that individuals have been registered
-	if(!contentCreatorPtr_ && this->empty()) {
-	   glogger
-	   << "In Go2::optimize(): Error!" << std::endl
-      << "Neither a content creator nor individuals have been registered." << std::endl
-      << "No way to continue." << std::endl
-      << GEXCEPTION;
-	} else {
-	   for(std::size_t ind=0; ind<algorithms_.at(0)->getDefaultPopulationSize(); ind++) {
-         boost::shared_ptr<GParameterSet> p_ind = (*contentCreatorPtr_)();
-         if(!p_ind) { // No valid item received, the factory has run empty
-            if(this->empty()) { // Still empty ?
-               glogger
-               << "In Go2::optimize(): Error!" << std::endl
-               << "The content creator did not deliver any individuals" << std::endl
-               << "and none have been registered so far." << std::endl
-               << "No way to continue." << std::endl
-               << GEXCEPTION;
+	if(this->empty()) {
+	   if(contentCreatorPtr_) {
+         for(std::size_t ind=0; ind<algorithms_.at(0)->getDefaultPopulationSize(); ind++) {
+            boost::shared_ptr<GParameterSet> p_ind = (*contentCreatorPtr_)();
+            if(p_ind) {
+               this->push_back(p_ind);
+            } else { // No valid item received, the factory has run empty
+               if(this->empty()) { // Still empty ?
+                  glogger
+                  << "In Go2::optimize(): Error!" << std::endl
+                  << "The content creator did not deliver any individuals" << std::endl
+                  << "and none have been registered so far." << std::endl
+                  << "No way to continue." << std::endl
+                  << GEXCEPTION;
+               }
+               break;
             }
-            break;
-         } else {
-            this->push_back(p_ind);
          }
+      } else {
+         glogger
+         << "In Go2::optimize(): Error!" << std::endl
+         << "Neither a content creator nor individuals have been registered." << std::endl
+         << "No way to continue." << std::endl
+         << GEXCEPTION;
 	   }
 	}
 
@@ -1161,9 +1112,15 @@ boost::uint32_t Go2::getIterationOffset() const {
  * @param argv An array with the arguments
  */
 void Go2::parseCommandLine(int argc, char **argv) {
-    namespace po = boost::program_options;
+   namespace po = boost::program_options;
 
-    std::string optimization_algorithms;
+   std::string optimization_algorithms;
+   std::ostringstream oa_help;
+
+   oa_help
+   << "A comma-separated list of optimization algorithms, e.g. \"arg1,arg2\". "
+   << GOAFactoryStore->size() << " algorithms have been registered: "
+   << GOAFactoryStore->getKeyVector();
 
 	try {
 		std::string configFilename = std::string("");
@@ -1173,21 +1130,15 @@ void Go2::parseCommandLine(int argc, char **argv) {
 				("help,h", "emit help message")
 				("configFilename,f", po::value<std::string>(&configFilename)->default_value(GO2_DEF_DEFAULTCONFIGFILE),
 				"The name of the file holding configuration information for optimization algorithms")
-				("parallelizationMode,p", po::value<parMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
-				"The desired parallelization mode (this will only affect algorithms with generic parallelization mode")
+				("executionMode,e", po::value<parMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
+				"The default parallelization mode: (0) means serial execution; "
+				"(1) means multi-threaded execution and (2) means execution through the broker")
 				("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms)->default_value(GO2_DEF_OPTALGS),
-				"A comma-separated list of optimization algorithms. E.g. \"1,2,3\". "
-				"(1) means \"Evolutionary Algorithms\", "
-				"(2) means \"Gradient Descents\", "
-				"(3) means \"Swarm Algorithms\","
-				"(4) means \"Simulated Annealing\","
-				"(5) means \"Parameter Scan\"")
+             oa_help.str().c_str())
 				("clientMode,c", "Makes this program behave as a networked client")
-				("ip", po::value<std::string>(&ip_)->default_value(GO2_DEF_IP),
-				"The ip of the server")
-				("port", po::value<unsigned short>(&port_)->default_value(GO2_DEF_PORT),
-				"The port of the server")
-				("serializationMode,m", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO2_DEF_SERIALIZATIONMODE),
+				("ip,i", po::value<std::string>(&ip_)->default_value(GO2_DEF_IP), "The ip of the server")
+				("port,p", po::value<unsigned short>(&port_)->default_value(GO2_DEF_PORT),	"The port of the server")
+				("serializationMode,s", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO2_DEF_SERIALIZATIONMODE),
 				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 				("verbose,v", "Instructs the parsers to output information about configuration parameters")
 		;
@@ -1217,25 +1168,20 @@ void Go2::parseCommandLine(int argc, char **argv) {
 			tokenizer oaTokenizer(optimization_algorithms, comma_sep);
 			for(tokenizer::iterator oa=oaTokenizer.begin(); oa!=oaTokenizer.end(); ++oa) {
 				std::string alg = *oa;
-				boost::trim(alg);
-				personality_oa num_alg = boost::lexical_cast<personality_oa>(alg);
-
-				if(
-				      num_alg != PERSONALITY_EA &&    // 1
-				      num_alg != PERSONALITY_GD &&    // 2
-				      num_alg != PERSONALITY_SA &&    // 3
-				      num_alg != PERSONALITY_SWARM && // 4
-				      num_alg != PERSONALITY_SA &&    // 5
-				      num_alg != PERSONALITY_PS       // 6
-				) {
-				   glogger
-				   << "In Go2::parseCommandLine(): Error!" << std::endl
-               << "Received invalid personality " << num_alg << std::endl
-               << GEXCEPTION;
-				}
+				boost::trim(alg); // Remove any leading or trailing white spaces
 
 				if(!alg.empty()) {
-					optimization_algorithms_.push_back(num_alg);
+				   // Retrieve the algorithm from the global store
+				   boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
+				   if(!GOAFactoryStore->get(alg, p)) {
+				      glogger
+				      << "In Go2::parseCommandLine(int, char**): Error!" << std::endl
+				      << "Got invalid algorithm mnemomic \"" << alg << "\"." << std::endl
+				      << "No algorithm found for this string." << std::endl
+				      << GEXCEPTION;
+				   }
+
+					cl_algorithms_.push_back(p->get(parMode_));
 				}
 			}
 		}
@@ -1247,6 +1193,8 @@ void Go2::parseCommandLine(int argc, char **argv) {
 			std::cout << std::endl
 					<< "Running with the following command line options:" << std::endl
 					<< "configFilename = " << configFilename_ << std::endl
+					<< "executionMode = " << parMode_ << std::endl
+					<< "optimizationAlgorithms = " << optimization_algorithms << std::endl
 					<< "clientMode = " << clientMode_ << std::endl
 					<< "ip = " << ip_ << std::endl
 					<< "port = " << port_ << std::endl

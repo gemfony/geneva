@@ -50,6 +50,7 @@
 // Geneva headers go here
 #include "common/GFactoryT.hpp"
 #include "common/GExceptions.hpp"
+#include <common/GParserBuilder.hpp>
 #include "hap/GRandomFactory.hpp"
 #include "hap/GRandomT.hpp"
 #include "courtier/GAsioHelperFunctions.hpp"
@@ -196,11 +197,10 @@ public:
 	void addAlgorithm(boost::shared_ptr<GOABase>);
 	/** @brief Makes it easier to add algorithms */
 	Go2& operator&(boost::shared_ptr<GOABase>);
-
-	/** @brief Allows to add an algorithm with unspecified parallelization mode to the chain */
-	void addAlgorithm(personality_oa);
-	/** @brief Facilitates adding of algorithms with unspecified parallelization mode */
-	Go2& operator&(personality_oa);
+	/** @brief Allows to add an optimization algorithm through its mnemomic */
+   void addAlgorithm(const std::string&);
+   /** @brief Makes it easier to add algorithms */
+   Go2& operator&(const std::string&);
 
    /** @brief Allows to register a content creator */
    void registerContentCreator(
@@ -346,10 +346,6 @@ private:
     boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
 
     //----------------------------------------------------------------------------------------------------------------
-    // Parameters related to automatically added optimization algorithms
-    std::vector<personality_oa> optimization_algorithms_;
-
-    //----------------------------------------------------------------------------------------------------------------
     // Internal parameters
     boost::uint32_t offset_; ///< The offset to be used when starting a new optimization run
     bool sorted_; ///< Indicates whether local individuals have been sorted
@@ -361,6 +357,8 @@ private:
     //----------------------------------------------------------------------------------------------------------------
     // The list of "chained" optimization algorithms
     std::vector<boost::shared_ptr<GOABase> > algorithms_;
+    // Algorithms that were specified on the command line
+    std::vector<boost::shared_ptr<GOABase> > cl_algorithms_;
     // The default algorithm (if any)
     boost::shared_ptr<GOABase> default_algorithm_;
     // Holds an object capable of producing objects of the desired type
