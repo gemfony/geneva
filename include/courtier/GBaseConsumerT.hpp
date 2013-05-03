@@ -1,5 +1,5 @@
 /**
- * @file GBaseConsumer.hpp
+ * @file GBaseConsumerT.hpp
  */
 
 /*
@@ -85,40 +85,101 @@ namespace Courtier {
  * thread by the broker. GBaseConsumer::shutdown() is called by the broker
  * when the consumer is supposed to shut down.
  */
-class GBaseConsumer
+template <typename pl_type> // pl stands for "pay load"
+class GBaseConsumerT
 	:private boost::noncopyable
 {
 public:
-	/** @brief The default constructor */
-	GBaseConsumer();
-	/** @brief The standard destructor */
-	virtual ~GBaseConsumer();
+	typedef pl_type payload;
 
-	/** @brief The actual business logic */
-	virtual void async_startProcessing() = 0;
+	/***************************************************************************/
+   /**
+    * The default constructor
+    */
+   GBaseConsumerT()
+      : stop_(false)
+   { /* nothing */ }
 
-	/** @brief Stop execution */
-	virtual void shutdown();
-	/** @brief Check whether the stop flag has been set */
-	bool stopped() const;
+   /***************************************************************************/
+   /**
+    * The standard destructor
+    */
+	virtual ~GBaseConsumerT()
+	{ /* nothing */ }
 
-	/** @brief A unique identifier for a given consumer */
-	virtual std::string getConsumerName() const = 0;
+	/***************************************************************************/
+	/**
+	 * Stop execution
+	 */
+	virtual void shutdown() {
+	   boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
+	   stop_=true;
+	   lock.unlock();
+	}
 
-	/** @brief Returns an indication whether full return can be expected from the consumer */
-	virtual bool capableOfFullReturn() const;
+	/***************************************************************************/
+	/**
+	 * Check whether the stop flag has been set
+	 */
+	bool stopped() const {
+	   boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
+	   return stop_;
+	}
 
-   /** @brief Parses a given configuration file */
-   void parseConfigFile(const std::string&);
+	/***************************************************************************/
+	/**
+	 * Returns an indication whether full return can be expected from the consumer.
+	 * By default we assume that a full return is not possible.
+	 */
+	virtual bool capableOfFullReturn() const {
+	   return false;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Parses a given configuration file
+	 *
+	 * @param configFile The name of a configuration file
+	 */
+   void parseConfigFile(const std::string& configFile) {
+      // Create a parser builder object -- local options will be added to it
+      Gem::Common::GParserBuilder gpb;
+
+      // Add configuration options of this and of derived classes
+      addConfigurationOptions(gpb, true);
+
+      // Do the actual parsing. Note that this
+      // will try to write out a default configuration file,
+      // if no existing config file can be found
+      gpb.parseConfigFile(configFile);
+   }
+
+   /***************************************************************************/
+   // Some abstract functions
+
+   /** @brief A unique identifier for a given consumer */
+   virtual std::string getConsumerName() const = 0;
+   /** @brief The actual business logic */
+   virtual void async_startProcessing() = 0;
 
 protected:
-   /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+   /***************************************************************************/
+   /**
+    * Adds local configuration options to a GParserBuilder object. We have no local
+    * data, hence this function is empty. It could have been declared purely virtual,
+    * however, we do not want to force derived classes to implement this function,
+    * as it might not always be needed.
+    *
+    * @param gpb The GParserBuilder object, to which configuration options will be added
+    * @param showOrigin Indicates, whether the origin of a configuration option should be shown in the configuration file
+    */
+   virtual void addConfigurationOptions(
+         Gem::Common::GParserBuilder& gpb
+         , const bool& showOrigin
+   ){ /* nothing -- no local data */ }
 
 private:
-	GBaseConsumer(const GBaseConsumer&); ///< Intentionally left undefined
-	const GBaseConsumer& operator=(const GBaseConsumer&); ///< Intentionally left undefined
-
+   /***************************************************************************/
    mutable boost::shared_mutex stopMutex_; ///< Regulate access to the stop_ variable
    mutable bool stop_; ///< Set to true if we are expected to stop
 };

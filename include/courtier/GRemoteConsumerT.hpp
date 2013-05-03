@@ -51,7 +51,7 @@
 #endif
 
 // Geneva headers go here
-#include "courtier/GBaseConsumer.hpp"
+#include "courtier/GBaseConsumerT.hpp"
 
 namespace Gem
 {
@@ -66,7 +66,7 @@ namespace Courtier
  */
 template <class processable_type>
 class GRemoteConsumerT
-	: public Gem::Courtier::GBaseConsumer // note: GBaseConsumer is non-copyable
+	: public Gem::Courtier::GBaseConsumerT<processable_type> // note: GBaseConsumerT<processable_type> is non-copyable
 {
 public:
 	/***************************************************************************/

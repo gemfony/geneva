@@ -41,6 +41,8 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
+#include "courtier/GAsioHelperFunctions.hpp"
+#include "courtier/GCourtierEnums.hpp"
 #include "geneva/Go2.hpp"
 
 // The individual that should be optimized

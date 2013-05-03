@@ -75,10 +75,8 @@
 #include "common/GLogger.hpp"
 #include "courtier/GCourtierEnums.hpp"
 
-namespace Gem
-{
-namespace Courtier
-{
+namespace Gem {
+namespace Courtier {
 
 /******************************************************************************/
 
