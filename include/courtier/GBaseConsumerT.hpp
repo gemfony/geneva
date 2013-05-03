@@ -70,6 +70,7 @@
 
 // Geneva headers go here
 #include "common/GParserBuilder.hpp"
+#include "courtier/GBaseClientT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -152,6 +153,28 @@ public:
       // will try to write out a default configuration file,
       // if no existing config file can be found
       gpb.parseConfigFile(configFile);
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether this consumer needs a client to operate. By default
+    * we return false, so that consumers without the need for clients do not need
+    * to re-implement this function.
+    *
+    * @return A boolean indicating whether this consumer needs a client to operate
+    */
+   virtual bool needsClient() const {
+      return false;
+   }
+
+   /***************************************************************************/
+   /**
+    * This function returns a client associated with this consumer. By default
+    * it returns an empty smart pointer, so that consumers without the need for
+    * clients do not need to re-implement this function.
+    */
+   virtual boost::shared_ptr<GBaseClientT<pl_type> > getClient() const {
+      return boost::shared_ptr<GBaseClientT<pl_type> >();
    }
 
    /***************************************************************************/
