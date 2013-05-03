@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
 	GOAMonitorStore->setOnce("ea", boost::shared_ptr<GSigmaMonitor> (new GSigmaMonitor("./sigmaProgress.C")));
 
 	// Create an evolutionary algorithm in multi-threaded mode
-	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", PARMODE_MULTITHREADED);
+	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", EXECMODE_MULTITHREADED);
 	boost::shared_ptr<GBaseEA> ea_ptr = ea.get<GBaseEA>();
 
 	// Add the algorithm to the Go2 object

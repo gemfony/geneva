@@ -98,7 +98,7 @@ bool parseCommandLine(
 					serverMode = true;
 		}
 
-		if (parallelizationMode != DEFAULTPARALLELIZATIONMODE || ip
+		if (parallelizationMode != DEFAULTEXECMODE || ip
 				!= DEFAULTIP || port != DEFAULTPORT) {
 			std::string parModeString;
 			switch (parallelizationMode) {

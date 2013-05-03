@@ -245,16 +245,16 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
  * Specification of different parallelization modes
  */
 enum executionMode {
-	PARMODE_SERIAL = 0
-	, PARMODE_MULTITHREADED = 1
-	, PARMODE_BROKERAGE = 2
-	, PARMODE_LAST = PARMODE_BROKERAGE
+	EXECMODE_SERIAL = 0
+	, EXECMODE_MULTITHREADED = 1
+	, EXECMODE_BROKERAGE = 2
+	, EXECMODE_LAST = EXECMODE_BROKERAGE
 };
 
 /**
  * The default parallelization mode of optimization algorithms
  */
-const executionMode DEFAULTPARALLELIZATIONMODE = PARMODE_MULTITHREADED;
+const executionMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
 
 /******************************************************************************/
 /**

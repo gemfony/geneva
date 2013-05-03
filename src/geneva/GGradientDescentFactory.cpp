@@ -120,15 +120,15 @@ boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GGradientDescentFacto
 
 	// Fill the target pointer as required
 	switch(pm_) {
-	case PARMODE_SERIAL:
+	case EXECMODE_SERIAL:
 		target = boost::shared_ptr<GSerialGD>(new GSerialGD());
 		break;
 
-	case PARMODE_MULTITHREADED:
+	case EXECMODE_MULTITHREADED:
 		target = boost::shared_ptr<GMultiThreadedGD>(new GMultiThreadedGD());
 		break;
 
-	case PARMODE_BROKERAGE:
+	case EXECMODE_BROKERAGE:
 		target = boost::shared_ptr<GBrokerGD>(new GBrokerGD());
 		break;
 	}
@@ -173,11 +173,11 @@ void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder&
 void GGradientDescentFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
 	// Convert the object to the correct target type
 	switch(pm_) {
-	case PARMODE_SERIAL:
+	case EXECMODE_SERIAL:
 		// nothing
 		break;
 
-	case PARMODE_MULTITHREADED:
+	case EXECMODE_MULTITHREADED:
 		{
 			boost::shared_ptr<GMultiThreadedGD> p
 			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedGD>(p_base);
@@ -185,7 +185,7 @@ void GGradientDescentFactory::postProcess_(boost::shared_ptr<GOptimizationAlgori
 		}
 		break;
 
-	case PARMODE_BROKERAGE:
+	case EXECMODE_BROKERAGE:
 		{
 			boost::shared_ptr<GBrokerGD> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerGD>(p_base);

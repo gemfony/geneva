@@ -410,7 +410,7 @@ double GMetaOptimizerIndividual::fitnessCalculation(){
    gfi.setSigmaSigma1(sigmasigma_ptr->value());
 
    // Set up a population factory
-   GEvolutionaryAlgorithmFactory ea("./config/GSubEvolutionaryAlgorithm.json", PARMODE_MULTITHREADED);
+   GEvolutionaryAlgorithmFactory ea("./config/GSubEvolutionaryAlgorithm.json", EXECMODE_MULTITHREADED);
 
    // Run the required number of optimizations
    boost::shared_ptr<GBaseEA> ea_ptr;

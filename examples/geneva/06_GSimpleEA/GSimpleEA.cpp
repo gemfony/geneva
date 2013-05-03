@@ -204,7 +204,7 @@ int main(int argc, char **argv){
   // Create the actual populations
   switch (parallelizationMode) {
   //-----------------------------------------------------------------------------------------------------
-  case PARMODE_SERIAL: // Serial execution
+  case EXECMODE_SERIAL: // Serial execution
   {
 	  // Create an empty population
 	  pop_ptr = boost::shared_ptr<GSerialEA>(new GSerialEA());
@@ -212,7 +212,7 @@ int main(int argc, char **argv){
   break;
 
 	  //-----------------------------------------------------------------------------------------------------
-  case PARMODE_MULTITHREADED: // Multi-threaded execution
+  case EXECMODE_MULTITHREADED: // Multi-threaded execution
   {
 	  // Create the multi-threaded population
 	  boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
@@ -226,7 +226,7 @@ int main(int argc, char **argv){
   break;
 
   //-----------------------------------------------------------------------------------------------------
-  case PARMODE_BROKERAGE: // Execution with networked consumer and possibly a local, multi-threaded consumer
+  case EXECMODE_BROKERAGE: // Execution with networked consumer and possibly a local, multi-threaded consumer
   {
 	  // Create a network consumer and enrol it with the broker
 	  boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port, 0, serMode));

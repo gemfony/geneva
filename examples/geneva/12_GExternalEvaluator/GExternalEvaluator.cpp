@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
    // of individuals
 	GEvolutionaryAlgorithmFactory ea(
 	      "./config/GEvolutionaryAlgorithm.json"
-	      , PARMODE_MULTITHREADED
+	      , EXECMODE_MULTITHREADED
 	      , geei_ptr
 	);
 

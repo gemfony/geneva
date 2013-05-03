@@ -89,7 +89,7 @@ public:
          const std::string& configFile
    )
       : Gem::Common::GFactoryT<prod_type>(configFile)
-      , pm_(DEFAULTPARALLELIZATIONMODE)
+      , pm_(DEFAULTEXECMODE)
       , nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
       , minWaitFactor_(Gem::Courtier::DEFAULTMINBROKERWAITFACTOR)
       , maxWaitFactor_(Gem::Courtier::DEFAULTMAXBROKERWAITFACTOR)

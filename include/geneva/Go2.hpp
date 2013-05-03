@@ -100,7 +100,7 @@ namespace Geneva {
 // Default values for the variables used by the optimizer
 const std::string GO2_DEF_DEFAULTCONFIGFILE="config/Go2.json";
 const bool GO2_DEF_CLIENTMODE=false;
-const executionMode GO2_DEF_DEFAULPARALLELIZATIONMODE=PARMODE_MULTITHREADED;
+const executionMode GO2_DEF_DEFAULPARALLELIZATIONMODE=EXECMODE_MULTITHREADED;
 const Gem::Common::serializationMode GO2_DEF_SERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
 const std::string GO2_DEF_IP="localhost";
 const unsigned int GO2_DEF_PORT=10000;

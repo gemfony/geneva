@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
    // We choose serial execution, to allow the sub-populations to use multiple threads.
    GEvolutionaryAlgorithmFactory ea_factory(
          "./config/GEvolutionaryAlgorithm.json"
-         , PARMODE_SERIAL
+         , EXECMODE_SERIAL
          , gmoi_ptr
    );
 

@@ -88,7 +88,7 @@ namespace Gem
 		  if(parallelizationMode == 2) if(vm.count("serverMode")) serverMode = true;
 		}
 
-		if(parallelizationMode != DEFAULTPARALLELIZATIONMODE ||  ip != DEFAULTIP  ||  port != DEFAULTPORT){
+		if(parallelizationMode != DEFAULTEXECMODE ||  ip != DEFAULTIP  ||  port != DEFAULTPORT){
 		  std::string parModeString;
 		  switch(parallelizationMode) {
 		  case 0:

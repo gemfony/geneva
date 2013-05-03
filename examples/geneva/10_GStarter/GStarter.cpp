@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
 	boost::shared_ptr<GSigmaMonitor> mon_ptr(new GSigmaMonitor("./sigmaProgress.C"));
 
 	// Create an evolutionary algorithm in multi-threaded mode
-	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", PARMODE_MULTITHREADED);
+	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", EXECMODE_MULTITHREADED);
 	boost::shared_ptr<GBaseEA> ea_ptr = ea.get<GBaseEA>();
 
 	// Register the monitor with the algorithm
