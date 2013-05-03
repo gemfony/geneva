@@ -244,7 +244,7 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
 /**
  * Specification of different parallelization modes
  */
-enum executionMode {
+enum execMode {
 	EXECMODE_SERIAL = 0
 	, EXECMODE_MULTITHREADED = 1
 	, EXECMODE_BROKERAGE = 2
@@ -254,7 +254,7 @@ enum executionMode {
 /**
  * The default parallelization mode of optimization algorithms
  */
-const executionMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
+const execMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
 
 /******************************************************************************/
 /**
@@ -286,13 +286,13 @@ enum infoMode {
  * Ids that are assigned to adaptors and which should (by convention!) be unique for these
  */
 enum adaptorId {
-	GDOUBLEBIGAUSSADAPTOR
-	, GDOUBLEGAUSSADAPTOR
-	, GFLOATGAUSSADAPTOR
-	, GFLOATBIGAUSSADAPTOR
-	, GINT32GAUSSADAPTOR
-	, GBOOLEANADAPTOR
-	, GINT32FLIPADAPTOR
+	GDOUBLEBIGAUSSADAPTOR = 0
+	, GDOUBLEGAUSSADAPTOR = 1
+	, GFLOATGAUSSADAPTOR = 2
+	, GFLOATBIGAUSSADAPTOR = 3
+	, GINT32GAUSSADAPTOR = 4
+	, GBOOLEANADAPTOR = 5
+	, GINT32FLIPADAPTOR = 6
 	, ADAPTORIDE_LAST = GINT32FLIPADAPTOR
 };
 
@@ -404,11 +404,11 @@ const updateRule DEFAULTUPDATERULE = SWARM_UPDATERULE_CLASSIC; ///< The default 
 
 /******************************************************************************/
 
-/** @brief Puts a Gem::Geneva::executionMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::executionMode&);
+/** @brief Puts a Gem::Geneva::execMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::execMode&);
 
-/** @brief Reads a Gem::Geneva::executionMode item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::executionMode&);
+/** @brief Reads a Gem::Geneva::execMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::execMode&);
 
 /** @brief Puts a Gem::Geneva::duplicationScheme into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Geneva::duplicationScheme&);

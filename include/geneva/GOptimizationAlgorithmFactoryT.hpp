@@ -106,7 +106,7 @@ public:
 	 */
 	GOptimizationAlgorithmFactoryT (
 	      const std::string& configFile
-	      , const executionMode& pm
+	      , const execMode& pm
 	)
 		: Gem::Common::GFactoryT<prod_type>(configFile)
 		, pm_(pm)
@@ -125,7 +125,7 @@ public:
 	 */
 	GOptimizationAlgorithmFactoryT (
 	      const std::string& configFile
-	      , const executionMode& pm
+	      , const execMode& pm
 	      , boost::shared_ptr<Gem::Common::GFactoryT<typename prod_type::individual_type> > contentCreatorPtr
 	)
 	  : Gem::Common::GFactoryT<prod_type>(configFile)
@@ -190,9 +190,9 @@ public:
     * @param pm A user-defined parallelization mode
     * @return An object of the desired algorithm type
     */
-   virtual boost::shared_ptr<prod_type> get(executionMode pm) {
+   virtual boost::shared_ptr<prod_type> get(execMode pm) {
       // Store the previous value
-      executionMode previous_pm = pm_;
+      execMode previous_pm = pm_;
       // Set the parallelization mode
       pm_ = pm;
       // Retrieve an item of the desired type
@@ -226,8 +226,8 @@ public:
     * @return A converted copy of the desired production type
     */
    template <typename target_type>
-   boost::shared_ptr<target_type> get(executionMode pm) {
-      executionMode previous_pm = pm_;
+   boost::shared_ptr<target_type> get(execMode pm) {
+      execMode previous_pm = pm_;
       // Set the parallelization mode
       pm_ = pm;
       // Retrieve a work item of the production type
@@ -366,7 +366,7 @@ protected:
 	/** @brief Allows to act on the configuration options received from the configuration file */
 	virtual void postProcess_(boost::shared_ptr<prod_type>&) = 0;
 
-	executionMode pm_; ///< Holds information about the desired parallelization mode
+	execMode pm_; ///< Holds information about the desired parallelization mode
 
 	boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
 

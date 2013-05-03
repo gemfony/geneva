@@ -38,13 +38,13 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::executionMode item into a stream
+ * Puts a Gem::Geneva::execMode item into a stream
  *
  * @param o The ostream the item should be added to
  * @param pm the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::executionMode& pm) {
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::execMode& pm) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(pm);
 	o << tmp;
 	return o;
@@ -52,20 +52,20 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::executionMode& pm) 
 
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::executionMode item from a stream
+ * Reads a Gem::Geneva::execMode item from a stream
  *
  * @param i The stream the item should be read from
  * @param pm The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::executionMode& pm) {
+std::istream& operator>>(std::istream& i, Gem::Geneva::execMode& pm) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	pm = boost::numeric_cast<Gem::Geneva::executionMode>(tmp);
+	pm = boost::numeric_cast<Gem::Geneva::execMode>(tmp);
 #else
-	pm = static_cast<Gem::Geneva::executionMode>(tmp);
+	pm = static_cast<Gem::Geneva::execMode>(tmp);
 #endif /* DEBUG */
 
 	return i;

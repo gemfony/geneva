@@ -70,7 +70,7 @@ GGradientDescentFactory::GGradientDescentFactory(
  */
 GGradientDescentFactory::GGradientDescentFactory(
 	const std::string& configFile
-	, const executionMode& pm
+	, const execMode& pm
 )
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm)
 	, maxResubmissions_(0)
@@ -83,7 +83,7 @@ GGradientDescentFactory::GGradientDescentFactory(
  */
 GGradientDescentFactory::GGradientDescentFactory(
    const std::string& configFile
-   , const executionMode& pm
+   , const execMode& pm
    , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)

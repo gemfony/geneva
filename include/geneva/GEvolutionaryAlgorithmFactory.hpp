@@ -82,12 +82,12 @@ public:
 	/** @brief The standard constructor */
 	GEvolutionaryAlgorithmFactory(
 	      const std::string&
-	      , const executionMode&
+	      , const execMode&
 	);
 	/** @brief Adds a content creator in addition to the standard values */
    GEvolutionaryAlgorithmFactory(
          const std::string&
-         , const executionMode&
+         , const execMode&
          , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
 	/** @brief The destructor */

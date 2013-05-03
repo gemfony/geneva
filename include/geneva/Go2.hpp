@@ -100,7 +100,7 @@ namespace Geneva {
 // Default values for the variables used by the optimizer
 const std::string GO2_DEF_DEFAULTCONFIGFILE="config/Go2.json";
 const bool GO2_DEF_CLIENTMODE=false;
-const executionMode GO2_DEF_DEFAULPARALLELIZATIONMODE=EXECMODE_MULTITHREADED;
+const execMode GO2_DEF_DEFAULPARALLELIZATIONMODE=EXECMODE_MULTITHREADED;
 const Gem::Common::serializationMode GO2_DEF_SERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
 const std::string GO2_DEF_IP="localhost";
 const unsigned int GO2_DEF_PORT=10000;
@@ -147,7 +147,7 @@ public:
 		, const std::string&
 		, const unsigned short&
 		, const std::string&
-		, const executionMode&
+		, const execMode&
 		, const bool&
 	);
 	/** @brief A copy constructor */
@@ -180,8 +180,8 @@ public:
 	/** @brief Checks whether this object is running in client mode */
 	bool clientMode() const;
 
-	void setParallelizationMode(const executionMode&);
-	executionMode getParallelizationMode() const;
+	void setParallelizationMode(const execMode&);
+	execMode getParallelizationMode() const;
 
 	/* @brief Specifies whether only the best individuals of a population should be copied */
 	void setCopyBestIndividualsOnly(const bool&);
@@ -332,7 +332,7 @@ private:
    std::string ip_; ///< Where the server can be reached
    unsigned short port_; ///< The port on which the server answers
 	std::string configFilename_; ///< Indicates where the configuration file is stored
-	executionMode parMode_; ///< The desired parallelization mode for free-form algorithms
+	execMode parMode_; ///< The desired parallelization mode for free-form algorithms
 	bool verbose_; ///< Whether additional information should be emitted, e.g. when parsing configuration files
 
 	//----------------------------------------------------------------------------------------------------------------
