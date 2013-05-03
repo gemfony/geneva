@@ -1,5 +1,5 @@
 /**
- * @file GConsumer.hpp
+ * @file GBaseConsumer.hpp
  */
 
 /*
@@ -81,18 +81,18 @@ namespace Courtier {
  * Derived classes such as the GAsioTCPConsumerT form the single point
  * of contact for remote clients. We do not want this class and its
  * derivatives to be copyable, hence we derive it from the
- * boost::noncopyable class. GConsumer::process() is started in a separate
- * thread by the broker. GConsumer::shutdown() is called by the broker
+ * boost::noncopyable class. GBaseConsumer::process() is started in a separate
+ * thread by the broker. GBaseConsumer::shutdown() is called by the broker
  * when the consumer is supposed to shut down.
  */
-class GConsumer
+class GBaseConsumer
 	:private boost::noncopyable
 {
 public:
 	/** @brief The default constructor */
-	GConsumer();
+	GBaseConsumer();
 	/** @brief The standard destructor */
-	virtual ~GConsumer();
+	virtual ~GBaseConsumer();
 
 	/** @brief The actual business logic */
 	virtual void async_startProcessing() = 0;
@@ -116,8 +116,8 @@ protected:
    virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
 
 private:
-	GConsumer(const GConsumer&); ///< Intentionally left undefined
-	const GConsumer& operator=(const GConsumer&); ///< Intentionally left undefined
+	GBaseConsumer(const GBaseConsumer&); ///< Intentionally left undefined
+	const GBaseConsumer& operator=(const GBaseConsumer&); ///< Intentionally left undefined
 
    mutable boost::shared_mutex stopMutex_; ///< Regulate access to the stop_ variable
    mutable bool stop_; ///< Set to true if we are expected to stop

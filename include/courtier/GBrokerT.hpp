@@ -76,7 +76,7 @@
 #include "common/GBoundedBufferWithIdT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"
-#include "courtier/GConsumer.hpp"
+#include "courtier/GBaseConsumer.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 
@@ -148,7 +148,7 @@ public:
 		if(finalized_) return;
 
 		// Shut down all consumers
-		std::vector<boost::shared_ptr<GConsumer> >::iterator it;
+		std::vector<boost::shared_ptr<GBaseConsumer> >::iterator it;
 		for(it=consumerCollection_.begin(); it!=consumerCollection_.end(); ++it) {
 			(*it)->shutdown();
 		}
@@ -243,9 +243,9 @@ public:
 	 * Adds a new consumer to this class and starts its thread. Note that boost::bind
 	 * knows how to handle a shared_ptr.
 	 *
-	 * @param gc A pointer to a GConsumer object
+	 * @param gc A pointer to a GBaseConsumer object
 	 */
-	void enrol(boost::shared_ptr<GConsumer> gc) {
+	void enrol(boost::shared_ptr<GBaseConsumer> gc) {
 		boost::mutex::scoped_lock consumerEnrolmentLock(consumerEnrolmentMutex_);
 
 		// Do nothing if a consumer of this type has already been registered
@@ -473,7 +473,7 @@ public:
 #endif /* DEBUG */
 
 	   bool result = true;
-	   std::vector<boost::shared_ptr<GConsumer> >::const_iterator cit;
+	   std::vector<boost::shared_ptr<GBaseConsumer> >::const_iterator cit;
 	   for(cit=consumerCollection_.begin(); cit!=consumerCollection_.end(); ++cit) {
 	     if(!(*cit)->capableOfFullReturn()) {
 	       result = false;
@@ -504,7 +504,7 @@ private:
 	bool buffersPresentRaw_; ///< Set to true once the first "raw" bounded buffer has been enrolled
 	bool buffersPresentProcessed_; ///< Set to true once the first "processed" bounded buffer has been enrolled
 
-	std::vector<boost::shared_ptr<GConsumer> > consumerCollection_; ///< Holds the actual consumers
+	std::vector<boost::shared_ptr<GBaseConsumer> > consumerCollection_; ///< Holds the actual consumers
 	std::vector<std::string> consumerTypesPresent_; ///< Holds identifying strings for each consumer
 	mutable boost::mutex consumerEnrolmentMutex_; ///< Protects the enrolment of consumers
 };

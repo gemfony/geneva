@@ -1,5 +1,5 @@
 /**
- * @file GConsumer.cpp
+ * @file GBaseConsumer.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.com .
  */
 
-#include "courtier/GConsumer.hpp"
+#include "courtier/GBaseConsumer.hpp"
 
 namespace Gem
 {
@@ -43,7 +43,7 @@ namespace Courtier
 /**
  * The default constructor
  */
-GConsumer::GConsumer()
+GBaseConsumer::GBaseConsumer()
    : stop_(false)
 { /* nothing */ }
 
@@ -51,14 +51,14 @@ GConsumer::GConsumer()
 /**
  * The standard destructor
  */
-GConsumer::~GConsumer()
+GBaseConsumer::~GBaseConsumer()
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Stop execution. Note that this function requires unique access to the lock.
  */
-void GConsumer::shutdown() {
+void GBaseConsumer::shutdown() {
    boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
    stop_=true;
    lock.unlock();
@@ -69,7 +69,7 @@ void GConsumer::shutdown() {
  * Check whether the stop flag has been set. Since we only read the flag, a
  * shared_lock suffices.
  */
-bool GConsumer::stopped() const {
+bool GBaseConsumer::stopped() const {
    boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
    return stop_;
 }
@@ -79,7 +79,7 @@ bool GConsumer::stopped() const {
  * Returns an indication whether a full return of work items can be expected
  * from the consonumer. By default we asusme that a full return is not possible.
  */
-bool GConsumer::capableOfFullReturn() const {
+bool GBaseConsumer::capableOfFullReturn() const {
    return false;
 }
 
@@ -89,7 +89,7 @@ bool GConsumer::capableOfFullReturn() const {
  *
  * @param configFile The name of a configuration file
  */
-void GConsumer::parseConfigFile(const std::string& configFile) {
+void GBaseConsumer::parseConfigFile(const std::string& configFile) {
    // Create a parser builder object -- local options will be added to it
    Gem::Common::GParserBuilder gpb;
 
@@ -112,7 +112,7 @@ void GConsumer::parseConfigFile(const std::string& configFile) {
  * @param gpb The GParserBuilder object, to which configuration options will be added
  * @param showOrigin Indicates, whether the origin of a configuration option should be shown in the configuration file
  */
-void GConsumer::addConfigurationOptions(
+void GBaseConsumer::addConfigurationOptions(
       Gem::Common::GParserBuilder& gpb
       , const bool& showOrigin
 ){

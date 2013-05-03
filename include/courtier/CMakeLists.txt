@@ -10,7 +10,7 @@ SET ( COMMUNICATIONINCLUDES
 	GBrokerT.hpp
 	GBufferPortT.hpp
 	GCourtierEnums.hpp
-	GConsumer.hpp
+	GBaseConsumer.hpp
 	GRemoteConsumerT.hpp
 	GSerialConsumerT.hpp
 	GSubmissionContainerT.hpp

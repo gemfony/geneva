@@ -78,12 +78,10 @@
 #include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
-#include "courtier/GConsumer.hpp"
+#include "courtier/GBaseConsumer.hpp"
 
-namespace Gem
-{
-namespace Courtier
-{
+namespace Gem {
+namespace Courtier {
 
 const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
 
@@ -162,7 +160,7 @@ class GAsioServerSessionT
 
          // Retrieve an item
          while(!(GBROKER(processable_type)->get(id, p, timeout))) {
-            if(master_->GConsumer::stopped()) break;
+            if(master_->GBaseConsumer::stopped()) break;
 
             continue;
          }
@@ -206,7 +204,7 @@ class GAsioServerSessionT
             // Return the item to the broker. The item will be discarded
             // if the requested target queue cannot be found.
             while(true) {
-               if(master_->GConsumer::stopped()) break;
+               if(master_->GBaseConsumer::stopped()) break;
 
                try {
                   if((GBROKER(processable_type)->put(id, p, timeout))) { // Can this be a source of data loss ?
@@ -398,7 +396,7 @@ class GAsioServerSessionT
  */
 template <class processable_type>
 class GAsioTCPConsumerT
-:public Gem::Courtier::GConsumer // note: GConsumer is non-copyable
+:public Gem::Courtier::GBaseConsumer // note: GBaseConsumer is non-copyable
  {
  public:
    /***************************************************************************/
@@ -465,7 +463,7 @@ class GAsioTCPConsumerT
     */
    void shutdown() {
       // Set the stop criterion
-      GConsumer::shutdown();
+      GBaseConsumer::shutdown();
 
       // Terminate the io service
       io_service_.stop();

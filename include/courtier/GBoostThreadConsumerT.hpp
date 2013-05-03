@@ -64,7 +64,7 @@
 #include "common/GHelperFunctions.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GBrokerT.hpp"
-#include "courtier/GConsumer.hpp"
+#include "courtier/GBaseConsumer.hpp"
 #include "courtier/GSubmissionContainerT.hpp"
 
 namespace Gem {
@@ -75,7 +75,7 @@ const boost::uint16_t DEFAULTTHREADSPERWORKER = 1;
 
 /******************************************************************************/
 /**
- * A derivative of GConsumer, that processes items in separate threads.
+ * A derivative of GBaseConsumer, that processes items in separate threads.
  * Objects of this class can exist alongside a networked consumer, as the broker
  * accepts more than one consumer. You can thus use this class to aid networked
  * optimization, if the server has spare CPU cores that would otherwise run idle.
@@ -83,7 +83,7 @@ const boost::uint16_t DEFAULTTHREADSPERWORKER = 1;
  */
 template <class processable_type>
 class GBoostThreadConsumerT
-	:public Gem::Courtier::GConsumer
+	:public Gem::Courtier::GBaseConsumer
 {
 private:
 	// Make sure processable_type adheres to the GSubmissionContainerT interface
@@ -98,7 +98,7 @@ public:
 	 * The default constructor.
 	 */
 	GBoostThreadConsumerT()
-		: Gem::Courtier::GConsumer()
+		: Gem::Courtier::GBaseConsumer()
 		, threadsPerWorker_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
 		, broker_(GBROKER(processable_type))
 	   , workerTemplates_(1, boost::shared_ptr<GWorker>(new GDefaultWorker()))
@@ -147,7 +147,7 @@ public:
 	*/
 	void shutdown() {
 	   // Initiate the shutdown procedure
-	   GConsumer::shutdown();
+	   GBaseConsumer::shutdown();
 
 	   // Wait for local workers to terminate
 		gtg_.join_all();
@@ -185,7 +185,7 @@ public:
    /***************************************************************************/
    /**
    * Starts the worker threads. This function will not block.
-   * Termination of the threads is triggered by a call to GConsumer::shutdown().
+   * Termination of the threads is triggered by a call to GBaseConsumer::shutdown().
    */
    virtual void async_startProcessing() {
 #ifdef DEBUG
@@ -317,7 +317,7 @@ protected:
       std::string comment;
 
       // Call our parent class'es function
-      GConsumer::addConfigurationOptions(gpb, showOrigin);
+      GBaseConsumer::addConfigurationOptions(gpb, showOrigin);
 
       // Add local data
       comment = ""; // Reset the comment string

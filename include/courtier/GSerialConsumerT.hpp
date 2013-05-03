@@ -51,7 +51,7 @@
 // Geneva headers go here
 #include "common/GLogger.hpp"
 #include "courtier/GBrokerT.hpp"
-#include "courtier/GConsumer.hpp"
+#include "courtier/GBaseConsumer.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -65,7 +65,7 @@ namespace Courtier {
  */
 template <class processable_type>
 class GSerialConsumerT
-	:public Gem::Courtier::GConsumer
+	:public Gem::Courtier::GBaseConsumer
 {
 public:
 	/***************************************************************************/
@@ -73,7 +73,7 @@ public:
 	 * The default constructor. Nothing special here.
 	 */
 	GSerialConsumerT()
-		: Gem::Courtier::GConsumer()
+		: Gem::Courtier::GBaseConsumer()
 		, broker_(GBROKER(processable_type))
 	{ /* nothing */ }
 
@@ -87,7 +87,7 @@ public:
 	/***************************************************************************/
 	/**
 	 * Starts a single worker thread. Termination of the thread is
-	 * triggered by a call to GConsumer::shutdown().
+	 * triggered by a call to GBaseConsumer::shutdown().
 	 */
 	void async_startProcessing() {
 		processingThread_ = boost::thread(boost::bind(&GSerialConsumerT<processable_type>::processItems, this));
@@ -98,8 +98,8 @@ public:
 	* Finalization code. Sends all threads an interrupt signal.
 	*/
 	virtual void shutdown() {
-	   // This will set the GConsumer::stop_ flag
-	   GConsumer::shutdown();
+	   // This will set the GBaseConsumer::stop_ flag
+	   GBaseConsumer::shutdown();
 	   // Wait for our local threads to join
 		processingThread_.join();
 	}
@@ -144,7 +144,7 @@ private:
 
 			while(true){
 				// Have we been asked to stop ?
-			   if(GConsumer::stopped()) break;
+			   if(GBaseConsumer::stopped()) break;
 
 			   // If we didn't get a valid item, start again with the while loop
 				if(!broker_->get(id, p, timeout)) {
@@ -169,7 +169,7 @@ private:
 				try {
 					while(!broker_->put(id, p, timeout)){ // Items can get lost here
 						// Terminate if we have been asked to stop
-					   if(GConsumer::stopped()) break;
+					   if(GBaseConsumer::stopped()) break;
 					}
 				} catch (Gem::Courtier::buffer_not_present&) {
 					continue;
