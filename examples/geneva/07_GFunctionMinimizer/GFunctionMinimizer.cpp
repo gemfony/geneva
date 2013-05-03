@@ -65,15 +65,12 @@ int main(int argc, char **argv) {
 	// Retrieve an individual from the factory and make it known to the optimizer
 	go.push_back(gfi());
 
-	// Create an optimization monitor
-	boost::shared_ptr<GSigmaMonitor> mon_ptr(new GSigmaMonitor("./sigmaProgress.C"));
+	// Register an optimization monitor for evolutionary algorithms
+	GOAMonitorStore->setOnce("ea", boost::shared_ptr<GSigmaMonitor> (new GSigmaMonitor("./sigmaProgress.C")));
 
 	// Create an evolutionary algorithm in multi-threaded mode
 	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", PARMODE_MULTITHREADED);
 	boost::shared_ptr<GBaseEA> ea_ptr = ea.get<GBaseEA>();
-
-	// Register the monitor with the algorithm
-	ea_ptr->registerOptimizationMonitor(mon_ptr);
 
 	// Add the algorithm to the Go2 object
 	go & ea_ptr;

@@ -99,6 +99,14 @@ GGradientDescentFactory::~GGradientDescentFactory()
 
 /******************************************************************************/
 /**
+ * Gives access to the mnemonics / nickname describing an algorithm
+ */
+std::string GGradientDescentFactory::getMnemomic() const {
+   return GGradientDescentFactory::nickname;
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type

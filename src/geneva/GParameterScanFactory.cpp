@@ -99,6 +99,14 @@ GParameterScanFactory::~GParameterScanFactory()
 
 /******************************************************************************/
 /**
+ * Gives access to the mnemonics / nickname describing an algorithm
+ */
+std::string GParameterScanFactory::getMnemomic() const {
+   return GParameterScanFactory::nickname;
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type

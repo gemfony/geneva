@@ -57,6 +57,7 @@
 #include "geneva/GSerialEA.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GBrokerEA.hpp"
+#include "geneva/GOAMonitorStore.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -168,6 +169,12 @@ public:
          }
       }
 
+      // Has a custom optimization monitor been registered with the global store ?
+      // If so, add a clone to the algorithm
+      if(GOAMonitorStore->exists(this->getMnemomic())) {
+         p_alg->registerOptimizationMonitor(GOAMonitorStore->get(this->getMnemomic()));
+      }
+
       // Return the filled object to the audience
       return p_alg;
    }
@@ -246,6 +253,12 @@ public:
 
       contentCreatorPtr_ = cc_ptr;
    }
+
+   /***************************************************************************/
+   /**
+    * Gives access to the mnemonics / nickname describing an algorithm
+    */
+   virtual std::string getMnemomic() const = 0;
 
 protected:
 	/***************************************************************************/

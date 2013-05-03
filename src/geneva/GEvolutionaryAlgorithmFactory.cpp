@@ -97,6 +97,14 @@ GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
 
 /******************************************************************************/
 /**
+ * Gives access to the mnemonics / nickname describing an algorithm
+ */
+std::string GEvolutionaryAlgorithmFactory::getMnemomic() const {
+   return GEvolutionaryAlgorithmFactory::nickname;
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type

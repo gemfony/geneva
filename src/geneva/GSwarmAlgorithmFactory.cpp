@@ -97,6 +97,14 @@ GSwarmAlgorithmFactory::~GSwarmAlgorithmFactory()
 
 /******************************************************************************/
 /**
+ * Gives access to the mnemonics / nickname describing an algorithm
+ */
+std::string GSwarmAlgorithmFactory::getMnemomic() const {
+   return GSwarmAlgorithmFactory::nickname;
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type

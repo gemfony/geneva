@@ -97,6 +97,14 @@ GSimulatedAnnealingFactory::~GSimulatedAnnealingFactory()
 
 /******************************************************************************/
 /**
+ * Gives access to the mnemonics / nickname describing an algorithm
+ */
+std::string GSimulatedAnnealingFactory::getMnemomic() const {
+   return GSimulatedAnnealingFactory::nickname;
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type
