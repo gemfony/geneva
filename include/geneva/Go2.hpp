@@ -68,6 +68,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GOAFactoryStore.hpp"
 #include "geneva/GOAMonitorStore.hpp"
+#include "geneva/GConsumerStore.hpp"
 
 #include "geneva/GBaseEA.hpp"
 #include "geneva/GBasePS.hpp"
@@ -128,6 +129,15 @@ typedef Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet> GOABase
  * class also hides the details of client/server mode, consumer initialization, etc.
  * While it is derived from GOptimizableI, it is not currently meant to be used as an
  * individual. Hence the ability to serialize the class has been removed.
+ *
+ * Command line examples:
+ * Geneva -p 2 -c --consumer="net // ip=localhost, port=10000" // networked client for consumer "net", connecting to localhost:10000
+ * Geneva -p 2    --consumer="net // port=10000"               // networked server with consumer, listening at port 10000
+ * Geneva -p 2    --consumer="mt  // nthreads=4"               // multithreaded consumer with 4 threads
+ * Geneva -p 2    --consumer="mt  // nthreads=0"               // multithreaded consumer with as many threads as compute units
+ * Geneva -p 1                                                 // multithreaded execution without consumer
+ * Geneva -p 0                                                 // serial execution without consumer
+ * Geneva                                                      // multithreaded execution without consumer
  */
 class Go2
 	: public GMutableSetT<GParameterSet>

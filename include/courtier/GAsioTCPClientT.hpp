@@ -429,7 +429,7 @@ private:
 		while (maxConnectionAttempts_ ? (connectionAttempt++ < maxConnectionAttempts_) : true) {
 		    // Restore the start of the iteration
 			endpoint_iterator=endpoint_iterator0_;
-		    error = boost::asio::error::host_not_found;
+		   error = boost::asio::error::host_not_found;
 
 			while (error && endpoint_iterator != end_) {
 				// Make sure we try not to re-open an already open socket

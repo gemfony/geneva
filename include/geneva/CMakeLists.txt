@@ -32,6 +32,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GConstrainedNumCollectionT.hpp
 	GConstrainedNumT.hpp
 	GConstrainedValueLimitT.hpp
+	GConsumerStore.hpp
 	GDoubleBiGaussAdaptor.hpp
 	GDoubleCollection.hpp
 	GDoubleGaussAdaptor.hpp
