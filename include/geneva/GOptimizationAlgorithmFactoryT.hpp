@@ -172,7 +172,9 @@ public:
       // Has a custom optimization monitor been registered with the global store ?
       // If so, add a clone to the algorithm
       if(GOAMonitorStore->exists(this->getMnemomic())) {
-         p_alg->registerOptimizationMonitor(GOAMonitorStore->get(this->getMnemomic()));
+         p_alg->registerOptimizationMonitor(
+               GOAMonitorStore->get(this->getMnemomic())->GObject::template clone<typename prod_type::GOptimizationMonitorT>()
+         );
       }
 
       // Return the filled object to the audience

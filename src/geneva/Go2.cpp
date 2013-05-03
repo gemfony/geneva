@@ -246,6 +246,7 @@ Go2::~Go2() {
 	this->clear(); // Get rid of the local individuals
 	bestIndividual_.reset(); // Get rid of the stored best individual
 	algorithms_.clear(); // Get rid of the optimization algorithms
+	cl_algorithms_.clear(); // Get rid of algorithms registered on the command line
 }
 
 /******************************************************************************/
@@ -596,7 +597,7 @@ void Go2::addAlgorithm(const std::string& mn) {
       << GEXCEPTION;
    }
 
-   this->addAlgorithm(p->get(parMode_));
+   this->addAlgorithm(p->get(parMode_)); // The factory might add a monitor to the object
 }
 
 /***************************************************************************/
@@ -642,6 +643,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
       for(pers_it=cl_algorithms_.begin(); pers_it!=cl_algorithms_.end(); ++pers_it) {
          this->addAlgorithm(*pers_it);
       }
+      cl_algorithms_.clear();
    }
 
 	// Check that algorithms have indeed been registered. If not, try to add a default algorithm (if available)
