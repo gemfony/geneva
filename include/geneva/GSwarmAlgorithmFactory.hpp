@@ -79,12 +79,12 @@ public:
 	/** @brief The standard constructor */
 	GSwarmAlgorithmFactory(
 	      const std::string&
-	      , const parMode&
+	      , const executionMode&
 	);
 	/** @brief Adds a content creator in addition */
    GSwarmAlgorithmFactory(
          const std::string&
-         , const parMode&
+         , const executionMode&
          , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
 	/** @brief The destructor */

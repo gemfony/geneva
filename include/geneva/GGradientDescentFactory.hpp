@@ -79,12 +79,12 @@ public:
 	/** @brief The standard constructor */
 	GGradientDescentFactory(
 	      const std::string&
-	      , const parMode&
+	      , const executionMode&
 	);
    /** @brief A constructor that also adds a content creation function */
    GGradientDescentFactory(
          const std::string&
-         , const parMode&
+         , const executionMode&
          , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
 	/** @brief The destructor */

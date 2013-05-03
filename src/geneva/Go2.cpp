@@ -176,7 +176,7 @@ Go2::Go2(
 	, const std::string& ip
 	, const unsigned short& port
 	, const std::string& configFilename
-	, const parMode& pm
+	, const executionMode& pm
 	, const bool& verbose
 )
 	: GMutableSetT<GParameterSet>()
@@ -488,9 +488,9 @@ bool Go2::clientMode() const {
  * added to Go2 and only to those algorithms that have been added after the parMode_
  * has been set.
  *
- * @param parMode The parallelization mode used for the optimization
+ * @param executionMode The parallelization mode used for the optimization
  */
-void Go2::setParallelizationMode(const parMode& parMode) {
+void Go2::setParallelizationMode(const executionMode& parMode) {
 	parMode_ = parMode;
 }
 
@@ -500,7 +500,7 @@ void Go2::setParallelizationMode(const parMode& parMode) {
  *
  * @return The parallelization mode currently used for the optimization
  */
-parMode Go2::getParallelizationMode() const {
+executionMode Go2::getParallelizationMode() const {
 	return parMode_;
 }
 
@@ -1132,7 +1132,7 @@ void Go2::parseCommandLine(int argc, char **argv) {
 				("help,h", "emit help message")
 				("configFilename,f", po::value<std::string>(&configFilename)->default_value(GO2_DEF_DEFAULTCONFIGFILE),
 				"The name of the file holding configuration information for optimization algorithms")
-				("executionMode,e", po::value<parMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
+				("executionMode,e", po::value<executionMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
 				"The default parallelization mode: (0) means serial execution; "
 				"(1) means multi-threaded execution and (2) means execution through the broker")
 				("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms)->default_value(GO2_DEF_OPTALGS),

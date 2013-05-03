@@ -70,7 +70,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
    const std::string& configFile
-   , const parMode& pm
+   , const executionMode& pm
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm)
 { /* nothing */ }
@@ -82,7 +82,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
    const std::string& configFile
-   , const parMode& pm
+   , const executionMode& pm
    , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)

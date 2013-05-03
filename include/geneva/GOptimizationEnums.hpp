@@ -244,7 +244,7 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
 /**
  * Specification of different parallelization modes
  */
-enum parMode {
+enum executionMode {
 	PARMODE_SERIAL = 0
 	, PARMODE_MULTITHREADED = 1
 	, PARMODE_BROKERAGE = 2
@@ -254,7 +254,7 @@ enum parMode {
 /**
  * The default parallelization mode of optimization algorithms
  */
-const parMode DEFAULTPARALLELIZATIONMODE = PARMODE_MULTITHREADED;
+const executionMode DEFAULTPARALLELIZATIONMODE = PARMODE_MULTITHREADED;
 
 /******************************************************************************/
 /**
@@ -404,11 +404,11 @@ const updateRule DEFAULTUPDATERULE = SWARM_UPDATERULE_CLASSIC; ///< The default 
 
 /******************************************************************************/
 
-/** @brief Puts a Gem::Geneva::parMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::parMode&);
+/** @brief Puts a Gem::Geneva::executionMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::executionMode&);
 
-/** @brief Reads a Gem::Geneva::parMode item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::parMode&);
+/** @brief Reads a Gem::Geneva::executionMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::executionMode&);
 
 /** @brief Puts a Gem::Geneva::duplicationScheme into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Geneva::duplicationScheme&);
