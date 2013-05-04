@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GBrokerSA::GBrokerSA()
    : GBaseSA()
-   , Gem::Courtier::GBrokerConnectorT<GParameterSet>()
+   , Gem::Courtier::GBrokerConnectorT<GIndividual>()
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
    , storedServerMode_(true)
 { /* nothing */ }
@@ -58,7 +58,7 @@ GBrokerSA::GBrokerSA()
  */
 GBrokerSA::GBrokerSA(const GBrokerSA& cp)
    : GBaseSA(cp)
-   , Gem::Courtier::GBrokerConnectorT<GParameterSet>(cp)
+   , Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
    , nThreads_(cp.nThreads_)
    , storedServerMode_(true)
 { /* nothing */ }
@@ -95,7 +95,7 @@ void GBrokerSA::load_(const GObject * cp) {
 
    // Load the parent classes' data ...
    GBaseSA::load_(cp);
-   Gem::Courtier::GBrokerConnectorT<GParameterSet>::load(p_load);
+   Gem::Courtier::GBrokerConnectorT<GIndividual>::load(p_load);
 
    // ... and then our own
    nThreads_ = p_load->nThreads_;
@@ -171,7 +171,7 @@ boost::optional<std::string> GBrokerSA::checkRelationshipWith(
 
    // Check our parent classes' data ...
    deviations.push_back(GBaseSA::checkRelationshipWith(cp, e, limit, "GBrokerSA", y_name, withMessages));
-   deviations.push_back(GBrokerConnectorT<GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerSA", y_name, withMessages));
+   deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerSA", y_name, withMessages));
 
    // ... and then our local data
    deviations.push_back(checkExpectation(withMessages, "GBrokerSA", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
@@ -309,7 +309,7 @@ void GBrokerSA::evaluateChildren() {
 
    //--------------------------------------------------------------------------------
    // Now submit work items and wait for results.
-   Gem::Courtier::GBrokerConnectorT<GParameterSet>::workOn(
+   Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
          data
          , range
          , Gem::Courtier::ACCEPTOLDERITEMS
@@ -409,7 +409,7 @@ void GBrokerSA::addConfigurationOptions (
 
    // Call our parent class'es function
    GBaseSA::addConfigurationOptions(gpb, showOrigin);
-   Gem::Courtier::GBrokerConnectorT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+   Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 
    // Add local data
    comment = ""; // Reset the comment string

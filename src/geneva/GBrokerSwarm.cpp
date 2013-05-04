@@ -46,7 +46,7 @@ namespace Geneva {
  */
 GBrokerSwarm::GBrokerSwarm()
 	: GBaseSwarm()
-	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>()
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
 	, storedServerMode_(true)
 { /* nothing */ }
 
@@ -63,7 +63,7 @@ GBrokerSwarm::GBrokerSwarm(
       , const std::size_t& nNeighborhoodMembers
 )
 	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
-	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>()
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
    , storedServerMode_(true)
 { /* nothing */ }
 
@@ -75,7 +75,7 @@ GBrokerSwarm::GBrokerSwarm(
  */
 GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm& cp)
 	: GBaseSwarm(cp)
-    , Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>(cp)
+    , Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
     , storedServerMode_(true)
 { /* nothing */ }
 
@@ -111,7 +111,7 @@ void GBrokerSwarm::load_(const GObject * cp) {
 
 	// Load the parent classes' data ...
 	GBaseSwarm::load_(cp);
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>::load(p_load);
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
 
 	// no local data
 }
@@ -184,7 +184,7 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GBaseSwarm::checkRelationshipWith(cp, e, limit, "GBrokerSwarm", y_name, withMessages));
-	deviations.push_back(GBrokerConnectorT<GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerSwarm", y_name, withMessages));
+	deviations.push_back(Gem::Courtier::GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerSwarm", y_name, withMessages));
 
 	// no local data
 
@@ -268,7 +268,7 @@ void GBrokerSwarm::addConfigurationOptions (
 ) {
 	// Call our parent class'es function
 	GBaseSwarm::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnectorT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 
 	// no local data
 }
@@ -356,7 +356,7 @@ void GBrokerSwarm::updateFitness() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results
-	Gem::Courtier::GBrokerConnectorT<GParameterSet>::workOn(
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
 			data
 			// , EXPECTFULLRETURN
 			, ACCEPTOLDERITEMS

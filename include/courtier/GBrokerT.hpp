@@ -350,7 +350,9 @@ public:
 			boost::mutex::scoped_lock rawLock(RawBuffersMutex_);
 
 			// Do not let execution start before the first buffer has been enrolled
-			while(!buffersPresentRaw_) readyToGoRaw_.wait(rawLock);
+			while(!buffersPresentRaw_) {
+			   readyToGoRaw_.wait(rawLock);
+			}
 
 			currentBuffer = *currentGetPosition_;
 			id = currentBuffer->getId();

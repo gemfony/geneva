@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GBrokerPS::GBrokerPS() :
    GBasePS()
-   , Gem::Courtier::GBrokerConnectorT<GParameterSet>()
+   , Gem::Courtier::GBrokerConnectorT<GIndividual>()
    , storedServerMode_(true)
 { /* nothing */ }
 
@@ -55,7 +55,7 @@ GBrokerPS::GBrokerPS() :
  */
 GBrokerPS::GBrokerPS(const GBrokerPS& cp)
    : GBasePS(cp)
-   , Gem::Courtier::GBrokerConnectorT<GParameterSet>(cp)
+   , Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
    , storedServerMode_(true)
 { /* nothing */ }
 
@@ -140,7 +140,7 @@ boost::optional<std::string> GBrokerPS::checkRelationshipWith(
 
    // Check our parent classes' data ...
    deviations.push_back(GBasePS::checkRelationshipWith(cp, e, limit, "GBrokerPS",   y_name, withMessages));
-   deviations.push_back(GBrokerConnectorT<GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerPS", y_name, withMessages));
+   deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerPS", y_name, withMessages));
 
    // no local data
 
@@ -177,7 +177,7 @@ void GBrokerPS::load_(const GObject *cp) {
 
    // Load the parent classes' data ...
    GBasePS::load_(cp);
-   Gem::Courtier::GBrokerConnectorT<GParameterSet>::load(p_load);
+   Gem::Courtier::GBrokerConnectorT<GIndividual>::load(p_load);
 
    // ... no local data. We do not load storedServerMode_, which is a temporary
 }
@@ -252,7 +252,7 @@ void GBrokerPS::addConfigurationOptions (
 
    // Call our parent class'es function
    GBasePS::addConfigurationOptions(gpb, showOrigin);
-   Gem::Courtier::GBrokerConnectorT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+   Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 
    // no local data
 }
@@ -295,7 +295,7 @@ double GBrokerPS::doFitnessCalculation(const std::size_t& finalPos) {
    //--------------------------------------------------------------------------------
    // Submit all work items and wait for their return
    boost::tuple<std::size_t,std::size_t> range(0, this->size());
-   complete = GBrokerConnectorT<GParameterSet>::workOn(
+   complete = GBrokerConnectorT<GIndividual>::workOn(
          data
          , range
          , EXPECTFULLRETURN

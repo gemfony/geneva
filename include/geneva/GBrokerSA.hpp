@@ -70,7 +70,7 @@ namespace Geneva {
  */
 class GBrokerSA
    : public GBaseSA
-   , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>
+   , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -81,7 +81,7 @@ class GBrokerSA
 
       ar
       & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSA)
-      & make_nvp("GBrokerConnectorT_GParameterSet", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GParameterSet> >(*this))
+      & make_nvp("GBrokerConnectorT_GIndividual", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this))
       & BOOST_SERIALIZATION_NVP(nThreads_);
    }
    ///////////////////////////////////////////////////////////////////////

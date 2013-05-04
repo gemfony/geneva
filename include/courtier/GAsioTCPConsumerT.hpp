@@ -91,6 +91,7 @@ namespace Courtier {
  */
 const boost::uint32_t ASIOMAXSTALLS=10;
 const boost::uint32_t ASIOMAXCONNECTIONATTEMPTS=10;
+const unsigned short  GASIOTCPCONSUMERDEFAULTPORT=10000;
 const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
 
 /******************************************************************************/
@@ -239,6 +240,8 @@ protected:
 
          // Read answer. First we care for the command sent by the server
          boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
+
+         // Not currently getting here
 
          // Remove all leading or trailing white spaces from the command
          std::string inboundCommandString = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
@@ -562,9 +565,9 @@ class GAsioServerSessionT
          // Retrieve an item
          while(!(GBROKER(processable_type)->get(id, p, timeout))) {
             if(master_->GBaseConsumerT<processable_type>::stopped()) break;
-
             continue;
          }
+
 
          // This will submit an empty item in case the stop criterion has been reached
          if (!this->submit(Gem::Common::sharedPtrToString(p, serializationMode_),
@@ -802,10 +805,18 @@ class GAsioTCPConsumerT
  public:
    /***************************************************************************/
    /**
-    * The standard constructor. Note that we have a private, undefined
-    * default constructor, as we want to enforce that a port is provided
-    * to this class. We do not need to specify our own address, as we
-    * are listening only on a port of the local machine.
+    * The default constructor
+    */
+   GAsioTCPConsumerT()
+      : listenerThreads_(Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
+      , acceptor_(io_service_)
+      , serializationMode_(Gem::Common::SERIALIZATIONMODE_BINARY)
+      , port_(GASIOTCPCONSUMERDEFAULTPORT)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * A constructor that accepts a number of vital parameters
     *
     * @param port The port where the server should wait for new connections
     * @param listenerThreads The number of threads used to wait for incoming connections
@@ -816,12 +827,26 @@ class GAsioTCPConsumerT
          , const std::size_t& listenerThreads = 0
          , const Gem::Common::serializationMode& sm = Gem::Common::SERIALIZATIONMODE_BINARY
    )
-   : listenerThreads_(listenerThreads>0?listenerThreads:Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
-   , acceptor_(io_service_)
-   , serializationMode_(sm)
-   {
+      : listenerThreads_(listenerThreads>0?listenerThreads:Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
+      , acceptor_(io_service_)
+      , serializationMode_(sm)
+      , port_(port)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * A standard destructor
+    */
+   virtual ~GAsioTCPConsumerT()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Starts the actual processing loops
+    */
+   void async_startProcessing() {
       // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
-      boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
+      boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port_);
       acceptor_.open(endpoint.protocol());
       acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
       acceptor_.bind(endpoint);
@@ -844,20 +869,7 @@ class GAsioTCPConsumerT
                   , boost::asio::placeholders::error
             )
       );
-   }
 
-   /***************************************************************************/
-   /**
-    * A standard destructor
-    */
-   virtual ~GAsioTCPConsumerT()
-   { /* nothing */ }
-
-   /***************************************************************************/
-   /**
-    * Starts the actual processing loops
-    */
-   void async_startProcessing() {
       // Create a number of threads responsible for the io_service_ objects
       gtg_.create_threads(
             boost::bind(&boost::asio::io_service::run, &io_service_)
@@ -934,7 +946,14 @@ class GAsioTCPConsumerT
       if(error) return;
 
       // First we make sure a new session is started asynchronously so the next request can be served
-      boost::shared_ptr<GAsioServerSessionT<processable_type> > newSession(new GAsioServerSessionT<processable_type>(io_service_, serializationMode_, this));
+      boost::shared_ptr<GAsioServerSessionT<processable_type> > newSession(
+            new GAsioServerSessionT<processable_type>(
+                  io_service_
+                  , serializationMode_
+                  , this
+            )
+      );
+
       acceptor_.async_accept(
             newSession->getSocket()
             , boost::bind(
@@ -953,10 +972,8 @@ class GAsioTCPConsumerT
    std::size_t listenerThreads_;  ///< The number of threads used to listen for incoming connections through io_servce::run()
    boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
    Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
+   unsigned short port_;
    Gem::Common::GThreadGroup gtg_;
-
-   GAsioTCPConsumerT(); ///< Default constructor intentionally private and undefined
-   const GAsioTCPConsumerT<processable_type>& operator=(const GAsioTCPConsumerT<processable_type>&); ///< Intentionally left undefined
  };
 
 /******************************************************************************/

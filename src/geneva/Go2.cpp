@@ -458,8 +458,8 @@ GObject *Go2::clone_() const {
  */
 int Go2::clientRun() {
 	// Instantiate the client worker
-	boost::shared_ptr<Gem::Courtier::GAsioTCPClientT<Gem::Geneva::GParameterSet> >
-		p(new Gem::Courtier::GAsioTCPClientT<Gem::Geneva::GParameterSet>(ip_, boost::lexical_cast<std::string>(port_)));
+	boost::shared_ptr<Gem::Courtier::GAsioTCPClientT<Gem::Geneva::GIndividual> >
+		p(new Gem::Courtier::GAsioTCPClientT<Gem::Geneva::GIndividual>(ip_, boost::lexical_cast<std::string>(port_)));
 
 	p->setMaxStalls(maxStalledDataTransfers_); // Set to 0 to allow an infinite number of stalls
 	p->setMaxConnectionAttempts(maxConnectionAttempts_); // Set to 0 to allow an infinite number of failed connection attempts

@@ -68,7 +68,9 @@ class GIndividualTCPConsumer
    : public Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual>
 {
 public:
-   /** @brief The standard constructor */
+   /** @brief The default constructor */
+   GIndividualTCPConsumer();
+   /** @brief A constructor that takes a number of vital arguments */
    GIndividualTCPConsumer(
          const unsigned short&
          , const std::size_t& = 0

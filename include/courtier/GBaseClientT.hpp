@@ -143,7 +143,7 @@ public:
 	void run(){
 		try{
 			if(this->init()) {
-				while(!this->halt() && this->process()){;}
+				while(!this->halt() && this->process()){ /* nothing*/ }
 			}
 			else {
 				std::cerr << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl;

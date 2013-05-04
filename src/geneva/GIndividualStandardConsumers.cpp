@@ -37,11 +37,28 @@
 namespace Gem {
 namespace Geneva {
 
+
+/******************************************************************************/
+/**
+ * This will register the consumers in the global consumer store
+ */
+GIndividualStandardConsumerInitializerT<Gem::Geneva::GIndividual, GIndividualTCPConsumer> GTCPCStoreRegistrant;
+GIndividualStandardConsumerInitializerT<Gem::Geneva::GIndividual, GIndividualThreadConsumer> GBTCStoreRegistrant;
+GIndividualStandardConsumerInitializerT<Gem::Geneva::GIndividual, GIndividualSerialConsumer> GSCStoreRegistrant;
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The standard constructor
+ * The default constructor
+ */
+GIndividualTCPConsumer::GIndividualTCPConsumer()
+   : Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual>()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * A constructor that takes a number of vital arguments
  */
 GIndividualTCPConsumer::GIndividualTCPConsumer (
       const unsigned short& port

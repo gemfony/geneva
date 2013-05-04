@@ -47,7 +47,7 @@ namespace Geneva
  */
 GBrokerEA::GBrokerEA()
 	: GBaseEA()
-	, Gem::Courtier::GBrokerConnectorT<GParameterSet>()
+	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
 	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 	, storedServerMode_(true)
 { /* nothing */ }
@@ -60,7 +60,7 @@ GBrokerEA::GBrokerEA()
  */
 GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	: GBaseEA(cp)
-	, Gem::Courtier::GBrokerConnectorT<GParameterSet>(cp)
+	, Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
 	, nThreads_(cp.nThreads_)
 	, storedServerMode_(true)
 { /* nothing */ }
@@ -97,7 +97,7 @@ void GBrokerEA::load_(const GObject * cp) {
 
 	// Load the parent classes' data ...
 	GBaseEA::load_(cp);
-	Gem::Courtier::GBrokerConnectorT<GParameterSet>::load(p_load);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::load(p_load);
 
 	// ... and then our own
 	nThreads_ = p_load->nThreads_;
@@ -173,7 +173,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GBaseEA::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
-	deviations.push_back(GBrokerConnectorT<GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
+	deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
@@ -312,7 +312,7 @@ void GBrokerEA::evaluateChildren() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
-	Gem::Courtier::GBrokerConnectorT<GParameterSet>::workOn(
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
 			data
 			, range
 			, Gem::Courtier::ACCEPTOLDERITEMS
@@ -412,7 +412,7 @@ void GBrokerEA::addConfigurationOptions (
 
 	// Call our parent class'es function
 	GBaseEA::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnectorT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
 
 	// Add local data
 	comment = ""; // Reset the comment string
@@ -435,7 +435,7 @@ void GBrokerEA::addConfigurationOptions (
 /**
  * Sets the number of threads this population uses for adaption. If nThreads is set
  * to 0, an attempt will be made to set the number of threads to the number of hardware
- * threading units (e.g. number of cores or hyperthreading units).
+ * threading units (e.g. number of cores or hyper-threading units).
  *
  * @param nThreads The number of threads this class uses
  */
