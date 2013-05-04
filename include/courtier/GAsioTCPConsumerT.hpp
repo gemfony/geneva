@@ -89,8 +89,8 @@ namespace Courtier {
 /**
  * Global variables for failed transfers and connection attempts.
  */
-const boost::uint32_t ASIOMAXSTALLS=10;
-const boost::uint32_t ASIOMAXCONNECTIONATTEMPTS=10;
+const boost::uint32_t GASIOTCPCONSUMERMAXSTALLS=10;
+const boost::uint32_t GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS=10;
 const unsigned short  GASIOTCPCONSUMERDEFAULTPORT=10000;
 const std::string     GASIOTCPCONSUMERDEFAULTSERVER="localhost";
 const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
@@ -125,8 +125,8 @@ public:
     */
    GAsioTCPClientT(const std::string& server, const std::string& port)
       : GBaseClientT<processable_type>()
-      , maxStalls_(ASIOMAXSTALLS)
-      , maxConnectionAttempts_(ASIOMAXCONNECTIONATTEMPTS)
+      , maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
+      , maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
       , stalls_(0)
       , io_service_()
       , socket_(io_service_)
@@ -152,8 +152,8 @@ public:
          , boost::shared_ptr<processable_type> additionalDataTemplate
    )
       : GBaseClientT<processable_type>(additionalDataTemplate)
-      , maxStalls_(ASIOMAXSTALLS)
-      , maxConnectionAttempts_(ASIOMAXCONNECTIONATTEMPTS)
+      , maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
+      , maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
       , stalls_(0)
       , io_service_()
       , socket_(io_service_)
@@ -877,6 +877,40 @@ class GAsioTCPConsumerT
 
    /***************************************************************************/
    /**
+    * Allows to set the number of listener threads
+    */
+   void setNListenerThreads(std::size_t listenerThreads) {
+      listenerThreads_ = listenerThreads;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the number of listener threads
+    */
+   std::size_t getNListenerThreads() const {
+      return listenerThreads_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to set the serialization mode
+    */
+   void setSerializationMode(Gem::Common::serializationMode sm) {
+      serializationMode_ = sm;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the serialization mode.
+    *
+    * @return The current serialization mode
+    */
+   Gem::Common::serializationMode getSerializationMode() const  {
+      return serializationMode_;
+   }
+
+   /***************************************************************************/
+   /**
     * Allows to check whether this consumer needs a client to operate.
     *
     * @return A boolean indicating whether this consumer needs a client to operate
@@ -944,17 +978,6 @@ class GAsioTCPConsumerT
       io_service_.stop();
       // Wait for the threads in the group to exit
       gtg_.join_all();
-   }
-
-   /***************************************************************************/
-   /**
-    * Retrieves the serialization mode. Note that the only way to set the
-    * mode is via the constructor.
-    *
-    * @return The current serialization mode
-    */
-   Gem::Common::serializationMode getSerializationMode() const  {
-      return serializationMode_;
    }
 
    /***************************************************************************/
