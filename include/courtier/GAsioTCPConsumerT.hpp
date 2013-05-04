@@ -92,6 +92,7 @@ namespace Courtier {
 const boost::uint32_t ASIOMAXSTALLS=10;
 const boost::uint32_t ASIOMAXCONNECTIONATTEMPTS=10;
 const unsigned short  GASIOTCPCONSUMERDEFAULTPORT=10000;
+const std::string     GASIOTCPCONSUMERDEFAULTSERVER="localhost";
 const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
 
 /******************************************************************************/
@@ -812,6 +813,7 @@ class GAsioTCPConsumerT
       , acceptor_(io_service_)
       , serializationMode_(Gem::Common::SERIALIZATIONMODE_BINARY)
       , port_(GASIOTCPCONSUMERDEFAULTPORT)
+      , server_(GASIOTCPCONSUMERDEFAULTSERVER)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -831,6 +833,7 @@ class GAsioTCPConsumerT
       , acceptor_(io_service_)
       , serializationMode_(sm)
       , port_(port)
+      , server_(GASIOTCPCONSUMERDEFAULTSERVER)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -839,6 +842,58 @@ class GAsioTCPConsumerT
     */
    virtual ~GAsioTCPConsumerT()
    { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Allows to set the server name or ip
+    */
+   void setServer(std::string server) {
+      server_ = server;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the server name or ip
+    */
+   std::string getServer() const {
+      return server_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to set the port the server listens on
+    */
+   void setPort(unsigned short port) {
+      port_ = port;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the port the server listens on
+    */
+   unsigned short getPort() const {
+      return port_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether this consumer needs a client to operate.
+    *
+    * @return A boolean indicating whether this consumer needs a client to operate
+    */
+   virtual bool needsClient() const {
+      return true;
+   }
+
+   /***************************************************************************/
+   /**
+    * Emits a client suitable for processing the data emitted by this consumer
+    */
+   virtual boost::shared_ptr<GBaseClientT<processable_type> > getClient() const {
+      return boost::shared_ptr<GBaseClientT<processable_type> > (
+            new GAsioTCPClientT<processable_type>(server_, boost::lexical_cast<std::string>(port_))
+      );
+   }
 
    /***************************************************************************/
    /**
@@ -972,7 +1027,8 @@ class GAsioTCPConsumerT
    std::size_t listenerThreads_;  ///< The number of threads used to listen for incoming connections through io_servce::run()
    boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
    Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
-   unsigned short port_;
+   unsigned short port_; ///< The port on which the server is supposed to listen
+   std::string server_;  ///< The name or ip if the server
    Gem::Common::GThreadGroup gtg_;
  };
 
