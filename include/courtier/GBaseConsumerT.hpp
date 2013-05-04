@@ -182,6 +182,9 @@ public:
 
    /** @brief A unique identifier for a given consumer */
    virtual std::string getConsumerName() const = 0;
+   /** @brief Returns a short identifier for this consumer */
+   virtual std::string getMnemomic() const = 0;
+
    /** @brief The actual business logic */
    virtual void async_startProcessing() = 0;
 

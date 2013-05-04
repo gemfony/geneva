@@ -67,26 +67,27 @@ namespace Geneva {
  * This base class takes care of adding optimization algorithm factories to
  * the global algorithm store
  */
-template <typename oa_type>
+template <typename oaf_type>
 class GOAInitializerT {
-   // Make sure oa_type has the expected type
-   BOOST_MPL_ASSERT((boost::is_base_of<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > , oa_type>));
+   // Make sure oaf_type has the expected type
+   BOOST_MPL_ASSERT((boost::is_base_of<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > , oaf_type>));
 
 public:
    /** @brief The initializing constructor */
    inline GOAInitializerT() {
       // Create a smart pointer holding the algorithm
-      boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > > p(new oa_type());
+      boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > > p(new oaf_type());
+      std::string mnemomic = p->getMnemomic();
 
       // We require that the algorithm has a default
       // constructor and the static "nickname" data member
-      if(!GOAFactoryStore->setOnce(oa_type::nickname, p)) { // Algorithm factory already exists in the store
+      if(!GOAFactoryStore->setOnce(mnemomic, p)) { // Algorithm factory already exists in the store
          glogger
          << "In GOAInitializerT<op_type>::GOAInitializerT(): Error!" << std::endl
-         << "Identifier " << oa_type::nickname << " already exists in store." << std::endl
+         << "Identifier " << mnemomic << " already exists in store." << std::endl
          << GTERMINATION;
       } else {
-         std::cout << "Registered factory for algorithm \"" << oa_type::nickname << "\" in the store." << std::endl;
+         std::cout << "Registered factory for algorithm \"" << mnemomic << "\" in the store." << std::endl;
       }
    }
    /** @brief An empty destructor */

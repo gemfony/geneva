@@ -164,6 +164,14 @@ public:
 	  return std::string("GBoostThreadConsumerT");
 	}
 
+   /***************************************************************************/
+   /**
+    * Returns a short identifier for this consumer
+    */
+   virtual std::string getMnemomic() const {
+      return std::string("btc");
+   }
+
 	/***************************************************************************/
    /**
     * Returns an indication whether full return can be expected from this

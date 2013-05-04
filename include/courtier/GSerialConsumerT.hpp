@@ -114,6 +114,14 @@ public:
 	  return std::string("GSerialConsumerT");
 	}
 
+	/***************************************************************************/
+   /**
+    * Returns a short identifier for this consumer
+    */
+   virtual std::string getMnemomic() const {
+      return std::string("sc");
+   }
+
    /***************************************************************************/
    /**
     * Returns an indication whether full return can be expected from this

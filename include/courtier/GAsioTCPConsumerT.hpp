@@ -902,6 +902,14 @@ class GAsioTCPConsumerT
 
    /***************************************************************************/
    /**
+    * Returns a short identifier for this consumer
+    */
+   virtual std::string getMnemomic() const {
+      return std::string("tcpc");
+   }
+
+   /***************************************************************************/
+   /**
     * Returns an indication whether full return can be expected from this
     * consumer. Since evaluation is performed remotely, we assume that this
     * is not the case.
