@@ -81,7 +81,7 @@ public:
 	/**
 	 * Standard destructor
 	 */
-	~GSerialConsumerT()
+	virtual ~GSerialConsumerT()
 	{ /* nothing */ }
 
 	/***************************************************************************/

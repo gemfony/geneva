@@ -49,15 +49,70 @@
 // Geneva headers go here
 #include "common/GLogger.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "geneva/GIndividualStandardConsumerInitializer.hpp"
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GBoostThreadConsumerT.hpp"
+#include "courtier/GSerialConsumerT.hpp"
+#include "geneva/GIndividual.hpp"
+#include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A consumer used for network communication, using GIndividual-derivatives
+ */
+class GIndividualTCPConsumer
+   : public Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual>
+{
+public:
+   /** @brief The standard constructor */
+   GIndividualTCPConsumer(
+         const unsigned short&
+         , const std::size_t& = 0
+         , const Gem::Common::serializationMode& = Gem::Common::SERIALIZATIONMODE_BINARY
+   );
+   /** @brief The destructor */
+   virtual ~GIndividualTCPConsumer();
+};
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A consumer used for multi-threaded processing, using GIndividual-derivatives
+ */
+class GIndividualThreadConsumer
+   : public Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GIndividual>
+{
+public:
+   /** @brief The default constructor */
+   GIndividualThreadConsumer();
+   /** @brief The desstructor */
+   virtual ~GIndividualThreadConsumer();
+};
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A consumer used for serial execution (mostly needed for debugging purposes).
+ * Its payload are GIndividual-derivatives.
+ */
+class GIndividualSerialConsumer
+   : public Gem::Courtier::GSerialConsumerT<Gem::Geneva::GIndividual>
+{
+public:
+   /** @brief The default constructor */
+      GIndividualSerialConsumer();
+   /** @brief The desstructor */
+   virtual ~GIndividualSerialConsumer();
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 } /* namespace Geneva */

@@ -40,6 +40,7 @@ SET ( OPTIMIZATIONSOURCES
 	GGDPersonalityTraits
 	GGradientDescentFactory
 	GIndividual
+	GIndividualStandardConsumers
 	GInt32Collection
 	GInt32FlipAdaptor
 	GInt32GaussAdaptor

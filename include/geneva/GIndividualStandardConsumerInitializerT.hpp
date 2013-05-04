@@ -1,5 +1,5 @@
 /**
- * @file GIndividualStandardConsumerInitializer.hpp
+ * @file GIndividualStandardConsumerInitializerT.hpp
  */
 
 /*
@@ -41,8 +41,8 @@
 #include <boost/mpl/assert.hpp>
 
 
-#ifndef GCONSUMERINITIALIZERT_HPP_
-#define GCONSUMERINITIALIZERT_HPP_
+#ifndef GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_
+#define GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -66,27 +66,29 @@ namespace Geneva {
  * This base class takes care of adding GIndividual-based consumer objects
  * to a global store
  */
-template <typename pl_type, typename c_type>
-class GIndividualStandardConsumerInitializer {
+template <typename pl_type, typename c_type> // pl_type stands for "payload type"; c_type stands for consumer type
+class GIndividualStandardConsumerInitializerT {
+   // Make sure pl_type is a derivative of Gem::Geneva::GIndividual
+   BOOST_MPL_ASSERT((boost::is_base_of<Gem::Geneva::GIndividual , pl_type>));
+
 public:
    /** @brief The initializing constructor */
-   inline GIndividualStandardConsumerInitializer() {
-      // Create a smart pointer holding the algorithm
-      boost::shared_ptr<GBaseConsumerT<pl_type> > p(new c_type());
+   inline GIndividualStandardConsumerInitializerT() {
+      // Create a smart pointer holding the consumer
+      boost::shared_ptr<Gem::Courtier::GBaseConsumerT<pl_type> > p(new c_type());
 
-      // We require that the algorithm has a default
-      // constructor and the static "nickname" data member
-      if(!GConsumerStore->setOnce(c_type::nickname, p)) { // Algorithm factory already exists in the store
+      // We require that the consumer has a default constructor and the static "nickname" data member
+      if(!GConsumerStore->setOnce(c_type::nickname, p)) { // The consumer already exists in the store
          glogger
-         << "In GIndividualStandardConsumerInitializer<pl_type, c_type>::GIndividualStandardConsumerInitializer(): Error!" << std::endl
-         << "Identifier " << c_type::nickname << " already exists in store." << std::endl
+         << "In GIndividualStandardConsumerInitializerT<pl_type, c_type>::GIndividualStandardConsumerInitializerT(): Error!" << std::endl
+         << "Consumer with identifier " << c_type::nickname << " already exists in store." << std::endl
          << GTERMINATION;
       } else {
-         std::cout << "Registered factory for algorithm \"" << c_type::nickname << "\" in the store." << std::endl;
+         std::cout << "Registered consumer with identifier \"" << c_type::nickname << "\" in the store." << std::endl;
       }
    }
    /** @brief An empty destructor */
-   virtual inline ~GIndividualStandardConsumerInitializer() { /* nothing */ }
+   virtual inline ~GIndividualStandardConsumerInitializerT() { /* nothing */ }
 };
 
 /******************************************************************************/
@@ -96,4 +98,4 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GCONSUMERINITIALIZERT_HPP_ */
+#endif /* GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_ */

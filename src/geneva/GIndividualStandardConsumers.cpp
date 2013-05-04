@@ -34,3 +34,68 @@
 
 #include "geneva/GIndividualStandardConsumers.hpp"
 
+namespace Gem {
+namespace Geneva {
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The standard constructor
+ */
+GIndividualTCPConsumer::GIndividualTCPConsumer (
+      const unsigned short& port
+      , const std::size_t& listenerThreads
+      , const Gem::Common::serializationMode& sm
+)
+   : Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual>(port, listenerThreads, sm)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GIndividualTCPConsumer::~GIndividualTCPConsumer()
+{ /* nothing */ }
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/*
+ * The default constructor
+ */
+GIndividualThreadConsumer::GIndividualThreadConsumer()
+   : Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GIndividual>()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GIndividualThreadConsumer::~GIndividualThreadConsumer()
+{ /* nothing */ }
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/*
+ * The default constructor
+ */
+GIndividualSerialConsumer::GIndividualSerialConsumer()
+   : Gem::Courtier::GSerialConsumerT<Gem::Geneva::GIndividual>()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GIndividualSerialConsumer::~GIndividualSerialConsumer()
+{ /* nothing */ }
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
+} /* namespace Geneva */
+} /* namespace Gem */
+

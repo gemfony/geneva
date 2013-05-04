@@ -501,7 +501,7 @@ private:
  * file as the GAsioTCPConsumer in order to avoid cross referencing of
  * header files.
  */
-template <class processable_type>
+template <typename processable_type>
 class GAsioServerSessionT
 :private boost::noncopyable
  {
@@ -795,9 +795,9 @@ class GAsioServerSessionT
  * It is the main responsibility of this class to start new server session
  * for each client request.
  */
-template <class processable_type>
+template <typename processable_type>
 class GAsioTCPConsumerT
-:public Gem::Courtier::GBaseConsumerT<processable_type> // note: GBaseConsumerT<> is non-copyable
+   :public Gem::Courtier::GBaseConsumerT<processable_type> // note: GBaseConsumerT<> is non-copyable
  {
  public:
    /***************************************************************************/
@@ -845,6 +845,13 @@ class GAsioTCPConsumerT
             )
       );
    }
+
+   /***************************************************************************/
+   /**
+    * A standard destructor
+    */
+   virtual ~GAsioTCPConsumerT()
+   { /* nothing */ }
 
    /***************************************************************************/
    /**
