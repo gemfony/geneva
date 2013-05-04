@@ -42,7 +42,6 @@
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GBrokerConnectorT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
-#include "courtier/GAsioTCPClientT.hpp"
 #include "courtier/GBoostThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GExceptions.hpp"

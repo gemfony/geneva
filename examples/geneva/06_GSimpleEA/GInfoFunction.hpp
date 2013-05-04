@@ -46,7 +46,6 @@
 
 // Geneva header files go here
 #include <courtier/GAsioHelperFunctions.hpp>
-#include <courtier/GAsioTCPClientT.hpp>
 #include <courtier/GAsioTCPConsumerT.hpp>
 #include <geneva/GBrokerEA.hpp>
 #include <geneva/GSerialEA.hpp>

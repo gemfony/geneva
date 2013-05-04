@@ -1,5 +1,5 @@
 /**
- * @file GAsioHelperFunctions.hpp
+ * @file GIndividualStandardConsumers.hpp
  */
 
 /*
@@ -32,49 +32,5 @@
  * http://www.gemfony.com .
  */
 
+#include "geneva/GIndividualStandardConsumers.hpp"
 
-// Standard headers go here
-
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <cmath>
-#include <cfloat>
-#include <climits>
-
-// Boost headers go here
-#include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
-
-#ifndef GASIOHELPERFUNCTIONS_HPP_
-#define GASIOHELPERFUNCTIONS_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
-
-// Geneva headers go here
-#include "common/GExceptions.hpp"
-#include "common/GLogger.hpp"
-#include "courtier/GCourtierEnums.hpp"
-
-namespace Gem {
-namespace Courtier {
-
-/******************************************************************************/
-/** @brief Assembles a query string from a given command */
-std::string assembleQueryString(const std::string&, const std::size_t&);
-
-/** @brief Extracts the size of ASIO's data section from a C string. */
-std::size_t extractDataSize(const char*, const std::size_t&);
-
-/******************************************************************************/
-
-} /* namespace Courtier */
-} /* namespace Gem */
-
-#endif /* GASIOHELPERFUNCTIONS_HPP_ */

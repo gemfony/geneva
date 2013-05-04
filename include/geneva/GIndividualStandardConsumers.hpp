@@ -1,5 +1,5 @@
 /**
- * @file GRemoteConsumerT.hpp
+ * @file GIndividualStandardConsumerInitializer.hpp
  */
 
 /*
@@ -32,18 +32,14 @@
  * http://www.gemfony.com .
  */
 
-// Standard headers go here
+// Standard header files go here
+#include <iostream>
 
-#include <sstream>
+// Boost header files go here
+#include <boost/shared_ptr.hpp>
 
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
-// Boost headers go here
-
-
-#ifndef GREMOTECONSUMER_HPP_
-#define GREMOTECONSUMER_HPP_
+#ifndef GINDIVIDUALSTANDARDCONSUMERS_HPP_
+#define GINDIVIDUALSTANDARDCONSUMERS_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -51,51 +47,20 @@
 #endif
 
 // Geneva headers go here
+#include "common/GLogger.hpp"
 #include "courtier/GBaseConsumerT.hpp"
+#include "geneva/GIndividualStandardConsumerInitializer.hpp"
 
-namespace Gem
-{
-namespace Courtier
-{
-
-/******************************************************************************/
-/**
- * This class implements the framework for all consumers that communicate beyond the
- * boundaries of the (server-)application, most notably consumers that communicate
- * via a network (sockets and MPI).
- */
-template <class processable_type>
-class GRemoteConsumerT
-	: public Gem::Courtier::GBaseConsumerT<processable_type> // note: GBaseConsumerT<processable_type> is non-copyable
-{
-public:
-	/***************************************************************************/
-	/**
-	 * The default constructor
-	 */
-	GRemoteConsumerT();
-
-	/***************************************************************************/
-	/**
-	 * The standard destructor
-	 */
-	virtual ~GRemoteConsumerT();
-
-	/***************************************************************************/
-	/**
-	 * The actual business logic
-	 */
-	virtual void startProcessing() {
-
-	}
-
-protected:
-private:
-};
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 
-} /* namespace Courtier */
+/******************************************************************************/
+
+/******************************************************************************/
+
+} /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GREMOTECONSUMER_HPP_ */
+#endif /* GINDIVIDUALSTANDARDCONSUMERS_HPP_ */

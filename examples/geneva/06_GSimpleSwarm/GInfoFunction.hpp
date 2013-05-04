@@ -46,7 +46,6 @@
 
 // Geneva header files go here
 #include <courtier/GAsioHelperFunctions.hpp>
-#include <courtier/GAsioTCPClientT.hpp>
 #include <courtier/GAsioTCPConsumerT.hpp>
 #include <geneva/GSerialSwarm.hpp>
 #include <geneva/GIndividual.hpp>
