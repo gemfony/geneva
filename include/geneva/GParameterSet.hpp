@@ -53,10 +53,6 @@
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GParameterBase.hpp"
 
-// TODO: Remove this dependency
-#include "geneva/GEAPersonalityTraits.hpp"
-#include "geneva/GSAPersonalityTraits.hpp"
-
 #ifdef GEM_TESTING
 #include "geneva/GBooleanObject.hpp"
 #include "geneva/GConstrainedInt32Object.hpp"
@@ -123,9 +119,6 @@ public:
 			, const std::string&
 			, const bool&
 	) const;
-
-	/** @brief Triggers updates when the optimization process has stalled */
-	virtual bool updateOnStall();
 
 	/** @brief Allows to randomly initialize parameter members */
 	virtual void randomInit();

@@ -914,28 +914,6 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-#ifdef DEBUG
-	{ // Check that calling GParameterSet::updateOnStall throws in EA mode, if this is not a parent
-		// The exception will only be triggered in DEBUG mode
-		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
-
-		// Make the individual fake updates
-		p_test->setFakeCustomUpdateOnStall(true);
-
-		// Check that customUpdateOnStall() indeed returns "true"
-		BOOST_CHECK(p_test->customUpdateOnStall() == true);
-
-		// Make this a parent individual in EA mode
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
-		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>()->setIsChild());
-
-		// Perform the actual update
-		BOOST_CHECK_THROW(p_test->updateOnStall(), Gem::Common::gemfony_error_condition);
-	}
-#endif /* DEBUG */
-
-	//------------------------------------------------------------------------------
-
 	{ // Test that trying to count an empty smart pointer throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
 		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
 

@@ -195,68 +195,6 @@ double GParameterSet::fitnessCalculation() {
 
 /******************************************************************************/
 /**
- * A wrapper for GParameterSet::customUpdateOnStall() that restricts parameter set updates to parents
- * in the case of evolutionary algorithms in DEBUG mode.
- *
- * @return A boolean indicating whether an update was performed and the individual has changed
- */
-bool GParameterSet::updateOnStall() {
-	switch (getPersonality()) {
-	case PERSONALITY_NONE:
-	case PERSONALITY_GD:
-	case PERSONALITY_SWARM:
-		break;
-
-	case PERSONALITY_EA:
-#ifdef DEBUG
-   {
-      // This function should only be called for parents. Check ...
-      if(!getPersonalityTraits<GSAPersonalityTraits>()->isParent()) {
-         glogger
-         << "In GParameterSet::updateOnStall() (called for SA personality):" << std::endl
-         << "This function should only be called for parent individuals." << std::endl
-         << GEXCEPTION;
-      }
-   }
-#endif /* DEBUG */
-   break;
-
-	case PERSONALITY_SA:
-#ifdef DEBUG
-	{
-		// This function should only be called for parents. Check ...
-		if(!getPersonalityTraits<GEAPersonalityTraits>()->isParent()) {
-		   glogger
-		   << "In GParameterSet::updateOnStall() (called for EA personality):" << std::endl
-         << "This function should only be called for parent individuals." << std::endl
-         << GEXCEPTION;
-		}
-	}
-#endif /* DEBUG */
-	break;
-
-   case PERSONALITY_MPEA:
-   default:
-   {
-      glogger
-      << "In GParameterSet::updateOnStall(): Error!" << std::endl
-      << "Encountered incorrect personality " << getPersonality() << std::endl
-      << GEXCEPTION;
-   }
-      break;
-
-	}
-
-	return GIndividual::updateOnStall();
-}
-
-/* ----------------------------------------------------------------------------------
- * Throwing of an exception is tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
  * Allows to randomly initialize parameter members
  */
 void GParameterSet::randomInit() {
