@@ -65,15 +65,9 @@ boost::once_flag f_go2 = BOOST_ONCE_INIT;
 Go2::Go2()
 	: GMutableSetT<GParameterSet>()
 	, clientMode_(GO2_DEF_CLIENTMODE)
-	, serializationMode_(GO2_DEF_SERIALIZATIONMODE)
-	, ip_(GO2_DEF_IP)
-	, port_(GO2_DEF_PORT)
 	, configFilename_(GO2_DEF_DEFAULTCONFIGFILE)
 	, parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
-	, verbose_(GO2_DEF_DEFAULTVERBOSE)
-	, maxStalledDataTransfers_(GO2_DEF_MAXSTALLED)
-	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
-	, returnRegardless_(GO2_DEF_RETURNREGARDLESS)
+	, consumerName_(GO2_DEF_NOCONSUMER)
 	, nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
@@ -97,15 +91,9 @@ Go2::Go2()
 Go2::Go2(int argc, char **argv)
 	: GMutableSetT<GParameterSet>()
 	, clientMode_(GO2_DEF_CLIENTMODE)
-	, serializationMode_(GO2_DEF_SERIALIZATIONMODE)
-	, ip_(GO2_DEF_IP)
-	, port_(GO2_DEF_PORT)
 	, configFilename_(GO2_DEF_DEFAULTCONFIGFILE)
 	, parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
-	, verbose_(GO2_DEF_DEFAULTVERBOSE)
-	, maxStalledDataTransfers_(GO2_DEF_MAXSTALLED)
-	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
-	, returnRegardless_(GO2_DEF_RETURNREGARDLESS)
+   , consumerName_(GO2_DEF_NOCONSUMER)
 	, nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
@@ -133,15 +121,9 @@ Go2::Go2(int argc, char **argv)
 Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	: GMutableSetT<GParameterSet>()
 	, clientMode_(GO2_DEF_CLIENTMODE)
-	, serializationMode_(GO2_DEF_SERIALIZATIONMODE)
-	, ip_(GO2_DEF_IP)
-	, port_(GO2_DEF_PORT)
 	, configFilename_(configFilename)
 	, parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
-	, verbose_(GO2_DEF_DEFAULTVERBOSE)
-	, maxStalledDataTransfers_(GO2_DEF_MAXSTALLED)
-	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
-	, returnRegardless_(GO2_DEF_RETURNREGARDLESS)
+   , consumerName_(GO2_DEF_NOCONSUMER)
 	, nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
@@ -157,50 +139,6 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
 }
 
-
-/******************************************************************************/
-/**
- * A constructor that is given the usual command line parameters, then loads the
- * rest of the data from a config file.
- *
- * @param clientMode Indicates whether this object should operate in (networked) client mode
- * @param sM Specifies whether serialization should happen in XML, Text oder Binary mode
- * @param ip Specifies the ip under which the server can be reached
- * @param port Specifies the port under which the server can be reached
- * @param configFilename Determines the name of the configuration file from which additional options will be loaded
- * @param verbose Specifies whether additional information about parsed parameters should be emitted
- */
-Go2::Go2(
-	const bool& clientMode
-	, const Gem::Common::serializationMode& sM
-	, const std::string& ip
-	, const unsigned short& port
-	, const std::string& configFilename
-	, const execMode& pm
-	, const bool& verbose
-)
-	: GMutableSetT<GParameterSet>()
-	, clientMode_(clientMode)
-	, serializationMode_(sM)
-	, ip_(ip)
-	, port_(port)
-	, configFilename_(configFilename)
-	, parMode_(pm)
-	, verbose_(verbose)
-	, maxStalledDataTransfers_(GO2_DEF_MAXSTALLED)
-	, maxConnectionAttempts_(GO2_DEF_MAXCONNATT)
-	, returnRegardless_(GO2_DEF_RETURNREGARDLESS)
-	, nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
-	, offset_(GO2_DEF_OFFSET)
-	, sorted_(false)
-	, iterationsConsumed_(0)
-{
-	//--------------------------------------------
-	// Random numbers are our most valuable good.
-	// Initialize all necessary variables
-	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
-}
-
 /******************************************************************************/
 /**
  * The copy constructor
@@ -208,15 +146,9 @@ Go2::Go2(
 Go2::Go2(const Go2& cp)
 	: GMutableSetT<GParameterSet>(cp)
 	, clientMode_(cp.clientMode_)
-	, serializationMode_(cp.serializationMode_)
-	, ip_(cp.ip_)
-	, port_(cp.port_)
 	, configFilename_(cp.configFilename_)
 	, parMode_(cp.parMode_)
-	, verbose_(cp.verbose_)
-	, maxStalledDataTransfers_(cp.maxStalledDataTransfers_)
-	, maxConnectionAttempts_(cp.maxConnectionAttempts_)
-	, returnRegardless_(cp.returnRegardless_)
+	, consumerName_(cp.consumerName_)
 	, nProducerThreads_(cp.nProducerThreads_)
 	, offset_(cp.offset_)
 	, sorted_(cp.sorted_)
@@ -321,15 +253,9 @@ boost::optional<std::string> Go2::checkRelationshipWith(
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "Go2", clientMode_, p_load->clientMode_, "clientMode_", "p_load->clientMode_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", serializationMode_, p_load->serializationMode_, "serializationMode_", "p_load->serializationMode_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", ip_, p_load->ip_, "ip_", "p_load->ip_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", port_, p_load->port_, "port_", "p_load->port_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", configFilename_, p_load->configFilename_, "configFilename_", "p_load->configFilename_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", parMode_, p_load->parMode_, "parMode_", "p_load->parMode_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", verbose_, p_load->verbose_, "verbose_", "p_load->verbose_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", maxStalledDataTransfers_, p_load->maxStalledDataTransfers_, "maxStalledDataTransfers_", "p_load->maxStalledDataTransfers_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", maxConnectionAttempts_, p_load->maxConnectionAttempts_, "maxConnectionAttempts_", "p_load->maxConnectionAttempts_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", returnRegardless_, p_load->returnRegardless_, "returnRegardless_", "p_load->returnRegardless_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go2", consumerName_, p_load->consumerName_, "consumerName_", "p_load->consumerName_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", nProducerThreads_, p_load->nProducerThreads_, "nProducerThreads_", "p_load->nProducerThreads_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", offset_, p_load->offset_, "offset_", "p_load->offset_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", sorted_, p_load->sorted_, "sorted_", "p_load->sorted_", e , limit));
@@ -418,15 +344,9 @@ void Go2::load_(const GObject *cp) {
 
 	// and then our local data
 	clientMode_ = p_load->clientMode_;
-	serializationMode_ = p_load->serializationMode_;
-	ip_ = p_load->ip_;
-	port_ = p_load->port_;
 	configFilename_ = p_load->configFilename_;
 	parMode_ = p_load->parMode_;
-	verbose_ = p_load->verbose_;
-	maxStalledDataTransfers_ = p_load->maxStalledDataTransfers_;
-	maxConnectionAttempts_ = p_load->maxConnectionAttempts_;
-	returnRegardless_ = p_load->returnRegardless_;
+	consumerName_ = p_load->consumerName_;
 	nProducerThreads_ = p_load->nProducerThreads_;
 	offset_ = p_load->offset_;
 	sorted_ = p_load->sorted_;
@@ -457,15 +377,39 @@ GObject *Go2::clone_() const {
  * the program after calling this function.
  */
 int Go2::clientRun() {
-	// Instantiate the client worker
-	boost::shared_ptr<Gem::Courtier::GAsioTCPClientT<Gem::Geneva::GIndividual> >
-		p(new Gem::Courtier::GAsioTCPClientT<Gem::Geneva::GIndividual>(ip_, boost::lexical_cast<std::string>(port_)));
+   // Check that we have indeed been given a valid name
+   if(
+         GO2_DEF_NOCONSUMER == consumerName_
+         || !GConsumerStore->exists(consumerName_)
+   ) {
+      glogger
+      << "In Go2::clientRun(): Error!" << std::endl
+      << "Received invalid consumer name: " << consumerName_ << std::endl
+      << GEXCEPTION;
+   }
 
-	p->setMaxStalls(maxStalledDataTransfers_); // Set to 0 to allow an infinite number of stalls
-	p->setMaxConnectionAttempts(maxConnectionAttempts_); // Set to 0 to allow an infinite number of failed connection attempts
-	p->returnResultIfUnsuccessful(returnRegardless_);  // Prevent return of unsuccessful adaption attempts to the server
+	// Retrieve the client worker from the consumer
+	boost::shared_ptr<Gem::Courtier::GBaseClientT<Gem::Geneva::GIndividual> > p;
 
-	// Start the actual processing loop
+   if(GConsumerStore->get(consumerName_)->needsClient()) {
+	   p = GConsumerStore->get(consumerName_)->getClient();
+   } else {
+      glogger
+      << "In Go2::clientRun(): Error!" << std::endl
+      << "Trying to execute clientRund() on consumer " << consumerName_ << std::endl
+      << "which does not require a client" << std::endl
+      << GEXCEPTION;
+   }
+
+	// Check for errors
+	if(!p) {
+	   glogger
+	   << "In Go2::clientRun(): Error!" << std::endl
+	   << "Received empty client from consumer " << consumerName_ << std::endl
+	   << GEXCEPTION;
+	}
+
+	// Start the actual processing loop. This call will not return until run() is finished.
 	p->run();
 
 	return 0;
@@ -478,7 +422,7 @@ int Go2::clientRun() {
  * @return A boolean which indicates whether the client mode has been set for this object
  */
 bool Go2::clientMode() const {
-	return clientMode_;
+   return clientMode_;
 }
 
 /******************************************************************************/
@@ -707,18 +651,6 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	for(alg_it=algorithms_.begin(); alg_it!=algorithms_.end(); ++alg_it) {
 		boost::shared_ptr<GOABase> p_base = (*alg_it);
 
-		// If this is a broker-based population, check whether we need to enrol a consumer
-		if(p_base->usesBroker() && !GBROKER(Gem::Geneva::GIndividual)->hasConsumers()) {
-			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual>(
-					port_
-					, 0 // Try to automatically determine the number of listener threads
-					, serializationMode_
-					)
-			);
-			GBROKER(Gem::Geneva::GIndividual)->enrol(gatc);
-		}
-
       // Add the individuals to the algorithm.
       for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {
          p_base->push_back(*ind_it);
@@ -848,30 +780,7 @@ void Go2::addConfigurationOptions (
 	// Call our parent class'es function
 	GMutableSetT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 
-	// Add local data
-	gpb.registerFileParameter<boost::uint32_t> (
-		"maxStalledDataTransfers"
-		, maxStalledDataTransfers_
-		, GO2_DEF_MAXSTALLED
-		, VAR_IS_ESSENTIAL
-		, "Specifies how often a client may try to unsuccessfully retrieve data from the server (0 means endless)"
-	);
-
-	gpb.registerFileParameter<boost::uint32_t> (
-		"maxConnectionAttempts"
-		, maxConnectionAttempts_
-		, GO2_DEF_MAXCONNATT
-		, VAR_IS_ESSENTIAL
-		, "Specifies how often a client may try to connect unsuccessfully to the server (0 means endless)"
-	);
-
-	gpb.registerFileParameter<bool> (
-		"returnRegardless"
-		, returnRegardless_
-		, GO2_DEF_RETURNREGARDLESS
-		, VAR_IS_ESSENTIAL
-		, "Specifies whether unsuccessful processing attempts should be returned to the server"
-	);
+	// nothing
 }
 
 /******************************************************************************/
@@ -902,150 +811,6 @@ void Go2::setClientMode(bool clientMode) {
  */
 bool Go2::getClientMode() const {
 	return clientMode_;
-}
-
-/******************************************************************************/
-/**
- * Allows to set the serialization mode used for network transfers
- *
- * @param serializationMode The serialization mode used for network transfers
- */
-void Go2::setSerializationMode(const Gem::Common::serializationMode& serializationMode) {
-	serializationMode_ = serializationMode;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the serialization mode currently used for network transfers
- */
-Gem::Common::serializationMode Go2::getSerializationMode() const {
-	return serializationMode_;
-}
-
-/******************************************************************************/
-/**
- * Allows to set the ip of the server
- *
- * @param ip The ip of the server
- */
-void Go2::setServerIp(const std::string& ip) {
-	ip_ = ip;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the ip of the server
- *
- * @return The current ip used to access the server
- */
-std::string Go2::getServerIp() const {
-	return ip_;
-}
-
-/******************************************************************************/
-/**
- * Allows to set the port used to access the server
- *
- * @param port The port used to access the server
- */
-void Go2::setServerPort(const unsigned short& port) {
-	port_ = port;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the port currently used to access the server
- *
- * @return The number of the port currently used to access the server
- */
-unsigned short Go2::getServerPort() const {
-	return port_;
-}
-
-/******************************************************************************/
-/**
- * Allows to specify whether further information should be emitted after parsing the
- * command line and configuration file.
- *
- * @param verbose Specifies whether information about parsed variables should be emitted in a more verbose format
- */
-void Go2::setVerbosity(const bool& verbose) {
-	verbose_ = verbose;
-}
-
-/******************************************************************************/
-/**
- * Allows to check whether further information should be emitted after parsing the
- * command line and configuration file.
- */
-bool Go2::getVerbosity() const {
-	return verbose_;
-}
-
-/******************************************************************************/
-/**
- * Allows to specify the number of failed data transfers before a client terminates
- * its work. Set this to 0 in order to loop indefinitely.
- *
- * @param maxStalledDataTransfers The number of failed data transfers before a client terminates its work
- */
-void Go2::setMaxStalledDataTransfers(const boost::uint32_t& maxStalledDataTransfers) {
-	maxStalledDataTransfers_ = maxStalledDataTransfers;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the number of failed data transfers before a client terminates
- * its work. Set this to 0 in order to loop indefinitely.
- *
- * @return The number of failed data transfers before a client terminates its work
- */
-boost::uint32_t Go2::getMaxStalledDataTransfers() const {
-	return maxStalledDataTransfers_;
-}
-
-/******************************************************************************/
-/**
- * Allows to specify how often a client may try to connect the server without response
- * before terminating itself.
- *
- * @param maxConnectionAttempts Specifies the number of failed connection attempts before the client terminates itself
- */
-void Go2::setMaxConnectionAttempts(const boost::uint32_t& maxConnectionAttempts) {
-	maxConnectionAttempts_ = maxConnectionAttempts;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the amount of times a client may try to connect the server without response
- * before terminating itself.
- *
- * @return The amount of times a client may try to connect the server without response before terminating itself.
- */
-boost::uint32_t Go2::getMaxConnectionAttempts() const {
-	return maxConnectionAttempts_;
-}
-
-/******************************************************************************/
-/**
- * Allows to specify whether a client should return results even though here was no
- * improvement.
- *
- * @param returnRegardless Specifies whether a client should return results even though here was no improvement
- */
-void Go2::setReturnRegardless(const bool& returnRegardless) {
-	returnRegardless_ = returnRegardless;
-}
-
-/******************************************************************************/
-/**
- * Allows to check whether a client should return results even though here was no
- * improvement.
- *
- * @return A boolean indicating whether a client should return results even though here was no improvement
- */
-bool Go2::getReturnRegardless() const {
-	return returnRegardless_;
 }
 
 /******************************************************************************/
@@ -1116,102 +881,141 @@ boost::uint32_t Go2::getIterationOffset() const {
 void Go2::parseCommandLine(int argc, char **argv) {
    namespace po = boost::program_options;
 
-   std::string optimization_algorithms;
-   std::ostringstream oa_help;
-
-   oa_help
-   << "A comma-separated list of optimization algorithms, e.g. \"arg1,arg2\". "
-   << GOAFactoryStore->size() << " algorithms have been registered: "
-   << GOAFactoryStore->getKeyVector();
-
 	try {
-		std::string configFilename = std::string("");
-		std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
-		po::options_description desc(usageString.c_str());
+	   std::string optimization_algorithms;
+
+	   std::ostringstream oa_help;
+	   oa_help
+	   << "A comma-separated list of optimization algorithms, e.g. \"arg1,arg2\". "
+	   << GOAFactoryStore->size() << " algorithms have been registered: "
+	   << GOAFactoryStore->getKeyVector();
+
+	   std::ostringstream consumer_help;
+	   consumer_help
+	   << "The name of a consumer for brokered execution (an error will be flagged if called with any other execution mode than (2). "
+	   << "The following consumers have been registered: " << GConsumerStore->getKeyVector();
+
+	   std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
+      po::options_description desc(usageString.c_str());
+
+		// First add local options
 		desc.add_options()
 				("help,h", "emit help message")
-				("configFilename,f", po::value<std::string>(&configFilename)->default_value(GO2_DEF_DEFAULTCONFIGFILE),
-				"The name of the file holding configuration information for optimization algorithms")
-				("executionMode,e", po::value<execMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
-				"The default parallelization mode: (0) means serial execution; "
-				"(1) means multi-threaded execution and (2) means execution through the broker")
-				("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms)->default_value(GO2_DEF_OPTALGS),
-             oa_help.str().c_str())
-				("clientMode,c", "Makes this program behave as a networked client")
-				("ip,i", po::value<std::string>(&ip_)->default_value(GO2_DEF_IP), "The ip of the server")
-				("port,p", po::value<unsigned short>(&port_)->default_value(GO2_DEF_PORT),	"The port of the server")
-				("serializationMode,s", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO2_DEF_SERIALIZATIONMODE),
-				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-				("verbose,v", "Instructs the parsers to output information about configuration parameters")
+            ("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.str().c_str())
+				("executionMode,e", po::value<execMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE), "The execution mode: (0) means serial execution (1) means multi-threaded execution and (2) means execution through the broker. Note that you need to specifiy a consumer")
+				("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
+				("consumer,c", po::value<std::string>(&consumerName_), consumer_help.str().c_str())
 		;
 
-		po::variables_map vm;
-		po::store(po::parse_command_line(argc, argv, desc), vm);
-		po::notify(vm);
-
-		// Emit a help message, if necessary
-		if (vm.count("help")) {
-			std::cout << desc << std::endl;
-			exit(0);
+		// Retrieve available command line options from registered consumers, if any
+		for(GConsumerStore_iterator it=GConsumerStore->begin(); it!=GConsumerStore->end(); ++it) {
+		   it->second->addCLOptions(desc);
 		}
 
-		// Read in the configuration file. A file with default values
-		// will be created for you if it does not yet exist. Note that
-		// the target directory needs to exist, though.
-		if(vm.count("configFilename")) {
-			configFilename_ = configFilename;
-			GObject::readConfigFile(configFilename_);
-		}
+		// Do the actual parsing of the command line
+      po::variables_map vm;
+      po::store(po::parse_command_line(argc, argv, desc), vm);
+
+      // Emit a help message, if necessary
+      if (vm.count("help")) {
+         std::cout << desc << std::endl;
+         exit(0);
+      }
+
+      po::notify(vm);
+
+      if(vm.count("client")) {
+         clientMode_ = true;
+      }
+
+      // If the user has requested brokered execution, do corresponding error checks
+      // and prepare the environment as required
+      if(EXECMODE_BROKERAGE == parMode_) {
+         // No consumer specified, although brokered execution was requested
+         if(vm.count("consumer") != 1) {
+            glogger
+            << "In Go2::parseCommandLine(): Error!" << std::endl
+            << "You need to specify exactly one consumer for brokered execution," << std::endl
+            << "on the command line. Found " << vm.count("consumer") << "." << std::endl
+            << GEXCEPTION;
+         }
+
+         // Check that the requested consumer actually exists
+         if(vm.count("consumer") && !GConsumerStore->exists(consumerName_)) {
+            glogger
+            << "In Go2::parseCommandLine(): Error!" << std::endl
+            << "You have requested a consumer with name " << consumerName_ << std::endl
+            << "which could not be found in the consumer store." << std::endl
+            << GEXCEPTION;
+         }
+
+         if(clientMode_ && !GConsumerStore->get(consumerName_)->needsClient()) {
+            glogger
+            << "In Go2::parseCommandLine(): Error!" << std::endl
+            << "Requested client mode even though consumer " << consumerName_ << " does not require a client" << std::endl
+            << GEXCEPTION;
+         }
+
+         std::cout << "Using consumer " << consumerName_ << std::endl;
+
+         // Finally give the consumer the chance to act on the command line options
+         GConsumerStore->get(consumerName_)->actOnCLOptions(vm);
+
+         // At this point the consumer should be fully configured
+
+         // Register the consumer with the broker, unless other consumers have already been registered or we are running in client mode
+         if(!clientMode_) {
+            if(!GBROKER(Gem::Geneva::GIndividual)->hasConsumers()) {
+               GBROKER(Gem::Geneva::GIndividual)->enrol(GConsumerStore->get(consumerName_));
+            } else {
+               glogger
+               << "In Go2::parseCommandLine(): Note!" << std::endl
+               << "Could not register requested consumer," << std::endl
+               << "as a consumer has already registered with the broker" << std::endl
+               << GLOGGING;
+            }
+         }
+      } else { // not in brokered mode. No consumers to be taken into account
+         // Complain if a consumer was specified, but we are not dealing with brokered execution
+         if(vm.count("consumer")) {
+            glogger
+            << "In Go2::parseCommandLine(): Error!" << std::endl
+            << "You have specified a consumer but have requested " << std::endl
+            << "an execution mode " << parMode_ << " where " << EXECMODE_BROKERAGE << " was expected" << std::endl
+            << GEXCEPTION;
+         }
+
+         if(clientMode_) {
+            glogger
+            << "Requested client mode even though we are not running in brokered mode" << std::endl
+            << GEXCEPTION;
+         }
+      }
 
 		// Parse the list of optimization algorithms
 		if(vm.count("optimizationAlgorithms")) {
-			typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-			boost::char_separator<char> comma_sep(",");
-			tokenizer oaTokenizer(optimization_algorithms, comma_sep);
-			for(tokenizer::iterator oa=oaTokenizer.begin(); oa!=oaTokenizer.end(); ++oa) {
-				std::string alg = *oa;
-				boost::trim(alg); // Remove any leading or trailing white spaces
+		   std::vector<std::string> algs = Gem::Common::splitString(optimization_algorithms, ",");
 
-				if(!alg.empty()) {
-				   // Retrieve the algorithm from the global store
-				   boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
-				   if(!GOAFactoryStore->get(alg, p)) {
-				      glogger
-				      << "In Go2::parseCommandLine(int, char**): Error!" << std::endl
-				      << "Got invalid algorithm mnemomic \"" << alg << "\"." << std::endl
-				      << "No algorithm found for this string." << std::endl
-				      << GEXCEPTION;
-				   }
+		   std::vector<std::string>::iterator it;
+			for(it=algs.begin(); it!=algs.end(); ++it) {
+            // Retrieve the algorithm factory from the global store
+            boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
+            if(!GOAFactoryStore->get(*it, p)) {
+               glogger
+               << "In Go2::parseCommandLine(int, char**): Error!" << std::endl
+               << "Got invalid algorithm mnemomic \"" << *it << "\"." << std::endl
+               << "No algorithm found for this string." << std::endl
+               << GEXCEPTION;
+            }
 
-					cl_algorithms_.push_back(p->get(parMode_));
-				}
+            // Retrieve an algorithm from the factory and add it to the list
+            cl_algorithms_.push_back(p->get(parMode_));
 			}
-		}
-
-		if (vm.count("clientMode")) clientMode_ = true;
-
-		if(vm.count("verbose")) {
-			verbose_ = true;
-			std::cout << std::endl
-					<< "Running with the following command line options:" << std::endl
-					<< "configFilename = " << configFilename_ << std::endl
-					<< "executionMode = " << parMode_ << std::endl
-					<< "optimizationAlgorithms = " << optimization_algorithms << std::endl
-					<< "clientMode = " << clientMode_ << std::endl
-					<< "ip = " << ip_ << std::endl
-					<< "port = " << port_ << std::endl
-					<< "serializationMode = " << serializationMode_ << std::endl;
-		} else {
-			verbose_ = false;
 		}
 	}
 	catch(const po::error& e) {
 		std::cerr << "Error parsing the command line:" << std::endl
 				  << e.what() << std::endl;
-		exit(1);
-	}
-	catch(...) {
-		std::cerr << "Unknown error while parsing the command line" << std::endl;
 		exit(1);
 	}
 }

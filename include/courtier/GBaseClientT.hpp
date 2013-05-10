@@ -101,7 +101,7 @@ public:
 		, maxDuration_(boost::posix_time::microsec(0))
 		, processed_(0)
 		, processMax_(0)
-		, returnRegardless_(false)
+		, returnRegardless_(true)
 		, additionalDataTemplate_(boost::shared_ptr<processable_type>())
 	{ /* nothing*/ }
 
@@ -119,7 +119,7 @@ public:
 		, maxDuration_(boost::posix_time::microsec(0))
 		, processed_(0)
 		, processMax_(0)
-		, returnRegardless_(false)
+		, returnRegardless_(true)
 		, additionalDataTemplate_(additionalDataTemplate)
 	{ /* nothing*/ }
 
@@ -193,7 +193,6 @@ public:
 	}
 
 	/***************************************************************************/
-
 	/**
 	 * Sets the maximum allowed processing time
 	 *
@@ -214,7 +213,6 @@ public:
 	}
 
 	/***************************************************************************/
-
 	/**
 	 * Retrieves the value of the maxDuration_ parameter.
 	 *
@@ -225,15 +223,25 @@ public:
 	}
 
 	/***************************************************************************/
-
 	/**
 	 * Specifies whether results should be returned regardless of the success achieved
 	 * in the processing step.
 	 *
 	 * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
 	 */
-	void returnResultIfUnsuccessful(const bool& returnRegardless) {
+	void setReturnRegardless(const bool& returnRegardless) {
 		returnRegardless_ = returnRegardless;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks whether results should be returned regardless of the success achieved
+    * in the processing step.
+    *
+    * @return Whether results should be returned to the server regardless of their success
+	 */
+	bool getReturnRegardless() const {
+	   return returnRegardless_;
 	}
 
 protected:

@@ -67,6 +67,8 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GOAFactoryStore.hpp"
 #include "geneva/GOAMonitorStore.hpp"
+#include "geneva/GIndividualStandardConsumers.hpp"
+#include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 #include "geneva/GConsumerStore.hpp"
 
 #include "geneva/GBaseEA.hpp"
@@ -101,17 +103,11 @@ namespace Geneva {
 const std::string GO2_DEF_DEFAULTCONFIGFILE="config/Go2.json";
 const bool GO2_DEF_CLIENTMODE=false;
 const execMode GO2_DEF_DEFAULPARALLELIZATIONMODE=EXECMODE_MULTITHREADED;
-const Gem::Common::serializationMode GO2_DEF_SERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
-const std::string GO2_DEF_IP="localhost";
-const unsigned int GO2_DEF_PORT=10000;
-const bool GO2_DEF_DEFAULTVERBOSE=false;
 const bool GO2_DEF_COPYBESTONLY=true;
-const boost::uint16_t GO2_DEF_MAXSTALLED=0;
-const boost::uint16_t GO2_DEF_MAXCONNATT=100;
-const bool GO2_DEF_RETURNREGARDLESS=true;
 const boost::uint16_t GO2_DEF_NPRODUCERTHREADS=0;
 const boost::uint32_t GO2_DEF_OFFSET=0;
 const std::string GO2_DEF_OPTALGS="";
+const std::string GO2_DEF_NOCONSUMER="none";
 
 /******************************************************************************/
 /** @brief Set a number of parameters of the random number factory */
@@ -128,15 +124,6 @@ typedef Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet> GOABase
  * class also hides the details of client/server mode, consumer initialization, etc.
  * While it is derived from GOptimizableI, it is not currently meant to be used as an
  * individual. Hence the ability to serialize the class has been removed.
- *
- * Command line examples:
- * Geneva -p 2 -c --consumer="net // ip=localhost, port=10000" // networked client for consumer "net", connecting to localhost:10000
- * Geneva -p 2    --consumer="net // port=10000"               // networked server with consumer, listening at port 10000
- * Geneva -p 2    --consumer="mt  // nthreads=4"               // multithreaded consumer with 4 threads
- * Geneva -p 2    --consumer="mt  // nthreads=0"               // multithreaded consumer with as many threads as compute units
- * Geneva -p 1                                                 // multithreaded execution without consumer
- * Geneva -p 0                                                 // serial execution without consumer
- * Geneva                                                      // multithreaded execution without consumer
  */
 class Go2
 	: public GMutableSetT<GParameterSet>
@@ -149,16 +136,6 @@ public:
 	Go2(int, char **);
 	/** @brief A constructor that first parses the command line for relevant parameters and allows to specify a default config file name */
 	Go2(int, char **, const std::string&);
-	/** @brief A constructor that is given the usual command line parameters, then loads the rest of the data from a config file */
-	Go2(
-		const bool&
-		, const Gem::Common::serializationMode&
-		, const std::string&
-		, const unsigned short&
-		, const std::string&
-		, const execMode&
-		, const bool&
-	);
 	/** @brief A copy constructor */
 	Go2(const Go2&);
 
@@ -222,27 +199,6 @@ public:
 	// The following is a trivial list of getters and setters
 	void setClientMode(bool);
 	bool getClientMode() const;
-
-	void setSerializationMode(const Gem::Common::serializationMode&);
-	Gem::Common::serializationMode getSerializationMode() const;
-
-	void setServerIp(const std::string&);
-	std::string getServerIp() const;
-
-	void setServerPort(const unsigned short&);
-	unsigned short getServerPort() const;
-
-	void setVerbosity(const bool&);
-	bool getVerbosity() const;
-
-	void setMaxStalledDataTransfers(const boost::uint32_t&);
-	boost::uint32_t getMaxStalledDataTransfers() const;
-
-	void setMaxConnectionAttempts(const boost::uint32_t&);
-	boost::uint32_t getMaxConnectionAttempts() const;
-
-	void setReturnRegardless(const bool&);
-	bool getReturnRegardless() const;
 
 	void setNProducerThreads(const boost::uint16_t&);
 	boost::uint16_t getNProducerThreads() const;
@@ -337,41 +293,32 @@ private:
 	/***************************************************************************/
 	// These parameters can enter the object through the constructor
 	bool clientMode_; ///< Specifies whether this object represents a network client
-	Gem::Common::serializationMode serializationMode_; ///< Indicates whether serialization should be done in Text, XML or Binary form
-   std::string ip_; ///< Where the server can be reached
-   unsigned short port_; ///< The port on which the server answers
 	std::string configFilename_; ///< Indicates where the configuration file is stored
 	execMode parMode_; ///< The desired parallelization mode for free-form algorithms
-	bool verbose_; ///< Whether additional information should be emitted, e.g. when parsing configuration files
+	std::string consumerName_; ///< The name of a consumer requested by the user on the command line
 
-	//----------------------------------------------------------------------------------------------------------------
-	// General parameters
-    boost::uint32_t maxStalledDataTransfers_; ///< Specifies how often a client may try to unsuccessfully retrieve data from the server (0 means endless)
-    boost::uint32_t maxConnectionAttempts_; ///< Specifies how often a client may try to connect unsuccessfully to the server (0 means endless)
-    bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
+	//---------------------------------------------------------------------------
+	// Parameters for the random number generator
+	boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
 
-    //----------------------------------------------------------------------------------------------------------------
-    // Parameters for the random number generator
-    boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
+	//---------------------------------------------------------------------------
+	// Internal parameters
+	boost::uint32_t offset_; ///< The offset to be used when starting a new optimization run
+	bool sorted_; ///< Indicates whether local individuals have been sorted
+	boost::uint32_t iterationsConsumed_; ///< The number of successive iterations performed by this object so far
 
-    //----------------------------------------------------------------------------------------------------------------
-    // Internal parameters
-    boost::uint32_t offset_; ///< The offset to be used when starting a new optimization run
-    bool sorted_; ///< Indicates whether local individuals have been sorted
-    boost::uint32_t iterationsConsumed_; ///< The number of successive iterations performed by this object so far
+	//---------------------------------------------------------------------------
+	boost::shared_ptr<GParameterSet> bestIndividual_; ///< The best individual found during an optimization run
 
-    //----------------------------------------------------------------------------------------------------------------
-    boost::shared_ptr<GParameterSet> bestIndividual_; ///< The best individual found during an optimization run
-
-    //----------------------------------------------------------------------------------------------------------------
-    // The list of "chained" optimization algorithms
-    std::vector<boost::shared_ptr<GOABase> > algorithms_;
-    // Algorithms that were specified on the command line
-    std::vector<boost::shared_ptr<GOABase> > cl_algorithms_;
-    // The default algorithm (if any)
-    boost::shared_ptr<GOABase> default_algorithm_;
-    // Holds an object capable of producing objects of the desired type
-    boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr_;
+	//---------------------------------------------------------------------------
+	// The list of "chained" optimization algorithms
+	std::vector<boost::shared_ptr<GOABase> > algorithms_;
+	// Algorithms that were specified on the command line
+	std::vector<boost::shared_ptr<GOABase> > cl_algorithms_;
+	// The default algorithm (if any)
+	boost::shared_ptr<GOABase> default_algorithm_;
+	// Holds an object capable of producing objects of the desired type
+	boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr_;
 };
 
 /******************************************************************************/

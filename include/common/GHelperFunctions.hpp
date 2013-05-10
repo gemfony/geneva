@@ -93,6 +93,10 @@ void runExternalCommand(const std::string&);
 std::string serializationModeToString(const serializationMode&);
 
 /******************************************************************************/
+/** @brief Splits a string into a vector of strings, according to a seperator character */
+std::vector<std::string> splitString(const std::string&, const char*);
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

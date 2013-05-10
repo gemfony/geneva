@@ -152,6 +152,40 @@ std::string serializationModeToString(const serializationMode& s) {
 }
 
 /******************************************************************************/
+/**
+ * Splits a string into a vector of strings, according to a seperator character.
+ * Any trailing or leading white spaces are removed from the result strings.
+ *
+ * @param str The string to be split
+ * @param sep The separator character
+ * @return A std::vector holding the fragments
+ */
+std::vector<std::string> splitString(const std::string& str, const char* sep) {
+   std::vector<std::string> result;
+
+#ifdef DEBUG
+   if(1 != std::string(sep).size()) {
+      glogger
+      << "In splitString(): Error!" << std::endl
+      << "Supplied separator \"" << sep << "\" has invalid size " << std::string(sep).size() << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+   boost::char_separator<char> sep_char(sep);
+   tokenizer oaTokenizer(str, sep_char);
+   for(tokenizer::iterator oa=oaTokenizer.begin(); oa!=oaTokenizer.end(); ++oa) {
+      std::string frag = *oa;
+      boost::trim(frag); // Remove any leading or trailing white spaces
+      if(frag.empty()) continue; // Ignore empty strings
+      result.push_back(frag);
+   }
+
+   return result;
+}
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

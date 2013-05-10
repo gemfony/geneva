@@ -77,6 +77,9 @@ namespace Common {
 template <typename T>
 class GGlobalOptionsT {
 public:
+   /** Gives access to the iterator type for our map */
+   typedef typename std::map<std::string, T>::iterator iterator;
+
 	/***********************************************************************/
 	/**
 	 * Retrieves the value of an option from the map, storing it in
@@ -175,11 +178,40 @@ public:
 	std::string getKeyVector() const {
 	   std::string result;
 	   typename std::map<std::string, T>::const_iterator cit;
+	   std::size_t pos=0;
 	   for(cit=kvp_.begin(); cit!=kvp_.end(); ++cit) {
-	      result += cit->first + ", ";
+	      result += cit->first;
+	      if(++pos != kvp_.size()) {
+	         result += ", ";
+	      }
 	   }
 	   return result;
 	}
+
+	/************************************************************************/
+	/**
+	 * Retrieves an iterator object, positioned at the start of the map.
+	 */
+	typename std::map<std::string, T>::iterator getIterator() {
+	   typename std::map<std::string, T>::iterator it = kvp_.begin();
+	   return it;
+	}
+
+	/************************************************************************/
+	/**
+	 * Retrieves the start of the map
+	 */
+	typename std::map<std::string, T>::iterator begin() {
+	   return kvp_.begin();
+	}
+
+	/************************************************************************/
+	/**
+	 * Retrieves the end of the map
+	 */
+   typename std::map<std::string, T>::iterator end() {
+      return kvp_.end();
+   }
 
 private:
    /************************************************************************/

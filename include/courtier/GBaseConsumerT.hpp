@@ -55,6 +55,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/program_options.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/thread.hpp>
 #include <boost/type_traits.hpp>
@@ -176,6 +177,24 @@ public:
    virtual boost::shared_ptr<GBaseClientT<pl_type> > getClient() const {
       return boost::shared_ptr<GBaseClientT<pl_type> >();
    }
+
+   /***************************************************************************/
+   /**
+    * Adds local command line options to a boost::program_options::options_description object.
+    * By default we do nothing so that derived classes do not need to re-implement this
+    * function.
+    */
+   virtual void addCLOptions(boost::program_options::options_description& desc)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Takes a boost::program_options::variables_map object and checks for supplied options.
+    * By default we do nothing so that derived classes do not need to re-implement this
+    * function.
+    */
+   virtual void actOnCLOptions(const boost::program_options::variables_map& vm)
+   { /* nothing */ }
 
    /***************************************************************************/
    // Some abstract functions

@@ -29,6 +29,7 @@ The main changes for this release include:
  - Simplified the optimization monitor infrastructure
  - Added a first parameter scan algorithm
  - Gave optimization algorithm factories a common base class so generic access becomes easier
+ - Made Go2 independent from specific optimization algorithms and consumers, thus broadening its scope
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

@@ -89,11 +89,13 @@ namespace Courtier {
 /**
  * Global variables for failed transfers and connection attempts.
  */
-const boost::uint32_t GASIOTCPCONSUMERMAXSTALLS=10;
-const boost::uint32_t GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS=10;
-const unsigned short  GASIOTCPCONSUMERDEFAULTPORT=10000;
-const std::string     GASIOTCPCONSUMERDEFAULTSERVER="localhost";
-const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
+const boost::uint32_t                GASIOTCPCONSUMERMAXSTALLS=10;
+const boost::uint32_t                GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS=10;
+const unsigned short                 GASIOTCPCONSUMERDEFAULTPORT=10000;
+const std::string                    GASIOTCPCONSUMERDEFAULTSERVER="localhost";
+const boost::uint16_t                GASIOTCPCONSUMERTHREADS = 4;
+const Gem::Common::serializationMode GASIOTCPCONSUMERSERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
+const bool                           GASIOTCPCONSUMERRETURNREGARDLESS = true;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -812,6 +814,9 @@ class GAsioTCPConsumerT
       : listenerThreads_(Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
       , acceptor_(io_service_)
       , serializationMode_(Gem::Common::SERIALIZATIONMODE_BINARY)
+      , maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
+      , maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
+      , returnRegardless_(GASIOTCPCONSUMERRETURNREGARDLESS)
       , port_(GASIOTCPCONSUMERDEFAULTPORT)
       , server_(GASIOTCPCONSUMERDEFAULTSERVER)
    { /* nothing */ }
@@ -832,6 +837,9 @@ class GAsioTCPConsumerT
       : listenerThreads_(listenerThreads>0?listenerThreads:Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
       , acceptor_(io_service_)
       , serializationMode_(sm)
+      , maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
+      , maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
+      , returnRegardless_(GASIOTCPCONSUMERRETURNREGARDLESS)
       , port_(port)
       , server_(GASIOTCPCONSUMERDEFAULTSERVER)
    { /* nothing */ }
@@ -893,6 +901,28 @@ class GAsioTCPConsumerT
 
    /***************************************************************************/
    /**
+    * Specifies whether results should be returned regardless of the success achieved
+    * in the processing step.
+    *
+    * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
+    */
+   void setReturnRegardless(const bool& returnRegardless) {
+      returnRegardless_ = returnRegardless;
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks whether results should be returned regardless of the success achieved
+    * in the processing step.
+    *
+    * @return Whether results should be returned to the server regardless of their success
+    */
+   bool getReturnRegardless() const {
+      return returnRegardless_;
+   }
+
+   /***************************************************************************/
+   /**
     * Allows to set the serialization mode
     */
    void setSerializationMode(Gem::Common::serializationMode sm) {
@@ -911,6 +941,46 @@ class GAsioTCPConsumerT
 
    /***************************************************************************/
    /**
+    * Sets the maximum number of stalled connection attempts
+    *
+    * @param maxStalls The maximum number of stalled connection attempts
+    */
+   void setMaxStalls(const boost::uint32_t& maxStalls)  {
+      maxStalls_ = maxStalls;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the maximum allowed number of stalled attempts
+    *
+    * @return The value of the maxStalls_ variable
+    */
+   boost::uint32_t getMaxStalls() const  {
+      return maxStalls_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Sets the maximum number of failed connection attempts before termination
+    *
+    * @param maxConnectionAttempts The maximum number of allowed failed connection attempts
+    */
+   void setMaxConnectionAttempts(const boost::uint32_t& maxConnectionAttempts)  {
+      maxConnectionAttempts_ = maxConnectionAttempts;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the maximum allowed number of failed connection attempts
+    *
+    * @return The value of the maxConnectionAttempts_ variable
+    */
+   boost::uint32_t getMaxConnectionAttempts() const  {
+      return maxConnectionAttempts_;
+   }
+
+   /***************************************************************************/
+   /**
     * Allows to check whether this consumer needs a client to operate.
     *
     * @return A boolean indicating whether this consumer needs a client to operate
@@ -924,9 +994,15 @@ class GAsioTCPConsumerT
     * Emits a client suitable for processing the data emitted by this consumer
     */
    virtual boost::shared_ptr<GBaseClientT<processable_type> > getClient() const {
-      return boost::shared_ptr<GBaseClientT<processable_type> > (
+      boost::shared_ptr<GAsioTCPClientT<processable_type> > p (
             new GAsioTCPClientT<processable_type>(server_, boost::lexical_cast<std::string>(port_))
       );
+
+      p->setMaxStalls(maxStalls_); // Set to 0 to allow an infinite number of stalls
+      p->setMaxConnectionAttempts(maxConnectionAttempts_); // Set to 0 to allow an infinite number of failed connection attempts
+      p->setReturnRegardless(returnRegardless_);  // Prevent return of unsuccessful adaption attempts to the server
+
+      return p;
    }
 
    /***************************************************************************/
@@ -1008,6 +1084,31 @@ class GAsioTCPConsumerT
       return false;
    }
 
+   /***************************************************************************/
+   /**
+    * Adds local command line options to a boost::program_options::options_description object.
+    */
+   virtual void addCLOptions(boost::program_options::options_description& desc) {
+      namespace po = boost::program_options;
+
+      desc.add_options()
+         ("ip,i", po::value<std::string>(&server_)->default_value(GASIOTCPCONSUMERDEFAULTSERVER), "\t[tcpc] The name or ip of the server")
+         ("port,p", po::value<unsigned short>(&port_)->default_value(GASIOTCPCONSUMERDEFAULTPORT), "\t[tcpc] The port of the server")
+         ("serializationMode,s", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GASIOTCPCONSUMERSERIALIZATIONMODE), "\t[tcpc] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
+         ("maxStalls", po::value<boost::uint32_t>(&maxStalls_)->default_value(GASIOTCPCONSUMERMAXSTALLS), "\t[tcpc] The maximum allowed number of stalled connection attempts of a client")
+         ("maxConnectionAttempts", po::value<boost::uint32_t>(&maxConnectionAttempts_)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS), "\t[tcpc] The maximum allowed number of failed connection attempts of a client")
+         ("returnRegardless", po::value<bool>(&returnRegardless_)->default_value(GASIOTCPCONSUMERRETURNREGARDLESS), "\t[tcpc] Specifies whether unsuccessful client-side processing attempts should be returned to the server")
+         ("nListenerThreads", po::value<std::size_t>(&listenerThreads_)->default_value(listenerThreads_), "\t[tcpc] The number of threads used to listen for incoming connections")
+      ;
+   }
+
+   /***************************************************************************/
+   /**
+    * Takes a boost::program_options::variables_map object and checks for supplied options.
+    */
+   virtual void actOnCLOptions(const boost::program_options::variables_map& vm)
+   { /* nothing */ }
+
  private:
    /***************************************************************************/
    /**
@@ -1050,6 +1151,9 @@ class GAsioTCPConsumerT
    std::size_t listenerThreads_;  ///< The number of threads used to listen for incoming connections through io_servce::run()
    boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
    Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
+   boost::uint32_t maxStalls_; ///< The maximum allowed number of stalled connection attempts of a client
+   boost::uint32_t maxConnectionAttempts_; ///< The maximum allowed number of failed connection attempts of a client
+   bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
    unsigned short port_; ///< The port on which the server is supposed to listen
    std::string server_;  ///< The name or ip if the server
    Gem::Common::GThreadGroup gtg_;

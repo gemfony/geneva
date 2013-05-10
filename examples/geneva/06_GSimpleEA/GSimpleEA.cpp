@@ -150,7 +150,7 @@ int main(int argc, char **argv){
     p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
 
     // Prevent return of unsuccessful adaption attempts to the server
-    p->returnResultIfUnsuccessful(returnRegardless);
+    p->setReturnRegardless(returnRegardless);
 
     // Start the actual processing loop
     p->run();

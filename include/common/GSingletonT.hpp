@@ -90,6 +90,8 @@ class GSingletonT
 	:boost::noncopyable
 {
 public:
+   typedef T STYPE;
+
 	/***************************************************************************/
 	/**
 	 * If called for the first time, the function creates a boost::shared_ptr
