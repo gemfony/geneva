@@ -262,13 +262,7 @@ public:
       iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
 
       // Submit all items
-      typename std::vector<boost::shared_ptr<work_item> >::iterator it;
-      POSITIONTYPE pos_cnt = start;
-      for(it=workItems.begin()+start; it!=workItems.begin()+end; ++it) {
-         (*it)->setCourtierId(boost::make_tuple<SUBMISSIONCOUNTERTYPE,POSITIONTYPE>(submission_counter_, pos_cnt));
-         pos_cnt++;
-         this->submit(*it);
-      }
+      this->submitAllWorkItems(workItems, start, end);
 
       switch(srm) {
          case ACCEPTOLDERITEMS:
@@ -292,9 +286,6 @@ public:
          }
          break;
       }
-
-      // Update the submission counter
-      submission_counter_++;
 
       return complete;
    }
@@ -343,20 +334,34 @@ public:
 
 protected:
    /***************************************************************************/
-
-   /** @brief Submission of all work items in the list */
-   virtual void submitAllWorkItems (
-         std::vector<boost::shared_ptr<T> >& workItems
-         , const std::size_t& start
-         , const std::size_t& end
-   ) = 0;
-
    /** @brief Wait for at least partial return of work items, until a time-out occurs */
    virtual bool waitForIncompleteReturn() = 0;
    /** @brief Wait for Return of the same iterations work items, until a time-out occurs; resubmit if necessary */
    virtual bool waitForFullReturnWithTimeout() = 0;
    /** @brief Waits until all items have returned, ignoring any timeout */
    virtual bool waitForFullReturn() = 0;
+   /** @brief Submits a single work item */
+   virtual void submit(boost::shared_ptr<T>) = 0;
+
+   /***************************************************************************/
+   /**
+    * Submission of all work items in the list
+    */
+   virtual void submitAllWorkItems (
+         std::vector<boost::shared_ptr<T> >& workItems
+         , const std::size_t& start
+         , const std::size_t& end
+   ) {
+      typename std::vector<boost::shared_ptr<T> >::iterator it;
+      POSITIONTYPE pos_cnt = start;
+      for(it=workItems.begin()+start; it!=workItems.begin()+end; ++it) {
+         (*it)->setCourtierId(boost::make_tuple<SUBMISSIONCOUNTERTYPE,POSITIONTYPE>(submission_counter_, pos_cnt++));
+         this->submit(*it);
+      }
+
+      // Update the submission counter
+      submission_counter_++;
+   }
 
    /***************************************************************************/
    /**
