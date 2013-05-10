@@ -18,24 +18,26 @@ The main changes for this release include:
  - Removed the deprecated GIndividualFactoryT class in favor of the more general GFactoryT
  - Removed the deprecated utilities directory and application
  - Separated Simulated Annealing from Evolutionary Algorithms, making it a first-class citizen
- - Separated multi-populations from Evolutionary Algorithms, making them an first class citizen
+ - Separated multi-populations from Evolutionary Algorithms, making them a first class citizen
  - Evolutionary Algorithms are now based on GParameterSet (just like all other "basic" optimization
-   algorithms -- i.e. except for multi-populations)
+   algorithms, except for multi-populations)
  - Removed the deprecated Go class in favor of Go2 and updated all examples
  - Added an example that illustrates meta-optimization (i.e. usage of an evolutionary algorithm to
    optimize the configuration parameters of an optimization algorithm
  - Centralized conversion of smart pointers using a Gem::Common function
- - Removed manual creation of ROOT output files in favor of GPlotDesigner
+ - Removed most manual creation of ROOT output files in favor of GPlotDesigner
  - Simplified the optimization monitor infrastructure
  - Added a parameter scan algorithm
  - Gave optimization algorithm factories a common base class so generic access becomes easier
+ - Added global stores for GParameterSet-based consumers, optimization algorithms and corresponding
+   monitor classes
  - Made Go2 independent from specific optimization algorithms and consumers, thus broadening its scope.
    Note that during this rework, also most command line parametrs have been changed, and that command
    line parameters specific to consumers are extracted at run-time from each consumer. If you are
    running Geneva through a script, this might mean that you need to adapt this script.
  - GParameterSet and GIndividual no longer depend on any specific optimization algorithms. As a
-   consequence, all major concepts are now separated from each other, allowing for a more independent
-   development style.
+   consequence, all major concepts are now separated from each other, allowing for a far more independent
+   development style. Adding new algorithms and also consumers has become far easier.
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012
