@@ -93,13 +93,13 @@ namespace Courtier {
  * to networked execution through Geneva's broker. This class helps to avoid
  * duplication of code.
  */
-template <typename T>
+template <typename processable_type>
 class GBrokerConnectorT
 {
    ///////////////////////////////////////////////////////////////////////
 	// NOTE: In order to actually (de-)serialize this class, you will have
 	// to make it known to the Boost.Serialization library, once you have
-	// specified T. You can do so with the BOOST_CLASS_EXPORT_KEY /
+	// specified processable_type. You can do so with the BOOST_CLASS_EXPORT_KEY /
 	// BOOST_CLASS_EXPORT_IMPLEMENT combo.
     friend class boost::serialization::access;
 
@@ -122,7 +122,7 @@ class GBrokerConnectorT
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    typedef boost::shared_ptr<Gem::Courtier::GBufferPortT<boost::shared_ptr<T> > > GBufferPortT_ptr;
+    typedef boost::shared_ptr<Gem::Courtier::GBufferPortT<boost::shared_ptr<processable_type> > > GBufferPortT_ptr;
 
     /***************************************************************************/
     /**
@@ -140,9 +140,9 @@ public:
     	, submission_counter_(0)
       , firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTBROKERFIRSTTIMEOUT))
       , doLogging_(false)
-    	, CurrentBufferPort_(new Gem::Courtier::GBufferPortT<boost::shared_ptr<T> >())
+    	, CurrentBufferPort_(new Gem::Courtier::GBufferPortT<boost::shared_ptr<processable_type> >())
     {
-    	GBROKER(T)->enrol(CurrentBufferPort_);
+    	GBROKER(processable_type)->enrol(CurrentBufferPort_);
     }
 
     /***************************************************************************/
@@ -151,7 +151,7 @@ public:
      *
      * @param cp A copy of another GBrokerConnector object
      */
-    GBrokerConnectorT(const GBrokerConnectorT<T>& cp)
+    GBrokerConnectorT(const GBrokerConnectorT<processable_type>& cp)
     	: waitFactor_(cp.waitFactor_)
 		, minWaitFactor_(cp.minWaitFactor_)
 		, maxWaitFactor_(cp.maxWaitFactor_)
@@ -163,9 +163,9 @@ public:
     	, submission_counter_(0) // start new
     	, firstTimeOut_(cp.firstTimeOut_)
     	, doLogging_(cp.doLogging_)
-    	, CurrentBufferPort_(new Gem::Courtier::GBufferPortT<boost::shared_ptr<T> >())
+    	, CurrentBufferPort_(new Gem::Courtier::GBufferPortT<boost::shared_ptr<processable_type> >())
     {
-    	GBROKER(T)->enrol(CurrentBufferPort_);
+    	GBROKER(processable_type)->enrol(CurrentBufferPort_);
     }
 
     /***************************************************************************/
@@ -180,13 +180,13 @@ public:
 
     /***************************************************************************/
     /**
-     * A standard assignment operator for GBrokerConnectorT<T> objects,
+     * A standard assignment operator for GBrokerConnectorT<processable_type> objects,
      *
-     * @param cp A copy of another GBrokerConnectorT<T> object
+     * @param cp A copy of another GBrokerConnectorT<processable_type> object
      * @return A constant reference to this object
      */
-    const GBrokerConnectorT<T>& operator=(const GBrokerConnectorT<T>& cp) {
-    	GBrokerConnectorT<T>::load(&cp);
+    const GBrokerConnectorT<processable_type>& operator=(const GBrokerConnectorT<processable_type>& cp) {
+    	GBrokerConnectorT<processable_type>::load(&cp);
     	return *this;
     }
 
@@ -196,7 +196,7 @@ public:
      *
      * @param cp A constant pointer to another GBrokerConnector object
      */
-    void load(GBrokerConnectorT<T> const * const cp) {
+    void load(GBrokerConnectorT<processable_type> const * const cp) {
     	waitFactor_ = cp->waitFactor_;
 		minWaitFactor_ = cp->minWaitFactor_;
 		maxWaitFactor_ = cp->maxWaitFactor_;
@@ -212,28 +212,28 @@ public:
 
     /***************************************************************************/
     /**
-     * Checks for equality with another GBrokerConnectorT<T> object
+     * Checks for equality with another GBrokerConnectorT<processable_type> object
      *
-     * @param  cp A constant reference to another GBrokerConnectorT<T> object
+     * @param  cp A constant reference to another GBrokerConnectorT<processable_type> object
      * @return A boolean indicating whether both objects are equal
      */
-    bool operator==(const GBrokerConnectorT<T>& cp) const {
+    bool operator==(const GBrokerConnectorT<processable_type>& cp) const {
     	using namespace Gem::Common;
     	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-    	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBrokerConnectorT<T>::operator==","cp", CE_SILENT);
+    	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBrokerConnectorT<processable_type>::operator==","cp", CE_SILENT);
     }
 
     /***************************************************************************/
     /**
-     * Checks for inequality with another GBrokerConnectorT<T> object
+     * Checks for inequality with another GBrokerConnectorT<processable_type> object
      *
-     * @param  cp A constant reference to another GBrokerConnectorT<T> object
+     * @param  cp A constant reference to another GBrokerConnectorT<processable_type> object
      * @return A boolean indicating whether both objects are inequal
      */
-    bool operator!=(const GBrokerConnectorT<T>& cp) const {
+    bool operator!=(const GBrokerConnectorT<processable_type>& cp) const {
     	using namespace Gem::Common;
     	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-    	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBrokerConnectorT<T>::operator!=","cp", CE_SILENT);
+    	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBrokerConnectorT<processable_type>::operator!=","cp", CE_SILENT);
     }
 
     /***************************************************************************/
@@ -250,7 +250,7 @@ public:
      * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
      */
     boost::optional<std::string> checkRelationshipWith(
-    		const GBrokerConnectorT<T>& cp
+    		const GBrokerConnectorT<processable_type>& cp
     		, const Gem::Common::expectation& e
     		, const double& limit
     		, const std::string& caller
@@ -263,18 +263,18 @@ public:
         std::vector<boost::optional<std::string> > deviations;
 
     	// Check the local local data
-    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", waitFactor_, cp.waitFactor_, "waitFactor_", "cp.waitFactor_", e , limit));
-    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", minWaitFactor_, cp.minWaitFactor_, "minWaitFactor_", "cp.minWaitFactor_", e , limit));
-    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", maxWaitFactor_, cp.maxWaitFactor_, "maxWaitFactor_", "cp.maxWaitFactor_", e , limit));
-    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", waitFactorIncrement_, cp.waitFactorIncrement_, "waitFactorIncrement_", "cp.waitFactorIncrement_", e , limit));
-    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", boundlessWait_, cp.boundlessWait_, "boundlessWait_", "cp.boundlessWait_", e , limit));
-    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", maxResubmissions_, cp.maxResubmissions_, "maxResubmissions_", "cp.maxResubmissions_", e , limit));
-    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", allItemsReturned_, cp.allItemsReturned_, "allItemsReturned_", "cp.allItemsReturned_", e , limit));
-    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", percentOfTimeoutNeeded_, cp.percentOfTimeoutNeeded_, "percentOfTimeoutNeeded_", "cp.percentOfTimeoutNeeded_", e , limit));
-    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", firstTimeOut_, cp.firstTimeOut_, "firstTimeOut_", "cp.firstTimeOut_", e , limit));
-    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<T>", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
+    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", waitFactor_, cp.waitFactor_, "waitFactor_", "cp.waitFactor_", e , limit));
+    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", minWaitFactor_, cp.minWaitFactor_, "minWaitFactor_", "cp.minWaitFactor_", e , limit));
+    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", maxWaitFactor_, cp.maxWaitFactor_, "maxWaitFactor_", "cp.maxWaitFactor_", e , limit));
+    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", waitFactorIncrement_, cp.waitFactorIncrement_, "waitFactorIncrement_", "cp.waitFactorIncrement_", e , limit));
+    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", boundlessWait_, cp.boundlessWait_, "boundlessWait_", "cp.boundlessWait_", e , limit));
+    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", maxResubmissions_, cp.maxResubmissions_, "maxResubmissions_", "cp.maxResubmissions_", e , limit));
+    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", allItemsReturned_, cp.allItemsReturned_, "allItemsReturned_", "cp.allItemsReturned_", e , limit));
+    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", percentOfTimeoutNeeded_, cp.percentOfTimeoutNeeded_, "percentOfTimeoutNeeded_", "cp.percentOfTimeoutNeeded_", e , limit));
+    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", firstTimeOut_, cp.firstTimeOut_, "firstTimeOut_", "cp.firstTimeOut_", e , limit));
+    	deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
 
-    	return evaluateDiscrepancies("GBrokerConnectorT<T>", caller, deviations, e);
+    	return evaluateDiscrepancies("GBrokerConnectorT<processable_type>", caller, deviations, e);
     }
 
     /***************************************************************************/
@@ -310,7 +310,7 @@ public:
     	// Do some error checking
     	if(minWaitFactor < 0. || minWaitFactor >= maxWaitFactor) {
     	   glogger
-    	   << "In GBrokerConnectorT<T>::setWaitFactorExtremes(): Error!" << std::endl
+    	   << "In GBrokerConnectorT<processable_type>::setWaitFactorExtremes(): Error!" << std::endl
          << "Got invalid extreme values: " << minWaitFactor << " / " << maxWaitFactor << std::endl
          << GEXCEPTION;
     	}
@@ -446,7 +446,7 @@ public:
     void setWaitFactorIncrement(double wfi) {
     	if(wfi <= 0.) {
     	   glogger
-    	   << "In GBrokerConnectorT<T>::setWaitFactorIncrement(): Error!" << std::endl
+    	   << "In GBrokerConnectorT<processable_type>::setWaitFactorIncrement(): Error!" << std::endl
          << "Received invalid wait factor increment: " << wfi << std::endl
          << GEXCEPTION;
     	}
@@ -477,7 +477,7 @@ public:
      * all items to return but we do not accept items from older iterations (value
      * REJECTOLDERITEMS) or whether we accept an incomplete return but also accept
      * items from older iterations (value ACCEPTOLDERITEMS). Note that it is impossible to
-     * submit items that are not derived from T.
+     * submit items that are not derived from processable_type.
      *
      * @param workItems A vector with work items to be evaluated beyond the broker
      * @param start The id of first item to be worked on in the vector
@@ -491,7 +491,7 @@ public:
     	, const std::size_t& start
     	, const std::size_t& end
     	, const submissionReturnMode& srm = ACCEPTOLDERITEMS
-    	, typename boost::enable_if<boost::is_base_of<T, work_item> >::type* dummy = 0
+    	, typename boost::enable_if<boost::is_base_of<processable_type, work_item> >::type* dummy = 0
     ) {
     	switch(srm) {
     	case ACCEPTOLDERITEMS:
@@ -545,7 +545,7 @@ public:
     	std::vector<boost::shared_ptr<work_item> >& workItems
     	, const boost::tuple<std::size_t,std::size_t>& range
     	, const submissionReturnMode& srm = ACCEPTOLDERITEMS
-    	, typename boost::enable_if<boost::is_base_of<T, work_item> >::type* dummy = 0
+    	, typename boost::enable_if<boost::is_base_of<processable_type, work_item> >::type* dummy = 0
     ) {
     	return workOn(workItems, boost::get<0>(range), boost::get<1>(range), srm);
     }
@@ -562,7 +562,7 @@ public:
     bool workOn(
     	std::vector<boost::shared_ptr<work_item> >& workItems
     	, const submissionReturnMode& srm = ACCEPTOLDERITEMS
-    	, typename boost::enable_if<boost::is_base_of<T, work_item> >::type* dummy = 0
+    	, typename boost::enable_if<boost::is_base_of<processable_type, work_item> >::type* dummy = 0
     ) {
     	return workOn(workItems, (std::size_t)0, workItems.size(), srm);
     }
@@ -588,12 +588,12 @@ public:
 		comment = ""; // Reset the comment string
 		comment += "The timeout for the retrieval of an;";
 		comment += "iteration's first timeout;";
-		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
+		if(showOrigin) comment += "[GBrokerConnectorT<processable_type>]";
 		gpb.registerFileParameter<boost::posix_time::time_duration>(
 			"firstTimeOut" // The name of the variable
 			, boost::posix_time::duration_from_string(DEFAULTBROKERFIRSTTIMEOUT) // The default value
 			, boost::bind(
-				&GBrokerConnectorT<T>::setFirstTimeOut
+				&GBrokerConnectorT<processable_type>::setFirstTimeOut
 				, this
 				, _1
 			  )
@@ -607,14 +607,14 @@ public:
 		comment2 = ""; // Reset the second comment string
 		comment2 += "The upper boundary for the adaption;";
 		comment2 += "of the waitFactor variable;";
-		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
+		if(showOrigin) comment += "[GBrokerConnectorT<processable_type>]";
 		gpb.registerFileParameter<double, double>(
 			"min" // The name of the first variable
 			, "max" // The name of the second variable
 			, DEFAULTMINBROKERWAITFACTOR // The first default value
 			, DEFAULTMAXBROKERWAITFACTOR // The second default value
 			, boost::bind(
-				&GBrokerConnectorT<T>::setWaitFactorExtremes
+				&GBrokerConnectorT<processable_type>::setWaitFactorExtremes
 				, this
 				, _1
 				, _2
@@ -628,12 +628,12 @@ public:
 		comment =  ""; // 	Reset the comment string
 		comment += "Specifies the amount by which the wait factor gets;";
 		comment += "incremented or decremented during automatic adaption;";
-		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
+		if(showOrigin) comment += "[GBrokerConnectorT<processable_type>]";
 		gpb.registerFileParameter<double>(
 			"waitFactorIncrement" // The name of the variable
 			, DEFAULTBROKERWAITFACTORINCREMENT // The default value
 			, boost::bind (
-				&GBrokerConnectorT<T>::setWaitFactorIncrement
+				&GBrokerConnectorT<processable_type>::setWaitFactorIncrement
 				, this
 				, _1
 			  )
@@ -644,12 +644,12 @@ public:
 		comment = ""; // Reset the comment string
 		comment += "Indicates that the broker connector should wait endlessly;";
 		comment += "for further arrivals of individuals in an iteration;";
-		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
+		if(showOrigin) comment += "[GBrokerConnectorT<processable_type>]";
 		gpb.registerFileParameter<bool>(
 			"boundlessWait" // The name of the variable
 			, false // The default value
 			, boost::bind(
-				&GBrokerConnectorT<T>::setBoundlessWait
+				&GBrokerConnectorT<processable_type>::setBoundlessWait
 				, this
 				, _1
 			  )
@@ -660,12 +660,12 @@ public:
 		comment = ""; // Reset the comment string
 		comment += "The amount of resubmissions allowed if a full return of work;";
 		comment += "items was expected but only a subset has returned;";
-		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
+		if(showOrigin) comment += "[GBrokerConnectorT<processable_type>]";
 		gpb.registerFileParameter<bool>(
 			"maxResubmissions" // The name of the variable
 			, DEFAULTMAXRESUBMISSIONS // The default value
 			, boost::bind(
-				&GBrokerConnectorT<T>::setMaxResubmissions
+				&GBrokerConnectorT<processable_type>::setMaxResubmissions
 				, this
 				, _1
 			  )
@@ -676,12 +676,12 @@ public:
 		comment = ""; // Reset the comment string
 		comment += "Activates (1) or de-activates (0) logging;";
 		comment += "iteration's first timeout;";
-		if(showOrigin) comment += "[GBrokerConnectorT<T>]";
+		if(showOrigin) comment += "[GBrokerConnectorT<processable_type>]";
 		gpb.registerFileParameter<bool>(
 			"doLogging" // The name of the variable
 			, false // The default value
 			, boost::bind(
-				&GBrokerConnectorT<T>::doLogging
+				&GBrokerConnectorT<processable_type>::doLogging
 				, this
 				, _1
 			  )
@@ -698,7 +698,7 @@ private:
      * it is not guaranteed by this function that all submitted items are still contained
      * in the vector after the call. It is also possible that returned items do not
      * belong to the current submission cycle. You will thus have to post-process the vector.
-     * Note that it is impossible to submit items that are not derived from T.
+     * Note that it is impossible to submit items that are not derived from processable_type.
      *
      * @param workItems A vector with work items to be evaluated beyond the broker
      * @param start The id of first item to be worked on in the vector
@@ -712,7 +712,7 @@ private:
     	, const std::size_t& start
     	, const std::size_t& end
     	, const bool& acceptOlderItems = true
-    	, typename boost::enable_if<boost::is_base_of<T, work_item> >::type* dummy = 0
+    	, typename boost::enable_if<boost::is_base_of<processable_type, work_item> >::type* dummy = 0
     ) {
     	std::size_t expectedNumber = end - start; // The expected number of work items from the current iteration
     	std::size_t nReceivedCurrent = 0; // The number of items of this iteration received so far
@@ -725,21 +725,21 @@ private:
     	// Do some error checking
     	if(workItems.empty()) {
     	   glogger
-    	   << "In GBrokerConnectorT<T>::workOnIncompleteReturnAllowed(): Error!" << std::endl
+    	   << "In GBrokerConnectorT<processable_type>::workOnIncompleteReturnAllowed(): Error!" << std::endl
          << "workItems_ vector is empty." << std::endl
          << GEXCEPTION;
     	}
 
     	if(end <= start) {
     	   glogger
-    	   << "In GBrokerConnectorT<T>::workOnIncompleteReturnAllowed(): Error!" << std::endl
+    	   << "In GBrokerConnectorT<processable_type>::workOnIncompleteReturnAllowed(): Error!" << std::endl
          << "Invalid start or end-values: " << start << " / " << end << std::endl
          << GEXCEPTION;
     	}
 
     	if(end > workItems.size()) {
     	   glogger
-    	   << "In GBrokerConnectorT<T>::workOnIncompleteReturnAllowed(): Error!" << std::endl
+    	   << "In GBrokerConnectorT<processable_type>::workOnIncompleteReturnAllowed(): Error!" << std::endl
          << "Last id " << end << " exceeds size of vector " << workItems.size() << std::endl
          << GEXCEPTION;
     	}
@@ -857,7 +857,7 @@ private:
      * number of times. Items from older iterations will be discarded. After the work
      * has been performed, the items contained in the workItems vector may have been
      * changed. The workItems vector will remain unchanged if we didn't receive all items
-     * back. Note that it is impossible to submit items that are not derived from T.
+     * back. Note that it is impossible to submit items that are not derived from processable_type.
      *
      * @param workItems A vector with work items to be evaluated beyond the broker
      * @param start The id of first item to be worked on in the vector
@@ -870,7 +870,7 @@ private:
 		std::vector<boost::shared_ptr<work_item> >& workItems
 		, const std::size_t& start
 		, const std::size_t& end
-		, typename boost::enable_if<boost::template is_base_of<T, work_item> >::type* dummy = 0
+		, typename boost::enable_if<boost::template is_base_of<processable_type, work_item> >::type* dummy = 0
     ) {
     	std::size_t expectedNumber = end - start; // The expected number of work items from the current iteration
     	std::size_t nReceivedCurrent = 0; // The number of items of this iteration received so far
@@ -885,21 +885,21 @@ private:
     	// Do some error checking
     	if(workItems.empty()) {
     	   glogger
-    	   << "In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
+    	   << "In GBrokerConnectorT<processable_type>::workOnFullReturnExpected(): Error!" << std::endl
          << "workItems_ vector is empty." << std::endl
          << GEXCEPTION;
     	}
 
     	if(end <= start) {
     	   glogger
-    	   << "In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
+    	   << "In GBrokerConnectorT<processable_type>::workOnFullReturnExpected(): Error!" << std::endl
          << "Invalid start or end-values: " << start << " / " << end << std::endl
          << GEXCEPTION;
     	}
 
     	if(end > workItems.size()) {
     	   glogger
-    	   << "In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
+    	   << "In GBrokerConnectorT<processable_type>::workOnFullReturnExpected(): Error!" << std::endl
          << "Last id " << end << " exceeds size of vector " << workItems.size() << std::endl
          << GEXCEPTION;
     	}
@@ -1008,7 +1008,7 @@ private:
 #ifdef DEBUG
     		if(returnedItems.size() != expectedNumber) {
     		   glogger
-    		   << "In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
+    		   << "In GBrokerConnectorT<processable_type>::workOnFullReturnExpected(): Error!" << std::endl
             << "Expected " << expectedNumber << " items to have returned" << std::endl
             << "but received " << returnedItems.size() << std::endl
             << GEXCEPTION;
@@ -1023,7 +1023,7 @@ private:
 
     			if(boost::get<1>(returnedItems[i]->getCourtierId()) != start+i){
     			   glogger
-    			   << "In GBrokerConnectorT<T>::workOnFullReturnExpected(): Error!" << std::endl
+    			   << "In GBrokerConnectorT<processable_type>::workOnFullReturnExpected(): Error!" << std::endl
                << "Expected item with position id " << boost::get<1>(returnedItems[i]->getCourtierId()) << std::endl
                << "to have id " << start+i << " instead." << std::endl
                << GEXCEPTION;
@@ -1116,21 +1116,21 @@ private:
      *
      * @param gi A boost::shared_ptr to a work item
      */
-    void submit(boost::shared_ptr<T> gi) {
+    void submit(boost::shared_ptr<processable_type> gi) {
     	CurrentBufferPort_->push_front_orig(gi);
     }
 
     /***************************************************************************/
     /**
-     * Retrieval of the first work item. This function simply returns a boost::shared_ptr<T>
+     * Retrieval of the first work item. This function simply returns a boost::shared_ptr<processable_type>
      * with the work item. Note that this function will throw if the maximum allowed time for
      * the retrieval of the first item has been surpassed (if set).
 	 *
 	 * @return The retrieved item
      */
-	boost::shared_ptr<T> retrieveFirstItem() {
+	boost::shared_ptr<processable_type> retrieveFirstItem() {
 		// Holds the retrieved item
-		boost::shared_ptr<T> p;
+		boost::shared_ptr<processable_type> p;
 
 		if(firstTimeOut_.total_microseconds()) { // Wait for a given maximum amount of time
 			// pop_back_processed_bool will return false if we have reached the timeout
@@ -1139,7 +1139,7 @@ private:
 			// to EMPTYDURATION.
 			if(!CurrentBufferPort_->pop_back_processed_bool(p, firstTimeOut_)) {
 			   glogger
-			   << "In GBrokerConnectorT<T>::retrieveFirstItem():" << std::endl
+			   << "In GBrokerConnectorT<processable_type>::retrieveFirstItem():" << std::endl
             << "Timeout for first item reached." << std::endl
             << "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
             << "You can change this value with the setFirstTimeOut() function." << std::endl
@@ -1175,7 +1175,7 @@ private:
 	template <typename target_type>
 	boost::shared_ptr<target_type> retrieveFirstItem() {
 		// Holds the retrieved item
-		boost::shared_ptr<T> p;
+		boost::shared_ptr<processable_type> p;
 
 		if(firstTimeOut_.total_microseconds()) { // Wait for a given maximum amount of time
 			// pop_back_processed_bool will return false if we have reached the timeout
@@ -1184,7 +1184,7 @@ private:
 			// to EMPTYDURATION.
 			if(!CurrentBufferPort_->pop_back_processed_bool(p, firstTimeOut_)) {
 			   glogger
-			   << "In GBrokerConnectorT<T>::retrieveFirstItem<target_type>():" << std::endl
+			   << "In GBrokerConnectorT<processable_type>::retrieveFirstItem<target_type>():" << std::endl
             << "Timeout for first item reached." << std::endl
             << "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
             << "You can change this value with the setFirstTimeOut() function." << std::endl
@@ -1207,7 +1207,7 @@ private:
     	}
 
     	// Return the retrieved item. Does error checks on the conversion internally
-      return Gem::Common::convertSmartPointer<T, target_type>(p);
+      return Gem::Common::convertSmartPointer<processable_type, target_type>(p);
 	}
 
     /***************************************************************************/
@@ -1218,9 +1218,9 @@ private:
 	 *
 	 * @return A work item from the processed queue, converted to the desired target type
 	 */
-	boost::shared_ptr<T> retrieveItem() {
+	boost::shared_ptr<processable_type> retrieveItem() {
 		// Will hold retrieved items
-		boost::shared_ptr<T> p;
+		boost::shared_ptr<processable_type> p;
 
 		// Will hold the elapsed time since the start of this iteration
 		boost::posix_time::time_duration currentElapsed;
@@ -1242,7 +1242,7 @@ private:
 #ifdef DEBUG
 				if(maxAllowedElapsed_.total_microseconds() == 0) {
 				   glogger
-				   << "In GBrokerConnectorT<T>::retrieveItem(): Error!" << std::endl
+				   << "In GBrokerConnectorT<processable_type>::retrieveItem(): Error!" << std::endl
                << "maxAllowedElapsed_ is 0" << std::endl
                << GEXCEPTION;
 				}
@@ -1255,7 +1255,7 @@ private:
 #ifdef DEBUG
 				if(percentOfTimeoutNeeded_ > 1. || percentOfTimeoutNeeded_ < 0) {
 				   glogger
-				   << "In GBrokerConnectorT<T>::retrieveItem(): Error!" << std::endl
+				   << "In GBrokerConnectorT<processable_type>::retrieveItem(): Error!" << std::endl
                << "Invalid percentage of time out: " << percentOfTimeoutNeeded_ << std::endl
                << GEXCEPTION;
 				}
@@ -1276,14 +1276,14 @@ private:
 	 * Retrieval of a work item and conversion to a target type. This function will
 	 * return items as long as the elapsed time hasn't surpassed the allotted
 	 * time-frame. Once this has happened, it will return an empty pointer. Note that
-	 * there is a specialization of this function in case target_type == T.
+	 * there is a specialization of this function in case target_type == processable_type.
 	 *
 	 * @return A work item from the processed queue, converted to the desired target type
 	 */
 	template <typename target_type>
 	boost::shared_ptr<target_type> retrieveItem() {
 		// Will hold retrieved items
-		boost::shared_ptr<T> p;
+		boost::shared_ptr<processable_type> p;
 		// Will hold converted items
 		boost::shared_ptr<target_type> p_converted;
 		// Will hold the elapsed time since the start of this iteration
@@ -1305,7 +1305,7 @@ private:
 #ifdef DEBUG
 				if(maxAllowedElapsed_.total_microseconds() == 0) {
 				   glogger
-				   << "In GBrokerConnectorT<T>::retrieveItem<target_type>(): Error!" << std::endl
+				   << "In GBrokerConnectorT<processable_type>::retrieveItem<target_type>(): Error!" << std::endl
                << "maxAllowedElapsed_ is 0" << std::endl
                << GEXCEPTION;
 				}
@@ -1318,7 +1318,7 @@ private:
 #ifdef DEBUG
 				if(percentOfTimeoutNeeded_ > 1. || percentOfTimeoutNeeded_ < 0) {
 				   glogger
-				   << "In GBrokerConnectorT<T>::retrieveItem(): Error!" << std::endl
+				   << "In GBrokerConnectorT<processable_type>::retrieveItem(): Error!" << std::endl
                << "Invalid percentage of time out: " << percentOfTimeoutNeeded_ << std::endl
                << GEXCEPTION;
 				}
@@ -1332,7 +1332,7 @@ private:
     	}
 
       // Return the retrieved item. Does error checks on the conversion internally
-      return Gem::Common::convertSmartPointer<T, target_type>(p);
+      return Gem::Common::convertSmartPointer<processable_type, target_type>(p);
 	}
 
 	/***************************************************************************/
