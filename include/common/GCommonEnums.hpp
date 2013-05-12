@@ -6,7 +6,6 @@
  * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
  *
  * See the AUTHORS file in the top-level directory for a list of authors.
- *
  * Contact: contact [at] gemfony (dot) com
  *
  * This file is part of the Geneva library collection.

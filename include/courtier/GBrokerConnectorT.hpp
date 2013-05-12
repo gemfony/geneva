@@ -475,8 +475,8 @@ public:
      * to post-process the vector. The parameter "srm" of this function specifies whether
      * we expect all items to return (value EXPECTFULLRETURN), whether we do not expeect
      * all items to return but we do not accept items from older iterations (value
-     * REJECTOLDERITEMS) or whether we accept an incomplete return but also accept
-     * items from older iterations (value ACCEPTOLDERITEMS). Note that it is impossible to
+     * RESUBMISSIONAFTERTIMEOUT) or whether we accept an incomplete return but also accept
+     * items from older iterations (value INCOMPLETERETURN). Note that it is impossible to
      * submit items that are not derived from processable_type.
      *
      * @param workItems A vector with work items to be evaluated beyond the broker
@@ -490,11 +490,11 @@ public:
     	std::vector<boost::shared_ptr<work_item> >& workItems
     	, const std::size_t& start
     	, const std::size_t& end
-    	, const submissionReturnMode& srm = ACCEPTOLDERITEMS
+    	, const submissionReturnMode& srm = INCOMPLETERETURN
     	, typename boost::enable_if<boost::is_base_of<processable_type, work_item> >::type* dummy = 0
     ) {
     	switch(srm) {
-    	case ACCEPTOLDERITEMS:
+    	case INCOMPLETERETURN:
     		return workOnIncompleteReturnAllowed(
     		    workItems
     		    , start
@@ -503,7 +503,7 @@ public:
     		);
     		break;
 
-    	case REJECTOLDERITEMS:
+    	case RESUBMISSIONAFTERTIMEOUT:
     		return workOnIncompleteReturnAllowed(
     		    workItems
     		    , start
@@ -544,7 +544,7 @@ public:
     bool workOn(
     	std::vector<boost::shared_ptr<work_item> >& workItems
     	, const boost::tuple<std::size_t,std::size_t>& range
-    	, const submissionReturnMode& srm = ACCEPTOLDERITEMS
+    	, const submissionReturnMode& srm = INCOMPLETERETURN
     	, typename boost::enable_if<boost::is_base_of<processable_type, work_item> >::type* dummy = 0
     ) {
     	return workOn(workItems, boost::get<0>(range), boost::get<1>(range), srm);
@@ -561,7 +561,7 @@ public:
     template <typename work_item>
     bool workOn(
     	std::vector<boost::shared_ptr<work_item> >& workItems
-    	, const submissionReturnMode& srm = ACCEPTOLDERITEMS
+    	, const submissionReturnMode& srm = INCOMPLETERETURN
     	, typename boost::enable_if<boost::is_base_of<processable_type, work_item> >::type* dummy = 0
     ) {
     	return workOn(workItems, (std::size_t)0, workItems.size(), srm);

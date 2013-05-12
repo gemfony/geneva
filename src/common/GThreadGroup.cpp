@@ -174,6 +174,16 @@ std::size_t GThreadGroup::size() const {
 }
 
 /******************************************************************************/
+/**
+ * Clears the thread vector. Note that this is a very dangerous operation, which
+ * is not made publicly available. This function is meant for consumption by the
+ * thread GThreadPool class.
+ */
+void GThreadGroup::clearThreads() {
+   threads_.clear();
+}
+
+/******************************************************************************/
 
 } /* namespace Common*/
 } /* namespace Gem */

@@ -78,6 +78,11 @@ public:
 	/** @brief The destructor */
 	~GThreadPool();
 
+   /** @brief Sets the number of threads currently used */
+   void setNThreads(std::size_t);
+   /** @brief Retrieves the current number of threads being used in the pool */
+   std::size_t getNThreads() const;
+
 	/** @brief Blocks until all submitted jobs have been cleared from the pool */
 	bool wait();
 
@@ -119,8 +124,7 @@ private:
 		try {
 			// Execute the actual worker task
 			f();
-		}
-		catch(Gem::Common::gemfony_error_condition& e) {
+		} catch(Gem::Common::gemfony_error_condition& e) {
 			// Extract the error
 			std::ostringstream error;
 			error << "In GThreadWrapper::operator(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
@@ -131,8 +135,7 @@ private:
 				errorCounter_++;
 				errorLog_.push_back(error.str());
 			}
-		}
-		catch(std::exception& e) {
+		} catch(std::exception& e) {
 			// Extract the error
 			std::ostringstream error;
 			error << "In GThreadWrapper::operator(): Caught std::exception with message" << std::endl
@@ -143,8 +146,7 @@ private:
 				errorCounter_++;
 				errorLog_.push_back(error.str());
 			}
-		}
-		catch(boost::exception& e) {
+		} catch(boost::exception& e) {
 			// Extract the error
 			std::ostringstream error;
 			error << "In GThreadWrapper::operator(): Caught boost::exception" << std::endl;
@@ -154,8 +156,7 @@ private:
 				errorCounter_++;
 				errorLog_.push_back(error.str());
 			}
-		}
-		catch(...) {
+		} catch(...) {
 			std::ostringstream error;
 			error << "GThreadWrapper::operator(): Caught unknown exception" << std::endl;
 
@@ -174,6 +175,11 @@ private:
 	}
 
 	/***************************************************************************/
+
+   /** @brief Resets the entire thread pool */
+   void clear();
+   /** @brief Adds the desired number of work items */
+   void setup(std::size_t);
 
 	boost::asio::io_service io_service_; ///< Manages the concurrent thread execution
 	boost::shared_ptr<boost::asio::io_service::work> work_; ///< A place holder ensuring that the io_service doesn't stop prematurely

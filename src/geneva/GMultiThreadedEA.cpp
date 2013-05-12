@@ -42,11 +42,13 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * A standard constructor. No local, dynamically allocated data,
- * hence this function is empty.
+ * hence this function is empty. getNHardwareThreads will default to
+ * a constant number of threads, if the number of hardware threads
+ * cannot be determined.
  */
 GMultiThreadedEA::GMultiThreadedEA()
    : GBaseEA()
-   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads()))
    , storedServerMode_(true)
 { /* nothing */ }
 
@@ -65,8 +67,7 @@ GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
 
 /******************************************************************************/
 /**
- * The standard destructor. We clear remaining work items in the
- * thread pool and wait for active tasks to finish.
+ * The standard destructor.
  */
 GMultiThreadedEA::~GMultiThreadedEA()
 { /* nothing */ }
@@ -227,6 +228,26 @@ void GMultiThreadedEA::finalize() {
 	for(it=data.begin(); it!=data.end(); ++it) {
 		(*it)->setServerMode(storedServerMode_);
 	}
+
+   // Check whether there were any errors during thread execution
+   if(tp_->hasErrors()) {
+      std::vector<std::string> errors;
+      tp_->getErrors(errors);
+
+      glogger
+      << "========================================================================" << std::endl
+      << "In GMultiThreadedEA::finalize():" << std::endl
+      << "There were errors during thread execution:" << std::endl
+      << std::endl;
+
+      for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
+         glogger << *it << std::endl;
+      }
+
+      glogger << "" << std::endl // This is a hack. Currently glogger does not accept a std::endl directly next to it
+      << "========================================================================" << std::endl
+      << GEXCEPTION;
+   }
 
 	// Terminate our thread pool
 	tp_.reset();

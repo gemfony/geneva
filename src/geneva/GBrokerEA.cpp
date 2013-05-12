@@ -315,7 +315,7 @@ void GBrokerEA::evaluateChildren() {
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
 			data
 			, range
-			, Gem::Courtier::ACCEPTOLDERITEMS
+			, Gem::Courtier::INCOMPLETERETURN
 	);
 
 	//--------------------------------------------------------------------------------

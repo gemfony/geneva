@@ -359,7 +359,7 @@ void GBrokerSwarm::updateFitness() {
 	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
 			data
 			// , EXPECTFULLRETURN
-			, ACCEPTOLDERITEMS
+			, INCOMPLETERETURN
 	);
 
 	// Update the personal best of all individuals. Also update the iteration

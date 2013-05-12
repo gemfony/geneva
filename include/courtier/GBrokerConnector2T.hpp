@@ -79,6 +79,7 @@
 #include "common/GPODExpectationChecksT.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
+#include "common/GThreadPool.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
@@ -109,8 +110,7 @@ public:
    void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
-      ar
-      & BOOST_SERIALIZATION_NVP(doLogging_);
+      // ar & BOOST_SERIALIZATION_NVP(doLogging_); // nothing
    }
 
    ///////////////////////////////////////////////////////////////////////
@@ -120,19 +120,19 @@ public:
     * The default constructor
     */
    GBaseExecutorT()
-   : submission_counter_(SUBMISSIONCOUNTERTYPE(0))
-   , doLogging_(false)
+      : submission_counter_(SUBMISSIONCOUNTERTYPE(0))
    { /* nothing */ }
 
    /***************************************************************************/
    /**
-    * The standard copy constructor
+    * The copy constructor. No local data to be copied.
+    * submission_counter_ is just a temporary which always
+    * starts counting at 0.
     *
     * @param cp A copy of another GBrokerConnector object
     */
    GBaseExecutorT(const GBaseExecutorT<processable_type>& cp)
-   : submission_counter_(SUBMISSIONCOUNTERTYPE(0))
-   , doLogging_(cp.doLogging_)
+      : submission_counter_(SUBMISSIONCOUNTERTYPE(0))
    { /* nothing */ }
 
    /***************************************************************************/
@@ -157,12 +157,12 @@ public:
 
    /***************************************************************************/
    /**
-    * Loads the data of another GBrokerConnector object
+    * Loads the data of another GBaseExecutorT object
     *
-    * @param cp A constant pointer to another GBrokerConnector object
+    * @param cp A constant pointer to another GBaseExecutorT object
     */
    void load(GBaseExecutorT<processable_type> const * const cp) {
-      doLogging_ = cp->doLogging_;
+      // nothing
    }
 
    /***************************************************************************/
@@ -218,7 +218,7 @@ public:
       std::vector<boost::optional<std::string> > deviations;
 
       // Check the local local data
-      deviations.push_back(checkExpectation(withMessages, "GBaseExecutorT<processable_type>", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
+      // deviations.push_back(checkExpectation(withMessages, "GBaseExecutorT<processable_type>", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
 
       return evaluateDiscrepancies("GBaseExecutorT<processable_type>", caller, deviations, e);
    }
@@ -226,12 +226,11 @@ public:
    /***************************************************************************/
    /**
     * Submits and retrieves a set of work items. After the work has been performed,
-    * the items contained in the workItems vector may have been changed. Note that,
-    * depending on the submission mode, it is not guaranteed by this function that all
-    * submitted items are still contained in the vector after the call. It is also possible
-    * that returned items do not belong to the current submission cycle. You might thus have
+    * the items contained in the workItems vector may have been changed. Note that it is not guaranteed
+    * by this function that all submitted items are still contained in the vector after the call. It is
+    * also possible that returned items do not belong to the current submission cycle. You might thus have
     * to post-process the vector. Note that it is impossible to submit items that are not
-    * derived from processable_type.
+    * derived from GSubmissionContainerT<processable_type>.
     *
     * @param workItems A vector with work items to be evaluated beyond the broker
     * @param start The id of first item to be worked on in the vector
@@ -243,8 +242,7 @@ public:
          std::vector<boost::shared_ptr<work_item> >& workItems
          , const std::size_t& start
          , const std::size_t& end
-         , const submissionReturnMode& srm
-         , typename boost::enable_if<boost::is_base_of<processable_type, work_item> >::type* dummy = 0
+         , typename boost::enable_if<boost::is_base_of<GSubmissionContainerT<processable_type>, work_item> >::type* dummy = 0
    ) {
       bool complete=false;
 
@@ -272,105 +270,38 @@ public:
       }
 #endif /* DEBUG */
 
-      // Set the start time of the new iteration so we calculate a correct
-      // return time for the first individual, regardless of whether older
-      // individuals have returned first.
-      iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
-
       // Submit all items
       this->submitAllWorkItems(workItems, start, end);
 
-      switch(srm) {
-         case ACCEPTOLDERITEMS:
-            complete = waitForIncompleteReturn();
-            break;
-
-         case REJECTOLDERITEMS:
-            complete = waitForFullReturnWithTimeout();
-            break;
-
-         case EXPECTFULLRETURN:
-            complete = waitForFullReturn();
-            break;
-
-         default:
-         {
-            glogger
-            << "In GBaseExecutorT<>::workOn(): Received invalid submissionReturnMode: " << srm << std::endl
-            << GEXCEPTION;
-            return false; // Make the compiler happy
-         }
-         break;
-      }
-
-      return complete;
-   }
-
-   /***************************************************************************/
-   /**
-    * Allows to specify whether logging of arrival times of processed items should be
-    * done. Note that only arrival times of items of the current submission are logged.
-    * This also allows to find out how many items did not return before the deadline.
-    *
-    * @param dl A boolean whether logging of arrival times of items should be done
-    */
-   void doLogging(bool dl = true) {
-      doLogging_ = dl;
-   }
-
-   /***************************************************************************/
-   /**
-    * Allows to determine whether logging of arrival times has been activated.
-    *
-    * @return A boolean indicating whether logging of arrival times has been activated
-    */
-   bool loggingActivated() const {
-      return doLogging_;
-   }
-
-   /***************************************************************************/
-   /**
-    * Allows to retrieve the logging results in the form of a ROOT histogram
-    *
-    * @return The logging results in the form of a ROOT histogram
-    */
-   std::string getLoggingResults() const {
-      return std::string();
-   }
-
-   /***************************************************************************/
-   /**
-    * Retrieves the current value of the submission counter
-    *
-    * @return The current value of the submission counter
-    */
-   SUBMISSIONCOUNTERTYPE getSubmissionId() const {
-      return submission_counter_;
+      // Wait for work items to return. This function needs to
+      // be re-implemented in derived classes.
+      return waitForReturn();
    }
 
 protected:
    /***************************************************************************/
-   /** @brief Wait for at least partial return of work items, until a time-out occurs */
-   virtual bool waitForIncompleteReturn() = 0;
-   /** @brief Wait for Return of the same iterations work items, until a time-out occurs; resubmit if necessary */
-   // TODO: Fallback auf waitForFullReturn wenn Broker "capable of full return"
-   virtual bool waitForFullReturnWithTimeout() = 0;
-   // TODO: Fallback auf waitForFullReturn wenn Broker "capable of full return"
-   /** @brief Waits until all items have returned, ignoring any timeout */
-   virtual bool waitForFullReturn() = 0;
+
    /** @brief Submits a single work item */
    virtual void submit(boost::shared_ptr<processable_type>) = 0;
+   /** @brief Waits for work items to return */
+   virtual bool waitForReturn() = 0;
 
    /***************************************************************************/
    /**
     * Submission of all work items in the list
     */
-   virtual void submitAllWorkItems (
-         std::vector<boost::shared_ptr<processable_type> >& workItems
+   template <typename work_item>
+   void submitAllWorkItems (
+         std::vector<boost::shared_ptr<work_item> >& workItems
          , const std::size_t& start
          , const std::size_t& end
    ) {
-      typename std::vector<boost::shared_ptr<processable_type> >::iterator it;
+      // Set the start time of the new iteration so we calculate a correct
+      // return time for the first individual, regardless of whether older
+      // individuals have returned first.
+      iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
+
+      typename std::vector<boost::shared_ptr<work_item> >::iterator it;
       POSITIONTYPE pos_cnt = start;
       for(it=workItems.begin()+start; it!=workItems.begin()+end; ++it) {
          (*it)->setCourtierId(boost::make_tuple<SUBMISSIONCOUNTERTYPE,POSITIONTYPE>(submission_counter_, pos_cnt++));
@@ -382,36 +313,339 @@ protected:
    }
 
    /***************************************************************************/
-   /**
-    * Adds a logging result to the logging vector
-    */
-   void addLogData(boost::tuple<SUBMISSIONCOUNTERTYPE, boost::uint32_t> logData) {
-      arrivalTimes_.push_back(logData);
-   }
-
-   /***************************************************************************/
-   /**
-    * Retrieves the start time of the iteration
-    *
-    * @return The start time of the iteration
-    */
-   boost::posix_time::ptime getIterationStartTime() const {
-      return  iterationStartTime_;
-   }
-
-private:
-   /***************************************************************************/
    // Local data
-
-   SUBMISSIONCOUNTERTYPE submission_counter_; ///< Counts the number of submissions initiated by this object. NOTE: not serialized!
-
-   bool doLogging_; ///< Specifies whether arrival times of work items should be logged
-   std::vector<boost::tuple<SUBMISSIONCOUNTERTYPE, boost::uint32_t> > arrivalTimes_; ///< Holds the actual arrival times of current work items. Note: Neither serialized nor copied
-
+   SUBMISSIONCOUNTERTYPE submission_counter_; ///< Counts the number of submissions initiated by this object. Note: not serialized!
    boost::posix_time::ptime iterationStartTime_; ///< Temporary that holds the start time for the retrieval of items in a given iteration
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class executes work items serially. It is mostly meant for debugging
+ * purposes
+ */
+template <typename processable_type>
+class GSerialExecutorT
+   : public GBaseExecutorT<processable_type>
+{
+   ///////////////////////////////////////////////////////////////////////
+
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int){
+      using boost::serialization::make_nvp;
+
+      ar
+      & make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type> >(*this));
+   }
+
+   ///////////////////////////////////////////////////////////////////////
+
+public:
+   /***************************************************************************/
+   /**
+    * The default constructor
+    */
+   GSerialExecutorT()
+   : GBaseExecutorT<processable_type>()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The copy constructor
+    *
+    * @param cp A copy of another GBrokerConnector object
+    */
+   GSerialExecutorT(const GSerialExecutorT<processable_type>& cp)
+   : GBaseExecutorT<processable_type>(cp)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The destructor
+    */
+   virtual ~GSerialExecutorT()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * A standard assignment operator for GSerialExecutorT<processable_type> objects,
+    *
+    * @param cp A copy of another GSerialExecutorT<processable_type> object
+    * @return A constant reference to this object
+    */
+   const GSerialExecutorT<processable_type>& operator=(const GSerialExecutorT<processable_type>& cp) {
+      GSerialExecutorT<processable_type>::load(&cp);
+      return *this;
+   }
+
+   /***************************************************************************/
+   /**
+    * Loads the data of another GSerialExecutorT object
+    *
+    * @param cp A constant pointer to another GSerialExecutorT object
+    */
+   void load(GSerialExecutorT<processable_type> const * const cp) {
+      // Load our parent classes data
+      GBaseExecutorT<processable_type>::load(cp);
+
+      // No local data
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for equality with another GSerialExecutorT<processable_type> object
+    *
+    * @param  cp A constant reference to another GSerialExecutorT<processable_type> object
+    * @return A boolean indicating whether both objects are equal
+    */
+   bool operator==(const GSerialExecutorT<processable_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialExecutorT<processable_type>::operator==","cp", CE_SILENT);
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for inequality with another GSerialExecutorT<processable_type> object
+    *
+    * @param  cp A constant reference to another GSerialExecutorT<processable_type> object
+    * @return A boolean indicating whether both objects are inequal
+    */
+   bool operator!=(const GSerialExecutorT<processable_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialExecutorT<processable_type>::operator!=","cp", CE_SILENT);
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks whether a given expectation for the relationship between this object and another object
+    * is fulfilled.
+    *
+    * @param cp A constant reference to another GBrokerConnector
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    * @param caller An identifier for the calling entity
+    * @param y_name An identifier for the object that should be compared to this one
+    * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+    * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+    */
+   boost::optional<std::string> checkRelationshipWith(
+         const GSerialExecutorT<processable_type>& cp
+         , const Gem::Common::expectation& e
+         , const double& limit
+         , const std::string& caller
+         , const std::string& y_name
+         , const bool& withMessages
+   ) const {
+      using namespace Gem::Common;
+
+      // Will hold possible deviations from the expectation, including explanations
+      std::vector<boost::optional<std::string> > deviations;
+
+      // Check our parent classes data
+      deviations.push_back(GBaseExecutorT<processable_type>::checkRelationShipWith(cp, e, limit, "GSerialExecutorT<processable_type>", y_name, withMessages));
+
+      return evaluateDiscrepancies("GSerialExecutorT<processable_type>", caller, deviations, e);
+   }
+
+protected:
+   /***************************************************************************/
+   /**
+    * Submits a single work item. In the case of serial execution, all work
+    * is done inside of this function. We rely on the process() function which
+    * is guaranteed to be part of the processable_type interface (note that
+    * our base class stipulates that processable_type is a derivative of
+    * GSubmissionContainerT<processable_type> .
+    *
+    * @param w The work item to be processed
+    */
+   virtual void submit(boost::shared_ptr<processable_type> w) {
+      w->process();
+   }
+
+   /***************************************************************************/
+   /**
+    * Waits for work items to return. Empty, as all work is done inside of the
+    * submit() function.
+    */
+   virtual bool waitForReturn() {
+      return true;
+   }
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class executes a collection of work items in multiple threads
+ */
+template <typename processable_type>
+class GMTExecutorT
+   : public GBaseExecutorT<processable_type>
+{
+   ///////////////////////////////////////////////////////////////////////
+
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int){
+      using boost::serialization::make_nvp;
+
+      ar
+      & make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type> >(*this));
+   }
+
+   ///////////////////////////////////////////////////////////////////////
+
+public:
+   /***************************************************************************/
+   /**
+    * The default constructor
+    */
+   GMTExecutorT()
+   : GBaseExecutorT<processable_type>()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Initialization with the number of threads
+    */
+   GMTExecutorT(boost::uint16_t nThreads)
+   : GBaseExecutorT<processable_type>()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The copy constructor
+    *
+    * @param cp A copy of another GBrokerConnector object
+    */
+   GMTExecutorT(const GMTExecutorT<processable_type>& cp)
+   : GBaseExecutorT<processable_type>(cp)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The destructor
+    */
+   virtual ~GMTExecutorT()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * A standard assignment operator for GMTExecutorT<processable_type> objects,
+    *
+    * @param cp A copy of another GMTExecutorT<processable_type> object
+    * @return A constant reference to this object
+    */
+   const GMTExecutorT<processable_type>& operator=(const GMTExecutorT<processable_type>& cp) {
+      GMTExecutorT<processable_type>::load(&cp);
+      return *this;
+   }
+
+   /***************************************************************************/
+   /**
+    * Loads the data of another GMTExecutorT object
+    *
+    * @param cp A constant pointer to another GMTExecutorT object
+    */
+   void load(GMTExecutorT<processable_type> const * const cp) {
+      // Load our parent classes data
+      GBaseExecutorT<processable_type>::load(cp);
+
+      // No local data
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for equality with another GMTExecutorT<processable_type> object
+    *
+    * @param  cp A constant reference to another GMTExecutorT<processable_type> object
+    * @return A boolean indicating whether both objects are equal
+    */
+   bool operator==(const GMTExecutorT<processable_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMTExecutorT<processable_type>::operator==","cp", CE_SILENT);
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for inequality with another GMTExecutorT<processable_type> object
+    *
+    * @param  cp A constant reference to another GMTExecutorT<processable_type> object
+    * @return A boolean indicating whether both objects are inequal
+    */
+   bool operator!=(const GMTExecutorT<processable_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMTExecutorT<processable_type>::operator!=","cp", CE_SILENT);
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks whether a given expectation for the relationship between this object and another object
+    * is fulfilled.
+    *
+    * @param cp A constant reference to another GBrokerConnector
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    * @param caller An identifier for the calling entity
+    * @param y_name An identifier for the object that should be compared to this one
+    * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+    * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+    */
+   boost::optional<std::string> checkRelationshipWith(
+         const GMTExecutorT<processable_type>& cp
+         , const Gem::Common::expectation& e
+         , const double& limit
+         , const std::string& caller
+         , const std::string& y_name
+         , const bool& withMessages
+   ) const {
+      using namespace Gem::Common;
+
+      // Will hold possible deviations from the expectation, including explanations
+      std::vector<boost::optional<std::string> > deviations;
+
+      // Check our parent classes data
+      deviations.push_back(GBaseExecutorT<processable_type>::checkRelationShipWith(cp, e, limit, "GMTExecutorT<processable_type>", y_name, withMessages));
+
+      return evaluateDiscrepancies("GMTExecutorT<processable_type>", caller, deviations, e);
+   }
+
+protected:
+   /***************************************************************************/
+   /**
+    * Submits a single work item. As we are dealing with multi-threaded
+    * execution, we simply push a worker into a thread pool.
+    *
+    * @param w The work item to be processed
+    */
+   virtual void submit(boost::shared_ptr<processable_type> w) {
+      w->process();
+   }
+
+   /***************************************************************************/
+   /**
+    * Waits for the thread pool to run empty.
+    */
+   virtual bool waitForReturn() {
+      return true;
+   }
+
+private:
+   /***************************************************************************/
+
+   boost::shared_ptr<Gem::Common::GThreadPool> tp_; ///< Temporarily holds a thread pool
+};
+
+/******************************************************************************/
+
 
 } /* namespace Courtier */
 } /* namespace Gem */

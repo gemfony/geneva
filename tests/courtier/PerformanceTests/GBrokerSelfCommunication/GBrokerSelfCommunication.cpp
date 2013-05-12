@@ -99,28 +99,28 @@ void connectorProducer(
 
 		switch(srm) {
 		//-------------------------------------------------------------------------------------------
-		case ACCEPTOLDERITEMS:
+		case INCOMPLETERETURN:
 		{
 			std::cout << id << ": doing complete submission of size " << data.size() << std::endl;
 			brokerConnector.workOn(
 					data
 					, 0
 					, data.size()
-					, ACCEPTOLDERITEMS
+					, INCOMPLETERETURN
 			);
 			std::cout << id << ": submission finished with size " << data.size() << ", accepting older items." << std::endl;
 		}
 			break;
 
 		//-------------------------------------------------------------------------------------------
-		case REJECTOLDERITEMS:
+		case RESUBMISSIONAFTERTIMEOUT:
 		{
 			std::cout << id << ": doing complete submission of size " << data.size() << ", rejecting older items." << std::endl;
 			brokerConnector.workOn(
 					data
 					, 0
 					, data.size()
-					, REJECTOLDERITEMS
+					, RESUBMISSIONAFTERTIMEOUT
 			);
 			std::cout << id << ": submission finished with size " << data.size() << std::endl;
 		}

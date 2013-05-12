@@ -93,6 +93,9 @@
 namespace Gem {
 namespace Common {
 
+// Forward declaration
+class GThreadPool;
+
 /******************************************************************************/
 /**
  * A simple thread group that extends the standard Boost thread group by the
@@ -103,6 +106,8 @@ namespace Common {
 class GThreadGroup
 	 :private boost::noncopyable
 {
+	friend class GThreadPool;
+
 	typedef boost::shared_ptr<boost::thread> thread_ptr;
 	typedef std::vector<thread_ptr> thread_vector;
 
@@ -163,6 +168,9 @@ public:
 	/***************************************************************************/
 
 private:
+	/** @brief Clears the thread vector */
+	void clearThreads();
+
 	thread_vector threads_; ///< Holds the actual threads
 	mutable boost::mutex m_; ///< Needed to synchronize access to the vector
 };
