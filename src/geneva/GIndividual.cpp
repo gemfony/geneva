@@ -82,7 +82,7 @@ GIndividual::GIndividual(const GIndividual& cp)
 {
 	// We need to take care of the personality pointer manually
 	if(pers_ != PERSONALITY_NONE) {
-	   setPersonality(pers_, cp.pt_ptr_);
+	   setPersonality(pers_, (cp.pt_ptr_)->GObject::clone<GPersonalityTraits>());
 	} else {
 	   setPersonality(pers_);
 	}

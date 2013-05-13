@@ -109,6 +109,7 @@ enum submissionReturnMode {
 	, EXPECTFULLRETURN = 2
 };
 
+const submissionReturnMode DEFAULTSRM = EXPECTFULLRETURN;
 const std::size_t DEFAULTMAXRESUBMISSIONS = 5;
 
 /******************************************************************************/

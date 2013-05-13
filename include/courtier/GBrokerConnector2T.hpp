@@ -508,6 +508,7 @@ public:
     */
    GMTExecutorT()
    : GBaseExecutorT<processable_type>()
+   , tp_()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -516,6 +517,7 @@ public:
     */
    GMTExecutorT(boost::uint16_t nThreads)
    : GBaseExecutorT<processable_type>()
+   , tp_(nThreads)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -526,6 +528,7 @@ public:
     */
    GMTExecutorT(const GMTExecutorT<processable_type>& cp)
    : GBaseExecutorT<processable_type>(cp)
+   , tp_(cp.tp_.getNThreads())
    { /* nothing */ }
 
    /***************************************************************************/
@@ -557,7 +560,8 @@ public:
       // Load our parent classes data
       GBaseExecutorT<processable_type>::load(cp);
 
-      // No local data
+      // Adapt our local thread pool
+      tp_.setNThreads((cp->tp_).getNThreads());
    }
 
    /***************************************************************************/
@@ -627,7 +631,7 @@ protected:
     * @param w The work item to be processed
     */
    virtual void submit(boost::shared_ptr<processable_type> w) {
-      w->process();
+      tp_.schedule(boost::function<bool()>(boost::bind(&processable_type::process, w)));
    }
 
    /***************************************************************************/
@@ -635,17 +639,348 @@ protected:
     * Waits for the thread pool to run empty.
     */
    virtual bool waitForReturn() {
+      tp_.wait();
       return true;
    }
 
 private:
    /***************************************************************************/
 
-   boost::shared_ptr<Gem::Common::GThreadPool> tp_; ///< Temporarily holds a thread pool
+   Gem::Common::GThreadPool tp_; ///< Holds a thread pool
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class executes a collection of work items in multiple threads
+ */
+template <typename processable_type>
+class GBrokerConnectorT
+   : public GBaseExecutorT<processable_type>
+{
+   ///////////////////////////////////////////////////////////////////////
 
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int){
+      using boost::serialization::make_nvp;
+
+      ar
+      & make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type> >(*this))
+      & BOOST_SERIALIZATION_NVP(srm_)
+      & BOOST_SERIALIZATION_NVP(maxResubmissions_)
+      & BOOST_SERIALIZATION_NVP(doLogging_);
+   }
+
+   ///////////////////////////////////////////////////////////////////////
+
+public:
+   /***************************************************************************/
+   /**
+    * The default constructor
+    */
+   GBrokerConnectorT()
+   : GBaseExecutorT<processable_type>()
+   , srm_(DEFAULTSRM)
+   , maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
+   , doLogging_(false)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The copy constructor
+    *
+    * @param cp A copy of another GBrokerConnector object
+    */
+   GBrokerConnectorT(const GBrokerConnectorT<processable_type>& cp)
+   : GBaseExecutorT<processable_type>(cp)
+   , srm_(cp.srm_)
+   , maxResubmissions_(cp.maxResubmissions_)
+   , doLogging_(cp.doLogging_)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The destructor
+    */
+   virtual ~GBrokerConnectorT()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * A standard assignment operator for GBrokerConnectorT<processable_type> objects,
+    *
+    * @param cp A copy of another GBrokerConnectorT<processable_type> object
+    * @return A constant reference to this object
+    */
+   const GBrokerConnectorT<processable_type>& operator=(const GBrokerConnectorT<processable_type>& cp) {
+      GBrokerConnectorT<processable_type>::load(&cp);
+      return *this;
+   }
+
+   /***************************************************************************/
+   /**
+    * Loads the data of another GBrokerConnectorT object
+    *
+    * @param cp A constant pointer to another GBrokerConnectorT object
+    */
+   void load(GBrokerConnectorT<processable_type> const * const cp) {
+      // Load our parent classes data
+      GBaseExecutorT<processable_type>::load(cp);
+
+      // Local data
+      srm_ = cp->srm_;
+      maxResubmissions_ = cp->maxResubmissions_;
+      doLogging_ = cp->doLogging_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for equality with another GBrokerConnectorT<processable_type> object
+    *
+    * @param  cp A constant reference to another GBrokerConnectorT<processable_type> object
+    * @return A boolean indicating whether both objects are equal
+    */
+   bool operator==(const GBrokerConnectorT<processable_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBrokerConnectorT<processable_type>::operator==","cp", CE_SILENT);
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for inequality with another GBrokerConnectorT<processable_type> object
+    *
+    * @param  cp A constant reference to another GBrokerConnectorT<processable_type> object
+    * @return A boolean indicating whether both objects are inequal
+    */
+   bool operator!=(const GBrokerConnectorT<processable_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBrokerConnectorT<processable_type>::operator!=","cp", CE_SILENT);
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks whether a given expectation for the relationship between this object and another object
+    * is fulfilled.
+    *
+    * @param cp A constant reference to another GBrokerConnector
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    * @param caller An identifier for the calling entity
+    * @param y_name An identifier for the object that should be compared to this one
+    * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+    * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+    */
+   boost::optional<std::string> checkRelationshipWith(
+         const GBrokerConnectorT<processable_type>& cp
+         , const Gem::Common::expectation& e
+         , const double& limit
+         , const std::string& caller
+         , const std::string& y_name
+         , const bool& withMessages
+   ) const {
+      using namespace Gem::Common;
+
+      // Will hold possible deviations from the expectation, including explanations
+      std::vector<boost::optional<std::string> > deviations;
+
+      // Check our parent classes data
+      deviations.push_back(GBaseExecutorT<processable_type>::checkRelationShipWith(cp, e, limit, "GBrokerConnectorT<processable_type>", y_name, withMessages));
+
+      // Check local data
+      deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", srm_, cp.srm_, "srm_", "cp.srm_", e , limit));
+      deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", maxResubmissions_, cp.maxResubmissions_, "maxResubmissions_", "cp.maxResubmissions_", e , limit));
+      deviations.push_back(checkExpectation(withMessages, "GBrokerConnectorT<processable_type>", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
+
+      return evaluateDiscrepancies("GBrokerConnectorT<processable_type>", caller, deviations, e);
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to set the submission return mode. Depending on this setting,
+    * the object will wait indefinitely for items of the current submission to return,
+    * or will timeout and optionally resubit unprocessed items.
+    */
+   void setSubmissionReturnMode(submissionReturnMode srm) {
+      srm_ = srm;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the current submission return mode
+    */
+   submissionReturnMode getSubmissionReturnMode() const {
+      return srm_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Specifies how often work items should be resubmitted in the case a full return
+    * of work items is expected.
+    *
+    * @param maxResubmissions The maximum number of allowed resubmissions
+    */
+   void setMaxResubmissions(std::size_t maxResubmissions) {
+     maxResubmissions_ = maxResubmissions;
+   }
+
+   /***************************************************************************/
+   /**
+    * Returns the maximum number of allowed resubmissions
+    *
+    * @return The maximum number of allowed resubmissions
+    */
+   std::size_t getMaxResubmissions() const {
+     return maxResubmissions_;
+   }
+
+
+   /***************************************************************************/
+   /**
+    * Allows to specify whether logging of arrival times of processed items should be
+    * done. Note that only arrival times of items of the current submission are logged.
+    * This also allows to find out how many items did not return before the deadline.
+    *
+    * @param dl A boolean whether logging of arrival times of items should be done
+    */
+   void doLogging(bool dl = true) {
+      doLogging_ = dl;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to determine whether logging of arrival times has been activated.
+    *
+    * @return A boolean indicating whether logging of arrival times has been activated
+    */
+   bool loggingActivated() const {
+      return doLogging_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the logging results in the form of a ROOT histogram
+    *
+    * @return The logging results in the form of a ROOT histogram
+    */
+   std::string getLoggingResults() const {
+      return std::string(); // TODO
+   }
+
+protected:
+   /***************************************************************************/
+   /**
+    * Wait for at least partial return of work items, until a time-out occurs
+    */
+   virtual bool waitForTimeout() {
+      bool result = false;
+
+      // TODO
+
+      return result;
+   }
+
+   /***************************************************************************/
+   /**
+    * Wait for return of the same iterations work items, until a time-out occurs;
+    * resubmit if necessary
+    */
+   virtual bool waitForTimeoutAndResubmit() {
+      bool result = false;
+
+      // TODO
+
+      return result;
+   }
+
+   /***************************************************************************/
+   /**
+    * Waits until all items have returned, ignoring any timeout
+    */
+   virtual bool waitForFullReturn() {
+      bool result = false;
+
+      // TODO
+
+      return result;
+   }
+
+   /***************************************************************************/
+   /**
+    * Waits for all items to return or possibly until a timeout has been reached.
+    */
+   virtual bool waitForReturn() {
+      bool result = false;
+
+      switch(srm_) {
+         case INCOMPLETERETURN:
+            result = waitForTimeout();
+            break;
+
+         case RESUBMISSIONAFTERTIMEOUT:
+            result = waitForTimeoutAndResubmit();
+            break;
+
+         case EXPECTFULLRETURN:
+            result = waitForFullReturn();
+            break;
+
+         default:
+            {
+               glogger
+               << "In GBrokerConnector2T<>::waitForReturn(): Error!" << std::endl
+               << "Encountered an invalid submission return mode: " << srm_ << std::endl
+               << GEXCEPTION;
+            }
+            break;
+      }
+
+      return result;
+   }
+
+   /***************************************************************************/
+   /**
+    * Adds a logging result to the logging vector. The first parameter
+    * represents the id of the iteration when the item was submitted, the
+    * second parameter stands for the iteration when the item has returned
+    * and the last item stands for the time between submission and return
+    * of an item.
+    */
+   void addLogData(boost::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, boost::uint32_t> logData) {
+      // TODO: How to find out about the submission time of an item ?
+
+      arrivalTimes_.push_back(logData);
+   }
+
+   /***************************************************************************/
+   /**
+    * Submits a single work item.
+    *
+    * @param w The work item to be processed
+    */
+   virtual void submit(boost::shared_ptr<processable_type> w) {
+
+   }
+
+private:
+   /***************************************************************************/
+   // Local data
+
+   submissionReturnMode srm_; ///< Indicates how (long) the object shall wait for returns
+   std::size_t maxResubmissions_; ///< The maximum number of resubmissions allowed if a full return of submitted items is attempted
+
+   bool doLogging_; ///< Specifies whether arrival times of work items should be logged
+   std::vector<boost::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, boost::uint32_t> > arrivalTimes_; ///< Holds the actual arrival times of current work items. Note: Neither serialized nor copied
+};
+
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */
