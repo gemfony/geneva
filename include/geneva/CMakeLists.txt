@@ -52,7 +52,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GGDPersonalityTraits.hpp
 	GGradientDescentFactory.hpp
 	GIndividual.hpp
-	GIndividualStandardConsumerInitializer.hpp
+	GIndividualStandardConsumerInitializerT.hpp
 	GIndividualStandardConsumers.hpp
 	GInt32Collection.hpp
 	GInt32FlipAdaptor.hpp

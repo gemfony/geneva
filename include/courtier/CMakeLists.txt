@@ -4,12 +4,12 @@ SET ( COMMUNICATIONINCLUDES
 	GAsioHelperFunctions.hpp
 	GAsioTCPConsumerT.hpp
 	GBaseClientT.hpp
+	GBaseConsumerT.hpp
 	GBoostThreadConsumerT.hpp
 	GBrokerConnectorT.hpp
 	GBrokerT.hpp
 	GBufferPortT.hpp
 	GCourtierEnums.hpp
-	GBaseConsumer.hpp
 	GSerialConsumerT.hpp
 	GSubmissionContainerT.hpp
 )

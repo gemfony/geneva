@@ -929,7 +929,7 @@ private:
     	// Now wait for the first item of the current iteration to return from its journey
 
     	boost::shared_ptr<work_item> p; // Will hold returned items
-       	bool complete = false; // Indicates whether we have received all items back
+      bool complete = false; // Indicates whether we have received all items back
     	// First wait for the first work item of the current iteration to return.
     	// Items from older iterations will also be accepted in this loop. Their
     	// arrival will not terminate this loop, though.
