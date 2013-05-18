@@ -105,7 +105,8 @@ const std::size_t GEEI_DEF_PARDIM = 2;
 const double GEEI_DEF_MINVAR = -10.;
 const double GEEI_DEF_MAXVAR = 10.;
 const bool GEEI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
-const std::string GEEI_DEF_PROGNAME = "./evaluator";
+const std::string GEEI_DEF_PROGNAME = "./evaluator.py";
+const std::string GEEI_DEF_CUSTOMOPTIONS = "empty";
 const std::string GEEI_DEF_PARFILEBASENAME = "parameterFile";
 const std::size_t GEEI_DEF_NRESULTS = 1;
 
@@ -140,6 +141,7 @@ class GExternalEvaluatorIndividual :public GParameterSet
 		ar
 		& make_nvp("GParameterSet", boost::serialization::base_object<GParameterSet>(*this))
 		& make_nvp("programName_", programName_)
+		& make_nvp("customOptions_", customOptions_)
 		& make_nvp("parameterFileBaseName_", parameterFileBaseName_)
 		& make_nvp("nResults_", nResults_);
 	}
@@ -171,15 +173,20 @@ class GExternalEvaluatorIndividual :public GParameterSet
 	      const std::string&,
 	      const bool&) const;
 
+   /** @brief Sets the name of the external evaluation program */
+   void setProgramName(const std::string&);
+   /** @brief Retrieves the name of the external evaluation program */
+   std::string getProgramName() const;
+
+   /** @brief Sets any custom options that need to be passed to the external evaluation program */
+   void setCustomOptions(const std::string&);
+   /** @brief Retrieves any custom options that need to be passed to the external evaluation program */
+   std::string getCustomOptions() const;
+
 	/** @brief Sets the base name of the data exchange file */
 	void setExchangeFileName(const std::string&);
 	/** @brief Retrieves the current value of the parameterFileBaseName_ variable */
 	std::string getExchangeFileName() const;
-
-	/** @brief Sets the name of the external evaluation program */
-	void setProgramName(const std::string&);
-	/** @brief Retrieves the name of the external evaluation program */
-	std::string getProgramName() const;
 
 	/** @brief Sets the number of results to be expected from the external evaluation program */
 	void setNExpectedResults(const std::size_t&);
@@ -202,6 +209,7 @@ class GExternalEvaluatorIndividual :public GParameterSet
 	/***************************************************************************/
 
 	std::string programName_; ///< The name of the external program to be executed
+	std::string customOptions_; ///< Any custom options that need to be provided to the external program
 	std::string parameterFileBaseName_; ///< The base name to be assigned to the parameterFile
 	std::size_t nResults_; ///< The number of results to be expected from the evaluation function
  };
@@ -300,6 +308,11 @@ public:
    /** @brief Allows to retrieve the name of the external program */
    std::string getProgramName() const;
 
+   /** @brief Sets any custom options that need to be passed to the external evaluation program */
+   void setCustomOptions(const std::string);
+   /** @brief Retrieves any custom options that need to be passed to the external evaluation program */
+   std::string getCustomOptions() const;
+
    /** @brief Allows to set the base name of the parameter file */
    void setParameterFileBaseName(std::string);
    /** @brief Allows to retrieve the base name of the parameter file */
@@ -355,6 +368,7 @@ private:
    Gem::Common::GOneTimeRefParameterT<double> maxDelta_;
 
    Gem::Common::GOneTimeRefParameterT<std::string> programName_;
+   Gem::Common::GOneTimeRefParameterT<std::string> customOptions_;
    Gem::Common::GOneTimeRefParameterT<std::string>  parameterFileBaseName_;
 
    bool externalEvaluatorQueried_; ///< Specifies whether the external evaluator program has already been queried for setup information

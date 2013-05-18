@@ -47,6 +47,7 @@ namespace Geneva {
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
 : programName_(GEEI_DEF_PROGNAME)
+, customOptions_(GEEI_DEF_CUSTOMOPTIONS)
 , parameterFileBaseName_(GEEI_DEF_PARFILEBASENAME)
 , nResults_(GEEI_DEF_NRESULTS)
 { /* nothing */ }
@@ -58,6 +59,7 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual& cp)
 : GParameterSet(cp) // copies all local collections
 , programName_(cp.programName_)
+, customOptions_(cp.customOptions_)
 , parameterFileBaseName_(cp.parameterFileBaseName_)
 , nResults_(cp.nResults_)
 { /* nothing */ }
@@ -138,10 +140,45 @@ boost::optional<std::string> GExternalEvaluatorIndividual::checkRelationshipWith
 
    // ... and then our local data
    deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", programName_, p_load->programName_, "programName_", "p_load->programName_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", customOptions_, p_load->customOptions_, "customOptions_", "p_load->customOptions_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", parameterFileBaseName_, p_load->parameterFileBaseName_, "parameterFileBaseName_", "p_load->parameterFileBaseName_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", nResults_, p_load->nResults_, "nResults_", "p_load->nResults_", e , limit));
 
    return evaluateDiscrepancies("GExternalEvaluatorIndividual", caller, deviations, e);
+}
+
+
+/******************************************************************************/
+/**
+ * Sets the name of the external evaluation program
+ */
+void GExternalEvaluatorIndividual::setProgramName(const std::string& programName) {
+   programName_ = programName;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the name of the external evaluation program
+ */
+std::string GExternalEvaluatorIndividual::getProgramName() const {
+   return programName_;
+}
+
+
+/******************************************************************************/
+/**
+ * Sets the name of the external evaluation program
+ */
+void GExternalEvaluatorIndividual::setCustomOptions(const std::string& customOptions) {
+   customOptions_ = customOptions;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the name of the external evaluation program
+ */
+std::string GExternalEvaluatorIndividual::getCustomOptions() const {
+   return customOptions_;
 }
 
 /******************************************************************************/
@@ -170,22 +207,6 @@ void GExternalEvaluatorIndividual::setExchangeFileName(const std::string& parame
  */
 std::string GExternalEvaluatorIndividual::getExchangeFileName() const {
    return parameterFileBaseName_;
-}
-
-/******************************************************************************/
-/**
- * Sets the name of the external evaluation program
- */
-void GExternalEvaluatorIndividual::setProgramName(const std::string& programName) {
-   programName_ = programName;
-}
-
-/******************************************************************************/
-/**
- * Retrieves the name of the external evaluation program
- */
-std::string GExternalEvaluatorIndividual::getProgramName() const {
-   return programName_;
 }
 
 /******************************************************************************/
@@ -220,7 +241,12 @@ void GExternalEvaluatorIndividual::archive() const {
    boost::property_tree::write_xml(parameterfileName, ptr_out, std::locale(), settings);
 
    // Create full command string for the external evaluation
-   std::string command = programName_ + " --evaluate=\"" +  parameterfileName + "\" --archive";
+   std::string command;
+   if(customOptions_ != "empty" && !customOptions_.empty()) {
+      command = programName_ + " " + customOptions_ + " --evaluate=\"" +  parameterfileName + "\" --archive";
+   } else {
+      command = programName_ + " --evaluate=\"" +  parameterfileName + "\" --archive";
+   }
 
    // Perform the external evaluation
    Gem::Common::runExternalCommand(command);
@@ -244,6 +270,7 @@ void GExternalEvaluatorIndividual::load_(const GObject* cp){
 
    // ... and then our own
    programName_ = p_load->programName_;
+   customOptions_ = p_load->customOptions_;
    parameterFileBaseName_ = p_load->parameterFileBaseName_;
    nResults_ = p_load->nResults_;
 }
@@ -280,7 +307,13 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
    boost::property_tree::write_xml(parameterfileName, ptr_out, std::locale(), settings);
 
    // Create full command string for the external evaluation
-   std::string command = programName_ + " --evaluate=\"" +  parameterfileName + "\" --result=\"" + resultFileName + "\"";
+   std::string command;
+
+   if(customOptions_ != "empty" && !customOptions_.empty()) {
+      command = programName_ + " " + customOptions_ + " --evaluate=\"" +  parameterfileName + "\" --result=\"" + resultFileName + "\"";
+   } else {
+      command = programName_ + " --evaluate=\"" +  parameterfileName + "\" --result=\"" + resultFileName + "\"";
+   }
 
    // Perform the external evaluation
    Gem::Common::runExternalCommand(command);
@@ -373,6 +406,7 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
    , minDelta_(GEEI_DEF_MINDELTA)
    , maxDelta_(GEEI_DEF_MAXDELTA)
    , programName_(GEEI_DEF_PROGNAME)
+   , customOptions_(GEEI_DEF_CUSTOMOPTIONS)
    , parameterFileBaseName_(GEEI_DEF_PARFILEBASENAME)
    , externalEvaluatorQueried_(false)
 { /* nothing */ }
@@ -401,8 +435,15 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory()
       << GEXCEPTION;
    }
 
+   std::string programCommand;
+   if(customOptions_.value() == "empty" || customOptions_.value().empty()) {
+      programCommand = programName_.value();
+   } else {
+      programCommand = programName_.value() + " " + customOptions_.value();
+   }
+
    // Ask the external evaluation program to perform any initial work
-   Gem::Common::runExternalCommand(programName_.value() + " --finalize");
+   Gem::Common::runExternalCommand(programCommand + " --finalize");
 }
 
 /******************************************************************************/
@@ -800,6 +841,22 @@ std::string GExternalEvaluatorIndividualFactory::getProgramName() const {
 
 /******************************************************************************/
 /**
+ * Sets the name of the external evaluation program
+ */
+void GExternalEvaluatorIndividualFactory::setCustomOptions(std::string customOptions) {
+   customOptions_ = customOptions;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the name of the external evaluation program
+ */
+std::string GExternalEvaluatorIndividualFactory::getCustomOptions() const {
+   return customOptions_;
+}
+
+/******************************************************************************/
+/**
  * Allows to set the base name of the parameter file
  */
 void GExternalEvaluatorIndividualFactory::setParameterFileBaseName(std::string parameterFileBaseName) {
@@ -1012,6 +1069,16 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
    );
 
    comment = "";
+   comment += "Any custom options you wish to pass to the external evaluator";
+   gpb.registerFileParameter<std::string>(
+      "customOptions"
+      , customOptions_.reference()
+      , GEEI_DEF_CUSTOMOPTIONS
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
    comment += "The base name assigned to parameter files;";
    comment += "in addition to data identifying this specific evaluation;";
    gpb.registerFileParameter<std::string>(
@@ -1056,11 +1123,18 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
    // Make sure the property tree is empty
    ptr_.clear();
 
+   std::string programCommand;
+   if(customOptions_.value() == "empty" || customOptions_.value().empty()) {
+      programCommand = programName_.value();
+   } else {
+      programCommand = programName_.value() + " " + customOptions_.value();
+   }
+
    // Ask the external evaluation program to perform any initial work
-   Gem::Common::runExternalCommand(programName_.value() + " --init");
+   Gem::Common::runExternalCommand(programCommand + " --init");
 
    // Query the external evaluator for setup information for our individuals
-   Gem::Common::runExternalCommand(programName_.value() + " --setup=\"./setup.xml\"");
+   Gem::Common::runExternalCommand(programCommand + " --setup=\"./setup.xml\"");
 
    // Parse the setup file
    pt::read_xml("./setup.xml", ptr_);
@@ -1170,6 +1244,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParame
    // Add the program name and base name for parameter transfers to the object
    p->setExchangeFileName(parameterFileBaseName_);
    p->setProgramName(programName_);
+   p->setCustomOptions(customOptions_);
    p->setNExpectedResults(nResultsExpected);
 }
 
