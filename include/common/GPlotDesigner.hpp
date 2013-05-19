@@ -225,6 +225,18 @@ public:
 		data_ = cp.data_;
 	}
 
+   /***************************************************************************/
+   /**
+    * This very simple functions allows derived classes
+    * to add data easily to their data sets, when called through a
+    * pointer. I.e., this makes "object_ptr->add(data)" instead of
+    * "*object_ptr & data" possible.
+    */
+   template <typename data_type>
+   void add(const data_type& item) {
+      *this & item;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Allows to add data of arbitrary type, provided it can be converted
@@ -504,6 +516,18 @@ public:
 		// Make the compiler happy
 		return boost::shared_ptr<GDataCollector1T<y_type> >();
 	}
+
+   /***************************************************************************/
+   /**
+    * This very simple functions allows derived classes
+    * to add data easily to their data sets, when called through a
+    * pointer. I.e., this makes object_ptr->add(data) instead of
+    * *object_ptr & data possible.
+    */
+   template <typename data_type>
+   void add(const data_type& item) {
+      *this & item;
+   }
 
 	/***************************************************************************/
 	/**
@@ -945,6 +969,283 @@ private:
 	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
 };
 
+/******************************************************************************/
+/**
+ * A data collector for 3-d data of user-defined type
+ */
+template <typename x_type, typename y_type, typename z_type>
+class GDataCollector3T :public GBasePlotter
+{
+public:
+   /***************************************************************************/
+   /**
+    * The default constructor
+    */
+   GDataCollector3T()
+      : GBasePlotter()
+      , data_()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * A copy constructor
+    *
+    * @param cp A copy of another GDataCollector3T object
+    */
+   GDataCollector3T(const GDataCollector3T<x_type, y_type, z_type>& cp)
+      : GBasePlotter(cp)
+      , data_(cp.data_)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The destructor
+    */
+   virtual ~GDataCollector3T() {
+      data_.clear();
+   }
+
+   /***************************************************************************/
+   /**
+    * The assignment operator
+    */
+   void operator=(const GDataCollector3T<x_type, y_type, z_type>& cp) {
+      // Assign our parent class'es data
+      GBasePlotter::operator=(cp);
+
+      // and then our own
+      data_ = cp.data_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to project the graph into a histogram (x-direction). This function is a
+    * trap to catch calls with un-implemented types. Use the corresponding specializations,
+    * if available.
+    */
+   boost::shared_ptr<GDataCollector1T<x_type> > projectX(
+         std::size_t
+         , boost::tuple<x_type, x_type>
+   ) const {
+      glogger
+      << "In GDataCollector3T<>::projectX(range, nBins): Error!" << std::endl
+      << "Function was called for class with un-implemented types" << std::endl
+      << GEXCEPTION;
+
+      // Make the compiler happy
+      return boost::shared_ptr<GDataCollector1T<x_type> >();
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to project the graph into a histogram (y-direction). This function is a
+    * trap to catch calls with un-implemented types. Use the corresponding specializations,
+    * if available.
+    */
+   boost::shared_ptr<GDataCollector1T<y_type> > projectY(
+         std::size_t
+         , boost::tuple<y_type, y_type>
+   ) const {
+      glogger
+      << "In GDataCollector3T<>::projectY(range, nBins): Error!" << std::endl
+      << "Function was called for class with un-implemented types" << std::endl
+      << GEXCEPTION;
+
+      // Make the compiler happy
+      return boost::shared_ptr<GDataCollector1T<y_type> >();
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to project the graph into a histogram (z-direction). This function is a
+    * trap to catch calls with un-implemented types. Use the corresponding specializations,
+    * if available.
+    */
+   boost::shared_ptr<GDataCollector1T<z_type> > projectZ(
+         std::size_t
+         , boost::tuple<z_type, z_type>
+   ) const {
+      glogger
+      << "In GDataCollector3T<>::projectZ(range, nBins): Error!" << std::endl
+      << "Function was called for class with un-implemented types" << std::endl
+      << GEXCEPTION;
+
+      // Make the compiler happy
+      return boost::shared_ptr<GDataCollector1T<z_type> >();
+   }
+
+   /***************************************************************************/
+   /**
+    * This very simple functions allows derived classes
+    * to add data easily to their data sets, when called through a
+    * pointer. I.e., this makes object_ptr->add(data) instead of
+    * *object_ptr & data possible.
+    */
+   template <typename data_type>
+   void add(const data_type& item) {
+      *this & item;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to add data of undetermined type to the collection in an intuitive way,
+    * provided that it can be converted safely to the target type.
+    *
+    * @param point_undet The data item to be added to the collection
+    */
+   template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
+   void operator&(const boost::tuple<x_type_undet,y_type_undet,z_type_undet>& point_undet) {
+      using boost::numeric::bad_numeric_cast;
+
+      x_type x = x_type(0);
+      y_type y = y_type(0);
+      z_type z = z_type(0);
+
+      // Make sure the data can be converted to doubles
+      try {
+         x=boost::numeric_cast<x_type>(boost::get<0>(point_undet));
+         y=boost::numeric_cast<y_type>(boost::get<1>(point_undet));
+         z=boost::numeric_cast<z_type>(boost::get<2>(point_undet));
+      }
+      catch(bad_numeric_cast &e) {
+         glogger
+         << "In GDataCollector3T::operator&(const boost::tuple<S,T,U>&): Error!" << std::endl
+         << "Encountered invalid cast with boost::numeric_cast," << std::endl
+         << "with the message " << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
+      }
+
+      data_.push_back(boost::tuple<x_type,y_type,z_type>(x,y,z));
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to add data of type boost::tuple<x_type, y_type, z_type> to the collection
+    * in an intuitive way.
+    *
+    * @param point The data item to be added to the collection
+    */
+   void operator&(const boost::tuple<x_type,y_type,z_type>& point) {
+      // Add the data item to the collection
+      data_.push_back(point);
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to add a collection of data items of undetermined type to the
+    * collection in an intuitive way, provided they can be converted safely
+    * to the target type.
+    *
+    * @param point_vec_undet The collection of data items to be added to the collection
+    */
+   template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
+   void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet,z_type_undet> >& point_vec_undet) {
+      using boost::numeric::bad_numeric_cast;
+
+      x_type x = x_type(0);
+      y_type y = y_type(0);
+      z_type z = z_type(0);
+
+      typename std::vector<boost::tuple<x_type_undet,y_type_undet,z_type_undet> >::const_iterator cit;
+      for(cit=point_vec_undet.begin(); cit!=point_vec_undet.end(); ++cit) {
+         // Make sure the data can be converted to doubles
+         try {
+            x=boost::numeric_cast<x_type>(boost::get<0>(*cit));
+            y=boost::numeric_cast<y_type>(boost::get<1>(*cit));
+            z=boost::numeric_cast<z_type>(boost::get<2>(*cit));
+         }
+         catch(bad_numeric_cast &e) {
+            glogger
+            << "In GDataCollector3T::operator&(const std::vector<boost::tuple<S,T,U> >&): Error!" << std::endl
+            << "Encountered invalid cast with boost::numeric_cast," << std::endl
+            << "with the message " << std::endl
+            << e.what() << std::endl
+            << GEXCEPTION;
+         }
+
+         data_.push_back(boost::tuple<x_type,y_type,z_type>(x,y,z));
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to add a collection of data items of type boost::tuple<x_type, y_type, z_type>
+    * to the collection in an intuitive way, provided they can be converted safely
+    * to the target type.
+    *
+    * @param point_vec The collection of data items to be added to the collection
+    */
+   void operator&(const std::vector<boost::tuple<x_type,y_type,z_type> >& point_vec) {
+      typename std::vector<boost::tuple<x_type,y_type,z_type> >::const_iterator cit;
+      for(cit=point_vec.begin(); cit!=point_vec.end(); ++cit) {
+         // Add the data item to the collection
+         data_.push_back(*cit);
+      }
+   }
+
+protected:
+   /***************************************************************************/
+
+   std::vector<boost::tuple<x_type, y_type, z_type> > data_; ///< Holds the actual data
+};
+
+/******************************************************************************/
+/** @brief Specialization for <x_type, y_type, z_type> = <double, double, double> */
+template<>
+boost::shared_ptr<GDataCollector1T<double> >
+GDataCollector3T<double, double, double>::projectX(std::size_t, boost::tuple<double, double>) const;
+
+/** @brief Specialization for <x_type, y_type, z_type> = <double, double, double> */
+template<>
+boost::shared_ptr<GDataCollector1T<double> >
+GDataCollector3T<double, double, double>::projectY(std::size_t, boost::tuple<double, double>) const;
+
+/** @brief Specialization for <x_type, y_type, z_type> = <double, double, double> */
+template<>
+boost::shared_ptr<GDataCollector1T<double> >
+GDataCollector3T<double, double, double>::projectZ(std::size_t, boost::tuple<double, double>) const;
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A wrapper for the ROOT TGraph2D class (3d data). It
+ * also adds the option to draw lines between consecutive points. This class
+ * only allows a single plot mode.
+ */
+class GGraph3D : public GDataCollector3T<double,double,double> {
+public:
+   /** @brief The default constructor */
+   GGraph3D();
+
+   /** @brief A copy constructor */
+   GGraph3D(const GGraph3D&);
+
+   /** @brief The destructor */
+   ~GGraph3D();
+
+   /** @brief The assignment operator */
+   const GGraph3D &operator=(const GGraph3D&);
+
+   /** @brief Adds lines to the plots between consecutive points */
+   void setDrawLines(bool=true);
+   /** @brief Retrieves the value of the drawLines_ variable */
+   bool getDrawLines() const;
+
+   /** @brief Retrieve specific header settings for this plot */
+   virtual std::string headerData() const;
+   /** @brief Retrieves the actual data sets */
+   virtual std::string bodyData() const;
+   /** @brief Retrieves specific draw commands for this plot */
+   virtual std::string footerData() const;
+
+private:
+   bool drawLines_; ///< When set to true, lines will be drawn between consecutive points
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * A wrapper for the ROOT TF1 1d-function plotter

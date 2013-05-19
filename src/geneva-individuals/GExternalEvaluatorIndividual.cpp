@@ -304,6 +304,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 
    // Save the parameters to a file for the external evaluation
    boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+
    boost::property_tree::write_xml(parameterfileName, ptr_out, std::locale(), settings);
 
    // Create full command string for the external evaluation
@@ -372,6 +373,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
    bf::remove(resultFileName);
 
    // Return the master result (first result returned)
+
    return main_result;
 }
 

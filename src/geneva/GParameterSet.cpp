@@ -670,6 +670,7 @@ void GParameterSet::toPropertyTree(
    ptr.put(baseName + ".iteration", this->getAssignedIteration());
    ptr.put(baseName + ".nvar", this->size());
    ptr.put(baseName + ".type", std::string("GParameterSet"));
+   ptr.put(baseName + ".nResultsExpected", this->getNumberOfFitnessCriteria());
 
    // Loop over all parameter objects and ask them to add their
    // data to our ptree object
@@ -677,7 +678,7 @@ void GParameterSet::toPropertyTree(
    std::size_t pos;
    GParameterSet::const_iterator cit;
    for(cit=this->begin(); cit!=this->end(); ++cit) {
-      pos = cit - this->begin();
+      pos = std::distance(this->begin(), cit);
       base = baseName + ".var" + boost::lexical_cast<std::string>(pos);
       (*cit)->toPropertyTree(ptr, base);
    }

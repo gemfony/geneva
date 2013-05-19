@@ -294,6 +294,119 @@ GDataCollector2T<double, double>::projectY(std::size_t nBinsY, boost::tuple<doub
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * Specialization of projectX for <x_type, y_type, z_type> = <double, double, double>, that will return a
+ * GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * default-constructed range, the function will attempt to determine suitable parameters
+ * for the range settings.
+ *
+ * @param nBins The number of bins of the histogram
+ * @param range The minimum and maximum boundaries of the histogram
+ */
+template<>
+boost::shared_ptr<GDataCollector1T<double> >
+GDataCollector3T<double, double,double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
+   boost::tuple<double, double> myRangeX;
+   if(rangeX == boost::tuple<double, double>()) {
+      // Find out about the minimum and maximum values in the data_ array
+      boost::tuple<double,double,double,double,double,double> extremes = Gem::Common::getMinMax(this->data_);
+      myRangeX = boost::tuple<double,double>(boost::get<0>(extremes), boost::get<1>(extremes));
+   } else {
+      myRangeX = rangeX;
+   }
+
+   // Construct the result object
+   boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsX, myRangeX));
+   result->setXAxisLabel(this->xAxisLabel());
+   result->setYAxisLabel("Number of entries");
+   result->setPlotLabel(this->plotLabel() + " / x-projection");
+
+   // Add data to the object
+   for(std::size_t i=0; i<data_.size(); i++) {
+      (*result) & boost::get<0>(data_.at(i));
+   }
+
+   // Return the data
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Specialization of projectY for <x_type, y_type, z_type> = <double, double, double>, that will return a
+ * GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * default-constructed range, the function will attempt to determine suitable parameters
+ * for the range settings.
+ *
+ * @param nBins The number of bins of the histogram
+ * @param range The minimum and maximum boundaries of the histogram
+ */
+template<>
+boost::shared_ptr<GDataCollector1T<double> >
+GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
+   boost::tuple<double, double> myRangeY;
+   if(rangeY == boost::tuple<double, double>()) {
+      // Find out about the minimum and maximum values in the data_ array
+      boost::tuple<double,double,double,double,double,double> extremes = Gem::Common::getMinMax(data_);
+      myRangeY = boost::tuple<double,double>(boost::get<2>(extremes), boost::get<3>(extremes));
+   } else {
+      myRangeY = rangeY;
+   }
+
+   // Construct the result object
+   boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsY, myRangeY));
+   result->setXAxisLabel(this->yAxisLabel());
+   result->setYAxisLabel("Number of entries");
+   result->setPlotLabel(this->plotLabel() + " / y-projection");
+
+   // Add data to the object
+   for(std::size_t i=0; i<data_.size(); i++) {
+      (*result) & boost::get<1>(data_.at(i));
+   }
+
+   // Return the data
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Specialization of projectZ for <x_type, y_type, z_type> = <double, double, double>, that will return a
+ * GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * default-constructed range, the function will attempt to determine suitable parameters
+ * for the range settings.
+ *
+ * @param nBins The number of bins of the histogram
+ * @param range The minimum and maximum boundaries of the histogram
+ */
+template<>
+boost::shared_ptr<GDataCollector1T<double> >
+GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, boost::tuple<double, double> rangeZ) const {
+   boost::tuple<double, double> myRangeZ;
+   if(rangeZ == boost::tuple<double, double>()) {
+      // Find out about the minimum and maximum values in the data_ array
+      boost::tuple<double,double,double,double,double,double> extremes = Gem::Common::getMinMax(data_);
+      myRangeZ = boost::tuple<double,double>(boost::get<4>(extremes), boost::get<5>(extremes));
+   } else {
+      myRangeZ = rangeZ;
+   }
+
+   // Construct the result object
+   boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsZ, myRangeZ));
+   result->setXAxisLabel(this->zAxisLabel());
+   result->setYAxisLabel("Number of entries");
+   result->setPlotLabel(this->plotLabel() + " / z-projection");
+
+   // Add data to the object
+   for(std::size_t i=0; i<data_.size(); i++) {
+      (*result) & boost::get<2>(data_.at(i));
+   }
+
+   // Return the data
+   return result;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * The default constructor
  */
 GGraph2D::GGraph2D()
@@ -501,9 +614,9 @@ std::string GGraph2D::footerData() const {
 			y2 = boost::get<1>(*it);
 
 			footer_data
-				<< "  TArrow * ta_" << graphName << "_posCounter = new TArrow(" << x1 << ", " << y1 << "," << x2 << ", " << y2 << ", " << 0.05 << ", \"|>\");" << std::endl
-				<< "  ta_" << graphName << "_posCounter->SetArrowSize(0.01);" << std::endl
-				<< "  ta_" << graphName << "_posCounter->Draw();" << std::endl;
+				<< "  TArrow * ta_" << graphName << "_" << posCounter << " = new TArrow(" << x1 << ", " << y1 << "," << x2 << ", " << y2 << ", " << 0.05 << ", \"|>\");" << std::endl
+				<< "  ta_" << graphName << "_" << posCounter << "->SetArrowSize(0.01);" << std::endl
+				<< "  ta_" << graphName << "_" << posCounter << "->Draw();" << std::endl;
 
 			x1 = x2;
 			y1 = y2;
@@ -703,6 +816,213 @@ std::string GGraph2ED::footerData() const {
 		<< std::endl;
 
 	return footer_data.str();
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The default constructor
+ */
+GGraph3D::GGraph3D()
+   : drawLines_(false)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * A copy constructor
+ */
+GGraph3D::GGraph3D(const GGraph3D& cp)
+   : GDataCollector3T<double,double,double>(cp)
+   , drawLines_(cp.drawLines_)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GGraph3D::~GGraph3D()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The assignment operator
+ */
+const GGraph3D & GGraph3D::operator=(const GGraph3D& cp) {
+   // Copy our parent class'es data
+   GDataCollector3T<double,double,double>::operator=(cp);
+
+   // and then our own
+   drawLines_ = cp.drawLines_;
+
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Adds lines to the plots between consecutive points.
+ *
+ * @param dL The desired value of the drawLines_ variable
+ */
+void GGraph3D::setDrawLines(bool dL) {
+   drawLines_ = dL;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the value of the drawLines_ variable
+ *
+ * @return The value of the drawLines_ variable
+ */
+bool GGraph3D::getDrawLines() const {
+   return drawLines_;
+}
+
+/******************************************************************************/
+/**
+ * Retrieve specific header settings for this plot
+ */
+std::string GGraph3D::headerData() const {
+   std::ostringstream header_data;
+
+   // Set up suitable arrays for the header
+   std::string arrayBaseName =
+         "array_" + boost::lexical_cast<std::string>(id());
+
+   std::string xArrayName = "x_" + arrayBaseName;
+   std::string yArrayName = "y_" + arrayBaseName;
+   std::string zArrayName = "z_" + arrayBaseName;
+
+   std::string comment;
+   if(dsMarker_ != "") {
+      comment = "// " + dsMarker_;
+   }
+
+   header_data
+      << "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << (comment!=""?comment:"") << std::endl
+      << "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+      << "  double " << zArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+      << std::endl;
+
+   return header_data.str();
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the actual data sets
+ */
+std::string GGraph3D::bodyData() const {
+   std::ostringstream body_data;
+
+   // Set up suitable arrays for the header
+   std::string arrayBaseName =
+         "array_" + boost::lexical_cast<std::string>(id());
+
+   std::string xArrayName = "x_" + arrayBaseName;
+   std::string yArrayName = "y_" + arrayBaseName;
+   std::string zArrayName = "z_" + arrayBaseName;
+
+   std::string comment;
+   if(dsMarker_ != "") {
+      body_data << "// " + dsMarker_ << std::endl;
+   }
+
+   // Fill data from the tuples into the arrays
+   std::vector<boost::tuple<double, double, double> >::const_iterator it;
+   std::size_t posCounter = 0;
+
+   for(it=data_.begin(); it!=data_.end(); ++it) {
+      body_data
+         << "  " << xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << "\t"
+                 << yArrayName << "[" << posCounter << "] = " << boost::get<1>(*it) << ";" << "\t"
+                 << zArrayName << "[" << posCounter << "] = " << boost::get<2>(*it) << ";" << std::endl;
+
+      posCounter++;
+   }
+
+   body_data << std::endl;
+
+   return body_data.str();
+}
+
+/******************************************************************************/
+/**
+ * Retrieves specific draw commands for this plot
+ */
+std::string GGraph3D::footerData() const {
+   std::ostringstream footer_data;
+
+   // Set up suitable arrays for the header
+   std::string arrayBaseName =
+         "array_" + boost::lexical_cast<std::string>(id());
+
+   std::string xArrayName = "x_" + arrayBaseName;
+   std::string yArrayName = "y_" + arrayBaseName;
+   std::string zArrayName = "z_" + arrayBaseName;
+
+   std::string graphName = std::string("graph_") + boost::lexical_cast<std::string>(id());
+
+   std::string comment;
+   if(dsMarker_ != "") {
+      footer_data << "// " + dsMarker_ << std::endl;
+   }
+
+   // Check whether custom drawing arguments have been set or whether one
+   // of our generic choices has been selected
+   std::string dA = drawingArguments();
+   if(dA != "") {
+      dA = drawingArguments();
+   } else {
+      dA = "AP";
+   }
+
+   // Fill the data in our tuple-vector into a ROOT TGraph object
+   footer_data
+      << "  TGraph2D *" << graphName << " = new TGraph2D(" << data_.size() <<", " << xArrayName << ", " << yArrayName << ", " << zArrayName << ");" << std::endl
+      << "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+      << "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+      << "  " << graphName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl;
+
+   if(plot_label_ != "") {
+      footer_data
+         << "  " << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+   }  else {
+      footer_data
+         << "  " << graphName << "->SetTitle(\" \");" << std::endl;
+   }
+
+   footer_data
+      << "  " << graphName << "->Draw(\""<< dA << "\");" << std::endl
+      << std::endl;
+
+   if(drawLines_ && data_.size() >= 2) {
+      std::vector<boost::tuple<double, double, double> >::const_iterator it;
+      std::size_t posCounter = 0;
+
+      double x,y,z;
+
+      footer_data
+      << "  TPolyLine3D *lines_" << graphName << " = new TPolyLine3D(" << data_.size() << ");" << std::endl
+      << std::endl;
+
+      for(it=data_.begin()+1; it!=data_.end(); ++it) {
+         x = boost::get<0>(*it);
+         y = boost::get<1>(*it);
+         z = boost::get<2>(*it);
+
+         footer_data
+         << "  lines_" << graphName << "->SetPoint(" << posCounter << ", " << x << ", " << y << ", " << z << ");";
+
+         posCounter++;
+      }
+      footer_data
+      << std::endl
+      << "  lines_" << graphName << "->SetLineWidth(3);" << std::endl
+      << "  lines_" << graphName << "->Draw();" << std::endl
+      << std::endl;
+   }
+
+   return footer_data.str();
 }
 
 /******************************************************************************/

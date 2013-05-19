@@ -148,8 +148,8 @@ protected:
 
     	// Retrieve the best fitness and average sigma value and add it to our local storage
     	(*progressPlotter_) & boost::tuple<double,double>((double)ea->getIteration(), p->fitness(0));
-    	(*sigmaPlotter_)    & boost::tuple<double,double>((double)ea->getIteration(), p->getAverageSigma());
-
+    	// (*sigmaPlotter_)    & boost::tuple<double,double>((double)ea->getIteration(), p->getAverageSigma());
+    	sigmaPlotter_->add(boost::tuple<double,double>((double)ea->getIteration(), p->getAverageSigma()));
     	//---------------------------------------------------------
     	// Call our parent class'es function
     	GBaseEA::GEAOptimizationMonitor::cycleInformation(goa);
