@@ -47,8 +47,9 @@
 #endif
 
 // Geneva headers go here
-#include "courtier/GBrokerConnectorT.hpp"
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GPlotDesigner.hpp"
+#include "courtier/GBrokerConnectorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizableI.hpp"
@@ -1605,9 +1606,10 @@ public:
 	    void serialize(Archive & ar, const unsigned int){
 	      using boost::serialization::make_nvp;
 
-	      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-	      	& BOOST_SERIALIZATION_NVP(quiet_)
-	      	& BOOST_SERIALIZATION_NVP(profVarVec_);
+	      ar
+	      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+	      & BOOST_SERIALIZATION_NVP(quiet_)
+	      & BOOST_SERIALIZATION_NVP(profVarVec_);
 	    }
 	    ///////////////////////////////////////////////////////////////////////
 
@@ -1620,6 +1622,7 @@ public:
 	    	: GObject()
 	    	, quiet_(false)
 	      , profVarVec_()
+	      , gpd_oa_("Progress information", 1, 1)
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -1634,6 +1637,7 @@ public:
 	    	: GObject(cp)
 	    	, quiet_(cp.quiet_)
 	      , profVarVec_(cp.profVarVec_)
+         , gpd_oa_("Progress information", 1, 1)
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -1739,6 +1743,34 @@ public:
 	    	switch(im) {
 	    	case Gem::Geneva::INFOINIT:
 	    	{
+	    	   if(this->parameterProfileCreationRequested()) {
+	    	      // Initialize the plotters
+	    	      progressPlotter2D_oa_ = boost::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+	    	      progressPlotter3D_oa_ = boost::shared_ptr<Gem::Common::GGraph3D>(new Gem::Common::GGraph3D());
+
+	    	      // Set a few options
+	    	      progressPlotter2D_oa_->setPlotMode(Gem::Common::SCATTER);
+	    	      progressPlotter2D_oa_->setPlotLabel("Fitness as a function of a parameter value");
+	    	      progressPlotter2D_oa_->setXAxisLabel("Parameter Value");
+	    	      progressPlotter2D_oa_->setYAxisLabel("Fitness");
+
+	    	      progressPlotter3D_oa_->setPlotLabel("Fitness as a function of parameter values");
+               progressPlotter3D_oa_->setXAxisLabel("Parameter Value 1");
+               progressPlotter3D_oa_->setYAxisLabel("Parameter Value 2");
+               progressPlotter3D_oa_->setZAxisLabel("Fitness");
+
+               gpd_oa_.setCanvasDimensions(1024, 768);
+
+               switch(this->nProfileVars()) {
+                  case 1:
+                     gpd_oa_.registerPlotter(progressPlotter2D_oa_);
+                     break;
+                  case 2:
+                     gpd_oa_.registerPlotter(progressPlotter3D_oa_);
+                     break;
+               }
+	    	   }
+
 	    	   if(!quiet_) std::cout << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
 	    	   this->firstInformation(goa);
 	    	}
@@ -1746,13 +1778,46 @@ public:
 
 	    	case Gem::Geneva::INFOPROCESSING:
 	    	{
-	    	   if(!quiet_) std::cout << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentFitness() << std::endl;
-	    		this->cycleInformation(goa);
+	    	   if(this->parameterProfileCreationRequested()) {
+	    	      bool isDirty;
+	    	      typename GOptimizationAlgorithmT<ind_type>::iterator it;
+
+	    	      for(it=goa->begin(); it!=goa->end(); ++it) {
+	    	         switch(this->nProfileVars()) {
+	    	            case 1:
+	    	            {
+	    	               double val0    = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
+	    	               double fitness = (*it)->getCachedFitness(isDirty);
+
+	    	               progressPlotter2D_oa_->add(boost::tuple<double,double>(val0, fitness));
+	    	            }
+	    	            break;
+
+	    	            case 2:
+	    	            {
+	    	               double val0 = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
+	    	               double val1 = (*it)->GIndividual::getVarVal<double>(profVarVec_[1]);
+	    	               double fitness = (*it)->getCachedFitness(isDirty);
+
+	    	               progressPlotter3D_oa_->add(boost::tuple<double,double,double>(val0, val1, fitness));
+	    	            }
+	    	            break;
+	    	         }
+	    	      }
+	    	   }
+
+	    	  if(!quiet_) std::cout << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentFitness() << std::endl;
+	    	  this->cycleInformation(goa);
 	    	}
 	    		break;
 
 	    	case Gem::Geneva::INFOEND:
 	    	{
+	    	   if(this->parameterProfileCreationRequested()) {
+	    	      // Write out the result
+	    	      gpd_oa_.writeToFile("parameterScan.C");
+	    	   }
+
 	    	   this->lastInformation(goa);
 	    	   if(!quiet_) std::cout << "End of optimization reached in algorithm \""<< goa->getAlgorithmName() << "\"" << std::endl;
 	    	}
@@ -1900,7 +1965,12 @@ public:
 		/************************************************************************/
 
 		bool quiet_; ///< Specifies whether any information should be emitted at all
+
 		std::vector<boost::tuple<std::string, std::size_t> > profVarVec_; ///< Holds the types and positions of variables to be profiled
+
+	   Gem::Common::GPlotDesigner gpd_oa_;
+	   boost::shared_ptr<Gem::Common::GGraph2D> progressPlotter2D_oa_;
+	   boost::shared_ptr<Gem::Common::GGraph3D> progressPlotter3D_oa_;
 
 	public:
 		/************************************************************************/

@@ -123,7 +123,7 @@ public:
 	 * @return A copy of the best individual found in the optimization run
 	 */
 	template <typename individual_type>
-	boost::shared_ptr<individual_type> getBestIndividual(
+	boost::shared_ptr<individual_type> getBestIndividual (
 		typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
 	) {
 		return getBestIndividual()->clone<individual_type>();

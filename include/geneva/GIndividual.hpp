@@ -203,6 +203,37 @@ public:
 	/** @brief Retrieves a parameter of a given type at the specified position */
 	virtual boost::any getVarVal(const std::string&, const std::size_t&) = 0;
 
+   /***************************************************************************/
+	/**
+	 * Retrieves a parameter of a given type at the specified position
+	 */
+	template <typename val_type>
+	val_type getVarVal(const boost::tuple<std::string,std::size_t>& target) {
+	   val_type result = val_type(0);
+
+      std::string ttype = boost::get<0>(target);
+      std::size_t tpos  = boost::get<1>(target);
+
+	   boost::any val = this->getVarVal(ttype, tpos);
+
+	   if(ttype == "d") {
+	      result = boost::numeric_cast<val_type>(boost::any_cast<double>(val));
+	   } else if(ttype == "f") {
+	      result = boost::numeric_cast<val_type>(boost::any_cast<float>(val));
+	   } else if(ttype == "i") {
+	      result = boost::numeric_cast<val_type>(boost::any_cast<boost::int32_t>(val));
+	   } else if(ttype == "b") {
+	      result = boost::numeric_cast<val_type>(boost::any_cast<bool>(val));
+	   } else {
+	      glogger
+	      << "In GIndividual::getVarVal<>(): Error!" << std::endl
+	      << "Received invalid type descriptor " << ttype << std::endl
+	      << GEXCEPTION;
+	   }
+
+	   return result;
+	}
+
 	/***************************************************************************/
 	/**
 	 * The function converts the local personality base pointer to the desired type

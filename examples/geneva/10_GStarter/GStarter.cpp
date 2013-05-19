@@ -58,23 +58,27 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------
 	// Server mode, serial or multi-threaded execution
 
-	// Create a factory for GStarterIndividual objects and perform
-	// any necessary initial work.
-	boost::shared_ptr<GStarterIndividualFactory> gsif_ptr(
-	      new GStarterIndividualFactory("./config/GStarterIndividual.json")
-	);
+	// Create an optimization monitor (targeted at evolutionary algorithms) ...
+	boost::shared_ptr<GSigmaMonitor> mon_ptr(new GSigmaMonitor("./sigmaProgress.C"));
 
-   // Add a default optimization algorithm to the Go2 object
-   go.registerDefaultAlgorithm("ea");
+	// We want to monitor two parameters
+	mon_ptr->addProfileVar("d", 0);
+   mon_ptr->addProfileVar("d", 1);
+
+   // ... and register it with the global store
+   GOAMonitorStore->setOnce("ea", mon_ptr);
+
+   // Create a factory for GStarterIndividual objects and perform
+   // any necessary initial work.
+   boost::shared_ptr<GStarterIndividualFactory> gsif_ptr(
+         new GStarterIndividualFactory("./config/GStarterIndividual.json")
+   );
 
    // Add a content creator so Go2 can generate its own individuals, if necessary
    go.registerContentCreator(gsif_ptr);
 
-	// Create an optimization monitor ...
-	boost::shared_ptr<GSigmaMonitor> mon_ptr(new GSigmaMonitor("./sigmaProgress.C"));
-
-   // ... and register it with the global store
-   GOAMonitorStore->setOnce("ea", mon_ptr);
+   // Add a default optimization algorithm to the Go2 object
+   go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization
 	boost::shared_ptr<GStarterIndividual> bestIndividual_ptr = go.optimize<GStarterIndividual>();
