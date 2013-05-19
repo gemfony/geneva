@@ -332,6 +332,14 @@ void Go2::registerDefaultAlgorithm(const std::string& mn) {
 
 /******************************************************************************/
 /**
+ * Retrieves a parameter of a given type at the specified position
+ */
+boost::any Go2::getVarVal(const std::string& descr, const std::size_t& pos) {
+   return this->getBestIndividual()->getVarVal(descr, pos);
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another Go2 object
  *
  * @param cp A copy of another Go2 object, camouflaged as a GObject

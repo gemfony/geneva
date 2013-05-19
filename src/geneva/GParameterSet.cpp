@@ -150,6 +150,71 @@ std::string GParameterSet::name() const {
 
 /******************************************************************************/
 /**
+ * Retrieves a parameter of a given type at the specified position
+ */
+boost::any GParameterSet::getVarVal(const std::string& descr, const std::size_t& pos) {
+   boost::any result;
+
+   if(descr == "d") {
+      std::vector<double> vars;
+      this->streamline<double>(vars);
+
+      if(pos >= vars.size()) {
+         glogger
+         << "In GParameterSet::getVarVal(): Error!" << std::endl
+         << "Got invalid position " << pos << " for type double" << std::endl
+         << GEXCEPTION;
+      } else {
+         result = vars[pos];
+      }
+   } else if (descr == "f") {
+      std::vector<float> vars;
+      this->streamline<float>(vars);
+
+      if(pos >= vars.size()) {
+         glogger
+         << "In GParameterSet::getVarVal(): Error!" << std::endl
+         << "Got invalid position " << pos << " for type float" << std::endl
+         << GEXCEPTION;
+      } else {
+         result = vars[pos];
+      }
+   } else if (descr == "i") {
+      std::vector<boost::int32_t> vars;
+      this->streamline<boost::int32_t>(vars);
+
+      if(pos >= vars.size()) {
+         glogger
+         << "In GParameterSet::getVarVal(): Error!" << std::endl
+         << "Got invalid position " << pos << " for type boost::int32_t" << std::endl
+         << GEXCEPTION;
+      } else {
+         result = vars[pos];
+      }
+   } else if (descr == "b") {
+      std::vector<bool> vars;
+      this->streamline<bool>(vars);
+
+      if(pos >= vars.size()) {
+         glogger
+         << "In GParameterSet::getVarVal(): Error!" << std::endl
+         << "Got invalid position " << pos << " for type bool" << std::endl
+         << GEXCEPTION;
+      } else {
+         result = vars[pos];
+      }
+   } else {
+      glogger
+      << "In GParameterSet::getVarVal(): Error!" << std::endl
+      << "Received invalid type description" << std::endl
+      << GEXCEPTION;
+   }
+
+   return result;
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GParameterSet object, camouflaged as a GObject.
  *
  * @param cp A copy of another GParameterSet object, camouflaged as a GObject

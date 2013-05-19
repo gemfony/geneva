@@ -200,6 +200,9 @@ public:
 	/** @brief Allows to randomly initialize parameter members */
 	virtual void randomInit() = 0;
 
+	/** @brief Retrieves a parameter of a given type at the specified position */
+	virtual boost::any getVarVal(const std::string&, const std::size_t&) = 0;
+
 	/***************************************************************************/
 	/**
 	 * The function converts the local personality base pointer to the desired type

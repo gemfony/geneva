@@ -260,6 +260,9 @@ public:
    /** @brief Allows to register a default algorithm. */
    void registerDefaultAlgorithm(const std::string& default_algorithm);
 
+   /** @brief Retrieves a parameter of a given type at the specified position */
+   virtual boost::any getVarVal(const std::string&, const std::size_t&);
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another Go2 object */

@@ -1035,9 +1035,17 @@ public:
 		return std::string("GENEVA_OPTIMIZATIONALGORITHM");
 	}
 
-	/***************************************************************************/
-	/** @brief Emits a name for this class / object; this can be a long name with spaces */
-	virtual std::string name() const = 0;
+	/******************************************************************************/
+	/**
+	 * Retrieves a parameter of a given type at the specified position
+	 */
+	boost::any getVarVal(const std::string& descr, const std::size_t& pos) {
+	   return GOptimizableI::getBestIndividual<ind_type>()->getVarVal(descr, pos);
+	}
+
+   /***************************************************************************/
+   /** @brief Emits a name for this class / object; this can be a long name with spaces */
+   virtual std::string name() const = 0;
 
 protected:
 	/***************************************************************************/

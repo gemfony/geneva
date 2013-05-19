@@ -174,6 +174,9 @@ public:
 	/** @brief Emits a name for this class / object */
 	virtual std::string name() const;
 
+   /** @brief Retrieves a parameter of a given type at the specified position */
+   virtual boost::any getVarVal(const std::string&, const std::size_t&);
+
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
