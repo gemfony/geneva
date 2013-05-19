@@ -1598,7 +1598,8 @@ public:
 	      using boost::serialization::make_nvp;
 
 	      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-	      	& BOOST_SERIALIZATION_NVP(quiet_);
+	      	& BOOST_SERIALIZATION_NVP(quiet_)
+	      	& BOOST_SERIALIZATION_NVP(profVarVec_);
 	    }
 	    ///////////////////////////////////////////////////////////////////////
 
@@ -1610,6 +1611,7 @@ public:
 	    GOptimizationMonitorT()
 	    	: GObject()
 	    	, quiet_(false)
+	      , profVarVec_()
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -1618,9 +1620,12 @@ public:
 	     *
 	     * @param cp A copy of another GOptimizationMonitorT object
 	     */
-	    GOptimizationMonitorT(const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp)
+	    GOptimizationMonitorT(
+	          const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp
+	    )
 	    	: GObject(cp)
 	    	, quiet_(cp.quiet_)
+	      , profVarVec_(cp.profVarVec_)
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -1702,6 +1707,7 @@ public:
 
 	    	// ... and then our local data
 			EXPECTATIONCHECK(quiet_);
+			EXPECTATIONCHECK(profVarVec_);
 
 	    	return evaluateDiscrepancies("GOptimizationMonitorT", caller, deviations, e);
 	    }
@@ -1780,6 +1786,53 @@ public:
 	    	return quiet_;
 	    }
 
+	    /************************************************************************/
+	    /**
+	     * Adds a variable type and position to be profiled. We only allow floats,
+	     * doubles and integers.
+	     */
+	    void addProfileVar(std::string descr, std::size_t pos) {
+	       if(descr != "d" && descr != "f" && descr != "i") {
+	          glogger
+	          << "In GOptimizationMonitorT<>::addProfileVar("<< descr << ", " << pos << "): Error!" << std::endl
+	          << "Got invalid type description" << std::endl
+	          << GEXCEPTION;
+	       }
+
+	       if(profVarVec_.size() >= 2) {
+	          glogger
+	          << "In GOptimizationMonitorT<>::addProfileVar("<< descr << ", " << pos << "): Error!" << std::endl
+	          << "Trying to add a profile variable while already " << profVarVec_.size() << " variables are present" << std::endl
+	          << GEXCEPTION;
+	       }
+
+	       profVarVec_.push_back(boost::tuple<std::string, std::size_t>(descr, pos));
+	    }
+
+	    /************************************************************************/
+	    /**
+	     * Clears all variables to be profiled
+	     */
+	    void clearProfileVars() {
+	       profVarVec_.clear();
+	    }
+
+       /************************************************************************/
+       /**
+        * Allows to check whether parameters should be profiled
+        */
+       bool parameterProfileCreationRequested() const {
+          return !profVarVec_.empty();
+       }
+
+       /************************************************************************/
+       /**
+        * Retrieves the number of variables that will be profiled
+        */
+       std::size_t nProfileVars() const {
+          return profVarVec_.size();
+       }
+
 	protected:
 	    /************************************************************************/
 	    /**
@@ -1824,6 +1877,7 @@ public:
 
 	    	// ... and then our local data
 	    	quiet_ = p_load->quiet_;
+	    	profVarVec_ = p_load->profVarVec_;
 	    }
 
 	    /************************************************************************/
@@ -1836,7 +1890,9 @@ public:
 
 	private:
 		/************************************************************************/
+
 		bool quiet_; ///< Specifies whether any information should be emitted at all
+		std::vector<boost::tuple<std::string, std::size_t> > profVarVec_; ///< Holds the types and positions of variables to be profiled
 
 	public:
 		/************************************************************************/

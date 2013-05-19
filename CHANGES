@@ -37,7 +37,8 @@ The main changes for this release include:
    running Geneva through a script, this might mean that you need to adapt this script.
  - GParameterSet and GIndividual no longer depend on any specific optimization algorithms. As a
    consequence, all major concepts are now separated from each other, allowing for a far more independent
-   development style. Adding new algorithms and also consumers has become far easier.
+   development style. Adding new algorithms and also consumers has become far easier
+ - Gave GPlotDesigner the ability to create 3D output through a new class GGraph3D
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012
