@@ -973,15 +973,21 @@ std::string GGraph3D::footerData() const {
    if(dA != "") {
       dA = drawingArguments();
    } else {
-      dA = "AP";
+      dA = "P";
    }
 
    // Fill the data in our tuple-vector into a ROOT TGraph object
    footer_data
       << "  TGraph2D *" << graphName << " = new TGraph2D(" << data_.size() <<", " << xArrayName << ", " << yArrayName << ", " << zArrayName << ");" << std::endl
       << "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+      << "  " << graphName << "->GetXaxis()->SetTitleOffset(1.5);" << std::endl
       << "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-      << "  " << graphName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl;
+      << "  " << graphName << "->GetYaxis()->SetTitleOffset(1.5);" << std::endl
+      << "  " << graphName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
+      << "  " << graphName << "->GetZaxis()->SetTitleOffset(1.5);" << std::endl
+      << "  " << graphName << "->SetMarkerStyle(20);" << std::endl
+      << "  " << graphName << "->SetMarkerSize(1);" << std::endl
+      << "  " << graphName << "->SetMarkerColor(2);" << std::endl;
 
    if(plot_label_ != "") {
       footer_data
