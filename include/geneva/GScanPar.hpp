@@ -162,7 +162,7 @@ class baseScanParT
       ar
       & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GStdSimpleVectorInterfaceT<T>)
       & BOOST_SERIALIZATION_NVP(pos)
-      & BOOST_SERIALIZATION_NVP(currentItem)
+      & BOOST_SERIALIZATION_NVP(currentItemPos)
       & BOOST_SERIALIZATION_NVP(typeDescription);
    }
 
@@ -183,7 +183,7 @@ public:
    )
       : GStdSimpleVectorInterfaceT<T>()
       , pos(p)
-      , currentItem(0)
+      , currentItemPos(0)
       , typeDescription(t)
    { // Fill the object with data
       this->data = fillWithData<T>(nSteps, lower, upper, randomScan);
@@ -199,7 +199,7 @@ public:
    )
       : GStdSimpleVectorInterfaceT<T>()
       , pos(0)
-      , currentItem(0)
+      , currentItemPos(0)
       , typeDescription("")
    {
       std::vector<std::string> tokens;
@@ -236,7 +236,7 @@ public:
    baseScanParT(const baseScanParT<T>& cp)
       : GStdSimpleVectorInterfaceT<T>(cp)
       , pos(cp.pos)
-      , currentItem(cp.currentItem)
+      , currentItemPos(cp.currentItemPos)
       , typeDescription(cp.typeDescription)
    { /* nothing */ }
 
@@ -257,10 +257,18 @@ public:
 
    /***************************************************************************/
    /**
+    * Retrieves the current item position
+    */
+   std::size_t getCurrentItemPos() const {
+      return currentItemPos;
+   }
+
+   /***************************************************************************/
+   /**
     * Retrieve the current item
     */
    T getCurrentItem() const {
-      return currentItem;
+      return this->at(currentItemPos);
    }
 
    /***************************************************************************/
@@ -270,8 +278,8 @@ public:
     * @return A boolean indicating whether a warp has taken place
     */
    virtual bool goToNextItem() {
-      if(++currentItem >= this->size()) {
-         currentItem = 0;
+      if(++currentItemPos >= this->size()) {
+         currentItemPos = 0;
          return true;
       }
       return false;
@@ -279,19 +287,19 @@ public:
 
    /***************************************************************************/
    /**
-    * Checks whether currentItem points to the last item in the array
+    * Checks whether currentItemPos points to the last item in the array
     */
    virtual bool isAtTerminalPosition() const {
-      if(currentItem >= (this->size()-1)) return true;
+      if(currentItemPos >= (this->size()-1)) return true;
       else return false;
    }
 
    /***************************************************************************/
    /**
-    * Checks whether currentItem points to the first item in the array
+    * Checks whether currentItemPos points to the first item in the array
     */
    virtual bool isAtFirstPosition() const {
-      if(0 == currentItem) return true;
+      if(0 == currentItemPos) return true;
       else return false;
    }
 
@@ -300,7 +308,7 @@ public:
     * Resets the current position
     */
    virtual void resetPosition() {
-      currentItem = 0;
+      currentItemPos = 0;
    }
 
    /***************************************************************************/
@@ -316,7 +324,7 @@ protected:
    // Data
 
    std::size_t pos; ///< The position of the parameter
-   std::size_t currentItem; ///< The current position in the data vector
+   std::size_t currentItemPos; ///< The current position in the data vector
    std::string typeDescription; ///< Holds an identifier for the type described by this class
 
    /***************************************************************************/
