@@ -39,8 +39,9 @@ The main changes for this release include:
    consequence, all major concepts are now separated from each other, allowing for a far more independent
    development style. Adding new algorithms and also consumers has become far easier
  - Gave GPlotDesigner the ability to create 3D output through a new class GGraph3D
- - Added an option to GOptimizationAlgorithmT's monitor to output graphics representations of the
-   1 or 2 parameters of the optimization run
+ - Added pluggable optimization monitors that allow to easily monitor common properties of all optimization 
+   algorithms. In this context, added a monitor that allows to plot one or two variables together with 
+   their fitness for all individuals touched during the optimization.
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

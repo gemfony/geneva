@@ -97,6 +97,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterT.hpp
 	GParameterTCollectionT.hpp
 	GPersonalityTraits.hpp
+	GPluggableOptimizationMonitorsT.hpp
 	GPSPersonalityTraits.hpp
 	GRateableI.hpp
 	GSAPersonalityTraits.hpp

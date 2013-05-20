@@ -340,6 +340,30 @@ boost::any Go2::getVarVal(const std::string& descr, const std::size_t& pos) {
 
 /******************************************************************************/
 /**
+ * Allows to register a pluggable optimization monitor
+ */
+void Go2::registerPluggableOM(
+      boost::function<void(const infoMode&, GOptimizationAlgorithmT<GParameterSet> * const)> pluggableInfoFunction
+) {
+   if(pluggableInfoFunction) {
+      pluggableInfoFunction_ = pluggableInfoFunction;
+   } else {
+      glogger
+      << "In Go2::registerPluggableOM(): Tried to register empty call-back" << std::endl
+      << GEXCEPTION;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to reset the local pluggable optimization monitor
+ */
+void Go2::resetPluggableOM() {
+   pluggableInfoFunction_ = boost::function<void(const infoMode&, GOptimizationAlgorithmT<GParameterSet> * const)>();
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another Go2 object
  *
  * @param cp A copy of another Go2 object, camouflaged as a GObject
@@ -658,6 +682,11 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	std::vector<boost::shared_ptr<GOABase> >::iterator alg_it;
 	for(alg_it=algorithms_.begin(); alg_it!=algorithms_.end(); ++alg_it) {
 		boost::shared_ptr<GOABase> p_base = (*alg_it);
+
+		// Add the pluggable optimization monitor to the algorithm, if it is available
+		if(pluggableInfoFunction_) {
+		   p_base->getOptimizationMonitor()->registerPluggableOM(pluggableInfoFunction_);
+		}
 
       // Add the individuals to the algorithm.
       for(ind_it=this->begin(); ind_it!=this->end(); ++ind_it) {

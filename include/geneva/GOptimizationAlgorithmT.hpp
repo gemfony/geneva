@@ -1608,8 +1608,7 @@ public:
 
 	      ar
 	      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-	      & BOOST_SERIALIZATION_NVP(quiet_)
-	      & BOOST_SERIALIZATION_NVP(profVarVec_);
+	      & BOOST_SERIALIZATION_NVP(quiet_);
 	    }
 	    ///////////////////////////////////////////////////////////////////////
 
@@ -1621,8 +1620,6 @@ public:
 	    GOptimizationMonitorT()
 	    	: GObject()
 	    	, quiet_(false)
-	      , profVarVec_()
-	      , gpd_oa_("Progress information", 1, 1)
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -1636,8 +1633,6 @@ public:
 	    )
 	    	: GObject(cp)
 	    	, quiet_(cp.quiet_)
-	      , profVarVec_(cp.profVarVec_)
-         , gpd_oa_("Progress information", 1, 1)
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -1719,7 +1714,6 @@ public:
 
 	    	// ... and then our local data
 			EXPECTATIONCHECK(quiet_);
-			EXPECTATIONCHECK(profVarVec_);
 
 	    	return evaluateDiscrepancies("GOptimizationMonitorT", caller, deviations, e);
 	    }
@@ -1738,74 +1732,24 @@ public:
 	          const infoMode& im
 	          , GOptimizationAlgorithmT<ind_type> * const goa
 	    ) {
-	    	if(quiet_) return;
+	      // Perform any action defined by the user through pluggable monitor objects
+         if(pluggableInfoFunction_) {
+           pluggableInfoFunction_(im,goa);
+         }
 
-	    	switch(im) {
+         // Act on the information mode provided
+	      switch(im) {
 	    	case Gem::Geneva::INFOINIT:
 	    	{
-	    	   if(this->parameterProfileCreationRequested()) {
-	    	      // Initialize the plotters
-	    	      progressPlotter2D_oa_ = boost::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
-	    	      progressPlotter3D_oa_ = boost::shared_ptr<Gem::Common::GGraph3D>(new Gem::Common::GGraph3D());
-
-	    	      // Set a few options
-	    	      progressPlotter2D_oa_->setPlotMode(Gem::Common::SCATTER);
-	    	      progressPlotter2D_oa_->setPlotLabel("Fitness as a function of a parameter value");
-	    	      progressPlotter2D_oa_->setXAxisLabel("Parameter Value");
-	    	      progressPlotter2D_oa_->setYAxisLabel("Fitness");
-
-	    	      progressPlotter3D_oa_->setPlotLabel("Fitness as a function of parameter values");
-               progressPlotter3D_oa_->setXAxisLabel("Parameter Value 1");
-               progressPlotter3D_oa_->setYAxisLabel("Parameter Value 2");
-               progressPlotter3D_oa_->setZAxisLabel("Fitness");
-
-               gpd_oa_.setCanvasDimensions(1024, 768);
-
-               switch(this->nProfileVars()) {
-                  case 1:
-                     gpd_oa_.registerPlotter(progressPlotter2D_oa_);
-                     break;
-                  case 2:
-                     gpd_oa_.registerPlotter(progressPlotter3D_oa_);
-                     break;
-               }
+	    	   if(!quiet_) {
+	    	      std::cout << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
 	    	   }
-
-	    	   if(!quiet_) std::cout << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
 	    	   this->firstInformation(goa);
 	    	}
 	    	   break;
 
 	    	case Gem::Geneva::INFOPROCESSING:
 	    	{
-	    	   if(this->parameterProfileCreationRequested()) {
-	    	      bool isDirty;
-	    	      typename GOptimizationAlgorithmT<ind_type>::iterator it;
-
-	    	      for(it=goa->begin(); it!=goa->end(); ++it) {
-	    	         switch(this->nProfileVars()) {
-	    	            case 1:
-	    	            {
-	    	               double val0    = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
-	    	               double fitness = (*it)->getCachedFitness(isDirty);
-
-	    	               progressPlotter2D_oa_->add(boost::tuple<double,double>(val0, fitness));
-	    	            }
-	    	            break;
-
-	    	            case 2:
-	    	            {
-	    	               double val0 = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
-	    	               double val1 = (*it)->GIndividual::getVarVal<double>(profVarVec_[1]);
-	    	               double fitness = (*it)->getCachedFitness(isDirty);
-
-	    	               progressPlotter3D_oa_->add(boost::tuple<double,double,double>(val0, val1, fitness));
-	    	            }
-	    	            break;
-	    	         }
-	    	      }
-	    	   }
-
 	    	  if(!quiet_) std::cout << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentFitness() << std::endl;
 	    	  this->cycleInformation(goa);
 	    	}
@@ -1813,11 +1757,6 @@ public:
 
 	    	case Gem::Geneva::INFOEND:
 	    	{
-	    	   if(this->parameterProfileCreationRequested()) {
-	    	      // Write out the result
-	    	      gpd_oa_.writeToFile("parameterScan.C");
-	    	   }
-
 	    	   this->lastInformation(goa);
 	    	   if(!quiet_) std::cout << "End of optimization reached in algorithm \""<< goa->getAlgorithmName() << "\"" << std::endl;
 	    	}
@@ -1861,50 +1800,25 @@ public:
 
 	    /************************************************************************/
 	    /**
-	     * Adds a variable type and position to be profiled. We only allow floats,
-	     * doubles and integers.
+	     * Allows to register a pluggable optimization monitor
 	     */
-	    void addProfileVar(std::string descr, std::size_t pos) {
-	       if(descr != "d" && descr != "f" && descr != "i") {
+	    void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<ind_type> * const)> pluggableInfoFunction) {
+	       if(pluggableInfoFunction) {
+	          pluggableInfoFunction_ = pluggableInfoFunction;
+	       } else {
 	          glogger
-	          << "In GOptimizationMonitorT<>::addProfileVar("<< descr << ", " << pos << "): Error!" << std::endl
-	          << "Got invalid type description" << std::endl
+	          << "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty call-back" << std::endl
 	          << GEXCEPTION;
 	       }
-
-	       if(profVarVec_.size() >= 2) {
-	          glogger
-	          << "In GOptimizationMonitorT<>::addProfileVar("<< descr << ", " << pos << "): Error!" << std::endl
-	          << "Trying to add a profile variable while already " << profVarVec_.size() << " variables are present" << std::endl
-	          << GEXCEPTION;
-	       }
-
-	       profVarVec_.push_back(boost::tuple<std::string, std::size_t>(descr, pos));
 	    }
 
 	    /************************************************************************/
 	    /**
-	     * Clears all variables to be profiled
+	     * Allows to reset the local pluggable optimization monitor
 	     */
-	    void clearProfileVars() {
-	       profVarVec_.clear();
+	    void resetPluggableOM() {
+	       pluggableInfoFunction_.reset();
 	    }
-
-       /************************************************************************/
-       /**
-        * Allows to check whether parameters should be profiled
-        */
-       bool parameterProfileCreationRequested() const {
-          return !profVarVec_.empty();
-       }
-
-       /************************************************************************/
-       /**
-        * Retrieves the number of variables that will be profiled
-        */
-       std::size_t nProfileVars() const {
-          return profVarVec_.size();
-       }
 
 	protected:
 	    /************************************************************************/
@@ -1950,7 +1864,10 @@ public:
 
 	    	// ... and then our local data
 	    	quiet_ = p_load->quiet_;
-	    	profVarVec_ = p_load->profVarVec_;
+
+	    	// Note: we do not load the pluggable information function, as it is
+	    	// meant as a short-term medium for information retrieval and may be
+	    	// an object specific to a given optimization monitor object
 	    }
 
 	    /************************************************************************/
@@ -1965,12 +1882,7 @@ public:
 		/************************************************************************/
 
 		bool quiet_; ///< Specifies whether any information should be emitted at all
-
-		std::vector<boost::tuple<std::string, std::size_t> > profVarVec_; ///< Holds the types and positions of variables to be profiled
-
-	   Gem::Common::GPlotDesigner gpd_oa_;
-	   boost::shared_ptr<Gem::Common::GGraph2D> progressPlotter2D_oa_;
-	   boost::shared_ptr<Gem::Common::GGraph3D> progressPlotter3D_oa_;
+		boost::function<void(const infoMode&, GOptimizationAlgorithmT<ind_type> * const)> pluggableInfoFunction_; ///< A user-defined call-back for information retrieval
 
 	public:
 		/************************************************************************/

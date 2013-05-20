@@ -2340,12 +2340,49 @@ void GPlotDesigner::setCanvasDimensions(
 
 /******************************************************************************/
 /**
+ * Set the dimensions of the output canvas
+ *
+ * @param c_x_dim The x-dimension of the output canvas
+ * @param c_x_dim The y-dimension of the output canvas
+ */
+void GPlotDesigner::setCanvasDimensions(
+   const boost::tuple<boost::uint32_t, boost::uint32_t>& c_dim
+) {
+   this->setCanvasDimensions(boost::get<0>(c_dim), boost::get<1>(c_dim));
+}
+
+/******************************************************************************/
+/**
  * Allows to retrieve the canvas dimensions
  *
  * @return A boost::tuple holding the canvas dimensions
  */
 boost::tuple<boost::uint32_t, boost::uint32_t> GPlotDesigner::getCanvasDimensions() const {
 	return boost::tuple<boost::uint32_t, boost::uint32_t>(c_x_dim_, c_y_dim_);
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the canvas label
+ */
+void GPlotDesigner::setCanvasLabel(const std::string& canvasLabel) {
+   canvasLabel_ = canvasLabel;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the canvas label
+ */
+std::string GPlotDesigner::getCanvasLabel() const {
+   return canvasLabel_;
+}
+
+/******************************************************************************/
+/**
+ * Resets the plotters
+ */
+void GPlotDesigner::resetPlotters() {
+   plotters_.clear();
 }
 
 /******************************************************************************/

@@ -58,6 +58,7 @@
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GBrokerEA.hpp"
 #include "geneva/GOAMonitorStore.hpp"
+#include "geneva/GPluggableOptimizationMonitorsT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -172,9 +173,14 @@ public:
       // Has a custom optimization monitor been registered with the global store ?
       // If so, add a clone to the algorithm
       if(GOAMonitorStore->exists(this->getMnemomic())) {
-         p_alg->registerOptimizationMonitor(
-               GOAMonitorStore->get(this->getMnemomic())->GObject::template clone<typename prod_type::GOptimizationMonitorT>()
-         );
+         boost::shared_ptr<typename prod_type::GOptimizationMonitorT> p_mon =
+               GOAMonitorStore->get(this->getMnemomic())->GObject::template clone<typename prod_type::GOptimizationMonitorT>();
+
+         if(pluggableInfoFunction_) {
+            p_mon->registerPluggableOM(pluggableInfoFunction_);
+         }
+
+         p_alg->registerOptimizationMonitor(p_mon);
       }
 
       // Return the filled object to the audience
@@ -255,6 +261,29 @@ public:
 
       contentCreatorPtr_ = cc_ptr;
    }
+
+   /***************************************************************************/
+   /**
+    * Allows to register a pluggable optimization monitor
+    */
+   void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename prod_type::individual_type> * const)> pluggableInfoFunction) {
+      if(pluggableInfoFunction) {
+         pluggableInfoFunction_ = pluggableInfoFunction;
+      } else {
+         glogger
+         << "In GoptimizationAlgorithmFactoryT<>::registerPluggableOM(): Tried to register empty call-back" << std::endl
+         << GEXCEPTION;
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to reset the local pluggable optimization monitor
+    */
+   void resetPluggableOM() {
+      pluggableInfoFunction_= boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename prod_type::individual_type> * const)>();
+   }
+
 
    /***************************************************************************/
    /**
@@ -378,6 +407,7 @@ protected:
 	double waitFactorIncrement_; ///< The amount by which the waitFactor_ may be incremented or decremented
 
 	boost::shared_ptr<Gem::Common::GFactoryT<typename prod_type::individual_type> > contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
+   boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename prod_type::individual_type> * const)> pluggableInfoFunction_; ///< A user-defined call-back for information retrieval
 
 private:
 	/***************************************************************************/

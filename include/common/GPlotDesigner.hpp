@@ -1397,8 +1397,18 @@ public:
 
 	/** @brief Set the dimensions of the output canvas */
 	void setCanvasDimensions(const boost::uint32_t&, const boost::uint32_t&);
+   /** @brief Set the dimensions of the output canvas */
+   void setCanvasDimensions(const boost::tuple<boost::uint32_t, boost::uint32_t>&);
 	/** @brief Allows to retrieve the canvas dimensions */
 	boost::tuple<boost::uint32_t, boost::uint32_t> getCanvasDimensions() const;
+
+	/** @brief Allows to set the canvas label */
+	void setCanvasLabel(const std::string&);
+	/** @brief Allows to retrieve the canvas label */
+	std::string getCanvasLabel() const;
+
+	/** @brief Resets the plotters */
+	void resetPlotters();
 
 private:
 	/** @brief The default constructor -- intentionally private and undefined */

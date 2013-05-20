@@ -36,13 +36,16 @@
 #include <iostream>
 
 // Boost header files go here
+#include <boost/bind.hpp>
 
 // Geneva header files go here
 #include <geneva/Go2.hpp>
+#include <geneva/GPluggableOptimizationMonitorsT.hpp>
 
 // The individual that should be optimized
 #include "GStarterIndividual.hpp"
 #include "GSigmaMonitor.hpp"
+
 
 using namespace Gem::Geneva;
 
@@ -58,15 +61,24 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------
 	// Server mode, serial or multi-threaded execution
 
-	// Create an optimization monitor (targeted at evolutionary algorithms) ...
-	boost::shared_ptr<GSigmaMonitor> mon_ptr(new GSigmaMonitor("./sigmaProgress.C"));
+	// Create an optimization monitor (targeted at evolutionary algorithms) and register it with the global store
+   GOAMonitorStore->setOnce(
+         "ea"
+         , boost::shared_ptr<GSigmaMonitor>(new GSigmaMonitor("./sigmaProgress.C"))
+   );
 
-	// We want to monitor two parameters
-	mon_ptr->addProfileVar("d", 0);
-   mon_ptr->addProfileVar("d", 1);
-
-   // ... and register it with the global store
-   GOAMonitorStore->setOnce("ea", mon_ptr);
+   // Register a progress plotter with the global optimization algorithm factory
+   boost::shared_ptr<GProgressPlotterT<GParameterSet> > progplot_ptr(new GProgressPlotterT<GParameterSet>());
+   progplot_ptr->addProfileVar("d", 0); // first double parameter
+   progplot_ptr->addProfileVar("d", 1); // second double parameter
+   go.registerPluggableOM(
+      boost::bind(
+            &GProgressPlotterT<GParameterSet>::informationFunction
+            , progplot_ptr
+            , _1
+            , _2
+      )
+   );
 
    // Create a factory for GStarterIndividual objects and perform
    // any necessary initial work.

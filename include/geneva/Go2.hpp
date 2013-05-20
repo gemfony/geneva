@@ -37,6 +37,7 @@
 // Boost header files go here
 #include <boost/algorithm/string.hpp>
 #include <boost/thread/once.hpp>
+#include <boost/function.hpp>
 
 #ifndef GO2_HPP_
 #define GO2_HPP_
@@ -263,6 +264,13 @@ public:
    /** @brief Retrieves a parameter of a given type at the specified position */
    virtual boost::any getVarVal(const std::string&, const std::size_t&);
 
+   /** @brief Allows to register a pluggable optimization monitor */
+   void registerPluggableOM (
+         boost::function<void(const infoMode&, GOptimizationAlgorithmT<GParameterSet> * const)> pluggableInfoFunction
+   );
+   /** @brief Allows to reset the local pluggable optimization monitor */
+   void resetPluggableOM();
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another Go2 object */
@@ -322,6 +330,8 @@ private:
 	boost::shared_ptr<GOABase> default_algorithm_;
 	// Holds an object capable of producing objects of the desired type
 	boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr_;
+	// A user-defined call-back for information retrieval
+	boost::function<void(const infoMode&, GOptimizationAlgorithmT<GParameterSet> * const)> pluggableInfoFunction_;
 };
 
 /******************************************************************************/
