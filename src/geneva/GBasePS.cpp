@@ -614,7 +614,9 @@ void GBasePS::sortPopulation() {
 }
 
 /******************************************************************************/
-/** @brief Fills all parameter objects into the allParVec_ vector */
+/**
+ * Fills all parameter objects into the allParVec_ vector
+ */
 void GBasePS::fillAllParVec() {
    // 1) For boolean objects
    std::vector<boost::shared_ptr<bScanPar> >::iterator b_it;

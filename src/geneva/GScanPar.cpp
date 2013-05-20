@@ -155,7 +155,7 @@ std::vector<double> fillWithData<double>(
       if(nSteps<2) {
          glogger
          << "In std::vector<float> fillWithData<float>(): Error!" << std::endl
-         << "Number of reqsted steps is too low: " << nSteps << std::endl
+         << "Number of requested steps is too low: " << nSteps << std::endl
          << GEXCEPTION;
       }
 
