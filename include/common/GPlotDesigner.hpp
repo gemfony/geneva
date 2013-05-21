@@ -1529,7 +1529,8 @@ GDataCollector4T<double, double, double, double>::projectW(std::size_t, boost::t
 /******************************************************************************/
 /**
  * A wrapper for the ROOT TPolyMarker3D class, intended for 4D data. The fourth
- * data component is represented as the size of the markers.
+ * data component is represented as the size of the markers. The class will by
+ * default only draw a selection of items.
  */
 class GGraph4D
    : public GDataCollector4T<double,double,double,double>
@@ -1569,11 +1570,44 @@ public:
    /** @brief Retrieves specific draw commands for this plot */
    virtual std::string footerData() const;
 
+   /** @brief Allows to set the number of solutions the class should show */
+   void setNBest(const std::size_t&);
+   /** @brief Allows to retrieve the number of solutions the class should show */
+   std::size_t getNBest() const;
+
+   /***************************************************************************/
+   /**
+    * A comparator allowing to sort the tuples in ascending order, using
+    * the fourth component.
+    */
+   static bool comp4Asc (
+            boost::tuple<double,double,double,double> a
+            , boost::tuple<double,double,double,double> b
+   ) {
+      return (boost::get<3>(a) < boost::get<3>(b));
+   }
+
+   /***************************************************************************/
+   /**
+    * A comparator allowing to sort the tuples in descending order, using
+    * the fourth component.
+    */
+   static bool comp4Desc (
+            boost::tuple<double,double,double,double> a
+            , boost::tuple<double,double,double,double> b
+   ) {
+      return (boost::get<3>(a) > boost::get<3>(b));
+   }
+
+   /***************************************************************************/
+
 private:
    double minMarkerSize_; ///< The minimum allowed size of the marker
    double maxMarkerSize_; ///< The maximum allowed size of the marker
 
    bool smallWLargeMarker_; ///< Indicated whether a small w value yields a large marker
+
+   std::size_t nBest_; ///< Determines the number of items the class should show
 };
 
 /******************************************************************************/

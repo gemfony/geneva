@@ -1193,6 +1193,7 @@ GGraph4D::GGraph4D()
    : minMarkerSize_(0.001)
    , maxMarkerSize_(1.)
    , smallWLargeMarker_(true)
+   , nBest_(1000)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1204,6 +1205,7 @@ GGraph4D::GGraph4D(const GGraph4D& cp)
    , minMarkerSize_(cp.minMarkerSize_)
    , maxMarkerSize_(cp.maxMarkerSize_)
    , smallWLargeMarker_(cp.smallWLargeMarker_)
+   , nBest_(cp.nBest_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1222,9 +1224,10 @@ const GGraph4D & GGraph4D::operator=(const GGraph4D& cp) {
    GDataCollector4T<double,double,double,double>::operator=(cp);
 
    // copy local data
-   minMarkerSize_ = cp.minMarkerSize_;
-   maxMarkerSize_ = cp.maxMarkerSize_;
+   minMarkerSize_     = cp.minMarkerSize_;
+   maxMarkerSize_     = cp.maxMarkerSize_;
    smallWLargeMarker_ = cp.smallWLargeMarker_;
+   nBest_             = cp.nBest_;
 
    return *this;
 }
@@ -1294,6 +1297,23 @@ bool GGraph4D::getSmallWLargeMarker() const {
 
 /******************************************************************************/
 /**
+ * Allows to set the number of solutions the class should show. Setting the value
+ * to 0 will result in all data being displayed.
+ */
+void GGraph4D::setNBest(const std::size_t& nBest) {
+   nBest_ = nBest;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the number of solutions the class should show
+ */
+std::size_t GGraph4D::getNBest() const {
+   return nBest_;
+}
+
+/******************************************************************************/
+/**
  * Retrieve specific header settings for this plot
  */
 std::string GGraph4D::headerData() const {
@@ -1321,22 +1341,43 @@ std::string GGraph4D::bodyData() const {
  * Retrieves specific draw commands for this plot
  */
 std::string GGraph4D::footerData() const {
+   std::vector<boost::tuple<double,double,double,double> > localData = data_;
+
+   // Sort the data, so we can select the nBest_ best more easily
+   if(smallWLargeMarker_) {
+      std::sort(
+            localData.begin()
+            , localData.end()
+            , &GGraph4D::comp4Asc
+       );
+   } else {
+      std::sort(
+            localData.begin()
+            , localData.end()
+            , &GGraph4D::comp4Desc
+       );
+   }
+
    std::ostringstream footer_data;
 
    // Find out about the minimum and maximum values of the data vector
-   boost::tuple<double,double,double,double,double,double,double,double> minMax = Gem::Common::getMinMax(data_);
+   boost::tuple<double,double,double,double,double,double,double,double> minMax = Gem::Common::getMinMax(localData);
 
    // Set up TView object for our 3D data, spanning the minimum and maximum values
    footer_data
-   << "  TView *view = TView::CreateView(1,0,0);" << std::endl
-   << "  view->SetRange("
-                      << boost::get<0>(minMax) << ", " // x_min
-                      << boost::get<2>(minMax) << ", " // y_min
-                      << boost::get<4>(minMax) << ", " // z_min
-                      << boost::get<1>(minMax) << ", " // x_max
-                      << boost::get<3>(minMax) << ", " // y_max
-                      << boost::get<5>(minMax) << ");" // z_max
-                      << std::endl;
+   << "  TH3F *fr = new TH3F(\"fr\",\"fr\","
+   << "10, " << boost::get<0>(minMax) << ", " << boost::get<1>(minMax) << ", "
+   << "10, " << boost::get<2>(minMax) << ", " << boost::get<3>(minMax) << ", "
+   << "10, " << boost::get<4>(minMax) << ", " << boost::get<5>(minMax) << ");" << std::endl
+   << "  fr->SetTitle(\" \");" << std::endl
+   << "  fr->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+   << "  fr->GetXaxis()->SetTitleOffset(1.6);" << std::endl
+   << "  fr->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+   << "  fr->GetYaxis()->SetTitleOffset(1.6);" << std::endl
+   << "  fr->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
+   << "  fr->GetZaxis()->SetTitleOffset(1.6);" << std::endl
+   << std::endl
+   << "  fr->Draw();" << std::endl;
 
    double wMin = boost::get<6>(minMax);
    double wMax = boost::get<7>(minMax);
@@ -1345,7 +1386,7 @@ std::string GGraph4D::footerData() const {
    double wRange = wMax-wMin;
    std::size_t pos = 0;
    std::vector<boost::tuple<double, double, double, double> >::const_iterator it;
-   for(it=data_.begin(); it!=data_.end(); ++it) {
+   for(it=localData.begin(); it!=localData.end(); ++it) {
       // create a TPolyMarker3D for a single data point
       footer_data
       << "  TPolyMarker3D *pm3d_" << pos << " = new TPolyMarker3D(1);" << std::endl;
@@ -1359,19 +1400,23 @@ std::string GGraph4D::footerData() const {
       // smaller values will yield the largest value
       double markerSize = 0.;
       if(smallWLargeMarker_) {
-         markerSize = minMarkerSize_ + (maxMarkerSize_-minMarkerSize_)*pow((1. - (w-wMin)/wRange),4.);
+         markerSize = minMarkerSize_ + (maxMarkerSize_-minMarkerSize_)*pow((1. - (w-wMin)/wRange),8.);
       } else {
-         markerSize = minMarkerSize_ + (maxMarkerSize_-minMarkerSize_)*pow(((w-wMin)/wRange), 4);
+         markerSize = minMarkerSize_ + (maxMarkerSize_-minMarkerSize_)*pow(((w-wMin)/wRange), 8);
       }
 
       footer_data
-      << "  pm3d_" << pos << "->SetPoint(" << pos << ", " << x << ", " << y << ", " << z << ");" << std::endl
+      << "  pm3d_" << pos << "->SetPoint(" << pos << ", " << x << ", " << y << ", " << z << "); // w = " << w << std::endl
       << "  pm3d_" << pos << "->SetMarkerSize(" << markerSize << ");" << std::endl
       << "  pm3d_" << pos << "->SetMarkerColor(2);" << std::endl
       << "  pm3d_" << pos << "->SetMarkerStyle(8);" << std::endl
       << "  pm3d_" << pos << "->Draw();" << std::endl;
 
       pos++;
+
+      if(nBest_ && pos >= nBest_) {
+         break;
+      }
    }
 
    footer_data << std::endl;
