@@ -1528,6 +1528,58 @@ GDataCollector4T<double, double, double, double>::projectW(std::size_t, boost::t
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * A wrapper for the ROOT TPolyMarker3D class, intended for 4D data. The fourth
+ * data component is represented as the size of the markers.
+ */
+class GGraph4D
+   : public GDataCollector4T<double,double,double,double>
+{
+public:
+   /** @brief The default constructor */
+   GGraph4D();
+
+   /** @brief A copy constructor */
+   GGraph4D(const GGraph4D&);
+
+   /** @brief The destructor */
+   ~GGraph4D();
+
+   /** @brief The assignment operator */
+   const GGraph4D& operator=(const GGraph4D&);
+
+   /** @brief Allows to set the minimum marker size */
+   void setMinMarkerSize(const double&);
+   /** @brief Allows to set the maximum marker size */
+   void setMaxMarkerSize(const double&);
+
+   /** @brief Allows to retrieve the minimum marker size */
+   double getMinMarkerSize() const;
+   /** @brief Allows to retrieve the maximum marker size */
+   double getMaxMarkerSize() const;
+
+   /** @brief Allows to specify whether small w yield large markers */
+   void setSmallWLargeMarker(const bool&);
+   /** @brief Allows to check whether small w yield large markers */
+   bool getSmallWLargeMarker() const;
+
+   /** @brief Retrieve specific header settings for this plot */
+   virtual std::string headerData() const;
+   /** @brief Retrieves the actual data sets */
+   virtual std::string bodyData() const;
+   /** @brief Retrieves specific draw commands for this plot */
+   virtual std::string footerData() const;
+
+private:
+   double minMarkerSize_; ///< The minimum allowed size of the marker
+   double maxMarkerSize_; ///< The maximum allowed size of the marker
+
+   bool smallWLargeMarker_; ///< Indicated whether a small w value yields a large marker
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * A wrapper for the ROOT TF1 1d-function plotter
  */
 class GFunctionPlotter1D

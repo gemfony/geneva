@@ -1187,6 +1187,202 @@ std::string GGraph3D::footerData() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * The default constructor
+ */
+GGraph4D::GGraph4D()
+   : minMarkerSize_(0.001)
+   , maxMarkerSize_(1.)
+   , smallWLargeMarker_(true)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * A copy constructor
+ */
+GGraph4D::GGraph4D(const GGraph4D& cp)
+   : GDataCollector4T<double,double,double,double>(cp)
+   , minMarkerSize_(cp.minMarkerSize_)
+   , maxMarkerSize_(cp.maxMarkerSize_)
+   , smallWLargeMarker_(cp.smallWLargeMarker_)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GGraph4D::~GGraph4D()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The assignment operator
+ */
+const GGraph4D & GGraph4D::operator=(const GGraph4D& cp) {
+   // Copy our parent class'es data
+   GDataCollector4T<double,double,double,double>::operator=(cp);
+
+   // copy local data
+   minMarkerSize_ = cp.minMarkerSize_;
+   maxMarkerSize_ = cp.maxMarkerSize_;
+   smallWLargeMarker_ = cp.smallWLargeMarker_;
+
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the minimum marker size
+ */
+void GGraph4D::setMinMarkerSize(const double& minMarkerSize) {
+   if(minMarkerSize < 0.) {
+      glogger
+      << "In GGraph4D::setMinMarkerSize(): Error!" << std::endl
+      << "Received invalid minimum marker size: " << minMarkerSize << std::endl
+      << GEXCEPTION;
+   }
+
+   minMarkerSize_ = minMarkerSize;
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the maximum marker size
+ */
+void GGraph4D::setMaxMarkerSize(const double& maxMarkerSize) {
+   if(maxMarkerSize < 0. || maxMarkerSize < minMarkerSize_) {
+      glogger
+      << "In GGraph4D::setMinMarkerSize(): Error!" << std::endl
+      << "Received invalid minimum marker size: " << minMarkerSize_ << " " << maxMarkerSize << "." << std::endl
+      << "Always set the lower boundary first." << std::endl
+      << GEXCEPTION;
+   }
+
+   maxMarkerSize_ = maxMarkerSize;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the minimum marker size
+ */
+double GGraph4D::getMinMarkerSize() const {
+   return minMarkerSize_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the maximum marker size
+ */
+double GGraph4D::getMaxMarkerSize() const {
+   return maxMarkerSize_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to specify whether small w yield large markers
+ */
+void GGraph4D::setSmallWLargeMarker(const bool& swlm) {
+   smallWLargeMarker_ = swlm;
+}
+
+/******************************************************************************/
+/**
+ * Allows to check whether small w yield large markers
+ */
+bool GGraph4D::getSmallWLargeMarker() const {
+   return smallWLargeMarker_;
+}
+
+/******************************************************************************/
+/**
+ * Retrieve specific header settings for this plot
+ */
+std::string GGraph4D::headerData() const {
+   std::ostringstream header_data;
+
+   // nothing
+
+   return header_data.str();
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the actual data sets
+ */
+std::string GGraph4D::bodyData() const {
+   std::ostringstream body_data;
+
+   // nothing
+
+   return body_data.str();
+}
+
+/******************************************************************************/
+/**
+ * Retrieves specific draw commands for this plot
+ */
+std::string GGraph4D::footerData() const {
+   std::ostringstream footer_data;
+
+   // Find out about the minimum and maximum values of the data vector
+   boost::tuple<double,double,double,double,double,double,double,double> minMax = Gem::Common::getMinMax(data_);
+
+   // Set up TView object for our 3D data, spanning the minimum and maximum values
+   footer_data
+   << "  TView *view = TView::CreateView(1,0,0);" << std::endl
+   << "  view->SetRange("
+                      << boost::get<0>(minMax) << ", " // x_min
+                      << boost::get<2>(minMax) << ", " // y_min
+                      << boost::get<4>(minMax) << ", " // z_min
+                      << boost::get<1>(minMax) << ", " // x_max
+                      << boost::get<3>(minMax) << ", " // y_max
+                      << boost::get<5>(minMax) << ");" // z_max
+                      << std::endl;
+
+   double wMin = boost::get<6>(minMax);
+   double wMax = boost::get<7>(minMax);
+
+   // Fill data from the tuples into the arrays
+   double wRange = wMax-wMin;
+   std::size_t pos = 0;
+   std::vector<boost::tuple<double, double, double, double> >::const_iterator it;
+   for(it=data_.begin(); it!=data_.end(); ++it) {
+      // create a TPolyMarker3D for a single data point
+      footer_data
+      << "  TPolyMarker3D *pm3d_" << pos << " = new TPolyMarker3D(1);" << std::endl;
+
+      double x = boost::get<0>(*it);
+      double y = boost::get<1>(*it);
+      double z = boost::get<2>(*it);
+      double w = boost::get<3>(*it);
+
+      // Translate the fourth component into a marker size. By default,
+      // smaller values will yield the largest value
+      double markerSize = 0.;
+      if(smallWLargeMarker_) {
+         markerSize = minMarkerSize_ + (maxMarkerSize_-minMarkerSize_)*pow((1. - (w-wMin)/wRange),4.);
+      } else {
+         markerSize = minMarkerSize_ + (maxMarkerSize_-minMarkerSize_)*pow(((w-wMin)/wRange), 4);
+      }
+
+      footer_data
+      << "  pm3d_" << pos << "->SetPoint(" << pos << ", " << x << ", " << y << ", " << z << ");" << std::endl
+      << "  pm3d_" << pos << "->SetMarkerSize(" << markerSize << ");" << std::endl
+      << "  pm3d_" << pos << "->SetMarkerColor(2);" << std::endl
+      << "  pm3d_" << pos << "->SetMarkerStyle(8);" << std::endl
+      << "  pm3d_" << pos << "->Draw();" << std::endl;
+
+      pos++;
+   }
+
+   footer_data << std::endl;
+
+   return footer_data.str();
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * The standard constructor
  */
 GHistogram1D::GHistogram1D(

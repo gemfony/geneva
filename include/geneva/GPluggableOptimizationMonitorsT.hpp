@@ -234,7 +234,7 @@ public:
          << GEXCEPTION;
       }
 
-      if(profVarVec_.size() >= 2) {
+      if(profVarVec_.size() >= 3) {
          glogger
          << "In GBasePluggableOMT<>::addProfileVar("<< descr << ", " << pos << "): Error!" << std::endl
          << "Trying to add a profile variable while already " << profVarVec_.size() << " variables are present" << std::endl
@@ -361,6 +361,28 @@ public:
                gpd_oa_.registerPlotter(progressPlotter3D_oa_);
             }
                break;
+
+            case 3:
+            {
+               progressPlotter4D_oa_ = boost::shared_ptr<Gem::Common::GGraph4D>(new Gem::Common::GGraph4D());
+
+               progressPlotter4D_oa_->setPlotLabel("Fitness (color-coded) as a function of parameter values");
+               progressPlotter4D_oa_->setXAxisLabel("Parameter Value 1");
+               progressPlotter4D_oa_->setYAxisLabel("Parameter Value 2");
+               progressPlotter4D_oa_->setZAxisLabel("Parameter Value 3");
+
+               gpd_oa_.registerPlotter(progressPlotter4D_oa_);
+            }
+               break;
+
+            default:
+            {
+               glogger
+               << "In GProgressPlotterT<>::informationFunction(INFOINIT): Error!" << std::endl
+               << "Got invalid number of profiling dimensions" << std::endl
+               << GEXCEPTION;
+            }
+            break;
          }
 
          gpd_oa_.setCanvasDimensions(canvasDimensions_);
@@ -392,6 +414,26 @@ public:
                   progressPlotter3D_oa_->add(boost::tuple<double,double,double>(val0, val1, fitness));
                }
                break;
+
+               case 3:
+               {
+                  double val0 = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
+                  double val1 = (*it)->GIndividual::getVarVal<double>(profVarVec_[1]);
+                  double val2 = (*it)->GIndividual::getVarVal<double>(profVarVec_[2]);
+                  double fitness = (*it)->getCachedFitness(isDirty);
+
+                  progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(val0, val1, val2, fitness));
+               }
+               break;
+
+               default:
+               {
+                  glogger
+                  << "In GProgressPlotterT<>::informationFunction(INFOPROCESSING): Error!" << std::endl
+                  << "Got invalid number of profiling dimensions" << std::endl
+                  << GEXCEPTION;
+               }
+               break;
             }
          }
       }
@@ -406,6 +448,7 @@ public:
          gpd_oa_.resetPlotters();
          progressPlotter2D_oa_.reset();
          progressPlotter3D_oa_.reset();
+         progressPlotter4D_oa_.reset();
       }
          break;
 
@@ -427,6 +470,7 @@ private:
    // These are temporaries
    boost::shared_ptr<Gem::Common::GGraph2D> progressPlotter2D_oa_;
    boost::shared_ptr<Gem::Common::GGraph3D> progressPlotter3D_oa_;
+   boost::shared_ptr<Gem::Common::GGraph4D> progressPlotter4D_oa_;
 
    std::string fileName_; ///< The name of the file the output should be written to. Note that the class will add the name of the algorithm it acts on
    boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
