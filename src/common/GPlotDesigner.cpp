@@ -1399,16 +1399,20 @@ std::string GGraph4D::footerData() const {
       // Translate the fourth component into a marker size. By default,
       // smaller values will yield the largest value
       double markerSize = 0.;
-      if(smallWLargeMarker_) {
-         markerSize = minMarkerSize_ + (maxMarkerSize_-minMarkerSize_)*pow((1. - (w-wMin)/wRange),8.);
+      if(0==pos) {
+         markerSize = 2*maxMarkerSize_;
       } else {
-         markerSize = minMarkerSize_ + (maxMarkerSize_-minMarkerSize_)*pow(((w-wMin)/wRange), 8);
+         if(smallWLargeMarker_) {
+            markerSize = minMarkerSize_ + (maxMarkerSize_-minMarkerSize_)*pow((1. - (w-wMin)/wRange),8.);
+         } else {
+            markerSize = minMarkerSize_ + (maxMarkerSize_-minMarkerSize_)*pow(((w-wMin)/wRange), 8);
+         }
       }
 
       footer_data
       << "  pm3d_" << pos << "->SetPoint(" << pos << ", " << x << ", " << y << ", " << z << "); // w = " << w << std::endl
       << "  pm3d_" << pos << "->SetMarkerSize(" << markerSize << ");" << std::endl
-      << "  pm3d_" << pos << "->SetMarkerColor(2);" << std::endl
+      << "  pm3d_" << pos << "->SetMarkerColor(" << (0==pos?4:2) << ");" << std::endl
       << "  pm3d_" << pos << "->SetMarkerStyle(8);" << std::endl
       << "  pm3d_" << pos << "->Draw();" << std::endl;
 
