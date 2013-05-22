@@ -1193,7 +1193,7 @@ GGraph4D::GGraph4D()
    : minMarkerSize_(0.001)
    , maxMarkerSize_(1.)
    , smallWLargeMarker_(true)
-   , nBest_(1000)
+   , nBest_(0)
 { /* nothing */ }
 
 /******************************************************************************/

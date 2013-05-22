@@ -422,13 +422,6 @@ public:
                   double val2 = (*it)->GIndividual::getVarVal<double>(profVarVec_[2]);
                   double fitness = (*it)->getCachedFitness(isDirty);
 
-                  if(isDirty) {
-                     glogger
-                     << "In GProgressPlotterT<>::infoFunction(): Error!" << std::endl
-                     << "Individual is dirty" << std::endl
-                     << GEXCEPTION;
-                  }
-
                   progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(val0, val1, val2, fitness));
                }
                break;
