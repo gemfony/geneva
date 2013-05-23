@@ -42,6 +42,8 @@ The main changes for this release include:
  - Added pluggable optimization monitors that allow to easily monitor common properties of all optimization 
    algorithms. In this context, added a monitor that allows to plot one or two variables together with 
    their fitness for all individuals touched during the optimization.
+ - Gave GParameterBase objects a name to facilitate work with the GExternalEvaluatorIndividual. A name
+   to a parameter makes it much easier to work with XML files and to identify the important variables
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012
