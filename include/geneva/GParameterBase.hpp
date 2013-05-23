@@ -77,7 +77,8 @@ class GParameterBase
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
          & BOOST_SERIALIZATION_NVP(adaptionsActive_)
-         & BOOST_SERIALIZATION_NVP(randomInitializationBlocked_);
+         & BOOST_SERIALIZATION_NVP(randomInitializationBlocked_)
+         & BOOST_SERIALIZATION_NVP(parameterName_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -128,6 +129,11 @@ public:
 
 	/** @brief Emits a name for this class / object */
 	virtual std::string name() const;
+
+	/** @brief Allows to assign a name to this parameter */
+	void setParameterName(const std::string&);
+	/** @brief Allows to retrieve the name of this parameter */
+	std::string getParameterName() const;
 
 	/***************************************************************************/
 	/**
@@ -336,6 +342,7 @@ protected:
 private:
 	bool adaptionsActive_; ///< Specifies whether adaptions of this object should be carried out
 	bool randomInitializationBlocked_; ///< Specifies that this object should not be initialized again
+	std::string parameterName_; ///< A name assigned to this parameter object
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

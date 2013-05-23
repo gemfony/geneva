@@ -109,6 +109,7 @@ const std::string GEEI_DEF_PROGNAME = "./evaluator.py";
 const std::string GEEI_DEF_CUSTOMOPTIONS = "empty";
 const std::string GEEI_DEF_PARFILEBASENAME = "parameterFile";
 const std::size_t GEEI_DEF_NRESULTS = 1;
+const std::string GEEI_DEF_STARTMODE = "random";
 
 /******************************************************************************/
 /**
@@ -318,6 +319,11 @@ public:
    /** @brief Allows to retrieve the base name of the parameter file */
    std::string getParameterFileBaseName() const;
 
+   /** @brief Indicates the initialization mode */
+   void setInitValues(std::string);
+   /** @brief Allows to retrieve the initialization mode */
+   std::string getInitValues() const;
+
    // End of public getters and setters
    /**************************************************************************/
 
@@ -369,7 +375,8 @@ private:
 
    Gem::Common::GOneTimeRefParameterT<std::string> programName_;
    Gem::Common::GOneTimeRefParameterT<std::string> customOptions_;
-   Gem::Common::GOneTimeRefParameterT<std::string>  parameterFileBaseName_;
+   Gem::Common::GOneTimeRefParameterT<std::string> parameterFileBaseName_;
+   Gem::Common::GOneTimeRefParameterT<std::string> initValues_;
 
    bool externalEvaluatorQueried_; ///< Specifies whether the external evaluator program has already been queried for setup information
    pt::ptree ptr_; ///< Holds setup information for individuals, as provided by the external evaluator program

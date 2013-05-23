@@ -558,6 +558,7 @@ public:
          pt::ptree& ptr
          , const std::string& baseName
    ) const {
+      ptr.put(baseName + ".name", this->getParameterName());
       ptr.put(baseName + ".nvar", 1);
       ptr.put(baseName + ".type", this->name());
       ptr.put(baseName + ".baseType", this->baseType());

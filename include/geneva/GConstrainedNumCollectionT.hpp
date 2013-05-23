@@ -381,6 +381,7 @@ public:
       }
 #endif /* DEBUG */
 
+      ptr.put(baseName + ".name", this->getParameterName());
       ptr.put(baseName + ".nvar", this->size());
       ptr.put(baseName + ".type", this->name());
       ptr.put(baseName + ".baseType", this->baseType());

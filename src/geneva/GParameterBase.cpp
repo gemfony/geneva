@@ -48,6 +48,7 @@ GParameterBase::GParameterBase()
 	, gr(gr_local)
 	, adaptionsActive_(true)
 	, randomInitializationBlocked_(false)
+   , parameterName_() // empty
 { /* nothing */ }
 
 /******************************************************************************/
@@ -63,6 +64,7 @@ GParameterBase::GParameterBase(const GParameterBase& cp)
 	, gr(gr_local)
 	, adaptionsActive_(cp.adaptionsActive_)
 	, randomInitializationBlocked_(cp.randomInitializationBlocked_)
+   , parameterName_(cp.parameterName_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -90,6 +92,7 @@ void GParameterBase::load_(const GObject* cp){
 	// Load local data
 	adaptionsActive_ = p_load->adaptionsActive_;
 	randomInitializationBlocked_ = p_load->randomInitializationBlocked_;
+	parameterName_ = p_load->parameterName_;
 }
 
 /******************************************************************************/
@@ -211,6 +214,7 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GParameterBase", adaptionsActive_, p_load->adaptionsActive_, "adaptionsActive_", "p_load->adaptionsActive_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GParameterBase", randomInitializationBlocked_, p_load->randomInitializationBlocked_, "randomInitializationBlocked_", "p_load->randomInitializationBlocked_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GParameterBase", parameterName_, p_load->parameterName_, "parameterName_", "p_load->parameterName_", e , limit));
 
 	return evaluateDiscrepancies("GParameterBase", caller, deviations, e);
 }
@@ -221,6 +225,20 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
  */
 std::string GParameterBase::name() const {
    return std::string("GParameterBase");
+}
+
+/***********************************************************************************/
+/**
+ * Allows to assign a name to this parameter
+ */
+void GParameterBase::setParameterName(const std::string& pn) {
+   parameterName_ = pn;
+}
+
+/***********************************************************************************/
+/** @brief Allows to retrieve the name of this parameter */
+std::string GParameterBase::getParameterName() const {
+   return parameterName_;
 }
 
 /***********************************************************************************/

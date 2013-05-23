@@ -410,6 +410,7 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
    , programName_(GEEI_DEF_PROGNAME)
    , customOptions_(GEEI_DEF_CUSTOMOPTIONS)
    , parameterFileBaseName_(GEEI_DEF_PARFILEBASENAME)
+   , initValues_(GEEI_DEF_STARTMODE)
    , externalEvaluatorQueried_(false)
 { /* nothing */ }
 
@@ -883,6 +884,30 @@ std::string GExternalEvaluatorIndividualFactory::getParameterFileBaseName() cons
 
 /******************************************************************************/
 /**
+ * Indicates the initialization mode
+ */
+void GExternalEvaluatorIndividualFactory::setInitValues(std::string initValues) {
+   if(initValues != "random" && initValues != "min" && initValues != "max") {
+      glogger
+      << "In GExternalEvaluatorIndividualFactory::setInitValues(): Error!" << std::endl
+      << "Invalid argument: " << initValues << std::endl
+      << "Expected \"random\", \"min\" or \"max\"." << std::endl
+      << GEXCEPTION;
+   }
+
+   initValues_ = initValues;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the initialization mode
+ */
+std::string GExternalEvaluatorIndividualFactory::getInitValues() const {
+   return initValues_;
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type
@@ -1091,6 +1116,17 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
       , comment
    );
 
+   comment = "";
+   comment += "Indicates, whether individuals should be initialized randomly (random),;";
+   comment += "with the lower (min) or upper (max) boundary of their value ranges;";
+   gpb.registerFileParameter<std::string>(
+      "initValues"
+      , initValues_.reference()
+      , GEEI_DEF_STARTMODE
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
    // Allow our parent class to describe its options
    Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
 }
@@ -1136,7 +1172,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
    Gem::Common::runExternalCommand(programCommand + " --init");
 
    // Query the external evaluator for setup information for our individuals
-   Gem::Common::runExternalCommand(programCommand + " --setup=\"./setup.xml\"");
+   Gem::Common::runExternalCommand(programCommand + " --initvalues=" + initValues_.value() + " --setup=\"./setup.xml\"");
 
    // Parse the setup file
    pt::read_xml("./setup.xml", ptr_);
@@ -1211,6 +1247,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParame
          // Just treat GConstrainedDoubleObject objects for now
          if((cit->second).get<std::string>("type") == "GConstrainedDoubleObject") {
             // Extract the boundaries and initial values
+            std::string pName = (cit->second).get<std::string>("name");
             double minVar    = (cit->second).get<double>("lowerBoundary");
             double maxVar    = (cit->second).get<double>("upperBoundary");
             double initValue = (cit->second).get<double>("value0");
@@ -1228,6 +1265,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParame
                // Create the parameter object
                gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(minVar, maxVar));
             }
+            gcdo_ptr->setParameterName(pName);
 
             // Add the adaptor to the parameter object
             gcdo_ptr->addAdaptor(gat_ptr);
