@@ -126,7 +126,10 @@ public:
 	/**
 	 * Initialization with value and boundaries. We need somewhat tighter
 	 * constraints for the allowed value range than implemented in the
-	 * parent class.
+	 * parent class. Note that we take the liberty to adapt val, if it is
+	 * equal to the unmodified upper boundary. Otherwise you will get an
+	 * error, where what you likely really meant was to start with the
+	 * upper boundary.
 	 *
 	 * @param val The desired value of this object
 	 * @param lowerBoundary The lower boundary of the value range
@@ -137,7 +140,11 @@ public:
 		  , const fp_type& lowerBoundary
 		  , const fp_type& upperBoundary
 	)
-		: GConstrainedNumT<fp_type>(val, lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary))
+		: GConstrainedNumT<fp_type>(
+		      (val==upperBoundary?boost::math::float_prior<fp_type>(val):val)
+		      , lowerBoundary
+		      , boost::math::float_prior<fp_type>(upperBoundary)
+        )
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -269,14 +276,21 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Allows to set the value of this object together with its boundaries.
+	 * Allows to set the value of this object together with its boundaries. Note
+	 * that we take the liberty to adapt val, if it is equal to the unmodified upper
+	 * boundary. Otherwise you will get an error, where what you likely really meant
+	 * was to start with the upper boundary.
 	 *
 	 * @param val The desired value of this object
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	virtual void setValue(const fp_type& val, const fp_type& lowerBoundary, const fp_type& upperBoundary) {
-		GConstrainedNumT<fp_type>::setValue(val, lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary));
+		GConstrainedNumT<fp_type>::setValue(
+		      (val==upperBoundary?boost::math::float_prior<fp_type>(val):val)
+		      , lowerBoundary
+		      , boost::math::float_prior<fp_type>(upperBoundary)
+		);
 	}
 
 	/* ----------------------------------------------------------------------------------

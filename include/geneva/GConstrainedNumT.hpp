@@ -105,17 +105,7 @@ public:
 		: GParameterT<T>(val)
 		, lowerBoundary_(GConstrainedValueLimitT<T>::lowest())
 		, upperBoundary_(GConstrainedValueLimitT<T>::highest())
-	{
-      // Check that the value is inside of the allowed value range
-      if(val < lowerBoundary_ || val > upperBoundary_) {
-         glogger
-         << "In GConstrainedNumT<T>::GConstrainedNumT(val):" << std::endl
-         << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-         << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-         << "upperBoundary_ = " << upperBoundary_ << std::endl
-         << GEXCEPTION;
-      }
-	}
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**

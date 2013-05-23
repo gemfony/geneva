@@ -120,7 +120,10 @@ public:
 	/***************************************************************************/
 	/**
 	 * Initialize the lower and upper boundaries for data members of this class.
-	 * Set all positions to the same value.
+	 * Set all positions to the same value. Note that we take the liberty to adapt val,
+	 * if it is equal to the unmodified upper boundary. Otherwise you will get an
+    * error, where what you likely really meant was to start with the
+    * upper boundary.
 	 *
 	 * @param size The desired size of the collection
 	 * @param val The value to be assigned to all positions
@@ -133,7 +136,12 @@ public:
 			, const fp_type& lowerBoundary
 			, const fp_type& upperBoundary
 	)
-		: GConstrainedNumCollectionT<fp_type> (size, val, lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary)) // Note that we define the upper boundary as "open"
+		: GConstrainedNumCollectionT<fp_type> (
+		      size
+		      , (val==upperBoundary?boost::math::float_prior<fp_type>(val):val)
+		      , lowerBoundary
+		      , boost::math::float_prior<fp_type>(upperBoundary)
+		  ) // Note that we define the upper boundary as "open"
 	{ /* nothing */ }
 
 	/***************************************************************************/
