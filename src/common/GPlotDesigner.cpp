@@ -198,6 +198,42 @@ std::string GBasePlotter::dsMarker() const {
 
 /******************************************************************************/
 /**
+ * Allows to add secondary plots to be added to the same sub-canvas
+ */
+void GBasePlotter::registerSecondaryPlot(boost::shared_ptr<GBasePlotter> sp) {
+   // Check that the secondary plot isn't empty
+   if(!sp) {
+      glogger
+      << "In GBasePlotter::registerSecondaryPlot(): Error!" << std::endl
+      << "Got empty secondary plot" << std::endl
+      << GEXCEPTION;
+   }
+
+   // Check that the secondary plotter is compatible with us
+   if(!this->isCompatible(sp)) {
+      glogger
+      << "In GBasePlotter::registerSecondaryPlot(): Error!" << std::endl
+      << "Received incompatible secondary plotter" << std::endl
+      << sp->getPlotterName() << " in plotter " << this->getPlotterName() << std::endl
+      << GEXCEPTION;
+   }
+
+   // Add the plotter to our collection
+   secondaryPlotter_.push_back(sp);
+}
+
+/******************************************************************************/
+/**
+ * Check that a given plotter is compatible with us. By default we only
+ * check that the names of both plotters match. If other plot types are
+ * compatible with this plotter, you need to overload this function.
+ */
+bool GBasePlotter::isCompatible(boost::shared_ptr<GBasePlotter> other) const {
+   return (this->getPlotterName() == other->getPlotterName());
+}
+
+/******************************************************************************/
+/**
  * Allows to retrieve the id of this object
  */
 std::size_t GBasePlotter::id() const {

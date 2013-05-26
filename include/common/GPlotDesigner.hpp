@@ -154,25 +154,30 @@ public:
 	/** @brief Allows to retrieve the data structure marker */
 	std::string dsMarker() const;
 
+	/** @brief Allows to add secondary plots to be added to the same sub-canvas */
+	void registerSecondaryPlot(boost::shared_ptr<GBasePlotter>);
+
 	/** @brief Retrieves a unique name for this plotter */
 	virtual std::string getPlotterName() const = 0;
 
 protected:
 	/***************************************************************************/
-
-	std::string drawingArguments_; ///< Holds the drawing arguments for this plot
-
-	std::string x_axis_label_; ///< A label for the x-axis
-	std::string y_axis_label_; ///< A label for the y-axis
-	std::string z_axis_label_; ///< A label for the z-axis (if available)
-
-	std::string plot_label_;   ///< A label to be assigned to the entire plot
-	std::string dsMarker_;     ///< A marker to make the origin of data structures clear in the output file
+	/** @brief Check that a given plotter is compatible with us */
+	virtual bool isCompatible(boost::shared_ptr<GBasePlotter>) const;
 
 	/** @brief Allows to retrieve the id of this object */
 	std::size_t id() const;
    /** @brief Sets the id of the object */
    void setId(const std::size_t&);
+
+   std::string drawingArguments_; ///< Holds the drawing arguments for this plot
+
+   std::string x_axis_label_; ///< A label for the x-axis
+   std::string y_axis_label_; ///< A label for the y-axis
+   std::string z_axis_label_; ///< A label for the z-axis (if available)
+
+   std::string plot_label_;   ///< A label to be assigned to the entire plot
+   std::string dsMarker_;     ///< A marker to make the origin of data structures clear in the output file
 
 private:
    /***************************************************************************/
