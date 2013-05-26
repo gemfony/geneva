@@ -104,6 +104,7 @@ class GIndividual
 	     & BOOST_SERIALIZATION_NVP(serverMode_)
 	     & BOOST_SERIALIZATION_NVP(maximize_)
 	     & BOOST_SERIALIZATION_NVP(assignedIteration_)
+	     & BOOST_SERIALIZATION_NVP(isValid_)
 	     & BOOST_SERIALIZATION_NVP(pers_)
 	     & BOOST_SERIALIZATION_NVP(pt_ptr_);
 	}
@@ -172,7 +173,7 @@ public:
    void setDirtyFlag();
 
    /** @brief Checks whether this solution is valid */
-   virtual bool isValid() const;
+   bool isValid() const;
 
 	/** @brief Allows to retrieve the maximize_ parameter */
 	bool getMaxMode() const;
@@ -328,6 +329,9 @@ protected:
 	/** @brief Sets the dirtyFlag_ to any desired value */
 	bool setDirtyFlag(const bool&) ;
 
+   /** @brief Allows to specify whether a given solution is valid */
+   void setIsValid(const bool&);
+
 	/** @brief Combines secondary evaluation results by adding the individual results */
 	double sumCombiner() const;
 	/** @brief Combines secondary evaluation results by adding the absolute values of individual results */
@@ -357,6 +361,8 @@ private:
     bool maximize_;
     /** @brief The iteration of the parent algorithm's optimization cycle */
     boost::uint32_t assignedIteration_;
+    /** @brief Indicates whether a given solution is valid */
+    bool isValid_;
     /** @brief Indicates the optimization algorithm the individual takes part in */
     personality_oa pers_;
     /** @brief Holds the actual personality information */

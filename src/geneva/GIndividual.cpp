@@ -55,6 +55,7 @@ GIndividual::GIndividual()
 	, serverMode_(false)
 	, maximize_(false)
 	, assignedIteration_(0)
+	, isValid_(true) // Always valid by default
 	, pers_(PERSONALITY_NONE)
 { /* nothing */ }
 
@@ -78,6 +79,7 @@ GIndividual::GIndividual(const GIndividual& cp)
 	, serverMode_(cp.serverMode_)
 	, maximize_(cp.maximize_)
 	, assignedIteration_(cp.assignedIteration_)
+	, isValid_(cp.isValid_)
 	, pers_(cp.pers_)
 {
 	// We need to take care of the personality pointer manually
@@ -162,6 +164,7 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", assignedIteration_, p_load->assignedIteration_, "assignedIteration_", "p_load->assignedIteration_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GIndividual", isValid_, p_load->isValid_, "isValid_", "p_load->isValid_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", pers_, p_load->pers_, "pers_", "p_load->pers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", pt_ptr_, p_load->pt_ptr_, "pt_ptr_", "p_load->pt_ptr_", e , limit));
 
@@ -198,6 +201,7 @@ void GIndividual::load_(const GObject* cp) {
 	serverMode_ = p_load->serverMode_;
 	maximize_ = p_load->maximize_;
 	assignedIteration_ = p_load->assignedIteration_;
+	isValid_ = p_load->isValid_;
 	pers_ = p_load->pers_;
 	if(pers_ != PERSONALITY_NONE) {
 	   pt_ptr_->GObject::load(p_load->pt_ptr_);
@@ -242,16 +246,7 @@ double GIndividual::fitness(const std::size_t& id) {
          << GEXCEPTION;
 		}
 
-		// Make sure the secondary fitness vector is empty
-		currentSecondaryFitness_.clear();
-
-		// Trigger fitness calculation. This will also
-		// register secondary fitness values used in multi-criterion
-		// optimization.
-		currentFitness_ = fitnessCalculation();
-
-		// Clear the dirty flag
-		setDirtyFlag(false);
+		this->doFitnessCalculation();
 	}
 
 	// Return the desired result
@@ -330,13 +325,23 @@ double GIndividual::getCachedFitness(bool& dirtyFlag, const std::size_t& id) con
  * @return The main result of the fitness calculation
  */
 double GIndividual::doFitnessCalculation() {
-	// Make sure the secondary fitness vector is empty
-	currentSecondaryFitness_.clear();
-	// Do the actual calculation
-	currentFitness_ = fitnessCalculation();
-	// Clear the dirty flag
-	setDirtyFlag(false);
-	// Return the main fitness value
+   // By default every solution is valid. You need to set
+   // this variable to false if a given solution found in
+   // fitnessCalculation() isn't valid
+   isValid_ = true;
+
+   // Make sure the secondary fitness vector is empty
+   currentSecondaryFitness_.clear();
+
+   // Trigger fitness calculation. This will also
+   // register secondary fitness values used in multi-criterion
+   // optimization.
+   currentFitness_ = fitnessCalculation();
+
+   // Clear the dirty flag
+   setDirtyFlag(false);
+
+   // Return the main fitness value
 	return currentFitness_;
 }
 
@@ -557,12 +562,19 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
 
 /******************************************************************************/
 /**
- * Checks whether this solution is valid. By default we always label a solution
- * as valid. Derived classes must find their own ways to identify invalid solutions,
- * if needed.
+ * Checks whether this solution is valid.
  */
-virtual bool isValid() const {
-   return true;
+bool GIndividual::isValid() const {
+   return isValid_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to specify whether a given solution is valid. This is useful for
+ * checks in conjunction with dependent boundary conditions.
+ */
+void GIndividual::setIsValid(const bool& isValid) {
+   isValid_ = isValid;
 }
 
 /******************************************************************************/

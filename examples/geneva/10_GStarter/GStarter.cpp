@@ -67,20 +67,6 @@ int main(int argc, char **argv) {
          , boost::shared_ptr<GSigmaMonitor>(new GSigmaMonitor("./sigmaProgress.C"))
    );
 
-   // Register a progress plotter with the global optimization algorithm factory
-   boost::shared_ptr<GProgressPlotterT<GParameterSet> > progplot_ptr(new GProgressPlotterT<GParameterSet>());
-   progplot_ptr->addProfileVar("d", 0); // first double parameter
-   progplot_ptr->addProfileVar("d", 1); // second double parameter
-   progplot_ptr->addProfileVar("d", 2); // third double parameter
-   go.registerPluggableOM(
-      boost::bind(
-            &GProgressPlotterT<GParameterSet>::informationFunction
-            , progplot_ptr
-            , _1
-            , _2
-      )
-   );
-
    // Create a factory for GStarterIndividual objects and perform
    // any necessary initial work.
    boost::shared_ptr<GStarterIndividualFactory> gsif_ptr(
