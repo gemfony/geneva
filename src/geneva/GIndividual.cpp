@@ -557,6 +557,16 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
 
 /******************************************************************************/
 /**
+ * Checks whether this solution is valid. By default we always label a solution
+ * as valid. Derived classes must find their own ways to identify invalid solutions,
+ * if needed.
+ */
+virtual bool isValid() const {
+   return true;
+}
+
+/******************************************************************************/
+/**
  * Combines secondary evaluation results by adding the individual results
  *
  *  @return The result of the combination

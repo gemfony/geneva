@@ -171,6 +171,9 @@ public:
    /** @brief Sets the dirtyFlag_ */
    void setDirtyFlag();
 
+   /** @brief Checks whether this solution is valid */
+   virtual bool isValid() const;
+
 	/** @brief Allows to retrieve the maximize_ parameter */
 	bool getMaxMode() const;
 	/** @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode */
