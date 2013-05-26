@@ -639,6 +639,15 @@ graphPlotMode GGraph2D::getPlotMode() const {
 	return pM_;
 }
 
+
+/******************************************************************************/
+/**
+ * Retrieves a unique name for this plotter
+ */
+std::string GGraph2D::getPlotterName() const {
+   return "GGraph2D";
+}
+
 /******************************************************************************/
 /**
  * Retrieve specific header settings for this plot
@@ -844,6 +853,14 @@ graphPlotMode GGraph2ED::getPlotMode() const {
 
 /******************************************************************************/
 /**
+ * Retrieves a unique name for this plotter
+ */
+std::string GGraph2ED::getPlotterName() const {
+   return "GGraph2ED";
+}
+
+/******************************************************************************/
+/**
  * Retrieve specific header settings for this plot
  */
 std::string GGraph2ED::headerData() const {
@@ -1028,6 +1045,14 @@ void GGraph3D::setDrawLines(bool dL) {
  */
 bool GGraph3D::getDrawLines() const {
    return drawLines_;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves a unique name for this plotter
+ */
+std::string GGraph3D::getPlotterName() const {
+   return "GGraph3D";
 }
 
 /******************************************************************************/
@@ -1310,6 +1335,14 @@ void GGraph4D::setNBest(const std::size_t& nBest) {
  */
 std::size_t GGraph4D::getNBest() const {
    return nBest_;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves a unique name for this plotter
+ */
+std::string GGraph4D::getPlotterName() const {
+   return "GGraph4D";
 }
 
 /******************************************************************************/
@@ -1613,6 +1646,14 @@ double GHistogram1D::getMaxX() const {
 }
 
 /******************************************************************************/
+/**
+ * Retrieves a unique name for this plotter
+ */
+std::string GHistogram1D::getPlotterName() const {
+   return "GHistogram1D";
+}
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
@@ -1796,6 +1837,14 @@ double GHistogram1I::getMinX() const {
  */
 double GHistogram1I::getMaxX() const {
    return maxX_;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves a unique name for this plotter
+ */
+std::string GHistogram1I::getPlotterName() const {
+   return "GHistogram1I";
 }
 
 /******************************************************************************/
@@ -2138,6 +2187,14 @@ double GHistogram2D::getMaxY() const {
 }
 
 /******************************************************************************/
+/**
+ * Retrieves a unique name for this plotter
+ */
+std::string GHistogram2D::getPlotterName() const {
+   return "GHistogram2D";
+}
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
@@ -2200,6 +2257,14 @@ const GFunctionPlotter1D & GFunctionPlotter1D::operator=(const GFunctionPlotter1
  */
 void GFunctionPlotter1D::setNSamplesX(std::size_t nSamplesX) {
 	nSamplesX_ = nSamplesX;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves a unique name for this plotter
+ */
+std::string GFunctionPlotter1D::getPlotterName() const {
+   return "GFunctionPlotter1D";
 }
 
 /******************************************************************************/
@@ -2367,6 +2432,14 @@ void GFunctionPlotter2D::setNSamplesY(std::size_t nSamplesY) {
 
 /******************************************************************************/
 /**
+ * Retrieves a unique name for this plotter
+ */
+std::string GFunctionPlotter2D::getPlotterName() const {
+   return "GFunctionPlotter2D";
+}
+
+/******************************************************************************/
+/**
  * Retrieve specific header settings for this plot
  *
  * @return The code to be added to the plot header for this function
@@ -2521,6 +2594,14 @@ const GFreeFormPlotter& GFreeFormPlotter::operator=(const GFreeFormPlotter& cp)
 	footerData_ = cp.footerData_;
 
 	return *this;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves a unique name for this plotter
+ */
+std::string GFreeFormPlotter::getPlotterName() const {
+   return "GFreeFormPlotter";
 }
 
 /******************************************************************************/

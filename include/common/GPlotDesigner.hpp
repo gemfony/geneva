@@ -154,6 +154,9 @@ public:
 	/** @brief Allows to retrieve the data structure marker */
 	std::string dsMarker() const;
 
+	/** @brief Retrieves a unique name for this plotter */
+	virtual std::string getPlotterName() const = 0;
+
 protected:
 	/***************************************************************************/
 
@@ -168,12 +171,16 @@ protected:
 
 	/** @brief Allows to retrieve the id of this object */
 	std::size_t id() const;
+   /** @brief Sets the id of the object */
+   void setId(const std::size_t&);
 
 private:
-	/** @brief Sets the id of the object */
-	void setId(const std::size_t&);
+   /***************************************************************************/
 
 	std::size_t id_; ///< The id of this object
+
+	/** @brief A list of plotters that should emit their data into the same canvas */
+	std::vector<boost::shared_ptr<GBasePlotter> > secondaryPlotter_;
 };
 
 /******************************************************************************/
@@ -372,6 +379,9 @@ public:
 	/** @brief Retrieve the upper boundary of the plot */
 	double getMaxX() const;
 
+   /** @brief Retrieves a unique name for this plotter */
+   virtual std::string getPlotterName() const;
+
 private:
 	GHistogram1D(); ///< The default constructor -- intentionally private and undefined
 
@@ -421,6 +431,9 @@ public:
    double getMinX() const;
    /** @brief Retrieve the upper boundary of the plot */
    double getMaxX() const;
+
+   /** @brief Retrieves a unique name for this plotter */
+   virtual std::string getPlotterName() const;
 
 private:
    GHistogram1I(); ///< The default constructor -- intentionally private and undefined
@@ -874,6 +887,9 @@ public:
 	/** @brief Retrieve the upper boundary of the plot in y-direction */
 	double getMaxY() const;
 
+   /** @brief Retrieves a unique name for this plotter */
+   virtual std::string getPlotterName() const;
+
 	/** @brief Allows to specify 2d-drawing options */
 	void set2DOpt(tddropt);
 	/** @brief Allows to retrieve 2d-drawing options */
@@ -923,6 +939,9 @@ public:
 	/** @brief Allows to retrieve the current plotting mode */
 	graphPlotMode getPlotMode() const;
 
+   /** @brief Retrieves a unique name for this plotter */
+   virtual std::string getPlotterName() const;
+
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData() const;
 	/** @brief Retrieves the actual data sets */
@@ -957,6 +976,9 @@ public:
 	void setPlotMode(graphPlotMode);
 	/** @brief Allows to retrieve the current plotting mode */
 	graphPlotMode getPlotMode() const;
+
+   /** @brief Retrieves a unique name for this plotter */
+   virtual std::string getPlotterName() const;
 
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData() const;
@@ -1232,6 +1254,9 @@ public:
    void setDrawLines(bool=true);
    /** @brief Retrieves the value of the drawLines_ variable */
    bool getDrawLines() const;
+
+   /** @brief Retrieves a unique name for this plotter */
+   virtual std::string getPlotterName() const;
 
    /** @brief Retrieve specific header settings for this plot */
    virtual std::string headerData() const;
@@ -1563,6 +1588,9 @@ public:
    /** @brief Allows to check whether small w yield large markers */
    bool getSmallWLargeMarker() const;
 
+   /** @brief Retrieves a unique name for this plotter */
+   virtual std::string getPlotterName() const;
+
    /** @brief Retrieve specific header settings for this plot */
    virtual std::string headerData() const;
    /** @brief Retrieves the actual data sets */
@@ -1638,6 +1666,9 @@ public:
 	/** @brief Allows to set the number of sampling points in x-direction */
 	void setNSamplesX(std::size_t);
 
+   /** @brief Retrieves a unique name for this plotter */
+   virtual std::string getPlotterName() const;
+
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData() const;
 	/** @brief Retrieves the actual data sets */
@@ -1683,6 +1714,9 @@ public:
 	/** @brief Allows to set the number of sampling points in y-direction */
 	void setNSamplesY(std::size_t);
 
+   /** @brief Retrieves a unique name for this plotter */
+   virtual std::string getPlotterName() const;
+
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData() const;
 	/** @brief Retrieves the actual data sets */
@@ -1719,6 +1753,9 @@ public:
 
 	/** @brief The assignment operator */
 	const GFreeFormPlotter& operator=(const GFreeFormPlotter&);
+
+   /** @brief Retrieves a unique name for this plotter */
+   virtual std::string getPlotterName() const;
 
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData() const;
