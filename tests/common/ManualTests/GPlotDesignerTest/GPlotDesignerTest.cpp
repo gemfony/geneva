@@ -50,9 +50,9 @@ int main(int argc, char** argv) {
 
 	boost::shared_ptr<GGraph2D> gsin_ptr(new GGraph2D());
 	gsin_ptr->setPlotMode(Gem::Common::SCATTER);
-	gsin_ptr->setPlotLabel("A sine function, plotted through TGraph");
+	gsin_ptr->setPlotLabel("Sine and cosine functions, plotted through TGraph");
 	gsin_ptr->setXAxisLabel("x");
-	gsin_ptr->setYAxisLabel("sin(x)");
+	gsin_ptr->setYAxisLabel("sin(x) vs. cos(x)");
 
 	boost::shared_ptr<GGraph2D> gcos_ptr(new GGraph2D());
 	gcos_ptr->setPlotMode(Gem::Common::SCATTER);
@@ -60,11 +60,16 @@ int main(int argc, char** argv) {
 	gcos_ptr->setXAxisLabel("x");
 	gcos_ptr->setYAxisLabel("cos(x)");
 
+   boost::shared_ptr<GGraph2D> gcos_ptr_2(new GGraph2D());
+   gcos_ptr_2->setPlotMode(Gem::Common::SCATTER);
+   gsin_ptr->registerSecondaryPlotter(gcos_ptr_2);
+
 	for(std::size_t i=0; i<1000; i++) {
 		double x = 2*M_PI*double(i)/1000. - M_PI;
 
 		(*gsin_ptr) & boost::tuple<double, double>(x, sin(x));
 		(*gcos_ptr) & boost::tuple<double, double>(x, cos(x));
+		(*gcos_ptr_2) & boost::tuple<double, double>(x, cos(x));
 	}
 
 	boost::shared_ptr<GFunctionPlotter1D> gsin_plotter_1D_ptr(new GFunctionPlotter1D("sin(x)", minMaxX));
@@ -91,7 +96,7 @@ int main(int argc, char** argv) {
 	noisyParabola_plotter_2D_ptr->setYAxisLabel("Noisy parabola");
 	noisyParabola_plotter_2D_ptr->setDrawingArguments("surf1");
 
-	GPlotDesigner gpd("Sine and cosine and 2D-function", 2,3);
+	GPlotDesigner gpd("Sine and cosine and 2D-functions", 2,3);
 
 	gpd.setCanvasDimensions(1200,1400);
 	gpd.registerPlotter(gsin_ptr);

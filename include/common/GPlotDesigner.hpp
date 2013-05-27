@@ -114,22 +114,8 @@ public:
 	/** @brief The assignment operator */
 	void operator=(const GBasePlotter&);
 
-	//----------------------------------------------------------------------------
-	// Functions to be specified in derived classes
-
-	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData() const = 0;
-	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData() const = 0;
-	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData() const = 0;
-
-	//----------------------------------------------------------------------------
-
 	/** @brief Allows to set the drawing arguments for this plot */
-	virtual void setDrawingArguments(std::string);
-	/** @brief Retrieve the current drawing arguments */
-	std::string drawingArguments() const;
+	void setDrawingArguments(std::string);
 
 	/** @brief Sets the label for the x-axis */
 	void setXAxisLabel(std::string);
@@ -155,20 +141,42 @@ public:
 	std::string dsMarker() const;
 
 	/** @brief Allows to add secondary plots to be added to the same sub-canvas */
-	void registerSecondaryPlot(boost::shared_ptr<GBasePlotter>);
+	void registerSecondaryPlotter(boost::shared_ptr<GBasePlotter>);
+
+   /** @brief Allows to retrieve the id of this object */
+   std::size_t id() const;
+   /** @brief Sets the id of the object */
+   void setId(const std::size_t&);
+
 
 	/** @brief Retrieves a unique name for this plotter */
 	virtual std::string getPlotterName() const = 0;
 
+	/** @brief Retrieve a clone of this object */
+	virtual boost::shared_ptr<GBasePlotter> clone() const = 0;
+
 protected:
-	/***************************************************************************/
+   /***************************************************************************/
+	// Functions to be specified in derived classes
+
+   /** @brief Retrieve specific header settings for this plot */
+   virtual std::string headerData(bool, std::size_t) const = 0;
+   /** @brief Retrieves the actual data sets */
+   virtual std::string bodyData(bool, std::size_t) const = 0;
+   /** @brief Retrieves specific draw commands for this plot */
+   virtual std::string footerData(bool, std::size_t) const = 0;
+
+   /** @brief Retrieve the current drawing arguments */
+   virtual std::string drawingArguments(bool) const = 0;
+
+   /***************************************************************************/
 	/** @brief Check that a given plotter is compatible with us */
 	virtual bool isCompatible(boost::shared_ptr<GBasePlotter>) const;
 
-	/** @brief Allows to retrieve the id of this object */
-	std::size_t id() const;
-   /** @brief Sets the id of the object */
-   void setId(const std::size_t&);
+	/** @brief calculate a suffix from id and parent ids */
+	std::string suffix(bool, std::size_t) const;
+
+   /***************************************************************************/
 
    std::string drawingArguments_; ///< Holds the drawing arguments for this plot
 
@@ -182,10 +190,19 @@ protected:
 private:
    /***************************************************************************/
 
-	std::size_t id_; ///< The id of this object
+   /** @brief Retrieve specific header settings for this plot */
+   std::string headerData_() const;
+   /** @brief Retrieves the actual data sets */
+   std::string bodyData_() const;
+   /** @brief Retrieves specific draw commands for this plot */
+   std::string footerData_() const;
 
-	/** @brief A list of plotters that should emit their data into the same canvas */
-	std::vector<boost::shared_ptr<GBasePlotter> > secondaryPlotter_;
+   /***************************************************************************/
+
+   /** @brief A list of plotters that should emit their data into the same canvas */
+   std::vector<boost::shared_ptr<GBasePlotter> > secondaryPlotter_;
+
+	std::size_t id_; ///< The id of this object
 };
 
 /******************************************************************************/
@@ -369,13 +386,6 @@ public:
 	/** @brief The assignment operator */
 	const GHistogram1D &operator=(const GHistogram1D&);
 
-	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData() const;
-	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData() const;
-	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData() const;
-
 	/** @brief Retrieve the number of bins in x-direction */
 	std::size_t getNBinsX() const;
 
@@ -386,6 +396,20 @@ public:
 
    /** @brief Retrieves a unique name for this plotter */
    virtual std::string getPlotterName() const;
+
+   /** @brief Retrieve a clone of this object */
+   virtual boost::shared_ptr<GBasePlotter> clone() const;
+
+protected:
+   /** @brief Retrieve specific header settings for this plot */
+   virtual std::string headerData(bool, std::size_t) const;
+   /** @brief Retrieves the actual data sets */
+   virtual std::string bodyData(bool, std::size_t) const;
+   /** @brief Retrieves specific draw commands for this plot */
+   virtual std::string footerData(bool, std::size_t) const;
+
+   /** @brief Retrieve the current drawing arguments */
+   virtual std::string drawingArguments(bool) const;
 
 private:
 	GHistogram1D(); ///< The default constructor -- intentionally private and undefined
@@ -422,13 +446,6 @@ public:
    /** @brief The assignment operator */
    const GHistogram1I &operator=(const GHistogram1I&);
 
-   /** @brief Retrieve specific header settings for this plot */
-   virtual std::string headerData() const;
-   /** @brief Retrieves the actual data sets */
-   virtual std::string bodyData() const;
-   /** @brief Retrieves specific draw commands for this plot */
-   virtual std::string footerData() const;
-
    /** @brief Retrieve the number of bins in x-direction */
    std::size_t getNBinsX() const;
 
@@ -439,6 +456,20 @@ public:
 
    /** @brief Retrieves a unique name for this plotter */
    virtual std::string getPlotterName() const;
+
+   /** @brief Retrieve a clone of this object */
+   virtual boost::shared_ptr<GBasePlotter> clone() const;
+
+protected:
+   /** @brief Retrieve specific header settings for this plot */
+   virtual std::string headerData(bool, std::size_t) const;
+   /** @brief Retrieves the actual data sets */
+   virtual std::string bodyData(bool, std::size_t) const;
+   /** @brief Retrieves specific draw commands for this plot */
+   virtual std::string footerData(bool, std::size_t) const;
+
+   /** @brief Retrieve the current drawing arguments */
+   virtual std::string drawingArguments(bool) const;
 
 private:
    GHistogram1I(); ///< The default constructor -- intentionally private and undefined
@@ -871,13 +902,6 @@ public:
 	/** @brief The assignment operator */
 	const GHistogram2D &operator=(const GHistogram2D&);
 
-	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData() const;
-	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData() const;
-	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData() const;
-
 	/** @brief Retrieve the number of bins in x-direction */
 	std::size_t getNBinsX() const;
 	/** @brief Retrieve the number of bins in y-direction */
@@ -900,6 +924,19 @@ public:
 	/** @brief Allows to retrieve 2d-drawing options */
 	tddropt get2DOpt() const;
 
+   /** @brief Retrieve a clone of this object */
+   virtual boost::shared_ptr<GBasePlotter> clone() const;
+
+protected:
+   /** @brief Retrieve specific header settings for this plot */
+   virtual std::string headerData(bool, std::size_t) const;
+   /** @brief Retrieves the actual data sets */
+   virtual std::string bodyData(bool, std::size_t) const;
+   /** @brief Retrieves specific draw commands for this plot */
+   virtual std::string footerData(bool, std::size_t) const;
+
+   /** @brief Retrieve the current drawing arguments */
+   virtual std::string drawingArguments(bool) const;
 
 private:
 	GHistogram2D(); ///< The default constructor -- intentionally private and undefined
@@ -947,12 +984,19 @@ public:
    /** @brief Retrieves a unique name for this plotter */
    virtual std::string getPlotterName() const;
 
+   /** @brief Retrieve a clone of this object */
+   virtual boost::shared_ptr<GBasePlotter> clone() const;
+
+protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData() const;
+	virtual std::string headerData(bool, std::size_t) const;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData() const;
+	virtual std::string bodyData(bool, std::size_t) const;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData() const;
+	virtual std::string footerData(bool, std::size_t) const;
+
+   /** @brief Retrieve the current drawing arguments */
+   virtual std::string drawingArguments(bool) const;
 
 private:
 	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
@@ -985,12 +1029,19 @@ public:
    /** @brief Retrieves a unique name for this plotter */
    virtual std::string getPlotterName() const;
 
+   /** @brief Retrieve a clone of this object */
+   virtual boost::shared_ptr<GBasePlotter> clone() const;
+
+protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData() const;
+	virtual std::string headerData(bool, std::size_t) const;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData() const;
+	virtual std::string bodyData(bool, std::size_t) const;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData() const;
+	virtual std::string footerData(bool, std::size_t) const;
+
+   /** @brief Retrieve the current drawing arguments */
+   virtual std::string drawingArguments(bool) const;
 
 private:
 	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
@@ -1263,12 +1314,19 @@ public:
    /** @brief Retrieves a unique name for this plotter */
    virtual std::string getPlotterName() const;
 
+   /** @brief Retrieve a clone of this object */
+   virtual boost::shared_ptr<GBasePlotter> clone() const;
+
+protected:
    /** @brief Retrieve specific header settings for this plot */
-   virtual std::string headerData() const;
+   virtual std::string headerData(bool, std::size_t) const;
    /** @brief Retrieves the actual data sets */
-   virtual std::string bodyData() const;
+   virtual std::string bodyData(bool, std::size_t) const;
    /** @brief Retrieves specific draw commands for this plot */
-   virtual std::string footerData() const;
+   virtual std::string footerData(bool, std::size_t) const;
+
+   /** @brief Retrieve the current drawing arguments */
+   virtual std::string drawingArguments(bool) const;
 
 private:
    bool drawLines_; ///< When set to true, lines will be drawn between consecutive points
@@ -1596,17 +1654,13 @@ public:
    /** @brief Retrieves a unique name for this plotter */
    virtual std::string getPlotterName() const;
 
-   /** @brief Retrieve specific header settings for this plot */
-   virtual std::string headerData() const;
-   /** @brief Retrieves the actual data sets */
-   virtual std::string bodyData() const;
-   /** @brief Retrieves specific draw commands for this plot */
-   virtual std::string footerData() const;
-
    /** @brief Allows to set the number of solutions the class should show */
    void setNBest(const std::size_t&);
    /** @brief Allows to retrieve the number of solutions the class should show */
    std::size_t getNBest() const;
+
+   /** @brief Retrieve a clone of this object */
+   virtual boost::shared_ptr<GBasePlotter> clone() const;
 
    /***************************************************************************/
    /**
@@ -1633,6 +1687,17 @@ public:
    }
 
    /***************************************************************************/
+
+protected:
+   /** @brief Retrieve specific header settings for this plot */
+   virtual std::string headerData(bool, std::size_t) const;
+   /** @brief Retrieves the actual data sets */
+   virtual std::string bodyData(bool, std::size_t) const;
+   /** @brief Retrieves specific draw commands for this plot */
+   virtual std::string footerData(bool, std::size_t) const;
+
+   /** @brief Retrieve the current drawing arguments */
+   virtual std::string drawingArguments(bool) const;
 
 private:
    double minMarkerSize_; ///< The minimum allowed size of the marker
@@ -1674,12 +1739,19 @@ public:
    /** @brief Retrieves a unique name for this plotter */
    virtual std::string getPlotterName() const;
 
+   /** @brief Retrieve a clone of this object */
+   virtual boost::shared_ptr<GBasePlotter> clone() const;
+
+protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData() const;
+	virtual std::string headerData(bool, std::size_t) const;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData() const;
+	virtual std::string bodyData(bool, std::size_t) const;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData() const;
+	virtual std::string footerData(bool, std::size_t) const;
+
+   /** @brief Retrieve the current drawing arguments */
+   virtual std::string drawingArguments(bool) const;
 
 private:
 	GFunctionPlotter1D(); ///< The default constructor -- intentionally private and undefined
@@ -1722,12 +1794,19 @@ public:
    /** @brief Retrieves a unique name for this plotter */
    virtual std::string getPlotterName() const;
 
+   /** @brief Retrieve a clone of this object */
+   virtual boost::shared_ptr<GBasePlotter> clone() const;
+
+protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData() const;
+	virtual std::string headerData(bool, std::size_t) const;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData() const;
+	virtual std::string bodyData(bool, std::size_t) const;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData() const;
+	virtual std::string footerData(bool, std::size_t) const;
+
+   /** @brief Retrieve the current drawing arguments */
+   virtual std::string drawingArguments(bool) const;
 
 private:
 	GFunctionPlotter2D(); ///< The default constructor -- intentionally private and undefined
@@ -1762,21 +1841,42 @@ public:
    /** @brief Retrieves a unique name for this plotter */
    virtual std::string getPlotterName() const;
 
-	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData() const;
-	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData() const;
-	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData() const;
-
+	/** @brief Adds a string with header data */
 	void setHeaderData(const std::string&);
+   /** @brief Adds a string with body data */
 	void setBodyData(const std::string&);
+   /** @brief Adds a string with footer data */
 	void setFooterData(const std::string&);
+
+	/** @brief Registers a function that returns the desired header data */
+	void registerHeaderFunction(boost::function<std::string(bool, std::size_t)>);
+   /** @brief Registers a function that returns the desired body data */
+   void registerBodyFunction(boost::function<std::string(bool, std::size_t)>);
+   /** @brief Registers a function that returns the desired footer data */
+   void registerFooterFunction(boost::function<std::string(bool, std::size_t)>);
+
+   /** @brief Retrieve a clone of this object */
+   virtual boost::shared_ptr<GBasePlotter> clone() const;
+
+protected:
+   /** @brief Retrieve specific header settings for this plot */
+   virtual std::string headerData(bool, std::size_t) const;
+   /** @brief Retrieves the actual data sets */
+   virtual std::string bodyData(bool, std::size_t) const;
+   /** @brief Retrieves specific draw commands for this plot */
+   virtual std::string footerData(bool, std::size_t) const;
+
+   /** @brief Retrieve the current drawing arguments */
+   virtual std::string drawingArguments(bool) const;
 
 private:
 	std::string headerData_; ///< The data to be written into the master plot's header
 	std::string bodyData_; ///< The data to be written into the master plot's body
 	std::string footerData_; ///< The data to be written into the master plot's footer
+
+	boost::function<std::string(bool, std::size_t)> headerFunction_; ///< A function that returns the necessary header data
+	boost::function<std::string(bool, std::size_t)> bodyFunction_;   ///< A function that returns the necessary body   data
+	boost::function<std::string(bool, std::size_t)> footerFunction_; ///< A function that returns the necessary footer data
 };
 
 /******************************************************************************/
