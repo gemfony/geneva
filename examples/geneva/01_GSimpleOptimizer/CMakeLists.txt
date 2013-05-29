@@ -104,6 +104,7 @@ SET ( CONFIGFILE
 	config/GEvolutionaryAlgorithm.json
 	config/GFunctionIndividual.json
 	config/Go2.json
+	config/GParameterScan.json
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

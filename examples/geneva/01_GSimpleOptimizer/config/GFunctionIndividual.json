@@ -99,7 +99,7 @@
     {
         "comment": "The number of dimensions used for the demo function",
         "default": "2",
-        "value": "2"
+        "value": "3"
     },
     "minVar":
     {
