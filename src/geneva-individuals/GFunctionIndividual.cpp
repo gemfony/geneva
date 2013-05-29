@@ -40,6 +40,158 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The default constructor
+ */
+GDoubleSumConstraint::GDoubleSumConstraint()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The copy constructor
+ */
+GDoubleSumConstraint::GDoubleSumConstraint(const GDoubleSumConstraint& cp)
+   : GParameterSetMultiConstraint(cp)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GDoubleSumConstraint::~GDoubleSumConstraint()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * A standard assignment operator
+ */
+const GDoubleSumConstraint& GDoubleSumConstraint::operator=(const GDoubleSumConstraint& cp)
+{
+   GParameterSetMultiConstraint::load_(&cp);
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GIndividualConstraint object
+ */
+bool GDoubleSumConstraint::operator==(const GDoubleSumConstraint& cp) const {
+   using namespace Gem::Common;
+   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GDoubleSumConstraint::operator==","cp", CE_SILENT);
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GIndividualConstraint object
+ */
+bool GDoubleSumConstraint::operator!=(const GDoubleSumConstraint& cp) const {
+   using namespace Gem::Common;
+   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GDoubleSumConstraint::operator!=","cp", CE_SILENT);
+}
+
+/******************************************************************************/
+/**
+ * Checks whether a given expectation for the relationship between this object and another object is fulfilled.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+ */
+boost::optional<std::string> GDoubleSumConstraint::checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with an object of the same type and that we are not
+   // accidently trying to compare this object with itself.
+   const GDoubleSumConstraint *p_load = GObject::gobject_conversion<GDoubleSumConstraint>(&cp);
+
+   // Will hold possible deviations from the expectation, including explanations
+   std::vector<boost::optional<std::string> > deviations;
+
+   // Check our parent class'es data ...
+   deviations.push_back(GParameterSetMultiConstraint::checkRelationshipWith(cp, e, limit, "GDoubleSumConstraint", y_name, withMessages));
+
+   // no local data
+
+   return evaluateDiscrepancies("GDoubleSumConstraint", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object
+ */
+void GDoubleSumConstraint::addConfigurationOptions(
+      Gem::Common::GParserBuilder& gpb
+      , const bool& showOrigin
+) {
+   // Call our parent class'es function
+   GParameterSetMultiConstraint::addConfigurationOptions(gpb, showOrigin);
+}
+
+/******************************************************************************/
+/**
+ * Checks whether a given individual is valid
+ */
+double GDoubleSumConstraint::check_(
+      const GParameterSet *p
+      , const double& validityThreshold
+) const {
+   std::vector<double> parVec;
+   p->streamline(parVec);
+
+   double sum = 0.;
+   std::vector<double>::iterator it;
+   for(it=parVec.begin(); it!=parVec.end(); ++it) {
+      sum += *it;
+   }
+
+   if(sum < 1.) {
+      return 1.;
+   } else {
+      return 0.;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another GDoubleSumConstraint
+ */
+void GDoubleSumConstraint::load_(const GObject* cp) {
+   // Check that we are indeed dealing with an object of the same type and that we are not
+   // accidently trying to compare this object with itself.
+   const GDoubleSumConstraint *p_load = GObject::gobject_conversion<GDoubleSumConstraint>(cp);
+
+   // Load our parent class'es data ...
+   GParameterSetMultiConstraint::load_(cp);
+
+   // no local data
+}
+
+/******************************************************************************/
+/**
+ * Creates a deep clone of this object
+ */
+GObject* GDoubleSumConstraint::clone_() const {
+   return new GDoubleSumConstraint(*this);
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::solverFunction item into a stream
  *
@@ -150,7 +302,9 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::initMode& ur) {
  */
 GFunctionIndividual::GFunctionIndividual()
 	: demoFunction_(PARABOLA)
-{ /* nothing */ }
+{
+   this->registerConstraint(boost::shared_ptr<GDoubleSumConstraint>(new GDoubleSumConstraint()));
+}
 
 /******************************************************************************/
 /**
@@ -160,7 +314,9 @@ GFunctionIndividual::GFunctionIndividual()
  */
 GFunctionIndividual::GFunctionIndividual(const solverFunction& dF)
 	: demoFunction_(dF)
-{ /* nothing */ }
+{
+   this->registerConstraint(boost::shared_ptr<GDoubleSumConstraint>(new GDoubleSumConstraint()));
+}
 
 /******************************************************************************/
 /**
@@ -171,7 +327,9 @@ GFunctionIndividual::GFunctionIndividual(const solverFunction& dF)
 GFunctionIndividual::GFunctionIndividual(const GFunctionIndividual& cp)
 	: GParameterSet(cp)
 	, demoFunction_(cp.demoFunction_)
-{ /* nothing */	}
+{
+   this->registerConstraint(boost::shared_ptr<GDoubleSumConstraint>(new GDoubleSumConstraint()));
+}
 
 /******************************************************************************/
 /**

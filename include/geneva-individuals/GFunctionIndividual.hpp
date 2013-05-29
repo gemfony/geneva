@@ -54,6 +54,7 @@
 // Geneva header files go here
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GConstrainedDoubleCollection.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
@@ -62,11 +63,13 @@
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "hap/GRandomT.hpp"
+#include "geneva/GParameterSetMultiConstraint.hpp"
 
 namespace Gem {
 namespace Geneva {
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * This enum denotes the possible demo function types
@@ -549,7 +552,67 @@ private:
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A simple constraint checker searching for valid solutions that fulfill
+ * a given constraint. Here, the sum of all double variables needs to be smaller
+ * than a given constant.
+ */
+class GDoubleSumConstraint : public GParameterSetMultiConstraint
+{
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
 
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int){
+     using boost::serialization::make_nvp;
+     ar
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetMultiConstraint);
+   }
+   ///////////////////////////////////////////////////////////////////////
+public:
+
+   /** @brief The default constructor */
+   GDoubleSumConstraint();
+   /** @brief The copy constructor */
+   GDoubleSumConstraint(const GDoubleSumConstraint&);
+   /** @brief The destructor */
+   virtual ~GDoubleSumConstraint();
+
+   /** @brief A standard assignment operator */
+   const GDoubleSumConstraint& operator=(const GDoubleSumConstraint&);
+
+   /** @brief Checks for equality with another GIndividualConstraint object */
+   bool operator==(const GDoubleSumConstraint&) const;
+   /** @brief Checks for inequality with another GIndividualConstraint object */
+   bool operator!=(const GDoubleSumConstraint&) const;
+
+   /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
+   virtual boost::optional<std::string> checkRelationshipWith(
+         const GObject&
+         , const Gem::Common::expectation&
+         , const double&
+         , const std::string&
+         , const std::string&
+         , const bool&
+   ) const;
+
+   /** @brief Adds local configuration options to a GParserBuilder object */
+   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+
+protected:
+   virtual double check_(const GParameterSet *, const double&) const;
+
+   /** @brief Loads the data of another GParameterSetMultiConstraint */
+   virtual void load_(const GObject*);
+   /** @brief Creates a deep clone of this object */
+   virtual GObject* clone_() const;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 } /* namespace Geneva */
 } /* namespace Gem */
 

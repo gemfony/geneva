@@ -59,7 +59,7 @@ namespace Geneva {
  * This class implements constraint definitions based on multiple parameters
  * coming from GParameterSet-derivatives
  */
-class GParameterSetMultiConstraint: GValidityCheckT<GIndividual>
+class GParameterSetMultiConstraint: public GValidityCheckT<GIndividual>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
