@@ -332,8 +332,8 @@ protected:
 private:
 	explicit GParameterSet(const float&); ///< Intentionally private and undefined
 
-	/***************************************************************************/
 public:
+	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */

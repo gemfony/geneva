@@ -230,13 +230,14 @@ bool GFunctionIndividual::operator!=(const GFunctionIndividual& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GFunctionIndividual::checkRelationshipWith(const GObject& cp,
-	const Gem::Common::expectation& e,
-	const double& limit,
-	const std::string& caller,
-	const std::string& y_name,
-	const bool& withMessages) const
-{
+boost::optional<std::string> GFunctionIndividual::checkRelationshipWith(
+   const GObject& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+	, const std::string& caller
+	, const std::string& y_name
+	, const bool& withMessages
+) const {
 	using namespace Gem::Common;
 
 	// Check that we are indeed dealing with an object of the same type and that we are not
@@ -337,7 +338,7 @@ std::size_t GFunctionIndividual::getParameterSize() const {
 void GFunctionIndividual::load_(const GObject* cp){
 	// Check that we are indeed dealing with an object of the same type and that we are not
 	// accidently trying to compare this object with itself.
-	const GFunctionIndividual *p_load = gobject_conversion<GFunctionIndividual>(cp);
+	const GFunctionIndividual *p_load = GObject::gobject_conversion<GFunctionIndividual>(cp);
 
 	// Load our parent class'es data ...
 	GParameterSet::load_(cp);

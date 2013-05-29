@@ -55,7 +55,8 @@ GIndividual::GIndividual()
 	, serverMode_(false)
 	, maximize_(false)
 	, assignedIteration_(0)
-	, isValid_(true) // Always valid by default
+	, validityLevel_(1.0) // Always valid by default
+	, validityThreshold_(0.5)
 	, pers_(PERSONALITY_NONE)
 { /* nothing */ }
 
@@ -79,7 +80,8 @@ GIndividual::GIndividual(const GIndividual& cp)
 	, serverMode_(cp.serverMode_)
 	, maximize_(cp.maximize_)
 	, assignedIteration_(cp.assignedIteration_)
-	, isValid_(cp.isValid_)
+	, validityLevel_(cp.validityLevel_)
+	, validityThreshold_(cp.validityThreshold_)
 	, pers_(cp.pers_)
 {
 	// We need to take care of the personality pointer manually
@@ -88,6 +90,9 @@ GIndividual::GIndividual(const GIndividual& cp)
 	} else {
 	   setPersonality(pers_);
 	}
+
+	// Make sure any constraints are copied over
+	copyGenevaSmartPointer(cp.individualConstraint_, individualConstraint_);
 }
 
 /******************************************************************************/
@@ -164,19 +169,37 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", assignedIteration_, p_load->assignedIteration_, "assignedIteration_", "p_load->assignedIteration_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GIndividual", isValid_, p_load->isValid_, "isValid_", "p_load->isValid_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", pers_, p_load->pers_, "pers_", "p_load->pers_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GIndividual", validityLevel_, p_load->validityLevel_, "validityLevel_", "p_load->validityLevel_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GIndividual", validityThreshold_, p_load->validityThreshold_, "validityThreshold_", "p_load->validityThreshold_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GIndividual", pers_, p_load->pers_, "pers_", "p_load->pers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", pt_ptr_, p_load->pt_ptr_, "pt_ptr_", "p_load->pt_ptr_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", individualConstraint_, p_load->individualConstraint_, "individualConstraint_", "p_load->individualConstraint_", e , limit));
 
 	return evaluateDiscrepancies("GIndividual", caller, deviations, e);
 }
 
-/***********************************************************************************/
+/******************************************************************************/
 /**
  * Emits a name for this class / object
  */
 std::string GIndividual::name() const {
    return std::string("GIndividual");
+}
+
+/******************************************************************************/
+/**
+ * Allows to register a constraint with this individual
+ */
+void GIndividual::registerConstraint(boost::shared_ptr<GValidityCheckT<GIndividual> > c_ptr) {
+   if(!c_ptr) {
+      glogger
+      << "In GIndividual::registerConstraint(): Error!" << std::endl
+      << "Tried to register empty constraint object" << std::endl
+      << GEXCEPTION;
+   }
+
+   // We store clones, so individual objects do not share the same object
+   individualConstraint_ = c_ptr->GObject::clone<GValidityCheckT<GIndividual> >();
 }
 
 /******************************************************************************/
@@ -201,13 +224,16 @@ void GIndividual::load_(const GObject* cp) {
 	serverMode_ = p_load->serverMode_;
 	maximize_ = p_load->maximize_;
 	assignedIteration_ = p_load->assignedIteration_;
-	isValid_ = p_load->isValid_;
+	validityLevel_ = p_load->validityLevel_;
+	validityThreshold_ = p_load->validityThreshold_;
 	pers_ = p_load->pers_;
 	if(pers_ != PERSONALITY_NONE) {
 	   pt_ptr_->GObject::load(p_load->pt_ptr_);
 	} else {
 	   pt_ptr_.reset();
 	}
+
+   copyGenevaSmartPointer(p_load->individualConstraint_, individualConstraint_);
 }
 
 /******************************************************************************/
@@ -325,10 +351,12 @@ double GIndividual::getCachedFitness(bool& dirtyFlag, const std::size_t& id) con
  * @return The main result of the fitness calculation
  */
 double GIndividual::doFitnessCalculation() {
-   // By default every solution is valid. You need to set
-   // this variable to false if a given solution found in
-   // fitnessCalculation() isn't valid
-   isValid_ = true;
+   if(individualConstraint_) {
+      // Check whether this is a valid solution
+      validityLevel_ = individualConstraint_->check(this, validityThreshold_);
+   } else {
+      validityLevel_ = 1.0;
+   }
 
    // Make sure the secondary fitness vector is empty
    currentSecondaryFitness_.clear();
@@ -562,19 +590,50 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
 
 /******************************************************************************/
 /**
- * Checks whether this solution is valid.
+ * Checks whether this solution is valid (defined as a validityLevel_ > validityThreshold_).
  */
 bool GIndividual::isValid() const {
-   return isValid_;
+   return (validityLevel_ > validityThreshold_);
 }
 
 /******************************************************************************/
 /**
- * Allows to specify whether a given solution is valid. This is useful for
- * checks in conjunction with dependent boundary conditions.
+ * Allows to specify how valid a given solution is. This is useful for
+ * external checks for compliance with a set of boundary conditions
  */
-void GIndividual::setIsValid(const bool& isValid) {
-   isValid_ = isValid;
+void GIndividual::setValidityLevel(const double& validityLevel) {
+   validityLevel_ = validityLevel;
+}
+
+/******************************************************************************/
+/**
+ * Check how valid a given solution is
+ */
+double GIndividual::getValidityLevel() const {
+   return validityLevel_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to specify as of which threshold a solution is considered to be valid
+ */
+void GIndividual::setValidityThreshold(double validityThreshold) {
+   if(validityThreshold < 0. || validityThreshold > 1.0) {
+      glogger
+      << "In GIndividual::setValidityThreshold(): Error!" << std::endl
+      << "Validity threshold outside of [0:1] specified: " << validityThreshold << std::endl
+      << GEXCEPTION;
+   }
+
+   validityThreshold_= validityThreshold;
+}
+
+/******************************************************************************/
+/**
+ * Check as of which threshold a solution is considered to be valid
+ */
+double GIndividual::getValidityThreshold() const {
+   return validityThreshold_;
 }
 
 /******************************************************************************/
@@ -665,10 +724,27 @@ void GIndividual::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
+   std::string comment;
+
 	// Call our parent class'es function
 	GObject::addConfigurationOptions(gpb, showOrigin);
 
 	// Add local data
+   comment = ""; // Reset the first comment string
+   comment += "The [0,1] threshold as of which a solution is considered to be invalid;";
+   if(showOrigin) comment += " [GIndividual]";
+   gpb.registerFileParameter<double>(
+      "validityThreshold" // The name of the first variable
+      , 0.5
+      , boost::bind(
+         &GIndividual::setValidityThreshold
+         , this
+         , _1
+        )
+      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+      , comment
+   );
+
 	// maximize_ will be set in GParameterSet, as it has a different
 	// meaning for optimization algorithms that also derive indirectly
 	// from this class.
@@ -1126,7 +1202,6 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /******************************************************************************/
-
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -52,6 +52,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GGDPersonalityTraits.hpp
 	GGradientDescentFactory.hpp
 	GIndividual.hpp
+	GIndividualMultiConstraint.hpp
 	GIndividualStandardConsumerInitializerT.hpp
 	GIndividualStandardConsumers.hpp
 	GInt32Collection.hpp
@@ -63,6 +64,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GIntGaussAdaptorT.hpp
 	GIntNumCollectionT.hpp
 	GMPEAPersonalityTraits.hpp
+	GMultiConstraintT.hpp
 	GMultiPopulationEAT.hpp
 	GMultiThreadedEA.hpp
 	GMultiThreadedGD.hpp
@@ -94,6 +96,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterObjectCollection.hpp
 	GParameterScanFactory.hpp
 	GParameterSet.hpp
+	GParameterSetMultiConstraint.hpp
 	GParameterT.hpp
 	GParameterTCollectionT.hpp
 	GPersonalityTraits.hpp

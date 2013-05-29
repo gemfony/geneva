@@ -45,6 +45,8 @@ The main changes for this release include:
  - Gave GParameterBase objects a name to facilitate work with the GExternalEvaluatorIndividual. A name
    to a parameter makes it much easier to work with XML files and to identify the important variables
  - Gave GPlotDesigner the ability to add more than one plot to the same sub-canvas
+ - Added pluggable objects that allow to check parameter sets for validity, to be used in an infrastructure 
+   for dealing with multi-parameter constraints
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

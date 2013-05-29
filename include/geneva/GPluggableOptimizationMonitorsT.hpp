@@ -183,8 +183,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class allows to monitor a given set of variables inside of all individuals of a population,
- * creating a graphical output using ROOT.
+ * This class allows to monitor a given set of variables inside of all or of the
+ * best individuals of a population, creating a graphical output using ROOT.
  */
 template <typename ind_type>
 class GProgressPlotterT
@@ -200,6 +200,22 @@ public:
    , gpd_oa_("Progress information", 1, 1)
    , fileName_("parameterScan.C")
    , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
+   , monitorBestOnly_(false)
+   , monitorValidOnly_(false)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Construction with the information whether only the best individuals
+    * should be monitored and whether only valid items should be recorded.
+    */
+   GProgressPlotterT(bool monitorBestOnly, bool monitorValidOnly)
+   : profVarVec_()
+   , gpd_oa_("Progress information", 1, 1)
+   , fileName_("parameterScan.C")
+   , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
+   , monitorBestOnly_(monitorBestOnly)
+   , monitorValidOnly_(monitorValidOnly)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -212,6 +228,8 @@ public:
    , gpd_oa_("Progress information", 1, 1) // Not copied
    , fileName_(cp.fileName_)
    , canvasDimensions_(cp.canvasDimensions_)
+   , monitorBestOnly_(cp.monitorBestOnly_)
+   , monitorValidOnly_(cp.monitorValidOnly_)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -242,6 +260,38 @@ public:
       }
 
       profVarVec_.push_back(boost::tuple<std::string, std::size_t>(descr, pos));
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to specify whether only the best individuals should be monitored.
+    */
+   void setMonitorBestOnly(bool monitorBestOnly = true) {
+      monitorBestOnly_ = monitorBestOnly;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether only the best individuals should be monitored.
+    */
+   bool getMonitorBestOnly() const {
+      return monitorBestOnly_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to specify whether only valid individuals should be monitored.
+    */
+   void setMonitorValidOnly(bool monitorValidOnly = true) {
+      monitorValidOnly_ = monitorValidOnly;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether only valid individuals should be monitored.
+    */
+   bool getMonitorValidOnly() const {
+      return monitorValidOnly_;
    }
 
    /***************************************************************************/
@@ -392,48 +442,96 @@ public:
       case Gem::Geneva::INFOPROCESSING:
       {
          bool isDirty;
-         typename GOptimizationAlgorithmT<ind_type>::iterator it;
 
-         for(it=goa->begin(); it!=goa->end(); ++it) {
-            switch(this->nProfileVars()) {
-               case 1:
-               {
-                  double val0    = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
-                  double fitness = (*it)->getCachedFitness(isDirty);
+         if(monitorBestOnly_) { // Monitor the best individuals only
+            boost::shared_ptr<GIndividual> p = goa->GOptimizableI::getBestIndividual<GIndividual>();
+            if(!monitorValidOnly_ || p->isValid()) {
+               switch(this->nProfileVars()) {
+                  case 1:
+                  {
+                     double val0    = p->GIndividual::getVarVal<double>(profVarVec_[0]);
+                     double fitness = p->getCachedFitness(isDirty);
 
-                  progressPlotter2D_oa_->add(boost::tuple<double,double>(val0, fitness));
+                     progressPlotter2D_oa_->add(boost::tuple<double,double>(val0, fitness));
+                  }
+                  break;
+
+                  case 2:
+                  {
+                     double val0 = p->GIndividual::getVarVal<double>(profVarVec_[0]);
+                     double val1 = p->GIndividual::getVarVal<double>(profVarVec_[1]);
+                     double fitness = p->getCachedFitness(isDirty);
+
+                     progressPlotter3D_oa_->add(boost::tuple<double,double,double>(val0, val1, fitness));
+                  }
+                  break;
+
+                  case 3:
+                  {
+                     double val0 = p->GIndividual::getVarVal<double>(profVarVec_[0]);
+                     double val1 = p->GIndividual::getVarVal<double>(profVarVec_[1]);
+                     double val2 = p->GIndividual::getVarVal<double>(profVarVec_[2]);
+                     double fitness = p->getCachedFitness(isDirty);
+
+                     progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(val0, val1, val2, fitness));
+                  }
+                  break;
+
+                  default:
+                  {
+                     glogger
+                     << "In GProgressPlotterT<>::informationFunction(INFOPROCESSING/1): Error!" << std::endl
+                     << "Got invalid number of profiling dimensions" << std::endl
+                     << GEXCEPTION;
+                  }
+                  break;
                }
-               break;
+            }
+         } else { // Monitor all individuals
+            typename GOptimizationAlgorithmT<ind_type>::iterator it;
+            for(it=goa->begin(); it!=goa->end(); ++it) {
+               if(!monitorValidOnly_ || (*it)->isValid()) {
+                  switch(this->nProfileVars()) {
+                     case 1:
+                     {
+                        double val0    = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
+                        double fitness = (*it)->getCachedFitness(isDirty);
 
-               case 2:
-               {
-                  double val0 = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
-                  double val1 = (*it)->GIndividual::getVarVal<double>(profVarVec_[1]);
-                  double fitness = (*it)->getCachedFitness(isDirty);
+                        progressPlotter2D_oa_->add(boost::tuple<double,double>(val0, fitness));
+                     }
+                     break;
 
-                  progressPlotter3D_oa_->add(boost::tuple<double,double,double>(val0, val1, fitness));
+                     case 2:
+                     {
+                        double val0 = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
+                        double val1 = (*it)->GIndividual::getVarVal<double>(profVarVec_[1]);
+                        double fitness = (*it)->getCachedFitness(isDirty);
+
+                        progressPlotter3D_oa_->add(boost::tuple<double,double,double>(val0, val1, fitness));
+                     }
+                     break;
+
+                     case 3:
+                     {
+                        double val0 = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
+                        double val1 = (*it)->GIndividual::getVarVal<double>(profVarVec_[1]);
+                        double val2 = (*it)->GIndividual::getVarVal<double>(profVarVec_[2]);
+                        double fitness = (*it)->getCachedFitness(isDirty);
+
+                        progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(val0, val1, val2, fitness));
+                     }
+                     break;
+
+                     default:
+                     {
+                        glogger
+                        << "In GProgressPlotterT<>::informationFunction(INFOPROCESSING/2): Error!" << std::endl
+                        << "Got invalid number of profiling dimensions" << std::endl
+                        << GEXCEPTION;
+                     }
+                     break;
+                  }
                }
-               break;
-
-               case 3:
-               {
-                  double val0 = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
-                  double val1 = (*it)->GIndividual::getVarVal<double>(profVarVec_[1]);
-                  double val2 = (*it)->GIndividual::getVarVal<double>(profVarVec_[2]);
-                  double fitness = (*it)->getCachedFitness(isDirty);
-
-                  progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(val0, val1, val2, fitness));
-               }
-               break;
-
-               default:
-               {
-                  glogger
-                  << "In GProgressPlotterT<>::informationFunction(INFOPROCESSING): Error!" << std::endl
-                  << "Got invalid number of profiling dimensions" << std::endl
-                  << GEXCEPTION;
-               }
-               break;
             }
          }
       }
@@ -474,6 +572,9 @@ private:
 
    std::string fileName_; ///< The name of the file the output should be written to. Note that the class will add the name of the algorithm it acts on
    boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
+
+   bool monitorBestOnly_;  ///< Indicates whether only the best individuals should be monitored
+   bool monitorValidOnly_; ///< Indicates whether only valid individuals should be plotted
 };
 
 /******************************************************************************/

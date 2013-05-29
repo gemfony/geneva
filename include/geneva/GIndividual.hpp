@@ -50,11 +50,13 @@
 #include "courtier/GSubmissionContainerT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
+#include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GMutableI.hpp"
 #include "geneva/GRateableI.hpp"
 #include "geneva/GPersonalityTraits.hpp"
+#include "geneva/GMultiConstraintT.hpp"
 
 namespace Gem {
 namespace Tests {
@@ -104,9 +106,11 @@ class GIndividual
 	     & BOOST_SERIALIZATION_NVP(serverMode_)
 	     & BOOST_SERIALIZATION_NVP(maximize_)
 	     & BOOST_SERIALIZATION_NVP(assignedIteration_)
-	     & BOOST_SERIALIZATION_NVP(isValid_)
+	     & BOOST_SERIALIZATION_NVP(validityLevel_)
+	     & BOOST_SERIALIZATION_NVP(validityThreshold_)
 	     & BOOST_SERIALIZATION_NVP(pers_)
-	     & BOOST_SERIALIZATION_NVP(pt_ptr_);
+	     & BOOST_SERIALIZATION_NVP(pt_ptr_)
+	     & BOOST_SERIALIZATION_NVP(individualConstraint_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -171,9 +175,6 @@ public:
 	bool isDirty() const ;
    /** @brief Sets the dirtyFlag_ */
    void setDirtyFlag();
-
-   /** @brief Checks whether this solution is valid */
-   bool isValid() const;
 
 	/** @brief Allows to retrieve the maximize_ parameter */
 	bool getMaxMode() const;
@@ -308,6 +309,22 @@ public:
    /** @brief Emits a name for this class / object */
    virtual std::string name() const;
 
+   /** @brief Checks whether this solution has been rated to be valid */
+   bool isValid() const;
+
+   /** @brief Allows to specify how valid a given solution is */
+   void setValidityLevel(const double&);
+   /** @brief Check how valid a given solution is */
+   double getValidityLevel() const;
+
+   /** @brief Allows to specify as of which threshold a solution is considered to be valid */
+   void setValidityThreshold(double);
+   /** @brief Check as of which threshold a solution is considered to be valid */
+   double getValidityThreshold() const;
+
+   /** @brief Allows to register a constraint with this individual */
+   void registerConstraint(boost::shared_ptr<GValidityCheckT<GIndividual> >);
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GIndividual */
@@ -328,9 +345,6 @@ protected:
 	void setMaxMode_(const bool&);
 	/** @brief Sets the dirtyFlag_ to any desired value */
 	bool setDirtyFlag(const bool&) ;
-
-   /** @brief Allows to specify whether a given solution is valid */
-   void setIsValid(const bool&);
 
 	/** @brief Combines secondary evaluation results by adding the individual results */
 	double sumCombiner() const;
@@ -361,12 +375,17 @@ private:
     bool maximize_;
     /** @brief The iteration of the parent algorithm's optimization cycle */
     boost::uint32_t assignedIteration_;
-    /** @brief Indicates whether a given solution is valid */
-    bool isValid_;
+    /** @brief Indicates how valid a given solution is */
+    double validityLevel_;
+    /** @brief Indicates a threshold as of which a solution is considered to be valid */
+    double validityThreshold_;
     /** @brief Indicates the optimization algorithm the individual takes part in */
     personality_oa pers_;
     /** @brief Holds the actual personality information */
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
+
+    /** @brief A constraint-check to be applied to one or more components of this individual */
+    boost::shared_ptr<GValidityCheckT<GIndividual> > individualConstraint_;
 
     /***************************************************************************/
 public:

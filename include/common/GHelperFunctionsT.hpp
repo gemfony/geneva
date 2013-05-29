@@ -187,6 +187,78 @@ boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type
 }
 
 /******************************************************************************/
+/**
+ * This function converts a simple pointer to a target type, throwing an exception
+ * if the conversion cannot be done.
+ */
+template <typename source_type, typename target_type>
+target_type *convertSimplePointer(source_type *p_raw) {
+#ifdef DEBUG
+      // Check that we have indeed been given an item and that the pointer isn't empty
+      if(!p_raw) {
+         glogger
+         << "In target_type * convertSimplePointer(source_type *p_raw) :" << std::endl
+         << "Error: Pointer is empty." << std::endl
+         << GEXCEPTION;
+
+         // Make the compiler happy
+         return (target_type *)(NULL);
+      }
+
+      // Do the actual conversion
+      target_type  *p = dynamic_cast<target_type>(p_raw);
+      if(p) return p;
+      else {
+         glogger
+         << "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
+         << "Error: Invalid conversion" << std::endl
+         << GEXCEPTION;
+
+         // Make the compiler happy
+         return (target_type *)(NULL);
+      }
+#else
+      return static_cast<target_type>(p_raw);
+#endif /* DEBUG */
+}
+
+/******************************************************************************/
+/**
+ * This function converts a simple pointer to a target type, throwing an exception
+ * if the conversion cannot be done.
+ */
+template <typename source_type, typename target_type>
+const target_type *convertSimplePointer(const source_type *p_raw) {
+#ifdef DEBUG
+      // Check that we have indeed been given an item and that the pointer isn't empty
+      if(!p_raw) {
+         glogger
+         << "In const target_type * convertSimplePointer(const source_type *p_raw) :" << std::endl
+         << "Error: Pointer is empty." << std::endl
+         << GEXCEPTION;
+
+         // Make the compiler happy
+         return (const target_type *)(NULL);
+      }
+
+      // Do the actual conversion
+      const target_type  *p = dynamic_cast<const target_type *>(p_raw);
+      if(p) return p;
+      else {
+         glogger
+         << "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
+         << "Error: Invalid conversion" << std::endl
+         << GEXCEPTION;
+
+         // Make the compiler happy
+         return (const target_type *)(NULL);
+      }
+#else
+      return static_cast<const target_type *>(p_raw);
+#endif /* DEBUG */
+}
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

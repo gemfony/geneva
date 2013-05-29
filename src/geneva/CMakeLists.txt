@@ -40,6 +40,7 @@ SET ( OPTIMIZATIONSOURCES
 	GGDPersonalityTraits
 	GGradientDescentFactory
 	GIndividual
+	GIndividualMultiConstraint
 	GIndividualStandardConsumers
 	GInt32Collection
 	GInt32FlipAdaptor
@@ -63,6 +64,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterObjectCollection
 	GParameterScanFactory
 	GParameterSet
+	GParameterSetMultiConstraint
 	GParameterT
 	GPersonalityTraits
 	GPSPersonalityTraits
