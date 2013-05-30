@@ -72,10 +72,12 @@ if [ ! -d ./output ]; then
     mkdir ./output
 fi
 
+# Start the server
+(./$1 -e 2 -c tcpc --port=10000 >& ./output/output_server) &
+
 # Start the workers
 for i in `seq 1 $2`; do
-    nohup ./$1 -p 2 >& ./output/output_client$i &
+    (./$1 -e 2 -c tcpc --client --ip=localhost --port=10000 >& ./output/output_client$i) &
 done
 
-# Start the server
-nohup ./$1 -p 2 -s >& ./output/output_server &
+tail -f ./output/output_server

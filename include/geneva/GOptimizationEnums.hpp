@@ -127,7 +127,7 @@ const double MAXCONSTRAINEDFLOAT = (boost::numeric::bounds<float>::highest())/10
  * than the maximum allowed value for the underlying type in order to allow statements like
  * (max - min) without leaving the allowed value range.
  */
-const boost::int32_t MAXCONSTRAINEDINT32 = (boost::numeric::bounds<boost::int32_t>::highest())/10.;
+const boost::int32_t MAXCONSTRAINEDINT32 = (boost::numeric::bounds<boost::int32_t>::highest())/10;
 
 /******************************************************************************/
 /**
