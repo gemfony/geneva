@@ -35,6 +35,8 @@
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFunctionIndividual)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleSumConstraint)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSphereConstraint)
 
 namespace Gem {
 namespace Geneva {
@@ -193,6 +195,157 @@ GObject* GDoubleSumConstraint::clone_() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * The default constructor
+ */
+GSphereConstraint::GSphereConstraint()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The copy constructor
+ */
+GSphereConstraint::GSphereConstraint(const GSphereConstraint& cp)
+   : GParameterSetMultiConstraint(cp)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GSphereConstraint::~GSphereConstraint()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * A standard assignment operator
+ */
+const GSphereConstraint& GSphereConstraint::operator=(const GSphereConstraint& cp)
+{
+   GParameterSetMultiConstraint::load_(&cp);
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GIndividualConstraint object
+ */
+bool GSphereConstraint::operator==(const GSphereConstraint& cp) const {
+   using namespace Gem::Common;
+   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSphereConstraint::operator==","cp", CE_SILENT);
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GIndividualConstraint object
+ */
+bool GSphereConstraint::operator!=(const GSphereConstraint& cp) const {
+   using namespace Gem::Common;
+   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSphereConstraint::operator!=","cp", CE_SILENT);
+}
+
+/******************************************************************************/
+/**
+ * Checks whether a given expectation for the relationship between this object and another object is fulfilled.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+ */
+boost::optional<std::string> GSphereConstraint::checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with an object of the same type and that we are not
+   // accidently trying to compare this object with itself.
+   const GSphereConstraint *p_load = GObject::gobject_conversion<GSphereConstraint>(&cp);
+
+   // Will hold possible deviations from the expectation, including explanations
+   std::vector<boost::optional<std::string> > deviations;
+
+   // Check our parent class'es data ...
+   deviations.push_back(GParameterSetMultiConstraint::checkRelationshipWith(cp, e, limit, "GSphereConstraint", y_name, withMessages));
+
+   // no local data
+
+   return evaluateDiscrepancies("GSphereConstraint", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object
+ */
+void GSphereConstraint::addConfigurationOptions(
+      Gem::Common::GParserBuilder& gpb
+      , const bool& showOrigin
+) {
+   // Call our parent class'es function
+   GParameterSetMultiConstraint::addConfigurationOptions(gpb, showOrigin);
+}
+
+/******************************************************************************/
+/**
+ * Checks whether a given individual is valid
+ */
+double GSphereConstraint::check_(
+      const GParameterSet *p
+      , const double& validityThreshold
+) const {
+   std::vector<double> parVec;
+   p->streamline(parVec);
+
+   double sum = 0.;
+   std::vector<double>::iterator it;
+   for(it=parVec.begin(); it!=parVec.end(); ++it) {
+      sum += GSQUARED(*it);
+   }
+   sum = sqrt(sum);
+
+   if(sum < 3.) {
+      return 1.;
+   } else {
+      return 0.;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another GSphereConstraint
+ */
+void GSphereConstraint::load_(const GObject* cp) {
+   // Check that we are indeed dealing with an object of the same type and that we are not
+   // accidently trying to compare this object with itself.
+   const GSphereConstraint *p_load = GObject::gobject_conversion<GSphereConstraint>(cp);
+
+   // Load our parent class'es data ...
+   GParameterSetMultiConstraint::load_(cp);
+
+   // no local data
+}
+
+/******************************************************************************/
+/**
+ * Creates a deep clone of this object
+ */
+GObject* GSphereConstraint::clone_() const {
+   return new GSphereConstraint(*this);
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * Puts a Gem::Geneva::solverFunction item into a stream
  *
  * @param o The ostream the item should be added to
@@ -303,7 +456,8 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::initMode& ur) {
 GFunctionIndividual::GFunctionIndividual()
 	: demoFunction_(PARABOLA)
 {
-   this->registerConstraint(boost::shared_ptr<GDoubleSumConstraint>(new GDoubleSumConstraint()));
+   // this->registerConstraint(boost::shared_ptr<GDoubleSumConstraint>(new GDoubleSumConstraint()));
+   this->registerConstraint(boost::shared_ptr<GSphereConstraint>(new GSphereConstraint()));
 }
 
 /******************************************************************************/
@@ -315,7 +469,8 @@ GFunctionIndividual::GFunctionIndividual()
 GFunctionIndividual::GFunctionIndividual(const solverFunction& dF)
 	: demoFunction_(dF)
 {
-   this->registerConstraint(boost::shared_ptr<GDoubleSumConstraint>(new GDoubleSumConstraint()));
+   // this->registerConstraint(boost::shared_ptr<GDoubleSumConstraint>(new GDoubleSumConstraint()));
+   this->registerConstraint(boost::shared_ptr<GSphereConstraint>(new GSphereConstraint()));
 }
 
 /******************************************************************************/
@@ -328,7 +483,8 @@ GFunctionIndividual::GFunctionIndividual(const GFunctionIndividual& cp)
 	: GParameterSet(cp)
 	, demoFunction_(cp.demoFunction_)
 {
-   this->registerConstraint(boost::shared_ptr<GDoubleSumConstraint>(new GDoubleSumConstraint()));
+   // this->registerConstraint(boost::shared_ptr<GDoubleSumConstraint>(new GDoubleSumConstraint()));
+   this->registerConstraint(boost::shared_ptr<GSphereConstraint>(new GSphereConstraint()));
 }
 
 /******************************************************************************/

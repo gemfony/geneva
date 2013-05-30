@@ -188,6 +188,15 @@ GManipulator::GManipulator(
 
 /******************************************************************************/
 /**
+ * The copy constructor
+ */
+GManipulator::GManipulator(const GManipulator& cp)
+   : accompInfo_(cp.accompInfo_)
+   , logType_(cp.logType_)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * A constructor that stores the logging type only
  */
 GManipulator::GManipulator(const logType& lt)

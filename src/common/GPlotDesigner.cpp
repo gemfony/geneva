@@ -1385,8 +1385,6 @@ std::string GGraph3D::drawingArguments(bool isSecondary) const {
 
       if(isSecondary) {
          dA = dA + ",same";
-      } else {
-         dA = "A" + dA;
       }
    }
 

@@ -178,7 +178,7 @@ public:
   /**
    * This function will forward all arguments to a newly created object
    * of type S. Note that the function returns the S object by value. It
-   * will not the survive beyond the end of the stream-chain.
+   * will not survive beyond the end of the stream-chain.
    */
   template <typename T>
   S operator<<(const T& t) {
@@ -349,7 +349,6 @@ private:
  * the file and lines from which it has been called.
  */
 class GManipulator
-   : boost::noncopyable
 {
 public:
    /** @brief A constructor that stores both accompanying information and the logging type */
@@ -357,6 +356,8 @@ public:
          const std::string& accompInfo
          , const logType& lt
    );
+   /** @brief The copy constructor */
+   GManipulator(const GManipulator&);
    /** @brief A constructor that stores the logging type only */
    explicit GManipulator(const logType& lt);
 

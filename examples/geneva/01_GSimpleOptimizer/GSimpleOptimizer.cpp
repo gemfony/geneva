@@ -63,7 +63,6 @@ int main(int argc, char **argv) {
    boost::shared_ptr<GProgressPlotterT<GParameterSet> > progplot_ptr(new GProgressPlotterT<GParameterSet>());
    progplot_ptr->addProfileVar("d", 0); // first double parameter
    progplot_ptr->addProfileVar("d", 1); // second double parameter
-   progplot_ptr->addProfileVar("d", 2); // third double parameter
    progplot_ptr->setMonitorValidOnly(true); // Only register valid individuals
    go.registerPluggableOM(
       boost::bind(

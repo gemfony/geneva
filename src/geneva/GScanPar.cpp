@@ -188,7 +188,7 @@ bScanPar::bScanPar(
     , bool u
     , bool s
 )
-   : baseScanParT(p,nS,l,u,s,"b")
+   : baseScanParT<bool>(p,nS,l,u,s,"b")
 { /* nothing */ }
 
 /******************************************************************************/

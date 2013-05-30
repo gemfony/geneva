@@ -613,9 +613,69 @@ protected:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+/**
+ * A simple constraint checker searching for valid solutions that fulfill
+ * a given constraint. Here, valid solutions lie in a sphere around 0
+ */
+class GSphereConstraint : public GParameterSetMultiConstraint
+{
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int){
+     using boost::serialization::make_nvp;
+     ar
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetMultiConstraint);
+   }
+   ///////////////////////////////////////////////////////////////////////
+public:
+
+   /** @brief The default constructor */
+   GSphereConstraint();
+   /** @brief The copy constructor */
+   GSphereConstraint(const GSphereConstraint&);
+   /** @brief The destructor */
+   virtual ~GSphereConstraint();
+
+   /** @brief A standard assignment operator */
+   const GSphereConstraint& operator=(const GSphereConstraint&);
+
+   /** @brief Checks for equality with another GSphereConstraint object */
+   bool operator==(const GSphereConstraint&) const;
+   /** @brief Checks for inequality with another GSphereConstraint object */
+   bool operator!=(const GSphereConstraint&) const;
+
+   /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
+   virtual boost::optional<std::string> checkRelationshipWith(
+         const GObject&
+         , const Gem::Common::expectation&
+         , const double&
+         , const std::string&
+         , const std::string&
+         , const bool&
+   ) const;
+
+   /** @brief Adds local configuration options to a GParserBuilder object */
+   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+
+protected:
+   virtual double check_(const GParameterSet *, const double&) const;
+
+   /** @brief Loads the data of another GParameterSetMultiConstraint */
+   virtual void load_(const GObject*);
+   /** @brief Creates a deep clone of this object */
+   virtual GObject* clone_() const;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 } /* namespace Geneva */
 } /* namespace Gem */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividual)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumConstraint)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSphereConstraint)
 
 #endif /* GFUNCTIONINDIVIDUAL_HPP_ */
