@@ -54,7 +54,7 @@ def finalize():
     print("Cleaning up the optimization environment...")
     # Nothing to do...
 
-def setup(setup_file):
+def setup(setup_file, initial_values):
     """
     Provide the problem setup data inside a file of the given name.
     """
@@ -66,50 +66,37 @@ def setup(setup_file):
     <parameterset>
         <nResultsExpected>1</nResultsExpected>
         <nvar>4</nvar>
-        <type>GParameterSet</type>
-        <var0>
-            <nvar>1</nvar>
-            <type>GConstrainedDoubleObject</type>
-            <baseType>double</baseType>
-            <isLeaf>true</isLeaf>
-            <value0>-10.0</value0>
-            <lowerBoundary>-10.0</lowerBoundary>
-            <upperBoundary>10.0</upperBoundary>
-            <initRandom>true</initRandom>
-        </var0>
-        <var1>
-            <nvar>1</nvar>
-            <type>GConstrainedDoubleObject</type>
-            <baseType>double</baseType>
-            <isLeaf>true</isLeaf>
-            <value0>-10.0</value0>
-            <lowerBoundary>-10.0</lowerBoundary>
-            <upperBoundary>10.0</upperBoundary>
-            <initRandom>true</initRandom>
-        </var1>
-        <var2>
-            <nvar>1</nvar>
-            <type>GConstrainedDoubleObject</type>
-            <baseType>double</baseType>
-            <isLeaf>true</isLeaf>
-            <value0>-10.0</value0>
-            <lowerBoundary>-10.0</lowerBoundary>
-            <upperBoundary>10.0</upperBoundary>
-            <initRandom>true</initRandom>
-        </var2>
-        <var3>
-            <nvar>1</nvar>
-            <type>GConstrainedDoubleObject</type>
-            <baseType>double</baseType>
-            <isLeaf>true</isLeaf>
-            <value0>-10.0</value0>
-            <lowerBoundary>-10.0</lowerBoundary>
-            <upperBoundary>10.0</upperBoundary>
-            <initRandom>true</initRandom>
-        </var3>
+        <type>GParameterSet</type>\n"""
+
+    content = header
+    for i in range(4):
+        content += "        <var" + str(i) + ">\n"
+        content += "            <nvar>1</nvar>\n"
+        content += "            <type>GConstrainedDoubleObject</type>\n"
+        content += "            <baseType>double</baseType>\n"
+        content += "            <isLeaf>true</isLeaf>\n"
+        if initial_values == "min":
+            content += "            <value0>-10.0</value0>\n"
+            content += "            <lowerBoundary>-10.0</lowerBoundary>\n"
+            content += "            <upperBoundary>10.0</upperBoundary>\n"
+            content += "            <initRandom>false</initRandom>\n"
+        elif initial_values == "max":
+            content += "            <value0>10.0</value0>\n"
+            content += "            <lowerBoundary>-10.0</lowerBoundary>\n"
+            content += "            <upperBoundary>10.0</upperBoundary>\n"
+            content += "            <initRandom>false</initRandom>\n"
+        else:
+            content += "            <value0>0.0</value0>\n"
+            content += "            <lowerBoundary>-10.0</lowerBoundary>\n"
+            content += "            <upperBoundary>10.0</upperBoundary>\n"
+            content += "            <initRandom>true</initRandom>\n"
+        content += "        </var" + str(i) + ">\n"
+
+    content += """\
     </parameterset>
     """
-    setup_file.write(dedent(header))
+
+    setup_file.write(dedent(content))
     setup_file.close()
 
 def evaluate_result(in_file, out_file):
@@ -152,7 +139,7 @@ def write_output(out_file, iteration, result):
     <!--
         Results file created by """ + command_name() + """
         on """ + current_time() + """
-        for iteration #""" + str(iteration) + """
+        for iteration """ + str(iteration) + """
     -->
     <results>
         <isUseful>true</isUseful>
@@ -219,6 +206,9 @@ def main(argv):
 
     parser = argparse.ArgumentParser(description="External evaluator")
 
+    parser.add_argument("--initvalues", help="Start with the given initial values,"
+                        " either 'min' or 'max' (default: 'random')")
+
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--init", help="Perform initialization work",
                        action="store_true")
@@ -249,13 +239,17 @@ def main(argv):
         if args.evaluate:
             sys.exit('--evaluate requires either --result or --archive! Aborting...')
 
+    initial_values = args.initvalues or "random"
+    if initial_values not in set(["min", "max", "random"]):
+        sys.exit("Wrong --initvalues value, use either 'min' or 'max'! Aborting...")
+
     # Now do our job
     if args.init:
         init()
     elif args.finalize:
         finalize()
     elif args.setup:
-        setup(args.setup)
+        setup(args.setup, initial_values)
     elif args.evaluate:
         if args.result:
             evaluate_result(args.evaluate, args.result)
