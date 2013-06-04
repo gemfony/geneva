@@ -1295,18 +1295,11 @@ class GAsioTCPConsumerT
          return;
       }
 
+      // Initiate the processing sequence
+      currentSession->processRequest();
+
       // Wait for new connections
       this->newAccept();
-
-      // Initiate the processing of the incoming request
-      gtp_.schedule(
-         boost::function<void()>(
-             boost::bind(
-                 &GAsioServerSessionT<processable_type>::processRequest
-                 , currentSession
-             )
-         )
-      );
    }
 
    /***************************************************************************/
@@ -1320,7 +1313,6 @@ class GAsioTCPConsumerT
    unsigned short port_; ///< The port on which the server is supposed to listen
    std::string server_;  ///< The name or ip if the server
    Gem::Common::GThreadGroup gtg_; ///< Holds listener threads
-   Gem::Common::GThreadPool  gtp_; ///< Deals with the processing of requests
  };
 
 /******************************************************************************/

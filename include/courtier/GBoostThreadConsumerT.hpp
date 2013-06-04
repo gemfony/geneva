@@ -350,6 +350,25 @@ protected:
       );
    }
 
+   /***************************************************************************/
+   /**
+    * Adds local command line options to a boost::program_options::options_description object.
+    */
+   virtual void addCLOptions(boost::program_options::options_description& desc) {
+      namespace po = boost::program_options;
+
+      desc.add_options()
+         ("threadsPerWorker", po::value<std::size_t>(&threadsPerWorker_)->default_value(threadsPerWorker_), "\t[btc] The number of threads used to process each worker")
+      ;
+   }
+
+   /***************************************************************************/
+   /**
+    * Takes a boost::program_options::variables_map object and checks for supplied options.
+    */
+   virtual void actOnCLOptions(const boost::program_options::variables_map& vm)
+   { /* nothing */ }
+
 private:
    /***************************************************************************/
 

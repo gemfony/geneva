@@ -801,10 +801,6 @@ private:
     		// Get a work item and check its validity
     		p=retrieveItem<work_item>();
     		if(!p) {
-    		   glogger
-    		   << "In GBrokerConnectorT<>::workOnIncompleteReturnAllowed(): Warning!" << std::endl
-    		   << "Got empty item" << std::endl
-    		   << GWARNING;
     		   break;
     		}
 
