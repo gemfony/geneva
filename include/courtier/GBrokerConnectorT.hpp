@@ -795,8 +795,18 @@ private:
 
     	// Now wait for further arrivals for a predefined amount of time.
     	// retrieveItem will return an empty pointer, if the timeout has been reached
-    	while(nReceivedCurrent!=expectedNumber && (p=retrieveItem<work_item>())) {
+    	while(nReceivedCurrent!=expectedNumber) {
     		using namespace boost;
+
+    		// Get a work item and check its validity
+    		p=retrieveItem<work_item>();
+    		if(!p) {
+    		   glogger
+    		   << "In GBrokerConnectorT<>::workOnIncompleteReturnAllowed(): Warning!" << std::endl
+    		   << "Got empty item" << std::endl
+    		   << GWARNING;
+    		   break;
+    		}
 
 			// Update the counters and insert items
     		if(submission_counter_ == boost::get<0>(p->getCourtierId())) {
