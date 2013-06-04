@@ -43,15 +43,17 @@
 #include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
+#include <boost/array.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+#include <boost/cstdint.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
@@ -72,6 +74,7 @@
 
 // Geneva headers go here
 #include "common/GThreadGroup.hpp"
+#include "common/GThreadPool.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "courtier/GAsioHelperFunctions.hpp"
@@ -91,11 +94,11 @@ namespace Courtier {
  */
 const boost::uint32_t                GASIOTCPCONSUMERMAXSTALLS=10;
 const boost::uint32_t                GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS=10;
-const unsigned short                 GASIOTCPCONSUMERDEFAULTPORT=10000;
+const unsigned short               GASIOTCPCONSUMERDEFAULTPORT=10000;
 const std::string                    GASIOTCPCONSUMERDEFAULTSERVER="localhost";
 const boost::uint16_t                GASIOTCPCONSUMERTHREADS = 4;
 const Gem::Common::serializationMode GASIOTCPCONSUMERSERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
-const bool                           GASIOTCPCONSUMERRETURNREGARDLESS = true;
+const bool                          GASIOTCPCONSUMERRETURNREGARDLESS = true;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -286,11 +289,12 @@ protected:
             // We will usually only allow a given number of timeouts / stalls
             if (maxStalls_ && (stalls_++ > maxStalls_)) {
                std::ostringstream error;
-               error << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
-                    << "Maximum number of consecutive stalls reached,"
-                    << std::endl << "with last command = "
-                    << inboundCommandString << std::endl
-                    << "Leaving now." << std::endl;
+               error
+               << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
+               << "Maximum number of consecutive stalls reached,"
+               << std::endl << "with last command = "
+               << inboundCommandString << std::endl
+               << "Leaving now." << std::endl;
 
                return continueCalculation(false);
             }
@@ -308,10 +312,11 @@ protected:
          { // Make sure we do not hide the next error declaration (avoid a warning message)
 #ifdef DEBUG
             std::ostringstream error;
-            error << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
-                   << "Caught boost::system::system_error exception." << std::endl
-                   << "This is likely normal and due to a server shutdown." << std::endl
-                   << "Leaving now." << std::endl;
+            error
+            << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
+            << "Caught boost::system::system_error exception." << std::endl
+            << "This is likely normal and due to a server shutdown." << std::endl
+            << "Leaving now." << std::endl;
             std::cerr << error.str();
 #endif /* DEBUG */
          }
@@ -320,9 +325,10 @@ protected:
             return continueCalculation(false);
          } catch (...) {
             std::ostringstream error;
-            error << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
-                 << "Cannot shutdown gracefully as continueCalculation command" << std::endl
-                 << "threw inside of catch statement." << std::endl;
+            error
+            << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
+            << "Cannot shutdown gracefully as continueCalculation command" << std::endl
+            << "threw inside of catch statement." << std::endl;
 
             std::cerr << error.str();
 
@@ -332,8 +338,9 @@ protected:
 
       // This part of the function should never be reached. Let the audience know, then terminate.
       std::ostringstream error;
-      error << "In GAsioTCPClientT<processable_type>::retrieve() :" << std::endl
-           << "In a part of the function that should never have been reached!" << std::endl;
+      error
+      << "In GAsioTCPClientT<processable_type>::retrieve() :" << std::endl
+      << "In a part of the function that should never have been reached!" << std::endl;
       std::cerr << error.str();
 
       std::terminate();
@@ -501,7 +508,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * An instance of this class is created for each new connection request
+ * An instance of this class is created for each new connection initiated
  * by the client. All the details of the data exchange between server
  * and client are implemented here. The class is declared in the same
  * file as the GAsioTCPConsumer in order to avoid cross referencing of
@@ -509,7 +516,8 @@ private:
  */
 template <typename processable_type>
 class GAsioServerSessionT
-:private boost::noncopyable
+   : public  boost::enable_shared_from_this<GAsioServerSessionT<processable_type> >
+   , private boost::noncopyable
  {
  public:
    /***************************************************************************/
@@ -525,122 +533,40 @@ class GAsioServerSessionT
          , const Gem::Common::serializationMode& serMod
          , GAsioTCPConsumerT<processable_type> *master
    )
-   : socket_(io_service)
+   : strand_(io_service)
+   , socket_(io_service)
+   , bytesTransferredDataBody_(0)
+   , portId_(Gem::Common::PORTIDTYPE(0))
+   , dataSize_(0)
    , serializationMode_(serMod)
    , master_(master)
+   , timeout_(boost::posix_time::milliseconds(10))
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * A standard destructor. Shuts down and closes the socket. Note: Non-virtual.
     */
-   ~GAsioServerSessionT(){
-      try{
-         // Make sure we don't leave any open sockets lying around.
-         socket_.close();
-      }
-      // It is a severe error if an exception is thrown here.
-      // Log and leave.
-      catch(boost::system::system_error&){
-         std::ostringstream error;
-         error << "In GAsioServerSessionT<processable_type>::~GAsioServerSessionT():" << std::endl
-               << "Caught boost::system::system_error exception" << std::endl;
-         std::cerr << error.str();
-         std::terminate();
-      }
-   }
+   ~GAsioServerSessionT()
+   { /* nothing */ }
 
    /***************************************************************************/
    /**
     * This function processes an individual request from a client.
     */
    void processRequest() {
-      boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
-
-      // Every client transmission starts with a command
-      std::string command = getSingleCommand();
-
-      if (command == "ready") {
-         // Retrieve an item from the broker and submit it to the client.
-         boost::shared_ptr<processable_type> p;
-         Gem::Common::PORTIDTYPE id;
-
-         // Retrieve an item
-         while(!(GBROKER(processable_type)->get(id, p, timeout))) {
-            if(master_->GBaseConsumerT<processable_type>::stopped()) break;
-            continue;
-         }
-
-
-         // This will submit an empty item in case the stop criterion has been reached
-         if (!this->submit(Gem::Common::sharedPtrToString(p, serializationMode_),
-               "compute",
-               boost::lexical_cast<std::string>(serializationMode_),
-               boost::lexical_cast<std::string>(id)))
-         {
-            std::ostringstream information;
-            information << "In GAsioServerSessionT<processable_type>::processRequest():" << std::endl
-                  << "Could not submit item to client!" << std::endl;
-
-            std::cout << information.str();
-         }
-
-         // p has automatically been destroyed at this point
-         // and should thus exist no longer on the system
-      }
-      // Retrieve an item from the client and
-      // submit it to the broker
-      else if (command == "result") {
-         std::string itemString, portid;
-
-         if (this->retrieve(itemString, portid)) {
-            // Give the object back to the broker, so it can be sorted back
-            // into the GBufferPortT objects.
-            boost::shared_ptr<processable_type> p = Gem::Common::sharedPtrFromString<processable_type>(itemString, serializationMode_);
-
-            // Complain if this is an empty item
-            if(!p) {
-               glogger
-               << "In GAsioServerSessionT<>::processRequest(): Error!" << std::endl
-               << "Received empty item when filled item was expected!" << std::endl
-               << GEXCEPTION;
-            }
-
-            Gem::Common::PORTIDTYPE id = boost::lexical_cast<Gem::Common::PORTIDTYPE>(portid);
-
-            // Return the item to the broker. The item will be discarded
-            // if the requested target queue cannot be found.
-            while(true) {
-               if(master_->GBaseConsumerT<processable_type>::stopped()) break;
-
-               try {
-                  if((GBROKER(processable_type)->put(id, p, timeout))) { // Can this be a source of data loss ?
-                     // we have done our job -- break the loop
-                     break;
-                  } else {
-                     // try again
-                     continue;
-                  }
-               } catch(Gem::Courtier::buffer_not_present&) { // discard the item
-                  break;
-               }
-            }
-         }
-         else {
-            std::ostringstream information;
-            information << "GAsioServerSessionT<processable_type>::processRequest():" << std::endl
-                  << "Could not retrieve item from client." << std::endl;
-            std::cout << information.str();
-         }
-      }
-      else { // Also covers the "empty" return value of getSingleCommand()
-         std::ostringstream warning;
-         warning << "In GAsioServerSessionT<processable_type>::processRequest: Warning!" << std::endl
-               << "Received command \"" << command << "\"" << std::endl;
-         std::cout << warning.str();
-
-         this->sendSingleCommand("unknown");
-      }
+      // Initiate the first read session. Every transmission starts with a command
+      boost::asio::async_read(
+          socket_
+          , boost::asio::buffer(commandBuffer_)
+          , strand_.wrap(
+              boost::bind(
+                    &GAsioServerSessionT<processable_type>::handle_read_command
+                    , GAsioServerSessionT<processable_type>::shared_from_this()
+                    , boost::asio::placeholders::error
+              )
+          )
+      );
    }
 
    /***************************************************************************/
@@ -651,36 +577,309 @@ class GAsioServerSessionT
     */
    boost::asio::ip::tcp::socket& getSocket(){
       return socket_;
+
    }
-
-
  protected:
    /***************************************************************************/
    /**
-    * Retrieve a single command from the stream. It will afterwards have
-    * been removed from the stream.
-    *
-    * @return A single command that has been retrieved from a network socket
+    * Initiates all required action upon receiving a command
     */
-   std::string getSingleCommand(){
-      char inbound_command[Gem::Courtier::COMMANDLENGTH];
-
-      try{
-         // Read a command from the socket. This will remove it from the stream.
-         boost::asio::read(socket_, boost::asio::buffer(inbound_command));
-      }
-      catch(boost::system::system_error&){
-         std::ostringstream error;
-         error << "In GAsioServerSessionT<processable_type>::getSingleCommand(): Warning" << std::endl
-               << "Caught boost::system::system_error exception. The function" << std::endl
-               << "will return the \"empty\" value." << std::endl;
-         std::cerr << error.str();
-
-         return std::string("empty");
+   void handle_read_command(const boost::system::error_code& error) {
+      if(error) {
+         glogger
+         << "In GAsioServerSessionT<processable_type>::handle_read_command(): Warning!" << std::endl
+         << "Warning: Received error " << error << std::endl
+         << GWARNING;
+         return;
       }
 
-      // Remove all leading or trailing white spaces from the command.
-      return boost::algorithm::trim_copy(std::string(inbound_command, Gem::Courtier::COMMANDLENGTH));
+      //------------------------------------------------------------------------
+      // Deal with the data itself
+
+      // Remove white spaces
+      std::string command
+         = boost::algorithm::trim_copy(
+               std::string(commandBuffer_.data(), Gem::Courtier::COMMANDLENGTH)
+      );
+
+      //------------------------------------------------------------------------
+      // Initiate the next session, depending on the command
+
+      if (command == "ready") {
+         this->submit();   // Submit our data to the client
+      } else if (command == "result") {
+         this->retrieve(); // Initiate the retrieval sequence
+      }
+      else {
+         glogger
+         << "In GAsioServerSessionT<processable_type>::handle_read_command(): Warning!" << std::endl
+         << "Received unknown command \"" << command << "\"" << std::endl
+         << GWARNING;
+
+         this->sendSingleCommand("unknown");
+      }
+
+      //------------------------------------------------------------------------
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves an item from the client through the socket. This function
+    * simply initiates a chain of asynchronous commands, dealing in sequence
+    * with the port id, the data size header and the actual data body
+    */
+   void retrieve() {
+      // Initiate the next read session
+      boost::asio::async_read(
+          socket_
+          , boost::asio::buffer(commandBuffer_)
+          , strand_.wrap(
+              boost::bind(
+                    &GAsioServerSessionT<processable_type>::handle_read_portid
+                    , GAsioServerSessionT<processable_type>::shared_from_this()
+                    , boost::asio::placeholders::error
+              )
+          )
+      );
+   }
+
+   /***************************************************************************/
+   /**
+    * A routine to be called when all data of the port id has been read
+    */
+   void handle_read_portid(const boost::system::error_code& error) {
+      if(error) {
+         glogger
+         << "In GAsioServerSessionT<processable_type>::handle_read_portid(): Warning!" << std::endl
+         << "Warning: Received error " << error << std::endl
+         << GWARNING;
+         return;
+      }
+
+      //------------------------------------------------------------------------
+      // Deal with the data itself
+
+      // Remove white spaces
+      std::string portId_str
+         = boost::algorithm::trim_copy(
+               std::string(commandBuffer_.data(), Gem::Courtier::COMMANDLENGTH)
+      );
+
+      portId_ = boost::lexical_cast<Gem::Common::PORTIDTYPE>(portId_str);
+
+      //------------------------------------------------------------------------
+      // Initiate the next read session, this time dealing with the data size
+      boost::asio::async_read(
+          socket_
+          , boost::asio::buffer(commandBuffer_)
+          , strand_.wrap(
+              boost::bind(
+                    &GAsioServerSessionT<processable_type>::handle_read_datasize
+                    , GAsioServerSessionT<processable_type>::shared_from_this()
+                    , boost::asio::placeholders::error
+              )
+          )
+      );
+
+      //------------------------------------------------------------------------
+   }
+
+   /***************************************************************************/
+   /**
+    * A routine to be called when all data of the data size header has been read
+    */
+   void handle_read_datasize(const boost::system::error_code& error) {
+      if(error) {
+         glogger
+         << "In GAsioServerSessionT<processable_type>::handle_read_datasize(): Warning!" << std::endl
+         << "Warning: Received error " << error << std::endl
+         << GWARNING;
+         return;
+      }
+
+      //------------------------------------------------------------------------
+      // Deal with the data itself
+
+      // Remove white spaces
+      std::string dataSize_str
+         = boost::algorithm::trim_copy(
+               std::string(commandBuffer_.data(), Gem::Courtier::COMMANDLENGTH)
+           );
+
+      dataSize_ = boost::lexical_cast<std::size_t>(dataSize_str);
+
+      //------------------------------------------------------------------------
+      // Initiate the next read session, this time dealing with the data body
+      socket_.async_read_some(
+         boost::asio::buffer(dataBuffer_)
+         , strand_.wrap(
+             boost::bind(
+               &GAsioServerSessionT<processable_type>::handle_read_body
+               , GAsioServerSessionT<processable_type>::shared_from_this()
+               , boost::asio::placeholders::error
+               , boost::asio::placeholders::bytes_transferred
+            )
+         )
+      );
+
+      //------------------------------------------------------------------------
+   }
+
+   /***************************************************************************/
+   /**
+    * A routine to be called whenever data snippets from the body section have
+    * been read
+    */
+   void handle_read_body(
+         const boost::system::error_code& error
+         , std::size_t bytes_transferred
+   ) {
+      if(error) {
+         glogger
+         << "In GAsioServerSessionT<processable_type>::handle_read_body(): Warning!" << std::endl
+         << "Warning: Received error " << error << std::endl
+         << GWARNING;
+         return;
+      }
+
+      //------------------------------------------------------------------------
+      // Extract the data and update counters
+
+      // Add the data to the result string
+      dataBody_ += std::string(dataBuffer_.data(), bytes_transferred);
+      // Update our counter
+      bytesTransferredDataBody_ += bytes_transferred;
+
+      //------------------------------------------------------------------------
+      // Initiate the next read session, if still required
+
+      if(bytesTransferredDataBody_ < dataSize_) {
+         socket_.async_read_some(
+            boost::asio::buffer(dataBuffer_)
+            , strand_.wrap(
+                boost::bind(
+                 & GAsioServerSessionT<processable_type>::handle_read_body
+                  , GAsioServerSessionT<processable_type>::shared_from_this()
+                  , boost::asio::placeholders::error
+                  , boost::asio::placeholders::bytes_transferred
+               )
+            )
+         );
+      } else { // The transfer is complete, work with the results
+         // Give the object back to the broker, so it can be sorted back
+         // into the GBufferPortT objects.
+         boost::shared_ptr<processable_type> p = Gem::Common::sharedPtrFromString<processable_type>(dataBody_, serializationMode_);
+
+         // Complain if this is an empty item
+         if(!p) {
+            glogger
+            << "In GAsioServerSessionT<>::handle_read_body(): Error!" << std::endl
+            << "Received empty item when filled item was expected!" << std::endl
+            << GEXCEPTION;
+         }
+
+         // Return the item to the broker. The item will be discarded
+         // if the requested target queue cannot be found.
+         try {
+            while(!GBROKER(processable_type)->put(portId_, p, timeout_)) {
+               if(master_->GBaseConsumerT<processable_type>::stopped()) {
+                  boost::system::error_code ignore;
+                  socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+                  return;
+               }
+
+               continue;
+            }
+         } catch(Gem::Courtier::buffer_not_present&) { // discard the item
+            glogger
+            << "GAsioServerSessionT<>::In handle_read_body(): Warning!" << std::endl
+            << "Discarding item as buffer port is not present" << std::endl
+            << GWARNING;
+
+            return;
+         }
+      }
+
+      //------------------------------------------------------------------------
+   }
+
+   /***************************************************************************/
+   /**
+    * Submit an item to the client (i.e. the socket).
+    *
+    * @param item An item to be written to the socket
+    */
+   void submit(){
+      // Retrieve an item from the broker and submit it to the client.
+      boost::shared_ptr<processable_type> p;
+      Gem::Common::PORTIDTYPE portId;
+
+      // Retrieve an item
+      try {
+         while(!GBROKER(processable_type)->get(portId, p, timeout_)) {
+            if(master_->GBaseConsumerT<processable_type>::stopped()) {
+               boost::system::error_code ignore;
+               socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+               return;
+            }
+
+            continue;
+         }
+      } catch(Gem::Courtier::buffer_not_present&) { // discard the item
+         glogger
+         << "In GAsioServerSessionT<>::submit(): Warning!" << std::endl
+         << "Discarding item as buffer port is not present" << std::endl
+         << GWARNING;
+
+         return;
+      }
+
+      // Retrieve a string representation of the data item
+      std::string item = Gem::Common::sharedPtrToString(p, serializationMode_);
+
+      // Format the command
+      std::string outbound_command_header = assembleQueryString(
+            "compute"
+            , Gem::Courtier::COMMANDLENGTH
+      );
+
+      // Format the size header
+      std::string outbound_size_header = assembleQueryString(boost::lexical_cast<std::string>(item.size()), Gem::Courtier::COMMANDLENGTH);
+
+      // Format a header for the serialization mode
+      std::string serialization_header = assembleQueryString(
+            boost::lexical_cast<std::string>(serializationMode_)
+            , Gem::Courtier::COMMANDLENGTH
+      );
+
+      // Format the portId header
+      std::string portid_header = assembleQueryString(
+            boost::lexical_cast<std::string>(portId)
+            , Gem::Courtier::COMMANDLENGTH
+      );
+
+      // Write the serialized data to the socket. We use "gather-write" to send
+      // command, header and data in a single write operation.
+      std::vector<boost::asio::const_buffer> buffers;
+
+      buffers.push_back(boost::asio::buffer(outbound_command_header));
+      buffers.push_back(boost::asio::buffer(outbound_size_header));
+      buffers.push_back(boost::asio::buffer(serialization_header));
+      buffers.push_back(boost::asio::buffer(portid_header));
+      buffers.push_back(boost::asio::buffer(item));
+
+      // Initiate the actual submission sequence
+      boost::asio::async_write(
+            socket_
+            , buffers
+            , strand_.wrap(
+                boost::bind(
+                      &GAsioServerSessionT<processable_type>::handle_write
+                      , GAsioServerSessionT<processable_type>::shared_from_this()
+                      , boost::asio::placeholders::error
+                 )
+            )
+      );
    }
 
    /***************************************************************************/
@@ -693,105 +892,63 @@ class GAsioServerSessionT
       // Format the command ...
       std::string outbound_command = assembleQueryString(command, Gem::Courtier::COMMANDLENGTH);
       // ... and tell the client
-      try{
-         boost::asio::write(socket_, boost::asio::buffer(outbound_command));
-      }
-      catch(boost::system::system_error&){
-         std::ostringstream error;
-         error << "In GAsioServerSessionT<processable_type>::sendSingleCommand(): Warning" << std::endl
-               << "Caught boost::system::system_error exception" << std::endl;
-         std::cerr << error.str();
-      }
+      boost::asio::async_write(
+            socket_
+            , boost::asio::buffer(outbound_command)
+            , strand_.wrap(
+                boost::bind(
+                      &GAsioServerSessionT<processable_type>::handle_write
+                      , GAsioServerSessionT<processable_type>::shared_from_this()
+                      , boost::asio::placeholders::error
+                 )
+            )
+      );
    }
 
    /***************************************************************************/
    /**
-    * Retrieves an item from the client (i.e. the socket).
-    *
-    * @param itemString An item to be retrieved from the socket
-    * @param portid String representation of the id of the port the item originated from
-    * @return true if successful, otherwise false
+    * A routine to be called when all data has been written
     */
-   bool retrieve(std::string& itemString, std::string& portid){
-      itemString="";
-      portid="";
-
-      char inbound_header[Gem::Courtier::COMMANDLENGTH];
-
-      try{
-         // Read the port id from the socket and translate it into a string
-         boost::asio::read(socket_, boost::asio::buffer(inbound_header,Gem::Courtier::COMMANDLENGTH));
-         portid = boost::algorithm::trim_copy(std::string(inbound_header, Gem::Courtier::COMMANDLENGTH)); // removes white spaces
-
-         // Read the data size from the socket and translate into a number
-         boost::asio::read(socket_, boost::asio::buffer(inbound_header,Gem::Courtier::COMMANDLENGTH));
-         std::size_t dataSize = boost::lexical_cast<std::size_t>(boost::algorithm::trim_copy(std::string(inbound_header, Gem::Courtier::COMMANDLENGTH)));
-
-         // Read item data and transfer into itemString
-         char *data_section = new char[dataSize];
-         boost::asio::read(socket_, boost::asio::buffer(data_section, dataSize));
-         itemString = boost::algorithm::trim_copy(std::string(data_section, dataSize));
-         delete [] data_section;
-      }
-      catch(boost::system::system_error&){ // Retrieval didn't work
-         return false;
+   void handle_write(const boost::system::error_code& error)
+   {
+      if(error) {
+         glogger
+         << "In GAsioServerSessionT<processable_type>::handle_write(): Warning!" << std::endl
+         << "Warning: Received error " << error << std::endl
+         << GWARNING;
+         return;
       }
 
-      return true;
+      // Close our socket
+      boost::system::error_code ignore;
+      socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
    }
 
+  private:
    /***************************************************************************/
-   /**
-    * Submit an item to the client (i.e. the socket).
-    *
-    * @param item An item to be written to the socket
-    * @return true if successful, otherwise false
-    */
-   bool submit(const std::string& item,
-         const std::string& command,
-         const std::string& serMode,
-         const std::string& portId){
-      // Format the command
-      std::string outbound_command_header = assembleQueryString(command, Gem::Courtier::COMMANDLENGTH);
 
-      // Format the size header
-      std::string outbound_size_header = assembleQueryString(boost::lexical_cast<std::string>(item.size()), Gem::Courtier::COMMANDLENGTH);
-
-      // Format a header for the serialization mode
-      std::string serialization_header = assembleQueryString(serMode, Gem::Courtier::COMMANDLENGTH);
-
-      // Format the portId header
-      std::string portid_header = assembleQueryString(portId, Gem::Courtier::COMMANDLENGTH);
-
-      // Write the serialized data to the socket. We use "gather-write" to send
-      // command, header and data in a single write operation.
-      std::vector<boost::asio::const_buffer> buffers;
-
-      buffers.push_back(boost::asio::buffer(outbound_command_header));
-      buffers.push_back(boost::asio::buffer(outbound_size_header));
-      buffers.push_back(boost::asio::buffer(serialization_header));
-      buffers.push_back(boost::asio::buffer(portid_header));
-      buffers.push_back(boost::asio::buffer(item));
-
-      try{
-         boost::asio::write(socket_, buffers);
-      }
-      catch(boost::system::system_error&){ // Transfer didn't work
-         return false;
-      }
-
-      return true;
-   }
-
-
- private:
    GAsioServerSessionT(); ///< Intentionally left undefined
    GAsioServerSessionT(const GAsioServerSessionT<processable_type>&); ///< Intentionally left undefined
    const GAsioServerSessionT<processable_type>& operator=(const GAsioServerSessionT<processable_type>&); ///< Intentionally left undefined
 
+   /***************************************************************************/
+
+   boost::asio::io_service::strand strand_; ///< Ensure no connection handlers are called concurrently
    boost::asio::ip::tcp::socket socket_; ///< The underlying socket
+
+   boost::array<char, COMMANDLENGTH> commandBuffer_; ///< A buffer to be used for command transfers
+   boost::array<char, 4096>          dataBuffer_;    ///< A buffer holding body data
+
+   std::size_t bytesTransferredDataBody_; ///< The number of bytes if the data body transferred so far
+   std::string dataBody_; ///< The actual body data
+
+   Gem::Common::PORTIDTYPE portId_; ///< The id of a port
+   std::size_t dataSize_; ///< Holds the size of the body of data
+
    Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
    GAsioTCPConsumerT<processable_type> *master_;
+
+   boost::posix_time::time_duration timeout_; ///< A timeout for put- and get-operations
  };
 
 /******************************************************************************/
@@ -1017,28 +1174,13 @@ class GAsioTCPConsumerT
       acceptor_.bind(endpoint);
       acceptor_.listen();
 
-      boost::shared_ptr<GAsioServerSessionT<processable_type> > currentSession(
-            new GAsioServerSessionT<processable_type>(
-                  io_service_
-                  , serializationMode_
-                  , this
-            )
-      );
-
-      acceptor_.async_accept(
-            currentSession->getSocket()
-            , boost::bind(
-                  &GAsioTCPConsumerT<processable_type>::handleAccept
-                  , this
-                  , currentSession
-                  , boost::asio::placeholders::error
-            )
-      );
+      // Start a new session
+      this->newAccept();
 
       // Create a number of threads responsible for the io_service_ objects
       gtg_.create_threads(
-            boost::bind(&boost::asio::io_service::run, &io_service_)
-      , listenerThreads_
+         boost::bind(&boost::asio::io_service::run, &io_service_)
+         , listenerThreads_
       );
    }
 
@@ -1112,18 +1254,10 @@ class GAsioTCPConsumerT
  private:
    /***************************************************************************/
    /**
-    * Handles a new connection request from a client.
-    *
-    * @param currentSession A pointer to the current session
-    * @param error Possible error conditions
+    * Starts a new session
     */
-   void handleAccept(
-         boost::shared_ptr<GAsioServerSessionT<processable_type> > currentSession
-         , const boost::system::error_code& error)
+   void newAccept()
    {
-      // Check whether an error occurred. This will likely indicate that we've been asked to stop.
-      if(error) return;
-
       // First we make sure a new session is started asynchronously so the next request can be served
       boost::shared_ptr<GAsioServerSessionT<processable_type> > newSession(
             new GAsioServerSessionT<processable_type>(
@@ -1137,13 +1271,42 @@ class GAsioTCPConsumerT
             newSession->getSocket()
             , boost::bind(
                   &GAsioTCPConsumerT<processable_type>::handleAccept
-                  , this, newSession
+                  , this
+                  , newSession
                   , boost::asio::placeholders::error
             )
       );
+   }
 
-      // Now we can run the actual session code
-      currentSession->processRequest();
+
+   /***************************************************************************/
+   /**
+    * Handles a new connection request from a client.
+    *
+    * @param currentSession A pointer to the current session
+    * @param error Possible error conditions
+    */
+   void handleAccept(
+         boost::shared_ptr<GAsioServerSessionT<processable_type> > currentSession
+         , const boost::system::error_code& error)
+   {
+      if(error) {
+         std::cout << "Terminating on error" << std::endl;
+         return;
+      }
+
+      // Wait for new connections
+      this->newAccept();
+
+      // Initiate the processing of the incoming request
+      gtp_.schedule(
+         boost::function<void()>(
+             boost::bind(
+                 &GAsioServerSessionT<processable_type>::processRequest
+                 , currentSession
+             )
+         )
+      );
    }
 
    /***************************************************************************/
@@ -1156,7 +1319,8 @@ class GAsioTCPConsumerT
    bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
    unsigned short port_; ///< The port on which the server is supposed to listen
    std::string server_;  ///< The name or ip if the server
-   Gem::Common::GThreadGroup gtg_;
+   Gem::Common::GThreadGroup gtg_; ///< Holds listener threads
+   Gem::Common::GThreadPool  gtp_; ///< Deals with the processing of requests
  };
 
 /******************************************************************************/

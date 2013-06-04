@@ -60,9 +60,14 @@ namespace Courtier {
 
 /******************************************************************************/
 /**
- * Needed so that server and client agree about the size of the headers and commands
+ * Needed so that server and client agree about the size of the headers and commands.
+ * Currently our longest command has 7 characters. As we read commands synchronously,
+ * we want to keep the command length as small as possible. Note that, as the size
+ * of the data body is submitted as a "command", data bodies may not have more than
+ * 16 digits describing the number of bytes to expect. This should however suffice for
+ * every practical purpose.
  */
-const std::size_t COMMANDLENGTH=64;
+const std::size_t COMMANDLENGTH=16;
 
 /******************************************************************************/
 /**
