@@ -165,6 +165,7 @@ public:
   /***************************************************************************/
   /** @brief The default constructor - needed for the singleton */
   GLogger(void)
+     : defaultLogger_(new GConsoleLogger())
   { /* nothing */ }
 
   /***************************************************************************/
@@ -211,11 +212,31 @@ public:
 
   /***************************************************************************/
   /**
+   * Allows to set the default log target
+   */
+  void setDefaultLogTarget(boost::shared_ptr<GBaseLogTarget> gblt) {
+     if(gblt) {
+        defaultLogger_ = gblt;
+     } else {
+        raiseException(
+              "In GLogger::setDefaultLogTarget(): Error!" << std::endl
+              << "Tried to register empty default logger" << std::endl
+        );
+     }
+  }
+
+  /***************************************************************************/
+  /**
    * Adds a log target, such as console or file
    */
   void addLogTarget(boost::shared_ptr<GBaseLogTarget> gblt) {
      if(gblt) {
         logVector_.push_back(gblt);
+     } else {
+        raiseException(
+              "In GLogger::addLogTarget(): Error!" << std::endl
+              << "Tried to register empty logger" << std::endl
+        );
      }
   }
 
@@ -245,19 +266,21 @@ public:
      // Make sure only one entity outputs data
      boost::mutex::scoped_lock lk(logger_mutex_);
 
-#ifdef DEBUG
-     if(logVector_.empty()) {
-        raiseException(
-              "In GLogger<S>::log(): Error!" << std::endl
-              << "No logging targets have been registered." << std::endl
-        );
-     }
-#endif /* DEBUG */
-
-     // Do the actual logging
-     std::vector<boost::shared_ptr<GBaseLogTarget> >::const_iterator cit;
-     for(cit=logVector_.begin(); cit!=logVector_.end(); ++cit) {
-        (*cit)->log(message);
+     if(!logVector_.empty()) {
+        // Do the actual logging
+        std::vector<boost::shared_ptr<GBaseLogTarget> >::const_iterator cit;
+        for(cit=logVector_.begin(); cit!=logVector_.end(); ++cit) {
+           (*cit)->log(message);
+        }
+     } else {
+        if(defaultLogger_) {
+           defaultLogger_->log(message);
+        } else {
+           raiseException(
+                 "In GLogger::log(): Error!" << std::endl
+                 << "No loggers found" << std::endl
+           );
+        }
      }
   }
 
@@ -271,19 +294,21 @@ public:
      // Make sure only one entity outputs data
      boost::mutex::scoped_lock lk(logger_mutex_);
 
-#ifdef DEBUG
-     if(logVector_.empty()) {
-        raiseException(
-              "In GLogger<S>::logWithSource(): Error!" << std::endl
-              << "No logging targets have been registered." << std::endl
-        );
-     }
-#endif /* DEBUG */
-
-     // Do the actual logging
-     std::vector<boost::shared_ptr<GBaseLogTarget> >::const_iterator cit;
-     for(cit=logVector_.begin(); cit!=logVector_.end(); ++cit) {
-        (*cit)->logWithSource(message, extension);
+     if(!logVector_.empty()) {
+        // Do the actual logging
+        std::vector<boost::shared_ptr<GBaseLogTarget> >::const_iterator cit;
+        for(cit=logVector_.begin(); cit!=logVector_.end(); ++cit) {
+           (*cit)->logWithSource(message, extension);
+        }
+     } else {
+        if(defaultLogger_) {
+           defaultLogger_->logWithSource(message, extension);
+        } else {
+           raiseException(
+                 "In GLogger::logWithSource(): Error!" << std::endl
+                 << "No loggers found" << std::endl
+           );
+        }
      }
   }
 
@@ -338,6 +363,8 @@ private:
 
   std::vector<boost::shared_ptr<GBaseLogTarget> > logVector_; ///< Contains the log targets
   mutable boost::mutex logger_mutex_; ///< Needed for concurrent access to the log targets
+
+  boost::shared_ptr<GBaseLogTarget> defaultLogger_; ///< The default log target
 };
 
 /******************************************************************************/
