@@ -196,13 +196,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	boost::optional<std::string> checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+   ) const {
 	    using namespace Gem::Common;
 
 	    // Check that we are not accidently assigning this object to itself
@@ -223,7 +224,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GIntNumCollectionT");
    }
 
@@ -234,7 +235,7 @@ protected:
 	 *
 	 * @param cp A copy of another GIntNumCollectionT<int_type>  object, camouflaged as a GObject
 	 */
-	void load_(const GObject* cp){
+	void load_(const GObject* cp) OVERRIDE {
 	    // Check that we are not accidently assigning this object to itself
 	    GObject::selfAssignmentCheck<GIntNumCollectionT<int_type> >(cp);
 
@@ -254,7 +255,7 @@ protected:
 	 * function assumes that the collection has been completely set up. Data
 	 * that is added later will remain unaffected.
 	 */
-	void randomInit_() {
+	void randomInit_() OVERRIDE {
 		int_type lowerBoundary = GNumCollectionT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumCollectionT<int_type>::getUpperInitBoundary();
 
@@ -274,7 +275,7 @@ public:
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -293,7 +294,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// A few general settings
 		const std::size_t nItems = 100;
@@ -400,7 +401,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GNumCollectionT<int_type>::specificTestsFailuresExpected_GUnitTests();

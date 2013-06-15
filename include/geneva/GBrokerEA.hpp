@@ -54,10 +54,9 @@
 #include "common/GExceptions.hpp"
 #include "common/GThreadPool.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
+
 /******************************************************************************/
 /**
  * This population handles evolutionary algorithm-based optimization in environments
@@ -110,16 +109,16 @@ public:
          , const std::string&
          , const std::string&
          , const bool&
-   ) const;
+   ) const OVERRIDE;
 
    /** @brief Checks whether a given algorithm type likes to communicate via the broker */
-   virtual bool usesBroker() const;
+   virtual bool usesBroker() const OVERRIDE;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
    virtual void addConfigurationOptions (
          Gem::Common::GParserBuilder& gpb
          , const bool& showOrigin
-   );
+   ) OVERRIDE;
 
    /** @brief Sets the maximum number of threads */
    void setNThreads(boost::uint16_t);
@@ -127,28 +126,28 @@ public:
    uint16_t getNThreads() const ;
 
    /** @brief Allows to assign a name to the role of this individual(-derivative) */
-   virtual std::string getIndividualCharacteristic() const;
+   virtual std::string getIndividualCharacteristic() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
    /** @brief Loads the data of another GTransfer Population */
-   virtual void load_(const GObject *);
+   virtual void load_(const GObject *) OVERRIDE;
    /** @brief Creates a deep copy of this object */
-   virtual GObject *clone_() const;
+   virtual GObject *clone_() const OVERRIDE;
 
    /** @brief Adapt children in a serial manner */
-   virtual void adaptChildren();
+   virtual void adaptChildren() OVERRIDE;
    /** @brief Evaluates all children (and possibly parents) of this population */
-   virtual void evaluateChildren();
+   virtual void evaluateChildren() OVERRIDE;
    /** @brief Selects new parents */
-   virtual void selectBest();
+   virtual void selectBest() OVERRIDE;
 
    /** @brief Performs any necessary initialization work before the start of the optimization cycle */
-   virtual void init();
+   virtual void init() OVERRIDE;
    /** @brief Performs any necessary finalization work after the end of the optimization cycle */
-   virtual void finalize();
+   virtual void finalize() OVERRIDE;
 
 private:
    /***************************************************************************/
@@ -208,11 +207,11 @@ private:
 
 public:
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual bool modify_GUnitTests();
+   virtual bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual void specificTestsNoFailureExpected_GUnitTests();
+   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual void specificTestsFailuresExpected_GUnitTests();
+   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

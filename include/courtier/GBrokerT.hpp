@@ -189,12 +189,11 @@ public:
 		// Complain if the lastId_ is getting too large. lastId_ should
 		// be replaced by a GUID/UUID, when it becomes available in Boost.
 		// Note that, if this machine has no 64 bit integer types, we can
-		// only count up to roughly 4 billion. Note that we do not use
-		// the global logger, so we do not have too many cross-references
-		// between singletons.
+		// only count up to roughly 4 billion.
 		if(lastId_ >= MAXPORTID){
-			std::cerr << "In GBrokerT<T>::enrol(): lastId_ is getting too large: " << lastId_ << std::endl;
-  		    std::terminate();
+		   glogger
+		   << "In GBrokerT<T>::enrol(): lastId_ is getting too large: " << lastId_ << std::endl
+		   << GEXCEPTION;
 		}
 
 		// Get new id for GBoundedBufferWithIdT classes and increment
@@ -279,7 +278,9 @@ public:
 			boost::mutex::scoped_lock rawLock(RawBuffersMutex_);
 
 			// Do not let execution start before the first buffer has been enrolled
-			while(!buffersPresentRaw_) readyToGoRaw_.wait(rawLock);
+			while(!buffersPresentRaw_) {
+			   readyToGoRaw_.wait(rawLock);
+			}
 
 			currentBuffer = *currentGetPosition_;
 			if(++currentGetPosition_ == RawBuffers_.end()) currentGetPosition_ = RawBuffers_.begin();
@@ -312,7 +313,9 @@ public:
 			boost::mutex::scoped_lock rawLock(RawBuffersMutex_);
 
 			// Do not let execution start before the first buffer has been enrolled
-			while(!buffersPresentRaw_) readyToGoRaw_.wait(rawLock);
+			while(!buffersPresentRaw_) {
+			   readyToGoRaw_.wait(rawLock);
+			}
 
 			currentBuffer = *currentGetPosition_;
 			if(++currentGetPosition_ == RawBuffers_.end()) currentGetPosition_ = RawBuffers_.begin();
@@ -378,22 +381,33 @@ public:
 			Gem::Common::PORTIDTYPE id
 			, boost::shared_ptr<carrier_type> p
 	) {
-		GBoundedBufferWithIdT_Ptr currentBuffer;
-
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
 
 		// Do not let execution start before the first buffer has been enrolled
-		while(!buffersPresentProcessed_) readyToGoProcessed_.wait(processedLock);
+		while(!buffersPresentProcessed_) {
+		   readyToGoProcessed_.wait(processedLock);
+		}
 
 		// Cross-check that the id is indeed available and retrieve the buffer
-		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end()) currentBuffer = ProcessedBuffers_[id];
+		typename BufferPtrMap::iterator it;
+		if((it=ProcessedBuffers_.find(id)) != ProcessedBuffers_.end()) {
+         // Make the mutex available again
+         processedLock.unlock();
+		} else {
+		   glogger
+		   << "In GBokerT<>::put(1): Warning!" << std::endl
+		   << "Did not find buffer with id " << id << std::endl
+		   << GWARNING;
 
-		// Make the mutex available again, as the last call in this
-		// function could block.
-		processedLock.unlock();
+		   // Make the mutex available again
+         processedLock.unlock();
+
+         throw Gem::Courtier::buffer_not_present();
+         return;
+		}
 
 		// Add p to the correct buffer, if it is a valid pointer.
-		if(currentBuffer) currentBuffer->push_front(p);
+		it->second->push_front(p);
 	}
 
 	/***************************************************************************/
@@ -413,8 +427,6 @@ public:
 			, boost::shared_ptr<carrier_type> p
 			, boost::posix_time::time_duration timeout
 	) {
-		GBoundedBufferWithIdT_Ptr currentBuffer;
-
 		//------------------------------------------------------------------------
 		// Make sure processing can start (impossible, before any buffer
 		// port objects have been added)
@@ -425,13 +437,17 @@ public:
 
 		//------------------------------------------------------------------------
 		// Cross-check that the id is indeed available and retrieve the buffer
-		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end()) {
-			currentBuffer = ProcessedBuffers_[id];
+      typename BufferPtrMap::iterator it;
+		if((it=ProcessedBuffers_.find(id)) != ProcessedBuffers_.end()) {
 			// Make the mutex available again
 			processedLock.unlock();
 		} else {
-			// Make the mutex available again
-			std::cerr << "Did not find buffer with id " << id << std::endl;
+         glogger
+         << "In GBokerT<>::put(2): Warning!" << std::endl
+         << "Did not find buffer with id " << id << std::endl
+         << GWARNING;
+
+         // Make the mutex available again
 			processedLock.unlock();
 
 			throw Gem::Courtier::buffer_not_present();
@@ -441,7 +457,7 @@ public:
 		//------------------------------------------------------------------------
 		// Add p to the correct buffer, which we now assume to be valid. If this
 		// cannot be done in time, let the audience know by returning false
-		return currentBuffer->push_front_bool(p, timeout);
+		return it->second->push_front_bool(p, timeout);
 
 		//------------------------------------------------------------------------
 	}
@@ -464,7 +480,7 @@ public:
 	 * are capable of full return. If so, it returns true. If at least one is 
 	 * found that is not capable of full return, it returns false.
 	 */
-         bool capableOfFullReturn() const {
+    bool capableOfFullReturn() const {
 #ifdef DEBUG
 	   if(!hasConsumers()) {
 	      glogger
@@ -498,8 +514,8 @@ private:
 	mutable boost::condition_variable readyToGoRaw_; ///< The get function will block until this condition variable is set
 	mutable boost::condition_variable readyToGoProcessed_; ///< The put function will block until this condition variable is set
 
-	BufferPtrList RawBuffers_; ///< Holds GBoundedBufferWithIdT objects with raw items
-	BufferPtrMap ProcessedBuffers_; ///< Holds GBoundedBufferWithIdT objects for processed items
+	BufferPtrList RawBuffers_;       ///< Holds GBoundedBufferWithIdT objects with raw items
+	BufferPtrMap  ProcessedBuffers_; ///< Holds GBoundedBufferWithIdT objects for processed items
 
 	Gem::Common::PORTIDTYPE lastId_; ///< The last id we've assigned to a buffer
 	typename BufferPtrList::iterator currentGetPosition_; ///< The current get position in the RawBuffers_ collection

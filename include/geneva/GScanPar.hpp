@@ -277,7 +277,7 @@ public:
     *
     * @return A boolean indicating whether a warp has taken place
     */
-   virtual bool goToNextItem() {
+   virtual bool goToNextItem() BASE {
       if(++currentItemPos >= this->size()) {
          currentItemPos = 0;
          return true;
@@ -289,7 +289,7 @@ public:
    /**
     * Checks whether currentItemPos points to the last item in the array
     */
-   virtual bool isAtTerminalPosition() const {
+   virtual bool isAtTerminalPosition() const BASE {
       if(currentItemPos >= (this->size()-1)) return true;
       else return false;
    }
@@ -298,7 +298,7 @@ public:
    /**
     * Checks whether currentItemPos points to the first item in the array
     */
-   virtual bool isAtFirstPosition() const {
+   virtual bool isAtFirstPosition() const BASE {
       if(0 == currentItemPos) return true;
       else return false;
    }
@@ -307,7 +307,7 @@ public:
    /**
     * Resets the current position
     */
-   virtual void resetPosition() {
+   virtual void resetPosition() BASE {
       currentItemPos = 0;
    }
 
@@ -315,7 +315,7 @@ public:
    /**
     * Retrieve the type descriptor
     */
-   virtual std::string getTypeDescriptor() const {
+   virtual std::string getTypeDescriptor() const BASE {
       return typeDescription;
    }
 
@@ -329,7 +329,11 @@ protected:
 
    /***************************************************************************/
    /** @brief The default constructor -- only needed for de-serialization, hence protected */
-   baseScanParT() { /* nothing */ }
+   baseScanParT()
+   : pos(0)
+   , currentItemPos(0)
+   , typeDescription("")
+   { /* nothing */ }
 
    /** @brief Needs to be re-implemented for derivatives of GStdSimpleVectorInterfaceT<> */
    virtual void dummyFunction(){};

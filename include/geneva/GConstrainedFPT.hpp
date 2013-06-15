@@ -216,14 +216,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith (
+	virtual boost::optional<std::string> checkRelationshipWith (
 			const GObject& cp
 		  , const Gem::Common::expectation& e
 		  , const double& limit
 		  , const std::string& caller
 		  , const std::string& y_name
 		  , const bool& withMessages
-	) const	{
+	) const OVERRIDE {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -260,12 +260,16 @@ public:
 	/***************************************************************************/
 	/**
 	 * Allows to set the value. Has the same constraints as the parent class'es function,
-	 * applies additional restrictions.
+	 * applies additional restrictions.  Note that we take the liberty to adapt val, if it
+	 * is equal to the unmodified upper boundary. Otherwise you will get an error,
+	 * where what you likely really meant was to start with the upper boundary.
 	 *
 	 * @param val The new fp_type value stored in this class
 	 */
-	virtual void setValue(const fp_type& val)  {
-		GConstrainedNumT<fp_type>::setValue(val);
+	virtual void setValue(const fp_type& val) OVERRIDE {
+		GConstrainedNumT<fp_type>::setValue(
+         val==this->getUpperBoundary()?boost::math::float_prior<fp_type>(val):val
+		);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -285,7 +289,11 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	virtual void setValue(const fp_type& val, const fp_type& lowerBoundary, const fp_type& upperBoundary) {
+	virtual void setValue(
+      const fp_type& val
+      , const fp_type& lowerBoundary
+      , const fp_type& upperBoundary
+   ) OVERRIDE {
 		GConstrainedNumT<fp_type>::setValue(
 		      (val==upperBoundary?boost::math::float_prior<fp_type>(val):val)
 		      , lowerBoundary
@@ -308,7 +316,7 @@ public:
 	 * @param lower The new lower boundary for this object
 	 * @param upper The new upper boundary for this object
 	 */
-	virtual void setBoundaries(const fp_type& lowerBoundary, const fp_type& upperBoundary) {
+	virtual void setBoundaries(const fp_type& lowerBoundary, const fp_type& upperBoundary) OVERRIDE {
 		// Set the actual boundaries
 		GConstrainedNumT<fp_type>::setBoundaries(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary));
 	}
@@ -320,7 +328,7 @@ public:
 	 * @param val The value to which the transformation should be applied
 	 * @return The transformed value
 	 */
-	virtual fp_type transfer(const fp_type& val) const {
+	virtual fp_type transfer(const fp_type& val) const  OVERRIDE {
 		fp_type lowerBoundary = GConstrainedNumT<fp_type>::getLowerBoundary();
 		fp_type upperBoundary = GConstrainedNumT<fp_type>::getUpperBoundary();
 
@@ -370,8 +378,7 @@ public:
 	 *
 	 * @param val The value to be assigned to the parameters
 	 */
-	virtual void fpFixedValueInit(const float& val)
-	{
+	virtual void fpFixedValueInit(const float& val) OVERRIDE	{
 		GParameterT<fp_type>::setValue(transfer(fp_type(val)));
 	}
 
@@ -387,7 +394,7 @@ public:
 	 * representation will then be transferred back to an external value in the allowed
 	 * value range.
 	 */
-	virtual void fpMultiplyBy(const float& val) {
+	virtual void fpMultiplyBy(const float& val) OVERRIDE {
 		GParameterT<fp_type>::setValue(transfer(fp_type(val) * GParameterT<fp_type>::value()));
 	}
 
@@ -406,7 +413,7 @@ public:
 	 * @param min The lower boundary for random number generation
 	 * @param max The upper boundary for random number generation
 	 */
-	virtual void fpMultiplyByRandom(const float& min, const float& max)	{
+	virtual void fpMultiplyByRandom(const float& min, const float& max) OVERRIDE {
 		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() * this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(fp_type(min), fp_type(max))));
 	}
 
@@ -422,7 +429,7 @@ public:
 	 * representation will then be transferred back to an external value in the allowed
 	 * value range.
 	 */
-	virtual void fpMultiplyByRandom() {
+	virtual void fpMultiplyByRandom() OVERRIDE {
 		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() * this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_01<fp_type>()));
 	}
 
@@ -440,7 +447,7 @@ public:
 	 *
 	 * @oaram p A boost::shared_ptr to another GParameterBase object
 	 */
-	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) {
+	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) OVERRIDE {
 		// We first need to convert p_base into the local type
 		boost::shared_ptr<GConstrainedFPT<fp_type> > p = GParameterBase::parameterbase_cast<GConstrainedFPT<fp_type> >(p_base);
 		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() + p->value()));
@@ -460,7 +467,7 @@ public:
 	 *
 	 * @oaram p A boost::shared_ptr to another GParameterBase object
 	 */
-	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) {
+	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) OVERRIDE {
 		// We first need to convert p_base into the local type
 		boost::shared_ptr<GConstrainedFPT<fp_type> > p = GParameterBase::parameterbase_cast<GConstrainedFPT<fp_type> >(p_base);
 		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() - p->value()));
@@ -475,7 +482,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GConstrainedFPT");
    }
 
@@ -486,7 +493,7 @@ protected:
 	 *
 	 * @param cp Another GConstrainedFPT<fp_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp) {
+	virtual void load_(const GObject *cp) OVERRIDE {
 		// Convert GObject pointer to local format
 		const GConstrainedFPT<fp_type> *p_load = GObject::gobject_conversion<GConstrainedFPT<fp_type> >(cp);
 
@@ -504,7 +511,7 @@ protected:
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
-	virtual void randomInit_() {
+	virtual void randomInit_() OVERRIDE {
 		this->setValue(
 				this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
 						GConstrainedNumT<fp_type>::getLowerBoundary(), GConstrainedNumT<fp_type>::getUpperBoundary()
@@ -524,7 +531,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -543,7 +550,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Some general settings
 		const std::size_t nTests = 10000;
@@ -928,7 +935,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Some general settings
 		const fp_type testVal = fp_type(42);
@@ -962,7 +969,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Set value, upper and lower boundaries; should throw, as value >= upperBoundary
-			BOOST_CHECK_THROW(p_test->setValue(upperBoundary, lowerBoundary, upperBoundary), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setValue(1.1*upperBoundary, lowerBoundary, upperBoundary), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------
@@ -977,7 +984,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
 
 			// Try to set a value equal to the upper boundary, should throw
-			BOOST_CHECK_THROW(p_test->setValue(upperBoundary), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setValue(1.1*upperBoundary), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------

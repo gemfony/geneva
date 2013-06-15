@@ -368,7 +368,7 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GFunctionIndividual */
-	virtual void load_(const GObject*);
+	virtual void load_(const GObject*) FINAL;
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const;
 

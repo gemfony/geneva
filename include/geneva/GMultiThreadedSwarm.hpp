@@ -103,7 +103,7 @@ public:
 			, const double&, const std::string&
 			, const std::string&
 			, const bool&
-	) const;
+	) const OVERRIDE;
 
 	/** @brief Sets the maximum number of threads */
 	void setNThreads(boost::uint16_t);
@@ -114,27 +114,27 @@ public:
 	virtual void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
-	);
+	) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual std::string getIndividualCharacteristic() const;
+	virtual std::string getIndividualCharacteristic() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another population */
-	virtual void load_(const GObject *);
+	virtual void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone_() const;
+	virtual GObject *clone_() const OVERRIDE;
 
 	/** @brief Does some preparatory work before the optimization starts */
-	virtual void init();
+	virtual void init() OVERRIDE;
 	/** @brief Does any necessary finalization work */
-	virtual void finalize();
+	virtual void finalize() OVERRIDE;
 
 	/** @brief Updates the fitness of all individuals */
-	virtual void updateFitness();
+	virtual void updateFitness() OVERRIDE;
 
 	/***************************************************************************/
 private:
@@ -146,11 +146,11 @@ private:
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 } /* namespace Geneva */

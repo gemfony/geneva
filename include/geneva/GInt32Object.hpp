@@ -120,33 +120,33 @@ public:
 	      , const std::string&
 	      , const std::string&
 	      , const bool&
-	) const;
+	) const OVERRIDE;
 
 	/** @brief Attach our local value to the vector. */
-	virtual void int32Streamline(std::vector<boost::int32_t>&) const;
+	virtual void int32Streamline(std::vector<boost::int32_t>&) const OVERRIDE;
 	/** @brief Attach boundaries of type boost::int32_t to the vectors */
-	virtual void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&) const;
+	virtual void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&) const OVERRIDE;
 	/** @brief Tell the audience that we own a boost::int32_t value */
-	virtual std::size_t countInt32Parameters() const;
+	virtual std::size_t countInt32Parameters() const OVERRIDE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&);
+	virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*);
+	virtual void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const;
+	virtual GObject* clone_() const OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

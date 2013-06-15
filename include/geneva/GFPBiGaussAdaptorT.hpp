@@ -132,14 +132,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(
+	virtual boost::optional<std::string> checkRelationshipWith(
 			const GObject& cp
 			, const Gem::Common::expectation& e
 			, const double& limit
 			, const std::string& caller
 			, const std::string& y_name
 			, const bool& withMessages
-	) const	{
+	) const OVERRIDE	{
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -165,7 +165,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GFPBiGaussAdaptorT");
    }
 
@@ -177,8 +177,7 @@ protected:
 	 *
 	 * @param A copy of another GFPBiGaussAdaptorT, camouflaged as a GObject
 	 */
-	void load_(const GObject *cp)
-	{
+	void load_(const GObject *cp) OVERRIDE	{
 		// Convert GObject pointer to local format
 		const GFPBiGaussAdaptorT<fp_type> *p_load = GObject::gobject_conversion<GFPBiGaussAdaptorT<fp_type> >(cp);
 
@@ -198,7 +197,7 @@ protected:
 	 *
 	 * @param value The value that is going to be adapted in situ
 	 */
-	virtual void customAdaptions(fp_type& value) {
+	virtual void customAdaptions(fp_type& value) OVERRIDE {
 		if(GNumBiGaussAdaptorT<fp_type, fp_type>::useSymmetricSigmas_) { // Should we use the same sigma for both gaussians ?
 			// adapt the value in situ. Note that this changes
 			// the argument of this function
@@ -303,7 +302,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 
 		using boost::unit_test_framework::test_suite;
@@ -326,7 +325,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 
 		using boost::unit_test_framework::test_suite;
@@ -344,7 +343,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 
 		using boost::unit_test_framework::test_suite;

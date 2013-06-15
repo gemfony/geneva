@@ -79,14 +79,42 @@ public:
 	/** @brief Used to identify the type supplied to this object */
 	typedef T p_type;
 
-	/** @brief The default constructor */
-	GParameterT();
-	/** @brief The copy constructor */
-	GParameterT(const GParameterT<T>& cp);
-	/** @brief Initialization by contained value */
-	explicit GParameterT(const T& val);
-	/** @brief The destructor */
-	virtual ~GParameterT();
+   /***************************************************************************/
+	/** The default constructor */
+	GParameterT()
+	   : GParameterBaseWithAdaptorsT<T>()
+	   , val_(Gem::Common::GDefaultValueT<T>())
+	{ /* nothing */ }
+
+   /***************************************************************************/
+	/**
+	 * The copy constructor.
+	 *
+	 * @param cp A copy of another GParameterT<T> object
+	 */
+	GParameterT(const GParameterT<T>& cp)
+	   : GParameterBaseWithAdaptorsT<T>(cp)
+	   , val_(cp.val_)
+	{ /* nothing */   }
+
+   /***************************************************************************/
+	/**
+	 * Initialization by contained value.
+	 *
+	 * @param val The new value of val_
+	 */
+	GParameterT(const T& val)
+	   : GParameterBaseWithAdaptorsT<T>()
+	   , val_(val)
+	{ /* nothing */   }
+
+   /***************************************************************************/
+	/**
+	 * The destructor
+	 */
+	~GParameterT()
+	{ /* nothing */ }
+
 
 	/***************************************************************************/
 	/**
@@ -149,7 +177,7 @@ public:
 	 *
 	 * @return The value of val_
 	 */
-	virtual T value() const {
+	virtual T value() const BASE {
 		return val_;
 	}
 
@@ -197,13 +225,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	boost::optional<std::string> checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+	) const OVERRIDE {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -225,7 +254,7 @@ public:
 	/**
 	 * Allows to adapt the value stored in this class.
 	 */
-	virtual void adaptImpl() {
+	virtual void adaptImpl() OVERRIDE {
 		GParameterBaseWithAdaptorsT<T>::applyAdaptor(val_);
 	}
 
@@ -241,10 +270,10 @@ public:
 	 * @param ptr The boost::property_tree object the data should be saved to
 	 * @param baseName The name assigned to the object
 	 */
-	virtual void toPropertyTree(
-	      pt::ptree& ptr
-	      , const std::string& baseName
-	) const {
+	virtual void toPropertyTree (
+      pt::ptree& ptr
+      , const std::string& baseName
+	) const OVERRIDE {
       ptr.put(baseName + ".name", this->getParameterName());
 	   ptr.put(baseName + ".nvar", 1);
 	   ptr.put(baseName + ".type", this->name());
@@ -257,7 +286,7 @@ public:
    /**
     * Returns a human-readable name for the base type of derived objects
     */
-   virtual std::string baseType() const {
+   virtual std::string baseType() const OVERRIDE {
       return std::string("unknown");
    }
 
@@ -265,7 +294,7 @@ public:
    /**
     * Lets the audience know whether this is a leaf or a branch object
     */
-   virtual bool isLeaf() const {
+   virtual bool isLeaf() const OVERRIDE {
       return true;
    }
 
@@ -273,7 +302,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GParameterT");
    }
 
@@ -302,7 +331,7 @@ protected:
 	 *
 	 * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) {
+	virtual void load_(const GObject* cp) OVERRIDE {
 		// Convert cp into local format
 		const GParameterT<T> *p_load = GObject::gobject_conversion<GParameterT<T> >(cp);
 
@@ -337,7 +366,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       bool result = false;
 
@@ -356,7 +385,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests();
@@ -372,7 +401,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();
@@ -383,48 +412,6 @@ public:
 	}
 
 };
-
-/******************************************************************************/
-/**
- * The default constructor. Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
- */
-template <typename T>
-GParameterT<T>::GParameterT()
-	: GParameterBaseWithAdaptorsT<T>()
-	, val_(Gem::Common::GDefaultValueT<T>())
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor.  Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
- *
- * @param cp A copy of another GParameterT<T> object
- */
-template <typename T>
-GParameterT<T>::GParameterT(const GParameterT<T>& cp)
-	: GParameterBaseWithAdaptorsT<T>(cp)
-	, val_(cp.val_)
-{ /* nothing */	}
-
-/******************************************************************************/
-/**
- * Initialization by contained value.Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
- *
- * @param val The new value of val_
- */
-template <typename T>
-GParameterT<T>::GParameterT(const T& val)
-	: GParameterBaseWithAdaptorsT<T>()
-	, val_(val)
-{ /* nothing */	}
-
-/******************************************************************************/
-/**
- * The standard destructor.Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
- */
-template <typename T>
-GParameterT<T>:: ~GParameterT()
-{ /* nothing */ }
 
 /******************************************************************************/
 

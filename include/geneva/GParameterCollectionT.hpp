@@ -140,7 +140,7 @@ public:
 	bool operator==(const GParameterCollectionT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterCollectionT<T>::operator==","cp", CE_SILENT);
+		return !GParameterCollectionT<T>::checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterCollectionT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/***************************************************************************/
@@ -153,7 +153,7 @@ public:
 	bool operator!=(const GParameterCollectionT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterCollectionT<T>::operator==","cp", CE_SILENT);
+		return !GParameterCollectionT<T>::checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterCollectionT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/***************************************************************************/
@@ -169,14 +169,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(
-			const GObject& cp
-			, const Gem::Common::expectation& e
-			, const double& limit
-			, const std::string& caller
-			, const std::string& y_name
-			, const bool& withMessages
-	) const	{
+	virtual boost::optional<std::string> checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+	) const OVERRIDE	{
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -187,7 +187,7 @@ public:
 
 		// Check our parent classes' data ...
 		deviations.push_back(GParameterBaseWithAdaptorsT<T>::checkRelationshipWith(cp, e, limit, "GParameterCollectionT<T>", y_name, withMessages));
-		deviations.push_back(GStdSimpleVectorInterfaceT<T>::checkRelationshipWith(*p_load, e, limit, "GParameterCollectionT<T>", y_name, withMessages));
+		deviations.push_back(GStdSimpleVectorInterfaceT<T>::checkRelationshipWith_base(*p_load, e, limit, "GParameterCollectionT<T>", y_name, withMessages));
 
 		// no local data ...
 
@@ -221,7 +221,7 @@ public:
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
 
-	    deviations.push_back(GStdSimpleVectorInterfaceT<T>::checkRelationshipWith(cp, e, limit, caller, y_name, withMessages));
+	    deviations.push_back(GStdSimpleVectorInterfaceT<T>::checkRelationshipWith_base(cp, e, limit, caller, y_name, withMessages));
 
 		return evaluateDiscrepancies("GParameterCollectionT<T>", caller, deviations, e);
 	}
@@ -232,7 +232,7 @@ public:
 	 * to a std::vector<T>. As we are derived from a wrapper of this class, we can just pass
 	 * a reference to its data vector to the function.
 	 */
-	virtual void adaptImpl() {
+	virtual void adaptImpl() OVERRIDE {
 		GParameterBaseWithAdaptorsT<T>::applyAdaptor(GStdSimpleVectorInterfaceT<T>::data);
 	}
 
@@ -250,7 +250,7 @@ public:
 	 *
 	 * @return A boolean indicating whether this GParameterBase-derivative is an individual parameter
 	 */
-	virtual bool isIndividualParameter() const {
+	virtual bool isIndividualParameter() const OVERRIDE {
 		return false;
 	}
 
@@ -301,7 +301,7 @@ public:
 	virtual void toPropertyTree(
 	      pt::ptree& ptr
 	      , const std::string& baseName
-	) const {
+	) const OVERRIDE {
 #ifdef DEBUG
 	   // Check that the object isn't empty
 	   if(this->empty()) {
@@ -330,7 +330,7 @@ public:
    /**
     * Returns a human-readable name for the base type of derived objects
     */
-   virtual std::string baseType() const {
+   virtual std::string baseType() const OVERRIDE {
       return std::string("unknown");
    }
 
@@ -338,7 +338,7 @@ public:
    /**
     * Lets the audience know whether this is a leaf or a branch object
     */
-   virtual bool isLeaf() const {
+   virtual bool isLeaf() const OVERRIDE {
       return true;
    }
 
@@ -346,7 +346,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GParameterCollectionT");
    }
 
@@ -357,7 +357,7 @@ protected:
 	 *
 	 * @param cp A copy of another GParameterCollectionT<T> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) {
+	virtual void load_(const GObject* cp) OVERRIDE {
 		// Convert cp into local format and check for self-assignment
 		const GParameterCollectionT<T> *p_load = GObject::gobject_conversion<GParameterCollectionT<T> >(cp);
 
@@ -378,7 +378,7 @@ protected:
 	 * Making the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
 	 */
-	virtual void dummyFunction() { /* nothing */ }
+	virtual void dummyFunction() OVERRIDE { /* nothing */ }
 
 public:
 	/***************************************************************************/
@@ -387,7 +387,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -407,7 +407,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 	   // Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests();
@@ -422,7 +422,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();

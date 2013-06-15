@@ -354,13 +354,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	virtual boost::optional<std::string> checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+   ) const OVERRIDE {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -405,7 +406,7 @@ public:
 	 *
 	 * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
 	 */
-	virtual void optimize(const boost::uint32_t& offset) {
+	virtual void optimize(const boost::uint32_t& offset) OVERRIDE {
 		// Check that we are dealing with an "authorized" optimization algorithm
 		if(this->getOptimizationAlgorithm() == PERSONALITY_NONE) {
 		   glogger
@@ -496,7 +497,7 @@ public:
 	/**
 	 * A little convenience function that helps to avoid having to specify explicit scopes
 	 */
-	virtual void optimize() {
+	virtual void optimize() OVERRIDE {
 		GOptimizableI::optimize();
 	}
 
@@ -508,7 +509,7 @@ public:
 	 *
 	 * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
 	 */
-	virtual void doInfo(const infoMode& im) {
+	virtual void doInfo(const infoMode& im) BASE {
 #ifdef DEBUG
 		if(!optimizationMonitor_ptr_) {
 		   glogger
@@ -859,7 +860,7 @@ public:
 	virtual void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
-	) {
+	) OVERRIDE {
 		std::string comment;
 		std::string comment1;
 		std::string comment2;
@@ -1032,7 +1033,7 @@ public:
 	 * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
 	 * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
 	 */
-	virtual std::string getIndividualCharacteristic() const {
+	virtual std::string getIndividualCharacteristic() const OVERRIDE {
 		return std::string("GENEVA_OPTIMIZATIONALGORITHM");
 	}
 
@@ -1055,8 +1056,7 @@ protected:
 	 *
 	 * @param cp Another GOptimizationAlgorithm object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp)
-	{
+	virtual void load_(const GObject* cp) OVERRIDE {
 		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(cp);
 
 		// Load the parent class'es data
@@ -1121,7 +1121,7 @@ protected:
 	 *
 	 * @param popSize The desired size of the population
 	 */
-	virtual void setDefaultPopulationSize(const std::size_t& defPopSize) {
+	virtual void setDefaultPopulationSize(const std::size_t& defPopSize) BASE {
 		defaultPopulationSize_ = defPopSize;
 	}
 
@@ -1133,7 +1133,7 @@ protected:
 	 *
 	 * @return boolean indicating that a stop condition was reached
 	 */
-	virtual bool customHalt() const {
+	virtual bool customHalt() const BASE {
 		/* nothing - specify your own criteria in derived classes. Make sure
 		 * to emit a suitable message if execution was halted due to a
 		 * custom criterion */
@@ -1150,7 +1150,7 @@ protected:
 	 * @param The id of an evaluation criterion (will be ignored by this function)
 	 * @return The fitness of the best individual in the population
 	 */
-	virtual double fitnessCalculation() {
+	virtual double fitnessCalculation() OVERRIDE {
 		bool dirty = false;
 
 		GOptimizableI::optimize();
@@ -1225,7 +1225,7 @@ protected:
 	 * any "real" optimization work here, such as evaluation of individuals. Use the
 	 * optimizationInit() function instead.
 	 */
-	virtual void init() {
+	virtual void init() BASE {
 		// Tell all individuals in this collection to update their random number generators
 		// with the one contained in GMutableSetT. Note: This will only have an effect on
 		// GParameterSet objects, as GIndividual contains an empty function.
@@ -1243,7 +1243,7 @@ protected:
 	 * any "real" optimization work here, such as evaluation of individuals. Use the
 	 * optimizationFinalize() function instead.
 	 */
-	virtual void finalize()	{
+	virtual void finalize() BASE {
 		// Tell all individuals in this collection to tell all GParameterBase derivatives
 		// to again use their local generators.
 		typename GOptimizationAlgorithmT<ind_type>::iterator it;
@@ -1261,7 +1261,7 @@ protected:
 	 * This function performs any initial optimization work (such as the evaluation of a
 	 * single individual).
 	 */
-	virtual void optimizationInit()
+	virtual void optimizationInit() BASE
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -1269,7 +1269,7 @@ protected:
 	 * This function performs any final optimization work (such as the evaluation of a
 	 * single individual).
 	 */
-	virtual void optimizationFinalize()
+	virtual void optimizationFinalize() BASE
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -1281,7 +1281,7 @@ protected:
 	 * Lets individuals know about the current iteration of the optimization
 	 * cycle.
 	 */
-	virtual void markIteration() {
+	virtual void markIteration() BASE {
 		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->setAssignedIteration(iteration_);
@@ -1543,7 +1543,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -1562,7 +1562,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GMutableSetT<ind_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -1576,7 +1576,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GMutableSetT<ind_type>::specificTestsFailuresExpected_GUnitTests();
@@ -1700,7 +1700,7 @@ public:
 	    		, const std::string& caller
 	    		, const std::string& y_name
 	    		, const bool& withMessages
-	    ) const {
+	    ) const OVERRIDE {
 	        using namespace Gem::Common;
 
 	    	// Check that we are indeed dealing with a GOptimizationMonitorT reference
@@ -1827,7 +1827,7 @@ public:
 	     *
 	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
 	     */
-	    virtual void firstInformation(GOptimizationAlgorithmT<ind_type> * const goa)
+	    virtual void firstInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -1838,7 +1838,7 @@ public:
 	     *
 	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
 	     */
-	    virtual void cycleInformation(GOptimizationAlgorithmT<ind_type> * const goa)
+	    virtual void cycleInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -1847,7 +1847,7 @@ public:
 	     *
 	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
 	     */
-	    virtual void lastInformation(GOptimizationAlgorithmT<ind_type> * const goa)
+	    virtual void lastInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -1856,7 +1856,7 @@ public:
 	     *
 	     * cp A pointer to another GOptimizationMonitorT object, camouflaged as a GObject
 	     */
-	    virtual void load_(const GObject* cp) {
+	    virtual void load_(const GObject* cp) OVERRIDE {
 	    	const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(cp);
 
 	    	// Load the parent classes' data ...
@@ -1874,7 +1874,7 @@ public:
 	    /**
 	     * Creates a deep clone of this object
 	     */
-		virtual GObject* clone_() const {
+		virtual GObject* clone_() const OVERRIDE {
 			return new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT(*this);
 		}
 
@@ -1889,7 +1889,7 @@ public:
 		/**
 		 * Applies modifications to this object. This is needed for testing purposes
 		 */
-		virtual bool modify_GUnitTests() {
+		virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 	      bool result = false;
 
@@ -1908,7 +1908,7 @@ public:
 		/**
 		 * Performs self tests that are expected to succeed. This is needed for testing purposes
 		 */
-		virtual void specificTestsNoFailureExpected_GUnitTests() {
+		virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 			// Call the parent class'es function
 			GObject::specificTestsNoFailureExpected_GUnitTests();
@@ -1922,7 +1922,7 @@ public:
 		/**
 		 * Performs self tests that are expected to fail. This is needed for testing purposes
 		 */
-		virtual void specificTestsFailuresExpected_GUnitTests() {
+		virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 			// Call the parent class'es function
 			GObject::specificTestsFailuresExpected_GUnitTests();

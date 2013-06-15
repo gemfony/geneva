@@ -133,7 +133,6 @@ public:
 	{ /* nothing */ }
 
 	/***************************************************************************/
-
 	/**
 	 * This is the main loop of the client. It will continue to call the process()
 	 * function (defined by derived classes), until it returns false or the maximum
@@ -144,28 +143,41 @@ public:
 		try{
 			if(this->init()) {
 				while(!this->halt() && this->process()){ /* nothing*/ }
-			}
-			else {
-				std::cerr << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl;
-				std::terminate();
+			} else {
+			   glogger
+			   << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
+			   << GEXCEPTION;
 			}
 
 			if(!this->finally()) {
-				std::cerr << "In GBaseClientT<T>::run(): Finalization failed." << std::endl;
+				glogger
+				<< "In GBaseClientT<T>::run(): Finalization failed." << std::endl
+				<< GEXCEPTION;
 			}
 		}
-		catch(std::exception& e){
-			std::cerr << "In GBaseClientT<T>::run(): Caught std::exception with message" << std::endl
-				      << e.what();
-			std::terminate();
+		catch(Gem::Common::gemfony_error_condition& e){
+         glogger
+         << "In GBaseClientT<T>::run():" << std::endl
+         << "Caught Gem::Common::gemfony_error_condition" << std::endl
+         << "with message" << std::endl
+         << e.what()
+         << GEXCEPTION;
 		}
 		catch(boost::exception& e){
-			std::cerr << "In GBaseClientT<T>::run(): Caught boost::exception" << std::endl;
-			std::terminate();
+		   glogger
+		   << "In GBaseClientT<T>::run(): Caught boost::exception" << std::endl
+			<< GEXCEPTION;
 		}
+      catch(std::exception& e){
+         glogger
+         << "In GBaseClientT<T>::run(): Caught std::exception with message" << std::endl
+         << e.what()
+         << GEXCEPTION;
+      }
 		catch(...){
-			std::cerr << "In GBaseClientT<T>::run(): Caught unknown exception" << std::endl;
-			std::terminate();
+			glogger
+			<< "In GBaseClientT<T>::run(): Caught unknown exception" << std::endl
+			<< GEXCEPTION;
 		}
 	}
 
@@ -257,7 +269,9 @@ protected:
 
 		// Get an item from the server
 		std::string istr, serModeStr, portId;
-		if(!this->retrieve(istr, serModeStr, portId)) return false;
+		if(!this->retrieve(istr, serModeStr, portId)) {
+		   return false;
+		}
 
 		// There is a possibility that we have received an unknown command
 		// or a timeout command. In this case we want to try again until retrieve()
@@ -267,10 +281,10 @@ protected:
 
 		// Check the serialization mode we need to use
 		if(serModeStr == ""){
-			std::ostringstream error;
-			error << "In GBaseClientT<T>::process() : Error!" << std::endl
-				  << "Found empty serModeStr" << std::endl;
-			std::cerr << error.str();
+		   glogger
+		   << "In GBaseClientT<T>::process() : Warning!" << std::endl
+		   << "Found empty serModeStr. Leaving." << std::endl
+		   << GWARNING;
 
 			return false;
 		}
@@ -283,12 +297,19 @@ protected:
 
 		// Check if we have received a valid target. Leave the function if this is not the case
 		if(!target) {
-			// This means that process() will be called again
+		   glogger
+		   << "In GBaseClientT<T>::process() : Warning!" << std::endl
+         << "Received empty target." << std::endl
+         << GWARNING;
+
+		   // This means that process() will be called again
 			return true;
 		}
 
 		// If we have a model for the item to be parallelized, load its data into the target
-		if(additionalDataTemplate_) target->loadConstantData(additionalDataTemplate_);
+		if(additionalDataTemplate_) {
+		   target->loadConstantData(additionalDataTemplate_);
+		}
 
 		// This one line is all it takes to do the processing required for this object.
 		// The object has all required functions on board. GBaseClientT<T> does not need to understand
@@ -299,7 +320,9 @@ protected:
 
 		// transform target back into a string and submit to the server. The actual
 		// actions done by submit are defined by derived classes.
-		if(!this->submit(Gem::Common::sharedPtrToString(target, serMode), portId)) return false;
+		if(!this->submit(Gem::Common::sharedPtrToString(target, serMode), portId)) {
+		   return false;
+		}
 
 		// Everything worked. Indicate that we want to continue
 		return true;

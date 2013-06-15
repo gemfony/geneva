@@ -96,8 +96,14 @@ public:
 	bool operator!=(const GSwarmPersonalityTraits&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
-
+	virtual boost::optional<std::string> checkRelationshipWith(
+	      const GObject&
+	      , const Gem::Common::expectation&
+	      , const double&
+	      , const std::string&
+	      , const std::string&
+	      , const bool&
+	) const OVERRIDE;
 
 	/** @brief Specifies in which neighborhood the individual is at present */
 	void setNeighborhood(const std::size_t&) ;
@@ -121,13 +127,13 @@ public:
 	double getPersonalBestQuality() const;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GSwarmPersonalityTraits object */
-	virtual void load_(const GObject*);
+	virtual void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const;
+	virtual GObject* clone_() const OVERRIDE;
 
 private:
 	/** @brief Stores the current position in the population */
@@ -143,11 +149,11 @@ private:
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

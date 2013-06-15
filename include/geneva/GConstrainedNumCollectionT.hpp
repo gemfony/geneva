@@ -83,9 +83,10 @@ class GConstrainedNumCollectionT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<num_type> >(*this))
-		   & BOOST_SERIALIZATION_NVP(lowerBoundary_)
-		   & BOOST_SERIALIZATION_NVP(upperBoundary_);
+		ar
+		& make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<num_type> >(*this))
+		& BOOST_SERIALIZATION_NVP(lowerBoundary_)
+		& BOOST_SERIALIZATION_NVP(upperBoundary_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -211,13 +212,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	virtual boost::optional<std::string> checkRelationshipWith (
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+	) const OVERRIDE {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -346,7 +348,7 @@ public:
 	 * @param pos The position for which the transformed value needs to be returned
 	 * @return The transformed value of val_
 	 */
-	virtual num_type value(const std::size_t& pos) {
+	virtual num_type value(const std::size_t& pos) OVERRIDE {
 		num_type mapping = transfer(GParameterCollectionT<num_type>::value(pos));
 
 		// Reset internal value
@@ -370,7 +372,7 @@ public:
    virtual void toPropertyTree(
          pt::ptree& ptr
          , const std::string& baseName
-   ) const {
+   ) const OVERRIDE {
 #ifdef DEBUG
       // Check that the object isn't empty
       if(this->empty()) {
@@ -401,7 +403,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GConstrainedNumCollectionT");
    }
 
@@ -415,7 +417,7 @@ protected:
 	 *
 	 * @param cp A copy of another GConstrainedNumCollectionT<num_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp){
+	virtual void load_(const GObject *cp) OVERRIDE {
 		// Convert cp into local format
 		const GConstrainedNumCollectionT<num_type> *p_load = GObject::gobject_conversion<GConstrainedNumCollectionT<num_type> >(cp);
 
@@ -464,7 +466,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       bool result = false;
 
@@ -483,7 +485,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterCollectionT<num_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -496,7 +498,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterCollectionT<num_type>::specificTestsFailuresExpected_GUnitTests();

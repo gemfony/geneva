@@ -98,42 +98,42 @@ public:
 			, const std::string&
 			, const std::string&
 			, const bool&
-	) const;
+	) const OVERRIDE;
 
 	virtual void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
-	);
+	) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual std::string getIndividualCharacteristic() const;
+	virtual std::string getIndividualCharacteristic() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads data from another object */
-	virtual void load_(const GObject *);
+	virtual void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone_() const;
+	virtual GObject *clone_() const OVERRIDE;
 
 	/** @brief Adapt children in a serial manner */
-	virtual void adaptChildren();
+	virtual void adaptChildren() OVERRIDE;
 	/** @brief Evaluates all children (and possibly parents) of this population */
-	virtual void evaluateChildren();
+	virtual void evaluateChildren() OVERRIDE;
 
 	/** @brief Necessary initialization work before the start of the optimization */
-	virtual void init();
+	virtual void init() OVERRIDE;
 	/** @brief Necessary clean-up work after the optimization has finished */
-	virtual void finalize();
+	virtual void finalize() OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

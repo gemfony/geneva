@@ -115,26 +115,26 @@ public:
 			, const std::string&
 			, const std::string&
 			, const bool&
-	) const;
+	) const OVERRIDE;
 
 	/** @brief Attach our local values to the vector. */
-	virtual void doubleStreamline(std::vector<double>&) const;
+	virtual void doubleStreamline(std::vector<double>&) const OVERRIDE;
 	/** @brief Attach boundaries of type double to the vectors */
-	virtual void doubleBoundaries(std::vector<double>&, std::vector<double>&) const;
+	virtual void doubleBoundaries(std::vector<double>&, std::vector<double>&) const OVERRIDE;
 	/** @brief Tell the audience that we own a number of double values */
-	virtual std::size_t countDoubleParameters() const;
+	virtual std::size_t countDoubleParameters() const OVERRIDE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&);
+	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GConstrainedDoubleCollection object */
-	virtual void load_(const GObject *);
+	virtual void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	GObject* clone_() const;
+	GObject* clone_() const OVERRIDE;
 
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally protected	 */
@@ -143,11 +143,11 @@ protected:
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 	/***************************************************************************/
 };
 

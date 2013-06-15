@@ -270,14 +270,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(
-			const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages
-	) const	{
+	virtual boost::optional<std::string> checkRelationshipWith(
+			const GObject& cp
+			, const Gem::Common::expectation& e
+			, const double& limit
+			, const std::string& caller
+			, const std::string& y_name
+			, const bool& withMessages
+	) const OVERRIDE {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -408,7 +408,7 @@ public:
 	 *
 	 * @param val The new T value stored in this class
 	 */
-	virtual void setValue(const T& val)  {
+	virtual void setValue(const T& val)  OVERRIDE {
 		// Do some error checking
 		if(val < lowerBoundary_ || val > upperBoundary_) {
 		   glogger
@@ -497,7 +497,7 @@ public:
 	 *
 	 * @return The transformed value of val_
 	 */
-	virtual T value() const {
+	virtual T value() const  OVERRIDE {
 		T mapping = this->transfer(GParameterT<T>::value());
 
 		// Reset internal value -- possible because it is declared mutable in
@@ -545,9 +545,9 @@ public:
     * @param baseName The name assigned to the object
     */
    virtual void toPropertyTree(
-         pt::ptree& ptr
-         , const std::string& baseName
-   ) const {
+      pt::ptree& ptr
+      , const std::string& baseName
+   ) const OVERRIDE {
       ptr.put(baseName + ".name", this->getParameterName());
       ptr.put(baseName + ".nvar", 1);
       ptr.put(baseName + ".type", this->name());
@@ -562,7 +562,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GConstrainedNumT");
    }
 
@@ -573,7 +573,7 @@ protected:
 	 *
 	 * @param cp Another GConstrainedNumT<T> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp) {
+	virtual void load_(const GObject *cp) OVERRIDE {
 		// Convert GObject pointer to local format
 		const GConstrainedNumT<T> *p_load	= GObject::gobject_conversion<GConstrainedNumT<T> >(cp);
 
@@ -603,7 +603,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       bool result = false;
 
@@ -622,7 +622,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Some general settings
 		const T testVal = T(42);
@@ -761,7 +761,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsFailuresExpected_GUnitTests();

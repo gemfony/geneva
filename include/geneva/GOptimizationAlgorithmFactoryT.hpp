@@ -154,7 +154,7 @@ public:
     *
     * @return An object of the desired algorithm type
     */
-   virtual boost::shared_ptr<prod_type> get() {
+   virtual boost::shared_ptr<prod_type> get() OVERRIDE {
       // Retrieve a work item using the methods implemented in our parent class
       boost::shared_ptr<prod_type> p_alg = Gem::Common::GFactoryT<prod_type>::get();
 
@@ -196,7 +196,7 @@ public:
     * @param pm A user-defined parallelization mode
     * @return An object of the desired algorithm type
     */
-   virtual boost::shared_ptr<prod_type> get(execMode pm) {
+   virtual boost::shared_ptr<prod_type> get(execMode pm) BASE {
       // Store the previous value
       execMode previous_pm = pm_;
       // Set the parallelization mode
@@ -300,7 +300,7 @@ protected:
 	 */
 	virtual void describeLocalOptions_(
 		Gem::Common::GParserBuilder& gpb
-	) {
+	) OVERRIDE {
 		using namespace Gem::Courtier;
 
 		std::string comment;

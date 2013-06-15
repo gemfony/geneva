@@ -107,28 +107,28 @@ public:
 	bool operator!=(const GParameterBase&) const;
 
 	/** @brief Triggers random initialization of the parameter(-collection) */
-	virtual void randomInit();
+	virtual void randomInit() BASE;
 
 	/** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
-	virtual bool isIndividualParameter() const;
+	virtual bool isIndividualParameter() const BASE;
 	/** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
-	bool isParameterCollection() const;
+	virtual bool isParameterCollection() const BASE;
 
 	/** @brief Initializes double-based parameters with a given value */
-	virtual void fpFixedValueInit(const float& val);
+	virtual void fpFixedValueInit(const float& val) BASE;
 	/** @brief Multiplies double-based parameters with a given value */
-	virtual void fpMultiplyBy(const float& val);
+	virtual void fpMultiplyBy(const float& val) BASE;
 	/** @brief Multiplies with a random floating point number in a given range */
-	virtual void fpMultiplyByRandom(const float&, const float&);
+	virtual void fpMultiplyByRandom(const float&, const float&) BASE;
 	/** @brief Multiplies with a random floating point number in the range [0, 1[ */
-	virtual void fpMultiplyByRandom();
+	virtual void fpMultiplyByRandom() BASE;
 	/** @brief Adds the floating point parameters of another GParameterBase object to this one */
-	virtual void fpAdd(boost::shared_ptr<GParameterBase>);
+	virtual void fpAdd(boost::shared_ptr<GParameterBase>) BASE;
 	/** @brief Subtract the floating point parameters of another GParameterBase object from this one */
-	virtual void fpSubtract(boost::shared_ptr<GParameterBase>);
+	virtual void fpSubtract(boost::shared_ptr<GParameterBase>) BASE;
 
 	/** @brief Emits a name for this class / object */
-	virtual std::string name() const;
+	virtual std::string name() const OVERRIDE;
 
 	/** @brief Allows to assign a name to this parameter */
 	void setParameterName(const std::string&);
@@ -154,13 +154,13 @@ public:
 
 	/***************************************************************************/
 	/** @brief Attach parameters of type float to the vector */
-	virtual void floatStreamline(std::vector<float>&) const;
+	virtual void floatStreamline(std::vector<float>&) const BASE;
 	/** @brief Attach parameters of type double to the vector */
-	virtual void doubleStreamline(std::vector<double>&) const;
+	virtual void doubleStreamline(std::vector<double>&) const BASE;
 	/** @brief Attach parameters of type boost::int32_t to the vector */
-	virtual void int32Streamline(std::vector<boost::int32_t>&) const;
+	virtual void int32Streamline(std::vector<boost::int32_t>&) const BASE;
 	/** @brief Attach parameters of type bool to the vector */
-	virtual void booleanStreamline(std::vector<bool>&) const;
+	virtual void booleanStreamline(std::vector<bool>&) const BASE;
 
 	/***************************************************************************/
 	/**
@@ -184,13 +184,13 @@ public:
 
 	/***************************************************************************/
 	/** @brief Attach boundaries of type float to the vectors */
-	virtual void floatBoundaries(std::vector<float>&, std::vector<float>&) const;
+	virtual void floatBoundaries(std::vector<float>&, std::vector<float>&) const BASE;
 	/** @brief Attach boundaries of type double to the vectors */
-	virtual void doubleBoundaries(std::vector<double>&, std::vector<double>&) const;
+	virtual void doubleBoundaries(std::vector<double>&, std::vector<double>&) const BASE;
 	/** @brief Attach boundaries of type boost::int32_t to the vectors */
-	virtual void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&) const;
+	virtual void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&) const BASE;
 	/** @brief Attach boundaries of type bool to the vectors */
-	virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&) const;
+	virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&) const BASE;
 
 	/***************************************************************************/
 	/**
@@ -215,13 +215,13 @@ public:
 	/***************************************************************************/
 
 	/** @brief Count the number of float parameters */
-	virtual std::size_t countFloatParameters() const;
+	virtual std::size_t countFloatParameters() const BASE;
 	/** @brief Count the number of double parameters */
-	virtual std::size_t countDoubleParameters() const;
+	virtual std::size_t countDoubleParameters() const BASE;
 	/** @brief Count the number of boost::int32_t parameters */
-	virtual std::size_t countInt32Parameters() const;
+	virtual std::size_t countInt32Parameters() const BASE;
 	/** @brief Count the number of bool parameters */
-	virtual std::size_t countBoolParameters() const;
+	virtual std::size_t countBoolParameters() const BASE;
 
 	/***************************************************************************/
 	/**
@@ -244,13 +244,13 @@ public:
 	/***************************************************************************/
 
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&);
+	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&) BASE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&);
+	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&) BASE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&);
+	virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&) BASE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&);
+	virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&) BASE;
 
 	/** @brief Specifies that no random initialization should occur anymore */
 	void blockRandomInitialization();
@@ -260,7 +260,7 @@ public:
 	bool randomInitializationBlocked() const;
 
 	/** @brief Convenience function so we do not need to always cast derived classes */
-	virtual bool hasAdaptor() const;
+	virtual bool hasAdaptor() const BASE;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
@@ -270,14 +270,14 @@ public:
 			, const std::string&
 			, const std::string&
 			, const bool&
-	) const;
+	) const OVERRIDE;
 
    /** @brief Converts the local data to a boost::property_tree node */
    virtual void toPropertyTree(pt::ptree&, const std::string&) const = 0;
    /** @brief Returns a human-readable name for the base type of derived objects */
-   virtual std::string baseType() const;
+   virtual std::string baseType() const BASE;
    /** @brief Lets the audience know whether this is a leaf or a branch object */
-   virtual bool isLeaf() const;
+   virtual bool isLeaf() const BASE;
 
 	/** @brief Assigns a random number generator from another object. */
 	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *);
@@ -332,7 +332,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*);
+	virtual void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 
@@ -346,11 +346,11 @@ private:
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

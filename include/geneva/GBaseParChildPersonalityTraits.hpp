@@ -95,7 +95,7 @@ public:
          , const std::string&
          , const std::string&
          , const bool&
-   ) const;
+   ) const OVERRIDE;
 
    /** @brief Marks an individual as a parent*/
    bool setIsParent();
@@ -103,14 +103,14 @@ public:
    bool setIsChild();
 
    /** @brief Checks whether this is a parent individual */
-   bool isParent() const ;
+   bool isParent() const;
    /** @brief Retrieves the current value of the parentCounter_ variable */
-   boost::uint32_t getParentCounter() const ;
+   boost::uint32_t getParentCounter() const;
 
    /** @brief Sets the position of the individual in the population */
-   void setPopulationPosition(const std::size_t&) ;
+   void setPopulationPosition(const std::size_t&);
    /** @brief Retrieves the position of the individual in the population */
-   std::size_t getPopulationPosition(void) const ;
+   std::size_t getPopulationPosition(void) const;
 
    /** @brief Stores the parent's id with this object */
    void setParentId(const std::size_t&);
@@ -122,13 +122,13 @@ public:
    void unsetParentId();
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
    /** @brief Loads the data of another GBaseParChildPersonalityTraits object */
-   virtual void load_(const GObject*);
+   virtual void load_(const GObject*) OVERRIDE;
    /** @brief Creates a deep clone of this object */
-   virtual GObject* clone_() const;
+   virtual GObject* clone_() const OVERRIDE;
 
 private:
    /** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
@@ -140,11 +140,11 @@ private:
 
 public:
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual bool modify_GUnitTests();
+   virtual bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual void specificTestsNoFailureExpected_GUnitTests();
+   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual void specificTestsFailuresExpected_GUnitTests();
+   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

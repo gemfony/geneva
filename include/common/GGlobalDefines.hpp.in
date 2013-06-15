@@ -62,7 +62,7 @@
 /** The current version of the Geneva library */
 #define GENEVA_VERSION @GENEVA_API_VERSION@
 
-/** std::pow(x,2) is less efficient than direct multiplication */
+/** Funnily. on g++ std::pow(x,2) seems to be less efficient than direct multiplication */
 #define GSQUARED(X) (X) * (X)
 
 // Some Boost versions prevent proper termination of Geneva in conjunction with gcc. Tag these.
@@ -86,9 +86,13 @@
 
 // Define some macros that selectively switch on C++11 constructs when supported
 #ifdef GCPPELEVEN
+#define BASE /* Simply helps to mark functions considered to be at the base of the hierarchy */
 #define OVERRIDE override
-#else
+#define FINAL final
+#else /* GCPPELEVEN */
+#define BASE
 #define OVERRIDE
-#endif
+#define FINAL
+#endif /* GCPPELEVEN */
 
 #endif /* GGLOBALDEFINES_HPP_ */

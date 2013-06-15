@@ -78,7 +78,7 @@ const trainingSet& trainingSet::operator=(const trainingSet& cp) {
 bool trainingSet::operator==(const trainingSet& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"trainingSet::operator==","cp", CE_SILENT);
+	return !trainingSet::checkRelationshipWith(cp, CE_EQUALITY, 0.,"trainingSet::operator==","cp", CE_SILENT);
 }
 
 /******************************************************************************/
@@ -91,7 +91,7 @@ bool trainingSet::operator==(const trainingSet& cp) const {
 bool trainingSet::operator!=(const trainingSet& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"trainingSet::operator!=","cp", CE_SILENT);
+	return !trainingSet::checkRelationshipWith(cp, CE_INEQUALITY, 0.,"trainingSet::operator!=","cp", CE_SILENT);
 }
 /******************************************************************************/
 /**
@@ -106,13 +106,14 @@ bool trainingSet::operator!=(const trainingSet& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> trainingSet::checkRelationshipWith(const trainingSet& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+boost::optional<std::string> trainingSet::checkRelationshipWith(
+      const trainingSet& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
     using namespace Gem::Common;
 
 	// Will hold possible deviations from the expectation, including explanations
@@ -191,7 +192,7 @@ const networkData& networkData::operator=(const networkData& cp) {
 bool networkData::operator==(const networkData& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"networkData::operator==","cp", CE_SILENT);
+	return !networkData::checkRelationshipWith(cp, CE_EQUALITY, 0.,"networkData::operator==","cp", CE_SILENT);
 }
 
 /******************************************************************************/
@@ -204,7 +205,7 @@ bool networkData::operator==(const networkData& cp) const {
 bool networkData::operator!=(const networkData& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"networkData::operator!=","cp", CE_SILENT);
+	return !networkData::checkRelationshipWith(cp, CE_INEQUALITY, 0.,"networkData::operator!=","cp", CE_SILENT);
 }
 /******************************************************************************/
 /**
@@ -219,12 +220,14 @@ bool networkData::operator!=(const networkData& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> networkData::checkRelationshipWith(const networkData& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
+boost::optional<std::string> networkData::checkRelationshipWith(
+   const networkData& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
+) const
 {
     using namespace Gem::Common;
 
@@ -232,7 +235,7 @@ boost::optional<std::string> networkData::checkRelationshipWith(const networkDat
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check the parent class'es data
-	deviations.push_back(GStdSimpleVectorInterfaceT<std::size_t>::checkRelationshipWith(cp, e, limit, "networkData", y_name, withMessages));
+	deviations.push_back(GStdSimpleVectorInterfaceT<std::size_t>::checkRelationshipWith_base(cp, e, limit, "networkData", y_name, withMessages));
 
     // Check vector sizes
     if(data_.size() != cp.data_.size()) {

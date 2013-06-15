@@ -176,7 +176,7 @@ public:
          , const std::string& caller
          , const std::string& y_name
          , const bool& withMessages
-   ) const {
+   ) const  OVERRIDE{
        using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GParamterBase reference
@@ -202,7 +202,7 @@ public:
     *
     * @return The type of optimization algorithm
     */
-   virtual personality_oa getOptimizationAlgorithm() const {
+   virtual personality_oa getOptimizationAlgorithm() const  OVERRIDE {
       return PERSONALITY_MPEA;
    }
 
@@ -237,7 +237,7 @@ public:
     *
     * @return The name assigned to this optimization algorithm
     */
-   virtual std::string getAlgorithmName() const {
+   virtual std::string getAlgorithmName() const OVERRIDE {
       return std::string("Multi-Population Evolutionary Algorithm");
    }
 
@@ -251,7 +251,7 @@ public:
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
       , const bool& showOrigin
-   ) {
+   ) OVERRIDE {
       std::string comment;
       std::string comment1;
       std::string comment2;
@@ -328,7 +328,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GMultiPopulationEAT");
    }
 
@@ -339,8 +339,7 @@ protected:
     *
     * @param cp A pointer to another GMultiPopulationEAT object, camouflaged as a GObject
     */
-   virtual void load_(const GObject * cp)
-   {
+   virtual void load_(const GObject * cp) OVERRIDE {
       const GMultiPopulationEAT<ind_type> *p_load = GObject::gobject_conversion<GMultiPopulationEAT<ind_type> >(cp);
 
       // First load the parent class'es data ...
@@ -357,7 +356,7 @@ protected:
     *
     * @return A deep clone of this object
     */
-   virtual GObject *clone_() const  {
+   virtual GObject *clone_() const OVERRIDE {
       return new GMultiPopulationEAT<ind_type>(*this);
    }
 
@@ -365,7 +364,7 @@ protected:
    /**
     * Some error checks related to population sizes
     */
-   virtual void populationSanityChecks() const {
+   virtual void populationSanityChecks() const OVERRIDE {
       std::size_t nP = GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::getNParents();
 
       // First check that we have been given a suitable value for the number of parents.
@@ -417,8 +416,7 @@ protected:
    /**
     * Adapt all children in parallel. Evaluation is done in a seperate function (evaluateChildren).
     */
-   virtual void adaptChildren()
-   {
+   virtual void adaptChildren() OVERRIDE {
       boost::tuple<std::size_t,std::size_t> range = this->getAdaptionRange();
       typename std::vector<boost::shared_ptr<GOptimizationAlgorithmT<ind_type> > >::iterator it;
 
@@ -434,8 +432,7 @@ protected:
    /**
     * Evaluate all children (and possibly parents, depending on the iteration and sorting mode) in parallel
     */
-   virtual void evaluateChildren()
-   {
+   virtual void evaluateChildren() OVERRIDE {
       boost::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
       typename std::vector<boost::shared_ptr<GOptimizationAlgorithmT<ind_type> > >::iterator it;
 
@@ -471,8 +468,7 @@ protected:
    /**
     * Choose new parents, based on the selection scheme set by the user.
     */
-   virtual void selectBest()
-   {
+   virtual void selectBest() OVERRIDE {
    #ifdef DEBUG
       // We require at this stage that at least the default number of
       // children is present. If individuals can get lost in your setting,
@@ -527,7 +523,7 @@ protected:
     *
     * @return The range inside which evaluation should take place
     */
-   virtual boost::tuple<std::size_t,std::size_t> getEvaluationRange() const {
+   virtual boost::tuple<std::size_t,std::size_t> getEvaluationRange() const OVERRIDE {
       std::size_t nParents = GMultiPopulationEAT<ind_type>::getNParents();
       std::size_t first=nParents, last=(this->data).size();
 
@@ -564,7 +560,7 @@ protected:
     * tagging. It is called from within GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::optimize(), before the
     * actual optimization cycle starts.
     */
-   virtual void init() {
+   virtual void init() OVERRIDE {
       // To be performed before any other action
       GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::init();
    }
@@ -574,7 +570,7 @@ protected:
    /**
     * Does any necessary finalization work
     */
-   virtual void finalize() {
+   virtual void finalize() OVERRIDE {
       // Last action
       GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::finalize();
    }
@@ -584,7 +580,7 @@ protected:
    /**
     * Retrieve a GPersonalityTraits object belonging to this algorithm
     */
-   boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const {
+   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const  OVERRIDE {
       return boost::shared_ptr<GMPEAPersonalityTraits>(new GMPEAPersonalityTraits());
    }
 
@@ -606,7 +602,7 @@ public:
     *
     * @return A boolean which indicates whether modifications were made
     */
-   virtual bool modify_GUnitTests() {
+   virtual bool modify_GUnitTests() OVERRIDE {
    #ifdef GEM_TESTING
 
       bool result = false;
@@ -626,7 +622,7 @@ public:
    /**
     * Performs self tests that are expected to succeed. This is needed for testing purposes
     */
-   virtual void specificTestsNoFailureExpected_GUnitTests() {
+   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       // Call the parent class'es function
       GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::specificTestsNoFailureExpected_GUnitTests();
@@ -643,7 +639,7 @@ public:
    /**
     * Performs self tests that are expected to fail. This is needed for testing purposes
     */
-   virtual void specificTestsFailuresExpected_GUnitTests() {
+   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       // Call the parent class'es function
       GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::specificTestsFailuresExpected_GUnitTests();

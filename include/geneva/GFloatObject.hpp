@@ -106,33 +106,33 @@ public:
 			, const std::string&
 			, const std::string&
 			, const bool&
-	) const;
+	) const OVERRIDE;
 
 	/** @brief Attach our local value to the vector. */
-	virtual void floatStreamline(std::vector<float>&) const;
+	virtual void floatStreamline(std::vector<float>&) const OVERRIDE;
 	/** @brief Attach boundaries of type float to the vectors */
-	virtual void floatBoundaries(std::vector<float>&, std::vector<float>&) const;
+	virtual void floatBoundaries(std::vector<float>&, std::vector<float>&) const OVERRIDE;
 	/** @brief Tell the audience that we own a float value */
-	virtual std::size_t countFloatParameters() const;
+	virtual std::size_t countFloatParameters() const OVERRIDE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&);
+	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*);
+	virtual void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const;
+	virtual GObject* clone_() const OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 

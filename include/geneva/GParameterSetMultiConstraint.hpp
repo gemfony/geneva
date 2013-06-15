@@ -96,19 +96,19 @@ public:
          , const std::string&
          , const std::string&
          , const bool&
-   ) const;
+   ) const OVERRIDE;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&) OVERRIDE;
 
 protected:
    /** @brief Checks whether a given individual is valid */
-   virtual double check_(const GIndividual *, const double&) const;
+   virtual double check_(const GIndividual *, const double&) const OVERRIDE;
    /** @brief Checks whether a given GParameterSet object is valid */
    virtual double check_(const GParameterSet *, const double&) const = 0;
 
    /** @brief Loads the data of another GParameterSetMultiConstraint */
-   virtual void load_(const GObject*);
+   virtual void load_(const GObject*) OVERRIDE;
    /** @brief Creates a deep clone of this object */
    virtual GObject* clone_() const = 0;
 };

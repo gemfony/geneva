@@ -167,13 +167,13 @@ public:
  	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	virtual boost::optional<std::string> checkRelationshipWith(
-		const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages
-	) const {
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+	) const OVERRIDE {
 	    using namespace Gem::Common;
 
 	    // Check that we are not accidently assigning this object to itself
@@ -198,7 +198,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GFPGaussAdaptorT");
    }
 
@@ -209,7 +209,7 @@ protected:
 	 *
 	 * @param cp A copy of another GFPGaussAdaptorT<fp_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) {
+	virtual void load_(const GObject* cp) OVERRIDE {
 	    // Check that we are not accidently assigning this object to itself
 	    GObject::selfAssignmentCheck<GFPGaussAdaptorT<fp_type> >(cp);
 
@@ -229,7 +229,7 @@ protected:
 	 *
 	 * @param value The value that is going to be adapted in situ
 	 */
-	virtual void customAdaptions(fp_type& value) {
+	virtual void customAdaptions(fp_type& value) OVERRIDE {
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
 #if defined (CHECKOVERFLOWS)
@@ -279,7 +279,7 @@ public:
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -302,7 +302,7 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for
 	 * testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -319,7 +319,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;

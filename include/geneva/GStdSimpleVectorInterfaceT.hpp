@@ -158,13 +158,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual boost::optional<std::string> checkRelationshipWith(const std::vector<T>& cp_data,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	virtual boost::optional<std::string> checkRelationshipWith_base(
+      const std::vector<T>& cp_data
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+	) const BASE {
 	    using namespace Gem::Common;
 
 		// Will hold possible deviations from the expectation, including explanations
@@ -194,13 +195,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual boost::optional<std::string> checkRelationshipWith(const GStdSimpleVectorInterfaceT<T>& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	virtual boost::optional<std::string> checkRelationshipWith_base(
+      const GStdSimpleVectorInterfaceT<T>& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+	) const BASE {
 	    using namespace Gem::Common;
 
 		// Will hold possible deviations from the expectation, including explanations
@@ -448,11 +450,11 @@ private:
 public:
    /***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() { /* nothing here yet */ return false; }
+	virtual bool modify_GUnitTests() BASE { /* nothing here yet */ return false; }
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing here yet */ }
+	virtual void specificTestsNoFailureExpected_GUnitTests() BASE { /* nothing here yet */ }
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing here yet */  }
+	virtual void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing here yet */  }
    /***************************************************************************/
 };
 

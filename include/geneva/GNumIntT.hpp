@@ -218,13 +218,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	boost::optional<std::string> checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+	) const OVERRIDE {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -245,7 +246,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GNumIntT");
    }
 
@@ -259,7 +260,7 @@ protected:
 	 *
 	 * @param cp A copy of another GNumIntT<int_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp){
+	virtual void load_(const GObject *cp) OVERRIDE {
 		// Convert cp into local format
 		const GNumIntT<int_type> *p_load = GObject::gobject_conversion<GNumIntT<int_type> >(cp);
 
@@ -277,7 +278,7 @@ protected:
 	/**
 	 * Triggers random initialization of the parameter collection
 	 */
-	virtual void randomInit_() {
+	virtual void randomInit_() OVERRIDE {
 		int_type lowerBoundary = GNumT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumT<int_type>::getUpperInitBoundary();
 
@@ -295,7 +296,7 @@ public:
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -314,7 +315,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// A few settings
 		const std::size_t nTests = 10000;
@@ -412,7 +413,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GNumT<int_type>::specificTestsFailuresExpected_GUnitTests();

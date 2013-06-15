@@ -97,9 +97,9 @@ public:
 	bool operator!=(const GBooleanObject&) const;
 
 	/** @brief Triggers random initialization of the parameter object */
-	virtual void randomInit();
+	virtual void randomInit() OVERRIDE;
 	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
-	virtual void randomInit(const double&);
+	void randomInit(const double&);
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
@@ -109,38 +109,38 @@ public:
 	      , const std::string&
 	      , const std::string&
 	      , const bool&
-	) const;
+	) const OVERRIDE;
 
 	/** @brief Attach our local value to the vector. */
-	virtual void booleanStreamline(std::vector<bool>&) const;
+	virtual void booleanStreamline(std::vector<bool>&) const OVERRIDE;
 	/** @brief Attach boundaries of type bool to the vectors */
-	virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&) const;
+	virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&) const OVERRIDE;
 	/** @brief Tell the audience that we own a boost::int32_t value */
-	virtual std::size_t countBoolParameters() const;
+	virtual std::size_t countBoolParameters() const OVERRIDE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&);
+	virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*);
+	virtual void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const;
+	virtual GObject* clone_() const OVERRIDE;
 
 	/** @brief Triggers random initialization of the parameter object */
-	virtual void randomInit_();
+	virtual void randomInit_() OVERRIDE;
 	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
 	void randomInit_(const double&);
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

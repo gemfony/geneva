@@ -151,7 +151,7 @@ public:
          , const std::string& caller
          , const std::string& y_name
          , const bool& withMessages
-   ) const {
+   ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with an object of the same type and that we are not
@@ -174,9 +174,9 @@ public:
     * Adds local configuration options to a GParserBuilder object
     */
    virtual void addConfigurationOptions(
-         Gem::Common::GParserBuilder& gpb
-         , const bool& showOrigin
-   ) {
+      Gem::Common::GParserBuilder& gpb
+      , const bool& showOrigin
+   ) OVERRIDE {
       // Call our parent class'es function
       GObject::addConfigurationOptions(gpb, showOrigin);
    }
@@ -188,8 +188,8 @@ public:
     * level of confidence that this is a valid solution.
     */
    double check(
-         const ind_type *cp
-         , const double& validityThreshold
+      const ind_type *cp
+      , const double& validityThreshold
    ) const {
       double result = check_(cp, validityThreshold);
 
@@ -219,7 +219,7 @@ protected:
    /**
     * Loads the data of another GValidityCheckT<ind_type>
     */
-   virtual void load_(const GObject* cp) {
+   virtual void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GValidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckT<ind_type> >(cp);
@@ -330,7 +330,7 @@ public:
          , const std::string& caller
          , const std::string& y_name
          , const bool& withMessages
-   ) const {
+   ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with an object of the same type and that we are not
@@ -355,9 +355,9 @@ protected:
     * Check whether a given parameter set is valid
     */
    virtual double check_(
-         const ind_type * cp
-         , const double& validityThreshold
-   ) const {
+      const ind_type * cp
+      , const double& validityThreshold
+   ) const OVERRIDE {
       return !vc_ptr_->check(cp, validityThreshold);
    }
 
@@ -365,7 +365,7 @@ protected:
    /**
     * Loads the data of another GValidityCheckT<ind_type>
     */
-   virtual void load_(const GObject* cp) {
+   virtual void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GInvalidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GInvalidityCheckT<ind_type> >(cp);
@@ -381,7 +381,7 @@ protected:
    /**
     * Creates a deep clone of this object
     */
-   virtual GObject* clone_() const {
+   virtual GObject* clone_() const OVERRIDE {
       return new GInvalidityCheckT<ind_type>(*this);
    }
 
@@ -498,7 +498,7 @@ public:
          , const std::string& caller
          , const std::string& y_name
          , const bool& withMessages
-   ) const {
+   ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with an object of the same type and that we are not
@@ -546,7 +546,7 @@ protected:
    /**
     * Loads the data of another GValidityCheckT<ind_type>
     */
-   virtual void load_(const GObject* cp) {
+   virtual void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GValidityCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckCombinerT<ind_type> >(cp);
@@ -572,8 +572,7 @@ protected:
  * true.
  */
 template <typename ind_type>
-class GANDCheckCombinerT : public GValidityCheckCombinerT<ind_type>
-{
+class GANDCheckCombinerT : public GValidityCheckCombinerT<ind_type> {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
@@ -664,7 +663,7 @@ public:
          , const std::string& caller
          , const std::string& y_name
          , const bool& withMessages
-   ) const {
+   ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with an object of the same type and that we are not
@@ -691,7 +690,7 @@ protected:
    virtual double check_(
          const ind_type *p
          , const double& validityThreshold
-   ) const {
+   ) const OVERRIDE {
       double result = 1.0;
 
       typename std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >::const_iterator cit;
@@ -709,7 +708,7 @@ protected:
    /**
     * Creates a deep clone of this object
     */
-   virtual GObject* clone_() const {
+   virtual GObject* clone_() const OVERRIDE {
       return new GANDCheckCombinerT<ind_type>(*this);
    }
 
@@ -717,7 +716,7 @@ protected:
    /**
     * Loads the data of another GValidityCheckCombinerT<ind_type>
     */
-   virtual void load_(const GObject* cp) {
+   virtual void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GANDCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GANDCheckCombinerT<ind_type> >(cp);
@@ -832,7 +831,7 @@ public:
          , const std::string& caller
          , const std::string& y_name
          , const bool& withMessages
-   ) const {
+   ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with an object of the same type and that we are not
@@ -857,9 +856,9 @@ protected:
     * it returns 1.0, otherwise 0.0
     */
    virtual double check_(
-         const ind_type *p
-         , const double& validityThreshold
-   ) const {
+      const ind_type *p
+      , const double& validityThreshold
+   ) const OVERRIDE {
       double result = 0.0;
 
       typename std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >::const_iterator cit;
@@ -877,7 +876,7 @@ protected:
    /**
     * Creates a deep clone of this object
     */
-   virtual GObject* clone_() const {
+   virtual GObject* clone_() const OVERRIDE {
       return new GORCheckCombinerT<ind_type>(*this);
    }
 
@@ -885,7 +884,7 @@ protected:
    /**
     * Loads the data of another GValidityCheckCombinerT<ind_type>
     */
-   virtual void load_(const GObject* cp) {
+   virtual void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GORCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GORCheckCombinerT<ind_type> >(cp);
@@ -1000,7 +999,7 @@ public:
          , const std::string& caller
          , const std::string& y_name
          , const bool& withMessages
-   ) const {
+   ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with an object of the same type and that we are not
@@ -1025,9 +1024,9 @@ protected:
     * it returns 1.0, otherwise 0.0
     */
    virtual double check_(
-         const ind_type *p
-         , const double& validityThreshold
-   ) const {
+      const ind_type *p
+      , const double& validityThreshold
+   ) const OVERRIDE {
       std::size_t nTrue = 0;
       typename std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >::const_iterator cit;
       for(cit=GValidityCheckCombinerT<ind_type>::validityChecks_.begin(); cit!=GValidityCheckCombinerT<ind_type>::validityChecks_.end(); ++cit) {
@@ -1047,7 +1046,7 @@ protected:
    /**
     * Creates a deep clone of this object
     */
-   virtual GObject* clone_() const {
+   virtual GObject* clone_() const OVERRIDE {
       return new GXORCheckCombinerT<ind_type>(*this);
    }
 
@@ -1055,7 +1054,7 @@ protected:
    /**
     * Loads the data of another GValidityCheckCombinerT<ind_type>
     */
-   virtual void load_(const GObject* cp) {
+   virtual void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GXORCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GXORCheckCombinerT<ind_type> >(cp);

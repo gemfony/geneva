@@ -134,7 +134,7 @@ public:
 			, const std::string& caller
 			, const std::string& y_name
 			, const bool& withMessages
-	) const	{
+	) const OVERRIDE {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -170,7 +170,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GNumFlipAdaptorT");
    }
 
@@ -181,8 +181,7 @@ protected:
 	 *
 	 * @param A copy of another GNumFlipAdaptorT, camouflaged as a GObject
 	 */
-	void load_(const GObject *cp)
-	{
+	void load_(const GObject *cp) OVERRIDE	{
 		// Check that this object is not accidently assigned to itself
 		GObject::selfAssignmentCheck<GNumFlipAdaptorT<num_type> >(cp);
 
@@ -210,7 +209,7 @@ protected:
 	 *
 	 * @param value The bit value to be adapted
 	 */
-	virtual void customAdaptions(num_type& value) {
+	virtual void customAdaptions(num_type& value) OVERRIDE {
 		bool up = this->gr->uniform_bool();
 		if(up){
 #if defined (CHECKOVERFLOWS)
@@ -252,7 +251,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -276,7 +275,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -293,7 +292,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;

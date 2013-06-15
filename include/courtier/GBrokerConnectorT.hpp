@@ -1153,7 +1153,9 @@ private:
 			}
 		}
 		else { // Wait indefinitely for the first item to return
+         std::cout << "Waiting for first item (1)" << std::endl;
 			CurrentBufferPort_->pop_back_processed(p);
+         std::cout << "Got first item (1)" << std::endl;
 		}
 
 		// At this point we have received the first individual of the current iteration back.
@@ -1198,7 +1200,9 @@ private:
 			}
 		}
 		else { // Wait indefinitely for the first item to return
+         std::cout << "Waiting for first item (2)" << std::endl;
 			CurrentBufferPort_->pop_back_processed(p);
+         std::cout << "Got first item (2)" << std::endl;
 		}
 
 		// At this point we have received the first individual of the current generation back.
@@ -1232,7 +1236,9 @@ private:
 		boost::posix_time::time_duration currentElapsed;
 
 		if(boundlessWait_) { // Wait indefinitely for the next item
+		   std::cout << "Waiting for item (1)" << std::endl;
 			CurrentBufferPort_->pop_back_processed(p);
+			std::cout << "Got item (1)" << std::endl;
 		} else { // Observe a timeout
 			// Calculate how much time has elapsed since the start of the iteration
 			currentElapsed = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
@@ -1296,7 +1302,9 @@ private:
 		boost::posix_time::time_duration currentElapsed;
 
 		if(boundlessWait_) { // Wait indefinitely for the next item
+         std::cout << "Waiting for item (2)" << std::endl;
 			CurrentBufferPort_->pop_back_processed(p);
+         std::cout << "Got item (2)" << std::endl;
 		} else { // Observe a timeout
 			// Calculate how much time has elapsed since the start of the iteration
 			currentElapsed = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;

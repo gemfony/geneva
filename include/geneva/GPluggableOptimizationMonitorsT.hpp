@@ -145,7 +145,7 @@ public:
    virtual void informationFunction(
       const infoMode& im
       , GOptimizationAlgorithmT<ind_type> * const goa
-   ) {
+   ) OVERRIDE {
       typename std::vector<boost::shared_ptr<GBasePluggableOMT<ind_type> > >::iterator it;
       for(it=pluggable_monitors_.begin(); it!=pluggable_monitors_.end(); ++it) {
          (*it)->GBasePluggableOMT<ind_type>::informationFunction(im,goa);
@@ -382,7 +382,7 @@ public:
    virtual void informationFunction(
       const infoMode& im
       , GOptimizationAlgorithmT<ind_type> * const goa
-   ) {
+   ) OVERRIDE {
       switch(im) {
       case Gem::Geneva::INFOINIT:
       {

@@ -124,12 +124,14 @@ struct trainingSet
 	bool operator!=(const trainingSet&) const;
 
 	/** @brief Checks whether a given expectation is fulfilled. */
-	boost::optional<std::string> checkRelationshipWith(const trainingSet&,
-			const Gem::Common::expectation&,
-			const double&,
-			const std::string&,
-			const std::string&,
-			const bool&) const;
+	boost::optional<std::string> checkRelationshipWith(
+	      const trainingSet&
+			, const Gem::Common::expectation&
+			, const double&
+			, const std::string&
+			, const std::string&
+			, const bool&
+	) const;
 
 	/***************************************************************************/
 	// Local data

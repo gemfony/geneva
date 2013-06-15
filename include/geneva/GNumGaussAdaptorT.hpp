@@ -203,13 +203,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	boost::optional<std::string> checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+	) const OVERRIDE {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -381,7 +382,7 @@ public:
 	 *
 	 * @return The diagnostic message
 	 */
-	virtual std::string printDiagnostics() const {
+	virtual std::string printDiagnostics() const OVERRIDE {
 		std::ostringstream diag;
 		boost::tuple<fp_type,fp_type> sigmaRange = getSigmaRange();
 
@@ -405,7 +406,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const  OVERRIDE {
       return std::string("GNumGaussAdaptorT");
    }
 
@@ -417,8 +418,7 @@ protected:
 	 *
 	 * @param A copy of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GObject
 	 */
-	void load_(const GObject *cp)
-	{
+	void load_(const GObject *cp) OVERRIDE {
 		// Convert GObject pointer to local format
 		const GNumGaussAdaptorT<num_type, fp_type> *p_load = GObject::gobject_conversion<GNumGaussAdaptorT<num_type, fp_type> >(cp);
 
@@ -446,8 +446,7 @@ protected:
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	 * algorithm to adapt to changing geometries of the quality surface.
 	 */
-	virtual void customAdaptAdaption()
-	{
+	virtual void customAdaptAdaption() OVERRIDE {
 	    using namespace Gem::Common;
 
 		// We do not want to favor the decrease or increase of sigma, hence we choose
@@ -482,7 +481,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -508,7 +507,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -656,7 +655,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -712,7 +711,6 @@ public:
       condnotset("GNumGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
-
 };
 
 /******************************************************************************/

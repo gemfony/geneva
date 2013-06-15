@@ -192,7 +192,7 @@ public:
       , const std::string& caller
       , const std::string& y_name
       , const bool& withMessages
-	) const {
+	) const OVERRIDE {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -216,7 +216,7 @@ public:
 	 * each item has its own adapt function. Hence we do not need to use or
 	 * store own adaptors.
 	 */
-	virtual void adaptImpl() {
+	virtual void adaptImpl() OVERRIDE {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->adapt();
@@ -237,7 +237,7 @@ public:
 	 *
 	 * @return A boolean indicating whether this GParameterBase-derivative is an individual parameter
 	 */
-	virtual bool isIndividualParameter() const {
+	virtual bool isIndividualParameter() const OVERRIDE {
 		return false;
 	}
 
@@ -248,7 +248,7 @@ public:
 	 *
 	 * @param val The value to be assigned to the parameters
 	 */
-	virtual void fpFixedValueInit(const float& val) {
+	virtual void fpFixedValueInit(const float& val) OVERRIDE {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->fpFixedValueInit(val);
@@ -266,7 +266,7 @@ public:
 	 *
 	 * @param val The value to be multiplied with the parameter
 	 */
-	virtual void fpMultiplyBy(const float& val) {
+	virtual void fpMultiplyBy(const float& val) OVERRIDE {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->fpMultiplyBy(val);
@@ -285,7 +285,7 @@ public:
 	 * @param min The lower boundary for random number generation
 	 * @param max The upper boundary for random number generation
 	 */
-	virtual void fpMultiplyByRandom(const float& min, const float& max)	{
+	virtual void fpMultiplyByRandom(const float& min, const float& max) OVERRIDE {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->fpMultiplyByRandom(min, max);
@@ -301,7 +301,7 @@ public:
 	/**
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
-	virtual void fpMultiplyByRandom() {
+	virtual void fpMultiplyByRandom() OVERRIDE {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->fpMultiplyByRandom();
@@ -319,7 +319,7 @@ public:
 	 *
 	 * @oaram p A boost::shared_ptr to another GParameterBase object
 	 */
-	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base)	{
+	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) OVERRIDE {
 		// We first need to convert p_base to our local type
 		typename boost::shared_ptr<GParameterTCollectionT<T> > p
 			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
@@ -351,7 +351,7 @@ public:
 	 *
 	 * @oaram p A boost::shared_ptr to another GParameterBase object
 	 */
-	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base)	{
+	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) OVERRIDE	{
 		// We first need to convert p_base to our local type
 		typename boost::shared_ptr<GParameterTCollectionT<T> > p
 			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
@@ -384,7 +384,7 @@ public:
 	 *
 	 * @param parVec The vector to which the double parameters will be attached
 	 */
-	virtual void doubleStreamline(std::vector<double>& parVec) const {
+	virtual void doubleStreamline(std::vector<double>& parVec) const OVERRIDE {
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
 			(*cit)->doubleStreamline(parVec);
@@ -403,7 +403,7 @@ public:
 	 *
 	 * @param parVec The vector to which the boost::int32_t parameters will be attached
 	 */
-	virtual void int32Streamline(std::vector<boost::int32_t>& parVec) const {
+	virtual void int32Streamline(std::vector<boost::int32_t>& parVec) const OVERRIDE {
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
 			(*cit)->int32Streamline(parVec);
@@ -422,7 +422,7 @@ public:
 	 *
 	 * @param parVec The vector to which the boolean parameters will be attached
 	 */
-	virtual void booleanStreamline(std::vector<bool>& parVec) const {
+	virtual void booleanStreamline(std::vector<bool>& parVec) const OVERRIDE {
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
 			(*cit)->booleanStreamline(parVec);
@@ -444,7 +444,7 @@ public:
 	virtual void doubleBoundaries(
 			std::vector<double>& lBndVec
 			, std::vector<double>& uBndVec
-	) const {
+	) const OVERRIDE {
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
 			(*cit)->doubleBoundaries(lBndVec, uBndVec);
@@ -461,7 +461,7 @@ public:
 	virtual void int32Boundaries(
 			std::vector<boost::int32_t>& lBndVec
 			, std::vector<boost::int32_t>& uBndVec
-	) const {
+	) const OVERRIDE {
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
 			(*cit)->int32Boundaries(lBndVec, uBndVec);
@@ -481,7 +481,7 @@ public:
 	virtual void booleanBoundaries(
 			std::vector<bool>& lBndVec
 			, std::vector<bool>& uBndVec
-	) const {
+	) const OVERRIDE {
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
 			(*cit)->booleanBoundaries(lBndVec, uBndVec);
@@ -495,7 +495,7 @@ public:
 	 *
 	 * @return The number of double parameters in this collection
 	 */
-	virtual std::size_t countDoubleParameters() const {
+	virtual std::size_t countDoubleParameters() const OVERRIDE {
 		std::size_t result = 0;
 
 		typename GParameterTCollectionT<T>::const_iterator cit;
@@ -513,7 +513,7 @@ public:
 	 *
 	 * @return The number of boost::int32_t parameters in this collection
 	 */
-	virtual std::size_t countInt32Parameters() const {
+	virtual std::size_t countInt32Parameters() const OVERRIDE {
 		std::size_t result = 0;
 
 		typename GParameterTCollectionT<T>::const_iterator cit;
@@ -531,7 +531,7 @@ public:
 	 *
 	 * @return The number of bool parameters in this collection
 	 */
-	virtual std::size_t countBoolParameters() const {
+	virtual std::size_t countBoolParameters() const OVERRIDE {
 		std::size_t result = 0;
 
 		typename GParameterTCollectionT<T>::const_iterator cit;
@@ -546,7 +546,7 @@ public:
 	/**
 	 * Assigns part of a value vector to the parameter
 	 */
-	void assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
+	void assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) OVERRIDE {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->assignDoubleValueVector(parVec, pos);
@@ -562,7 +562,7 @@ public:
 	/**
 	 * Assigns part of a value vector to the parameter
 	 */
-	void assignInt32ValueVector(const std::vector<boost::int32_t>& parVec, std::size_t& pos) {
+	void assignInt32ValueVector(const std::vector<boost::int32_t>& parVec, std::size_t& pos) OVERRIDE {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->assignInt32ValueVector(parVec, pos);
@@ -578,7 +578,7 @@ public:
 	/**
 	 * Assigns part of a value vector to the parameter
 	 */
-	void assignBooleanValueVector(const std::vector<bool>& parVec, std::size_t& pos) {
+	void assignBooleanValueVector(const std::vector<bool>& parVec, std::size_t& pos) OVERRIDE {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->assignBooleanValueVector(parVec, pos);
@@ -597,7 +597,7 @@ public:
 	 *
 	 * @param gr_cp A reference to another object's GRandomBase object derivative
 	 */
-	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
+	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) OVERRIDE {
 		// Do some error checking
 		if(!gr_cp) {
 		   glogger
@@ -627,7 +627,7 @@ public:
 	 * Re-connects the local random number generator to gr and distributes the call
 	 * to all objects contained in this collection class.
 	 */
-	virtual void resetGRandomPointer() {
+	virtual void resetGRandomPointer() OVERRIDE {
 		// Reset all objects stored in this collection
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
@@ -651,7 +651,7 @@ public:
 	 *
 	 * @bool A boolean indicating whether solely the local random number generator is used
 	 */
-	virtual bool usesLocalRNG() const {
+	virtual bool usesLocalRNG() const OVERRIDE {
 		bool result = true;
 
 		// Check all components of this class
@@ -677,7 +677,7 @@ public:
 	 *
 	 * @return A boolean indicating whether an assigned random number generator is used
 	 */
-	virtual bool assignedRNGUsed() const {
+	virtual bool assignedRNGUsed() const OVERRIDE {
 		bool result = true;
 
 		// Check all components of this class
@@ -701,7 +701,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GParameterTCollectionT");
    }
 
@@ -712,7 +712,7 @@ protected:
 	 *
 	 * @param cp A copy of another GParameterTCollectionT<T> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) {
+	virtual void load_(const GObject* cp) OVERRIDE {
 		// Convert cp into local format
 		const GParameterTCollectionT<T> *p_load = GObject::gobject_conversion<GParameterTCollectionT<T> >(cp);
 
@@ -734,13 +734,13 @@ protected:
 	 * Making the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
 	 */
-	virtual void dummyFunction() { /* nothing */ }
+	virtual void dummyFunction() OVERRIDE { /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Triggers random initialization of all parameter objects
 	 */
-	virtual void randomInit_() {
+	virtual void randomInit_() OVERRIDE {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			// Note that we do not call the randomInit_() function. First of all, we
@@ -762,10 +762,10 @@ protected:
 	 * @param ptr The boost::property_tree object the data should be saved to
 	 * @param id The id assigned to this object
 	 */
-	virtual void toPropertyTree(
-	      pt::ptree& ptr
-	      , const std::string& baseName
-	) const {
+	virtual void toPropertyTree (
+      pt::ptree& ptr
+      , const std::string& baseName
+	) const OVERRIDE {
 	   // Check that the object isn't empty
 	   if(this->empty()) {
 	      glogger
@@ -797,7 +797,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -817,7 +817,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
@@ -859,7 +859,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBase::specificTestsFailuresExpected_GUnitTests();

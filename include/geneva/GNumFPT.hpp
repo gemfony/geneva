@@ -214,13 +214,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	boost::optional<std::string> checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+   ) const OVERRIDE {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -245,7 +246,7 @@ public:
 	 */
 	virtual void fpFixedValueInit(
 			const float& val
-	) {
+	) OVERRIDE {
 		GParameterT<fp_type>::setValue(fp_type(val));
 	}
 
@@ -260,7 +261,7 @@ public:
 	 *
 	 * @param val The value to be multiplied with the parameter
 	 */
-	virtual void fpMultiplyBy(const float& val) {
+	virtual void fpMultiplyBy(const float& val) OVERRIDE {
 		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() * fp_type(val));
 	}
 
@@ -276,7 +277,7 @@ public:
 	 * @param min The lower boundary for random number generation
 	 * @param max The upper boundary for random number generation
 	 */
-	void fpMultiplyByRandom(const float& min, const float& max)	{
+	virtual void fpMultiplyByRandom(const float& min, const float& max) OVERRIDE	{
 		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() * this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(fp_type(min), fp_type(max)));
 	}
 
@@ -289,7 +290,7 @@ public:
 	/**
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
-	void fpMultiplyByRandom() {
+	virtual void fpMultiplyByRandom() OVERRIDE {
 		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() * this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_01<fp_type>());
 	}
 
@@ -305,7 +306,7 @@ public:
 	 *
 	 * @oaram p A boost::shared_ptr to another GParameterBase object
 	 */
-	void fpAdd(boost::shared_ptr<GParameterBase> p_base) {
+	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) OVERRIDE {
 		// We first need to convert p_base into the local type
 		boost::shared_ptr<GNumFPT<fp_type> > p = GParameterBase::parameterbase_cast<GNumFPT<fp_type> >(p_base);
 		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() + p->value());
@@ -323,7 +324,7 @@ public:
 	 *
 	 * @oaram p A boost::shared_ptr to another GParameterBase object
 	 */
-	void fpSubtract(boost::shared_ptr<GParameterBase> p_base) {
+	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) OVERRIDE {
 		// We first need to convert p_base into the local type
 		boost::shared_ptr<GNumFPT<fp_type> > p = GParameterBase::parameterbase_cast<GNumFPT<fp_type> >(p_base);
 		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() - p->value());
@@ -338,7 +339,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GNumFPT");
    }
 
@@ -352,7 +353,7 @@ protected:
 	 *
 	 * @param cp A copy of another GNumFPT<fp_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp){
+	virtual void load_(const GObject *cp) OVERRIDE {
 		// Convert cp into local format
 		const GNumFPT<fp_type> *p_load = GObject::gobject_conversion<GNumFPT<fp_type> >(cp);
 
@@ -375,7 +376,7 @@ protected:
 	/**
 	 * Triggers random initialization of the parameter
 	 */
-	virtual void randomInit_() {
+	virtual void randomInit_() OVERRIDE {
 		fp_type lowerBoundary = GNumT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumT<fp_type>::getUpperInitBoundary();
 		GParameterT<fp_type>::setValue(this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary, upperBoundary));
@@ -394,7 +395,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -413,7 +414,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// A few settings
 		const std::size_t nTests = 100;
@@ -624,7 +625,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GNumT<fp_type>::specificTestsFailuresExpected_GUnitTests();

@@ -131,16 +131,16 @@ public:
 			, const std::string&
 			, const std::string&
 			, const bool&
-	) const;
+	) const OVERRIDE;
 
 	/** @brief Sets the number of neighborhoods and the number of members in them */
 	void setDefaultPopulationSize(std::size_t, std::size_t);
 
 	/** @brief Returns information about the type of optimization algorithm */
-	virtual personality_oa getOptimizationAlgorithm() const;
+	virtual personality_oa getOptimizationAlgorithm() const OVERRIDE;
 
 	/** @brief Loads a checkpoint from disk */
-	virtual void loadCheckpoint(const std::string&);
+	virtual void loadCheckpoint(const std::string&) OVERRIDE;
 
 	/** @brief Allows to set a static multiplier for personal distances */
 	void setCPersonal(double);
@@ -187,13 +187,13 @@ public:
 	bool neighborhoodsFilledUpRandomly() const;
 
 	/** @brief Retrieves the number of processable items for the current iteration */
-	virtual std::size_t getNProcessableItems() const;
+	virtual std::size_t getNProcessableItems() const OVERRIDE;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
-	);
+	) OVERRIDE;
 
 	/***************************************************************************/
 	/**
@@ -227,36 +227,36 @@ public:
 	}
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another population */
-	virtual void load_(const GObject *);
+	virtual void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const = 0;
 
 	/** @brief Does some preparatory work before the optimization starts */
-	virtual void init();
+	virtual void init() OVERRIDE;
 	/** @brief Initialization work relating directly to the optimization algorithm */
-	virtual void optimizationInit();
+	virtual void optimizationInit() OVERRIDE;
 	/** @brief Does any necessary finalization work */
-	virtual void finalize();
+	virtual void finalize() OVERRIDE;
 	/** @brief Finalization work relating directly to the optimization algorithm. */
-	virtual void optimizationFinalize();
+	virtual void optimizationFinalize() OVERRIDE;
 
    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const;
+   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const OVERRIDE;
 
 	/** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
-	virtual double cycleLogic();
+	virtual double cycleLogic() OVERRIDE;
 
 	/** @brief Saves the state of the class to disc. */
-	virtual void saveCheckpoint() const;
+	virtual void saveCheckpoint() const OVERRIDE;
 
 	/** @brief Updates the best individuals found */
 	virtual double findBests();
 	/** @brief Resizes the population to the desired level and does some error checks */
-	virtual void adjustPopulation();
+	virtual void adjustPopulation() OVERRIDE;
 
 	/** @brief Helper function that returns the id of the first individual of a neighborhood */
 	std::size_t getFirstNIPos(const std::size_t&) const;
@@ -317,12 +317,12 @@ protected:
 	void updatePersonalBestIfBetter(boost::shared_ptr<GParameterSet>);
 
 	/** @brief Retrieves the best individual found */
-	virtual boost::shared_ptr<GIndividual> getBestIndividual();
+	virtual boost::shared_ptr<GIndividual> getBestIndividual() OVERRIDE;
 	/** @brief Retrieves a list of the best individuals found */
-	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
+	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals() OVERRIDE;
 
 	/** @brief Returns the name of this optimization algorithm */
-	virtual std::string getAlgorithmName() const;
+	virtual std::string getAlgorithmName() const OVERRIDE;
 
 private:
 	/***************************************************************************/
@@ -335,11 +335,11 @@ private:
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 
 public:
 	/***************************************************************************/
@@ -389,7 +389,7 @@ public:
 	    		, const std::string&
 	    		, const std::string&
 	    		, const bool&
-	    ) const;
+	    ) const OVERRIDE;
 
 	    /** @brief Set the dimension of the output canvas */
 	    void setDims(const boost::uint16_t&, const boost::uint16_t&);
@@ -405,16 +405,16 @@ public:
 
 	protected:
 	    /** @brief A function that is called once before the optimization starts */
-	    virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	    virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 	    /** @brief A function that is called during each optimization cycle */
-	    virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	    virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 	    /** @brief A function that is called once at the end of the optimization cycle */
-	    virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	    virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 
 	    /** @brief Loads the data of another object */
-	    virtual void load_(const GObject*);
+	    virtual void load_(const GObject*) OVERRIDE;
 	    /** @brief Creates a deep clone of this object */
-		virtual GObject* clone_() const;
+		virtual GObject* clone_() const OVERRIDE;
 
 	private:
 		boost::uint16_t xDim_; ///< The dimension of the canvas in x-direction
@@ -426,11 +426,11 @@ public:
 
 	public:
 		/** @brief Applies modifications to this object. This is needed for testing purposes */
-		virtual bool modify_GUnitTests();
+		virtual bool modify_GUnitTests() OVERRIDE;
 		/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-		virtual void specificTestsNoFailureExpected_GUnitTests();
+		virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 		/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-		virtual void specificTestsFailuresExpected_GUnitTests();
+		virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 
 		/************************************************************************/
 	};

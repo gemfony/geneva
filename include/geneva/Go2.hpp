@@ -159,7 +159,7 @@ public:
 			, const std::string&
 			, const std::string&
 			, const bool&
-	) const;
+	) const OVERRIDE;
 
 	/** @brief Triggers execution of the client loop */
 	int clientRun();
@@ -176,9 +176,9 @@ public:
 	bool onlyBestIndividualsAreCopied() const;
 
 	/** @brief Allows to randomly initialize parameter members. Unused in this wrapper object */
-	virtual void randomInit();
+	virtual void randomInit() OVERRIDE;
 	/** @brief Triggers fitness calculation (i.e. optimization) for this object */
-	virtual double fitnessCalculation();
+	virtual double fitnessCalculation() OVERRIDE;
 
 	/** @brief Allows to add an optimization algorithm to the chain */
 	void addAlgorithm(boost::shared_ptr<GOABase>);
@@ -194,7 +194,7 @@ public:
          boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
 	/** @brief Perform the actual optimization cycle */
-	virtual void optimize(const boost::uint32_t& = 0);
+	virtual void optimize(const boost::uint32_t& = 0) OVERRIDE;
 
 	/***************************************************************************/
 	// The following is a trivial list of getters and setters
@@ -208,19 +208,19 @@ public:
 	boost::uint32_t getIterationOffset() const;
 
 	/** @brief Retrieval of the current iteration */
-	virtual uint32_t getIteration() const;
+	virtual uint32_t getIteration() const OVERRIDE;
 
 	/** @brief Returns the name of this optimization algorithm */
-	virtual std::string getAlgorithmName() const;
+	virtual std::string getAlgorithmName() const OVERRIDE;
 
 	/** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
 	void parseCommandLine(int, char **);
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder& , const bool&);
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder& , const bool&) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual std::string getIndividualCharacteristic() const;
+	virtual std::string getIndividualCharacteristic() const OVERRIDE;
 
 	/***************************************************************************/
 	/**
@@ -274,14 +274,14 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another Go2 object */
-	virtual void load_(const GObject *);
+	virtual void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone_() const;
+	virtual GObject *clone_() const OVERRIDE;
 
 	/** @brief Retrieves the best individual found */
-	virtual boost::shared_ptr<GIndividual> getBestIndividual();
+	virtual boost::shared_ptr<GIndividual> getBestIndividual() OVERRIDE;
 	/** @brief Retrieves a list of the best individuals found */
-	std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
+	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals() OVERRIDE;
 
 private:
    /***************************************************************************/

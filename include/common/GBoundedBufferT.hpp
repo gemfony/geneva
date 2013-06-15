@@ -124,7 +124,7 @@ class condition_time_out: public std::exception {};
  * conditions, however, the buffer should never reach its upper
  * limit.
  */
-const std::size_t DEFAULTBUFFERSIZE = 10000;
+const std::size_t DEFAULTBUFFERSIZE = 20000;
 
 /******************************************************************************/
 /**
@@ -149,7 +149,7 @@ class GBoundedBufferT
 public:
 
 	typedef typename std::deque<T> container_type;
-	// typedef typename std::list<T> container_type;
+	// typedef typename std::list<T> container_type; // Tested to much slower than a deque
 	typedef typename container_type::value_type value_type;
 
 	/***************************************************************************/
@@ -243,7 +243,6 @@ public:
 		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
-		lock.unlock();
 		not_empty_.notify_one();
 	}
 
@@ -271,7 +270,6 @@ public:
 		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
-		lock.unlock();
 		not_empty_.notify_one();
 	}
 
@@ -300,7 +298,6 @@ public:
 		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
-		lock.unlock();
 		not_empty_.notify_one();
 		return true;
 	}
@@ -336,7 +333,6 @@ public:
 		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
-		lock.unlock();
 		not_full_.notify_one();
 	}
 
@@ -374,7 +370,6 @@ public:
 		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
-		lock.unlock();
 		not_full_.notify_one();
 	}
 
@@ -414,7 +409,6 @@ public:
 		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
-		lock.unlock();
 		not_full_.notify_one();
 		return true;
 	}
@@ -473,7 +467,7 @@ public:
 	bool isNotEmpty()
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		return (container_.size() > 0);
+		return !container_.empty();
 	}
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
@@ -514,9 +508,8 @@ protected:
 	 *
 	 * @return A boolean value indicating whether the buffer is not empty
 	 */
-	bool is_not_empty() const
-	{
-		return (container_.size() > 0);
+	bool is_not_empty() const {
+		return !container_.empty();
 	}
 
 	/**
@@ -526,16 +519,15 @@ protected:
 	 *
 	 * @return A boolean value indicating whether the buffer is not full
 	 */
-	bool is_not_full() const
-	{
+	bool is_not_full() const 	{
 		return (container_.size() < capacity_);
 	}
 
 	const std::size_t capacity_; ///< The maximum allowed size of the container
 	container_type container_; ///< The actual data store
 	mutable boost::mutex mutex_; ///< Used for synchronization of access to the container
-	mutable boost::condition_variable not_empty_; ///< Used for synchronization of access to the container
-	mutable boost::condition_variable not_full_; ///< Used for synchronization of access to the container
+	boost::condition_variable not_empty_; ///< Used for synchronization of access to the container
+	boost::condition_variable not_full_; ///< Used for synchronization of access to the container
 
 private:
 	/***************************************************************************/

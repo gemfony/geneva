@@ -177,7 +177,7 @@ public:
 		, const std::string& caller
 		, const std::string& y_name
 		, const bool& withMessages
-	) const {
+	) const OVERRIDE {
 	    using namespace Gem::Common;
 
 	    // Check that we are not accidently assigning this object to itself
@@ -202,7 +202,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GIntGaussAdaptorT");
    }
 
@@ -213,7 +213,7 @@ protected:
 	 *
 	 * @param cp A copy of another GIntGaussAdaptorT<int_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) {
+	virtual void load_(const GObject* cp) OVERRIDE {
 	    // Check that we are not accidently assigning this object to itself
 	    GObject::selfAssignmentCheck<GIntGaussAdaptorT<int_type> >(cp);
 
@@ -233,7 +233,7 @@ protected:
 	 *
 	 * @param value The value that is going to be adapted in situ
 	 */
-	virtual void customAdaptions(int_type& value) {
+	virtual void customAdaptions(int_type& value) OVERRIDE {
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
 #if defined (DEBUG)
@@ -289,7 +289,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -308,7 +308,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GNumGaussAdaptorT<int_type, double>::specificTestsNoFailureExpected_GUnitTests();
@@ -326,7 +326,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GNumGaussAdaptorT<int_type, double>::specificTestsFailuresExpected_GUnitTests();

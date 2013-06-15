@@ -107,33 +107,33 @@ public:
 	bool operator!=(const GConstrainedFloatCollection&) const;
 
 	/** @brief Checks whether a given expectation is fulfilled */
-	boost::optional<std::string> checkRelationshipWith(
+	virtual boost::optional<std::string> checkRelationshipWith(
 			const GObject&
 			, const Gem::Common::expectation&
 			, const double&
 			, const std::string&
 			, const std::string&
 			, const bool&
-	) const;
+	) const OVERRIDE;
 
 	/** @brief Attach our local values to the vector. */
-	virtual void floatStreamline(std::vector<float>&) const;
+	virtual void floatStreamline(std::vector<float>&) const OVERRIDE;
 	/** @brief Attach boundaries of type float to the vectors */
-	virtual void floatBoundaries(std::vector<float>&, std::vector<float>&) const;
+	virtual void floatBoundaries(std::vector<float>&, std::vector<float>&) const OVERRIDE;
 	/** @brief Tell the audience that we own a number of float values */
-	virtual std::size_t countFloatParameters() const;
+	virtual std::size_t countFloatParameters() const OVERRIDE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&);
+	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GConstrainedFloatCollection object */
-	virtual void load_(const GObject *);
+	virtual void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	GObject* clone_() const;
+	GObject* clone_() const OVERRIDE;
 
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally protected	 */
@@ -142,11 +142,11 @@ protected:
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 	/***************************************************************************/
 };
 

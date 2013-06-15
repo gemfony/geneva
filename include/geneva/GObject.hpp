@@ -189,9 +189,9 @@ public:
 	void fromStream(std::istream&, const Gem::Common::serializationMode&);
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
-	std::string toString(const Gem::Common::serializationMode&) const;
+	virtual std::string toString(const Gem::Common::serializationMode&) const OVERRIDE;
 	/** @brief Convert class to a serial representation, using a specific serialization mode */
-	void fromString(const std::string&, const Gem::Common::serializationMode&);
+	virtual void fromString(const std::string&, const Gem::Common::serializationMode&) OVERRIDE;
 
 	/** @brief Writes a serial representation of this object to a file */
 	void toFile(const std::string&, const Gem::Common::serializationMode&) const;

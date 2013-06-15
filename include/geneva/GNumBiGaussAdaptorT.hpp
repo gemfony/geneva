@@ -188,7 +188,7 @@ public:
 			, const std::string& caller
 			, const std::string& y_name
 			, const bool& withMessages
-	) const {
+	) const OVERRIDE {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -606,7 +606,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GNumBiGaussAdaptorT");
    }
 
@@ -634,8 +634,7 @@ protected:
 	 *
 	 * @param A copy of another GNumBiGaussAdaptorT, camouflaged as a GObject
 	 */
-	void load_(const GObject *cp)
-	{
+	void load_(const GObject *cp) OVERRIDE	{
 		// Convert GObject pointer to local format
 		const GNumBiGaussAdaptorT<num_type, fp_type> *p_load = GObject::gobject_conversion<GNumBiGaussAdaptorT<num_type, fp_type> >(cp);
 
@@ -667,10 +666,9 @@ protected:
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	 * algorithm to adapt to changing geometries of the quality surface.
 	 *
-	 * ATTENTION: sigma/delta may become 0 here ??!?
+	 * TODO: sigma/delta may become 0 here ??!?
 	 */
-	virtual void customAdaptAdaption()
-	{
+	virtual void customAdaptAdaption() OVERRIDE {
 		// We do not want to favor the decrease or increase of sigma1/2 and delta, hence we choose
 		// randomly whether to multiply or divide. TODO: cross-check.
 		if(sigmaSigma1_ > fp_type(0.)) {
@@ -710,7 +708,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -736,7 +734,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -753,7 +751,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;

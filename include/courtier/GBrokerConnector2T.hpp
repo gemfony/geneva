@@ -109,8 +109,6 @@ public:
    template<typename Archive>
    void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
-
-      // ar & BOOST_SERIALIZATION_NVP(doLogging_); // nothing
    }
 
    ///////////////////////////////////////////////////////////////////////
@@ -218,7 +216,7 @@ public:
       std::vector<boost::optional<std::string> > deviations;
 
       // Check the local local data
-      // deviations.push_back(checkExpectation(withMessages, "GBaseExecutorT<processable_type>", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
+      // no local data
 
       return evaluateDiscrepancies("GBaseExecutorT<processable_type>", caller, deviations, e);
    }
@@ -781,8 +779,7 @@ public:
    /**
     * The destructor
     */
-   virtual ~GBrokerConnector2T()
-   {
+   virtual ~GBrokerConnector2T() {
       CurrentBufferPort_.reset();
    }
 
@@ -889,8 +886,6 @@ public:
       , const bool& showOrigin
    ) {
       std::string comment;
-      std::string comment1;
-      std::string comment2;
 
       // Call our parent class's function
       GBaseExecutorT<processable_type>::addConfigurationOptions(gpb, showOrigin);
@@ -1038,49 +1033,38 @@ protected:
 
    /***************************************************************************/
    /**
-    * Wait for at least partial return of work items, until a time-out occurs.
-    * Incomplete sets of returned items must be expected.
+    * Wait for return of work items until a time-out occurs.
+    * Incomplete sets of returned items must be expected. This function
+    * accepts a vector of booleans indicating which items were submitted
+    * in the first place. This helps in the case of partial returns,
+    * when a full return needs to be ascertained by the re-submission
+    * of items. The function can be instructed to accept older items
+    * or to discard them. If older items are accepted, they will be
+    * added to the end of the workItems vector.
+    *
+    * TODO: Make sure items from older iterations cannot overwrite items from the current iteration. Attach at end.
     */
    bool waitForTimeout(
       std::vector<boost::shared_ptr<processable_type> >& workItems
-      , const std::size_t& start
-      , const std::size_t& end
+      , std::vector<bool> & submittedItemPos
+      , bool allowOldItems
    ) {
       bool complete = false;
 
-      // The expected number of work items from the current iteration
-      std::size_t expectedNumber = end-start;
-      std::size_t nReturnedCurrent = 0;
-
-      // Remove the submitted items, we do not need them anymore
-      workItems.erase(workItems.begin()+start, workItems.begin()+end);
-
-      // An indication of whether all items have returned already
-      std::vector<bool> returnedItemPos(workItems.size());
-      // Holds a true for items that have returned or haven't been submitted
-      Gem::Common::assignVecConst(returnedItemPos, true);
-      // Initialize positions of items that have been submitted with false
-      for(std::size_t i=0; i<expectedNumber; i++) {
-         returnedItemPos[start+i] = false;
+#ifdef DEBUG
+      // Check that the number of work items and
+      // the submission vector match in size
+      if(workItems.size() != submittedItemPos.size()) {
+         glogger
+         << "Expected equal sizes of work item vector and" << std::endl
+         << "submission vector, but got " << workItems.size() << " / " << submittedItemPos.size() << std::endl
+         << GEXCEPTION;
       }
+#endif /* DEBUG */
 
-      // Note the current iteration for easy reference
-      SUBMISSIONCOUNTERTYPE current_iteration = GBaseExecutorT<processable_type>::submission_counter_;
-
-      boost::posix_time::time_duration currentElapsedTime; // Will hold the elapsed time since the start of this iteration
-      boost::posix_time::time_duration remainingTime; // Will hold the remaining time until the timeout is reached
-
-      // If this is the very first submission we need to wait for
-      // the first work item to return and measure the time in order to set a time out
-      if(SUBMISSIONCOUNTERTYPE(0) == current_iteration) {
-         // Retrieve the very first work item. We do not enact a timeout here but wait endlessly
-      }
-
-      while(
-         !complete
-         && currentElapsedTime < currentTimeOut_
-      ) {
-
+      // If no items are missing anymore, we are complete and thus return true
+      if(0 == std::count(submittedItemPos.begin(), submittedItemPos.end(), true)) {
+         return true;
       }
 
       return complete;
@@ -1088,9 +1072,33 @@ protected:
 
    /***************************************************************************/
    /**
+    * Wait for return of work items until a time-out occurs.
+    * Incomplete sets of returned items must be expected. This
+    * function will allow old items to return.
+    */
+   bool waitForTimeout(
+      std::vector<boost::shared_ptr<processable_type> >& workItems
+      , const std::size_t& start
+      , const std::size_t& end
+   ) {
+      // An indication of whether all items have returned already
+      std::vector<bool> submittedItemPos(workItems.size());
+      // Holds a true for items that have returned or haven't been submitted
+      Gem::Common::assignVecConst(submittedItemPos, true);
+      // Initialize positions of items that have been submitted with false
+      for(std::size_t i=start; i<end; i++) {
+         submittedItemPos[i] = false;
+      }
+
+      return this->waitForTimeOut(workItems, submittedItemPos, true);
+   }
+
+   /***************************************************************************/
+   /**
     * Wait for return of the same iterations work items, until a time-out occurs;
     * resubmit if necessary. Note that incomplete sets of work items may still occur,
-    * if not all items have returned after the maximum number of resubmissions.
+    * if not all items have returned after the maximum number of re-submissions. This
+    * function will discard work items from older iterations.
     */
    bool waitForTimeoutAndResubmit(
       std::vector<boost::shared_ptr<processable_type> >& workItems
@@ -1098,8 +1106,50 @@ protected:
       , const std::size_t& end
    ) {
       bool complete = false;
+      std::size_t nResubmissions = 0;
 
-      // TODO
+      // An indication of whether all items have returned already
+      std::vector<bool> submittedItemPos(workItems.size());
+      // Holds a true for items that have returned or haven't been submitted
+      Gem::Common::assignVecConst(submittedItemPos, true);
+      // Initialize positions of items that have been submitted with false
+      for(std::size_t i=start; i<end; i++) {
+         submittedItemPos[i] = false;
+      }
+
+      while(!complete && nResubmissions++ < maxResubmissions_) {
+         complete = this->waitForTimeOut(workItems, submittedItemPos, false);
+      }
+
+      return complete;
+   }
+
+   /***************************************************************************/
+   /**
+    * Wait for return of work items until a time-out occurs.
+    * Incomplete sets of returned items must be expected. This function
+    * accepts a vector of booleans indicating which items were submitted
+    * in the first place. This helps in the case of partial returns,
+    * when a full return needs to be ascertained by the re-submission
+    * of items. The function can be instructed to accept older items
+    * or to discard them. If older items are accepted, they will be
+    * added to the end of the workItems vector. The timeout is specified
+    * as a fixed parameter, the function does not do any automatic calculations
+    * of timeouts. A timeout of 0 will result in an endless wait
+    *
+    * TODO: Make sure items from older iterations cannot overwrite items from the current iteration. Attach at end.
+    */
+   bool waitForTimeout(
+      std::vector<boost::shared_ptr<processable_type> >& workItems
+      , std::vector<bool> & submittedItemPos
+      , boost::posix_time::time_duration timeOut
+      , bool allowOldItems
+   ) {
+      bool complete = false;
+
+      if(0 == timeOut.total_microseconds()) {
+
+      }
 
       return complete;
    }
@@ -1126,16 +1176,13 @@ protected:
       std::size_t expectedNumber = end-start;
       std::size_t nReturnedCurrent = 0;
 
-      // Remove the submitted items, we do not need them anymore
-      workItems.erase(workItems.begin()+start, workItems.begin()+end);
-
       // An indication of whether all items have returned already
       std::vector<bool> returnedItemPos(workItems.size());
       // Holds a true for items that have returned or haven't been submitted
       Gem::Common::assignVecConst(returnedItemPos, true);
       // Initialize positions of items that have been submitted with false
-      for(std::size_t i=0; i<expectedNumber; i++) {
-         returnedItemPos[start+i] = false;
+      for(std::size_t i=start; i<end; i++) {
+         returnedItemPos[i] = false;
       }
 
       // Note the current iteration for easy reference
@@ -1170,31 +1217,18 @@ protected:
 
             if(false == returnedItemPos.at(w_pos)) {
                returnedItemPos.at(w_pos) = true;
+               workItems.at(w_pos) = p;
+               if(++nReturnedCurrent == expectedNumber) {
+                  complete = true;
+               }
             } else { // This should not happen
                glogger
                << "In GBrokerConnector2T<processable_type>::waitForFullReturn(): Error!" << std::endl
                << "Received work item which is marked as having already returned" << std::endl
                << GEXCEPTION;
             }
-
-            // Add the item to the workItems vector at the start of the range
-            workItems.insert(workItems.begin()+start, p);
-            nReturnedCurrent++;
-         } else { // We do not allow returns from older iterations in this mode
-            glogger
-            << "In GBrokerConnector2T<processable_type>::waitForFullReturn(): Error!" << std::endl
-            << "Received work item from iteration " << w_iteration << std::endl
-            << "while we are currently in iteration " << current_iteration << std::endl
-            << GEXCEPTION;
-         }
-
-         if(nReturnedCurrent == expectedNumber) {
-            complete = true;
-         }
+         } // No else: A call to this function might have followed one which allows incomplete returns
       }
-
-      // Sort the work item vector according to the item position, so it is in pristine condition
-      std::sort(workItems.begin()+start, workItems.begin()+end, courtierPosComp<processable_type>());
 
       return complete;
    }

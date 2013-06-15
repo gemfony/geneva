@@ -79,7 +79,7 @@ public:
 	virtual void optimize(const boost::uint32_t& offset) = 0;
 
 	/** @brief A simple wrapper function that forces the class to start with offset 0 */
-	virtual void optimize();
+	virtual void optimize() BASE;
 
 	/** @brief Retrieves the current iteration of this object */
 	virtual boost::uint32_t getIteration() const = 0;
@@ -164,12 +164,12 @@ public:
 	/***************************************************************************/
 
 	/** @brief Returns information about the type of optimization algorithm. */
-	virtual personality_oa getOptimizationAlgorithm() const;
+	virtual personality_oa getOptimizationAlgorithm() const BASE;
 
 	/** @brief Returns a name assigned to this algorithm */
 	virtual std::string getAlgorithmName() const = 0;
 	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
-	virtual bool usesBroker() const;
+	virtual bool usesBroker() const BASE;
 
 protected:
 	/***************************************************************************/

@@ -94,7 +94,7 @@ public:
 	      , const std::string&
 	      , const std::string&
 	      , const bool&
-	) const;
+	) const OVERRIDE;
 
 	/** @brief Allows to check whether this individual lies on the pareto front (only yields useful results after pareto-sorting in EA) */
 	bool isOnParetoFront() const;
@@ -104,13 +104,13 @@ public:
 	void setIsNotOnParetoFront();
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GEAPersonalityTraits object */
-	virtual void load_(const GObject*);
+	virtual void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const;
+	virtual GObject* clone_() const OVERRIDE;
 
 private:
 	/** @brief Determines whether the individual lies on the pareto front */
@@ -118,11 +118,11 @@ private:
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

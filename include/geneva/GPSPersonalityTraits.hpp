@@ -96,7 +96,7 @@ public:
          , const std::string&
          , const std::string&
          , const bool&
-   ) const;
+   ) const OVERRIDE;
 
    /** @brief Sets the position of the individual in the population */
    void setPopulationPosition(const std::size_t&) ;
@@ -104,13 +104,13 @@ public:
    std::size_t getPopulationPosition(void) const ;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
    /** @brief Loads the data of another GPSPersonalityTraits object */
-   virtual void load_(const GObject*);
+   virtual void load_(const GObject*) OVERRIDE;
    /** @brief Creates a deep clone of this object */
-   virtual GObject* clone_() const;
+   virtual GObject* clone_() const OVERRIDE;
 
 private:
    /** @brief Stores the current position in the population */
@@ -118,11 +118,11 @@ private:
 
 public:
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual bool modify_GUnitTests();
+   virtual bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual void specificTestsNoFailureExpected_GUnitTests();
+   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual void specificTestsFailuresExpected_GUnitTests();
+   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

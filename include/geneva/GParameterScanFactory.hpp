@@ -90,15 +90,15 @@ public:
    virtual ~GParameterScanFactory();
 
    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-   virtual std::string getMnemomic() const;
+   virtual std::string getMnemomic() const OVERRIDE;
 
 protected:
    /** @brief Creates individuals of this type */
-   virtual boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+   virtual boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) OVERRIDE;
    /** @brief Allows to describe local configuration options in derived classes */
-   virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+   virtual void describeLocalOptions_(Gem::Common::GParserBuilder&) OVERRIDE;
    /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&);
+   virtual void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
 
 private:
    std::size_t maxResubmissions_; ///< The maximum number of allowed re-submissions in an iteration

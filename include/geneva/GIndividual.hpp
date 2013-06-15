@@ -135,20 +135,20 @@ public:
 			, const std::string&
 			, const std::string&
 			, const bool&
-	) const;
+	) const OVERRIDE;
 
 	/** @brief The adaption interface */
-	virtual void adapt();
+	virtual void adapt() OVERRIDE;
 
 	/** @brief Calculates the result of the fitness function with id 0 */
-	virtual double fitness();
+	virtual double fitness() OVERRIDE;
 	/** @brief Calculate or returns the result of a fitness function with a given id */
-	virtual double fitness(const std::size_t&);
+	virtual double fitness(const std::size_t&) OVERRIDE;
 	/** @brief Adapts and evaluates the individual in one go */
 	virtual double adaptAndEvaluate();
 
 	/** @brief Do the required processing for this object */
-	virtual bool process();
+	virtual bool process() OVERRIDE;
 
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
 	double getCachedFitness(bool&, const std::size_t& = 0) const;
@@ -301,13 +301,13 @@ public:
 	virtual void addConfigurationOptions(
 		Gem::Common::GParserBuilder&
 		, const bool&
-	);
+	) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
 	virtual std::string getIndividualCharacteristic() const = 0;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
    /** @brief Checks whether this solution has been rated to be valid */
    bool isValid() const;
@@ -328,7 +328,7 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GIndividual */
-	virtual void load_(const GObject*);
+	virtual void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 
@@ -390,11 +390,11 @@ private:
     /***************************************************************************/
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 } /* namespace Geneva */

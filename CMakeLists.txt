@@ -1,4 +1,36 @@
-PROJECT (geneva-opt)
+################################################################################
+#
+# Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
+#
+# See the AUTHORS file in the top-level directory for a list of authors.
+#
+# Contact: contact [at] gemfony (dot) com
+#
+# This file is part of the Geneva library collection.
+#
+# Geneva was developed with kind support from Karlsruhe Institute of
+# Technology (KIT) and Steinbuch Centre for Computing (SCC). Further
+# information about KIT and SCC can be found at http://www.kit.edu/english
+# and http://scc.kit.edu .
+#
+# Geneva is free software: you can redistribute and/or modify it under
+# the terms of version 3 of the GNU Affero General Public License
+# as published by the Free Software Foundation.
+#
+# Geneva is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with the Geneva library. If not, see <http://www.gnu.org/licenses/>.
+#
+# For further information on Gemfony scientific and Geneva, visit
+# http://www.gemfony.com .
+#
+################################################################################
+
+PROJECT (geneva-library-collection)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
@@ -7,7 +39,7 @@ SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "9")
 SET(VERSION_PATCH "11rc0")
 
-###############################################################################
+################################################################################
 #
 # User settings:
 #   you can change some settings here, but we recommend that you use the
@@ -41,7 +73,7 @@ SET(VERSION_PATCH "11rc0")
 #
 # End of user settings
 #
-###############################################################################
+################################################################################
 
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
@@ -71,6 +103,7 @@ ENDIF()
 # Nice formatting
 MESSAGE ("")
 
+################################################################################
 # Set the build type according to the GENEVA_BUILD_TYPE value, if defined.
 # Otherwise use CMAKE_BUILD_TYPE if defined, or use build type 'Debug'
 # as default.
@@ -92,47 +125,69 @@ ELSE()
 ENDIF()
 MESSAGE ("")
 
-IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
-		SET( MSG_COMPILER "icpc/icc")
-		# Specifics for Intel compiler (tested with 10.1). Removes two rather annoying
-		# (and, according to the authors' opinion, irrelevant in this context) warnings
-		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
-	ELSEIF(CMAKE_CXX_COMPILER MATCHES "clang")
-		SET( MSG_COMPILER "clang")
-		ADD_DEFINITIONS ("-std=c++11 -stdlib=libc++ -DDEBUG -g -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread")
-	ELSE() # e.g. g++
-		SET( MSG_COMPILER "gcc")
-		# ADD_DEFINITIONS ("-DDEBUG -g -fno-inline -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wextra -Woverloaded-virtual -Wno-unused -ansi -std=c++98 -pedantic -pthread")
-		ADD_DEFINITIONS ("-DDEBUG -g -fno-inline -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wextra -Wno-unused -Wno-attributes -Wno-missing-field-initializers -Wno-type-limits -ansi -std=c++98 -pedantic -pthread")
-		# ADD_DEFINITIONS ("-DDEBUG -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wno-unused -pthread -std=c++11 -Wno-attributes")
-	ENDIF()
-ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
-	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
-		SET( MSG_COMPILER "icpc/icc")
-		ADD_DEFINITIONS ("-O3 -pthread")
-	ELSEIF(CMAKE_CXX_COMPILER MATCHES "clang")
-		SET( MSG_COMPILER "clang")
-		ADD_DEFINITIONS ("-std=c++11 -O3 -pthread -Wno-parentheses-equality")
-	ELSE() # e.g. g++
-		SET( MSG_COMPILER "gcc")
-		ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -O3 -pthread")
+################################################################################
+# Set up compiler flags
+
+IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
+	SET( MSG_COMPILER "icpc/icc")
+	SET (MSG_CXXSTANDARDMODE "Using Intel compiler, hence avoiding C++ standard settings")
+		
+	IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+		ADD_DEFINITIONS ("-DDEBUG -g")
+	ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
+		ADD_DEFINITIONS ("-DNDEBUG -O3")
+	ENDIF()	
+	
+	# Specifics for Intel compiler (tested with 10.1). Removes two rather annoying
+	# (and, according to the authors' opinion, irrelevant in this context) warnings
+	ADD_DEFINITIONS ("-Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
+ELSEIF(CMAKE_CXX_COMPILER MATCHES "clang")
+	SET( MSG_COMPILER "clang")
+	SET (MSG_CXXSTANDARDMODE "Using Clang switching to C++11-mode")
+	
+	IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+		ADD_DEFINITIONS ("-DDEBUG -g")
+	ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
+		ADD_DEFINITIONS ("-DNDEBUG -O3")
+	ENDIF()	
+	
+	ADD_DEFINITIONS ("-stdlib=libc++ -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread -std=c++11")
+ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
+	SET( MSG_COMPILER "GNU g++")
+
+	# Make gcc/g++ output its error messages on a single line, so Eclipse-CDT can parse them
+  	ADD_DEFINITIONS ("-fmessage-length=0")
+
+	IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+		ADD_DEFINITIONS ("-DDEBUG -g")
+	ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
+		ADD_DEFINITIONS ("-DNDEBUG -O3")
+	ENDIF()	
+
+	# Note: -fno-unsafe-math-optimizations -fno-finite-math-only prevent false optimization of some critical
+	# code in GRandomBaseT inside uniform_real(). Add "-Wall -Wextra -ansi -pedantic" to make tests even more thorough. This
+	# will likely trigger many warnings in boost.
+	ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread")	
+	
+	# Switch to C++11-mode if the compiler version is suitable	
+	EXEC_PROGRAM( 
+		${CMAKE_CXX_COMPILER}
+		ARGS -dumpversion
+	 	OUTPUT_VARIABLE GCC_VERSION
+	)
+	IF(GCC_VERSION VERSION_GREATER "4.6.99")
+		SET (MSG_CXXSTANDARDMODE "Using g++ version ${GCC_VERSION}, hence switching to C++11-mode")
+		ADD_DEFINITIONS ("-std=c++11")
+	ELSE()
+		SET (MSG_CXXSTANDARDMODE "Using g++ version ${GCC_VERSION}, hence switching to C++98-mode")
+		ADD_DEFINITIONS ("-std=c++98")
 	ENDIF()
 ELSE()
-	MESSAGE (FATAL_ERROR "Unknown compilation mode CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
+	MESSAGE (FATAL_ERROR "Unknown compiler CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
 ENDIF()
 
-# Make gcc/g++ output its error messages on a single line, so Eclipse-CDT can parse them
-IF(CMAKE_COMPILER_IS_GNUCC)
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
-ENDIF()
-IF(CMAKE_COMPILER_IS_GNUCXX)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
-ENDIF()
-
-# Note: -fno-unsafe-math-optimizations -fno-finite-math-only prevent false optimization of some critical
-# code in GRandomBaseT inside uniform_real().
-
+################################################################################
+# Specify linker flags
 IF( GENEVA_STATIC )
 	SET (CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -lpthread")
 	SET (LINK_FLAGS "-static-libgcc -lpthread")
@@ -147,6 +202,8 @@ ELSE()
 	LINK_LIBRARIES (pthread)
 ENDIF()
 
+################################################################################
+# Boost-specific code
 SET (Boost_USE_MULTITHREAD ON)
 SET (Boost_ADDITIONAL_VERSIONS "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "1.52" "1.52.0")
 
@@ -160,6 +217,7 @@ FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
 	thread
 )
 
+################################################################################
 # Check whether we want to activate the test code and build tests
 IF( GENEVA_BUILD_TESTS )
 	ADD_DEFINITIONS ("-DGEM_TESTING")
@@ -168,6 +226,8 @@ IF( GENEVA_BUILD_TESTS )
 	)
 ENDIF()
 
+################################################################################
+# Include- and link-directories, libraries
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
 	${Boost_INCLUDE_DIRS}
@@ -188,6 +248,7 @@ SET ( COURTIER_LIBNAME          "gemfony-courtier" )
 SET ( GENEVA_LIBNAME            "gemfony-geneva" )
 SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
 
+################################################################################
 # Custom targets for building single libraries only
 ADD_CUSTOM_TARGET( "common"       DEPENDS ${COMMON_LIBNAME}
 				COMMENT "Building only the Common library." )
@@ -198,6 +259,7 @@ ADD_CUSTOM_TARGET( "courtier"     DEPENDS ${COURTIER_LIBNAME}
 ADD_CUSTOM_TARGET( "geneva"       DEPENDS ${GENEVA_LIBNAME}
 				COMMENT "Building only the Geneva library." )
 
+################################################################################
 # Print a summary of the build settings before going to the subfolders
 MESSAGE ("\n========================================")
 MESSAGE ("Building:")
@@ -221,9 +283,13 @@ IF( CMAKE_VERBOSE_MAKEFILE )
 ELSE()
 	MESSAGE ("\tand sparse CMake output")
 ENDIF()
+MESSAGE ("\t${MSG_CXXSTANDARDMODE}")
 MESSAGE ("========================================\n")
 
-# Set a flag to avoid repeated messages in the subfolders
+################################################################################
+# Add sub-directories
+
+# Set a flag to avoid repeated messages in the sub-folders
 SET ( GENEVA_INFO_MSG TRUE )
 
 ADD_SUBDIRECTORY (CMakeModules)
@@ -238,6 +304,8 @@ IF( GENEVA_BUILD_TESTS )
 	ADD_SUBDIRECTORY (tests)
 ENDIF()
 
+################################################################################
+# Specify files to be copied
 SET ( INFORMATIONFILES
 	AUTHORS
 	CHANGES
@@ -260,6 +328,7 @@ INSTALL ( FILES ${INFORMATIONFILES} DESTINATION .
 	WORLD_READ
 )
 
+################################################################################
 #
 # Warning for CMake 2.6, comes last to avoid the message being "lost" in the later output.
 #
@@ -269,13 +338,11 @@ IF( OLD_CMAKE )
 				"Updating to CMake 2.8 or later is recommended!" )
 ENDIF()
 
-
-#########################################################
-# Code for package generation with CPack.
-# This is experimental and the packages don't
-# satisfy the Linux FHS yet. Use with care.
-# An RPM or DEB package can be created using
-#   umask 022 && fakeroot make package
+################################################################################
+# Code for package generation with CPack. This is experimental and the packages 
+# don't satisfy the Linux FHS yet. Use with care.
+#  
+# RPM or DEB packages can be created using umask 022 && fakeroot make package.
 
 INCLUDE(InstallRequiredSystemLibraries)
 
@@ -338,3 +405,6 @@ ELSE(CPACK_AUX_DISTRO MATCHES "^RedHat" OR CPACK_AUX_DISTRO MATCHES "^CentOS" OR
 ENDIF()
 
 INCLUDE(CPack)
+
+################################################################################
+# done

@@ -118,10 +118,10 @@ public:
 			, const std::string&
 			, const std::string&
 			, const bool&
-	) const;
+	) const OVERRIDE;
 
 	/** @brief Allows to randomly initialize parameter members */
-	virtual void randomInit();
+	virtual void randomInit() OVERRIDE;
 
 	/** @brief Performs a cross-over with another GParameterSet object */
 	void crossOver(GParameterSet&, const double&);
@@ -149,33 +149,33 @@ public:
 	boost::shared_ptr<GParameterSet> parameter_clone() const;
 
 	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
-	virtual void updateRNGs();
+	virtual void updateRNGs() BASE;
 	/** @brief Restores the local random number generators contained in this object's GParameterBase-derivatives */
-	virtual void restoreRNGs();
+	virtual void restoreRNGs() BASE;
 	/** @brief Checks whether all GParameterBase derivatives use local random number generators */
-	virtual bool localRNGsUsed() const;
+	virtual bool localRNGsUsed() const BASE;
 	/** @brief Checks whether all GParameterBase derivatives use the assigned random number generator */
-	virtual bool assignedRNGUsed() const;
+	virtual bool assignedRNGUsed() const BASE;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual std::string getIndividualCharacteristic() const;
+	virtual std::string getIndividualCharacteristic() const OVERRIDE;
 
 	/** @brief Provides access to all data stored in the individual in a user defined selection */
-	virtual void custom_streamline(std::vector<boost::any>&);
+	virtual void custom_streamline(std::vector<boost::any>&) BASE;
 
 	/** @brief Transformation of the individual's parameter objects into a boost::property_tree object */
-	void toPropertyTree(pt::ptree&, const std::string& = "parameterset") const;
+	void toPropertyTree(pt::ptree&, const std::string& = "parameterset") const BASE;
 	/** @brief Transformation of the individual's parameter objects into a list of comma-separated values */
 	std::string toCSV() const;
 
 	/** @brief Emits a name for this class / object */
-	virtual std::string name() const;
+	virtual std::string name() const OVERRIDE;
 
    /** @brief Retrieves a parameter of a given type at the specified position */
-   virtual boost::any getVarVal(const std::string&, const std::size_t&);
+   virtual boost::any getVarVal(const std::string&, const std::size_t&) BASE;
 
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
@@ -320,14 +320,14 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*);
+	virtual void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const;
+	virtual GObject* clone_() const OVERRIDE;
 
 	/** @brief The actual fitness calculation takes place here */
-	virtual double fitnessCalculation();
+	virtual double fitnessCalculation() BASE;
 	/* @brief The actual adaption operations. */
-	virtual void customAdaptions();
+	virtual void customAdaptions() BASE;
 
 private:
 	explicit GParameterSet(const float&); ///< Intentionally private and undefined
@@ -335,11 +335,11 @@ private:
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 	/***************************************************************************/
 };
 

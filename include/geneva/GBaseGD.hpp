@@ -122,13 +122,13 @@ public:
 			, const std::string&
 			, const std::string&
 			, const bool&
-	) const;
+	) const  OVERRIDE;
 
 	/** @brief Loads a checkpoint */
-	virtual void loadCheckpoint(const std::string&);
+	virtual void loadCheckpoint(const std::string&) OVERRIDE;
 
 	/** @brief Returns information about the type of optimization algorithm */
-	virtual personality_oa getOptimizationAlgorithm() const;
+	virtual personality_oa getOptimizationAlgorithm() const OVERRIDE;
 
 	/** @brief Retrieves the number of starting points of the algorithm */
 	std::size_t getNStartingPoints() const;
@@ -146,44 +146,42 @@ public:
 	float getStepSize() const;
 
    /** @brief Retrieves the number of processable items for the current iteration */
-   virtual std::size_t getNProcessableItems() const;
+   virtual std::size_t getNProcessableItems() const OVERRIDE;
 
 	/** @brief Returns the name of this optimization algorithm */
-	virtual std::string getAlgorithmName() const;
+	virtual std::string getAlgorithmName() const OVERRIDE;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 		, const bool& showOrigin
-	);
+	) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual std::string name() const OVERRIDE;
 
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another population */
-	virtual void load_(const GObject *);
+	virtual void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const = 0;
 
 	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	virtual double cycleLogic();
+	virtual double cycleLogic() OVERRIDE;
 	/** @brief Does some preparatory work before the optimization starts */
-	virtual void init();
+	virtual void init() OVERRIDE;
 	/** @brief Does any necessary finalization work */
-	virtual void finalize();
-	/** @brief Performs final optimization work */
-	// virtual void optimizationFinalize();
+	virtual void finalize() OVERRIDE;
 
    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const;
+   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const OVERRIDE;
 
 	/** @brief Resizes the population to the desired level and does some error checks */
-	virtual void adjustPopulation();
+	virtual void adjustPopulation() OVERRIDE;
 
 	/** @brief Saves the state of the class to disc. */
-	virtual void saveCheckpoint() const;
+	virtual void saveCheckpoint() const OVERRIDE;
 
 	/** @brief Triggers fitness calculation of a number of individuals */
 	virtual double doFitnessCalculation(const std::size_t&) = 0;
@@ -193,9 +191,9 @@ protected:
 	virtual void updateParentIndividuals();
 
 	/** @brief Retrieves the best individual found */
-	virtual boost::shared_ptr<GIndividual> getBestIndividual();
+	virtual boost::shared_ptr<GIndividual> getBestIndividual() OVERRIDE;
 	/** @brief Retrieves a list of the best individuals found */
-	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals();
+	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals() OVERRIDE;
 
 private:
 	/***************************************************************************/
@@ -210,11 +208,11 @@ private:
 public
    /***************************************************************************/:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 
 public:
 	/***************************************************************************/
@@ -265,7 +263,7 @@ public:
 	         , const std::string&
 	         , const std::string&
 	         , const bool&
-	   ) const;
+	   ) const OVERRIDE;
 
 	   /** @brief Set the dimension of the output canvas */
 	   void setDims(const boost::uint32_t&, const boost::uint32_t&);
@@ -283,16 +281,16 @@ public:
 
 	  protected:
 	   /** @brief A function that is called once before the optimization starts */
-	   virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	   virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 	   /** @brief A function that is called during each optimization cycle */
-	   virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	   virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 	   /** @brief A function that is called once at the end of the optimization cycle */
-	   virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	   virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 
 	   /** @brief Loads the data of another object */
-	   virtual void load_(const GObject*);
+	   virtual void load_(const GObject*) OVERRIDE;
 	   /** @brief Creates a deep clone of this object */
-	   virtual GObject* clone_() const;
+	   virtual GObject* clone_() const OVERRIDE;
 
 	  private:
 	   boost::uint32_t xDim_; ///< The dimension of the canvas in x-direction
@@ -304,11 +302,11 @@ public:
 
 	  public:
 	   /** @brief Applies modifications to this object. This is needed for testing purposes */
-	   virtual bool modify_GUnitTests();
+	   virtual bool modify_GUnitTests() OVERRIDE;
 	   /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	   virtual void specificTestsNoFailureExpected_GUnitTests();
+	   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	   /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	   virtual void specificTestsFailuresExpected_GUnitTests();
+	   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 
 	   /************************************************************************/
 	  };

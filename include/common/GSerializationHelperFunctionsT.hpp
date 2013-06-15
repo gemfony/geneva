@@ -76,6 +76,7 @@
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
+#include "common/GLogger.hpp"
 
 namespace Gem
 {
@@ -137,6 +138,7 @@ boost::shared_ptr<T> sharedPtrFromString(const std::string& gt_string, const Gem
 	std::istringstream istr(gt_string);
 	boost::shared_ptr<T> gt_ptr;
 
+	try {
 	switch(serMod){
 	case Gem::Common::SERIALIZATIONMODE_TEXT:
 		{
@@ -160,6 +162,19 @@ boost::shared_ptr<T> sharedPtrFromString(const std::string& gt_string, const Gem
 			ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
 		}
 		break;
+	}
+	} catch (boost::archive::archive_exception& e) {
+	   glogger
+	   << "In sharedPtrFromString(): Error!" << std::endl
+	   << "Caught boost::archive::archive_exception" << std::endl
+	   << "with message" << std::endl
+	   << e.what() << std::endl
+	   << GEXCEPTION;
+	} catch (...) {
+      glogger
+      << "In sharedPtrFromString(): Error!" << std::endl
+      << "Caught unknown exception" << std::endl
+      << GEXCEPTION;
 	}
 
 	return gt_ptr;

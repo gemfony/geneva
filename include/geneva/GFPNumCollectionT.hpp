@@ -187,7 +187,7 @@ public:
 	 *
 	 * @param val The value to use for the initialization
 	 */
-	virtual void fpFixedValueInit(const float& val) {
+	virtual void fpFixedValueInit(const float& val) OVERRIDE {
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)=fp_type(val);
@@ -205,7 +205,7 @@ public:
 	 *
 	 * @param val The value to be multiplied with the parameter
 	 */
-	virtual void fpMultiplyBy(const float& val) {
+	virtual void fpMultiplyBy(const float& val) OVERRIDE {
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it) *= fp_type(val);
@@ -224,7 +224,7 @@ public:
 	 * @param min The lower boundary for random number generation
 	 * @param max The upper boundary for random number generation
 	 */
-	virtual void fpMultiplyByRandom(const float& min, const float& max)	{
+	virtual void fpMultiplyByRandom(const float& min, const float& max) OVERRIDE	{
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it) *= this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(fp_type(min), fp_type(max));
@@ -240,7 +240,7 @@ public:
 	/**
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
-	virtual void fpMultiplyByRandom() {
+	virtual void fpMultiplyByRandom() OVERRIDE {
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it) *= this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_01<fp_type>();
@@ -258,7 +258,7 @@ public:
 	 *
 	 * @oaram p A boost::shared_ptr to another GParameterBase object
 	 */
-	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) {
+	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) OVERRIDE {
 		// We first need to convert p_base into the local type
 		boost::shared_ptr<GFPNumCollectionT<fp_type> > p = GParameterBase::parameterbase_cast<GFPNumCollectionT<fp_type> >(p_base);
 
@@ -288,7 +288,7 @@ public:
 	 *
 	 * @oaram p A boost::shared_ptr to another GParameterBase object
 	 */
-	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) {
+	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) OVERRIDE {
 		// We first need to convert p_base into the local type
 		boost::shared_ptr<GFPNumCollectionT<fp_type> > p = GParameterBase::parameterbase_cast<GFPNumCollectionT<fp_type> >(p_base);
 
@@ -324,13 +324,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	boost::optional<std::string> checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+	) const OVERRIDE {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -351,7 +352,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const {
+   virtual std::string name() const OVERRIDE {
       return std::string("GFPNumCollectionT");
    }
 
@@ -365,7 +366,7 @@ protected:
 	 *
 	 * @param cp A copy of another GFPNumCollectionT<fp_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp){
+	virtual void load_(const GObject *cp) OVERRIDE {
 		// Convert cp into local format
 		const GFPNumCollectionT<fp_type> *p_load = GObject::gobject_conversion<GFPNumCollectionT<fp_type> >(cp);
 
@@ -390,7 +391,7 @@ protected:
 	 * that this function assumes that the collection has been completely
 	 * set up. Data that is added later will remain unaffected.
 	 */
-	virtual void randomInit_() {
+	virtual void randomInit_() OVERRIDE {
 		fp_type lowerBoundary = GNumCollectionT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumCollectionT<fp_type>::getUpperInitBoundary();
 
@@ -413,7 +414,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       bool result = false;
 
@@ -432,7 +433,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GNumCollectionT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -675,7 +676,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// A few settings
 		const std::size_t nItems = 100;
