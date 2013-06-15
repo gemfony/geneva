@@ -422,7 +422,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty());
 
 		// Tell the individual about its personality and duty
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
@@ -446,7 +446,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty());
 
 		// Tell the individual about its personality
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
 
 		// Set the server mode, so calling the fitness function throws
 		BOOST_CHECK_NO_THROW(p_test->setServerMode(true));
@@ -479,7 +479,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty());
 
 		// Tell the individual about its personality and duty
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_SWARM));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
@@ -500,7 +500,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->customUpdateOnStall() == true);
 
 		// Make this a parent individual in EA mode
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::PERSONALITY_EA));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
 		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent());
 
 		// Perform the actual update
@@ -779,23 +779,16 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
       // Reset the personality type
       BOOST_CHECK_NO_THROW(p_test->resetPersonality());
       BOOST_CHECK_MESSAGE(
-            p_test->getPersonality() == PERSONALITY_NONE
+            p_test->getPersonality() == "PERSONALITY_NONE"
             ,  "\n"
             << "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
             << "expected PERSONALITY_NONE\n"
       );
 
       // Set the personality type to EA
-      personality_oa previous;
-      BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_EA, boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
+      BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
       BOOST_CHECK_MESSAGE(
-            previous == PERSONALITY_NONE
-            ,  "\n"
-            << "previous = " << previous << "\n"
-            << "expected PERSONALITY_NONE"
-      );
-      BOOST_CHECK_MESSAGE(
-            p_test->getPersonality() == PERSONALITY_EA
+            p_test->getPersonality() == "GEAPersonalityTraits"
             ,  "\n"
             << "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
             << "expected EA\n"
@@ -813,18 +806,12 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
       p_pt.reset();
 
       // Set the personality type to GD
-      BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_GD, boost::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits())));
+      BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits())));
       BOOST_CHECK_MESSAGE(
-            previous == PERSONALITY_EA
-            ,  "\n"
-            << "previous = " << previous << "\n"
-            << "expected EA"
-      );
-      BOOST_CHECK_MESSAGE(
-            p_test->getPersonality() == PERSONALITY_GD
+            p_test->getPersonality() == "GGDPersonalityTraits"
             ,  "\n"
             << "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
-            << "expected GD\n"
+            << "expected GGDPersonalityTraits\n"
       );
 
       // Try to retrieve a GGDPersonalityTraits object and check that the smart pointer actually points somewhere
@@ -839,18 +826,12 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
       p_pt.reset();
 
       // Set the personality type to SWARM
-      BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_SWARM, boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
+      BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
       BOOST_CHECK_MESSAGE(
-            previous == PERSONALITY_GD
-            ,  "\n"
-            << "previous = " << previous << "\n"
-            << "expected GD"
-      );
-      BOOST_CHECK_MESSAGE(
-            p_test->getPersonality() == PERSONALITY_SWARM
+            p_test->getPersonality() == "GSwarmPersonalityTraits"
             ,  "\n"
             << "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
-            << "expected SWARM\n"
+            << "expected GSwarmPersonalityTraits\n"
       );
 
       // Try to retrieve a GSwarmPersonalityTraits object and check that the smart pointer actually points somewhere
@@ -865,15 +846,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
       p_pt.reset();
 
       // Set the personality type to PERSONALITY_NONE
-      BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(PERSONALITY_NONE));
+      BOOST_CHECK_NO_THROW(p_test->resetPersonality());
       BOOST_CHECK_MESSAGE(
-            previous == PERSONALITY_SWARM
-            ,  "\n"
-            << "previous = " << previous << "\n"
-            << "expected SWARM"
-      );
-      BOOST_CHECK_MESSAGE(
-            p_test->getPersonality() == PERSONALITY_NONE
+            p_test->getPersonality() == "PERSONALITY_NONE"
             ,  "\n"
             << "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
             << "expected PERSONALITY_NONE\n"
@@ -1067,7 +1042,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
       boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
 
       // Make sure the personality type is set to SWARM
-      BOOST_CHECK_NO_THROW(p_test->setPersonality(PERSONALITY_SWARM, boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
+      BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
 
       // Trying to retrieve an EA personality object should throw
       BOOST_CHECK_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>(), Gem::Common::gemfony_error_condition);

@@ -1,5 +1,5 @@
 /**
- * @file GOptimizationMonitorT.cpp
+ * @file GOptimizationAlgorithmT.cpp
  */
 
 /*

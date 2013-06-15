@@ -118,7 +118,7 @@ public:
    ) const OVERRIDE;
 
    /** @brief Returns information about the type of optimization algorithm */
-   virtual personality_oa getOptimizationAlgorithm() const OVERRIDE;
+   virtual std::string getOptimizationAlgorithm() const OVERRIDE;
 
    /** @brief Returns the name of this optimization algorithm */
    virtual std::string getAlgorithmName() const OVERRIDE;

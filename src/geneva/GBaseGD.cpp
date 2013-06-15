@@ -120,8 +120,8 @@ GBaseGD::~GBaseGD()
  *
  * @return The type of optimization algorithm
  */
-personality_oa GBaseGD::getOptimizationAlgorithm() const {
-	return PERSONALITY_GD;
+std::string GBaseGD::getOptimizationAlgorithm() const {
+	return "PERSONALITY_GD";
 }
 
 /******************************************************************************/
@@ -1057,7 +1057,7 @@ boost::uint32_t GBaseGD::GGDOptimizationMonitor::getYDim() const {
  */
 void GBaseGD::GGDOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 #ifdef DEBUG
-   if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
+   if(goa->getOptimizationAlgorithm() != "PERSONALITY_GD") {
       glogger
       << "In GBaseGD::GGDOptimizationMonitor::cycleInformation():" << std::endl
       << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl

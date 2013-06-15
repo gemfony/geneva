@@ -194,8 +194,8 @@ std::string GBaseEA::name() const {
  *
  * @return The type of optimization algorithm
  */
-personality_oa GBaseEA::getOptimizationAlgorithm() const {
-	return PERSONALITY_EA;
+std::string GBaseEA::getOptimizationAlgorithm() const {
+	return "PERSONALITY_EA";
 }
 
 /******************************************************************************/
@@ -939,7 +939,7 @@ std::string GBaseEA::GEAOptimizationMonitor::getResultFileName() const {
 void GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
    // Perform the conversion to the target algorithm
 #ifdef DEBUG
-   if(goa->getOptimizationAlgorithm() != PERSONALITY_EA) {
+   if(goa->getOptimizationAlgorithm() != "PERSONALITY_EA") {
       glogger
       <<  "In GBaseEA::GEAOptimizationMonitor::firstInformation():" << std::endl
       << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl

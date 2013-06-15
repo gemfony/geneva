@@ -32,7 +32,7 @@ The main changes for this release include:
  - Added global stores for GParameterSet-based consumers, optimization algorithms and corresponding
    monitor classes
  - Made Go2 independent from specific optimization algorithms and consumers, thus broadening its scope.
-   Note that during this rework, also most command line parametrs have been changed, and that command
+   Note that during this rework, also most command line parameters have been changed, and that command
    line parameters specific to consumers are extracted at run-time from each consumer. If you are
    running Geneva through a script, this might mean that you need to adapt this script.
  - GParameterSet and GIndividual no longer depend on any specific optimization algorithms. As a
@@ -47,6 +47,9 @@ The main changes for this release include:
  - Gave GPlotDesigner the ability to add more than one plot to the same sub-canvas
  - Added pluggable objects that allow to check parameter sets for validity, to be used in an infrastructure 
    for dealing with multi-parameter constraints
+ - Instrumented most Geneva optimization classes with C++11 override statements, wrapped into defines
+   so the code can be used with C++98-compilers. This allows to rule out a further class of errors, hence
+   making the code more robust.
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

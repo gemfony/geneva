@@ -57,7 +57,6 @@ GIndividual::GIndividual()
 	, assignedIteration_(0)
 	, validityLevel_(1.0) // Always valid by default
 	, validityThreshold_(0.5)
-	, pers_(PERSONALITY_NONE)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -82,14 +81,9 @@ GIndividual::GIndividual(const GIndividual& cp)
 	, assignedIteration_(cp.assignedIteration_)
 	, validityLevel_(cp.validityLevel_)
 	, validityThreshold_(cp.validityThreshold_)
-	, pers_(cp.pers_)
 {
-	// We need to take care of the personality pointer manually
-	if(pers_ != PERSONALITY_NONE) {
-	   setPersonality(pers_, (cp.pt_ptr_)->GObject::clone<GPersonalityTraits>());
-	} else {
-	   setPersonality(pers_);
-	}
+	// Copy the personality pointer over
+	copyGenevaSmartPointer(cp.pt_ptr_, pt_ptr_);
 
 	// Make sure any constraints are copied over
 	copyGenevaSmartPointer(cp.individualConstraint_, individualConstraint_);
@@ -171,7 +165,6 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", assignedIteration_, p_load->assignedIteration_, "assignedIteration_", "p_load->assignedIteration_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GIndividual", validityLevel_, p_load->validityLevel_, "validityLevel_", "p_load->validityLevel_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GIndividual", validityThreshold_, p_load->validityThreshold_, "validityThreshold_", "p_load->validityThreshold_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GIndividual", pers_, p_load->pers_, "pers_", "p_load->pers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", pt_ptr_, p_load->pt_ptr_, "pt_ptr_", "p_load->pt_ptr_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", individualConstraint_, p_load->individualConstraint_, "individualConstraint_", "p_load->individualConstraint_", e , limit));
 
@@ -226,13 +219,8 @@ void GIndividual::load_(const GObject* cp) {
 	assignedIteration_ = p_load->assignedIteration_;
 	validityLevel_ = p_load->validityLevel_;
 	validityThreshold_ = p_load->validityThreshold_;
-	pers_ = p_load->pers_;
-	if(pers_ != PERSONALITY_NONE) {
-	   pt_ptr_->GObject::load(p_load->pt_ptr_);
-	} else {
-	   pt_ptr_.reset();
-	}
 
+	copyGenevaSmartPointer(p_load->pt_ptr_, pt_ptr_);
    copyGenevaSmartPointer(p_load->individualConstraint_, individualConstraint_);
 }
 
@@ -754,36 +742,21 @@ void GIndividual::addConfigurationOptions (
 /**
  * Sets the current personality of this individual
  *
- * @param pers The desired personality of this individual
- * @return The previous personality of this individual
+ * @param gpt A pointer to an object representing the new personality of this object
  */
-personality_oa GIndividual::setPersonality(
-      const personality_oa& pers
-      , boost::shared_ptr<GPersonalityTraits> gpt
+void GIndividual::setPersonality(
+      boost::shared_ptr<GPersonalityTraits> gpt
 ) {
    // Make sure we haven't been given an empty pointer
-   if(pers != PERSONALITY_NONE && !gpt) {
+   if(!gpt) {
       glogger
       << "In GIndividual::setPersonality(): Error!" << std::endl
       << "Received empty personality traits pointer" << std::endl
-      << "for personality " << pers << std::endl
       << GEXCEPTION;
    }
 
-   // Make a note of the current (soon to be previous) personality_oa
-	personality_oa previous = pers_;
-
-	// Do nothing if this particular personality type has already been set
-	if(pers_==pers && pt_ptr_)  return pers_; // A suitable personality has already been added
-
 	// Add the personality traits object to our local pointer
 	pt_ptr_ = gpt;
-
-   // Update our local personality
-   pers_ = pers;
-
-	// Let the audience know the previous personality type
-	return previous;
 }
 
 
@@ -797,7 +770,7 @@ personality_oa GIndividual::setPersonality(
  * Resets the current personality to PERSONALITY_NONE
  */
 void GIndividual::resetPersonality() {
-	setPersonality(PERSONALITY_NONE);
+   pt_ptr_.reset();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -809,10 +782,14 @@ void GIndividual::resetPersonality() {
 /**
  * Retrieves the current personality of this individual
  *
- * @return The current personality of this object
+ * @return An identifier for the current personality of this object
  */
-personality_oa GIndividual::getPersonality() const {
-	return pers_;
+std::string GIndividual::getPersonality() const {
+	if(pt_ptr_) {
+	   return pt_ptr_->name();
+	} else {
+	   return std::string("PERSONALITY_NONE");
+	}
 }
 
 /* ----------------------------------------------------------------------------------

@@ -407,14 +407,6 @@ public:
 	 * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
 	 */
 	virtual void optimize(const boost::uint32_t& offset) OVERRIDE {
-		// Check that we are dealing with an "authorized" optimization algorithm
-		if(this->getOptimizationAlgorithm() == PERSONALITY_NONE) {
-		   glogger
-		   << "In GOptimizationAlgorithmT<T>::optimize():" << std::endl
-         << "The id of the optimization algorithm hasn't been set." << std::endl
-         << GEXCEPTION;
-		}
-
 		// Reset the generation counter
 		iteration_ = offset;
 
@@ -1095,7 +1087,7 @@ protected:
 	virtual void setIndividualPersonalities() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it)
-         (*it)->setPersonality(this->getOptimizationAlgorithm(), this->getPersonalityTraits());
+         (*it)->setPersonality(this->getPersonalityTraits());
 	}
 
 	/***************************************************************************/

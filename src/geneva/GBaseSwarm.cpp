@@ -176,8 +176,8 @@ GBaseSwarm::~GBaseSwarm()
  *
  * @return The type of optimization algorithm
  */
-personality_oa GBaseSwarm::getOptimizationAlgorithm() const {
-	return PERSONALITY_SWARM;
+std::string GBaseSwarm::getOptimizationAlgorithm() const {
+	return "PERSONALITY_SWARM";
 }
 
 
@@ -1864,7 +1864,7 @@ boost::uint16_t GBaseSwarm::GSwarmOptimizationMonitor::getYDim() const {
  */
 void GBaseSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 #ifdef DEBUG
-   if(goa->getOptimizationAlgorithm() != PERSONALITY_GD) {
+   if(goa->getOptimizationAlgorithm() != "PERSONALITY_GD") {
       glogger
       << "In GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation():" << std::endl
       << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl

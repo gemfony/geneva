@@ -169,7 +169,7 @@ public:
    virtual void loadCheckpoint(const std::string&) OVERRIDE;
 
    /** @brief Returns information about the type of optimization algorithm */
-   virtual personality_oa getOptimizationAlgorithm() const OVERRIDE;
+   virtual std::string getOptimizationAlgorithm() const OVERRIDE;
 
    /** @brief Retrieves the number of processable items for the current iteration */
    virtual std::size_t getNProcessableItems() const OVERRIDE;

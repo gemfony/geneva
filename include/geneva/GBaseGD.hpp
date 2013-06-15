@@ -128,7 +128,7 @@ public:
 	virtual void loadCheckpoint(const std::string&) OVERRIDE;
 
 	/** @brief Returns information about the type of optimization algorithm */
-	virtual personality_oa getOptimizationAlgorithm() const OVERRIDE;
+	virtual std::string getOptimizationAlgorithm() const OVERRIDE;
 
 	/** @brief Retrieves the number of starting points of the algorithm */
 	std::size_t getNStartingPoints() const;

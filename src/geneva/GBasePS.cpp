@@ -178,8 +178,8 @@ GBasePS::~GBasePS()
  *
  * @return The type of optimization algorithm
  */
-personality_oa GBasePS::getOptimizationAlgorithm() const {
-   return PERSONALITY_PS;
+std::string GBasePS::getOptimizationAlgorithm() const {
+   return "PERSONALITY_PS";
 }
 
 /******************************************************************************/
@@ -1097,7 +1097,7 @@ std::string GBasePS::GPSOptimizationMonitor::getCSVResultFileName() const {
  */
 void GBasePS::GPSOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 #ifdef DEBUG
-   if(goa->getOptimizationAlgorithm() != PERSONALITY_PS) {
+   if(goa->getOptimizationAlgorithm() != "PERSONALITY_PS") {
       glogger
       << "In GBasePS::GPSOptimizationMonitor::cycleInformation():" << std::endl
       << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl

@@ -557,7 +557,7 @@ public:
    /** @brief Returns the name of this optimization algorithm */
    virtual std::string getAlgorithmName() const = 0;
    /** @brief Returns information about the type of optimization algorithm */
-   virtual personality_oa getOptimizationAlgorithm() const = 0;
+   virtual std::string getOptimizationAlgorithm() const = 0;
 
    /***************************************************************************/
    /**

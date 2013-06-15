@@ -33,6 +33,7 @@
  */
 
 // Standard header files go here
+#include <string>
 #include <vector>
 
 // Boost header files go here
@@ -164,7 +165,7 @@ public:
 	/***************************************************************************/
 
 	/** @brief Returns information about the type of optimization algorithm. */
-	virtual personality_oa getOptimizationAlgorithm() const BASE;
+	virtual std::string getOptimizationAlgorithm() const BASE;
 
 	/** @brief Returns a name assigned to this algorithm */
 	virtual std::string getAlgorithmName() const = 0;

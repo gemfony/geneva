@@ -108,7 +108,6 @@ class GIndividual
 	     & BOOST_SERIALIZATION_NVP(assignedIteration_)
 	     & BOOST_SERIALIZATION_NVP(validityLevel_)
 	     & BOOST_SERIALIZATION_NVP(validityThreshold_)
-	     & BOOST_SERIALIZATION_NVP(pers_)
 	     & BOOST_SERIALIZATION_NVP(pt_ptr_)
 	     & BOOST_SERIALIZATION_NVP(individualConstraint_);
 	}
@@ -199,8 +198,8 @@ public:
 	/** @brief Triggers updates when the optimization process has stalled */
 	virtual bool updateOnStall();
 
-	/** @brief Retrieves the current personality of this object */
-	personality_oa getPersonality() const;
+	/** @brief Retrieves an identifier for the current personality of this object */
+	std::string getPersonality() const;
 
 	/** @brief Allows to randomly initialize parameter members */
 	virtual void randomInit() = 0;
@@ -283,9 +282,8 @@ public:
 	boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
 
 	/** @brief Sets the current personality of this individual */
-	personality_oa setPersonality(
-	      const personality_oa&
-	      , boost::shared_ptr<GPersonalityTraits> = boost::shared_ptr<GPersonalityTraits>()
+	void setPersonality(
+	      boost::shared_ptr<GPersonalityTraits>
 	);
 	/** @brief Resets the current personality to PERSONALITY_NONE */
 	void resetPersonality();
@@ -379,8 +377,6 @@ private:
     double validityLevel_;
     /** @brief Indicates a threshold as of which a solution is considered to be valid */
     double validityThreshold_;
-    /** @brief Indicates the optimization algorithm the individual takes part in */
-    personality_oa pers_;
     /** @brief Holds the actual personality information */
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
 

@@ -126,7 +126,7 @@ public:
    ) const OVERRIDE;
 
    /** @brief Returns information about the type of optimization algorithm */
-   virtual personality_oa getOptimizationAlgorithm() const OVERRIDE;
+   virtual std::string getOptimizationAlgorithm() const OVERRIDE;
 
    /** @brief Set the sorting scheme for this population */
    void setSortingScheme(sortingMode);

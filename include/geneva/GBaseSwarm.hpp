@@ -137,7 +137,7 @@ public:
 	void setDefaultPopulationSize(std::size_t, std::size_t);
 
 	/** @brief Returns information about the type of optimization algorithm */
-	virtual personality_oa getOptimizationAlgorithm() const OVERRIDE;
+	virtual std::string getOptimizationAlgorithm() const OVERRIDE;
 
 	/** @brief Loads a checkpoint from disk */
 	virtual void loadCheckpoint(const std::string&) OVERRIDE;

@@ -202,8 +202,8 @@ public:
     *
     * @return The type of optimization algorithm
     */
-   virtual personality_oa getOptimizationAlgorithm() const  OVERRIDE {
-      return PERSONALITY_MPEA;
+   virtual std::string getOptimizationAlgorithm() const  OVERRIDE {
+      return "PERSONALITY_MPEA";
    }
 
    /***************************************************************************/

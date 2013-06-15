@@ -332,23 +332,6 @@ const double SA_ALPHA = 0.95; ///< The degradation strength in simulated anneali
 
 /******************************************************************************/
 /**
- * Different optimization algorithms need to assign different information to individuals. They
- * can thus assume different personalities, resulting in different data structures to be stored
- * in them (see the GPersonalityTraits classes).
- */
-enum personality_oa {
-	  PERSONALITY_NONE = 0
-	, PERSONALITY_EA = 1 // Evolutionary algorithms
-	, PERSONALITY_GD = 2 // Gradient descents
-	, PERSONALITY_SWARM = 3 // Swarm algorithms
-	, PERSONALITY_SA = 4 // Simulated annealing
-	, PERSONALITY_PS = 5 // Parameter scans
-   , PERSONALITY_MPEA = 6 // Multi population
-   , PERSONALITY_OA_LAST = PERSONALITY_MPEA
-};
-
-/******************************************************************************/
-/**
  * The default value for the GSerialEA::markOldParents_ flag. This is used mostly
  * for logging purposes. If set, the algorithm will keep a copy of the parents from which the
  * children originated and will mark their id in the individual's personality traits.
@@ -439,12 +422,6 @@ std::ostream& operator<<(std::ostream&, const Gem::Geneva::sortingModeMP&);
 
 /** @brief Reads a Gem::Geneva::sortingModeMP from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Geneva::sortingModeMP&);
-
-/** @brief Puts a Gem::Geneva::personality_oa into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::personality_oa&);
-
-/** @brief Reads a Gem::Geneva::personality_oa from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::personality_oa&);
 
 /** @brief Puts a Gem::Geneva::updateRule into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Geneva::updateRule&);
