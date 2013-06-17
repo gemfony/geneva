@@ -97,12 +97,13 @@ namespace Courtier {
  * execution. The serial mode is meant for debugging purposes only.
  */
 template <typename processable_type>
-class GBaseExecutorT {
+class GBaseExecutorT
+{
    // Make sure processable_type is derived from the submission container
    BOOST_MPL_ASSERT((boost::is_base_of<GSubmissionContainerT<processable_type>, processable_type>));
 
 public:
-   ///////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////////
 
    friend class boost::serialization::access;
 
@@ -111,7 +112,7 @@ public:
       using boost::serialization::make_nvp;
    }
 
-   ///////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////////
 
    /***************************************************************************/
    /**
@@ -119,6 +120,7 @@ public:
     */
    GBaseExecutorT()
       : submission_counter_(SUBMISSIONCOUNTERTYPE(0))
+      , expectedNumber_(0)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -131,6 +133,7 @@ public:
     */
    GBaseExecutorT(const GBaseExecutorT<processable_type>& cp)
       : submission_counter_(SUBMISSIONCOUNTERTYPE(0))
+      , expectedNumber_(0)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -159,7 +162,7 @@ public:
     *
     * @param cp A constant pointer to another GBaseExecutorT object
     */
-   void load(GBaseExecutorT<processable_type> const * const cp) {
+   virtual void load(GBaseExecutorT<processable_type> const * const cp) BASE {
       // nothing
    }
 
@@ -202,14 +205,14 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   boost::optional<std::string> checkRelationshipWith(
+   virtual boost::optional<std::string> checkRelationshipWith(
          const GBaseExecutorT<processable_type>& cp
          , const Gem::Common::expectation& e
          , const double& limit
          , const std::string& caller
          , const std::string& y_name
          , const bool& withMessages
-   ) const {
+   ) const BASE {
       using namespace Gem::Common;
 
       // Will hold possible deviations from the expectation, including explanations
@@ -223,12 +226,67 @@ public:
 
    /***************************************************************************/
    /**
-    * Submits and retrieves a set of work items. After the work has been performed,
-    * the items contained in the workItems vector may have been changed. Note that it is not guaranteed
-    * by this function that all submitted items are still contained in the vector after the call. It is
-    * also possible that returned items do not belong to the current submission cycle. You might thus have
-    * to post-process the vector. Note that it is impossible to submit items that are not
-    * derived from GSubmissionContainerT<processable_type>.
+    * Submits and retrieves a set of work items. You need to supply a vector
+    * of booleans of the same length indicating which items need to be submitted.
+    * "true" stands for "submit", "false" leads to the corresponding work items
+    * being ignored. After the function returns, some or all of the work items
+    * will have been processed. You can find out about this by querying the workItemPos
+    * vector. Item positions that have been processed will be set to "false".
+    * Positions remaining "true" have not been processed (but might still return in
+    * later iterations). It is thus also possible that returned items do not belong
+    * to the current submission cycle. They will be appended to the oldWorkItems vector.
+    * You might thus have to post-process the work items. Note that it is impossible
+    * to submit items that are not derived from GSubmissionContainerT<processable_type>.
+    *
+    * @param workItems A vector with work items to be evaluated beyond the broker
+    * @param workItemPos A vector of the item positions to be worked on
+    * @return A boolean indicating whether all expected items have returned
+    */
+   bool workOn(
+         std::vector<boost::shared_ptr<processable_type> >& workItems
+         , std::vector<bool>& workItemPos
+         , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+   ) {
+      bool complete=false;
+
+      // Check that both vectors have the same size
+      if(workItems.empty() || workItems.size() != workItemPos.size()) {
+         glogger
+         << "In GBaseExecutorT<processable_type>::workOn(): Error!" << std::endl
+         << "Received invalid sizes: " << workItems.size() << " / " << workItemPos.size() << std::endl
+         << GEXCEPTION;
+      }
+
+      // The expected number of work items from the current iteration
+      expectedNumber_ = std::count(workItemPos.begin(), workItemPos.end(), true);
+      // Take care of a situation where no items have been submitted
+      if(expectedNumber_ == 0) return true;
+
+      // Make sure the vector of old work items is empty
+      oldWorkItems.clear();
+
+      // Allows to perform necessary setup work for an iteration
+      this->iterationInit(workItems, workItemPos, oldWorkItems);
+
+      // Submit all items
+      this->submitAllWorkItems(workItems, workItemPos);
+
+      // Wait for work items to return. This function needs to
+      // be re-implemented in derived classes.
+      complete = waitForReturn(workItems, workItemPos, oldWorkItems);
+
+      // Allows to perform necessary cleanup work for an iteration
+      this->iterationFinalize(workItems, workItemPos, oldWorkItems);
+
+      // Update the submission counter
+      submission_counter_++;
+
+      return complete;
+   }
+
+   /***************************************************************************/
+   /**
+    * Submits and retrieves a set of work items in a range
     *
     * @param workItems A vector with work items to be evaluated beyond the broker
     * @param start The id of first item to be worked on in the vector
@@ -239,10 +297,10 @@ public:
          std::vector<boost::shared_ptr<processable_type> >& workItems
          , const std::size_t& start
          , const std::size_t& end
+         , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
    ) {
       bool complete=false;
 
-#ifdef DEBUG
       // Do some error checking
       if(workItems.empty()) {
          glogger
@@ -264,29 +322,15 @@ public:
          << "Last id " << end << " exceeds size of vector " << workItems.size() << std::endl
          << GEXCEPTION;
       }
-#endif /* DEBUG */
 
-      // Set the start time of the new iteration
-      iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
+      // Assemble a position vector
+      std::vector<bool> workItemPos(workItems.size(), false);
+      for(std::size_t pos=start; pos!=end; pos++) {
+         workItemPos[pos] = true;
+      }
 
-      // Allows derived classes to perform necessary setup work for an iteration
-      this->iterationSetup();
-
-      // Submit all items
-      this->submitAllWorkItems(workItems, start, end);
-
-      // Wait for work items to return. This function needs to
-      // be re-implemented in derived classes.
-      complete = waitForReturn(workItems, start, end);
-
-      // Allows derived classes to perform necessary cleanup work for an iteration
-      this->iterationCleanup();
-
-      // Update the submission counter
-      submission_counter_++;
-
-      // Let the audience know
-      return complete;
+      // Start the calculation and let the audience know
+      return this->workOn(workItems, workItemPos, oldWorkItems);
    }
 
    /***************************************************************************/
@@ -299,7 +343,7 @@ public:
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
       , const bool& showOrigin
-   ) {
+   ) BASE {
       /* no local data. hence empty */
    }
 
@@ -311,14 +355,56 @@ protected:
    /** @brief Waits for work items to return */
    virtual bool waitForReturn(
       std::vector<boost::shared_ptr<processable_type> >&
-      , const std::size_t&
-      , const std::size_t&
+      , std::vector<bool>&
+      , std::vector<boost::shared_ptr<processable_type> >&
    ) = 0;
 
-   /** @brief Allows derived classes to perform necessary setup work for an iteration */
-   virtual void iterationSetup() { /* nothing */ }
-   /** @brief Allows derived classes to perform necessary cleanup work for an iteration */
-   virtual void iterationCleanup() { /* nothing */ }
+   /***************************************************************************/
+   /**
+    * Allow to perform necessary setup work for an iteration. Derived classes
+    * should make sure this base function is called first when they overload
+    * this function.
+    */
+   virtual void iterationInit(
+      std::vector<boost::shared_ptr<processable_type> >& workItems
+      , std::vector<bool>& workItemPos
+      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+   ) BASE {
+      // Set the start time of the new iteration
+      iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to perform necessary cleanup work for an iteration. Derived classes
+    * should make sure this base function is called last when they overload
+    * this function.
+    */
+   virtual void iterationFinalize(
+      std::vector<boost::shared_ptr<processable_type> >& workItems
+      , std::vector<bool>& workItemPos
+      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+   ) BASE {
+      // Make a note of the time needed up to now
+      boost::posix_time::time_duration iterationDuration =
+            boost::posix_time::microsec_clock::local_time() - iterationStartTime_;
+
+      // Find out about the number of returned items
+      std::size_t notReturned = std::count(workItemPos.begin(), workItemPos.end(), true);
+      std::size_t nReturned   = expectedNumber_ - notReturned;
+
+      if(nReturned == 0) { // Check whether any work items have returned at all
+         glogger
+         << "In GBaseExecutorT<processable_type>::iterationFinalize(): Warning!" << std::endl
+         << "No items have returned" << std::endl
+         << GWARNING;
+      } else { // Calculate average return times of work items
+         lastAverage_ = iterationDuration/nReturned;
+      }
+
+      // Sort old work items so they can be readily used by the caller
+      std::sort(oldWorkItems.begin(), oldWorkItems.end(), courtierPosComp<processable_type>());
+   }
 
    /***************************************************************************/
    /**
@@ -326,22 +412,39 @@ protected:
     */
    void submitAllWorkItems (
       std::vector<boost::shared_ptr<processable_type> >& workItems
-      , const std::size_t& start
-      , const std::size_t& end
+      , std::vector<bool>& workItemPos
    ) {
       // Submit work items
       typename std::vector<boost::shared_ptr<processable_type> >::iterator it;
-      POSITIONTYPE pos_cnt = start;
-      for(it=workItems.begin()+start; it!=workItems.begin()+end; ++it) {
-         (*it)->setCourtierId(boost::make_tuple<SUBMISSIONCOUNTERTYPE,POSITIONTYPE>(submission_counter_, pos_cnt++));
-         this->submit(*it);
+      POSITIONTYPE pos_cnt = 0;
+      for(it=workItems.begin(); it!=workItems.end(); ++it) {
+         if(workItemPos[pos_cnt]) { // is the item due to be submitted ?
+            (*it)->setCourtierId(boost::make_tuple<SUBMISSIONCOUNTERTYPE,POSITIONTYPE>(submission_counter_, pos_cnt));
+            this->submit(*it);
+         }
+         pos_cnt++;
       }
    }
 
    /***************************************************************************/
    // Local data
    SUBMISSIONCOUNTERTYPE submission_counter_; ///< Counts the number of submissions initiated by this object. Note: not serialized!
+   std::size_t expectedNumber_; ///< The number of work items to be submitted (and expected back)
    boost::posix_time::ptime iterationStartTime_; ///< Temporary that holds the start time for the retrieval of items in a given iteration
+   boost::posix_time::time_duration lastAverage_; ///< The average time needed for the last submission
+
+private:
+   /***************************************************************************/
+   /**
+    * A simple comparison operator that helps to sort individuals according to their
+    * position in the population. Smaller position numbers will end up in front.
+    */
+   struct courtierPosComp {
+      bool operator()(boost::shared_ptr<processable_type> x, boost::shared_ptr<processable_type> y) {
+         using namespace boost;
+         return boost::get<1>(x->getCourtierId()) < boost::get<1>(y->getCourtierId());
+      }
+   };
 };
 
 /******************************************************************************/
@@ -413,7 +516,7 @@ public:
     *
     * @param cp A constant pointer to another GSerialExecutorT object
     */
-   void load(GSerialExecutorT<processable_type> const * const cp) {
+   virtual void load(GSerialExecutorT<processable_type> const * const cp) OVERRIDE {
       // Load our parent classes data
       GBaseExecutorT<processable_type>::load(cp);
 
@@ -459,14 +562,14 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   boost::optional<std::string> checkRelationshipWith(
-         const GSerialExecutorT<processable_type>& cp
-         , const Gem::Common::expectation& e
-         , const double& limit
-         , const std::string& caller
-         , const std::string& y_name
-         , const bool& withMessages
-   ) const {
+   virtual boost::optional<std::string> checkRelationshipWith(
+      const GSerialExecutorT<processable_type>& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+   ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Will hold possible deviations from the expectation, including explanations
@@ -488,7 +591,7 @@ public:
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
       , const bool& showOrigin
-   ) {
+   ) OVERRIDE {
       // Call our parent class's function
       GBaseExecutorT<processable_type>::addConfigurationOptions(gpb, showOrigin);
 
@@ -506,20 +609,26 @@ protected:
     *
     * @param w The work item to be processed
     */
-   virtual void submit(boost::shared_ptr<processable_type> w) {
+   virtual void submit(boost::shared_ptr<processable_type> w) OVERRIDE {
       w->process();
    }
 
    /***************************************************************************/
    /**
-    * Waits for work items to return. Empty, as all work is done inside of the
-    * submit() function.
+    * Waits for work items to return. Mostlty empty, as all work is done inside
+    * of the submit() function.
     */
    virtual bool waitForReturn(
-      std::vector<boost::shared_ptr<processable_type> >&
-      , const std::size_t&
-      , const std::size_t&
-   ) {
+      std::vector<boost::shared_ptr<processable_type> >& workItems
+      , std::vector<bool>& workItemPos
+      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+   ) OVERRIDE {
+      // Mark all positions as returned
+      std::vector<bool>::iterator it;
+      for(it=workItemPos.begin(); it!=workItemPos.end(); ++it) {
+         *it = false;
+      }
+
       return true;
    }
 };
@@ -603,7 +712,7 @@ public:
     *
     * @param cp A constant pointer to another GMTExecutorT object
     */
-   void load(GMTExecutorT<processable_type> const * const cp) {
+   virtual void load(GMTExecutorT<processable_type> const * const cp) OVERRIDE {
       // Load our parent classes data
       GBaseExecutorT<processable_type>::load(cp);
 
@@ -650,14 +759,14 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   boost::optional<std::string> checkRelationshipWith(
-         const GMTExecutorT<processable_type>& cp
-         , const Gem::Common::expectation& e
-         , const double& limit
-         , const std::string& caller
-         , const std::string& y_name
-         , const bool& withMessages
-   ) const {
+   virtual boost::optional<std::string> checkRelationshipWith(
+      const GMTExecutorT<processable_type>& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+   ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Will hold possible deviations from the expectation, including explanations
@@ -679,7 +788,7 @@ public:
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
       , const bool& showOrigin
-   ) {
+   ) OVERRIDE {
       // Call our parent class's function
       GBaseExecutorT<processable_type>::addConfigurationOptions(gpb, showOrigin);
 
@@ -694,7 +803,7 @@ protected:
     *
     * @param w The work item to be processed
     */
-   virtual void submit(boost::shared_ptr<processable_type> w) {
+   virtual void submit(boost::shared_ptr<processable_type> w) OVERRIDE {
       tp_.schedule(boost::function<bool()>(boost::bind(&processable_type::process, w)));
    }
 
@@ -703,11 +812,18 @@ protected:
     * Waits for the thread pool to run empty.
     */
    virtual bool waitForReturn(
-      std::vector<boost::shared_ptr<processable_type> >&
-      , const std::size_t&
-      , const std::size_t&
-   ) {
+      std::vector<boost::shared_ptr<processable_type> >& workItems
+      , std::vector<bool>& workItemPos
+      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+   ) OVERRIDE {
       tp_.wait();
+
+      // Mark all positions as "returned"
+      std::vector<bool>::iterator it;
+      for(it=workItemPos.begin(); it!=workItemPos.end(); ++it) {
+         *it = false;
+      }
+
       return true;
    }
 
@@ -753,8 +869,10 @@ public:
    : GBaseExecutorT<processable_type>()
    , srm_(DEFAULTSRM)
    , maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
+   , waitFactor_(DEFAULTBROKERWAITFACTOR2)
    , doLogging_(false)
    , CurrentBufferPort_(new Gem::Courtier::GBufferPortT<boost::shared_ptr<processable_type> >())
+   , brokerIsCapableOfFullReturn_(GBROKER(processable_type)->capableOfFullReturn())
    {
       GBROKER(processable_type)->enrol(CurrentBufferPort_);
    }
@@ -769,8 +887,10 @@ public:
    : GBaseExecutorT<processable_type>(cp)
    , srm_(cp.srm_)
    , maxResubmissions_(cp.maxResubmissions_)
+   , waitFactor_(cp.waitFactor_)
    , doLogging_(cp.doLogging_)
    , CurrentBufferPort_(new Gem::Courtier::GBufferPortT<boost::shared_ptr<processable_type> >())
+   , brokerIsCapableOfFullReturn_(GBROKER(processable_type)->capableOfFullReturn())
    {
       GBROKER(processable_type)->enrol(CurrentBufferPort_);
    }
@@ -801,13 +921,14 @@ public:
     *
     * @param cp A constant pointer to another GBrokerConnector2T object
     */
-   void load(GBrokerConnector2T<processable_type> const * const cp) {
+   virtual void load(GBrokerConnector2T<processable_type> const * const cp) OVERRIDE {
       // Load our parent classes data
       GBaseExecutorT<processable_type>::load(cp);
 
       // Local data
       srm_ = cp->srm_;
       maxResubmissions_ = cp->maxResubmissions_;
+      waitFactor_ = cp->waitFactor_;
       doLogging_ = cp->doLogging_;
    }
 
@@ -857,7 +978,7 @@ public:
          , const std::string& caller
          , const std::string& y_name
          , const bool& withMessages
-   ) const {
+   ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Will hold possible deviations from the expectation, including explanations
@@ -869,6 +990,7 @@ public:
       // Check local data
       deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", srm_, cp.srm_, "srm_", "cp.srm_", e , limit));
       deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", maxResubmissions_, cp.maxResubmissions_, "maxResubmissions_", "cp.maxResubmissions_", e , limit));
+      deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", waitFactor_, cp.waitFactor_, "waitFactor_", "cp.waitFactor_", e , limit));
       deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
 
       return evaluateDiscrepancies("GBrokerConnector2T<processable_type>", caller, deviations, e);
@@ -884,7 +1006,7 @@ public:
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
       , const bool& showOrigin
-   ) {
+   ) OVERRIDE {
       std::string comment;
 
       // Call our parent class's function
@@ -903,6 +1025,21 @@ public:
          , DEFAULTSRM // The default value
          , boost::bind(
             &GBrokerConnector2T<processable_type>::setSubmissionReturnMode
+            , this
+            , _1
+           )
+         , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+         , comment
+      );
+
+      comment = ""; // Reset the comment string
+      comment += "A static factor to be applied to timeouts;";
+      if(showOrigin) comment += "[GBrokerConnector2T<processable_type>]";
+      gpb.registerFileParameter<std::size_t>(
+         "waitFactor" // The name of the variable
+         , DEFAULTBROKERWAITFACTOR2 // The default value
+         , boost::bind(
+            &GBrokerConnector2T<processable_type>::setWaitFactor
             , this
             , _1
            )
@@ -947,7 +1084,7 @@ public:
    /**
     * Allows to set the submission return mode. Depending on this setting,
     * the object will wait indefinitely for items of the current submission to return,
-    * or will timeout and optionally resubit unprocessed items.
+    * or will timeout and optionally resubmit unprocessed items.
     */
    void setSubmissionReturnMode(submissionReturnMode srm) {
       srm_ = srm;
@@ -969,7 +1106,7 @@ public:
     * @param maxResubmissions The maximum number of allowed resubmissions
     */
    void setMaxResubmissions(std::size_t maxResubmissions) {
-     maxResubmissions_ = maxResubmissions;
+      maxResubmissions_ = maxResubmissions;
    }
 
    /***************************************************************************/
@@ -980,6 +1117,24 @@ public:
     */
    std::size_t getMaxResubmissions() const {
      return maxResubmissions_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to set the wait factor to be applied to timeouts. Note that a wait
+    * factor of 0 will be silently amended and become 1.
+    */
+   void setWaitFactor(std::size_t waitFactor) {
+      if(0==waitFactor) waitFactor_=1;
+      else waitFactor_ = waitFactor;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the wait factor variable
+    */
+   std::size_t getWaitFactor() const {
+      return waitFactor_;
    }
 
    /***************************************************************************/
@@ -1011,6 +1166,16 @@ public:
     * @return The logging results in the form of a ROOT histogram
     */
    std::string getLoggingResults() const {
+      if(!doLogging_ || logData_.empty() || iterationStartTimes_.empty()) {
+         glogger
+         << "In GBrokerConnector2T<processable_type>::getLoggingResults(): Error!" << std::endl
+         << "Attempt to retrieve logging results when no logging seems to have taken place." << std::endl
+         << "Returning an empty string."
+         << GWARINING;
+
+         return std::string();
+      }
+
       return std::string(); // TODO
    }
 
@@ -1019,7 +1184,14 @@ protected:
    /**
     * Allows to perform necessary setup work for an iteration
     */
-   virtual void iterationSetup() {
+   virtual void iterationInit(
+      std::vector<boost::shared_ptr<processable_type> >& workItems
+      , std::vector<bool>& workItemPos
+      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+   ) OVERRIDE {
+      // Make sure the parent classes iterationInit function is executed first
+      GBaseExecutorT<processable_type>::iterationInit(workItems, workItemPos, oldWorkItems);
+
       // We want to be able to calculate proper turn-around times for individuals in logging mode
       if(doLogging_) {
          iterationStartTimes_.push_back(
@@ -1033,243 +1205,54 @@ protected:
 
    /***************************************************************************/
    /**
-    * Wait for return of work items until a time-out occurs.
-    * Incomplete sets of returned items must be expected. This function
-    * accepts a vector of booleans indicating which items were submitted
-    * in the first place. This helps in the case of partial returns,
-    * when a full return needs to be ascertained by the re-submission
-    * of items. The function can be instructed to accept older items
-    * or to discard them. If older items are accepted, they will be
-    * added to the end of the workItems vector.
-    *
-    * TODO: Make sure items from older iterations cannot overwrite items from the current iteration. Attach at end.
-    */
-   bool waitForTimeout(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
-      , std::vector<bool> & submittedItemPos
-      , bool allowOldItems
-   ) {
-      bool complete = false;
-
-#ifdef DEBUG
-      // Check that the number of work items and
-      // the submission vector match in size
-      if(workItems.size() != submittedItemPos.size()) {
-         glogger
-         << "Expected equal sizes of work item vector and" << std::endl
-         << "submission vector, but got " << workItems.size() << " / " << submittedItemPos.size() << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-
-      // If no items are missing anymore, we are complete and thus return true
-      if(0 == std::count(submittedItemPos.begin(), submittedItemPos.end(), true)) {
-         return true;
-      }
-
-      return complete;
-   }
-
-   /***************************************************************************/
-   /**
-    * Wait for return of work items until a time-out occurs.
-    * Incomplete sets of returned items must be expected. This
-    * function will allow old items to return.
-    */
-   bool waitForTimeout(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
-      , const std::size_t& start
-      , const std::size_t& end
-   ) {
-      // An indication of whether all items have returned already
-      std::vector<bool> submittedItemPos(workItems.size());
-      // Holds a true for items that have returned or haven't been submitted
-      Gem::Common::assignVecConst(submittedItemPos, true);
-      // Initialize positions of items that have been submitted with false
-      for(std::size_t i=start; i<end; i++) {
-         submittedItemPos[i] = false;
-      }
-
-      return this->waitForTimeOut(workItems, submittedItemPos, true);
-   }
-
-   /***************************************************************************/
-   /**
-    * Wait for return of the same iterations work items, until a time-out occurs;
-    * resubmit if necessary. Note that incomplete sets of work items may still occur,
-    * if not all items have returned after the maximum number of re-submissions. This
-    * function will discard work items from older iterations.
-    */
-   bool waitForTimeoutAndResubmit(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
-      , const std::size_t& start
-      , const std::size_t& end
-   ) {
-      bool complete = false;
-      std::size_t nResubmissions = 0;
-
-      // An indication of whether all items have returned already
-      std::vector<bool> submittedItemPos(workItems.size());
-      // Holds a true for items that have returned or haven't been submitted
-      Gem::Common::assignVecConst(submittedItemPos, true);
-      // Initialize positions of items that have been submitted with false
-      for(std::size_t i=start; i<end; i++) {
-         submittedItemPos[i] = false;
-      }
-
-      while(!complete && nResubmissions++ < maxResubmissions_) {
-         complete = this->waitForTimeOut(workItems, submittedItemPos, false);
-      }
-
-      return complete;
-   }
-
-   /***************************************************************************/
-   /**
-    * Wait for return of work items until a time-out occurs.
-    * Incomplete sets of returned items must be expected. This function
-    * accepts a vector of booleans indicating which items were submitted
-    * in the first place. This helps in the case of partial returns,
-    * when a full return needs to be ascertained by the re-submission
-    * of items. The function can be instructed to accept older items
-    * or to discard them. If older items are accepted, they will be
-    * added to the end of the workItems vector. The timeout is specified
-    * as a fixed parameter, the function does not do any automatic calculations
-    * of timeouts. A timeout of 0 will result in an endless wait
-    *
-    * TODO: Make sure items from older iterations cannot overwrite items from the current iteration. Attach at end.
-    */
-   bool waitForTimeout(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
-      , std::vector<bool> & submittedItemPos
-      , boost::posix_time::time_duration timeOut
-      , bool allowOldItems
-   ) {
-      bool complete = false;
-
-      if(0 == timeOut.total_microseconds()) {
-
-      }
-
-      return complete;
-   }
-
-   /***************************************************************************/
-   /**
-    * Waits until all items have returned, ignoring any timeout. Note that this
-    * function may stall, if for whatever reason a work item does not return. If this
-    * is not acceptable, use either waitForTimeout() or waitForTimeoutAndResubmit()
-    * instead of this function. It is recommended to only use this function in
-    * environments that are considered safe in the sense that work items will practically
-    * always return. Local cluster environments will often fall into this category.
-    * There may not be any returns from older iterations, as the algorithm waits
-    * endlessly for the return of current items.
-    */
-   bool waitForFullReturn(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
-      , const std::size_t& start
-      , const std::size_t& end
-   ) {
-      bool complete = false;
-
-      // The expected number of work items from the current iteration
-      std::size_t expectedNumber = end-start;
-      std::size_t nReturnedCurrent = 0;
-
-      // An indication of whether all items have returned already
-      std::vector<bool> returnedItemPos(workItems.size());
-      // Holds a true for items that have returned or haven't been submitted
-      Gem::Common::assignVecConst(returnedItemPos, true);
-      // Initialize positions of items that have been submitted with false
-      for(std::size_t i=start; i<end; i++) {
-         returnedItemPos[i] = false;
-      }
-
-      // Note the current iteration for easy reference
-      SUBMISSIONCOUNTERTYPE current_iteration = GBaseExecutorT<processable_type>::submission_counter_;
-
-      while(!complete) {
-         // This will block if no item can currently be retrieved
-         boost::shared_ptr<processable_type> w = this->retrieve();
-
-#ifdef DEBUG
-         if(!w) {
-            glogger
-            << "In GBrokerConnector2T<processable_type>::waitForFullReturn(): Error!" << std::endl
-            << "Received empty work item" << std::endl
-            << GEXCEPTION;
-         }
-#endif /* DEBUG */
-
-         SUBMISSIONCOUNTERTYPE w_iteration = boost::get<0>(w->getCourtierId());
-
-         if(current_iteration_ == w_iteration) {
-            // Mark the position of the work item in the returnedItemPos vector and cross-check
-            std::size_t w_pos = boost::get<1>(w->getCourtierId());
-
-            if(w_pos<start || w_pos >= end) {
-               glogger
-               << "In GBrokerConnector2T<processable_type>::waitForFullReturn(): Error!" << std::endl
-               << "Received work item for position " << w_pos << " while" << std::endl
-               << "only a range [" << begin << ", " << end << ") was expected." << std::endl
-               << GEXCEPTION;
-            }
-
-            if(false == returnedItemPos.at(w_pos)) {
-               returnedItemPos.at(w_pos) = true;
-               workItems.at(w_pos) = p;
-               if(++nReturnedCurrent == expectedNumber) {
-                  complete = true;
-               }
-            } else { // This should not happen
-               glogger
-               << "In GBrokerConnector2T<processable_type>::waitForFullReturn(): Error!" << std::endl
-               << "Received work item which is marked as having already returned" << std::endl
-               << GEXCEPTION;
-            }
-         } // No else: A call to this function might have followed one which allows incomplete returns
-      }
-
-      return complete;
-   }
-
-   /***************************************************************************/
-   /**
     * Waits for all items to return or possibly until a timeout has been reached.
     */
    virtual bool waitForReturn(
       std::vector<boost::shared_ptr<processable_type> >& workItems
-      , const std::size_t& start
-      , const std::size_t& end
+      , std::vector<bool>& workItemPos
+      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
    ) {
-      bool result = false;
+      bool complete = false;
 
       switch(srm_) {
+         //------------------------------------------------------------------
+         // Wait for a given amount of time, decided upon by the function.
+         // Items that have not returned in time may return in a later iteration
          case INCOMPLETERETURN:
-            result = waitForTimeout(workItems, start, end);
+            complete = waitForTimeout(workItems, workItemPos, oldWorkItems);
             break;
 
+         //------------------------------------------------------------------
+         // Wait for a given amount of time, decided upon by the function.
+         // If not all items have returned, re-submit work items up to a
+         // predefined number of times
          case RESUBMISSIONAFTERTIMEOUT:
-            result = waitForTimeoutAndResubmit(workItems, start, end);
+            complete = waitForTimeoutAndResubmit(workItems, workItemPos, oldWorkItems);
             break;
 
+         //------------------------------------------------------------------
+         // Wait indefinitely, until all work items have returned
          case EXPECTFULLRETURN:
-            result = waitForFullReturn(workItems, start, end);
+            complete = waitForFullReturn(workItems, workItemPos, oldWorkItems);
             break;
 
+         //------------------------------------------------------------------
+         // Fallback
          default:
-            {
-               glogger
-               << "In GBrokerConnector2T<>::waitForReturn(): Error!" << std::endl
-               << "Encountered an invalid submission return mode: " << srm_ << std::endl
-               << GEXCEPTION;
-            }
-            break;
+         {
+            glogger
+            << "In GBrokerConnector2T<>::waitForReturn(): Error!" << std::endl
+            << "Encountered an invalid submission return mode: " << srm_ << std::endl
+            << GEXCEPTION;
+         }
+         break;
+         //------------------------------------------------------------------
       }
 
-      return result;
+      return complete;
    }
 
+private:
    /***************************************************************************/
    /**
     * Submits a single work item.
@@ -1297,7 +1280,190 @@ protected:
       return w;
    }
 
-private:
+   /***************************************************************************/
+   /**
+    * Retrieves an item from the broker, waiting up to a given amount of time.
+    * The call will return earlier, if an item could already be retrieved.
+    *
+    * @return The obtained processed work item
+    */
+   boost::shared_ptr<processable_type> retrieve(
+      const boost::posix_time::time_duration& timeout
+   ) {
+      // Holds the retrieved item, if any
+      boost::shared_ptr<processable_type> w;
+
+      if(CurrentBufferPort_->pop_back_processed_bool(w, timeout)) { // We have received a valid item
+         // Perform any necessary logging work
+         log(w);
+      }
+
+      return w;
+   }
+
+   /***************************************************************************/
+   /**
+    * Waits until a timeout occurs and returns, either complete (true) or
+    * incomplete (false).
+    */
+   bool waitForTimeOut(
+      std::vector<boost::shared_ptr<processable_type> >& workItems
+      , std::vector<bool>& workItemPos
+      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+   ) {
+      boost::shared_ptr<processable_type> w;
+
+      // Note the current iteration for easy reference
+      SUBMISSIONCOUNTERTYPE current_iteration = GBaseExecutorT<processable_type>::submission_counter_;
+
+      std::size_t nReturnedCurrent = 0;
+      boost::posix_time::time_duration currentElapsed;
+      boost::posix_time::time_duration maxTimeout;
+
+      // Check if this is the first iteration. If so, wait (possibly indefinitely)
+      // for the first item to return so we can estimate a suitable timeout
+      if(0 == current_iteration) { // Wait indefinitely for first item
+         w = this->retrieve();
+         if(w && this->addVerifiedWorkItemAndCheckComplete
+               (
+                  w
+                  , nReturnedCurrent
+                  , workItems
+                  , workItemPos
+                  , oldWorkItems
+               )
+         ) {
+            return true;
+         }
+         currentElapsed = boost::posix_time::microsec_clock::local_time() - iterationStartTime_;
+         maxTimeout = waitFactor_*((GBaseExecutorT<processable_type>::expectedNumber_ - 1)*currentElapsed);
+      } else { // O.k., so we are dealing with an iteration > 0
+         maxTimeout = waitFactor_*(GBaseExecutorT<processable_type>::lastAverage_*GBaseExecutorT<processable_type>::expectedNumber_);
+      }
+
+      while(true) { // Loop until a timeout is reached or all current items have returned
+         currentElapsed = boost::posix_time::microsec_clock::local_time() - iterationStartTime_;
+         if(currentElapsed > maxTimeout) {
+            return false;
+         } else {
+            remainingTime = maxTimeOut - currentElapsed;
+         }
+
+         w = retrieve(remainingTime);
+         if(w && this->addVerifiedWorkItemAndCheckComplete
+               (
+                  w
+                  , nReturnedCurrent
+                  , workItems
+                  , workItemPos
+                  , oldWorkItems
+               )
+         ) {
+            break;
+         }
+      }
+
+      return true;
+   }
+
+   /***************************************************************************/
+   /**
+    * Waits until a timeout occurs, then resubmits missing items up to a maximum
+    * number of times.
+    */
+   bool waitForTimeOutAndResubmit(
+      std::vector<boost::shared_ptr<processable_type> >& workItems
+      , std::vector<bool>& workItemPos
+      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+   ) {
+      bool complete=false;
+      std::size_t nResubmissions = 0;
+
+      do {
+         complete = waitForTimeOut(workItems, workItemPos, oldWorkItems);
+      } while(!complete && ++nResubmissions < maxResubmissions_);
+
+      return complete;
+   }
+
+   /***************************************************************************/
+   /**
+    * Waits (possibly indefinitely) until all items have returned. Note that this
+    * function may stall, if for whatever reason a work item does not return. If this
+    * is not acceptable, use either waitForTimeout() or waitForTimeoutAndResubmit()
+    * instead of this function. It is recommended to only use this function in
+    * environments that are considered safe in the sense that work items will practically
+    * always return. Local cluster environments will often fall into this category.
+    * There may not be returns from older iterations, which are attached to the end
+    * of the work item vector
+    */
+   bool waitForFullReturn(
+      std::vector<boost::shared_ptr<processable_type> >& workItems
+      , std::vector<bool>& workItemPos
+      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+   ) {
+      std::size_t nReturnedCurrent = 0;
+      while(
+            !addVerifiedWorkItemAndCheckComplete(
+               this->retrieve()
+               , nReturnedCurrent
+               , workItems
+               , workItemPos
+               , oldWorkItems
+            )
+      );
+
+      return true;
+   }
+
+   /***************************************************************************/
+   /**
+    * Adds a work item to the corresponding vectors. This function assumes that
+    * the work item is valid, i.e. points to a valid object.
+    *
+    * @return A boolean indicating whether all work items of the current iteration were received
+    */
+   bool addVerifiedWorkItemAndCheckComplete (
+      boost::shared_ptr<processable_type> w
+      , std::size_t& nReturnedCurrent
+      , std::vector<boost::shared_ptr<processable_type> >& workItems
+      , std::vector<bool>& workItemPos
+      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+   ) {
+      bool complete = false;
+      SUBMISSIONCOUNTERTYPE current_iteration = GBaseExecutorT<processable_type>::submission_counter_;
+      SUBMISSIONCOUNTERTYPE w_iteration = boost::get<0>(w->getCourtierId());
+
+      if(current_iteration_ == w_iteration) {
+         // Mark the position of the work item in the workItemPos vector and cross-check
+         std::size_t w_pos = boost::get<1>(w->getCourtierId());
+         if(w_pos >= workItems.size()) {
+            glogger
+            << "In GBrokerConnector2T<processable_type>::addVerifiedWorkItem(): Error!" << std::endl
+            << "Received work item for position " << w_pos << " while" << std::endl
+            << "only a range [0"  << ", " << workItems.size() << "[ was expected." << std::endl
+            << GEXCEPTION;
+         }
+         if(false == workItemPos.at(w_pos)) {
+            workItemPos.at(w_pos) = true;
+            workItems.at(w_pos) = p;
+            if(++nReturnedCurrent == GBaseExecutorT<processable_type>::expectedNumber_) {
+               complete = true;
+            }
+         } else { // This should not happen
+            glogger
+            << "In GBrokerConnector2T<processable_type>::addVerifiedWorkItem(): Error!" << std::endl
+            << "Received work item which is marked as having already returned" << std::endl
+            << "or which was not submitted in the first place."
+            << GEXCEPTION;
+         }
+      } else { // It could be that a previous submission did not expect a full return. Hence older items may occur
+         oldWorkItems.push_back(w);
+      }
+
+      return complete;
+   }
+
    /***************************************************************************/
    /**
     * Performs necessary logging work for each received work item, if requested
@@ -1317,28 +1483,18 @@ private:
    }
 
    /***************************************************************************/
-   /**
-    * A simple comparison operator that helps to sort individuals according to their
-    * position in the population. Smaller position numbers will end up in front.
-    */
-   struct courtierPosComp {
-      bool operator()(boost::shared_ptr<processable_type> x, boost::shared_ptr<processable_type> y) {
-         using namespace boost;
-         return boost::get<1>(x->getCourtierId()) < boost::get<1>(y->getCourtierId());
-      }
-   };
-
-   /***************************************************************************/
    // Local data
 
    submissionReturnMode srm_; ///< Indicates how (long) the object shall wait for returns
    std::size_t maxResubmissions_; ///< The maximum number of re-submissions allowed if a full return of submitted items is attempted
+   std::size_t waitFactor_; ///< A static factor to be applied to timeouts
 
    bool doLogging_; ///< Specifies whether arrival times of work items should be logged
    std::vector<boost::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, boost::posix_time::ptime> > logData_; ///< Holds the sending and receiving iteration as well as the time needed for completion
    std::vector<boost::tuple<SUBMISSIONCOUNTERTYPE, boost::posix_time::ptime> > iterationStartTimes_; ///< Holds the start times of given iterations, if logging is activated
 
    GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
+   bool brokerIsCapableOfFullReturn_; ///< Indicates whether the broker is capable of full return
 };
 
 

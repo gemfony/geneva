@@ -83,6 +83,8 @@ const double DEFAULTBROKERWAITFACTOR = DEFAULTMAXBROKERWAITFACTOR;
 const double DEFAULTBROKERWAITFACTORINCREMENT = 0.1;
 const double DEFAULTMINPERCENTAGEOFTIMEOUT = 0.7;
 
+const std::size_t DEFAULTBROKERWAITFACTOR2 = 2; // For GBrokerConnector2T
+
 /******************************************************************************/
 /**
  * A 0 time period . timedHalt will not trigger if this duration is set

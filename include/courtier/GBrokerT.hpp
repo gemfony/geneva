@@ -475,7 +475,7 @@ public:
 	}
 
   	/***************************************************************************/
-        /**
+   /**
 	 * This function checks all registered consumers to see whether all of them
 	 * are capable of full return. If so, it returns true. If at least one is 
 	 * found that is not capable of full return, it returns false.
@@ -495,6 +495,7 @@ public:
 	   for(cit=consumerCollection_.begin(); cit!=consumerCollection_.end(); ++cit) {
 	     if(!(*cit)->capableOfFullReturn()) {
 	       result = false;
+	       break; // stop the loop
 	     }
 	   }
 
