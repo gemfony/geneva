@@ -403,7 +403,7 @@ protected:
       }
 
       // Sort old work items so they can be readily used by the caller
-      std::sort(oldWorkItems.begin(), oldWorkItems.end(), courtierPosComp<processable_type>());
+      std::sort(oldWorkItems.begin(), oldWorkItems.end(), courtierPosComp());
    }
 
    /***************************************************************************/
@@ -860,6 +860,8 @@ class GBrokerConnector2T
 
    ///////////////////////////////////////////////////////////////////////
 
+   typedef boost::shared_ptr<Gem::Courtier::GBufferPortT<boost::shared_ptr<processable_type> > > GBufferPortT_ptr;
+
 public:
    /***************************************************************************/
    /**
@@ -1171,7 +1173,7 @@ public:
          << "In GBrokerConnector2T<processable_type>::getLoggingResults(): Error!" << std::endl
          << "Attempt to retrieve logging results when no logging seems to have taken place." << std::endl
          << "Returning an empty string."
-         << GWARINING;
+         << GWARNING;
 
          return std::string();
       }
@@ -1319,6 +1321,7 @@ private:
       std::size_t nReturnedCurrent = 0;
       boost::posix_time::time_duration currentElapsed;
       boost::posix_time::time_duration maxTimeout;
+      boost::posix_time::time_duration remainingTime;
 
       // Check if this is the first iteration. If so, wait (possibly indefinitely)
       // for the first item to return so we can estimate a suitable timeout
@@ -1335,18 +1338,18 @@ private:
          ) {
             return true;
          }
-         currentElapsed = boost::posix_time::microsec_clock::local_time() - iterationStartTime_;
+         currentElapsed = boost::posix_time::microsec_clock::local_time() - GBaseExecutorT<processable_type>::iterationStartTime_;
          maxTimeout = waitFactor_*((GBaseExecutorT<processable_type>::expectedNumber_ - 1)*currentElapsed);
       } else { // O.k., so we are dealing with an iteration > 0
          maxTimeout = waitFactor_*(GBaseExecutorT<processable_type>::lastAverage_*GBaseExecutorT<processable_type>::expectedNumber_);
       }
 
       while(true) { // Loop until a timeout is reached or all current items have returned
-         currentElapsed = boost::posix_time::microsec_clock::local_time() - iterationStartTime_;
+         currentElapsed = boost::posix_time::microsec_clock::local_time() - GBaseExecutorT<processable_type>::iterationStartTime_;
          if(currentElapsed > maxTimeout) {
             return false;
          } else {
-            remainingTime = maxTimeOut - currentElapsed;
+            remainingTime = maxTimeout - currentElapsed;
          }
 
          w = retrieve(remainingTime);
@@ -1434,25 +1437,25 @@ private:
       SUBMISSIONCOUNTERTYPE current_iteration = GBaseExecutorT<processable_type>::submission_counter_;
       SUBMISSIONCOUNTERTYPE w_iteration = boost::get<0>(w->getCourtierId());
 
-      if(current_iteration_ == w_iteration) {
+      if(current_iteration == w_iteration) {
          // Mark the position of the work item in the workItemPos vector and cross-check
          std::size_t w_pos = boost::get<1>(w->getCourtierId());
          if(w_pos >= workItems.size()) {
             glogger
-            << "In GBrokerConnector2T<processable_type>::addVerifiedWorkItem(): Error!" << std::endl
+            << "In GBrokerConnector2T<processable_type>::addVerifiedWorkItemAndCheckComplete(): Error!" << std::endl
             << "Received work item for position " << w_pos << " while" << std::endl
             << "only a range [0"  << ", " << workItems.size() << "[ was expected." << std::endl
             << GEXCEPTION;
          }
          if(false == workItemPos.at(w_pos)) {
             workItemPos.at(w_pos) = true;
-            workItems.at(w_pos) = p;
+            workItems.at(w_pos) = w;
             if(++nReturnedCurrent == GBaseExecutorT<processable_type>::expectedNumber_) {
                complete = true;
             }
          } else { // This should not happen
             glogger
-            << "In GBrokerConnector2T<processable_type>::addVerifiedWorkItem(): Error!" << std::endl
+            << "In GBrokerConnector2T<processable_type>::addVerifiedWorkItemAndCheckComplete(): Error!" << std::endl
             << "Received work item which is marked as having already returned" << std::endl
             << "or which was not submitted in the first place."
             << GEXCEPTION;
