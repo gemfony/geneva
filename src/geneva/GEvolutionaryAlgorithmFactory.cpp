@@ -157,7 +157,7 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
 		{
 			boost::shared_ptr<GMultiThreadedEA> p
 			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedEA>(p_base);
-			p->setNThreads(nEvaluationThreads_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
 		}
 		break;
 
@@ -166,12 +166,9 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
 			boost::shared_ptr<GBrokerEA> p
 			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerEA>(p_base);
 
-			p->setFirstTimeOut(firstTimeOut_);
-			p->setWaitFactorExtremes(minWaitFactor_, maxWaitFactor_);
-			p->doLogging(doLogging_);
-			p->setBoundlessWait(boundlessWait_);
-			p->setWaitFactorIncrement(waitFactorIncrement_);
-			p->setNThreads(nEvaluationThreads_);
+         p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
+			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
+			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
 		}
 		break;
 	}

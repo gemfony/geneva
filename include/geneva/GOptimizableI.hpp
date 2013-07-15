@@ -48,7 +48,7 @@
 #endif
 
 // Geneva headers go here
-#include "geneva/GIndividual.hpp"
+#include "geneva/GParameterSet.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -58,8 +58,7 @@ namespace Geneva {
  * This class specifies the interface that needs to be implemented by optimization
  * algorithms.
  */
-class GOptimizableI
-{
+class GOptimizableI {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -125,9 +124,9 @@ public:
 	 */
 	template <typename individual_type>
 	boost::shared_ptr<individual_type> getBestIndividual (
-		typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
+		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type> >::type* dummy = 0
 	) {
-		return getBestIndividual()->clone<individual_type>();
+		return customGetBestIndividual()->clone<individual_type>();
 	}
 
 	/***************************************************************************/
@@ -140,12 +139,12 @@ public:
 	 */
 	template <typename individual_type>
 	std::vector<boost::shared_ptr<individual_type> > getBestIndividuals(
-		typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
+		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type> >::type* dummy = 0
 	) {
 		std::vector<boost::shared_ptr<individual_type> > bestIndividuals;
 
-		std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-		std::vector<boost::shared_ptr<GIndividual> > bestBaseIndividuals = this->getBestIndividuals();
+		std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+		std::vector<boost::shared_ptr<GParameterSet> > bestBaseIndividuals = this->customGetBestIndividuals();
 
 		// Cross check that we indeed got a valid set of individuals
 		if(bestBaseIndividuals.empty()) {
@@ -175,9 +174,9 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Retrieves the best individual found */
-	virtual boost::shared_ptr<GIndividual> getBestIndividual() = 0;
+	virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() BASE = 0;
 	/** @brief Retrieves a list of the best individuals found */
-	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals() = 0;
+	virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() BASE = 0;
 };
 
 /******************************************************************************/

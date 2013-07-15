@@ -208,6 +208,14 @@ protected:
 	/** @brief Allows to act on the configuration options received from the configuration file */
 	virtual void postProcess_(boost::shared_ptr<prod_type>&) = 0;
 
+   /***************************************************************************/
+	/**
+	 * Retrieve the current value of the id_ variable
+	 */
+	std::size_t getId() const {
+	   return id_;
+	}
+
 private:
    /***************************************************************************/
    /**

@@ -60,6 +60,13 @@ namespace Courtier {
 
 /******************************************************************************/
 /**
+ * Indicates processed or unprocessed work items
+ */
+const bool GBC_UNPROCESSED = true;
+const bool GBC_PROCESSED   = false;
+
+/******************************************************************************/
+/**
  * Needed so that server and client agree about the size of the headers and commands.
  * Currently our longest command has 7 characters. As we read commands synchronously,
  * we want to keep the command length as small as possible. Note that, as the size

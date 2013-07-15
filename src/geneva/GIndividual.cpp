@@ -45,7 +45,6 @@ GIndividual::GIndividual()
 	: GMutableI()
 	, GRateableI()
 	, GObject()
-   , Gem::Courtier::GSubmissionContainerT<GIndividual>()
 	, currentFitness_(0.)
    , currentSecondaryFitness_()
 	, bestPastFitness_(0.)
@@ -69,7 +68,6 @@ GIndividual::GIndividual(const GIndividual& cp)
 	: GMutableI(cp)
 	, GRateableI(cp)
 	, GObject(cp)
-   , Gem::Courtier::GSubmissionContainerT<GIndividual>() // The data is intentionally not copied, as this class only stores a temporary parameter
 	, currentFitness_(cp.currentFitness_)
 	, currentSecondaryFitness_(cp.currentSecondaryFitness_)
 	, bestPastFitness_(cp.bestPastFitness_)
@@ -880,32 +878,6 @@ void GIndividual::customAdaptions()
 
 /******************************************************************************/
 /**
- * Performs all necessary (remote-)processing steps for this object.
- *
- * @return A boolean which indicates whether processing has led to a useful result
- */
-bool GIndividual::process(){
-	// Make sure GParameterBase objects are updated with our local random number generator
-	this->updateRNGs();
-
-	// Record the previous setting of the serverMode_ flag and make
-	// sure that re-evaluation is possible
-	bool previousServerMode=setServerMode(false);
-
-	doFitnessCalculation();
-
-	// Restore the serverMode_ flag
-	setServerMode(previousServerMode);
-
-	// Restore the local random number generators in the individuals
-	this->restoreRNGs();
-
-	// Let the audience know that we were successful
-	return true;
-}
-
-/******************************************************************************/
-/**
  * Allows to set the current iteration of the parent optimization algorithm.
  *
  * @param parentAlgIteration The current iteration of the optimization algorithm
@@ -993,34 +965,6 @@ boost::uint32_t GIndividual::getNStalls() const {
  * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
-
-/******************************************************************************/
-/**
- * Updates the random number generators contained in this object's GParameterBase-derivatives. This function
- * is filled with meaning in GParameterSet, but is empty for other GIndividual-derivatives.
- */
-void GIndividual::updateRNGs()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Restores the random number generators contained in this object's GParameterBase-derivatives. This function
- * is filled with meaning in GParameterSet, but is empty for other GIndividual-derivatives.
- */
-void GIndividual::restoreRNGs()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Checks whether all GParameterBase derivatives use local random number generators. This function
- * is filled with meaning in GParameterSet, but is empty for other GIndividual-derivatives. In this
- * dummy version the result will always be "true".
- *
- * @return A boolean indicating whether only local random number generators are used in the GParameterBase derivatives (return value will always be true)
- */
-bool GIndividual::localRNGsUsed() const {
-	return true;
-}
 
 /******************************************************************************/
 /**

@@ -182,8 +182,8 @@ int main(int argc, char **argv){
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // This EA population can hold derivatives of GOptimizationAlgorithmT<GParameterSet>
-  GMultiPopulationEAT<GParameterSet> gmp;
+  // This EA population can hold derivatives of GBaseEA
+  GMultiPopulationEAT<GBaseEA> gmp;
 
   // Now we have suitable populations and can fill them with data
 

@@ -181,7 +181,7 @@ void GGradientDescentFactory::postProcess_(boost::shared_ptr<GOptimizationAlgori
 		{
 			boost::shared_ptr<GMultiThreadedGD> p
 			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedGD>(p_base);
-			p->setNThreads(nEvaluationThreads_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
 		}
 		break;
 
@@ -190,11 +190,8 @@ void GGradientDescentFactory::postProcess_(boost::shared_ptr<GOptimizationAlgori
 			boost::shared_ptr<GBrokerGD> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerGD>(p_base);
 
-			p->setFirstTimeOut(firstTimeOut_);
-			p->setWaitFactorExtremes(minWaitFactor_, maxWaitFactor_);
-			p->doLogging(doLogging_);
-			p->setBoundlessWait(boundlessWait_);
-			p->setWaitFactorIncrement(waitFactorIncrement_);
+         p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
+         p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
 
 			// This differs from e.g. GEvolutionaryAlgorithmFactory
 			p->setMaxResubmissions(maxResubmissions_);

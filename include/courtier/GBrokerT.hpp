@@ -235,6 +235,8 @@ public:
 			readyToGoRaw_.notify_all();
 			readyToGoProcessed_.notify_all();
 		}
+
+		std::cout << "Buffer port successfully enrolled" << std::endl;
 	}
 
 	/***************************************************************************/

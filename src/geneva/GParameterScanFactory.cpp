@@ -73,7 +73,6 @@ GParameterScanFactory::GParameterScanFactory(
    , const execMode& pm
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm)
-   , maxResubmissions_(0)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -87,7 +86,6 @@ GParameterScanFactory::GParameterScanFactory(
    , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
-   , maxResubmissions_(0)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -149,15 +147,7 @@ void GParameterScanFactory::describeLocalOptions_(Gem::Common::GParserBuilder& g
 
    std::string comment;
 
-   comment = "";
-   comment += "The maximum number of allowed re-submissions in an iteration;";
-   gpb.registerFileParameter<std::size_t>(
-      "maxResubmissions"
-      , maxResubmissions_
-      , DEFAULTMAXRESUBMISSIONS
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   // no local data
 
    // Allow our parent class to describe its options
    GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::describeLocalOptions_(gpb);
@@ -181,7 +171,7 @@ void GParameterScanFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorith
       {
          boost::shared_ptr<GMultiThreadedPS> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedPS>(p_base);
-         p->setNThreads(nEvaluationThreads_);
+         p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
       }
       break;
 
@@ -190,14 +180,8 @@ void GParameterScanFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorith
          boost::shared_ptr<GBrokerPS> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerPS>(p_base);
 
-         p->setFirstTimeOut(firstTimeOut_);
-         p->setWaitFactorExtremes(minWaitFactor_, maxWaitFactor_);
-         p->doLogging(doLogging_);
-         p->setBoundlessWait(boundlessWait_);
-         p->setWaitFactorIncrement(waitFactorIncrement_);
-
-         // This differs from e.g. GEvolutionaryAlgorithmFactory
-         p->setMaxResubmissions(maxResubmissions_);
+         p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
+         p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
       }
       break;
    }

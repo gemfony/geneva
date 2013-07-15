@@ -49,6 +49,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "courtier/GSubmissionContainerT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GParameterBase.hpp"
@@ -78,8 +79,9 @@ namespace Geneva {
  * This class implements a collection of GParameterBase objects. It
  * will form the basis of many user-defined individuals.
  */
-class GParameterSet:
-	public GMutableSetT<Gem::Geneva::GParameterBase>
+class GParameterSet
+	: public GMutableSetT<Gem::Geneva::GParameterBase>
+   , public Gem::Courtier::GSubmissionContainerT<GParameterSet>
 {
 	friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
@@ -89,8 +91,9 @@ class GParameterSet:
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
-	  ar & make_nvp("GMutableSetT_GParameterBase",
-			  boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase> >(*this));
+	  ar
+	  & make_nvp("GMutableSetT_GParameterBase", boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase> >(*this))
+     & make_nvp("GSubmissionContainerT_GParameterSet", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GParameterSet> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -147,6 +150,9 @@ public:
 
 	/** @brief Emits a GParameterSet object that only has the GParameterBase objects attached to it */
 	boost::shared_ptr<GParameterSet> parameter_clone() const;
+
+   /** @brief Do the required processing for this object */
+   virtual bool process() OVERRIDE;
 
 	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
 	virtual void updateRNGs() BASE;

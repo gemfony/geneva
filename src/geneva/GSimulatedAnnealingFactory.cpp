@@ -155,7 +155,7 @@ void GSimulatedAnnealingFactory::postProcess_(boost::shared_ptr<GOptimizationAlg
       {
          boost::shared_ptr<GMultiThreadedSA> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedSA>(p_base);
-         p->setNThreads(nEvaluationThreads_);
+         p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
       }
       break;
 
@@ -164,12 +164,10 @@ void GSimulatedAnnealingFactory::postProcess_(boost::shared_ptr<GOptimizationAlg
          boost::shared_ptr<GBrokerSA> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSA>(p_base);
 
-         p->setFirstTimeOut(firstTimeOut_);
-         p->setWaitFactorExtremes(minWaitFactor_, maxWaitFactor_);
-         p->doLogging(doLogging_);
-         p->setBoundlessWait(boundlessWait_);
-         p->setWaitFactorIncrement(waitFactorIncrement_);
-         p->setNThreads(nEvaluationThreads_);
+         p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
+         p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
+         p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
+
       }
       break;
    }

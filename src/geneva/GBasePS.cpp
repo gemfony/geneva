@@ -650,7 +650,7 @@ void GBasePS::clearAllParVec() {
 
 /******************************************************************************/
 /**
- * Retrieves the best individual of the population and returns it in Gem::Geneva::GIndividual format.
+ * Retrieves the best individual of the population and returns it in Gem::Geneva::GParameterSet format.
  * Note that this protected function will return the item itself. Direct usage of this function should
  * be avoided even by derived classes. We suggest to use the function
  * GOptimizableI::getBestIndividual<individual_type>() instead, which internally uses
@@ -658,7 +658,7 @@ void GBasePS::clearAllParVec() {
  *
  * @return A shared_ptr to the best individual of the population
  */
-boost::shared_ptr<GIndividual> GBasePS::getBestIndividual(){
+boost::shared_ptr<GParameterSet> GBasePS::customGetBestIndividual(){
 #ifdef DEBUG
    if(bestIndividuals_.empty()) {
       glogger
@@ -679,8 +679,8 @@ boost::shared_ptr<GIndividual> GBasePS::getBestIndividual(){
  *
  * @return A list of the best individuals found
  */
-std::vector<boost::shared_ptr<GIndividual> > GBasePS::getBestIndividuals() {
-   std::vector<boost::shared_ptr<GIndividual> > result;
+std::vector<boost::shared_ptr<GParameterSet> > GBasePS::customGetBestIndividuals() {
+   std::vector<boost::shared_ptr<GParameterSet> > result;
    for(std::size_t ind=0; ind<bestIndividuals_.size(); ind++) {
       result.push_back(bestIndividuals_.at(ind));
    }

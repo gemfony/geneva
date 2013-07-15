@@ -42,9 +42,9 @@ namespace Geneva {
 /**
  * This will register the consumers in the global consumer store
  */
-GIndividualStandardConsumerInitializerT<Gem::Geneva::GIndividual, GIndividualTCPConsumer> GTCPCStoreRegistrant;
-GIndividualStandardConsumerInitializerT<Gem::Geneva::GIndividual, GIndividualThreadConsumer> GBTCStoreRegistrant;
-GIndividualStandardConsumerInitializerT<Gem::Geneva::GIndividual, GIndividualSerialConsumer> GSCStoreRegistrant;
+GIndividualStandardConsumerInitializerT<Gem::Geneva::GParameterSet, GIndividualTCPConsumer> GTCPCStoreRegistrant;
+GIndividualStandardConsumerInitializerT<Gem::Geneva::GParameterSet, GIndividualThreadConsumer> GBTCStoreRegistrant;
+GIndividualStandardConsumerInitializerT<Gem::Geneva::GParameterSet, GIndividualSerialConsumer> GSCStoreRegistrant;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ GIndividualStandardConsumerInitializerT<Gem::Geneva::GIndividual, GIndividualSer
  * The default constructor
  */
 GIndividualTCPConsumer::GIndividualTCPConsumer()
-   : Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual>()
+   : Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -65,7 +65,7 @@ GIndividualTCPConsumer::GIndividualTCPConsumer (
       , const std::size_t& listenerThreads
       , const Gem::Common::serializationMode& sm
 )
-   : Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual>(port, listenerThreads, sm)
+   : Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>(port, listenerThreads, sm)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -82,7 +82,7 @@ GIndividualTCPConsumer::~GIndividualTCPConsumer()
  * The default constructor
  */
 GIndividualThreadConsumer::GIndividualThreadConsumer()
-   : Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GIndividual>()
+   : Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GParameterSet>()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -99,7 +99,7 @@ GIndividualThreadConsumer::~GIndividualThreadConsumer()
  * The default constructor
  */
 GIndividualSerialConsumer::GIndividualSerialConsumer()
-   : Gem::Courtier::GSerialConsumerT<Gem::Geneva::GIndividual>()
+   : Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet>()
 { /* nothing */ }
 
 /******************************************************************************/

@@ -41,6 +41,49 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::GOptimizationMonitorT)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>)
 
 /******************************************************************************/
+
+namespace Gem {
+namespace Geneva {
+
+/******************************************************************************/
+/**
+ * Allows to perform initialization work before the optimization cycle starts. This
+ * function will usually be overloaded by derived functions, which should however,
+ * as one of their first actions, call this function. It is not recommended  to perform
+ * any "real" optimization work here, such as evaluation of individuals. Use the
+ * optimizationInit() function instead.
+ */
+template <> void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init() {
+   // Tell all individuals in this collection to update their random number generators
+   // with the one contained in GMutableSetT. Note: This will only have an effect on
+   // GParameterSet objects, as GIndividual contains an empty function.
+   GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::iterator it;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      (*it)->updateRNGs();
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to perform any remaining work after the optimization cycle has finished.
+ * This function will usually be overloaded by derived functions, which should however
+ * call this function as one of their last actions. It is not recommended  to perform
+ * any "real" optimization work here, such as evaluation of individuals. Use the
+ * optimizationFinalize() function instead.
+ */
+template <> void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::finalize() {
+   // Tell all individuals in this collection to tell all GParameterBase derivatives
+   // to again use their local generators.
+   GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::iterator it;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      (*it)->restoreRNGs();
+   }
+}
+
+/******************************************************************************/
+
+} /* namespace Geneva */
+} /* namespace Gem */

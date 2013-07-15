@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GBrokerPS::GBrokerPS() :
    GBasePS()
-   , Gem::Courtier::GBrokerConnectorT<GIndividual>()
+   , Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::RESUBMISSIONAFTERTIMEOUT)
    , storedServerMode_(true)
 { /* nothing */ }
 
@@ -55,7 +55,7 @@ GBrokerPS::GBrokerPS() :
  */
 GBrokerPS::GBrokerPS(const GBrokerPS& cp)
    : GBasePS(cp)
-   , Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
+   , Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp)
    , storedServerMode_(true)
 { /* nothing */ }
 
@@ -140,7 +140,7 @@ boost::optional<std::string> GBrokerPS::checkRelationshipWith(
 
    // Check our parent classes' data ...
    deviations.push_back(GBasePS::checkRelationshipWith(cp, e, limit, "GBrokerPS",   y_name, withMessages));
-   deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerPS", y_name, withMessages));
+   deviations.push_back(GBrokerConnector2T<GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerPS", y_name, withMessages));
 
    // no local data
 
@@ -177,7 +177,7 @@ void GBrokerPS::load_(const GObject *cp) {
 
    // Load the parent classes' data ...
    GBasePS::load_(cp);
-   Gem::Courtier::GBrokerConnectorT<GIndividual>::load(p_load);
+   Gem::Courtier::GBrokerConnector2T<GParameterSet>::load(p_load);
 
    // ... no local data. We do not load storedServerMode_, which is a temporary
 }
@@ -197,8 +197,11 @@ GObject *GBrokerPS::clone_() const {
  * Necessary initialization work before the start of the optimization
  */
 void GBrokerPS::init() {
-   // GGradientDesccent sees exactly the environment it would when called from its own class
+   // GBasePS sees exactly the environment it would when called from its own class
    GBasePS::init();
+
+   // Initialize the broker connector
+   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
 
    // We want to confine re-evaluation to defined places. However, we also want to restore
    // the original flags. We thus record the previous setting when setting the flag to true.
@@ -233,6 +236,9 @@ void GBrokerPS::finalize() {
       (*it)->setServerMode(storedServerMode_);
    }
 
+   // Finalize the broker connector
+   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
+
    // GBasePS sees exactly the environment it would when called from its own class
    GBasePS::finalize();
 }
@@ -252,7 +258,7 @@ void GBrokerPS::addConfigurationOptions (
 
    // Call our parent class'es function
    GBasePS::addConfigurationOptions(gpb, showOrigin);
-   Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+   Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 
    // no local data
 }
@@ -295,10 +301,11 @@ double GBrokerPS::doFitnessCalculation(const std::size_t& finalPos) {
    //--------------------------------------------------------------------------------
    // Submit all work items and wait for their return
    boost::tuple<std::size_t,std::size_t> range(0, this->size());
-   complete = GBrokerConnectorT<GIndividual>::workOn(
+   complete = GBrokerConnector2T<GParameterSet>::workOn(
          data
          , range
-         , EXPECTFULLRETURN
+         , oldWorkItems_
+         , false // Do not remove unprocessed item
    );
 
    if(!complete) {

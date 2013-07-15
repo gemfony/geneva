@@ -1034,7 +1034,7 @@ public:
 	 * Retrieves a parameter of a given type at the specified position
 	 */
 	boost::any getVarVal(const std::string& descr, const std::size_t& pos) {
-	   return GOptimizableI::getBestIndividual<ind_type>()->getVarVal(descr, pos);
+	   return GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, pos);
 	}
 
    /***************************************************************************/
@@ -1217,32 +1217,19 @@ protected:
 	 * any "real" optimization work here, such as evaluation of individuals. Use the
 	 * optimizationInit() function instead.
 	 */
-	virtual void init() BASE {
-		// Tell all individuals in this collection to update their random number generators
-		// with the one contained in GMutableSetT. Note: This will only have an effect on
-		// GParameterSet objects, as GIndividual contains an empty function.
-		typename GOptimizationAlgorithmT<ind_type>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->updateRNGs();
-		}
-	}
+	virtual void init() BASE
+   { /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Allows to perform any remaining work after the optimization cycle has finished.
-	 * This function will usually be overloaded by derived functions, which shoudl however
+	 * This function will usually be overloaded by derived functions, which should however
 	 * call this function as one of their last actions. It is not recommended  to perform
 	 * any "real" optimization work here, such as evaluation of individuals. Use the
 	 * optimizationFinalize() function instead.
 	 */
-	virtual void finalize() BASE {
-		// Tell all individuals in this collection to tell all GParameterBase derivatives
-		// to again use their local generators.
-		typename GOptimizationAlgorithmT<ind_type>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->restoreRNGs();
-		}
-	}
+	virtual void finalize() BASE
+   { /* nothing */ }
 
    /***************************************************************************/
    /** @brief Retrieve a personality trait object belong to this algorithm */
@@ -1931,6 +1918,11 @@ public:
    /***************************************************************************/
 };
 
+/******************************************************************************/
+// Specialization of the init and finalize functions for GParameterSet
+template <> void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init();
+template <> void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::finalize();
+
 } /* namespace Geneva */
 } /* namespace Gem */
 
@@ -1951,7 +1943,7 @@ namespace boost {
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::GOptimizationMonitorT)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT)
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>)
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>)
 
 /******************************************************************************/
 

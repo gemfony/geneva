@@ -52,7 +52,7 @@
 #include "courtier/GAsioTCPConsumerT.hpp"
 #include "courtier/GBoostThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GParameterSet.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 
 namespace Gem {
@@ -62,10 +62,10 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A consumer used for network communication, using GIndividual-derivatives
+ * A consumer used for network communication, using GParameterSet-derivatives
  */
 class GIndividualTCPConsumer
-   : public Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GIndividual>
+   : public Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
    /** @brief The default constructor */
@@ -84,10 +84,10 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A consumer used for multi-threaded processing, using GIndividual-derivatives
+ * A consumer used for multi-threaded processing, using GParameterSet-derivatives
  */
 class GIndividualThreadConsumer
-   : public Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GIndividual>
+   : public Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
    /** @brief The default constructor */
@@ -101,14 +101,14 @@ public:
 /******************************************************************************/
 /**
  * A consumer used for serial execution (mostly needed for debugging purposes).
- * Its payload are GIndividual-derivatives.
+ * Its payload are GParameterSet-derivatives.
  */
 class GIndividualSerialConsumer
-   : public Gem::Courtier::GSerialConsumerT<Gem::Geneva::GIndividual>
+   : public Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
    /** @brief The default constructor */
-      GIndividualSerialConsumer();
+   GIndividualSerialConsumer();
    /** @brief The desstructor */
    virtual ~GIndividualSerialConsumer();
 };

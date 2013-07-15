@@ -279,9 +279,9 @@ protected:
 	virtual GObject *clone_() const OVERRIDE;
 
 	/** @brief Retrieves the best individual found */
-	virtual boost::shared_ptr<GIndividual> getBestIndividual() OVERRIDE;
+	virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE;
 	/** @brief Retrieves a list of the best individuals found */
-	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals() OVERRIDE;
+	virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE;
 
 private:
    /***************************************************************************/
@@ -352,7 +352,7 @@ private:
    // Local copies of the factory and broker pointers. Needed so we are
    // sure the corresponding objects still exist when the destructor is called.
    boost::shared_ptr<Gem::Hap::GRandomFactory> grf_;
-   boost::shared_ptr<Gem::Courtier::GBrokerT<GIndividual> > gbr_;
+   boost::shared_ptr<Gem::Courtier::GBrokerT<GParameterSet> > gbr_;
 };
 
 /******************************************************************************/

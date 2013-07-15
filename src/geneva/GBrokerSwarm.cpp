@@ -46,7 +46,7 @@ namespace Geneva {
  */
 GBrokerSwarm::GBrokerSwarm()
 	: GBaseSwarm()
-	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
+	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
 	, storedServerMode_(true)
 { /* nothing */ }
 
@@ -63,7 +63,7 @@ GBrokerSwarm::GBrokerSwarm(
       , const std::size_t& nNeighborhoodMembers
 )
 	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
-	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>()
+	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
    , storedServerMode_(true)
 { /* nothing */ }
 
@@ -75,7 +75,7 @@ GBrokerSwarm::GBrokerSwarm(
  */
 GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm& cp)
 	: GBaseSwarm(cp)
-    , Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>(cp)
+    , Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(cp)
     , storedServerMode_(true)
 { /* nothing */ }
 
@@ -111,7 +111,7 @@ void GBrokerSwarm::load_(const GObject * cp) {
 
 	// Load the parent classes' data ...
 	GBaseSwarm::load_(cp);
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>::load(p_load);
+	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::load(p_load);
 
 	// no local data
 }
@@ -184,7 +184,7 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GBaseSwarm::checkRelationshipWith(cp, e, limit, "GBrokerSwarm", y_name, withMessages));
-	deviations.push_back(Gem::Courtier::GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerSwarm", y_name, withMessages));
+	deviations.push_back(Gem::Courtier::GBrokerConnector2T<GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerSwarm", y_name, withMessages));
 
 	// no local data
 
@@ -206,6 +206,9 @@ std::string GBrokerSwarm::name() const {
 void GBrokerSwarm::init() {
 	// GBaseSwarm sees exactly the environment it would when called from its own class
 	GBaseSwarm::init();
+
+   // Initialize the broker connector
+   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -240,6 +243,9 @@ void GBrokerSwarm::finalize() {
 		(*it)->setServerMode(storedServerMode_);
 	}
 
+   // Finalize the broker connector
+   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
+
 	// GBaseSwarm sees exactly the environment it would when called from its own class
 	GBaseSwarm::finalize();
 }
@@ -268,7 +274,7 @@ void GBrokerSwarm::addConfigurationOptions (
 ) {
 	// Call our parent class'es function
 	GBaseSwarm::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 
 	// no local data
 }
@@ -356,14 +362,26 @@ void GBrokerSwarm::updateFitness() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
-			data
-			// , EXPECTFULLRETURN
-			, INCOMPLETERETURN
+	Gem::Courtier::GBrokerConnector2T<GParameterSet>::workOn(
+      data
+      , oldWorkItems_
+      , true // Remove unprocessed items
 	);
 
-	// Update the personal best of all individuals. Also update the iteration
-	// of older individuals (they will keep their old neighborhood id)
+   // Update the iteration of older individuals (they will keep their old neighborhood id)
+	// and attach them to the data vector
+   std::vector<boost::shared_ptr<GParameterSet> >::iterator old_it;
+   for(old_it=oldWorkItems_.begin(); old_it!=oldWorkItems_.end(); ++old_it) {
+      (*old_it)->setAssignedIteration(iteration);
+
+      this->push_back(*old_it);
+   }
+   oldWorkItems_.clear();
+
+   // Sort according to the individuals' neighborhoods
+   sort(data.begin(), data.end(), indNeighborhoodComp());
+
+	// Update the personal best of all individuals.
 	for(it=this->begin(); it!=this->end(); ++it) {
 		// Update the personal best
 		if(inFirstIteration()) {
@@ -371,14 +389,7 @@ void GBrokerSwarm::updateFitness() {
 		} else {
 			updatePersonalBestIfBetter(*it);
 		}
-
-		if((*it)->getAssignedIteration() != iteration) {
-			(*it)->setAssignedIteration(iteration);
-		}
 	}
-
-	// Sort according to the individuals' neighborhoods
-	sort(data.begin(), data.end(), indNeighborhoodComp());
 
 	// Now update the number of items in each neighborhood: First reset the number of members of each neighborhood
 	Gem::Common::assignVecConst(nNeighborhoodMembers_, (std::size_t)0);
@@ -387,7 +398,7 @@ void GBrokerSwarm::updateFitness() {
 		nNeighborhoodMembers_[(*it)->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood()] += 1;
 	}
 
-	// The population will be fixed in the overloaded GBrokerSwarm::adjustNeighborhoods() function
+	// The population will be fixed in the GBrokerSwarm::adjustNeighborhoods() function
 }
 
 /******************************************************************************/

@@ -68,22 +68,25 @@ const sortingModeMP DEFAULTSMODEMP=MUCOMMANU_SINGLEEVAL_MP;
 
 /******************************************************************************/
 /**
- * This is a specialization of the GBaseParChildT<ind_type> class, where GOptimizationAlgorithmT<ind_type>
- * represents an optimization algorithm. It can perform meta-optimization in
- * multi-threaded mode. The class is not meant to be serialized and hence does not
- * contain any serialization code.
+ * This is a specialization of the GBaseParChildT<T> class, where T is represented by
+ * a GOptimizationAlgorithmT<ind_type>-derivative (i.e. an an optimization algorithm.
+ * It can perform meta-optimization in multi-threaded mode. The class is not meant to
+ * be serialized and hence does not contain any serialization code.
  */
-template <typename ind_type>
+template <typename oa_type>
 class GMultiPopulationEAT
-   :public GBaseParChildT<GOptimizationAlgorithmT<ind_type> >
+   :public GBaseParChildT<oa_type>
 {
+   BOOST_MPL_ASSERT((boost::is_base_of<Gem::Geneva::GOptimizableI , oa_type>));
+   typedef typename oa_type::individual_type ind_type;
+
 public:
    /***************************************************************************/
    /**
     * The default constructor.
     */
    GMultiPopulationEAT()
-      : GBaseParChildT<GOptimizationAlgorithmT<ind_type> >()
+      : GBaseParChildT<oa_type>()
       , smodeMP_(DEFAULTSMODEMP)
       , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
       , storedServerMode_(true)
@@ -102,7 +105,7 @@ public:
     * @param cp Another GMultiPopulationEAT object
     */
    GMultiPopulationEAT(const GMultiPopulationEAT& cp)
-      : GBaseParChildT<GOptimizationAlgorithmT<ind_type> >(cp)
+      : GBaseParChildT<oa_type>(cp)
       , smodeMP_(cp.smodeMP_)
       , nThreads_(cp.nThreads_)
       , storedServerMode_(true)
@@ -125,8 +128,8 @@ public:
     * @param cp Another GMultiPopulationEAT object
     * @return A constant reference to this object
     */
-   const GMultiPopulationEAT<ind_type>& operator=(const GMultiPopulationEAT<ind_type>& cp) {
-      GMultiPopulationEAT::load_(&cp);
+   const GMultiPopulationEAT<oa_type>& operator=(const GMultiPopulationEAT<oa_type>& cp) {
+      GMultiPopulationEAT<oa_type>::load_(&cp);
       return *this;
    }
 
@@ -137,10 +140,10 @@ public:
     * @param  cp A constant reference to another GMultiPopulationEAT object
     * @return A boolean indicating whether both objects are equal
     */
-   bool operator==(const GMultiPopulationEAT<ind_type>& cp) const {
+   bool operator==(const GMultiPopulationEAT<oa_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiPopulationEAT::operator==","cp", CE_SILENT);
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiPopulationEAT<oa_type>::operator==","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -150,10 +153,10 @@ public:
     * @param  cp A constant reference to another GMultiPopulationEAT object
     * @return A boolean indicating whether both objects are inequal
     */
-   bool operator!=(const GMultiPopulationEAT<ind_type>& cp) const {
+   bool operator!=(const GMultiPopulationEAT<oa_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiPopulationEAT::operator!=","cp", CE_SILENT);
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiPopulationEAT<oa_type>::operator!=","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -180,19 +183,19 @@ public:
        using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GParamterBase reference
-      const GMultiPopulationEAT<ind_type> *p_load = GObject::gobject_conversion<GMultiPopulationEAT<ind_type> >(&cp);
+      const GMultiPopulationEAT<oa_type> *p_load = GObject::gobject_conversion<GMultiPopulationEAT<oa_type> >(&cp);
 
       // Will hold possible deviations from the expectation, including explanations
       std::vector<boost::optional<std::string> > deviations;
 
       // Check our parent class'es data ...
-      deviations.push_back(GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::checkRelationshipWith(cp, e, limit, "GMultiPopulationEAT<ind_type>", y_name, withMessages));
+      deviations.push_back(GBaseParChildT<oa_type>::checkRelationshipWith(cp, e, limit, "GMultiPopulationEAT<oa_type>", y_name, withMessages));
 
       // ... and then our local data
       deviations.push_back(checkExpectation(withMessages, "GMultiPopulationEAT<ind_type>", smodeMP_, p_load->smodeMP_, "smodeMP_", "p_load->smodeMP_", e , limit));
       deviations.push_back(checkExpectation(withMessages, "GMultiPopulationEAT<ind_type>", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
 
-      return evaluateDiscrepancies("GMultiPopulationEAT<ind_type>", caller, deviations, e);
+      return evaluateDiscrepancies("GMultiPopulationEAT<oa_type>", caller, deviations, e);
    }
 
    /***************************************************************************/
@@ -257,7 +260,7 @@ public:
       std::string comment2;
 
       // Call our parent class'es function
-      GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::addConfigurationOptions(gpb, showOrigin);
+      GBaseParChildT<oa_type>::addConfigurationOptions(gpb, showOrigin);
 
       comment = ""; // Reset the comment string
       comment += "The sorting scheme. Options;";
@@ -271,7 +274,7 @@ public:
          "sortingMethod" // The name of the variable
          , DEFAULTSMODEMP // The default value
          , boost::bind(
-            &GMultiPopulationEAT<ind_type>::setSortingScheme
+            &GMultiPopulationEAT<oa_type>::setSortingScheme
             , this
             , _1
            )
@@ -287,7 +290,7 @@ public:
          "nEvaluationThreads" // The name of the variable
          , 0 // The default value
          , boost::bind(
-            &GMultiPopulationEAT<ind_type>::setNThreads
+            &GMultiPopulationEAT<oa_type>::setNThreads
             , this
             , _1
            )
@@ -329,7 +332,7 @@ public:
     * Emits a name for this class / object
     */
    virtual std::string name() const OVERRIDE {
-      return std::string("GMultiPopulationEAT");
+      return std::string("GMultiPopulationEAT<oa_type>");
    }
 
 protected:
@@ -340,10 +343,10 @@ protected:
     * @param cp A pointer to another GMultiPopulationEAT object, camouflaged as a GObject
     */
    virtual void load_(const GObject * cp) OVERRIDE {
-      const GMultiPopulationEAT<ind_type> *p_load = GObject::gobject_conversion<GMultiPopulationEAT<ind_type> >(cp);
+      const GMultiPopulationEAT<oa_type> *p_load = GObject::gobject_conversion<GMultiPopulationEAT<oa_type> >(cp);
 
       // First load the parent class'es data ...
-      GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::load_(cp);
+      GBaseParChildT<oa_type>::load_(cp);
 
       // ... and then our own data
       smodeMP_ = p_load->smodeMP_;
@@ -357,7 +360,48 @@ protected:
     * @return A deep clone of this object
     */
    virtual GObject *clone_() const OVERRIDE {
-      return new GMultiPopulationEAT<ind_type>(*this);
+      return new GMultiPopulationEAT<oa_type>(*this);
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the  best individual found. Note that this protected function will return the item itself.
+    * Direct usage of this function should be avoided even by derived classes. We suggest to use the
+    * function GOptimizableI::getBestIndividual<ind_type>() instead, which internally uses
+    * this function and returns copies of the best individual, converted to the desired target type.
+    *
+    * @return The best individual found
+    */
+   virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE {
+#ifdef DEBUG
+         if(this->empty()) {
+            glogger
+            << "In GMultiPopulationEAT<oa_type>::customGetBestIndividual() :" << std::endl
+            << "Tried to access item at position 0 even though population is empty." << std::endl
+            << GEXCEPTION;
+         }
+#endif /* DEBUG */
+
+      return this->at(0)->GOptimizableI::getBestIndividual<GParameterSet>();
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves a list of the best individuals found.
+    *
+    * @return A list of the best individuals found
+    */
+   virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE {
+      // Some error checking
+      if(this->empty()) {
+         glogger
+         << "In GMultiPopulationEAT<oa_type>::customGetBestIndividuals() :" << std::endl
+         << "Population is empty." << std::endl
+         << GEXCEPTION;
+      }
+
+
+      return this->at(0)->GOptimizableI::getBestIndividuals<GParameterSet>();
    }
 
    /***************************************************************************/
@@ -365,14 +409,15 @@ protected:
     * Some error checks related to population sizes
     */
    virtual void populationSanityChecks() const OVERRIDE {
-      std::size_t nP = GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::getNParents();
+      std::size_t nP      = GBaseParChildT<oa_type>::getNParents();
+      std::size_t popSize = GBaseParChildT<oa_type>::getPopulationSize();
 
       // First check that we have been given a suitable value for the number of parents.
       // Note that a number of checks (e.g. population size != 0) has already been done
       // in the parent class.
       if(0 == nP) {
          glogger
-         << "In GMultiPopulationEAT<ind_type>::populationSanityChecks(): Error!" << std::endl
+         << "In GMultiPopulationEAT<oa_type>::populationSanityChecks(): Error!" << std::endl
          << "Number of parents is set to 0"
          << GEXCEPTION;
       }
@@ -382,14 +427,13 @@ protected:
       // number of parents. MUNU1PRETAIN has the same requirements as MUCOMMANU_SINGLEEVAL and SA_SINGLEEVAL,
       // as it is theoretically possible that all children are better than the former
       // parents, so that the first parent individual will be replaced.
-      std::size_t popSize = GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::getPopulationSize();
       if(
             ((smodeMP_==MUCOMMANU_SINGLEEVAL_MP || smodeMP_==MUNU1PRETAIN_SINGLEEVAL_MP) && (popSize < 2*nP)) ||
             (smodeMP_==MUPLUSNU_SINGLEEVAL_MP && popSize<=nP)
       ){
          std::ostringstream error;
          error
-         << "In GMultiPopulationEAT<ind_type>::populationSanityChecks() :" << std::endl
+         << "In GMultiPopulationEAT<oa_type>::populationSanityChecks() :" << std::endl
          << "Requested size of population is too small :" << popSize << " " << nP << std::endl
          << "Sorting scheme is ";
 
@@ -418,10 +462,10 @@ protected:
     */
    virtual void adaptChildren() OVERRIDE {
       boost::tuple<std::size_t,std::size_t> range = this->getAdaptionRange();
-      typename std::vector<boost::shared_ptr<GOptimizationAlgorithmT<ind_type> > >::iterator it;
+      typename std::vector<boost::shared_ptr<oa_type> >::iterator it;
 
       for(it=(this->data).begin()+boost::get<0>(range); it!=(this->data).begin()+boost::get<1>(range); ++it) {
-         tp_->schedule(boost::function<void()>(boost::bind(&GOptimizationAlgorithmT<ind_type>::adapt, *it)));
+         tp_->schedule(boost::function<void()>(boost::bind(&oa_type::adapt, *it)));
       }
 
       // Wait for all threads in the pool to complete their work
@@ -434,7 +478,7 @@ protected:
     */
    virtual void evaluateChildren() OVERRIDE {
       boost::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
-      typename std::vector<boost::shared_ptr<GOptimizationAlgorithmT<ind_type> > >::iterator it;
+      typename std::vector<boost::shared_ptr<oa_type> >::iterator it;
 
 #ifdef DEBUG
       // There should be no situation in which a "clean" individual is submitted
@@ -442,7 +486,7 @@ protected:
       for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
          if(!this->at(i)->isDirty()) {
             glogger
-            << "In GMultiPopulationEAT<ind_type>::evaluateChildren(): Error!" << std::endl
+            << "In GMultiPopulationEAT<oa_type>::evaluateChildren(): Error!" << std::endl
             << "Tried to evaluate \"clean\" children." << std::endl
             << GEXCEPTION;
          }
@@ -452,7 +496,7 @@ protected:
       // Make evaluation possible and initiate the worker threads
       for(it=(this->data).begin() + boost::get<0>(range); it!=(this->data).begin() + boost::get<1>(range); ++it) {
          (*it)->setServerMode(false);
-         tp_->schedule(boost::function<double()>(boost::bind(&GOptimizationAlgorithmT<ind_type>::doFitnessCalculation, *it)));
+         tp_->schedule(boost::function<double()>(boost::bind(&oa_type::doFitnessCalculation, *it)));
       }
 
       // Wait for all threads in the pool to complete their work
@@ -476,7 +520,7 @@ protected:
       // function is called
       if(((this->data).size()-this->getNParents()) < this->getDefaultNChildren()){
          glogger
-         << "In GMultiPopulationEAT<ind_type>::select():" << std::endl
+         << "In GMultiPopulationEAT<oa_type>::select():" << std::endl
          << "Too few children. Got " << (this->data).size()-this->getNParents() << "," << std::endl
          << "but was expecting at least " << this->getDefaultNChildren() << std::endl
          << GEXCEPTION;
@@ -504,7 +548,7 @@ protected:
       default:
       {
          glogger
-         << "In GMultiPopulationEAT<ind_type>::selectBest(): Error" << std::endl
+         << "In GMultiPopulationEAT<oa_type>::selectBest(): Error" << std::endl
          << "Incorrect sorting scheme requested: " << smodeMP_ << std::endl
          << GEXCEPTION;
       }
@@ -524,7 +568,7 @@ protected:
     * @return The range inside which evaluation should take place
     */
    virtual boost::tuple<std::size_t,std::size_t> getEvaluationRange() const OVERRIDE {
-      std::size_t nParents = GMultiPopulationEAT<ind_type>::getNParents();
+      std::size_t nParents = GMultiPopulationEAT<oa_type>::getNParents();
       std::size_t first=nParents, last=(this->data).size();
 
       if(this->inFirstIteration()) {
@@ -543,7 +587,7 @@ protected:
          default:
          {
             glogger
-            << "In GMultiPopulationEAT<ind_type>::getEvaluationRange(): Error" << std::endl
+            << "In GMultiPopulationEAT<oa_type>::getEvaluationRange(): Error" << std::endl
             << "Incorrect sorting scheme requested: " << getSortingScheme() << std::endl
             << GEXCEPTION;
          }
@@ -557,12 +601,12 @@ protected:
    /***************************************************************************/
    /**
     * The function checks that the population size meets the requirements and does some
-    * tagging. It is called from within GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::optimize(), before the
+    * tagging. It is called from within GOptimizationAlgorithmT<T>::optimize(), before the
     * actual optimization cycle starts.
     */
    virtual void init() OVERRIDE {
       // To be performed before any other action
-      GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::init();
+      GBaseParChildT<oa_type>::init();
    }
 
 
@@ -572,7 +616,7 @@ protected:
     */
    virtual void finalize() OVERRIDE {
       // Last action
-      GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::finalize();
+      GBaseParChildT<oa_type>::finalize();
    }
 
 
@@ -608,12 +652,12 @@ public:
       bool result = false;
 
       // Call the parent class'es function
-      if(GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::modify_GUnitTests()) result = true;
+      if(GBaseParChildT<oa_type>::modify_GUnitTests()) result = true;
 
       return result;
 
    #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GMultiPopulationEAT<ind_type>::modify_GUnitTests", "GEM_TESTING");
+      condnotset("GMultiPopulationEAT<oa_type>::modify_GUnitTests", "GEM_TESTING");
       return false;
    #endif /* GEM_TESTING */
    }
@@ -625,13 +669,13 @@ public:
    virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       // Call the parent class'es function
-      GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::specificTestsNoFailureExpected_GUnitTests();
+      GBaseParChildT<oa_type>::specificTestsNoFailureExpected_GUnitTests();
 
       //------------------------------------------------------------------------------
       //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GMultiPopulationEAT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+      condnotset("GMultiPopulationEAT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
    }
 
@@ -642,10 +686,10 @@ public:
    virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       // Call the parent class'es function
-      GBaseParChildT<GOptimizationAlgorithmT<ind_type> >::specificTestsFailuresExpected_GUnitTests();
+      GBaseParChildT<oa_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */
-      condnotset("GMultiPopulationEAT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+      condnotset("GMultiPopulationEAT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
    }
 };

@@ -73,14 +73,14 @@ const boost::uint16_t FACT_DEF_NEVALUATIONTHREADS=0;
 /**
  * This class is a specialization of the GFactoryT<> class for optimization algorithms.
  */
-template <typename prod_type>
+template <typename optalg_type>
 class GOptimizationAlgorithmFactoryT
-	: public Gem::Common::GFactoryT<prod_type>
+	: public Gem::Common::GFactoryT<optalg_type>
 {
 public:
    /***************************************************************************/
 	// Let the audience know what type of algorithm will be produced
-	typedef prod_type pType;
+	typedef optalg_type pType;
 
    /***************************************************************************/
 	/**
@@ -89,14 +89,11 @@ public:
    explicit GOptimizationAlgorithmFactoryT (
          const std::string& configFile
    )
-      : Gem::Common::GFactoryT<prod_type>(configFile)
+      : Gem::Common::GFactoryT<optalg_type>(configFile)
       , pm_(DEFAULTEXECMODE)
       , nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-      , minWaitFactor_(Gem::Courtier::DEFAULTMINBROKERWAITFACTOR)
-      , maxWaitFactor_(Gem::Courtier::DEFAULTMAXBROKERWAITFACTOR)
+      , waitFactor_(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
       , doLogging_(false)
-      , boundlessWait_(false)
-      , waitFactorIncrement_(Gem::Courtier::DEFAULTBROKERWAITFACTORINCREMENT)
       , contentCreatorPtr_()
    { /* nothing */ }
 
@@ -109,14 +106,11 @@ public:
 	      const std::string& configFile
 	      , const execMode& pm
 	)
-		: Gem::Common::GFactoryT<prod_type>(configFile)
+		: Gem::Common::GFactoryT<optalg_type>(configFile)
 		, pm_(pm)
 		, nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-		, minWaitFactor_(Gem::Courtier::DEFAULTMINBROKERWAITFACTOR)
-		, maxWaitFactor_(Gem::Courtier::DEFAULTMAXBROKERWAITFACTOR)
-      , doLogging_(false)
-      , boundlessWait_(false)
-		, waitFactorIncrement_(Gem::Courtier::DEFAULTBROKERWAITFACTORINCREMENT)
+		, waitFactor_(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
+		, doLogging_(false)
 		, contentCreatorPtr_()
 	{ /* nothing */ }
 
@@ -127,16 +121,13 @@ public:
 	GOptimizationAlgorithmFactoryT (
 	      const std::string& configFile
 	      , const execMode& pm
-	      , boost::shared_ptr<Gem::Common::GFactoryT<typename prod_type::individual_type> > contentCreatorPtr
+	      , boost::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > contentCreatorPtr
 	)
-	  : Gem::Common::GFactoryT<prod_type>(configFile)
+	  : Gem::Common::GFactoryT<optalg_type>(configFile)
 	  , pm_(pm)
 	  , nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-	  , minWaitFactor_(Gem::Courtier::DEFAULTMINBROKERWAITFACTOR)
-	  , maxWaitFactor_(Gem::Courtier::DEFAULTMAXBROKERWAITFACTOR)
+	  , waitFactor_(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
 	  , doLogging_(false)
-	  , boundlessWait_(false)
-	  , waitFactorIncrement_(Gem::Courtier::DEFAULTBROKERWAITFACTORINCREMENT)
 	  , contentCreatorPtr_(contentCreatorPtr)
 	{ /* nothing */ }
 
@@ -154,14 +145,14 @@ public:
     *
     * @return An object of the desired algorithm type
     */
-   virtual boost::shared_ptr<prod_type> get() OVERRIDE {
+   virtual boost::shared_ptr<optalg_type> get() OVERRIDE {
       // Retrieve a work item using the methods implemented in our parent class
-      boost::shared_ptr<prod_type> p_alg = Gem::Common::GFactoryT<prod_type>::get();
+      boost::shared_ptr<optalg_type> p_alg = Gem::Common::GFactoryT<optalg_type>::get();
 
       // If we have been given a factory function for individuals, fill the object with data
       if(contentCreatorPtr_) { // Has a content creation object been registered ? If so, add individuals to the population
          for(std::size_t ind=0; ind<p_alg->getDefaultPopulationSize(); ind++) {
-            boost::shared_ptr<typename prod_type::individual_type> p_ind = (*contentCreatorPtr_)();
+            boost::shared_ptr<typename optalg_type::individual_type> p_ind = (*contentCreatorPtr_)();
             if(!p_ind) { // No valid item received, the factory has run empty
                break;
             } else {
@@ -173,8 +164,8 @@ public:
       // Has a custom optimization monitor been registered with the global store ?
       // If so, add a clone to the algorithm
       if(GOAMonitorStore->exists(this->getMnemomic())) {
-         boost::shared_ptr<typename prod_type::GOptimizationMonitorT> p_mon =
-               GOAMonitorStore->get(this->getMnemomic())->GObject::template clone<typename prod_type::GOptimizationMonitorT>();
+         boost::shared_ptr<typename optalg_type::GOptimizationMonitorT> p_mon =
+               GOAMonitorStore->get(this->getMnemomic())->GObject::template clone<typename optalg_type::GOptimizationMonitorT>();
 
          if(pluggableInfoFunction_) {
             p_mon->registerPluggableOM(pluggableInfoFunction_);
@@ -196,13 +187,13 @@ public:
     * @param pm A user-defined parallelization mode
     * @return An object of the desired algorithm type
     */
-   virtual boost::shared_ptr<prod_type> get(execMode pm) BASE {
+   virtual boost::shared_ptr<optalg_type> get(execMode pm) BASE {
       // Store the previous value
       execMode previous_pm = pm_;
       // Set the parallelization mode
       pm_ = pm;
       // Retrieve an item of the desired type
-      boost::shared_ptr<prod_type> result = this->get();
+      boost::shared_ptr<optalg_type> result = this->get();
       // Reset the parallelization mode to its original value
       pm_ = previous_pm;
 
@@ -219,7 +210,7 @@ public:
     */
    template <typename target_type>
    boost::shared_ptr<target_type> get() {
-      return Gem::Common::convertSmartPointer<prod_type, target_type>(this->get());
+      return Gem::Common::convertSmartPointer<optalg_type, target_type>(this->get());
    }
 
    /***************************************************************************/
@@ -237,12 +228,30 @@ public:
       // Set the parallelization mode
       pm_ = pm;
       // Retrieve a work item of the production type
-      boost::shared_ptr<prod_type> result = this->get();
+      boost::shared_ptr<optalg_type> result = this->get();
       // Reset the parallelization mode to its original value
       pm_ = previous_pm;
 
       // Return a converted pointer
-      return Gem::Common::convertSmartPointer<prod_type, target_type>(result);
+      return Gem::Common::convertSmartPointer<optalg_type, target_type>(result);
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to set the wait factor to be applied to timeouts. Note that a wait
+    * factor of 0 will be silently amended and become 1.
+    */
+   void setWaitFactor(std::size_t waitFactor) {
+      if(0==waitFactor) waitFactor_=1;
+      else waitFactor_ = waitFactor;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the wait factor variable
+    */
+   std::size_t getWaitFactor() const {
+      return waitFactor_;
    }
 
    /***************************************************************************/
@@ -250,7 +259,7 @@ public:
     * Allows to register a content creator
     */
    void registerContentCreator(
-         boost::shared_ptr<Gem::Common::GFactoryT<typename prod_type::individual_type> > cc_ptr
+         boost::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > cc_ptr
    ) {
       if(!cc_ptr) {
          glogger
@@ -266,7 +275,7 @@ public:
    /**
     * Allows to register a pluggable optimization monitor
     */
-   void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename prod_type::individual_type> * const)> pluggableInfoFunction) {
+   void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)> pluggableInfoFunction) {
       if(pluggableInfoFunction) {
          pluggableInfoFunction_ = pluggableInfoFunction;
       } else {
@@ -281,9 +290,8 @@ public:
     * Allows to reset the local pluggable optimization monitor
     */
    void resetPluggableOM() {
-      pluggableInfoFunction_= boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename prod_type::individual_type> * const)>();
+      pluggableInfoFunction_= boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)>();
    }
-
 
    /***************************************************************************/
    /**
@@ -316,67 +324,6 @@ protected:
 			, comment
 		);
 
-
-		// add local data
-		comment = ""; // Reset the comment string
-		comment += "The timeout for the retrieval of an;";
-		comment += "iteration's first timeout;";
-		{
-			using namespace boost::posix_time;
-			time_duration td(duration_from_string(DEFAULTBROKERFIRSTTIMEOUT));
-			gpb.registerFileParameter<boost::posix_time::time_duration>(
-				"firstTimeOut" // The name of the variable
-				, firstTimeOut_
-				, td // The default value
-				, Gem::Common::VAR_IS_ESSENTIAL
-				, comment
-			);
-		}
-
-		comment = ""; // Reset the comment string
-		comment += "Indicates that the broker connector should wait endlessly;";
-		comment += "for further arrivals of individuals in an iteration;";
-		gpb.registerFileParameter<bool>(
-			"boundlessWait" // The name of the variable
-			, boundlessWait_
-			, false // The default value
-			, Gem::Common::VAR_IS_ESSENTIAL
-			, comment
-		);
-
-		comment = ""; // Reset the first comment string
-		comment += "The lower boundary for the adaption;";
-		comment += "of the waitFactor variable;";
-		gpb.registerFileParameter<double>(
-			"minWaitFactor" // The name of the first variable
-			, minWaitFactor_
-			, DEFAULTMINBROKERWAITFACTOR // The first default value
-			, Gem::Common::VAR_IS_ESSENTIAL
-			, comment
-		);
-
-		comment = ""; // Reset the second comment string
-		comment += "The upper boundary for the adaption;";
-		comment += "of the waitFactor variable;";
-		gpb.registerFileParameter<double>(
-			"maxWaitFactor" // The name of the second variable
-			, maxWaitFactor_
-			, DEFAULTMAXBROKERWAITFACTOR // The second default value
-			, Gem::Common::VAR_IS_ESSENTIAL
-			, comment
-		);
-
-		comment =  ""; // 	Reset the comment string
-		comment += "Specifies the amount by which the wait factor gets;";
-		comment += "incremented or decremented during automatic adaption;";
-		gpb.registerFileParameter<double>(
-			"waitFactorIncrement" // The name of the variable
-			, waitFactorIncrement_
-			, DEFAULTBROKERWAITFACTORINCREMENT // The default value
-			, Gem::Common::VAR_IS_ESSENTIAL
-			, comment
-		);
-
 		comment = ""; // Reset the comment string
 		comment += "Activates (1) or de-activates (0) logging;";
 		comment += "iteration's first timeout;";
@@ -387,27 +334,34 @@ protected:
 			, Gem::Common::VAR_IS_SECONDARY
 			, comment
 		);
+
+      // add local data
+      comment = ""; // Reset the comment string
+      comment += "A static factor to be applied to timeouts";
+      gpb.registerFileParameter<std::size_t>(
+         "waitFactor" // The name of the variable
+         , waitFactor_
+         , EXPECTFULLRETURN // The default value
+         , Gem::Common::VAR_IS_ESSENTIAL
+         , comment
+      );
 	}
 
 	/***************************************************************************/
 	/** @brief Creates individuals of this type */
-	virtual boost::shared_ptr<prod_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
+	virtual boost::shared_ptr<optalg_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(boost::shared_ptr<prod_type>&) = 0;
+	virtual void postProcess_(boost::shared_ptr<optalg_type>&) = 0;
 
 	execMode pm_; ///< Holds information about the desired parallelization mode
 
 	boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
 
-	boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
-	double minWaitFactor_; ///< The minimum allowed wait factor
-	double maxWaitFactor_; ///< The maximum allowed wait factor
 	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
-	bool boundlessWait_; ///< Indicates whether the retrieveItem call should wait for an unlimited amount of time
-	double waitFactorIncrement_; ///< The amount by which the waitFactor_ may be incremented or decremented
+   std::size_t waitFactor_; ///< A static factor to be applied to timeouts
 
-	boost::shared_ptr<Gem::Common::GFactoryT<typename prod_type::individual_type> > contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
-   boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename prod_type::individual_type> * const)> pluggableInfoFunction_; ///< A user-defined call-back for information retrieval
+	boost::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
+   boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)> pluggableInfoFunction_; ///< A user-defined call-back for information retrieval
 
 private:
 	/***************************************************************************/

@@ -36,10 +36,8 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBrokerEA)
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 /**
@@ -47,7 +45,8 @@ namespace Geneva
  */
 GBrokerEA::GBrokerEA()
 	: GBaseEA()
-	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
+	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
+   // , Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::EXPECTFULLRETURN)
 	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 	, storedServerMode_(true)
 { /* nothing */ }
@@ -60,7 +59,7 @@ GBrokerEA::GBrokerEA()
  */
 GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	: GBaseEA(cp)
-	, Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
+	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp)
 	, nThreads_(cp.nThreads_)
 	, storedServerMode_(true)
 { /* nothing */ }
@@ -97,7 +96,7 @@ void GBrokerEA::load_(const GObject * cp) {
 
 	// Load the parent classes' data ...
 	GBaseEA::load_(cp);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::load(p_load);
+	Gem::Courtier::GBrokerConnector2T<GParameterSet>::load(p_load);
 
 	// ... and then our own
 	nThreads_ = p_load->nThreads_;
@@ -173,7 +172,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GBaseEA::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
-	deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
+	deviations.push_back(GBrokerConnector2T<GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
@@ -214,6 +213,9 @@ void GBrokerEA::init() {
 	// GBaseEA sees exactly the environment it would when called from its own class
 	GBaseEA::init();
 
+	// Initialize the broker connector
+	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
+
 	// Initialize our thread pool
 	tp_.reset(new Gem::Common::GThreadPool(nThreads_));
 
@@ -252,6 +254,9 @@ void GBrokerEA::finalize() {
 
 	// Terminate our thread pool
 	tp_.reset();
+
+   // Finalize the broker connector
+   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
 
 	// GBaseEA sees exactly the environment it would when called from its own class
 	GBaseEA::finalize();
@@ -312,10 +317,11 @@ void GBrokerEA::evaluateChildren() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::workOn(
-			data
-			, range
-			, Gem::Courtier::INCOMPLETERETURN
+	Gem::Courtier::GBrokerConnector2T<GParameterSet>::workOn(
+      data
+      , range
+      , oldWorkItems_
+      , true // Remove unprocessed items
 	);
 
 	//--------------------------------------------------------------------------------
@@ -332,17 +338,26 @@ void GBrokerEA::fixAfterJobSubmission() {
 	std::size_t np = getNParents();
 	boost::uint32_t iteration=getIteration();
 
-	// Remove parents from older iterations -- we do not want them. Note that "remove_if"
-	// simply moves items not satisfying the predicate to the end of the list. We thus need
-	// to explicitly erase these items. remove_if returns the iterator position right after
-	// the last item not satisfying the predicate.
-	data.erase(std::remove_if(data.begin(), data.end(), isOldParent(iteration)), data.end());
+	// Remove parents from older iterations from old work items -- we do not want them.
+   // Note that "remove_if" simply moves items not satisfying the predicate to the end of the list.
+   // We thus need to explicitly erase these items. remove_if returns the iterator position right after
+   // the last item not satisfying the predicate.
+   oldWorkItems_.erase(
+      std::remove_if(oldWorkItems_.begin(), oldWorkItems_.end(), isOldParent(iteration))
+	   , oldWorkItems_.end()
+	);
 
 	// Make it known to remaining old individuals that they are now part of a new iteration
-	std::for_each(data.begin(), data.end(), boost::bind(&GParameterSet::setAssignedIteration, _1, iteration));
+	std::for_each(oldWorkItems_.begin(), oldWorkItems_.end(), boost::bind(&GParameterSet::setAssignedIteration, _1, iteration));
 
 	// Make sure that parents are at the beginning of the array.
 	sort(data.begin(), data.end(), indParentComp());
+
+	// Attach all old work items to the end of the current population and clear the array of old items
+	for(it=oldWorkItems_.begin(); it!=oldWorkItems_.end(); ++it) {
+	   data.push_back(*it);
+	}
+	oldWorkItems_.clear();
 
 	// Add missing individuals, as clones of the last item
 	if(data.size() < getDefaultPopulationSize()){
@@ -412,7 +427,7 @@ void GBrokerEA::addConfigurationOptions (
 
 	// Call our parent class'es function
 	GBaseEA::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 
 	// Add local data
 	comment = ""; // Reset the comment string

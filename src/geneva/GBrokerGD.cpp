@@ -43,9 +43,9 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GBrokerGD::GBrokerGD() :
-	GBaseGD()
-	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
+GBrokerGD::GBrokerGD()
+	: GBaseGD()
+	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::RESUBMISSIONAFTERTIMEOUT)
 	, storedServerMode_(true)
 { /* nothing */ }
 
@@ -58,7 +58,7 @@ GBrokerGD::GBrokerGD(
 		, const float& finiteStep, const float& stepSize
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize)
-	, Gem::Courtier::GBrokerConnectorT<GIndividual>()
+	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::RESUBMISSIONAFTERTIMEOUT)
 	, storedServerMode_(true)
 { /* nothing */ }
 
@@ -68,7 +68,7 @@ GBrokerGD::GBrokerGD(
  */
 GBrokerGD::GBrokerGD(const GBrokerGD& cp)
 	: GBaseGD(cp)
-	, Gem::Courtier::GBrokerConnectorT<GIndividual>(cp)
+	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(cp)
 	, storedServerMode_(true)
 { /* nothing */ }
 
@@ -153,7 +153,7 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GBaseGD::checkRelationshipWith(cp, e, limit, "GBrokerGD",	y_name, withMessages));
-	deviations.push_back(GBrokerConnectorT<GIndividual>::checkRelationshipWith(*p_load, e, limit, "GBrokerGD", y_name, withMessages));
+	deviations.push_back(GBrokerConnector2T<Gem::Geneva::GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerGD", y_name, withMessages));
 
 	// no local data
 
@@ -190,7 +190,7 @@ void GBrokerGD::load_(const GObject *cp) {
 
 	// Load the parent classes' data ...
 	GBaseGD::load_(cp);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::load(p_load);
+	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::load(p_load);
 
 	// ... no local data
 }
@@ -212,6 +212,9 @@ GObject *GBrokerGD::clone_() const {
 void GBrokerGD::init() {
 	// GGradientDesccent sees exactly the environment it would when called from its own class
 	GBaseGD::init();
+
+   // Initialize the broker connector
+   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -246,6 +249,9 @@ void GBrokerGD::finalize() {
 		(*it)->setServerMode(storedServerMode_);
 	}
 
+   // Finalize the broker connector
+   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
+
 	// GBaseGD sees exactly the environment it would when called from its own class
 	GBaseGD::finalize();
 }
@@ -265,7 +271,7 @@ void GBrokerGD::addConfigurationOptions (
 
 	// Call our parent class'es function
 	GBaseGD::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnectorT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 
 	// no local data
 }
@@ -324,10 +330,11 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
 	boost::tuple<std::size_t,std::size_t> range(0, finalPos);
-	complete = GBrokerConnectorT<GIndividual>::workOn(
+	complete = GBrokerConnector2T<Gem::Geneva::GParameterSet>::workOn(
 			data
 			, range
-			, EXPECTFULLRETURN
+			, oldWorkItems_
+			, false // Do not remove unprocessed item
 	);
 
 	if(!complete) {

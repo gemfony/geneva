@@ -191,9 +191,9 @@ protected:
 	virtual void updateParentIndividuals();
 
 	/** @brief Retrieves the best individual found */
-	virtual boost::shared_ptr<GIndividual> getBestIndividual() OVERRIDE;
+	virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE;
 	/** @brief Retrieves a list of the best individuals found */
-	virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals() OVERRIDE;
+	virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE;
 
 private:
 	/***************************************************************************/

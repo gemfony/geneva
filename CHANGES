@@ -8,7 +8,7 @@ Wishlist for version 1.1, yet unnamed, release-date unknown
 * Version 1.0.0, yet unnamed, release-date unknown
 
 The main changes for this release include:
- - Ported to Boost 1.52
+ - Ported to Boost 1.54
  - Added a new example "GStarter" meant as a starting point for the users' own projects
  - Removed non-portable "long double" functions from GMathHelperFunctions.hpp/cpp
  - Moved GConstrainedValueLimitT<T> from "max()" to "lowest()/highest()"
@@ -21,6 +21,7 @@ The main changes for this release include:
  - Separated multi-populations from Evolutionary Algorithms, making them a first class citizen
  - Evolutionary Algorithms are now based on GParameterSet (just like all other "basic" optimization
    algorithms, except for multi-populations)
+ - The broker, as implemented, now acts solely on GParameterSet-derivatives. This simplifies the architecture
  - Removed the deprecated Go class in favor of Go2 and updated all examples
  - Added an example that illustrates meta-optimization (i.e. usage of an evolutionary algorithm to
    optimize the configuration parameters of an optimization algorithm
@@ -50,7 +51,7 @@ The main changes for this release include:
  - Instrumented most Geneva optimization classes with C++11 override statements, wrapped into defines
    so the code can be used with C++98-compilers. This allows to rule out a further class of errors, hence
    making the code more robust.
-
+ 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012
 

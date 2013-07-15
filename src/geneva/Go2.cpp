@@ -335,7 +335,7 @@ void Go2::registerDefaultAlgorithm(const std::string& mn) {
  * Retrieves a parameter of a given type at the specified position
  */
 boost::any Go2::getVarVal(const std::string& descr, const std::size_t& pos) {
-   return this->getBestIndividual()->getVarVal(descr, pos);
+   return this->GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, pos);
 }
 
 /******************************************************************************/
@@ -421,7 +421,7 @@ int Go2::clientRun() {
    }
 
 	// Retrieve the client worker from the consumer
-	boost::shared_ptr<Gem::Courtier::GBaseClientT<Gem::Geneva::GIndividual> > p;
+	boost::shared_ptr<Gem::Courtier::GBaseClientT<Gem::Geneva::GParameterSet> > p;
 
    if(GConsumerStore->get(consumerName_)->needsClient()) {
 	   p = GConsumerStore->get(consumerName_)->getClient();
@@ -703,7 +703,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
       iterationsConsumed_ = p_base->getIteration();
 
       // Unload the individuals from the last algorithm and store them again in this object
-      std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_base->getBestIndividuals<GParameterSet>();
+      std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_base->GOptimizableI::getBestIndividuals<GParameterSet>();
       std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
       for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
          this->push_back(*best_it);
@@ -733,20 +733,20 @@ void Go2::optimize(const boost::uint32_t& offset) {
  *
  * @return The best individual found
  */
-boost::shared_ptr<Gem::Geneva::GIndividual> Go2::getBestIndividual() {
+boost::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestIndividual() {
 	Go2::iterator it;
 
 	// Do some error checking
 	if(this->empty()) {
 	   glogger
-	   << "In Go2::getBestIndividual(): Error!" << std::endl
+	   << "In Go2::customGetBestIndividual(): Error!" << std::endl
       << "No individuals found" << std::endl
       << GEXCEPTION;
 
 		for(it=this->begin(); it!=this->end(); ++it) {
 			if((*it)->isDirty()) {
 			   glogger
-			   << "In Go2::getBestIndividual(): Error!" << std::endl
+			   << "In Go2::customGetBestIndividual(): Error!" << std::endl
             << "Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set" << std::endl
             << GEXCEPTION;
 			}
@@ -754,7 +754,7 @@ boost::shared_ptr<Gem::Geneva::GIndividual> Go2::getBestIndividual() {
 
 		if(!sorted_) {
 		   glogger
-		   << "In Go2::getBestIndividual(): Error!" << std::endl
+		   << "In Go2::customGetBestIndividual(): Error!" << std::endl
          << "Tried to retrieve best individual" << std::endl
          << "from an unsorted population." << std::endl
          << GEXCEPTION;
@@ -772,27 +772,27 @@ boost::shared_ptr<Gem::Geneva::GIndividual> Go2::getBestIndividual() {
  *
  * @return The best individual found
  */
-std::vector<boost::shared_ptr<Gem::Geneva::GIndividual> > Go2::getBestIndividuals() {
+std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > Go2::customGetBestIndividuals() {
 	Go2::iterator it;
 
 	// Do some error checking
 	if(this->empty()) {
 	   glogger
-	   <<"In Go2::getBestIndividuals(): Error!" << std::endl
+	   <<"In Go2::customGetBestIndividuals(): Error!" << std::endl
       << "No individuals found" << std::endl
       << GEXCEPTION;
 
 		for(it=this->begin(); it!=this->end(); ++it) {
 			if((*it)->isDirty()) {
 			   glogger
-			   << "In Go2::getBestIndividuals(): Error!" << std::endl
+			   << "In Go2::customGetBestIndividuals(): Error!" << std::endl
             << "Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set" << std::endl
             << GEXCEPTION;
 			}
 		}
 	}
 
-	std::vector<boost::shared_ptr<Gem::Geneva::GIndividual> > bestIndividuals;
+	std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
 	for(it=this->begin(); it!=this->end(); ++it) {
 		// This will result in an implicit downcast
 		bestIndividuals.push_back(*it);
@@ -1002,8 +1002,8 @@ void Go2::parseCommandLine(int argc, char **argv) {
 
          // Register the consumer with the broker, unless other consumers have already been registered or we are running in client mode
          if(!clientMode_) {
-            if(!GBROKER(Gem::Geneva::GIndividual)->hasConsumers()) {
-               GBROKER(Gem::Geneva::GIndividual)->enrol(GConsumerStore->get(consumerName_));
+            if(!GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
+               GBROKER(Gem::Geneva::GParameterSet)->enrol(GConsumerStore->get(consumerName_));
             } else {
                glogger
                << "In Go2::parseCommandLine(): Note!" << std::endl
@@ -1065,7 +1065,7 @@ void Go2::parseCommandLine(int argc, char **argv) {
  */
 GenevaInitializer::GenevaInitializer()
    : grf_(GRANDOMFACTORY)
-   , gbr_(GBROKER(Gem::Geneva::GIndividual))
+   , gbr_(GBROKER(Gem::Geneva::GParameterSet))
 {
    grf_->init();
    gbr_->init();

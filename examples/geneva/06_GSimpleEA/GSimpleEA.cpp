@@ -144,7 +144,7 @@ int main(int argc, char **argv){
   // If this is a client in networked mode, we can just start the listener and
   // return when it has finished
   if(parallelizationMode==2 && !serverMode) {
-    boost::shared_ptr<GAsioTCPClientT<GIndividual> > p(new GAsioTCPClientT<GIndividual>(ip, boost::lexical_cast<std::string>(port)));
+    boost::shared_ptr<GAsioTCPClientT<GParameterSet> > p(new GAsioTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
     p->setMaxStalls(0); // An infinite number of stalled data retrievals
     p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
@@ -229,13 +229,13 @@ int main(int argc, char **argv){
   case EXECMODE_BROKERAGE: // Execution with networked consumer and possibly a local, multi-threaded consumer
   {
 	  // Create a network consumer and enrol it with the broker
-	  boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port, 0, serMode));
-	  GBROKER(Gem::Geneva::GIndividual)->enrol(gatc);
+	  boost::shared_ptr<GAsioTCPConsumerT<GParameterSet> > gatc(new GAsioTCPConsumerT<GParameterSet>(port, 0, serMode));
+	  GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 
 	  if(addLocalConsumer) {
-		  boost::shared_ptr<GBoostThreadConsumerT<GIndividual> > gbtc(new GBoostThreadConsumerT<GIndividual>());
+		  boost::shared_ptr<GBoostThreadConsumerT<GParameterSet> > gbtc(new GBoostThreadConsumerT<GParameterSet>());
 		  gbtc->setNThreadsPerWorker(nEvaluationThreads);
-		  GBROKER(Gem::Geneva::GIndividual)->enrol(gbtc);
+		  GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
 	  }
 
 	  // Create the actual broker population

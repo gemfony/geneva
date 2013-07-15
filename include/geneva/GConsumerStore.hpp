@@ -48,10 +48,10 @@
 // Geneva headers go here
 #include "common/GGlobalOptionsT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GParameterSet.hpp"
 
 // A global store for consumer objects
-typedef Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<boost::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GIndividual> > > > GConStore;
+typedef Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<boost::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet> > > > GConStore;
 typedef GConStore::STYPE::iterator GConsumerStore_iterator;
 #define GConsumerStore GConStore::Instance(0)
 

@@ -128,7 +128,7 @@ MESSAGE ("")
 ################################################################################
 # Set up compiler flags
 
-IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
+IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 	SET( MSG_COMPILER "icpc/icc")
 	SET (MSG_CXXSTANDARDMODE "Using Intel compiler, hence avoiding C++ standard settings")
 		
@@ -141,7 +141,7 @@ IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
 	# Specifics for Intel compiler (tested with 10.1). Removes two rather annoying
 	# (and, according to the authors' opinion, irrelevant in this context) warnings
 	ADD_DEFINITIONS ("-Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
-ELSEIF(CMAKE_CXX_COMPILER MATCHES "clang")
+ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	SET( MSG_COMPILER "clang")
 	SET (MSG_CXXSTANDARDMODE "Using Clang switching to C++11-mode")
 	
@@ -151,8 +151,8 @@ ELSEIF(CMAKE_CXX_COMPILER MATCHES "clang")
 		ADD_DEFINITIONS ("-DNDEBUG -O3")
 	ENDIF()	
 	
-	ADD_DEFINITIONS ("-stdlib=libc++ -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread -std=c++11")
-ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
+	ADD_DEFINITIONS ("-dynamiclib -stdlib=libc++ -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread -std=c++11")
+ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	SET( MSG_COMPILER "GNU g++")
 
 	# Make gcc/g++ output its error messages on a single line, so Eclipse-CDT can parse them
@@ -182,8 +182,10 @@ ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
 		SET (MSG_CXXSTANDARDMODE "Using g++ version ${GCC_VERSION}, hence switching to C++98-mode")
 		ADD_DEFINITIONS ("-std=c++98")
 	ENDIF()
+ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+	MESSAGE (FATAL_ERROR "Visual Studio C++ not yet supported")
 ELSE()
-	MESSAGE (FATAL_ERROR "Unknown compiler CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
+	MESSAGE (FATAL_ERROR "Unknown compiler CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}")
 ENDIF()
 
 ################################################################################
@@ -205,7 +207,7 @@ ENDIF()
 ################################################################################
 # Boost-specific code
 SET (Boost_USE_MULTITHREAD ON)
-SET (Boost_ADDITIONAL_VERSIONS "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "1.52" "1.52.0")
+SET (Boost_ADDITIONAL_VERSIONS "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "1.52" "1.52.0" "1.53" "1.53.0" "1.54" "1.54.0")
 
 FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
 	date_time

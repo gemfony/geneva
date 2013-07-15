@@ -90,14 +90,15 @@ GStarterIndividual::GStarterIndividual()
  * same dimension.
  */
 GStarterIndividual::GStarterIndividual(
-      const std::vector<double>& startValues
-      , const std::vector<double>& lowerBoundaries
-      , const std::vector<double>& upperBoundaries
-      , const double& sigma
-      , const double& sigmaSigma
-      , const double& minSigma
-      , const double& maxSigma
-      , const double& adProb
+   const std::size_t& prod_id
+   , const std::vector<double>& startValues
+   , const std::vector<double>& lowerBoundaries
+   , const std::vector<double>& upperBoundaries
+   , const double& sigma
+   , const double& sigmaSigma
+   , const double& minSigma
+   , const double& maxSigma
+   , const double& adProb
 )
    : GParameterSet()
    , targetFunction_(PARABOLA)
@@ -107,6 +108,7 @@ GStarterIndividual::GStarterIndividual(
       // and in the factory, so setup code cannot diverge
       GStarterIndividual::addContent(
             *this
+            , prod_id
             , startValues
             , lowerBoundaries
             , upperBoundaries
@@ -472,16 +474,17 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
 
       boost::shared_ptr<GStarterIndividual> p_test;
       BOOST_CHECK_NO_THROW(p_test = boost::shared_ptr<GStarterIndividual>(
-            new GStarterIndividual(
-                startValues
-                , lowerBoundaries
-                , upperBoundaries
-                , DEFAULTSIGMA
-                , 0.6
-                , 0.001
-                , 2.
-                , 0.05
-            )
+         new GStarterIndividual(
+             0 // indicates the first individual
+             , startValues
+             , lowerBoundaries
+             , upperBoundaries
+             , DEFAULTSIGMA
+             , 0.6
+             , 0.001
+             , 2.
+             , 0.05
+         )
       ));
 
       BOOST_CHECK_CLOSE(DEFAULTSIGMA, p_test->getAverageSigma(), 0.001); // Should be similar
@@ -764,6 +767,7 @@ void GStarterIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& p
    // in one of the constructors.
    GStarterIndividual::addContent(
          *p
+         , this->getId()
          , startValues_
          , lowerBoundaries_
          , upperBoundaries_

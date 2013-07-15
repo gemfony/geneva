@@ -47,7 +47,7 @@
 
 // Geneva headers go here
 #include "courtier/GBufferPortT.hpp"
-#include "courtier/GBrokerConnectorT.hpp"
+#include "courtier/GBrokerConnector2T.hpp"
 #include "geneva/GEAPersonalityTraits.hpp"
 #include "geneva/GBaseEA.hpp"
 #include "geneva/GParameterSet.hpp"
@@ -70,7 +70,7 @@ namespace Geneva {
  */
 class GBrokerEA
    : public GBaseEA
-   , public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GIndividual>
+   , public Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -79,8 +79,9 @@ class GBrokerEA
    void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseEA)
-      & make_nvp("GBrokerConnectorT_GIndividual", boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GIndividual> >(*this))
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseEA)
+      & make_nvp("GBrokerConnector2T_GParameterSet", boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<GParameterSet> >(*this))
       & BOOST_SERIALIZATION_NVP(nThreads_);
    }
    ///////////////////////////////////////////////////////////////////////
@@ -157,6 +158,8 @@ private:
 
    boost::shared_ptr<Gem::Common::GThreadPool> tp_; ///< Temporarily holds a thread pool
 
+   std::vector<boost::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
+
    /***************************************************************************/
    /**
     * A simple comparison operator that helps to sort individuals according to their
@@ -196,6 +199,22 @@ private:
       isOldParent(); // Intentionally private and undefined
 
       boost::uint32_t current_iteration_;
+   };
+
+   /***************************************************************************/
+   /**
+    * This operator helps to remove individuals whose dirty flag is still set
+    * after processing. This may happen in case of an incomplete return.
+    */
+   class hasDirtyFlagSet {
+   public:
+      bool operator()(boost::shared_ptr<GParameterSet> x) {
+         if(x->isDirty()) {
+            return true;
+         } else {
+            return false;
+         }
+      }
    };
 
    /***************************************************************************/

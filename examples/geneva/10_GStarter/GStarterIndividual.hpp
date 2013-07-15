@@ -113,14 +113,15 @@ public:
    GStarterIndividual();
 	/** @brief A constructor that receives all arguments */
 	GStarterIndividual(
-	      const std::vector<double>&
-	      , const std::vector<double>&
-	      , const std::vector<double>&
-	      , const double&
-	      , const double&
-	      , const double&
-	      , const double&
-	      , const double&
+      const std::size_t&
+      , const std::vector<double>&
+      , const std::vector<double>&
+      , const std::vector<double>&
+      , const double&
+      , const double&
+      , const double&
+      , const double&
+      , const double&
 	);
 	/** @brief A standard copy constructor */
 	GStarterIndividual(const GStarterIndividual&);
@@ -166,6 +167,7 @@ public:
 	 */
 	static void addContent(
 	      GStarterIndividual& p
+	      , const std::size_t& prod_id
 	      , const std::vector<double>& startValues
 	      , const std::vector<double>& lowerBoundaries
 	      , const std::vector<double>& upperBoundaries
@@ -208,13 +210,23 @@ public:
 
 	   // Add the required number of GConstrainedDoubleObject objects to the individual
 	   for(std::size_t i=0; i<startValues.size(); i++) {
-	      boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(
-	            new GConstrainedDoubleObject(
-	                  startValues.at(i)
-	                  , lowerBoundaries.at(i)
-	                  , upperBoundaries.at(i)
-	            )
-	      );
+	      boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
+	      if(0 == prod_id) { // First individual, initialization with standard values
+	         gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject> (
+               new GConstrainedDoubleObject(
+                      startValues.at(i)
+                      , lowerBoundaries.at(i)
+                      , upperBoundaries.at(i)
+                )
+	         );
+	      } else { // Random initialization for all other individuals
+            gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject> (
+               new GConstrainedDoubleObject(
+                      lowerBoundaries.at(i)
+                      , upperBoundaries.at(i)
+                )
+            );
+	      }
 
 	      boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
 	            new GDoubleGaussAdaptor(
@@ -224,6 +236,7 @@ public:
 	                  , maxSigma
 	            )
 	      );
+
 	      gdga_ptr->setAdaptionProbability(adProb);
 	      gcdo_ptr->addAdaptor(gdga_ptr);
 

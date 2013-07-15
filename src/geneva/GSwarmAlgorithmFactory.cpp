@@ -155,7 +155,7 @@ void GSwarmAlgorithmFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorit
 		{
 			boost::shared_ptr<GMultiThreadedSwarm> p
 			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedSwarm>(p_base);
-			p->setNThreads(nEvaluationThreads_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
 		}
 		break;
 
@@ -164,11 +164,8 @@ void GSwarmAlgorithmFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorit
 			boost::shared_ptr<GBrokerSwarm> p
 			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSwarm>(p_base);
 
-			p->setFirstTimeOut(firstTimeOut_);
-			p->setWaitFactorExtremes(minWaitFactor_, maxWaitFactor_);
-			p->doLogging(doLogging_);
-			p->setBoundlessWait(boundlessWait_);
-			p->setWaitFactorIncrement(waitFactorIncrement_);
+         p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
+         p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
 		}
 		break;
 	}

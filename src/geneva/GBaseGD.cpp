@@ -518,7 +518,7 @@ void GBaseGD::updateParentIndividuals() {
 
 /******************************************************************************/
 /**
- * Retrieves the best individual of the population and returns it in Gem::Geneva::GIndividual format.
+ * Retrieves the best individual of the population and returns it in Gem::Geneva::GParameterSet format.
  * Note that this protected function will return the item itself. Direct usage of this function should
  * be avoided even by derived classes. We suggest to use the function
  * GOptimizableI::getBestIndividual<individual_type>() instead, which internally uses
@@ -526,12 +526,12 @@ void GBaseGD::updateParentIndividuals() {
  *
  * @return A shared_ptr to the best individual of the population
  */
-boost::shared_ptr<GIndividual> GBaseGD::getBestIndividual(){
+boost::shared_ptr<GParameterSet> GBaseGD::customGetBestIndividual(){
 #ifdef DEBUG
 	// Check that data is present at all
 	if(data.size() < nStartingPoints_) {
 	   glogger
-	   << "In GBaseGD::getBestIndividual() : Error!" << std::endl
+	   << "In GBaseGD::customGetBestIndividual() : Error!" << std::endl
       << "Population has fewer individuals than starting points: " << data.size() << " / " << nStartingPoints_ << std::endl
       << GEXCEPTION;
 	}
@@ -540,7 +540,7 @@ boost::shared_ptr<GIndividual> GBaseGD::getBestIndividual(){
 	for(std::size_t i=0; i<nStartingPoints_; i++) {
 		if(data.at(i)->isDirty()) {
 		   glogger
-		   << "In GBaseGD::getBestIndividual() : Error!" << std::endl
+		   << "In GBaseGD::customGetBestIndividual() : Error!" << std::endl
          << "Found dirty parent at position : " << i << std::endl
          << GEXCEPTION;
 		}
@@ -566,16 +566,16 @@ boost::shared_ptr<GIndividual> GBaseGD::getBestIndividual(){
  *
  * @return A list of the best individuals found
  */
-std::vector<boost::shared_ptr<GIndividual> > GBaseGD::getBestIndividuals() {
+std::vector<boost::shared_ptr<GParameterSet> > GBaseGD::customGetBestIndividuals() {
 	// Some error checking
 	if(nStartingPoints_ == 0) {
 	   glogger
-	   << "In GBaseGD::getBestIndividuals() :" << std::endl
+	   << "In GBaseGD::customGetBestIndividuals() :" << std::endl
       << "no starting points found" << std::endl
       << GEXCEPTION;
 	}
 
-	std::vector<boost::shared_ptr<GIndividual> > bestIndividuals;
+	std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals;
 	GBaseGD::iterator it;
 	for(it=this->begin(); it!=this->begin()+nStartingPoints_; ++it) {
 		// There will be an implicit downcast here, as data holds

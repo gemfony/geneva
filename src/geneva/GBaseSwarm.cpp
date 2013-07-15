@@ -606,12 +606,12 @@ void GBaseSwarm::updatePersonalBestIfBetter(
  *
  * @return A converted shared_ptr to a copy of the best individual of the population
  */
-boost::shared_ptr<GIndividual> GBaseSwarm::getBestIndividual(){
+boost::shared_ptr<GParameterSet> GBaseSwarm::customGetBestIndividual(){
 #ifdef DEBUG
 	// Check that global_best_ actually points somewhere
 	if(!global_best_) {
 	   glogger
-	   << "In GBaseSwarm::getBestIndividual() : Error" << std::endl
+	   << "In GBaseSwarm::customGetBestIndividual() : Error" << std::endl
       << "Tried to access uninitialized globally best individual." << std::endl
       << GEXCEPTION;
 	}
@@ -627,16 +627,16 @@ boost::shared_ptr<GIndividual> GBaseSwarm::getBestIndividual(){
  *
  * @return A list of the best individuals found
  */
-std::vector<boost::shared_ptr<GIndividual> > GBaseSwarm::getBestIndividuals() {
+std::vector<boost::shared_ptr<GParameterSet> > GBaseSwarm::customGetBestIndividuals() {
 	// Some error checking
 	if(nNeighborhoods_ == 0) {
 	   glogger
-	   << "In GBaseSwarm::getBestIndividuals() :" << std::endl
+	   << "In GBaseSwarm::customGetBestIndividuals() :" << std::endl
       << "no neighborhoods found" << std::endl
       << GEXCEPTION;
 	}
 
-	std::vector<boost::shared_ptr<GIndividual> > bestIndividuals;
+	std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals;
 	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 	for(it=neighborhood_bests_.begin(); it!=neighborhood_bests_.end(); ++it) {
 		// There will be an implicit downcast here, as the vector holds

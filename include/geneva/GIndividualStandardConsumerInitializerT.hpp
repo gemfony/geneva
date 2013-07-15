@@ -53,7 +53,7 @@
 #include "common/GLogger.hpp"
 #include "common/GGlobalOptionsT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GParameterSet.hpp"
 #include "geneva/GConsumerStore.hpp"
 
 namespace Gem {
@@ -63,13 +63,13 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This base class takes care of adding GIndividual-based consumer objects
+ * This base class takes care of adding GParameterSet-based consumer objects
  * to a global store
  */
 template <typename pl_type, typename c_type> // pl_type stands for "payload type"; c_type stands for consumer type
 class GIndividualStandardConsumerInitializerT {
-   // Make sure pl_type is a derivative of Gem::Geneva::GIndividual
-   BOOST_MPL_ASSERT((boost::is_base_of<Gem::Geneva::GIndividual , pl_type>));
+   // Make sure pl_type is a derivative of Gem::Geneva::GParameterSet
+   BOOST_MPL_ASSERT((boost::is_base_of<Gem::Geneva::GParameterSet , pl_type>));
 
 public:
    /** @brief The initializing constructor */

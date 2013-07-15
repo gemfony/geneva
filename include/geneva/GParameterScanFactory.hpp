@@ -99,9 +99,6 @@ protected:
    virtual void describeLocalOptions_(Gem::Common::GParserBuilder&) OVERRIDE;
    /** @brief Allows to act on the configuration options received from the configuration file */
    virtual void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
-
-private:
-   std::size_t maxResubmissions_; ///< The maximum number of allowed re-submissions in an iteration
 };
 
 /******************************************************************************/

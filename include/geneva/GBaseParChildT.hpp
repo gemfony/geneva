@@ -50,6 +50,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "geneva/GIndividual.hpp"
+#include "geneva/GParameterSet.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GBaseParChildPersonalityTraits.hpp"
@@ -584,6 +585,34 @@ protected:
 
    /***************************************************************************/
    /**
+    * Retrieves the best individual found
+    */
+   virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE {
+      glogger
+      << "In GBaseParChildT<ind_type>::customGetBestIndividual(): Error!" << std::endl
+      << "Function should not have been called" << std::endl
+      << GEXCEPTION;
+
+      // Make the compiler happy
+      return boost::shared_ptr<GParameterSet>();
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves a list of the best individuals found
+    */
+   virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE {
+      glogger
+      << "In GBaseParChildT<ind_type>::customGetBestIndividuals(): Error!" << std::endl
+      << "Function should not have been called" << std::endl
+      << GEXCEPTION;
+
+      // Make the compiler happy
+      return std::vector<boost::shared_ptr<GParameterSet> >();
+   }
+
+   /***************************************************************************/
+   /**
     * Loads the data of another GBaseParChildT<ind_type> object, camouflaged as a GObject.
     *
     * @param cp A pointer to another GBaseParChildT<ind_type> object, camouflaged as a GObject
@@ -899,52 +928,6 @@ protected:
 
    /***************************************************************************/
    /**
-    * Retrieves the  best individual found. Note that this protected function will return the item itself.
-    * Direct usage of this function should be avoided even by derived classes. We suggest to use the
-    * function GOptimizableI::getBestIndividual<ind_type>() instead, which internally uses
-    * this function and returns copies of the best individual, converted to the desired target type.
-    *
-    * @return The best individual found
-    */
-   virtual boost::shared_ptr<GIndividual> getBestIndividual() OVERRIDE {
-#ifdef DEBUG
-         if(this->empty()) {
-            glogger
-            << "In GBaseParChildT<ind_type>::getBestIndividual() :" << std::endl
-            << "Tried to access individual at position 0 even though population is empty." << std::endl
-            << GEXCEPTION;
-         }
-#endif /* DEBUG */
-
-      return this->at(0);
-   }
-
-   /***************************************************************************/
-   /**
-    * Retrieves a list of the best individuals found. This might just be one individual.
-    *
-    * @return A list of the best individuals found
-    */
-   virtual std::vector<boost::shared_ptr<GIndividual> > getBestIndividuals() OVERRIDE {
-      // Some error checking
-      if(nParents_ == 0) {
-         glogger
-         << "In GBaseParChildT<ind_type>::getBestIndividuals() :" << std::endl
-         << "no parents found" << std::endl
-         << GEXCEPTION;
-      }
-
-      std::vector<boost::shared_ptr<GIndividual> > bestIndividuals;
-      typename GBaseParChildT<ind_type>::iterator it;
-      for(it=this->begin(); it!=this->begin()+nParents_; ++it) {
-         bestIndividuals.push_back(*it);
-      }
-
-      return bestIndividuals;
-   }
-
-   /***************************************************************************/
-   /**
     * Saves the state of the class to disc. The function adds the current generation
     * and the fitness to the base name. We do not save the entire population, but only
     * the best individuals, as these contain the "real" information. Note that no real
@@ -1253,6 +1236,14 @@ public:
 };
 
 /******************************************************************************/
+// Specializations for ind_type == GParameterSet (the most common case)
+template <>
+boost::shared_ptr<GParameterSet>
+GBaseParChildT<GParameterSet>::customGetBestIndividual();
+
+template <>
+std::vector<boost::shared_ptr<GParameterSet> >
+GBaseParChildT<GParameterSet>::customGetBestIndividuals();
 
 } /* namespace Geneva */
 } /* namespace Gem */

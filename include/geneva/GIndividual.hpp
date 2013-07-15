@@ -47,7 +47,6 @@
 
 
 // Geneva header files go here
-#include "courtier/GSubmissionContainerT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
@@ -83,7 +82,6 @@ class GIndividual
 	: public GMutableI
 	, public GRateableI
 	, public GObject
-	, public Gem::Courtier::GSubmissionContainerT<GIndividual>
 {
 	friend class GSerialSwarm; ///< Needed so GSerialSwarm can set the dirty flag
 	friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
@@ -96,7 +94,6 @@ class GIndividual
 	  using boost::serialization::make_nvp;
 
 	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-	     & make_nvp("GSubmissionContainerT_GIndividual", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GIndividual> >(*this))
 	     & BOOST_SERIALIZATION_NVP(currentFitness_)
 	     & BOOST_SERIALIZATION_NVP(currentSecondaryFitness_)
 	     & BOOST_SERIALIZATION_NVP(bestPastFitness_)
@@ -145,9 +142,6 @@ public:
 	virtual double fitness(const std::size_t&) OVERRIDE;
 	/** @brief Adapts and evaluates the individual in one go */
 	virtual double adaptAndEvaluate();
-
-	/** @brief Do the required processing for this object */
-	virtual bool process() OVERRIDE;
 
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
 	double getCachedFitness(bool&, const std::size_t& = 0) const;
@@ -287,13 +281,6 @@ public:
 	);
 	/** @brief Resets the current personality to PERSONALITY_NONE */
 	void resetPersonality();
-
-	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
-	virtual void updateRNGs();
-	/** @brief Restores local random number generators contained in this object's GParameterBase-derivatives */
-	virtual void restoreRNGs();
-	/** @brief Checks whether all GParameterBase derivatives use local random number generators */
-	virtual bool localRNGsUsed() const;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(

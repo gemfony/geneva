@@ -444,7 +444,7 @@ public:
          bool isDirty;
 
          if(monitorBestOnly_) { // Monitor the best individuals only
-            boost::shared_ptr<GIndividual> p = goa->GOptimizableI::getBestIndividual<GIndividual>();
+            boost::shared_ptr<GParameterSet> p = goa->GOptimizableI::getBestIndividual<GParameterSet>();
             if(!monitorValidOnly_ || p->isValid()) {
                switch(this->nProfileVars()) {
                   case 1:
