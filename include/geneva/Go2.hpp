@@ -59,7 +59,7 @@
 #include "courtier/GBoostThreadConsumerT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizableI.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"

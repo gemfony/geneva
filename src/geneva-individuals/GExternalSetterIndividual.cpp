@@ -155,7 +155,7 @@ void GExternalSetterIndividual::setFitness(
 		const double& f
 		, const std::vector<double>& sec_f_vec
 ) {
-	GIndividual::setFitness_(f, sec_f_vec);
+	GOptimizableEntity::setFitness_(f, sec_f_vec);
 }
 
 

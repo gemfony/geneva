@@ -1,5 +1,5 @@
 /**
- * @file GIndividual.hpp
+ * @file GOptimizableEntity.hpp
  */
 
 /*
@@ -37,8 +37,8 @@
 
 // Boost header files go here
 
-#ifndef GINDIVIDUAL_HPP_
-#define GINDIVIDUAL_HPP_
+#ifndef GOPTIMIZABLEENTITY_HPP_
+#define GOPTIMIZABLEENTITY_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -78,7 +78,7 @@ class GSerialSwarm; // forward declaration
  * class also contains a framework for lazy evaluation, so not all evaluations take
  * place at the same time.
  */
-class GIndividual
+class GOptimizableEntity
 	: public GMutableI
 	, public GRateableI
 	, public GObject
@@ -112,16 +112,16 @@ class GIndividual
 
 public:
 	/** @brief The default constructor */
-	GIndividual();
+	GOptimizableEntity();
 	/** @brief The copy constructor */
-	GIndividual(const GIndividual&);
+	GOptimizableEntity(const GOptimizableEntity&);
 	/** @brief The destructor */
-	virtual ~GIndividual();
+	virtual ~GOptimizableEntity();
 
-	/** @brief Checks for equality with another GIndividual object */
-	bool operator==(const GIndividual&) const;
-	/** @brief Checks for inequality with another GIndividual object */
-	bool operator!=(const GIndividual&) const;
+	/** @brief Checks for equality with another GOptimizableEntity object */
+	bool operator==(const GOptimizableEntity&) const;
+	/** @brief Checks for inequality with another GOptimizableEntity object */
+	bool operator!=(const GOptimizableEntity&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
@@ -224,7 +224,7 @@ public:
 	      result = boost::numeric_cast<val_type>(boost::any_cast<bool>(val));
 	   } else {
 	      glogger
-	      << "In GIndividual::getVarVal<>(): Error!" << std::endl
+	      << "In GOptimizableEntity::getVarVal<>(): Error!" << std::endl
 	      << "Received invalid type descriptor " << ttype << std::endl
 	      << GEXCEPTION;
 	   }
@@ -252,7 +252,7 @@ public:
       // Check that pt_ptr_ actually points somewhere
       if(!pt_ptr_) {
          glogger
-         << "In GIndividual::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl
+         << "In GOptimizableEntity::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl
          << "This should not happen." << std::endl
          << GEXCEPTION;
 
@@ -266,8 +266,8 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
-	 * Tested in GIndividual::specificTestsFailureExpected_GUnitTests()
+	 * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
+	 * Tested in GOptimizableEntity::specificTestsFailureExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -308,11 +308,11 @@ public:
    double getValidityThreshold() const;
 
    /** @brief Allows to register a constraint with this individual */
-   void registerConstraint(boost::shared_ptr<GValidityCheckT<GIndividual> >);
+   void registerConstraint(boost::shared_ptr<GValidityCheckT<GOptimizableEntity> >);
 
 protected:
 	/***************************************************************************/
-	/** @brief Loads the data of another GIndividual */
+	/** @brief Loads the data of another GOptimizableEntity */
 	virtual void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
@@ -368,7 +368,7 @@ private:
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
 
     /** @brief A constraint-check to be applied to one or more components of this individual */
-    boost::shared_ptr<GValidityCheckT<GIndividual> > individualConstraint_;
+    boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > individualConstraint_;
 
     /***************************************************************************/
 public:
@@ -387,8 +387,8 @@ public:
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GIndividual)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GOptimizableEntity)
 
 /******************************************************************************/
 
-#endif /* GINDIVIDUAL_HPP_ */
+#endif /* GOPTIMIZABLEENTITY_HPP_ */

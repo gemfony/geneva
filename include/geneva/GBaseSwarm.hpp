@@ -50,7 +50,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GPlotDesigner.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"

@@ -160,7 +160,7 @@ public:
 		trait_types;
 
 		typedef boost::mpl::list<
-			GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT
+			GOptimizationAlgorithmT<GOptimizableEntity>::GOptimizationMonitorT
 			, GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
 			, GSerialEA::GEAOptimizationMonitor
 			, GSerialSwarm::GSwarmOptimizationMonitor

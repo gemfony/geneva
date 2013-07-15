@@ -34,12 +34,12 @@
 
 
 #include "geneva/GOptimizationAlgorithmT.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::GOptimizationMonitorT)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GOptimizableEntity>::GOptimizationMonitorT)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>)
 
@@ -59,7 +59,7 @@ namespace Geneva {
 template <> void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init() {
    // Tell all individuals in this collection to update their random number generators
    // with the one contained in GMutableSetT. Note: This will only have an effect on
-   // GParameterSet objects, as GIndividual contains an empty function.
+   // GParameterSet objects, as GOptimizableEntity contains an empty function.
    GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::iterator it;
    for(it=this->begin(); it!=this->end(); ++it) {
       (*it)->updateRNGs();

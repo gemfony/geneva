@@ -51,6 +51,7 @@ The main changes for this release include:
  - Instrumented most Geneva optimization classes with C++11 override statements, wrapped into defines
    so the code can be used with C++98-compilers. This allows to rule out a further class of errors, hence
    making the code more robust.
+ - Renamed GIndividual to the more fitting "GOptimizableEntity"
  
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

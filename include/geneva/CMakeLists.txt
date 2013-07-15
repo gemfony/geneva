@@ -51,7 +51,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GFPNumCollectionT.hpp
 	GGDPersonalityTraits.hpp
 	GGradientDescentFactory.hpp
-	GIndividual.hpp
 	GIndividualMultiConstraint.hpp
 	GIndividualStandardConsumerInitializerT.hpp
 	GIndividualStandardConsumers.hpp
@@ -86,6 +85,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GOAMonitorStore.hpp
 	GObject.hpp
 	GObjectExpectationChecksT.hpp
+	GOptimizableEntity.hpp
 	GOptimizableI.hpp
 	GOptimizationAlgorithmT.hpp
 	GOptimizationAlgorithmFactoryT.hpp

@@ -49,7 +49,7 @@ GParameterSetMultiConstraint::GParameterSetMultiConstraint()
  * The copy constructor
  */
 GParameterSetMultiConstraint::GParameterSetMultiConstraint(const GParameterSetMultiConstraint& cp)
-   : GValidityCheckT<GIndividual>(cp)
+   : GValidityCheckT<GOptimizableEntity>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -65,7 +65,7 @@ GParameterSetMultiConstraint::~GParameterSetMultiConstraint()
  */
 const GParameterSetMultiConstraint& GParameterSetMultiConstraint::operator=(const GParameterSetMultiConstraint& cp)
 {
-   GValidityCheckT<GIndividual>::load_(&cp);
+   GValidityCheckT<GOptimizableEntity>::load_(&cp);
    return *this;
 }
 
@@ -119,7 +119,7 @@ boost::optional<std::string> GParameterSetMultiConstraint::checkRelationshipWith
    std::vector<boost::optional<std::string> > deviations;
 
    // Check our parent class'es data ...
-   deviations.push_back(GValidityCheckT<GIndividual>::checkRelationshipWith(cp, e, limit, "GParameterSetMultiConstraint", y_name, withMessages));
+   deviations.push_back(GValidityCheckT<GOptimizableEntity>::checkRelationshipWith(cp, e, limit, "GParameterSetMultiConstraint", y_name, withMessages));
 
    // no local data
 
@@ -135,7 +135,7 @@ void GParameterSetMultiConstraint::addConfigurationOptions(
       , const bool& showOrigin
 ) {
    // Call our parent class'es function
-   GValidityCheckT<GIndividual>::addConfigurationOptions(gpb, showOrigin);
+   GValidityCheckT<GOptimizableEntity>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /******************************************************************************/
@@ -143,10 +143,10 @@ void GParameterSetMultiConstraint::addConfigurationOptions(
  * Checks whether a given individual is valid
  */
 double GParameterSetMultiConstraint::check_(
-      const GIndividual * p_raw
+      const GOptimizableEntity * p_raw
       , const double& validityThreshold
 ) const {
-   const GParameterSet * p = Gem::Common::convertSimplePointer<GIndividual, GParameterSet>(p_raw);
+   const GParameterSet * p = Gem::Common::convertSimplePointer<GOptimizableEntity, GParameterSet>(p_raw);
    return this->check_(p, validityThreshold);
 }
 
@@ -160,7 +160,7 @@ void GParameterSetMultiConstraint::load_(const GObject* cp) {
    const GParameterSetMultiConstraint *p_load = GObject::gobject_conversion<GParameterSetMultiConstraint>(cp);
 
    // Load our parent class'es data ...
-   GValidityCheckT<GIndividual>::load_(cp);
+   GValidityCheckT<GOptimizableEntity>::load_(cp);
 
    // no local data
 }

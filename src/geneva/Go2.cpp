@@ -484,7 +484,7 @@ execMode Go2::getParallelizationMode() const {
 /**
  * Allows to randomly initialize parameter members. Note that for this wrapper object
  * this function doesn't make any sense. It is made available to satisfy a requirement
- * of GIndividual.
+ * of GOptimizableEntity.
  */
 void Go2::randomInit()
 { /* nothing */ }

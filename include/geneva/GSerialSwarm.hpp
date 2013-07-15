@@ -50,7 +50,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "geneva/GBaseSwarm.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GObject.hpp"
 
 namespace Gem {

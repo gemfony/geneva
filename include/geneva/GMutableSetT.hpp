@@ -50,7 +50,7 @@
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterBase.hpp"
 #include "geneva/GStdPtrVectorInterfaceT.hpp"
 
@@ -66,7 +66,7 @@ namespace Geneva {
  */
 template <typename T>
 class GMutableSetT:
-	public GIndividual,
+	public GOptimizableEntity,
 	public GStdPtrVectorInterfaceT<T>
 {
     ///////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ class GMutableSetT:
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GIndividual)
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
          & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<GStdPtrVectorInterfaceT<T> >(*this));
     }
     ///////////////////////////////////////////////////////////////////////
@@ -87,7 +87,7 @@ public:
 	 * The default constructor. No local data, hence nothing to do.
 	 */
 	GMutableSetT()
-		: GIndividual()
+		: GOptimizableEntity()
 		, GStdPtrVectorInterfaceT<T>()
 	{ /* nothing */	}
 
@@ -99,7 +99,7 @@ public:
 	 * @param cp A copy of another GMutableSetT<T> object
 	 */
 	GMutableSetT(const GMutableSetT<T>& cp)
-		: GIndividual(cp)
+		: GOptimizableEntity(cp)
 		, GStdPtrVectorInterfaceT<T>(cp)
 	{ /* nothing */ }
 
@@ -167,7 +167,7 @@ public:
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GIndividual::checkRelationshipWith(cp, e, limit, "GMutableSetT<T>", y_name, withMessages));
+		deviations.push_back(GOptimizableEntity::checkRelationshipWith(cp, e, limit, "GMutableSetT<T>", y_name, withMessages));
 		deviations.push_back(GStdPtrVectorInterfaceT<T>::checkRelationshipWith(*p_load, e, limit, "GMutableSetT<T>", y_name, withMessages));
 
 		// no local data ...
@@ -182,7 +182,7 @@ public:
 	 */
 	inline void swap(GMutableSetT<T>& cp) {
 		GStdPtrVectorInterfaceT<T>::swap(cp.data);
-		GIndividual::setDirtyFlag();
+		GOptimizableEntity::setDirtyFlag();
 		cp.setDirtyFlag();
 	}
 
@@ -203,7 +203,7 @@ public:
 		, const bool& showOrigin
 	) OVERRIDE {
 		// Call our parent class'es function
-		GIndividual::addConfigurationOptions(gpb, showOrigin);
+		GOptimizableEntity::addConfigurationOptions(gpb, showOrigin);
 
 		// No local data
 	}
@@ -239,7 +239,7 @@ protected:
 	  const GMutableSetT<T> *p_load = this->template gobject_conversion<GMutableSetT<T> >(cp);
 
 	  // No local data - load the parent class'es data
-	  GIndividual::load_(cp);
+	  GOptimizableEntity::load_(cp);
 	  GStdPtrVectorInterfaceT<T>::operator=(*p_load);
 	}
 
@@ -274,7 +274,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GIndividual::modify_GUnitTests()) result = true;
+		if(GOptimizableEntity::modify_GUnitTests()) result = true;
 		if(GStdPtrVectorInterfaceT<T>::modify_GUnitTests()) result = true;
 
 		// Try to change the objects contained in the collection
@@ -301,7 +301,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GIndividual::specificTestsNoFailureExpected_GUnitTests();
+		GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests();
 		GStdPtrVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
 
 		// no local data, nothing to test
@@ -321,7 +321,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GIndividual::specificTestsFailuresExpected_GUnitTests();
+		GOptimizableEntity::specificTestsFailuresExpected_GUnitTests();
 		GStdPtrVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
 
 		// no local data, nothing to test

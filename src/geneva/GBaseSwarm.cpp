@@ -1277,11 +1277,11 @@ double GBaseSwarm::findBests() {
 		// Only partially sort the arrays
 		if(this->getMaxMode() == true){
 			std::sort(this->begin() + firstCounter, this->begin() + lastCounter,
-					boost::bind(&GIndividual::fitness, _1, 0) > boost::bind(&GIndividual::fitness, _2, 0));
+					boost::bind(&GOptimizableEntity::fitness, _1, 0) > boost::bind(&GOptimizableEntity::fitness, _2, 0));
 		}
 		else{
 			std::sort(this->begin() + firstCounter, this->begin() + lastCounter,
-					boost::bind(&GIndividual::fitness, _1, 0) < boost::bind(&GIndividual::fitness, _2, 0));
+					boost::bind(&GOptimizableEntity::fitness, _1, 0) < boost::bind(&GOptimizableEntity::fitness, _2, 0));
 		}
 
 		// Check whether the best individual of the neighborhood is better than

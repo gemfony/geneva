@@ -49,7 +49,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
@@ -70,11 +70,11 @@ namespace Geneva {
  * algorithms acting on parameter objects.
  *
  * Populations are collections of individuals, which themselves are objects
- * exhibiting at least the GIndividual class' API, most notably the ind_type::fitness()
- * and GIndividual::adapt() functions.
+ * exhibiting at least the GOptimizableEntity class' API, most notably the ind_type::fitness()
+ * and GOptimizableEntity::adapt() functions.
  *
  * In order to add parents to an instance of this class use the default constructor,
- * then add at least one GIndividual-derivative to it, and call setDefaultPopulationSize().
+ * then add at least one GOptimizableEntity-derivative to it, and call setDefaultPopulationSize().
  * The population will then be "filled up" with missing individuals as required, before the
  * optimization starts.
  */
@@ -99,8 +99,8 @@ class GBaseParChildT
    }
    /////////////////////////////////////////////////////////////////////////////
 
-   // Make sure ind_type is a derivative of GIndividual (or is GIndividual itself)
-   BOOST_MPL_ASSERT((boost::is_base_of<GIndividual, ind_type>));
+   // Make sure ind_type is a derivative of GOptimizableEntity (or is GOptimizableEntity itself)
+   BOOST_MPL_ASSERT((boost::is_base_of<GOptimizableEntity, ind_type>));
 
 public:
    /***************************************************************************/
@@ -526,7 +526,7 @@ public:
    /***************************************************************************/
    /**
     * Retrieves a specific parent individual and casts it to the desired type. Note that this
-    * function will only be accessible to the compiler if individual_type is a derivative of GIndividual,
+    * function will only be accessible to the compiler if individual_type is a derivative of GOptimizableEntity,
     * thanks to the magic of Boost's enable_if and Type Traits libraries.
     *
     * @param parent The id of the parent that should be returned
@@ -535,7 +535,7 @@ public:
    template <typename parent_type>
    boost::shared_ptr<parent_type> getParentIndividual(
          std::size_t parentId
-         , typename boost::enable_if<boost::is_base_of<GIndividual, parent_type> >::type* dummy = 0
+         , typename boost::enable_if<boost::is_base_of<GOptimizableEntity, parent_type> >::type* dummy = 0
    ){
 #ifdef DEBUG
       // Check that the parent id is in a valid range
@@ -551,7 +551,7 @@ public:
 #endif /* DEBUG */
 
       // Does error checks on the conversion internally
-      return Gem::Common::convertSmartPointer<GIndividual, parent_type>(*(this->begin() + parentId));
+      return Gem::Common::convertSmartPointer<GOptimizableEntity, parent_type>(*(this->begin() + parentId));
    }
 
    /***************************************************************************/
@@ -657,7 +657,7 @@ protected:
          if(nParents_==1) {
             for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+1; it!= GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
                (*it)->GObject::load(*(GOptimizationAlgorithmT<ind_type>::data.begin()));
-               (*it)->GIndividual::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(0);
+               (*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(0);
             }
          } else {
             // TODO: Check whether it is sufficient to do this only once
@@ -754,7 +754,7 @@ protected:
    void markParents() {
       typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; ++it){
-         (*it)->GIndividual::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
+         (*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
       }
    }
 
@@ -765,7 +765,7 @@ protected:
    void markChildren() {
       typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it){
-         (*it)->GIndividual::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
+         (*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
       }
    }
 
@@ -778,7 +778,7 @@ protected:
       std::size_t pos = 0;
       typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
-         (*it)->GIndividual::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
+         (*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
       }
    }
 
@@ -1020,7 +1020,7 @@ protected:
       child->GObject::load(*(GOptimizationAlgorithmT<ind_type>::data.begin() + parent_pos));
 
       // Let the individual know the id of the parent
-      child->GIndividual::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(parent_pos);
+      child->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(parent_pos);
    }
 
    /***************************************************************************/
@@ -1046,7 +1046,7 @@ protected:
             // Load the parent's data
             p->GObject::load(*(GOptimizationAlgorithmT<ind_type>::data.begin() + par));
             // Let the individual know the parent's id
-            p->GIndividual::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(par);
+            p->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(par);
             done = true;
 
             break;

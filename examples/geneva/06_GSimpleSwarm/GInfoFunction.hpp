@@ -45,11 +45,11 @@
 #include <boost/cstdint.hpp>
 
 // Geneva header files go here
-#include <courtier/GAsioHelperFunctions.hpp>
-#include <courtier/GAsioTCPConsumerT.hpp>
-#include <geneva/GSerialSwarm.hpp>
-#include <geneva/GIndividual.hpp>
-#include <geneva/GDoubleCollection.hpp>
+#include "courtier/GAsioHelperFunctions.hpp"
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "geneva/GSerialSwarm.hpp"
+#include "geneva/GOptimizableEntity.hpp"
+#include "geneva/GDoubleCollection.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
 // The individual that should be optimized

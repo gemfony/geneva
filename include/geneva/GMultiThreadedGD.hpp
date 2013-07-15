@@ -52,7 +52,7 @@
 #include "common/GThreadWrapper.hpp"
 #include "common/GThreadPool.hpp"
 #include "geneva/GBaseGD.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GObject.hpp"
 
 #ifdef GEM_TESTING

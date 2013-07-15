@@ -49,7 +49,7 @@
 #include <courtier/GAsioTCPConsumerT.hpp>
 #include <geneva/GBrokerEA.hpp>
 #include <geneva/GSerialEA.hpp>
-#include <geneva/GIndividual.hpp>
+#include <geneva/GOptimizableEntity.hpp>
 #include <geneva/GDoubleCollection.hpp>
 #include "geneva/GOptimizationEnums.hpp"
 

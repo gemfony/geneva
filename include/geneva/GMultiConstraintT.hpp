@@ -55,7 +55,7 @@ namespace Gem {
 namespace Geneva {
 
 // Forward declaration
-class GIndividual;
+class GOptimizableEntity;
 
 /******************************************************************************/
 /**
@@ -77,8 +77,8 @@ class GValidityCheckT : public GObject
    }
    ///////////////////////////////////////////////////////////////////////
 
-   // We only accept validity checks for types derived directly or indirectly from GIndividual
-   BOOST_MPL_ASSERT((boost::is_base_of<Gem::Geneva::GIndividual , ind_type>));
+   // We only accept validity checks for types derived directly or indirectly from GOptimizableEntity
+   BOOST_MPL_ASSERT((boost::is_base_of<Gem::Geneva::GOptimizableEntity , ind_type>));
 
 public:
    /***************************************************************************/

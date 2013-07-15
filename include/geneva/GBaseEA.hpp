@@ -51,7 +51,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"

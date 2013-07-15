@@ -139,7 +139,7 @@ public:
 			summary_ << "  iteration.push_back(" << iteration << ");" << std::endl;
 
 			// Get access to the best inidividual
-			boost::shared_ptr<GIndividual> gdii_ptr = ea->getBestIndividual<GIndividual>();
+			boost::shared_ptr<GOptimizableEntity> gdii_ptr = ea->getBestIndividual<GOptimizableEntity>();
 
 			// Retrieve the fitness of this individual
 			currentEvaluation = gdii_ptr->getCachedFitness(isDirty);

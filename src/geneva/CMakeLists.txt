@@ -40,7 +40,6 @@ SET ( OPTIMIZATIONSOURCES
 	GFloatObjectCollection
 	GGDPersonalityTraits
 	GGradientDescentFactory
-	GIndividual
 	GIndividualMultiConstraint
 	GIndividualStandardConsumers
 	GInt32Collection
@@ -56,6 +55,7 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedSwarm
 	Go2
 	GObject
+	GOptimizableEntity
 	GOptimizableI
 	GOptimizationAlgorithmT
 	GOptimizationEnums

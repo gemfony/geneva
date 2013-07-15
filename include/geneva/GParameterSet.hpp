@@ -320,7 +320,7 @@ public:
 		}
 
 		// As we have modified our internal data sets, make sure the dirty flag is set
-		GIndividual::setDirtyFlag();
+		GOptimizableEntity::setDirtyFlag();
 	}
 
 protected:

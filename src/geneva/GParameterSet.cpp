@@ -272,7 +272,7 @@ void GParameterSet::randomInit() {
 	}
 
 	// As we have modified our internal data sets, make sure the dirty flag is set
-	GIndividual::setDirtyFlag();
+	GOptimizableEntity::setDirtyFlag();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -388,7 +388,7 @@ void GParameterSet::fpFixedValueInit(const float& val) {
 	}
 
 	// As we have modified our internal data sets, make sure the dirty flag is set
-	GIndividual::setDirtyFlag();
+	GOptimizableEntity::setDirtyFlag();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -411,7 +411,7 @@ void GParameterSet::fpMultiplyBy(const float& val) {
 	}
 
 	// As we have modified our internal data sets, make sure the dirty flag is set
-	GIndividual::setDirtyFlag();
+	GOptimizableEntity::setDirtyFlag();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -434,7 +434,7 @@ void GParameterSet::fpMultiplyByRandom(const float& min, const float& max) {
 	}
 
 	// As we have modified our internal data sets, make sure the dirty flag is set
-	GIndividual::setDirtyFlag();
+	GOptimizableEntity::setDirtyFlag();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -454,7 +454,7 @@ void GParameterSet::fpMultiplyByRandom() {
 	}
 
 	// As we have modified our internal data sets, make sure the dirty flag is set
-	GIndividual::setDirtyFlag();
+	GOptimizableEntity::setDirtyFlag();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -488,7 +488,7 @@ void GParameterSet::fpAdd(boost::shared_ptr<GParameterSet> p) {
 	}
 
 	// As we have modified our internal data sets, make sure the dirty flag is set
-	GIndividual::setDirtyFlag();
+	GOptimizableEntity::setDirtyFlag();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -522,7 +522,7 @@ void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
 	}
 
 	// As we have modified our internal data sets, make sure the dirty flag is set
-	GIndividual::setDirtyFlag();
+	GOptimizableEntity::setDirtyFlag();
 }
 
 /* ----------------------------------------------------------------------------------

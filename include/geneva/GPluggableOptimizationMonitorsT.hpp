@@ -449,7 +449,7 @@ public:
                switch(this->nProfileVars()) {
                   case 1:
                   {
-                     double val0    = p->GIndividual::getVarVal<double>(profVarVec_[0]);
+                     double val0    = p->GOptimizableEntity::getVarVal<double>(profVarVec_[0]);
                      double fitness = p->getCachedFitness(isDirty);
 
                      progressPlotter2D_oa_->add(boost::tuple<double,double>(val0, fitness));
@@ -458,8 +458,8 @@ public:
 
                   case 2:
                   {
-                     double val0 = p->GIndividual::getVarVal<double>(profVarVec_[0]);
-                     double val1 = p->GIndividual::getVarVal<double>(profVarVec_[1]);
+                     double val0 = p->GOptimizableEntity::getVarVal<double>(profVarVec_[0]);
+                     double val1 = p->GOptimizableEntity::getVarVal<double>(profVarVec_[1]);
                      double fitness = p->getCachedFitness(isDirty);
 
                      progressPlotter3D_oa_->add(boost::tuple<double,double,double>(val0, val1, fitness));
@@ -468,9 +468,9 @@ public:
 
                   case 3:
                   {
-                     double val0 = p->GIndividual::getVarVal<double>(profVarVec_[0]);
-                     double val1 = p->GIndividual::getVarVal<double>(profVarVec_[1]);
-                     double val2 = p->GIndividual::getVarVal<double>(profVarVec_[2]);
+                     double val0 = p->GOptimizableEntity::getVarVal<double>(profVarVec_[0]);
+                     double val1 = p->GOptimizableEntity::getVarVal<double>(profVarVec_[1]);
+                     double val2 = p->GOptimizableEntity::getVarVal<double>(profVarVec_[2]);
                      double fitness = p->getCachedFitness(isDirty);
 
                      progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(val0, val1, val2, fitness));
@@ -494,7 +494,7 @@ public:
                   switch(this->nProfileVars()) {
                      case 1:
                      {
-                        double val0    = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
+                        double val0    = (*it)->GOptimizableEntity::getVarVal<double>(profVarVec_[0]);
                         double fitness = (*it)->getCachedFitness(isDirty);
 
                         progressPlotter2D_oa_->add(boost::tuple<double,double>(val0, fitness));
@@ -503,8 +503,8 @@ public:
 
                      case 2:
                      {
-                        double val0 = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
-                        double val1 = (*it)->GIndividual::getVarVal<double>(profVarVec_[1]);
+                        double val0 = (*it)->GOptimizableEntity::getVarVal<double>(profVarVec_[0]);
+                        double val1 = (*it)->GOptimizableEntity::getVarVal<double>(profVarVec_[1]);
                         double fitness = (*it)->getCachedFitness(isDirty);
 
                         progressPlotter3D_oa_->add(boost::tuple<double,double,double>(val0, val1, fitness));
@@ -513,9 +513,9 @@ public:
 
                      case 3:
                      {
-                        double val0 = (*it)->GIndividual::getVarVal<double>(profVarVec_[0]);
-                        double val1 = (*it)->GIndividual::getVarVal<double>(profVarVec_[1]);
-                        double val2 = (*it)->GIndividual::getVarVal<double>(profVarVec_[2]);
+                        double val0 = (*it)->GOptimizableEntity::getVarVal<double>(profVarVec_[0]);
+                        double val1 = (*it)->GOptimizableEntity::getVarVal<double>(profVarVec_[1]);
+                        double val2 = (*it)->GOptimizableEntity::getVarVal<double>(profVarVec_[2]);
                         double fitness = (*it)->getCachedFitness(isDirty);
 
                         progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(val0, val1, val2, fitness));

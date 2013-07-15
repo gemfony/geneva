@@ -112,7 +112,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	~GParameterT()
+	virtual ~GParameterT()
 	{ /* nothing */ }
 
 

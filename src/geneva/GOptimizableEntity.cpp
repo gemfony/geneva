@@ -1,5 +1,5 @@
 /**
- * @file GIndividual.cpp
+ * @file GOptimizableEntity.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GIndividual.hpp"
+#include "geneva/GOptimizableEntity.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -41,7 +41,7 @@ namespace Geneva {
 /**
  * The default constructor.
  */
-GIndividual::GIndividual()
+GOptimizableEntity::GOptimizableEntity()
 	: GMutableI()
 	, GRateableI()
 	, GObject()
@@ -62,9 +62,9 @@ GIndividual::GIndividual()
 /**
  * The standard copy constructor.
  *
- * @param cp A copy of another GIndividual object
+ * @param cp A copy of another GOptimizableEntity object
  */
-GIndividual::GIndividual(const GIndividual& cp)
+GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
 	: GMutableI(cp)
 	, GRateableI(cp)
 	, GObject(cp)
@@ -91,32 +91,32 @@ GIndividual::GIndividual(const GIndividual& cp)
 /**
  * The standard destructor.
  */
-GIndividual::~GIndividual() { /* nothing */ }
+GOptimizableEntity::~GOptimizableEntity() { /* nothing */ }
 
 /******************************************************************************/
 /**
- * Checks for equality with another GIndividual object
+ * Checks for equality with another GOptimizableEntity object
  *
- * @param  cp A constant reference to another GIndividual object
+ * @param  cp A constant reference to another GOptimizableEntity object
  * @return A boolean indicating whether both objects are equal
  */
-bool GIndividual::operator==(const GIndividual& cp) const {
+bool GOptimizableEntity::operator==(const GOptimizableEntity& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GIndividual::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizableEntity::operator==","cp", CE_SILENT);
 }
 
 /******************************************************************************/
 /**
- * Checks for inequality with another GIndividual object
+ * Checks for inequality with another GOptimizableEntity object
  *
- * @param  cp A constant reference to another GIndividual object
+ * @param  cp A constant reference to another GOptimizableEntity object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GIndividual::operator!=(const GIndividual& cp) const {
+bool GOptimizableEntity::operator!=(const GOptimizableEntity& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GIndividual::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizableEntity::operator!=","cp", CE_SILENT);
 }
 
 /******************************************************************************/
@@ -132,7 +132,7 @@ bool GIndividual::operator!=(const GIndividual& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GIndividual::checkRelationshipWith(
+boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -143,64 +143,64 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GIndividual *p_load = GObject::gobject_conversion<GIndividual>(&cp);
+	const GOptimizableEntity *p_load = GObject::gobject_conversion<GOptimizableEntity>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GIndividual", y_name, withMessages));
+	deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GOptimizableEntity", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", currentFitness_, p_load->currentFitness_, "currentFitness_", "p_load->currentFitness_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", currentSecondaryFitness_, p_load->currentSecondaryFitness_, "currentSecondaryFitness_", "p_load->currentSecondaryFitness_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", bestPastSecondaryFitness_, p_load->bestPastSecondaryFitness_, "bestPastSecondaryFitness_", "p_load->bestPastSecondaryFitness_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", nStalls_, p_load->nStalls_, "nStalls_", "p_load->nStalls_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", dirtyFlag_, p_load->dirtyFlag_, "dirtyFlag_", "p_load->dirtyFlag_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", assignedIteration_, p_load->assignedIteration_, "assignedIteration_", "p_load->assignedIteration_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GIndividual", validityLevel_, p_load->validityLevel_, "validityLevel_", "p_load->validityLevel_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GIndividual", validityThreshold_, p_load->validityThreshold_, "validityThreshold_", "p_load->validityThreshold_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", pt_ptr_, p_load->pt_ptr_, "pt_ptr_", "p_load->pt_ptr_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", individualConstraint_, p_load->individualConstraint_, "individualConstraint_", "p_load->individualConstraint_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", currentFitness_, p_load->currentFitness_, "currentFitness_", "p_load->currentFitness_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", currentSecondaryFitness_, p_load->currentSecondaryFitness_, "currentSecondaryFitness_", "p_load->currentSecondaryFitness_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", bestPastSecondaryFitness_, p_load->bestPastSecondaryFitness_, "bestPastSecondaryFitness_", "p_load->bestPastSecondaryFitness_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nStalls_, p_load->nStalls_, "nStalls_", "p_load->nStalls_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", dirtyFlag_, p_load->dirtyFlag_, "dirtyFlag_", "p_load->dirtyFlag_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", assignedIteration_, p_load->assignedIteration_, "assignedIteration_", "p_load->assignedIteration_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", validityLevel_, p_load->validityLevel_, "validityLevel_", "p_load->validityLevel_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", validityThreshold_, p_load->validityThreshold_, "validityThreshold_", "p_load->validityThreshold_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", pt_ptr_, p_load->pt_ptr_, "pt_ptr_", "p_load->pt_ptr_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", individualConstraint_, p_load->individualConstraint_, "individualConstraint_", "p_load->individualConstraint_", e , limit));
 
-	return evaluateDiscrepancies("GIndividual", caller, deviations, e);
+	return evaluateDiscrepancies("GOptimizableEntity", caller, deviations, e);
 }
 
 /******************************************************************************/
 /**
  * Emits a name for this class / object
  */
-std::string GIndividual::name() const {
-   return std::string("GIndividual");
+std::string GOptimizableEntity::name() const {
+   return std::string("GOptimizableEntity");
 }
 
 /******************************************************************************/
 /**
  * Allows to register a constraint with this individual
  */
-void GIndividual::registerConstraint(boost::shared_ptr<GValidityCheckT<GIndividual> > c_ptr) {
+void GOptimizableEntity::registerConstraint(boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > c_ptr) {
    if(!c_ptr) {
       glogger
-      << "In GIndividual::registerConstraint(): Error!" << std::endl
+      << "In GOptimizableEntity::registerConstraint(): Error!" << std::endl
       << "Tried to register empty constraint object" << std::endl
       << GEXCEPTION;
    }
 
    // We store clones, so individual objects do not share the same object
-   individualConstraint_ = c_ptr->GObject::clone<GValidityCheckT<GIndividual> >();
+   individualConstraint_ = c_ptr->GObject::clone<GValidityCheckT<GOptimizableEntity> >();
 }
 
 /******************************************************************************/
 /**
- * Loads the data of another GIndividual, camouflaged as a GObject
+ * Loads the data of another GOptimizableEntity, camouflaged as a GObject
  *
- * @param cp A copy of another GIndividual object, camouflaged as a GObject
+ * @param cp A copy of another GOptimizableEntity object, camouflaged as a GObject
  */
-void GIndividual::load_(const GObject* cp) {
-	const GIndividual *p_load = gobject_conversion<GIndividual>(cp);
+void GOptimizableEntity::load_(const GObject* cp) {
+	const GOptimizableEntity *p_load = gobject_conversion<GOptimizableEntity>(cp);
 
 	// Load the parent class'es data
 	GObject::load_(cp);
@@ -227,9 +227,9 @@ void GIndividual::load_(const GObject* cp) {
  * The adaption interface. Triggers adaption of the individual, using each parameter object's adaptor.
  * Sets the dirty flag, as the parameters have been changed.
  */
-void GIndividual::adapt() {
+void GOptimizableEntity::adapt() {
 	this->customAdaptions(); // The actual mutation and adaption process
-	GIndividual::setDirtyFlag(); // Make sure the individual is re-evaluated when fitness() is called next time
+	GOptimizableEntity::setDirtyFlag(); // Make sure the individual is re-evaluated when fitness() is called next time
 }
 
 /* ----------------------------------------------------------------------------------
@@ -247,13 +247,13 @@ void GIndividual::adapt() {
  * @param id The id of the fitness criterion
  * @return The fitness of this individual
  */
-double GIndividual::fitness(const std::size_t& id) {
+double GOptimizableEntity::fitness(const std::size_t& id) {
 	// Check whether we need to recalculate the fitness
 	if (dirtyFlag_) {
 		// Re-evaluation is not allowed on the server
 		if (serverMode_) {
 		   glogger
-		   << "In GIndividual::fitness():" << std::endl
+		   << "In GOptimizableEntity::fitness():" << std::endl
          << "Tried to perform re-evaluation in server-mode" << std::endl
          << GEXCEPTION;
 		}
@@ -279,7 +279,7 @@ double GIndividual::fitness(const std::size_t& id) {
  *
  * @return The fitness of this individual, according to the fitness function with id 0
  */
-double GIndividual::fitness() {
+double GOptimizableEntity::fitness() {
 	return fitness(0);
 }
 
@@ -289,7 +289,7 @@ double GIndividual::fitness() {
  *
  * @return The main fitness result
  */
-double GIndividual::adaptAndEvaluate() {
+double GOptimizableEntity::adaptAndEvaluate() {
 	adapt();
 	return doFitnessCalculation();
 }
@@ -302,7 +302,7 @@ double GIndividual::adaptAndEvaluate() {
  * @param id The id of the primary or secondary fitness value
  * @return The cached fitness value (not necessarily up-to-date) with id id
  */
-double GIndividual::getCachedFitness(bool& dirtyFlag, const std::size_t& id) const  {
+double GOptimizableEntity::getCachedFitness(bool& dirtyFlag, const std::size_t& id) const  {
 	dirtyFlag = dirtyFlag_;
 
 	if(0 == id) {
@@ -311,7 +311,7 @@ double GIndividual::getCachedFitness(bool& dirtyFlag, const std::size_t& id) con
 #ifdef DEBUG
 		if(currentSecondaryFitness_.size() < id) {
 		   glogger
-		   << "In GIndividual::getCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
+		   << "In GOptimizableEntity::getCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
          << "Got invalid result id: " << id << std::endl
          << "where maximum allowed id would be " << currentSecondaryFitness_.size()-1 << std::endl
          << GEXCEPTION;
@@ -336,7 +336,7 @@ double GIndividual::getCachedFitness(bool& dirtyFlag, const std::size_t& id) con
  *
  * @return The main result of the fitness calculation
  */
-double GIndividual::doFitnessCalculation() {
+double GOptimizableEntity::doFitnessCalculation() {
    if(individualConstraint_) {
       // Check whether this is a valid solution
       validityLevel_ = individualConstraint_->check(this, validityThreshold_);
@@ -372,7 +372,7 @@ double GIndividual::doFitnessCalculation() {
  *
  * @param secondaryValue The secondary fitness value to be registered
  */
-void GIndividual::registerSecondaryResult(const double& secondaryValue) {
+void GOptimizableEntity::registerSecondaryResult(const double& secondaryValue) {
 	currentSecondaryFitness_.push_back(secondaryValue);
 }
 
@@ -383,7 +383,7 @@ void GIndividual::registerSecondaryResult(const double& secondaryValue) {
  *
  * @return The number of fitness criteria registered with this individual
  */
-std::size_t GIndividual::getNumberOfFitnessCriteria() const {
+std::size_t GOptimizableEntity::getNumberOfFitnessCriteria() const {
 	return currentSecondaryFitness_.size() + 1;
 }
 
@@ -393,7 +393,7 @@ std::size_t GIndividual::getNumberOfFitnessCriteria() const {
  *
  * @return The number of secondary fitness criteria registered with this individual
  */
-std::size_t GIndividual::getNumberOfSecondaryFitnessCriteria() const {
+std::size_t GOptimizableEntity::getNumberOfSecondaryFitnessCriteria() const {
 	return currentSecondaryFitness_.size();
 }
 
@@ -403,7 +403,7 @@ std::size_t GIndividual::getNumberOfSecondaryFitnessCriteria() const {
  *
  * @return A boolean indicating whether more than one target function is present
  */
-bool GIndividual::hasMultipleFitnessCriteria() const {
+bool GOptimizableEntity::hasMultipleFitnessCriteria() const {
 	return (getNumberOfFitnessCriteria()>1?true:false);
 }
 
@@ -415,12 +415,12 @@ bool GIndividual::hasMultipleFitnessCriteria() const {
  * @param f The primary fitness value
  * @param sec_f_vec A vector of secondary fitness values
  */
-void GIndividual::setFitness_(const double& f, const std::vector<double>& sec_f_vec) {
-	if(sec_f_vec.size() != GIndividual::getNumberOfSecondaryFitnessCriteria()) {
+void GOptimizableEntity::setFitness_(const double& f, const std::vector<double>& sec_f_vec) {
+	if(sec_f_vec.size() != GOptimizableEntity::getNumberOfSecondaryFitnessCriteria()) {
 	   glogger
-	   << "In GIndividual::setFitness_(...): Error!" << std::endl
+	   << "In GOptimizableEntity::setFitness_(...): Error!" << std::endl
       << "Invalid size of secondary fitness vector: " << std::endl
-      << sec_f_vec.size() << " / " << GIndividual::getNumberOfSecondaryFitnessCriteria() << std::endl
+      << sec_f_vec.size() << " / " << GOptimizableEntity::getNumberOfSecondaryFitnessCriteria() << std::endl
       << GEXCEPTION;
 	}
 
@@ -443,14 +443,14 @@ void GIndividual::setFitness_(const double& f, const std::vector<double>& sec_f_
  * @param sM The desired new value of the serverMode_ variable
  * @return The previous value of the serverMode_ variable
  */
-bool GIndividual::setServerMode(const bool& sM) {
+bool GOptimizableEntity::setServerMode(const bool& sM) {
 	bool previous = serverMode_;
 	serverMode_ = sM;
 	return previous;
 }
 
 /* ----------------------------------------------------------------------------------
- * Setting is tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Setting is tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * Test for throw of fitness() function in serverMode tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
@@ -461,12 +461,12 @@ bool GIndividual::setServerMode(const bool& sM) {
  *
  * @return The current value of the serverMode_ variable
  */
-bool GIndividual::serverMode() const {
+bool GOptimizableEntity::serverMode() const {
 	return serverMode_;
 }
 
 /* ----------------------------------------------------------------------------------
- * Retrieval is tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Retrieval is tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -476,7 +476,7 @@ bool GIndividual::serverMode() const {
  *
  * @return The current value of the serverMode_ variable
  */
-bool GIndividual::getServerMode() const {
+bool GOptimizableEntity::getServerMode() const {
 	return serverMode();
 }
 
@@ -486,7 +486,7 @@ bool GIndividual::getServerMode() const {
  *
  * @return The value of the dirtyFlag_ variable
  */
-bool GIndividual::isDirty() const  {
+bool GOptimizableEntity::isDirty() const  {
 	return dirtyFlag_;
 }
 
@@ -506,12 +506,12 @@ bool GIndividual::isDirty() const  {
  *
  * @param mode A boolean which indicates whether we want to work in maximization or minimization mode
  */
-void GIndividual::setMaxMode_(const bool& mode) {
+void GOptimizableEntity::setMaxMode_(const bool& mode) {
 	maximize_ = mode;
 }
 
 /* ----------------------------------------------------------------------------------
- * Setting is tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Setting is tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -521,12 +521,12 @@ void GIndividual::setMaxMode_(const bool& mode) {
  *
  * @return The current value of the maximize_ parameter
  */
-bool GIndividual::getMaxMode() const {
+bool GOptimizableEntity::getMaxMode() const {
 	return maximize_;
 }
 
 /* ----------------------------------------------------------------------------------
- * Retrieval is tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Retrieval is tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -537,7 +537,7 @@ bool GIndividual::getMaxMode() const {
  *
  * @return The worst case value, depending on maximization or minimization
  */
-double GIndividual::getWorstCase() const {
+double GOptimizableEntity::getWorstCase() const {
    return (this->getMaxMode()?-DBL_MAX:DBL_MAX);
 }
 
@@ -546,13 +546,13 @@ double GIndividual::getWorstCase() const {
  * Sets the dirtyFlag_. This is a "one way" function, accessible to derived classes. Once the dirty flag
  * has been set, the only way to reset it is to calculate the fitness of this object.
  */
-void GIndividual::setDirtyFlag()  {
+void GOptimizableEntity::setDirtyFlag()  {
 	dirtyFlag_ = true;
 }
 
 /* ----------------------------------------------------------------------------------
  * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -563,14 +563,14 @@ void GIndividual::setDirtyFlag()  {
  * @param dirtyFlag The new value for the dirtyFlag_ variable
  * @return The previous value of the dirtyFlag_ variable
  */
-bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
+bool GOptimizableEntity::setDirtyFlag(const bool& dirtyFlag)  {
 	bool previous = dirtyFlag_;
 	dirtyFlag_ = dirtyFlag;
 	return previous;
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -578,7 +578,7 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
 /**
  * Checks whether this solution is valid (defined as a validityLevel_ > validityThreshold_).
  */
-bool GIndividual::isValid() const {
+bool GOptimizableEntity::isValid() const {
    return (validityLevel_ > validityThreshold_);
 }
 
@@ -587,7 +587,7 @@ bool GIndividual::isValid() const {
  * Allows to specify how valid a given solution is. This is useful for
  * external checks for compliance with a set of boundary conditions
  */
-void GIndividual::setValidityLevel(const double& validityLevel) {
+void GOptimizableEntity::setValidityLevel(const double& validityLevel) {
    validityLevel_ = validityLevel;
 }
 
@@ -595,7 +595,7 @@ void GIndividual::setValidityLevel(const double& validityLevel) {
 /**
  * Check how valid a given solution is
  */
-double GIndividual::getValidityLevel() const {
+double GOptimizableEntity::getValidityLevel() const {
    return validityLevel_;
 }
 
@@ -603,10 +603,10 @@ double GIndividual::getValidityLevel() const {
 /**
  * Allows to specify as of which threshold a solution is considered to be valid
  */
-void GIndividual::setValidityThreshold(double validityThreshold) {
+void GOptimizableEntity::setValidityThreshold(double validityThreshold) {
    if(validityThreshold < 0. || validityThreshold > 1.0) {
       glogger
-      << "In GIndividual::setValidityThreshold(): Error!" << std::endl
+      << "In GOptimizableEntity::setValidityThreshold(): Error!" << std::endl
       << "Validity threshold outside of [0:1] specified: " << validityThreshold << std::endl
       << GEXCEPTION;
    }
@@ -618,7 +618,7 @@ void GIndividual::setValidityThreshold(double validityThreshold) {
 /**
  * Check as of which threshold a solution is considered to be valid
  */
-double GIndividual::getValidityThreshold() const {
+double GOptimizableEntity::getValidityThreshold() const {
    return validityThreshold_;
 }
 
@@ -628,7 +628,7 @@ double GIndividual::getValidityThreshold() const {
  *
  *  @return The result of the combination
  */
-double GIndividual::sumCombiner() const {
+double GOptimizableEntity::sumCombiner() const {
 	double result = 0.;
 	std::vector<double>::const_iterator cit;
 	for(cit=currentSecondaryFitness_.begin(); cit!=currentSecondaryFitness_.end(); ++cit) {
@@ -643,7 +643,7 @@ double GIndividual::sumCombiner() const {
  *
  *  @return The result of the combination
  */
-double GIndividual::fabsSumCombiner() const {
+double GOptimizableEntity::fabsSumCombiner() const {
 	double result = 0.;
 	std::vector<double>::const_iterator cit;
 	for(cit=currentSecondaryFitness_.begin(); cit!=currentSecondaryFitness_.end(); ++cit) {
@@ -660,7 +660,7 @@ double GIndividual::fabsSumCombiner() const {
  *
  * @return The result of the combination
  */
-double GIndividual::squaredSumCombiner() const {
+double GOptimizableEntity::squaredSumCombiner() const {
 	double result = 0.;
 	std::vector<double>::const_iterator cit;
 	for(cit=currentSecondaryFitness_.begin(); cit!=currentSecondaryFitness_.end(); ++cit) {
@@ -678,13 +678,13 @@ double GIndividual::squaredSumCombiner() const {
  * @param weights The weights to be multiplied with the cached results
  * @return The result of the combination
  */
-double GIndividual::weighedSquaredSumCombiner(const std::vector<double>& weights) const {
+double GOptimizableEntity::weighedSquaredSumCombiner(const std::vector<double>& weights) const {
 	double result = 0.;
 	std::vector<double>::const_iterator cit_eval, cit_weights;
 
 	if(currentSecondaryFitness_.size() != weights.size()) {
 	   glogger
-	   << "In GIndividual::weighedSquaredSumCombine(): Error!" << std::endl
+	   << "In GOptimizableEntity::weighedSquaredSumCombine(): Error!" << std::endl
       << "Sizes of currentSecondaryFitness_ and the weights vector don't match: " << currentSecondaryFitness_.size() << " / " << weights.size() << std::endl
       << GEXCEPTION;
 	}
@@ -706,7 +706,7 @@ double GIndividual::weighedSquaredSumCombiner(const std::vector<double>& weights
  * @param gpb The GParserBuilder object to which configuration options should be added
  * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
-void GIndividual::addConfigurationOptions (
+void GOptimizableEntity::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 	, const bool& showOrigin
 ) {
@@ -718,12 +718,12 @@ void GIndividual::addConfigurationOptions (
 	// Add local data
    comment = ""; // Reset the first comment string
    comment += "The [0,1] threshold as of which a solution is considered to be invalid;";
-   if(showOrigin) comment += " [GIndividual]";
+   if(showOrigin) comment += " [GOptimizableEntity]";
    gpb.registerFileParameter<double>(
       "validityThreshold" // The name of the first variable
       , 0.5
       , boost::bind(
-         &GIndividual::setValidityThreshold
+         &GOptimizableEntity::setValidityThreshold
          , this
          , _1
         )
@@ -742,13 +742,13 @@ void GIndividual::addConfigurationOptions (
  *
  * @param gpt A pointer to an object representing the new personality of this object
  */
-void GIndividual::setPersonality(
+void GOptimizableEntity::setPersonality(
       boost::shared_ptr<GPersonalityTraits> gpt
 ) {
    // Make sure we haven't been given an empty pointer
    if(!gpt) {
       glogger
-      << "In GIndividual::setPersonality(): Error!" << std::endl
+      << "In GOptimizableEntity::setPersonality(): Error!" << std::endl
       << "Received empty personality traits pointer" << std::endl
       << GEXCEPTION;
    }
@@ -759,7 +759,7 @@ void GIndividual::setPersonality(
 
 
 /* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -767,12 +767,12 @@ void GIndividual::setPersonality(
 /**
  * Resets the current personality to PERSONALITY_NONE
  */
-void GIndividual::resetPersonality() {
+void GOptimizableEntity::resetPersonality() {
    pt_ptr_.reset();
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -782,7 +782,7 @@ void GIndividual::resetPersonality() {
  *
  * @return An identifier for the current personality of this object
  */
-std::string GIndividual::getPersonality() const {
+std::string GOptimizableEntity::getPersonality() const {
 	if(pt_ptr_) {
 	   return pt_ptr_->name();
 	} else {
@@ -791,7 +791,7 @@ std::string GIndividual::getPersonality() const {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -803,12 +803,12 @@ std::string GIndividual::getPersonality() const {
  *
  * @return A shared pointer to the personality traits base class
  */
-boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
+boost::shared_ptr<GPersonalityTraits> GOptimizableEntity::getPersonalityTraits() {
 #ifdef DEBUG
 	// Do some error checking
 	if(!pt_ptr_) {
 	   glogger
-	   << "In GIndividual::getPersonalityTraits():" << std::endl
+	   << "In GOptimizableEntity::getPersonalityTraits():" << std::endl
       << "Pointer to personality traits object is empty." << std::endl
       << GEXCEPTION;
 	}
@@ -818,19 +818,19 @@ boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
- * Tested in GIndividual::specificTestsFailuresExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
 /******************************************************************************/
 /**
- * A wrapper for GIndividual::customUpdateOnStall() (or the corresponding overloaded
+ * A wrapper for GOptimizableEntity::customUpdateOnStall() (or the corresponding overloaded
  * functions in derived classes) that does error-checking and sets the dirty flag.
  *
  * @return A boolean indicating whether an update was performed and the individual has changed
  */
-bool GIndividual::updateOnStall() {
+bool GOptimizableEntity::updateOnStall() {
 	// Do the actual update of the individual's structure
 	bool updatePerformed = customUpdateOnStall();
 	if(updatePerformed) {
@@ -859,7 +859,7 @@ bool GIndividual::updateOnStall() {
  *
  * @return A boolean indicating whether an update was performed and the object has changed
  */
-bool GIndividual::customUpdateOnStall() {
+bool GOptimizableEntity::customUpdateOnStall() {
 	return false;
 }
 
@@ -873,7 +873,7 @@ bool GIndividual::customUpdateOnStall() {
  * Actions to be performed when adapting this object. This function will be overloaded particularly
  * for the GParameterSet class.
  */
-void GIndividual::customAdaptions()
+void GOptimizableEntity::customAdaptions()
 { /* nothing */}
 
 /******************************************************************************/
@@ -882,12 +882,12 @@ void GIndividual::customAdaptions()
  *
  * @param parentAlgIteration The current iteration of the optimization algorithm
  */
-void GIndividual::setAssignedIteration(const boost::uint32_t& parentAlgIteration) {
+void GOptimizableEntity::setAssignedIteration(const boost::uint32_t& parentAlgIteration) {
 	assignedIteration_ = parentAlgIteration;
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -897,12 +897,12 @@ void GIndividual::setAssignedIteration(const boost::uint32_t& parentAlgIteration
  *
  * @return The parent optimization algorithm's current iteration
  */
-boost::uint32_t GIndividual::getAssignedIteration() const {
+boost::uint32_t GOptimizableEntity::getAssignedIteration() const {
 	return assignedIteration_;
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -912,12 +912,12 @@ boost::uint32_t GIndividual::getAssignedIteration() const {
  *
  * @param bnf The best known fitness so far
  */
-void GIndividual::setBestKnownFitness(const double& bnf) {
+void GOptimizableEntity::setBestKnownFitness(const double& bnf) {
 	bestPastFitness_ = bnf;
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -927,12 +927,12 @@ void GIndividual::setBestKnownFitness(const double& bnf) {
  *
  * @return The best known fitness so far
  */
-double GIndividual::getBestKnownFitness() const {
+double GOptimizableEntity::getBestKnownFitness() const {
 	return bestPastFitness_;
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -942,12 +942,12 @@ double GIndividual::getBestKnownFitness() const {
  *
  * @param nStalls The number of optimization cycles without improvement in the parent algorithm
  */
-void GIndividual::setNStalls(const boost::uint32_t& nStalls) {
+void GOptimizableEntity::setNStalls(const boost::uint32_t& nStalls) {
 	nStalls_ = nStalls;
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -957,12 +957,12 @@ void GIndividual::setNStalls(const boost::uint32_t& nStalls) {
  *
  * @return The number of optimization cycles without improvement in the parent algorithm
  */
-boost::uint32_t GIndividual::getNStalls() const {
+boost::uint32_t GOptimizableEntity::getNStalls() const {
 	return nStalls_;
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -972,7 +972,7 @@ boost::uint32_t GIndividual::getNStalls() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GIndividual::modify_GUnitTests() {
+bool GOptimizableEntity::modify_GUnitTests() {
 #ifdef GEM_TESTING
 
 	using boost::unit_test_framework::test_suite;
@@ -993,7 +993,7 @@ bool GIndividual::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GIndividual::modify_GUnitTests", "GEM_TESTING");
+   condnotset("GOptimizableEntity::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -1002,7 +1002,7 @@ bool GIndividual::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
+void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -1013,7 +1013,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the server mode flag
-		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
 		BOOST_CHECK_NO_THROW(p_test->setServerMode(true));
 		BOOST_CHECK(p_test->serverMode() == true);
@@ -1024,7 +1024,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the maximization mode flag
-		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
 		BOOST_CHECK_NO_THROW(p_test->setMaxMode_(true));
 		BOOST_CHECK(p_test->getMaxMode() == true);
@@ -1035,7 +1035,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check setting of the dirty flag
-		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(true));
 		BOOST_CHECK(p_test->isDirty() == true);
@@ -1050,7 +1050,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the surrounding optimization algorithm's current iteration
-		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
 		for(boost::uint32_t i=1; i<10; i++) {
 			BOOST_CHECK_NO_THROW(p_test->setAssignedIteration(i));
@@ -1066,7 +1066,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the best known fitness so far
-		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
 		for(double d=0.; d<1.; d+=0.1) {
 			BOOST_CHECK_NO_THROW(p_test->setBestKnownFitness(d));
@@ -1082,7 +1082,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the number of consecutive stalls
-		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
 		for(boost::uint32_t i=1; i<10; i++) {
 			BOOST_CHECK_NO_THROW(p_test->setNStalls(i));
@@ -1098,7 +1098,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
    // --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   condnotset("GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1106,7 +1106,7 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GIndividual::specificTestsFailuresExpected_GUnitTests() {
+void GOptimizableEntity::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -1118,7 +1118,7 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
    // --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   condnotset("GOptimizableEntity::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

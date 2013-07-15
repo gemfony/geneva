@@ -48,7 +48,7 @@
 #include "common/GHelperFunctionsT.hpp"
 #include "geneva/GMultiConstraintT.hpp"
 #include "geneva/GIndividualMultiConstraint.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 
 namespace Gem {
@@ -59,7 +59,7 @@ namespace Geneva {
  * This class implements constraint definitions based on multiple parameters
  * coming from GParameterSet-derivatives
  */
-class GParameterSetMultiConstraint: public GValidityCheckT<GIndividual>
+class GParameterSetMultiConstraint: public GValidityCheckT<GOptimizableEntity>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -68,7 +68,7 @@ class GParameterSetMultiConstraint: public GValidityCheckT<GIndividual>
    void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GValidityCheckT<GIndividual>);
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GValidityCheckT<GOptimizableEntity>);
    }
    ///////////////////////////////////////////////////////////////////////
 public:
@@ -103,7 +103,7 @@ public:
 
 protected:
    /** @brief Checks whether a given individual is valid */
-   virtual double check_(const GIndividual *, const double&) const OVERRIDE;
+   virtual double check_(const GOptimizableEntity *, const double&) const OVERRIDE;
    /** @brief Checks whether a given GParameterSet object is valid */
    virtual double check_(const GParameterSet *, const double&) const = 0;
 

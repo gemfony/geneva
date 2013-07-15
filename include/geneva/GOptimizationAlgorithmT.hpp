@@ -53,7 +53,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizableI.hpp"
-#include "geneva/GIndividual.hpp"
+#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 
@@ -784,16 +784,16 @@ public:
 	 * requested position exists.
 	 *
 	 * Note that this function will only be accessible to the compiler if ind_type
-	 * is a derivative of GIndividual, thanks to the magic of Boost's enable_if and Type
+	 * is a derivative of GOptimizableEntity, thanks to the magic of Boost's enable_if and Type
 	 * Traits libraries.
 	 *
 	 * @param pos The position in our data array that shall be converted
-	 * @return A converted version of the GIndividual object, as required by the user
+	 * @return A converted version of the GOptimizableEntity object, as required by the user
 	 */
 	template <typename target_type>
 	boost::shared_ptr<target_type> individual_cast(
 			 const std::size_t& pos
-		   , typename boost::enable_if<boost::is_base_of<GIndividual, target_type> >::type* dummy = 0
+		   , typename boost::enable_if<boost::is_base_of<GOptimizableEntity, target_type> >::type* dummy = 0
 	) {
 #ifdef DEBUG
 		if(pos >= this->size()) {
@@ -1941,7 +1941,7 @@ namespace boost {
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::GOptimizationMonitorT)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GOptimizableEntity>::GOptimizationMonitorT)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT)
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>)
 
