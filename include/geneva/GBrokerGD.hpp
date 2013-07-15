@@ -76,7 +76,7 @@ class GBrokerGD
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseGD)
-		   & make_nvp("GBrokerConnectorT_GParameterSet",
+		   & make_nvp("GBrokerConnector2T_GParameterSet",
 		         boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet> >(*this));
 	}
 

@@ -49,7 +49,7 @@
 // Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
-#include "courtier/GBrokerConnectorT.hpp"
+#include "courtier/GBrokerConnector2T.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizableI.hpp"
@@ -1943,7 +1943,7 @@ namespace boost {
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GOptimizableEntity>::GOptimizationMonitorT)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT)
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>)
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>)
 
 /******************************************************************************/
 
