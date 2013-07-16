@@ -980,7 +980,6 @@ public:
    , maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
    , waitFactor_(DEFAULTBROKERWAITFACTOR2)
    , doLogging_(false)
-   , brokerIsCapableOfFullReturn_(GBROKER(processable_type)->capableOfFullReturn())
    { /* nothing */ }
 
    /***************************************************************************/
@@ -995,7 +994,6 @@ public:
    , maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
    , waitFactor_(DEFAULTBROKERWAITFACTOR2)
    , doLogging_(false)
-   , brokerIsCapableOfFullReturn_(GBROKER(processable_type)->capableOfFullReturn())
    { /* nothing */ }
 
    /***************************************************************************/
@@ -1010,7 +1008,6 @@ public:
    , maxResubmissions_(cp.maxResubmissions_)
    , waitFactor_(cp.waitFactor_)
    , doLogging_(cp.doLogging_)
-   , brokerIsCapableOfFullReturn_(GBROKER(processable_type)->capableOfFullReturn())
    { /* nothing */ }
 
    /***************************************************************************/
@@ -1047,8 +1044,6 @@ public:
       maxResubmissions_ = cp->maxResubmissions_;
       waitFactor_ = cp->waitFactor_;
       doLogging_ = cp->doLogging_;
-
-      // We do not re-load brokerIsCapableOfFullReturn_, as this information comes from the broker
    }
 
    /***************************************************************************/
@@ -1111,7 +1106,6 @@ public:
       deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", maxResubmissions_, cp.maxResubmissions_, "maxResubmissions_", "cp.maxResubmissions_", e , limit));
       deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", waitFactor_, cp.waitFactor_, "waitFactor_", "cp.waitFactor_", e , limit));
       deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
-      deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", brokerIsCapableOfFullReturn_, cp.brokerIsCapableOfFullReturn_, "brokerIsCapableOfFullReturn_", "cp.brokerIsCapableOfFullReturn_", e , limit));
 
       return evaluateDiscrepancies("GBrokerConnector2T<processable_type>", caller, deviations, e);
    }
@@ -1623,7 +1617,6 @@ private:
    std::vector<boost::posix_time::ptime> iterationStartTimes_; ///< Holds the start times of given iterations, if logging is activated
 
    GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
-   bool brokerIsCapableOfFullReturn_; ///< Indicates whether the broker is capable of full return
 };
 
 

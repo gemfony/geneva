@@ -40,7 +40,7 @@
 
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBrokerT.hpp"
-#include "courtier/GBrokerConnectorT.hpp"
+#include "courtier/GBrokerConnector2T.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
 #include "courtier/GBoostThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
@@ -80,94 +80,53 @@ void connectorProducer(
 	}
 
 	// Holds the broker connector (i.e. the entity that connects us to the broker)
-	Gem::Courtier::GBrokerConnectorT<WORKLOAD> brokerConnector;
+	Gem::Courtier::GBrokerConnector2T<WORKLOAD> brokerConnector(srm);
 	brokerConnector.setMaxResubmissions(maxResubmissions);
 
 	// Will hold the data items
-	std::vector<boost::shared_ptr<WORKLOAD> > data;
+	std::vector<boost::shared_ptr<WORKLOAD> > data, oldWorkItems;
 
 	// Start the loop
 	boost::uint32_t cycleCounter = 0;
+	boost::uint32_t nSentItems = 0;
+	boost::uint32_t nReceivedItems = 0;
 	while(cycleCounter++ < nProductionCycles) {
 		// Clear the data vector
 		data.clear();
+		oldWorkItems.clear();
 
 		// Fill a std::vector<> with WORKLOAD objects
 		for(std::size_t i=0; i<nContainerObjects; i++) {
 			data.push_back(boost::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
 		}
 
-		switch(srm) {
-		//-------------------------------------------------------------------------------------------
-		case INCOMPLETERETURN:
-		{
-			std::cout << id << ": doing complete submission of size " << data.size() << std::endl;
-			brokerConnector.workOn(
-					data
-					, 0
-					, data.size()
-					, INCOMPLETERETURN
-			);
-			std::cout << id << ": submission finished with size " << data.size() << ", accepting older items." << std::endl;
-		}
-			break;
+      bool complete = brokerConnector.workOn(
+            data
+            , boost::tuple<std::size_t,std::size_t>(0, data.size())
+            , oldWorkItems
+            , true // Remove unprocessed items
+      );
+      nSentItems += data.size();
 
-		//-------------------------------------------------------------------------------------------
-		case RESUBMISSIONAFTERTIMEOUT:
-		{
-			std::cout << id << ": doing complete submission of size " << data.size() << ", rejecting older items." << std::endl;
-			brokerConnector.workOn(
-					data
-					, 0
-					, data.size()
-					, RESUBMISSIONAFTERTIMEOUT
-			);
-			std::cout << id << ": submission finished with size " << data.size() << std::endl;
-		}
-			break;
+      if(!complete) {
+         std::cout
+         << "In submission cycle " << cycleCounter << ": " << std::endl
+         << nContainerObjects-data.size() << " objects missing" << std::endl
+         << "in connectorProducer " << id << std::endl;
+      }
 
-		//-------------------------------------------------------------------------------------------
-		case EXPECTFULLRETURN:
-		{
-			bool complete = brokerConnector.workOn(
-					data
-					, 0
-					, data.size()
-					, EXPECTFULLRETURN
-			);
-
-			if(!complete) {
-				raiseException(
-						"In connectorProducer(): Error!" << std::endl
-						<< "No complete set of items received after " << maxResubmissions << " resubmissions" << std::endl
-				);
-			}
-
-			// Check that the container is at its default size
-			if(data.size() != nContainerObjects) {
-				raiseException(
-						"In connectorProducer(): Error!" << std::endl
-						<< "No complete set of items received despite request for a complete return" << std::endl
-				);
-			}
-		}
-			break;
-
-		//-------------------------------------------------------------------------------------------
-		default:
-		{
-			raiseException(
-				"In connectorProducer(): Error!" << std::endl
-				<< "Got invalid srm mode: " << srm << std::endl
-			);
-		}
-			break;
-
-		//-------------------------------------------------------------------------------------------
-		}
+      if(!oldWorkItems.empty()) {
+         std::cout
+         << "In submission cycle " << cycleCounter << ": " << std::endl
+         << "Received " << oldWorkItems.size() << " work items" << std::endl
+         << "in connectorProducer " << id << std::endl;
+      }
+      nReceivedItems += (data.size() + oldWorkItems.size());
 	}
 
-	std::cout << "connectorProducer " << id << " has finished producing" << std::endl << std::endl;
+	std::cout
+	<< "connectorProducer " << id << " has finished producing" << std::endl
+	<< "Sent/received/diff = " << nSentItems << "/" << nReceivedItems << "/" << nSentItems-nReceivedItems << std::endl;
 }
 
 /********************************************************************************/
@@ -289,13 +248,13 @@ int main(int argc, char **argv) {
 	// Create the required number of connectorProducer threads
 	if(useDirectBrokerConnection) {
 		connectorProducer_gtg.create_threads(
-			boost::bind(
-				brokerProducer
-				, nProductionCycles
-				, nContainerObjects
-				, nContainerEntries
-			)
-		    , nProducers
+         boost::bind(
+            brokerProducer
+            , nProductionCycles
+            , nContainerObjects
+            , nContainerEntries
+         )
+		   , nProducers
 		);
 	} else {
 		connectorProducer_gtg.create_threads(
@@ -307,7 +266,7 @@ int main(int argc, char **argv) {
 				, srm
 				, maxResubmissions
 			)
-		    , nProducers
+		   , nProducers
 		);
 	}
 

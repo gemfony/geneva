@@ -428,7 +428,7 @@ int Go2::clientRun() {
    } else {
       glogger
       << "In Go2::clientRun(): Error!" << std::endl
-      << "Trying to execute clientRund() on consumer " << consumerName_ << std::endl
+      << "Trying to execute clientRun() on consumer " << consumerName_ << std::endl
       << "which does not require a client" << std::endl
       << GEXCEPTION;
    }

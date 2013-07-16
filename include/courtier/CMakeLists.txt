@@ -6,7 +6,7 @@ SET ( COMMUNICATIONINCLUDES
 	GBaseClientT.hpp
 	GBaseConsumerT.hpp
 	GBoostThreadConsumerT.hpp
-	GBrokerConnectorT.hpp
+	GBrokerConnector2T.hpp
 	GBrokerT.hpp
 	GBufferPortT.hpp
 	GCourtierEnums.hpp
