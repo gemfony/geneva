@@ -244,15 +244,25 @@ public:
     * @param workItems A vector with work items to be evaluated beyond the broker
     * @param workItemPos A vector of the item positions to be worked on
     * @param oldWorkItems Will hold old work items after the job submission
-    * @param fixAfterJobSubmission Optionally holds a function to fix the collection of work items after a job submission
+    * @param originator Optionally holds information on the caller
     * @return A boolean indicating whether all expected items have returned
     */
    bool workOn(
          std::vector<boost::shared_ptr<processable_type> >& workItems
          , std::vector<bool>& workItemPos
          , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+         , const std::string& originator = std::string()
    ) {
       bool complete=false;
+
+#ifdef DEBUG
+      if(!originator.empty()) {
+         glogger
+         << "In GBaseExecutorT<processable_type>::workOn(): Info" << std::endl
+         << "workOn was called from " << originator << std::endl
+         << GLOGGING;
+      }
+#endif /* DEBUG */
 
       // Check that both vectors have the same size
       if(workItems.empty() || workItems.size() != workItemPos.size()) {
@@ -300,6 +310,7 @@ public:
     * @param end The id beyond the last item to be worked on in the vector
     * @param oldWorkItems A vector holding work items from older iterations
     * @param removeUnprocessed If set to true, unprocessed work items will be removed
+    * @param originator Optionally holds information on the caller
     * @return A boolean indicating whether all expected items have returned
     */
    bool workOn(
@@ -308,6 +319,7 @@ public:
          , const std::size_t& end
          , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
          , const bool& removeUnprocessed = true
+         , const std::string& originator = std::string()
    ) {
       bool complete=false;
 
@@ -340,7 +352,12 @@ public:
       }
 
       // Start the calculation
-      complete = this->workOn(workItems, workItemPos, oldWorkItems);
+      complete = this->workOn(
+            workItems
+            , workItemPos
+            , oldWorkItems
+            , originator
+      );
 
       // Remove unprocessed items, if necessary
       if(!complete && removeUnprocessed) {
@@ -388,6 +405,7 @@ public:
     * @param range A boost::tuple holding the boundaries of the submission range
     * @param oldWorkItems A vector holding work items from older iterations
     * @param removeUnprocessed If set to true, unprocessed work items will be removed
+    * @param originator Optionally holds information on the caller
     * @return A boolean indicating whether all expected items have returned
     */
    bool workOn(
@@ -395,6 +413,7 @@ public:
          , const boost::tuple<std::size_t, std::size_t>& range
          , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
          , const bool& removeUnprocessed = true
+         , const std::string& originator = std::string()
    ) {
       return this->workOn(
          workItems
@@ -402,6 +421,7 @@ public:
          , boost::get<1>(range)
          , oldWorkItems
          , removeUnprocessed
+         , originator
       );
    }
 
@@ -412,12 +432,14 @@ public:
     * @param workItems A vector with work items to be evaluated beyond the broker
     * @param oldWorkItems A vector holding work items from older iterations
     * @param removeUnprocessed If set to true, unprocessed work items will be removed
+    * @param originator Optionally holds information on the caller
     * @return A boolean indicating whether all expected items have returned
     */
    bool workOn(
          std::vector<boost::shared_ptr<processable_type> >& workItems
          , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
          , const bool& removeUnprocessed = true
+         , const std::string& originator = std::string()
    ) {
       return this->workOn(
          workItems
@@ -425,6 +447,7 @@ public:
          , workItems.size()
          , oldWorkItems
          , removeUnprocessed
+         , originator
       );
    }
 
@@ -443,6 +466,18 @@ public:
       /* no local data. hence empty */
    }
 
+   /***************************************************************************/
+   /**
+    * General initialization function to be called prior to the first submission
+    */
+   virtual void init() BASE { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * General finalization function to be called after the last submission
+    */
+   virtual void finalize() BASE { /* nothing */ }
+
 protected:
    /***************************************************************************/
    /** @brief Submits a single work item */
@@ -453,18 +488,6 @@ protected:
       , std::vector<bool>&
       , std::vector<boost::shared_ptr<processable_type> >&
    ) = 0;
-
-   /***************************************************************************/
-   /**
-    * General initialization function to be called prior to the first submission
-    */
-   virtual void init() { /* nothing */ }
-
-   /***************************************************************************/
-   /**
-    * General finalization function to be called after the last submission
-    */
-   virtual void finalize() { /* nothing */ }
 
    /***************************************************************************/
    /**
@@ -526,6 +549,15 @@ protected:
       POSITIONTYPE pos_cnt = 0;
       for(it=workItems.begin(); it!=workItems.end(); ++it) {
          if(true==workItemPos[pos_cnt]) { // is the item due to be submitted ?
+#ifdef DEBUG
+            if(!(*it)) {
+               glogger
+               << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error" << std::endl
+               << "Received empty work item in position "  << pos_cnt << std::endl
+               << "submission_counter_ = " << submission_counter_ << std::endl
+               << GEXCEPTION;
+            }
+#endif
             (*it)->setCourtierId(boost::make_tuple<SUBMISSIONCOUNTERTYPE,POSITIONTYPE>(submission_counter_, pos_cnt));
             this->submit(*it);
          }
@@ -1275,12 +1307,11 @@ public:
       return std::string(); // TODO
    }
 
-protected:
    /***************************************************************************/
    /**
     * General initialization function to be called prior to the first submission
     */
-   virtual void init() {
+   virtual void init() OVERRIDE {
       // To be called prior to all other initialization code
       GBaseExecutorT<processable_type>::init();
 
@@ -1294,6 +1325,19 @@ protected:
       GBROKER(processable_type)->enrol(CurrentBufferPort_);
    }
 
+   /***************************************************************************/
+   /**
+    * General finalization function to be called after the last submission
+    */
+   virtual void finalize() OVERRIDE {
+      // Get rid of the buffer port
+      CurrentBufferPort_.reset();
+
+      // To be called after all other finalization code
+      GBaseExecutorT<processable_type>::finalize();
+   }
+
+protected:
    /***************************************************************************/
    /**
     * Allows to perform necessary setup work for an iteration
@@ -1313,18 +1357,6 @@ protected:
              GBaseExecutorT<processable_type>::iterationStartTime_
          );
       }
-   }
-
-   /***************************************************************************/
-   /**
-    * General finalization function to be called after the last submission
-    */
-   virtual void finalize() {
-      // Get rid of the buffer port
-      CurrentBufferPort_.reset();
-
-      // To be called after all other finalization code
-      GBaseExecutorT<processable_type>::finalize();
    }
 
    /***************************************************************************/
@@ -1384,6 +1416,22 @@ private:
     * @param w The work item to be processed
     */
    virtual void submit(boost::shared_ptr<processable_type> w) {
+#ifdef DEBUG
+      if(!w) {
+         glogger
+         << "In GBrokerConnector2T::submit(): Error!" << std::endl
+         << "Work item is empty" << std::endl
+         << GEXCEPTION;
+      }
+
+      if(!CurrentBufferPort_) {
+         glogger
+         << "In GBrokerConnector2T::submit(): Error!" << std::endl
+         << "Current buffer port is empty when it shouldn't be" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
       CurrentBufferPort_->push_front_orig(w);
    }
 

@@ -81,6 +81,7 @@ void connectorProducer(
 
 	// Holds the broker connector (i.e. the entity that connects us to the broker)
 	Gem::Courtier::GBrokerConnector2T<WORKLOAD> brokerConnector(srm);
+	brokerConnector.init(); // This will particularly set up the buffer port
 	brokerConnector.setMaxResubmissions(maxResubmissions);
 
 	// Will hold the data items
@@ -89,7 +90,8 @@ void connectorProducer(
 	// Start the loop
 	boost::uint32_t cycleCounter = 0;
 	boost::uint32_t nSentItems = 0;
-	boost::uint32_t nReceivedItems = 0;
+	boost::uint32_t nReceivedItemsNew = 0;
+	boost::uint32_t nReceivedItemsOld = 0;
 	while(cycleCounter++ < nProductionCycles) {
 		// Clear the data vector
 		data.clear();
@@ -99,34 +101,28 @@ void connectorProducer(
 		for(std::size_t i=0; i<nContainerObjects; i++) {
 			data.push_back(boost::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
 		}
-
-      bool complete = brokerConnector.workOn(
-            data
-            , boost::tuple<std::size_t,std::size_t>(0, data.size())
-            , oldWorkItems
-            , true // Remove unprocessed items
-      );
       nSentItems += data.size();
 
-      if(!complete) {
-         std::cout
-         << "In submission cycle " << cycleCounter << ": " << std::endl
-         << nContainerObjects-data.size() << " objects missing" << std::endl
-         << "in connectorProducer " << id << std::endl;
-      }
+      bool complete = brokerConnector.workOn(
+         data
+         , boost::tuple<std::size_t,std::size_t>(0, data.size())
+         , oldWorkItems
+         , true // Remove unprocessed items
+      );
 
-      if(!oldWorkItems.empty()) {
-         std::cout
-         << "In submission cycle " << cycleCounter << ": " << std::endl
-         << "Received " << oldWorkItems.size() << " work items" << std::endl
-         << "in connectorProducer " << id << std::endl;
-      }
-      nReceivedItems += (data.size() + oldWorkItems.size());
+      nReceivedItemsNew += data.size();
+      nReceivedItemsOld += oldWorkItems.size();
 	}
 
+   brokerConnector.finalize(); // This will reset the buffer port
+
 	std::cout
-	<< "connectorProducer " << id << " has finished producing" << std::endl
-	<< "Sent/received/diff = " << nSentItems << "/" << nReceivedItems << "/" << nSentItems-nReceivedItems << std::endl;
+	<< "connectorProducer " << id << " has finished." << std::endl
+	<< "Sent = " << nSentItems << std::endl
+	<< "Received current = " << nReceivedItemsNew << std::endl
+	<< "Received older = " << nReceivedItemsOld << std::endl
+	<< "Total received = " << nReceivedItemsNew + nReceivedItemsOld << std::endl
+	<< "Missing = " << nSentItems-(nReceivedItemsNew+nReceivedItemsOld) << std::endl << std::flush;
 }
 
 /********************************************************************************/
@@ -287,16 +283,20 @@ int main(int argc, char **argv) {
 		{
 			std::cout << "Using internal networking" << std::endl;
 
-			// Start the workers
-			boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
-			worker_gtg.create_threads(
-				boost::bind(&GAsioTCPClientT<WORKLOAD>::run,p)
-				, nWorkers
-			);
+         // Create a network consumer and enrol it with the broker
+         boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
+         GBROKER(WORKLOAD)->enrol(gatc);
 
-			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
-			GBROKER(WORKLOAD)->enrol(gatc);
+         // Start the workers
+         std::vector<boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > > clients;
+			for(std::size_t worker=0; worker<nWorkers; worker++) {
+	         boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
+	         clients.push_back(p);
+
+	         worker_gtg.create_thread(
+	            boost::bind(&GAsioTCPClientT<WORKLOAD>::run,p)
+	         );
+			}
 		}
 		break;
 
@@ -324,18 +324,22 @@ int main(int argc, char **argv) {
 		{
 			std::cout << "Using multithreading and internal networking" << std::endl;
 
+         boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
+         boost::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
+
+         GBROKER(WORKLOAD)->enrol(gatc);
+         GBROKER(WORKLOAD)->enrol(gbtc);
+
 			// Start the workers
-			boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
-			worker_gtg.create_threads(
-				boost::bind(&GAsioTCPClientT<WORKLOAD>::run,p)
-				, nWorkers
-			);
+         std::vector<boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > > clients;
+         for(std::size_t worker=0; worker<nWorkers; worker++) {
+            boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
+            clients.push_back(p);
 
-			boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
-			boost::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
-
-			GBROKER(WORKLOAD)->enrol(gatc);
-			GBROKER(WORKLOAD)->enrol(gbtc);
+            worker_gtg.create_thread(
+               boost::bind(&GAsioTCPClientT<WORKLOAD>::run,p)
+            );
+         }
 		}
 		break;
 
