@@ -103,6 +103,8 @@ void connectorProducer(
 		}
       nSentItems += data.size();
 
+      std::cout << "Initiating cycle " << cycleCounter << " in " << id << std::endl << std::flush;
+
       bool complete = brokerConnector.workOn(
          data
          , boost::tuple<std::size_t,std::size_t>(0, data.size())
@@ -112,6 +114,8 @@ void connectorProducer(
 
       nReceivedItemsNew += data.size();
       nReceivedItemsOld += oldWorkItems.size();
+
+      std::cout << "Cycle " << cycleCounter << " completed in " << id << std::endl << std::flush;
 	}
 
    brokerConnector.finalize(); // This will reset the buffer port
@@ -191,6 +195,7 @@ int main(int argc, char **argv) {
 	boost::uint32_t nWorkers;
 	GBSCModes executionMode;
 	bool useDirectBrokerConnection;
+   std::vector<boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > > clients;
 
 	// Initialize the global producer counter
 	producer_counter = 0;
@@ -288,7 +293,7 @@ int main(int argc, char **argv) {
          GBROKER(WORKLOAD)->enrol(gatc);
 
          // Start the workers
-         std::vector<boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > > clients;
+         clients.clear();
 			for(std::size_t worker=0; worker<nWorkers; worker++) {
 	         boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
 	         clients.push_back(p);
@@ -331,7 +336,7 @@ int main(int argc, char **argv) {
          GBROKER(WORKLOAD)->enrol(gbtc);
 
 			// Start the workers
-         std::vector<boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > > clients;
+         clients.clear();
          for(std::size_t worker=0; worker<nWorkers; worker++) {
             boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
             clients.push_back(p);
@@ -368,8 +373,12 @@ int main(int argc, char **argv) {
 	// Wait for all threads to finish
 	connectorProducer_gtg.join_all();
 
-	if(executionMode == Gem::Courtier::Tests::INTERNALNETWORKING || executionMode == Gem::Courtier::Tests::THREADANDINTERNALNETWORKING)
-	worker_gtg.join_all();
+	if(
+      executionMode == Gem::Courtier::Tests::INTERNALNETWORKING ||
+      executionMode == Gem::Courtier::Tests::THREADANDINTERNALNETWORKING
+   ) {
+	   worker_gtg.join_all();
+	}
 
 	std::cout << "All threads have joined" << std::endl;
 

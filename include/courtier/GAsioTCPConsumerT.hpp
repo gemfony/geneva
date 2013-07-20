@@ -528,7 +528,7 @@ class GAsioServerSessionT
    /**
     * This function processes an individual request from a client.
     */
-   void processRequest() {
+   void async_processRequest() {
       // Initiate the first read session. Every transmission starts with a command
       boost::asio::async_read(
           socket_
@@ -551,6 +551,7 @@ class GAsioServerSessionT
       return socket_;
 
    }
+
  protected:
    /***************************************************************************/
    /**
@@ -577,9 +578,9 @@ class GAsioServerSessionT
       //------------------------------------------------------------------------
       // Initiate the next session, depending on the command
 
-      if (command == "ready") {
+      if ("ready" == command) {
          this->submit();   // Submit our data to the client
-      } else if (command == "result") {
+      } else if ("result" == command) {
          this->retrieve(); // Initiate the retrieval sequence
       }
       else {
@@ -808,6 +809,7 @@ class GAsioServerSessionT
       }
 
       // Retrieve a string representation of the data item
+      // TODO: processable_type should already hold the serialization code
       std::string item = Gem::Common::sharedPtrToString(p, serializationMode_);
 
       // Format the command
@@ -1156,19 +1158,21 @@ class GAsioTCPConsumerT
          << GEXCEPTION;
       }
 
-      // Create a number of threads responsible for the io_service_ objects
-      gtg_.create_threads(
-         boost::bind(&boost::asio::io_service::run, &io_service_)
-         , listenerThreads_
-      );
-
       // Set the number of threads in the pool
       if(listenerThreads_) {
          gtp_.setNThreads(listenerThreads_);
       }
 
       // Start the first session
-      this->newAccept();
+      this->async_newAccept();
+
+      // Create a number of threads responsible for the io_service_ objects
+      // This absolutely needs to happen after the first session has started,
+      // so the io_service doesn't run out of work
+      gtg_.create_threads(
+         boost::bind(&boost::asio::io_service::run, &io_service_)
+         , listenerThreads_
+      );
    }
 
    /***************************************************************************/
@@ -1243,7 +1247,7 @@ class GAsioTCPConsumerT
    /**
     * Starts a new session
     */
-   void newAccept()
+   void async_newAccept()
    {
       // First we make sure a new session is started asynchronously so the next request can be served
       boost::shared_ptr<GAsioServerSessionT<processable_type> > newSession(
@@ -1285,11 +1289,11 @@ class GAsioTCPConsumerT
          return;
       }
 
-      // Initiate the processing sequence
-      currentSession->processRequest();
+      // Initiate waiting for new connections
+      this->async_newAccept();
 
-      // Wait for new connections
-      this->newAccept();
+      // Initiate the processing sequence
+      currentSession->async_processRequest();
    }
 
    /***************************************************************************/
