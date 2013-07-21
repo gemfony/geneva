@@ -231,9 +231,9 @@ public:
 	void push_front(value_type item)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		// Note that this overload of wait() internally runs a loop on is_not_full to
+		// Note that this overload of wait() internally runs a loop on its predicate to
 		// deal with spurious wakeups
-		not_full_.wait(lock, boost::bind(&GBoundedBufferT<value_type>::is_not_full, this));
+		not_full_.wait(lock, buffer_not_full(container_, capacity_));
 		container_.push_front(item);
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
@@ -258,7 +258,7 @@ public:
 	void push_front(value_type item, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		if(!not_full_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_full, this))) {
+		if(!not_full_.timed_wait(lock,timeout,buffer_not_full(container_, capacity_))) {
 			throw Gem::Common::condition_time_out();
 		}
 		container_.push_front(item);
@@ -286,7 +286,7 @@ public:
 	bool push_front_bool(value_type item, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		if(!not_full_.timed_wait(lock, timeout, boost::bind(&GBoundedBufferT<value_type>::is_not_full, this))) {
+		if(!not_full_.timed_wait(lock, timeout, buffer_not_full(container_, capacity_))) {
 			return false;
 		}
 		container_.push_front(item);
@@ -313,7 +313,7 @@ public:
 	void pop_back(value_type& item)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		not_empty_.wait(lock, boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this));
+		not_empty_.wait(lock, buffer_not_empty(container_));
 
 #ifdef DEBUG
 		if(container_.empty()) {
@@ -348,7 +348,7 @@ public:
 	void pop_back(value_type& item, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this))) {
+		if(!not_empty_.timed_wait(lock,timeout,buffer_not_empty(container_))) {
 			throw Gem::Common::condition_time_out();
 		}
 
@@ -387,7 +387,7 @@ public:
 	bool pop_back_bool(value_type& item, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this))) {
+		if(!not_empty_.timed_wait(lock,timeout,buffer_not_empty(container_))) {
 			return false;
 		}
 
@@ -498,30 +498,64 @@ protected:
 	/***************************************************************************/
 	/*
 	 * We want to be able to add custom producer threads. Hence the
-	 * following functions are all protected, not private.
+	 * following code is protected, not private.
 	 */
 
 	/**
-	 * A helper function needed for the condition variables. It is only called
-	 * in a safe context, where a mutex has been locked. Hence we do not need
-	 * any local synchronization.
-	 *
-	 * @return A boolean value indicating whether the buffer is not empty
+	 * A function object that checks whether a given container is empty or not.
+	 * Note that this code is only called in a safe context, hence no protection
+	 * is necessary.
 	 */
-	bool is_not_empty() const {
-		return !container_.empty();
-	}
+   struct buffer_not_empty {
+   public:
+      /* @brief Initializes the local container reference */
+      buffer_not_empty(
+         const container_type& c
+      ) :c_(c)
+      { /* nothing */ }
 
-	/**
-	 * A helper function needed for the condition variables. It is only called
-	 * in a safe context, where a mutex has been locked. Hence we do not need
-	 * any local synchronization.
-	 *
-	 * @return A boolean value indicating whether the buffer is not full
-	 */
-	bool is_not_full() const 	{
-		return (container_.size() < capacity_);
-	}
+      /** @brief Used for the actual test */
+      bool operator()() const {
+        return (!c_.empty());
+      }
+
+   private:
+      /** @brief Default constructor; intentionally private and undefined */
+      buffer_not_empty();
+
+      const container_type& c_; ///< Holds a reference to the actual container
+   };
+
+   /**
+    * A function object that checks whether a given container is full or not.
+    * Note that this code is only called in a safe context, hence no protection
+    * is necessary.
+    */
+   struct buffer_not_full {
+   public:
+      /* @brief Initializes the local container reference and the maximum capacity */
+      buffer_not_full(
+         const container_type& c
+         , const std::size_t& capacity
+      )
+      : c_(c)
+      , capacity_(capacity)
+      { /* nothing */ }
+
+      /** @brief Used for the actual test */
+      bool operator()() const {
+        return (c_.size() < capacity_);
+      }
+
+   private:
+      /** @brief Default constructor; intentionally private and undefined */
+      buffer_not_full();
+
+      const container_type& c_;
+      const std::size_t& capacity_;
+   };
+
+	/***************************************************************************/
 
 	const std::size_t capacity_; ///< The maximum allowed size of the container
 	container_type container_; ///< The actual data store

@@ -201,7 +201,6 @@ public:
 	void setClientMode(bool);
 	bool getClientMode() const;
 
-	void setNProducerThreads(const boost::uint16_t&);
 	boost::uint16_t getNProducerThreads() const;
 
 	void setOffset(const boost::uint32_t&);
@@ -300,6 +299,9 @@ private:
       << "* on your results. So you can safely ignore this message. *" << std::endl
       << "***********************************************************" << std::endl;
    }
+
+   /** @brief Sets the number of random number production threads */
+   void setNProducerThreads(const boost::uint16_t&);
 
 	/***************************************************************************/
 	// These parameters can enter the object through the constructor

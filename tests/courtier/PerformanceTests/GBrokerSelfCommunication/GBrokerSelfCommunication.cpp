@@ -103,8 +103,6 @@ void connectorProducer(
 		}
       nSentItems += data.size();
 
-      std::cout << "Initiating cycle " << cycleCounter << " in " << id << std::endl << std::flush;
-
       bool complete = brokerConnector.workOn(
          data
          , boost::tuple<std::size_t,std::size_t>(0, data.size())
@@ -170,6 +168,8 @@ void brokerProducer(
 				);
 			}
 		}
+
+		std::cout << "Cycle " << cycleCounter << " completed in " << id << std::endl << std::flush;
 	}
 
 	// Get rid of the buffer port object

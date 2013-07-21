@@ -71,6 +71,7 @@ GThreadPool::GThreadPool(const std::size_t& nThreads)
 GThreadPool::~GThreadPool() {
 	work_.reset(); // reset/clear the place holder; io_service.run() will then terminate.
 	gtg_.join_all(); // wait for the threads to terminate
+   gtg_.clearThreads(); // Get rid of all thread objects
 
 #ifdef DEBUG
     if(this->hasErrors()) {

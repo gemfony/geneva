@@ -129,8 +129,28 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	, sorted_(false)
 	, iterationsConsumed_(0)
 {
-	//--------------------------------------------
-	// Load initial configuration options from the command line
+   //--------------------------------------------
+   // Parse configuration file options
+   {
+      // Create a parser builder object. It will be destroyed at
+      // the end of this scope and thus cannot cause trouble
+      // due to registered call-backs and references
+      Gem::Common::GParserBuilder gpb;
+
+      // Add local configuration options
+      this->addConfigurationOptions(gpb, true);
+
+      // Do the actual parsing
+      if(!gpb.parseConfigFile(configFilename)) {
+         glogger
+         << "In Go2::Go2(argc,argv,config): Error!" << std::endl
+         << "Could not parse configuration file " << configFilename << std::endl
+         << GTERMINATION;
+      }
+   }
+
+   //--------------------------------------------
+	// Load configuration options from the command line
 	parseCommandLine(argc, argv);
 
 	//--------------------------------------------
@@ -814,10 +834,27 @@ void Go2::addConfigurationOptions (
 ) {
 	using namespace Gem::Common;
 
+	std::string comment;
+
 	// Call our parent class'es function
 	GMutableSetT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 
-	// nothing
+   // Add local data
+   comment = ""; // Reset the first comment string
+   comment += "The number of threads simultaneously producing random numbers;";
+   if(showOrigin) comment += " [Go2]";
+   gpb.registerFileParameter<boost::uint16_t>(
+      "nProducerThreads" // The name of the first variable
+      , GO2_DEF_NPRODUCERTHREADS
+      , boost::bind(
+         &Go2::setNProducerThreads
+         , this
+         , _1
+        )
+      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+      , comment
+   );
+
 }
 
 /******************************************************************************/

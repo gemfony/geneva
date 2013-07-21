@@ -93,12 +93,12 @@ namespace Courtier {
  * Global variables for failed transfers and connection attempts.
  */
 const boost::uint32_t                GASIOTCPCONSUMERMAXSTALLS=10;
-const boost::uint32_t                GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS=10;
-const unsigned short               GASIOTCPCONSUMERDEFAULTPORT=10000;
+const boost::uint32_t                GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS=1000;
+const unsigned short                 GASIOTCPCONSUMERDEFAULTPORT=10000;
 const std::string                    GASIOTCPCONSUMERDEFAULTSERVER="localhost";
 const boost::uint16_t                GASIOTCPCONSUMERTHREADS = 4;
 const Gem::Common::serializationMode GASIOTCPCONSUMERSERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
-const bool                          GASIOTCPCONSUMERRETURNREGARDLESS = true;
+const bool                           GASIOTCPCONSUMERRETURNREGARDLESS = true;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -286,6 +286,7 @@ protected:
             // Close sockets, return true
             // Make sure we don't leave any open sockets lying around.
             socket_.close();
+            // Indicate that we want to continue
             return true;
          }
          else { // Received no work. Try again a number of times
@@ -293,8 +294,8 @@ protected:
             if (maxStalls_ && (stalls_++ > maxStalls_)) {
                glogger
                << "In GAsioTCPClientT<processable_type>::retrieve(): Warning!" << std::endl
-               << "Maximum number of consecutive stalls reached,"
-               << std::endl << "with last command = " << inboundCommandString << std::endl
+               << "Maximum number of consecutive stalls reached," << std::endl
+               << "with last command = " << inboundCommandString << std::endl
                << "Leaving now." << std::endl
                << GWARNING;
 
@@ -304,8 +305,8 @@ protected:
                return false;
             }
 
-            // We can continue. But let's wait a short time (0.1 seconds) first.
-            usleep(100000);
+            // We can continue. But let's wait a short time (0.01 seconds) first.
+            boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 
             // Make sure we don't leave any open sockets lying around.
             socket_.close();
@@ -469,7 +470,6 @@ private:
    char *tmpBuffer_;
 
    boost::asio::io_service io_service_; ///< Holds the Boost::ASIO::io_service object
-
    boost::asio::ip::tcp::socket socket_; ///< The underlying socket
 
    boost::asio::ip::tcp::resolver resolver_; ///< Responsible for name resolution
@@ -508,7 +508,8 @@ class GAsioServerSessionT
          , const Gem::Common::serializationMode& serMod
          , GAsioTCPConsumerT<processable_type> *master
    )
-   : socket_(io_service)
+   : strand_(io_service)
+   , socket_(io_service)
    , bytesTransferredDataBody_(0)
    , portId_(Gem::Common::PORTIDTYPE(0))
    , dataSize_(0)
@@ -529,16 +530,35 @@ class GAsioServerSessionT
     * This function processes an individual request from a client.
     */
    void async_processRequest() {
-      // Initiate the first read session. Every transmission starts with a command
-      boost::asio::async_read(
-          socket_
-          , boost::asio::buffer(commandBuffer_)
-          , boost::bind(
-                &GAsioServerSessionT<processable_type>::handle_read_command
-                , GAsioServerSessionT<processable_type>::shared_from_this()
-                , boost::asio::placeholders::error
-          )
-      );
+      try {
+         // Initiate the first read session. Every transmission starts with a command
+         boost::asio::async_read(
+             socket_
+             , boost::asio::buffer(commandBuffer_)
+             , strand_.wrap(boost::bind(
+                   &GAsioServerSessionT<processable_type>::handle_read_command
+                   , GAsioServerSessionT<processable_type>::shared_from_this()
+                   , boost::asio::placeholders::error
+             ))
+         );
+      } catch(const boost::system::system_error &e) {
+         glogger
+         << "In GAsioServerSessionT::async_processRequest():" << std::endl
+         << "Caught boost::system::system_error exception with messages:" << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
+      } catch(const boost::exception &e) {
+         glogger
+         << "In GAsioServerSessionT::async_processRequest():" << std::endl
+         << "Caught boost::exception exception with messages:" << std::endl
+         << boost::diagnostic_information(e) << std::endl
+         << GEXCEPTION;
+      } catch(...) {
+         glogger
+         << "In GAsioServerSessionT::async_processRequest():" << std::endl
+         << "Caught unknown exception" << std::endl
+         << GEXCEPTION;
+      }
    }
 
    /***************************************************************************/
@@ -560,9 +580,9 @@ class GAsioServerSessionT
    void handle_read_command(const boost::system::error_code& error) {
       if(error) {
          glogger
-         << "In GAsioServerSessionT<processable_type>::handle_read_command(): Warning!" << std::endl
-         << "Warning: Received error " << error << std::endl
-         << GWARNING;
+         << "In GAsioServerSessionT<processable_type>::handle_read_command():!" << std::endl
+         << "Received boost::system::error_code " << error << std::endl
+         << GEXCEPTION;
          return;
       }
 
@@ -579,9 +599,9 @@ class GAsioServerSessionT
       // Initiate the next session, depending on the command
 
       if ("ready" == command) {
-         this->submit();   // Submit our data to the client
+         this->async_submitToRemote();   // Submit our data to the client
       } else if ("result" == command) {
-         this->retrieve(); // Initiate the retrieval sequence
+         this->async_retrieveFromRemote(); // Initiate the retrieval sequence
       }
       else {
          glogger
@@ -601,17 +621,36 @@ class GAsioServerSessionT
     * simply initiates a chain of asynchronous commands, dealing in sequence
     * with the port id, the data size header and the actual data body
     */
-   void retrieve() {
-      // Initiate the next read session
-      boost::asio::async_read(
-          socket_
-          , boost::asio::buffer(commandBuffer_)
-          ,boost::bind(
-                &GAsioServerSessionT<processable_type>::handle_read_portid
-                , GAsioServerSessionT<processable_type>::shared_from_this()
-                , boost::asio::placeholders::error
-          )
-      );
+   void async_retrieveFromRemote() {
+      try {
+         // Initiate the next read session
+         boost::asio::async_read(
+             socket_
+             , boost::asio::buffer(commandBuffer_)
+             , strand_.wrap(boost::bind(
+                   &GAsioServerSessionT<processable_type>::handle_read_portid
+                   , GAsioServerSessionT<processable_type>::shared_from_this()
+                   , boost::asio::placeholders::error
+             ))
+         );
+      } catch(const boost::system::system_error &e) {
+         glogger
+         << "In GAsioServerSessionT::async_retrieveFromRemote():" << std::endl
+         << "Caught boost::system::system_error exception with messages:" << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
+      } catch(const boost::exception &e) {
+         glogger
+         << "In GAsioServerSessionT::async_retrieveFromRemote():" << std::endl
+         << "Caught boost::exception exception with messages:" << std::endl
+         << boost::diagnostic_information(e) << std::endl
+         << GEXCEPTION;
+      } catch(...) {
+         glogger
+         << "In GAsioServerSessionT::async_retrieveFromRemote():" << std::endl
+         << "Caught unknown exception" << std::endl
+         << GEXCEPTION;
+      }
    }
 
    /***************************************************************************/
@@ -621,9 +660,9 @@ class GAsioServerSessionT
    void handle_read_portid(const boost::system::error_code& error) {
       if(error) {
          glogger
-         << "In GAsioServerSessionT<processable_type>::handle_read_portid(): Warning!" << std::endl
-         << "Warning: Received error " << error << std::endl
-         << GWARNING;
+         << "In GAsioServerSessionT<processable_type>::handle_read_portid():" << std::endl
+         << "Received error " << error << std::endl
+         << GEXCEPTION;
          return;
       }
 
@@ -640,15 +679,34 @@ class GAsioServerSessionT
 
       //------------------------------------------------------------------------
       // Initiate the next read session, this time dealing with the data size
-      boost::asio::async_read(
-          socket_
-          , boost::asio::buffer(commandBuffer_)
-          , boost::bind(
-                &GAsioServerSessionT<processable_type>::handle_read_datasize
-                , GAsioServerSessionT<processable_type>::shared_from_this()
-                , boost::asio::placeholders::error
-          )
-      );
+      try {
+         boost::asio::async_read(
+             socket_
+             , boost::asio::buffer(commandBuffer_)
+             , strand_.wrap(boost::bind(
+                   &GAsioServerSessionT<processable_type>::handle_read_datasize
+                   , GAsioServerSessionT<processable_type>::shared_from_this()
+                   , boost::asio::placeholders::error
+             ))
+         );
+      } catch(const boost::system::system_error &e) {
+         glogger
+         << "In GAsioServerSessionT::handle_read_portid():" << std::endl
+         << "Caught boost::system::system_error exception with messages:" << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
+      } catch(const boost::exception &e) {
+         glogger
+         << "In GAsioServerSessionT::handle_read_portid():" << std::endl
+         << "Caught boost::exception exception with messages:" << std::endl
+         << boost::diagnostic_information(e) << std::endl
+         << GEXCEPTION;
+      } catch(...) {
+         glogger
+         << "In GAsioServerSessionT::handle_read_portid():" << std::endl
+         << "Caught unknown exception" << std::endl
+         << GEXCEPTION;
+      }
 
       //------------------------------------------------------------------------
    }
@@ -679,15 +737,34 @@ class GAsioServerSessionT
 
       //------------------------------------------------------------------------
       // Initiate the next read session, this time dealing with the data body
-      socket_.async_read_some(
-         boost::asio::buffer(dataBuffer_)
-         , boost::bind(
-               &GAsioServerSessionT<processable_type>::handle_read_body
-               , GAsioServerSessionT<processable_type>::shared_from_this()
-               , boost::asio::placeholders::error
-               , boost::asio::placeholders::bytes_transferred
-         )
-      );
+      try {
+         socket_.async_read_some(
+            boost::asio::buffer(dataBuffer_)
+            , strand_.wrap(boost::bind(
+                  &GAsioServerSessionT<processable_type>::handle_read_body
+                  , GAsioServerSessionT<processable_type>::shared_from_this()
+                  , boost::asio::placeholders::error
+                  , boost::asio::placeholders::bytes_transferred
+            ))
+         );
+      } catch(const boost::system::system_error &e) {
+         glogger
+         << "In GAsioServerSessionT::handle_read_datasize():" << std::endl
+         << "Caught boost::system::system_error exception with messages:" << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
+      } catch(const boost::exception &e) {
+         glogger
+         << "In GAsioServerSessionT::handle_read_datasize():" << std::endl
+         << "Caught boost::exception exception with messages:" << std::endl
+         << boost::diagnostic_information(e) << std::endl
+         << GEXCEPTION;
+      } catch(...) {
+         glogger
+         << "In GAsioServerSessionT::handle_read_datasize():" << std::endl
+         << "Caught unknown exception" << std::endl
+         << GEXCEPTION;
+      }
 
       //------------------------------------------------------------------------
    }
@@ -721,20 +798,39 @@ class GAsioServerSessionT
       // Initiate the next read session, if still required
 
       if(bytesTransferredDataBody_ < dataSize_) {
-         socket_.async_read_some(
-            boost::asio::buffer(dataBuffer_)
-            , boost::bind(
-                    &GAsioServerSessionT<processable_type>::handle_read_body
-                  , GAsioServerSessionT<processable_type>::shared_from_this()
-                  , boost::asio::placeholders::error
-                  , boost::asio::placeholders::bytes_transferred
-            )
-         );
+         try {
+            socket_.async_read_some(
+               boost::asio::buffer(dataBuffer_)
+               , strand_.wrap(boost::bind(
+                       &GAsioServerSessionT<processable_type>::handle_read_body
+                     , GAsioServerSessionT<processable_type>::shared_from_this()
+                     , boost::asio::placeholders::error
+                     , boost::asio::placeholders::bytes_transferred
+               ))
+            );
+         } catch(const boost::system::system_error &e) {
+            glogger
+            << "In GAsioServerSessionT::handle_read_body():" << std::endl
+            << "Caught boost::system::system_error exception with messages:" << std::endl
+            << e.what() << std::endl
+            << GEXCEPTION;
+         } catch(const boost::exception &e) {
+            glogger
+            << "In GAsioServerSessionT::handle_read_body():" << std::endl
+            << "Caught boost::exception exception with messages:" << std::endl
+            << boost::diagnostic_information(e) << std::endl
+            << GEXCEPTION;
+         } catch(...) {
+            glogger
+            << "In GAsioServerSessionT::handle_read_body():" << std::endl
+            << "Caught unknown exception" << std::endl
+            << GEXCEPTION;
+         }
       } else { // The transfer is complete, work with the results
          (master_->gtp_).schedule(
              boost::function<void()>(
                  boost::bind(
-                       &GAsioServerSessionT<processable_type>::handle_workItemComplete
+                       &GAsioServerSessionT<processable_type>::handle_workItemComplete // Does its own error checks
                        , GAsioServerSessionT<processable_type>::shared_from_this() // This will keep the object alive
                  )
              )
@@ -764,14 +860,30 @@ class GAsioServerSessionT
       // Return the item to the broker. The item will be discarded
       // if the requested target queue cannot be found.
       try {
-         master_->broker_ptr_->put(portId_, p);
-      } catch(Gem::Courtier::buffer_not_present& b) { // discard the item
+         while(!master_->broker_ptr_->put(portId_, p, timeout_)) {
+            if(master_->stopped()) { // This may lead to a loss of items
+               glogger
+               << "GAsioServerSessionT<>::In handle_workItemComplete(): Warning!" << std::endl
+               << "Discarding item as the consumer object stopped operation" << std::endl
+               << GWARNING;
+
+               return;
+            }
+
+            continue;
+         }
+      } catch(const Gem::Courtier::buffer_not_present& b) { // discard the item
          glogger
          << "GAsioServerSessionT<>::In handle_workItemComplete(): Warning!" << std::endl
          << "Discarding item as buffer port is not present" << std::endl
          << GWARNING;
 
          return;
+      } catch(...) {
+         glogger
+         << "GAsioServerSessionT<>::In handle_workItemComplete():" << std::endl
+         << "Caught unknown exception" << std::endl
+         << GEXCEPTION;
       }
    }
 
@@ -781,27 +893,33 @@ class GAsioServerSessionT
     *
     * @param item An item to be written to the socket
     */
-   void submit(){
+   void async_submitToRemote(){
       // Retrieve an item from the broker and submit it to the client.
       boost::shared_ptr<processable_type> p;
       Gem::Common::PORTIDTYPE portId;
 
       // Retrieve an item
       try {
+         std::size_t nTries = 0;
          while(!master_->broker_ptr_->get(portId, p, timeout_)) {
-            if(master_->GBaseConsumerT<processable_type>::stopped()) {
+            if(master_->stopped()) {
                boost::system::error_code ignore;
                socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
                return;
             }
 
-            boost::this_thread::yield();
-
+            nTries++;
             continue;
          }
+
+#ifdef DEBUG
+         if(nTries>0) {
+            std::cout << "Needed " << nTries << " attempts to get item" << std::endl << std::flush;
+         }
+#endif /* DEBUG */
       } catch(Gem::Courtier::buffer_not_present&) { // discard the item
          glogger
-         << "In GAsioServerSessionT<>::submit(): Warning!" << std::endl
+         << "In GAsioServerSessionT<>::async_submitToRemote(): Warning!" << std::endl
          << "Discarding item as buffer port is not present" << std::endl
          << GWARNING;
 
@@ -844,15 +962,34 @@ class GAsioServerSessionT
 
       // Write the serialized data to the socket. We use "gather-write" to send
       // command, header and data in a single write operation.
-      boost::asio::async_write(
-            socket_
-            , buffers
-            , boost::bind(
-                  &GAsioServerSessionT<processable_type>::handle_write
-                  , GAsioServerSessionT<processable_type>::shared_from_this()
-                  , boost::asio::placeholders::error
-            )
-      );
+      try {
+         boost::asio::async_write(
+               socket_
+               , buffers
+               , strand_.wrap(boost::bind(
+                     &GAsioServerSessionT<processable_type>::handle_write
+                     , GAsioServerSessionT<processable_type>::shared_from_this()
+                     , boost::asio::placeholders::error
+               ))
+         );
+      } catch(const boost::system::system_error &e) {
+         glogger
+         << "In GAsioServerSessionT::async_submitToRemote():" << std::endl
+         << "Caught boost::system::system_error exception with messages:" << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
+      } catch(const boost::exception &e) {
+         glogger
+         << "In GAsioServerSessionT::async_submitToRemote():" << std::endl
+         << "Caught boost::exception exception with messages:" << std::endl
+         << boost::diagnostic_information(e) << std::endl
+         << GEXCEPTION;
+      } catch(...) {
+         glogger
+         << "In GAsioServerSessionT::async_submitToRemote():" << std::endl
+         << "Caught unknown exception" << std::endl
+         << GEXCEPTION;
+      }
    }
 
    /***************************************************************************/
@@ -865,15 +1002,34 @@ class GAsioServerSessionT
       // Format the command ...
       std::string outbound_command = assembleQueryString(command, Gem::Courtier::COMMANDLENGTH);
       // ... and tell the client
-      boost::asio::async_write(
-            socket_
-            , boost::asio::buffer(outbound_command)
-            , boost::bind(
-                  &GAsioServerSessionT<processable_type>::handle_write
-                  , GAsioServerSessionT<processable_type>::shared_from_this()
-                  , boost::asio::placeholders::error
-            )
-      );
+      try {
+         boost::asio::async_write(
+               socket_
+               , boost::asio::buffer(outbound_command)
+               , strand_.wrap(boost::bind(
+                     &GAsioServerSessionT<processable_type>::handle_write
+                     , GAsioServerSessionT<processable_type>::shared_from_this()
+                     , boost::asio::placeholders::error
+               ))
+         );
+      } catch(const boost::system::system_error &e) {
+         glogger
+         << "In GAsioServerSessionT::sendSingleCommand():" << std::endl
+         << "Caught boost::system::system_error exception with messages:" << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
+      } catch(const boost::exception &e) {
+         glogger
+         << "In GAsioServerSessionT::sendSingleCommand():" << std::endl
+         << "Caught boost::exception exception with messages:" << std::endl
+         << boost::diagnostic_information(e) << std::endl
+         << GEXCEPTION;
+      } catch(...) {
+         glogger
+         << "In GAsioServerSessionT::sendSingleCommand():" << std::endl
+         << "Caught unknown exception" << std::endl
+         << GEXCEPTION;
+      }
    }
 
    /***************************************************************************/
@@ -904,6 +1060,7 @@ class GAsioServerSessionT
 
    /***************************************************************************/
 
+   boost::asio::io_service::strand strand_; ///< /// Ensure the connection's handlers are not called concurrently.
    boost::asio::ip::tcp::socket socket_; ///< The underlying socket
 
    boost::array<char, COMMANDLENGTH> commandBuffer_; ///< A buffer to be used for command transfers
@@ -1163,16 +1320,35 @@ class GAsioTCPConsumerT
          gtp_.setNThreads(listenerThreads_);
       }
 
-      // Start the first session
-      this->async_newAccept();
+      try {
+         // Start the first session
+         this->async_newAccept();
 
-      // Create a number of threads responsible for the io_service_ objects
-      // This absolutely needs to happen after the first session has started,
-      // so the io_service doesn't run out of work
-      gtg_.create_threads(
-         boost::bind(&boost::asio::io_service::run, &io_service_)
-         , listenerThreads_
-      );
+         // Create a number of threads responsible for the io_service_ objects
+         // This absolutely needs to happen after the first session has started,
+         // so the io_service doesn't run out of work
+         gtg_.create_threads(
+            boost::bind(&boost::asio::io_service::run, &io_service_)
+            , listenerThreads_
+         );
+      } catch(const boost::system::system_error &e) {
+         glogger
+         << "In GAsioTCPConsumerT::async_startProcessing():" << std::endl
+         << "Caught boost::system::system_error exception with messages:" << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
+      } catch(const boost::exception &e) {
+         glogger
+         << "In GAsioTCPConsumerT::async_startProcessing():" << std::endl
+         << "Caught boost::exception exception with messages:" << std::endl
+         << boost::diagnostic_information(e) << std::endl
+         << GEXCEPTION;
+      } catch(...) {
+         glogger
+         << "In GAsioTCPConsumerT::async_startProcessing():" << std::endl
+         << "Caught unknown exception" << std::endl
+         << GEXCEPTION;
+      }
    }
 
    /***************************************************************************/
@@ -1258,15 +1434,34 @@ class GAsioTCPConsumerT
             )
       );
 
-      acceptor_.async_accept(
-            newSession->getSocket()
-            , boost::bind(
-                  &GAsioTCPConsumerT<processable_type>::handleAccept
-                  , this
-                  , newSession
-                  , boost::asio::placeholders::error
-            )
-      );
+      try {
+         acceptor_.async_accept(
+               newSession->getSocket()
+               , boost::bind(
+                     &GAsioTCPConsumerT<processable_type>::async_handleAccept
+                     , this
+                     , newSession
+                     , boost::asio::placeholders::error
+               )
+         );
+      } catch(const boost::system::system_error &e) {
+         glogger
+         << "In GAsioTCPConsumerT::async_newAccept():" << std::endl
+         << "Caught boost::system::system_error exception with messages:" << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
+      } catch(const boost::exception &e) {
+         glogger
+         << "In GAsioTCPConsumerT::async_newAccept():" << std::endl
+         << "Caught boost::exception exception with messages:" << std::endl
+         << boost::diagnostic_information(e) << std::endl
+         << GEXCEPTION;
+      } catch(...) {
+         glogger
+         << "In GAsioTCPConsumerT::async_newAccept():" << std::endl
+         << "Caught unknown exception" << std::endl
+         << GEXCEPTION;
+      }
    }
 
 
@@ -1277,23 +1472,42 @@ class GAsioTCPConsumerT
     * @param currentSession A pointer to the current session
     * @param error Possible error conditions
     */
-   void handleAccept(
+   void async_handleAccept(
          boost::shared_ptr<GAsioServerSessionT<processable_type> > currentSession
          , const boost::system::error_code& error)
    {
       if(error) {
          glogger
-         << "In GAsioTCPConsumerT<>::handleAccept(): Warning!"
+         << "In GAsioTCPConsumerT<>::async_handleAccept():"
          << "Terminating on error " << error << std::endl
-         << GWARNING;
+         << GEXCEPTION;
          return;
       }
 
       // Initiate waiting for new connections
-      this->async_newAccept();
+      try {
+         this->async_newAccept();
 
-      // Initiate the processing sequence
-      currentSession->async_processRequest();
+         // Initiate the processing sequence
+         currentSession->async_processRequest();
+      } catch(const boost::system::system_error &e) {
+         glogger
+         << "In GAsioTCPConsumerT::async_handleAccept():" << std::endl
+         << "Caught boost::system::system_error exception with messages:" << std::endl
+         << e.what() << std::endl
+         << GEXCEPTION;
+      } catch(const boost::exception &e) {
+         glogger
+         << "In GAsioTCPConsumerT::async_handleAccept():" << std::endl
+         << "Caught boost::exception exception with messages:" << std::endl
+         << boost::diagnostic_information(e) << std::endl
+         << GEXCEPTION;
+      } catch(...) {
+         glogger
+         << "In GAsioTCPConsumerT::async_handleAccept():" << std::endl
+         << "Caught unknown exception" << std::endl
+         << GEXCEPTION;
+      }
    }
 
    /***************************************************************************/

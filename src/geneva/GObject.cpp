@@ -101,7 +101,7 @@ boost::optional<std::string> GObject::checkRelationshipWith(
     using namespace Gem::Common;
 
     // Check that cp isn't the same object as this one
-    selfAssignmentCheck<GObject>(&cp);
+    this->selfAssignmentCheck<GObject>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;

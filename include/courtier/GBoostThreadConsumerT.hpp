@@ -100,7 +100,7 @@ public:
 	GBoostThreadConsumerT()
 		: Gem::Courtier::GBaseConsumerT<processable_type>()
 		, threadsPerWorker_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
-		, broker_(GBROKER(processable_type))
+		, broker_ptr_(GBROKER(processable_type))
 	   , workerTemplates_(1, boost::shared_ptr<GWorker>(new GDefaultWorker()))
 	{ /* nothing */ }
 
@@ -377,7 +377,7 @@ private:
 
 	std::size_t threadsPerWorker_; ///< The maximum number of allowed threads in the pool
 	Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
-	boost::shared_ptr<GBrokerT<processable_type> > broker_; ///< A shortcut to the broker so we do not have to go through the singleton
+	boost::shared_ptr<GBrokerT<processable_type> > broker_ptr_; ///< A shortcut to the broker so we do not have to go through the singleton
    std::vector<boost::shared_ptr<GWorker> > workers_; ///< Holds the current worker objects
    std::vector<boost::shared_ptr<GWorker> > workerTemplates_; ///< All workers will be created as a clone of these workers
 
@@ -446,7 +446,7 @@ public:
                if(outer_->stopped()) break;
 
                // If we didn't get a valid item, start again with the while loop
-               if(!outer_->broker_->get(id, p, timeout)) {
+               if(!outer_->broker_ptr_->get(id, p, timeout)) {
                   continue;
                }
 
@@ -474,7 +474,7 @@ public:
                // Return the item to the broker. The item will be discarded
                // if the requested target queue cannot be found.
                try {
-                  while(!outer_->broker_->put(id, p, timeout)){ // This can lead to a loss of items
+                  while(!outer_->broker_ptr_->put(id, p, timeout)){ // This can lead to a loss of items
                      // Terminate if we have been asked to stop
                      if(outer_->stopped()) break;
                   }

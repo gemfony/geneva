@@ -35,6 +35,7 @@
 
 // Standard header files go here
 #include <string>
+#include <iostream>
 #include <sstream>
 #include <vector>
 
