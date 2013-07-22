@@ -151,7 +151,7 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		ADD_DEFINITIONS ("-DNDEBUG -O3")
 	ENDIF()	
 	
-	ADD_DEFINITIONS ("-dynamiclib -stdlib=libc++ -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread -std=c++11")
+#	ADD_DEFINITIONS ("-dynamiclib -stdlib=libc++ -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread -std=c++11")
 ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	SET( MSG_COMPILER "GNU g++")
 
@@ -227,6 +227,13 @@ IF( GENEVA_BUILD_TESTS )
 		test_exec_monitor
 	)
 ENDIF()
+
+################################################################################
+# Add all Boost libraries found
+#LINK_LIBRARIES ( 
+#  ${Boost_FILESYSTEM_LIBRARY}
+#  ${Boost_SYSTEM_LIBRARY}
+#)
 
 ################################################################################
 # Include- and link-directories, libraries

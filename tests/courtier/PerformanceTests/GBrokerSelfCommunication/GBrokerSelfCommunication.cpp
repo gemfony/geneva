@@ -321,6 +321,7 @@ int main(int argc, char **argv) {
 
 			// Create a consumer and make it known to the global broker
 			boost::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
+			gbtc->setNThreadsPerWorker(10);
 			GBROKER(WORKLOAD)->enrol(gbtc);
 		}
 		break;

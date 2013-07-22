@@ -530,7 +530,7 @@ public:
          << GEXCEPTION;
       }
 
-      validityChecks_.push_back(vc_ptr->GObject::clone<GValidityCheckT<ind_type> >());
+      validityChecks_.push_back(vc_ptr->GObject::template clone<GValidityCheckT<ind_type> >());
    }
 
 protected:

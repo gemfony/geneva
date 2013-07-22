@@ -444,7 +444,7 @@ public:
          bool isDirty;
 
          if(monitorBestOnly_) { // Monitor the best individuals only
-            boost::shared_ptr<GParameterSet> p = goa->GOptimizableI::getBestIndividual<GParameterSet>();
+            boost::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
             if(!monitorValidOnly_ || p->isValid()) {
                switch(this->nProfileVars()) {
                   case 1:
@@ -494,7 +494,7 @@ public:
                   switch(this->nProfileVars()) {
                      case 1:
                      {
-                        double val0    = (*it)->GOptimizableEntity::getVarVal<double>(profVarVec_[0]);
+                        double val0    = (*it)->GOptimizableEntity::template getVarVal<double>(profVarVec_[0]);
                         double fitness = (*it)->getCachedFitness(isDirty);
 
                         progressPlotter2D_oa_->add(boost::tuple<double,double>(val0, fitness));
@@ -503,8 +503,8 @@ public:
 
                      case 2:
                      {
-                        double val0 = (*it)->GOptimizableEntity::getVarVal<double>(profVarVec_[0]);
-                        double val1 = (*it)->GOptimizableEntity::getVarVal<double>(profVarVec_[1]);
+                        double val0 = (*it)->GOptimizableEntity::template getVarVal<double>(profVarVec_[0]);
+                        double val1 = (*it)->GOptimizableEntity::template getVarVal<double>(profVarVec_[1]);
                         double fitness = (*it)->getCachedFitness(isDirty);
 
                         progressPlotter3D_oa_->add(boost::tuple<double,double,double>(val0, val1, fitness));
@@ -513,9 +513,9 @@ public:
 
                      case 3:
                      {
-                        double val0 = (*it)->GOptimizableEntity::getVarVal<double>(profVarVec_[0]);
-                        double val1 = (*it)->GOptimizableEntity::getVarVal<double>(profVarVec_[1]);
-                        double val2 = (*it)->GOptimizableEntity::getVarVal<double>(profVarVec_[2]);
+                        double val0 = (*it)->GOptimizableEntity::template getVarVal<double>(profVarVec_[0]);
+                        double val1 = (*it)->GOptimizableEntity::template getVarVal<double>(profVarVec_[1]);
+                        double val2 = (*it)->GOptimizableEntity::template getVarVal<double>(profVarVec_[2]);
                         double fitness = (*it)->getCachedFitness(isDirty);
 
                         progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(val0, val1, val2, fitness));

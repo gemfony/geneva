@@ -143,12 +143,6 @@ public:
 	 * Shuts the broker down, together with all consumers.
 	 */
 	void finalize() {
-      // Lock the access to our internal data
-      boost::mutex::scoped_lock rawBuffersPresentLock(RawBuffersPresentMutex_);
-      boost::mutex::scoped_lock processedBuffersPresentLock(ProcessedBuffersPresentMutex_);
-      boost::mutex::scoped_lock switchGetPositionLock(switchGetPositionMutex_);
-      boost::mutex::scoped_lock findProcessedBufferLock(findProcesedBufferMutex_);
-
 		// Only allow one finalization action to be carried out
 		if(finalized_) return;
 
@@ -158,14 +152,22 @@ public:
 			(*it)->shutdown();
 		}
 
-		// Clear raw and processed buffers and the consumer lists
-		RawBuffers_.clear(); // Somehow that gets rid of the Boost 1.46 crash
-		ProcessedBuffers_.clear();
-		consumerCollection_.clear();
-		buffersPresent_=false;
+		{
+         // Lock the access to our internal data
+         boost::mutex::scoped_lock rawBuffersPresentLock(RawBuffersPresentMutex_);
+         boost::mutex::scoped_lock processedBuffersPresentLock(ProcessedBuffersPresentMutex_);
+         boost::mutex::scoped_lock switchGetPositionLock(switchGetPositionMutex_);
+         boost::mutex::scoped_lock findProcessedBufferLock(findProcesedBufferMutex_);
 
-		// Make sure this function does not execute code a second time
-		finalized_ = true;
+         // Clear raw and processed buffers and the consumer lists
+         RawBuffers_.clear(); // Somehow that gets rid of the Boost 1.46 crash
+         ProcessedBuffers_.clear();
+         consumerCollection_.clear();
+         buffersPresent_=false;
+
+         // Make sure this function does not execute code a second time
+         finalized_ = true;
+		}
 	}
 
 	/***************************************************************************/

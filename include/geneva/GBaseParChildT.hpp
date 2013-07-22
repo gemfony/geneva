@@ -657,7 +657,7 @@ protected:
          if(nParents_==1) {
             for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+1; it!= GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
                (*it)->GObject::load(*(GOptimizationAlgorithmT<ind_type>::data.begin()));
-               (*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(0);
+               (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(0);
             }
          } else {
             // TODO: Check whether it is sufficient to do this only once
@@ -754,7 +754,7 @@ protected:
    void markParents() {
       typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; ++it){
-         (*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
+         (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
       }
    }
 
@@ -765,7 +765,7 @@ protected:
    void markChildren() {
       typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it){
-         (*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
+         (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
       }
    }
 
@@ -778,7 +778,7 @@ protected:
       std::size_t pos = 0;
       typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
-         (*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
+         (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
       }
    }
 
@@ -1020,7 +1020,7 @@ protected:
       child->GObject::load(*(GOptimizationAlgorithmT<ind_type>::data.begin() + parent_pos));
 
       // Let the individual know the id of the parent
-      child->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(parent_pos);
+      child->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(parent_pos);
    }
 
    /***************************************************************************/
@@ -1039,14 +1039,15 @@ protected:
          , const std::vector<double>& threshold
    ) {
       bool done=false;
-      double randTest = GOptimizationAlgorithmT<ind_type>::gr.Gem::Hap::GRandomBase::uniform_01<double>(); // get the test value
+      double randTest // get the test value
+       = GOptimizationAlgorithmT<ind_type>::gr.Gem::Hap::GRandomBase::template uniform_01<double>();
 
       for(std::size_t par=0; par<nParents_; par++) {
          if(randTest<threshold[par]) {
             // Load the parent's data
             p->GObject::load(*(GOptimizationAlgorithmT<ind_type>::data.begin() + par));
             // Let the individual know the parent's id
-            p->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(par);
+            p->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(par);
             done = true;
 
             break;
