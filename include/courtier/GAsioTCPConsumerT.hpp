@@ -569,7 +569,6 @@ class GAsioServerSessionT
     */
    boost::asio::ip::tcp::socket& getSocket(){
       return socket_;
-
    }
 
  protected:
@@ -827,6 +826,11 @@ class GAsioServerSessionT
             << GEXCEPTION;
          }
       } else { // The transfer is complete, work with the results
+         // Get rid of the socket ...
+         boost::system::error_code ignore;
+         socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+
+         // ... and schedule the work item for de-serialization
          (master_->gtp_).schedule(
              boost::function<void()>(
                  boost::bind(
@@ -834,7 +838,7 @@ class GAsioServerSessionT
                        , GAsioServerSessionT<processable_type>::shared_from_this() // This will keep the object alive
                  )
              )
-         );
+         ); // TODO: This should be a work item in the consumer, so we do not block the io_object
       }
 
       //------------------------------------------------------------------------
@@ -847,7 +851,8 @@ class GAsioServerSessionT
    void handle_workItemComplete() {
       // Give the object back to the broker, so it can be sorted back
       // into the GBufferPortT objects.
-      boost::shared_ptr<processable_type> p = Gem::Common::sharedPtrFromString<processable_type>(dataBody_, serializationMode_);
+      boost::shared_ptr<processable_type> p
+         = Gem::Common::sharedPtrFromString<processable_type>(dataBody_, serializationMode_);
 
       // Complain if this is an empty item
       if(!p) {
@@ -913,9 +918,9 @@ class GAsioServerSessionT
          }
 
 #ifdef DEBUG
-         if(nTries>0) {
-            std::cout << "Needed " << nTries << " attempts to get item" << std::endl << std::flush;
-         }
+         // if(nTries>0) {
+         //   std::cout << "Needed " << nTries << " attempts to get item" << std::endl << std::flush;
+         //}
 #endif /* DEBUG */
       } catch(Gem::Courtier::buffer_not_present&) { // discard the item
          glogger
@@ -1064,7 +1069,7 @@ class GAsioServerSessionT
    boost::asio::ip::tcp::socket socket_; ///< The underlying socket
 
    boost::array<char, COMMANDLENGTH> commandBuffer_; ///< A buffer to be used for command transfers
-   boost::array<char, 4096>          dataBuffer_;    ///< A buffer holding body data
+   boost::array<char, 16384>         dataBuffer_;    ///< A buffer holding body data -- was 4096
 
    std::size_t bytesTransferredDataBody_; ///< The number of bytes if the data body transferred so far
    std::string dataBody_; ///< The actual body data
