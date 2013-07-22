@@ -5,7 +5,6 @@ SET ( SAMPLEINDIVIDUALINCLUDES
 	GExternalSetterIndividual.hpp
 	GFunctionIndividual.hpp
 	GNeuralNetworkIndividual.hpp
-	GTestIndividual1.hpp
 	GTestIndividual2.hpp
 	GTestIndividual3.hpp
 )

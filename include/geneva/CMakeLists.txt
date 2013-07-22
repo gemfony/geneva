@@ -115,6 +115,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GStdPtrVectorInterfaceT.hpp
 	GSwarmAlgorithmFactory.hpp
 	GSwarmPersonalityTraits.hpp
+	GTestIndividual1.hpp
 )
 
 INSTALL ( FILES ${OPTIMIZATIONINCLUDES} DESTINATION include/geneva

@@ -78,7 +78,7 @@ using namespace boost::unit_test;
 #include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva-individuals/GTestIndividual1.hpp"
+#include "geneva/GTestIndividual1.hpp"
 #include "geneva-individuals/GTestIndividual3.hpp"
 #include "geneva-individuals/GExternalSetterIndividual.hpp"
 

@@ -57,7 +57,7 @@
 #include "geneva/GSwarmPersonalityTraits.hpp"
 
 #ifdef GEM_TESTING
-#include "geneva-individuals/GTestIndividual1.hpp"
+#include "geneva/GTestIndividual1.hpp"
 #endif /* GEM_TESTING */
 
 namespace Gem {

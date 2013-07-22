@@ -382,7 +382,7 @@ protected:
          }
 #endif /* DEBUG */
 
-      return this->at(0)->GOptimizableI::getBestIndividual<GParameterSet>();
+      return this->at(0)->GOptimizableI::template getBestIndividual<GParameterSet>();
    }
 
    /***************************************************************************/
@@ -401,7 +401,7 @@ protected:
       }
 
 
-      return this->at(0)->GOptimizableI::getBestIndividuals<GParameterSet>();
+      return this->at(0)->GOptimizableI::template getBestIndividuals<GParameterSet>();
    }
 
    /***************************************************************************/

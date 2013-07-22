@@ -79,6 +79,7 @@ SET ( OPTIMIZATIONSOURCES
 	GSimulatedAnnealingFactory
 	GSwarmAlgorithmFactory
 	GSwarmPersonalityTraits
+	GTestIndividual1
 )
 
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted

@@ -32,7 +32,7 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva-individuals/GTestIndividual1.hpp"
+#include "geneva/GTestIndividual1.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual1)
 

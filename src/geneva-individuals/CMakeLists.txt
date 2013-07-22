@@ -5,7 +5,6 @@ SET ( SAMPLEINDIVIDUALSOURCES
 	GExternalSetterIndividual
 	GFunctionIndividual
 	GNeuralNetworkIndividual
-	GTestIndividual1
 	GTestIndividual2
 	GTestIndividual3
 )
