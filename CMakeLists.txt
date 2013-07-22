@@ -229,11 +229,22 @@ IF( GENEVA_BUILD_TESTS )
 ENDIF()
 
 ################################################################################
-# Add all Boost libraries found
-#LINK_LIBRARIES ( 
-#  ${Boost_FILESYSTEM_LIBRARY}
-#  ${Boost_SYSTEM_LIBRARY}
-#)
+# Add additional libraries if this is MacOS
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	LINK_LIBRARIES(
+		${Boost_FILESYSTEM_LIBRARY}
+		${Boost_SYSTEM_LIBRARY}
+		${Boost_SERIALIZATION_LIBRARY}
+		${Boost_THREAD_LIBRARY}
+		${Boost_PROGRAM_OPTIONS_LIBRARY}	
+	)
+	
+	IF( GENEVA_BUILD_TESTS )
+		LINK_LIBRARIES(
+			${Boost_TEST_EXEC_MONITOR_LIBRARY}
+		)
+	ENDIF()
+ENDIF()
 
 ################################################################################
 # Include- and link-directories, libraries

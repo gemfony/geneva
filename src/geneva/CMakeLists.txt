@@ -92,6 +92,19 @@ SET_TARGET_PROPERTIES( ${GENEVA_LIBNAME}
 	PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
 )
 
+################################################################################
+# Add additional libraries if this is MacOS
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	TARGET_LINK_LIBRARIES(
+		${GENEVA_LIBNAME}
+		${COURTIER_LIBNAME}
+		${HAP_LIBNAME}
+		${COMMON_LIBNAME}
+	)
+ENDIF()
+
+################################################################################
+
 INSTALL ( TARGETS ${GENEVA_LIBNAME} DESTINATION lib
 	PERMISSIONS
 	OWNER_READ OWNER_WRITE
