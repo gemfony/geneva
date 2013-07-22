@@ -3,9 +3,14 @@ Target systems
 
 The main development work of the Geneva library collection is currently done
 on Ubuntu and Debian. It is likely that Geneva compiles on most other Linux
-and Unix systems using the GNU Compiler Collection. The authors would very
-much appreciate your feedback through the Geneva Development Forum
-http://www.gemfony.com/index.php?forums .
+and Unix systems using the GNU Compiler Collection. 
+
+We have recently managed to compile Geneva on MacOS 10.8.4 using the Clang compiler,
+which comes with the development suite. Note that support for MacOS is experimental
+at best. We have also successfully built Geneva with Clang on BSD.
+
+The authors would very much appreciate your feedback through the Geneva Development 
+Forum http://www.gemfony.com/index.php?forums .
 
 
 Prerequisites
@@ -16,15 +21,15 @@ The build system uses CMake in version 2.6 or later.
 You will also need the Boost libraries (see http://www.boost.org) in version
 1.41 or newer. See either the Appendix "Installing Boost in Debian/Ubuntu" or
 the Appendix "Compiling Boost" below for more details. We currently recommend
-Boost 1.43 .
+Boost 1.54 .
 
 If you wish to build from the source code version control tree you will also
 need the Bazaar version control tools. This is not needed if you only intend
-to build the official releases from the provided tarballs.
+to build the official releases from the provided "tar balls".
 
 
-Installing prerequisites in Debian/Ubuntu
------------------------------------------
+Installation prerequisites in Debian/Ubuntu
+-------------------------------------------
 
 The following commands should be enough to install the required prerequisites
 in any modern Debian/Ubuntu release:
@@ -35,7 +40,24 @@ sudo apt-get install --no-install-recommends libboost-dev libboost-date-time-dev
         libboost-serialization-dev libboost-system-dev libboost-test-dev \
         libboost-thread-dev
 
-See the Appendix "Installing Boost in Debian/Ubuntu" though.
+See the Appendix "Installing Boost in Debian/Ubuntu", though.
+
+
+Installation prerequisites on MacOS X (tested only with version 10.8.4)
+-----------------------------------------------------------------------
+
+You should first install the Xcode environment from the App store. This
+will give you a working C++ compiler. You should also install Mac versions
+of CMake and bzr.
+
+We recommend that you compile a custom boost version. With Boost 1.54, 
+unpack the archive, then run the following commands inside of the main
+directory of the boost source tree:
+
+./bootstrap.sh --prefix=/opt/boost154/
+sudo ./b2 -j 4 install
+
+The directories can of course be adapted.
 
 
 Building and installing Geneva
@@ -64,7 +86,7 @@ sh ../Geneva/scripts/prepareBuild.sh ./myGenevaConfig.gcfg
 Finally build and install in the usual way:
 
 make		# Use the -j2 switch if you have a dual core CPU
-make install
+sudo make install  # Assuming you want to install to a system directory
 
 You can clean up the build folder by running "make clean" inside of $HOME/build .
 
@@ -85,18 +107,6 @@ In order to choose a custom installation directory (instead of the default
 /opt/geneva), call
 
 cmake /path/to/geneva-top-dir -DCMAKE_INSTALL_PREFIX="/where/the/library/goes"
-
-Note that under Linux, you will have to make the installation directory
-known to the linker, so henceforth you can link to the library. Under most
-Linux systems this can be done by creating a file /etc/ld.so.conf.d/geneva.conf
-with the content
-
-/where/the/library/goes/lib
-
-You then need to execute "ldconfig -v". Otherwise you can export the
-library location prior to running programs based on Geneva:
-
-export LD_LIBRARY_PATH="/where/the/library/goes/lib:$LD_LIBRARY_PATH"
 
 Somewhat older distributions won't provide a new enough version of Boost
 (i.e., at least 1.41). You might thus have compiled your own version of
@@ -121,11 +131,45 @@ This command needs to be called on a single line.
 
 The commands shown here were tested on an Ubuntu 9.10 system.
 
+Have a look at the configuration script prepareBuild.sh for some of the options 
+available for a direct call to cmake,
+
+
+Making the libraries known to the system
+========================================
+
+a) On Linux
+-----------
+
+Note that under Linux, you will have to make the installation directory
+known to the linker, so henceforth you can link to the library automatically. 
+Under most Linux systems this can be done by creating a file 
+/etc/ld.so.conf.d/geneva.conf with the content
+
+/where/the/library/goes/lib
+
+You then need to execute "ldconfig -v". 
+
+Another possibility is to export the library location prior to running 
+programs based on Geneva:
+
+export LD_LIBRARY_PATH="/where/the/library/goes/lib:$LD_LIBRARY_PATH"
+
+You should follow a similar procedure for the boost libraries, if you
+have compiled your own version of it.
+
+b) On MacOS
+-----------
+
+Currently we simply set the DYLD_LIBRARY_PATH to the Geneva and Boost 
+library directories. Please do let us know about more convenient ways
+of permanently setting library paths.
+
 
 Recommended Software
 ====================
 
-By default a Geneva population emits information suitable for ROOT
+By default a Geneva optimization emits information suitable for ROOT
 (see http://root.cern.ch). ROOT is a C++ analysis framework widely used
 in particle physics. It is built around the C++ interpreter cint. It is
 recommended to install ROOT in your system, as also some of the examples
@@ -136,6 +180,14 @@ optimization with the Geneva library collection.
 
 Appendix: Installing Boost in Debian/Ubuntu
 ===========================================
+
+***
+NOTE: If you install a custom version of Boost, one of the more common errors
+sources are header files taken from one version of Boost, while the libraries
+are taken from another source. Check for this first if you run into 
+compilation problems with Geneva. Using the libraries provided by your system
+is thus the recommended way.
+***
 
 Both Debian "Squeeze" (testing) and Ubuntu 10.10 "Maverick Meerkat" or
 newer have the required Boost packages to be able to compile and run Geneva:
@@ -168,27 +220,25 @@ out the following lines in the main CMakeList.txt file:
 	ADD_SUBDIRECTORY (tests)
 
 
-Appendix: Compiling Boost
-=========================
+Appendix: Compiling Boost on Linux
+==================================
 
 Download Boost from http://www.boost.org and extract the compressed file.
-This will create a folder "boost_1_43_0", for instance. Change to that
-folder and, assuming Boost should be installed in /opt/boost143 (which
+This will create a folder "boost_1_54_0", for instance. Change to that
+folder and, assuming Boost should be installed in /opt/boost154 (which
 should be writable), execute
 
-./bootstrap.sh --with-libraries=date_time,filesystem,program_options,regex,serialization,system,thread,test \
-               --prefix=/opt/boost143
-./bjam
-./bjam install
+./bootstrap.sh --prefix=/opt/boost143
+sudo ./b2 install
 
 You can add a "-j 2" to the second command if your system has two cores.
 This will speed up the otherwise quite long compilation time.
 
 Once done you can use the Boost include path as explained above, with
-BOOST_ROOT="/opt/boost143".
+BOOST_ROOT="/opt/boost154".
 
 If FindBoost.cmake has trouble finding the Boost libraries in the specified
-location, it might help to compile the library with the bjam flag
+location, it might help to compile the library with the flag
 "--layout=versioned" or "--layout=tagged".
 
 

@@ -52,7 +52,7 @@ The main changes for this release include:
    so the code can be used with C++98-compilers. This allows to rule out a further class of errors, hence
    making the code more robust.
  - Renamed GIndividual to the more fitting "GOptimizableEntity"
- - Ported to MacOS X
+ - Ported to MacOS X (still experimental)
  
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012
