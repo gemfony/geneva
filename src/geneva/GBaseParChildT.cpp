@@ -79,7 +79,7 @@ GBaseParChildT<GParameterSet>::customGetBestIndividuals() {
    }
 
    std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals;
-   typename GBaseParChildT<GParameterSet>::iterator it;
+   GBaseParChildT<GParameterSet>::iterator it;
    for(it=this->begin(); it!=this->begin()+nParents_; ++it) {
       bestIndividuals.push_back(*it);
    }
