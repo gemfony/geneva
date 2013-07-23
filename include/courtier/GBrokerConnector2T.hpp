@@ -526,7 +526,8 @@ protected:
       if(nReturned == 0) { // Check whether any work items have returned at all
          glogger
          << "In GBaseExecutorT<processable_type>::iterationFinalize(): Warning!" << std::endl
-         << "No items have returned" << std::endl
+         << "No current items have returned" << std::endl
+         << "Got " << oldWorkItems.size() << " older work items" << std::endl
          << GWARNING;
       } else { // Calculate average return times of work items
          lastAverage_ = iterationDuration/nReturned;
