@@ -142,7 +142,11 @@ public:
 	void run(){
 		try{
 			if(this->init()) {
-				while(!this->halt() && this->process()){ /* nothing*/ }
+				while(
+               !this->halt() &&
+               CLIENT_CONTINUE == this->process()
+				)
+				{ /* nothing*/ }
 			} else {
 			   glogger
 			   << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl

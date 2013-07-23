@@ -35,10 +35,8 @@
 
 #include "courtier/GAsioHelperFunctions.hpp"
 
-namespace Gem
-{
-namespace Courtier
-{
+namespace Gem {
+namespace Courtier {
 
 /******************************************************************************/
 /**
@@ -74,6 +72,18 @@ std::size_t extractDataSize(const char* ds, const std::size_t& sz){
   }
 
   return inboundDataSize;
+}
+
+/******************************************************************************/
+/**
+ * Cleanly shuts down a socket
+ *
+ * @param socket The socket on which the shutdown should be performed
+ */
+void disconnect(boost::asio::ip::tcp::socket& socket) {
+   boost::system::error_code ignore;
+   socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+   socket.close();
 }
 
 /******************************************************************************/

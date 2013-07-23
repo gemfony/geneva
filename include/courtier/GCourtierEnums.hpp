@@ -67,6 +67,13 @@ const bool GBC_PROCESSED   = false;
 
 /******************************************************************************/
 /**
+ * Indicates whether a client wants to continue or terminate
+ */
+const bool CLIENT_CONTINUE  = true;
+const bool CLIENT_TERMINATE = false;
+
+/******************************************************************************/
+/**
  * Needed so that server and client agree about the size of the headers and commands.
  * Currently our longest command has 7 characters. As we read commands synchronously,
  * we want to keep the command length as small as possible. Note that, as the size

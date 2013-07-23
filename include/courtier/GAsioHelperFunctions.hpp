@@ -48,6 +48,7 @@
 // Boost headers go here
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/asio.hpp>
 
 #ifndef GASIOHELPERFUNCTIONS_HPP_
 #define GASIOHELPERFUNCTIONS_HPP_
@@ -71,6 +72,9 @@ std::string assembleQueryString(const std::string&, const std::size_t&);
 
 /** @brief Extracts the size of ASIO's data section from a C string. */
 std::size_t extractDataSize(const char*, const std::size_t&);
+
+/** @brief Cleanly shuts down a socket */
+void disconnect(boost::asio::ip::tcp::socket&);
 
 /******************************************************************************/
 
