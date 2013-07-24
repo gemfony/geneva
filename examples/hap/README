@@ -1,0 +1,7 @@
+This directory holds examples for the Hap library.
+Hap centralizes the creation of random numbers in a
+factory and gives clients access through a proxy class.
+
+05_GHapUsagePatterns: Shows typical ways of interfacing
+  with the random number proxy. Note that you will usually
+  not deal directly with the random number factory.

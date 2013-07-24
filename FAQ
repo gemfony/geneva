@@ -8,6 +8,28 @@ A: Geneva stands for "Grid-enabled evolutionary algorithms". The library will ul
    with Grid computing and particle physics, which in turn are closely related to CERN in
    Geneva/Switzerland, the name still seems to be appropriate.
 
+Q: There is the "Geneva library collection" and the "Geneva optimization library". What 
+   does that mean ?
+A: When Geneva was first developed, a lot of functionality was needed that may be used
+   in a wider context than "just" optimization. Hence we have split off several general
+   purpose libraries. The whole of the library collection still carries the name "Geneva",
+   as does the special purpose optimization library.
+   
+Q: Which sub-libraries exist in the Geneva library collection ?
+A: - The COMMON library holds miscellaneous functionality needed in many contexts. This 
+   includes the creation and parsing of configuration files, visualization of results,
+   logging and exception handling as well as some additional code for unit tests.
+   - The COURTIER library holds a broker infrastructure with pluggable execution modules.
+   E.g., networked execution of optimizations is based on the courtier library
+   - The GENEVA library holds all code specific to parametric optimization
+   - The GENEVA-INDIVIDUALS library holds some sample implementations of optimization
+   problems (i.e. definition of parameters and their evaluation). See e.g. the GFunctionIndividual
+   class. There are also some implementations that can be used in a wider context (e.g.
+   neural networks and the execution of external evaluation code)
+   - The HAP library holds code for the creation of random numbers. This is based on a
+   random number factory running in the background, as well as random number proxies giving
+   consumers the impression that they are dealing with local random number generators.
+
 Q: Where do I find the documentation ? 
 A: There is a complete manual available in PDF format here: 
    http://www.gemfony.com/fileadmin/documentation/geneva-manual.pdf . Note that

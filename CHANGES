@@ -52,7 +52,11 @@ The main changes for this release include:
    so the code can be used with C++98-compilers. This allows to rule out a further class of errors, hence
    making the code more robust.
  - Renamed GIndividual to the more fitting "GOptimizableEntity"
- - Ported to MacOS X (still experimental)
+ - Reworked the entire broker architecture (GBrokerConnectorT was replaced by GBrokerConnector2T,
+   and the GBrokerT class as well as the GAsioTCPConsumerT classes have been renovated)
+ - Ported to MacOS X (still highly experimental)
+ 
+ Recommended version of Boost: 1.54
  
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012
