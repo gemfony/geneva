@@ -1,1 +1,8 @@
-This sample program illustrates the usage of random numbers of different types and distributions.
+This sample program illustrates the access to random numbers 
+through a proxy object, using different random number types 
+and distributions.
+
+There is no visible effect when calling this program, it will 
+just print some status flags and exit. However, by looking at the
+code, you can learn about some typical usage patterns when interfacing
+with the Hap proxy "GRandom".

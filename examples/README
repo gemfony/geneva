@@ -2,5 +2,14 @@ Examples
 ========
 
 You will find examples below this directory, ordered according to the
-library they belong to. Please also have a look at the corresponding
-chapters in the manual.
+library they belong to. 
+
+COMMON:   Common functionality used throughout of the Genva library collection
+COURTIER: A broker infrastructure used to perform execution in dedicated 
+          consumers (possibly also coupled to remote clients). E.g. the 
+          networked mode of parametric optimization with Geneva uses the 
+          Courtier library.
+GENEVA:   All code needed for parametric optimization
+HAP:      Centralized creation of random numbers with access through a proxy
+
+Please also have a look at the corresponding chapters in the manual.
