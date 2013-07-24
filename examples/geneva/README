@@ -1,20 +1,62 @@
 Geneva library - Examples
 =========================
 
-This directory contains some examples of how to use the Geneva library.
-Examples starting with 01-08 are explained in the Geneva manual (see
-http://www.gemfony.com/fileadmin/documentation/geneva-manual.pdf )
+This directory contains some examples of how to use the Geneva library for
+performing parametric optimization. You will also find here some more complete 
+programs, which are intended as starting points for your own work.
 
-You will also find here some more complete programs, which are intended
-as starting points for your own work and might, in some cases, also be
-used directly without adaption. These are:
+The following examples are provided:
 
-- GNeuralNetwork:     an implementation of feed forward neural networks,
-                      which are trained with Geneva.
+01_GSimpleOptimizer:
+--------------------
 
-Please check each directory for further information. Where no README file
-is available, the main source code file (named similar to the directory it
-is in) will have further information.
+This example is meant as the first starting point for exploring Geneva. It provides
+easy command line access to the minimization of various mathematical functions, through
+different algorithms.
+
+
+02_GParaboloid2D:
+-----------------
+
+03_GParameterObjectUsagePatterns:
+---------------------------------
+
+04_GMultiCriterionParabola:
+---------------------------
+
+06_GSimpleEA:
+-------------
+
+06_GSimpleGD:
+-------------
+
+06_GSimpleSwarm:
+----------------
+
+07_GFunctionMinimizer:
+----------------------
+
+08_GMultiPopulation:
+--------------------
+
+09_GNeuralNetwork:
+------------------
+
+10_GStarter:
+------------
+
+11_GMetaOptimizer:
+------------------
+
+12_GExternalEvaluator:
+----------------------
+
+
+Please check each directory's README for further information. Also the main source 
+code file (named similar to the directory it is in) might also prove useful.
+
+Many of the examples are also described in detail in the Geneva manual, see
+http://www.gemfony.com/fileadmin/documentation/geneva-manual.pdf
 
 Compilation
 ===========

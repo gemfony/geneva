@@ -1,3 +1,4 @@
-This directory contains a simple Geneva application that searches for 
-the minimum of a function, using different algorithms. Parallelisation 
-can happen at your choice in networked mode, via threads or in serial mode.
+This example is meant as the first starting point for exploring Geneva. It provides
+easy command line access to the minimization of various mathematical functions, through
+different algorithms.
+
