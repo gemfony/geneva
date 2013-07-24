@@ -1,2 +1,14 @@
-This directory contains of demo on how to create and parse
+This directory contains a demo on how to create and parse
 configuration files with the GParserBuilder class.
+
+Simply run the executable "GConfigFileCreation". It will automatically
+create a configuration file below the "config" directory for you. This
+is actually also typical of all of Geneva. If there is no configuration
+file available, but a directory "config" exists, calling the executable
+will create configuration files with default values. These may then
+be modified.
+
+Configuration files use the JSON ("Java Script Object Notation") format.
+There is a complete framework in Geneva for creating parsers for configuration
+files and coupling them to your classes. Have a look at the source code 
+of GConfigFileCreation.cpp and also check out the chapter in our manual.

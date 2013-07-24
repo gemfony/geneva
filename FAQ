@@ -50,6 +50,22 @@ A: Please use the Geneva Usage or Development Forums:
    http://www.gemfony.com/index.php?forums . Please also post feature requests
    here and let us know about errors or inaccuracies in the manual.
 
+Q: How can I help ?
+A: As in any other Open Source project, there are many options how you may help.
+   The simplest way is to just report any problem you encounter through our bug tracker,
+   and let us know about your experience or post feature requests to our forum. You
+   could also do some stress testing of the library or port it to a new platform. In case
+   you actually know a solution to a given problem, we would very much appreciate if
+   you would let us know. The same applies to the implementation of new features.
+
+Q: What happens to my contributions ?
+A: We will carefully review your contributions and will then decide whether to add them to
+   the general source tree. It is likely that we will make changes to code you have supplied
+   to us before inclusion to the source tree. Please also note that we might have to ask
+   you to sign a contributor agreement before we accept changes to the code. Please see the 
+   manual for further details.
+   
+
 Technical questions:
 ====================
 
