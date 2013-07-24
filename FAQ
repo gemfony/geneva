@@ -4,14 +4,9 @@ General questions:
 Q: What does "Geneva" stand for ?
 A: Geneva stands for "Grid-enabled evolutionary algorithms". The library will ultimately
    implement a multitutde of different optimization algorithms. However, as evolutionary
-   algorithms were the first to be implemented, and as Geneva started life in comjunction
+   algorithms were the first to be implemented, and as Geneva started life in conjunction
    with Grid computing and particle physics, which in turn are closely related to CERN in
    Geneva/Switzerland, the name still seems to be appropriate.
-
-Q: Why do member functions of Geneva classes do not carry the "throw(...)" specifier ?
-A: In former releases, throw() specifiers were used to list the exceptions a function
-   could throw. A rationale for the decision to remove these specifiers can be found
-   here: http://www.gotw.ca/publications/mill22.htm .
 
 Q: Are there bugs ?
 A: Yes.
@@ -21,7 +16,7 @@ A: We have done our best to check the Geneva library for all kinds of possible p
    Particularly, there is a comprehensive unit test framework for the core optimization
    libraries. So the actual number of bugs should be quite low. However, we cannot test
    Geneva under all possible circumstances. This is where, in the best tradition of Open
-   Source software, we rely on you to report the problems you have encountered. Also note
+   Source software, we rely on YOU to report the problems you have encountered. Also note
    that there may be known bugs that we are currently working on, that we currently consider
    to have such a low priority that we have chosen to work on other parts of Geneva first,
    or which are simply impossible to fix, as they are related to problems of a particular
@@ -33,18 +28,21 @@ A: https://bugs.launchpad.net/geneva
 Q: Where to post general questions about the Geneva usage or development ?
 A: Please use the Geneva Usage or Development Forums:
    http://www.gemfony.com/index.php?forums
-
-
-
+   
 Technical questions:
 ====================
 
-Q: When I run one of the examples in networked mode on the local box, the optimization stops
-   reproducibly after a few hundred iterations. Is this a bug ?
+Q: Why do member functions of Geneva classes do not carry the "throw(...)" specifier ?
+A: In former releases, throw() specifiers were used to list the exceptions a function
+   could throw. A rationale for the decision to remove these specifiers can be found
+   here: http://www.gotw.ca/publications/mill22.htm .
+
+Q: When I run one of the examples in networked mode (either on the local box or over a LAN/WAN), 
+   the optimization stops reproducibly after a few hundred iterations. Is this a bug ?
 A: The Geneva library assumes that evaluation functions run for a (possibly very) long time.
    Consequently clients disconnect from the server as soon as they have received a work item,
    and reconnect, once they have finished the calculation. The examples shipped with the
-   library, in turn, only implement evaluation functions that run for a few milliseconds.
+   library, in turn, mostly implement evaluation functions that run for a few milliseconds.
    This means that a lot of connections are opened and closed in a very short time. You might
    then quickly run out of ports, whose number is limited on Linux (you can find this out with
    the command "cat /proc/sys/net/ipv4/ip_local_port_range"). One remedy is explained here:
@@ -52,7 +50,12 @@ A: The Geneva library assumes that evaluation functions run for a (possibly very
    suggested there is "echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse". NOTE THAT YOU NEED TO
    CAREFULLY EVALUATE THE EFFECTS OF SETTING THIS VARIABLE ON YOUR SYSTEM. See also a 
    related 2007 discussion on the Boost.Asio Usenet forum (quoted e.g. here: 
-   http://osdir.com/ml/lib.boost.asio.user/2007-06/msg00101.html).
+   http://osdir.com/ml/lib.boost.asio.user/2007-06/msg00101.html). The situation
+   is actually very similar to a web server with a high volume of requests, and you will
+   experience similar problems. There are many more tuning options in the Linux kernel for
+   you to play with. Google will give you further information (search e.g. for "Apache tuning"
+   and possibly sysctl.conf -- there are examples of configuration files only which help
+   you to tune the server system).
 
 Q: Which CPP macro variables are used at build time and can be defined by the user ?
 A: The following variables are available for deeper control of some aspects of the code
@@ -60,17 +63,8 @@ A: The following variables are available for deeper control of some aspects of t
 
      GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
         Enables the generation and output of benchmarking information by
-        common/GBoundedBufferT.hpp . Mostly to be used in code tests.
-
-     GEM_COMMON_PRINT_COMMANDLINE
-        Enables printing the commandline when running external processes.
-        Useful for debugging.
-
-     GEM_HAP_USE_BOXMULLER
-        Switches to use the Box-Muller method to generate normal random numbers
-        in the Hap library, instead of the default (and faster) Marsaglia polar
-        method. See "Generating values from normal distribution" in
-        http://en.wikipedia.org/wiki/Normal_distribution for more details.
+        common/GBoundedBufferT.hpp . Mostly to be used in code tests, not for general
+        consumption.
 
      GEM_GENEVA_USE_LOCAL_RANDOM_ADAPTION
-        Produce random numbers locally for mutations in geneva/GMutableSetT.hpp .
+        Produce random numbers locally for mutations in geneva/GMutableSetT.hpp
