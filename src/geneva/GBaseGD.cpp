@@ -878,8 +878,8 @@ void GBaseGD::specificTestsFailuresExpected_GUnitTests() {
  * The default constructor
  */
 GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor()
-   : xDim_(0)
-   , yDim_(0)
+   : xDim_(DEFAULTXDIMOM)
+   , yDim_(DEFAULTYDIMOM)
    , resultFile_(DEFAULTROOTRESULTFILEOM)
    , fitnessGraph_(new Gem::Common::GGraph2D())
 { /* nothing */ }
@@ -957,12 +957,12 @@ bool GBaseGD::GGDOptimizationMonitor::operator!=(const GBaseGD::GGDOptimizationM
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GBaseGD::GGDOptimizationMonitor::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
 	using namespace Gem::Common;
 
@@ -991,7 +991,7 @@ boost::optional<std::string> GBaseGD::GGDOptimizationMonitor::checkRelationshipW
  * @param resultFile The desired name of the result file
  */
 void GBaseGD::GGDOptimizationMonitor::setResultFileName(
-      const std::string& resultFile
+   const std::string& resultFile
 ) {
   resultFile_ = resultFile;
 }
