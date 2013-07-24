@@ -68,8 +68,6 @@ int main(int argc, char **argv) {
    go.registerContentCreator(gfi_ptr);
 
 	// Add a default optimization algorithm to the Go2 object
-	// go & ea(); // This is how you can register an algorithm to be used first under all circumstances
-	// go.registerDefaultAlgorithm(ea());
 	go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization
