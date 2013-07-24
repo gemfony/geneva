@@ -382,6 +382,13 @@ private:
 };
 
 /******************************************************************************/
+/**
+ * Provide an easy way to print the individual's content
+ */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::GFunctionIndividual&);
+std::ostream& operator<<(std::ostream&, boost::shared_ptr<Gem::Geneva::GFunctionIndividual>);
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**

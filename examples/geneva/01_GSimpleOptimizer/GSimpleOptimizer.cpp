@@ -75,5 +75,10 @@ int main(int argc, char **argv) {
 	// Perform the actual optimization
 	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
 
-	// Here you can do something with the best individual ("p") found
+	// Here you can do something with the best individual ("p") found.
+	// We simply print its content here, by means of an operator<< implemented
+	// in the GFunctionIndividual code.
+	std::cout
+	<< "Best result found:" << std::endl
+	<< p << std::endl;
 }

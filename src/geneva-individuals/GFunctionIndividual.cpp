@@ -800,6 +800,32 @@ double GFunctionIndividual::fitnessCalculation(){
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * Provide an easy way to print the individual's content
+ */
+std::ostream& operator<<(std::ostream& s, const Gem::Geneva::GFunctionIndividual& f) {
+   std::vector<double> parVec;
+   f.streamline(parVec);
+
+   std::vector<double>::iterator it;
+   for(it=parVec.begin(); it!=parVec.end(); ++it) {
+      std::cout << (it-parVec.begin()) << ": " << *it << std::endl;
+   }
+
+   return s;
+}
+
+/******************************************************************************/
+/**
+ * Provide an easy way to print the individual's content through a smart-pointer
+ */
+std::ostream& operator<<(std::ostream& s, boost::shared_ptr<Gem::Geneva::GFunctionIndividual> f_ptr) {
+   return operator<<(s,*f_ptr);
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * A constructor with the ability to switch the parallelization mode. It initializes a
  * target item as needed.
  *
