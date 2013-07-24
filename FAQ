@@ -3,10 +3,24 @@ General questions:
 
 Q: What does "Geneva" stand for ?
 A: Geneva stands for "Grid-enabled evolutionary algorithms". The library will ultimately
-   implement a multitutde of different optimization algorithms. However, as evolutionary
+   implement a multitude of different optimization algorithms. However, as evolutionary
    algorithms were the first to be implemented, and as Geneva started life in conjunction
    with Grid computing and particle physics, which in turn are closely related to CERN in
    Geneva/Switzerland, the name still seems to be appropriate.
+
+Q: Where do I find the documentation ? 
+A: There is a complete manual available in PDF format here: 
+   http://www.gemfony.com/fileadmin/documentation/geneva-manual.pdf . Note that
+   it might be lacking behind the development of the Geneva library. Hence it 
+   is also recommended to look at the examples shipped with the Geneva sources.
+   These are also a good starting point for creating your own solutions.
+
+Q: Which platforms does Geneva run on ?
+A: Geneva is mainly being developed on Linux (particularly the Debian and Ubuntu brands,
+   with tests also happening on CentOS and BSD, the latter with CLang). We have also 
+   succeeded to compile the Geneva/Boost 1.54 combo on MacOS X 10.8.4. Note, though, that
+   support for MacOS is experimental at best. We would love to hear from you if you have
+   ported Geneva to another platform (particularly Microsoft Windows with Visual Studio).
 
 Q: Are there bugs ?
 A: Yes.
@@ -22,13 +36,20 @@ A: We have done our best to check the Geneva library for all kinds of possible p
    or which are simply impossible to fix, as they are related to problems of a particular
    execution environment.
 
-Q: Where to report bugs or wish items ?
+Q: Where to report bugs and warnings ?
 A: https://bugs.launchpad.net/geneva
+
+Q: What kind of reports should be sent to the bug tracker ?
+A: General bugs (i.e. every situation, where Geneva does not behave as expected or
+   where an exception is thrown). Please also let us know about any warning you encounter
+   during the compilation process or when running Geneva. We do need to know the exact 
+   execution environment in this case.
 
 Q: Where to post general questions about the Geneva usage or development ?
 A: Please use the Geneva Usage or Development Forums:
-   http://www.gemfony.com/index.php?forums
-   
+   http://www.gemfony.com/index.php?forums . Please also post feature requests
+   here and let us know about errors or inaccuracies in the manual.
+
 Technical questions:
 ====================
 
@@ -50,9 +71,9 @@ A: The Geneva library assumes that evaluation functions run for a (possibly very
    suggested there is "echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse". NOTE THAT YOU NEED TO
    CAREFULLY EVALUATE THE EFFECTS OF SETTING THIS VARIABLE ON YOUR SYSTEM. See also a 
    related 2007 discussion on the Boost.Asio Usenet forum (quoted e.g. here: 
-   http://osdir.com/ml/lib.boost.asio.user/2007-06/msg00101.html). The situation
+   http://osdir.com/ml/lib.boost.asio.user/2007-06/msg00101.html). *** The situation
    is actually very similar to a web server with a high volume of requests, and you will
-   experience similar problems. There are many more tuning options in the Linux kernel for
+   experience similar problems *** There are many more tuning options in the Linux kernel for
    you to play with. Google will give you further information (search e.g. for "Apache tuning"
    and possibly sysctl.conf -- there are examples of configuration files only which help
    you to tune the server system).
