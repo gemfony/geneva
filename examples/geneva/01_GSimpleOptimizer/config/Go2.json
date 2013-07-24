@@ -16,6 +16,6 @@
         "comment": "The number of threads simultaneously producing random numbers",
         "comment": " [Go2]",
         "default": "0",
-        "value": "4"
+        "value": "0"
     }
 }

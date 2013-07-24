@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2013-Jul-24 17:25:35
+// File creation date: 2013-Jul-24 16:53:09
 //-----------------------------------------------------------------
 
 {
@@ -14,6 +14,7 @@
     "doLogging":
     {
         "comment": "Activates (1) or de-activates (0) logging",
+        "comment": "iteration's first timeout",
         "default": "false",
         "value": "false"
     },
@@ -35,14 +36,14 @@
         "comment": "The maximum allowed number of iterations",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "1000",
-        "value": "1000"
+        "value": "100"
     },
     "maxStallIteration":
     {
         "comment": "The maximum allowed number of iterations without improvement0 means: no constraint.",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "0",
-        "value": "0"
+        "value": "20"
     },
     "reportIteration":
     {
@@ -115,38 +116,74 @@
         "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "false",
-        "value": "false"
+        "value": "true"
     },
-    "size":
+    "swarmSize":
     {
-        "comment": "The total size of the population",
-        "comment": " [GBasePS]",
-        "default": "100",
-        "value": "100"
-    },
-    "scanRandomly_":
-    {
-        "comment": "Indicates whether scans should be done randomly",
-        "comment": "(1) or on a grid (0)",
-        "comment": "[GBasePS]",
-        "default": "true",
-        "value": "false"
-    },
-    "parameterOptions":
-    {
-        "comment": "Specification of the parameters to be used",
-        "comment": "in the parameter scan.",
-        "default":
+        "nNeighborhoods":
         {
-            "item": "d 0 0.3 0.7 10",
-            "item": "f 1 0.3 0.7 10",
-            "item": "i 2 5 8 10",
-            "item": "b 3 0 1 10"
+            "comment": "The desired number of neighborhoods in the population",
+            "comment": "[GBaseSwarm]",
+            "default": "5",
+            "value": "5"
         },
-        "value":
+        "nNeighborhoodMembers":
         {
-            "item": "d 0 -10 10 100",
-            "item": "d 1 -10 10 100"
+            "comment": "The desired number of members in each neighborhood",
+            "comment": "[GBaseSwarm]",
+            "default": "10",
+            "value": "20"
         }
+    },
+    "cPersonal":
+    {
+        "comment": "A constant to be multiplied with the personal direction vector",
+        "comment": "[GBaseSwarm]",
+        "default": "1.49",
+        "value": "1.49"
+    },
+    "cNeighborhood":
+    {
+        "comment": "A constant to be multiplied with the neighborhood direction vector",
+        "comment": "[GBaseSwarm]",
+        "default": "1.49",
+        "value": "1.49"
+    },
+    "cGlobal":
+    {
+        "comment": "A constant to be multiplied with the global direction vector",
+        "comment": "[GBaseSwarm]",
+        "default": "1",
+        "value": "1"
+    },
+    "cVelocity":
+    {
+        "comment": "A constant to be multiplied with the old velocity vector",
+        "comment": "[GBaseSwarm]",
+        "default": "0.72",
+        "value": "0.72"
+    },
+    "velocityRangePercentage":
+    {
+        "comment": "Sets the velocity-range percentage",
+        "comment": "[GBaseSwarm]",
+        "default": "0.15",
+        "value": "0.15"
+    },
+    "updateRule":
+    {
+        "comment": "Specifies whether a linear (0) or classical (1)",
+        "comment": "update rule should be used",
+        "comment": "[GBaseSwarm]",
+        "default": "1",
+        "value": "1"
+    },
+    "randomFillUp":
+    {
+        "comment": "Specifies whether neighborhoods should be filled up",
+        "comment": "randomly or start with equal values",
+        "comment": "[GBaseSwarm]",
+        "default": "true",
+        "value": "true"
     }
 }

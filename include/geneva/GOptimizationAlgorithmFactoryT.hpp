@@ -326,7 +326,6 @@ protected:
 
 		comment = ""; // Reset the comment string
 		comment += "Activates (1) or de-activates (0) logging;";
-		comment += "iteration's first timeout;";
 		gpb.registerFileParameter<bool>(
 			"doLogging" // The name of the variable
 			, doLogging_

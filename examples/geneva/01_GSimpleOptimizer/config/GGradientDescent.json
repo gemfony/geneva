@@ -1,9 +1,15 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2013-Jul-24 17:25:35
+// File creation date: 2013-Jul-24 16:51:37
 //-----------------------------------------------------------------
 
 {
+    "maxResubmissions":
+    {
+        "comment": "The maximum number of allowed re-submissions in an iteration",
+        "default": "5",
+        "value": "5"
+    },
     "nEvaluationThreads":
     {
         "comment": "Determines the number of threads simultaneously running",
@@ -35,14 +41,14 @@
         "comment": "The maximum allowed number of iterations",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "1000",
-        "value": "1000"
+        "value": "100"
     },
     "maxStallIteration":
     {
         "comment": "The maximum allowed number of iterations without improvement0 means: no constraint.",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "0",
-        "value": "0"
+        "value": "20"
     },
     "reportIteration":
     {
@@ -115,38 +121,28 @@
         "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "false",
-        "value": "false"
+        "value": "true"
     },
-    "size":
+    "nStartingPoints":
     {
-        "comment": "The total size of the population",
-        "comment": " [GBasePS]",
-        "default": "100",
-        "value": "100"
+        "comment": "The number of simultaneous gradient descents",
+        "comment": "[GBaseGD]",
+        "default": "1",
+        "value": "2"
     },
-    "scanRandomly_":
+    "finiteStep":
     {
-        "comment": "Indicates whether scans should be done randomly",
-        "comment": "(1) or on a grid (0)",
-        "comment": "[GBasePS]",
-        "default": "true",
-        "value": "false"
+        "comment": "The size of the adjustment in the difference quotient",
+        "comment": "[GBaseGD]",
+        "default": "0.01",
+        "value": "0.01"
     },
-    "parameterOptions":
+    "stepSize":
     {
-        "comment": "Specification of the parameters to be used",
-        "comment": "in the parameter scan.",
-        "default":
-        {
-            "item": "d 0 0.3 0.7 10",
-            "item": "f 1 0.3 0.7 10",
-            "item": "i 2 5 8 10",
-            "item": "b 3 0 1 10"
-        },
-        "value":
-        {
-            "item": "d 0 -10 10 100",
-            "item": "d 1 -10 10 100"
-        }
+        "comment": "The size of each step into the",
+        "comment": "direction of steepest descent.",
+        "comment": "[GBaseGD]",
+        "default": "0.1",
+        "value": "0.1"
     }
 }

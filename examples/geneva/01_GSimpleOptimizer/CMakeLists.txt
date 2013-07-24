@@ -103,8 +103,11 @@ SET ( ${EXECUTABLENAME}_SRCS
 SET ( CONFIGFILE
 	config/GEvolutionaryAlgorithm.json
 	config/GFunctionIndividual.json
+	config/GGradientDescent.json
 	config/Go2.json
 	config/GParameterScan.json
+	config/GSimulatedAnnealing.json
+	config/GSwarmAlgorithm.json
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
