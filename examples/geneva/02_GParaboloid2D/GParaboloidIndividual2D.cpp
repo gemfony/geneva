@@ -36,10 +36,8 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParaboloidIndividual2D)
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /********************************************************************************************/
 /**
@@ -81,18 +79,6 @@ GParaboloidIndividual2D::GParaboloidIndividual2D(const GParaboloidIndividual2D& 
  */
 GParaboloidIndividual2D::~GParaboloidIndividual2D()
 { /* nothing */	}
-
-/********************************************************************************************/
-/**
- * A standard assignment operator
- *
- * @param cp A copy of another GParaboloidIndividual2D object
- * @return A constant reference to this object
- */
-const GParaboloidIndividual2D& GParaboloidIndividual2D::operator=(const GParaboloidIndividual2D& cp){
-	GParaboloidIndividual2D::load_(&cp);
-	return *this;
-}
 
 /********************************************************************************************/
 /**

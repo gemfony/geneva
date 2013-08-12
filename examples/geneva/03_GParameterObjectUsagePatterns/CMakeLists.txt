@@ -97,7 +97,7 @@ LINK_DIRECTORIES (
 SET ( EXECUTABLENAME GParameterObjectUsagePatterns )
 
 SET ( CONFIGFILE
-	./GFunctionIndividual.json
+	./config/GFunctionIndividual.json
 )
 
 # Copy the config files to the build tree for easier testing

@@ -1,2 +1,7 @@
-This sample program illustrates the usage of Geneva's parameter objects
+This sample program illustrates the usage of Geneva's parameter objects. 
+GParameterObject-derivatives are the main vehicle through which optimization
+parameters are specified. There is a whole family of parameter objects.
+
+We use again the GFunctionIndividual class, although here its main purpose
+is to serve as a container for parameter objects.
 

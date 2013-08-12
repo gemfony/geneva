@@ -54,10 +54,9 @@
 #include <geneva/GParameterSet.hpp>
 #include <geneva/GConstrainedDoubleObject.hpp>
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
+
 /******************************************************************/
 /**
  * This individual searches for the minimum of a 2-dimensional parabola.
@@ -72,9 +71,6 @@ public:
 	GParaboloidIndividual2D(const GParaboloidIndividual2D&);
 	/** @brief The standard destructor */
 	virtual ~GParaboloidIndividual2D();
-
-	/** @brief A standard assignment operator */
-	const GParaboloidIndividual2D& operator=(const GParaboloidIndividual2D&);
 
 protected:
 	/** @brief Loads the data of another GParaboloidIndividual2D */

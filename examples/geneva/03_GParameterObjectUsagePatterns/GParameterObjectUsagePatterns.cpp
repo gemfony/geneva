@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
       // Create a factory for GFunctionIndividual objects and perform
       // any necessary initial work.
       boost::shared_ptr<GFunctionIndividualFactory>
-         gfi_ptr(new GFunctionIndividualFactory("./GFunctionIndividual.json"));
+         gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
 
       // Note: This object already contains a parameter object, in
       // addition to those added below.

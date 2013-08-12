@@ -114,6 +114,34 @@ Go2::Go2(int argc, char **argv)
  * A constructor that first parses the command line for relevant parameters and then
  * loads data from a configuration file
  *
+ * @param configFilename The name of a configuration file
+ */
+Go2::Go2(const std::string& configFilename)
+   : GMutableSetT<GParameterSet>()
+   , clientMode_(GO2_DEF_CLIENTMODE)
+   , configFilename_(configFilename)
+   , parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
+   , consumerName_(GO2_DEF_NOCONSUMER)
+   , nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
+   , offset_(GO2_DEF_OFFSET)
+   , sorted_(false)
+   , iterationsConsumed_(0)
+{
+   //--------------------------------------------
+   // Parse configuration file options
+   this->parseConfigFile(configFilename);
+
+   //--------------------------------------------
+   // Random numbers are our most valuable good.
+   // Initialize all necessary variables
+   boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
+}
+
+/******************************************************************************/
+/**
+ * A constructor that first parses the command line for relevant parameters and then
+ * loads data from a configuration file
+ *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
  * @param configFilename The name of a configuration file
@@ -131,23 +159,7 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 {
    //--------------------------------------------
    // Parse configuration file options
-   {
-      // Create a parser builder object. It will be destroyed at
-      // the end of this scope and thus cannot cause trouble
-      // due to registered call-backs and references
-      Gem::Common::GParserBuilder gpb;
-
-      // Add local configuration options
-      this->addConfigurationOptions(gpb, true);
-
-      // Do the actual parsing
-      if(!gpb.parseConfigFile(configFilename)) {
-         glogger
-         << "In Go2::Go2(argc,argv,config): Error!" << std::endl
-         << "Could not parse configuration file " << configFilename << std::endl
-         << GTERMINATION;
-      }
-   }
+   this->parseConfigFile(configFilename);
 
    //--------------------------------------------
 	// Load configuration options from the command line
@@ -1092,6 +1104,30 @@ void Go2::parseCommandLine(int argc, char **argv) {
 				  << e.what() << std::endl;
 		exit(1);
 	}
+}
+
+/******************************************************************************/
+/**
+ * Parses a configuration file for configuration options
+ *
+ * @param configFilename The name of a configuration file to be parsed
+ */
+void Go2::parseConfigFile(const std::string& configFilename) {
+   // Create a parser builder object. It will be destroyed at
+   // the end of this scope and thus cannot cause trouble
+   // due to registered call-backs and references
+   Gem::Common::GParserBuilder gpb;
+
+   // Add local configuration options
+   this->addConfigurationOptions(gpb, true);
+
+   // Do the actual parsing
+   if(!gpb.parseConfigFile(configFilename)) {
+      glogger
+      << "In Go2::parseConfigFile: Error!" << std::endl
+      << "Could not parse configuration file " << configFilename << std::endl
+      << GTERMINATION;
+   }
 }
 
 /******************************************************************************/

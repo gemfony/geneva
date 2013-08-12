@@ -135,6 +135,8 @@ public:
 	Go2();
 	/** @brief A constructor that first parses the command line for relevant parameters */
 	Go2(int, char **);
+   /** @brief A constructor that allows to specify a default config file name */
+   Go2(const std::string&);
 	/** @brief A constructor that first parses the command line for relevant parameters and allows to specify a default config file name */
 	Go2(int, char **, const std::string&);
 	/** @brief A copy constructor */
@@ -153,12 +155,12 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&
-			, const Gem::Common::expectation&
-			, const double&
-			, const std::string&
-			, const std::string&
-			, const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
 	/** @brief Triggers execution of the client loop */
@@ -214,6 +216,8 @@ public:
 
 	/** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
 	void parseCommandLine(int, char **);
+	/** @brief Loads some configuration data from a configuration file */
+	void parseConfigFile(const std::string&);
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(Gem::Common::GParserBuilder& , const bool&) OVERRIDE;
