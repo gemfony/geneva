@@ -30,10 +30,6 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	06_GDirectGD
-)
-
-ADD_SUBDIRECTORY (
 	06_GDirectSwarm
 )
 

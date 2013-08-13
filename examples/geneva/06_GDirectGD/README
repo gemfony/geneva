@@ -1,5 +1,0 @@
-This directory contains a simple Geneva application that searches for 
-the minimum of a function, using a gradient descent. Parallelisation 
-can happen at your choice in networked mode, via threads or in serial mode.
-
-NOTE: this example is not yet fully functional.
