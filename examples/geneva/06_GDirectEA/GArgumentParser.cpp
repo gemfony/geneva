@@ -153,16 +153,6 @@ bool parseConfigFile(
 		, sortingMode& smode
 		, bool& returnRegardless
 		, boost::uint32_t& nProcessingUnits
-		, double& adProb
-		, boost::uint32_t& adaptionThreshold
-		, double& sigma
-		, double& sigmaSigma
-		, double& minSigma
-		, double& maxSigma
-		, std::size_t& parDim
-		, double& minVar
-		, double& maxVar
-		, solverFunction& df
 		, boost::uint16_t& xDim
 		, boost::uint16_t& yDim
 		, bool& followProgress
@@ -207,26 +197,6 @@ bool parseConfigFile(
 			"Specifies whether results should be returned even if they are not better than before")
 			("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
 			"Specifies how many processing units are available in networked mode")
-			("adProb", po::value<double>(&adProb)->default_value(DEFAULTGDAADPROB),
-			"Specifies the likelihood for adaptions to be actually carried out")
-			("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLDAP),
-			"Number of calls to adapt() after which adaption parameters should be modified")
-			("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
-			"The width of the gaussian used for the adaption of double values")
-			("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
-			"The adaption rate of sigma")
-			("minSigma", po::value<double>(&minSigma)->default_value(DEFAULTMINSIGMA),
-			"The minimum allowed value for sigma")
-			("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
-			"The maximum allowed value for sigma")
-			("parDim", po::value<std::size_t>(&parDim)->default_value(DEFAULTPARDIM),
-			"The amount of variables in the parabola")
-			("minVar", po::value<double>(&minVar)->default_value(DEFAULTMINVAR),
-			"The lower boundary for all variables")
-			("maxVar", po::value<double>(&maxVar)->default_value(DEFAULTMAXVAR),
-			"The upper boundary for all variables")
-			("evalFunction",po::value<boost::uint16_t>(&evalFunction),
-			"The id of the evaluation function.")
 	       ("xDim", po::value<boost::uint16_t>(&xDim)->default_value(DEFAULTXDIMAP),
 	        "The x-dimension of the canvas for the result print(s)")
 	       ("yDim", po::value<boost::uint16_t>(&yDim)->default_value(DEFAULTYDIMAP),
@@ -288,7 +258,6 @@ bool parseConfigFile(
 					<< std::endl;
 			return false;
 		}
-		df=(solverFunction)evalFunction;
 
 		if (verbose) {
 			std::cout << std::endl
@@ -303,14 +272,6 @@ bool parseConfigFile(
 					<< "rScheme = " << (boost::uint16_t) rScheme << std::endl
 					<< "sortingScheme = " << smode << std::endl
 					<< "nProcessingUnits = " << nProcessingUnits << std::endl
-					<< "adProb = " << adProb << std::endl
-					<< "adaptionThreshold = " << adaptionThreshold << std::endl
-					<< "sigma = " << sigma << std::endl << "sigmaSigma "
-					<< sigmaSigma << std::endl << "minSigma " << minSigma
-					<< std::endl << "maxSigma " << maxSigma << std::endl
-					<< "parDim = " << parDim << std::endl << "minVar = "
-					<< minVar << std::endl << "maxVar = " << maxVar
-					<< std::endl << "evalFunction = " << df << std::endl
 					<< "xDim = " << xDim << std::endl
 					<< "yDim = " << yDim << std::endl
 					<< "followProgress = " << (followProgress?"true":"false") << std::endl

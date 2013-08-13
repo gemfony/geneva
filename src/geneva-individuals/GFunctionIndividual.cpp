@@ -586,28 +586,28 @@ void GFunctionIndividual::addConfigurationOptions (
 	// Call our parent class'es function
 	GParameterSet::addConfigurationOptions(gpb, showOrigin);
 
-	// Add local data
-	comment = ""; // Reset the comment string
-	comment += "Specifies which demo function should be used:;";
-	comment += "0: Parabola;";
-	comment += "1: Berlich;";
-	comment += "2: Rosenbrock;";
-	comment += "3: Ackley;";
-	comment += "4: Rastrigin;";
-	comment += "5: Schwefel;";
-	comment += "6: Salomon;";
-	if(showOrigin) comment += "[GFunctionIndividual]";
-	gpb.registerFileParameter<solverFunction>(
-		"demoFunction" // The name of the variable
-		, GO_DEF_EVALFUNCTION // The default value
-		, boost::bind(
-			&GFunctionIndividual::setDemoFunction
-			, this
-			, _1
-		  )
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
+	// Local data
+   comment = ""; // Reset the comment string
+   comment += "Specifies which demo function should be used:;";
+   comment += "0: Parabola;";
+   comment += "1: Berlich;";
+   comment += "2: Rosenbrock;";
+   comment += "3: Ackley;";
+   comment += "4: Rastrigin;";
+   comment += "5: Schwefel;";
+   comment += "6: Salomon;";
+   if(showOrigin) comment += "[GFunctionIndividual];";
+   gpb.registerFileParameter<solverFunction>(
+      "demoFunction" // The name of the variable
+      , GO_DEF_EVALFUNCTION // The default value
+      , boost::bind(
+         &GFunctionIndividual::setDemoFunction
+         , this
+         , _1
+      )
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
 }
 
 /******************************************************************************/
@@ -1586,7 +1586,6 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
 	);
-
 
 	// Allow our parent class to describe its options
 	Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);

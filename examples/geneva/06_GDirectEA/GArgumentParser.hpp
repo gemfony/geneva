@@ -85,7 +85,7 @@ namespace Gem
     const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
     const unsigned short DEFAULTPORT=10000;
     const std::string DEFAULTIP="localhost";
-    const std::string DEFAULTCONFIGFILE="./GDirectEA.cfg";
+    const std::string DEFAULTCONFIGFILE="./config/GDirectEA.cfg";
     const boost::uint16_t DEFAULTSORTINGSCHEME=(boost::uint16_t)MUCOMMANU_SINGLEEVAL;
     const boost::uint32_t DEFAULTSTARTITERATION=0;
     const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
@@ -129,16 +129,6 @@ namespace Gem
     		, sortingMode& smode
     		, bool& returnRegardless
     		, boost::uint32_t& nProcessingUnits
-    		, double& adProb
-    		, boost::uint32_t& adaptionThreshold
-    		, double& sigma
-    		, double& sigmaSigma
-    		, double& minSigma
-    		, double& maxSigma
-    		, std::size_t& parDim
-    		, double& minVar
-    		, double& maxVar
-    		, solverFunction& df
     		, boost::uint16_t& xDim
     		, boost::uint16_t& yDim
     		, bool& followProgress

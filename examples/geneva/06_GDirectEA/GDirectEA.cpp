@@ -76,18 +76,8 @@ int main(int argc, char **argv){
   long maxMinutes;
   boost::uint32_t reportIteration;
   duplicationScheme rScheme;
-  std::size_t parDim;
-  double minVar;
-  double maxVar;
   sortingMode smode;
   boost::uint32_t nProcessingUnits;
-  solverFunction df;
-  boost::uint32_t adaptionThreshold;
-  double sigma;
-  double sigmaSigma;
-  double minSigma;
-  double maxSigma;
-  double adProb;
   bool returnRegardless;
   Gem::Common::serializationMode serMode;
   boost::uint16_t xDim;
@@ -120,16 +110,6 @@ int main(int argc, char **argv){
 		 , smode
 		 , returnRegardless
 		 , nProcessingUnits
-		 , adProb
-		 , adaptionThreshold
-		 , sigma
-		 , sigmaSigma
-		 , minSigma
-		 , maxSigma
-		 , parDim
-		 , minVar
-		 , maxVar
-		 , df
 		 , xDim
 		 , yDim
 		 , followProgress
@@ -159,41 +139,23 @@ int main(int argc, char **argv){
   }
 
   //***************************************************************************
-  // Create an instance of our optimization monitor
-  boost::shared_ptr<progressMonitor> pm_ptr(new progressMonitor(df));
-  pm_ptr->setProgressDims(xDim, yDim);
-  pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
-  pm_ptr->setXExtremes(minVar, maxVar);
-  pm_ptr->setYExtremes(minVar, maxVar);
-
-  //***************************************************************************
   // Create a factory for GFunctionIndividual objects and perform
   // any necessary initial work.
-  GFunctionIndividualFactory gfi("./GFunctionIndividual.json");
+  GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
-  std::vector<boost::shared_ptr<GParameterSet> > parentIndividuals;
+  std::vector<boost::shared_ptr<GFunctionIndividual> > parentIndividuals;
   for(std::size_t p = 0 ; p<nParents; p++) {
-	  boost::shared_ptr<GParameterSet> functionIndividual_ptr = gfi();
-
-	  // Set up a GDoubleCollection with dimension values, each initialized
-	  // with a random number in the range [min,max[
-	  boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
-	  // Let the GDoubleCollection know about its desired initialization range
-	  gdc_ptr->setInitBoundaries(minVar, maxVar);
-
-	  // Set up and register an adaptor for the collection, so it
-	  // knows how to be adapted.
-	  boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
-	  gdga_ptr->setAdaptionThreshold(adaptionThreshold);
-	  gdga_ptr->setAdaptionProbability(adProb);
-	  gdc_ptr->addAdaptor(gdga_ptr);
-
-	  // Make the parameter collection known to this individual
-	  functionIndividual_ptr->push_back(gdc_ptr);
-
-	  parentIndividuals.push_back(functionIndividual_ptr);
+	  parentIndividuals.push_back(gfi.get<GFunctionIndividual>());
   }
+
+  //***************************************************************************
+  // Create an instance of our optimization monitor
+  boost::shared_ptr<progressMonitor> pm_ptr(new progressMonitor(parentIndividuals[0]->getDemoFunction()));
+  pm_ptr->setProgressDims(xDim, yDim);
+  pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
+  pm_ptr->setXExtremes(gfi.getMinVar(), gfi.getMaxVar());
+  pm_ptr->setYExtremes(gfi.getMinVar(), gfi.getMaxVar());
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // We can now start creating populations. We refer to them through the base class

@@ -115,6 +115,7 @@ int main(int argc, char **argv) {
 
 	// Parse the command line and leave if the help flag was given
 	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+	   usage();
 	   exit(0);
 	}
 

@@ -8,7 +8,6 @@ SET (${EXECUTABLENAME}_SRCS
 )
 
 SET (CONFIGURATIONFILES
-    GParallelisationOverhead.cfg
     config/GDelayIndividual.json
 )
 
