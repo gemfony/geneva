@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2013-Mar-08 09:40:27
+// File creation date: 2013-Aug-13 09:11:20
 //-----------------------------------------------------------------
 
 {
@@ -120,6 +120,7 @@
         "comment": "(1) GConstrainedDoubleCollection",
         "comment": "(2) GDoubleObjectCollection",
         "comment": " (3) GConstrainedDoubleObjectCollection",
+        "comment": " [4] GConstrainedDoubleObject",
         "default": "0",
         "value": "0"
     },
@@ -130,6 +131,13 @@
         "comment": "(1) with a value on the perimeter of the allowed or recommended value range",
         "default": "0",
         "value": "0"
+    },
+    "validityThreshold":
+    {
+        "comment": "The [0,1] threshold as of which a solution is considered to be invalid",
+        "comment": " [GOptimizableEntity]",
+        "default": "0.5",
+        "value": "0.5"
     },
     "maximize":
     {
