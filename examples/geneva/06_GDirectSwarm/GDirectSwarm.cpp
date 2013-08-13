@@ -1,5 +1,5 @@
 /**
- * @file GSimpleSwarm.cpp
+ * @file GDirectSwarm.cpp
  */
 
 /*

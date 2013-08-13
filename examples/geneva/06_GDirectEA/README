@@ -1,0 +1,19 @@
+This directory contains a simple Geneva application that searches for 
+the minimum of a function, using an evolutionary strategy. Parallelisation 
+can happen at your choice in networked mode, via threads or in serial mode.
+
+The example demonstrates how the functionality of a given optimization
+algorithm can be accessed directly. Usually, the user will not do so, but will 
+rather use the Go2 class, which wraps all necessary functionality. However, there 
+may be special use cases where one might want to interact directly with a given 
+optimization algorithm.
+
+The example also demonstrates a custom progress monitor, used to monitor the
+success of this optimization algorithm. It is used to output a snapshot of each
+iteration. Note that this may result in a large number of output files, which 
+need to be post-processed with the ROOT analysis toolkit (see root.cern.ch).
+
+It also shows a different, albeit rather verbose way of parsing configuration 
+files and the command line, based on a Boost library. Note that we recommend using 
+the built-in parsing functions of Geneva instead. Nevertheless, this way of 
+getting access to user-defined options might come in handy.

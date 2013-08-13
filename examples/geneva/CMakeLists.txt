@@ -26,15 +26,15 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	06_GSimpleEA
+	06_GDirectEA
 )
 
 ADD_SUBDIRECTORY (
-	06_GSimpleGD
+	06_GDirectGD
 )
 
 ADD_SUBDIRECTORY (
-	06_GSimpleSwarm
+	06_GDirectSwarm
 )
 
 ADD_SUBDIRECTORY (

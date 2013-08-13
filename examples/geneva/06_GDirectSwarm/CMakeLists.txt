@@ -1,4 +1,4 @@
-PROJECT (GSimpleSwarm)
+PROJECT (GDirectSwarm)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
@@ -94,15 +94,15 @@ LINK_DIRECTORIES (
 	${Boost_LIBRARY_DIRS}
 )
 
-SET ( EXECUTABLENAME GSimpleSwarm )
+SET ( EXECUTABLENAME GDirectSwarm )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	GArgumentParser
-	GSimpleSwarm
+	GDirectSwarm
 )
 
 SET ( CONFIGFILE
-	GSimpleSwarm.cfg
+	GDirectSwarm.cfg
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

@@ -1,5 +1,5 @@
 /**
- * @file GSimpleEA.cpp
+ * @file GDirectGD.cpp
  */
 
 /*
@@ -50,13 +50,10 @@
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
 
-// Holds the optimization monitor
-#include "GInfoFunction.hpp"
-
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
-using namespace Gem::Common;
+
 
 /************************************************************************************************/
 /**
@@ -80,6 +77,7 @@ int main(int argc, char **argv){
   double minVar;
   double maxVar;
   sortingMode smode;
+  boost::uint32_t processingCycles;
   boost::uint32_t nProcessingUnits;
   solverFunction df;
   boost::uint32_t adaptionThreshold;
@@ -93,9 +91,12 @@ int main(int argc, char **argv){
   boost::uint16_t xDim;
   boost::uint16_t yDim;
   bool followProgress;
-  bool addLocalConsumer;
+  std::size_t nStartingPoints;
+  float finiteStep;
+  float stepSize;
 
-  if(!parseCommandLine(
+  if(
+   !parseCommandLine(
 		  argc
 		  , argv
 		  , configFile
@@ -104,37 +105,28 @@ int main(int argc, char **argv){
 		  , ip
 		  , port
 		  , serMode
-		  , addLocalConsumer
-  )
+  	)
      ||
-     !parseConfigFile(
-		 configFile
-		 , nProducerThreads
-		 , nEvaluationThreads
-		 , populationSize
-		 , nParents
-		 , maxIterations
-		 , maxMinutes
-		 , reportIteration
-		 , rScheme
-		 , smode
-		 , returnRegardless
-		 , nProcessingUnits
-		 , adProb
-		 , adaptionThreshold
-		 , sigma
-		 , sigmaSigma
-		 , minSigma
-		 , maxSigma
-		 , parDim
-		 , minVar
-		 , maxVar
-		 , df
-		 , xDim
-		 , yDim
-		 , followProgress
-     ))
-    { exit(1); }
+   !parseConfigFile(
+   		configFile
+   		, nProducerThreads
+   		, nEvaluationThreads
+   		, nStartingPoints
+   		, finiteStep
+   		, stepSize
+   		, maxIterations
+   		, maxMinutes
+   		, reportIteration
+   		, processingCycles
+   		, returnRegardless
+   		, nProcessingUnits
+   		, parDim
+   		, minVar
+   		, maxVar
+   		, df
+	)
+  )
+  { exit(1); }
 
   //***************************************************************************
   // Random numbers are our most valuable good. Set the number of threads
@@ -159,39 +151,15 @@ int main(int argc, char **argv){
   }
 
   //***************************************************************************
-  // Create an instance of our optimization monitor
-  boost::shared_ptr<progressMonitor> pm_ptr(new progressMonitor(df));
-  pm_ptr->setProgressDims(xDim, yDim);
-  pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
-  pm_ptr->setXExtremes(minVar, maxVar);
-  pm_ptr->setYExtremes(minVar, maxVar);
-
-  //***************************************************************************
   // Create a factory for GFunctionIndividual objects and perform
   // any necessary initial work.
   GFunctionIndividualFactory gfi("./GFunctionIndividual.json");
 
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
   std::vector<boost::shared_ptr<GParameterSet> > parentIndividuals;
-  for(std::size_t p = 0 ; p<nParents; p++) {
+  for(std::size_t p = 0 ; p<nStartingPoints; p++) {
 	  boost::shared_ptr<GParameterSet> functionIndividual_ptr = gfi();
-
-	  // Set up a GDoubleCollection with dimension values, each initialized
-	  // with a random number in the range [min,max[
-	  boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
-	  // Let the GDoubleCollection know about its desired initialization range
-	  gdc_ptr->setInitBoundaries(minVar, maxVar);
-
-	  // Set up and register an adaptor for the collection, so it
-	  // knows how to be adapted.
-	  boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
-	  gdga_ptr->setAdaptionThreshold(adaptionThreshold);
-	  gdga_ptr->setAdaptionProbability(adProb);
-	  gdc_ptr->addAdaptor(gdga_ptr);
-
-	  // Make the parameter collection known to this individual
-	  functionIndividual_ptr->push_back(gdc_ptr);
-
+	  functionIndividual_ptr->randomInit();
 	  parentIndividuals.push_back(functionIndividual_ptr);
   }
 
@@ -199,23 +167,21 @@ int main(int argc, char **argv){
   // We can now start creating populations. We refer to them through the base class
 
   // This smart pointer will hold the different population types
-  boost::shared_ptr<GBaseEA> pop_ptr;
+  boost::shared_ptr<GBaseGD> pop_ptr;
 
   // Create the actual populations
   switch (parallelizationMode) {
   //-----------------------------------------------------------------------------------------------------
-  case EXECMODE_SERIAL: // Serial execution
-  {
+  case 0: // Serial execution
 	  // Create an empty population
-	  pop_ptr = boost::shared_ptr<GSerialEA>(new GSerialEA());
-  }
-  break;
+	  pop_ptr = boost::shared_ptr<GSerialGD>(new GSerialGD(nStartingPoints, finiteStep, stepSize));
+	  break;
 
 	  //-----------------------------------------------------------------------------------------------------
-  case EXECMODE_MULTITHREADED: // Multi-threaded execution
+  case 1: // Multi-threaded execution
   {
 	  // Create the multi-threaded population
-	  boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
+	  boost::shared_ptr<GMultiThreadedGD> popPar_ptr(new GMultiThreadedGD(nStartingPoints, finiteStep, stepSize));
 
 	  // Population-specific settings
 	  popPar_ptr->setNThreads(nEvaluationThreads);
@@ -226,20 +192,14 @@ int main(int argc, char **argv){
   break;
 
   //-----------------------------------------------------------------------------------------------------
-  case EXECMODE_BROKERAGE: // Execution with networked consumer and possibly a local, multi-threaded consumer
+  case 2: // Execution with networked consumer
   {
 	  // Create a network consumer and enrol it with the broker
 	  boost::shared_ptr<GAsioTCPConsumerT<GParameterSet> > gatc(new GAsioTCPConsumerT<GParameterSet>(port, 0, serMode));
 	  GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 
-	  if(addLocalConsumer) {
-		  boost::shared_ptr<GBoostThreadConsumerT<GParameterSet> > gbtc(new GBoostThreadConsumerT<GParameterSet>());
-		  gbtc->setNThreadsPerWorker(nEvaluationThreads);
-		  GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
-	  }
-
 	  // Create the actual broker population
-	  boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
+	  boost::shared_ptr<GBrokerGD> popBroker_ptr(new GBrokerGD(nStartingPoints, finiteStep, stepSize));
 
 	  // Assignment to the base pointer
 	  pop_ptr = popBroker_ptr;
@@ -252,18 +212,14 @@ int main(int argc, char **argv){
   // Now we have suitable populations and can fill them with data
 
   // Add individuals to the population
-  for(std::size_t p = 0 ; p<nParents; p++) {
+  for(std::size_t p = 0 ; p<nStartingPoints; p++) {
     pop_ptr->push_back(parentIndividuals[p]);
   }
  
   // Specify some general population settings
-  pop_ptr->setDefaultPopulationSize(populationSize,nParents);
   pop_ptr->setMaxIteration(maxIterations);
   pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
   pop_ptr->setReportIteration(reportIteration);
-  pop_ptr->setRecombinationMethod(rScheme);
-  pop_ptr->setSortingScheme(smode);
-  pop_ptr->registerOptimizationMonitor(pm_ptr);
   
   // Do the actual optimization
   pop_ptr->optimize();

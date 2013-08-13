@@ -479,7 +479,9 @@ protected:
 					<< "  tf->SetLineWidth(0.05);" << std::endl
 					<< "  tf->SetLineColor(16);" << std::endl
 					<< "  tf->GetXaxis()->SetLabelSize(0.02);" << std::endl
+					<< "  tf->GetXaxis()->SetTitle(\"x\");" << std::endl
 					<< "  tf->GetYaxis()->SetLabelSize(0.02);" << std::endl
+               << "  tf->GetYaxis()->SetTitle(\"y\");" << std::endl
 					<< "  tf->GetHistogram()->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");"
 					<< std::endl
 					<< "  tf->Draw();" << std::endl
@@ -505,9 +507,6 @@ protected:
 			// Extract the parents and mark them in the plot
 			for(std::size_t parentId=0; parentId < nParents; parentId++) {
 				boost::shared_ptr<GParameterSet> p_ptr = ea->getParentIndividual<GParameterSet>(parentId);
-
-				// std::cout << "================ Iteration " << ea->getIteration() << " / Parent = " << parentId << " =================" << std::endl
-				//	         << p_ptr->toString(Gem::Common::SERIALIZATIONMODE_XML) << std::endl;
 
 				// Extract the coordinates
 				double x_parent = p_ptr->at<GDoubleCollection>(0)->at(0);
@@ -582,7 +581,7 @@ protected:
 
 private:
 	/*********************************************************************************************/
-	progressMonitor(){} ///< Intentionally private, only needed for serialization
+	progressMonitor(){} ///< Intentionally private, only needed for (de-)serialization
 
 	boost::uint16_t xDimProgress_; ///< The dimension of the canvas in x-direction
 	boost::uint16_t yDimProgress_; ///< The dimension of the canvas in y-direction

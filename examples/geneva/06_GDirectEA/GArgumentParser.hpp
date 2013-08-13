@@ -85,7 +85,7 @@ namespace Gem
     const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
     const unsigned short DEFAULTPORT=10000;
     const std::string DEFAULTIP="localhost";
-    const std::string DEFAULTCONFIGFILE="./GSimpleEA.cfg";
+    const std::string DEFAULTCONFIGFILE="./GDirectEA.cfg";
     const boost::uint16_t DEFAULTSORTINGSCHEME=(boost::uint16_t)MUCOMMANU_SINGLEEVAL;
     const boost::uint32_t DEFAULTSTARTITERATION=0;
     const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
