@@ -101,8 +101,9 @@ SET ( ${EXECUTABLENAME}_SRCS
 )
 
 SET ( CONFIGFILES
-	GMultiCriterionParabola.cfg
-	GMultiCriterionParabolaIndividual.json
+	config/GMultiCriterionParabolaIndividual.json
+	config/Go2.json
+	config/GEvolutionaryAlgorithm.json
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -112,7 +113,7 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 # Copy the config files to the build tree for easier testing
 IF( NOT OLD_CMAKE )
 	FOREACH ( file IN LISTS CONFIGFILES )
-		CONFIGURE_FILE ( ${file} . COPYONLY )
+		CONFIGURE_FILE ( ${file} ${file} COPYONLY )
 	ENDFOREACH ()
 ENDIF()
 

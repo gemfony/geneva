@@ -46,6 +46,11 @@ namespace Geneva {
  * library, no variables are initialized here.
  */
 GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual()
+   : nPar_(2)
+   , par_min_(-10.)
+   , par_max_( 10.)
+   , minima_()
+   , minima_string_()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -68,6 +73,7 @@ GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(const GMult
 	, par_min_(cp.par_min_)
 	, par_max_(cp.par_max_)
 	, minima_(cp.minima_)
+   , minima_string_(cp.minima_string_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -192,6 +198,7 @@ void GMultiCriterionParabolaIndividual::load_(const GObject* cp)
 	par_min_ = p_load->par_min_;
 	par_max_ = p_load->par_max_;
 	minima_ = p_load->minima_;
+	minima_string_ = p_load->minima_string_;
 }
 
 /******************************************************************************/

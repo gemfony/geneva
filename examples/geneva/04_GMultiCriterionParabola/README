@@ -1,4 +1,6 @@
 This directory contains a simple use case of multi criterion optimization.
-Two parabolas with adjustable location of their minimum represent two, possibly
-opposing evaluation criteria. Geneva's EA implementation of pareto-front 
-optimization is used to tacke this problem.
+A user-defined number of parabolas with adjustable location of their minimum represent 
+possibly opposing evaluation criteria. Geneva's EA implementation of pareto-front 
+optimization is used to tackle this problem. Make sure that the parameter "sortingMode"
+is set to 3 or 4 in config/GEvolutionaryAlgorithm.json (this is the default in 
+the configuration file provided with this example).

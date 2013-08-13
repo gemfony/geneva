@@ -46,7 +46,7 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Go2 go(argc, argv, "Go2.json");
+	Go2 go(argc, argv, "./config/Go2.json");
 
 	//---------------------------------------------------------------------
 	// Client mode (networked)
@@ -58,12 +58,17 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------
 	// Server mode, serial or multi-threaded execution
 
-	// Create a factory for GMultiCriterionParaboloidIndividual2D objects and perform
+	// Create a factory for GMultiCriterionParabolaIndividual objects and perform
 	// any necessary initial work.
-	GMultiCriterionParabolaIndividualFactory gpi("./GMultiCriterionParabolaIndividual.json");
+	boost::shared_ptr<GMultiCriterionParabolaIndividualFactory>
+	   gpi_ptr(new GMultiCriterionParabolaIndividualFactory("./config/GMultiCriterionParabolaIndividual.json"));
 
-	// Retrieve an individual from the factory and make it known to the optimizer
-	go.push_back(gpi());
+   // Add a content creator so Go2 can generate its own individuals, if necessary
+   go.registerContentCreator(gpi_ptr);
+
+   // Add a default optimization algorithm to the Go2 object.
+   // Note that this is the only algorithm that currently can handle multi-criterion optimization
+   go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization
 	boost::shared_ptr<GMultiCriterionParabolaIndividual> bestIndividual_ptr = go.optimize<GMultiCriterionParabolaIndividual>();

@@ -1,0 +1,178 @@
+//-----------------------------------------------------------------
+// This configuration file was automatically created by GParserBuilder
+// File creation date: 2013-Aug-13 09:37:53
+//-----------------------------------------------------------------
+
+{
+    "nEvaluationThreads":
+    {
+        "comment": "Determines the number of threads simultaneously running",
+        "comment": "evaluations in multi-threaded mode. 0 means \"automatic\"",
+        "default": "0",
+        "value": "0"
+    },
+    "doLogging":
+    {
+        "comment": "Activates (1) or de-activates (0) logging",
+        "default": "false",
+        "value": "false"
+    },
+    "waitFactor":
+    {
+        "comment": "A static factor to be applied to timeouts",
+        "default": "2",
+        "value": "2"
+    },
+    "validityThreshold":
+    {
+        "comment": "The [0,1] threshold as of which a solution is considered to be invalid",
+        "comment": " [GOptimizableEntity]",
+        "default": "0.5",
+        "value": "0.5"
+    },
+    "maxIteration":
+    {
+        "comment": "The maximum allowed number of iterations",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "1000",
+        "value": "1000"
+    },
+    "maxStallIteration":
+    {
+        "comment": "The maximum allowed number of iterations without improvement0 means: no constraint.",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "0",
+        "value": "0"
+    },
+    "reportIteration":
+    {
+        "comment": "The number of iterations after which a report should be issued",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "1",
+        "value": "1"
+    },
+    "cpInterval":
+    {
+        "comment": "The number of iterations after which a checkpoint should be written.",
+        "comment": "-1 means: Write a checkpoint file whenever an improvement was encountered",
+        "comment": " 0 means: Never emit checkpoint files.",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "0",
+        "value": "0"
+    },
+    "checkpointLocation":
+    {
+        "cpDirectory":
+        {
+            "comment": "The directory where checkpoint files should be stored.",
+            "comment": "[GOptimizationAlgorithmT<ind_type>]",
+            "default": ".\/checkpoints\/",
+            "value": ".\/checkpoints\/"
+        },
+        "cpBaseName":
+        {
+            "comment": "The significant part of the checkpoint file name.",
+            "default": "geneva.cp",
+            "value": "geneva.cp"
+        }
+    },
+    "cpSerMode":
+    {
+        "comment": "Determines whether check-pointing should be done in",
+        "comment": "text- (0), XML- (1), or binary-mode (2)",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "2",
+        "value": "2"
+    },
+    "qualityTermination":
+    {
+        "threshold":
+        {
+            "comment": "A threshold beyond which optimization is expected to stop",
+            "comment": "Note that in order to activate this threshold, you also need to",
+            "comment": "set \"hasQualityThreshold\" to 1.",
+            "comment": "[GOptimizationAlgorithmT<ind_type>]",
+            "default": "0",
+            "value": "0"
+        },
+        "thresholdActive":
+        {
+            "comment": "Activates (1) or de-activates (0) the quality threshold",
+            "comment": "[GOptimizationAlgorithmT<ind_type>]",
+            "default": "false",
+            "value": "false"
+        }
+    },
+    "maxDuration":
+    {
+        "comment": "The maximum allowed time-frame for the optimization",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "00:00:00",
+        "value": "00:00:00"
+    },
+    "emitTerminationReason":
+    {
+        "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "false",
+        "value": "false"
+    },
+    "population":
+    {
+        "size":
+        {
+            "comment": "The total size of the population",
+            "comment": " [GBaseParChildT<ind_type>]",
+            "default": "100",
+            "value": "100"
+        },
+        "nParents":
+        {
+            "comment": "The number of parents in the population",
+            "comment": " [GBaseParChildT<ind_type>]",
+            "default": "1",
+            "value": "1"
+        }
+    },
+    "recombinationMethod":
+    {
+        "comment": "The recombination method. Options",
+        "comment": "0: default",
+        "comment": "1: random selection from available parents",
+        "comment": "2: selection according to the parent's value",
+        "comment": "[GBaseParChildT<ind_type>]",
+        "default": "0",
+        "value": "0"
+    },
+    "populationGrowth":
+    {
+        "growthRate":
+        {
+            "comment": "Specifies the number of individuals added per iteration",
+            "comment": "[GBaseParChildT<ind_type>]",
+            "default": "0",
+            "value": "0"
+        },
+        "maxPopulationSize":
+        {
+            "comment": "Specifies the maximum amount of individuals in the population",
+            "comment": "if growth is enabled",
+            "default": "0",
+            "value": "0"
+        }
+    },
+    "sortingMethod":
+    {
+        "comment": "The sorting scheme. Options",
+        "comment": "0: MUPLUSNU mode with a single evaluation criterion",
+        "comment": "1: MUCOMMANU mode with a single evaluation criterion",
+        "comment": "2: MUCOMMANU mode with single evaluation criterion,",
+        "comment": "   the best parent of the last iteration is retained",
+        "comment": "   unless a better individual has been found",
+        "comment": "3: MUPLUSNU mode for multiple evaluation criteria, pareto selection",
+        "comment": "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection",
+        "comment": "[GBaseEA]",
+        "default": "1",
+        "value": "4"
+    }
+}
