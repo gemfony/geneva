@@ -11,69 +11,69 @@ Wishlist for version 1.1, yet unnamed, release-date unknown
 * Version 0.9.11, "Route de Chamonix" - August 14, 2013
 
 The main changes for this release include:
- - Added a new example "GStarter" meant as a starting point for the
-   users' own projects.
- - Removed non-portable "long double" functions from
-   GMathHelperFunctions.hpp/cpp.
- - Moved GConstrainedValueLimitT<T> from "max()" to "lowest()/highest()".
- - Added a simple logging framework, including exception handling, that
-   allows to stream information to be logged.
- - Gave gemfony_error_condition the ability to be streamed.
- - Removed the deprecated GIndividualFactoryT class in favor of the more
-   general GFactoryT.
- - Removed the deprecated utilities directory and application.
+ - Added a parameter scan algorithm.
  - Separated Simulated Annealing from Evolutionary Algorithms, making
    it a first-class citizen.
  - Separated multi-populations from Evolutionary Algorithms, making
    them a first class citizen.
  - Evolutionary Algorithms are now based on GParameterSet (just like all
    other "basic" optimization algorithms, except for multi-populations).
+ - Reworked the entire broker architecture (GBrokerConnectorT was replaced
+   by GBrokerConnector2T, and the GBrokerT class as well as the
+   GAsioTCPConsumerT classes have been refactored).
  - The broker, as implemented, now acts solely on GParameterSet-derivatives.
    This simplifies the architecture.
- - Removed the deprecated Go class in favor of Go2 and updated all examples.
- - Added an example that illustrates meta-optimization (i.e. usage of
-   an evolutionary algorithm to optimize the configuration parameters
-   of an optimization algorithm.
- - Centralized conversion of smart pointers using a Gem::Common function.
- - Removed most manual creation of ROOT output files in favor
-   of GPlotDesigner.
- - Simplified the optimization monitor infrastructure.
- - Added a parameter scan algorithm.
+ - Renamed GIndividual to the more fitting "GOptimizableEntity".
+ - Removed the deprecated GIndividualFactoryT class in favor of the more
+   general GFactoryT.
  - Gave optimization algorithm factories a common base class so generic
    access becomes easier.
  - Added global stores for GParameterSet-based consumers, optimization
    algorithms and corresponding monitor classes.
+ - GParameterSet and GOptimizableEntity no longer depend on any specific
+   optimization algorithms. As a consequence, all major concepts are now
+   separated from each other, allowing for a far more independent development
+   style. Adding new algorithms and also consumers has become far easier.
+ - Gave GParameterBase objects a name to facilitate work with the
+   GExternalEvaluatorIndividual. A name to a parameter makes it much easier
+   to work with XML files and to identify the important variables.
+ - Simplified the optimization monitor infrastructure.
+ - Added pluggable optimization monitors that allow to easily monitor
+   common properties of all optimization algorithms. In this context,
+   added a monitor that allows to plot one or two variables together with 
+   their fitness for all individuals touched during the optimization.
+ - Centralized conversion of smart pointers using a Gem::Common function.
+ - Removed non-portable "long double" functions from
+   GMathHelperFunctions.hpp/cpp.
+ - Moved GConstrainedValueLimitT<T> from "max()" to "lowest()/highest()".
+ - Added a simple logging framework, including exception handling, that
+   allows to stream information to be logged.
+ - Gave gemfony_error_condition the ability to be streamed.
+ - Removed the deprecated utilities directory and application.
+ - Removed most manual creation of ROOT output files in favor
+   of GPlotDesigner.
+ - Gave GPlotDesigner the ability to create 3D output through a new
+   class GGraph3D.
+ - Gave GPlotDesigner the ability to add more than one plot to the
+   same sub-canvas.
+ - Removed the deprecated Go class in favor of Go2 and updated all examples.
  - Made Go2 independent from specific optimization algorithms and consumers,
    thus broadening its scope. Note that during this rework, also most
    command line parameters have been changed, and that command line
    parameters specific to consumers are extracted at run-time from each
    consumer. If you are running Geneva through a script, this might mean
    that you need to adapt this script.
- - GParameterSet and GIndividual no longer depend on any specific optimization
-   algorithms. As a consequence, all major concepts are now separated from
-   each other, allowing for a far more independent development style. Adding
-   new algorithms and also consumers has become far easier.
- - Gave GPlotDesigner the ability to create 3D output through a new
-   class GGraph3D.
- - Added pluggable optimization monitors that allow to easily monitor
-   common properties of all optimization algorithms. In this context,
-   added a monitor that allows to plot one or two variables together with 
-   their fitness for all individuals touched during the optimization.
- - Gave GParameterBase objects a name to facilitate work with the
-   GExternalEvaluatorIndividual. A name to a parameter makes it much easier
-   to work with XML files and to identify the important variables.
- - Gave GPlotDesigner the ability to add more than one plot to the
-   same sub-canvas.
+ - Added a new example "GStarter" meant as a starting point for the
+   users' own projects.
+ - Added an example that illustrates meta-optimization (i.e. usage of
+   an evolutionary algorithm to optimize the configuration parameters
+   of an optimization algorithm.
  - Added pluggable objects that allow to check parameter sets for validity,
    to be used in an infrastructure for dealing with multi-parameter constraints.
  - Instrumented most Geneva optimization classes with C++11 override
-   statements, wrapped into defines so the code can be used with C++98-compilers.
-   This allows to rule out a further class of errors, hence making the code
-   more robust.
- - Renamed GIndividual to the more fitting "GOptimizableEntity".
- - Reworked the entire broker architecture (GBrokerConnectorT was replaced
-   by GBrokerConnector2T, and the GBrokerT class as well as the
-   GAsioTCPConsumerT classes have been renovated).
+   statements, wrapped into defines so the code can be used with
+   C++98-compilers. This allows to rule out a further class of errors,
+   hence making the code more robust.
  - Ported to MacOS X (still highly experimental).
  - Ported to Boost 1.54.
  
