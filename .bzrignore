@@ -1,0 +1,6 @@
+RE:build/(?!README).*
+build
+include/common/GGlobalDefines.hpp
+.tag
+.project
+.settings
