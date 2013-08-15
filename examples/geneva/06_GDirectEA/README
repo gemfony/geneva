@@ -13,9 +13,4 @@ success of this optimization algorithm. It is used to output a snapshot of each
 iteration. Note that this may result in a large number of output files, which 
 need to be post-processed with the ROOT analysis toolkit (see root.cern.ch).
 
-It also shows a different, albeit rather verbose way of parsing configuration 
-files and the command line, based on a Boost library. Note that we recommend using 
-the built-in parsing functions of Geneva instead. Nevertheless, this way of 
-getting access to user-defined options might come in handy.
-
 Call the example program with --help to find out about available options. 
