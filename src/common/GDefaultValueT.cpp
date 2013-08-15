@@ -47,6 +47,15 @@ template <>
 bool GDefaultValueT<bool>() { return true; }
 
 /******************************************************************************/
+/**
+ * A specialization for the std::string type
+ *
+ * @return The default value for std::string types
+ */
+template <>
+std::string GDefaultValueT<std::string>() { return std::string(); }
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

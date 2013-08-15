@@ -37,256 +37,202 @@
 
 namespace Gem {
 namespace Geneva {
-/************************************************************************************************/
+
+/******************************************************************************/
 /**
- * A function that parses the command line for all required parameters
+ * Parses the command line
  */
 bool parseCommandLine(
-		int argc, char **argv
-		, std::string& configFile
-		, boost::uint16_t& parallelizationMode
-		, bool& serverMode
-		, std::string& ip
-		, unsigned short& port
-		, Gem::Common::serializationMode& serMode
-		, bool& addLocalConsumer
-) {
-	try {
-		// Check the command line options. Uses the Boost program options library.
-		po::options_description desc("Usage: evaluator [options]");
-		desc.add_options()("help,h", "emit help message")("configFile,c",
-				po::value<std::string>(&configFile)->default_value(DEFAULTCONFIGFILE),
-				"The name of the configuration file holding further configuration options")("parallelizationMode,p", po::value<boost::uint16_t>(&parallelizationMode)->default_value(DEFAULTPARALLELIZATIONMODEAP),
-				"Whether or not to run this optimization in serial mode (0), multi-threaded (1) or networked (2) mode")(
-				"serverMode,s",
-				"Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")(
-				"ip", po::value<std::string>(&ip)->default_value(DEFAULTIP),
-				"The ip of the server")("port",
-				po::value<unsigned short>(&port)->default_value(DEFAULTPORT),
-				"The port of the server")(
-				"serMode",	po::value<Gem::Common::serializationMode>(&serMode)->default_value(DEFAULTSERMODE),
-				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-				("addLocalConsumer,a", "Whether or not a local consumer should be added to networked execution")
-				;
+   int argc, char **argv
+   , boost::uint16_t& parallelizationMode
+   , bool& serverMode
+   , std::string& ip
+   , unsigned short& port
+   , boost::uint32_t& maxStalls
+   , boost::uint32_t& maxConnectionAttempts
+   , Gem::Common::serializationMode& serMode
+   , bool& addLocalConsumer
+   , boost::uint16_t& nProducerThreads
+   , boost::uint16_t& nEvaluationThreads
+   , std::size_t& populationSize
+   , std::size_t& nParents
+   , boost::uint32_t& maxIterations
+   , long& maxMinutes
+   , boost::uint32_t& reportIteration
+   , duplicationScheme& rScheme
+   , sortingMode& smode
+   , boost::uint32_t& nProcessingUnits
+   , boost::uint16_t& xDim
+   , boost::uint16_t& yDim
+   , bool& followProgress
+){
+   // Create the parser builder
+   Gem::Common::GParserBuilder gpb;
 
-		po::variables_map vm;
-		po::store(po::parse_command_line(argc, argv, desc), vm);
-		po::notify(vm);
+   gpb.registerCLParameter<boost::uint16_t>(
+         "parallelizationMode,p"
+         , parallelizationMode
+         , DEFAULTPARALLELIZATIONMODEAP
+         , "Whether to run the optimization in serial (0), multi-threaded (1) or networked (2) mode"
+   );
 
-		// Emit a help message, if necessary
-		if (vm.count("help")) {
-			std::cerr << desc << std::endl;
-			return false;
-		}
+   gpb.registerCLParameter<bool>(
+         "serverMode,s"
+         , serverMode
+         , false // Use client mode, if no server option is specified
+         , "Whether to run networked execution in server or client mode. The option only has an effect if \"--parallelizationMode=2\". You can either say \"--server=true\" or just \"--server\"."
+         , GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --server instead of --server=true
+         , true // Use server mode, of only -s or --server was specified
+   );
 
-		if(vm.count("addLocalConsumer")) {
-			addLocalConsumer=true;
-		} else {
-			addLocalConsumer=false;
-		}
+   gpb.registerCLParameter<std::string>(
+         std::string("ip")
+         , ip
+         , DEFAULTIP
+         , "The ip of the server"
+   );
 
-		serverMode = false;
-		if (vm.count("parallelizationMode")) {
-			if (parallelizationMode > 2) {
-				std::cout
-						<< "Error: the \"-p\" or \"--parallelizationMode\" option may only assume the"
-						<< std::endl
-						<< "values 0 (serial), 1 (multi-threaded) or 2 (networked). Leaving ..."
-						<< std::endl;
-				return false;
-			}
+   gpb.registerCLParameter<unsigned short>(
+         "port"
+         , port
+         , DEFAULTPORT
+         , "The port on the server"
+   );
 
-			if (parallelizationMode == 2)
-				if (vm.count("serverMode"))
-					serverMode = true;
-		}
+   gpb.registerCLParameter<boost::uint32_t>(
+         "maxStalls"
+         , maxStalls
+         , DEFAULTMAXSTALLS06
+         , "The number of stalled data transfers (i.e. transfers without a useful work item returned) before the client terminates in networked mode"
+   );
 
-		if (parallelizationMode != DEFAULTEXECMODE || ip	!= DEFAULTIP || port != DEFAULTPORT) {
-			std::string parModeString;
-			switch (parallelizationMode) {
-			case 0:
-				parModeString = "serial";
-				break;
-			case 1:
-				parModeString = "multi-threaded";
-				break;
-			case 2:
-				if(!addLocalConsumer) {
-					parModeString = "networked";
-				} else {
-					parModeString = "networked and local threads";
-				}
-				break;
-			};
+   gpb.registerCLParameter<boost::uint32_t>(
+         "maxConnectionAttempts"
+         , maxConnectionAttempts
+         , DEFAULTMAXCONNECTIONATTEMPTS06
+         , "The number of connection attempts from client to server, before the client terminates in networked mode"
+   );
 
-			std::cout << std::endl
-					<< "Running with the following command line options:"
-					<< std::endl << "configFile = " << configFile << std::endl
-					<< "parallelizationMode = " << parModeString << std::endl
-					<< "serverMode = " << (serverMode ? "true" : "false")
-					<< std::endl << "ip = " << ip << std::endl << "port = "
-					<< port << std::endl << "serMode = " << serMode
-					<< std::endl << std::endl;
-		}
-	} catch (...) {
-		std::cout << "Error parsing the command line" << std::endl;
-		return false;
-	}
+   gpb.registerCLParameter<Gem::Common::serializationMode>(
+         "serializationMode"
+         , serMode
+         , DEFAULTSERMODE
+         , "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)"
+   );
 
-	return true;
+   gpb.registerCLParameter<bool>(
+         "addLocalConsumer"
+         , addLocalConsumer
+         , DEFAULTADDLOCALCONSUMER // Use client mode, if no server option is specified
+         , "Whether or not a local consumer should be added to networked execution. You can use this option with or without arguments."
+         , GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --server instead of --server=true
+         , true // Use a local consumer if the option --addLocalConsumer was given without arguments
+   );
+
+   gpb.registerCLParameter<boost::uint16_t>(
+         "nProducerThreads"
+         , nProducerThreads
+         , DEFAULTNPRODUCERTHREADS
+         , "The amount of random number producer threads"
+   );
+
+   gpb.registerCLParameter<boost::uint16_t>(
+         "nEvaluationThreads"
+         , nEvaluationThreads
+         , DEFAULTNEVALUATIONTHREADS
+         , "The amount of threads processing individuals simultaneously in multi-threaded mode"
+   );
+
+   gpb.registerCLParameter<std::size_t>(
+         "populationSize"
+         , populationSize
+         , DEFAULTPOPULATIONSIZE06
+         , "The amount of threads processing individuals simultaneously in multi-threaded mode"
+   );
+
+   gpb.registerCLParameter<std::size_t>(
+         "nParents"
+         , nParents
+         , DEFAULTNPARENTS
+         , "The number of parents in the population"
+   );
+
+   gpb.registerCLParameter<boost::uint32_t>(
+         "maxIterations"
+         , maxIterations
+         , DEFAULTMAXITERATIONS
+         , "Maximum number of iterations in the optimization"
+   );
+
+   gpb.registerCLParameter<boost::uint32_t>(
+         "reportIteration"
+         , reportIteration
+         , DEFAULTREPORTITERATION
+         , "The number of iterations after which information should be emitted in the population"
+   );
+
+   gpb.registerCLParameter<long>(
+         "maxMinutes"
+         , maxMinutes
+         , DEFAULTMAXMINUTES
+         , "The maximum number of minutes the optimization of the population should run"
+   );
+
+   gpb.registerCLParameter<duplicationScheme>(
+         "rScheme"
+         , rScheme
+         , DEFAULTRSCHEME
+         , "The recombination scheme of the evolutionary algorithm"
+   );
+
+   gpb.registerCLParameter<sortingMode>(
+         "smode"
+         , smode
+         , DEFAULTSORTINGSCHEME
+         , "Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode"
+   );
+
+   gpb.registerCLParameter<boost::uint32_t>(
+         "nProcessingUnits"
+         , nProcessingUnits
+         , DEFAULTGBTCNPROCUNITS
+         , "Specifies how many processing units are available in networked mode"
+   );
+
+   gpb.registerCLParameter<boost::uint16_t>(
+         "xDim"
+         , xDim
+         , DEFAULTXDIMAP
+         , "The x-dimension of the canvas for the result print(s)"
+   );
+
+   gpb.registerCLParameter<boost::uint16_t>(
+         "yDim"
+         , yDim
+         , DEFAULTYDIMAP
+         , "The y-dimension of the canvas for the result print(s)"
+   );
+
+   gpb.registerCLParameter<bool>(
+         "followProgress"
+         , followProgress
+         , DEFAULTFOLLOWPROGRESS // Use client mode, if no server option is specified
+         , "Specifies whether snapshots should be taken in regular intervals. You can use this option with or without arguments."
+         , GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --server instead of --server=true
+         , true // Take snapshots, if --followProgress was specified without arguments
+   );
+
+
+   // Parse the command line and leave if the help flag was given. The parser
+   // will emit an appropriate help message by itself
+   if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+      return false; // Do not continue
+   }
+
+   return true;
 }
 
-/************************************************************************************************/
-/**
- * A function that parses a config file for further parameters
- */
-bool parseConfigFile(
-		const std::string& configFile
-		, boost::uint16_t& nProducerThreads
-		, boost::uint16_t& nEvaluationThreads
-		, std::size_t& populationSize
-		, std::size_t& nParents
-		, boost::uint32_t& maxIterations
-		, long& maxMinutes
-		, boost::uint32_t& reportIteration
-		, duplicationScheme& rScheme
-		, sortingMode& smode
-		, bool& returnRegardless
-		, boost::uint32_t& nProcessingUnits
-		, boost::uint16_t& xDim
-		, boost::uint16_t& yDim
-		, bool& followProgress
-) {
-	boost::uint16_t recombinationScheme = 0;
-	boost::uint16_t sortingScheme = 0;
-	boost::uint16_t evalFunction = 0;
-	bool verbose = true;
-
-	// Check the name of the configuration file
-	if (configFile.empty() || configFile == "empty" || configFile == "unknown") {
-		std::cerr << "Error: Invalid configuration file name given: \""
-				<< configFile << "\"" << std::endl;
-		return false;
-	}
-
-	try {
-		// Check the configuration file options. Uses the Boost program options library.
-		po::options_description config("Allowed options");
-		config.add_options()
-			("nProducerThreads", po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
-			"The amount of random number producer threads")
-			("nEvaluationThreads", po::value<boost::uint16_t>(&nEvaluationThreads)->default_value(DEFAULTNEVALUATIONTHREADS),
-			"The amount of threads processing individuals simultaneously")
-			("populationSize", po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE06),
-			"The size of the super-population")
-			("nParents", po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
-			"The number of parents in the population") // Needs to be treated separately
-			("maxIterations", po::value<boost::uint32_t>(&maxIterations)->default_value(DEFAULTMAXITERATIONS),
-			"Maximum number of iterations in the population")
-			("maxMinutes",	po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
-			"The maximum number of minutes the optimization of the population should run")
-			("reportIteration",	po::value<boost::uint32_t>(&reportIteration)->default_value(DEFAULTREPORTITERATION),
-			"The number of iterations after which information should be emitted in the super-population")
-			("rScheme",	po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
-			"The recombination scheme for the super-population")
-			("sortingScheme,o",	po::value<boost::uint16_t>(&sortingScheme)->default_value(DEFAULTSORTINGSCHEME),
-			"Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode")
-			("verbose", po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
-			"Whether additional information should be emitted")
-			("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
-			"Specifies whether results should be returned even if they are not better than before")
-			("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
-			"Specifies how many processing units are available in networked mode")
-	       ("xDim", po::value<boost::uint16_t>(&xDim)->default_value(DEFAULTXDIMAP),
-	        "The x-dimension of the canvas for the result print(s)")
-	       ("yDim", po::value<boost::uint16_t>(&yDim)->default_value(DEFAULTYDIMAP),
-	        "The y-dimension of the canvas for the result print(s)")
-	       ("followProgress", po::value<bool>(&followProgress)->default_value(DEFAULTFOLLOWPROGRESS),
-	    	"Specifies whether snapshots should be taken in regular intervals")
-	    ;
-
-		po::variables_map vm;
-		std::ifstream ifs(configFile.c_str());
-		if (!ifs.good()) {
-			std::cerr << "Error accessing configuration file " << configFile;
-			return false;
-		}
-
-		store(po::parse_config_file(ifs, config), vm);
-		notify(vm);
-
-		// Emit a help message, if necessary
-		if (vm.count("help")) {
-			std::cout << config << std::endl;
-			return false;
-		}
-
-		// Check the number of parents in the super-population
-		if (2 * nParents > populationSize) {
-			std::cout << "Error: Invalid number of parents in population"
-					<< std::endl << "nParents       = " << nParents
-					<< std::endl << "populationSize = " << populationSize
-					<< std::endl;
-
-			return false;
-		}
-
-		// Workaround for assigment problem with rScheme
-		if (recombinationScheme == (boost::uint16_t) VALUEDUPLICATIONSCHEME)        rScheme = VALUEDUPLICATIONSCHEME;
-		else if (recombinationScheme == (boost::uint16_t) RANDOMDUPLICATIONSCHEME)	rScheme = RANDOMDUPLICATIONSCHEME;
-		else if (recombinationScheme == (boost::uint16_t) DEFAULTDUPLICATIONSCHEME)	rScheme = DEFAULTDUPLICATIONSCHEME;
-		else {
-			std::cout << "Error: Invalid recombination scheme in population: " << recombinationScheme << std::endl;
-			return false;
-		}
-
-		// Convert sorting scheme to desired target type
-		if (sortingScheme == (boost::uint16_t) MUPLUSNU_SINGLEEVAL)
-			smode = MUPLUSNU_SINGLEEVAL;
-		else if (sortingScheme == (boost::uint16_t) MUCOMMANU_SINGLEEVAL)
-			smode = MUCOMMANU_SINGLEEVAL;
-		else if (sortingScheme == (boost::uint16_t) MUNU1PRETAIN_SINGLEEVAL)
-			smode = MUNU1PRETAIN_SINGLEEVAL;
-		else {
-			std::cout << "Error: Invalid sorting scheme in population: " << sortingScheme << std::endl;
-			return false;
-		}
-
-		// Assign the demo function
-		if(evalFunction > (boost::uint16_t)MAXDEMOFUNCTION) {
-			std::cout << "Error: Invalid evaluation function: " << evalFunction
-					<< std::endl;
-			return false;
-		}
-
-		if (verbose) {
-			std::cout << std::endl
-					<< "Running with the following options from " << configFile
-					<< ":" << std::endl << "nProducerThreads = "
-					<< (boost::uint16_t) nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
-					<< "populationSize = " << populationSize << std::endl
-					<< "nParents = " << nParents << std::endl
-					<< "maxIterations = " << maxIterations << std::endl
-					<< "maxMinutes = " << maxMinutes << std::endl
-					<< "reportIteration = " << reportIteration << std::endl
-					<< "rScheme = " << (boost::uint16_t) rScheme << std::endl
-					<< "sortingScheme = " << smode << std::endl
-					<< "nProcessingUnits = " << nProcessingUnits << std::endl
-					<< "xDim = " << xDim << std::endl
-					<< "yDim = " << yDim << std::endl
-					<< "followProgress = " << (followProgress?"true":"false") << std::endl
-					<< std::endl;
-		}
-	} catch (...) {
-		std::cout << "Error parsing the configuration file " << configFile
-				<< std::endl;
-		return false;
-	}
-
-	return true;
-}
-
-/************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

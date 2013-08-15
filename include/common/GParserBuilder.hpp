@@ -77,12 +77,22 @@
 #include <common/GExceptions.hpp>
 #include <common/GLogger.hpp>
 #include <common/GCommonEnums.hpp>
+#include <common/GDefaultValueT.hpp>
 
 namespace Gem {
 namespace Common {
 
 // Forward declaration
 class GParserBuilder;
+
+/******************************************************************************/
+// Indicates whether help was requested using the -h or --help switch on the command line
+const bool GCL_HELP_REQUESTED = true;
+const bool GCL_NO_HELP_REQUESTED = false;
+
+// Indicates whether implicit values are allowed (such as in --server vs. --server=true)
+const bool GCL_IMPLICIT_ALLOWED = true;
+const bool GCL_IMPLICIT_NOT_ALLOWED = false;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1223,9 +1233,11 @@ public:
     */
    GCLReferenceParsableParameterT(
       parameter_type& storedReference
-      , const std::string& optionNameVar
-      , const std::string& commentVar
+      , std::string optionNameVar
+      , std::string commentVar
       , parameter_type defVal
+      , bool implicitAllowed
+      , parameter_type implVal
    )
       : GCLParsableI(
          GCLParsableI::makeVector(optionNameVar)
@@ -1233,6 +1245,8 @@ public:
         )
       , storedReference_(storedReference)
       , def_val_(defVal)
+      , implicitAllowed_(implicitAllowed)
+      , impl_val_(implVal)
    { /* nothing */ }
 
 protected:
@@ -1242,11 +1256,19 @@ protected:
     */
    virtual void save(boost::program_options::options_description& desc) const {
       namespace po = boost::program_options;
-      desc.add_options() (
+      if(GCL_IMPLICIT_ALLOWED == implicitAllowed_) {
+         desc.add_options() (
+            (this->optionName()).c_str()
+            , po::value<parameter_type>(&storedReference_)->implicit_value(impl_val_)->default_value(def_val_)
+            , (this->comment()).c_str()
+         );
+      } else { // GCL_IMPLICIT_NOT_ALLOWED
+         desc.add_options() (
             (this->optionName()).c_str()
             , po::value<parameter_type>(&storedReference_)->default_value(def_val_)
             , (this->comment()).c_str()
-      );
+         );
+      }
    }
 
    /***************************************************************************/
@@ -1265,6 +1287,8 @@ private:
 
    parameter_type& storedReference_; ///< Holds the reference to which the parsed value will be assigned
    parameter_type def_val_; ///< Holds the default value
+   bool implicitAllowed_; ///< Indicates, whether implicit values (e.g. --server=true vs. --server) are allowed
+   parameter_type impl_val_; ///< Holds an implicit value used if only the option name is given
 };
 
 
@@ -1525,6 +1549,8 @@ public:
       , parameter_type& parameter
       , parameter_type def_val
       , std::string comment = ""
+      , bool implicitAllowed=GCL_IMPLICIT_NOT_ALLOWED
+      , parameter_type impl_val = Gem::Common::GDefaultValueT<parameter_type>()
    ) {
       boost::shared_ptr<GCLReferenceParsableParameterT<parameter_type> >
          refParm_ptr(new GCLReferenceParsableParameterT<parameter_type>(
@@ -1532,6 +1558,8 @@ public:
                , optionName
                , comment
                , def_val
+               , implicitAllowed
+               , impl_val
             )
          );
 
@@ -1546,10 +1574,6 @@ private:
 	std::vector<boost::shared_ptr<GFileParsableI> > file_parameter_proxies_; ///< Holds file parameter proxies
 	std::vector<boost::shared_ptr<GCLParsableI> >   cl_parameter_proxies_;   ///< Holds command line parameter proxies
 };
-
-/******************************************************************************/
-// Indicates whether help was requested using the -h or --help switch on the command line
-const bool GCL_HELP_REQUESTED = true;
 
 /******************************************************************************/
 

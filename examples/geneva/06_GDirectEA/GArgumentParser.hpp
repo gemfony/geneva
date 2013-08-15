@@ -62,79 +62,69 @@
 // Geneva headers go here
 #include <common/GCommonEnums.hpp>
 #include <common/GSerializationHelperFunctionsT.hpp>
+#include <common/GParserBuilder.hpp>
 #include <geneva/GOptimizationEnums.hpp>
 
-// The individual that should be optimized
-#include "geneva-individuals/GFunctionIndividual.hpp"
+namespace Gem {
+namespace Geneva {
 
-namespace Gem
-{
-  namespace Geneva
-  {
-    // Default settings
-    const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
-    const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
-    const std::size_t DEFAULTPOPULATIONSIZE06=100;
-    const std::size_t DEFAULTNPARENTS=5; // Allow to explore the parameter space from many starting points
-    const boost::uint32_t DEFAULTMAXITERATIONS=2000;
-    const long DEFAULTMAXMINUTES=10;
-    const boost::uint32_t DEFAULTREPORTITERATION=1;
-    const duplicationScheme DEFAULTRSCHEME=VALUEDUPLICATIONSCHEME;
-    const bool DEFAULTVERBOSE=true;
-    const bool DEFAULTPARALLELIZATIONMODEAP=1;
-    const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
-    const unsigned short DEFAULTPORT=10000;
-    const std::string DEFAULTIP="localhost";
-    const std::string DEFAULTCONFIGFILE="./config/GDirectEA.cfg";
-    const boost::uint16_t DEFAULTSORTINGSCHEME=(boost::uint16_t)MUCOMMANU_SINGLEEVAL;
-    const boost::uint32_t DEFAULTSTARTITERATION=0;
-    const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
-    const boost::uint32_t DEFAULTGBTCNPROCUNITS=1;
-    const std::size_t DEFAULTPARDIM=100;
-    const double DEFAULTMINVAR=-10.;
-    const double DEFAULTMAXVAR=10.;
-    const boost::uint16_t DEFAULTEVALFUNCTION=0;
-    const boost::uint32_t DEFAULTADAPTIONTHRESHOLDAP=1;
-    const double DEFAULTGDAADPROB=0.05;
-    const bool DEFAULTRETURNREGARDLESS=true;
-    const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
-    const boost::uint16_t DEFAULTXDIMAP=1024;
-    const boost::uint16_t DEFAULTYDIMAP=1024;
-    const bool DEFAULTFOLLOWPROGRESS=false;
-    const bool DEFAULTADDLOCALCONSUMER=false;
+using namespace Gem::Common;
 
-    namespace po = boost::program_options;
+/******************************************************************************/
 
-    bool parseCommandLine(
-    		int argc, char **argv
-    		, std::string& configFile
-    		, boost::uint16_t& parallelizationMode
-    		, bool& serverMode
-    		, std::string& ip
-    		, unsigned short& port
-    		, Gem::Common::serializationMode& serMode
-    		, bool& addLocalConsumer
-	);
+const boost::uint16_t DEFAULTPARALLELIZATIONMODEAP=EXECMODE_MULTITHREADED;
+const unsigned short DEFAULTPORT=10000;
+const std::string DEFAULTIP="localhost";
+const boost::uint32_t DEFAULTMAXSTALLS06=0;
+const boost::uint32_t DEFAULTMAXCONNECTIONATTEMPTS06=100;
+const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
+const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
+const bool DEFAULTADDLOCALCONSUMER=false;
+const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
+const std::size_t DEFAULTPOPULATIONSIZE06=100;
+const std::size_t DEFAULTNPARENTS=5; // Allow to explore the parameter space from many starting points
+const boost::uint32_t DEFAULTMAXITERATIONS=200;
+const boost::uint32_t DEFAULTREPORTITERATION=1;
+const long DEFAULTMAXMINUTES=10;
+const duplicationScheme DEFAULTRSCHEME=VALUEDUPLICATIONSCHEME;
+const sortingMode DEFAULTSORTINGSCHEME=MUCOMMANU_SINGLEEVAL;
+const boost::uint32_t DEFAULTGBTCNPROCUNITS=1;
+const boost::uint16_t DEFAULTXDIMAP=1024;
+const boost::uint16_t DEFAULTYDIMAP=1024;
+const bool DEFAULTFOLLOWPROGRESS=false;
 
-    bool parseConfigFile(
-    		const std::string& configFile
-    		, boost::uint16_t& nProducerThreads
-    		, boost::uint16_t& nEvaluationThreads
-    		, std::size_t& populationSize
-    		, std::size_t& nParents
-    		, boost::uint32_t& maxIterations
-    		, long& maxMinutes
-    		, boost::uint32_t& reportIteration
-    		, duplicationScheme& rScheme
-    		, sortingMode& smode
-    		, bool& returnRegardless
-    		, boost::uint32_t& nProcessingUnits
-    		, boost::uint16_t& xDim
-    		, boost::uint16_t& yDim
-    		, bool& followProgress
-	);
+/******************************************************************************/
+/**
+ * Parses the command line
+ */
+bool parseCommandLine(
+   int argc, char **argv
+   , boost::uint16_t& parallelizationMode
+   , bool& serverMode
+   , std::string& ip
+   , unsigned short& port
+   , boost::uint32_t& maxStalls
+   , boost::uint32_t& maxConnectionAttempts
+   , Gem::Common::serializationMode& serMode
+   , bool& addLocalConsumer
+   , boost::uint16_t& nProducerThreads
+   , boost::uint16_t& nEvaluationThreads
+   , std::size_t& populationSize
+   , std::size_t& nParents
+   , boost::uint32_t& maxIterations
+   , long& maxMinutes
+   , boost::uint32_t& reportIteration
+   , duplicationScheme& rScheme
+   , sortingMode& smode
+   , boost::uint32_t& nProcessingUnits
+   , boost::uint16_t& xDim
+   , boost::uint16_t& yDim
+   , bool& followProgress
+);
 
-  } /* namespace Geneva */
+/******************************************************************************/
+
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GARGUMENTPARSER_HPP_ */

@@ -398,7 +398,7 @@ std::size_t GParserBuilder::numberOfFileOptions() const {
 
 /******************************************************************************/
 /**
- * Parses the commandline for options
+ * Parses the command line for options
  *
  * @param argc The argument count
  * @param argv The argument vector
@@ -408,7 +408,7 @@ std::size_t GParserBuilder::numberOfFileOptions() const {
 bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
    namespace po = boost::program_options;
 
-   bool result = false;
+   bool result = GCL_NO_HELP_REQUESTED;
 
    try {
       std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
@@ -431,7 +431,7 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
       // Emit a help message, if necessary and let the caller of this function know
       if (vm.count("help")) {
          std::cout << desc << std::endl;
-         result=true;
+         result = GCL_HELP_REQUESTED;
       } else {
          if(verbose) {
             std::cout

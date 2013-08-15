@@ -33,6 +33,7 @@
  */
 
 // Standard headers go here
+#include <string>
 
 // Includes check for correct Boost version(s)
 
@@ -66,6 +67,9 @@ T GDefaultValueT() {
 /******************************************************************************/
 /** @brief A specialization for the bool type */
 template <> bool GDefaultValueT<bool>();
+
+/** @brief A specialization for the std::string type */
+template <> std::string GDefaultValueT<std::string>();
 
 /******************************************************************************/
 
