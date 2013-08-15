@@ -76,9 +76,9 @@ The main changes for this release include:
    hence making the code more robust.
  - Ported to MacOS X (still highly experimental).
  - Ported to Boost 1.54.
- 
+
 Recommended version of Boost: 1.54
- 
+
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012
 
