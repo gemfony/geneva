@@ -102,7 +102,6 @@ SET ( ${EXECUTABLENAME}_SRCS
 )
 
 SET ( CONFIGFILE
-	config/GDirectEA.cfg
 	config/GFunctionIndividual.json
 )
 
