@@ -61,7 +61,6 @@ bool parseCommandLine(
    , boost::uint32_t& reportIteration
    , duplicationScheme& rScheme
    , sortingMode& smode
-   , boost::uint32_t& nProcessingUnits
    , boost::uint16_t& xDim
    , boost::uint16_t& yDim
    , bool& followProgress
@@ -190,13 +189,6 @@ bool parseCommandLine(
          , smode
          , DEFAULTSORTINGSCHEME
          , "Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode"
-   );
-
-   gpb.registerCLParameter<boost::uint32_t>(
-         "nProcessingUnits"
-         , nProcessingUnits
-         , DEFAULTGBTCNPROCUNITS
-         , "Specifies how many processing units are available in networked mode"
    );
 
    gpb.registerCLParameter<boost::uint16_t>(

@@ -60,89 +60,79 @@
 #endif
 
 // Geneva headers go here
-#include <geneva/GOptimizationEnums.hpp>
+#include <common/GCommonEnums.hpp>
 #include <common/GSerializationHelperFunctionsT.hpp>
 #include <geneva/GOptimizationEnums.hpp>
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
-namespace Gem
-{
-  namespace Geneva
-  {
-    // Default settings
-    const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
-    const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
-    const boost::uint32_t DEFAULTMAXITERATIONS=2000;
-    const long DEFAULTMAXMINUTES=10;
-    const boost::uint32_t DEFAULTREPORTITERATION=1;
-    const bool DEFAULTVERBOSE=true;
-    const bool DEFAULTPARALLELIZATIONMODEAP=1;
-    const bool DEFAULTPRODUCTIONPLACE=true; // local production
-    const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
-    const unsigned short DEFAULTPORT=10000;
-    const std::string DEFAULTIP="localhost";
-    const std::string DEFAULTCONFIGFILE="./GSimpleSwarm.cfg";
-    const boost::uint32_t DEFAULTSTARTITERATION=0;
-    const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
-    const bool DEFAULTRETURNREGARDLESS=true;
-    const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
-    const boost::uint32_t DEFAULTGBTCNPROCUNITS=1;
-    const std::size_t DEFAULTPARDIM=100;
-    const double DEFAULTMINVAR=-10.;
-    const double DEFAULTMAXVAR=10.;
-    const std::size_t DEFAULTNNEIGHBORHOODSAP=5;
-    const std::size_t DEFAULTNNEIGHBORHOODMEMBERSAP=20;
-    const double DEFAULTCPERSONALAP=2.;
-    const double DEFAULTCNEIGHBORHOODAP=2.;
-    const double DEFAULTCGLOBALAP=1.;
-    const double DEFAULTCVELOCITYAP=0.4;
-    const boost::uint16_t DEFAULTXDIMAP=1024;
-    const boost::uint16_t DEFAULTYDIMAP=1024;
-    const bool DEFAULTFOLLOWPROGRESS=false;
-    const bool DEFAULTALLRANDOMINIT=false;
+namespace Gem {
+namespace Geneva {
 
-    namespace po = boost::program_options;
+using namespace Gem::Common;
+namespace po = boost::program_options;
 
-    bool parseCommandLine(
-    		 int argc
-    	   , char **argv
-		   , std::string& configFile
-		   , boost::uint16_t& parallelizationMode
-		   , bool& serverMode
-		   , std::string& ip
-		   , unsigned short& port
-    );
+/******************************************************************************/
 
-    bool parseConfigFile(
-    		 const std::string& configFile
-		   , boost::uint16_t& nProducerThreads
-		   , boost::uint16_t& nEvaluationThreads
-		   , std::size_t& nNeighborhoods
-		   , std::size_t& nNeighborhoodMembers
-		   , boost::uint32_t& maxIterations
-		   , long& maxMinutes
-		   , boost::uint32_t& reportIteration
-		   , boost::uint32_t& processingCycles
-		   , bool& returnRegardless
-		   , boost::uint32_t& nProcessingUnits
-		   , std::size_t& parDim
-		   , double& minVar
-		   , double& maxVar
-		   , solverFunction& df
-		   , double& cPersonal
-		   , double& cNeighborhood
-		   , double& cGlobal
-		   , double& cVelocity
-		   , updateRule& ur
-		   , boost::uint16_t& xDim
-		   , boost::uint16_t& yDim
-		   , bool& followProgress
-		   , bool& allRandomInit
-	);
+const boost::uint16_t DEFAULTPARALLELIZATIONMODEAP=EXECMODE_MULTITHREADED;
+const unsigned short DEFAULTPORT=10000;
+const std::string DEFAULTIP="localhost";
+const boost::uint32_t DEFAULTMAXSTALLS06=0;
+const boost::uint32_t DEFAULTMAXCONNECTIONATTEMPTS06=100;
+const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
+const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
+const bool DEFAULTADDLOCALCONSUMER=false;
+const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
+const boost::uint32_t DEFAULTMAXITERATIONS=200;
+const boost::uint32_t DEFAULTREPORTITERATION=1;
+const long DEFAULTMAXMINUTES=10;
+const boost::uint16_t DEFAULTXDIMAP=1024;
+const boost::uint16_t DEFAULTYDIMAP=1024;
+const bool DEFAULTFOLLOWPROGRESS=false;
+const std::size_t DEFAULTNNEIGHBORHOODSAP=5;
+const std::size_t DEFAULTNNEIGHBORHOODMEMBERSAP=20;
+const double DEFAULTCPERSONALAP=2.;
+const double DEFAULTCNEIGHBORHOODAP=2.;
+const double DEFAULTCGLOBALAP=1.;
+const double DEFAULTCVELOCITYAP=0.4;
+const bool DEFAULTALLRANDOMINIT=true;
 
-  } /* namespace Geneva */
+/******************************************************************************/
+/**
+ * Parses the command line
+ */
+bool parseCommandLine(
+   int argc, char **argv
+   , boost::uint16_t& parallelizationMode
+   , bool& serverMode
+   , std::string& ip
+   , unsigned short& port
+   , boost::uint32_t& maxStalls
+   , boost::uint32_t& maxConnectionAttempts
+   , Gem::Common::serializationMode& serMode
+   , bool& addLocalConsumer
+   , std::size_t& nNeighborhoods
+   , std::size_t& nNeighborhoodMembers
+   , double& cPersonal
+   , double& cNeighborhood
+   , double& cGlobal
+   , double& cVelocity
+   , updateRule& ur
+   , bool& allRandomInit
+   , boost::uint16_t& nProducerThreads
+   , boost::uint16_t& nEvaluationThreads
+   , boost::uint32_t& maxIterations
+   , long& maxMinutes
+   , boost::uint32_t& reportIteration
+   , boost::uint16_t& xDim
+   , boost::uint16_t& yDim
+   , bool& followProgress
+);
+
+/******************************************************************************/
+
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GARGUMENTPARSER_HPP_ */

@@ -69,6 +69,7 @@ namespace Gem {
 namespace Geneva {
 
 using namespace Gem::Common;
+namespace po = boost::program_options;
 
 /******************************************************************************/
 
@@ -88,7 +89,6 @@ const boost::uint32_t DEFAULTREPORTITERATION=1;
 const long DEFAULTMAXMINUTES=10;
 const duplicationScheme DEFAULTRSCHEME=VALUEDUPLICATIONSCHEME;
 const sortingMode DEFAULTSORTINGSCHEME=MUCOMMANU_SINGLEEVAL;
-const boost::uint32_t DEFAULTGBTCNPROCUNITS=1;
 const boost::uint16_t DEFAULTXDIMAP=1024;
 const boost::uint16_t DEFAULTYDIMAP=1024;
 const bool DEFAULTFOLLOWPROGRESS=false;
@@ -116,7 +116,6 @@ bool parseCommandLine(
    , boost::uint32_t& reportIteration
    , duplicationScheme& rScheme
    , sortingMode& smode
-   , boost::uint32_t& nProcessingUnits
    , boost::uint16_t& xDim
    , boost::uint16_t& yDim
    , bool& followProgress

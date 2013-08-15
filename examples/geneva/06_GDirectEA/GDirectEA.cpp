@@ -32,12 +32,13 @@
  * http://www.gemfony.com .
  */
 
-/* *****************************************************************************
+/*
+ * *****************************************************************************
  * NOTE: This file shows how to access some of the optimization algorithms
- * directly, without going through the Go2 class. Usually, Go2 is the recommended
- * way and will relieve you from many burdensome tasks you otherwise have to
- * perform. Thus, if you are new to Geneva, we recommend that you start with
- * example 01 first rather than following what is shown in this file.
+ * directly (EA in this case), without going through the Go2 class. Usually, Go2
+ * is the recommended way and will relieve you from many burdensome tasks you
+ * otherwise have to perform. Thus, if you are new to Geneva, we recommend that
+ * you start with example 01 first rather than following what is shown in this file.
  * *****************************************************************************
  */
 
@@ -88,7 +89,6 @@ int main(int argc, char **argv){
   boost::uint32_t reportIteration;
   duplicationScheme rScheme;
   sortingMode smode;
-  boost::uint32_t nProcessingUnits;
   Gem::Common::serializationMode serMode;
   boost::uint16_t xDim;
   boost::uint16_t yDim;
@@ -117,7 +117,6 @@ int main(int argc, char **argv){
      , reportIteration
      , rScheme
      , smode
-     , nProcessingUnits
      , xDim
      , yDim
      , followProgress
@@ -142,25 +141,6 @@ int main(int argc, char **argv){
 
     return 0;
   }
-
-  /****************************************************************************/
-  // Create a factory for GFunctionIndividual objects and perform
-  // any necessary initial work.
-  GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
-
-  // Create the first set of parent individuals. Initialization of parameters is done randomly.
-  std::vector<boost::shared_ptr<GFunctionIndividual> > parentIndividuals;
-  for(std::size_t p = 0 ; p<nParents; p++) {
-	  parentIndividuals.push_back(gfi.get<GFunctionIndividual>());
-  }
-
-  /****************************************************************************/
-  // Create an instance of our optimization monitor
-  boost::shared_ptr<progressMonitor> pm_ptr(new progressMonitor(parentIndividuals[0]->getDemoFunction())); // The demo function is only known to the individual
-  pm_ptr->setProgressDims(xDim, yDim);
-  pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
-  pm_ptr->setXExtremes(gfi.getMinVar(), gfi.getMaxVar());
-  pm_ptr->setYExtremes(gfi.getMinVar(), gfi.getMaxVar());
 
   /****************************************************************************/
   // We can now start creating populations. We refer to them through the base class
@@ -196,11 +176,13 @@ int main(int argc, char **argv){
   case EXECMODE_BROKERAGE: // Execution with networked consumer and possibly a local, multi-threaded consumer
   {
 	  // Create a network consumer and enrol it with the broker
-	  boost::shared_ptr<GAsioTCPConsumerT<GParameterSet> > gatc(new GAsioTCPConsumerT<GParameterSet>(port, 0, serMode));
+	  boost::shared_ptr<GAsioTCPConsumerT<GParameterSet> >
+	    gatc(new GAsioTCPConsumerT<GParameterSet>(port, 0, serMode));
 	  GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 
 	  if(addLocalConsumer) { // This is mainly for testing and benchmarking
-		  boost::shared_ptr<GBoostThreadConsumerT<GParameterSet> > gbtc(new GBoostThreadConsumerT<GParameterSet>());
+		  boost::shared_ptr<GBoostThreadConsumerT<GParameterSet> >
+		    gbtc(new GBoostThreadConsumerT<GParameterSet>());
 		  gbtc->setNThreadsPerWorker(nEvaluationThreads);
 		  GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
 	  }
@@ -223,13 +205,31 @@ int main(int argc, char **argv){
   break;
   }
 
+  /****************************************************************************/
+  // Create a factory for GFunctionIndividual objects and perform
+  // any necessary initial work.
+  GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+
+  // Create the first set of parent individuals. Initialization of parameters is done randomly.
+  std::vector<boost::shared_ptr<GFunctionIndividual> > parentIndividuals;
+  for(std::size_t p = 0 ; p<nParents; p++) {
+     parentIndividuals.push_back(gfi.get<GFunctionIndividual>());
+  }
+
+  /****************************************************************************/
+  // Create an instance of our optimization monitor
+  boost::shared_ptr<progressMonitor> pm_ptr(new progressMonitor(parentIndividuals[0]->getDemoFunction())); // The demo function is only known to the individual
+  pm_ptr->setProgressDims(xDim, yDim);
+  pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
+  pm_ptr->setXExtremes(gfi.getMinVar(), gfi.getMaxVar());
+  pm_ptr->setYExtremes(gfi.getMinVar(), gfi.getMaxVar());
 
   /****************************************************************************/
   // Now we have suitable populations and can fill them with data
 
-  // Add individuals to the population. Many geneva classes, such as
+  // Add individuals to the population. Many Geneva classes, such as
   // the optimization classes, feature an interface very similar to std::vector.
-  for(std::size_t p = 0 ; p<nParents; p++) {
+  for(std::size_t p = 0 ; p<parentIndividuals.size(); p++) {
     pop_ptr->push_back(parentIndividuals[p]);
   }
  
