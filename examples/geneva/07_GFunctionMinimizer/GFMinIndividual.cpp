@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFMinIndividual)
 namespace Gem {
 namespace Geneva {
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Puts a Gem::Geneva::targetFunction item into a stream
  *
@@ -53,7 +53,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::targetFunction& tF)
 	return o;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Reads a Gem::Geneva::targetFunction item from a stream
  *
@@ -74,7 +74,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::targetFunction& tF) {
 	return i;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -82,7 +82,7 @@ GFMinIndividual::GFMinIndividual()
 	: targetFunction_(PARABOLA)
 { /* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor
  *
@@ -93,14 +93,14 @@ GFMinIndividual::GFMinIndividual(const GFMinIndividual& cp)
 	, targetFunction_(cp.targetFunction_)
 { /* nothing */	}
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor
  */
 GFMinIndividual::~GFMinIndividual()
 { /* nothing */	}
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator
  *
@@ -190,7 +190,7 @@ double GFMinIndividual::getAverageSigma() const {
 	return adaptor->getSigma();
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GFMinIndividual, camouflaged as a GObject
  *
@@ -208,7 +208,7 @@ void GFMinIndividual::load_(const GObject* cp){
 	targetFunction_ = p_load->targetFunction_;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -218,7 +218,7 @@ GObject* GFMinIndividual::clone_() const {
 	return new GFMinIndividual(*this);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The actual value calculation takes place here
  *
@@ -251,7 +251,7 @@ double GFMinIndividual::fitnessCalculation(){
 	return 0.;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * A simple n-dimensional parabola
  */
@@ -260,13 +260,13 @@ double GFMinIndividual::parabola(const std::vector<double>& parVec) const {
 
 	std::vector<double>::const_iterator cit;
 	for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
-		result += (*cit) * (*cit);
+		result += GSQUARED(*cit);
 	}
 
 	return result;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * A "noisy" parabola
  */
@@ -275,15 +275,15 @@ double GFMinIndividual::noisyParabola(const std::vector<double>& parVec) const {
 
 	std::vector<double>::const_iterator cit;
 	for(cit=parVec.begin(); cit!=parVec.end(); ++cit) {
-		xsquared += (*cit) * (*cit);
+		xsquared += GSQUARED(*cit);
 	}
 
 	return (cos(xsquared) + 2.) * xsquared;
 }
 
-/********************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////
-/********************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * A constructor with the ability to switch the parallelization mode. It initializes a
  * target item as needed.
@@ -302,14 +302,14 @@ GFMinIndividualFactory::GFMinIndividualFactory(const std::string& configFile)
 	, maxVar_(GFI_DEF_MAXVAR)
 { /* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GFMinIndividualFactory::~GFMinIndividualFactory()
 { /* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Creates items of this type
  *
@@ -328,7 +328,7 @@ boost::shared_ptr<GParameterSet> GFMinIndividualFactory::getObject_(
 	return target;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to describe local configuration options for gradient descents
  */
@@ -422,7 +422,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder& 
 	Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to act on the configuration options received from the configuration file. Here
  * we can add the options described in describeLocalOptions to the object. In practice,
@@ -445,7 +445,7 @@ void GFMinIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& p) {
 	p->push_back(gcdc_ptr);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

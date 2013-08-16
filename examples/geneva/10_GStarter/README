@@ -1,2 +1,14 @@
 This directory contains an example that may be directly used 
-as the basis for your own optimization problems. 
+as the basis for your own optimization problems. In particular,
+it shows a different way of adding optimization algorithms to the
+Go2 class. NOTE: As a result, the multi-threaded variant of 
+evolutionary algorithms will be executed first in this example,
+regardless of what other algorithms you might have specified on
+the command line. E.g., if you start the program with "./GFunctionMinimizer -a swarm",
+a multi-threaded evolutionary algorithm will be started first
+(because it was added in main() ), followed by a multi-threaded
+swarm (because multi-threaded execution is the default in Geneva).
+Hence this example is not recommended as the general starting 
+point for Geneva-beginners. Note that the swarm algorithm will
+start with the best indivivdual found by the evolutionary algorithm.
+

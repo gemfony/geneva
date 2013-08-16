@@ -60,12 +60,10 @@
 #include "geneva/GParameterSet.hpp"
 #include "common/GParserBuilder.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * This enum denotes the possible demo function types
  */
@@ -81,7 +79,7 @@ std::ostream& operator<<(std::ostream&, const Gem::Geneva::targetFunction&);
 /** @brief Reads a Gem::Geneva::targetFunction from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Geneva::targetFunction&);
 
-/************************************************************************************************/
+/******************************************************************************/
 // A number of default settings for the factory
 const double GFI_DEF_ADPROB = 0.05;
 const double GFI_DEF_SIGMA = 0.5;
@@ -93,7 +91,7 @@ const double GFI_DEF_MINVAR = -10.;
 const double GFI_DEF_MAXVAR = 10.;
 const targetFunction GO_DEF_TARGETFUNCTION = boost::numeric_cast<targetFunction>(0);
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
@@ -101,7 +99,7 @@ const targetFunction GO_DEF_TARGETFUNCTION = boost::numeric_cast<targetFunction>
 class GFMinIndividual
 	: public GParameterSet
 {
-	///////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<class Archive>
@@ -110,7 +108,7 @@ class GFMinIndividual
 		   & BOOST_SERIALIZATION_NVP(targetFunction_);
 	}
 
-	///////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
@@ -135,7 +133,7 @@ public:
 	double getAverageSigma() const;
 
 protected:
-	/********************************************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the data of another GFMinIndividual */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
@@ -144,23 +142,23 @@ protected:
 	/** @brief The actual value calculation takes place here */
 	virtual double fitnessCalculation();
 
-	/********************************************************************************************/
+	/***************************************************************************/
 
 private:
 	targetFunction targetFunction_; ///< Specifies which demo function should be used
 
-	/********************************************************************************************/
+	/***************************************************************************/
 	/** @brief A simple n-dimensional parabola */
 	double parabola(const std::vector<double>& parVec) const;
 	/** @brief A "noisy" parabola */
 	double noisyParabola(const std::vector<double>& parVec) const;
 
-	/********************************************************************************************/
+	/***************************************************************************/
 };
 
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * A factory for GFMinIndividual objects
  */
@@ -195,7 +193,7 @@ private:
 	double maxVar_;
 };
 
-/************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
