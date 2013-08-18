@@ -110,9 +110,7 @@ void copyGenevaSmartPointerVector(
 	std::size_t size_to = to.size();
 
 	if(size_from==size_to) { // The most likely case
-		for(it_from=from.begin(), it_to=to.begin();
-		     it_from!=from.end(), it_to!=to.end();
-		     ++it_from, ++it_to) {
+		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
 			copyGenevaSmartPointer(*it_from, *it_to);
 		}
 	}

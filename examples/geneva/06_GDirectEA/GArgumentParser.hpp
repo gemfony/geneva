@@ -72,7 +72,7 @@ using namespace Gem::Common;
 namespace po = boost::program_options;
 
 /******************************************************************************/
-
+// Default settings
 const boost::uint16_t DEFAULTPARALLELIZATIONMODEAP=EXECMODE_MULTITHREADED;
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";

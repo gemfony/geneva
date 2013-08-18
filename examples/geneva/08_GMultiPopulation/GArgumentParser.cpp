@@ -32,273 +32,160 @@
  * http://www.gemfony.com .
  */
 
-
-
 #include "GArgumentParser.hpp"
 
-namespace Gem
-{
-  namespace Geneva
-  {
-  /************************************************************************************************/
-  /**
-   * A function that parses the command line for all required parameters
-   */
-  bool parseCommandLine(
-  		int argc, char **argv
-		  , std::string& configFile
-  ) {
-	  try{
-		  // Check the command line options. Uses the Boost program options library.
-		  po::options_description desc("Usage: evaluator [options]");
-		  desc.add_options()
-			  ("help,h", "emit help message")
-			  ("configFile,c", po::value<std::string>(&configFile)->default_value(DEFAULTCONFIGFILE),
-				"The name of the configuration file holding further configuration options")
-		  ;
+namespace Gem {
+namespace Geneva {
 
-		  po::variables_map vm;
-		  po::store(po::parse_command_line(argc, argv, desc), vm);
-		  po::notify(vm);
+/******************************************************************************/
+/**
+ * Parses the command line
+ */
+bool parseCommandLine(
+     int argc, char **argv
+     , boost::uint16_t& nProducerThreads
+     , boost::uint16_t& nEvaluationThreads
+     , std::size_t& populationSizeSuper
+     , std::size_t& nParentsSuper
+     , boost::uint32_t& maxIterationsSuper
+     , long& maxMinutesSuper
+     , boost::uint32_t& reportIterationSuper
+     , duplicationScheme& rSchemeSuper
+     , sortingModeMP& smodeSuper
+     , std::size_t& populationSizeSub
+     , std::size_t& nParentsSub
+     , boost::uint32_t& maxIterationsSub
+     , long& maxMinutesSub
+     , boost::uint32_t& reportIterationSub
+     , duplicationScheme& rSchemeSub
+     , sortingMode& smodeSub
+) {
+   // Create the parser builder
+   Gem::Common::GParserBuilder gpb;
 
-		  // Emit a help message, if necessary
-		  if (vm.count("help")) {
-			  std::cerr << desc << std::endl;
-			  return false;
-		  }
+   gpb.registerCLParameter<boost::uint16_t>(
+         "nProducerThreads"
+         , nProducerThreads
+         , DEFAULTNPRODUCERTHREADS
+         , "The amount of random number producer threads"
+   );
 
-		  std::cout << std::endl
-				  << "Running with the following command line options:" << std::endl
-				  << "configFile = " << configFile << std::endl
-				  << std::endl;
-	  }
-	  catch(...){
-		  std::cout << "Error parsing the command line" << std::endl;
-		  return false;
-	  }
+   gpb.registerCLParameter<boost::uint16_t>(
+         "nEvaluationThreads"
+         , nEvaluationThreads
+         , DEFAULTNEVALUATIONTHREADS
+         , "The amount of threads processing individuals simultaneously"
+   );
 
-	  return true;
+   gpb.registerCLParameter<std::size_t>(
+         "populationSizeSuper"
+         , populationSizeSuper
+         , DEFAULTPOPULATIONSIZESUPER
+         , "The desired size of the super population"
+   );
 
-  }
+   gpb.registerCLParameter<std::size_t>(
+         "nParentsSuper"
+         , nParentsSuper
+         , DEFAULTNPARENTSSUPER
+         , "The number of parents in the super population"
+   );
 
-    /************************************************************************************************/
-    /**
-     * A function that parses a config file for further parameters
-     */
-    bool parseConfigFile(
-    		const std::string& configFile
-    	  , boost::uint16_t& nProducerThreads
-		  , boost::uint16_t& nEvaluationThreads
-		  , std::size_t& populationSizeSuper
-		  , std::size_t& nParentsSuper
-		  , boost::uint32_t& maxIterationsSuper
-		  , long& maxMinutesSuper
-		  , boost::uint32_t& reportIterationSuper
-		  , duplicationScheme& rSchemeSuper
-		  , sortingModeMP& smodeSuper
-		  , std::size_t& populationSizeSub
-		  , std::size_t& nParentsSub
-		  , boost::uint32_t& maxIterationsSub
-		  , long& maxMinutesSub
-		  , boost::uint32_t& reportIterationSub
-		  , duplicationScheme& rSchemeSub
-		  , sortingMode& smodeSub
-		  , bool& returnRegardless
-		  , boost::uint32_t& nProcessingUnits
-		  , double& adProb
-		  , boost::uint32_t& adaptionThreshold
-		  , double& sigma
-		  , double& sigmaSigma
-		  , double& minSigma
-		  , double& maxSigma
-		  , std::size_t& parDim
-		  , double& minVar
-		  , double& maxVar
-		  , solverFunction& df
-    ) {
-      boost::uint16_t recombinationSchemeSuper=0;
-      boost::uint16_t recombinationSchemeSub=0;
-      boost::uint16_t evalFunction=0;
-      bool verbose = true;
+   gpb.registerCLParameter<boost::uint32_t>(
+         "maxIterationsSuper"
+         , maxIterationsSuper
+         , DEFAULTMAXITERATIONSSUPER
+         , "Maximum number of iterations in the super population"
+   );
 
-      // Check the name of the configuation file
-      if(configFile.empty() || configFile == "empty" || configFile == "unknown") {
-	std::cerr << "Error: Invalid configuration file name given: \"" << configFile << "\"" << std::endl;
-	return false;
-      }
+   gpb.registerCLParameter<long>(
+         "maxMinutesSuper"
+         , maxMinutesSuper
+         , DEFAULTMAXMINUTESSUPER
+         , "The maximum number of minutes the optimization of the super population should run"
+   );
 
-      try{
-	// Check the configuration file line options. Uses the Boost program options library.
-	po::options_description config("Allowed options");
-	config.add_options()
-	  ("nProducerThreads",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
-	   "The amount of random number producer threads")
-	  ("nEvaluationThreads",po::value<boost::uint16_t>(&nEvaluationThreads)->default_value(DEFAULTNEVALUATIONTHREADS),
-	   "The amount of threads processing individuals simultaneously")
-	  ("populationSizeSuper",po::value<std::size_t>(&populationSizeSuper)->default_value(DEFAULTPOPULATIONSIZESUPER),
-	   "The size of the super-population")
-	  ("nParentsSuper",po::value<std::size_t>(&nParentsSuper)->default_value(DEFAULTNPARENTSSUPER),
-	   "The number of parents in the super-population")
-	  ("maxIterationsSuper", po::value<boost::uint32_t>(&maxIterationsSuper)->default_value(DEFAULTMAXITERATIONSSUPER),
-	   "Maximum number of iterations in the super-population")
-	  ("maxMinutesSuper", po::value<long>(&maxMinutesSuper)->default_value(DEFAULTMAXMINUTESSUPER),
-	   "The maximum number of minutes the optimization of the super-population should run")
-	  ("reportIterationSuper",po::value<boost::uint32_t>(&reportIterationSuper)->default_value(DEFAULTREPORTITERATIONSUPER),
-	   "The number of iterations after which information should be emitted in the super-population")
-	  ("rSchemeSuper",po::value<boost::uint16_t>(&recombinationSchemeSuper)->default_value(DEFAULTRSCHEMESUPER),
-	   "The recombination scheme for the super-population")
-	  ("sortingSchemeSuper", po::value<sortingModeMP>(&smodeSuper)->default_value(DEFAULTSORTINGSCHEMESUPER),
-	   "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode in the super-population")
-	  ("populationSizeSub",po::value<std::size_t>(&populationSizeSub)->default_value(DEFAULTPOPULATIONSIZESUB),
-	   "The size of the sub-population")
-	  ("nParentsSub",po::value<std::size_t>(&nParentsSub)->default_value(DEFAULTNPARENTSSUB),
-	   "The number of parents in the sub-population")
-	  ("maxIterationsSub", po::value<boost::uint32_t>(&maxIterationsSub)->default_value(DEFAULTMAXITERATIONSSUB),
-	   "Maximum number of iterations in the sub-population")
-	  ("maxMinutesSub", po::value<long>(&maxMinutesSub)->default_value(DEFAULTMAXMINUTESSUB),
-	   "The maximum number of minutes the optimization of the sub-population should run")
-	  ("reportIterationSub",po::value<boost::uint32_t>(&reportIterationSub)->default_value(DEFAULTREPORTITERATIONSUB),
-	   "The number of iterations after which information should be emitted in the sub-population")
-	  ("rSchemeSub",po::value<boost::uint16_t>(&recombinationSchemeSub)->default_value(DEFAULTRSCHEMESUB),
-	   "The recombination scheme for the sub-population")
-	  ("sortingSchemeSub", po::value<sortingMode>(&smodeSub)->default_value(DEFAULTSORTINGSCHEMESUB),
-	   "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode in the sub-population")
-	  ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
-	   "Whether additional information should be emitted")
-      ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
-       "Specifies whether results should be returned even if they are not better than before")
-	  ("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
-	   "Specifies how many processing units are available in networked mode")
-	  ("adProb", po::value<double>(&adProb)->default_value(DEFAULTGDAADPROB),
-		"Specifies the likelihood for adaptions to be actually carried out")
-	  ("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLDAP),
-		"Number of calls to adapt() after which adaption parameters should be modified")
-	  ("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
-		"The width of the gaussian used for the adaption of double values")
-	  ("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
-		"The adaption rate of sigma")
-	  ("minSigma", po::value<double>(&minSigma)->default_value(DEFAULTMINSIGMA),
-		"The minimum allowed value for sigma")
-	  ("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
-		"The maximum allowed value for sigma")
-	  ("parDim", po::value<std::size_t>(&parDim)->default_value(DEFAULTPARDIM),
-	   "The amount of variables in the parabola")
-	  ("minVar", po::value<double>(&minVar)->default_value(DEFAULTMINVAR),
-	   "The lower boundary for all variables")
-	  ("maxVar", po::value<double>(&maxVar)->default_value(DEFAULTMAXVAR),
-	   "The upper boundary for all variables")
-	  ("evalFunction", po::value<boost::uint16_t>(&evalFunction),
-		"The id of the evaluation function")
-	  ;
-	
-	po::variables_map vm;
-	std::ifstream ifs(configFile.c_str());
-	if(!ifs.good()) {
-	  std::cerr << "Error accessing configuration file " << configFile;
-	  return false;
-	}
+   gpb.registerCLParameter<boost::uint32_t>(
+         "reportIterationSuper"
+         , reportIterationSuper
+         , DEFAULTREPORTITERATIONSUPER
+         , "The number of iterations after which information should be emitted in the super population"
+   );
 
-        store(po::parse_config_file(ifs, config), vm);
-        notify(vm);
+   gpb.registerCLParameter<duplicationScheme>(
+         "rSchemeSuper"
+         , rSchemeSuper
+         , DEFAULTRSCHEMESUPER
+         , "The recombination scheme of the evolutionary algorithm (super population)"
+   );
 
-	// Emit a help message, if necessary
-	if (vm.count("help")) {
-	  std::cout << config << std::endl;
-	  return false;
-	}
-	
-	// Check the number of parents in the super-population
-	if(2*nParentsSuper > populationSizeSuper){
-	  std::cout << "Error: Invalid number of parents in super population" << std::endl
-		    << "nParentsSuper       = " << nParentsSuper << std::endl
-		    << "populationSizeSuper = " << populationSizeSuper << std::endl;
+   gpb.registerCLParameter<sortingModeMP>(
+         "smodeSuper"
+         , smodeSuper
+         , DEFAULTSORTINGSCHEMESUPER
+         , "Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode in the super population"
+   );
 
-	  return false;
-	}
+   gpb.registerCLParameter<std::size_t>(
+         "populationSizeSub"
+         , populationSizeSub
+         , DEFAULTPOPULATIONSIZESUB
+         , "The desired size of the sub population"
+   );
 
-	// Check the number of parents in the sub-population
-	if(2*nParentsSub > populationSizeSub){
-	  std::cout << "Error: Invalid number of parents in sub population" << std::endl
-		    << "nParentsSub       = " << nParentsSub << std::endl
-		    << "populationSizeSub = " << populationSizeSub << std::endl;
+   gpb.registerCLParameter<std::size_t>(
+         "nParentsSub"
+         , nParentsSub
+         , DEFAULTNPARENTSSUB
+         , "The number of parents in the sub population"
+   );
 
-	  return false;
-	}
+   gpb.registerCLParameter<boost::uint32_t>(
+         "maxIterationsSub"
+         , maxIterationsSub
+         , DEFAULTMAXITERATIONSSUB
+         , "Maximum number of iterations in the sub population"
+   );
 
-	// Workaround for assigment problem with rSchemeSuper
-	if(recombinationSchemeSuper==(boost::uint16_t)VALUEDUPLICATIONSCHEME)
-	  rSchemeSuper=VALUEDUPLICATIONSCHEME;
-	else if(recombinationSchemeSuper==(boost::uint16_t)RANDOMDUPLICATIONSCHEME)
-	  rSchemeSuper=RANDOMDUPLICATIONSCHEME;
-	else if(recombinationSchemeSuper==(boost::uint16_t)DEFAULTDUPLICATIONSCHEME)
-	  rSchemeSuper=DEFAULTDUPLICATIONSCHEME;
-	else {
-	  std::cout << "Error: Invalid recombination scheme in super-population: " << recombinationSchemeSuper << std::endl;
-	  return false;
-	}
+   gpb.registerCLParameter<long>(
+         "maxMinutesSub"
+         , maxMinutesSub
+         , DEFAULTMAXMINUTESSUB
+         , "The maximum number of minutes the optimization of the sub population should run"
+   );
 
-	// Workaround for assigment problem with rSchemeSub
-	if(recombinationSchemeSub==(boost::uint16_t)VALUEDUPLICATIONSCHEME)
-	  rSchemeSub=VALUEDUPLICATIONSCHEME;
-	else if(recombinationSchemeSub==(boost::uint16_t)RANDOMDUPLICATIONSCHEME)
-	  rSchemeSub=RANDOMDUPLICATIONSCHEME;
-	else if(recombinationSchemeSub==(boost::uint16_t)DEFAULTDUPLICATIONSCHEME)
-	  rSchemeSub=DEFAULTDUPLICATIONSCHEME;
-	else {
-	  std::cout << "Error: Invalid recombination scheme in sub-population: " << recombinationSchemeSub << std::endl;
-	  return false;
-	}
+   gpb.registerCLParameter<boost::uint32_t>(
+         "reportIterationSub"
+         , reportIterationSub
+         , DEFAULTREPORTITERATIONSUB
+         , "The number of iterations after which information should be emitted in the sub population"
+   );
 
-	// Assign the demo function
-	if(evalFunction > (boost::uint16_t)MAXDEMOFUNCTION) {
-		std::cout << "Error: Invalid evaluation function: " << evalFunction
-				<< std::endl;
-		return false;
-	}
-	df=(solverFunction)evalFunction;
+   gpb.registerCLParameter<duplicationScheme>(
+         "rSchemeSub"
+         , rSchemeSub
+         , DEFAULTRSCHEMESUB
+         , "The recombination scheme of the evolutionary algorithm (sub population)"
+   );
 
-	if(verbose){
-	  std::cout << std::endl
-		    << "Running with the following options from " << configFile << ":" << std::endl
-		    << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
-		    << "populationSizeSuper = " << populationSizeSuper << std::endl
-		    << "nParentsSuper = " << nParentsSuper << std::endl
-		    << "maxIterationsSuper = " << maxIterationsSuper << std::endl
-		    << "maxMinutesSuper = " << maxMinutesSuper << std::endl
-		    << "reportIterationSuper = " << reportIterationSuper << std::endl
-		    << "rSchemeSuper = " << (boost::uint16_t)rSchemeSuper << std::endl
-		    << "sortingSchemeSuper = " << smodeSuper << std::endl
-			 << "populationSizeSub = " << populationSizeSub << std::endl
-			 << "nParentsSub = " << nParentsSub << std::endl
-			 << "maxIterationsSub = " << maxIterationsSub << std::endl
-			 << "maxMinutesSub = " << maxMinutesSub << std::endl
-			 << "reportIterationSub = " << reportIterationSub << std::endl
-			 << "rSchemeSub = " << (boost::uint16_t)rSchemeSub << std::endl
-			 << "sortingSchemeSub = " << smodeSub << std::endl
-			 << "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
-	       << "nProcessingUnits = " << nProcessingUnits << std::endl
- 		    << "adProb = " << adProb << std::endl
-			 << "adaptionThreshold = " << adaptionThreshold << std::endl
-		    << "sigma = " << sigma << std::endl
-		    << "sigmaSigma " << sigmaSigma << std::endl
-		    << "minSigma " << minSigma << std::endl
-		    << "maxSigma " << maxSigma << std::endl
-		    << "parDim = " << parDim << std::endl
-		    << "minVar = " << minVar << std::endl
-		    << "maxVar = " << maxVar << std::endl
-		    << "evalFunction = " << df << std::endl
-		    << std::endl;
-	}
-      }
-      catch(...){
-	std::cout << "Error parsing the configuration file " << configFile << std::endl;
-	return false;
-      }
+   gpb.registerCLParameter<sortingMode>(
+         "smodeSub"
+         , smodeSub
+         , DEFAULTSORTINGSCHEMESUB
+         , "Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode in the sub population"
+   );
 
-      return true;
-    }
 
-    /************************************************************************************************/
+   // Parse the command line and leave if the help flag was given. The parser
+   // will emit an appropriate help message by itself
+   if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+      return false; // Do not continue
+   }
 
-  } /* namespace Geneva */
+   return true;
+}
+
+/******************************************************************************/
+
+} /* namespace Geneva */
 } /* namespace Gem */

@@ -20,7 +20,7 @@ SET (CMAKE_EXE_LINKER_FLAGS "-lpthread")
 
 SET (Boost_USE_MULTITHREADED ON)
 
-# If the build type CMAKE_BUILD_TYPE is not set already (ie, by the top
+# If the build type CMAKE_BUILD_TYPE is not set already (i.e., by the top
 # level build configuration or by the user), use GENEVA_BUILD_TYPE
 # to set it. Otherwise set 'Debug' as default.
 IF(NOT CMAKE_BUILD_TYPE)

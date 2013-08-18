@@ -55,7 +55,7 @@ using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * The main function.
  */
@@ -80,92 +80,53 @@ int main(int argc, char **argv){
   boost::uint32_t reportIterationSub;
   duplicationScheme rSchemeSub;
   sortingMode smodeSub;
-  std::size_t parDim;
-  double minVar;
-  double maxVar;
-  bool returnRegardless;
-  boost::uint32_t nProcessingUnits;
-  solverFunction df;
-  boost::uint32_t adaptionThreshold;
-  double sigma;
-  double sigmaSigma;
-  double minSigma;
-  double maxSigma;
-  double adProb;
-  Gem::Common::serializationMode serMode;
+
+  /****************************************************************************/
+  // Parse the command line
 
   if(!parseCommandLine(
-        argc, argv,
-        configFile
-    )
-     ||
-     !parseConfigFile(configFile,
-		      nProducerThreads,
-		      nEvaluationThreads,
-		      populationSizeSuper,
-		      nParentsSuper,
-		      maxIterationsSuper,
-		      maxMinutesSuper,
-		      reportIterationSuper,
-		      rSchemeSuper,
-		      smodeSuper,
-		      populationSizeSub,
-		      nParentsSub,
-		      maxIterationsSub,
-		      maxMinutesSub,
-		      reportIterationSub,
-		      rSchemeSub,
-		      smodeSub,
-			   returnRegardless,
-			   nProcessingUnits,
-		      adProb,
-		      adaptionThreshold,
-			   sigma,
-			   sigmaSigma,
-			   minSigma,
-			   maxSigma,
-		      parDim,
-		      minVar,
-		      maxVar,
-		      df))
-    { exit(1); }
+     argc, argv
+     , nProducerThreads
+     , nEvaluationThreads
+     , populationSizeSuper
+     , nParentsSuper
+     , maxIterationsSuper
+     , maxMinutesSuper
+     , reportIterationSuper
+     , rSchemeSuper
+     , smodeSuper
+     , populationSizeSub
+     , nParentsSub
+     , maxIterationsSub
+     , maxMinutesSub
+     , reportIterationSub
+     , rSchemeSub
+     , smodeSub
+  )) { exit(1); } // Leave if help was requested.
+
+  /****************************************************************************/
 
   // Random numbers are our most valuable good. Set the number of threads
   GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
-  //***************************************************************************
+  /****************************************************************************/
+  // This EA population can hold derivatives of GBaseEA
+  GMultiPopulationEAT<GBaseEA> gmp;
+
+  /****************************************************************************/
   // Create a factory for GFunctionIndividual objects and perform
   // any necessary initial work.
-  GFunctionIndividualFactory gfi("./GFunctionIndividual.json");
+  GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
   // Create the first set of parent populations.
-  std::vector<boost::shared_ptr<GBaseEA> > parentPopulations;
   for(std::size_t psuper = 0; psuper<nParentsSuper; psuper++) {
-	  // This smart pointer holds a parent population. Note that it can be useful
-	  // not to parallelize on the level of sub-populations. Using a GBrokerEA here
-	  // will likely lead to failure.
+	  // This smart pointer holds a parent population.
 	  boost::shared_ptr<GSerialEA> sub_pop_ptr
 		  = boost::shared_ptr<GSerialEA>(new GSerialEA());
 
 	  // Create the first set of parent individuals. Initialization of parameters is done randomly.
 	  for(std::size_t psub = 0 ; psub<nParentsSub; psub++) {
-		  boost::shared_ptr<GParameterSet> functionIndividual_ptr = gfi();
-
-		  // Set up a GDoubleCollection with dimension values, each initialized
-		  // with a random number in the range [min,max[
-		  boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
-
-		  // Set up and register an adaptor for the collection, so it
-		  // knows how to be adapted.
-		  boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
-		  gdga_ptr->setAdaptionThreshold(adaptionThreshold);
-		  gdga_ptr->setAdaptionProbability(adProb);
-		  gdc_ptr->addAdaptor(gdga_ptr);
-
-		  // Make the parameter collection known to this individual
-		  functionIndividual_ptr->push_back(gdc_ptr);
-
-		  sub_pop_ptr->push_back(functionIndividual_ptr);
+		  sub_pop_ptr->push_back(gfi());
 	  }
 
 	  // Specify some general population settings
@@ -177,21 +138,10 @@ int main(int argc, char **argv){
 	  sub_pop_ptr->setSortingScheme(smodeSub);
 
 	  // Add the sub population to the vector
-	  parentPopulations.push_back(sub_pop_ptr);
+	  gmp.push_back(sub_pop_ptr);
   }
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  // This EA population can hold derivatives of GBaseEA
-  GMultiPopulationEAT<GBaseEA> gmp;
-
-  // Now we have suitable populations and can fill them with data
-
-  // Add individuals to the population
-  for(std::size_t psuper = 0 ; psuper<nParentsSuper; psuper++) {
-	  gmp.push_back(parentPopulations[psuper]);
-  }
- 
+  /****************************************************************************/
   // Specify some general population settings
   gmp.setDefaultPopulationSize(populationSizeSuper,nParentsSuper);
   gmp.setMaxIteration(maxIterationsSuper);
@@ -200,11 +150,16 @@ int main(int argc, char **argv){
   gmp.setRecombinationMethod(rSchemeSuper);
   gmp.setSortingScheme(smodeSuper);
   gmp.setEmitTerminationReason(true);
-  
+
   // Do the actual optimization
   gmp.optimize();
 
-  //--------------------------------------------------------------------------------------------
+  // Extract the best individual
+  boost::shared_ptr<GFunctionIndividual> p = gmp.getBestIndividual<GFunctionIndividual>();
+
+  // Do something with the best result found here
+
+  /****************************************************************************/
   // Terminate Geneva
   return 0;
 }

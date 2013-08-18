@@ -146,7 +146,7 @@ bool parseCommandLine(
          "populationSize"
          , populationSize
          , DEFAULTPOPULATIONSIZE06
-         , "The amount of threads processing individuals simultaneously in multi-threaded mode"
+         , "The desired size of the population"
    );
 
    gpb.registerCLParameter<std::size_t>(

@@ -458,13 +458,21 @@ protected:
 
    /***************************************************************************/
    /**
-    * Adapt all children in parallel. Evaluation is done in a seperate function (evaluateChildren).
+    * Adapt all children in parallel. Evaluation is done in a separate function (evaluateChildren).
     */
    virtual void adaptChildren() OVERRIDE {
       boost::tuple<std::size_t,std::size_t> range = this->getAdaptionRange();
       typename std::vector<boost::shared_ptr<oa_type> >::iterator it;
 
       for(it=(this->data).begin()+boost::get<0>(range); it!=(this->data).begin()+boost::get<1>(range); ++it) {
+#ifdef DEBUG
+         if(!(*it)) {
+            glogger
+            << "In GMultiPopulationEAT<>::adaptChildren(): Error!" << std::endl
+            << "Work item is empty" << std::endl
+            << GEXCEPTION;
+         }
+#endif /* DEBUG */
          tp_->schedule(boost::function<void()>(boost::bind(&oa_type::adapt, *it)));
       }
 
