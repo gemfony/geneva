@@ -48,6 +48,7 @@
 
 #include <boost/cast.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <boost/date_time.hpp>
@@ -68,6 +69,7 @@
 #endif
 
 // Our own headers go here
+#include "common/GHelperFunctions.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 
@@ -256,6 +258,23 @@ const target_type *convertSimplePointer(const source_type *p_raw) {
 #else
       return static_cast<const target_type *>(p_raw);
 #endif /* DEBUG */
+}
+
+/******************************************************************************/
+/**
+ * Splits a string into a vector of user-defined types, according to a seperator character.
+ * The only precondition is that the target type is known to boost::lexical_cast, which can
+ * be achieved simply by providing related operator<< and operator>> .
+ */
+template <typename split_type>
+std::vector<split_type> splitStringT(const std::string& raw, const char* sep) {
+   std::vector<std::string> fragments = Gem::Common::splitString(raw, sep);
+   std::vector<split_type> result;
+   std::vector<std::string>::iterator it;
+   for(it=fragments.begin(); it!=fragments.end(); ++it) {
+      result.push_back(boost::lexical_cast<split_type>(*it));
+   }
+   return result;
 }
 
 /******************************************************************************/

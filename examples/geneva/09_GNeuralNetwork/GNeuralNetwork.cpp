@@ -48,296 +48,117 @@
 // The individual that should be optimized
 #include <geneva-individuals/GNeuralNetworkIndividual.hpp>
 
-// Declares a function to parse the command line
-#include "GArgumentParser.hpp"
-
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
-
-/************************************************************************************************/
-/**
- * Creates a data set of the desired type or throws, if that type is not available
- *
- * @param type The type of network data to be created
- * @param outputFile The name of the output training data file
- * @param architecture The desired architecture of the network
- * @param nDataSets The number of data sets to be produced
- */
-void createNetworkData(
-		const Gem::Geneva::trainingDataType& t
-	  , const std::string& outputFile
-	  , const std::vector<std::size_t>& architecture
-	  , const std::size_t& nDataSets
-) {
-	boost::shared_ptr<networkData> nD_ptr;
-
-	switch(t) {
-	case Gem::Geneva::HYPERCUBE:
-		nD_ptr = GNeuralNetworkIndividual::createHyperCubeNetworkData (
-				architecture
-			  , nDataSets
-			  , 0.5 // edge-length
-		);
-
-		// Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-		nD_ptr->toRoot(outputFile + ".C", -0.5, 0.5);
-
-		break;
-
-	case Gem::Geneva::HYPERSPHERE:
-		nD_ptr = GNeuralNetworkIndividual::createHyperSphereNetworkData (
-				architecture
-			  , nDataSets
-			  , 0.5 // radius
-		);
-
-		// Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-		nD_ptr->toRoot(outputFile + ".C", -1., 1.);
-
-		break;
-
-	case Gem::Geneva::AXISCENTRIC:
-		nD_ptr = GNeuralNetworkIndividual::createAxisCentricNetworkData (
-				architecture
-			  , nDataSets
-		);
-
-		// Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-		nD_ptr->toRoot(outputFile + ".C", 0., 1.);
-
-		break;
-
-	case Gem::Geneva::SINUS:
-		nD_ptr = GNeuralNetworkIndividual::createSinNetworkData (
-				architecture
-			  , nDataSets
-		);
-
-		// Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-		nD_ptr->toRoot(outputFile + ".C", -6., 6.);
-
-		break;
-
-	default:
-		{ // Error
-			std::ostringstream error;
-			error << "In createDataset(): Error!" << std::endl
-				  << "Received invalid data type " << t << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-		break;
-	}
-
-	// Write distribution to file
-	nD_ptr->saveToDisk(outputFile);
-}
+namespace po = boost::program_options;
 
 /************************************************************************************************/
 /**
  * The main function.
  */
 int main(int argc, char **argv){
-  std::string configFile;		  
-  boost::uint16_t parallelizationMode;
-  bool serverMode;
-  std::string ip;
-  unsigned short port;
-  boost::uint16_t nProducerThreads;
-  boost::uint16_t nEvaluationThreads;
-  std::size_t populationSize;
-  std::size_t nParents;
-  boost::uint32_t maxIterations;
-  long maxMinutes;
-  boost::uint32_t reportIteration;
-  duplicationScheme rScheme;
-  sortingMode smode;
-  bool returnRegardless;
-  boost::uint32_t nProcessingUnits;
-  trainingDataType tdt;
-  std::string trainingDataFile;
-  std::size_t nDataSets;
-  std::vector<std::size_t> architecture;
-  std::string trainingInputData;
-  std::string resultProgram;
-  std::string visualizationFile;
-  transferFunction tF;
-  double sigma;
-  double sigmaSigma;
-  double minSigma;
-  double maxSigma;
-  double adProb;
-  Gem::Common::serializationMode serMode;
+   //---------------------------------------------------------------------------
+   // Assemble additional command line options to be passed to Go2
+   trainingDataType tdt = Gem::Geneva::TDTNONE;
+   std::string trainingDataFile = "./DataSets/training.dat";
+   std::string architecture = "2-4-4-1"; // two input nodes, one output node, two hidden layers with 4 nodes each
+   std::size_t nDataSets = 2000;
+   std::string resultProgram = "resultProgram.C";
+   std::string visualizationFile = "visualization.C";
 
-  //***************************************************************************
-  // Parse command line and configuration file
-  if(!parseCommandLine(
-			  argc, argv
-			, configFile
-			, parallelizationMode
-			, serverMode
-			, ip
-			, port
-		    , serMode
-			, tdt
-			, trainingDataFile
-			, nDataSets
-			, architecture
-	 )
-     ||
-     !parseConfigFile(
-    		 configFile
-		   , nProducerThreads
-		   , nEvaluationThreads
-		   , populationSize
-		   , nParents
-		   , maxIterations
-		   , maxMinutes
-		   , reportIteration
-		   , rScheme
-		   , smode
-		   , returnRegardless
-		   , nProcessingUnits
-		   , tF
-		   , trainingInputData
-		   , resultProgram
-		   , visualizationFile
-		   , sigma
-		   , sigmaSigma
-		   , minSigma
-		   , maxSigma
-		   , adProb
-		   , true
-	)
-  )
-  { exit(1); }
+   std::vector<boost::shared_ptr<po::option_description> > od;
 
-  //***************************************************************************
+   boost::shared_ptr<po::option_description> tdt_option(
+      new po::option_description(
+         "traininDataType"
+         , po::value<trainingDataType>(&tdt)->default_value(Gem::Geneva::TDTNONE)
+         , "Specify training data to be produced: HYPERCUBE=1, HYPERSPHERE=2, AXISCENTRIC=3, SINUS=4"
+      )
+   );
 
-  // Random numbers are our most valuable good. Set the number of threads
-  GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+   boost::shared_ptr<po::option_description> tdf_option(
+      new po::option_description(
+         "trainingDataFile"
+         , po::value<std::string>(&trainingDataFile)->default_value(trainingDataFile)
+         , "The name of the file to which training data should be written"
+      )
+   );
 
-  //***************************************************************************
-  // Produce data sets if we have been asked to do so, then leave
-  if(tdt != Gem::Geneva::TDTNONE) {
-	  createNetworkData(tdt, trainingDataFile, architecture, nDataSets);
-	  return 0;
-  }
-  
-  //***************************************************************************
-  // If this is a client in networked mode, we can just start the listener and
-  // leave when it has finished
-  if(parallelizationMode==2 && !serverMode) {
-    boost::shared_ptr<GAsioTCPClientT<GParameterSet> >
-       p(new GAsioTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
+   boost::shared_ptr<po::option_description> architecture_option(
+      new po::option_description(
+         "architecture"
+         , po::value<std::string>(&architecture)->default_value(architecture)
+         , "The architecture of the network"
+      )
+   );
 
-    p->setMaxStalls(0); // An infinite number of stalled data retrievals
-    p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
+   boost::shared_ptr<po::option_description> nDataSets_option(
+      new po::option_description(
+         "nDataSets"
+         , po::value<std::size_t>(&nDataSets)->default_value(nDataSets)
+         , "The number of data sets to be produced"
+      )
+   );
 
-    // Prevent return of unsuccessful adaption attempts to the server
-    p->setReturnRegardless(returnRegardless);
+   boost::shared_ptr<po::option_description> resultProgram_option(
+      new po::option_description(
+         "resultProgram"
+         , po::value<std::string>(&resultProgram)->default_value(resultProgram)
+         , "The name of the result program"
+      )
+   );
 
-    // Start the actual processing loop
-    p->run();
+   boost::shared_ptr<po::option_description> visualizationFile_option(
+      new po::option_description(
+         "visualizationFile"
+         , po::value<std::string>(&visualizationFile)->default_value(visualizationFile)
+         , "The name of the visialization file"
+      )
+   );
 
-    return 0;
-  }
+   od.push_back(tdt_option);
+   od.push_back(tdf_option);
+   od.push_back(architecture_option);
+   od.push_back(nDataSets_option);
+   od.push_back(resultProgram_option);
+   od.push_back(visualizationFile_option);
 
-  //***************************************************************************
+   //---------------------------------------------------------------------------
+   // Create the main optimizer-wrapper
+   Go2 go(argc, argv, "./config/Go2.json", od);
 
-  // Create the first set of parent individuals. Initialization of parameters is done randomly.
-  std::vector<boost::shared_ptr<GParameterSet> > parentIndividuals;
-  for(std::size_t p = 0 ; p<nParents; p++) {
-     boost::shared_ptr<GNeuralNetworkIndividual> nn_ptr(
-        new GNeuralNetworkIndividual(
-           trainingInputData
-           , -1.
-           , 1.
-           , sigma
-           , sigmaSigma
-           , minSigma
-           , maxSigma
-           , adProb
-        )
-     );
+   //---------------------------------------------------------------------------
+   // Produce data sets if we have been asked to do so, then leave
+   if(tdt != Gem::Geneva::TDTNONE) {
+      GNeuralNetworkIndividual::createNetworkData(tdt, trainingDataFile, architecture, nDataSets);
+      return 0;
+   }
 
-     nn_ptr->setTransferFunction(tF);
+   //---------------------------------------------------------------------------
+   // Client mode
+   if(go.clientMode()) {
+      return go.clientRun();
+   } // Execution will end here in client mode
 
-     parentIndividuals.push_back(nn_ptr);
-  }
+   //---------------------------------------------------------------------------
 
-  //////////////////////////////////////////////////////////////////////////////
-  // We can now start creating populations. We refer to them through the base class
+   // Create a factory for GNeuralNetworkIndividual objects and perform
+   // any necessary initial work.
+   boost::shared_ptr<GNeuralNetworkIndividualFactory>
+      gnn_ptr(new GNeuralNetworkIndividualFactory("./config/GNeuralNetworkIndividual.json"));
 
-  // This smart pointer will hold the different population types
-  boost::shared_ptr<GBaseEA> pop_ptr;
+   // Add a content creator so Go2 can generate its own individuals, if necessary
+   go.registerContentCreator(gnn_ptr);
 
-  // Create the actual populations
-  switch (parallelizationMode) {
-    //-----------------------------------------------------------------------------------------------------
-  case 0: // Serial execution
-    // Create an empty population
-    pop_ptr = boost::shared_ptr<GSerialEA>(new GSerialEA());
-    break;
+   // Perform the actual optimization and retrieve the best individual
+   boost::shared_ptr<GNeuralNetworkIndividual> p = go.optimize<GNeuralNetworkIndividual>();
 
-    //-----------------------------------------------------------------------------------------------------
-  case 1: // Multi-threaded execution
-    {
-      // Create the multi-threaded population
-      boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
+   //---------------------------------------------------------------------------
+   // Output the result- and the visualization-program (if available)
+   p->writeTrainedNetwork(resultProgram);
+   p->writeVisualizationFile(visualizationFile);
 
-      // Population-specific settings
-      popPar_ptr->setNThreads(nEvaluationThreads);
-
-      // Assignment to the base pointer
-      pop_ptr = popPar_ptr;
-    }
-    break;
-
-    //-----------------------------------------------------------------------------------------------------
-  case 2: // Networked execution (server-side)
-    {
-      // Create a network consumer and enrol it with the broker
-      boost::shared_ptr<GAsioTCPConsumerT<GParameterSet> > gatc(new GAsioTCPConsumerT<GParameterSet>(port, 0, serMode));
-      GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
-
-      // Create the actual broker population
-      boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
-
-      // Assignment to the base pointer
-      pop_ptr = popBroker_ptr;
-    }
-    break;
-  }
-
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Now we have suitable populations and can fill them with data
-
-  // Add individuals to the population
-  for(std::size_t p = 0 ; p<nParents; p++) {
-    pop_ptr->push_back(parentIndividuals[p]);
-  }
- 
-  // Specify some general population settings
-  pop_ptr->setDefaultPopulationSize(populationSize,nParents);
-  pop_ptr->setMaxIteration(maxIterations);
-  pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
-  pop_ptr->setReportIteration(reportIteration);
-  pop_ptr->setRecombinationMethod(rScheme);
-  pop_ptr->setSortingScheme(smode);
-  pop_ptr->setEmitTerminationReason(true);
-  
-  // Do the actual optimization
-  pop_ptr->optimize();
-
-  //--------------------------------------------------------------------------------------------
-  // Output the result- and the visualization-program (if available)
-  boost::shared_ptr<GNeuralNetworkIndividual> best_ptr
-       = pop_ptr->GOptimizableI::getBestIndividual<GNeuralNetworkIndividual>();
-  best_ptr->writeTrainedNetwork(resultProgram);
-  best_ptr->writeVisualizationFile(visualizationFile);
-
-  // Terminate Geneva
-  return 0;
+   // Terminate Geneva
+   return 0;
 }

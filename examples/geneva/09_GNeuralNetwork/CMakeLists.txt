@@ -96,12 +96,11 @@ LINK_DIRECTORIES (
 SET ( EXECUTABLENAME GNeuralNetwork )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GArgumentParser
 	GNeuralNetwork
 )
 
 SET ( CONFIGFILE
-#	GNeuralNetwork.cfg
+	./config/Go2.json
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -111,7 +110,7 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 # Copy the config files to the build tree for easier testing
 IF( NOT OLD_CMAKE )
 	FOREACH ( file IN LISTS CONFIGFILE )
-		CONFIGURE_FILE ( ${file} . COPYONLY )
+		CONFIGURE_FILE ( ${file} ${file} COPYONLY )
 	ENDFOREACH ()
 ENDIF()
 

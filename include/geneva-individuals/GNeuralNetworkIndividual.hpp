@@ -78,6 +78,7 @@
 // Geneva header files go here
 #include <common/GCommonEnums.hpp>
 #include <common/GExceptions.hpp>
+#include <common/GHelperFunctions.hpp>
 #include <common/GHelperFunctionsT.hpp>
 #include <common/GUnitTestFrameworkT.hpp>
 #include <common/GLogger.hpp>
@@ -740,6 +741,86 @@ public:
 		}
 
 		return nD;
+	}
+
+   /***************************************************************************/
+	/**
+	 * Creates a data set of the desired type or throws, if that type is not available
+	 *
+	 * @param type The type of network data to be created
+	 * @param outputFile The name of the output training data file
+	 * @param architecture_string The desired architecture of the network in std::string format
+	 * @param nDataSets The number of data sets to be produced
+	 */
+	static void createNetworkData(
+	      const Gem::Geneva::trainingDataType& t
+	     , const std::string& outputFile
+	     , const std::string& architecture_string
+	     , const std::size_t& nDataSets
+	) {
+	   // Split the architecture_string as needed. I
+	   std::vector<std::size_t> architecture = Gem::Common::splitStringT<std::size_t>(architecture_string, "-");
+	   boost::shared_ptr<networkData> nD_ptr;
+
+	   switch(t) {
+	   case Gem::Geneva::HYPERCUBE:
+	      nD_ptr = GNeuralNetworkIndividual::createHyperCubeNetworkData (
+	            architecture
+	           , nDataSets
+	           , 0.5 // edge-length
+	      );
+
+	      // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
+	      nD_ptr->toRoot(outputFile + ".C", -0.5, 0.5);
+
+	      break;
+
+	   case Gem::Geneva::HYPERSPHERE:
+	      nD_ptr = GNeuralNetworkIndividual::createHyperSphereNetworkData (
+	            architecture
+	           , nDataSets
+	           , 0.5 // radius
+	      );
+
+	      // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
+	      nD_ptr->toRoot(outputFile + ".C", -1., 1.);
+
+	      break;
+
+	   case Gem::Geneva::AXISCENTRIC:
+	      nD_ptr = GNeuralNetworkIndividual::createAxisCentricNetworkData (
+	            architecture
+	           , nDataSets
+	      );
+
+	      // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
+	      nD_ptr->toRoot(outputFile + ".C", 0., 1.);
+
+	      break;
+
+	   case Gem::Geneva::SINUS:
+	      nD_ptr = GNeuralNetworkIndividual::createSinNetworkData (
+	            architecture
+	           , nDataSets
+	      );
+
+	      // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
+	      nD_ptr->toRoot(outputFile + ".C", -6., 6.);
+
+	      break;
+
+	   default:
+	      { // Error
+	         std::ostringstream error;
+	         error << "In createDataset(): Error!" << std::endl
+	              << "Received invalid data type " << t << std::endl;
+	         throw(Gem::Common::gemfony_error_condition(error.str()));
+	      }
+	      break;
+	   }
+
+	   // Write distribution to file
+	   nD_ptr->saveToDisk(outputFile);
 	}
 
    /***************************************************************************/

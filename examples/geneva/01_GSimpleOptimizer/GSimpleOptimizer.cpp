@@ -49,7 +49,6 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-
    Go2 go(argc, argv, "./config/Go2.json");
 
 	//---------------------------------------------------------------------------

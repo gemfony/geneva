@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
    boost::shared_ptr<po::option_description> print_option(
       new po::option_description(
          "print"
-         , po::value<bool>(&printBest)->default_value(false)
+         , po::value<bool>(&printBest)->implicit_value(true)->default_value(false) // This allows you say both --print and --print=true
          , "Switches on printing of the best result"
       )
    );
