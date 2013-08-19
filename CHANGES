@@ -7,6 +7,9 @@ Wishlist for version 1.1, yet unnamed, release-date unknown
 //------------------------------------------------------------------------------------------------------
 * Version 1.0.0, yet unnamed, release-date unknown
 
+The main changes for this release include:
+ - Gave Go2 the ability to accept custom command line options from the user
+
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.11, "Route de Chamonix" - August 14, 2013
 
