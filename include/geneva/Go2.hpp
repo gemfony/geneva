@@ -334,6 +334,8 @@ private:
 	std::vector<boost::shared_ptr<GOABase> > cl_algorithms_;
 	// The default algorithm (if any)
 	boost::shared_ptr<GOABase> default_algorithm_;
+	// A string representation of the default algorithm
+	const std::string default_algorithm_str_; ///< This is the last fall-back
 	// Holds an object capable of producing objects of the desired type
 	boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr_;
 	// A user-defined call-back for information retrieval

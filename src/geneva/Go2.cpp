@@ -126,6 +126,7 @@ Go2::Go2(const std::string& configFilename)
    , offset_(GO2_DEF_OFFSET)
    , sorted_(false)
    , iterationsConsumed_(0)
+   , default_algorithm_str_(DEFAULTOPTALG)
 {
    //--------------------------------------------
    // Parse configuration file options
@@ -156,6 +157,7 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 	, offset_(GO2_DEF_OFFSET)
 	, sorted_(false)
 	, iterationsConsumed_(0)
+	, default_algorithm_str_(DEFAULTOPTALG)
 {
    //--------------------------------------------
    // Parse configuration file options
@@ -185,6 +187,7 @@ Go2::Go2(const Go2& cp)
 	, offset_(cp.offset_)
 	, sorted_(cp.sorted_)
 	, iterationsConsumed_(0)
+	, default_algorithm_str_(DEFAULTOPTALG)
 {
 	// Copy the best individual over (if any)
 	copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
@@ -265,12 +268,12 @@ bool Go2::operator!=(const Go2& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> Go2::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -313,6 +316,31 @@ std::string Go2::name() const {
  * Allows to register a default algorithm to be used when no other algorithms
  * have been specified. When others have been specified, this algorithm will
  * not be used. Note that any individuals registered with the default algorithm
+ * will be copied into the Go2 object. This function takes the algorithm from a
+ * global algorithm factory store. The algorithm needs to be specified using a
+ * small nickname, such as "ea" for "Evolutionary Algorithms". See the available
+ * algorithms in the Geneva distribution for further information.
+ *
+ * @param mn A small mnemomic for the optimization algorithm
+ */
+void Go2::registerDefaultAlgorithm(const std::string& mn) {
+   // Retrieve the algorithm from the global store
+   boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
+   if(!GOAFactoryStore->get(mn, p)) {
+      glogger
+      << "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
+      << "Got invalid algorithm mnemomic " << mn << std::endl
+      << GEXCEPTION;
+   }
+
+   this->registerDefaultAlgorithm(p->get(parMode_));
+}
+
+/******************************************************************************/
+/**
+ * Allows to register a default algorithm to be used when no other algorithms
+ * have been specified. When others have been specified, this algorithm will
+ * not be used. Note that any individuals registered with the default algorithm
  * will be copied into the Go2 object.
  */
 void Go2::registerDefaultAlgorithm(boost::shared_ptr<GOABase> default_algorithm) {
@@ -335,31 +363,6 @@ void Go2::registerDefaultAlgorithm(boost::shared_ptr<GOABase> default_algorithm)
 
    // Register the algorithm
    default_algorithm_ = default_algorithm;
-}
-
-/******************************************************************************/
-/**
- * Allows to register a default algorithm to be used when no other algorithms
- * have been specified. When others have been specified, this algorithm will
- * not be used. Note that any individuals registered with the default algorithm
- * will be copied into the Go2 object. This function takes the algorithm from a
- * global algorithm factory store. The algorithm needs to be specified using a
- * small nickname, such as "ea" for "Evolutionary Algorithms". See the available
- * algorithms in the Geneva distribution for further information.
- *
- * @param mn A small mnemomic for the optimization algorithm
- */
-void Go2::registerDefaultAlgorithm(const std::string& mn) {
-   // Retrieve the algorithm from the global store
-   boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
-   if(!GOAFactoryStore->get(mn, p)) {
-      glogger
-      << "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
-      << "Got invalid algorithm mnemomic " << mn << std::endl
-      << GEXCEPTION;
-   }
-
-   this->registerDefaultAlgorithm(p->get(parMode_));
 }
 
 /******************************************************************************/
@@ -654,16 +657,21 @@ void Go2::optimize(const boost::uint32_t& offset) {
       cl_algorithms_.clear();
    }
 
-	// Check that algorithms have indeed been registered. If not, try to add a default algorithm (if available)
+	// Check that algorithms have indeed been registered. If not, try to add a default algorithm
 	if(algorithms_.empty()) {
-	   if(default_algorithm_) { // Fill with our default algorithm
-	      algorithms_.push_back(default_algorithm_->clone<GOABase>());
-	   } else {
-         glogger
-         << "No algorithms have been registered." << std::endl
-         << "No way to continue." << std::endl
-         << GEXCEPTION;
+	   if(!default_algorithm_) {
+	      // No algorithms given, no default algorithm specified by the user:
+	      // Simply add the Geneva-side default algorithm
+	      this->registerDefaultAlgorithm(default_algorithm_str_);
+
+	      glogger
+	      << "In Go2::optimize(): INFORMATION:" << std::endl
+	      << "No user-defined optimization algorithm available." << std::endl
+	      << "Using default algorithm \"" << default_algorithm_str_ << "\" instead." << std::endl
+	      << GLOGGING;
 	   }
+
+	   algorithms_.push_back(default_algorithm_->clone<GOABase>());
 	}
 
 	// Check that individuals have been registered

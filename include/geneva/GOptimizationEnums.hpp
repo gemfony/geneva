@@ -62,6 +62,10 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+/** @brief The optimization algorithm to be used if no others were found */
+const std::string DEFAULTOPTALG="ea";
+
+/******************************************************************************/
 /** @brief The default number of threads for parallelization with boost */
 const boost::uint16_t DEFAULTNBOOSTTHREADS = 2;
 
