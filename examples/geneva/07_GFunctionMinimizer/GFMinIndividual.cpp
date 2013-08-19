@@ -282,6 +282,30 @@ double GFMinIndividual::noisyParabola(const std::vector<double>& parVec) const {
 }
 
 /******************************************************************************/
+/**
+ * Provide an easy way to print the individual's content
+ */
+std::ostream& operator<<(std::ostream& s, const Gem::Geneva::GFMinIndividual& f) {
+   std::vector<double> parVec;
+   f.streamline(parVec);
+
+   std::vector<double>::iterator it;
+   for(it=parVec.begin(); it!=parVec.end(); ++it) {
+      std::cout << (it-parVec.begin()) << ": " << *it << std::endl;
+   }
+
+   return s;
+}
+
+/******************************************************************************/
+/**
+ * Provide an easy way to print the individual's content through a smart-pointer
+ */
+std::ostream& operator<<(std::ostream& s, boost::shared_ptr<Gem::Geneva::GFMinIndividual> f_ptr) {
+   return operator<<(s,*f_ptr);
+}
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**

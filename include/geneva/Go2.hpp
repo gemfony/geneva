@@ -134,11 +134,22 @@ public:
 	/** @brief The default constructor */
 	Go2();
 	/** @brief A constructor that first parses the command line for relevant parameters */
-	Go2(int, char **);
+	Go2(
+      int
+      , char **
+      , const std::vector<boost::shared_ptr<boost::program_options::option_description> >&
+           = std::vector<boost::shared_ptr<boost::program_options::option_description> >()
+	);
    /** @brief A constructor that allows to specify a default config file name */
    Go2(const std::string&);
 	/** @brief A constructor that first parses the command line for relevant parameters and allows to specify a default config file name */
-	Go2(int, char **, const std::string&);
+	Go2(
+      int
+      , char **
+      , const std::string&
+      , const std::vector<boost::shared_ptr<boost::program_options::option_description> >&
+           = std::vector<boost::shared_ptr<boost::program_options::option_description> >()
+	);
 	/** @brief A copy constructor */
 	Go2(const Go2&);
 
@@ -215,7 +226,12 @@ public:
 	virtual std::string getAlgorithmName() const OVERRIDE;
 
 	/** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
-	void parseCommandLine(int, char **);
+	void parseCommandLine(
+      int
+      , char **
+      , const std::vector<boost::shared_ptr<boost::program_options::option_description> >&
+        = std::vector<boost::shared_ptr<boost::program_options::option_description> >()
+   );
 	/** @brief Loads some configuration data from a configuration file */
 	void parseConfigFile(const std::string&);
 

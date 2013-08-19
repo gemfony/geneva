@@ -87,8 +87,13 @@ Go2::Go2()
  *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
+ * @param od A vector of additional command line options (cmp. boost::program_options)
  */
-Go2::Go2(int argc, char **argv)
+Go2::Go2(
+   int argc
+   , char **argv
+   , const std::vector<boost::shared_ptr<boost::program_options::option_description> >& od
+)
 	: GMutableSetT<GParameterSet>()
 	, clientMode_(GO2_DEF_CLIENTMODE)
 	, configFilename_(GO2_DEF_DEFAULTCONFIGFILE)
@@ -101,7 +106,7 @@ Go2::Go2(int argc, char **argv)
 {
 	//--------------------------------------------
 	// Load initial configuration options from the command line
-	parseCommandLine(argc, argv);
+	parseCommandLine(argc, argv, od);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -146,8 +151,14 @@ Go2::Go2(const std::string& configFilename)
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
  * @param configFilename The name of a configuration file
+ * @param od A vector of additional command line options (cmp. boost::program_options)
  */
-Go2::Go2(int argc, char **argv, const std::string& configFilename)
+Go2::Go2(
+   int argc
+   , char **argv
+   , const std::string& configFilename
+   , const std::vector<boost::shared_ptr<boost::program_options::option_description> >& od
+)
 	: GMutableSetT<GParameterSet>()
 	, clientMode_(GO2_DEF_CLIENTMODE)
 	, configFilename_(configFilename)
@@ -165,7 +176,7 @@ Go2::Go2(int argc, char **argv, const std::string& configFilename)
 
    //--------------------------------------------
 	// Load configuration options from the command line
-	parseCommandLine(argc, argv);
+	parseCommandLine(argc, argv, od);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -971,8 +982,13 @@ boost::uint32_t Go2::getIterationOffset() const {
  *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
+ * @param od A vector of additional command line options (cmp. boost::program_options)
  */
-void Go2::parseCommandLine(int argc, char **argv) {
+void Go2::parseCommandLine(
+   int argc
+   , char **argv
+   , const std::vector<boost::shared_ptr<boost::program_options::option_description> >& od
+) {
    namespace po = boost::program_options;
 
 	try {
@@ -1007,6 +1023,13 @@ void Go2::parseCommandLine(int argc, char **argv) {
 		   if(GConsumerStore->empty()) break;
 		   GConsumerStore->getCurrentItem()->addCLOptions(desc);
 		} while(GConsumerStore->goToNextPosition());
+
+		// Add additional options specified as an argument to the constructor
+		std::vector<boost::shared_ptr<boost::program_options::option_description> >::const_iterator po_cit;
+		for(po_cit=od.begin(); po_cit!=od.end(); ++po_cit) {
+		   desc.add(*po_cit);
+		   std::cout << "Added new option!" << std::endl;
+		}
 
 		// Do the actual parsing of the command line
       po::variables_map vm;

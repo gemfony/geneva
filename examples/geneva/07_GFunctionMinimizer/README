@@ -1,3 +1,4 @@
 This directory contains a demo application that uses a stripped-down version of 
 GFunctionIndividual to illustrate various advanced aspects of optimization with 
-the Geneva library collection.
+the Geneva library collection. It also shows a way to add custom command line options
+to Go2's parsing functions.

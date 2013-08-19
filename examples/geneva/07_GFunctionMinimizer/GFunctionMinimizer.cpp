@@ -45,9 +45,21 @@
 #include "GSigmaMonitor.hpp"
 
 using namespace Gem::Geneva;
+namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
-	Go2 go(argc, argv, "./config/Go2.json");
+   bool printBest = false;
+   std::vector<boost::shared_ptr<po::option_description> > od;
+   boost::shared_ptr<po::option_description> print_option(
+      new po::option_description(
+         "print"
+         , po::value<bool>(&printBest)->default_value(false)
+         , "Switches on printing of the best result"
+      )
+   );
+   od.push_back(print_option);
+
+	Go2 go(argc, argv, "./config/Go2.json", od);
 
 	//---------------------------------------------------------------------
 	// Client mode
@@ -82,6 +94,10 @@ int main(int argc, char **argv) {
 	// Perform the actual optimization
 	boost::shared_ptr<GFMinIndividual> bestIndividual_ptr = go.optimize<GFMinIndividual>();
 
-	// Do something with the best result
-   // [...]
+	// Do something with the best result. Here: Simply print it, if requested
+	if(printBest) {
+	   std::cout
+	   << "Best individual found has values" << std::endl
+	   << bestIndividual_ptr << std::endl;
+	}
 }
