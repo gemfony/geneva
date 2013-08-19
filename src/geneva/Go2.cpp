@@ -1028,7 +1028,6 @@ void Go2::parseCommandLine(
 		std::vector<boost::shared_ptr<boost::program_options::option_description> >::const_iterator po_cit;
 		for(po_cit=od.begin(); po_cit!=od.end(); ++po_cit) {
 		   desc.add(*po_cit);
-		   std::cout << "Added new option!" << std::endl;
 		}
 
 		// Do the actual parsing of the command line
