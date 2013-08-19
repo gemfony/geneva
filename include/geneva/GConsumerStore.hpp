@@ -52,7 +52,6 @@
 
 // A global store for consumer objects
 typedef Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<boost::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet> > > > GConStore;
-typedef GConStore::STYPE::iterator GConsumerStore_iterator;
 #define GConsumerStore GConStore::Instance(0)
 
 #endif /* GCONSUMERSTORE_HPP_ */

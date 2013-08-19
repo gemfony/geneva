@@ -133,7 +133,7 @@ boost::optional<std::string> trainingSet::checkRelationshipWith(
 /**
  * The default constructor
  */
-networkData::networkData()
+networkData::networkData() : currentIndex_(0)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -142,7 +142,8 @@ networkData::networkData()
  *
  * @param networkDataFile The name of a file holding the training data
  */
-networkData::networkData(const std::string& networkDataFile) {
+networkData::networkData(const std::string& networkDataFile) : currentIndex_(0)
+{
 	this->loadFromDisk(networkDataFile);
 }
 

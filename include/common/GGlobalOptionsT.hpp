@@ -40,6 +40,7 @@
 #include "GGlobalDefines.hpp"
 
 // Boost headers go here
+#include <boost/thread.hpp>
 
 /**
  * Check that we have support for threads. This collection of classes is useless
@@ -59,7 +60,6 @@
 
 
 // Geneva headers go here
-#include "GSingletonT.hpp"
 
 namespace Gem {
 namespace Common {
@@ -72,15 +72,23 @@ namespace Common {
  * both the client and the server from the same main function and to fill
  * the global object before both are started. A command line option can
  * then steer whether the program acts as a server or client, and both
- * will have the same options.
+ * will have the same options. NOTE: This class uses locking internally
+ * to make it thread-safe. It thus assumes occasional accesses and is not
+ * suited well for frequent querying.
  */
 template <typename T>
 class GGlobalOptionsT {
 public:
-   /** Gives access to the iterator type for our map */
-   typedef typename std::map<std::string, T>::iterator iterator;
+   /***************************************************************************/
+   /**
+    * The default constructor
+    */
+   GGlobalOptionsT()
+      : kvp_()
+      , pos(kvp_.begin())
+   { /* nothing */ }
 
-	/***********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves the value of an option from the map, storing it in
 	 * an argument.
@@ -90,25 +98,27 @@ public:
 	 * @return A boolean indicating whether retrieval of the option was successful
 	 */
 	bool get(const std::string& key, T& value) {
+	   boost::lock_guard<boost::mutex> guard(m_);
+
 		if(kvp_.find(key) != kvp_.end()) {
 			value = kvp_[key];
 			return true;
-		}
-		else {
+		} else {
 		   return false;
 		}
 	}
 
-	/***********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves an option from the map, returning it as the function result.
 	 * Note that this function does not check for availability of the option.
 	 */
 	T get(const std::string& key) {
+      boost::lock_guard<boost::mutex> guard(m_);
 		return kvp_[key];
 	}
 
-	/***********************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets a new option or changes an existing option
 	 *
@@ -116,10 +126,11 @@ public:
 	 * @param value The value of the option
 	 */
 	void set(const std::string& key, T value) {
+      boost::lock_guard<boost::mutex> guard(m_);
 		kvp_[key] = value;
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Sets a new option once or returns an error, if the option already exists
 	 *
@@ -128,14 +139,15 @@ public:
 	 * @return A boolean indicating whether creation of the new option was successful
 	 */
 	bool setOnce(const std::string& key, T value) {
-	   if(this->exists(key)) {
+	   boost::lock_guard<boost::mutex> guard(m_);
+	   if(kvp_.find(key) != kvp_.end()) {
 	      return false;
 	   }
 	   kvp_[key] = value;
 	   return true;
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Removes an option from the map, if available
 	 *
@@ -143,9 +155,11 @@ public:
 	 * @return A boolean indicating whether the option was indeed available
 	 */
 	bool remove(const std::string& key) {
+      boost::lock_guard<boost::mutex> guard(m_);
 		typename std::map<std::string, T>::iterator it = kvp_.end();
-		if(it == kvp_.end()) return false;
-		else {
+		if(it == kvp_.end()) {
+		   return false;
+		} else {
 			kvp_.erase(it);
 			return true;
 		}
@@ -159,6 +173,7 @@ public:
 	 * @return A boolean that indicates whether a given option is available
 	 */
 	bool exists(const std::string& key) const {
+      boost::lock_guard<boost::mutex> guard(m_);
 		if(kvp_.find(key) != kvp_.end()) return true;
 		else return false;
 	}
@@ -168,7 +183,17 @@ public:
 	 * Allows to find out the number of registered options
 	 */
 	std::size_t size() const {
+      boost::lock_guard<boost::mutex> guard(m_);
 	   return kvp_.size();
+	}
+
+   /************************************************************************/
+	/**
+	 * Allows to check whether any options are present
+	 */
+	bool empty() const {
+	   boost::lock_guard<boost::mutex> guard(m_);
+      return kvp_.empty();
 	}
 
 	/************************************************************************/
@@ -176,6 +201,7 @@ public:
 	 * Retrieves a vector of all keys
 	 */
 	std::string getKeyVector() const {
+      boost::lock_guard<boost::mutex> guard(m_);
 	   std::string result;
 	   typename std::map<std::string, T>::const_iterator cit;
 	   std::size_t pos=0;
@@ -190,33 +216,71 @@ public:
 
 	/************************************************************************/
 	/**
-	 * Retrieves an iterator object, positioned at the start of the map.
+	 * Retrieves a vector of all content items
 	 */
-	typename std::map<std::string, T>::iterator getIterator() {
-	   typename std::map<std::string, T>::iterator it = kvp_.begin();
-	   return it;
+	void getContentVector(std::vector<T> content) const {
+      boost::lock_guard<boost::mutex> guard(m_);
+      content.clear();
+      typename std::map<std::string, T>::const_iterator cit;
+      for(cit=kvp_.begin(); cit!=kvp_.end(); ++cit) {
+         content.push_back(cit->second);
+      }
 	}
 
-	/************************************************************************/
-	/**
-	 * Retrieves the start of the map
-	 */
-	typename std::map<std::string, T>::iterator begin() {
-	   return kvp_.begin();
-	}
-
-	/************************************************************************/
-	/**
-	 * Retrieves the end of the map
-	 */
-   typename std::map<std::string, T>::iterator end() {
-      return kvp_.end();
+   /************************************************************************/
+   /**
+    * Positions an internal iterator at the beginning of the map
+    */
+   void rewind() {
+      boost::lock_guard<boost::mutex> guard(m_);
+      pos = kvp_.begin();
    }
+
+	/************************************************************************/
+	/**
+	 * Switches to the next position or returns false, if this is not possible
+	 */
+	bool goToNextPosition() {
+	   boost::lock_guard<boost::mutex> guard(m_);
+	   if(++pos != kvp_.end()) {
+	      return true;
+	   } else {
+	      return false;
+	   }
+	}
+
+	/************************************************************************/
+	/**
+	 * Retrieves the item at the current position
+	 */
+	T getCurrentItem() {
+	   boost::lock_guard<boost::mutex> guard(m_);
+	   return pos->second;
+	}
+
+	/************************************************************************/
+	/**
+	 * Retrieves the next item (thereby incrementing the position iterator)
+	 * or returns false, if the end of the map has been reached. Note that it
+	 * is up to you to rewind the position iterator using the rewind function.
+	 */
+	bool getNextItem(T& item) {
+	   boost::lock_guard<boost::mutex> guard(m_);
+	   if(++pos != kvp_.end()) {
+	      item = pos->second;
+	      return true;
+	   } else {
+	      return false;
+	   }
+	}
 
 private:
    /************************************************************************/
 	// Holds the actual data
 	std::map<std::string, T> kvp_;
+
+	typename std::map<std::string, T>::iterator pos;
+   mutable boost::mutex m_; ///< Lock get/set operations
 };
 
 /******************************************************************************/

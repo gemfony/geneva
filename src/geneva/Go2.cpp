@@ -994,9 +994,11 @@ void Go2::parseCommandLine(int argc, char **argv) {
 		;
 
 		// Retrieve available command line options from registered consumers, if any
-		for(GConsumerStore_iterator it=GConsumerStore->begin(); it!=GConsumerStore->end(); ++it) {
-		   it->second->addCLOptions(desc);
-		}
+		GConsumerStore->rewind();
+		do {
+		   if(GConsumerStore->empty()) break;
+		   GConsumerStore->getCurrentItem()->addCLOptions(desc);
+		} while(GConsumerStore->goToNextPosition());
 
 		// Do the actual parsing of the command line
       po::variables_map vm;

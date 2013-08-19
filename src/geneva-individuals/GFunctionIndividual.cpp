@@ -918,8 +918,8 @@ boost::uint32_t GFunctionIndividualFactory::getAdaptionThreshold() const
  * Set the value of the adaptionThreshold_ variable
  */
 void GFunctionIndividualFactory::setAdaptionThreshold(
-      boost::uint32_t adaptionThreshold)
-{
+      boost::uint32_t adaptionThreshold
+) {
    adaptionThreshold_ = adaptionThreshold;
 }
 

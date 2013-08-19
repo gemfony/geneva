@@ -87,10 +87,8 @@
 #include <geneva/GParameterSet.hpp>
 #include <geneva/GStdSimpleVectorInterfaceT.hpp>
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,17 +98,18 @@ namespace Geneva
  */
 struct trainingSet
 {
-	///////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_NVP(Input)
-		   & BOOST_SERIALIZATION_NVP(Output);
+		ar
+		& BOOST_SERIALIZATION_NVP(Input)
+		& BOOST_SERIALIZATION_NVP(Output);
 	}
-	///////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 
 	/** @brief The destructor */
 	virtual ~trainingSet();
@@ -125,12 +124,12 @@ struct trainingSet
 
 	/** @brief Checks whether a given expectation is fulfilled. */
 	boost::optional<std::string> checkRelationshipWith(
-	      const trainingSet&
-			, const Gem::Common::expectation&
-			, const double&
-			, const std::string&
-			, const std::string&
-			, const bool&
+      const trainingSet&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const;
 
 	/***************************************************************************/
@@ -153,20 +152,21 @@ struct trainingSet
 class networkData
 	:public GStdSimpleVectorInterfaceT<std::size_t>
 {
-	///////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar  & make_nvp("GStdSimpleVectorInterfaceT_size_t", boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this))
-			& BOOST_SERIALIZATION_NVP(data_)
-		    & BOOST_SERIALIZATION_NVP(currentIndex_);
+		ar
+		& make_nvp("GStdSimpleVectorInterfaceT_size_t", boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this))
+		& BOOST_SERIALIZATION_NVP(data_)
+		& BOOST_SERIALIZATION_NVP(currentIndex_);
 	}
+	/////////////////////////////////////////////////////////////////////////////
 
 public:
-	///////////////////////////////////////////////////////////////////////
 	/** @brief Default constructor */
 	networkData();
 	/** @brief Initialization with data from file */
@@ -211,7 +211,9 @@ public:
 
 	/** @brief Saves this data set in ROOT format for visual inspection */
 	void toRoot(const std::string&, const double&, const double&);
+
 protected:
+   /***************************************************************************/
 	/** @brief This function is purely virtual in our parent class*/
 	virtual void dummyFunction() { /* nothing */ };
 
@@ -252,7 +254,7 @@ template <transferFunction tF=SIGMOID>
 class GNeuralNetworkIndividual
 	:public GParameterSet
 {
-	///////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 
 	friend class boost::serialization::access;
 
@@ -260,8 +262,9 @@ class GNeuralNetworkIndividual
 	void load(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		   & BOOST_SERIALIZATION_NVP(networkDataFile_);
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		& BOOST_SERIALIZATION_NVP(networkDataFile_);
 
 		// Load the network data from disk
 		nD_ = boost::shared_ptr<networkData>(new networkData(networkDataFile_));
@@ -271,15 +274,23 @@ class GNeuralNetworkIndividual
 	void save(Archive & ar, const unsigned int) const {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		   & BOOST_SERIALIZATION_NVP(networkDataFile_);
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		& BOOST_SERIALIZATION_NVP(networkDataFile_);
 	}
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-	///////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 
 public:
+   /***************************************************************************/
+	/**
+	 * The default constructor
+	 */
+   GNeuralNetworkIndividual()
+	{ /* nothing */ }
+
 	/***************************************************************************/
 	/**
 	 * A constructor which initializes the individual with a suitable set of network layers. It
@@ -295,69 +306,19 @@ public:
 	 * @param maxSigma The maximum allowed value for sigma
 	 */
 	GNeuralNetworkIndividual(
-			  const std::string& networkDataFile
-			, const double& min, const double& max
-			, const double& sigma, const double& sigmaSigma
-			, const double& minSigma, const double& maxSigma
-			, const double& adProb
-	)
-		: networkDataFile_(networkDataFile)
-		, nD_(new networkData(networkDataFile_))
-		, transferFunction_(tF)
-	{
-		// Check the architecture we've been given and create the layers
-		std::size_t nLayers = nD_->size();
-
-		if(nLayers < 2){ // Two layers are required at the minimum (3 and 4 layers are useful)
-		   glogger
-		   << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual<tF>([...]) : Error!" << std::endl
-         << "Invalid number of layers supplied. Did you set up the network architecture ?" << std::endl
-         << GEXCEPTION;
-		}
-
-		networkData::iterator layerIterator;
-		std::size_t layerNumber=0;
-		std::size_t nNodes=0;
-		std::size_t nNodesPrevious=0;
-
-		// Set up the architecture
-		for(layerIterator=nD_->begin(); layerIterator!=nD_->end(); ++layerIterator){
-			if(*layerIterator){ // Add the next network layer to this class, if possible
-				nNodes = *layerIterator;
-
-				// Set up a GDoubleObjectCollection
-				boost::shared_ptr<GDoubleObjectCollection> gdoc(new GDoubleObjectCollection());
-
-				// Add GDoubleObject objects
-				for(std::size_t i=0; i<(layerNumber==0?2*nNodes:nNodes*(nNodesPrevious+1)); i++) {
-					// Set up a GDoubleObject object, initializing it with random data
-					boost::shared_ptr<GDoubleObject> gd_ptr(new GDoubleObject(gr.uniform_real<double>(min,max)));
-
-					// Set up an adaptor
-					boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
-					gdga->setAdaptionProbability(adProb);
-
-					// Register it with the GDoubleObject object
-					gd_ptr->addAdaptor(gdga);
-
-					// Register the GDoubleObject object with the collection
-					gdoc->push_back(gd_ptr);
-				}
-
-				// Make the parameter collection known to this individual
-				this->data.push_back(gdoc);
-
-				nNodesPrevious=nNodes;
-				layerNumber++;
-			}
-			else {
-			   glogger
-			   << "In GNeuralNetworkIndividual<tF>::GNeuralNetworkIndividual([...]) : Error!" << std::endl
-            << "Found invalid number of nodes in layer: " << *layerIterator << std::endl
-            << "Did you set up the network architecture ?" << std::endl
-            << GEXCEPTION;
-			}
-		}
+      const std::string& networkDataFile
+      , const double& min, const double& max
+      , const double& sigma, const double& sigmaSigma
+      , const double& minSigma, const double& maxSigma
+      , const double& adProb
+	) {
+	   this->init(
+         networkDataFile
+         , min, max
+         , sigma, sigmaSigma
+         , minSigma, maxSigma
+         , adProb
+	   );
 	}
 
 	/***************************************************************************/
@@ -370,7 +331,6 @@ public:
 		: GParameterSet(cp)
 		, networkDataFile_(cp.networkDataFile_)
 		, nD_(new networkData(*(cp.nD_)))
-		, transferFunction_(tF)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -430,13 +390,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	boost::optional<std::string> checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+	) const {
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -454,6 +415,89 @@ public:
 
 		return evaluateDiscrepancies("GNeuralNetworkIndividual", caller, deviations, e);
 	}
+
+   /***************************************************************************/
+   /**
+    * A function which initializes the individual with a suitable set of network
+    * layers. It also loads the training data from file.
+    *
+    * @param networkDataFile The name of a file holding the training data
+    * @param architecture Holds the number of nodes in the input layer, hidden(1/2) layer and output layer
+    * @param min The minimum value of random numbers used for initialization of the network layers
+    * @param max The maximum value of random numbers used for initialization of the network layers
+    * @param sigma The sigma used for gauss adaptors
+    * @param sigmaSigma Used for sigma adaption
+    * @oaram minSigma The minimum allowed value for sigma
+    * @param maxSigma The maximum allowed value for sigma
+    */
+   void init(
+      const std::string& networkDataFile
+      , const double& min, const double& max
+      , const double& sigma, const double& sigmaSigma
+      , const double& minSigma, const double& maxSigma
+      , const double& adProb
+   ) {
+      // Make sure the individual is empty
+      this->clear();
+
+      // Set up our local data structures
+      networkDataFile_ = networkDataFile;
+      nD_ = boost::shared_ptr<networkData>(new networkData(networkDataFile_));
+
+      // Check the architecture we've been given and create the layers
+      std::size_t nLayers = nD_->size();
+
+      if(nLayers < 2){ // Two layers are required at the minimum (3 and 4 layers are useful)
+         glogger
+         << "In GNeuralNetworkIndividual<tF>::init([...]): Error!" << std::endl
+         << "Invalid number of layers supplied. Did you set up the network architecture ?" << std::endl
+         << GEXCEPTION;
+      }
+
+      networkData::iterator layerIterator;
+      std::size_t layerNumber=0;
+      std::size_t nNodes=0;
+      std::size_t nNodesPrevious=0;
+
+      // Set up the architecture
+      for(layerIterator=nD_->begin(); layerIterator!=nD_->end(); ++layerIterator){
+         if(*layerIterator){ // Add the next network layer to this class, if possible
+            nNodes = *layerIterator;
+
+            // Set up a GDoubleObjectCollection
+            boost::shared_ptr<GDoubleObjectCollection> gdoc(new GDoubleObjectCollection());
+
+            // Add GDoubleObject objects
+            for(std::size_t i=0; i<(layerNumber==0?2*nNodes:nNodes*(nNodesPrevious+1)); i++) {
+               // Set up a GDoubleObject object, initializing it with random data
+               boost::shared_ptr<GDoubleObject> gd_ptr(new GDoubleObject(gr.uniform_real<double>(min,max)));
+
+               // Set up an adaptor
+               boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
+               gdga->setAdaptionProbability(adProb);
+
+               // Register it with the GDoubleObject object
+               gd_ptr->addAdaptor(gdga);
+
+               // Register the GDoubleObject object with the collection
+               gdoc->push_back(gd_ptr);
+            }
+
+            // Make the parameter collection known to this individual
+            this->data.push_back(gdoc);
+
+            nNodesPrevious=nNodes;
+            layerNumber++;
+         } else {
+            glogger
+            << "In GNeuralNetworkIndividual<tF>::init([...]): Error!" << std::endl
+            << "Found invalid number of nodes in layer: " << *layerIterator << std::endl
+            << "Did you set up the network architecture ?" << std::endl
+            << GEXCEPTION;
+         }
+      }
+   }
+
 
 	/***************************************************************************/
 	/**
@@ -1104,7 +1148,7 @@ public:
 			<< "  {" << std::endl
 			<< "    double transfer(double value) {" << std::endl;
 
-		switch(transferFunction_) {
+		switch(tF) {
 			case SIGMOID:
 				header << "      return 1./(1.+exp(-value));" << std::endl;
 				break;
@@ -1158,8 +1202,9 @@ public:
 			nWeights += (*nD_)[i]*((*nD_)[i-1]+1);
 		}
 
-		header  << "      const std::size_t nWeights = " << nWeights << ";" << std::endl
-			<< "      const double weights[nWeights] = {" << std::endl;
+		header
+		<< "      const std::size_t nWeights = " << nWeights << ";" << std::endl
+		<< "      const double weights[nWeights] = {" << std::endl;
 
 		for(std::size_t i=0; i<nD_->size(); i++) {
 			boost::shared_ptr<GDoubleObjectCollection> currentLayer = at<GDoubleObjectCollection>(i);
@@ -1343,12 +1388,7 @@ protected:
 		return result;
 	}
 
-	/***************************************************************************/
-
 private:
-	/** @brief Default constructor intentionally private and empty */
-	GNeuralNetworkIndividual<tF>() :transferFunction_(tF) { /* nothing */ }
-
 	/***************************************************************************/
 	/**
 	 * A trap transfer function to capture invalid uses of this class
@@ -1367,7 +1407,6 @@ private:
 	// Local variables
 	std::string networkDataFile_; ///< Holds the name of the file with the training data
 	boost::shared_ptr<networkData> nD_; ///< Holds the training data
-	const transferFunction transferFunction_; ///< Holds the id of the transfer function
 };
 
 /******************************************************************************/
@@ -1385,11 +1424,11 @@ template <> double GNeuralNetworkIndividual<RBF>::transfer(const double&) const;
 } /* namespace Geneva */
 } /* namespace Gem */
 
-// Needed for testing purposes
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+// Needed for testing purposes
 
 #ifdef GEM_TESTING
 
