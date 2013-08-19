@@ -74,10 +74,10 @@ void createNetworkData(
 
 	switch(t) {
 	case Gem::Geneva::HYPERCUBE:
-		nD_ptr = GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>::createHyperCubeNetworkData (
+		nD_ptr = GNeuralNetworkIndividual::createHyperCubeNetworkData (
 				architecture
 			  , nDataSets
-			  , 0.5 // edgelength
+			  , 0.5 // edge-length
 		);
 
 		// Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
@@ -86,7 +86,7 @@ void createNetworkData(
 		break;
 
 	case Gem::Geneva::HYPERSPHERE:
-		nD_ptr = GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>::createHyperSphereNetworkData (
+		nD_ptr = GNeuralNetworkIndividual::createHyperSphereNetworkData (
 				architecture
 			  , nDataSets
 			  , 0.5 // radius
@@ -98,7 +98,7 @@ void createNetworkData(
 		break;
 
 	case Gem::Geneva::AXISCENTRIC:
-		nD_ptr = GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>::createAxisCentricNetworkData (
+		nD_ptr = GNeuralNetworkIndividual::createAxisCentricNetworkData (
 				architecture
 			  , nDataSets
 		);
@@ -109,7 +109,7 @@ void createNetworkData(
 		break;
 
 	case Gem::Geneva::SINUS:
-		nD_ptr = GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>::createSinNetworkData (
+		nD_ptr = GNeuralNetworkIndividual::createSinNetworkData (
 				architecture
 			  , nDataSets
 		);
@@ -228,7 +228,8 @@ int main(int argc, char **argv){
   // If this is a client in networked mode, we can just start the listener and
   // leave when it has finished
   if(parallelizationMode==2 && !serverMode) {
-    boost::shared_ptr<GAsioTCPClientT<GParameterSet> > p(new GAsioTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
+    boost::shared_ptr<GAsioTCPClientT<GParameterSet> >
+       p(new GAsioTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
     p->setMaxStalls(0); // An infinite number of stalled data retrievals
     p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
@@ -246,47 +247,26 @@ int main(int argc, char **argv){
 
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
   std::vector<boost::shared_ptr<GParameterSet> > parentIndividuals;
-  switch(tF) {
-  case Gem::Geneva::SIGMOID:
-	  for(std::size_t p = 0 ; p<nParents; p++) {
-		boost::shared_ptr<GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >
-			sigmoid_nn_ptr(new GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>(
-					  trainingInputData
-				    , -1.
-				    , 1.
-				    , sigma
-				    , sigmaSigma
-				    , minSigma
-				    , maxSigma
-				    , adProb
-			)
-		);
+  for(std::size_t p = 0 ; p<nParents; p++) {
+     boost::shared_ptr<GNeuralNetworkIndividual> nn_ptr(
+        new GNeuralNetworkIndividual(
+           trainingInputData
+           , -1.
+           , 1.
+           , sigma
+           , sigmaSigma
+           , minSigma
+           , maxSigma
+           , adProb
+        )
+     );
 
-		parentIndividuals.push_back(sigmoid_nn_ptr);
-	  }
-	  break;
+     nn_ptr->setTransferFunction(tF);
 
-  case Gem::Geneva::RBF:
-	  for(std::size_t p = 0 ; p<nParents; p++) {
-		boost::shared_ptr<GNeuralNetworkIndividual<Gem::Geneva::RBF> >
-			rbf_nn_ptr(new GNeuralNetworkIndividual<Gem::Geneva::RBF>(
-					  trainingInputData
-					, -1.
-					, 1.
-					, sigma
-					, sigmaSigma
-					, minSigma
-					, maxSigma
-					, adProb
-			)
-		);
-
-		parentIndividuals.push_back(rbf_nn_ptr);
-	  }
-	  break;
+     parentIndividuals.push_back(nn_ptr);
   }
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
   // We can now start creating populations. We refer to them through the base class
 
   // This smart pointer will hold the different population types
@@ -352,27 +332,11 @@ int main(int argc, char **argv){
   pop_ptr->optimize();
 
   //--------------------------------------------------------------------------------------------
-
   // Output the result- and the visualization-program (if available)
-  switch(tF) {
-  case Gem::Geneva::SIGMOID:
-  {
-	  boost::shared_ptr<GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> > best_ptr
-		  = pop_ptr->GOptimizableI::getBestIndividual<GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >();
-	  best_ptr->writeTrainedNetwork(resultProgram);
-	  best_ptr->writeVisualizationFile(visualizationFile);
-  }
-  break;
-
-  case Gem::Geneva::RBF:
-  {
-	  boost::shared_ptr<GNeuralNetworkIndividual<Gem::Geneva::RBF> > best_ptr
-		  = pop_ptr->GOptimizableI::getBestIndividual<GNeuralNetworkIndividual<Gem::Geneva::RBF> >();
-	  best_ptr->writeTrainedNetwork(resultProgram);
-	  best_ptr->writeVisualizationFile(visualizationFile);
-  }
-  break;
-  }
+  boost::shared_ptr<GNeuralNetworkIndividual> best_ptr
+       = pop_ptr->GOptimizableI::getBestIndividual<GNeuralNetworkIndividual>();
+  best_ptr->writeTrainedNetwork(resultProgram);
+  best_ptr->writeVisualizationFile(visualizationFile);
 
   // Terminate Geneva
   return 0;

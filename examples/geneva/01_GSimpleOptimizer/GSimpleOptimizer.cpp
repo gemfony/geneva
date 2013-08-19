@@ -51,13 +51,13 @@ using namespace Gem::Geneva;
 int main(int argc, char **argv) {
 	Go2 go(argc, argv, "./config/Go2.json");
 
-	//---------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 	// Client mode
 	if(go.clientMode()) {
 		return go.clientRun();
 	} // Execution will end here in client mode
 
-	//---------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
    // Create a factory for GFunctionIndividual objects and perform
    // any necessary initial work.

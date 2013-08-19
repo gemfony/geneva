@@ -63,8 +63,7 @@ class GenevaStandardTestSuite
 public:
 	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
 		typedef boost::mpl::list<
-		      GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>
-			, GNeuralNetworkIndividual<Gem::Geneva::RBF>
+		      GNeuralNetworkIndividual
 		>
 		gneuralnetwork_types;
 
