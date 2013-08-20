@@ -78,8 +78,10 @@
 // Geneva header files go here
 #include <common/GCommonEnums.hpp>
 #include <common/GExceptions.hpp>
+#include <common/GGlobalOptionsT.hpp>
 #include <common/GHelperFunctions.hpp>
 #include <common/GHelperFunctionsT.hpp>
+#include <common/GSingletonT.hpp>
 #include <common/GUnitTestFrameworkT.hpp>
 #include <common/GLogger.hpp>
 #include <common/GFactoryT.hpp>
@@ -104,16 +106,44 @@ struct trainingSet
 	/////////////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int) {
-		using boost::serialization::make_nvp;
+   template<typename Archive>
+   void load(Archive & ar, const unsigned int) {
+      using boost::serialization::make_nvp;
 
-		ar
-		& BOOST_SERIALIZATION_NVP(Input)
-		& BOOST_SERIALIZATION_NVP(Output);
-	}
+      ar
+      & BOOST_SERIALIZATION_NVP(nInputNodes)
+      & BOOST_SERIALIZATION_NVP(nOutputNodes);
+
+      if(Input) delete [] Input;
+      Input = new double[nInputNodes];
+
+      if(Output) delete [] Output;
+      Output = new double[nOutputNodes];
+
+      ar & boost::serialization::make_array(Input, nInputNodes);
+      ar & boost::serialization::make_array(Output, nOutputNodes);
+   }
+
+   template<typename Archive>
+   void save(Archive & ar, const unsigned int) const {
+      using boost::serialization::make_nvp;
+
+      ar
+      & BOOST_SERIALIZATION_NVP(nInputNodes)
+      & BOOST_SERIALIZATION_NVP(nOutputNodes);
+
+      ar & boost::serialization::make_array(Input, nInputNodes);
+      ar & boost::serialization::make_array(Output, nOutputNodes);
+   }
+
+   BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 	/////////////////////////////////////////////////////////////////////////////
 
+	/** @brief The constructor */
+	trainingSet(const std::size_t&, const std::size_t&);
+   /** @brief A copy constructor */
+   trainingSet(const trainingSet&);
 	/** @brief The destructor */
 	virtual ~trainingSet();
 
@@ -137,8 +167,16 @@ struct trainingSet
 
 	/***************************************************************************/
 	// Local data
-	std::vector<double> Input; ///< Holds the input data
-	std::vector<double> Output; ///< Holds the output data
+
+   std::size_t nInputNodes; ///< The number of input nodes
+   std::size_t nOutputNodes; ///< The number of output nodes
+
+	double *Input;  ///< Holds the input data
+	double *Output; ///< Holds the output data
+
+private:
+   /** @brief The default constructor -- intentionally private */
+	trainingSet();
 };
 
 /******************************************************************************/
@@ -163,7 +201,8 @@ class networkData
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GStdSimpleVectorInterfaceT_size_t", boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this))
+		& make_nvp("GStdSimpleVectorInterfaceT_size_t",
+		      boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this))
 		& BOOST_SERIALIZATION_NVP(data_)
 		& BOOST_SERIALIZATION_NVP(currentIndex_);
 	}
@@ -189,11 +228,12 @@ public:
 
 	/** @brief Checks whether a given expectation is fulfilled. */
 	boost::optional<std::string> checkRelationshipWith(const networkData&,
-			const Gem::Common::expectation&,
-			const double&,
-			const std::string&,
-			const std::string&,
-			const bool&) const;
+      const Gem::Common::expectation&,
+      const double&,
+      const std::string&,
+      const std::string&,
+      const bool&
+   ) const;
 
 	/** @brief Saves the data of this struct to disc */
 	void saveToDisk(const std::string&) const;
@@ -215,6 +255,9 @@ public:
 	/** @brief Saves this data set in ROOT format for visual inspection */
 	void toRoot(const std::string&, const double&, const double&);
 
+	/** @brief Creates a deep clone of this object */
+	boost::shared_ptr<networkData> clone() const;
+
 protected:
    /***************************************************************************/
 	/** @brief This function is purely virtual in our parent class*/
@@ -226,6 +269,8 @@ private:
 	std::vector<boost::shared_ptr<trainingSet> > data_;
 	/** @brief The index of the current training set */
 	mutable std::size_t currentIndex_;
+	/** @brief Locks access to the clone function */
+   mutable boost::mutex m_; ///< Lock get/set operations
 };
 
 /******************************************************************************/
@@ -388,8 +433,12 @@ public:
 		// Create a local random number generator.
 		GRandomT<RANDOMLOCAL> gr_l;
 
-		// The dimension of the hypercube is identical to the number of input nodes
-		std::size_t nDim = architecture[0];
+		// Retrieve the number of input- and output nodes for easier reference
+      std::size_t nInputNodes  = architecture.front();
+      std::size_t nOutputNodes = architecture.back();
+
+		// The dimension of the hyper-cube is identical to the number of input nodes
+		std::size_t nDim = nInputNodes;
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
@@ -411,7 +460,7 @@ public:
 		bool outside=false;
 		for(std::size_t datCounter=0; datCounter<nDataSets; datCounter++){
 			outside=false;
-			boost::shared_ptr<trainingSet> tS(new trainingSet());
+			boost::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
 
 			for(std::size_t i=0; i<nDim; i++){
 				double oneDimRnd = gr_l.uniform_real<double>(-edgelength,edgelength);
@@ -420,11 +469,11 @@ public:
 				// in order to set the outside flag to true.
 				if(oneDimRnd < -edgelength/2. || oneDimRnd > edgelength/2.) outside=true;
 
-				tS->Input.push_back(oneDimRnd);
+				tS->Input[i] = oneDimRnd;
 			}
 
-			if(outside) tS->Output.push_back(0.99);
-			else tS->Output.push_back(0.01);
+			if(outside) tS->Output[0] = 0.99;
+			else tS->Output[0] = 0.01;
 
 			nD->addTrainingSet(tS);
 		}
@@ -472,8 +521,12 @@ public:
 		// Create a local random number generator.
 		GRandomT<RANDOMLOCAL> gr_l;
 
+      // Retrieve the number of input- and output nodes for easier reference
+      std::size_t nInputNodes  = architecture.front();
+      std::size_t nOutputNodes = architecture.back();
+
 		// The dimension of the hypersphere is identical to the number of input nodes
-		std::size_t nDim = architecture[0];
+		std::size_t nDim = nInputNodes;
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
@@ -495,27 +548,27 @@ public:
 
 		for(std::size_t datCounter=0; datCounter<nDataSets; datCounter++)
 		{
-			boost::shared_ptr<trainingSet> tS(new trainingSet());
+			boost::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
 
 			local_radius = gr_l.uniform_real<double>(3*radius);
-			if(local_radius > radius) tS->Output.push_back(0.99);
-			else tS->Output.push_back(0.01);
+			if(local_radius > radius) tS->Output[0] = 0.99;
+			else tS->Output[0] = 0.01;
 
 			//////////////////////////////////////////////////////////////////
-			// Calculate random cartesian coordinates for hyper sphere
+			// Calculate random Cartesian coordinates for hyper sphere
 
 			// Special cases
 			switch(nDim)
 			{
 			case 1:
-				tS->Input.push_back(local_radius);
+				tS->Input[0] = local_radius;
 				break;
 
 			case 2:
 				{
 					double phi = gr_l.uniform_real<double>(2*M_PI);
-					tS->Input.push_back(local_radius*sin(phi)); // x
-					tS->Input.push_back(local_radius*cos(phi)); // y
+					tS->Input[0] = local_radius*sin(phi); // x
+					tS->Input[1] = local_radius*cos(phi); // y
 				}
 				break;
 
@@ -551,7 +604,10 @@ public:
 					}
 
 					// Transfer the results
-					tS->Input=cartCoord;
+					for(std::size_t i=0; i<nDim; i++) {
+					   tS->Input[i]=cartCoord[i];
+					}
+
 				}
 				break;
 			}
@@ -600,8 +656,12 @@ public:
 		// Create a local random number generator.
 		GRandomT<RANDOMLOCAL> gr_l;
 
+      // Retrieve the number of input- and output nodes for easier reference
+      std::size_t nInputNodes  = architecture.front();
+      std::size_t nOutputNodes = architecture.back();
+
 		// The dimension of the data set is equal to the number of input nodes
-		std::size_t nDim = architecture[0];
+		std::size_t nDim = nInputNodes;
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
@@ -621,21 +681,23 @@ public:
 
 		for(std::size_t dataCounter=0; dataCounter<nDataSets; dataCounter++)
 		{
-			boost::shared_ptr<trainingSet> tS(new trainingSet());
+			boost::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
 
 			// Create even distribution across all dimensions
 			if(dataCounter%2 == 0) {
 				for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) {
-					(tS->Input).push_back(gr_l.uniform_01<double>());
+					tS->Input[dimCounter] = gr_l.uniform_01<double>();
 				}
-				(tS->Output).push_back(0.01);
+				tS->Output[0]=0.01;
 			}
   		    // Create entries in a half-cylindrical "cloud" around one axis. The density of
 			// this cloud is decreasing with increasing distance from the axis.
 			else {
 				// Create a test value
 				double probeValue = 0.;
-				for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) probeValue += exp(-5.*gr_l.uniform_01<double>());
+				for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) {
+				   probeValue += exp(-5.*gr_l.uniform_01<double>());
+				}
 
 				double functionValue;
 				std::vector<double> inputVector(nDim);
@@ -651,8 +713,10 @@ public:
 
 				} while(functionValue < probeValue);
 
-				tS->Input = inputVector;
-				(tS->Output).push_back(0.99);
+				for(std::size_t i=0; i<nDim; i++) {
+	            tS->Input[i] = inputVector[i];
+				}
+				tS->Output[0] = 0.99;
 			}
 
 			nD->addTrainingSet(tS);
@@ -705,6 +769,10 @@ public:
 		// Create a local random number generator.
 		GRandomT<RANDOMLOCAL> gr_l;
 
+      // Retrieve the number of input- and output nodes for easier reference
+      std::size_t nInputNodes  = architecture.front();
+      std::size_t nOutputNodes = architecture.back();
+
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
 		boost::shared_ptr<networkData> nD(new networkData());
@@ -723,18 +791,18 @@ public:
 
 		for(std::size_t dataCounter=0; dataCounter<nDataSets; dataCounter++)
 		{
-			boost::shared_ptr<trainingSet> tS(new trainingSet());
+			boost::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
 
 			// create the two test values
-			(tS->Input).push_back(gr_l.uniform_real<double>(-6., 6.)); // x
-			(tS->Input).push_back(gr_l.uniform_real<double>(-6., 6.)); // y
+			tS->Input[0] = gr_l.uniform_real<double>(-6., 6.); // x
+			tS->Input[1] = gr_l.uniform_real<double>(-6., 6.); // y
 
 			// Check whether we are below or above the sin function and assign the output value accordingly
 			if((tS->Input)[1] > 4.*sin((tS->Input)[0])) {
-				(tS->Output).push_back(0.99);
+				tS->Output[0] = 0.99;
 			}
 			else {
-				(tS->Output).push_back(0.01);
+				tS->Output[0] = 0.01;
 			}
 
 			nD->addTrainingSet(tS);
@@ -895,12 +963,26 @@ private:
 };
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
+namespace Gem {
+namespace Common {
+
+// A global store for network configuration data
+typedef GSingletonT<GGlobalOptionsT<std::string> > GNNOptStore;
+#define GNeuralNetworkOptions GNNOptStore::Instance(0)
+
+// A factory function for networkData objects, used by GSingletonT
+template <> boost::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT();
+
+} /* namespace Common */
+} /* namespace Gem */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -910,8 +992,8 @@ private:
 #ifdef GEM_TESTING
 
 /**
- * @brief As the Gem::Geneva::Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> has a meaningless default constructor, we need to provide a
- * specialization of the factory function that creates GStartProjectIndividual objects
+ * @brief As the Gem::Geneva::Gem::Geneva::GNeuralNetworkIndividual has a meaningless default constructor,
+ * we need to provide a specialization of the factory function that creates a GNeuralNetworkIndividual objects
  */
 template <>
 boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual> TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual>();

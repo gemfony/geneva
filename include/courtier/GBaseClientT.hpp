@@ -79,7 +79,6 @@ namespace Gem {
 namespace Courtier {
 
 /******************************************************************************/
-
 /**
  * This class forms the basis of a hierarchy of classes designed for client-side
  * network communication. Their task is to retrieve serialized objects from the server

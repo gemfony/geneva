@@ -78,6 +78,74 @@ namespace Common {
 
 /******************************************************************************/
 /**
+ * This function takes two arrays and copies their contents. It assumes that
+ * uninitialized arrays point to NULL and that the number of entries given
+ * is exact. The from-array may be empty, in which case the to array will also
+ * be empty after the call to this function. The function assumes that for
+ * this operation, T::operator= makes sense. The function may modify all of its
+ * "to"-arguments
+ */
+template <typename T>
+void copyArrays (
+   T const * const from
+   , T *& to
+   , const std::size_t& nFrom
+   , std::size_t& nTo
+) {
+   //--------------------------------------------------------------------------
+   // Do some error checks
+   if((T const * const)NULL==from && 0!=nFrom) {
+      glogger
+      << "In copyArrays(): Error: from-array is empty, but nFrom isn\'t:" << nFrom << std::endl
+      << GEXCEPTION;
+   }
+
+   if((T const * const)NULL!=from && 0==nFrom) {
+      glogger
+      << "In copyArrays(): Error: from-array isn't empty, but nFrom is:" << std::endl
+      << GEXCEPTION;
+   }
+
+   if((T *)NULL==to && 0!=nTo) {
+      glogger
+      << "In copyArrays(): Error: to-array is empty, but nTo isn\'t:" << nTo << std::endl
+      << GEXCEPTION;
+   }
+
+   if((T *)NULL!=to && 0==nTo) {
+      glogger
+      << "In copyArrays(): Error: to-array isn't empty, but nTo is" << std::endl
+      << GEXCEPTION;
+   }
+
+   //--------------------------------------------------------------------------
+
+   // If from is empty, make sure all other arguments are empty
+   if((T const * const)NULL==from) {
+      nTo   = 0;
+      if(to) delete [] to;
+      to = (T *)NULL;
+
+      return;
+   }
+
+   // From here in we assume that nFrom contains entries
+
+   // Make sure from and to have the same size. If not, adapt "to" accordingly
+   if(nFrom != nTo) {
+      if(to) delete [] to;
+      to = new T[nFrom];
+      nTo = nFrom;
+   }
+
+   // Copy all elements over
+   for(std::size_t i=0; i<nFrom; i++) {
+      to[i] = from[i];
+   }
+}
+
+/******************************************************************************/
+/**
  * This function takes two smart pointers and copies their contents (if any). Note that this
  * function might yield bad results for virtual types and will not work for purely virtual types.
  *

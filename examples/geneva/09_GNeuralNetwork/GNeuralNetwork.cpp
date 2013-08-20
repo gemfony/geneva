@@ -60,12 +60,12 @@ namespace po = boost::program_options;
  * Retrieves additional command line options
  */
 std::vector<boost::shared_ptr<po::option_description> > getCustomCLOptions(
-      trainingDataType& tdt
-      , std::string& trainingDataFile
-      , std::string& architecture
-      , std::size_t& nDataSets
-      , std::string& resultProgram
-      , std::string& visualizationFile
+   trainingDataType& tdt
+   , std::string& trainingDataFile
+   , std::string& architecture
+   , std::size_t& nDataSets
+   , std::string& resultProgram
+   , std::string& visualizationFile
 ) {
    std::vector<boost::shared_ptr<po::option_description> > od;
 
@@ -113,7 +113,7 @@ std::vector<boost::shared_ptr<po::option_description> > getCustomCLOptions(
       new po::option_description(
          "visualizationFile"
          , po::value<std::string>(&visualizationFile)->default_value(visualizationFile)
-         , "The name of the visialization file"
+         , "The name of the visualization file"
       )
    );
 

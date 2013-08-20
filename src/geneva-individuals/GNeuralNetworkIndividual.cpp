@@ -45,12 +45,62 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The destructor -- empty, as there is no local, dynamically
- * allocated data. A virtual destructor is needed due to a
+ * The (private) default constructor. It is only needed for (de-)serialization
+ * purposes.
+ */
+trainingSet::trainingSet()
+   : nInputNodes(0)
+   , nOutputNodes(0)
+   , Input((double *)NULL)
+   , Output((double *)NULL)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with the number of nodes
+ */
+trainingSet::trainingSet(
+   const std::size_t& nInput
+   , const std::size_t& nOutput
+)
+   : nInputNodes(nInput)
+   , nOutputNodes(nOutput)
+   , Input(new double[nInput])
+   , Output(new double[nOutput])
+{
+   // Make sure the arrays are properly initialized
+   for(std::size_t i=0; i<nInput; i++) {
+      Input[i] = 0.;
+   }
+   for(std::size_t o=0; o<nOutput; o++) {
+      Output[o] = 0.;
+   }
+}
+
+/******************************************************************************/
+/**
+ * A copy constructor
+ */
+trainingSet::trainingSet(const trainingSet& cp)
+   : nInputNodes(0)
+   , nOutputNodes(0)
+   , Input((double *)NULL)
+   , Output((double *)NULL)
+{
+   Gem::Common::copyArrays(cp.Input, Input, cp.nInputNodes, nInputNodes);
+   Gem::Common::copyArrays(cp.Output, Output, cp.nOutputNodes, nOutputNodes);
+}
+
+/******************************************************************************/
+/**
+ * The destructor. A virtual destructor is needed due to a
  * serialization problem in Boost 1.41
  */
 trainingSet::~trainingSet()
-{ /* nothing */ }
+{
+   if(Input) delete [] Input;
+   if(Output) delete [] Output;
+}
 
 /******************************************************************************/
 /**
@@ -60,8 +110,8 @@ trainingSet::~trainingSet()
  * @return A constant reference to this object
  */
 const trainingSet& trainingSet::operator=(const trainingSet& cp) {
-	Input = cp.Input;
-	Output = cp.Output;
+   Gem::Common::copyArrays(cp.Input, Input, cp.nInputNodes, nInputNodes);
+   Gem::Common::copyArrays(cp.Output, Output, cp.nOutputNodes, nOutputNodes);
 
 	return *this;
 }
@@ -84,7 +134,7 @@ bool trainingSet::operator==(const trainingSet& cp) const {
  * Checks for inequality with another trainingSet object
  *
  * @param  cp A constant reference to another trainingSet object
- * @return A boolean indicating whether both objects are inequal
+ * @return A boolean indicating whether both objects are in-equal
  */
 bool trainingSet::operator!=(const trainingSet& cp) const {
 	using namespace Gem::Common;
@@ -105,12 +155,12 @@ bool trainingSet::operator!=(const trainingSet& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> trainingSet::checkRelationshipWith(
-      const trainingSet& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const trainingSet& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -118,8 +168,38 @@ boost::optional<std::string> trainingSet::checkRelationshipWith(
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check local data
-	deviations.push_back(checkExpectation(withMessages, "trainingSet", Input, cp.Input, "Input", "cp.Input", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "trainingSet", Output, cp.Output, "Output", "cp.Output", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "trainingSet", nInputNodes, cp.nInputNodes, "nInputNodes", "cp.nInputNodes", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "trainingSet", nOutputNodes, cp.nOutputNodes, "nOutputNodes", "cp.nOutputNodes", e , limit));
+
+   for(std::size_t i=0; i<nInputNodes; i++) {
+      deviations.push_back(
+            checkExpectation(
+                  withMessages
+                  , "trainingSet"
+                  , Input[i]
+                  , cp.Input[i]
+                  , std::string("Input")+boost::lexical_cast<std::string>(i)+"]"
+                  , std::string("cp.Input")+boost::lexical_cast<std::string>(i)+"]"
+                  , e
+                  , limit
+             )
+      );
+   }
+
+   for(std::size_t o=0; o<nOutputNodes; o++) {
+      deviations.push_back(
+            checkExpectation(
+                  withMessages
+                  , "trainingSet"
+                  , Output[o]
+                  , cp.Output[o]
+                  , std::string("Output")+boost::lexical_cast<std::string>(o)+"]"
+                  , std::string("cp.Output")+boost::lexical_cast<std::string>(o)+"]"
+                  , e
+                  , limit
+             )
+      );
+   }
 
 	return evaluateDiscrepancies("trainingSet", caller, deviations, e);
 }
@@ -343,8 +423,7 @@ boost::optional<boost::shared_ptr<trainingSet> > networkData::getNextTrainingSet
 		boost::optional<boost::shared_ptr<trainingSet> > o = *currentIterator;
 		currentIndex_++;
 		return o;
-	}
-	else {
+	} else {
 		resetCurrentIndex();
 		return boost::optional<boost::shared_ptr<trainingSet> >();
 	}
@@ -391,15 +470,17 @@ std::size_t networkData::getNOutputNodes() const {
  * @param max The maximum value of the distribution to be displayed
  */
 void networkData::toRoot(
-		  const std::string& outputFile
-		, const double& min
-		, const double& max
+   const std::string& outputFile
+   , const double& min
+   , const double& max
 ) {
 	// Check that we have a matching number of input nodes
 	if(getNInputNodes() != 2 || getNOutputNodes() != 1) {
-		std::cerr << "In networkData::toRoot(): Warning!" << std::endl
-  		          << "Got inappropriate number of input and/or output nodes: " << getNInputNodes() << "/" << getNOutputNodes() << std::endl
-  		          << "We need 2/1. The function will return without further action." << std::endl;
+	   glogger
+	   << "In networkData::toRoot(): Warning!" << std::endl
+	   << "Got inappropriate number of input and/or output nodes: " << getNInputNodes() << "/" << getNOutputNodes() << std::endl
+	   << "We need 2/1. The function will return without further action." << std::endl
+	   << GWARNING;
 		return;
 	}
 
@@ -464,6 +545,18 @@ void networkData::toRoot(
 	   << "}" << std::endl;
 
 	of.close();
+}
+
+/******************************************************************************/
+/**
+ * Creates a deep clone of this object
+ */
+boost::shared_ptr<networkData> networkData::clone() const {
+   // Lock access to this function
+   boost::lock_guard<boost::mutex> guard(m_);
+   boost::shared_ptr<networkData> result(new networkData(*this));
+   result->resetCurrentIndex(); // Make sure the object is in pristine condition
+   return result;
 }
 
 /******************************************************************************/
@@ -1514,6 +1607,30 @@ void GNeuralNetworkIndividualFactory::postProcess_(boost::shared_ptr<GParameterS
 } /* namespace Geneva */
 } /* namespace Gem */
 
+
+namespace Gem {
+namespace Common {
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A factory function for networkData objects, used by GSingletonT. It
+ * queries a global options store for the name of the network data file
+ *
+ * @return A boost::shared_ptr to a newly created T object
+ */
+template <>
+boost::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT() {
+   if(GNeuralNetworkOptions->exists("networkDataFile")) {
+      return boost::shared_ptr<Gem::Geneva::networkData>(new Gem::Geneva::networkData(GNeuralNetworkOptions->get("networkDataFile")));
+   } else {
+      return boost::shared_ptr<Gem::Geneva::networkData>(new Gem::Geneva::networkData(Gem::Geneva::GNN_DEF_DATAFILE));
+   }
+}
+
+} /* namespace Common */
+} /* namespace Gem */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
