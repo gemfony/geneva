@@ -53,20 +53,20 @@ using namespace Gem::Courtier;
 using namespace Gem::Hap;
 namespace po = boost::program_options;
 
-/************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
- * The main function.
+ * Retrieves additional command line options
  */
-int main(int argc, char **argv){
-   //---------------------------------------------------------------------------
-   // Assemble additional command line options to be passed to Go2
-   trainingDataType tdt = Gem::Geneva::TDTNONE;
-   std::string trainingDataFile = "./DataSets/training.dat";
-   std::string architecture = "2-4-4-1"; // two input nodes, one output node, two hidden layers with 4 nodes each
-   std::size_t nDataSets = 2000;
-   std::string resultProgram = "resultProgram.C";
-   std::string visualizationFile = "visualization.C";
-
+std::vector<boost::shared_ptr<po::option_description> > getCustomCLOptions(
+      trainingDataType& tdt
+      , std::string& trainingDataFile
+      , std::string& architecture
+      , std::size_t& nDataSets
+      , std::string& resultProgram
+      , std::string& visualizationFile
+) {
    std::vector<boost::shared_ptr<po::option_description> > od;
 
    boost::shared_ptr<po::option_description> tdt_option(
@@ -124,6 +124,34 @@ int main(int argc, char **argv){
    od.push_back(resultProgram_option);
    od.push_back(visualizationFile_option);
 
+   return od;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The main function.
+ */
+int main(int argc, char **argv){
+   //---------------------------------------------------------------------------
+   // Assemble additional command line options to be passed to Go2
+   trainingDataType tdt = Gem::Geneva::TDTNONE;
+   std::string trainingDataFile = "./DataSets/training.dat";
+   std::string architecture = "2-4-4-1"; // two input nodes, one output node, two hidden layers with 4 nodes each
+   std::size_t nDataSets = 2000;
+   std::string resultProgram = "resultProgram.C";
+   std::string visualizationFile = "visualization.C";
+
+   std::vector<boost::shared_ptr<po::option_description> > od = getCustomCLOptions(
+      tdt
+      , trainingDataFile
+      , architecture
+      , nDataSets
+      , resultProgram
+      , visualizationFile
+   );
+
    //---------------------------------------------------------------------------
    // Create the main optimizer-wrapper
    Go2 go(argc, argv, "./config/Go2.json", od);
@@ -162,3 +190,6 @@ int main(int argc, char **argv){
    // Terminate Geneva
    return 0;
 }
+
+/******************************************************************************/
+
