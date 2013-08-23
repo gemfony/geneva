@@ -209,9 +209,24 @@ boost::optional<std::string> trainingSet::checkRelationshipWith(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
+ * The default constructor. Private, as it is only needed for (de-)serialization
+ * purposes.
  */
-networkData::networkData() : currentIndex_(0)
+networkData::networkData()
+   : arraySize_(0)
+   , data_((boost::shared_ptr<trainingSet> *)NULL)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with the amount of entries
+ *
+ * @param arraySize The desired size of the array
+ */
+networkData::networkData(const std::size_t& arraySize)
+   : GStdSimpleVectorInterfaceT<std::size_t>()
+   , arraySize_(arraySize)
+   , data_(new boost::shared_ptr<trainingSet> [arraySize_])
 { /* nothing */ }
 
 /******************************************************************************/
@@ -220,7 +235,10 @@ networkData::networkData() : currentIndex_(0)
  *
  * @param networkDataFile The name of a file holding the training data
  */
-networkData::networkData(const std::string& networkDataFile) : currentIndex_(0)
+networkData::networkData(const std::string& networkDataFile)
+   : GStdSimpleVectorInterfaceT<std::size_t>()
+   , arraySize_(0)
+   , data_((boost::shared_ptr<trainingSet> *)NULL)
 {
 	this->loadFromDisk(networkDataFile);
 }
@@ -232,10 +250,12 @@ networkData::networkData(const std::string& networkDataFile) : currentIndex_(0)
  * @param cp A copy of another networkData object
  */
 networkData::networkData(const networkData& cp)
-	: GStdSimpleVectorInterfaceT<std::size_t>(cp)
-	, currentIndex_(cp.currentIndex_)
+   : GStdSimpleVectorInterfaceT<std::size_t>(cp)
+   , arraySize_(0)
+   , data_((boost::shared_ptr<trainingSet> *)NULL)
 {
-	Gem::Common::copySmartPointerVector(cp.data_, data_);
+   // Make sure the local data is copied
+   Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.arraySize_, arraySize_);
 }
 
 /******************************************************************************/
@@ -244,7 +264,15 @@ networkData::networkData(const networkData& cp)
  * due to a serialization problem in Boost 1.41.
  */
 networkData::~networkData()
-{ /* nothing */ }
+{
+   // Make sure the data vector is empty
+   if(data_) {
+      for(std::size_t i=0; i<arraySize_; i++) {
+         data_[i].reset();
+      }
+   }
+   delete [] data_;
+}
 
 /******************************************************************************/
 /**
@@ -255,9 +283,9 @@ networkData::~networkData()
  * @return A constant reference to this object
  */
 const networkData& networkData::operator=(const networkData& cp) {
+   // Make sure the local data is copied
+   Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.arraySize_, arraySize_);
 	GStdSimpleVectorInterfaceT<std::size_t>::operator=(cp);
-	Gem::Common::copySmartPointerVector(cp.data_, data_);
-	currentIndex_=cp.currentIndex_;
 	return *this;
 }
 
@@ -308,30 +336,27 @@ boost::optional<std::string> networkData::checkRelationshipWith(
    , const bool& withMessages
 ) const
 {
-    using namespace Gem::Common;
+   using namespace Gem::Common;
 
-	// Will hold possible deviations from the expectation, including explanations
-    std::vector<boost::optional<std::string> > deviations;
+   // Will hold possible deviations from the expectation, including explanations
+   std::vector<boost::optional<std::string> > deviations;
 
-	// Check the parent class'es data
-	deviations.push_back(GStdSimpleVectorInterfaceT<std::size_t>::checkRelationshipWith_base(cp, e, limit, "networkData", y_name, withMessages));
+   // Check the parent class'es data
+   deviations.push_back(GStdSimpleVectorInterfaceT<std::size_t>::checkRelationshipWith_base(cp, e, limit, "networkData", y_name, withMessages));
 
-    // Check vector sizes
-    if(data_.size() != cp.data_.size()) {
-    	std::ostringstream error;
-    	error << "Vector sizes did not match in networkData::checkRelationshipWith(): " << data_.size() << " / " << cp.data_.size();
-    	deviations.push_back(boost::optional<std::string>(error.str()));
-    }
-    else {
-    	// Check local data
-    	std::vector<boost::shared_ptr<trainingSet> >::const_iterator it;
-    	std::vector<boost::shared_ptr<trainingSet> >::const_iterator cit;
-    	for(it=data_.begin(), cit=cp.data_.begin(); it!=data_.end(); ++it, ++cit) {
-    		deviations.push_back((*it)->checkRelationshipWith(**cit, e, limit, "networkData", y_name, withMessages));
-    	}
-    }
+   // Check vector sizes
+   if(arraySize_ != cp.arraySize_) {
+      std::ostringstream error;
+      error << "Array sizes did not match in networkData::checkRelationshipWith(): " << arraySize_ << " / " << cp.arraySize_;
+      deviations.push_back(boost::optional<std::string>(error.str()));
+   } else {
+      // Check local data
+      for(std::size_t i=0; i<arraySize_; i++) {
+         deviations.push_back(data_[i]->checkRelationshipWith(*(cp.data_[i]), e, limit, "networkData", y_name, withMessages));
+      }
+   }
 
-	return evaluateDiscrepancies("networkData", caller, deviations, e);
+   return evaluateDiscrepancies("networkData", caller, deviations, e);
 }
 
 /******************************************************************************/
@@ -402,42 +427,41 @@ void networkData::loadFromDisk(const std::string& networkDataFile) {
 
 /******************************************************************************/
 /**
- * Adds a new training set to the collection, Requires for the network architecture to be
- * defined already
+ * Adds a new training set to the collection. Note that the training set isn't
+ * cloned, simply a copy of the smart pointer is stored in the internal array.
  *
  * @param tS A boost::shared_ptr<trainingSet> object, pointing to a training set
+ * @param pos The position, in which the data set should be stored.
  */
-void networkData::addTrainingSet(boost::shared_ptr<trainingSet> tS) {
-	data_.push_back(tS);
+void networkData::addTrainingSet(
+   boost::shared_ptr<trainingSet> tS
+   , const std::size_t& pos
+) {
+   if(pos >= arraySize_) {
+      glogger
+      << "In networkData::addTrainingSet(): Error!" << std::endl
+      << "pos = " << pos << " exceeds end of array (size = " << arraySize_ << ")" << std::endl;
+   }
+	data_[pos] = tS;
 }
 
 /******************************************************************************/
 /**
- * Retrieves the next training set
+ * Retrieves a training set at a given position. If the position exceeds the size of the array,
+ * a boost::optional object is returned which evaluates to "false".
  *
- * @return The next training set in the list
+ * @param pos The position from which an item should be retreived
+ * @return The training set at the requested position (or a boost::optional object which evaluates to "false")
  */
-boost::optional<boost::shared_ptr<trainingSet> > networkData::getNextTrainingSet() const {
-	std::vector<boost::shared_ptr<trainingSet> >::const_iterator currentIterator = data_.begin() + currentIndex_;
-	if(currentIterator != data_.end()) {
-		boost::optional<boost::shared_ptr<trainingSet> > o = *currentIterator;
-		currentIndex_++;
-		return o;
-	} else {
-		resetCurrentIndex();
-		return boost::optional<boost::shared_ptr<trainingSet> >();
-	}
+boost::optional<boost::shared_ptr<trainingSet> > networkData::getTrainingSet(
+   const std::size_t& pos
+) const {
+   if(pos >= arraySize_) {
+      return boost::optional<boost::shared_ptr<trainingSet> >(); // amounts to "false"
+   } else {
+      return boost::optional<boost::shared_ptr<trainingSet> >(data_[pos]);
+   }
 }
-
-/******************************************************************************/
-/**
- * Resets the index of the current training set, so that upon next call to getNextTrainingSet()
- * the first training set in the list is returned.
- */
-void networkData::resetCurrentIndex() const {
-	currentIndex_ = 0;
-}
-
 
 /******************************************************************************/
 /**
@@ -469,7 +493,7 @@ std::size_t networkData::getNOutputNodes() const {
  * @param min The minimum value of the distribution to be displayed
  * @param max The maximum value of the distribution to be displayed
  */
-void networkData::toRoot(
+void networkData::toROOT(
    const std::string& outputFile
    , const double& min
    , const double& max
@@ -493,7 +517,7 @@ void networkData::toRoot(
 	   << std::endl
 	   << "  // Filling the data sets" << std::endl;
 
-	for(std::size_t i=0; i<data_.size(); i++) {
+	for(std::size_t i=0; i<arraySize_; i++) {
 		if(data_[i]->Output[0] < 0.5) {
 			of << "  x1_vec.push_back(" << data_[i]->Input[0] << ");" << std::endl
 			   << "  y1_vec.push_back(" << data_[i]->Input[1] << ");" << std::endl
@@ -555,7 +579,6 @@ boost::shared_ptr<networkData> networkData::clone() const {
    // Lock access to this function
    boost::lock_guard<boost::mutex> guard(m_);
    boost::shared_ptr<networkData> result(new networkData(*this));
-   result->resetCurrentIndex(); // Make sure the object is in pristine condition
    return result;
 }
 
@@ -1318,9 +1341,9 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
    double result=0;
 
    // Now loop over all data sets
-   nD_->resetCurrentIndex();
+   std::size_t currentPos=0;
    boost::optional<boost::shared_ptr<trainingSet> > o;
-   while((o = nD_->getNextTrainingSet())) {
+   while((o = nD_->getTrainingSet(currentPos++))) {
       // Retrieve a constant reference to the training data set for faster access
       const trainingSet& tS = **o;
 

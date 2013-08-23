@@ -78,6 +78,82 @@ namespace Common {
 
 /******************************************************************************/
 /**
+ * This function takes two smart pointers and copies their contents (if any). Note that this
+ * function might yield bad results for virtual types and will not work for purely virtual types.
+ *
+ * @param from The source smart pointer
+ * @param to The target smart pointer
+ */
+template <typename T>
+void copySmartPointer (
+	const boost::shared_ptr<T>& from
+	, boost::shared_ptr<T>& to
+) {
+	// Make sure to is empty when from is empty
+	if(!from) {
+		to.reset();
+	} else {
+		if(!to) {
+			to.reset(new T(*from));
+		} else {
+			*to = *from;
+		}
+	}
+}
+
+/******************************************************************************/
+/**
+ * This function takes two vectors of boost::shared_ptr smart pointers and copies
+ * one into the other. As we want to make a deep copy of the smart pointers' contents
+ * this can be quite complicated. Note that we assume here that the objects pointed to
+ * can be copied using an operator=(). The function also assumes the existence of
+ * a valid copy constructor.  Note that this function might yield bad results for
+ * virtual types, when handled through a base class.
+ *
+ * @param from The vector used as the source of the copying
+ * @param to The vector used as the target of the copying
+ */
+template <typename T>
+void copySmartPointerVector(
+   const std::vector<boost::shared_ptr<T> >& from
+   , std::vector<boost::shared_ptr<T> >& to
+) {
+	typename std::vector<boost::shared_ptr<T> >::const_iterator it_from;
+	typename std::vector<boost::shared_ptr<T> >::iterator it_to;
+
+	std::size_t size_from = from.size();
+	std::size_t size_to = to.size();
+
+	if(size_from==size_to) { // The most likely case
+		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
+			**it_to=**it_from; // Uses T::operator=()
+		}
+	}
+	else if(size_from > size_to) {
+		// First copy the data of the first size_to items
+		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
+			**it_to=**it_from;
+		}
+
+		// Then attach copies of the remaining items
+		for(it_from=from.begin()+size_to; it_from!=from.end(); ++it_from) {
+			boost::shared_ptr<T> p(new T(**it_from));
+			to.push_back(p);
+		}
+	}
+	else if(size_from < size_to) {
+		// First copy the initial size_foreight items over
+		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
+			**it_to=**it_from;
+		}
+
+		// Then resize the local vector. Surplus items will vanish
+		to.resize(size_from);
+	}
+}
+
+/******************************************************************************/
+/**
  * This function takes two arrays and copies their contents. It assumes that
  * uninitialized arrays point to NULL and that the number of entries given
  * is exact. The from-array may be empty, in which case the to array will also
@@ -146,78 +222,66 @@ void copyArrays (
 
 /******************************************************************************/
 /**
- * This function takes two smart pointers and copies their contents (if any). Note that this
- * function might yield bad results for virtual types and will not work for purely virtual types.
+ * This function takes two arrays of boost::shared_ptr smart pointers and copies
+ * one into the other. We want to make a deep copy of the smart pointers' contents.
+ * Note that we assume here that the objects pointed to can be copied using an
+ * operator=(). The function also assumes the existence of a valid copy constructor.
+ * Note that this function might yield bad results for virtual types, when handled
+ * through a base class.
  *
- * @param from The source smart pointer
- * @param to The target smart pointer
+ * @param from The array used as the source of the copying
+ * @param to The array used as the target of the copying
+ * @param size_from The number of entries in the first array
+ * @param size_to The number of entries in the second array before and after copying (will be modified)
  */
 template <typename T>
-void copySmartPointer (
-	const boost::shared_ptr<T>& from
-	, boost::shared_ptr<T>& to
+void copySmartPointerArrays(
+   boost::shared_ptr<T> const * const from
+   , boost::shared_ptr<T> *& to
+   , const std::size_t& size_from
+   , std::size_t& size_to
 ) {
-	// Make sure to is empty when from is empty
-	if(!from) {
-		to.reset();
-	} else {
-		if(!to) {
-			to.reset(new T(*from));
-		} else {
-			*to = *from;
-		}
-	}
-}
+   //--------------------------------------------------------------------------
+   // Do some error checks
+   if((boost::shared_ptr<T> const * const)NULL==from && 0!=size_from) {
+      glogger
+      << "In copySmartPointerArrays(): Error: from-array is empty, but size_from isn\'t:" << size_from << std::endl
+      << GEXCEPTION;
+   }
 
-/******************************************************************************/
-/**
- * This function takes two vectors of boost::shared_ptr smart pointers and copies
- * one into the other. As we want to make a deep copy of the smart pointers' contents
- * this can be quite complicated. Note that we assume here that the objects pointed to
- * can be copied using an operator=(). The function also assumes the existence of
- * a valid copy constructor.  Note that this function might yield bad results for
- * virtual types.
- *
- * @param from The vector used as the source of the copying
- * @param to The vector used as the target of the copying
- */
-template <typename T>
-void copySmartPointerVector(
-		const std::vector<boost::shared_ptr<T> >& from
-		, std::vector<boost::shared_ptr<T> >& to
-) {
-	typename std::vector<boost::shared_ptr<T> >::const_iterator it_from;
-	typename std::vector<boost::shared_ptr<T> >::iterator it_to;
+   if((boost::shared_ptr<T> const * const)NULL!=from && 0==size_from) {
+      glogger
+      << "In copySmartPointerArrays(): Error: from-array isn't empty, but size_from is:" << std::endl
+      << GEXCEPTION;
+   }
 
-	std::size_t size_from = from.size();
-	std::size_t size_to = to.size();
+   if((boost::shared_ptr<T> *)NULL==to && 0!=size_to) {
+      glogger
+      << "In copySmartPointerArrays(): Error: to-array is empty, but size_to isn\'t:" << size_to << std::endl
+      << GEXCEPTION;
+   }
 
-	if(size_from==size_to) { // The most likely case
-		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
-			**it_to=**it_from; // Uses T::operator=()
-		}
-	}
-	else if(size_from > size_to) {
-		// First copy the data of the first size_to items
-		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
-			**it_to=**it_from;
-		}
+   if((boost::shared_ptr<T> *)NULL!=to && 0==size_to) {
+      glogger
+      << "In copySmartPointerArrays(): Error: to-array isn't empty, but size_to is" << std::endl
+      << GEXCEPTION;
+   }
 
-		// Then attach copies of the remaining items
-		for(it_from=from.begin()+size_to; it_from!=from.end(); ++it_from) {
-			boost::shared_ptr<T> p(new T(**it_from));
-			to.push_back(p);
-		}
-	}
-	else if(size_from < size_to) {
-		// First copy the initial size_foreight items over
-		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
-			**it_to=**it_from;
-		}
+   //--------------------------------------------------------------------------
+   // From here on we assume that from and to have valid content
 
-		// Then resize the local vector. Surplus items will vanish
-		to.resize(size_from);
-	}
+   if(size_from != size_to) { // Get rid of all content in "to"
+      for(std::size_t i=0; i<size_to; i++) {
+         to[i].reset();
+      }
+      delete [] to;
+      to = new boost::shared_ptr<T>[size_from];
+      size_to = size_from;
+   }
+
+   for(std::size_t i=0; i<size_to; i++) {
+      to[i] = boost::shared_ptr<T>(new T(*(from[i])));
+   }
 }
 
 /******************************************************************************/

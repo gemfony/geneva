@@ -193,24 +193,46 @@ private:
 class networkData
 	:public GStdSimpleVectorInterfaceT<std::size_t>
 {
-	/////////////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+   /////////////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int) {
-		using boost::serialization::make_nvp;
+   template<typename Archive>
+   void load(Archive & ar, const unsigned int) {
+      using boost::serialization::make_nvp;
 
-		ar
-		& make_nvp("GStdSimpleVectorInterfaceT_size_t",
-		      boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this))
-		& BOOST_SERIALIZATION_NVP(data_)
-		& BOOST_SERIALIZATION_NVP(currentIndex_);
-	}
-	/////////////////////////////////////////////////////////////////////////////
+      // Make sure the data vector is empty
+      if(data_) {
+         for(std::size_t i=0; i<arraySize_; i++) {
+            data_[i].reset();
+         }
+      }
+      delete [] data_;
+
+      ar
+      & BOOST_SERIALIZATION_NVP(arraySize_);
+
+      data_ = new boost::shared_ptr<trainingSet>[arraySize_];
+
+      ar & boost::serialization::make_array(data_, arraySize_);
+   }
+
+   template<typename Archive>
+   void save(Archive & ar, const unsigned int) const {
+      using boost::serialization::make_nvp;
+
+      ar
+      & BOOST_SERIALIZATION_NVP(arraySize_)
+      & boost::serialization::make_array(data_, arraySize_);
+   }
+
+   BOOST_SERIALIZATION_SPLIT_MEMBER()
+
+   /////////////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief Default constructor */
-	networkData();
+   /***************************************************************************/
+   /** @brief Initialization with the amount of entries */
+   explicit networkData(const std::size_t&);
 	/** @brief Initialization with data from file */
 	explicit networkData(const std::string&);
 	/** @brief The copy constructor */
@@ -241,11 +263,9 @@ public:
 	void loadFromDisk(const std::string&);
 
 	/** @brief Adds a new training set to the collection, Requires for the network architecture to be defined already */
-	void addTrainingSet(boost::shared_ptr<trainingSet>);
-	/** @brief Retrieves the next training set */
-	boost::optional<boost::shared_ptr<trainingSet> > getNextTrainingSet() const;
-	/** @brief Resets the index of the current training set */
-	void resetCurrentIndex() const;
+	void addTrainingSet(boost::shared_ptr<trainingSet>, const std::size_t&);
+	/** @brief Retrieves  training set at a given position */
+	boost::optional<boost::shared_ptr<trainingSet> > getTrainingSet(const std::size_t&) const;
 
 	/** @brief Retrieves the number of input nodes of this network */
 	std::size_t getNInputNodes() const;
@@ -253,7 +273,7 @@ public:
 	std::size_t getNOutputNodes() const;
 
 	/** @brief Saves this data set in ROOT format for visual inspection */
-	void toRoot(const std::string&, const double&, const double&);
+	void toROOT(const std::string&, const double&, const double&);
 
 	/** @brief Creates a deep clone of this object */
 	boost::shared_ptr<networkData> clone() const;
@@ -264,11 +284,15 @@ protected:
 	virtual void dummyFunction() { /* nothing */ };
 
 private:
+   /***************************************************************************/
+	/** @brief Default constructor, intentionally private */
+   networkData();
+
 	/***************************************************************************/
-	/** @brief Holds the individual data items */
-	std::vector<boost::shared_ptr<trainingSet> > data_;
-	/** @brief The index of the current training set */
-	mutable std::size_t currentIndex_;
+   /** @brief The size of the training set */
+   std::size_t arraySize_;
+   /** @brief Holds the individual data items */
+	boost::shared_ptr<trainingSet> *data_;
 	/** @brief Locks access to the clone function */
    mutable boost::mutex m_; ///< Lock get/set operations
 };
@@ -442,7 +466,7 @@ public:
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
-		boost::shared_ptr<networkData> nD(new networkData());
+		boost::shared_ptr<networkData> nD(new networkData(nDataSets));
 		std::vector<std::size_t>::const_iterator it;
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
@@ -475,7 +499,7 @@ public:
 			if(outside) tS->Output[0] = 0.99;
 			else tS->Output[0] = 0.01;
 
-			nD->addTrainingSet(tS);
+			nD->addTrainingSet(tS, datCounter);
 		}
 
 		return nD;
@@ -530,7 +554,7 @@ public:
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
-		boost::shared_ptr<networkData> nD(new networkData());
+		boost::shared_ptr<networkData> nD(new networkData(nDataSets));
 		std::vector<std::size_t>::const_iterator it;
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
@@ -612,7 +636,7 @@ public:
 				break;
 			}
 
-			nD->addTrainingSet(tS);
+			nD->addTrainingSet(tS, datCounter);
 		}
 
 		return nD;
@@ -665,7 +689,7 @@ public:
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
-		boost::shared_ptr<networkData> nD(new networkData());
+		boost::shared_ptr<networkData> nD(new networkData(nDataSets));
 		std::vector<std::size_t>::const_iterator it;
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
@@ -719,7 +743,7 @@ public:
 				tS->Output[0] = 0.99;
 			}
 
-			nD->addTrainingSet(tS);
+			nD->addTrainingSet(tS, dataCounter);
 		}
 
 		return nD;
@@ -775,7 +799,7 @@ public:
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
-		boost::shared_ptr<networkData> nD(new networkData());
+		boost::shared_ptr<networkData> nD(new networkData(nDataSets));
 		std::vector<std::size_t>::const_iterator it;
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
@@ -805,7 +829,7 @@ public:
 				tS->Output[0] = 0.01;
 			}
 
-			nD->addTrainingSet(tS);
+			nD->addTrainingSet(tS, dataCounter);
 		}
 
 		return nD;
@@ -839,7 +863,7 @@ public:
 	      );
 
 	      // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-	      nD_ptr->toRoot(outputFile + ".C", -0.5, 0.5);
+	      nD_ptr->toROOT(outputFile + ".C", -0.5, 0.5);
 
 	      break;
 
@@ -851,7 +875,7 @@ public:
 	      );
 
 	      // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-	      nD_ptr->toRoot(outputFile + ".C", -1., 1.);
+	      nD_ptr->toROOT(outputFile + ".C", -1., 1.);
 
 	      break;
 
@@ -862,7 +886,7 @@ public:
 	      );
 
 	      // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-	      nD_ptr->toRoot(outputFile + ".C", 0., 1.);
+	      nD_ptr->toROOT(outputFile + ".C", 0., 1.);
 
 	      break;
 
@@ -873,7 +897,7 @@ public:
 	      );
 
 	      // Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-	      nD_ptr->toRoot(outputFile + ".C", -6., 6.);
+	      nD_ptr->toROOT(outputFile + ".C", -6., 6.);
 
 	      break;
 
