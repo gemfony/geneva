@@ -43,7 +43,6 @@ namespace Geneva {
  */
 bool parseCommandLine(
      int argc, char **argv
-     , boost::uint16_t& nProducerThreads
      , boost::uint16_t& nEvaluationThreads
      , std::size_t& populationSizeSuper
      , std::size_t& nParentsSuper
@@ -62,13 +61,6 @@ bool parseCommandLine(
 ) {
    // Create the parser builder
    Gem::Common::GParserBuilder gpb;
-
-   gpb.registerCLParameter<boost::uint16_t>(
-         "nProducerThreads"
-         , nProducerThreads
-         , DEFAULTNPRODUCERTHREADS
-         , "The amount of random number producer threads"
-   );
 
    gpb.registerCLParameter<boost::uint16_t>(
          "nEvaluationThreads"

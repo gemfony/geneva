@@ -90,6 +90,25 @@ public:
       , smodeMP_(DEFAULTSMODEMP)
       , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
       , storedServerMode_(true)
+      , tp_(nThreads_)
+   {
+      // Note: We do not currently register a custom optimization monitor.
+      // A basic monitor has already been registered inside of GOptimizationMonitorT
+
+      // Make sure we start with a valid population size if the user does not supply these values
+      this->setDefaultPopulationSize(10,1);
+   }
+
+   /***************************************************************************/
+   /**
+    * Initialization with the number of threads
+    */
+   GMultiPopulationEAT(const std::size_t& nThreads)
+      : GBaseParChildT<oa_type>()
+      , smodeMP_(DEFAULTSMODEMP)
+      , nThreads_(nThreads?nThreads:(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))))
+      , storedServerMode_(true)
+      , tp_(nThreads_)
    {
       // Note: We do not currently register a custom optimization monitor.
       // A basic monitor has already been registered inside of GOptimizationMonitorT
@@ -109,6 +128,7 @@ public:
       , smodeMP_(cp.smodeMP_)
       , nThreads_(cp.nThreads_)
       , storedServerMode_(true)
+      , tp_(nThreads_)
    {
       // Copying / setting of the optimization algorithm id is done by the parent class. The same
       // applies to the copying of the optimization monitor.
@@ -173,12 +193,12 @@ public:
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject& cp
-         , const Gem::Common::expectation& e
-         , const double& limit
-         , const std::string& caller
-         , const std::string& y_name
-         , const bool& withMessages
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
    ) const  OVERRIDE{
        using namespace Gem::Common;
 
@@ -281,40 +301,6 @@ public:
          , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
          , comment
       );
-
-      // Add local data
-      comment = ""; // Reset the comment string
-      comment += "The number of threads used to simultaneously process individuals;";
-      if(showOrigin) comment += "[GMultiPopulationEAT<ind_type>]";
-      gpb.registerFileParameter<boost::uint16_t>(
-         "nEvaluationThreads" // The name of the variable
-         , 0 // The default value
-         , boost::bind(
-            &GMultiPopulationEAT<oa_type>::setNThreads
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-         , comment
-      );
-   }
-
-   /***************************************************************************/
-   /**
-    * Sets the number of threads for this population. If nThreads is set
-    * to 0, an attempt will be made to set the number of threads to the
-    * number of hardware threading units (e.g. number of cores or hyperthreading
-    * units).
-    *
-    * @param nThreads The number of threads this class uses
-    */
-   void setNThreads(boost::uint16_t nThreads) {
-      if(nThreads == 0) {
-         nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
-      }
-      else {
-         nThreads_ = nThreads;
-      }
    }
 
    /***************************************************************************/
@@ -473,11 +459,12 @@ protected:
             << GEXCEPTION;
          }
 #endif /* DEBUG */
-         tp_->schedule(boost::function<void()>(boost::bind(&oa_type::adapt, *it)));
+
+         tp_.schedule(boost::function<void()>(boost::bind(&oa_type::adapt, *it)));
       }
 
       // Wait for all threads in the pool to complete their work
-      tp_->wait();
+      tp_.wait();
    }
 
    /***************************************************************************/
@@ -504,11 +491,11 @@ protected:
       // Make evaluation possible and initiate the worker threads
       for(it=(this->data).begin() + boost::get<0>(range); it!=(this->data).begin() + boost::get<1>(range); ++it) {
          (*it)->setServerMode(false);
-         tp_->schedule(boost::function<double()>(boost::bind(&oa_type::doFitnessCalculation, *it)));
+         tp_.schedule(boost::function<double()>(boost::bind(&oa_type::doFitnessCalculation, *it)));
       }
 
       // Wait for all threads in the pool to complete their work
-      tp_->wait();
+      tp_.wait();
 
       // Make re-evaluation impossible
       for(it=(this->data).begin() + boost::get<0>(range); it!=(this->data).begin() + boost::get<1>(range); ++it) {
@@ -645,7 +632,7 @@ private:
    boost::uint16_t nThreads_; ///< The number of threads
    bool storedServerMode_; ///< Temporary storage for individual server mode flags during optimization runs
 
-   boost::shared_ptr<Gem::Common::GThreadPool> tp_; ///< Temporarily holds a thread pool
+   Gem::Common::GThreadPool tp_; ///< Holds a thread pool
 
 public:
    /***************************************************************************/

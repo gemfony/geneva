@@ -64,7 +64,6 @@ int main(int argc, char **argv){
   bool serverMode;
   std::string ip;
   unsigned short port;
-  boost::uint16_t nProducerThreads;
   boost::uint16_t nEvaluationThreads;
   std::size_t populationSizeSuper;
   std::size_t nParentsSuper;
@@ -86,7 +85,6 @@ int main(int argc, char **argv){
 
   if(!parseCommandLine(
      argc, argv
-     , nProducerThreads
      , nEvaluationThreads
      , populationSizeSuper
      , nParentsSuper
@@ -105,13 +103,8 @@ int main(int argc, char **argv){
   )) { exit(1); } // Leave if help was requested.
 
   /****************************************************************************/
-
-  // Random numbers are our most valuable good. Set the number of threads
-  GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
-
-  /****************************************************************************/
   // This EA population can hold derivatives of GBaseEA
-  GMultiPopulationEAT<GBaseEA> gmp;
+  GMultiPopulationEAT<GBaseEA> gmp(nEvaluationThreads);
 
   /****************************************************************************/
   // Create a factory for GFunctionIndividual objects and perform
@@ -136,6 +129,7 @@ int main(int argc, char **argv){
 	  sub_pop_ptr->setReportIteration(reportIterationSub);
 	  sub_pop_ptr->setRecombinationMethod(rSchemeSub);
 	  sub_pop_ptr->setSortingScheme(smodeSub);
+	  sub_pop_ptr->setEmitTerminationReason(false);
 
 	  // Add the sub population to the vector
 	  gmp.push_back(sub_pop_ptr);

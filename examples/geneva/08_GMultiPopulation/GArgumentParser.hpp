@@ -74,7 +74,6 @@ namespace po = boost::program_options;
 
 /******************************************************************************/
 // Default settings
-const boost::uint16_t DEFAULTNPRODUCERTHREADS=4;
 const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
 const std::size_t DEFAULTPOPULATIONSIZESUPER=10;
 const std::size_t DEFAULTNPARENTSSUPER=1;
@@ -97,7 +96,6 @@ const duplicationScheme DEFAULTRSCHEMESUB=VALUEDUPLICATIONSCHEME;
  */
 bool parseCommandLine(
      int argc, char** argv
-     , boost::uint16_t& nProducerThreads
      , boost::uint16_t& nEvaluationThreads
      , std::size_t& populationSizeSuper
      , std::size_t& nParentsSuper

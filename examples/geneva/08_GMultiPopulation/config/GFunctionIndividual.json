@@ -99,7 +99,7 @@
     {
         "comment": "The number of dimensions used for the demo function",
         "default": "2",
-        "value": "2"
+        "value": "10"
     },
     "minVar":
     {
@@ -159,6 +159,6 @@
         "comment": "6: Salomon",
         "comment": "[GFunctionIndividual]",
         "default": "0",
-        "value": "3"
+        "value": "1"
     }
 }
