@@ -61,7 +61,9 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------
 	// Server mode, serial or multi-threaded execution
 
-	// Create an optimization monitor (targeted at evolutionary algorithms) and register it with the global store
+	// Create an optimization monitor (targeted at evolutionary algorithms) and register
+	// it with the global store. This step is OPTIONAL. We recommend checking the chapters
+	// on writing custom progress monitors within the Geneva framework.
    GOAMonitorStore->setOnce(
          "ea"
          , boost::shared_ptr<GSigmaMonitor>(new GSigmaMonitor("./sigmaProgress.C"))
@@ -75,9 +77,6 @@ int main(int argc, char **argv) {
 
    // Add a content creator so Go2 can generate its own individuals, if necessary
    go.registerContentCreator(gsif_ptr);
-
-   // Add a default optimization algorithm to the Go2 object
-   go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization
 	boost::shared_ptr<GStarterIndividual> bestIndividual_ptr = go.optimize<GStarterIndividual>();

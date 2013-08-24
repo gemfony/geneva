@@ -107,16 +107,16 @@ GStarterIndividual::GStarterIndividual(
       // The following is a static function used both here
       // and in the factory, so setup code cannot diverge
       GStarterIndividual::addContent(
-            *this
-            , prod_id
-            , startValues
-            , lowerBoundaries
-            , upperBoundaries
-            , sigma
-            , sigmaSigma
-            , minSigma
-            , maxSigma
-            , adProb
+         *this
+         , prod_id
+         , startValues
+         , lowerBoundaries
+         , upperBoundaries
+         , sigma
+         , sigmaSigma
+         , minSigma
+         , maxSigma
+         , adProb
       );
    } catch (const Gem::Common::gemfony_error_condition& e) {
       std::cerr << e.what();
@@ -195,13 +195,14 @@ bool GStarterIndividual::operator!=(const GStarterIndividual& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GStarterIndividual::checkRelationshipWith(const GObject& cp,
-      const Gem::Common::expectation& e,
-      const double& limit,
-      const std::string& caller,
-      const std::string& y_name,
-      const bool& withMessages) const
-{
+boost::optional<std::string> GStarterIndividual::checkRelationshipWith(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
+) const {
    using namespace Gem::Common;
    using namespace Gem::Geneva;
 
@@ -212,7 +213,7 @@ boost::optional<std::string> GStarterIndividual::checkRelationshipWith(const GOb
    std::vector<boost::optional<std::string> > deviations;
 
    // Check our parent class'es data ...
-   deviations.push_back(Gem::Geneva::GParameterSet::checkRelationshipWith(cp, e, limit, "GTestIndividual1", y_name, withMessages));
+   deviations.push_back(Gem::Geneva::GParameterSet::checkRelationshipWith(cp, e, limit, "GStarterIndividual", y_name, withMessages));
 
    // ... and then our local data
    deviations.push_back(checkExpectation(withMessages, "GStarterIndividual", targetFunction_, p_load->targetFunction_, "targetFunction_", "p_load->targetFunction_", e , limit));
@@ -417,15 +418,15 @@ double GStarterIndividual::noisyParabola(const std::vector<double>& parVec) cons
 	return (cos(xsquared) + 2.) * xsquared;
 }
 
-#ifdef GEM_TESTING
-
 /******************************************************************************/
 /**
- * Applies modifications to this object.
+ * Applies modifications to this object. This function is only useful
+ * if you wish to run unit tests with your individual.
  *
  * @return A boolean indicating whether
  */
 bool GStarterIndividual::modify_GUnitTests() {
+#ifdef GEM_TESTING
    using boost::unit_test_framework::test_suite;
    using boost::unit_test_framework::test_case;
 
@@ -442,13 +443,20 @@ bool GStarterIndividual::modify_GUnitTests() {
 
    // Let the audience know whether we have changed the content
    return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GStarterIndividual::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed.
+ * Performs self tests that are expected to succeed. This function is only useful
+ * if you wish to run unit tests with your individual.
  */
 void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
    using namespace Gem::Geneva;
 
    using boost::unit_test_framework::test_suite;
@@ -503,13 +511,19 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
    }
 
    //------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GStarterIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail.
+ * Performs self tests that are expected to fail. This function is only useful
+ * if you wish to run unit tests with your individual.
  */
 void GStarterIndividual::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
    using namespace Gem::Geneva;
 
    using boost::unit_test_framework::test_suite;
@@ -529,57 +543,14 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests() {
    }
 
    //------------------------------------------------------------------------------
-}
 
-#else /* GEM_TESTING */
-
-/******************************************************************************/
-/**
- * Applies modifications to this object. This is function is a trap, as it
- * should not be called if GEM_TESTING isn't set. However, its existence is
- * mandatory, as otherwise this class will have a different API depending on
- * whether GEM_TESTING is set or not.
- */
-bool GStarterIndividual::modify_GUnitTests() {
-   raiseException(
-      "In GStarterIndividual::modify_GUnitTests(): Error!" << std::endl
-      << "Function was called even though GEM_TESTING hasn't been set." << std::endl
-   );
-
-   // Make the compiler happy
-   return true;
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to succeed. This is function is a trap,
- * as it should not be called if GEM_TESTING isn't set. However, its existence is
- * mandatory, as otherwise this class will have a different API depending on
- * whether GEM_TESTING is set or not.
- */
-void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
-   raiseException(
-      "In GStarterIndividual::specificTestsNoFailureExpected_GUnitTests(): Error!" << std::endl
-      << "Function was called even though GEM_TESTING hasn't been set." << std::endl
-   );
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to fail. This is function is a trap, as
- * it should not be called if GEM_TESTING isn't set. However, its existence is
- * mandatory, as otherwise this class will have a different API depending on
- * whether GEM_TESTING is set or not.
- */
-void GStarterIndividual::specificTestsFailuresExpected_GUnitTests() {
-   raiseException(
-      "In GStarterIndividual::specificTestsFailuresExpected_GUnitTests(): Error!" << std::endl
-      << "Function was called even though GEM_TESTING hasn't been set." << std::endl
-   );
-}
-
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GStarterIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
+}
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * Allows to output a GStarterIndividual or convert it to a string using
@@ -601,11 +572,11 @@ std::ostream& operator<<(std::ostream& stream, const GStarterIndividual& gsi) {
  */
 GStarterIndividualFactory::GStarterIndividualFactory(const std::string& configFile)
 	: Gem::Common::GFactoryT<GParameterSet>(configFile)
-	, adProb_(GFI_DEF_ADPROB)
-	, sigma_(GFI_DEF_SIGMA)
-	, sigmaSigma_(GFI_DEF_SIGMASIGMA)
-	, minSigma_(GFI_DEF_MINSIGMA)
-	, maxSigma_(GFI_DEF_MAXSIGMA)
+	, adProb_(GSI_DEF_ADPROB)
+	, sigma_(GSI_DEF_SIGMA)
+	, sigmaSigma_(GSI_DEF_SIGMASIGMA)
+	, minSigma_(GSI_DEF_MINSIGMA)
+	, maxSigma_(GSI_DEF_MAXSIGMA)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -649,7 +620,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	gpb.registerFileParameter<double>(
 		"adProb"
 		, adProb_
-		, GFI_DEF_ADPROB
+		, GSI_DEF_ADPROB
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
 	);
@@ -659,7 +630,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	gpb.registerFileParameter<double>(
 		"sigma"
 		, sigma_
-		, GFI_DEF_SIGMA
+		, GSI_DEF_SIGMA
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
 	);
@@ -669,7 +640,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	gpb.registerFileParameter<double>(
 		"sigmaSigma"
 		, sigmaSigma_
-		, GFI_DEF_SIGMASIGMA
+		, GSI_DEF_SIGMASIGMA
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
 	);
@@ -679,7 +650,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	gpb.registerFileParameter<double>(
 		"minSigma"
 		, minSigma_
-		, GFI_DEF_MINSIGMA
+		, GSI_DEF_MINSIGMA
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
 	);
@@ -689,7 +660,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	gpb.registerFileParameter<double>(
 		"maxSigma"
 		, maxSigma_
-		, GFI_DEF_MAXSIGMA
+		, GSI_DEF_MAXSIGMA
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
 	);

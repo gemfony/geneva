@@ -83,11 +83,11 @@ std::istream& operator>>(std::istream&, Gem::Geneva::targetFunction&);
 
 /******************************************************************************/
 // A number of default settings for the factory
-const double GFI_DEF_ADPROB = 0.05;
-const double GFI_DEF_SIGMA = 0.5;
-const double GFI_DEF_SIGMASIGMA = 0.8;
-const double GFI_DEF_MINSIGMA = 0.001;
-const double GFI_DEF_MAXSIGMA = 2;
+const double GSI_DEF_ADPROB = 0.05;
+const double GSI_DEF_SIGMA = 0.5;
+const double GSI_DEF_SIGMASIGMA = 0.8;
+const double GSI_DEF_MINSIGMA = 0.001;
+const double GSI_DEF_MAXSIGMA = 2;
 const targetFunction GO_DEF_TARGETFUNCTION = boost::numeric_cast<targetFunction>(0);
 
 /******************************************************************************/
@@ -138,12 +138,12 @@ public:
 
    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled. */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject&,
-         const Gem::Common::expectation&,
-         const double&,
-         const std::string&,
-         const std::string&,
-         const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
    ) const;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
@@ -166,16 +166,16 @@ public:
 	 * and factory.
 	 */
 	static void addContent(
-	      GStarterIndividual& p
-	      , const std::size_t& prod_id
-	      , const std::vector<double>& startValues
-	      , const std::vector<double>& lowerBoundaries
-	      , const std::vector<double>& upperBoundaries
-	      , const double& sigma
-	      , const double& sigmaSigma
-	      , const double& minSigma
-	      , const double& maxSigma
-	      , const double& adProb
+      GStarterIndividual& p
+      , const std::size_t& prod_id
+      , const std::vector<double>& startValues
+      , const std::vector<double>& lowerBoundaries
+      , const std::vector<double>& upperBoundaries
+      , const double& sigma
+      , const double& sigmaSigma
+      , const double& minSigma
+      , const double& maxSigma
+      , const double& adProb
 	) {
 	   // Some error checking
 #ifdef DEBUG

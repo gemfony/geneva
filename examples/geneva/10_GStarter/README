@@ -1,14 +1,38 @@
 This directory contains an example that may be directly used 
-as the basis for your own optimization problems. In particular,
-it shows a different way of adding optimization algorithms to the
-Go2 class. NOTE: As a result, the multi-threaded variant of 
-evolutionary algorithms will be executed first in this example,
-regardless of what other algorithms you might have specified on
-the command line. E.g., if you start the program with "./GFunctionMinimizer -a swarm",
-a multi-threaded evolutionary algorithm will be started first
-(because it was added in main() ), followed by a multi-threaded
-swarm (because multi-threaded execution is the default in Geneva).
-Hence this example is not recommended as the general starting 
-point for Geneva-beginners. Note that the swarm algorithm will
-start with the best indivivdual found by the evolutionary algorithm.
+as the basis for your own optimization problems. In order to 
+adapt the example to your needs, it is recommended to start
+from the GStarterIndividual-code in this directory.
 
+Note that this example is not the best starting point if you
+are new to Geneva. In this case we recommend to check the
+preceding examples first and particularly to read the manual.
+
+The GStarter-example is in contrast targeted at situations, where
+already serious optimization problems should be tackled. It 
+therefore contains already some advanced code, such as an 
+optimization monitor (optional, it is needed if you want to find
+out more about the inner workings of your individuals and/or 
+Geneva).
+
+It should also be possible to extract the entire directory from
+the Geneva distribution and adapt the build system to your needs
+with relative ease. The CMakeLists.txt (i.e. the main steering
+file of the build for this example) has been written in such
+a way that it should also work autonomously.
+
+It should be possible to first copy the example out of the source
+tree and then compile it seperately. E.g.:
+
+$ cd ~
+$ mkdir GStarterExample
+$ cd GStarterExample
+$ cp -R /where/Geneva/is/examples/geneva/10_GStarterIndividual/* .
+$ mkdir build
+$ cd build
+$ cmake -DGENEVA_ROOT="/opt/geneva" -DBOOST_ROOT="/opt/boost154" ..
+
+Note that, depending on whether you built Geneva with or without
+testing support, you will need to supply the flag -DGENEVA_BUILD_TESTS=true
+
+It is a precondition that you have compiled and installed Geneva
+before following this procedure.
