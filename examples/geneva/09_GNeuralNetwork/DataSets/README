@@ -1,3 +1,3 @@
-This directory contains sample training sets for Geneva's feedforward neural 
-network implementation (".dat"). The ".C" file allows you to visualize the data 
-distribution, using the ROOT analysis framework (see http://root.cern.ch).
+This directory contains sample training sets for Geneva's feed-forward neural 
+network implementation (".dat"). The ".C" files allow you to visualize the data 
+distributions, using the ROOT analysis framework (see http://root.cern.ch).

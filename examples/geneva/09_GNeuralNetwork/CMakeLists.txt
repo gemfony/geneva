@@ -101,6 +101,8 @@ SET ( ${EXECUTABLENAME}_SRCS
 
 SET ( CONFIGFILE
 	./config/Go2.json
+	./config/GEvolutionaryAlgorithm.json
+	./config/GNeuralNetworkIndividual.json
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
