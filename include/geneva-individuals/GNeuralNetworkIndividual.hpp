@@ -78,10 +78,10 @@
 // Geneva header files go here
 #include <common/GCommonEnums.hpp>
 #include <common/GExceptions.hpp>
-#include <common/GGlobalOptionsT.hpp>
 #include <common/GHelperFunctions.hpp>
 #include <common/GHelperFunctionsT.hpp>
 #include <common/GSingletonT.hpp>
+#include <common/GGlobalOptionsT.hpp>
 #include <common/GUnitTestFrameworkT.hpp>
 #include <common/GLogger.hpp>
 #include <common/GFactoryT.hpp>
@@ -200,6 +200,9 @@ class networkData
    void load(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
+      ar & make_nvp("GStdSimpleVectorInterfaceT_size_t",
+            boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this));
+
       // Make sure the data vector is empty
       if(data_) {
          for(std::size_t i=0; i<arraySize_; i++) {
@@ -221,6 +224,8 @@ class networkData
       using boost::serialization::make_nvp;
 
       ar
+      & make_nvp("GStdSimpleVectorInterfaceT_size_t",
+            boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this))
       & BOOST_SERIALIZATION_NVP(arraySize_)
       & boost::serialization::make_array(data_, arraySize_);
    }
@@ -318,6 +323,14 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::transferFunction& t
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+// A global singleton giving access to the training data.
+// See also the definition of TFactory_GSingletonT<Gem::Geneva::networkData>
+typedef Gem::Common::GSingletonT<Gem::Geneva::networkData> GDatStore;
+#define GNNTrainingDataStore GDatStore::Instance(0)
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 // A number of default settings for the factory
 const std::string      GNN_DEF_DATAFILE="./Datasets/training.dat";
 const double           GNN_DEF_ADPROB = 0.05;
@@ -348,11 +361,10 @@ class GNeuralNetworkIndividual
 		using boost::serialization::make_nvp;
 
 		ar
-		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		& BOOST_SERIALIZATION_NVP(networkDataFile_);
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 
 		// Load the network data from disk
-		nD_ = boost::shared_ptr<networkData>(new networkData(networkDataFile_));
+		nD_ = GNNTrainingDataStore; // A glogal singleton
 	}
 
 	template<typename Archive>
@@ -360,8 +372,7 @@ class GNeuralNetworkIndividual
 		using boost::serialization::make_nvp;
 
 		ar
-		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		& BOOST_SERIALIZATION_NVP(networkDataFile_);
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 	}
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -374,8 +385,7 @@ public:
    GNeuralNetworkIndividual();
 	/** @brief A constructor which initializes the individual with a suitable set of network layers */
 	GNeuralNetworkIndividual(
-      const std::string& networkDataFile
-      , const double& min, const double& max
+      const double& min, const double& max
       , const double& sigma, const double& sigmaSigma
       , const double& minSigma, const double& maxSigma
       , const double& adProb
@@ -405,8 +415,7 @@ public:
 
 	/** @brief Initialization according to user-specifications */
    void init(
-      const std::string& networkDataFile
-      , const double& min, const double& max
+      const double& min, const double& max
       , const double& sigma, const double& sigmaSigma
       , const double& minSigma, const double& maxSigma
       , const double& adProb
@@ -939,7 +948,6 @@ private:
 	/***************************************************************************/
 	// Local variables
 	transferFunction tF_; ///< The transfer function to be used for the training
-	std::string networkDataFile_; ///< Holds the name of the file with the training data
 	boost::shared_ptr<networkData> nD_; ///< Holds the training data
 };
 
@@ -975,7 +983,6 @@ private:
    /** @brief The default constructor. Intentionally private and undefined */
    GNeuralNetworkIndividualFactory();
 
-   std::string networkDataFile_;
    double adProb_;
    double sigma_;
    double sigmaSigma_;
@@ -1016,8 +1023,9 @@ template <> boost::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT();
 #ifdef GEM_TESTING
 
 /**
- * @brief As the Gem::Geneva::Gem::Geneva::GNeuralNetworkIndividual has a meaningless default constructor,
- * we need to provide a specialization of the factory function that creates a GNeuralNetworkIndividual objects
+ * @brief As the Gem::Geneva::GNeuralNetworkIndividual has a meaningless default
+ * constructor, we need to provide a specialization of the factory function that creates
+ * GNeuralNetworkIndividual objects
  */
 template <>
 boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual> TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual>();

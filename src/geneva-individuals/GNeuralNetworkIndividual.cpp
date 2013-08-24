@@ -666,7 +666,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::transferFunction& t
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual()
    : tF_(GNN_DEF_TRANSFER)
-   , networkDataFile_(GNN_DEF_DATAFILE)
+   , nD_(GNNTrainingDataStore)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -674,7 +674,6 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual()
  * A constructor which initializes the individual with a suitable set of network layers. It
  * also loads the training data from file.
  *
- * @param networkDataFile The name of a file holding the training data
  * @param architecture Holds the number of nodes in the input layer, hidden(1/2) layer and output layer
  * @param min The minimum value of random numbers used for initialization of the network layers
  * @param max The maximum value of random numbers used for initialization of the network layers
@@ -684,18 +683,16 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual()
  * @param maxSigma The maximum allowed value for sigma
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(
-   const std::string& networkDataFile
-   , const double& min, const double& max
+   const double& min, const double& max
    , const double& sigma, const double& sigmaSigma
    , const double& minSigma, const double& maxSigma
    , const double& adProb
 )
    : tF_(GNN_DEF_TRANSFER)
-   , networkDataFile_(GNN_DEF_DATAFILE)
+   , nD_(GNNTrainingDataStore)
 {
    this->init(
-      networkDataFile
-      , min, max
+      min, max
       , sigma, sigmaSigma
       , minSigma, maxSigma
       , adProb
@@ -711,8 +708,7 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(const GNeuralNetworkIndividual& cp)
    : GParameterSet(cp)
    , tF_(cp.tF_)
-   , networkDataFile_(cp.networkDataFile_)
-   , nD_(new networkData(*(cp.nD_)))
+   , nD_(GNNTrainingDataStore) // We want a single source for the training data
 { /* nothing */ }
 
 /******************************************************************************/
@@ -795,8 +791,7 @@ boost::optional<std::string> GNeuralNetworkIndividual::checkRelationshipWith(
     deviations.push_back(GParameterSet::checkRelationshipWith(cp, e, limit, "GNeuralNetworkIndividual", y_name, withMessages));
 
     // ... and then our local data
-    deviations.push_back(checkExpectation(withMessages, "GNeuralNetworkIndividual", networkDataFile_, p_load->networkDataFile_, "networkDataFile_", "p_load->networkDataFile_", e , limit));
-    deviations.push_back(nD_->checkRelationshipWith(*(p_load->nD_), e, limit, "GNeuralNetworkIndividual", y_name, withMessages));
+    deviations.push_back(checkExpectation(withMessages, "GNeuralNetworkIndividual", tF_, p_load->tF_, "tF_", "p_load->tF_", e , limit));
 
    return evaluateDiscrepancies("GNeuralNetworkIndividual", caller, deviations, e);
 }
@@ -806,7 +801,6 @@ boost::optional<std::string> GNeuralNetworkIndividual::checkRelationshipWith(
  * A function which initializes the individual with a suitable set of network
  * layers, according to user-specifications.
  *
- * @param networkDataFile The name of a file holding the training data
  * @param min The minimum value of random numbers used for initialization of the network layers
  * @param max The maximum value of random numbers used for initialization of the network layers
  * @param sigma The sigma used for gauss adaptors
@@ -816,8 +810,7 @@ boost::optional<std::string> GNeuralNetworkIndividual::checkRelationshipWith(
  * @param adProb The adaption probability in Evolutionary Algorithms
  */
 void GNeuralNetworkIndividual::init(
-   const std::string& networkDataFile
-   , const double& min, const double& max
+   const double& min, const double& max
    , const double& sigma, const double& sigmaSigma
    , const double& minSigma, const double& maxSigma
    , const double& adProb
@@ -825,9 +818,16 @@ void GNeuralNetworkIndividual::init(
    // Make sure the individual is empty
    this->clear();
 
+#ifdef DEBUG
+   if(!nD_) {
+      glogger
+      << "In GNeuralNetworkIndividual::init([...]): Error!" << std::endl
+      << "No network data appears to have been registered." << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
    // Set up our local data structures
-   networkDataFile_ = networkDataFile;
-   nD_ = boost::shared_ptr<networkData>(new networkData(networkDataFile_));
 
    // Check the architecture we've been given and create the layers
    std::size_t nLayers = nD_->size();
@@ -835,7 +835,8 @@ void GNeuralNetworkIndividual::init(
    if(nLayers < 2){ // Two layers are required at the minimum (3 and 4 layers are useful)
       glogger
       << "In GNeuralNetworkIndividual::init([...]): Error!" << std::endl
-      << "Invalid number of layers supplied. Did you set up the network architecture ?" << std::endl
+      << "Invalid number of layers supplied (" << nLayers << ")." << std::endl
+      << "Did you set up the network architecture ?" << std::endl
       << GEXCEPTION;
    }
 
@@ -1291,12 +1292,10 @@ void GNeuralNetworkIndividual::load_(const GObject* cp){
    GParameterSet::load_(cp);
 
    // Load our local data.
-   networkDataFile_ = p_load->networkDataFile_;
+   tF_ = p_load->tF_;
 
-   // nD_ is a shared_ptr, hence we need to copy the data itself. We do not do
-   // this, if we already have the data present. This happens as we assume that
-   // the training data doesn't change.
-   if(!nD_) nD_ = boost::shared_ptr<networkData>(new networkData(*(p_load->nD_)));
+   // We do not copy the network data, as it is always initialized through
+   // the constructors, even in the case of a copy constructor
 }
 
 /******************************************************************************/
@@ -1438,7 +1437,6 @@ double GNeuralNetworkIndividual::transfer(const double& value) const {
  */
 GNeuralNetworkIndividualFactory::GNeuralNetworkIndividualFactory(const std::string& configFile)
    : Gem::Common::GFactoryT<GParameterSet>(configFile)
-   , networkDataFile_(GNN_DEF_DATAFILE)
    , adProb_(GNN_DEF_ADPROB)
    , sigma_(GNN_DEF_SIGMA)
    , sigmaSigma_(GNN_DEF_SIGMASIGMA)
@@ -1500,17 +1498,6 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    using namespace Gem::Courtier;
 
    std::string comment;
-
-   comment = "";
-   comment += "The name of the file holding the training data;";
-   gpb.registerFileParameter<std::string>(
-      "networkDataFile"
-      , networkDataFile_
-      , GNN_DEF_DATAFILE
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
-
 
    comment = "";
    comment += "The probability for random adaptions of values in evolutionary algorithms;";
@@ -1612,8 +1599,7 @@ void GNeuralNetworkIndividualFactory::postProcess_(boost::shared_ptr<GParameterS
 
    // Call the initialization function with our parsed data
    p->init(
-      networkDataFile_
-      , minVar_, maxVar_
+      minVar_, maxVar_
       , sigma_, sigmaSigma_
       , minSigma_, maxSigma_
       , adProb_
@@ -1645,8 +1631,8 @@ namespace Common {
  */
 template <>
 boost::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT() {
-   if(GNeuralNetworkOptions->exists("networkDataFile")) {
-      return boost::shared_ptr<Gem::Geneva::networkData>(new Gem::Geneva::networkData(GNeuralNetworkOptions->get("networkDataFile")));
+   if(GNeuralNetworkOptions->exists("trainingDataFile")) {
+      return boost::shared_ptr<Gem::Geneva::networkData>(new Gem::Geneva::networkData(GNeuralNetworkOptions->get("trainingDataFile")));
    } else {
       return boost::shared_ptr<Gem::Geneva::networkData>(new Gem::Geneva::networkData(Gem::Geneva::GNN_DEF_DATAFILE));
    }
@@ -1668,7 +1654,7 @@ boost::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT() {
  */
 template <>
 boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual> TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual>() {
-	return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>(new Gem::Geneva::GNeuralNetworkIndividual("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
+	return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>(new Gem::Geneva::GNeuralNetworkIndividual(-1.,1., 2.,0.8,0.001, 2., 0.05));
 }
 
 /******************************************************************************/

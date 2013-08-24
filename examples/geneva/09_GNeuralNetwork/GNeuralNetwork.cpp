@@ -50,6 +50,7 @@
 
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
+using namespace Gem::Common;
 using namespace Gem::Hap;
 namespace po = boost::program_options;
 
@@ -140,7 +141,7 @@ int main(int argc, char **argv){
    std::string trainingDataFile = "./DataSets/training.dat";
    std::string architecture = "2-4-4-1"; // two input nodes, one output node, two hidden layers with 4 nodes each
    std::size_t nDataSets = 2000;
-   std::string resultProgram = "resultProgram.C";
+   std::string resultProgram = "trainedNetwork.hpp";
    std::string visualizationFile = "visualization.C";
 
    std::vector<boost::shared_ptr<po::option_description> > od = getCustomCLOptions(
@@ -161,6 +162,8 @@ int main(int argc, char **argv){
    if(tdt != Gem::Geneva::TDTNONE) {
       GNeuralNetworkIndividual::createNetworkData(tdt, trainingDataFile, architecture, nDataSets);
       return 0;
+   } else { // Store the trainingDataFile in the global options, so they can be accessed by the individuals
+      GNeuralNetworkOptions->set("trainingDataFile", trainingDataFile);
    }
 
    //---------------------------------------------------------------------------
