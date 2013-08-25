@@ -3,3 +3,8 @@ a complex individual and compares it with the time needed for its adaption. It d
 for different sizes of the individual (i.e. different amounts of parameters) and graphically
 plots the amount of time needed for each time. The idea is to find out whether adaption 
 should rather happen on the server or the client side in networked execution.
+
+Check the result with the ROOT analysis framework (see http://root.cern.ch), with a 
+command similar to
+
+root -l result.C
