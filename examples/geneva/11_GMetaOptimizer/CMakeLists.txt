@@ -102,8 +102,10 @@ SET ( ${EXECUTABLENAME}_SRCS
 
 SET ( CONFIGFILE
 	config/GEvolutionaryAlgorithm.json
+	config/GFunctionIndividual.json
 	config/GMetaOptimizerIndividual.json
 	config/Go2.json
+	config/GSubEvolutionaryAlgorithm.json
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -131,12 +133,6 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${COMMON_LIBNAME}
 	${Boost_LIBRARIES}
 )
-
-IF( GENEVA_BUILD_TESTS )
-#	ADD_SUBDIRECTORY (Tests)
-ENDIF()
-
-ADD_SUBDIRECTORY (config)
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION examples/${PROJECT_NAME}
 	PERMISSIONS

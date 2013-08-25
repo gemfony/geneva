@@ -1,5 +1,12 @@
 This directory contains a performance tuning application that
 allows to find optimal optimization parameters for a given individual 
 type. The target function is the average amount of calls to the 
-individual's objective function, which needs to be minimized.
- 
+individual's objective function over the course of an optimization
+run, which needs to be minimized. Thus, with this application, you
+can tune the parameters of optimization algorithms themselves.
+The supplied "GMetaOptimizerIndividual" encapsulates different 
+optimization algorithms.
+
+Note that the example currently only covers the optimization of
+the parameters of evolutionary algorithms, but that it can easily
+be extended to other algorithm types.

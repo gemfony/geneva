@@ -1,0 +1,148 @@
+//-----------------------------------------------------------------
+// This configuration file was automatically created by GParserBuilder
+// File creation date: 2013-Aug-25 12:21:02
+//-----------------------------------------------------------------
+
+{
+    "initSubNParents":
+    {
+        "comment": "The initial number of parents in a population",
+        "default": "1",
+        "value": "1"
+    },
+    "subNParentsLB":
+    {
+        "comment": "The lower boundary for variations of the number of parents",
+        "default": "1",
+        "value": "1"
+    },
+    "subNParentsUB":
+    {
+        "comment": "The upper boundary for variations of the number of parents",
+        "default": "5",
+        "value": "5"
+    },
+    "initSubNChildren":
+    {
+        "comment": "The initial number of children in a population",
+        "default": "100",
+        "value": "100"
+    },
+    "subNChildrenLB":
+    {
+        "comment": "The lower boundary for the variation of the number of children",
+        "default": "5",
+        "value": "5"
+    },
+    "subNChildrenUB":
+    {
+        "comment": "The upper boundary for the variation of the number of children",
+        "default": "100",
+        "value": "100"
+    },
+    "initSubAdProb":
+    {
+        "comment": "The initial probability for random adaptions of values in evolutionary algorithms",
+        "default": "0.99",
+        "value": "0.99"
+    },
+    "subAdProbLB":
+    {
+        "comment": "The lower boundary for the variation of the adaption probability",
+        "default": "0.01",
+        "value": "0.01"
+    },
+    "subAdProbUB":
+    {
+        "comment": "The upper boundary for the variation of the adaption probability",
+        "default": "0.9999",
+        "value": "0.9999"
+    },
+    "initSubMinSigma":
+    {
+        "comment": "The initial minimum sigma for gauss-adaption in ES",
+        "default": "0.01",
+        "value": "0.01"
+    },
+    "subMinSigmaLB":
+    {
+        "comment": "The lower boundary for the variation of the lower boundary of sigma",
+        "default": "0.01",
+        "value": "0.01"
+    },
+    "subMinSigmaUB":
+    {
+        "comment": "The upper boundary for the variation of the lower boundary of sigma",
+        "default": "1",
+        "value": "1"
+    },
+    "initSubSigmaRange":
+    {
+        "comment": "The initial maximum range for sigma",
+        "default": "4.999",
+        "value": "4.999"
+    },
+    "subSigmaRangeLB":
+    {
+        "comment": "The lower boundary for the variation of the maximum range of sigma",
+        "default": "0.1",
+        "value": "0.1"
+    },
+    "subSigmaRangeUB":
+    {
+        "comment": "The upper boundary for the variation of the maximum range of sigma",
+        "default": "5",
+        "value": "5"
+    },
+    "initSubSigmaSigma":
+    {
+        "comment": "The initial strength of self-adaption of gauss-mutation in ES",
+        "default": "0.999",
+        "value": "0.999"
+    },
+    "subSigmaSigmaLB":
+    {
+        "comment": "The lower boundary for the variation of the strength of sigma adaption",
+        "default": "0.01",
+        "value": "0.01"
+    },
+    "subSigmaSigmaUB":
+    {
+        "comment": "The upper boundary for the variation of the strength of sigma adaption",
+        "default": "1",
+        "value": "1"
+    },
+    "validityThreshold":
+    {
+        "comment": "The [0,1] threshold as of which a solution is considered to be invalid",
+        "comment": " [GOptimizableEntity]",
+        "default": "0.5",
+        "value": "0.5"
+    },
+    "maximize":
+    {
+        "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
+        "comment": "Note that minimization is the by far most common option.",
+        "comment": "[GParameterset]",
+        "default": "0",
+        "value": "0"
+    },
+    "nRunsPerOptimization":
+    {
+        "comment": "Specifies the number of optimizations performed[GMetaOptimizerIndividual]",
+        "default": "50",
+        "value": "50"
+    },
+    "fitnessTarget_":
+    {
+        "comment": "The fitness below which optimization should stop[GMetaOptimizerIndividual]",
+        "default": "0.001",
+        "value": "0.001"
+    },
+    "iterationThreshold":
+    {
+        "comment": "The maximum number of iterations per sub-optimization[GMetaOptimizerIndividual]",
+        "default": "10000",
+        "value": "10000"
+    }
+}

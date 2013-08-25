@@ -66,9 +66,9 @@ int main(int argc, char **argv) {
    // Create a factory for evolutionary algorithms in serial mode.
    // We choose serial execution, to allow the sub-populations to use multiple threads.
    GEvolutionaryAlgorithmFactory ea_factory(
-         "./config/GEvolutionaryAlgorithm.json"
-         , EXECMODE_SERIAL
-         , gmoi_ptr
+      "./config/GEvolutionaryAlgorithm.json"
+      , EXECMODE_SERIAL
+      , gmoi_ptr
    );
 
    boost::shared_ptr<GBaseEA> ea_ptr = ea_factory.get<GBaseEA>();
