@@ -1,3 +1,10 @@
-This directory contains a manual test / usage demo of the GROOTProducer class,
-which lets you produce root plots in a more intuitive way than was possible 
-before in Geneva.
+This directory contains a manual test / usage demo of the GPlotDesigner family
+of classes, which lets you produce ROOT (cmp. http://root.cern.ch) plots in an 
+intuitive way. The library will create input files for ROOT, which can then be 
+further processed.
+
+In order to try out the example, after calling the executable, have a llok at
+the file result.C with a text editor -- it was created with GPlotDesigner and
+associated classes. Then, if ROOT is in your path, execute
+
+root -l ./result.C
