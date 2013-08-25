@@ -274,7 +274,7 @@ int main(int argc, char **argv) {
 			, maxPutTimeouts
 			, maxGetTimeouts
 	))
-	{ exit(1); }
+	{ exit(0); }
 
 	//--------------------------------------------------------------------------------
 	// Initialize the global barrier so all threads start at a predefined time

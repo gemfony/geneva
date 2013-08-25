@@ -22,7 +22,6 @@ near line 231 with description:
 
 In processor: Exceeded allowed number 100 of put timeouts in cycle 10000
 
-
 If you suspect that this error is due to Geneva,
 then please consider filing a bug via
 http://www.gemfony.com (link "Bug Reports") or
@@ -41,4 +40,4 @@ amount of submissions in this context is usually much smaller than the size of t
 much be submitted simultaneously. In the context of this test this means that the processor will soon have submitted 
 more than 10000 items back to the buffer port, at which time it will start to run into timeouts. 
 
-In a real-life context, this would lead to the items being submitted to be discarded.
+In a real-life context, this might lead to the items being submitted to be discarded.

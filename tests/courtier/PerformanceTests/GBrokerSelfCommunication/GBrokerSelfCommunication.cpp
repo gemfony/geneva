@@ -225,7 +225,7 @@ int main(int argc, char **argv) {
 			, maxResubmissions
 			, nWorkers
 		)
-	){ exit(1); }
+	){ exit(0); }
 
 	//--------------------------------------------------------------------------------
 	// Initialize the broker
