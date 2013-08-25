@@ -1,0 +1,4 @@
+This test adapts a double a given number of times and records the values of
+different entities of a GDoubleGaussAdaptor as a function of the iteration.
+The output can be processed with the help of the ROOT analysis toolkit (see
+http://root.cern.ch .
