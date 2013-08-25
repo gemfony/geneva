@@ -115,7 +115,7 @@ int main(int argc, char **argv){
   //***************************************************************************
   // Create a factory for GFunctionIndividual objects and perform
   // any necessary initial work.
-  GFunctionIndividualFactory gfi("./GFunctionIndividual.json");
+  GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
   std::vector<boost::shared_ptr<GParameterSet> > parentIndividuals;

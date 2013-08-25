@@ -9,6 +9,7 @@ SET (${EXECUTABLENAME}_SRCS
 
 SET (CONFIGURATIONFILES
 	GBrokerOverhead.cfg
+	config/GFunctionIndividual.json
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -18,7 +19,7 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 # Copy the config files to the build tree for easier testing
 IF( NOT OLD_CMAKE )
 	FOREACH ( file IN LISTS CONFIGURATIONFILES )
-		CONFIGURE_FILE ( ${file} . COPYONLY )
+		CONFIGURE_FILE ( ${file} ${file} COPYONLY )
 	ENDFOREACH ()
 ENDIF()
 
