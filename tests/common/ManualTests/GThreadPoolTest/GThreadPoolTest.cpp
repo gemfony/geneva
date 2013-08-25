@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
 		tasks.at(i).reset(new testTask);
 	}
 
-	// Submit each task to the pool for a number of times
+	// Submit each task to the pool a number of times
 	for(std::size_t n = 0; n<NSUBMISSIONS; n++) {
 		// Submission number n
 		for(std::size_t i=0; i<NJOBS; i++) {
@@ -104,15 +104,17 @@ int main(int argc, char** argv) {
 
 		// Wait for all tasks to complete and check for errors
 		if(!gtp.wait()) {
-			std::cout << "An exception was thrown during the execution" << std::endl;
+			std::cout
+			<< "Errors occurred during the execution" << std::endl;
 		}
 	}
 
 	// Check that each task has been called exactly NSUBMISSIONS times
 	for(std::size_t i=0; i<NJOBS; i++) {
 		if(NSUBMISSIONS != (tasks.at(i))->getNCalls()) {
-			std::cout << "In task " << i << ":" << std::endl
-					  << "Got wrong number of calls: " << (tasks.at(i))->getNCalls() << "." << std::endl;
+			std::cout
+			<< "In task " << i << ":" << std::endl
+			<< "Got wrong number of calls: " << (tasks.at(i))->getNCalls() << "." << std::endl;
 		}
 	}
 }

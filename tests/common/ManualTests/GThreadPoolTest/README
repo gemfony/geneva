@@ -1,2 +1,3 @@
 This directory contains a manual test / usage demo of the GThreadPool class,
 which lets you schedule jobs with a fixed number of continuously running threads.
+If everything runs smoothely, there will be no output from the program.
