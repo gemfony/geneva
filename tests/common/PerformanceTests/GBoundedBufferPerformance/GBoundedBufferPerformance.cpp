@@ -213,7 +213,7 @@ void producer(
 		boost::mutex::scoped_lock lk(producerMutex);
 		producerDroppedCounter.at(id) = nDropped;
 		producerSum.at(id) = sum;
-		std::cout << "Producer " << id << " has produced a total of " << sum;
+		std::cout << "Producer " << id << " has produced a total sum of " << sum;
 		if(nDropped > 0) {
 			std::cout << " and has dropped " << nDropped << " of " << nItems << " items in iteration ";
 			for(std::vector<std::size_t>::iterator it = droppedIteration.begin(); it!=droppedIteration.end(); ++it) {
@@ -238,7 +238,7 @@ void consumer(
 	, bool startAtOnce
 ) {
 	std::size_t id = 0;
-	std::size_t nDropped = 0;
+	std::size_t nStalled = 0;
 	std::size_t iteration = 0;
 	std::vector<std::size_t> droppedIteration;
 	boost::shared_ptr<double> item;
@@ -274,13 +274,12 @@ void consumer(
 				{
 					boost::shared_lock<boost::shared_mutex> lock(consumerStopMutex);
 					if(consumerStop) stopExecution = true;
-					consumerStopMutex.unlock();
 				}
 
 				if(stopExecution) break;
 				else {
 					droppedIteration.push_back(iteration);
-					nDropped++;
+					nStalled++;
 				}
 			}
 
@@ -297,13 +296,12 @@ void consumer(
 				{
 					boost::shared_lock<boost::shared_mutex> lock(consumerStopMutex);
 					if(consumerStop) stopExecution = true;
-					consumerStopMutex.unlock();
 				}
 
 				if(stopExecution) break;
 				else {
 					droppedIteration.push_back(iteration);
-					nDropped++;
+					nStalled++;
 				}
 			}
 			boost::this_thread::sleep(
@@ -320,11 +318,11 @@ void consumer(
 	{ // Explicit scope
 		boost::mutex::scoped_lock lk(consumerMutex);
 		consumerSum.at(id) = sum;
-		consumerDroppedCounter.at(id) = nDropped;
+		consumerDroppedCounter.at(id) = nStalled;
 
-		std::cout << "Consumer " << id << " has consumed a total of " << sum;
-		if(nDropped > 0) {
-			std::cout << " and has dropped " << nDropped << " items in iteration " << std::endl;
+		std::cout << "Consumer " << id << " has consumed a total sum of " << sum;
+		if(nStalled > 0) {
+			std::cout << " and could not retrieve items in " << nStalled << " cases in iteration(s) ";
 			for(std::vector<std::size_t>::iterator it = droppedIteration.begin(); it!=droppedIteration.end(); ++it) {
 				std::cout << *it << " ";
 			}
@@ -338,7 +336,10 @@ void consumer(
 /**
  * This program tests the performance and reliability of the
  * GBoundedBufferT class by producing and consuming many double
- * values from within concurrent threads.
+ * values from within concurrent threads. The bounded buffer, as
+ * the name suggests, acts as the buffer between producer and
+ * consumer. This example both stress-tests the buffer and tests
+ * its performance.
  */
 int main(int argc, char**argv) {
 	Gem::Common::GThreadGroup producer_gtg;
@@ -376,8 +377,10 @@ int main(int argc, char**argv) {
 	consumerSum.resize(nConsumers);
 
 	// Prepare the termination criterion for consumers
-	consumerStop = false;
-	consumerStopMutex.unlock();
+   {
+      boost::unique_lock<boost::shared_mutex> lock(consumerStopMutex);
+      consumerStop = false;
+   }
 
 	// Initialize the producer counters with 0s
 	for(std::size_t i=0; i<nProducers; i++) {
@@ -430,7 +433,6 @@ int main(int argc, char**argv) {
 	{
 		boost::unique_lock<boost::shared_mutex> lock(consumerStopMutex);
 		consumerStop = true;
-		consumerStopMutex.unlock();
 	}
 
 	consumer_gtg.join_all();
