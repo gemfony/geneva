@@ -1,0 +1,10 @@
+This test takes a GConstrainedDoubleObject object:
+a) It examines the mapping from internal to external representation of its value.
+b) It tests the "distortion" of a gaussian when going through the mapping from
+   internal to external value.
+
+Additional tests (including error handling) of the GConstrainedDoubleObject class have been
+implemented as part of the unit tests.
+
+In order to see the results of this test, you need the Root toolkit from http://root.cern.ch.
+Once installed call "root -l mapping.C" .
