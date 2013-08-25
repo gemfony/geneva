@@ -2,3 +2,7 @@ This directory contains a test where different floating-point
 based parameter objects perform a two-dimensional random walk
 through their adaption. This is used to test that adaption works
 as expected.
+
+Check the result with the ROOT framework, with a command like
+
+root -l result.C
