@@ -61,17 +61,8 @@ int main(int argc, char **argv) {
 	boost::shared_ptr<GExternalEvaluatorIndividualFactory>
 	   geei_ptr(new GExternalEvaluatorIndividualFactory("./config/GExternalEvaluatorIndividual.json"));
 
-	// Add an evolutionary algorithm in multi-threaded mode.
-   // GExternalEvaluatorIndividualFactory will take care of the creation
-   // of individuals
-	GEvolutionaryAlgorithmFactory ea(
-	      "./config/GEvolutionaryAlgorithm.json"
-	      , EXECMODE_MULTITHREADED
-	      , geei_ptr
-	);
-
-	// Add an EA-object to the Go2 object
-	go & ea();
+   // Add a content creator so Go2 can generate its own individuals, if necessary
+   go.registerContentCreator(geei_ptr);
 
 	// Perform the actual optimization
 	boost::shared_ptr<GExternalEvaluatorIndividual> p = go.optimize<GExternalEvaluatorIndividual>();

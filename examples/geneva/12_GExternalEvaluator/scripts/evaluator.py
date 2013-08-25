@@ -75,6 +75,7 @@ def setup(setup_file, initial_values):
         content += "            <type>GConstrainedDoubleObject</type>\n"
         content += "            <baseType>double</baseType>\n"
         content += "            <isLeaf>true</isLeaf>\n"
+        content += "            <name>var" + str(i) + "</name>\n"
         if initial_values == "min":
             content += "            <value0>-10.0</value0>\n"
             content += "            <lowerBoundary>-10.0</lowerBoundary>\n"

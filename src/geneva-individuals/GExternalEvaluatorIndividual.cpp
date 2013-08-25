@@ -1216,8 +1216,8 @@ void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParame
    if(useBiGaussian_) {
       boost::shared_ptr<GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
       gdbga_ptr->setAllSigma1(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_);
-      gdbga_ptr->setAllSigma1(sigma2_, sigmaSigma2_, minSigma2_, maxSigma2_);
-      gdbga_ptr->setAllSigma1(delta_, sigmaDelta_, minDelta_, maxDelta_);
+      gdbga_ptr->setAllSigma2(sigma2_, sigmaSigma2_, minSigma2_, maxSigma2_);
+      gdbga_ptr->setAllDelta(delta_, sigmaDelta_, minDelta_, maxDelta_);
       gdbga_ptr->setAdaptionThreshold(adaptionThreshold_);
       gdbga_ptr->setAdaptionProbability(adProb_);
       gat_ptr = gdbga_ptr;
@@ -1248,9 +1248,9 @@ void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParame
          if((cit->second).get<std::string>("type") == "GConstrainedDoubleObject") {
             // Extract the boundaries and initial values
             std::string pName = (cit->second).get<std::string>("name");
-            double minVar    = (cit->second).get<double>("lowerBoundary");
-            double maxVar    = (cit->second).get<double>("upperBoundary");
-            double initValue = (cit->second).get<double>("value0");
+            double minVar     = (cit->second).get<double>("lowerBoundary");
+            double maxVar     = (cit->second).get<double>("upperBoundary");
+            double initValue  = (cit->second).get<double>("value0");
 
             // Create an initial (empty) pointer to a GConstrainedDoubleObject
             boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
