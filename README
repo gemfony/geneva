@@ -4,7 +4,17 @@ aims to provide the necessary tools to perform parametric optimization
 in parallel on devices ranging from multi-processor machines over
 clusters all the way to Grid- and Cloud-installations.
 
-Geneva does not want to be the fastest library of evolutionary
+Meanwhile, further optimization algorithms have been added beyond "mere"
+evolutionary algorithms, such as swarm algorithms, simulated annealing 
+and a simple form of gradient descents. Further algorithms will be added 
+over time, and the existing algorithms will be further improved.
+
+All algorithms act on the same problem definitions, and different 
+optimization algorithms can interact and may be "chained", making it 
+easy to tacke even complicated problems. Parallelization (on the level
+of optimization algorithms) happens mostly transparent for the user. 
+
+Geneva does not want to be the fastest library of optimization
 algorithms on single-processor machines, but is instead targeted at
 large scale problems, where the evaluation of a single individual will
 typically take longer than a few seconds.
@@ -21,10 +31,6 @@ contributor to the code and will only be able to accept contributions
 where an appropriate transfer of rights takes place. To users and
 programmers wishing to contribute to this software, the terms of the
 AGPL guarantee the continued availability of the code under this license.
-
-Geneva is currently in beta status. Its single largest deficiency at
-the moment is likely a lack of documentation. We recommend to have a look
-at the examples shipped with the code.
 
 Geneva is maintained by Gemfony scientific. To find out more about
 Gemfony and/or Geneva, visit http://www.gemfony.com or contact us

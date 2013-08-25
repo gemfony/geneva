@@ -1,16 +1,12 @@
-This file belongs to the Geneva library. The use of this library and the
-associated programs is governed by a number of licenses, as described below.
+The Geneva library collection is covered by version 3 of the GNU Affero General 
+Public License. You should have received a copy of that license along with the 
+Geneva library (see the file licenses/AfferoGPLv3). If not, see <http://www.gnu.org/licenses/>.
 
-The majority of files of the Geneva library are covered by version 3 of the
-GNU Affero General Public License. You should have received a copy of that
-license along with the Geneva library (see the file licenses/AfferoGPLv3).
-If not, see <http://www.gnu.org/licenses/>.
-
-A small number of files of the Geneva library is covered by the Boost Software
+A small number of files of the Geneva library collection is covered by the Boost Software
 License v1. You should have received a copy of the Boost Software License v1
 along with the Geneva library (see the file licenses/BoostSoftwareLicenseV1).
 
-Some stand-alone programs may be covered by version 2 of the GNU General
+Some stand-alone programs might be covered by version 2 of the GNU General
 Public License. Again you should have received a copy of the GNU General
 Public License version 2 along with the Geneva library (see the file
 licenses/GPLv2). If not, see <http://www.gnu.org/licenses/>.
@@ -18,11 +14,14 @@ licenses/GPLv2). If not, see <http://www.gnu.org/licenses/>.
 A few files / or programs may be dual-licensed under both the GNU General
 Public version 2 and version 3 of the GNU Affero General Public License.
 
+***************************************************************************
+IMPORTANT:
 Each code file of the Geneva library contains licensing information. So if
 in doubt, please have a look at each file individually. If doubts still
 remain, please contact the authors PRIOR TO USING THIS LIBRARY through
-contact (AT) gemfony (DOT) com. If doubts still remain, we recommend
-to not use the library at all.
+contact@gemfony.com. If doubts still remain, we recommend to not use the 
+library at all.
+***************************************************************************
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
