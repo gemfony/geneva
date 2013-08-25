@@ -37,7 +37,7 @@
  * from internal to external representation of its value.
  *
  * In order to see the results of this test, you need the Root toolkit from http://root.cern.ch.
- * Once installed call "root -l mapping.C" .
+ * Once installed call "root -l result.C" .
  */
 
 // Standard header files go here

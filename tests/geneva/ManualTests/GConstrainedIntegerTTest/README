@@ -1,0 +1,5 @@
+This test takes a GConstrainedIntT<boost::int32_t> object and examines the mapping
+from internal to external representation of its value.
+
+In order to see the results of this test, you need the ROOT toolkit from http://root.cern.ch.
+Once installed call "root -l result.C" .
