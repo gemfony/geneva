@@ -55,10 +55,13 @@ int main(int argc, char** argv) {
    // Normal output to all logging targets
    glogger << "Some information " << 1 << " " << 2 << std::endl << GLOGGING;
 
+   // Warning emitted to all targets
+   glogger << "Some information " << 3 << " " << 4 << std::endl << GWARNING;
+
    // Raising an exception. Note that the data will also be written to
    // a file named GENEVA-EXCEPTION.log
    try {
-      glogger << "Some information " << 1 << " " << 2 << std::endl << GEXCEPTION;
+      glogger << "Some information " << 5 << " " << 6 << std::endl << GEXCEPTION;
    } catch(gemfony_error_condition& e) {
       std::cout
       << "Caught exception with message" << std::endl
@@ -66,10 +69,10 @@ int main(int argc, char** argv) {
    }
 
    // Output to a specific file
-   glogger(boost::filesystem::path("anotherFile")) << "Some other information " << 3 << " " << 4 << std::endl << GFILE;
+   glogger(boost::filesystem::path("anotherFile")) << "Some other information " << 7 << " " << 8 << std::endl << GFILE;
 
    // Output to registered logging targets with a given extension
-   glogger(std::string("extension")) << "And yet another information " << 5 << " " << 6 << std::endl << GLOGGING;
+   glogger(std::string("extension")) << "And yet another information " << 9 << " " << 10 << std::endl << GLOGGING;
 
    // Output to stdout
    glogger << "std::out-information" << std::endl << GSTDOUT;
