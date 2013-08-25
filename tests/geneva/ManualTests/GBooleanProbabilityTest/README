@@ -1,0 +1,4 @@
+This test checks the flip probability of GBooleanObject and a GBooleanCollection. Likewise this is a test
+for the GBooleanAdaptor class and the class's operator=; Tests include constant flip probability
+as well as mutative adaption of the flip probability. Results can be viewed using the ROOT
+analysis toolkit (see http://root.cern.ch).
