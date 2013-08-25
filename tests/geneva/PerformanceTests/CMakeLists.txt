@@ -6,7 +6,7 @@ ADD_DEPENDENCIES ( "geneva-tests-performance"
 	# Add all the available tests targets (EXECUTABLENAMEs) here
 	GBrokerOverhead
 	GOptimizationBenchmark
-	GParallelisationOverhead
+	# GParallelisationOverhead
 	GSerializationOverhead
 )
 
