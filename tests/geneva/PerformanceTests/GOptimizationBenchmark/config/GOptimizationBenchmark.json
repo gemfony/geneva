@@ -1,0 +1,44 @@
+//-----------------------------------------------------------------
+// This configuration file was automatically created by GParserBuilder
+// File creation date: 2013-Aug-25 20:50:33
+//-----------------------------------------------------------------
+
+{
+    "nTests":
+    {
+        "comment": "The number of tests to be performed for each dimension",
+        "default": "10",
+        "value": "10"
+    },
+    "dimension":
+    {
+        "comment": "Dimensions of the parameter space to be tested",
+        "default":
+        {
+            "item": "2",
+            "item": "4",
+            "item": "8",
+            "item": "16",
+            "item": "32",
+            "item": "64",
+            "item": "128"
+        },
+        "value":
+        {
+            "item": "2",
+            "item": "4",
+            "item": "8",
+            "item": "16",
+            "item": "32",
+            "item": "64",
+            "item": "128"
+        }
+    },
+    "resultFile":
+    {
+        "comment": "The name of a file to which results of the",
+        "comment": "benchmark should be written",
+        "default": "result.C",
+        "value": "result.C"
+    }
+}
