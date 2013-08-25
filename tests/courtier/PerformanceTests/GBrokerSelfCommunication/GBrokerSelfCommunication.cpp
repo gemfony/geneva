@@ -113,7 +113,7 @@ void connectorProducer(
       nReceivedItemsNew += data.size();
       nReceivedItemsOld += oldWorkItems.size();
 
-      std::cout << "Cycle " << cycleCounter << " completed in " << id << std::endl << std::flush;
+      std::cout << "Cycle " << cycleCounter << " completed in producer " << id << std::endl << std::flush;
 	}
 
    brokerConnector.finalize(); // This will reset the buffer port
@@ -169,7 +169,7 @@ void brokerProducer(
 			}
 		}
 
-		std::cout << "Cycle " << cycleCounter << " completed in " << id << std::endl << std::flush;
+		std::cout << "Cycle " << cycleCounter << " completed in producer " << id << std::endl << std::flush;
 	}
 
 	// Get rid of the buffer port object
