@@ -1,0 +1,19 @@
+CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
+
+SET ( TESTPICTURES
+	ml.ppm
+)
+
+# Copy the config files to the build tree for easier testing
+IF( NOT OLD_CMAKE )
+	FOREACH ( file IN LISTS TESTPICTURES )
+		CONFIGURE_FILE ( ${file} . COPYONLY )
+	ENDFOREACH ()
+ENDIF()
+
+INSTALL ( FILES ${TESTPICTURES} DESTINATION tests/common/ManualTests/${EXECUTABLENAME}/pictures
+	PERMISSIONS
+	OWNER_READ OWNER_WRITE
+	GROUP_READ
+	WORLD_READ
+)

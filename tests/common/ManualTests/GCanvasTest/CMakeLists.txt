@@ -6,16 +6,7 @@ SET (${EXECUTABLENAME}_SRCS
 	GCanvasTest
 )
 
-SET ( TESTPICTURES
-	pictures/ml.ppm
-)
-
-# Copy the pictures to the build tree for easier testing
-IF( NOT OLD_CMAKE )
-	FOREACH ( file IN LISTS TESTPICTURES )
-		CONFIGURE_FILE ( ${file} ${file} COPYONLY )
-	ENDFOREACH ()
-ENDIF()
+ADD_SUBDIRECTORY( pictures )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
