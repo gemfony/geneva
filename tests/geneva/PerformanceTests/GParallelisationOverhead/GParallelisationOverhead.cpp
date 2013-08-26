@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
 
 	// Create a factory for GFunctionIndividual objects and perform
 	// any necessary initial work.
-	GDelayIndividualFactory gdif("./GDelayIndividual.json");
+	GDelayIndividualFactory gdif("./config/GDelayIndividual.json");
 
 	//---------------------------------------------------------------------
 	// Prepare the output files used to record the measurements
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
 
 	// Loop until no valid individuals can be retrieved anymore
 	std::size_t iter = 0;
-	while(boost::shared_ptr<GDelayIndividual> gdi_ptr = gdif()) {
+	while(boost::shared_ptr<GDelayIndividual> gdi_ptr = gdif.get<GDelayIndividual>()) {
 		std::vector<double> delaySummary;
 		for(boost::uint32_t i=0; i<nMeasurements; i++) {
 			// Make the individual known to the optimizer
@@ -155,10 +155,6 @@ int main(int argc, char **argv) {
 		// Increment the iteration counter
 		iter++;
 	}
-
-	//---------------------------------------------------------------------
-	// Tell the evaluation program to perform any necessary final work
-	gdif.finalize();
 
 	//---------------------------------------------------------------------
 	// Output the footer of the result file

@@ -58,19 +58,19 @@
 #endif
 
 // Geneva header files go here
+#include "common/GFactoryT.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GDoubleObject.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva-individuals/GIndividualFactoryT.hpp"
 
 namespace Gem
 {
 namespace Tests
 {
 
-/************************************************************************************************/
+/******************************************************************************/
 /**
  * This individual waits for a predefined amount time before returning the result of the evaluation
  * (which is always the same). Its purpose is to measure the overhead of the parallelization, compared
@@ -78,111 +78,123 @@ namespace Tests
  */
 class GDelayIndividual: public Gem::Geneva::GParameterSet
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+   /////////////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-    {
-		using boost::serialization::make_nvp;
+   template<class Archive>
+   void serialize(Archive & ar, const unsigned int version)
+   {
+      using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Geneva::GParameterSet)
-		   & BOOST_SERIALIZATION_NVP(sleepTime_);
-    }
-	///////////////////////////////////////////////////////////////////////
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Geneva::GParameterSet)
+      & BOOST_SERIALIZATION_NVP(sleepTime_);
+   }
+   /////////////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief Initialization with the amount of time the fitness evaluation should sleep before continuing */
-    GDelayIndividual(const boost::posix_time::time_duration&);
-	/** @brief A standard copy constructor */
-	GDelayIndividual(const GDelayIndividual&);
-	/** @brief The standard destructor */
-	virtual ~GDelayIndividual();
+   /** The default constructor */
+   GDelayIndividual();
+   /** @brief A standard copy constructor */
+   GDelayIndividual(const GDelayIndividual&);
+   /** @brief The standard destructor */
+   virtual ~GDelayIndividual();
 
-	/** @brief A standard assignment operator */
-	const GDelayIndividual& operator=(const GDelayIndividual&);
+   /** @brief A standard assignment operator */
+   const GDelayIndividual& operator=(const GDelayIndividual&);
 
-	/** @brief Checks for equality with another GDelayIndividual object */
-	bool operator==(const GDelayIndividual&) const;
-	/** @brief Checks for inequality with another GDelayIndividual object */
-	bool operator!=(const GDelayIndividual&) const;
+   /** @brief Checks for equality with another GDelayIndividual object */
+   bool operator==(const GDelayIndividual&) const;
+   /** @brief Checks for inequality with another GDelayIndividual object */
+   bool operator!=(const GDelayIndividual&) const;
 
-	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-	virtual boost::optional<std::string> checkRelationshipWith(
-			const Gem::Geneva::GObject&,
-			const Gem::Common::expectation&,
-			const double&,
-			const std::string&,
-			const std::string&,
-			const bool&) const;
+   /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
+   virtual boost::optional<std::string> checkRelationshipWith(
+      const Gem::Geneva::GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
+   ) const;
 
-	/** @brief Manual setting of the sleepTime_ variable */
-	void setSleepTime(const boost::posix_time::time_duration&);
-	/** @brief Retrieval of the current value of the sleepTime_ variable */
-	boost::posix_time::time_duration getSleepTime() const;
+   /** @brief Sets the sleep-time to a user-defined value */
+   void setSleepTime(const boost::posix_time::time_duration&);
+   /** @brief Retrieval of the current value of the sleepTime_ variable */
+   boost::posix_time::time_duration getSleepTime() const;
 
 protected:
-	/** @brief Loads the data of another GDelayIndividual, camouflaged as a GObject */
-	virtual void load_(const GObject*);
-	/** @brief Creates a deep clone of this object */
-	virtual Gem::Geneva::GObject* clone_() const;
+   /** @brief Loads the data of another GDelayIndividual, camouflaged as a GObject */
+   virtual void load_(const GObject*);
+   /** @brief Creates a deep clone of this object */
+   virtual Gem::Geneva::GObject* clone_() const;
 
-	/** @brief The actual adaption operations */
-	virtual void customAdaptions();
-	/** @brief The actual fitness calculation takes place here */
-	virtual double fitnessCalculation();
+   /** @brief The actual adaption operations */
+   virtual void customAdaptions();
+   /** @brief The actual fitness calculation takes place here */
+   virtual double fitnessCalculation();
 
 private:
-	/** The default constructor. Intentionally private */
-	GDelayIndividual();
-
-	boost::posix_time::time_duration sleepTime_; ///< The amount of time the evaluation function should sleep before continuing
+   boost::posix_time::time_duration sleepTime_; ///< The amount of time the evaluation function should sleep before continuing
 };
 
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
- * A factory for GDelayIndividual objects
+ * A factory for GFMinIndividual objects
  */
-class GDelayIndividualFactory :public Gem::Geneva::GIndividualFactoryT<GDelayIndividual>
+class GDelayIndividualFactory
+   : public Gem::Common::GFactoryT<Gem::Geneva::GParameterSet>
 {
 public:
-	/** @brief The standard constructor for this class */
-	GDelayIndividualFactory(const std::string&);
-	/** @brief The destructor */
-	virtual ~GDelayIndividualFactory();
+   /** @brief The standard constructor */
+   GDelayIndividualFactory(const std::string&);
+   /** @brief The destructor */
+   virtual ~GDelayIndividualFactory();
 
-	/** @brief Allows to retrieve the name of the result file */
-	std::string getResultFileName() const;
-	/** @brief Allows to retrieve the name of the file holding the short measurement results */
-	std::string getShortResultFileName() const;
-	/** @brief Allows to retrieve the number of delays requested by the user */
-	std::size_t getNDelays() const;
-	/** @brief Allows to retrieve the amount of seconds in between two measurements */
-	boost::uint32_t getInterMeasurementDelay() const;
-	/** @brief Allows to retrieve the number of measurements to be made for each delay */
-	boost::uint32_t getNMeasurements() const;
+   /** @brief Allows to retrieve the name of the result file */
+   std::string getResultFileName() const;
+   /** @brief Allows to retrieve the name of the file holding the short measurement results */
+   std::string getShortResultFileName() const;
+   /** @brief Allows to retrieve the number of delays requested by the user */
+   std::size_t getNDelays() const;
+   /** @brief Allows to retrieve the number of measurements to be made for each delay */
+   boost::uint32_t getNMeasurements() const;
+   /** @brief Retrieves the amount of seconds main() should wait between two measurements */
+   boost::uint32_t getInterMeasurementDelay() const;
 
 protected:
-	/** @brief Necessary initialization work */
-	virtual void init_();
-	/** @brief Allows to describe configuration options in derived classes */
-	virtual void describeConfigurationOptions_();
-	/** @brief Creates individuals of the desired type */
-	virtual boost::shared_ptr<GDelayIndividual> getIndividual_(const std::size_t&);
+   /** @brief Creates individuals of this type */
+   virtual boost::shared_ptr<Gem::Geneva::GParameterSet> getObject_(
+      Gem::Common::GParserBuilder&
+      , const std::size_t&
+   );
+   /** @brief Allows to describe local configuration options in derived classes */
+   virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+   /** @brief Allows to act on the configuration options received from the configuration file */
+   virtual void postProcess_(boost::shared_ptr<Gem::Geneva::GParameterSet>&);
 
 private:
-	std::size_t nVariables_;
-	std::string delays_;
-	std::vector<long> sleepSeconds_, sleepMilliSeconds_;
-	std::string resultFile_;
-	std::string shortResultFile_;
-	boost::uint32_t interMeasurementDelay_; ///< A delay in between two measurements
-	boost::uint32_t nMeasurements_; ///< The number of measurements for each delay
+   /** @brief The default constructor. Intentionally private and undefined */
+   GDelayIndividualFactory();
+
+   /** @brief Splits delays_ into tokens to be stored in sleepSeconds_ and sleepMilliSeconds_ */
+   void splitDelays();
+
+   std::size_t nVariables_;
+   std::string delays_;
+   std::vector<long> sleepSeconds_, sleepMilliSeconds_;
+   std::string resultFile_;
+   std::string shortResultFile_;
+   boost::uint32_t nMeasurements_; ///< The number of measurements for each delay
+   boost::uint32_t interMeasurementDelay_; ///< The delay between two measurements
 };
 
-/************************************************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
 } /* namespace Tests */
 } /* namespace Gem */
 

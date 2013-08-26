@@ -39,41 +39,33 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GDelayIndividual)
 namespace Gem {
 namespace Tests {
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The default constructor. Intentionally private -- needed only for (de-)serialization.
  */
-GDelayIndividual::GDelayIndividual(){ /* nothing */ }
+GDelayIndividual::GDelayIndividual()
+   : sleepTime_(boost::posix_time::seconds(1))
+{ /* nothing */ }
 
-/********************************************************************************************/
-/**
- * Initialization with the amount of time the fitness evaluation should sleep before continuing
- *
- * @param sleepTime The amount of time the fitness calculation should pause before continuing
- */
-GDelayIndividual::GDelayIndividual(const boost::posix_time::time_duration& sleepTime)
-: sleepTime_(sleepTime)
-{/* nothing */}
-
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * A standard copy constructor
  *
  * @param cp A copy of another GDelayIndividual
  */
 GDelayIndividual::GDelayIndividual(const GDelayIndividual& cp)
-: Gem::Geneva::GParameterSet(cp)
-, sleepTime_(cp.sleepTime_)
+   : Gem::Geneva::GParameterSet(cp)
+   , sleepTime_(cp.sleepTime_)
 { /* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The standard destructor
  */
 GDelayIndividual::~GDelayIndividual()
 { /* nothing */	}
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * A standard assignment operator
  *
@@ -111,7 +103,7 @@ bool GDelayIndividual::operator!=(const GDelayIndividual& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GDelayIndividual::operator!=","cp", CE_SILENT);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -125,11 +117,11 @@ bool GDelayIndividual::operator!=(const GDelayIndividual& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GDelayIndividual::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
+   const Gem::Common::expectation& e,
+   const double& limit,
+   const std::string& caller,
+   const std::string& y_name,
+   const bool& withMessages) const
 {
 	using namespace Gem::Common;
 
@@ -148,7 +140,7 @@ boost::optional<std::string> GDelayIndividual::checkRelationshipWith(const GObje
 	return evaluateDiscrepancies("GDelayIndividual", caller, deviations, e);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Loads the data of another GDelayIndividual, camouflaged as a GObject
  *
@@ -164,7 +156,7 @@ void GDelayIndividual::load_(const Gem::Geneva::GObject* cp){
 	sleepTime_ = p_load->sleepTime_;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -174,7 +166,7 @@ Gem::Geneva::GObject* GDelayIndividual::clone_() const {
 	return new GDelayIndividual(*this);
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The actual adaption operations. We want to avoid spending time on adaptions, as
  * all we want to do is measure the overhead of the parallelization. We thus simply
@@ -183,7 +175,7 @@ Gem::Geneva::GObject* GDelayIndividual::clone_() const {
 void GDelayIndividual::customAdaptions(){ /* nothing */ }
 
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The actual fitness calculation takes place here.
  *
@@ -197,17 +189,7 @@ double GDelayIndividual::fitnessCalculation(){
 	return gr.uniform_01<double>();
 }
 
-/********************************************************************************************/
-/**
- * Manual setting of the sleepTime_ variable
- *
- * @param sleepTime The desired new value of the sleepTime_ variable
- */
-void GDelayIndividual::setSleepTime(const boost::posix_time::time_duration& sleepTime) {
-	sleepTime_ = sleepTime;
-}
-
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Retrieval of the current value of the sleepTime_ variable
  *
@@ -217,29 +199,37 @@ boost::posix_time::time_duration GDelayIndividual::getSleepTime() const {
 	return sleepTime_;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
+/**
+ * Sets the sleep-time to a user-defined value
+ */
+void GDelayIndividual::setSleepTime(const boost::posix_time::time_duration& sleepTime) {
+   sleepTime_ = sleepTime;
+}
+
+/******************************************************************************/
 //////////////////////////////////////////////////////////////////////////////////////////////
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The standard constructor for this class
  */
 GDelayIndividualFactory::GDelayIndividualFactory(const std::string& cF)
-	: Gem::Geneva::GIndividualFactoryT<GDelayIndividual>(cF)
+	: Gem::Common::GFactoryT<Gem::Geneva::GParameterSet>(cF)
 	, nVariables_(100)
 	, resultFile_("networkResults.C")
 	, shortResultFile_("shortDelayResults.txt")
-	, interMeasurementDelay_(20)
 	, nMeasurements_(10)
+	, interMeasurementDelay_(1)
 { /* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * The destructor
  */
 GDelayIndividualFactory::~GDelayIndividualFactory()
 { /* nothing */ }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the name of the result file
  *
@@ -249,7 +239,7 @@ std::string GDelayIndividualFactory::getResultFileName() const {
 	return resultFile_;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the name of the file holding the short measurement results
  *
@@ -259,7 +249,7 @@ std::string GDelayIndividualFactory::getShortResultFileName() const {
 	return shortResultFile_;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of delays provided by the user
  *
@@ -269,17 +259,7 @@ std::size_t GDelayIndividualFactory::getNDelays() const {
 	return sleepSeconds_.size();
 }
 
-/********************************************************************************************/
-/**
- * Allows to retrieve the amount of seconds in between two measurements
- *
- * @return The amount of seconds the process will sleeb in between two measurements
- */
-boost::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
-	return interMeasurementDelay_;
-}
-
-/********************************************************************************************/
+/******************************************************************************/
 /**
  * Allows to retrieve the number of measurements to be made for each delay
  *
@@ -289,141 +269,211 @@ boost::uint32_t GDelayIndividualFactory::getNMeasurements() const {
 	return nMeasurements_;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
- * Necessary initialization work. Here we divide the delays_ string into seconds and milliseconds
+ * Retrieves the amount of seconds main() should wait between two measurements
  */
-void GDelayIndividualFactory::init_() {
-	// Parse the sleep string and break it into timing values
-	std::vector<std::string> sleepTokens;
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-	boost::char_separator<char> space_sep(" ");
-	tokenizer sleepTokenizer(delays_, space_sep);
-	tokenizer::iterator s;
-	for(s=sleepTokenizer.begin(); s!=sleepTokenizer.end(); ++s){
-		std::cout << "Sleep token is " << *s << std::endl;
-		sleepTokens.push_back(*s);
-	}
-	if(sleepTokens.empty()) { // No sleep tokens were provided
-	   glogger
-	   << "In GDelayIndividualFactory::init_(): Error!" << std::endl
-      << "You did not provide any delay timings" << std::endl
-      << GEXCEPTION;
-	}
-
-	sleepSeconds_.clear();
-	sleepMilliSeconds_.clear();
-
-	std::vector<std::string>::iterator t;
-	for(t=sleepTokens.begin(); t!=sleepTokens.end(); ++t) {
-		// Split the string
-		boost::char_separator<char> slash_sep("/");
-		tokenizer delayTokenizer(*t, slash_sep);
-
-		// Loop over the results (there should be exactly two) and assign to the corresponding vectors
-		tokenizer::iterator d;
-		boost::uint32_t tokenCounter=0;
-		for(d=delayTokenizer.begin(); d!=delayTokenizer.end(); ++d){
-			switch(tokenCounter++){
-			case 0:
-				try{
-					sleepSeconds_.push_back(boost::lexical_cast<long>(*d));
-				}
-				catch(...) {
-				   glogger
-				   << "In GDelayIndividualFactory::init_(): Error (1)!" << std::endl
-               << "Could not transfer string " << *d << " to a numeric value" << std::endl
-               << GEXCEPTION;
-				}
-				break;
-
-			case 1:
-				try{
-					sleepMilliSeconds_.push_back(boost::lexical_cast<long>(*d));
-				}
-				catch(...) {
-				   glogger
-				   << "In GDelayIndividualFactory::init_(): Error (2)!" << std::endl
-               << "Could not transfer string " << *d << " to a numeric value" << std::endl
-               << GEXCEPTION;
-				}
-				break;
-
-			default:
-				{
-				   glogger
-				   << "In GDelayIndividualFactory::init_(): Error!" << std::endl
-               << "tokenCounter has reached invalid value " << tokenCounter << std::endl
-               << GEXCEPTION;
-				}
-				break;
-			}
-		}
-	}
+boost::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
+   return interMeasurementDelay_;
 }
 
-/********************************************************************************************/
+/******************************************************************************/
+/**
+ * Creates items of this type
+ *
+ * @return Items of the desired type
+ */
+boost::shared_ptr<Gem::Geneva::GParameterSet> GDelayIndividualFactory::getObject_(
+   Gem::Common::GParserBuilder& gpb
+   , const std::size_t& id
+) {
+   // Will hold the result
+   boost::shared_ptr<GDelayIndividual> target(new GDelayIndividual());
+
+   // Make the object's local configuration options known
+   target->addConfigurationOptions(gpb, true);
+
+   return target;
+}
+
+/******************************************************************************/
+/**
+ * Splits delays_ into tokens to be stored in sleepSeconds_ and sleepMilliSeconds_
+ */
+void GDelayIndividualFactory::splitDelays() {
+   // Parse the sleep string and break it into timing values
+   std::vector<std::string> sleepTokens;
+   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+   boost::char_separator<char> space_sep(" ");
+   tokenizer sleepTokenizer(delays_, space_sep);
+   tokenizer::iterator s;
+   for(s=sleepTokenizer.begin(); s!=sleepTokenizer.end(); ++s){
+      std::cout << "Sleep token is " << *s << std::endl;
+      sleepTokens.push_back(*s);
+   }
+   if(sleepTokens.empty()) { // No sleep tokens were provided
+      glogger
+      << "In GDelayIndividualFactory::splitDelays(): Error!" << std::endl
+      << "You did not provide any delay timings" << std::endl
+      << GEXCEPTION;
+   }
+
+   sleepSeconds_.clear();
+   sleepMilliSeconds_.clear();
+
+   std::vector<std::string>::iterator t;
+   for(t=sleepTokens.begin(); t!=sleepTokens.end(); ++t) {
+      // Split the string
+      boost::char_separator<char> slash_sep("/");
+      tokenizer delayTokenizer(*t, slash_sep);
+
+      // Loop over the results (there should be exactly two) and assign to the corresponding vectors
+      tokenizer::iterator d;
+      boost::uint32_t tokenCounter=0;
+      for(d=delayTokenizer.begin(); d!=delayTokenizer.end(); ++d){
+         switch(tokenCounter++){
+         case 0:
+            try{
+               sleepSeconds_.push_back(boost::lexical_cast<long>(*d));
+            }
+            catch(...) {
+               glogger
+               << "In GDelayIndividualFactory::splitDelays(): Error (1)!" << std::endl
+               << "Could not transfer string " << *d << " to a numeric value" << std::endl
+               << GEXCEPTION;
+            }
+            break;
+
+         case 1:
+            try{
+               sleepMilliSeconds_.push_back(boost::lexical_cast<long>(*d));
+            }
+            catch(...) {
+               glogger
+               << "In GDelayIndividualFactory::splitDelays(): Error (2)!" << std::endl
+               << "Could not transfer string " << *d << " to a numeric value" << std::endl
+               << GEXCEPTION;
+            }
+            break;
+
+         default:
+            {
+               glogger
+               << "In GDelayIndividualFactory::splitDelays(): Error!" << std::endl
+               << "tokenCounter has reached invalid value " << tokenCounter << std::endl
+               << GEXCEPTION;
+            }
+            break;
+         }
+      }
+   }
+}
+
+/******************************************************************************/
 /**
  * Allows to describe configuration options of GDelayIndividual objects
  */
-void GDelayIndividualFactory::describeConfigurationOptions_() {
+void GDelayIndividualFactory::describeLocalOptions_(
+   Gem::Common::GParserBuilder& gpb
+) {
 	// Default values for the delay string
 	std::string default_delays = "0/1 0/10 0/100 0/500 1/0 2/0 3/0 4/0 5/0 6/0 7/0 8/0 9/0 10/0 15/0 20/0 25/0 30/0 40/0 50/0 60/0";
 
-	gpb.registerFileParameter("nVariables", nVariables_, nVariables_);
-	gpb.registerFileParameter("delays", delays_, default_delays);
-	gpb.registerFileParameter("resultFile", resultFile_, resultFile_);
-	gpb.registerFileParameter("shortResultFile", shortResultFile_, shortResultFile_);
-	gpb.registerFileParameter("interMeasurementDelay", interMeasurementDelay_, interMeasurementDelay_);
-	gpb.registerFileParameter("nMeasurements", nMeasurements_, nMeasurements_);
+	gpb.registerFileParameter(
+      "nVariables"
+      , nVariables_
+      , nVariables_
+      , "The number of variables to act on"
+	);
+
+	gpb.registerFileParameter(
+      "delays"
+      , delays_
+      , default_delays
+      , "A list of delays through which main() should cycle"
+   );
+
+	gpb.registerFileParameter(
+      "resultFile"
+	   , resultFile_
+	   , resultFile_
+	   , "The name of a file to which results should be stored"
+	);
+
+	gpb.registerFileParameter(
+      "shortResultFile"
+      , shortResultFile_
+      , shortResultFile_
+      , "The name of a file to which short results should be stored"
+   );
+
+	gpb.registerFileParameter(
+      "nMeasurements"
+      , nMeasurements_
+      , nMeasurements_
+      , "The number of measurements for each delay"
+	);
+
+   gpb.registerFileParameter(
+      "interMeasurementDelay"
+      , interMeasurementDelay_
+      , interMeasurementDelay_
+      , "The amount of seconds to wait between two measurements"
+   );
 }
 
-/********************************************************************************************/
+/******************************************************************************/
 /**
- * Creates individuals of the desired type. We return valid individuals as often as there
- * are test cases in the delays_ string. Otherwise an empty shared_ptr is returned.
+ * Allows to act on the configuration options received from the configuration file. Here
+ * we can add the options described in describeLocalOptions to the object. In practice,
+ * we add the parameter objects here
  *
- * @param id An enumerator to the number of calls to this function
- * @return An object of the desired type
+ * @param p A smart-pointer to be acted on during post-processing
  */
-boost::shared_ptr<GDelayIndividual> GDelayIndividualFactory::getIndividual_(const std::size_t& id) {
-	boost::shared_ptr<GDelayIndividual> result;
+void GDelayIndividualFactory::postProcess_(
+      boost::shared_ptr<Gem::Geneva::GParameterSet>& p_raw
+) {
+   // Retrieve information about our id
+   std::size_t id = this->getId();
 
-	if(id < sleepSeconds_.size()) {
-		// Calculate the current sleep time
-		boost::posix_time::time_duration sleepTime =
-				boost::posix_time::seconds(sleepSeconds_.at(id)) +
-				boost::posix_time::milliseconds(sleepMilliSeconds_.at(id));
+   // Make sure the textual delays are converted to time measurements
+   this->splitDelays();
 
-		std::cout << "Producing an individual with sleep time = " << sleepTime.total_milliseconds() << std::endl;
+   // Convert the base pointer to the target type
+   boost::shared_ptr<GDelayIndividual> p
+      = Gem::Common::convertSmartPointer<Gem::Geneva::GParameterSet, GDelayIndividual>(p_raw);
 
-		boost::shared_ptr<GDelayIndividual> gdi_ptr(new GDelayIndividual(sleepTime));
+   if(id < sleepSeconds_.size()) {
+      // Calculate the current sleep time
+      boost::posix_time::time_duration sleepTime =
+            boost::posix_time::seconds(sleepSeconds_.at(id)) +
+            boost::posix_time::milliseconds(sleepMilliSeconds_.at(id));
 
-		// Set up a GDoubleObjectCollection
-		boost::shared_ptr<Gem::Geneva::GDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GDoubleObjectCollection());
+      std::cout << "Producing an individual with sleep time = " << sleepTime.total_milliseconds() << std::endl;
 
-		// Set up nVariables GConstrainedDoubleObject objects in the desired value range,
-		// and register them with the collection. The configuration parameters don't matter for this use case
-		for(std::size_t var=0; var<nVariables_; var++) {
-			boost::shared_ptr<Gem::Geneva::GDoubleObject> gbd_ptr(new Gem::Geneva::GDoubleObject(0.5));
-			boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
-			gdga_ptr->setAdaptionThreshold(1);
-			gbd_ptr->addAdaptor(gdga_ptr);
+      p->setSleepTime(sleepTime);
 
-			// Make the GDoubleObject known to the collection
-			gbdc_ptr->push_back(gbd_ptr);
-		}
+      // Set up a GDoubleObjectCollection
+      boost::shared_ptr<Gem::Geneva::GDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GDoubleObjectCollection());
 
-		// Make the GDoubleObjectCollection known to the individual
-		gdi_ptr->push_back(gbdc_ptr);
+      // Set up nVariables GConstrainedDoubleObject objects in the desired value range,
+      // and register them with the collection. The configuration parameters don't matter for this use case
+      for(std::size_t var=0; var<nVariables_; var++) {
+         boost::shared_ptr<Gem::Geneva::GDoubleObject> gbd_ptr(new Gem::Geneva::GDoubleObject(0.5));
+         boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
+         gdga_ptr->setAdaptionThreshold(1);
+         gbd_ptr->addAdaptor(gdga_ptr);
 
-		// Assign to the result item
-		result = gdi_ptr;
-	}
+         // Make the GDoubleObject known to the collection
+         gbdc_ptr->push_back(gbd_ptr);
+      }
 
-	return result;
+      // Make the GDoubleObjectCollection known to the individual
+      p->push_back(gbdc_ptr);
+   }
 }
 
-/********************************************************************************************/
+/******************************************************************************/
+
 } /* namespace Tests */
 } /* namespace Gem */
