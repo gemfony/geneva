@@ -138,7 +138,7 @@ int main(int argc, char **argv){
    //---------------------------------------------------------------------------
    // Assemble additional command line options to be passed to Go2
    trainingDataType tdt = Gem::Geneva::TDTNONE;
-   std::string trainingDataFile = "./DataSets/training.dat";
+   std::string trainingDataFile = "./DataSets/hyper_sphere.dat";
    std::string architecture = "2-4-4-1"; // two input nodes, one output node, two hidden layers with 4 nodes each
    std::size_t nDataSets = 2000;
    std::string resultProgram = "trainedNetwork.hpp";
