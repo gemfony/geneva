@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2012-Nov-07 19:48:55
+// File creation date: 2013-Aug-26 20:54:33
 //-----------------------------------------------------------------
 
 {
@@ -11,47 +11,24 @@
         "default": "0",
         "value": "0"
     },
-    "firstTimeOut":
-    {
-        "comment": "The timeout for the retrieval of an",
-        "comment": "iteration's first timeout",
-        "default": "00:00:00",
-        "value": "00:00:00"
-    },
-    "boundlessWait":
-    {
-        "comment": "Indicates that the broker connector should wait endlessly",
-        "comment": "for further arrivals of individuals in an iteration",
-        "default": "false",
-        "value": "false"
-    },
-    "minWaitFactor":
-    {
-        "comment": "The lower boundary for the adaption",
-        "comment": "of the waitFactor variable",
-        "default": "1",
-        "value": "1"
-    },
-    "maxWaitFactor":
-    {
-        "comment": "The upper boundary for the adaption",
-        "comment": "of the waitFactor variable",
-        "default": "10",
-        "value": "10"
-    },
-    "waitFactorIncrement":
-    {
-        "comment": "Specifies the amount by which the wait factor gets",
-        "comment": "incremented or decremented during automatic adaption",
-        "default": "0.1",
-        "value": "0.1"
-    },
     "doLogging":
     {
         "comment": "Activates (1) or de-activates (0) logging",
-        "comment": "iteration's first timeout",
         "default": "false",
         "value": "false"
+    },
+    "waitFactor":
+    {
+        "comment": "A static factor to be applied to timeouts",
+        "default": "2",
+        "value": "2"
+    },
+    "validityThreshold":
+    {
+        "comment": "The [0,1] threshold as of which a solution is considered to be invalid",
+        "comment": " [GOptimizableEntity]",
+        "default": "0.5",
+        "value": "0.5"
     },
     "maxIteration":
     {
@@ -145,14 +122,14 @@
         "size":
         {
             "comment": "The total size of the population",
-            "comment": " [GBaseEA]",
+            "comment": " [GBaseParChildT<ind_type>]",
             "default": "100",
             "value": "100"
         },
         "nParents":
         {
             "comment": "The number of parents in the population",
-            "comment": " [GBaseEA]",
+            "comment": " [GBaseParChildT<ind_type>]",
             "default": "1",
             "value": "1"
         }
@@ -163,31 +140,16 @@
         "comment": "0: default",
         "comment": "1: random selection from available parents",
         "comment": "2: selection according to the parent's value",
-        "comment": "[GBaseEA]",
+        "comment": "[GBaseParChildT<ind_type>]",
         "default": "0",
         "value": "0"
-    },
-    "sortingMethod":
-    {
-        "comment": "The sorting scheme. Options",
-        "comment": "0: MUPLUSNU mode with a single evaluation criterion",
-        "comment": "1: MUCOMMANU mode with a single evaluation criterion",
-        "comment": "2: MUCOMMANU mode with single evaluation criterion,",
-        "comment": "   the best parent of the last iteration is retained",
-        "comment": "   unless a better individual has been found",
-        "comment": "3: Simulated Annealing (implemented through a special sorting scheme",
-        "comment": "4: MUPLUSNU mode for multiple evaluation criteria, pareto selection",
-        "comment": "5: MUCOMMANU mode for multiple evaluation criteria, pareto selection",
-        "comment": "[GBaseEA]",
-        "default": "0",
-        "value": "1"
     },
     "populationGrowth":
     {
         "growthRate":
         {
             "comment": "Specifies the number of individuals added per iteration",
-            "comment": "[GBaseEA]",
+            "comment": "[GBaseParChildT<ind_type>]",
             "default": "0",
             "value": "0"
         },
@@ -199,27 +161,18 @@
             "value": "0"
         }
     },
-    "t0":
+    "sortingMethod":
     {
-        "comment": "The start temperature used in simulated annealing",
+        "comment": "The sorting scheme. Options",
+        "comment": "0: MUPLUSNU mode with a single evaluation criterion",
+        "comment": "1: MUCOMMANU mode with a single evaluation criterion",
+        "comment": "2: MUCOMMANU mode with single evaluation criterion,",
+        "comment": "   the best parent of the last iteration is retained",
+        "comment": "   unless a better individual has been found",
+        "comment": "3: MUPLUSNU mode for multiple evaluation criteria, pareto selection",
+        "comment": "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection",
         "comment": "[GBaseEA]",
-        "default": "1000",
-        "value": "1000"
-    },
-    "alpha":
-    {
-        "comment": "The degradation strength used in the cooling",
-        "comment": "schedule in simulated annealing",
-        "comment": "[GBaseEA]",
-        "default": "0.95",
-        "value": "0.95"
-    },
-    "logOldParents":
-    {
-        "comment": "If set, a copy of the old parent individuals will be kept and",
-        "comment": "the id of the parent individual will be recorded",
-        "comment": "[GBaseEA]",
-        "default": "false",
-        "value": "false"
+        "default": "1",
+        "value": "1"
     }
 }

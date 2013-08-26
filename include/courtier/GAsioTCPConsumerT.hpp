@@ -295,9 +295,8 @@ protected:
             if (maxStalls_ && (stalls_++ > maxStalls_)) {
                glogger
                << "In GAsioTCPClientT<processable_type>::retrieve(): Warning!" << std::endl
-               << "Maximum number of consecutive stalls reached," << std::endl
-               << "with last command = " << inboundCommandString << std::endl
-               << "Leaving now." << std::endl
+               << "Maximum number of consecutive idle command (" << maxStalls_ << ")" << std::endl
+               << "has been reached. Leaving now." << std::endl
                << GWARNING;
 
                // Make sure we don't leave any open sockets lying around.

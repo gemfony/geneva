@@ -1,25 +1,21 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2012-Nov-07 19:48:55
+// File creation date: 2013-Aug-26 20:54:33
 //-----------------------------------------------------------------
 
 {
-    "maxStalledDataTransfers":
+    "validityThreshold":
     {
-        "comment": "Specifies how often a client may try to unsuccessfully retrieve data from the server (0 means endless)",
+        "comment": "The [0,1] threshold as of which a solution is considered to be invalid",
+        "comment": " [GOptimizableEntity]",
+        "default": "0.5",
+        "value": "0.5"
+    },
+    "nProducerThreads":
+    {
+        "comment": "The number of threads simultaneously producing random numbers",
+        "comment": " [Go2]",
         "default": "0",
         "value": "0"
-    },
-    "maxConnectionAttempts":
-    {
-        "comment": "Specifies how often a client may try to connect unsuccessfully to the server (0 means endless)",
-        "default": "100",
-        "value": "100"
-    },
-    "returnRegardless":
-    {
-        "comment": "Specifies whether unsuccessful processing attempts should be returned to the server",
-        "default": "true",
-        "value": "true"
     }
 }
