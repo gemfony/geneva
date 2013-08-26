@@ -105,6 +105,17 @@ SET ( CONFIGFILE
 	./config/GNeuralNetworkIndividual.json
 )
 
+SET ( DATASETS
+  ./DataSets/axis_centric.dat.C
+  ./DataSets/axis_centric.dat  
+  ./DataSets/hyper_cube.dat.C
+  ./DataSets/hyper_cube.dat
+  ./DataSets/hyper_sphere.dat.C
+  ./DataSets/hyper_sphere.dat
+  ./DataSets/sinus.dat.C
+  ./DataSets/sinus.dat
+)
+
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
@@ -131,7 +142,12 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${Boost_LIBRARIES}
 )
 
-ADD_SUBDIRECTORY (DataSets)
+# Copy the config files to the build tree for easier testing
+IF( NOT OLD_CMAKE )
+	FOREACH ( file IN LISTS DATASETS )
+		CONFIGURE_FILE ( ${file} ${file} COPYONLY )
+	ENDFOREACH ()
+ENDIF()
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION examples/${PROJECT_NAME}
 	PERMISSIONS
@@ -140,7 +156,14 @@ INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION examples/${PROJECT_NAME}
 	WORLD_READ WORLD_EXECUTE
 )
 
-INSTALL ( FILES ${CONFIGFILE} DESTINATION examples/${PROJECT_NAME}
+INSTALL ( FILES ${CONFIGFILE} DESTINATION examples/${PROJECT_NAME}/config
+	PERMISSIONS
+	OWNER_READ OWNER_WRITE
+	GROUP_READ
+	WORLD_READ
+)
+
+INSTALL ( FILES ${DATASETS} DESTINATION examples/${PROJECT_NAME}/DataSets
 	PERMISSIONS
 	OWNER_READ OWNER_WRITE
 	GROUP_READ
