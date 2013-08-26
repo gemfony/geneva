@@ -21,7 +21,7 @@
     {
         "comment": "A static factor to be applied to timeouts",
         "default": "2",
-        "value": "2"
+        "value": "3"
     },
     "validityThreshold":
     {
@@ -35,14 +35,14 @@
         "comment": "The maximum allowed number of iterations",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "1000",
-        "value": "10000"
+        "value": "1000"
     },
     "maxStallIteration":
     {
         "comment": "The maximum allowed number of iterations without improvement0 means: no constraint.",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "0",
-        "value": "100"
+        "value": "20"
     },
     "reportIteration":
     {
