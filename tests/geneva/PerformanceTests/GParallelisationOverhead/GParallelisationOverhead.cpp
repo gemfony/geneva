@@ -43,16 +43,22 @@
 // Boost header files go here
 
 // Geneva header files go here
+#include <common/GMathHelperFunctionsT.hpp>
 #include <geneva/Go2.hpp>
 
 // The individual that should be optimized
 #include "GDelayIndividual.hpp"
 
 using namespace Gem::Geneva;
+using namespace Gem::Common;
 using namespace Gem::Tests;
 
 int main(int argc, char **argv) {
    Go2 go(argc, argv, "./config/Go2.json");
+
+   //---------------------------------------------------------------------
+   // Will hold all plot information
+   boost::shared_ptr<GGraph2ED> gdelay_ptr(new GGraph2ED());
 
    //---------------------------------------------------------------------
    // Client mode
@@ -68,29 +74,23 @@ int main(int argc, char **argv) {
 	GDelayIndividualFactory gdif("./config/GDelayIndividual.json");
 
 	//---------------------------------------------------------------------
-	// Prepare the output files used to record the measurements
-	std::ofstream result(gdif.getResultFileName().c_str());
-	result
-	<< "{" << std::endl
-	<< "  gStyle->SetOptTitle(0);" << std::endl
-	<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,600);" << std::endl
-	<< std::endl
-	<< "  std::vector<double> sleepTime; // The amount of time each individual sleeps" << std::endl
-	<< "  std::vector<double> meanProcessingTime; // The mean processing time for a given optimization cycle" << std::endl
-	<< "  std::vector<double> standardDeviation; // The standard deviation of all measurements" << std::endl
-	<< std::endl;
-
-	std::ofstream shortResult(gdif.getShortResultFileName().c_str());
-
-	// Determine the amount of seconds the process should sleep in between two measurements
-	boost::uint32_t interMeasurementDelay = gdif.getInterMeasurementDelay();
-
-	// Determine the number of measurements to be made for each delay
-	boost::uint32_t nMeasurements = gdif.getNMeasurements();
-
 	// Loop until no valid individuals can be retrieved anymore
+	std::ofstream shortResult;
+	boost::uint32_t interMeasurementDelay = 1;
+	boost::uint32_t nMeasurements = 5;
 	std::size_t iter = 0;
 	while(boost::shared_ptr<GDelayIndividual> gdi_ptr = gdif.get<GDelayIndividual>()) {
+	   if(0==iter) { // The first individual must already have been produced
+	      // Prepare the output files used to record the measurements
+	       shortResult.open(gdif.getShortResultFileName().c_str());
+
+	      // Determine the amount of seconds the process should sleep in between two measurements
+	      interMeasurementDelay = gdif.getInterMeasurementDelay();
+
+	      // Determine the number of measurements to be made for each delay
+	      nMeasurements = gdif.getNMeasurements();
+	   }
+
 		std::vector<double> delaySummary;
 		for(boost::uint32_t i=0; i<nMeasurements; i++) {
 			// Make the individual known to the optimizer
@@ -108,43 +108,20 @@ int main(int argc, char **argv) {
 			go.clear();
 		}
 
-		// Calculate the mean value of all measurements
-		double mean = 0.;
-		for(boost::uint32_t i=0; i<nMeasurements; i++) {
-			mean += delaySummary[i];
-		}
-		mean /= double(nMeasurements);
-
-		// Calculate the standard deviation
-		double sd = 0.;
-		if(nMeasurements > 1) {
-			for(boost::uint32_t i=0; i<nMeasurements; i++) {
-				sd += GSQUARED(delaySummary[i] - mean);
-			}
-			sd /= (nMeasurements - 1);
-			sd = sqrt(sd);
-		}
-
+      // Calculate the mean value and standard deviation of all measurements
+		boost::tuple<double,double> ms = Gem::Common::GStandardDeviation<double>(delaySummary);
 		// Output the results
-		result
-		<< std::endl
-		<< "  // =========================================================" << std::endl
-		<< "  // Sleep time = " << double(gdi_ptr->getSleepTime().total_milliseconds())/1000. << " s:" << std::endl;
-
-		for(boost::uint32_t  i=0; i<nMeasurements; i++) {
-			result
-			<< "  // Measurement " << i << ": " << delaySummary[i] << " s" << std::endl;
-		}
-		result
-		<< "  // Mean: " << mean << " s" << std::endl
-		<< "  // Standard deviation: " << sd << " s" << std::endl
-		<< "  sleepTime.push_back(" << double(gdi_ptr->getSleepTime().total_milliseconds())/1000. << ");" << std::endl
-		<< "  meanProcessingTime.push_back(" << mean << ");" << std::endl
-		<< "  standardDeviation.push_back(" << sd << ");" << std::endl
-		<< std::endl;
+		gdelay_ptr->add(
+		      boost::tuple<double,double,double,double>(
+		            double(gdi_ptr->getSleepTime().total_milliseconds())/1000.
+		            , 0. // No error on the sleep time
+		            , boost::get<0>(ms) // mean
+		            , boost::get<1>(ms) // standard deviation
+            )
+      );
 
 		shortResult
-		<< double(gdi_ptr->getSleepTime().total_milliseconds())/1000. << " / " << mean << " / " << sd << std::endl;
+		<< double(gdi_ptr->getSleepTime().total_milliseconds())/1000. << " / " << boost::get<0>(ms) << " / " << boost::get<1>(ms) << std::endl;
 
 		// Clean up the delay vector
 		delaySummary.clear();
@@ -157,39 +134,12 @@ int main(int argc, char **argv) {
 	}
 
 	//---------------------------------------------------------------------
-	// Output the footer of the result file
-	result << std::endl
-		   << "  // Transfer of vectors into arrays" << std::endl
-		   << "  double sleepTimeArr[" << gdif.getNDelays() << "];" << std::endl
-		   << "  double meanProcessingTimeArr[" << gdif.getNDelays() << "];" << std::endl
-		   << "  double sdArr[" << gdif.getNDelays() << "];" << std::endl
-		   << std::endl
-		   << "  for(int i=0; i< " << gdif.getNDelays() << "; i++) {" << std::endl
-		   << "    sleepTimeArr[i] = sleepTime.at(i);" << std::endl
-		   << "    meanProcessingTimeArr[i] = meanProcessingTime.at(i);" << std::endl
-		   << "    sdArr[i] = standardDeviation.at(i);" << std::endl
-		   << "  }" << std::endl
-	       << std::endl
-	       << "  // Creation of TGraph objects and data transfer into the objects" << std::endl;
+	// Finalize the output
+	GPlotDesigner gpd("Average total processing time as a function of individual evaluation time", 1,1);
+   gpd.setCanvasDimensions(1200,800);
+   gpd.registerPlotter(gdelay_ptr);
+   gpd.writeToFile(gdif.getResultFileName());
 
-	if(nMeasurements == 1) {
-		result
-		<< "  TGraph *evGraph = new TGraph(" << gdif.getNDelays() << ", sleepTimeArr, meanProcessingTimeArr);" << std::endl;
-	} else {
-		result
-		<< "  TGraphErrors *evGraph = new TGraphErrors(" << gdif.getNDelays() << ", sleepTimeArr, meanProcessingTimeArr, 0, sdArr);"<< std::endl;
-	}
-
-	result << std::endl
-	       << "  evGraph->SetMarkerStyle(2);" << std::endl
-	       << "  evGraph->SetMarkerSize(1.0);" << std::endl
-	       << "  evGraph->Draw(\"ACP\");" << std::endl
-	       << "  evGraph->GetXaxis()->SetTitle(\"Evaluation time/individual [s]\");" << std::endl
-	       << "  evGraph->GetYaxis()->SetTitle(\"Mean processing time for " << nMeasurements << " measurements [s]\");" << std::endl
-	       << "}" << std::endl;
-
-	 // Close the result files
-	result.close();
 	shortResult.close();
 
 	return 0;

@@ -840,6 +840,18 @@ public:
 		}
 	}
 
+   /***************************************************************************/
+   /**
+    * This very simple functions allows derived classes
+    * to add data easily to their data sets, when called through a
+    * pointer. I.e., this makes "object_ptr->add(data)" instead of
+    * "*object_ptr & data" possible.
+    */
+   template <typename data_type>
+   void add(const data_type& item) {
+      *this & item;
+   }
+
 protected:
 	/***************************************************************************/
 

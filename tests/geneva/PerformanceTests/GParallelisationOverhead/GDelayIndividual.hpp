@@ -59,16 +59,15 @@
 
 // Geneva header files go here
 #include "common/GFactoryT.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GDoubleObject.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 
-namespace Gem
-{
-namespace Tests
-{
+namespace Gem {
+namespace Tests {
 
 /******************************************************************************/
 /**
@@ -179,12 +178,9 @@ private:
    /** @brief The default constructor. Intentionally private and undefined */
    GDelayIndividualFactory();
 
-   /** @brief Splits delays_ into tokens to be stored in sleepSeconds_ and sleepMilliSeconds_ */
-   void splitDelays();
-
    std::size_t nVariables_;
    std::string delays_;
-   std::vector<long> sleepSeconds_, sleepMilliSeconds_;
+   std::vector<boost::tuple<long, long> > sleepTimes_;
    std::string resultFile_;
    std::string shortResultFile_;
    boost::uint32_t nMeasurements_; ///< The number of measurements for each delay

@@ -122,7 +122,7 @@ public:
       // Retrieve the actual object. It may, in the process of its
       // creation, add further configuration options and call-backs to
       // the parser
-      boost::shared_ptr<prod_type> p = this->getObject_(gpb, id_++);
+      boost::shared_ptr<prod_type> p = this->getObject_(gpb, id_);
 
       // Read the configuration parameters from file
       if(!gpb.parseConfigFile(configFile_)) {
@@ -135,6 +135,9 @@ public:
       // Allow the factory to act on configuration options received
       // in the parsing process.
       this->postProcess_(p);
+
+      // Update the id
+      id_++;
 
       // Let the audience know
       return p;
@@ -181,7 +184,7 @@ public:
 
 		// Retrieve an object (will be discarded at the end of this function)
 		// Here, further options may be added to the parser builder.
-		boost::shared_ptr<prod_type> p = this->getObject_(gpb, id_++);
+		boost::shared_ptr<prod_type> p = this->getObject_(gpb, std::numeric_limits<std::size_t>::max());
 
 		// Allow the factory to act on configuration options received
 		// in the parsing process.
@@ -192,7 +195,7 @@ public:
 			gpb.writeConfigFile(configFile_, header, true);
 		} else {
 			std::cout
-				<< "Warning: Tried to write out configuration file " << configFile_ << std::endl
+				<< "Warning: An attempt was made to write out configuration file " << configFile_ << std::endl
 				<< "even though no configuration options were registered. Doing nothing." << std::endl;
 		}
 	}

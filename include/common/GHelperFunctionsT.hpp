@@ -410,6 +410,53 @@ std::vector<split_type> splitStringT(const std::string& raw, const char* sep) {
 }
 
 /******************************************************************************/
+/**
+ * Splits a string into a vector of user-defined type-pairs, according to seperator characters.
+ * The only precondition is that the target types are known to boost::lexical_cast, which can
+ * be achieved simply by providing related operator<< and operator>> . A possible usage is a
+ * split of a string "0/0 0/1 1/0" into tuples of integers.
+ */
+template <typename split_type1, typename split_type2>
+std::vector<boost::tuple<split_type1, split_type2> > splitStringT(
+      const std::string& raw
+      , const char* sep1
+      , const char* sep2
+) {
+   // Check that sep1 and sep2 differ
+   if(std::string(sep1) == std::string(sep2)) {
+      glogger
+      << "In splitStringT(std::string, const char*, const char*): Error!" << std::endl
+      << "sep1 and sep2 are identical: \"" << sep1 << "\" / \"" << sep2 << "\"" << std::endl
+      << GEXCEPTION;
+   }
+
+   std::vector<std::string> fragments = Gem::Common::splitString(raw, sep1);
+   std::vector<boost::tuple<split_type1, split_type2> > result;
+   std::vector<std::string>::iterator it;
+   for(it=fragments.begin(); it!=fragments.end(); ++it) {
+      std::vector<std::string> sub_fragments = Gem::Common::splitString(*it, sep2);
+
+#ifdef DEBUG
+      if(2 != sub_fragments.size()) {
+         glogger
+         << "In splitStringT(std::string, const char*, const char*): Error!" << std::endl
+         << "Incorrect number of sub-fragments: " << sub_fragments.size()
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      result.push_back(
+         boost::tuple<split_type1, split_type2> (
+               boost::lexical_cast<split_type1>(sub_fragments[0])
+               , boost::lexical_cast<split_type2>(sub_fragments[1])
+         )
+      );
+   }
+
+   return result;
+}
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

@@ -185,7 +185,7 @@ double GDelayIndividual::fitnessCalculation(){
 	// Sleep for the desired amount of time
 	boost::this_thread::sleep(sleepTime_);
 
-	// Return a random value - we do not perform a real optimization
+	// Return a random value - we do not perform any real optimization
 	return gr.uniform_01<double>();
 }
 
@@ -256,7 +256,7 @@ std::string GDelayIndividualFactory::getShortResultFileName() const {
  * @return The number of delays provided by the user
  */
 std::size_t GDelayIndividualFactory::getNDelays() const {
-	return sleepSeconds_.size();
+	return sleepTimes_.size();
 }
 
 /******************************************************************************/
@@ -298,86 +298,13 @@ boost::shared_ptr<Gem::Geneva::GParameterSet> GDelayIndividualFactory::getObject
 
 /******************************************************************************/
 /**
- * Splits delays_ into tokens to be stored in sleepSeconds_ and sleepMilliSeconds_
- */
-void GDelayIndividualFactory::splitDelays() {
-   // Parse the sleep string and break it into timing values
-   std::vector<std::string> sleepTokens;
-   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-   boost::char_separator<char> space_sep(" ");
-   tokenizer sleepTokenizer(delays_, space_sep);
-   tokenizer::iterator s;
-   for(s=sleepTokenizer.begin(); s!=sleepTokenizer.end(); ++s){
-      std::cout << "Sleep token is " << *s << std::endl;
-      sleepTokens.push_back(*s);
-   }
-   if(sleepTokens.empty()) { // No sleep tokens were provided
-      glogger
-      << "In GDelayIndividualFactory::splitDelays(): Error!" << std::endl
-      << "You did not provide any delay timings" << std::endl
-      << GEXCEPTION;
-   }
-
-   sleepSeconds_.clear();
-   sleepMilliSeconds_.clear();
-
-   std::vector<std::string>::iterator t;
-   for(t=sleepTokens.begin(); t!=sleepTokens.end(); ++t) {
-      // Split the string
-      boost::char_separator<char> slash_sep("/");
-      tokenizer delayTokenizer(*t, slash_sep);
-
-      // Loop over the results (there should be exactly two) and assign to the corresponding vectors
-      tokenizer::iterator d;
-      boost::uint32_t tokenCounter=0;
-      for(d=delayTokenizer.begin(); d!=delayTokenizer.end(); ++d){
-         switch(tokenCounter++){
-         case 0:
-            try{
-               sleepSeconds_.push_back(boost::lexical_cast<long>(*d));
-            }
-            catch(...) {
-               glogger
-               << "In GDelayIndividualFactory::splitDelays(): Error (1)!" << std::endl
-               << "Could not transfer string " << *d << " to a numeric value" << std::endl
-               << GEXCEPTION;
-            }
-            break;
-
-         case 1:
-            try{
-               sleepMilliSeconds_.push_back(boost::lexical_cast<long>(*d));
-            }
-            catch(...) {
-               glogger
-               << "In GDelayIndividualFactory::splitDelays(): Error (2)!" << std::endl
-               << "Could not transfer string " << *d << " to a numeric value" << std::endl
-               << GEXCEPTION;
-            }
-            break;
-
-         default:
-            {
-               glogger
-               << "In GDelayIndividualFactory::splitDelays(): Error!" << std::endl
-               << "tokenCounter has reached invalid value " << tokenCounter << std::endl
-               << GEXCEPTION;
-            }
-            break;
-         }
-      }
-   }
-}
-
-/******************************************************************************/
-/**
  * Allows to describe configuration options of GDelayIndividual objects
  */
 void GDelayIndividualFactory::describeLocalOptions_(
    Gem::Common::GParserBuilder& gpb
 ) {
 	// Default values for the delay string
-	std::string default_delays = "0/1 0/10 0/100 0/500 1/0 2/0 3/0 4/0 5/0 6/0 7/0 8/0 9/0 10/0 15/0 20/0 25/0 30/0 40/0 50/0 60/0";
+	std::string default_delays = "0:1 0:10 0:100 0:500 1:0";
 
 	gpb.registerFileParameter(
       "nVariables"
@@ -390,7 +317,7 @@ void GDelayIndividualFactory::describeLocalOptions_(
       "delays"
       , delays_
       , default_delays
-      , "A list of delays through which main() should cycle"
+      , "A list of delays through which main() should cycle. Format: seconds:milliseconds"
    );
 
 	gpb.registerFileParameter(
@@ -437,19 +364,20 @@ void GDelayIndividualFactory::postProcess_(
    std::size_t id = this->getId();
 
    // Make sure the textual delays are converted to time measurements
-   this->splitDelays();
+   sleepTimes_ = Gem::Common::splitStringT<long,long>(delays_, " ", ":");
 
    // Convert the base pointer to the target type
    boost::shared_ptr<GDelayIndividual> p
       = Gem::Common::convertSmartPointer<Gem::Geneva::GParameterSet, GDelayIndividual>(p_raw);
 
-   if(id < sleepSeconds_.size()) {
+   if(id < sleepTimes_.size()) {
       // Calculate the current sleep time
       boost::posix_time::time_duration sleepTime =
-            boost::posix_time::seconds(sleepSeconds_.at(id)) +
-            boost::posix_time::milliseconds(sleepMilliSeconds_.at(id));
+            boost::posix_time::seconds(boost::get<0>(sleepTimes_.at(id))) +
+            boost::posix_time::milliseconds(boost::get<1>(sleepTimes_.at(id)));
 
-      std::cout << "Producing an individual with sleep time = " << sleepTime.total_milliseconds() << std::endl;
+      std::cout
+      << "Producing individual " << id << " with sleep time = " << sleepTime.total_milliseconds() << std::endl;
 
       p->setSleepTime(sleepTime);
 
@@ -470,6 +398,9 @@ void GDelayIndividualFactory::postProcess_(
 
       // Make the GDoubleObjectCollection known to the individual
       p->push_back(gbdc_ptr);
+   } else {
+      // Do nothing. We might just have been called from GFactoryT::writeConfigFile, which
+      // will pass an id_ equal to std::numeric_limits<std::size_t>::max() .
    }
 }
 
