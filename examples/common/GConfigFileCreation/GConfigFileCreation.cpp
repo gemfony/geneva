@@ -70,6 +70,7 @@ public:
 
 	int getInt() const {return i_;}
 	double getDouble() const {return d_;}
+
 private:
 	int i_;
 	double d_;
