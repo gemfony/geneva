@@ -61,6 +61,11 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
+
+const std::size_t GFACTTORYFIRSTID=std::size_t(1);
+const std::size_t GFACTORYWRITEID =std::size_t(0);
+
+/******************************************************************************/
 /**
  * A factory class that returns objects of type prod_type . The class comprises a framework
  * for reading additional configuration options from a configuration file. The actual setup
@@ -80,7 +85,7 @@ public:
 	 */
 	GFactoryT(const std::string& configFile)
 		: configFile_(configFile)
-		, id_(std::size_t(0))
+		, id_(GFACTTORYFIRSTID)
 		, initialized_(false)
 	{ /* nothing */ }
 
@@ -159,7 +164,12 @@ public:
 	 */
 	template <typename tT> // "tT" stands for "target type"
 	boost::shared_ptr<tT> get() {
-	   return Gem::Common::convertSmartPointer<prod_type, tT>(this->get());
+	   boost::shared_ptr<prod_type> p = this->get();
+	   if(p){
+	      return Gem::Common::convertSmartPointer<prod_type, tT>(p);
+	   } else {
+	      return boost::shared_ptr<tT>(); // Just return an empty pointer
+	   }
 	}
 
 	/***************************************************************************/
@@ -184,7 +194,7 @@ public:
 
 		// Retrieve an object (will be discarded at the end of this function)
 		// Here, further options may be added to the parser builder.
-		boost::shared_ptr<prod_type> p = this->getObject_(gpb, std::numeric_limits<std::size_t>::max());
+		boost::shared_ptr<prod_type> p = this->getObject_(gpb, GFACTORYWRITEID);
 
 		// Allow the factory to act on configuration options received
 		// in the parsing process.

@@ -3121,9 +3121,11 @@ std::string GPlotDesigner::plot() const {
 
 #ifdef DEBUG
 	if(plotters_.size() > maxPlots) {
-		std::cerr << "In GPlotDesigner::plot(): Warning!" << std::endl
-				  << "Found more plots than pads." << std::endl
-				  << "Some of the plots will be ignored" << std::endl;
+	   glogger
+	   << "In GPlotDesigner::plot() (Canvas label = \"" << this->getCanvasLabel() << "\":" << std::endl
+	   << "Warning! Found more plots than pads (" << plotters_.size() << " vs. " << maxPlots << ")" << std::endl
+	   << "Some of the plots will be ignored" << std::endl
+	   << GWARNING;
 	}
 #endif /* DEBUG*/
 
@@ -3133,48 +3135,53 @@ std::string GPlotDesigner::plot() const {
 		<< std::endl;
 
 	// Plot all body sections up to the maximum allowed number
-	result << "  //===================  Header Section ====================" << std::endl
-		   << std::endl;
+	result
+	<< "  //===================  Header Section ====================" << std::endl
+	<< std::endl;
 
 	// Plot all headers up to the maximum allowed number
 	std::size_t nPlots = 0;
 	std::vector<boost::shared_ptr<GBasePlotter> >::const_iterator it;
 	for(it=plotters_.begin(); it!=plotters_.end(); ++it) {
 		if(nPlots++ < maxPlots) {
-			result << (*it)->headerData_()  << std::endl;
+			result
+			<< (*it)->headerData_()  << std::endl;
 		}
 	}
 
 	// Plot all body sections up to the maximum allowed number
-	result << "  //===================  Data Section ======================" << std::endl
-		   << std::endl;
+	result
+	<< "  //===================  Data Section ======================" << std::endl
+	<< std::endl;
 
 	nPlots = 0;
 	for(it=plotters_.begin(); it!=plotters_.end(); ++it) {
 		if(nPlots++ < maxPlots) {
-			result << (*it)->bodyData_() << std::endl;
+			result
+			<< (*it)->bodyData_() << std::endl;
 		}
 	}
 
 	// Plot all footer data up to the maximum allowed number
-	result << "  //===================  Plot Section ======================" << std::endl
-		   << std::endl;
+	result
+	<< "  //===================  Plot Section ======================" << std::endl
+	<< std::endl;
 
 	nPlots = 0;
 	for(it=plotters_.begin(); it!=plotters_.end(); ++it) {
 		if(nPlots < maxPlots) {
 			result
-				<< "  graphPad->cd(" << nPlots+1 << ");" << std::endl /* cd starts at 1 */
-				<< (*it)->footerData_()	<< std::endl;
+			<< "  graphPad->cd(" << nPlots+1 << ");" << std::endl /* cd starts at 1 */
+			<< (*it)->footerData_()	<< std::endl;
 
 			nPlots++;
 		}
 	}
 
 	result
-	    << "  graphPad->cd();" << std::endl
-		<< "  cc->cd();" << std::endl
-		<< "}" << std::endl;
+	<< "  graphPad->cd();" << std::endl
+	<< "  cc->cd();" << std::endl
+	<< "}" << std::endl;
 
 	return result.str();
 }

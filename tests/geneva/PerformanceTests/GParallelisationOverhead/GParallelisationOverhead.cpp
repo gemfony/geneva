@@ -79,10 +79,11 @@ int main(int argc, char **argv) {
 	boost::uint32_t interMeasurementDelay = 1;
 	boost::uint32_t nMeasurements = 5;
 	std::size_t iter = 0;
-	while(boost::shared_ptr<GDelayIndividual> gdi_ptr = gdif.get<GDelayIndividual>()) {
+	boost::shared_ptr<GDelayIndividual> gdi_ptr;
+	while((gdi_ptr = gdif.get<GDelayIndividual>())) {
 	   if(0==iter) { // The first individual must already have been produced
 	      // Prepare the output files used to record the measurements
-	       shortResult.open(gdif.getShortResultFileName().c_str());
+	      shortResult.open(gdif.getShortResultFileName().c_str());
 
 	      // Determine the amount of seconds the process should sleep in between two measurements
 	      interMeasurementDelay = gdif.getInterMeasurementDelay();
@@ -92,6 +93,7 @@ int main(int argc, char **argv) {
 	   }
 
 		std::vector<double> delaySummary;
+		std::cout << "Starting " << nMeasurements << " measurements" << std::endl;
 		for(boost::uint32_t i=0; i<nMeasurements; i++) {
 			// Make the individual known to the optimizer
 			go.push_back(gdi_ptr);

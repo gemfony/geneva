@@ -370,14 +370,43 @@ void GDelayIndividualFactory::postProcess_(
    boost::shared_ptr<GDelayIndividual> p
       = Gem::Common::convertSmartPointer<Gem::Geneva::GParameterSet, GDelayIndividual>(p_raw);
 
-   if(id < sleepTimes_.size()) {
+   if(Gem::Common::GFACTORYWRITEID==id) {
       // Calculate the current sleep time
       boost::posix_time::time_duration sleepTime =
-            boost::posix_time::seconds(boost::get<0>(sleepTimes_.at(id))) +
-            boost::posix_time::milliseconds(boost::get<1>(sleepTimes_.at(id)));
+            boost::posix_time::seconds(boost::get<0>(sleepTimes_.at(0))) +
+            boost::posix_time::milliseconds(boost::get<1>(sleepTimes_.at(0)));
 
       std::cout
-      << "Producing individual " << id << " with sleep time = " << sleepTime.total_milliseconds() << std::endl;
+      << "Producing individual in write mode with sleep time = " << sleepTime.total_milliseconds() << std::endl;
+
+      p->setSleepTime(sleepTime);
+
+      // Set up a GDoubleObjectCollection
+      boost::shared_ptr<Gem::Geneva::GDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GDoubleObjectCollection());
+
+      // Set up nVariables GConstrainedDoubleObject objects in the desired value range,
+      // and register them with the collection. The configuration parameters don't matter for this use case
+      for(std::size_t var=0; var<nVariables_; var++) {
+         boost::shared_ptr<Gem::Geneva::GDoubleObject> gbd_ptr(new Gem::Geneva::GDoubleObject(0.5));
+         boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
+         gdga_ptr->setAdaptionThreshold(1);
+         gbd_ptr->addAdaptor(gdga_ptr);
+
+         // Make the GDoubleObject known to the collection
+         gbdc_ptr->push_back(gbd_ptr);
+      }
+
+      // Make the GDoubleObjectCollection known to the individual
+      p->push_back(gbdc_ptr);
+   }
+   else if((id-Gem::Common::GFACTTORYFIRSTID) < sleepTimes_.size()) {
+      // Calculate the current sleep time
+      boost::posix_time::time_duration sleepTime =
+            boost::posix_time::seconds(boost::get<0>(sleepTimes_.at(id-Gem::Common::GFACTTORYFIRSTID))) +
+            boost::posix_time::milliseconds(boost::get<1>(sleepTimes_.at(id-Gem::Common::GFACTTORYFIRSTID)));
+
+      std::cout
+      << "Producing individual " << (id-Gem::Common::GFACTTORYFIRSTID) << " with sleep time = " << sleepTime.total_milliseconds() << std::endl;
 
       p->setSleepTime(sleepTime);
 
@@ -399,8 +428,8 @@ void GDelayIndividualFactory::postProcess_(
       // Make the GDoubleObjectCollection known to the individual
       p->push_back(gbdc_ptr);
    } else {
-      // Do nothing. We might just have been called from GFactoryT::writeConfigFile, which
-      // will pass an id_ equal to std::numeric_limits<std::size_t>::max() .
+      // Return an empty pointer
+      p_raw.reset();
    }
 }
 
