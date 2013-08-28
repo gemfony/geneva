@@ -962,8 +962,7 @@ void GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
 
    // Determine a suitable number of monitored individuals, if it hasn't already
    // been set externally. We allow a maximum of 3 monitored individuals by default
-   // (or the number of parents, if <= 3). Setting the number to 0 will result in
-   // the same number of individuals being monitored as the number of parents.
+   // (or the number of parents, if <= 3).
    if(nMonitorInds_ == 0) {
       nMonitorInds_ = std::min(ea->getNParents(), std::size_t(3));
    }
@@ -1006,7 +1005,7 @@ void GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
       isDirty = false;
       currentEvaluation = gi_ptr->getCachedFitness(isDirty);
 
-      *(fitnessGraphVec_.at(ind)) & boost::tuple<double,double>(iteration, currentEvaluation);
+      (fitnessGraphVec_.at(ind))->add(boost::tuple<double,double>(iteration, currentEvaluation));
    }
 }
 
@@ -1019,17 +1018,24 @@ void GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
 void GBaseEA::GEAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
    Gem::Common::GPlotDesigner gpd(
          std::string("Fitness of ") + boost::lexical_cast<std::string>(nMonitorInds_) + std::string(" best EA individuals")
-         , 1, nMonitorInds_
+         , 1
+         , nMonitorInds_
    );
 
    gpd.setCanvasDimensions(xDim_, yDim_);
 
+   // Copy all plotters into the GPlotDesigner object
    std::vector<boost::shared_ptr<Gem::Common::GGraph2D> >::iterator it;
    for(it=fitnessGraphVec_.begin(); it!=fitnessGraphVec_.end(); ++it) {
       gpd.registerPlotter(*it);
    }
 
+   // Write out the plot
    gpd.writeToFile(this->getResultFileName());
+
+   // Clear all plotters, so they do not get added repeatedly, when
+   // optimize is called repeatedly on the same (or a cloned) object.
+   fitnessGraphVec_.clear();
 }
 
 /******************************************************************************/

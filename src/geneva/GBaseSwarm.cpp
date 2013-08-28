@@ -1890,7 +1890,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizationAlgori
    // Perform the conversion to the target algorithm
    GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);
 
-   *fitnessGraph_ & boost::tuple<double,double>(swarm->getIteration(), swarm->getBestFitness());
+   fitnessGraph_->add(boost::tuple<double,double>(swarm->getIteration(), swarm->getBestFitness()));
 }
 
 /******************************************************************************/
@@ -1909,6 +1909,9 @@ void GBaseSwarm::GSwarmOptimizationMonitor::lastInformation(GOptimizationAlgorit
    gpd.registerPlotter(fitnessGraph_);
 
    gpd.writeToFile(this->getResultFileName());
+
+   // Store a new graph so repeated calls to optimize create new graphs
+   fitnessGraph_.reset(new Gem::Common::GGraph2D());
 }
 
 /******************************************************************************/

@@ -765,17 +765,24 @@ void GBaseSA::GSAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
 void GBaseSA::GSAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
    Gem::Common::GPlotDesigner gpd(
          std::string("Fitness of ") + boost::lexical_cast<std::string>(nMonitorInds_) + std::string(" best SA individuals")
-         , 1, nMonitorInds_
+         , 1
+         , nMonitorInds_
    );
 
    gpd.setCanvasDimensions(xDim_, yDim_);
 
+   // Copy all plotters into the GPlotDesigner object
    std::vector<boost::shared_ptr<Gem::Common::GGraph2D> >::iterator it;
    for(it=fitnessGraphVec_.begin(); it!=fitnessGraphVec_.end(); ++it) {
       gpd.registerPlotter(*it);
    }
 
+   // Write out the plot
    gpd.writeToFile(this->getResultFileName());
+
+   // Clear all plotters, so they do not get added repeatedly, when
+   // optimize is called repeatedly on the same (or a cloned) object.
+   fitnessGraphVec_.clear();
 }
 
 /******************************************************************************/

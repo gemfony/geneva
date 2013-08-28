@@ -1083,7 +1083,7 @@ void GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
 	// Perform the conversion to the target algorithm
 	GBaseGD * const gd = static_cast<GBaseGD * const>(goa);
 
-	*fitnessGraph_ & boost::tuple<double,double>(gd->getIteration(), gd->getBestFitness());
+	fitnessGraph_->add(boost::tuple<double,double>(gd->getIteration(), gd->getBestFitness()));
 }
 
 /******************************************************************************/
@@ -1102,6 +1102,9 @@ void GBaseGD::GGDOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GP
    gpd.registerPlotter(fitnessGraph_);
 
    gpd.writeToFile(this->getResultFileName());
+
+   // Store a new graph so repeated calls to optimize create new graphs
+   fitnessGraph_.reset(new Gem::Common::GGraph2D());
 }
 
 /******************************************************************************/

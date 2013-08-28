@@ -658,7 +658,10 @@ void Go2::registerContentCreator (
  */
 void Go2::optimize(const boost::uint32_t& offset) {
    // Algorithms specified manually in main() take precedence
-   // before those specified on the command line
+   // before those specified on the command line. E.g., a line
+   // "go & ea_ptr;" (where ea_ptr pointd to an evolutionary
+   // algorithm) will add this algorithm as the first entry to
+   // the algorithms_ vector.
    if(!cl_algorithms_.empty()) {
       // Add algorithms that have been specified on the command line
       std::vector<boost::shared_ptr<GOABase> >::iterator pers_it;
