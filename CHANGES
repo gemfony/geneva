@@ -11,6 +11,8 @@ The main changes for this release include:
  - Gave Go2 the ability to accept custom command line options from the user
  - Updated all examples and tests
 
+Recommended version of Boost: 1.54
+
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.11, "Route de Chamonix" - August 14, 2013
 
