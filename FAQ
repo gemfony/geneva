@@ -32,7 +32,7 @@ A: - The COMMON library holds miscellaneous functionality needed in many context
 
 Q: Where do I find the documentation ? 
 A: There is a complete manual available in PDF format here: 
-   http://www.gemfony.com/fileadmin/documentation/geneva-manual.pdf . Note that
+   http://www.gemfony.eu/fileadmin/documentation/geneva-manual.pdf . Note that
    it might be lacking behind the development of the Geneva library. Hence it 
    is also recommended to look at the examples shipped with the Geneva sources.
    These are also a good starting point for creating your own solutions.
@@ -69,7 +69,7 @@ A: General bugs (i.e. every situation, where Geneva does not behave as expected 
 
 Q: Where to post general questions about the Geneva usage or development ?
 A: Please use the Geneva Usage or Development Forums:
-   http://www.gemfony.com/index.php?forums . Please also post feature requests
+   http://www.gemfony.eu/index.php?forums . Please also post feature requests
    here and let us know about errors or inaccuracies in the manual.
 
 Q: How can I help ?

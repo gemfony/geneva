@@ -11,8 +11,8 @@ over time, and the existing algorithms will be further improved.
 
 All algorithms act on the same problem definitions, and different 
 optimization algorithms can interact and may be "chained", making it 
-easy to tacke even complicated problems. Parallelization (on the level
-of optimization algorithms) happens mostly transparent for the user. 
+easy to tackle even complicated problems. Parallelization (on the level
+of optimization algorithms) happens mostly transparently for the user. 
 
 Geneva does not want to be the fastest library of optimization
 algorithms on single-processor machines, but is instead targeted at
@@ -33,5 +33,5 @@ programmers wishing to contribute to this software, the terms of the
 AGPL guarantee the continued availability of the code under this license.
 
 Geneva is maintained by Gemfony scientific. To find out more about
-Gemfony and/or Geneva, visit http://www.gemfony.com or contact us
-through contact (AT) gemfony (DOT) com .
+Gemfony and/or Geneva, visit http://www.gemfony.eu or contact us
+through contact (AT) gemfony (DOT) eu .

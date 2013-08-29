@@ -4,7 +4,7 @@
 #
 # See the AUTHORS file in the top-level directory for a list of authors.
 #
-# Contact: contact [at] gemfony (dot) com
+# Contact: contact [at] gemfony (dot) eu
 #
 # This file is part of the Geneva library collection.
 #
@@ -26,7 +26,7 @@
 # along with the Geneva library. If not, see <http://www.gnu.org/licenses/>.
 #
 # For further information on Gemfony scientific and Geneva, visit
-# http://www.gemfony.com .
+# http://www.gemfony.eu .
 #
 ################################################################################
 
@@ -385,7 +385,7 @@ SET(CPACK_AUX_PACKAGE_DESCRIPTION
 )
 
 SET(CPACK_PACKAGE_VENDOR "Gemfony scientific and Karlsruhe Institute of Technology")
-SET(CPACK_PACKAGE_CONTACT "Gemfony scientific <contact@gemfony.com>")
+SET(CPACK_PACKAGE_CONTACT "Gemfony scientific <contact@gemfony.eu>")
 SET(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
 SET(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
