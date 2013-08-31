@@ -4,7 +4,7 @@
 #
 # See the AUTHORS file in the top-level directory for a list of authors.
 #
-# Contact: contact [at] gemfony (dot) com
+# Contact: contact [at] gemfony (dot) eu
 #
 # This file is part of the Geneva library collection.
 #
@@ -26,7 +26,7 @@
 # along with the Geneva library. If not, see <http://www.gnu.org/licenses/>.
 #
 # For further information on Gemfony scientific and Geneva, visit
-# http://www.gemfony.com .
+# http://www.gemfony.eu .
 #
 ####################################################################
 # This script will take two "short" results of delay measurements
