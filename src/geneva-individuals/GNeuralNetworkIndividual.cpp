@@ -7,7 +7,7 @@
  *
  * See the AUTHORS file in the top-level directory for a list of authors.
  *
- * Contact: contact [at] gemfony (dot) com
+ * Contact: contact [at] gemfony (dot) eu
  *
  * This file is part of the Geneva library collection.
  *
@@ -29,7 +29,7 @@
  * along with the Geneva library. If not, see <http://www.gnu.org/licenses/>.
  *
  * For further information on Gemfony scientific and Geneva, visit
- * http://www.gemfony.com .
+ * http://www.gemfony.eu .
  */
 
 #include <geneva-individuals/GNeuralNetworkIndividual.hpp>
@@ -939,7 +939,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string& visFile
          << " *" << std::endl
          << " * See the AUTHORS file in the top-level directory for a list of authors." << std::endl
          << " *" << std::endl
-         << " * Contact: contact [at] gemfony (dot) com" << std::endl
+         << " * Contact: contact [at] gemfony (dot) eu" << std::endl
          << " *" << std::endl
          << " * This file is part of the Geneva library collection." << std::endl
          << " *" << std::endl
@@ -961,7 +961,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string& visFile
          << " * along with the Geneva library. If not, see <http://www.gnu.org/licenses/>." << std::endl
          << " *" << std::endl
          << " * For further information on Gemfony scientific and Geneva, visit" << std::endl
-         << " * http://www.gemfony.com ." << std::endl
+         << " * http://www.gemfony.eu ." << std::endl
          << " */" << std::endl
          << std::endl
          << "/*" << std::endl
@@ -1118,7 +1118,7 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string& headerFile
       << " *" << std::endl
       << " * See the AUTHORS file in the top-level directory for a list of authors." << std::endl
       << " *" << std::endl
-      << " * Contact: contact [at] gemfony (dot) com" << std::endl
+      << " * Contact: contact [at] gemfony (dot) eu" << std::endl
       << " *" << std::endl
       << " * This file is part of the Geneva library collection." << std::endl
       << " *" << std::endl
@@ -1140,7 +1140,7 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string& headerFile
       << " * along with the Geneva library. If not, see <http://www.gnu.org/licenses/>." << std::endl
       << " *" << std::endl
       << " * For further information on Gemfony scientific and Geneva, visit" << std::endl
-      << " * http://www.gemfony.com ." << std::endl
+      << " * http://www.gemfony.eu ." << std::endl
       << " */" << std::endl
       << std::endl
       << "#include <cmath>" << std::endl

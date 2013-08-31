@@ -7,7 +7,7 @@
  *
  * See the AUTHORS file in the top-level directory for a list of authors.
  *
- * Contact: contact [at] gemfony (dot) com
+ * Contact: contact [at] gemfony (dot) eu
  *
  * This file is part of the Geneva library collection.
  *
@@ -29,7 +29,7 @@
  * along with the Geneva library. If not, see <http://www.gnu.org/licenses/>.
  *
  * For further information on Gemfony scientific and Geneva, visit
- * http://www.gemfony.com .
+ * http://www.gemfony.eu .
  */
 
 #include "common/GLogger.hpp"
@@ -328,7 +328,7 @@ void GLogStreamer::operator<<(const GManipulator& gm){
             << std::endl
             << "If you suspect that this error is due to Geneva," << std::endl
             << "then please consider filing a bug via" << std::endl
-            << "http://www.gemfony.com (link \"Bug Reports\") or" << std::endl
+            << "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl
             << "through http://www.launchpad.net/geneva" << std::endl
             << std::endl
             << "We appreciate your help!" << std::endl
@@ -363,7 +363,7 @@ void GLogStreamer::operator<<(const GManipulator& gm){
             << std::endl
             << "If you suspect that this error is due to Geneva," << std::endl
             << "then please consider filing a bug via" << std::endl
-            << "http://www.gemfony.com (link \"Bug Reports\") or" << std::endl
+            << "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl
             << "through http://www.launchpad.net/geneva" << std::endl
             << std::endl
             << "We appreciate your help!" << std::endl
@@ -397,7 +397,7 @@ void GLogStreamer::operator<<(const GManipulator& gm){
             << std::endl
             << "If you suspect that there is an underlying problem with Geneva," << std::endl
             << "then please consider filing a bug via" << std::endl
-            << "http://www.gemfony.com (link \"Bug Reports\") or" << std::endl
+            << "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl
             << "through http://www.launchpad.net/geneva" << std::endl
             << std::endl
             << "We appreciate your help!" << std::endl
