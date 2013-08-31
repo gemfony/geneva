@@ -7,29 +7,34 @@
  *
  * See the AUTHORS file in the top-level directory for a list of authors.
  *
- * Contact: info [at] gemfony (dot) com
+ * Contact: contact [at] gemfony (dot) eu
  *
- * This file is part of the Geneva library collection
+ * This file is part of the Geneva library collection.
  *
- * This file is free software: you can redistribute it and/or modify
- * it under the terms of version 3 of the GNU Affero General Public License,
- * or, at your option, under the terms of version 2 of the GNU General Public
- * License, as published by the Free Software Foundation.
+ * Geneva was developed with kind support from Karlsruhe Institute of
+ * Technology (KIT) and Steinbuch Centre for Computing (SCC). Further
+ * information about KIT and SCC can be found at http://www.kit.edu/english
+ * and http://scc.kit.edu .
  *
- * NOTE THAT THIS FORM OF DUAL-LICENSING DOES NOT APPLY TO ANY OTHER FILES
- * OF THE GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
+ * Geneva is free software: you can redistribute and/or modify it under
+ * the terms of version 3 of the GNU Affero General Public License,
+ * or, at your option, under the terms of version 2 of the GNU General
+ * Public License, as published by the Free Software Foundation.
+ *
+ * NOTE THAT THIS DUAL-LICENSING OPTION DOES NOT APPLY TO ANY OTHER FILES OF THE
+ * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
  *
  * Geneva is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * You should have received a copy of version 2 of the GNU General Public License
- * and of version 3 of the GNU Affero General Public License along with the Geneva
- * library. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * version 3 and of version 2 of the GNU General Public License
+ * along with the Geneva library. If not, see <http://www.gnu.org/licenses/>.
  *
  * For further information on Gemfony scientific and Geneva, visit
- * http://www.gemfony.com .
+ * http://www.gemfony.eu .
  */
 
 #include "common/GNumericParameterT.hpp"
