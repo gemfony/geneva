@@ -111,7 +111,34 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr_cp.reset());
 	}
 
-	{ // Test cloning
+   { // Test cloning to GObject
+      boost::shared_ptr<GObject> T_ptr, T_ptr_clone;
+
+      // Default construction
+      BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
+      BOOST_REQUIRE(T_ptr); // must point somewhere
+
+      // Make sure the object is not in pristine condition
+      BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
+
+      // Cloning
+      BOOST_REQUIRE_NO_THROW(T_ptr_clone = T_ptr->GObject::clone());
+
+      // Check for equivalence and similarity
+      BOOST_CHECK(gep.isEqual(*T_ptr_clone, *T_ptr));
+      BOOST_CHECK(gep.isSimilar(*T_ptr_clone, *T_ptr));
+
+      // Check that the smart pointers are unique
+      BOOST_CHECK(T_ptr.unique());
+      BOOST_CHECK(T_ptr_clone.unique());
+
+      // Check destruction. Resetting the smart pointer will delete
+      // the stored object if it was the last remaining reference to it.
+      BOOST_REQUIRE_NO_THROW(T_ptr.reset());
+      BOOST_REQUIRE_NO_THROW(T_ptr_clone.reset());
+   }
+
+	{ // Test cloning to a target type
 		boost::shared_ptr<T> T_ptr, T_ptr_clone;
 
 		// Default construction
@@ -138,7 +165,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr_clone.reset());
 	}
 
-	{ // Test loading
+	{ // Test loading through a boost::shared_ptr
 		boost::shared_ptr<T> T_ptr, T_ptr_load;
 
 		// Default construction
@@ -165,6 +192,34 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr.reset());
 		BOOST_REQUIRE_NO_THROW(T_ptr_load.reset());
 	}
+
+   { // Test loading through a reference
+      boost::shared_ptr<T> T_ptr, T_ptr_load;
+
+      // Default construction
+      BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
+      BOOST_REQUIRE(T_ptr); // must point somewhere
+
+      // Make sure the object is not in pristine condition
+      BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
+
+      // Loading
+      BOOST_REQUIRE_NO_THROW(T_ptr_load = TFactory_GUnitTests<T>());
+      BOOST_REQUIRE(T_ptr_load); // must point somewhere
+      BOOST_REQUIRE_NO_THROW(T_ptr_load->GObject::load(*T_ptr));
+      // Check for equivalence and similarity
+      BOOST_CHECK(gep.isEqual(*T_ptr_load, *T_ptr));
+      BOOST_CHECK(gep.isSimilar(*T_ptr_load, *T_ptr));
+
+      // Check that the smart pointers are unique
+      BOOST_CHECK(T_ptr.unique());
+      BOOST_CHECK(T_ptr_load.unique());
+
+      // Check destruction. Resetting the smart pointer will delete
+      // the stored object if it was the last remaining reference to it.
+      BOOST_REQUIRE_NO_THROW(T_ptr.reset());
+      BOOST_REQUIRE_NO_THROW(T_ptr_load.reset());
+   }
 
 	{ // Check assignment using operator=
 		boost::shared_ptr<T> T_ptr, T_ptr_assign;

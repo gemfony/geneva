@@ -180,7 +180,9 @@ public:
 	/** @brief Checks whether this object is running in client mode */
 	bool clientMode() const;
 
+	/** @brief Sets the desired parallelization mode */
 	void setParallelizationMode(const execMode&);
+	/** @brief Retrieves the current parallelization mode */
 	execMode getParallelizationMode() const;
 
 	/* @brief Specifies whether only the best individuals of a population should be copied */

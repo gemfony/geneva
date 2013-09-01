@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
 	std::size_t iter = 0;
 	boost::shared_ptr<GDelayIndividual> gdi_ptr;
 	while((gdi_ptr = gdif.get<GDelayIndividual>())) {
-	   if(0==iter) { // The first individual must already have been produced
+	   if(0==iter) { // The first individual must already have been produced in order to access parsed data
 	      // Prepare the output files used to record the measurements
 	      shortResult.open(gdif.getShortResultFileName().c_str());
 

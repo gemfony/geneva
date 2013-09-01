@@ -44,7 +44,6 @@ namespace Geneva {
  * In particular, it sets the name of the Geneva object to "GObject"
  */
 GObject::GObject()
-	: mayBeSerialized_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -54,7 +53,6 @@ GObject::GObject()
  * @param cp A copy of another GObject object
  */
 GObject::GObject(const GObject& cp)
-	: mayBeSerialized_(cp.mayBeSerialized_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -91,12 +89,12 @@ const GObject& GObject::operator=(const GObject& cp){
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GObject::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -108,11 +106,15 @@ boost::optional<std::string> GObject::checkRelationshipWith(
 
 	// No parent classes to check...
 
-	// ... but some local data
-	deviations.push_back(checkExpectation(withMessages, "GObject", mayBeSerialized_, cp.mayBeSerialized_, "mayBeSerialized_", "cp.mayBeSerialized_", e , limit));
+	// ... and no local data
 
 	return evaluateDiscrepancies("GMutableSetT<T>", caller, deviations, e);
 }
+
+/* ----------------------------------------------------------------------------------
+ * UNCHECKED
+ * ----------------------------------------------------------------------------------
+ */
 
 /******************************************************************************/
 /**
@@ -125,7 +127,9 @@ std::string GObject::report() const {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests() // Check that
+ * the function does return a non-empty description. Content is not checked
+ * automatically.
  * ----------------------------------------------------------------------------------
  */
 
@@ -137,6 +141,11 @@ std::string GObject::name() const {
    return std::string("GObject");
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /******************************************************************************/
 /**
  * Converts class to a serial representation that is then written to a stream.
@@ -144,39 +153,43 @@ std::string GObject::name() const {
  * @param oarchive_stream The output stream the object should be written to
  * @param serMod The desired serialization mode
  */
-void GObject::toStream(std::ostream& oarchive_stream, const Gem::Common::serializationMode& serMod) const {
-    const GObject *local = this; // Serialization should happen through a base pointer
+void GObject::toStream(
+   std::ostream& oarchive_stream
+   , const Gem::Common::serializationMode& serMod
+) const {
+   const GObject *local = this; // Serialization should happen through a base pointer
 
-    switch(serMod)
-    {
-    case Gem::Common::SERIALIZATIONMODE_TEXT:
-		{
-			boost::archive::text_oarchive oa(oarchive_stream);
-			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
-		} // note: explicit scope here is essential so the oa-destructor gets called
+   switch(serMod)
+   {
+      case Gem::Common::SERIALIZATIONMODE_TEXT:
+      {
+         boost::archive::text_oarchive oa(oarchive_stream);
+         oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
+      } // note: explicit scope here is essential so the oa-destructor gets called
 
-		break;
+      break;
 
-    case Gem::Common::SERIALIZATIONMODE_XML:
-		{
-			boost::archive::xml_oarchive oa(oarchive_stream);
-			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
-		} // note: explicit scope here is essential so the oa-destructor gets called
+      case Gem::Common::SERIALIZATIONMODE_XML:
+      {
+         boost::archive::xml_oarchive oa(oarchive_stream);
+         oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
+      } // note: explicit scope here is essential so the oa-destructor gets called
 
-		break;
+      break;
 
-    case Gem::Common::SERIALIZATIONMODE_BINARY:
-		{
-			boost::archive::binary_oarchive oa(oarchive_stream);
-			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
-		} // note: explicit scope here is essential so the oa-destructor gets called
+      case Gem::Common::SERIALIZATIONMODE_BINARY:
+      {
+         boost::archive::binary_oarchive oa(oarchive_stream);
+         oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
+      } // note: explicit scope here is essential so the oa-destructor gets called
 
-		break;
-    }
+      break;
+   }
 }
 
 /* ----------------------------------------------------------------------------------
  * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * Tested indirectly through standard tests of toString
  * ----------------------------------------------------------------------------------
  */
 
@@ -188,43 +201,47 @@ void GObject::toStream(std::ostream& oarchive_stream, const Gem::Common::seriali
  * @param serMod The desired serialization mode
  *
  */
-void GObject::fromStream(std::istream& istr, const Gem::Common::serializationMode& serMod) {
-    // De-serialization and serialization should happen through a pointer to the same type.
-    GObject *local = (GObject *)NULL;
+void GObject::fromStream(
+   std::istream& istr
+   , const Gem::Common::serializationMode& serMod
+) {
+   // De-serialization and serialization should happen through a pointer to the same type.
+   GObject *local = (GObject *)NULL;
 
-    switch(serMod)
-     {
-     case Gem::Common::SERIALIZATIONMODE_TEXT:
- 		{
-		    boost::archive::text_iarchive ia(istr);
-		    ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
- 		} // note: explicit scope here is essential so the ia-destructor gets called
+   switch(serMod)
+   {
+      case Gem::Common::SERIALIZATIONMODE_TEXT:
+      {
+         boost::archive::text_iarchive ia(istr);
+         ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
+      } // note: explicit scope here is essential so the ia-destructor gets called
 
- 		break;
+      break;
 
-     case Gem::Common::SERIALIZATIONMODE_XML:
-		{
-		    boost::archive::xml_iarchive ia(istr);
-		    ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
-		} // note: explicit scope here is essential so the ia-destructor gets called
+      case Gem::Common::SERIALIZATIONMODE_XML:
+      {
+         boost::archive::xml_iarchive ia(istr);
+         ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
+      } // note: explicit scope here is essential so the ia-destructor gets called
 
-		break;
+      break;
 
-     case Gem::Common::SERIALIZATIONMODE_BINARY:
- 		{
-		    boost::archive::binary_iarchive ia(istr);
-		    ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
- 		} // note: explicit scope here is essential so the ia-destructor gets called
+      case Gem::Common::SERIALIZATIONMODE_BINARY:
+      {
+         boost::archive::binary_iarchive ia(istr);
+         ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
+      } // note: explicit scope here is essential so the ia-destructor gets called
 
- 		break;
-     }
+      break;
+   }
 
-    load_(local);
-    if(local) delete local;
+   load_(local);
+   if(local) delete local;
 }
 
 /* ----------------------------------------------------------------------------------
  * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * Tested indirectly through standard tests of fromString
  * ----------------------------------------------------------------------------------
  */
 
@@ -245,6 +262,7 @@ std::string GObject::toString(const Gem::Common::serializationMode& serMod) cons
 
 /* ----------------------------------------------------------------------------------
  * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * Tested as part of standard serialization tests in Geneva standard test suite
  * ----------------------------------------------------------------------------------
  */
 
@@ -258,13 +276,17 @@ std::string GObject::toString(const Gem::Common::serializationMode& serMod) cons
  * @param descr A text representation of a GObject-derivative
 
  */
-void GObject::fromString(const std::string& descr, const Gem::Common::serializationMode& serMod) {
-    std::istringstream istr(descr);
-    fromStream(istr, serMod);
+void GObject::fromString(
+   const std::string& descr
+   , const Gem::Common::serializationMode& serMod
+) {
+   std::istringstream istr(descr);
+   fromStream(istr, serMod);
 }
 
 /* ----------------------------------------------------------------------------------
  * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * Tested as part of standard serialization tests in Geneva standard test suite
  * ----------------------------------------------------------------------------------
  */
 
@@ -274,21 +296,22 @@ void GObject::fromString(const std::string& descr, const Gem::Common::serializat
  *
  * @param fileName The name of the file the object should be saved to.
  * @param serMod The desired serialization mode
- *
- * TODO: Error check whether the file is accessible / state of the stream
  */
-void GObject::toFile(const std::string& fileName, const Gem::Common::serializationMode& serMod) const {
-	std::ofstream ofstr(fileName.c_str());
+void GObject::toFile(
+   const std::string& fileName
+   , const Gem::Common::serializationMode& serMod
+) const {
+   std::ofstream ofstr(fileName.c_str());
 
-	if(!ofstr) {
-	   glogger
-	   << "In GObject::toFile():" << std::endl
-	   << "Problems connecting to file " << fileName << std::endl
-	   << GEXCEPTION;
-	}
+   if(!ofstr) {
+      glogger
+      << "In GObject::toFile():" << std::endl
+      << "Problems connecting to file " << fileName << std::endl
+      << GEXCEPTION;
+   }
 
-	toStream(ofstr, serMod);
-	ofstr.close();
+   toStream(ofstr, serMod);
+   ofstr.close();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -303,16 +326,26 @@ void GObject::toFile(const std::string& fileName, const Gem::Common::serializati
  *
  * @param fileName The name of the file the object should be loaded from
  * @param serMod The desired serialization mode
- *
- * TODO: Error check whether the file is accessible / state of the stream
  */
-void GObject::fromFile(const std::string& fileName, const Gem::Common::serializationMode& serMod) {
+void GObject::fromFile(
+   const std::string& fileName
+   , const Gem::Common::serializationMode& serMod
+) {
+   // Check that the file exists
+   if(!bf::exists(bf::path(fileName))) {
+      glogger
+      << "In GObject::fromFile(): Error!" << std::endl
+      << "Requested input file " << fileName << std::endl
+      << "does not exist." << std::endl
+      << GEXCEPTION;
+   }
+
 	std::ifstream ifstr(fileName.c_str());
 
 	if(!ifstr) {
 	   glogger
 	   << "In GObject::fromFile():" << std::endl
-	   << "Problems connecting to file " << fileName << std::endl
+	   << "Problem connecting to file " << fileName << std::endl
 	   << GEXCEPTION;
 	}
 
@@ -333,7 +366,10 @@ void GObject::fromFile(const std::string& fileName, const Gem::Common::serializa
  * @param configFile The name of the configuration file to be written
  * @param header A header to be prepended to the configuration file
  */
-void GObject::writeConfigFile(const std::string& configFile, const std::string& header) {
+void GObject::writeConfigFile(
+   const std::string& configFile
+   , const std::string& header
+) {
 	// This class will handle the interaction with configuration files
 	Gem::Common::GParserBuilder gpb;
 
@@ -344,6 +380,11 @@ void GObject::writeConfigFile(const std::string& configFile, const std::string& 
 	// Write out the configuration file
 	gpb.writeConfigFile(configFile, header, true);
 }
+
+/* ----------------------------------------------------------------------------------
+ * UNTESTED
+ * ----------------------------------------------------------------------------------
+ */
 
 /******************************************************************************/
 /**
@@ -363,6 +404,11 @@ void GObject::readConfigFile(const std::string& configFile) {
 	gpb.parseConfigFile(configFile);
 }
 
+/* ----------------------------------------------------------------------------------
+ * UNTESTED
+ * ----------------------------------------------------------------------------------
+ */
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject
@@ -373,9 +419,13 @@ void GObject::load_(const GObject *cp) {
 	// Checks whether we are accidently assigning the object to itself
 	selfAssignmentCheck<GObject>(cp);
 
-	// Load the local data
-	mayBeSerialized_ = cp->mayBeSerialized_;
+	// No local data
 }
+
+/* ----------------------------------------------------------------------------------
+ * Loading is checked as part of the Geneva standard test suite
+ * ----------------------------------------------------------------------------------
+ */
 
 /******************************************************************************/
 /**
@@ -406,43 +456,11 @@ boost::shared_ptr<GObject> GObject::clone() const {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests() as well as in
+ * the Geneva standard test suite.
  * ----------------------------------------------------------------------------------
  */
 
-/******************************************************************************/
-/**
- * Sets a flag indicating whether this object may be serialized
- *
- * @param mayBeSerialized The desired new value of the mayBeSerialized flag
- */
-void GObject::setMayBeSerialized(const bool& mayBeSerialized) {
-	mayBeSerialized_ = mayBeSerialized;
-}
-
-/******************************************************************************/
-/**
- * Checks whether this object may currently be serialized
- *
- * @return A boolean indicating whether the object may be serialized
- */
-bool GObject::mayBeSerialized() const {
-	return mayBeSerialized_;
-}
-
-/******************************************************************************/
-/**
- * Adds local configuration options to a GParserBuilder object
- *
- * @param gpb The GParserBuilder object to which configuration options should be added
- */
-/*
-void GObject::addConfigurationOptions(
-	Gem::Common::GParserBuilder& gpb
-) {
-	addConfigurationOptions(gpb, true);
-}
-*/
 /******************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object. This is a protected, virtual version
@@ -457,6 +475,11 @@ void GObject::addConfigurationOptions(
 ) {
 	// No local data, no relevant parent classes, hence nothing to do
 }
+
+/* ----------------------------------------------------------------------------------
+ * UNTESTED
+ * ----------------------------------------------------------------------------------
+ */
 
 /******************************************************************************/
 /**
@@ -496,6 +519,18 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 		// Check that the pointer actually points somewhere
 		BOOST_CHECK(p_test);
 	}
+
+   // --------------------------------------------------------------------------
+
+   { // Check the name of the object
+      boost::shared_ptr<GObject> p_test = this->clone<GObject>();
+
+      // Check that the pointer actually points somewhere
+      BOOST_CHECK_MESSAGE(
+            p_test->GObject::name() == "GObject"
+            , "Name is " << p_test->GObject::name()
+      );
+   }
 
 	// --------------------------------------------------------------------------
 
