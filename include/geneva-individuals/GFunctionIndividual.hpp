@@ -75,13 +75,13 @@ namespace Geneva {
  * This enum denotes the possible demo function types
  */
 enum solverFunction {
-	  PARABOLA=0
-	, NOISYPARABOLA=1
-	, ROSENBROCK=2
-	, ACKLEY=3
-	, RASTRIGIN=4
-	, SCHWEFEL=5
-	, SALOMON=6
+   PARABOLA=0
+   , NOISYPARABOLA=1
+   , ROSENBROCK=2
+   , ACKLEY=3
+   , RASTRIGIN=4
+   , SCHWEFEL=5
+   , SALOMON=6
 };
 
 const solverFunction MAXDEMOFUNCTION=SALOMON;

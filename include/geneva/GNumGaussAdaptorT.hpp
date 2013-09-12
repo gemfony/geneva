@@ -451,7 +451,7 @@ protected:
 
 		// We do not want to favor the decrease or increase of sigma, hence we choose
 		// randomly whether to multiply or divide. TODO: cross-check.
-		if(sigmaSigma_ > fp_type(0.)) sigma_ *= GExp(GAdaptorT<num_type>::gr->normal_distribution(sigmaSigma_)*(GAdaptorT<num_type>::gr->uniform_bool()?fp_type(1):fp_type(-1)));
+		if(sigmaSigma_ > fp_type(0.)) sigma_ *= gexp(GAdaptorT<num_type>::gr->normal_distribution(sigmaSigma_)*(GAdaptorT<num_type>::gr->uniform_bool()?fp_type(1):fp_type(-1)));
 
 		// make sure sigma_ doesn't get out of range
 		if(sigma_ < minSigma_) sigma_ = minSigma_;

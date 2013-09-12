@@ -138,9 +138,9 @@ float GRandomBase::normal_distribution<float>() {
 #ifdef GEM_HAP_USE_BOXMULLER
 		float rnr1 = uniform_01<float>();
 		float rnr2 = uniform_01<float>();
-		dblGaussCache_ = GSqrt(GFabs(-2.f * GLog(1.f - rnr1))) * GCos(2.f * (float)M_PI	* rnr2);
+		dblGaussCache_ = gsqrt(GFabs(-2.f * glog(1.f - rnr1))) * gcos(2.f * (float)M_PI	* rnr2);
 		dblGaussCacheAvailable_ = true;
-		return GSqrt(GFabs(-2.f * GLog(1.f - rnr1))) * GSin(2.f * (float)M_PI	* rnr2);
+		return gsqrt(GFabs(-2.f * glog(1.f - rnr1))) * gsin(2.f * (float)M_PI	* rnr2);
 #else // GEM_HAP_USE_BOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than GEM_HAP_USE_BOXMULLER
 		float q, u1, u2;
 		do {
@@ -148,7 +148,7 @@ float GRandomBase::normal_distribution<float>() {
 			u2 = 2.f* uniform_01<float>() - 1.f;
 			q = u1*u1 + u2*u2;
 		} while (q > 1.f);
-		q = GSqrt((-2.f*GLog(q))/q);
+		q = gsqrt((-2.f*glog(q))/q);
 		fltGaussCache_ = u2 * q;
 		fltGaussCacheAvailable_ = true;
 		return u1 * q;
@@ -174,9 +174,9 @@ double GRandomBase::normal_distribution<double>() {
 #ifdef GEM_HAP_USE_BOXMULLER
 		double rnr1 = uniform_01<double>();
 		double rnr2 = uniform_01<double>();
-		dblGaussCache_ = GSqrt(GFabs(-2. * GLog(1. - rnr1))) * GCos(2. * M_PI	* rnr2);
+		dblGaussCache_ = gsqrt(GFabs(-2. * glog(1. - rnr1))) * gcos(2. * M_PI	* rnr2);
 		dblGaussCacheAvailable_ = true;
-		return GSqrt(GFabs(-2. * GLog(1. - rnr1))) * GSin(2. * M_PI	* rnr2);
+		return gsqrt(GFabs(-2. * glog(1. - rnr1))) * gsin(2. * M_PI	* rnr2);
 #else // GEM_HAP_USE_BOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than GEM_HAP_USE_BOXMULLER
 		double q, u1, u2;
 		do {
@@ -184,7 +184,7 @@ double GRandomBase::normal_distribution<double>() {
 			u2 = 2.* uniform_01<double>() - 1.;
 			q = u1*u1 + u2*u2;
 		} while (q > 1.0);
-		q = GSqrt((-2.*GLog(q))/q);
+		q = gsqrt((-2.*glog(q))/q);
 		dblGaussCache_ = u2 * q;
 		dblGaussCacheAvailable_ = true;
 		return u1 * q;

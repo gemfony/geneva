@@ -278,10 +278,10 @@ public:
 		  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 	) {
 		if (uniform_bool()) {
-			return normal_distribution<fp_type>(mean - Gem::Common::GFabs(distance / 2.), sigma);
+			return normal_distribution<fp_type>(mean - Gem::Common::gfabs(distance / 2.), sigma);
 		}
 		else {
-			return normal_distribution<fp_type>(mean + Gem::Common::GFabs(distance / 2.), sigma);
+			return normal_distribution<fp_type>(mean + Gem::Common::gfabs(distance / 2.), sigma);
 		}
 	}
 
@@ -309,10 +309,10 @@ public:
 		  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 	) {
 		if (uniform_bool()) {
-			return normal_distribution<fp_type>(mean - Gem::Common::GFabs(distance / 2.), sigma1);
+			return normal_distribution<fp_type>(mean - Gem::Common::gfabs(distance / 2.), sigma1);
 		}
 		else {
-			return normal_distribution<fp_type>(mean + Gem::Common::GFabs(distance / 2.), sigma2);
+			return normal_distribution<fp_type>(mean + Gem::Common::gfabs(distance / 2.), sigma2);
 		}
 	}
 

@@ -218,9 +218,9 @@ public:
 			boost::int32_t region = 0;
 
 #ifdef DEBUG
-			region =	boost::numeric_cast<boost::int32_t>(Gem::Common::GFloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
+			region =	boost::numeric_cast<boost::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
 #else
-			region =	static_cast<boost::int32_t>(Gem::Common::GFloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
+			region =	static_cast<boost::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
 #endif
 
 			// Check whether we are in an odd or an even range and calculate the

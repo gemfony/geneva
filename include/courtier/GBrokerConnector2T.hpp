@@ -549,7 +549,7 @@ protected:
       typename std::vector<boost::shared_ptr<processable_type> >::iterator it;
       POSITIONTYPE pos_cnt = 0;
       for(it=workItems.begin(); it!=workItems.end(); ++it) {
-         if(true==workItemPos[pos_cnt]) { // is the item due to be submitted ?
+         if(GBC_UNPROCESSED==workItemPos[pos_cnt]) { // is the item due to be submitted ? We only submit items that are marked as "unprocessed"
 #ifdef DEBUG
             if(!(*it)) {
                glogger

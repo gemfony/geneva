@@ -36,6 +36,7 @@ SET ( GENEVACOMMONINCLUDES
 	GDefaultValueT.hpp
 	GExceptions.hpp
 	GFactoryT.hpp
+	GFormulaParser.hpp
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
 	GHelperFunctions.hpp

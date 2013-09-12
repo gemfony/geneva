@@ -41,7 +41,6 @@
 
 // Geneva header files go here
 #include "geneva/Go2.hpp"
-#include "geneva/GPluggableOptimizationMonitorsT.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -58,7 +57,6 @@ int main(int argc, char **argv) {
 	} // Execution will end here in client mode
 
 	//---------------------------------------------------------------------------
-
    // Create a factory for GFunctionIndividual objects and perform
    // any necessary initial work.
 	boost::shared_ptr<GFunctionIndividualFactory>

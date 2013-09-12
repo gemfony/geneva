@@ -58,7 +58,7 @@ namespace Geneva {
 /*
  * This is a collection of simple pluggable modules suitable for emitting certain specialized
  * information from within optimization algorithms. They can be plugged into GOptimizationMonitorT<>
- * derivatives. The one requirement is that they implement a function
+ * derivatives. The one requirement is that they implement a function "informationFunction"
  */
 
 /******************************************************************************/

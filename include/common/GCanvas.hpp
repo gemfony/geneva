@@ -488,10 +488,10 @@ public:
       float result = 0.f;
       for(std::size_t i_x=0; i_x<xDim_; i_x++) {
          for(std::size_t i_y=0; i_y<yDim_; i_y++) {
-            result += GSqrt(
-                  GPow((canvasData_[i_x][i_y]).r - (cp[i_x][i_y]).r, 2.f)
-                + GPow((canvasData_[i_x][i_y]).g - (cp[i_x][i_y]).g, 2.f)
-                + GPow((canvasData_[i_x][i_y]).b - (cp[i_x][i_y]).b, 2.f)
+            result += gsqrt(
+                  gpow((canvasData_[i_x][i_y]).r - (cp[i_x][i_y]).r, 2.f)
+                + gpow((canvasData_[i_x][i_y]).g - (cp[i_x][i_y]).g, 2.f)
+                + gpow((canvasData_[i_x][i_y]).b - (cp[i_x][i_y]).b, 2.f)
             );
          }
       }
@@ -799,14 +799,14 @@ public:
 #endif /* DEBUG */
 
       // and store them in the structs holding the cartesic coordinates
-      t_c.tr_one.x = t.middle.x + t.radius*GCos(t.angle1*2.0f*float(M_PI));
-      t_c.tr_one.y = t.middle.y + t.radius*GSin(t.angle1*2.0f*float(M_PI));
+      t_c.tr_one.x = t.middle.x + t.radius*gcos(t.angle1*2.0f*float(M_PI));
+      t_c.tr_one.y = t.middle.y + t.radius*gsin(t.angle1*2.0f*float(M_PI));
 
-      t_c.tr_two.x = t.middle.x + t.radius*GCos(t.angle2*2.0f*float(M_PI));
-      t_c.tr_two.y = t.middle.y + t.radius*GSin(t.angle2*2.0f*float(M_PI));
+      t_c.tr_two.x = t.middle.x + t.radius*gcos(t.angle2*2.0f*float(M_PI));
+      t_c.tr_two.y = t.middle.y + t.radius*gsin(t.angle2*2.0f*float(M_PI));
 
-      t_c.tr_three.x = t.middle.x + t.radius*GCos(t.angle3*2.0f*float(M_PI));
-      t_c.tr_three.y = t.middle.y + t.radius*GSin(t.angle3*2.0f*float(M_PI));
+      t_c.tr_three.x = t.middle.x + t.radius*gcos(t.angle3*2.0f*float(M_PI));
+      t_c.tr_three.y = t.middle.y + t.radius*gsin(t.angle3*2.0f*float(M_PI));
 
       t_c.r = t.r;
       t_c.g = t.g;
@@ -889,15 +889,15 @@ public:
             dot1p = diff31 * diffp1;
             dot2p = diff21 * diffp1;
 
-            denom_inv = 1.f/GMax(dot11*dot22 - dot12*dot12, 0.0000001f);
+            denom_inv = 1.f/gmax(dot11*dot22 - dot12*dot12, 0.0000001f);
 
             u = (dot22*dot1p - dot12*dot2p) * denom_inv;
             v = (dot11*dot2p - dot12*dot1p) * denom_inv;
 
             if((u >= 0.f) && (v >= 0.f) && (u+v < 1.f)) {
-               canvasData_[i_x][i_y].r = GMix(canvasData_[i_x][i_y].r, t.r, t.a);
-               canvasData_[i_x][i_y].g = GMix(canvasData_[i_x][i_y].g, t.g, t.a);
-               canvasData_[i_x][i_y].b = GMix(canvasData_[i_x][i_y].b, t.b, t.a);
+               canvasData_[i_x][i_y].r = gmix(canvasData_[i_x][i_y].r, t.r, t.a);
+               canvasData_[i_x][i_y].g = gmix(canvasData_[i_x][i_y].g, t.g, t.a);
+               canvasData_[i_x][i_y].b = gmix(canvasData_[i_x][i_y].b, t.b, t.a);
             }
          }
       }
