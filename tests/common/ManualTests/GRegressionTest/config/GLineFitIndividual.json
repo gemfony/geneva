@@ -1,39 +1,9 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2013-Aug-26 02:54:49
+// File creation date: 2013-Sep-20 22:10:03
 //-----------------------------------------------------------------
 
 {
-    "nVariables":
-    {
-        "default": "100",
-        "value": "100"
-    },
-    "delays":
-    {
-        "default": "(0,1), (0,10), (0,100), (0,500), (1,0)",
-        "value": "(0,1), (0,10), (0,100), (0,500), (1,0)"
-    },
-    "resultFile":
-    {
-        "default": "networkResults.C",
-        "value": "networkResults.C"
-    },
-    "shortResultFile":
-    {
-        "default": "shortDelayResults.txt",
-        "value": "shortDelayResults.txt"
-    },
-    "nMeasurements":
-    {
-        "default": "10",
-        "value": "5"
-    },
-    "interMeasurementDelay":
-    {
-        "default": "1",
-        "value": "1"
-    },
     "validityThreshold":
     {
         "comment": "The [0,1] threshold as of which a solution is considered to be invalid",

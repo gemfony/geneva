@@ -1,0 +1,5 @@
+This directory contains a manual test / usage demo of the GFormulaParserT class.
+It allows to parse and evaluate simple formulas of the type "sqrt(sin(3.)*e^2)".
+The function may optionally also contain placeholders. Upon evaluation of the functions
+evaluate() function, a suitable std::max<std::string, fp_type> needs to be provided
+that allows the class to replace the place holders with values.

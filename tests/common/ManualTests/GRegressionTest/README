@@ -1,0 +1,5 @@
+This directory contains a manual test / usage demo of the 
+gLineFit and the getRegressionParameters functions, i.e., it tries
+to determine the a and b values  of a line described by f(x) = a+b*x
+through two different methods that most closely fits a given data
+distribution.  

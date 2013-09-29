@@ -279,6 +279,16 @@ boost::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
 
 /******************************************************************************/
 /**
+ * Retrieves the sleep times
+ *
+ * @return The sleep times, as determined by this object
+ */
+std::vector<boost::tuple<unsigned int, unsigned int> > GDelayIndividualFactory::getSleepTimes() const {
+   return sleepTimes_;
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type
@@ -304,7 +314,7 @@ void GDelayIndividualFactory::describeLocalOptions_(
    Gem::Common::GParserBuilder& gpb
 ) {
 	// Default values for the delay string
-	std::string default_delays = "0:1 0:10 0:100 0:500 1:0";
+	std::string default_delays = "(0,1), (0,10), (0,100), (0,500), (1,0)";
 
 	gpb.registerFileParameter(
       "nVariables"
@@ -364,7 +374,7 @@ void GDelayIndividualFactory::postProcess_(
    std::size_t id = this->getId();
 
    // Make sure the textual delays are converted to time measurements
-   sleepTimes_ = Gem::Common::splitStringT<long,long>(delays_, " ", ":");
+   sleepTimes_ = Gem::Common::stringToUIntTupleVec(delays_);
 
    // Convert the base pointer to the target type
    boost::shared_ptr<GDelayIndividual> p
@@ -372,9 +382,7 @@ void GDelayIndividualFactory::postProcess_(
 
    if(Gem::Common::GFACTORYWRITEID==id) {
       // Calculate the current sleep time
-      boost::posix_time::time_duration sleepTime =
-            boost::posix_time::seconds(boost::get<0>(sleepTimes_.at(0))) +
-            boost::posix_time::milliseconds(boost::get<1>(sleepTimes_.at(0)));
+      boost::posix_time::time_duration sleepTime = this->tupleToTime(sleepTimes_.at(0));
 
       std::cout
       << "Producing individual in write mode with sleep time = " << sleepTime.total_milliseconds() << std::endl;
@@ -398,12 +406,9 @@ void GDelayIndividualFactory::postProcess_(
 
       // Make the GDoubleObjectCollection known to the individual
       p->push_back(gbdc_ptr);
-   }
-   else if((id-Gem::Common::GFACTTORYFIRSTID) < sleepTimes_.size()) {
+   }  else if((id-Gem::Common::GFACTTORYFIRSTID) < sleepTimes_.size()) {
       // Calculate the current sleep time
-      boost::posix_time::time_duration sleepTime =
-            boost::posix_time::seconds(boost::get<0>(sleepTimes_.at(id-Gem::Common::GFACTTORYFIRSTID))) +
-            boost::posix_time::milliseconds(boost::get<1>(sleepTimes_.at(id-Gem::Common::GFACTTORYFIRSTID)));
+      boost::posix_time::time_duration sleepTime = this->tupleToTime(sleepTimes_.at(id-Gem::Common::GFACTTORYFIRSTID));
 
       std::cout
       << "Producing individual " << (id-Gem::Common::GFACTTORYFIRSTID) << " with sleep time = " << sleepTime.total_milliseconds() << std::endl;
@@ -431,6 +436,20 @@ void GDelayIndividualFactory::postProcess_(
       // Return an empty pointer
       p_raw.reset();
    }
+}
+
+/******************************************************************************/
+/**
+ * Converts a tuple to a time format
+ *
+ * @param timeTuple A tuple of seconds and milliseconds in unsigned int format, to be converted to a time_duration object
+ */
+boost::posix_time::time_duration GDelayIndividualFactory::tupleToTime(const boost::tuple<unsigned int, unsigned int>& timeTuple) {
+   boost::posix_time::time_duration t =
+      boost::posix_time::seconds(boost::numeric_cast<long>(boost::get<0>(timeTuple))) +
+      boost::posix_time::milliseconds(boost::numeric_cast<long>(boost::get<1>(timeTuple)));
+
+   return t;
 }
 
 /******************************************************************************/

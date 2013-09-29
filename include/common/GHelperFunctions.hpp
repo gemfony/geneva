@@ -43,7 +43,7 @@
 #include <typeinfo>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
@@ -52,6 +52,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/spirit/include/qi.hpp>
+#include <boost/fusion/include/tuple.hpp>
+#include <boost/fusion/include/boost_tuple.hpp>
 
 namespace bf=boost::filesystem;
 
@@ -90,6 +93,14 @@ std::string serializationModeToString(const serializationMode&);
 /******************************************************************************/
 /** @brief Splits a string into a vector of strings, according to a seperator character */
 std::vector<std::string> splitString(const std::string&, const char*);
+
+/******************************************************************************/
+/** @brief Splits a string into a vector of boost::uint16_t, if possible */
+std::vector<unsigned int> stringToUIntVec(const std::string&);
+
+/******************************************************************************/
+/** @brief Splits a string into a vector of unsigned int-tuples, if possible */
+std::vector<boost::tuple<unsigned int, unsigned int> > stringToUIntTupleVec(const std::string&);
 
 /******************************************************************************/
 

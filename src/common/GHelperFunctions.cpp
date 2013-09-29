@@ -181,6 +181,79 @@ std::vector<std::string> splitString(const std::string& str, const char* sep) {
 }
 
 /******************************************************************************/
+/**
+ * Splits a string into a vector of unsigned int, if possible, or throws
+ * an exception. The list must at least contain one entry and must be
+ * comma-separated.
+ */
+std::vector<unsigned int> stringToUIntVec(const std::string& raw) {
+   using namespace boost::spirit;
+
+   std::vector<unsigned int> result;
+   bool success = false;
+
+   std::string::const_iterator from = raw.begin();
+   std::string::const_iterator to   = raw.end();
+
+   // Do the actual parsing
+   success = qi::phrase_parse(
+      from , to
+      , ( uint_ % ',')
+      , qi::space
+      , result
+   );
+
+   if (from != to || !success) {
+      std::string rest(from, to);
+      glogger
+      << "In stringToUIntVec(const std::string& raw): Error!" << std::endl
+      << "Parsing failed." << std::endl
+      << "Stopped at: \": " << rest << "\"" << std::endl
+      << GEXCEPTION;
+   }
+
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Splits a string into a vector of unsigned int-tuples, if possible, or
+ * throws an exception. The string should have the form "(1,2), (3,4)" etc.
+ */
+std::vector<boost::tuple<unsigned int, unsigned int> > stringToUIntTupleVec(const std::string& raw) {
+   using namespace boost::spirit;
+
+   typedef std::string::const_iterator cit_type;
+   typedef std::vector<boost::tuple<unsigned long, unsigned long> > res_type;
+
+   std::vector<boost::tuple<unsigned int, unsigned int> > result;
+   bool success = false;
+
+   std::string::const_iterator from = raw.begin();
+   std::string::const_iterator to   = raw.end();
+
+   // Do the actual parsing
+   success = qi::phrase_parse(
+      from, to
+      , ( ('(' >> uint_ >> ',' >> uint_ >> ')') % ',')
+      , qi::space
+      , result
+   );
+
+   if (from != to || !success) {
+      std::string rest(from, to);
+      glogger
+      << "In stringToUIntTupleVec(const std::string& raw): Error!" << std::endl
+      << "Parsing failed." << std::endl
+      << "Stopped at: \"" << rest << "\"" << std::endl
+      << GEXCEPTION;
+   }
+
+   return result;
+}
+
+/******************************************************************************/
+
 
 } /* namespace Common */
 } /* namespace Gem */

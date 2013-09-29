@@ -43,6 +43,7 @@
 #include <utility>
 #include <limits>
 #include <stdexcept>
+#include <algorithm>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -219,11 +220,18 @@ public:
 		processed->setId(portId);
 
 		// Find orphaned items in the two collections and remove them.
-		RawBuffers_.remove_if(boost::bind(&GBoundedBufferWithIdT_Ptr::unique,_1));
+		typename BufferPtrList::iterator it;
+		while((it=std::find_if(RawBuffers_.begin(), RawBuffers_.end(), boost::bind(&GBoundedBufferWithIdT_Ptr::unique,_1))) != RawBuffers_.end()) {
+		   RawBuffers_.erase(it);
+		   std::cout << "Raw buffer erased" << std::endl;
+		}
+
+		// RawBuffers_.remove_if(boost::bind(&GBoundedBufferWithIdT_Ptr::unique,_1));
 
 		for(typename BufferPtrMap::iterator it=ProcessedBuffers_.begin(); it!=ProcessedBuffers_.end();) {
 			if((it->second).unique()) { // Orphaned ? Get rid of it
 				ProcessedBuffers_.erase(it++);
+	         std::cout << "Processed buffer erased" << std::endl;
 			}
 			else ++it;
 		}
@@ -245,7 +253,7 @@ public:
 			readyToGoProcessed_.notify_all();
 		}
 
-		std::cout << "Buffer port successfully enrolled" << std::endl;
+		std::cout << "Buffer port with id " << portId << " successfully enrolled" << std::endl;
 	}
 
 	/***************************************************************************/

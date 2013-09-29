@@ -64,6 +64,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GMathHelperFunctions.hpp"
 
 namespace Gem {
 namespace Common {
@@ -608,6 +609,209 @@ void assignVecConst (
    for(it_a=a.begin(); it_a != a.end(); ++it_a) {
       (*it_a) = c;
    }
+}
+
+/******************************************************************************/
+/**
+ * Summs up the x- and y-components individually of a vector of 2d-tuples
+ */
+template <typename fp_type>
+boost::tuple<fp_type, fp_type> sumTupleVec(
+   const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
+   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+) {
+   boost::tuple<fp_type, fp_type> result;
+
+   typename std::vector<boost::tuple<fp_type, fp_type> >::const_iterator cit;
+   for(cit=dataPoints.begin(); cit!=dataPoints.end(); ++cit) {
+      boost::get<0>(result) += boost::get<0>(*cit);
+      boost::get<1>(result) += boost::get<1>(*cit);
+   }
+
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Summs up the squares of x- and y-components individually of a vector of 2d-tuples
+ */
+template <typename fp_type>
+boost::tuple<fp_type, fp_type> squareSumTupleVec(
+   const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
+   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+) {
+   boost::tuple<fp_type, fp_type> result;
+
+   typename std::vector<boost::tuple<fp_type, fp_type> >::const_iterator cit;
+   for(cit=dataPoints.begin(); cit!=dataPoints.end(); ++cit) {
+      boost::get<0>(result) += gpow(boost::get<0>(*cit), 2.);
+      boost::get<1>(result) += gpow(boost::get<1>(*cit), 2.);
+   }
+
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Summs up the product of x- and y-components of a vector of 2d-tuples
+ */
+template <typename fp_type>
+fp_type productSumTupleVec(
+   const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
+   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+) {
+   fp_type result;
+
+   typename std::vector<boost::tuple<fp_type, fp_type> >::const_iterator cit;
+   for(cit=dataPoints.begin(); cit!=dataPoints.end(); ++cit) {
+      result += boost::get<0>(*cit)*boost::get<1>(*cit);
+   }
+
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Calculates the "square deviation" of a set of floating point tuples from
+ * a line defined through a + b*x .
+ *
+ * @param dataPoints A vector of bi-tuples with x-y data points
+ * @param a The offset of a line
+ * @param b The slope of a line
+ * @return The square deviation of the data points from the line
+ */
+template <typename fp_type>
+fp_type squareDeviation(
+   const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
+   , const fp_type& a
+   , const fp_type& b
+   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+) {
+   fp_type result = (fp_type)0;
+   typename std::vector<boost::tuple<fp_type, fp_type> >::const_iterator cit;
+   for(cit=dataPoints.begin(); cit!=dataPoints.end(); ++cit) {
+      result += gpow(boost::get<1>(*cit) - a - b*boost::get<0>(*cit), 2.);
+   }
+   return result;
+}
+
+/******************************************************************************/
+/**
+ * Calculates the parameters a and b of a regression line, plus errors. The return
+ * value is a boost::tuple of four fp_type values: a, error_a, b, error_b, with the
+ * line being defined by L(x)=a+b*x .
+ *
+ * @param dataPoints A vector of data points to which the lines parameters should fit
+ * @return Regression parameters for a line defined by the input data points
+ */
+template <typename fp_type>
+boost::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
+   const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
+   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+) {
+   if(dataPoints.empty()) {
+      return boost::tuple<fp_type, fp_type, fp_type, fp_type>(fp_type(0.), fp_type(0.), fp_type(0.), fp_type(0.));
+   }
+
+   fp_type a = fp_type(0), b = fp_type(0);
+   fp_type n = fp_type(dataPoints.size());
+
+   boost::tuple<fp_type, fp_type> sum_xy = sumTupleVec(dataPoints);
+   fp_type sum_x = boost::get<0>(sum_xy);
+   fp_type sum_y = boost::get<1>(sum_xy);
+
+   boost::tuple<fp_type, fp_type> sq_sum_xy = squareSumTupleVec(dataPoints);
+   fp_type sq_sum_x = boost::get<0>(sq_sum_xy);
+   fp_type sq_sum_y = boost::get<1>(sq_sum_xy);
+
+   fp_type prod_sum_xy = productSumTupleVec(dataPoints);
+
+   a = (sum_y*sq_sum_x - sum_x*prod_sum_xy)/(n*sq_sum_x - gpow(sum_x, 2.));
+   b = (n*prod_sum_xy - sum_x*sum_y)       /(n*sq_sum_x - gpow(sum_x, 2.));
+
+   fp_type dev = squareDeviation(dataPoints, a, b);
+
+   fp_type sigma_a = gsqrt(dev/(n-2.))*gsqrt(sq_sum_x/(n*sq_sum_x - gpow(sum_x, 2.)));
+   fp_type sigma_b = gsqrt(dev/(n-2.))*gsqrt(n       /(n*sq_sum_x - gpow(sum_x, 2.)));
+
+   return boost::tuple<fp_type, fp_type, fp_type, fp_type>(a, sigma_a, b, sigma_b);
+}
+
+/******************************************************************************/
+/**
+ * Calculates the error of a function f=s/p , where s and p are independent
+ * quantities, each with its own error. Returns:
+ * - The sleep time
+ * - The error on the sleep-time (always 0)
+ * - the quantity s/p
+ * - error on s/p
+ * s and p have the same structure
+ */
+template <typename fp_type>
+boost::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
+   const boost::tuple<fp_type, fp_type, fp_type, fp_type>& s
+   , const boost::tuple<fp_type, fp_type, fp_type, fp_type>& p
+   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+) {
+  // p may not ne 0
+  if(0.==boost::get<2>(p)) {
+     glogger
+     << "In getRatioError(): Error!" << std::endl
+     << "Attempted division by 0." << std::endl
+     << GEXCEPTION;
+  }
+
+  fp_type sleep_time = boost::get<0>(s);
+
+  // Check that the sleep-times for s and p are the same
+  if(sleep_time != boost::get<0>(p)) {
+     glogger
+     << "In getRatioError(): Error!" << std::endl
+     << "Sleep times differ: " << sleep_time << " / " << boost::get<0>(p) << std::endl
+     << GEXCEPTION;
+  }
+
+  fp_type s_val      = boost::get<2>(s);
+  fp_type s_err      = boost::get<3>(s);
+  fp_type p_val      = boost::get<2>(p);
+  fp_type p_err      = boost::get<3>(p);
+
+  return boost::tuple<fp_type, fp_type, fp_type, fp_type> (
+     sleep_time
+     , 0.
+     , s_val/p_val
+     , gsqrt(gpow(s_err/p_val, fp_type(2.)) + gpow(s_val*p_err/gpow(p_val, fp_type(2.)), fp_type(2.)))
+  );
+}
+
+/******************************************************************************/
+/**
+ * Calculates the error for a function f=s/p , where s and p are independent
+ * quantities, each with its own error. The function is applied to a std::vector
+ * of different s and p (together with their errors). It returns a vector
+ * of s/p together with their errors.
+ */
+template <typename fp_type>
+std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> > getRatioErrors(
+   const std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> >& sn
+   , const std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> >& pn
+   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+){
+   // Check that both vectors have the same size, otherwise complain
+   if(sn.size() != pn.size()) {
+      glogger
+      << "In getRatioErrors(): Error!" << std::endl
+      << "Vectors have invalid sizes: " << sn.size() << " / " << pn.size() << std::endl
+      << GEXCEPTION;
+   }
+
+   std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> > spn;
+   typename std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> >::const_iterator s_cit, p_cit;
+   for(s_cit=sn.begin(), p_cit=pn.begin(); s_cit!=sn.end(); ++s_cit, ++p_cit) {
+      spn.push_back(getRatioError(*s_cit, *p_cit));
+   }
+
+   return spn;
 }
 
 /******************************************************************************/

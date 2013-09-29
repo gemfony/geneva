@@ -47,6 +47,7 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32GaussAdaptor
 	GInt32Object
 	GInt32ObjectCollection
+	GLineFit
 	GMPEAPersonalityTraits
 	GMultiThreadedEA
 	GMultiThreadedGD
