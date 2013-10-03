@@ -301,18 +301,18 @@ public:
             | (string_("asin")    > '(' > expression_rule_ > ')')
             | (string_("atan")    > '(' > expression_rule_ > ')')
             | (string_("ceil")    > '(' > expression_rule_ > ')')
-            | (string_("cos")     > '(' > expression_rule_ > ')')
             | (string_("cosh")    > '(' > expression_rule_ > ')')
+            | (string_("cos")     > '(' > expression_rule_ > ')')
             | (string_("exp")     > '(' > expression_rule_ > ')')
             | (string_("fabs")    > '(' > expression_rule_ > ')')
             | (string_("floor")   > '(' > expression_rule_ > ')')
-            | (string_("log")     > '(' > expression_rule_ > ')')
             | (string_("log10")   > '(' > expression_rule_ > ')')
-            | (string_("sin")     > '(' > expression_rule_ > ')')
+            | (string_("log")     > '(' > expression_rule_ > ')')
             | (string_("sinh")    > '(' > expression_rule_ > ')')
+            | (string_("sin")     > '(' > expression_rule_ > ')')
             | (string_("sqrt")    > '(' > expression_rule_ > ')')
-            | (string_("tan")     > '(' > expression_rule_ > ')')
             | (string_("tanh")    > '(' > expression_rule_ > ')')
+            | (string_("tan")     > '(' > expression_rule_ > ')')
             ;
 
       binary_function_rule_ =

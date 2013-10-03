@@ -37,23 +37,107 @@
 #include <map>
 
 // Boost headers go here
+// #include <boost/test/minimal.hpp>
+#include <boost/test/included/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
 // Geneva headers go here
 #include "common/GFormulaParserT.hpp"
+#include <boost/math/constants/constants.hpp>
 
 using namespace Gem::Common;
+using namespace std;
 
-int main(int argc, char** argv) {
-   std::map<std::string, double> parameterValues;
-   std::map<std::string, double> userConstants;
+#define testFormula(FORMULA)\
+{\
+   std::map<std::string, double> parameterValues;\
+   std::string formula( #FORMULA );\
+   GFormulaParserT<double> f(formula);\
+   double fp_val = FORMULA;\
+   double parse_val = f(parameterValues);\
+   BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);\
+}\
 
-   std::string formula("gem*sin({{var1}})*cos(pi)");
 
-   parameterValues["var1"] = 2.;
-   userConstants["gem"] = -1.;
+int test_main(int argc, char** argv) {
+   {  // Test replacement of variables and constants
+      std::map<std::string, double> parameterValues;
+      std::map<std::string, double> userConstants;
 
-   GFormulaParserT<double> f(formula, userConstants);
-   std::cout << f.getFormula(parameterValues) << ": " << f(parameterValues) << std::endl;
+      std::string formula("gem*sin({{var1}})*cos(pi)");
+
+      parameterValues["var1"] = 2.;
+      userConstants["gem"] = -1.;
+
+      GFormulaParserT<double> f(formula, userConstants);
+
+      double fp_val = -1.*sin(2.)*cos(boost::math::constants::pi<double>());
+      double parse_val = f(parameterValues);
+
+      BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
+   }
+
+   // Test constants
+   {
+      std::map<std::string, double> parameterValues;
+      std::string formula("pi");
+
+      GFormulaParserT<double> f(formula);
+
+      double fp_val = boost::math::constants::pi<double>();
+      double parse_val = f(parameterValues);
+
+      BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
+   }
+
+   {
+      std::map<std::string, double> parameterValues;
+      std::string formula("e");
+
+      GFormulaParserT<double> f(formula);
+
+      double fp_val = boost::math::constants::e<double>();
+      double parse_val = f(parameterValues);
+
+      BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
+   }
+
+   // Test simple calculations
+   testFormula(1.234);
+   testFormula(1.2e3);
+   testFormula(2e-03);
+   testFormula(-1);
+   testFormula(1*2+3*4);
+   testFormula(1*(2+3)*4);
+   testFormula((1*2)+(3*4));
+   testFormula(-(1));
+   testFormula(-(-1));
+   testFormula(+(-1));
+   testFormula(+(+1));
+
+   // Test functions
+   testFormula(fabs(-1.0));
+   testFormula(acos(1.0));
+   testFormula(asin(1.0));
+   testFormula(atan(1.0));
+   testFormula(ceil(0.5));
+   testFormula(cos(1.0));
+   testFormula(cosh(1.0));
+   testFormula(exp(1.0));
+   testFormula(floor(1.0));
+   testFormula(log(1.0));
+   testFormula(log10(1.0));
+   testFormula(sin(1.0));
+   testFormula(sinh(1.0));
+   testFormula(sqrt(1.0));
+   testFormula(tan(1.0));
+   testFormula(tanh(1.0));
+   testFormula(pow(2.0, 3.0));
+   testFormula(max(2.0, 3.0));
+   testFormula(min(2.0, 3.0));
+
+   // Test synthesized formulas
+   testFormula(sinh(1.0)*sin(1.0));
 
    return 0;
 }
