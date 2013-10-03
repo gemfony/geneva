@@ -50,11 +50,10 @@ using namespace std;
 
 #define testFormula(FORMULA)\
 {\
-   std::map<std::string, double> parameterValues;\
    std::string formula( #FORMULA );\
    GFormulaParserT<double> f(formula);\
    double fp_val = FORMULA;\
-   double parse_val = f(parameterValues);\
+   double parse_val = f();\
    BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);\
 }\
 
@@ -79,25 +78,23 @@ int test_main(int argc, char** argv) {
 
    // Test constants
    {
-      std::map<std::string, double> parameterValues;
       std::string formula("pi");
 
       GFormulaParserT<double> f(formula);
 
       double fp_val = boost::math::constants::pi<double>();
-      double parse_val = f(parameterValues);
+      double parse_val = f();
 
       BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
    }
 
    {
-      std::map<std::string, double> parameterValues;
       std::string formula("e");
 
       GFormulaParserT<double> f(formula);
 
       double fp_val = boost::math::constants::e<double>();
-      double parse_val = f(parameterValues);
+      double parse_val = f();
 
       BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
    }

@@ -369,7 +369,7 @@ public:
    /**
     * Evaluates a formula after replacing place holders with values
     */
-   fp_type evaluate(const std::map<std::string, fp_type>& vm) const {
+   fp_type evaluate(const std::map<std::string, fp_type>& vm = std::map<std::string, fp_type>()) const {
       // Clear local data structures
       code_.clear();
       stack_ptr_ = stack_.begin();
@@ -400,7 +400,7 @@ public:
    /**
     * Ease of access to the evaluate function
     */
-   fp_type operator()(const std::map<std::string, fp_type>& vm) const {
+   fp_type operator()(const std::map<std::string, fp_type>& vm = std::map<std::string, fp_type>()) const {
       return this->evaluate(vm);
    }
 
