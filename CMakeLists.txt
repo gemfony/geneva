@@ -142,8 +142,7 @@ IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 	# (and, according to the authors' opinion, irrelevant in this context) warnings
 	ADD_DEFINITIONS ("-Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
 ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	SET( MSG_COMPILER "clang")
-	SET (MSG_CXXSTANDARDMODE "Using Clang switching to C++11-mode")
+	SET( MSG_COMPILER "CLang")
 	
 	IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		ADD_DEFINITIONS ("-DDEBUG -g")
@@ -151,7 +150,15 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		ADD_DEFINITIONS ("-DNDEBUG -O3")
 	ENDIF()	
 	
-#	ADD_DEFINITIONS ("-dynamiclib -stdlib=libc++ -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread -std=c++11")
+	ADD_DEFINITIONS ("-Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread -ftemplate-depth=512")
+	
+	IF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+		SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on ${CMAKE_SYSTEM_NAME}, hence switching to C++98-mode")
+		ADD_DEFINITIONS ("-std=c++98")
+	ELSE()
+		SET (MSG_CXXSTANDARDMODE "Using Clang version ${CMAKE_CXX_COMPILER_VERSION}, switching to C++11-mode")
+		ADD_DEFINITIONS ("-std=c++11")		
+	ENDIF()
 ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	SET( MSG_COMPILER "GNU g++")
 
@@ -167,7 +174,7 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	# Note: -fno-unsafe-math-optimizations -fno-finite-math-only prevent false optimization of some critical
 	# code in GRandomBaseT inside uniform_real(). Add "-Wall -Wextra -ansi -pedantic" to make tests even more thorough. This
 	# will likely trigger many warnings in boost.
-	ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread")	
+	ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth=512")	
 	
 	# Switch to C++11-mode if the compiler version is suitable	
 	EXEC_PROGRAM( 
@@ -207,7 +214,7 @@ ENDIF()
 ################################################################################
 # Boost-specific code
 SET (Boost_USE_MULTITHREAD ON)
-SET (Boost_ADDITIONAL_VERSIONS "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "1.52" "1.52.0" "1.53" "1.53.0" "1.54" "1.54.0")
+SET (Boost_ADDITIONAL_VERSIONS "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "1.52" "1.52.0" "1.53" "1.53.0" "1.54" "1.54.0" "1.55.0")
 
 FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
 	date_time

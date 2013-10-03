@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva-individuals/GLineFitIndividual.hpp"
+#include "geneva/GLineFitIndividual.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GLineFitIndividual)
 

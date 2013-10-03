@@ -250,15 +250,13 @@ public:
 
    typedef void result_type; // Needed for the operator() and apply_visitor
    typedef boost::variant<byte_code,fp_type> codeEntry;
+   typedef std::map<std::string, fp_type> parameter_map;
 
    /***************************************************************************/
    /**
     * The standard constructor
     */
-   explicit GFormulaParserT(
-     const std::string& formula
-     , const std::map<std::string, fp_type>& user_constants = std::map<std::string, fp_type>()
-   )
+   explicit GFormulaParserT(const std::string& formula, const parameter_map& user_constants = parameter_map() )
    : GFormulaParserT::base_type(expression_rule_)
    , raw_formula_(formula)
    , stack_(4096)
@@ -283,7 +281,7 @@ public:
       ;
 
       // Add user-defined constants
-      typename std::map<std::string, fp_type>::const_iterator cit;
+      typename parameter_map::const_iterator cit;
       for(cit=user_constants.begin(); cit!=user_constants.end(); ++cit) {
          constants_.add(cit->first, cit->second);
       }
@@ -361,7 +359,7 @@ public:
     * @param placeHolders A list of place-holders for variable values
     * @return A string containing the processed formula
     */
-   std::string getFormula(const std::map<std::string, fp_type>& vm) const {
+   std::string getFormula(const parameter_map& vm) const {
       return this->replacePlaceHolders(vm);
    }
 
@@ -369,7 +367,7 @@ public:
    /**
     * Evaluates a formula after replacing place holders with values
     */
-   fp_type evaluate(const std::map<std::string, fp_type>& vm = std::map<std::string, fp_type>()) const {
+   fp_type evaluate(const parameter_map& vm = parameter_map()) const {
       // Clear local data structures
       code_.clear();
       stack_ptr_ = stack_.begin();
@@ -400,7 +398,7 @@ public:
    /**
     * Ease of access to the evaluate function
     */
-   fp_type operator()(const std::map<std::string, fp_type>& vm = std::map<std::string, fp_type>()) const {
+   fp_type operator()(const parameter_map& vm = parameter_map()) const {
       return this->evaluate(vm);
    }
 
@@ -476,14 +474,14 @@ private:
     *
     * @param vm A std::map of name-value pairs, holding place-holders to be replaced with values
     */
-   std::string replacePlaceHolders(const std::map<std::string,fp_type>& vm) const {
+   std::string replacePlaceHolders(const parameter_map& vm) const {
       using namespace boost::xpressive;
 
       std::string formula = raw_formula_;
       std::string key, value;
       sregex re;
 
-      typename std::map<std::string,fp_type>::const_iterator cit;
+      typename parameter_map::const_iterator cit;
       for(cit=vm.begin(); cit!=vm.end(); ++cit) {
          key = cit->first;
          value = boost::lexical_cast<std::string>(cit->second);

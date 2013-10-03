@@ -620,7 +620,7 @@ boost::tuple<fp_type, fp_type> sumTupleVec(
    const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
-   boost::tuple<fp_type, fp_type> result;
+   boost::tuple<fp_type, fp_type> result = boost::tuple<fp_type, fp_type>(fp_type(0.),fp_type(0.));;
 
    typename std::vector<boost::tuple<fp_type, fp_type> >::const_iterator cit;
    for(cit=dataPoints.begin(); cit!=dataPoints.end(); ++cit) {
@@ -640,7 +640,7 @@ boost::tuple<fp_type, fp_type> squareSumTupleVec(
    const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
-   boost::tuple<fp_type, fp_type> result;
+   boost::tuple<fp_type, fp_type> result = boost::tuple<fp_type, fp_type>(fp_type(0.),fp_type(0.));
 
    typename std::vector<boost::tuple<fp_type, fp_type> >::const_iterator cit;
    for(cit=dataPoints.begin(); cit!=dataPoints.end(); ++cit) {
@@ -660,7 +660,7 @@ fp_type productSumTupleVec(
    const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
-   fp_type result;
+   fp_type result = fp_type(0.);
 
    typename std::vector<boost::tuple<fp_type, fp_type> >::const_iterator cit;
    for(cit=dataPoints.begin(); cit!=dataPoints.end(); ++cit) {
@@ -687,7 +687,7 @@ fp_type squareDeviation(
    , const fp_type& b
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
-   fp_type result = (fp_type)0;
+   fp_type result = fp_type(0);
    typename std::vector<boost::tuple<fp_type, fp_type> >::const_iterator cit;
    for(cit=dataPoints.begin(); cit!=dataPoints.end(); ++cit) {
       result += gpow(boost::get<1>(*cit) - a - b*boost::get<0>(*cit), 2.);

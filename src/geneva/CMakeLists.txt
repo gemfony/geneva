@@ -48,6 +48,7 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32Object
 	GInt32ObjectCollection
 	GLineFit
+	GLineFitIndividual
 	GMPEAPersonalityTraits
 	GMultiThreadedEA
 	GMultiThreadedGD
