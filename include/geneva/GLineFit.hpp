@@ -56,6 +56,18 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+/**
+ * Compares two data points for their x location
+ */
+struct xPointCompare
+{
+   bool operator()(
+      const boost::tuple<double,double>& a
+      , const boost::tuple<double,double>& b
+   );
+};
+
+/******************************************************************************/
 /** @brief This function fits a line to a set of x-y coordinates */
 boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, double> >&);
 
