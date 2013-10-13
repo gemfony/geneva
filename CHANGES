@@ -12,6 +12,7 @@ Wishlist for version 1.1, yet unnamed, release-date unknown
  - Added two functions for calculating a line best describing a set of data points
  - Updated the GParallelisationOverhead test so that it automatically calculates the speed-up
  - Added a simple parser that allows to evaluate mathematical formulas like "sin({{var1}})*pow(2.,3.)"  
+ - Ported to Boost 1.55
 
 Recommended version of Boost: 1.54
 

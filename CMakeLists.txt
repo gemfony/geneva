@@ -174,7 +174,7 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	# Note: -fno-unsafe-math-optimizations -fno-finite-math-only prevent false optimization of some critical
 	# code in GRandomBaseT inside uniform_real(). Add "-Wall -Wextra -ansi -pedantic" to make tests even more thorough. This
 	# will likely trigger many warnings in boost.
-	ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth=512")	
+	ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth-1024")	
 	
 	# Switch to C++11-mode if the compiler version is suitable	
 	EXEC_PROGRAM( 
