@@ -12,3 +12,10 @@ program execution for Boost versions 1.44 - 1.46 . This should not affect the
 results of the optimization in any way, though.  
 
 --
+
+If you run into an error message "looser throw specifier for Ôvirtual boost::exception_ptr::~exception_ptr()Õ" 
+with Boost 1.41, make sure to add a line "~exception_ptr() throw() { }" to the file 
+"$BOOST_HOME/include/boost/exception_ptr.hpp", around line 93 . This happens e.g. with gcc 4.4.7 on
+CentOS 6.3 .
+
+--
