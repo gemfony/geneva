@@ -76,7 +76,6 @@ std::vector<T> fillWithData(
       std::size_t /*nSteps*/
       , T /* lower */
       , T /* upper */
-      , bool /* randomFill */
 ) {
    glogger
    << "In generic function template <typename T> std::vector<T> fillWithData(): Error!" << std::endl
@@ -93,7 +92,6 @@ std::vector<bool> fillWithData<bool>(
       std::size_t /* nSteps */
       , bool      /* lower */
       , bool      /* upper */
-      , bool      /* randomFill */
 );
 
 /** @brief Returns a set of boost::int32_t data items */
@@ -102,7 +100,6 @@ std::vector<boost::int32_t> fillWithData<boost::int32_t>(
       std::size_t      /* nSteps */
       , boost::int32_t /* lower */
       , boost::int32_t /* upper */
-      , bool           /* randomFill */
 );
 
 /** @brief Returns a set of float data items */
@@ -111,7 +108,6 @@ std::vector<float> fillWithData<float>(
       std::size_t /* nSteps */
       , float     /* lower */
       , float     /* upper */
-      , bool      /* randomFill */
 );
 
 /** @brief Returns a set of double data items */
@@ -120,7 +116,6 @@ std::vector<double> fillWithData<double>(
       std::size_t /* nSteps */
       , double    /* lower */
       , double    /* upper */
-      , bool      /* randomFill */
 );
 
 /******************************************************************************/
@@ -161,9 +156,13 @@ class baseScanParT
 
       ar
       & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GStdSimpleVectorInterfaceT<T>)
-      & BOOST_SERIALIZATION_NVP(pos)
-      & BOOST_SERIALIZATION_NVP(currentItemPos)
-      & BOOST_SERIALIZATION_NVP(typeDescription);
+      & BOOST_SERIALIZATION_NVP(pos_)
+      & BOOST_SERIALIZATION_NVP(step_)
+      & BOOST_SERIALIZATION_NVP(nSteps_)
+      & BOOST_SERIALIZATION_NVP(lower_)
+      & BOOST_SERIALIZATION_NVP(upper_)
+      & BOOST_SERIALIZATION_NVP(randomScan_)
+      & BOOST_SERIALIZATION_NVP(typeDescription_);
    }
 
    ///////////////////////////////////////////////////////////////////////
@@ -174,19 +173,26 @@ public:
     * The standard constructor
     */
    baseScanParT(
-         std::size_t p
-         , std::size_t nSteps
-         , T lower
-         , T upper
-         , bool randomScan
-         , std::string t // typeDescription
+      std::size_t p
+      , std::size_t nSteps
+      , T lower
+      , T upper
+      , bool randomScan
+      , std::string t // typeDescription_
    )
       : GStdSimpleVectorInterfaceT<T>()
-      , pos(p)
-      , currentItemPos(0)
-      , typeDescription(t)
-   { // Fill the object with data
-      this->data = fillWithData<T>(nSteps, lower, upper, randomScan);
+      , pos_(p)
+      , step_(0)
+      , nSteps_(nSteps)
+      , lower_(lower)
+      , upper_(upper)
+      , randomScan_(randomScan)
+      , typeDescription_(t)
+   {
+      if(!randomScan_) {
+         // Fill the object with data
+         this->data = fillWithData<T>(nSteps_, lower_, upper_);
+      }
    }
 
    /***************************************************************************/
@@ -198,9 +204,13 @@ public:
          , bool randomScan
    )
       : GStdSimpleVectorInterfaceT<T>()
-      , pos(0)
-      , currentItemPos(0)
-      , typeDescription("")
+      , pos_(0)
+      , step_(0)
+      , nSteps_(2)
+      , lower_(T(0))
+      , upper_(T(1))
+      , randomScan_(randomScan)
+      , typeDescription_("")
    {
       std::vector<std::string> tokens;
       boost::split(tokens, desc, boost::is_any_of(" "));
@@ -219,14 +229,16 @@ public:
       }
 
       // Assign tokens to our local variables
-      typeDescription    = tokens.at(0);
-      pos                = boost::lexical_cast<std::size_t>(tokens.at(1));
-      T lower            = boost::lexical_cast<T>(tokens.at(2));
-      T upper            = boost::lexical_cast<T>(tokens.at(3));
-      std::size_t nSteps = boost::lexical_cast<std::size_t>(tokens.at(4));
+      typeDescription_ = tokens.at(0);
+      pos_             = boost::lexical_cast<std::size_t>(tokens.at(1));
+      lower_           = boost::lexical_cast<T>(tokens.at(2));
+      upper_           = boost::lexical_cast<T>(tokens.at(3));
+      nSteps_          = boost::lexical_cast<std::size_t>(tokens.at(4));
 
-      // Fill the object with data
-      this->data = fillWithData<T>(nSteps, lower, upper, randomScan);
+      if(!randomScan_) {
+         // Fill the object with data
+         this->data = fillWithData<T>(nSteps_, lower_, upper_);
+      }
    }
 
    /***************************************************************************/
@@ -235,9 +247,13 @@ public:
     */
    baseScanParT(const baseScanParT<T>& cp)
       : GStdSimpleVectorInterfaceT<T>(cp)
-      , pos(cp.pos)
-      , currentItemPos(cp.currentItemPos)
-      , typeDescription(cp.typeDescription)
+      , pos_(cp.pos_)
+      , step_(cp.step_)
+      , nSteps_(cp.nSteps_)
+      , lower_(cp.lower_)
+      , upper_(cp.upper_)
+      , randomScan_(cp.randomScan_)
+      , typeDescription_(cp.typeDescription_)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -252,7 +268,7 @@ public:
     * Retrieve the position of this object
     */
    virtual std::size_t getPos() const {
-      return pos;
+      return pos_;
    }
 
    /***************************************************************************/
@@ -260,7 +276,7 @@ public:
     * Retrieves the current item position
     */
    std::size_t getCurrentItemPos() const {
-      return currentItemPos;
+      return step_;
    }
 
    /***************************************************************************/
@@ -268,7 +284,11 @@ public:
     * Retrieve the current item
     */
    T getCurrentItem() const {
-      return this->at(currentItemPos);
+      if(randomScan_) {
+         return getRandomItem();
+      } else {
+         return this->at(step_);
+      }
    }
 
    /***************************************************************************/
@@ -278,8 +298,8 @@ public:
     * @return A boolean indicating whether a warp has taken place
     */
    virtual bool goToNextItem() BASE {
-      if(++currentItemPos >= this->size()) {
-         currentItemPos = 0;
+      if(++step_ >= nSteps_) {
+         step_ = 0;
          return true;
       }
       return false;
@@ -287,19 +307,19 @@ public:
 
    /***************************************************************************/
    /**
-    * Checks whether currentItemPos points to the last item in the array
+    * Checks whether step_ points to the last item in the array
     */
    virtual bool isAtTerminalPosition() const BASE {
-      if(currentItemPos >= (this->size()-1)) return true;
+      if(step_ >= nSteps_) return true;
       else return false;
    }
 
    /***************************************************************************/
    /**
-    * Checks whether currentItemPos points to the first item in the array
+    * Checks whether step_ points to the first item in the array
     */
    virtual bool isAtFirstPosition() const BASE {
-      if(0 == currentItemPos) return true;
+      if(0 == step_) return true;
       else return false;
    }
 
@@ -308,7 +328,7 @@ public:
     * Resets the current position
     */
    virtual void resetPosition() BASE {
-      currentItemPos = 0;
+      step_ = 0;
    }
 
    /***************************************************************************/
@@ -316,28 +336,58 @@ public:
     * Retrieve the type descriptor
     */
    virtual std::string getTypeDescriptor() const BASE {
-      return typeDescription;
+      return typeDescription_;
    }
 
 protected:
    /***************************************************************************/
    // Data
 
-   std::size_t pos; ///< The position of the parameter
-   std::size_t currentItemPos; ///< The current position in the data vector
-   std::string typeDescription; ///< Holds an identifier for the type described by this class
+   std::size_t pos_; ///< The position of the parameter
+   std::size_t step_; ///< The current position in the data vector
+   std::size_t nSteps_; ///< The number of stepts to be taken in a scan
+   T lower_; ///< The lower boundary of an item
+   T upper_; ///< The upper boundary of an item
+   bool randomScan_; ///< Indicates whether we are dealing with a random scan or not
+   std::string typeDescription_; ///< Holds an identifier for the type described by this class
+
+   mutable Gem::Hap::GRandom gr_; ///< Simple access to a random number generator
 
    /***************************************************************************/
    /** @brief The default constructor -- only needed for de-serialization, hence protected */
    baseScanParT()
-   : pos(0)
-   , currentItemPos(0)
-   , typeDescription("")
+   : pos_(0)
+   , step_(0)
+   , nSteps_(2)
+   , lower_(T(0))
+   , upper_(T(1))
+   , randomScan_(true)
+   , typeDescription_("")
    { /* nothing */ }
 
+   /***************************************************************************/
    /** @brief Needs to be re-implemented for derivatives of GStdSimpleVectorInterfaceT<> */
    virtual void dummyFunction(){};
+
+   /***************************************************************************/
+   /**
+    * Retrieves a random item. To be re-implemented for each supported type
+    */
+   T getRandomItem() const {
+      // A trap. This function needs to be re-implemented for each supported type
+      glogger
+      << "In baseScanParT::getRandomItem(): Error!" << std::endl
+      << "Function called for unsupported type" << std::endl
+      << GEXCEPTION;
+   }
 };
+
+/******************************************************************************/
+// Specializations for supported types
+template <> bool baseScanParT<bool>::getRandomItem() const;
+template <> boost::int32_t baseScanParT<boost::int32_t>::getRandomItem() const;
+template <> float baseScanParT<float>::getRandomItem() const;
+template <> double baseScanParT<double>::getRandomItem() const;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

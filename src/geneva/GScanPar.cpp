@@ -53,20 +53,10 @@ std::vector<bool> fillWithData<bool>(
       std::size_t nSteps
       , bool      lower
       , bool      upper
-      , bool      randomFill
 ) {
    std::vector<bool> result;
-
-   if(randomFill) { // Fill with the expected number of random entries
-      Gem::Hap::GRandom gr;
-      for(std::size_t i=0; i<nSteps; i++) {
-         result.push_back(gr.uniform_bool());
-      }
-   } else { // Just the two allowed values
-      result.push_back(false);
-      result.push_back(true);
-   }
-
+   result.push_back(false);
+   result.push_back(true);
    return result;
 }
 
@@ -79,21 +69,11 @@ std::vector<boost::int32_t> fillWithData<boost::int32_t>(
       std::size_t      nSteps // will only be used for random entries
       , boost::int32_t lower
       , boost::int32_t upper // inclusive
-      , bool           randomFill
 ) {
    std::vector<boost::int32_t> result;
-
-   if(randomFill) { // Fill with the expected number of random entries
-      Gem::Hap::GRandom gr;
-      for(std::size_t i=0; i<nSteps; i++) {
-         result.push_back(gr.uniform_int<boost::int32_t>(lower, upper+1)); // uniform_int excludes the upper boundary
-      }
-   } else {
-      for(boost::int32_t i=lower; i<=upper; i++) {
-         result.push_back(i);
-      }
+   for(boost::int32_t i=lower; i<=upper; i++) {
+      result.push_back(i);
    }
-
    return result;
 }
 
@@ -106,27 +86,19 @@ std::vector<float> fillWithData<float>(
       std::size_t nSteps
       , float     lower
       , float     upper
-      , bool      randomFill
 ) {
    std::vector<float> result;
 
-   if(randomFill) {
-      for(std::size_t i=0; i<nSteps; i++) {
-         Gem::Hap::GRandom gr;
-         result.push_back(gr.uniform_real<float>(lower, upper));
-      }
-   } else {
-      // We require at least 2 steps, unless we are are in random mode
-      if(nSteps<2) {
-         glogger
-         << "In std::vector<float> fillWithData<float>(): Error!" << std::endl
-         << "Number of reqsted steps is too low: " << nSteps << std::endl
-         << GEXCEPTION;
-      }
+   // We require at least 2 steps, unless we are are in random mode
+   if(nSteps<2) {
+      glogger
+      << "In std::vector<float> fillWithData<float>(): Error!" << std::endl
+      << "Number of reqsted steps is too low: " << nSteps << std::endl
+      << GEXCEPTION;
+   }
 
-      for(std::size_t i=0; i<nSteps; i++) {
-         result.push_back(lower + (upper-lower)*float(i)/float(nSteps-1));
-      }
+   for(std::size_t i=0; i<nSteps; i++) {
+      result.push_back(lower + (upper-lower)*float(i)/float(nSteps-1));
    }
 
    return result;
@@ -141,27 +113,19 @@ std::vector<double> fillWithData<double>(
       std::size_t nSteps
       , double    lower
       , double    upper
-      , bool      randomFill
 ) {
    std::vector<double> result;
 
-   if(randomFill) {
-      Gem::Hap::GRandom gr;
-      for(std::size_t i=0; i<nSteps; i++) {
-         result.push_back(gr.uniform_real<double>(lower, upper));
-      }
-   } else {
-      // We require at least 2 steps, unless we are are in random mode
-      if(nSteps<2) {
-         glogger
-         << "In std::vector<float> fillWithData<float>(): Error!" << std::endl
-         << "Number of requested steps is too low: " << nSteps << std::endl
-         << GEXCEPTION;
-      }
+   // We require at least 2 steps, unless we are are in random mode
+   if(nSteps<2) {
+      glogger
+      << "In std::vector<float> fillWithData<double>(): Error!" << std::endl
+      << "Number of requested steps is too low: " << nSteps << std::endl
+      << GEXCEPTION;
+   }
 
-      for(std::size_t i=0; i<nSteps; i++) {
-         result.push_back(lower + (upper-lower)*double(i)/double(nSteps-1));
-      }
+   for(std::size_t i=0; i<nSteps; i++) {
+      result.push_back(lower + (upper-lower)*double(i)/double(nSteps-1));
    }
 
    return result;
@@ -201,7 +165,7 @@ bScanPar::bScanPar(
 )
    : baseScanParT<bool>(desc, s)
 {
-   if(this->typeDescription != "b") {
+   if(this->typeDescription_ != "b") {
       glogger
       << "In bScanPar::bScanPar(const std::string& desc): Error!" << std::endl
       << "Got invalid parameter description:" << std::endl
@@ -231,6 +195,38 @@ bScanPar::~bScanPar()
  */
 boost::shared_ptr<bScanPar> bScanPar::clone() const {
    return boost::shared_ptr<bScanPar>(new bScanPar(*this));
+}
+
+/******************************************************************************/
+/**
+ * Retrieval of a random value for type bool
+ */
+template <> bool baseScanParT<bool>::getRandomItem() const {
+   return gr_.uniform_bool();
+}
+
+/******************************************************************************/
+/**
+ * Retrieval of a random value for type boost::int32_t
+ */
+template <> boost::int32_t baseScanParT<boost::int32_t>::getRandomItem() const {
+   return gr_.uniform_int<boost::int32_t>(lower_, upper_+1);
+}
+
+/******************************************************************************/
+/**
+ * Retrieval of a random value for type float
+ */
+template <> float baseScanParT<float>::getRandomItem() const {
+   return gr_.uniform_real<float>(lower_, upper_);
+}
+
+/******************************************************************************/
+/**
+ * Retrieval of a random value for type double
+ */
+template <> double baseScanParT<double>::getRandomItem() const {
+   return gr_.uniform_real<double>(lower_, upper_);
 }
 
 /******************************************************************************/
@@ -268,7 +264,7 @@ int32ScanPar::int32ScanPar(
    : baseScanParT<boost::int32_t>(desc,s)
 {
    // Check that we are indeed dealing with a boolean description
-   if(this->typeDescription != "i") {
+   if(this->typeDescription_ != "i") {
       glogger
       << "int32ScanPar::int32ScanPar(): Error!" << std::endl
       << "Not a description of a boost::int32_t parameter:" << std::endl
@@ -335,7 +331,7 @@ dScanPar::dScanPar(
    : baseScanParT<double>(desc,s)
 {
    // Check that we are indeed dealing with a boolean description
-   if(this->typeDescription != "d") {
+   if(this->typeDescription_ != "d") {
       glogger
       << "dScanPar::dScanPar(): Error!" << std::endl
       << "Not a description of a double parameter:" << std::endl
@@ -402,7 +398,7 @@ fScanPar::fScanPar(
    : baseScanParT<float>(desc,s)
 {
    // Check that we are indeed dealing with a boolean description
-   if(this->typeDescription != "f") {
+   if(this->typeDescription_ != "f") {
       glogger
       << "fScanPar::fScanPar(): Error!" << std::endl
       << "Not a description of a float parameter:" << std::endl
