@@ -150,11 +150,11 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		ADD_DEFINITIONS ("-DNDEBUG -O3")
 	ENDIF()	
 	
-	ADD_DEFINITIONS ("-Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread -ftemplate-depth=512")
+	ADD_DEFINITIONS ("-Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread")
 	
 	IF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on ${CMAKE_SYSTEM_NAME}, hence switching to C++98-mode")
-		ADD_DEFINITIONS ("-std=c++98")
+		ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512")
 	ELSE()
 		SET (MSG_CXXSTANDARDMODE "Using Clang version ${CMAKE_CXX_COMPILER_VERSION}, switching to C++11-mode")
 		ADD_DEFINITIONS ("-std=c++11")		
