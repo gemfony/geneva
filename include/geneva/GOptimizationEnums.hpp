@@ -246,13 +246,25 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
 
 /******************************************************************************/
 /**
+ * Selection of policy in case of an invalid solution
+ */
+enum invalidIndividualPolicy {
+   USEEVALUATION = 0          // Run evaluation function even for invalid parameter sets
+   , USEWORSTCASE = 1         // Assign the worst possible value to the individual
+   , USECONDITIONPRODUCT = 2  // Creates the product of all violated condition functions and assigns it to the individual's evaluation *
+};
+
+// * Note that this will usually be accompanied by a multiplication or division of the quality with the worst known valid solution
+
+/******************************************************************************/
+/**
  * Specification of different parallelization modes
  */
 enum execMode {
-	EXECMODE_SERIAL = 0
-	, EXECMODE_MULTITHREADED = 1
-	, EXECMODE_BROKERAGE = 2
-	, EXECMODE_LAST = EXECMODE_BROKERAGE
+	EXECMODE_SERIAL = 0                 //!< EXECMODE_SERIAL
+	, EXECMODE_MULTITHREADED = 1        //!< EXECMODE_MULTITHREADED
+	, EXECMODE_BROKERAGE = 2            //!< EXECMODE_BROKERAGE
+	, EXECMODE_LAST = EXECMODE_BROKERAGE//!< EXECMODE_LAST
 };
 
 /**

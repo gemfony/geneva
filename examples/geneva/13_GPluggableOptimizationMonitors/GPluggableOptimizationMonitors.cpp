@@ -1,5 +1,5 @@
 /**
- * @file GSimpleOptimizer.cpp
+ * @file GPluggableOptimizationMonitors.cpp
  */
 
 /*
@@ -61,6 +61,22 @@ int main(int argc, char **argv) {
    // any necessary initial work.
 	boost::shared_ptr<GFunctionIndividualFactory>
 	   gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
+
+	//---------------------------------------------------------------------------
+   // Register a progress plotter with the global optimization algorithm factory
+   boost::shared_ptr<GProgressPlotterT<GParameterSet> > progplot_ptr(new GProgressPlotterT<GParameterSet>());
+   progplot_ptr->addProfileVar("d", 0); // first double parameter
+   progplot_ptr->addProfileVar("d", 1); // second double parameter
+   go.registerPluggableOM(
+      boost::bind(
+            &GProgressPlotterT<GParameterSet>::informationFunction
+            , progplot_ptr
+            , _1
+            , _2
+      )
+   );
+
+   //---------------------------------------------------------------------------
 
    // Add a content creator so Go2 can generate its own individuals, if necessary
    go.registerContentCreator(gfi_ptr);
