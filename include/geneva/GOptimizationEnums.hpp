@@ -246,15 +246,23 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
 
 /******************************************************************************/
 /**
+ * Selection of policy for validity-check combiner
+ */
+enum validityCheckCombinerPolicy {
+   MULTIPLYINVALID = 0   // Multiplies all invalid checks (i.e. return values > 1) or returns 0, if all checks are valid
+};
+
+/******************************************************************************/
+/**
  * Selection of policy in case of an invalid solution
  */
 enum invalidIndividualPolicy {
-   USEEVALUATION = 0          // Run evaluation function even for invalid parameter sets
-   , USEWORSTCASE = 1         // Assign the worst possible value to the individual
-   , USECONDITIONPRODUCT = 2  // Creates the product of all violated condition functions and assigns it to the individual's evaluation *
+   USEEVALUATION = 0                // Run evaluation function even for invalid parameter sets
+   , USEWORSTCASE = 1               // Assign the worst possible value to the individual
+   , USECONSTRAINTOBJECTPOLICY = 2  // Takes the value from the constraint object
 };
 
-// * Note that this will usually be accompanied by a multiplication or division of the quality with the worst known valid solution
+// * Note that this might be accompanied by assistance from the optimization algorithm
 
 /******************************************************************************/
 /**

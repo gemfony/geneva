@@ -221,6 +221,16 @@ void GConstrainedFloatObject::floatStreamline(std::vector<float>& parVec) const 
 
 /******************************************************************************/
 /**
+ * Attach our local value to the map.
+ *
+ * @param parVec The map to which the local value should be attached
+ */
+void GConstrainedFloatObject::floatStreamline(std::map<std::string, float>& parVec) const {
+   parVec[this->getParameterName()] = this->value();
+}
+
+/******************************************************************************/
+/**
  * Attach boundaries of type float to the vectors.
  *
  * @param lBndVec A vector of lower float parameter boundaries

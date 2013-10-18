@@ -49,10 +49,7 @@
 #include "geneva/GMultiConstraintT.hpp"
 
 // Make sure the instantiation with GOptimizableEntity as template argument can be serialized
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GValidityCheckT<Gem::Geneva::GOptimizableEntity>)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInvalidityCheckT<Gem::Geneva::GOptimizableEntity>)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GANDCheckCombinerT<Gem::Geneva::GOptimizableEntity>)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GORCheckCombinerT<Gem::Geneva::GOptimizableEntity>)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GXORCheckCombinerT<Gem::Geneva::GOptimizableEntity>)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<Gem::Geneva::GOptimizableEntity>)
+
 
 #endif /* GINDIVIDUALMULTICONSTRAINT_HPP_ */

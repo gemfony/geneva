@@ -441,11 +441,12 @@ public:
 
       case Gem::Geneva::INFOPROCESSING:
       {
-         bool isDirty;
+         bool isDirty = true;
+         double validityLevel = 0.;
 
          if(monitorBestOnly_) { // Monitor the best individuals only
             boost::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
-            if(!monitorValidOnly_ || p->isValid()) {
+            if(!monitorValidOnly_ || p->isValid(validityLevel)) {
                switch(this->nProfileVars()) {
                   case 1:
                   {
@@ -490,7 +491,7 @@ public:
          } else { // Monitor all individuals
             typename GOptimizationAlgorithmT<ind_type>::iterator it;
             for(it=goa->begin(); it!=goa->end(); ++it) {
-               if(!monitorValidOnly_ || (*it)->isValid()) {
+               if(!monitorValidOnly_ || (*it)->isValid(validityLevel)) {
                   switch(this->nProfileVars()) {
                      case 1:
                      {

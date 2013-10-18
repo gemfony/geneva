@@ -46,12 +46,14 @@ namespace Geneva {
  * library, no variables are initialized here.
  */
 GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual()
-   : nPar_(2)
+   : nPar_(NPAR_MC) // The actual number will be determined by the external configuration file
    , par_min_(-10.)
    , par_max_( 10.)
    , minima_()
    , minima_string_()
-{ /* nothing */ }
+{
+   this->setNumberOfFitnessCriteria(nPar_);
+}
 
 /******************************************************************************/
 /**
@@ -74,7 +76,9 @@ GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(const GMult
 	, par_max_(cp.par_max_)
 	, minima_(cp.minima_)
    , minima_string_(cp.minima_string_)
-{ /* nothing */ }
+{
+   this->setNumberOfFitnessCriteria(nPar_);
+}
 
 /******************************************************************************/
 /**
@@ -170,6 +174,9 @@ void GMultiCriterionParabolaIndividual::init() {
    // Initialize the number of parabolas
    nPar_ = minima_.size();
 
+   // Make sure we update the number of fitness criteria to be expected
+   this->setNumberOfFitnessCriteria(nPar_);
+
    for(std::size_t npar=0; npar<nPar_; npar++) {
       // GConstrainedDoubleObject cannot assume value below or above par_min_/max_
       boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(par_min_, par_max_));
@@ -235,7 +242,7 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation(){
 }
 
 /******************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * The standard constructor for this class
@@ -292,6 +299,8 @@ void GMultiCriterionParabolaIndividualFactory::postProcess_(
 
    p->init();
 }
+
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

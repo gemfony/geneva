@@ -34,6 +34,7 @@
 
 
 // Standard header files go here
+#include <map>
 
 // Boost header files go here
 
@@ -260,6 +261,31 @@ public:
 	 * So far untested.
 	 * ----------------------------------------------------------------------------------
 	 */
+
+   /***************************************************************************/
+   /**
+    * Loops over all GParameterBase objects. Each object will add its name
+    * and the values of its parameters to the map, if they comply with the
+    * type of the parameters to be stored in the vector.
+    *
+    * @param parVec The map to which the parameters will be added
+    */
+   template <typename par_type>
+   void streamline(std::map<std::string,par_type>& parVec) const {
+      // Make sure the vector is clean
+      parVec.clear();
+
+      // Loop over all GParameterBase objects.
+      GParameterSet::const_iterator cit;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         (*cit)->streamline<par_type>(parVec);
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * So far untested.
+    * ----------------------------------------------------------------------------------
+    */
 
 	/***************************************************************************/
 	/**

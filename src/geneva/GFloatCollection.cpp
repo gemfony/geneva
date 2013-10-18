@@ -206,6 +206,30 @@ void GFloatCollection::floatStreamline(std::vector<float>& parVec) const {
 
 /******************************************************************************/
 /**
+ * Attach our local values to the map. Names are built from the object name and the
+ * position in the array.
+ *
+ * @param parVec The map to which the local value should be attached
+ */
+void GFloatCollection::floatStreamline(std::map<std::string, float>& parVec) const {
+#ifdef DEBUG
+   if((this->getParameterName()).empty()) {
+      glogger
+      << "In GFloatCollection::floatStreamline(std::map<std::string, float>& parVec) const: Error!" << std::endl
+      << "No name was assigned to the object" << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   GFloatCollection::const_iterator cit;
+   std::size_t cnt = 0;
+   for(cit=this->begin(); cit!=this->end(); ++cit) {
+      parVec[this->getParameterName() + "-" + boost::lexical_cast<std::string>(cnt++)] = *cit;
+   }
+}
+
+/******************************************************************************/
+/**
  * Attach boundaries of type float to the vectors
  *
  * @param lBndVec A vector of lower float parameter boundaries

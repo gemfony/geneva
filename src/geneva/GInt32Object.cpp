@@ -221,6 +221,25 @@ void GInt32Object::int32Streamline(std::vector<boost::int32_t>& parVec) const {
 
 /******************************************************************************/
 /**
+ * Attach our local value to the map.
+ *
+ * @param parVec The map to which the local value should be attached
+ */
+void GInt32Object::int32Streamline(std::map<std::string, boost::int32_t>& parVec) const {
+#ifdef DEBUG
+   if((this->getParameterName()).empty()) {
+      glogger
+      << "In GInt32Object::int32Streamline(std::map<std::string, boost::int32_t>& parVec) const: Error!" << std::endl
+      << "No name was assigned to the object" << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   parVec[this->getParameterName()] = this->value();
+}
+
+/******************************************************************************/
+/**
  * Attach boundaries of type boost::int32_t to the vectors. Since this is an unbounded type,
  * we use the initialization boundaries as a replacement.
  *
@@ -228,8 +247,8 @@ void GInt32Object::int32Streamline(std::vector<boost::int32_t>& parVec) const {
  * @param uBndVec A vector of upper boost::int32_t parameter boundaries
  */
 void GInt32Object::int32Boundaries(
-		std::vector<boost::int32_t>& lBndVec
-		, std::vector<boost::int32_t>& uBndVec
+   std::vector<boost::int32_t>& lBndVec
+   , std::vector<boost::int32_t>& uBndVec
 ) const {
 	lBndVec.push_back(this->getLowerInitBoundary());
 	uBndVec.push_back(this->getUpperInitBoundary());

@@ -36,6 +36,7 @@
 // Standard header files go here
 
 // Boost header files go here
+#include <boost/lexical_cast.hpp>
 
 #ifndef GPARAMETERBASE_HPP_
 #define GPARAMETERBASE_HPP_
@@ -147,10 +148,27 @@ public:
 	void streamline(std::vector<par_type>& parVec) const
 	{
 	   glogger
-	   << "In GParameterBase::streamline(std::vector<>&)" << std::endl
+	   << "In GParameterBase::streamline(std::vector<par_type>&)" << std::endl
       << "Function called for unsupported type!" << std::endl
       << GEXCEPTION;
 	}
+
+   /***************************************************************************/
+   /**
+    * Allows to add all parameters of a specific type to the map. This function is a
+    * trap, needed to catch streamlining attempts with unsupported types. Use the supplied
+    * specializations instead.
+    *
+    * @oaram parVec The vector to which the items should be added
+    */
+   template <typename par_type>
+   void streamline(std::map<std::string, par_type>& parVec) const
+   {
+      glogger
+      << "In GParameterBase::streamline(std::map<std::string, par_type>)" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
+   }
 
 	/***************************************************************************/
 	/** @brief Attach parameters of type float to the vector */
@@ -161,6 +179,16 @@ public:
 	virtual void int32Streamline(std::vector<boost::int32_t>&) const BASE;
 	/** @brief Attach parameters of type bool to the vector */
 	virtual void booleanStreamline(std::vector<bool>&) const BASE;
+
+   /***************************************************************************/
+   /** @brief Attach parameters of type float to the map */
+   virtual void floatStreamline(std::map<std::string, float>&) const BASE;
+   /** @brief Attach parameters of type double to the map */
+   virtual void doubleStreamline(std::map<std::string, double>&) const BASE;
+   /** @brief Attach parameters of type boost::int32_t to the map */
+   virtual void int32Streamline(std::map<std::string, boost::int32_t>&) const BASE;
+   /** @brief Attach parameters of type bool to the map */
+   virtual void booleanStreamline(std::map<std::string, bool>&) const BASE;
 
 	/***************************************************************************/
 	/**
@@ -173,8 +201,8 @@ public:
 	 */
 	template <typename par_type>
 	void boundaries(
-			std::vector<par_type>& lBndVec
-			, std::vector<par_type>& uBndVec
+      std::vector<par_type>& lBndVec
+      , std::vector<par_type>& uBndVec
 	) const	{
 	   glogger
 	   << "In GParameterBase::boundaries(std::vector<>&)" << std::endl
@@ -361,6 +389,11 @@ template <>	void GParameterBase::streamline<float>(std::vector<float>&) const;
 template <>	void GParameterBase::streamline<double>(std::vector<double>&) const;
 template <>	void GParameterBase::streamline<boost::int32_t>(std::vector<boost::int32_t>&) const;
 template <>	void GParameterBase::streamline<bool>(std::vector<bool>&) const;
+
+template <> void GParameterBase::streamline<float>(std::map<std::string, float>&) const;
+template <> void GParameterBase::streamline<double>(std::map<std::string, double>&) const;
+template <> void GParameterBase::streamline<boost::int32_t>(std::map<std::string, boost::int32_t>&) const;
+template <> void GParameterBase::streamline<bool>(std::map<std::string, bool>&) const;
 
 template <>	void GParameterBase::boundaries<float>(std::vector<float>&, std::vector<float>&) const;
 template <>	void GParameterBase::boundaries<double>(std::vector<double>&, std::vector<double>&) const;

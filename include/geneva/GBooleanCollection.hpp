@@ -123,6 +123,9 @@ public:
    /** @brief Assigns part of a value vector to the parameter */
    virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&) OVERRIDE;
 
+   /** @brief Attach our local values to the map */
+   virtual void booleanStreamline(std::map<std::string, bool>&) const OVERRIDE;
+
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;
 

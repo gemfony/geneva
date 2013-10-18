@@ -282,6 +282,30 @@ void GBooleanCollection::booleanStreamline(std::vector<bool>& parVec) const {
 
 /******************************************************************************/
 /**
+ * Attach our local values to the map. Names are built from the object name and the
+ * position in the array.
+ *
+ * @param parVec The map to which the local values should be attached
+ */
+void GBooleanCollection::booleanStreamline(std::map<std::string, bool>& parVec) const {
+#ifdef DEBUG
+   if((this->getParameterName()).empty()) {
+      glogger
+      << "In GBooleanCollection::booleanStreamline(std::map<std::string, bool>& parVec) const: Error!" << std::endl
+      << "No name was assigned to the object" << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   GBooleanCollection::const_iterator cit;
+   std::size_t cnt = 0;
+   for(cit=this->begin(); cit!=this->end(); ++cit) {
+      parVec[this->getParameterName() + "-" + boost::lexical_cast<std::string>(cnt++)] = *cit;
+   }
+}
+
+/******************************************************************************/
+/**
  * Attach boundaries of type bool to the vectors
  *
  * @param lBndVec A vector of lower bool parameter boundaries

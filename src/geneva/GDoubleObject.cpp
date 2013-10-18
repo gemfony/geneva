@@ -218,6 +218,25 @@ void GDoubleObject::doubleStreamline(std::vector<double>& parVec) const {
 
 /******************************************************************************/
 /**
+ * Attach our local value to the map.
+ *
+ * @param parVec The map to which the local value should be attached
+ */
+void GDoubleObject::doubleStreamline(std::map<std::string, double>& parVec) const {
+#ifdef DEBUG
+   if((this->getParameterName()).empty()) {
+      glogger
+      << "In GDoubleObject::doubleStreamline(std::map<std::string, double>& parVec) const: Error!" << std::endl
+      << "No name was assigned to the object" << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   parVec[this->getParameterName()] = this->value();
+}
+
+/******************************************************************************/
+/**
  * Attach boundaries of type double to the vectors. Since this is an unbounded type,
  * we use the initialization boundaries as a replacement.
  *

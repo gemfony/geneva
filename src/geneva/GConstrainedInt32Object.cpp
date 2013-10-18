@@ -222,6 +222,17 @@ void GConstrainedInt32Object::int32Streamline(std::vector<boost::int32_t>& parVe
 
 /******************************************************************************/
 /**
+ * Attach our local value to the vector. This is used to collect all parameters of this type
+ * in the sequence in which they were registered.
+ *
+ * @param parVec The vector to which the local value should be attached
+ */
+void GConstrainedInt32Object::int32Streamline(std::map<std::string, boost::int32_t>& parVec) const {
+   parVec[this->getParameterName()] = this->value();
+}
+
+/******************************************************************************/
+/**
  * Attach boundaries of type boost::int32_t to the vectors.
  *
  * @param lBndVec A vector of lower boost::int32_t parameter boundaries

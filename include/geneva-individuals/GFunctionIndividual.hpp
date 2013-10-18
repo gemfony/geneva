@@ -566,7 +566,7 @@ private:
  * a given constraint. Here, the sum of all double variables needs to be smaller
  * than a given constant.
  */
-class GDoubleSumConstraint : public GParameterSetMultiConstraint
+class GDoubleSumConstraint : public GParameterSetConstraint
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -575,7 +575,7 @@ class GDoubleSumConstraint : public GParameterSetMultiConstraint
    void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetMultiConstraint);
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint);
    }
    ///////////////////////////////////////////////////////////////////////
 public:
@@ -597,19 +597,19 @@ public:
 
    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject&
-         , const Gem::Common::expectation&
-         , const double&
-         , const std::string&
-         , const std::string&
-         , const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
    ) const;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
    virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
 
 protected:
-   virtual double check_(const GParameterSet *, const double&) const;
+   virtual double check_(const GParameterSet *) const;
 
    /** @brief Loads the data of another GParameterSetMultiConstraint */
    virtual void load_(const GObject*);
@@ -624,7 +624,7 @@ protected:
  * A simple constraint checker searching for valid solutions that fulfill
  * a given constraint. Here, valid solutions lie in a sphere around 0
  */
-class GSphereConstraint : public GParameterSetMultiConstraint
+class GSphereConstraint : public GParameterSetConstraint
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -633,7 +633,7 @@ class GSphereConstraint : public GParameterSetMultiConstraint
    void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetMultiConstraint);
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint);
    }
    ///////////////////////////////////////////////////////////////////////
 public:
@@ -655,19 +655,19 @@ public:
 
    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject&
-         , const Gem::Common::expectation&
-         , const double&
-         , const std::string&
-         , const std::string&
-         , const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
    ) const;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
    virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
 
 protected:
-   virtual double check_(const GParameterSet *, const double&) const;
+   virtual double check_(const GParameterSet *) const;
 
    /** @brief Loads the data of another GParameterSetMultiConstraint */
    virtual void load_(const GObject*);

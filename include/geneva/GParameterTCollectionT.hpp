@@ -377,6 +377,25 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
+   /***************************************************************************/
+   /**
+    * Attach parameters of type float to the vector. This function distributes this task to
+    * objects contained in the container.
+    *
+    * @param parVec The vector to which the float parameters will be attached
+    */
+   virtual void floatStreamline(std::vector<float>& parVec) const OVERRIDE {
+      typename GParameterTCollectionT<T>::const_iterator cit;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         (*cit)->floatStreamline(parVec);
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * So far untested
+    * ----------------------------------------------------------------------------------
+    */
+
 	/***************************************************************************/
 	/**
 	 * Attach parameters of type double to the vector. This function distributes this task to
@@ -434,6 +453,99 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
+   /***************************************************************************/
+   /**
+    * Attach parameters of type float to the map. This function distributes this task to
+    * objects contained in the container.
+    *
+    * @param parVec The map to which the float parameters will be attached
+    */
+   virtual void floatStreamline(std::map<std::string, float>& parVec) const OVERRIDE {
+      typename GParameterTCollectionT<T>::const_iterator cit;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         (*cit)->floatStreamline(parVec);
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * So far untested
+    * ----------------------------------------------------------------------------------
+    */
+
+   /***************************************************************************/
+   /**
+    * Attach parameters of type double to the map. This function distributes this task to
+    * objects contained in the container.
+    *
+    * @param parVec The map to which the double parameters will be attached
+    */
+   virtual void doubleStreamline(std::map<std::string, double>& parVec) const OVERRIDE {
+      typename GParameterTCollectionT<T>::const_iterator cit;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         (*cit)->doubleStreamline(parVec);
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * So far untested
+    * ----------------------------------------------------------------------------------
+    */
+
+   /***************************************************************************/
+   /**
+    * Attach parameters of type boost::int32_t to the map. This function distributes this task
+    * to objects contained in the container.
+    *
+    * @param parVec The map to which the boost::int32_t parameters will be attached
+    */
+   virtual void int32Streamline(std::map<std::string, boost::int32_t>& parVec) const OVERRIDE {
+      typename GParameterTCollectionT<T>::const_iterator cit;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         (*cit)->int32Streamline(parVec);
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * So far untested
+    * ----------------------------------------------------------------------------------
+    */
+
+   /***************************************************************************/
+   /**
+    * Attach parameters of type bool to the map.  This function distributes this task
+    * to objects contained in the container.
+    *
+    * @param parVec The map to which the boolean parameters will be attached
+    */
+   virtual void booleanStreamline(std::map<std::string, bool>& parVec) const OVERRIDE {
+      typename GParameterTCollectionT<T>::const_iterator cit;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         (*cit)->booleanStreamline(parVec);
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * So far untested
+    * ----------------------------------------------------------------------------------
+    */
+
+   /***************************************************************************/
+   /**
+    * Attach boundaries of type float to the vectors
+    *
+    * @param lBndVec A vector of lower float parameter boundaries
+    * @param uBndVec A vector of upper float parameter boundaries
+    */
+   virtual void floatBoundaries(
+         std::vector<float>& lBndVec
+         , std::vector<float>& uBndVec
+   ) const OVERRIDE {
+      typename GParameterTCollectionT<T>::const_iterator cit;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         (*cit)->floatBoundaries(lBndVec, uBndVec);
+      }
+   }
+
 	/***************************************************************************/
 	/**
 	 * Attach boundaries of type double to the vectors
@@ -488,6 +600,24 @@ public:
 		}
 	}
 
+   /***************************************************************************/
+   /**
+    * Count the number of float parameters. This function returns the responses from all
+    * objects contained in this collection.
+    *
+    * @return The number of float parameters in this collection
+    */
+   virtual std::size_t countFloatParameters() const OVERRIDE {
+      std::size_t result = 0;
+
+      typename GParameterTCollectionT<T>::const_iterator cit;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         result += (*cit)->countFloatParameters();
+      }
+
+      return result;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Count the number of double parameters. This function returns the responses from all
@@ -541,6 +671,22 @@ public:
 
 		return result;
 	}
+
+   /***************************************************************************/
+   /**
+    * Assigns part of a value vector to the parameter
+    */
+   void assignFloatValueVector(const std::vector<float>& parVec, std::size_t& pos) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->assignFloatValueVector(parVec, pos);
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * So far untested
+    * ----------------------------------------------------------------------------------
+    */
 
 	/***************************************************************************/
 	/**

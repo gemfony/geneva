@@ -47,6 +47,7 @@ GOptimizableEntity::GOptimizableEntity()
 	, GObject()
 	, currentFitness_(0.)
    , currentSecondaryFitness_()
+   , nFitnessCriteria_(1)
 	, bestPastFitness_(0.)
 	, bestPastSecondaryFitness_(0)
 	, nStalls_(0)
@@ -54,8 +55,8 @@ GOptimizableEntity::GOptimizableEntity()
 	, serverMode_(false)
 	, maximize_(false)
 	, assignedIteration_(0)
-	, validityLevel_(1.0) // Always valid by default
-	, validityThreshold_(0.5)
+	, validityLevel_(0.) // Always valid by default
+   , invalidPolicy_(Gem::Geneva::USEEVALUATION)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -70,6 +71,7 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
 	, GObject(cp)
 	, currentFitness_(cp.currentFitness_)
 	, currentSecondaryFitness_(cp.currentSecondaryFitness_)
+   , nFitnessCriteria_(cp.nFitnessCriteria_)
 	, bestPastFitness_(cp.bestPastFitness_)
 	, bestPastSecondaryFitness_(cp.bestPastSecondaryFitness_)
 	, nStalls_(cp.nStalls_)
@@ -78,7 +80,7 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
 	, maximize_(cp.maximize_)
 	, assignedIteration_(cp.assignedIteration_)
 	, validityLevel_(cp.validityLevel_)
-	, validityThreshold_(cp.validityThreshold_)
+   , invalidPolicy_(cp.invalidPolicy_)
 {
 	// Copy the personality pointer over
 	copyGenevaSmartPointer(cp.pt_ptr_, pt_ptr_);
@@ -133,12 +135,12 @@ bool GOptimizableEntity::operator!=(const GOptimizableEntity& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -154,6 +156,7 @@ boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", currentFitness_, p_load->currentFitness_, "currentFitness_", "p_load->currentFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", currentSecondaryFitness_, p_load->currentSecondaryFitness_, "currentSecondaryFitness_", "p_load->currentSecondaryFitness_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nFitnessCriteria_, p_load->nFitnessCriteria_, "nFitnessCriteria_", "p_load->nFitnessCriteria_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", bestPastSecondaryFitness_, p_load->bestPastSecondaryFitness_, "bestPastSecondaryFitness_", "p_load->bestPastSecondaryFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nStalls_, p_load->nStalls_, "nStalls_", "p_load->nStalls_", e , limit));
@@ -162,7 +165,7 @@ boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", assignedIteration_, p_load->assignedIteration_, "assignedIteration_", "p_load->assignedIteration_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", validityLevel_, p_load->validityLevel_, "validityLevel_", "p_load->validityLevel_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", validityThreshold_, p_load->validityThreshold_, "validityThreshold_", "p_load->validityThreshold_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", invalidPolicy_, p_load->invalidPolicy_, "invalidPolicy_", "p_load->invalidPolicy_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", pt_ptr_, p_load->pt_ptr_, "pt_ptr_", "p_load->pt_ptr_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", individualConstraint_, p_load->individualConstraint_, "individualConstraint_", "p_load->individualConstraint_", e , limit));
 
@@ -195,6 +198,22 @@ void GOptimizableEntity::registerConstraint(boost::shared_ptr<GValidityCheckT<GO
 
 /******************************************************************************/
 /**
+ * Allows to set the policy to use in case this individual represents an invalid solution
+ */
+void GOptimizableEntity::setInvalidPolicy(invalidIndividualPolicy invalidPolicy) {
+   invalidPolicy_ = invalidPolicy;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the current policy in case this individual represents an invalid solution
+ */
+invalidIndividualPolicy GOptimizableEntity::getInvalidPolicy() const {
+   return invalidPolicy_;
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GOptimizableEntity, camouflaged as a GObject
  *
  * @param cp A copy of another GOptimizableEntity object, camouflaged as a GObject
@@ -208,6 +227,7 @@ void GOptimizableEntity::load_(const GObject* cp) {
 	// Then load our local data
 	currentFitness_ = p_load->currentFitness_;
 	currentSecondaryFitness_ = p_load->currentSecondaryFitness_;
+	nFitnessCriteria_ = p_load->nFitnessCriteria_;
 	bestPastFitness_ = p_load->bestPastFitness_;
 	bestPastSecondaryFitness_ = p_load->bestPastSecondaryFitness_;
 	nStalls_ = p_load->nStalls_;
@@ -216,7 +236,7 @@ void GOptimizableEntity::load_(const GObject* cp) {
 	maximize_ = p_load->maximize_;
 	assignedIteration_ = p_load->assignedIteration_;
 	validityLevel_ = p_load->validityLevel_;
-	validityThreshold_ = p_load->validityThreshold_;
+	invalidPolicy_ = p_load->invalidPolicy_;
 
 	copyGenevaSmartPointer(p_load->pt_ptr_, pt_ptr_);
    copyGenevaSmartPointer(p_load->individualConstraint_, individualConstraint_);
@@ -337,15 +357,52 @@ double GOptimizableEntity::getCachedFitness(bool& dirtyFlag, const std::size_t& 
  * @return The main result of the fitness calculation
  */
 double GOptimizableEntity::doFitnessCalculation() {
-   if(individualConstraint_) {
-      // Check whether this is a valid solution
-      validityLevel_ = individualConstraint_->check(this, validityThreshold_);
-   } else {
-      validityLevel_ = 1.0;
-   }
-
    // Make sure the secondary fitness vector is empty
    currentSecondaryFitness_.clear();
+
+   // Check whether this is a valid solution and act accordingly
+   if(!this->isValid(validityLevel_)) {
+      switch(invalidPolicy_) {
+         //---------------------------------------------------------------------
+         case USEEVALUATION:
+            // Nothing -- we just continue with the evaluation as requested
+            break;
+
+         //---------------------------------------------------------------------
+         case USEWORSTCASE:
+            {
+               currentFitness_ = this->getWorstCase();
+               for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
+                  currentSecondaryFitness_.push_back(this->getWorstCase());
+               }
+            }
+            break;
+
+         //---------------------------------------------------------------------
+         // Note: This option usually means that the optimization algorithm
+         // will supply information about the worst valid solution found
+         case USECONSTRAINTOBJECTPOLICY:
+            {
+               currentFitness_ = validityLevel_;
+               for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
+                  currentSecondaryFitness_.push_back(validityLevel_);
+               }
+            }
+            break;
+
+         //---------------------------------------------------------------------
+         default:
+            {
+               glogger
+               << "In GOptimizableEntity::doFitnessCalculation(): Error!" << std::endl
+               << "Got invalid invalidPolicy_ parameter: " << invalidPolicy_ << std::endl
+               << GEXCEPTION;
+            }
+            break;
+
+         //---------------------------------------------------------------------
+      }
+   }
 
    // Trigger fitness calculation. This will also
    // register secondary fitness values used in multi-criterion
@@ -378,13 +435,28 @@ void GOptimizableEntity::registerSecondaryResult(const double& secondaryValue) {
 
 /******************************************************************************/
 /**
+ * Sets the number of fitness criteria to be used with this object
+ */
+void GOptimizableEntity::setNumberOfFitnessCriteria(std::size_t nFitnessCriteria) {
+   if(0 == nFitnessCriteria) {
+      glogger
+      << "In GOptimizableEntity::setNumberOfFitnessCriteria(): Error!" << std::endl
+      << "Number of fitness criteria is empty" << std::endl
+      << GEXCEPTION;
+   }
+
+   nFitnessCriteria_ = nFitnessCriteria;
+}
+
+/******************************************************************************/
+/**
  * Determines the number of fitness criteria present for individual. Secondary fitness values are stored in
  * a std::vector, so we determine its size and add 1 for the main fitness value (which always needs to be present).
  *
  * @return The number of fitness criteria registered with this individual
  */
 std::size_t GOptimizableEntity::getNumberOfFitnessCriteria() const {
-	return currentSecondaryFitness_.size() + 1;
+	return nFitnessCriteria_;
 }
 
 /******************************************************************************/
@@ -394,7 +466,14 @@ std::size_t GOptimizableEntity::getNumberOfFitnessCriteria() const {
  * @return The number of secondary fitness criteria registered with this individual
  */
 std::size_t GOptimizableEntity::getNumberOfSecondaryFitnessCriteria() const {
-	return currentSecondaryFitness_.size();
+   if(0 == nFitnessCriteria_) {
+      glogger
+      << "In GOptimizableEntity::getNumberOfSecondaryFitnessCriteria(): Error!" << std::endl
+      << "Number of fitness criteria is empty" << std::endl
+      << GEXCEPTION;
+   }
+
+	return nFitnessCriteria_ - 1;
 }
 
 /******************************************************************************/
@@ -576,19 +655,15 @@ bool GOptimizableEntity::setDirtyFlag(const bool& dirtyFlag)  {
 
 /******************************************************************************/
 /**
- * Checks whether this solution is valid (defined as a validityLevel_ > validityThreshold_).
+ * Checks whether this solution is valid
  */
-bool GOptimizableEntity::isValid() const {
-   return (validityLevel_ > validityThreshold_);
-}
-
-/******************************************************************************/
-/**
- * Allows to specify how valid a given solution is. This is useful for
- * external checks for compliance with a set of boundary conditions
- */
-void GOptimizableEntity::setValidityLevel(const double& validityLevel) {
-   validityLevel_ = validityLevel;
+bool GOptimizableEntity::isValid(double& validityLevel) const {
+   if(individualConstraint_) {
+      return individualConstraint_->isValid(this, validityLevel);
+   } else { // Always valid, if no constraint object has been registered
+      validityLevel = 0.;
+      return true;
+   }
 }
 
 /******************************************************************************/
@@ -597,29 +672,6 @@ void GOptimizableEntity::setValidityLevel(const double& validityLevel) {
  */
 double GOptimizableEntity::getValidityLevel() const {
    return validityLevel_;
-}
-
-/******************************************************************************/
-/**
- * Allows to specify as of which threshold a solution is considered to be valid
- */
-void GOptimizableEntity::setValidityThreshold(double validityThreshold) {
-   if(validityThreshold < 0. || validityThreshold > 1.0) {
-      glogger
-      << "In GOptimizableEntity::setValidityThreshold(): Error!" << std::endl
-      << "Validity threshold outside of [0:1] specified: " << validityThreshold << std::endl
-      << GEXCEPTION;
-   }
-
-   validityThreshold_= validityThreshold;
-}
-
-/******************************************************************************/
-/**
- * Check as of which threshold a solution is considered to be valid
- */
-double GOptimizableEntity::getValidityThreshold() const {
-   return validityThreshold_;
 }
 
 /******************************************************************************/
@@ -716,20 +768,7 @@ void GOptimizableEntity::addConfigurationOptions (
 	GObject::addConfigurationOptions(gpb, showOrigin);
 
 	// Add local data
-   comment = ""; // Reset the first comment string
-   comment += "The [0,1] threshold as of which a solution is considered to be invalid;";
-   if(showOrigin) comment += " [GOptimizableEntity]";
-   gpb.registerFileParameter<double>(
-      "validityThreshold" // The name of the first variable
-      , 0.5
-      , boost::bind(
-         &GOptimizableEntity::setValidityThreshold
-         , this
-         , _1
-        )
-      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-      , comment
-   );
+	// none ...
 
 	// maximize_ will be set in GParameterSet, as it has a different
 	// meaning for optimization algorithms that also derive indirectly

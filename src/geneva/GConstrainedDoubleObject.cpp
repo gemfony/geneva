@@ -216,7 +216,19 @@ std::string GConstrainedDoubleObject::name() const {
  * @param parVec The vector to which the local value should be attached
  */
 void GConstrainedDoubleObject::doubleStreamline(std::vector<double>& parVec) const {
+   // Note: application of the transfer function happens in GConstrainedNumT inside value()
 	parVec.push_back(this->value());
+}
+
+/******************************************************************************/
+/**
+ * Attach our local value to the map.
+ *
+ * @param parVec The map to which the local value should be attached
+ */
+void GConstrainedDoubleObject::doubleStreamline(std::map<std::string, double>& parVec) const {
+   // Note: application of the transfer function happens in GConstrainedNumT inside value()
+   parVec[this->getParameterName()]=this->value();
 }
 
 /******************************************************************************/

@@ -195,9 +195,34 @@ std::string GConstrainedDoubleCollection::name() const {
  * @param parVec The vector to which the local value should be attached
  */
 void GConstrainedDoubleCollection::doubleStreamline(std::vector<double>& parVec) const {
-	for(std::size_t pos = 0; pos < this->size(); pos++) {
-		parVec.push_back(this->transfer(this->at(pos)));
-	}
+   GConstrainedDoubleCollection::const_iterator cit;
+   for(cit=this->begin(); cit!=this->end(); ++cit) {
+      parVec.push_back(this->transfer(*cit));
+   }
+}
+
+/******************************************************************************/
+/**
+ * Attach our local values to the map. Names are built from the object name and the
+ * position in the array.
+ *
+ * @param parVec The map to which the local value should be attached
+ */
+void GConstrainedDoubleCollection::doubleStreamline(std::map<std::string, double>& parVec) const {
+#ifdef DEBUG
+   if((this->getParameterName()).empty()) {
+      glogger
+      << "In GConstrainedDoubleCollection::doubleStreamline(std::map<std::string, double>& parVec) const: Error!" << std::endl
+      << "No name was assigned to the object" << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   GConstrainedDoubleCollection::const_iterator cit;
+   std::size_t cnt = 0;
+   for(cit=this->begin(); cit!=this->end(); ++cit) {
+      parVec[this->getParameterName() + "-" + boost::lexical_cast<std::string>(cnt++)] = this->transfer(*cit);
+   }
 }
 
 /******************************************************************************/

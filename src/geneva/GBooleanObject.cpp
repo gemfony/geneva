@@ -263,6 +263,25 @@ void GBooleanObject::booleanStreamline(std::vector<bool>& parVec) const {
 
 /******************************************************************************/
 /**
+ * Attach our local value to the map.
+ *
+ * @param parVec The map to which the local value should be attached
+ */
+void GBooleanObject::booleanStreamline(std::map<std::string, bool>& parVec) const {
+#ifdef DEBUG
+   if((this->getParameterName()).empty()) {
+      glogger
+      << "In GBooleanObject::booleanStreamline(std::map<std::string, bool>& parVec) const: Error!" << std::endl
+      << "No name was assigned to the object" << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   parVec[this->getParameterName()] = this->value();
+}
+
+/******************************************************************************/
+/**
  * Attach boundaries of type bool to the vectors. This function has been added for
  * completeness reasons only.
  *

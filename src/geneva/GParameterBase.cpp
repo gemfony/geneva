@@ -48,7 +48,7 @@ GParameterBase::GParameterBase()
 	, gr(gr_local)
 	, adaptionsActive_(true)
 	, randomInitializationBlocked_(false)
-   , parameterName_() // empty
+   , parameterName_(boost::lexical_cast<std::string>(this)) // TODO: replace by Boosts uuid once Geneva switches to Boost > 1.41
 { /* nothing */ }
 
 /******************************************************************************/
@@ -206,7 +206,7 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
 	const GParameterBase *p_load = GObject::gobject_conversion<GParameterBase>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
-    std::vector<boost::optional<std::string> > deviations;
+   std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
 	deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GParameterBase", y_name, withMessages));
@@ -480,7 +480,7 @@ void GParameterBase::fpSubtract(boost::shared_ptr<GParameterBase> p)
  */
 template <>
 void GParameterBase::streamline<float>(
-		std::vector<float>& parVec
+   std::vector<float>& parVec
 ) const {
 	this->floatStreamline(parVec);
 }
@@ -493,7 +493,7 @@ void GParameterBase::streamline<float>(
  */
 template <>
 void GParameterBase::streamline<double>(
-		std::vector<double>& parVec
+   std::vector<double>& parVec
 ) const {
 	this->doubleStreamline(parVec);
 }
@@ -506,7 +506,7 @@ void GParameterBase::streamline<double>(
  */
 template <>
 void GParameterBase::streamline<boost::int32_t>(
-		std::vector<boost::int32_t>& parVec
+   std::vector<boost::int32_t>& parVec
 ) const {
 	this->int32Streamline(parVec);
 }
@@ -519,9 +519,61 @@ void GParameterBase::streamline<boost::int32_t>(
  */
 template <>
 void GParameterBase::streamline<bool>(
-		std::vector<bool>& parVec
+   std::vector<bool>& parVec
 ) const {
 	this->booleanStreamline(parVec);
+}
+
+/******************************************************************************/
+/**
+ * Allows to add all parameters of type float to the map.
+ *
+ * @oaram parVec The map to which the items should be added
+ */
+template <>
+void GParameterBase::streamline<float>(
+   std::map<std::string, float>& parVec
+) const {
+   this->floatStreamline(parVec);
+}
+
+/******************************************************************************/
+/**
+ * Allows to add all parameters of type double to the map.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+void GParameterBase::streamline<double>(
+   std::map<std::string, double>& parVec
+) const {
+   this->doubleStreamline(parVec);
+}
+
+/******************************************************************************/
+/**
+ * Allows to add all parameters of type boost::int32_t to the map.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+void GParameterBase::streamline<boost::int32_t>(
+   std::map<std::string, boost::int32_t>& parVec
+) const {
+   this->int32Streamline(parVec);
+}
+
+/******************************************************************************/
+/**
+ * Allows to add all parameters of type bool to the map.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+void GParameterBase::streamline<bool>(
+   std::map<std::string, bool>& parVec
+) const {
+   this->booleanStreamline(parVec);
 }
 
 /******************************************************************************/
@@ -531,7 +583,7 @@ void GParameterBase::streamline<bool>(
  * the actual work.
  */
 void GParameterBase::floatStreamline(
-		std::vector<float>& parVec
+   std::vector<float>& parVec
 ) const {
 	/* do nothing by default */
 }
@@ -548,7 +600,7 @@ void GParameterBase::floatStreamline(
  * the actual work.
  */
 void GParameterBase::doubleStreamline(
-		std::vector<double>& parVec
+   std::vector<double>& parVec
 ) const {
 	/* do nothing by default */
 }
@@ -565,7 +617,7 @@ void GParameterBase::doubleStreamline(
  * the actual work.
  */
 void GParameterBase::int32Streamline(
-		std::vector<boost::int32_t>& parVec
+   std::vector<boost::int32_t>& parVec
 ) const {
 	/* do nothing by default */
 }
@@ -582,9 +634,77 @@ void GParameterBase::int32Streamline(
  * the actual work.
  */
 void GParameterBase::booleanStreamline(
-		std::vector<bool>& parVec
+   std::vector<bool>& parVec
 ) const {
 	/* do nothing by default */
+}
+
+/* -----------------------------------------------------------------------------
+ * So far untested
+ * -----------------------------------------------------------------------------
+ */
+
+/******************************************************************************/
+/**
+ * Attach parameters of type double to the map. This function does nothing by
+ * default. Parameter types based on doubles need to overload this function and do
+ * the actual work.
+ */
+void GParameterBase::floatStreamline(
+   std::map<std::string, float>& parVec
+) const {
+   /* do nothing by default */
+}
+
+/* -----------------------------------------------------------------------------
+ * So far untested
+ * -----------------------------------------------------------------------------
+ */
+
+/******************************************************************************/
+/**
+ * Attach parameters of type double to the map. This function does nothing by
+ * default. Parameter types based on doubles need to overload this function and do
+ * the actual work.
+ */
+void GParameterBase::doubleStreamline(
+   std::map<std::string, double>& parVec
+) const {
+   /* do nothing by default */
+}
+
+/* -----------------------------------------------------------------------------
+ * So far untested
+ * -----------------------------------------------------------------------------
+ */
+
+/******************************************************************************/
+/**
+ * Attach parameters of type boost::int32_t to the map. This function does nothing by
+ * default. Parameter types based on boost::int32_t need to overload this function and do
+ * the actual work.
+ */
+void GParameterBase::int32Streamline(
+   std::map<std::string, boost::int32_t>& parVec
+) const {
+   /* do nothing by default */
+}
+
+/* -----------------------------------------------------------------------------
+ * So far untested
+ * -----------------------------------------------------------------------------
+ */
+
+/******************************************************************************/
+/**
+ * Attach parameters of type bool to the map. This function does nothing by
+ * default. Parameter types based on bool need to overload this function and do
+ * the actual work.
+ */
+void GParameterBase::booleanStreamline(
+   std::map<std::string, bool>& parVec
+) const {
+   /* do nothing by default */
 }
 
 /* -----------------------------------------------------------------------------
@@ -601,8 +721,8 @@ void GParameterBase::booleanStreamline(
  */
 template <>
 void GParameterBase::boundaries<float>(
-		std::vector<float>& lBndVec
-		, std::vector<float>& uBndVec
+   std::vector<float>& lBndVec
+   , std::vector<float>& uBndVec
 ) const {
 	this->floatBoundaries(lBndVec, uBndVec);
 }

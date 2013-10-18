@@ -116,6 +116,9 @@ public:
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&) OVERRIDE;
 
+   /** @brief Attach our local value to the vector. */
+   virtual void floatStreamline(std::map<std::string, float>&) const OVERRIDE;
+
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;
 

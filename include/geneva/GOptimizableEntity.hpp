@@ -93,20 +93,22 @@ class GOptimizableEntity
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-	     & BOOST_SERIALIZATION_NVP(currentFitness_)
-	     & BOOST_SERIALIZATION_NVP(currentSecondaryFitness_)
-	     & BOOST_SERIALIZATION_NVP(bestPastFitness_)
-	     & BOOST_SERIALIZATION_NVP(bestPastSecondaryFitness_)
-	     & BOOST_SERIALIZATION_NVP(nStalls_)
-	     & BOOST_SERIALIZATION_NVP(dirtyFlag_)
-	     & BOOST_SERIALIZATION_NVP(serverMode_)
-	     & BOOST_SERIALIZATION_NVP(maximize_)
-	     & BOOST_SERIALIZATION_NVP(assignedIteration_)
-	     & BOOST_SERIALIZATION_NVP(validityLevel_)
-	     & BOOST_SERIALIZATION_NVP(validityThreshold_)
-	     & BOOST_SERIALIZATION_NVP(pt_ptr_)
-	     & BOOST_SERIALIZATION_NVP(individualConstraint_);
+	  ar
+	  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+	  & BOOST_SERIALIZATION_NVP(currentFitness_)
+	  & BOOST_SERIALIZATION_NVP(currentSecondaryFitness_)
+	  & BOOST_SERIALIZATION_NVP(nFitnessCriteria_)
+	  & BOOST_SERIALIZATION_NVP(bestPastFitness_)
+	  & BOOST_SERIALIZATION_NVP(bestPastSecondaryFitness_)
+	  & BOOST_SERIALIZATION_NVP(nStalls_)
+	  & BOOST_SERIALIZATION_NVP(dirtyFlag_)
+	  & BOOST_SERIALIZATION_NVP(serverMode_)
+	  & BOOST_SERIALIZATION_NVP(maximize_)
+	  & BOOST_SERIALIZATION_NVP(assignedIteration_)
+	  & BOOST_SERIALIZATION_NVP(validityLevel_)
+	  & BOOST_SERIALIZATION_NVP(pt_ptr_)
+	  & BOOST_SERIALIZATION_NVP(invalidPolicy_)
+	  & BOOST_SERIALIZATION_NVP(individualConstraint_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -125,12 +127,12 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&
-			, const Gem::Common::expectation&
-			, const double&
-			, const std::string&
-			, const std::string&
-			, const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
 	/** @brief The adaption interface */
@@ -150,6 +152,8 @@ public:
 
 	/** @brief Registers a new, secondary result value of the custom fitness calculation */
 	void registerSecondaryResult(const double&);
+	/** @brief Sets the number of fitness criteria to be used with this object */
+	void setNumberOfFitnessCriteria(std::size_t);
 	/** @brief Determines the overall number of fitness criteria present for this individual */
 	std::size_t getNumberOfFitnessCriteria() const;
 	/** @brief Determines the number of secondary fitness criteria present for this individual */
@@ -295,20 +299,16 @@ public:
    virtual std::string name() const OVERRIDE;
 
    /** @brief Checks whether this solution has been rated to be valid */
-   bool isValid() const;
-
-   /** @brief Allows to specify how valid a given solution is */
-   void setValidityLevel(const double&);
+   bool isValid(double&) const;
    /** @brief Check how valid a given solution is */
    double getValidityLevel() const;
-
-   /** @brief Allows to specify as of which threshold a solution is considered to be valid */
-   void setValidityThreshold(double);
-   /** @brief Check as of which threshold a solution is considered to be valid */
-   double getValidityThreshold() const;
-
    /** @brief Allows to register a constraint with this individual */
    void registerConstraint(boost::shared_ptr<GValidityCheckT<GOptimizableEntity> >);
+
+   /** @brief Allows to set the policy to use in case this individual represents an invalid solution */
+   void setInvalidPolicy(invalidIndividualPolicy invalidPolicy);
+   /** @brief Allows to retrieve the current policy in case this individual represents an invalid solution */
+   invalidIndividualPolicy getInvalidPolicy() const;
 
 protected:
 	/***************************************************************************/
@@ -346,6 +346,8 @@ private:
     double currentFitness_;
     /** @brief Holds this object's internal, secondary fitness values */
     std::vector<double> currentSecondaryFitness_;
+    /** @brief The total number of fitness criteria */
+    std::size_t nFitnessCriteria_;
     /** @brief Holds the globally best known fitness of all individuals */
     double bestPastFitness_;
     /** @brief Holds the globally best known secondary fitness values of all individuals */
@@ -362,10 +364,10 @@ private:
     boost::uint32_t assignedIteration_;
     /** @brief Indicates how valid a given solution is */
     double validityLevel_;
-    /** @brief Indicates a threshold as of which a solution is considered to be valid */
-    double validityThreshold_;
     /** @brief Holds the actual personality information */
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
+    /** @brief Specifies what to do when the individual is marked as invalid */
+    invalidIndividualPolicy invalidPolicy_;
 
     /** @brief A constraint-check to be applied to one or more components of this individual */
     boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > individualConstraint_;

@@ -36,6 +36,77 @@
 namespace Gem {
 namespace Geneva {
 
+
+/******************************************************************************/
+/**
+ * Puts a Gem::Geneva::validityCheckCombinerPolicy item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param vccp the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::validityCheckCombinerPolicy& vccp) {
+   boost::uint16_t tmp = static_cast<boost::uint16_t>(vccp);
+   o << tmp;
+   return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Geneva::validityCheckCombinerPolicy item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param vccp The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::Geneva::validityCheckCombinerPolicy& vccp) {
+   boost::uint16_t tmp;
+   i >> tmp;
+
+#ifdef DEBUG
+   vccp = boost::numeric_cast<Gem::Geneva::validityCheckCombinerPolicy>(tmp);
+#else
+   vccp = static_cast<Gem::Geneva::validityCheckCombinerPolicy>(tmp);
+#endif /* DEBUG */
+
+   return i;
+}
+
+/******************************************************************************/
+/**
+ * Puts a Gem::Geneva::invalidIndividualPolicy item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param iip the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::invalidIndividualPolicy& iip) {
+   boost::uint16_t tmp = static_cast<boost::uint16_t>(iip);
+   o << tmp;
+   return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Geneva::invalidIndividualPolicy item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param iip The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::Geneva::invalidIndividualPolicy& iip) {
+   boost::uint16_t tmp;
+   i >> tmp;
+
+#ifdef DEBUG
+   iip = boost::numeric_cast<Gem::Geneva::invalidIndividualPolicy>(tmp);
+#else
+   iip = static_cast<Gem::Geneva::invalidIndividualPolicy>(tmp);
+#endif /* DEBUG */
+
+   return i;
+}
+
 /******************************************************************************/
 /**
  * Puts a Gem::Geneva::execMode item into a stream

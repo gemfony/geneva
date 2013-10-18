@@ -49,6 +49,7 @@
 // Geneva header files go here
 #include "common/GPODExpectationChecksT.hpp"
 #include "geneva/GObject.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 
 namespace Gem {
@@ -145,12 +146,12 @@ public:
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject& cp
-         , const Gem::Common::expectation& e
-         , const double& limit
-         , const std::string& caller
-         , const std::string& y_name
-         , const bool& withMessages
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
    ) const OVERRIDE {
       using namespace Gem::Common;
 
@@ -184,20 +185,21 @@ public:
    /***************************************************************************/
    /**
     * Checks whether a given parameter set is valid. The function returns a
-    * double value which is expected to be in the range of [0,1], giving a
-    * level of confidence that this is a valid solution.
+    * double value which is expected to be larger than 0. Values in the range
+    * [0,1] indicate valid parameters (according to this constraint). Values
+    * above 1 indicate invalid parameters. The size of the return value can thus
+    * be used to indicate the extent of the invalidity.
     */
    double check(
       const ind_type *cp
-      , const double& validityThreshold
    ) const {
-      double result = check_(cp, validityThreshold);
+      double result = check_(cp);
 
 #ifdef DEBUG
-      if(result < 0. || result > 1.) {
+      if(result < 0.) {
          glogger
          << "In GValidityCheckT<>::check(): Error!" << std::endl
-         << "Validity check yielded a result outside of the allowed value range [0:1]: " << result << std::endl
+         << "Validity check yielded a result < 0: " << result << std::endl
          << GEXCEPTION;
       }
 #endif /* DEBUG */
@@ -205,15 +207,27 @@ public:
       return result;
    }
 
+   /***************************************************************************/
+   /**
+    * Checks whether the constraint is valid
+    *
+    * @param cp A pointer to the individual to be checked
+    * @param validityLevel Will be filled with the validity level of this individual
+    */
+   bool isValid(const ind_type *cp, double &validityLevel) const {
+      validityLevel = this->check(cp);
+      return (validityLevel <= 1.);
+   }
+
 protected:
    /***************************************************************************/
    /**
     * Checks whether a given parameter set is valid. The function returns a
-    * double value which is expected to be in the range of [0,1], giving a
-    * level of confidence that this is a valid solution. This function must
-    * be overloaded in derived classes.
+    * double value which is expected to be >= 0., giving a level of confidence
+    * that this is a valid solution. This function must be overloaded in
+    * derived classes.
     */
-   virtual double check_(const ind_type *, const double&) const = 0;
+   virtual double check_(const ind_type *) const = 0;
 
    /***************************************************************************/
    /**
@@ -241,169 +255,10 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class takes a GValidityCheckT<ind_type> and inverts its verdict. It
- * acts like a negation operator.
+ * An collection of validity checks with the GValidityCheckT interface
  */
 template <typename ind_type>
-class GInvalidityCheckT : public GValidityCheckT<ind_type>
-{
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
-
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
-     using boost::serialization::make_nvp;
-     ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GValidityCheckT<ind_type>);
-   }
-   ///////////////////////////////////////////////////////////////////////
-
-public:
-   /***************************************************************************/
-   /**
-    * Construction with a pointer to a validity check
-    */
-   GInvalidityCheckT(boost::shared_ptr<GValidityCheckT<ind_type> > vc_ptr) {
-      copyGenevaSmartPointer(vc_ptr, vc_ptr_);
-   }
-
-   /***************************************************************************/
-   /**
-    * The copy constructor
-    */
-   GInvalidityCheckT(const GInvalidityCheckT<ind_type>& cp) : GValidityCheckT<ind_type>(cp) {
-      copyGenevaSmartPointer(cp.vc_ptr_, vc_ptr_);
-   }
-
-   /***************************************************************************/
-   /**
-    * The destructor
-    */
-   virtual ~GInvalidityCheckT()
-   { /* nothing */ }
-
-   /***************************************************************************/
-   /**
-    * A standard assignment operator
-    */
-   const GInvalidityCheckT<ind_type>& operator=(const GInvalidityCheckT<ind_type>& cp)  {
-      GInvalidityCheckT<ind_type>::load_(&cp);
-      return *this;
-   }
-
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GIndividualConstraint object
-    */
-   bool operator==(const GInvalidityCheckT<ind_type>& cp) const {
-      using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GInvalidityCheckT<ind_type>::operator==","cp", CE_SILENT);
-   }
-
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GIndividualConstraint object
-    */
-   bool operator!=(const GInvalidityCheckT<ind_type>& cp) const {
-      using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GInvalidityCheckT<ind_type>::operator!=","cp", CE_SILENT);
-   }
-
-   /***************************************************************************/
-   /**
-    * Checks whether a given expectation for the relationship between this object and another object is fulfilled.
-    *
-    * @param cp A constant reference to another object, camouflaged as a GObject
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    * @param caller An identifier for the calling entity
-    * @param y_name An identifier for the object that should be compared to this one
-    * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
-    * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
-    */
-   virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject& cp
-         , const Gem::Common::expectation& e
-         , const double& limit
-         , const std::string& caller
-         , const std::string& y_name
-         , const bool& withMessages
-   ) const OVERRIDE {
-      using namespace Gem::Common;
-
-      // Check that we are indeed dealing with an object of the same type and that we are not
-      // accidently trying to compare this object with itself.
-      const GInvalidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GInvalidityCheckT<ind_type> >(&cp);
-
-      // Will hold possible deviations from the expectation, including explanations
-      std::vector<boost::optional<std::string> > deviations;
-
-      // Check our parent class'es data ...
-      deviations.push_back(GValidityCheckT<ind_type>::checkRelationshipWith(cp, e, limit, "GInvalidityCheckT<ind_type>", y_name, withMessages));
-
-      // ... and then our local data
-      deviations.push_back(checkExpectation(withMessages, "GInvalidityCheckT<ind_type>", vc_ptr_, p_load->vc_ptr_, "vc_ptr_", "p_load->vc_ptr_", e , limit));
-
-      return evaluateDiscrepancies("GInvalidityCheckT<ind_type>", caller, deviations, e);
-   }
-
-protected:
-   /***************************************************************************/
-   /**
-    * Check whether a given parameter set is valid
-    */
-   virtual double check_(
-      const ind_type * cp
-      , const double& validityThreshold
-   ) const OVERRIDE {
-      return !vc_ptr_->check(cp, validityThreshold);
-   }
-
-   /***************************************************************************/
-   /**
-    * Loads the data of another GValidityCheckT<ind_type>
-    */
-   virtual void load_(const GObject* cp) OVERRIDE {
-      // Check that we are indeed dealing with an object of the same type and that we are not
-      // accidently trying to compare this object with itself.
-      const GInvalidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GInvalidityCheckT<ind_type> >(cp);
-
-      // Load our parent class'es data ...
-      GValidityCheckT<ind_type>::load_(cp);
-
-      // and then our local data
-      copyGenevaSmartPointer(p_load->vc_ptr_, vc_ptr_);
-   }
-
-   /***************************************************************************/
-   /**
-    * Creates a deep clone of this object
-    */
-   virtual GObject* clone_() const OVERRIDE {
-      return new GInvalidityCheckT<ind_type>(*this);
-   }
-
-private:
-   /***************************************************************************/
-   /** @brief The default constructor. Intentionally private -- only needed for de-serialization */
-   GInvalidityCheckT() { /* nothing */ }
-
-   boost::shared_ptr<GValidityCheckT<ind_type> > vc_ptr_; ///< Holds the validity check whose verdict should be inverted
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * A abstract class capable of combining several GValidityCheckT<ind_type>-derivatives.
- * This class just holds the logic needed to add validity checks. Ways of
- * combining the checks (such as logical AND, OR and XOR) need to be specified
- * in derived classes.
- */
-template <typename ind_type>
-class GValidityCheckCombinerT : public GValidityCheckT<ind_type>
+class GValidityCheckContainerT : public GValidityCheckT<ind_type>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -421,14 +276,14 @@ public:
    /**
     * The default constructor
     */
-   GValidityCheckCombinerT()
+   GValidityCheckContainerT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * Initialization from a vector of validity checks
     */
-   GValidityCheckCombinerT(const std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >& validityChecks)
+   GValidityCheckContainerT(const std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >& validityChecks)
    {
       copyGenevaSmartPointerVector(validityChecks, validityChecks_);
    }
@@ -437,7 +292,7 @@ public:
    /**
     * The copy constructor
     */
-   GValidityCheckCombinerT(const GValidityCheckCombinerT<ind_type>& cp)
+   GValidityCheckContainerT(const GValidityCheckContainerT<ind_type>& cp)
       : GValidityCheckT<ind_type>(cp)
    {
       copyGenevaSmartPointerVector(cp.validityChecks_, validityChecks_);
@@ -447,36 +302,36 @@ public:
    /**
     * The destructor
     */
-   virtual ~GValidityCheckCombinerT()
+   virtual ~GValidityCheckContainerT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * A standard assignment operator
     */
-   const GValidityCheckCombinerT<ind_type>& operator=(const GValidityCheckCombinerT<ind_type>& cp)  {
-      GValidityCheckCombinerT<ind_type>::load_(&cp);
+   const GValidityCheckContainerT<ind_type>& operator=(const GValidityCheckContainerT<ind_type>& cp)  {
+      GValidityCheckContainerT<ind_type>::load_(&cp);
       return *this;
    }
 
    /***************************************************************************/
    /**
-    * Checks for equality with another GValidityCheckCombinerT object
+    * Checks for equality with another GValidityCheckContainerT object
     */
-   bool operator==(const GValidityCheckCombinerT<ind_type>& cp) const {
+   bool operator==(const GValidityCheckContainerT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GValidityCheckCombinerT<ind_type>::operator==","cp", CE_SILENT);
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GValidityCheckContainerT<ind_type>::operator==","cp", CE_SILENT);
    }
 
    /***************************************************************************/
    /**
-    * Checks for inequality with another GValidityCheckCombinerT object
+    * Checks for inequality with another GValidityCheckContainerT object
     */
-   bool operator!=(const GValidityCheckCombinerT<ind_type>& cp) const {
+   bool operator!=(const GValidityCheckContainerT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GValidityCheckCombinerT<ind_type>::operator!=","cp", CE_SILENT);
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GValidityCheckContainerT<ind_type>::operator!=","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -492,29 +347,29 @@ public:
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject& cp
-         , const Gem::Common::expectation& e
-         , const double& limit
-         , const std::string& caller
-         , const std::string& y_name
-         , const bool& withMessages
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
    ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
-      const GValidityCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckCombinerT<ind_type> >(&cp);
+      const GValidityCheckContainerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckContainerT<ind_type> >(&cp);
 
       // Will hold possible deviations from the expectation, including explanations
       std::vector<boost::optional<std::string> > deviations;
 
       // Check our parent class'es data ...
-      deviations.push_back(GValidityCheckT<ind_type>::checkRelationshipWith(cp, e, limit, "GValidityCheckCombinerT<ind_type>", y_name, withMessages));
+      deviations.push_back(GValidityCheckT<ind_type>::checkRelationshipWith(cp, e, limit, "GValidityCheckContainerT<ind_type>", y_name, withMessages));
 
       // ... and then our local data
-      deviations.push_back(checkExpectation(withMessages, "GValidityCheckCombinerT<ind_type>", validityChecks_, p_load->validityChecks_, "validityChecks_", "p_load->validityChecks_", e , limit));
+      deviations.push_back(checkExpectation(withMessages, "GValidityCheckContainerT<ind_type>", validityChecks_, p_load->validityChecks_, "validityChecks_", "p_load->validityChecks_", e , limit));
 
-      return evaluateDiscrepancies("GValidityCheckCombinerT<ind_type>", caller, deviations, e);
+      return evaluateDiscrepancies("GValidityCheckContainerT<ind_type>", caller, deviations, e);
    }
 
    /***************************************************************************/
@@ -525,7 +380,7 @@ public:
    void addCheck(boost::shared_ptr<GValidityCheckT<ind_type> > vc_ptr) {
       if(!vc_ptr) {
          glogger
-         << "In GValidityCheckCombinerT<>::addCheck(): Error!" << std::endl
+         << "In GValidityCheckContainerT<>::addCheck(): Error!" << std::endl
          << "Got empty check pointer" << std::endl
          << GEXCEPTION;
       }
@@ -535,8 +390,8 @@ public:
 
 protected:
    /***************************************************************************/
-   /** @brief Check whether a given parameter set is valid. To be specified in derived classes */
-   virtual double check_(const ind_type *, const double&) const = 0;
+   /** @brief Checks whether a given parameter set is valid. To be specified in derived classes */
+   virtual double check_(const ind_type *) const = 0;
 
    /***************************************************************************/
    /** @brief Creates a deep clone of this object */
@@ -549,7 +404,7 @@ protected:
    virtual void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
-      const GValidityCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckCombinerT<ind_type> >(cp);
+      const GValidityCheckContainerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckContainerT<ind_type> >(cp);
 
       // Load our parent class'es data ...
       GValidityCheckT<ind_type>::load_(cp);
@@ -567,179 +422,12 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class applies a logical "AND" to all checks contained in the vector. In
- * other words, the check will return true if all checks in the check vector return
- * true.
+ * A class which combines all values (i.e. values > 1) according to a
+ * user-defined policy or returns 0, if all checks are valid.
  */
 template <typename ind_type>
-class GANDCheckCombinerT : public GValidityCheckCombinerT<ind_type> {
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
-
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
-     using boost::serialization::make_nvp;
-     ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GValidityCheckCombinerT<ind_type>);
-   }
-   ///////////////////////////////////////////////////////////////////////
-
-public:
-   /***************************************************************************/
-   /**
-    * The default constructor
-    */
-   GANDCheckCombinerT()
-   { /* nothing */ }
-
-   /***************************************************************************/
-   /**
-    * Initialization from a vector of validity checks
-    */
-   GANDCheckCombinerT(const std::vector<boost::shared_ptr<GValidityCheckCombinerT<ind_type> > >& validityChecks)
-      : GValidityCheckCombinerT<ind_type>(validityChecks)
-   { /* nothing */ }
-
-   /***************************************************************************/
-   /**
-    * The copy constructor
-    */
-   GANDCheckCombinerT(const GANDCheckCombinerT<ind_type>& cp)
-      : GValidityCheckCombinerT<ind_type>(cp)
-   { /* nothing */ }
-
-   /***************************************************************************/
-   /**
-    * The destructor
-    */
-   virtual ~GANDCheckCombinerT()
-   { /* nothing */ }
-
-   /***************************************************************************/
-   /**
-    * A standard assignment operator
-    */
-   const GANDCheckCombinerT<ind_type>& operator=(const GANDCheckCombinerT<ind_type>& cp)  {
-      GANDCheckCombinerT<ind_type>::load_(&cp);
-      return *this;
-   }
-
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GANDCheckCombinerT object
-    */
-   bool operator==(const GANDCheckCombinerT<ind_type>& cp) const {
-      using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GANDCheckCombinerT<ind_type>::operator==","cp", CE_SILENT);
-   }
-
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GANDCheckCombinerT object
-    */
-   bool operator!=(const GANDCheckCombinerT<ind_type>& cp) const {
-      using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GANDCheckCombinerT<ind_type>::operator!=","cp", CE_SILENT);
-   }
-
-   /***************************************************************************/
-   /**
-    * Checks whether a given expectation for the relationship between this object and another object is fulfilled.
-    *
-    * @param cp A constant reference to another object, camouflaged as a GObject
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    * @param caller An identifier for the calling entity
-    * @param y_name An identifier for the object that should be compared to this one
-    * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
-    * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
-    */
-   virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject& cp
-         , const Gem::Common::expectation& e
-         , const double& limit
-         , const std::string& caller
-         , const std::string& y_name
-         , const bool& withMessages
-   ) const OVERRIDE {
-      using namespace Gem::Common;
-
-      // Check that we are indeed dealing with an object of the same type and that we are not
-      // accidently trying to compare this object with itself.
-      const GANDCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GANDCheckCombinerT<ind_type> >(&cp);
-
-      // Will hold possible deviations from the expectation, including explanations
-      std::vector<boost::optional<std::string> > deviations;
-
-      // Check our parent class'es data ...
-      deviations.push_back(GValidityCheckCombinerT<ind_type>::checkRelationshipWith(cp, e, limit, "GANDCheckCombinerT<ind_type>", y_name, withMessages));
-
-      // ... no local data
-
-      return evaluateDiscrepancies("GANDCheckCombinerT<ind_type>", caller, deviations, e);
-   }
-
-protected:
-   /***************************************************************************/
-   /**
-    * Check whether all checks in the check vector return true. If so, it
-    * returns 1.0, otherwise 0.0
-    */
-   virtual double check_(
-         const ind_type *p
-         , const double& validityThreshold
-   ) const OVERRIDE {
-      double result = 1.0;
-
-      typename std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >::const_iterator cit;
-      for(cit=GValidityCheckCombinerT<ind_type>::validityChecks_.begin(); cit!=GValidityCheckCombinerT<ind_type>::validityChecks_.end(); ++cit) {
-         if((*cit)->GValidityCheckT<ind_type>::check(p, validityThreshold) < validityThreshold) {
-            result = 0.0;
-            break;
-         }
-      }
-
-      return result;
-   }
-
-   /***************************************************************************/
-   /**
-    * Creates a deep clone of this object
-    */
-   virtual GObject* clone_() const OVERRIDE {
-      return new GANDCheckCombinerT<ind_type>(*this);
-   }
-
-   /***************************************************************************/
-   /**
-    * Loads the data of another GValidityCheckCombinerT<ind_type>
-    */
-   virtual void load_(const GObject* cp) OVERRIDE {
-      // Check that we are indeed dealing with an object of the same type and that we are not
-      // accidently trying to compare this object with itself.
-      const GANDCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GANDCheckCombinerT<ind_type> >(cp);
-
-      // Load our parent class'es data ...
-      GValidityCheckCombinerT<ind_type>::load_(cp);
-
-      // no local data
-   }
-
-   /***************************************************************************/
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This class applies a logical "OR" to all checks contained in the vector. In
- * other words, the check will return true if at least one check in the check vector
- * returns true.
- */
-template <typename ind_type>
-class GORCheckCombinerT : public GValidityCheckCombinerT<ind_type>
+class GCheckCombinerT
+   : public GValidityCheckContainerT<ind_type>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -748,7 +436,8 @@ class GORCheckCombinerT : public GValidityCheckCombinerT<ind_type>
    void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GValidityCheckCombinerT<ind_type>);
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GValidityCheckT<ind_type>)
+     & BOOST_SERIALIZATION_NVP(combinerPolicy_);
    }
    ///////////////////////////////////////////////////////////////////////
 
@@ -757,59 +446,64 @@ public:
    /**
     * The default constructor
     */
-   GORCheckCombinerT()
+   GCheckCombinerT()
+      : combinerPolicy_(Gem::Geneva::MULTIPLYINVALID)
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * Initialization from a vector of validity checks
     */
-   GORCheckCombinerT(const std::vector<boost::shared_ptr<GValidityCheckCombinerT<ind_type> > >& validityChecks)
-      : GValidityCheckCombinerT<ind_type>(validityChecks)
+   GCheckCombinerT(
+      const std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >& validityChecks
+   )
+      : GValidityCheckContainerT<ind_type>(validityChecks)
+      , combinerPolicy_(Gem::Geneva::MULTIPLYINVALID)
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * The copy constructor
     */
-   GORCheckCombinerT(const GORCheckCombinerT<ind_type>& cp)
-      : GValidityCheckCombinerT<ind_type>(cp)
+   GCheckCombinerT(const GCheckCombinerT<ind_type>& cp)
+      : GValidityCheckContainerT<ind_type>(cp)
+      , combinerPolicy_(cp.combinerPolicy_)
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * The destructor
     */
-   virtual ~GORCheckCombinerT()
+   virtual ~GCheckCombinerT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * A standard assignment operator
     */
-   const GORCheckCombinerT<ind_type>& operator=(const GORCheckCombinerT<ind_type>& cp)  {
-      GORCheckCombinerT<ind_type>::load_(&cp);
+   const GCheckCombinerT<ind_type>& operator=(const GCheckCombinerT<ind_type>& cp)  {
+      GCheckCombinerT<ind_type>::load_(&cp);
       return *this;
    }
 
    /***************************************************************************/
    /**
-    * Checks for equality with another GORCheckCombinerT object
+    * Checks for equality with another GCheckCombinerT object
     */
-   bool operator==(const GORCheckCombinerT<ind_type>& cp) const {
+   bool operator==(const GCheckCombinerT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GORCheckCombinerT<ind_type>::operator==","cp", CE_SILENT);
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GCheckCombinerT<ind_type>::operator==","cp", CE_SILENT);
    }
 
    /***************************************************************************/
    /**
-    * Checks for inequality with another GORCheckCombinerT object
+    * Checks for inequality with another GCheckCombinerT object
     */
-   bool operator!=(const GORCheckCombinerT<ind_type>& cp) const {
+   bool operator!=(const GCheckCombinerT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GORCheckCombinerT<ind_type>::operator!=","cp", CE_SILENT);
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GCheckCombinerT<ind_type>::operator!=","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -825,247 +519,123 @@ public:
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject& cp
-         , const Gem::Common::expectation& e
-         , const double& limit
-         , const std::string& caller
-         , const std::string& y_name
-         , const bool& withMessages
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
    ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
-      const GORCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GORCheckCombinerT<ind_type> >(&cp);
+      const GCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GCheckCombinerT<ind_type> >(&cp);
 
       // Will hold possible deviations from the expectation, including explanations
       std::vector<boost::optional<std::string> > deviations;
 
       // Check our parent class'es data ...
-      deviations.push_back(GValidityCheckCombinerT<ind_type>::checkRelationshipWith(cp, e, limit, "GORCheckCombinerT<ind_type>", y_name, withMessages));
+      deviations.push_back(GValidityCheckContainerT<ind_type>::checkRelationshipWith(cp, e, limit, "GCheckCombinerT<ind_type>", y_name, withMessages));
 
-      // ... no local data
+      // ... and then our local data
+      deviations.push_back(checkExpectation(withMessages, "GCheckCombinerT<ind_type>", combinerPolicy_, p_load->combinerPolicy_, "combinerPolicy_", "p_load->combinerPolicy_", e , limit));
 
-      return evaluateDiscrepancies("GORCheckCombinerT<ind_type>", caller, deviations, e);
+      return evaluateDiscrepancies("GCheckCombinerT<ind_type>", caller, deviations, e);
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to set the combiner policy
+    */
+   void setCombinerPolicy(validityCheckCombinerPolicy combinerPolicy) {
+      combinerPolicy_ = combinerPolicy;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the combiner policy
+    */
+   validityCheckCombinerPolicy getCombinerPolicy() const {
+      return combinerPolicy_;
    }
 
 protected:
    /***************************************************************************/
    /**
-    * Check whether at least one check in the check vector returns true. If so,
-    * it returns 1.0, otherwise 0.0
+    * Combines all parameters according to a user-defined policy
     */
-   virtual double check_(
-      const ind_type *p
-      , const double& validityThreshold
-   ) const OVERRIDE {
-      double result = 0.0;
-
-      typename std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >::const_iterator cit;
-      for(cit=GValidityCheckCombinerT<ind_type>::validityChecks_.begin(); cit!=GValidityCheckCombinerT<ind_type>::validityChecks_.end(); ++cit) {
-         if((*cit)->GValidityCheckT<ind_type>::check(p, validityThreshold) >= validityThreshold) {
-            result = 1.0;
+   virtual double check_(const ind_type *cp) const {
+      switch(combinerPolicy_) {
+         // --------------------------------------------------------------------
+         case Gem::Geneva::MULTIPLYINVALID:
+         {
+            std::vector<double> invalidChecks;
+            double validityLevel;
+            typename std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >::const_iterator cit;
+            for(cit=GValidityCheckContainerT<ind_type>::validityChecks_.begin(); cit!=GValidityCheckContainerT<ind_type>::validityChecks_.end(); ++cit) {
+               if(!(*cit)->isValid(cp, validityLevel)) {
+                  invalidChecks.push_back(validityLevel);
+               }
+            }
+            if(invalidChecks.empty()) { // All checks were valid
+               return 0.;
+            } else { // There were invalid results
+               double result = 1.;
+               std::vector<double>::const_iterator d_cit;
+               for(d_cit=invalidChecks.begin(); d_cit!=invalidChecks.end(); ++d_cit) {
+                  result *= *d_cit;
+               }
+               return result;
+            }
+         }
             break;
+
+         // --------------------------------------------------------------------
+         default:
+         {
+            glogger
+            << "In GCheckCombinerT<ind_type>::check_(): Error!" << std::endl
+            << "Got invalid combinerPolicy_ value: " << combinerPolicy_ << std::endl
+            << GEXCEPTION;
          }
+            break;
+         // --------------------------------------------------------------------
       }
 
-      return result;
+      // Make the compiler happy
+      return 0.;
    }
 
    /***************************************************************************/
    /**
     * Creates a deep clone of this object
     */
-   virtual GObject* clone_() const OVERRIDE {
-      return new GORCheckCombinerT<ind_type>(*this);
+   virtual GObject* clone_() const {
+      return new GCheckCombinerT<ind_type>(*this);
    }
 
    /***************************************************************************/
    /**
-    * Loads the data of another GValidityCheckCombinerT<ind_type>
+    * Loads the data of another GValidityCheckT<ind_type>
     */
    virtual void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
-      const GORCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GORCheckCombinerT<ind_type> >(cp);
+      const GCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GCheckCombinerT<ind_type> >(cp);
 
       // Load our parent class'es data ...
-      GValidityCheckCombinerT<ind_type>::load_(cp);
+      GValidityCheckT<ind_type>::load_(cp);
 
-      // no local data
+      // and then our local data
+      combinerPolicy_ = p_load->combinerPolicy_;
    }
 
+private:
    /***************************************************************************/
-};
+   // Local data
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This class applies a logical "XOR" to all checks contained in the vector. In
- * other words, the check will return true if exactly one check in the check vector
- * returns true
- */
-template <typename ind_type>
-class GXORCheckCombinerT : public GValidityCheckCombinerT<ind_type>
-{
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
-
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
-     using boost::serialization::make_nvp;
-     ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GValidityCheckCombinerT<ind_type>);
-   }
-   ///////////////////////////////////////////////////////////////////////
-
-public:
-   /***************************************************************************/
-   /**
-    * The default constructor
-    */
-   GXORCheckCombinerT()
-   { /* nothing */ }
-
-   /***************************************************************************/
-   /**
-    * Initialization from a vector of validity checks
-    */
-   GXORCheckCombinerT(const std::vector<boost::shared_ptr<GValidityCheckCombinerT<ind_type> > >& validityChecks)
-      : GValidityCheckCombinerT<ind_type>(validityChecks)
-   { /* nothing */ }
-
-   /***************************************************************************/
-   /**
-    * The copy constructor
-    */
-   GXORCheckCombinerT(const GXORCheckCombinerT<ind_type>& cp)
-      : GValidityCheckCombinerT<ind_type>(cp)
-   { /* nothing */ }
-
-   /***************************************************************************/
-   /**
-    * The destructor
-    */
-   virtual ~GXORCheckCombinerT()
-   { /* nothing */ }
-
-   /***************************************************************************/
-   /**
-    * A standard assignment operator
-    */
-   const GXORCheckCombinerT<ind_type>& operator=(const GXORCheckCombinerT<ind_type>& cp)  {
-      GXORCheckCombinerT<ind_type>::load_(&cp);
-      return *this;
-   }
-
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GXORCheckCombinerT object
-    */
-   bool operator==(const GXORCheckCombinerT<ind_type>& cp) const {
-      using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GXORCheckCombinerT<ind_type>::operator==","cp", CE_SILENT);
-   }
-
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GXORCheckCombinerT object
-    */
-   bool operator!=(const GXORCheckCombinerT<ind_type>& cp) const {
-      using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GXORCheckCombinerT<ind_type>::operator!=","cp", CE_SILENT);
-   }
-
-   /***************************************************************************/
-   /**
-    * Checks whether a given expectation for the relationship between this object and another object is fulfilled.
-    *
-    * @param cp A constant reference to another object, camouflaged as a GObject
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    * @param caller An identifier for the calling entity
-    * @param y_name An identifier for the object that should be compared to this one
-    * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
-    * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
-    */
-   virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject& cp
-         , const Gem::Common::expectation& e
-         , const double& limit
-         , const std::string& caller
-         , const std::string& y_name
-         , const bool& withMessages
-   ) const OVERRIDE {
-      using namespace Gem::Common;
-
-      // Check that we are indeed dealing with an object of the same type and that we are not
-      // accidently trying to compare this object with itself.
-      const GXORCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GXORCheckCombinerT<ind_type> >(&cp);
-
-      // Will hold possible deviations from the expectation, including explanations
-      std::vector<boost::optional<std::string> > deviations;
-
-      // Check our parent class'es data ...
-      deviations.push_back(GValidityCheckCombinerT<ind_type>::checkRelationshipWith(cp, e, limit, "GXORCheckCombinerT<ind_type>", y_name, withMessages));
-
-      // ... no local data
-
-      return evaluateDiscrepancies("GXORCheckCombinerT<ind_type>", caller, deviations, e);
-   }
-
-protected:
-   /***************************************************************************/
-   /**
-    * Check whether exactly one check in the check vector returns true. If so,
-    * it returns 1.0, otherwise 0.0
-    */
-   virtual double check_(
-      const ind_type *p
-      , const double& validityThreshold
-   ) const OVERRIDE {
-      std::size_t nTrue = 0;
-      typename std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >::const_iterator cit;
-      for(cit=GValidityCheckCombinerT<ind_type>::validityChecks_.begin(); cit!=GValidityCheckCombinerT<ind_type>::validityChecks_.end(); ++cit) {
-         if((*cit)->GValidityCheckT<ind_type>::check(p, validityThreshold) >= validityThreshold) {
-            nTrue++;
-         }
-      }
-
-      if(nTrue != 1) {
-         return 0.;
-      } else {
-         return 1.;
-      }
-   }
-
-   /***************************************************************************/
-   /**
-    * Creates a deep clone of this object
-    */
-   virtual GObject* clone_() const OVERRIDE {
-      return new GXORCheckCombinerT<ind_type>(*this);
-   }
-
-   /***************************************************************************/
-   /**
-    * Loads the data of another GValidityCheckCombinerT<ind_type>
-    */
-   virtual void load_(const GObject* cp) OVERRIDE {
-      // Check that we are indeed dealing with an object of the same type and that we are not
-      // accidently trying to compare this object with itself.
-      const GXORCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GXORCheckCombinerT<ind_type> >(cp);
-
-      // Load our parent class'es data ...
-      GValidityCheckCombinerT<ind_type>::load_(cp);
-
-      // no local data
-   }
-
-   /***************************************************************************/
+   validityCheckCombinerPolicy combinerPolicy_; ///< Indicates how validity checks should be combined
 };
 
 /******************************************************************************/
@@ -1083,6 +653,15 @@ namespace boost {
       struct is_abstract< Gem::Geneva::GValidityCheckT<ind_type> > : public boost::true_type {};
       template<typename ind_type>
       struct is_abstract< const Gem::Geneva::GValidityCheckT<ind_type> > : public boost::true_type {};
+   }
+}
+
+namespace boost {
+   namespace serialization {
+      template<typename ind_type>
+      struct is_abstract< Gem::Geneva::GValidityCheckContainerT<ind_type> > : public boost::true_type {};
+      template<typename ind_type>
+      struct is_abstract< const Gem::Geneva::GValidityCheckContainerT<ind_type> > : public boost::true_type {};
    }
 }
 

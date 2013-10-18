@@ -59,6 +59,9 @@
 namespace Gem {
 namespace Geneva {
 
+// The number of parameters
+const std::size_t NPAR_MC = 2;
+
 /******************************************************************/
 /**
  * This individual implements several, possibly conflicting evaluation

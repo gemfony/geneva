@@ -55,7 +55,7 @@ GDoubleSumConstraint::GDoubleSumConstraint()
  * The copy constructor
  */
 GDoubleSumConstraint::GDoubleSumConstraint(const GDoubleSumConstraint& cp)
-   : GParameterSetMultiConstraint(cp)
+   : GParameterSetConstraint(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -71,7 +71,7 @@ GDoubleSumConstraint::~GDoubleSumConstraint()
  */
 const GDoubleSumConstraint& GDoubleSumConstraint::operator=(const GDoubleSumConstraint& cp)
 {
-   GParameterSetMultiConstraint::load_(&cp);
+   GParameterSetConstraint::load_(&cp);
    return *this;
 }
 
@@ -125,7 +125,7 @@ boost::optional<std::string> GDoubleSumConstraint::checkRelationshipWith(
    std::vector<boost::optional<std::string> > deviations;
 
    // Check our parent class'es data ...
-   deviations.push_back(GParameterSetMultiConstraint::checkRelationshipWith(cp, e, limit, "GDoubleSumConstraint", y_name, withMessages));
+   deviations.push_back(GParameterSetConstraint::checkRelationshipWith(cp, e, limit, "GDoubleSumConstraint", y_name, withMessages));
 
    // no local data
 
@@ -141,7 +141,7 @@ void GDoubleSumConstraint::addConfigurationOptions(
       , const bool& showOrigin
 ) {
    // Call our parent class'es function
-   GParameterSetMultiConstraint::addConfigurationOptions(gpb, showOrigin);
+   GParameterSetConstraint::addConfigurationOptions(gpb, showOrigin);
 }
 
 /******************************************************************************/
@@ -149,8 +149,7 @@ void GDoubleSumConstraint::addConfigurationOptions(
  * Checks whether a given individual is valid
  */
 double GDoubleSumConstraint::check_(
-      const GParameterSet *p
-      , const double& validityThreshold
+   const GParameterSet *p
 ) const {
    std::vector<double> parVec;
    p->streamline(parVec);
@@ -178,7 +177,7 @@ void GDoubleSumConstraint::load_(const GObject* cp) {
    const GDoubleSumConstraint *p_load = GObject::gobject_conversion<GDoubleSumConstraint>(cp);
 
    // Load our parent class'es data ...
-   GParameterSetMultiConstraint::load_(cp);
+   GParameterSetConstraint::load_(cp);
 
    // no local data
 }
@@ -205,7 +204,7 @@ GSphereConstraint::GSphereConstraint()
  * The copy constructor
  */
 GSphereConstraint::GSphereConstraint(const GSphereConstraint& cp)
-   : GParameterSetMultiConstraint(cp)
+   : GParameterSetConstraint(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -221,7 +220,7 @@ GSphereConstraint::~GSphereConstraint()
  */
 const GSphereConstraint& GSphereConstraint::operator=(const GSphereConstraint& cp)
 {
-   GParameterSetMultiConstraint::load_(&cp);
+   GParameterSetConstraint::load_(&cp);
    return *this;
 }
 
@@ -258,12 +257,12 @@ bool GSphereConstraint::operator!=(const GSphereConstraint& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GSphereConstraint::checkRelationshipWith(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
    using namespace Gem::Common;
 
@@ -275,7 +274,7 @@ boost::optional<std::string> GSphereConstraint::checkRelationshipWith(
    std::vector<boost::optional<std::string> > deviations;
 
    // Check our parent class'es data ...
-   deviations.push_back(GParameterSetMultiConstraint::checkRelationshipWith(cp, e, limit, "GSphereConstraint", y_name, withMessages));
+   deviations.push_back(GParameterSetConstraint::checkRelationshipWith(cp, e, limit, "GSphereConstraint", y_name, withMessages));
 
    // no local data
 
@@ -287,11 +286,11 @@ boost::optional<std::string> GSphereConstraint::checkRelationshipWith(
  * Adds local configuration options to a GParserBuilder object
  */
 void GSphereConstraint::addConfigurationOptions(
-      Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
+   Gem::Common::GParserBuilder& gpb
+   , const bool& showOrigin
 ) {
    // Call our parent class'es function
-   GParameterSetMultiConstraint::addConfigurationOptions(gpb, showOrigin);
+   GParameterSetConstraint::addConfigurationOptions(gpb, showOrigin);
 }
 
 /******************************************************************************/
@@ -299,8 +298,7 @@ void GSphereConstraint::addConfigurationOptions(
  * Checks whether a given individual is valid
  */
 double GSphereConstraint::check_(
-      const GParameterSet *p
-      , const double& validityThreshold
+   const GParameterSet *p
 ) const {
    std::vector<double> parVec;
    p->streamline(parVec);
@@ -329,7 +327,7 @@ void GSphereConstraint::load_(const GObject* cp) {
    const GSphereConstraint *p_load = GObject::gobject_conversion<GSphereConstraint>(cp);
 
    // Load our parent class'es data ...
-   GParameterSetMultiConstraint::load_(cp);
+   GParameterSetConstraint::load_(cp);
 
    // no local data
 }

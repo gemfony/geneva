@@ -195,13 +195,37 @@ std::string GInt32Collection::name() const {
  * Attach our local values to the vector. This is used to collect all parameters of this type
  * in the sequence in which they were registered.
  *
- * @param parVec The vector to which the local value should be attached
+ * @param parVec The vector to which the local values should be attached
  */
 void GInt32Collection::int32Streamline(std::vector<boost::int32_t>& parVec) const {
 	GInt32Collection::const_iterator cit;
 	for(cit=this->begin(); cit!=this->end(); ++cit) {
 		parVec.push_back(*cit);
 	}
+}
+
+/******************************************************************************/
+/**
+ * Attach our local values to the map. Names are built from the object name and the
+ * position in the array.
+ *
+ * @param parVec The map to which the local values should be attached
+ */
+void GInt32Collection::int32Streamline(std::map<std::string, boost::int32_t>& parVec) const {
+#ifdef DEBUG
+   if((this->getParameterName()).empty()) {
+      glogger
+      << "In GInt32Collection::int32Streamline(std::map<std::string, boost::int32_t>& parVec) const: Error!" << std::endl
+      << "No name was assigned to the object" << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   GInt32Collection::const_iterator cit;
+   std::size_t cnt = 0;
+   for(cit=this->begin(); cit!=this->end(); ++cit) {
+      parVec[this->getParameterName() + "-" + boost::lexical_cast<std::string>(cnt++)] = *cit;
+   }
 }
 
 /******************************************************************************/

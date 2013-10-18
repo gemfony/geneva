@@ -40,10 +40,10 @@
 // #include <boost/test/minimal.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
+#include <boost/math/constants/constants.hpp>
 
 // Geneva headers go here
 #include "common/GFormulaParserT.hpp"
-#include <boost/math/constants/constants.hpp>
 
 using namespace Gem::Common;
 using namespace std;

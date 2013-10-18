@@ -1,5 +1,5 @@
 /**
- * @file GParameterSetMultiConstraint.hpp
+ * @file GParameterSetConstraint.hpp
  */
 
 /*
@@ -46,6 +46,7 @@
 
 // Geneva header files go here
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GFormulaParserT.hpp"
 #include "geneva/GMultiConstraintT.hpp"
 #include "geneva/GIndividualMultiConstraint.hpp"
 #include "geneva/GOptimizableEntity.hpp"
@@ -55,11 +56,15 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
- * This class implements constraint definitions based on multiple parameters
- * coming from GParameterSet-derivatives
+ * This class implements constraint definitions based on GParameterSet-derivatives.
+ * It is meant to be added to a constraint collection. The main purpose of this
+ * class is to "translate" GOptimizableEntity-based constraints into constraints
+ * based on GParameterSets
  */
-class GParameterSetMultiConstraint: public GValidityCheckT<GOptimizableEntity>
+class GParameterSetConstraint: public GValidityCheckT<GOptimizableEntity>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -74,19 +79,19 @@ class GParameterSetMultiConstraint: public GValidityCheckT<GOptimizableEntity>
 public:
 
    /** @brief The default constructor */
-   GParameterSetMultiConstraint();
+   GParameterSetConstraint();
    /** @brief The copy constructor */
-   GParameterSetMultiConstraint(const GParameterSetMultiConstraint&);
+   GParameterSetConstraint(const GParameterSetConstraint&);
    /** @brief The destructor */
-   virtual ~GParameterSetMultiConstraint();
+   virtual ~GParameterSetConstraint();
 
    /** @brief A standard assignment operator */
-   const GParameterSetMultiConstraint& operator=(const GParameterSetMultiConstraint&);
+   const GParameterSetConstraint& operator=(const GParameterSetConstraint&);
 
    /** @brief Checks for equality with another GIndividualConstraint object */
-   bool operator==(const GParameterSetMultiConstraint&) const;
+   bool operator==(const GParameterSetConstraint&) const;
    /** @brief Checks for inequality with another GIndividualConstraint object */
-   bool operator!=(const GParameterSetMultiConstraint&) const;
+   bool operator!=(const GParameterSetConstraint&) const;
 
    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
    virtual boost::optional<std::string> checkRelationshipWith(
@@ -103,21 +108,91 @@ public:
 
 protected:
    /** @brief Checks whether a given individual is valid */
-   virtual double check_(const GOptimizableEntity *, const double&) const OVERRIDE;
+   virtual double check_(const GOptimizableEntity *) const OVERRIDE;
    /** @brief Checks whether a given GParameterSet object is valid */
-   virtual double check_(const GParameterSet *, const double&) const = 0;
+   virtual double check_(const GParameterSet *) const = 0;
 
-   /** @brief Loads the data of another GParameterSetMultiConstraint */
+   /** @brief Loads the data of another GParameterSetConstraint */
    virtual void load_(const GObject*) OVERRIDE;
    /** @brief Creates a deep clone of this object */
    virtual GObject* clone_() const = 0;
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class accepts a string as input, which describes a formula. It then
+ * inserts parameter values into the string, parses the formula and returns the
+ * value represented by the formula as the "check"-value.
+ */
+class GParameterSetFormulaConstraint: public GParameterSetConstraint
+{
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int){
+     using boost::serialization::make_nvp;
+     ar
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint)
+     & BOOST_SERIALIZATION_NVP(rawFormula_);
+   }
+   ///////////////////////////////////////////////////////////////////////
+public:
+
+   /** @brief The default constructor */
+   GParameterSetFormulaConstraint(const std::string&);
+   /** @brief The copy constructor */
+   GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint&);
+   /** @brief The destructor */
+   virtual ~GParameterSetFormulaConstraint();
+
+   /** @brief A standard assignment operator */
+   const GParameterSetFormulaConstraint& operator=(const GParameterSetFormulaConstraint&);
+
+   /** @brief Checks for equality with another GIndividualConstraint object */
+   bool operator==(const GParameterSetFormulaConstraint&) const;
+   /** @brief Checks for inequality with another GIndividualConstraint object */
+   bool operator!=(const GParameterSetFormulaConstraint&) const;
+
+   /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
+   virtual boost::optional<std::string> checkRelationshipWith(
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
+   ) const OVERRIDE;
+
+   /** @brief Adds local configuration options to a GParserBuilder object */
+   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&) OVERRIDE;
+
+protected:
+   /** @brief Checks whether a given GParameterSet object is valid */
+   virtual double check_(const GParameterSet *) const;
+
+   /** @brief Loads the data of another GParameterSetConstraint */
+   virtual void load_(const GObject*) OVERRIDE;
+   /** @brief Creates a deep clone of this object */
+   virtual GObject* clone_() const;
+
+private:
+   /** @brief The default constructor -- intentionally private*/
+   GParameterSetFormulaConstraint();
+
+   std::string rawFormula_; ///< Holds the raw formula, in which values haven't been replaced yet
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterSetMultiConstraint)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterSetConstraint)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSetFormulaConstraint)
 
 #endif /* GPARAMETERSETMULTICONSTRAINT_HPP_ */
