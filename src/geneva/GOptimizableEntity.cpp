@@ -375,6 +375,7 @@ double GOptimizableEntity::doFitnessCalculation() {
                for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
                   currentSecondaryFitness_.push_back(this->getWorstCase());
                }
+               return currentFitness_;
             }
             break;
 
@@ -387,6 +388,7 @@ double GOptimizableEntity::doFitnessCalculation() {
                for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
                   currentSecondaryFitness_.push_back(validityLevel_);
                }
+               return currentFitness_;
             }
             break;
 
@@ -395,7 +397,7 @@ double GOptimizableEntity::doFitnessCalculation() {
             {
                glogger
                << "In GOptimizableEntity::doFitnessCalculation(): Error!" << std::endl
-               << "Got invalid invalidPolicy_ parameter: " << invalidPolicy_ << std::endl
+               << "Got wrong invalidPolicy_ parameter: " << invalidPolicy_ << std::endl
                << GEXCEPTION;
             }
             break;
@@ -408,6 +410,17 @@ double GOptimizableEntity::doFitnessCalculation() {
    // register secondary fitness values used in multi-criterion
    // optimization.
    currentFitness_ = fitnessCalculation();
+
+#ifdef DEBUG
+   // Check that the correct number of secondary evaluation criteria has been registered
+   if(currentSecondaryFitness_.size() != getNumberOfSecondaryFitnessCriteria()) {
+      glogger
+      << "In GOptimizableEntity::doFitnessCalculation(): Error!" << std::endl
+      << "Invalid number of secondary fitness values. Got " << currentSecondaryFitness_.size() << std::endl
+      << "but expected " << getNumberOfSecondaryFitnessCriteria() << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
 
    // Clear the dirty flag
    setDirtyFlag(false);

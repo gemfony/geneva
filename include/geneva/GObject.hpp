@@ -101,6 +101,13 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 
+// Boost.Uuid was only introduced with Boost version 1.42
+#if BOOST_VERSION > 104100
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#endif /* BOOST_VERSION */
+
 #ifdef GEM_TESTING
 #include <boost/test/unit_test.hpp>
 #endif /* GEM_TESTING */

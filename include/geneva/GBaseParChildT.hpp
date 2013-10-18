@@ -800,7 +800,7 @@ protected:
 
       // adapt children
       adaptChildren();
-      // calculate the childrens' (and possibly their parents' values)
+      // calculate the children's (and possibly their parents' values)
       evaluateChildren();
       // find out the best individuals of the population
       selectBest();

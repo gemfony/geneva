@@ -48,7 +48,12 @@ GParameterBase::GParameterBase()
 	, gr(gr_local)
 	, adaptionsActive_(true)
 	, randomInitializationBlocked_(false)
-   , parameterName_(boost::lexical_cast<std::string>(this)) // TODO: replace by Boosts uuid once Geneva switches to Boost > 1.41
+// Boost.Uuid was only introduced with Boost version 1.42
+#if BOOST_VERSION > 104100
+   , parameterName_(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
+#else
+   , parameterName_(boost::lexical_cast<std::string>(this))
+#endif /* BOOST_VERSION */
 { /* nothing */ }
 
 /******************************************************************************/
