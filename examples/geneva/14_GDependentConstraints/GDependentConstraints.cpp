@@ -46,9 +46,24 @@
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
+namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
-   Go2 go(argc, argv, "./config/Go2.json");
+   //---------------------------------------------------------------------------
+   // We want to add an additional command line option
+
+   bool printValid = false;
+   std::vector<boost::shared_ptr<po::option_description> > od;
+   boost::shared_ptr<po::option_description> print_option(
+      new po::option_description(
+         "validOnly"
+         , po::value<bool>(&printValid)->implicit_value(true)->default_value(false) // This allows you say both --validOnly and --validOnly=true
+         , "Enforces output of valid solutions only"
+      )
+   );
+   od.push_back(print_option);
+
+   Go2 go(argc, argv, "./config/Go2.json", od);
 
 	//---------------------------------------------------------------------------
 	// Client mode
@@ -64,9 +79,12 @@ int main(int argc, char **argv) {
 
 	//---------------------------------------------------------------------------
    // Register a progress plotter with the global optimization algorithm factory
-   boost::shared_ptr<GProgressPlotterT<GParameterSet> > progplot_ptr(new GProgressPlotterT<GParameterSet>());
-   progplot_ptr->addProfileVar("d", 0); // first double parameter
+	boost::shared_ptr<GProgressPlotterT<GParameterSet> > progplot_ptr(new GProgressPlotterT<GParameterSet>());
+
+	progplot_ptr->addProfileVar("d", 0); // first double parameter
    progplot_ptr->addProfileVar("d", 1); // second double parameter
+   progplot_ptr->setMonitorValidOnly(printValid); // Only record valid parameters, when printValid is set to true
+
    go.registerPluggableOM(
       boost::bind(
             &GProgressPlotterT<GParameterSet>::informationFunction
@@ -87,13 +105,6 @@ int main(int argc, char **argv) {
    }
 
    //---------------------------------------------------------------------------
-
-	// Add a default optimization algorithm to the Go2 object. This is optional.
-   // Indeed "ea" is the default setting anyway. However, if you do not like it, you
-   // can register another default algorithm here, which will then be used, unless
-   // you specify other algorithms on the command line. You can also add a smart
-   // pointer to an optimization algorithm here instead of its mnemonic.
-	go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization
 	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();

@@ -426,6 +426,7 @@ void GBaseEA::selectBest()
  * @return The range inside which evaluation should take place
  */
 boost::tuple<std::size_t,std::size_t> GBaseEA::getEvaluationRange() const {
+   /*
 	std::size_t nParents = GBaseEA::getNParents();
    std::size_t first=nParents, last=data.size();
 
@@ -456,6 +457,15 @@ boost::tuple<std::size_t,std::size_t> GBaseEA::getEvaluationRange() const {
 	}
 
 	return boost::tuple<std::size_t, std::size_t>(first, last);
+	*/
+
+   // We evaluate all individuals, even though this is not strictly required for MUCOMMANU_SINGLEEVAL
+   // in the first iteration This happens so pluggable optimization monitors do not need to distinguish
+   // between algorithms
+   return boost::tuple<std::size_t, std::size_t>(
+         inFirstIteration()?0:getNParents()
+         ,  data.size()
+   );
 }
 
 /******************************************************************************/
