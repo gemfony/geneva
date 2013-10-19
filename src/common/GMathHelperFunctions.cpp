@@ -569,6 +569,42 @@ double gmix(
 }
 
 /******************************************************************************/
+/**
+ * A sigmoid function with user-defined minimum / maximum values (float version) .
+ * Vgl. http://en.wikipedia.org/wiki/File:Gjl-t%28x%29.svg .
+ *
+ * @param var The value for which the sigmoid should be calculated
+ * @param barrier The maximum or minimum value of the sigmoid function
+ * @param steepness Determines how quickly the function converges to the barrier
+ * @return The function value
+ */
+float gsigmoid(
+   const float& var
+   , const float& barrier
+   , const float& steepness
+) {
+   return barrier*var/(steepness + gfabs(var));
+}
+
+/******************************************************************************/
+/**
+ * A sigmoid function with user-defined minimum / maximum values (double version)
+ * Vgl. http://en.wikipedia.org/wiki/File:Gjl-t%28x%29.svg .
+ *
+ * @param var The value for which the sigmoid should be calculated
+ * @param barrier The maximum or minimum value of the sigmoid function
+ * @param steepness Determines how quickly the function converges to the barrier
+ * @return The function value
+ */
+double gsigmoid(
+   const double& var
+   , const double& barrier
+   , const double& steepness
+) {
+   return barrier*var/(steepness + gfabs(var));
+}
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

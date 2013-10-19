@@ -56,7 +56,9 @@ GOptimizableEntity::GOptimizableEntity()
 	, maximize_(false)
 	, assignedIteration_(0)
 	, validityLevel_(0.) // Always valid by default
-   , invalidPolicy_(Gem::Geneva::USEEVALUATION)
+   , evalPolicy_(Gem::Geneva::USESIMPLEEVALUATION)
+   , steepness_(Gem::Geneva::FITNESSSIGMOIDSTEEPNESS)
+   , barrier_(Gem::Geneva::WORSTALLOWEDVALIDFITNESS)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -80,7 +82,9 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
 	, maximize_(cp.maximize_)
 	, assignedIteration_(cp.assignedIteration_)
 	, validityLevel_(cp.validityLevel_)
-   , invalidPolicy_(cp.invalidPolicy_)
+   , evalPolicy_(cp.evalPolicy_)
+   , steepness_(cp.steepness_)
+   , barrier_(cp.barrier_)
 {
 	// Copy the personality pointer over
 	copyGenevaSmartPointer(cp.pt_ptr_, pt_ptr_);
@@ -165,9 +169,11 @@ boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", assignedIteration_, p_load->assignedIteration_, "assignedIteration_", "p_load->assignedIteration_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", validityLevel_, p_load->validityLevel_, "validityLevel_", "p_load->validityLevel_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", invalidPolicy_, p_load->invalidPolicy_, "invalidPolicy_", "p_load->invalidPolicy_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", evalPolicy_, p_load->evalPolicy_, "evalPolicy_", "p_load->evalPolicy_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", pt_ptr_, p_load->pt_ptr_, "pt_ptr_", "p_load->pt_ptr_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", individualConstraint_, p_load->individualConstraint_, "individualConstraint_", "p_load->individualConstraint_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", steepness_, p_load->steepness_, "steepness_", "p_load->steepness_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", barrier_, p_load->barrier_, "barrier_", "p_load->barrier_", e , limit));
 
 	return evaluateDiscrepancies("GOptimizableEntity", caller, deviations, e);
 }
@@ -200,16 +206,16 @@ void GOptimizableEntity::registerConstraint(boost::shared_ptr<GValidityCheckT<GO
 /**
  * Allows to set the policy to use in case this individual represents an invalid solution
  */
-void GOptimizableEntity::setInvalidPolicy(invalidIndividualPolicy invalidPolicy) {
-   invalidPolicy_ = invalidPolicy;
+void GOptimizableEntity::setEvaluationPolicy(evaluationPolicy evalPolicy) {
+   evalPolicy_ = evalPolicy;
 }
 
 /******************************************************************************/
 /**
  * Allows to retrieve the current policy in case this individual represents an invalid solution
  */
-invalidIndividualPolicy GOptimizableEntity::getInvalidPolicy() const {
-   return invalidPolicy_;
+evaluationPolicy GOptimizableEntity::getEvaluationPolicy() const {
+   return evalPolicy_;
 }
 
 /******************************************************************************/
@@ -236,7 +242,9 @@ void GOptimizableEntity::load_(const GObject* cp) {
 	maximize_ = p_load->maximize_;
 	assignedIteration_ = p_load->assignedIteration_;
 	validityLevel_ = p_load->validityLevel_;
-	invalidPolicy_ = p_load->invalidPolicy_;
+	evalPolicy_ = p_load->evalPolicy_;
+	steepness_ = p_load->steepness_;
+	barrier_ = p_load->barrier_;
 
 	copyGenevaSmartPointer(p_load->pt_ptr_, pt_ptr_);
    copyGenevaSmartPointer(p_load->individualConstraint_, individualConstraint_);
@@ -305,6 +313,60 @@ double GOptimizableEntity::fitness() {
 
 /******************************************************************************/
 /**
+ * Retrieve a value for this class for a given id, taking into account invalid solutions.
+ * Suitable for optimization algorithms only.
+ */
+double GOptimizableEntity::oa_fitness(const std::size_t& id) {
+   // First call to fitness will trigger validityLevel calculation. Hence we cannot
+   // safely assume that validityLevel is up-to-date. We thus call fitness(id) as
+   // our first action.
+   double evaluation = this->fitness(id);
+
+   if(!this->isValid()) {
+      switch(evalPolicy_) {
+         //---------------------------------------------------------------------
+         case USESIMPLEEVALUATION:
+            // Nothing -- we just continue with the evaluation as requested
+            break;
+
+         //---------------------------------------------------------------------
+         case USEWORSTCASEFORINVALID:
+            // Nothing -- the user has chosen to evaluate this individual with the worst possible value
+            break;
+
+         //---------------------------------------------------------------------
+         case USESIGMOID:
+            // Nothing -- the calculation was done already in doFitnessCalculation
+            break;
+
+         //---------------------------------------------------------------------
+         default:
+            {
+               glogger
+               << "In GOptimizableEntity::oa_fitness(const std::size_t& id): Error!" << std::endl
+               << "Got wrong evalPolicy_ parameter: " << evalPolicy_ << std::endl
+               << GEXCEPTION;
+            }
+            break;
+
+         //---------------------------------------------------------------------
+      }
+   }
+
+   return evaluation;
+}
+
+/******************************************************************************/
+/**
+ * Retrieve a value for this class, taking into account invalid solutions.
+ * Suitable for optimization algorithms only.
+ */
+double GOptimizableEntity::oa_fitness() {
+   return oa_fitness(0);
+}
+
+/******************************************************************************/
+/**
  * Adapts and evaluates the individual in one go
  *
  * @return The main fitness result
@@ -360,73 +422,51 @@ double GOptimizableEntity::doFitnessCalculation() {
    // Make sure the secondary fitness vector is empty
    currentSecondaryFitness_.clear();
 
-   // Check whether this is a valid solution and act accordingly
-   if(!this->isValid(validityLevel_)) {
-      switch(invalidPolicy_) {
-         //---------------------------------------------------------------------
-         case USEEVALUATION:
-            // Nothing -- we just continue with the evaluation as requested
-            break;
+   // Find out, whether this is a valid solution
+   bool valid = this->isValid_(validityLevel_);
 
-         //---------------------------------------------------------------------
-         case USEWORSTCASE:
-            {
-               currentFitness_ = this->getWorstCase();
-               for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
-                  currentSecondaryFitness_.push_back(this->getWorstCase());
-               }
-               return currentFitness_;
-            }
-            break;
-
-         //---------------------------------------------------------------------
-         // Note: This option usually means that the optimization algorithm
-         // will supply information about the worst valid solution found
-         case USECONSTRAINTOBJECTPOLICY:
-            {
-               currentFitness_ = validityLevel_;
-               for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
-                  currentSecondaryFitness_.push_back(validityLevel_);
-               }
-               return currentFitness_;
-            }
-            break;
-
-         //---------------------------------------------------------------------
-         default:
-            {
-               glogger
-               << "In GOptimizableEntity::doFitnessCalculation(): Error!" << std::endl
-               << "Got wrong invalidPolicy_ parameter: " << invalidPolicy_ << std::endl
-               << GEXCEPTION;
-            }
-            break;
-
-         //---------------------------------------------------------------------
-      }
-   }
-
-   // Trigger fitness calculation. This will also
-   // register secondary fitness values used in multi-criterion
-   // optimization.
-   currentFitness_ = fitnessCalculation();
+   if(valid || USESIMPLEEVALUATION==evalPolicy_) {
+      // Trigger fitness calculation using the user-supplied function. This will also
+      // register secondary fitness values used in multi-criterion optimization.
+      currentFitness_ = fitnessCalculation();
 
 #ifdef DEBUG
-   // Check that the correct number of secondary evaluation criteria has been registered
-   if(currentSecondaryFitness_.size() != getNumberOfSecondaryFitnessCriteria()) {
-      glogger
-      << "In GOptimizableEntity::doFitnessCalculation(): Error!" << std::endl
-      << "Invalid number of secondary fitness values. Got " << currentSecondaryFitness_.size() << std::endl
-      << "but expected " << getNumberOfSecondaryFitnessCriteria() << std::endl
-      << GEXCEPTION;
-   }
+      // Check that the correct number of secondary evaluation criteria has been registered
+      if(currentSecondaryFitness_.size() != getNumberOfSecondaryFitnessCriteria()) {
+         glogger
+         << "In GOptimizableEntity::doFitnessCalculation(): Error!" << std::endl
+         << "Invalid number of secondary fitness values. Got " << currentSecondaryFitness_.size() << std::endl
+         << "but expected " << getNumberOfSecondaryFitnessCriteria() << std::endl
+         << GEXCEPTION;
+      }
 #endif /* DEBUG */
+
+      if(USESIGMOID == evalPolicy_) { // Update the fitness value to use sigmoidal values
+         currentFitness_ = Gem::Common::gsigmoid(currentFitness_, barrier_, steepness_);
+      }
+   } else {
+      if(USEWORSTCASEFORINVALID==evalPolicy_) {
+         currentFitness_ = this->getWorstCase();
+         for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
+            currentSecondaryFitness_.push_back(currentFitness_);
+         }
+      } else if(USESIGMOID == evalPolicy_) {
+         if(true == this->getMaxMode()) { // maximize
+            currentFitness_ = -validityLevel_*barrier_;
+         } else { // minimize
+            currentFitness_ =  validityLevel_*barrier_;
+         }
+         for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
+            currentSecondaryFitness_.push_back(currentFitness_);
+         }
+      }
+   }
 
    // Clear the dirty flag
    setDirtyFlag(false);
 
    // Return the main fitness value
-	return currentFitness_;
+   return currentFitness_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -474,7 +514,7 @@ std::size_t GOptimizableEntity::getNumberOfFitnessCriteria() const {
 
 /******************************************************************************/
 /**
- * Determines the number of secondary itness criteria present for individual.
+ * Determines the number of secondary fitness criteria present for individual.
  *
  * @return The number of secondary fitness criteria registered with this individual
  */
@@ -635,6 +675,52 @@ double GOptimizableEntity::getWorstCase() const {
 
 /******************************************************************************/
 /**
+ * Retrieves the steepness_ variable
+ */
+double GOptimizableEntity::getSteepness() const {
+   return steepness_;
+}
+
+/******************************************************************************/
+/**
+ * Sets the steepness variable
+ */
+void GOptimizableEntity::setSteepness(double steepness) {
+   if(steepness <= 0.) {
+      glogger
+      << "In GOptimizableEntity::setSteepness(double steepness): Error!" << std::endl
+      << "Invalid value of steepness parameter: " << steepness << std::endl
+      << GEXCEPTION;
+   }
+
+   steepness_ = steepness;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the barrier_ variable
+ */
+double GOptimizableEntity::getBarrier() const {
+   return barrier_;
+}
+
+/******************************************************************************/
+/**
+ * Sets the barrier variable
+ */
+void GOptimizableEntity::setBarrier(double barrier) {
+   if(barrier <= 0.) {
+      glogger
+      << "In GOptimizableEntity::setBarrier(double barrier): Error!" << std::endl
+      << "Invalid value of barrier parameter: " << barrier << std::endl
+      << GEXCEPTION;
+   }
+
+   barrier_ = barrier;
+}
+
+/******************************************************************************/
+/**
  * Sets the dirtyFlag_. This is a "one way" function, accessible to derived classes. Once the dirty flag
  * has been set, the only way to reset it is to calculate the fitness of this object.
  */
@@ -668,9 +754,30 @@ bool GOptimizableEntity::setDirtyFlag(const bool& dirtyFlag)  {
 
 /******************************************************************************/
 /**
+ * Checks whether this solution is valid. This function is meant to be called
+ * for "clean" individuals only and will throw when called for individuals, whose
+ * dirty flag is set
+ */
+bool GOptimizableEntity::isValid() const {
+   if(this->isDirty()) {
+      glogger
+      << "In GOptimizableEntity::isValid(): Error!" << std::endl
+      << "Function was called while dirty flag was set" << std::endl
+      << GEXCEPTION;
+   }
+
+   if(validityLevel_ <= 1.) {
+      return true;
+   } else {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
  * Checks whether this solution is valid
  */
-bool GOptimizableEntity::isValid(double& validityLevel) const {
+bool GOptimizableEntity::isValid_(double& validityLevel) const {
    if(individualConstraint_) {
       return individualConstraint_->isValid(this, validityLevel);
    } else { // Always valid, if no constraint object has been registered
@@ -781,7 +888,57 @@ void GOptimizableEntity::addConfigurationOptions (
 	GObject::addConfigurationOptions(gpb, showOrigin);
 
 	// Add local data
-	// none ...
+   comment = ""; // Reset the comment string
+   comment += "Specifies which strategy should be used to calculate the evaluation:;";
+   comment += "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions;";
+   comment += "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions;";
+   comment += "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations;";
+   if(showOrigin) comment += "[GOptimizableEntity];";
+   gpb.registerFileParameter<evaluationPolicy>(
+      "evalPolicy" // The name of the variable
+      , Gem::Geneva::USESIMPLEEVALUATION // The default value
+      , boost::bind(
+         &GOptimizableEntity::setEvaluationPolicy
+         , this
+         , _1
+      )
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = ""; // Reset the comment string
+   comment += "When using a sigmoid function to transform the individual's fitness,;";
+   comment += "this parameter influences the steepness of the function at the center of the sigmoid.;";
+   comment += "The parameter must have a value > 0.;";
+   if(showOrigin) comment += "[GOptimizableEntity];";
+   gpb.registerFileParameter<double>(
+      "steepness" // The name of the variable
+      , Gem::Geneva::FITNESSSIGMOIDSTEEPNESS // The default value
+      , boost::bind(
+         &GOptimizableEntity::setSteepness
+         , this
+         , _1
+      )
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = ""; // Reset the comment string
+   comment += "When using a sigmoid function to transform the individual's fitness,;";
+   comment += "this parameter sets the upper/lower boundary of the sigmoid.;";
+   comment += "The parameter must have a value > 0.;";
+   if(showOrigin) comment += "[GOptimizableEntity];";
+   gpb.registerFileParameter<double>(
+      "barrier" // The name of the variable
+      , Gem::Geneva::WORSTALLOWEDVALIDFITNESS // The default value
+      , boost::bind(
+         &GOptimizableEntity::setBarrier
+         , this
+         , _1
+      )
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
 
 	// maximize_ will be set in GParameterSet, as it has a different
 	// meaning for optimization algorithms that also derive indirectly

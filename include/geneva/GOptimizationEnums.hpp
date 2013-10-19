@@ -62,6 +62,13 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+/**
+ * The worst allowed valid fitness value (positive or negative)
+ */
+const double WORSTALLOWEDVALIDFITNESS = 10000.;
+const double FITNESSSIGMOIDSTEEPNESS  = 1000.;
+
+/******************************************************************************/
 /** @brief The optimization algorithm to be used if no others were found */
 const std::string DEFAULTOPTALG="ea";
 
@@ -254,12 +261,12 @@ enum validityCheckCombinerPolicy {
 
 /******************************************************************************/
 /**
- * Selection of policy in case of an invalid solution
+ * Selection of policy for evaluation
  */
-enum invalidIndividualPolicy {
-   USEEVALUATION = 0                // Run evaluation function even for invalid parameter sets
-   , USEWORSTCASE = 1               // Assign the worst possible value to the individual
-   , USECONSTRAINTOBJECTPOLICY = 2  // Takes the value from the constraint object
+enum evaluationPolicy {
+   USESIMPLEEVALUATION = 0      // Run evaluation function even for invalid parameter sets
+   , USEWORSTCASEFORINVALID = 1 // Assign the worst possible value to invalid individuals, evaluate valid solutions as usual
+   , USESIGMOID = 2             // Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations
 };
 
 // * Note that this might be accompanied by assistance from the optimization algorithm
@@ -410,6 +417,18 @@ enum updateRule {
 const updateRule DEFAULTUPDATERULE = SWARM_UPDATERULE_CLASSIC; ///< The default update rule in swarms
 
 /******************************************************************************/
+
+/** @brief Puts a Gem::Geneva::evaluationPolicy into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::evaluationPolicy&);
+
+/** @brief Reads a Gem::Geneva::evaluationPolicy item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::evaluationPolicy&);
+
+/** @brief Puts a Gem::Geneva::validityCheckCombinerPolicy into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::validityCheckCombinerPolicy&);
+
+/** @brief Reads a Gem::Geneva::validityCheckCombinerPolicy item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::validityCheckCombinerPolicy&);
 
 /** @brief Puts a Gem::Geneva::execMode into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Geneva::execMode&);

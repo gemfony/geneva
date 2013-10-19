@@ -74,13 +74,13 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::validityCheckCombinerPoli
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::invalidIndividualPolicy item into a stream
+ * Puts a Gem::Geneva::evaluationPolicy item into a stream
  *
  * @param o The ostream the item should be added to
  * @param iip the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::invalidIndividualPolicy& iip) {
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::evaluationPolicy& iip) {
    boost::uint16_t tmp = static_cast<boost::uint16_t>(iip);
    o << tmp;
    return o;
@@ -88,20 +88,20 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::invalidIndividualPo
 
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::invalidIndividualPolicy item from a stream
+ * Reads a Gem::Geneva::evaluationPolicy item from a stream
  *
  * @param i The stream the item should be read from
  * @param iip The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::invalidIndividualPolicy& iip) {
+std::istream& operator>>(std::istream& i, Gem::Geneva::evaluationPolicy& iip) {
    boost::uint16_t tmp;
    i >> tmp;
 
 #ifdef DEBUG
-   iip = boost::numeric_cast<Gem::Geneva::invalidIndividualPolicy>(tmp);
+   iip = boost::numeric_cast<Gem::Geneva::evaluationPolicy>(tmp);
 #else
-   iip = static_cast<Gem::Geneva::invalidIndividualPolicy>(tmp);
+   iip = static_cast<Gem::Geneva::evaluationPolicy>(tmp);
 #endif /* DEBUG */
 
    return i;

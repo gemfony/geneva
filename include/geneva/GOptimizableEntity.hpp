@@ -49,6 +49,7 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GMathHelperFunctions.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -107,8 +108,10 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(assignedIteration_)
 	  & BOOST_SERIALIZATION_NVP(validityLevel_)
 	  & BOOST_SERIALIZATION_NVP(pt_ptr_)
-	  & BOOST_SERIALIZATION_NVP(invalidPolicy_)
-	  & BOOST_SERIALIZATION_NVP(individualConstraint_);
+	  & BOOST_SERIALIZATION_NVP(evalPolicy_)
+	  & BOOST_SERIALIZATION_NVP(individualConstraint_)
+	  & BOOST_SERIALIZATION_NVP(steepness_)
+	  & BOOST_SERIALIZATION_NVP(barrier_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -145,6 +148,11 @@ public:
 	/** @brief Adapts and evaluates the individual in one go */
 	virtual double adaptAndEvaluate();
 
+   /** @brief Retrieve a value for this class, taking into account invalid solutions; suitable for optimization algorithms only */
+   virtual double oa_fitness() OVERRIDE;
+   /** @brief Retrieve a value for this class for a given id, taking into account invalid solutions; suitable for optimization algorithms only */
+   virtual double oa_fitness(const std::size_t&) OVERRIDE;
+
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
 	double getCachedFitness(bool&, const std::size_t& = 0) const;
 	/** @brief Enforce fitness calculation */
@@ -166,7 +174,7 @@ public:
 	/** @brief Checks whether the server mode is set */
 	bool getServerMode() const ;
 	/** @brief Checks whether the server mode is set */
-	bool serverMode() const ;
+	bool serverMode() const;
 
 	/** @brief Check whether the dirty flag is set */
 	bool isDirty() const ;
@@ -177,6 +185,16 @@ public:
 	bool getMaxMode() const;
 	/** @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode */
 	double getWorstCase() const;
+
+	/** @brief Retrieves the steepness_ variable */
+	double getSteepness() const;
+	/** @brief Sets the steepness variable */
+	void setSteepness(double);
+
+	/** @brief Retrieves the barrier_ variable */
+	double getBarrier() const;
+	/** @brief Sets the barrier variable */
+	void setBarrier(double);
 
 	/** @brief Allows to set the current iteration of the parent optimization algorithm. */
 	void setAssignedIteration(const boost::uint32_t&);
@@ -298,17 +316,18 @@ public:
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;
 
-   /** @brief Checks whether this solution has been rated to be valid */
-   bool isValid(double&) const;
    /** @brief Check how valid a given solution is */
    double getValidityLevel() const;
    /** @brief Allows to register a constraint with this individual */
    void registerConstraint(boost::shared_ptr<GValidityCheckT<GOptimizableEntity> >);
 
    /** @brief Allows to set the policy to use in case this individual represents an invalid solution */
-   void setInvalidPolicy(invalidIndividualPolicy invalidPolicy);
+   void setEvaluationPolicy(evaluationPolicy evalPolicy);
    /** @brief Allows to retrieve the current policy in case this individual represents an invalid solution */
-   invalidIndividualPolicy getInvalidPolicy() const;
+   evaluationPolicy getEvaluationPolicy() const;
+
+   /** @brief Checks whether this is a valid solution; meant to be called for "clean" individuals only */
+   bool isValid() const;
 
 protected:
 	/***************************************************************************/
@@ -341,6 +360,10 @@ protected:
 	double weighedSquaredSumCombiner(const std::vector<double>&) const;
 
 private:
+   /***************************************************************************/
+   /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
+   bool isValid_(double&) const;
+
 	/***************************************************************************/
 	/** @brief Holds this object's internal, primary fitness */
     double currentFitness_;
@@ -366,8 +389,13 @@ private:
     double validityLevel_;
     /** @brief Holds the actual personality information */
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
+
     /** @brief Specifies what to do when the individual is marked as invalid */
-    invalidIndividualPolicy invalidPolicy_;
+    evaluationPolicy evalPolicy_;
+    /** @brief Determines the "steepness" of a sigmoid function used by optimization algorithms */
+    double steepness_;
+    /** @brief Determines the extreme values of a sigmoid function used by optimization algorithms */
+    double barrier_;
 
     /** @brief A constraint-check to be applied to one or more components of this individual */
     boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > individualConstraint_;

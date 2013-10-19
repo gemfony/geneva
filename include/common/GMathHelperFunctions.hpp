@@ -199,6 +199,11 @@ float gsign(const float&);
 /** @brief Calculates the sign value of a double value */
 double gsign(const double&);
 
+/** @brief A sigmoid function with user-defined minimum / maximum values (float version) */
+float gsigmoid(const float&, const float&, const float&);
+/** @brief A sigmoid function with user-defined minimum / maximum values (double version) */
+double gsigmoid(const double&, const double&, const double&);
+
 /******************************************************************************/
 /**
  * Regulates access to these mathematical functions from boost::phoenix::function.
