@@ -48,6 +48,15 @@ namespace Geneva {
  * The default constructor
  */
 GDoubleSumConstraint::GDoubleSumConstraint()
+   : C_(1.)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with the constant
+ */
+GDoubleSumConstraint::GDoubleSumConstraint(const double& C)
+   : C_(C)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -56,6 +65,7 @@ GDoubleSumConstraint::GDoubleSumConstraint()
  */
 GDoubleSumConstraint::GDoubleSumConstraint(const GDoubleSumConstraint& cp)
    : GParameterSetConstraint(cp)
+   , C_(cp.C_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -108,12 +118,12 @@ bool GDoubleSumConstraint::operator!=(const GDoubleSumConstraint& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GDoubleSumConstraint::checkRelationshipWith(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
    using namespace Gem::Common;
 
@@ -127,7 +137,8 @@ boost::optional<std::string> GDoubleSumConstraint::checkRelationshipWith(
    // Check our parent class'es data ...
    deviations.push_back(GParameterSetConstraint::checkRelationshipWith(cp, e, limit, "GDoubleSumConstraint", y_name, withMessages));
 
-   // no local data
+   // ... and then our local data
+   deviations.push_back(checkExpectation(withMessages, "GDoubleSumConstraint", C_, p_load->C_, "C_", "p_load->C_", e , limit));
 
    return evaluateDiscrepancies("GDoubleSumConstraint", caller, deviations, e);
 }
@@ -148,7 +159,7 @@ void GDoubleSumConstraint::addConfigurationOptions(
 /**
  * Checks whether a given individual is valid
  */
-double GDoubleSumConstraint::check_(
+double GDoubleSumConstraint::check_ (
    const GParameterSet *p
 ) const {
    std::vector<double> parVec;
@@ -160,10 +171,10 @@ double GDoubleSumConstraint::check_(
       sum += *it;
    }
 
-   if(sum < 1.) {
-      return 1.;
-   } else {
+   if(sum < C_) {
       return 0.;
+   } else {
+      return sum/C_;
    }
 }
 
@@ -179,7 +190,8 @@ void GDoubleSumConstraint::load_(const GObject* cp) {
    // Load our parent class'es data ...
    GParameterSetConstraint::load_(cp);
 
-   // no local data
+   // ... and then our local data
+   C_ = p_load->C_;
 }
 
 /******************************************************************************/
@@ -197,6 +209,15 @@ GObject* GDoubleSumConstraint::clone_() const {
  * The default constructor
  */
 GSphereConstraint::GSphereConstraint()
+   : diameter_(1.)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with the diameter
+ */
+GSphereConstraint::GSphereConstraint(const double& diameter)
+   : diameter_(diameter)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -205,6 +226,7 @@ GSphereConstraint::GSphereConstraint()
  */
 GSphereConstraint::GSphereConstraint(const GSphereConstraint& cp)
    : GParameterSetConstraint(cp)
+   , diameter_(cp.diameter_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -276,7 +298,8 @@ boost::optional<std::string> GSphereConstraint::checkRelationshipWith(
    // Check our parent class'es data ...
    deviations.push_back(GParameterSetConstraint::checkRelationshipWith(cp, e, limit, "GSphereConstraint", y_name, withMessages));
 
-   // no local data
+   // and then our local data
+   deviations.push_back(checkExpectation(withMessages, "GSphereConstraint", diameter_, p_load->diameter_, "diameter_", "p_load->diameter_", e , limit));
 
    return evaluateDiscrepancies("GSphereConstraint", caller, deviations, e);
 }
@@ -310,11 +333,7 @@ double GSphereConstraint::check_(
    }
    sum = sqrt(sum);
 
-   if(sum < 3.) {
-      return 1.;
-   } else {
-      return 0.;
-   }
+   return sum/diameter_;
 }
 
 /******************************************************************************/
@@ -329,7 +348,8 @@ void GSphereConstraint::load_(const GObject* cp) {
    // Load our parent class'es data ...
    GParameterSetConstraint::load_(cp);
 
-   // no local data
+   // ... and then our local data
+   diameter_ = p_load->diameter_;
 }
 
 /******************************************************************************/
@@ -453,10 +473,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::initMode& ur) {
  */
 GFunctionIndividual::GFunctionIndividual()
 	: demoFunction_(PARABOLA)
-{
-   // this->registerConstraint(boost::shared_ptr<GDoubleSumConstraint>(new GDoubleSumConstraint()));
-   this->registerConstraint(boost::shared_ptr<GSphereConstraint>(new GSphereConstraint()));
-}
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -466,10 +483,7 @@ GFunctionIndividual::GFunctionIndividual()
  */
 GFunctionIndividual::GFunctionIndividual(const solverFunction& dF)
 	: demoFunction_(dF)
-{
-   // this->registerConstraint(boost::shared_ptr<GDoubleSumConstraint>(new GDoubleSumConstraint()));
-   this->registerConstraint(boost::shared_ptr<GSphereConstraint>(new GSphereConstraint()));
-}
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -480,10 +494,7 @@ GFunctionIndividual::GFunctionIndividual(const solverFunction& dF)
 GFunctionIndividual::GFunctionIndividual(const GFunctionIndividual& cp)
 	: GParameterSet(cp)
 	, demoFunction_(cp.demoFunction_)
-{
-   // this->registerConstraint(boost::shared_ptr<GDoubleSumConstraint>(new GDoubleSumConstraint()));
-   this->registerConstraint(boost::shared_ptr<GSphereConstraint>(new GSphereConstraint()));
-}
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1642,6 +1653,8 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 		}
 
 		gdc_ptr->addAdaptor(gat_ptr);
+		gdc_ptr->setParameterName("0");
+
 		p->push_back(gdc_ptr);
 	}
 		break;
@@ -1660,6 +1673,8 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 		}
 
 		gcdc_ptr->addAdaptor(gat_ptr);
+		gcdc_ptr->setParameterName("0");
+
 		p->push_back(gcdc_ptr);
 	}
 		break;
@@ -1682,6 +1697,8 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 			}
 
 			gdo_ptr->addAdaptor(gat_ptr);
+			gdo_ptr->setParameterName(boost::lexical_cast<std::string>(i));
+
 			gdoc_ptr->push_back(gdo_ptr);
 		}
 
@@ -1708,6 +1725,8 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 			}
 
 			gcdo_ptr->addAdaptor(gat_ptr);
+         gcdo_ptr->setParameterName(boost::lexical_cast<std::string>(i));
+
 			gcdoc_ptr->push_back(gcdo_ptr);
 		}
 
@@ -1730,6 +1749,8 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
          }
 
          gcdo_ptr->addAdaptor(gat_ptr);
+         gcdo_ptr->setParameterName(boost::lexical_cast<std::string>(i));
+
          p->push_back(gcdo_ptr);
       }
 	}

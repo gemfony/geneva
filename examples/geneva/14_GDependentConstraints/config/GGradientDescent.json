@@ -1,0 +1,148 @@
+//-----------------------------------------------------------------
+// This configuration file was automatically created by GParserBuilder
+// File creation date: 2013-Jul-24 16:51:37
+//-----------------------------------------------------------------
+
+{
+    "maxResubmissions":
+    {
+        "comment": "The maximum number of allowed re-submissions in an iteration",
+        "default": "5",
+        "value": "5"
+    },
+    "nEvaluationThreads":
+    {
+        "comment": "Determines the number of threads simultaneously running",
+        "comment": "evaluations in multi-threaded mode. 0 means \"automatic\"",
+        "default": "0",
+        "value": "0"
+    },
+    "doLogging":
+    {
+        "comment": "Activates (1) or de-activates (0) logging",
+        "default": "false",
+        "value": "false"
+    },
+    "waitFactor":
+    {
+        "comment": "A static factor to be applied to timeouts",
+        "default": "2",
+        "value": "3"
+    },
+    "validityThreshold":
+    {
+        "comment": "The [0,1] threshold as of which a solution is considered to be invalid",
+        "comment": " [GOptimizableEntity]",
+        "default": "0.5",
+        "value": "0.5"
+    },
+    "maxIteration":
+    {
+        "comment": "The maximum allowed number of iterations",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "1000",
+        "value": "100"
+    },
+    "maxStallIteration":
+    {
+        "comment": "The maximum allowed number of iterations without improvement0 means: no constraint.",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "0",
+        "value": "20"
+    },
+    "reportIteration":
+    {
+        "comment": "The number of iterations after which a report should be issued",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "1",
+        "value": "1"
+    },
+    "cpInterval":
+    {
+        "comment": "The number of iterations after which a checkpoint should be written.",
+        "comment": "-1 means: Write a checkpoint file whenever an improvement was encountered",
+        "comment": " 0 means: Never emit checkpoint files.",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "0",
+        "value": "0"
+    },
+    "checkpointLocation":
+    {
+        "cpDirectory":
+        {
+            "comment": "The directory where checkpoint files should be stored.",
+            "comment": "[GOptimizationAlgorithmT<ind_type>]",
+            "default": ".\/checkpoints\/",
+            "value": ".\/checkpoints\/"
+        },
+        "cpBaseName":
+        {
+            "comment": "The significant part of the checkpoint file name.",
+            "default": "geneva.cp",
+            "value": "geneva.cp"
+        }
+    },
+    "cpSerMode":
+    {
+        "comment": "Determines whether check-pointing should be done in",
+        "comment": "text- (0), XML- (1), or binary-mode (2)",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "2",
+        "value": "2"
+    },
+    "qualityTermination":
+    {
+        "threshold":
+        {
+            "comment": "A threshold beyond which optimization is expected to stop",
+            "comment": "Note that in order to activate this threshold, you also need to",
+            "comment": "set \"hasQualityThreshold\" to 1.",
+            "comment": "[GOptimizationAlgorithmT<ind_type>]",
+            "default": "0",
+            "value": "0"
+        },
+        "thresholdActive":
+        {
+            "comment": "Activates (1) or de-activates (0) the quality threshold",
+            "comment": "[GOptimizationAlgorithmT<ind_type>]",
+            "default": "false",
+            "value": "false"
+        }
+    },
+    "maxDuration":
+    {
+        "comment": "The maximum allowed time-frame for the optimization",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "00:00:00",
+        "value": "00:00:00"
+    },
+    "emitTerminationReason":
+    {
+        "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "false",
+        "value": "true"
+    },
+    "nStartingPoints":
+    {
+        "comment": "The number of simultaneous gradient descents",
+        "comment": "[GBaseGD]",
+        "default": "1",
+        "value": "2"
+    },
+    "finiteStep":
+    {
+        "comment": "The size of the adjustment in the difference quotient",
+        "comment": "[GBaseGD]",
+        "default": "0.01",
+        "value": "0.01"
+    },
+    "stepSize":
+    {
+        "comment": "The size of each step into the",
+        "comment": "direction of steepest descent.",
+        "comment": "[GBaseGD]",
+        "default": "0.1",
+        "value": "0.1"
+    }
+}

@@ -575,13 +575,16 @@ class GDoubleSumConstraint : public GParameterSetConstraint
    void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint);
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint)
+     & BOOST_SERIALIZATION_NVP(C_);
    }
    ///////////////////////////////////////////////////////////////////////
 public:
 
    /** @brief The default constructor */
    GDoubleSumConstraint();
+   /** @brief Initialization with the constant */
+   GDoubleSumConstraint(const double&);
    /** @brief The copy constructor */
    GDoubleSumConstraint(const GDoubleSumConstraint&);
    /** @brief The destructor */
@@ -615,6 +618,9 @@ protected:
    virtual void load_(const GObject*);
    /** @brief Creates a deep clone of this object */
    virtual GObject* clone_() const;
+
+private:
+   double C_; ///< The constant that should not be exceeded by the sum of parameters
 };
 
 /******************************************************************************/
@@ -640,6 +646,8 @@ public:
 
    /** @brief The default constructor */
    GSphereConstraint();
+   /** @brief Initialization with the diameter */
+   GSphereConstraint(const double&);
    /** @brief The copy constructor */
    GSphereConstraint(const GSphereConstraint&);
    /** @brief The destructor */
@@ -673,6 +681,10 @@ protected:
    virtual void load_(const GObject*);
    /** @brief Creates a deep clone of this object */
    virtual GObject* clone_() const;
+
+private:
+   /** @brief The diameter of the sphere */
+   double diameter_;
 };
 
 /******************************************************************************/

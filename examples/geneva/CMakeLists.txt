@@ -20,6 +20,7 @@ ADD_CUSTOM_TARGET( "examples_geneva"
 	11_GMetaOptimizer
 	12_GExternalEvaluator
 	13_GPluggableOptimizationMonitors
+	14_GDependentConstraints
 	COMMENT "Building the Geneva optimization examples."
 )
 
@@ -73,4 +74,8 @@ ADD_SUBDIRECTORY (
 
 ADD_SUBDIRECTORY (
   13_GPluggableOptimizationMonitors
+)
+
+ADD_SUBDIRECTORY (
+  14_GDependentConstraints
 )

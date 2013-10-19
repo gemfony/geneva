@@ -1,0 +1,4 @@
+This example shows how to deal with boundary conditions of the type x+y+z < C in Geneva, 
+where x,y and z are parameters to be optimized. Note that Geneva assumes that functions
+describing such boundary conditions never return values < 0. Values > 1 indicate invalid 
+parameter sets. Values between 0 and 1 are always valid.
