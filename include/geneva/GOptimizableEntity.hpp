@@ -36,6 +36,8 @@
 // Standard header files go here
 
 // Boost header files go here
+#include <boost/limits.hpp>
+#include <boost/numeric/conversion/bounds.hpp>
 
 #ifndef GOPTIMIZABLEENTITY_HPP_
 #define GOPTIMIZABLEENTITY_HPP_
@@ -186,6 +188,8 @@ public:
 	bool getMaxMode() const;
 	/** @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode */
 	double getWorstCase() const;
+   /** @brief Retrieves the best possible evaluation result, depending on whether we are in maximization or minimization mode */
+   double getBestCase() const;
 
 	/** @brief Retrieves the steepness_ variable */
 	double getSteepness() const;

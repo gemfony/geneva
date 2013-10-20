@@ -574,8 +574,8 @@ protected:
    virtual GObject *clone_() const = 0;
    /** @brief Adapts all children of this population */
    virtual void adaptChildren() = 0;
-   /** @brief Evaluates all children (and possibly parents) of this population */
-   virtual void evaluateChildren() = 0;
+   /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
+   virtual void runFitnessCalculation() = 0;
    /** @brief Choose new parents, based on the selection scheme set by the user */
    virtual void selectBest() = 0;
    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
@@ -801,7 +801,7 @@ protected:
       // adapt children
       adaptChildren();
       // calculate the children's (and possibly their parents' values)
-      evaluateChildren();
+      runFitnessCalculation();
       // find out the best individuals of the population
       selectBest();
 

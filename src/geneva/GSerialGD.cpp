@@ -238,67 +238,25 @@ std::string GSerialGD::getIndividualCharacteristic() const {
 
 /******************************************************************************/
 /**
- * Performs final optimization work. In the case of (networked) gradient descents, the starting points need
- * to be re-evaluated at the end of the optimization cycle, before the connection to the broker is cut.
- * doFitnessCalculation is overloaded in GBrokerGD.
- */
-// void GSerialGD::optimizationFinalize() {
-	// Make sure the fitness of the parent individuals is calculated in the final iteration
-//	checkpoint(ifProgress(doFitnessCalculation(nStartingPoints_)));
-// }
-// TODO: What for ?
-
-/******************************************************************************/
-/**
  * Triggers fitness calculation of a number of individuals. This function can be overloaded to perform
  * fitness calculation in parallel, using threads or network communication.
- *
- * @param finalPos The position in the vector up to which the fitness calculation should be performed
- * @return The best fitness found amongst all parents
  */
-double GSerialGD::doFitnessCalculation(const std::size_t& finalPos) {
-	double bestFitness = getWorstCase(); // Holds the best fitness found so far
-
-#ifdef DEBUG
-	if(finalPos > this->size()) {
-	   glogger
-	   << "In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
-      << "Got invalid final position: " << finalPos << "/" << this->size() << std::endl
-      << GEXCEPTION;
-	}
-
-	if(finalPos < getNStartingPoints()) {
-	   glogger
-	   << "In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
-      << "We require finalPos to be at least " << getNStartingPoints() << ", but got " << finalPos << std::endl
-      << GEXCEPTION;
-	}
-#endif
-
+void GSerialGD::runFitnessCalculation() {
 	// Trigger value calculation for all individuals (including parents)
-	double fitnessFound = 0.;
-	for(std::size_t i=0; i<finalPos; i++) {
+   GSerialGD::iterator it; // An iterator that allows us to loop over the collection
+   for(it=this->begin(); it!=this->end(); ++it) {
 #ifdef DEBUG
-		// Make sure the evaluated individuals have the dirty flag set
-		if(afterFirstIteration() && !this->at(i)->isDirty()) {
-		   glogger
-		   << "In GSerialGD::doFitnessCalculation(const std::size_t&):" << std::endl
-         << "In iteration " << this->getIteration() << ": Found individual in position " << i << " whose dirty flag isn't set" << std::endl
+      // Make sure the evaluated individuals have the dirty flag set
+      if(afterFirstIteration() && !(*it)->isDirty()) {
+         glogger
+         << "In GSerialGD::runFitnessCalculation():" << std::endl
+         << "In iteration " << this->getIteration() << ": Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set" << std::endl
          << GEXCEPTION;
-		}
+      }
 #endif /* DEBUG */
 
-		fitnessFound = this->at(i)->fitness(0);
-
-		// Update the best fitness value found
-		if(i<getNStartingPoints()) {
-			if(isBetter(fitnessFound, bestFitness)) {
-				bestFitness = fitnessFound;
-			}
-		}
-	}
-
-	return bestFitness;
+      (*it)->fitness();
+   }
 }
 
 /******************************************************************************/

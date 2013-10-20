@@ -135,7 +135,7 @@ protected:
 	/** @brief Adapt children in a serial manner */
 	virtual void adaptChildren() OVERRIDE;
 	/** @brief Evaluates all children (and possibly parents) of this population */
-	virtual void evaluateChildren() OVERRIDE;
+	virtual void runFitnessCalculation() OVERRIDE;
 
 private:
 	boost::uint16_t nThreads_; ///< The number of threads

@@ -230,31 +230,22 @@ std::string GSerialPS::getIndividualCharacteristic() const {
  * @param finalPos The position in the vector up to which the fitness calculation should be performed
  * @return The best fitness found amongst all parents
  */
-double GSerialPS::doFitnessCalculation(const std::size_t& finalPos) {
-   double bestFitness = getWorstCase(); // Holds the best fitness found so far
-   double fitnessFound = 0.;
-
+void GSerialPS::runFitnessCalculation() {
    // Trigger value calculation for all individuals
-   for(std::size_t i=0; i<this->size(); i++) {
+   GSerialPS::iterator it;
+   for(it=this->begin(); it!=this->end(); ++it) {
 #ifdef DEBUG
       // Make sure the evaluated individuals have the dirty flag set
-      if(!this->at(i)->isDirty()) {
+      if(!(*it)->isDirty()) {
          glogger
          << "In GSerialPS::doFitnessCalculation(const std::size_t&):" << std::endl
-         << "In iteration " << this->getIteration() << ": Found individual in position " << i << " whose dirty flag isn't set" << std::endl
+         << "In iteration " << this->getIteration() << ": Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set" << std::endl
          << GEXCEPTION;
       }
 #endif /* DEBUG */
 
-      fitnessFound = this->at(i)->fitness(0);
-
-      // Update the best fitness value found
-      if(isBetter(fitnessFound, bestFitness)) {
-         bestFitness = fitnessFound;
-      }
+      (*it)->fitness();
    }
-
-   return bestFitness;
 }
 
 /******************************************************************************/

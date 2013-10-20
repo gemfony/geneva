@@ -311,11 +311,9 @@ std::string GMultiThreadedPS::getIndividualCharacteristic() const {
  * @param finalPos The position in the vector up to which the fitness calculation should be performed
  * @return The best fitness found amongst all parents
  */
-double GMultiThreadedPS::doFitnessCalculation(const std::size_t& finalPos) {
-   GMultiThreadedPS::iterator it; // An iterator that allows us to loop over the collection
-   double bestFitness = getWorstCase(); // Holds the best fitness found so far
-
+void GMultiThreadedPS::runFitnessCalculation() {
    // Trigger value calculation for all individuals (including parents)
+   GMultiThreadedPS::iterator it;
    for(it=this->begin(); it!=this->end(); ++it) {
 #ifdef DEBUG
       // Make sure the evaluated individuals have the dirty flag set
@@ -336,21 +334,6 @@ double GMultiThreadedPS::doFitnessCalculation(const std::size_t& finalPos) {
 
    // wait for the pool to run out of tasks
    tp_->wait();
-
-   // Retrieve information about the best fitness found and disallow re-evaluation
-   double fitnessFound = 0.;
-   for(it=this->begin(); it!=this->begin() + finalPos; ++it) {
-      // Prevents re-evaluation
-      (*it)->setServerMode(true);
-
-      fitnessFound = (*it)->fitness(0);
-
-      if(isBetter(fitnessFound, bestFitness)) {
-         bestFitness = fitnessFound;
-      }
-   }
-
-   return bestFitness;
 }
 
 /******************************************************************************/

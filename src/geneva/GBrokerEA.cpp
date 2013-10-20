@@ -275,10 +275,9 @@ bool GBrokerEA::usesBroker() const {
 
 /******************************************************************************/
 /**
- * Adapt all children in parallel. Evaluation is done in a seperate function (evaluateChildren).
+ * Adapt all children in parallel. Evaluation is done in a seperate function (runFitnessCalculation).
  */
-void GBrokerEA::adaptChildren()
-{
+void GBrokerEA::adaptChildren() {
 	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
 	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
@@ -294,7 +293,7 @@ void GBrokerEA::adaptChildren()
 /**
  * We submit individuals to the broker and wait for processed items.
  */
-void GBrokerEA::evaluateChildren() {
+void GBrokerEA::runFitnessCalculation() {
 	//--------------------------------------------------------------------------------
 	// Start by marking the work to be done in the individuals.
 	// "range" will hold the start- and end-points of the range
@@ -307,7 +306,7 @@ void GBrokerEA::evaluateChildren() {
    for(std::size_t i=this->getNParents(); i<this->size(); i++) {
       if(!this->at(i)->isDirty()) {
          glogger
-         << "In GBrokerEA::evaluateChildren(): Error!" << std::endl
+         << "In GBrokerEA::runFitnessCalculation(): Error!" << std::endl
          << "Tried to evaluate children in range " << boost::get<0>(range) << " - " << boost::get<1>(range) << std::endl
          << "but found \"clean\" individual in position " << i << std::endl
          << GEXCEPTION;
@@ -348,7 +347,11 @@ void GBrokerEA::fixAfterJobSubmission() {
 	);
 
 	// Make it known to remaining old individuals that they are now part of a new iteration
-	std::for_each(oldWorkItems_.begin(), oldWorkItems_.end(), boost::bind(&GParameterSet::setAssignedIteration, _1, iteration));
+	std::for_each(
+      oldWorkItems_.begin()
+      , oldWorkItems_.end()
+      , boost::bind(&GParameterSet::setAssignedIteration, _1, iteration)
+	);
 
 	// Make sure that parents are at the beginning of the array.
 	sort(data.begin(), data.end(), indParentComp());

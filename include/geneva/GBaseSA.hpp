@@ -156,7 +156,7 @@ protected:
    /** @brief Adapts all children of this population */
    virtual void adaptChildren() = 0;
    /** @brief Evaluates all children (and possibly parents) of this population */
-   virtual void evaluateChildren() = 0;
+   virtual void runFitnessCalculation() = 0;
    /** @brief Selects the best children of the population */
    virtual void selectBest() OVERRIDE;
 

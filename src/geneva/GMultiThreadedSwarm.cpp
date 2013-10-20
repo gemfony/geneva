@@ -292,31 +292,25 @@ std::string GMultiThreadedSwarm::getIndividualCharacteristic() const {
 /**
  * Updates the fitness of all individuals
  */
-void GMultiThreadedSwarm::updateFitness() {
-	std::size_t offset = 0;
-	GBaseSwarm::iterator start = this->begin();
-	boost::uint32_t iteration = getIteration();
+void GMultiThreadedSwarm::runFitnessCalculation() {
+   bool originalServerMode = false;
+   GMultiThreadedSwarm::iterator it;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      originalServerMode = (*it)->setServerMode(false);
 
-	// Then start the evaluation threads
-	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
-		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
-			GMultiThreadedSwarm::iterator current = start + offset;
+      // Schedule the fitness calculation as a thread
+      tp_->schedule(
+         boost::function<void()>(
+            boost::bind(
+                &GParameterSet::fitness
+               , *it
+               , 0
+            )
+         )
+      );
 
-			// Schedule the fitness calculation as a thread
-			tp_->schedule(
-				boost::function<void()>(
-					boost::bind(
-					    &GMultiThreadedSwarm::updateIndividualFitness
-						, this
-						, iteration
-						, (*current)
-					)
-				)
-			);
-
-			offset++;
-		}
-	}
+      (*it)->setServerMode(originalServerMode);
+   }
 
 	// wait for the pool to run out of tasks
 	tp_->wait();

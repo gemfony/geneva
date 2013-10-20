@@ -280,14 +280,8 @@ protected:
 	/** @brief Triggers an update of all individual's positions */
 	virtual void updatePositions();
 
-	/** @brief Triggers the fitness calculation */
-	virtual void updateIndividualFitness(
-			const boost::uint32_t&
-			, boost::shared_ptr<GParameterSet>
-	);
-
 	/** @brief Updates the fitness of all individuals */
-	virtual void updateFitness() = 0;
+	virtual void runFitnessCalculation() = 0;
    /** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
    void pruneVelocity(std::vector<double>&);
 

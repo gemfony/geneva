@@ -240,25 +240,14 @@ std::string GSerialSwarm::getIndividualCharacteristic() const {
 /**
  * Updates the fitness of all individuals
  */
-void GSerialSwarm::updateFitness() {
-	std::size_t offset = 0;
-	GSerialSwarm::iterator start = this->begin();
-	boost::uint32_t iteration = getIteration();
-
-	// Then start the evaluation threads
-	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
-		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
-			GSerialSwarm::iterator current = start + offset;
-
-			// Update the fitness
-			updateIndividualFitness(
-				iteration
-				, (*current)
-			);
-
-			offset++;
-		}
-	}
+void GSerialSwarm::runFitnessCalculation() {
+   bool originalServerMode = false;
+   GSerialSwarm::iterator it;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      originalServerMode = (*it)->setServerMode(false);
+      (*it)->fitness();
+      (*it)->setServerMode(originalServerMode);
+   }
 }
 
 /******************************************************************************/

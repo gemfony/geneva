@@ -228,7 +228,7 @@ std::string GSerialSA::getIndividualCharacteristic() const {
 
 /******************************************************************************/
 /**
- * Adapt all children in sequence. Evaluation is done in a seperate function (evaluateChildren).
+ * Adapt all children in sequence. Evaluation is done in a seperate function (runFitnessCalculation).
  */
 void GSerialSA::adaptChildren()
 {
@@ -244,7 +244,7 @@ void GSerialSA::adaptChildren()
 /**
  * Evaluate all children (and possibly parents, depending on the iteration)
  */
-void GSerialSA::evaluateChildren()
+void GSerialSA::runFitnessCalculation()
 {
    boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
    std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
@@ -255,7 +255,7 @@ void GSerialSA::evaluateChildren()
    for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
       if(!this->at(i)->isDirty()) {
          glogger
-         << "In GSerialSA::evaluateChildren(): Error!" << std::endl
+         << "In GSerialSA::runFitnessCalculation(): Error!" << std::endl
          << "Tried to evaluate \"clean\" children." << std::endl
          << GEXCEPTION;
       }

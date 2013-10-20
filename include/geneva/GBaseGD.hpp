@@ -184,7 +184,7 @@ protected:
 	virtual void saveCheckpoint() const OVERRIDE;
 
 	/** @brief Triggers fitness calculation of a number of individuals */
-	virtual double doFitnessCalculation(const std::size_t&) = 0;
+	virtual void runFitnessCalculation() = 0;
 	/** @brief Updates the individual parameters of children */
 	virtual void updateChildParameters();
 	/** @brief Performs a step of the parent individuals */

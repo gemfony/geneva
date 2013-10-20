@@ -1224,7 +1224,10 @@ protected:
 	 * optimizationInit() function instead.
 	 */
 	virtual void init() BASE
-   { /* nothing */ }
+   {
+	   // Initialize the worstKnownValid_ variable according to the max-mode
+	   worstKnownValid_ = this->getBestCase();
+   }
 
 	/***************************************************************************/
 	/**
@@ -1346,6 +1349,10 @@ protected:
          (*it)->setWorstKnownValid(this->getWorstKnownValid());
       }
    }
+
+   /***************************************************************************/
+   /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
+   virtual void runFitnessCalculation() = 0;
 
 private:
    /***************************************************************************/
@@ -1789,7 +1796,7 @@ public:
 
 	    	case Gem::Geneva::INFOPROCESSING:
 	    	{
-	    	  if(!quiet_) std::cout << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentFitness() << std::endl;
+	    	  if(!quiet_) std::cout << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentFitness() << " (" << goa->getBestFitness() << ")" << std::endl;
 	    	  this->cycleInformation(goa);
 	    	}
 	    		break;

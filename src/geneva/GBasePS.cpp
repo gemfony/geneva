@@ -356,13 +356,15 @@ void GBasePS::load_(const GObject *cp) {
  * @return The value of the best individual found
  */
 double GBasePS::cycleLogic() {
+   double bestFitness = this->getWorstCase();
+
    // Apply all necessary modifications to individuals
    updateIndividuals();
 
    // Trigger value calculation for all individuals
    // This function is purely virtual and needs to be
    // re-implemented in derived classes
-   double result=doFitnessCalculation(this->size());
+   runFitnessCalculation();
 
    // This function will sort the population according to
    // its primary fitness value
@@ -371,8 +373,19 @@ double GBasePS::cycleLogic() {
    // Updates the vector of best individuals found so far
    updateBests();
 
+   // Retrieve information about the best fitness found and disallow re-evaluation
+   GBasePS::iterator it;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      // Prevents re-evaluation
+      (*it)->setServerMode(true);
+
+      if(isBetter((*it)->fitness(0), bestFitness)) {
+         bestFitness = (*it)->fitness(0);
+      }
+   }
+
    // Let the audience know
-   return result;
+   return bestFitness;
 }
 
 /******************************************************************************/
@@ -465,7 +478,8 @@ void GBasePS::updateIndividuals() {
 
 /******************************************************************************/
 /**
- * Updates the best individuals found
+ * Updates the best individuals found. Note that, when this function is called,
+ * the population has already been sorted according to its fitness.
  */
 void GBasePS::updateBests() {
    // Some error checks
@@ -480,7 +494,7 @@ void GBasePS::updateBests() {
 
    if(this->getIteration() > this->getStartIteration()) {
 #ifdef DEBUG
-      if(this->getIteration() > this->getStartIteration() && bestIndividuals_.empty()) {
+      if(bestIndividuals_.empty()) {
          glogger
          << "In GBasePS::updateBests(): Error!" << std::endl
          << "Vector of best individuals is empty when it shouldn't be."

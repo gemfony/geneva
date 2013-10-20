@@ -289,74 +289,45 @@ std::string GBrokerGD::getIndividualCharacteristic() const {
 /******************************************************************************/
 /**
  * Triggers fitness calculation of a number of individuals. This function performs the same task as done
- * in GBaseGD, albeit by delegating work to the broker. Items are evaluated up to a maximum position
+ * in GBaseGD, albeit by delegating work to the broker. Items are evaluated up to the maximum position
  * in the vector. Note that we always start the evaluation with the first item in the vector.
- *
- * @param finalPos The position in the vector up to which the fitness calculation should be performed
- * @return The best fitness found amongst all parents
  */
-double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
+void GBrokerGD::runFitnessCalculation() {
 	using namespace Gem::Courtier;
 
-	std::size_t nStartingPoints = this->getNStartingPoints();
 	bool complete = false;
 
 #ifdef DEBUG
-	if(finalPos > this->size()) {
-	   glogger
-	   << "In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
-      << "Got invalid final position: " << finalPos << "/" << this->size() << std::endl
-      << GEXCEPTION;
-	}
-
-	if(finalPos < nStartingPoints) {
-	   glogger
-	   << "In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
-      << "We require finalPos to be at least " << nStartingPoints << ", but got " << finalPos << std::endl
-      << GEXCEPTION;
-	}
-
-	for (std::size_t i = 0; i < finalPos; i++) {
-		// Make sure the evaluated individuals have the dirty flag set
-		if(afterFirstIteration() && !this->at(i)->isDirty()) {
-		   glogger
-		   << "In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
-         << "Found individual in position " << i << " whose dirty flag isn't set" << std::endl
+	GBrokerGD::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+      // Make sure the evaluated individuals have the dirty flag set
+      if(afterFirstIteration() && !(*it)->isDirty()) {
+         glogger
+         << "In GBrokerGD::runFitnessCalculation():" << std::endl
+         << "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set" << std::endl
          << GEXCEPTION;
-		}
+      }
 	}
 #endif /* DEBUG */
 
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
-	boost::tuple<std::size_t,std::size_t> range(0, finalPos);
+	boost::tuple<std::size_t,std::size_t> range(0, this->size());
 	complete = GBrokerConnector2T<Gem::Geneva::GParameterSet>::workOn(
-			data
-			, range
-			, oldWorkItems_
-			, false // Do not remove unprocessed item
+      data
+      , range
+      , oldWorkItems_
+      , false // Do not remove unprocessed item
 	);
 
 	if(!complete) {
 	   glogger
-	   << "In GBrokerGD::doFitnessCalculation(): Error!" << std::endl
+	   << "In GBrokerGD::runFitnessCalculation(): Error!" << std::endl
       << "No complete set of items received" << std::endl
       << GEXCEPTION;
 	}
 
 	//--------------------------------------------------------------------------------
-	// Retrieve information about the best fitness found
-	double bestFitness = getWorstCase(); // Holds the best fitness found so far
-	double fitnessFound = 0.;
-	for (std::size_t i = 0; i < nStartingPoints; i++) {
-		fitnessFound = this->at(i)->fitness();
-
-		if (isBetter(fitnessFound, bestFitness)) {
-			bestFitness = fitnessFound;
-		}
-	}
-
-	return bestFitness;
 }
 
 /******************************************************************************/

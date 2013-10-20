@@ -135,7 +135,7 @@ protected:
    virtual void finalize();
 
    /** @brief Triggers fitness calculation of a number of individuals */
-   virtual double doFitnessCalculation(const std::size_t&);
+   virtual void runFitnessCalculation();
 
 private:
    bool storedServerMode_; ///< Indicates whether an individual runs in server mode

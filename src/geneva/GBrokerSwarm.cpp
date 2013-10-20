@@ -334,7 +334,7 @@ void GBrokerSwarm::updatePositions() {
 /**
  * Triggers the fitness calculation of all individuals
  */
-void GBrokerSwarm::updateFitness() {
+void GBrokerSwarm::runFitnessCalculation() {
 	using namespace Gem::Courtier;
 
 	boost::uint32_t iteration = getIteration();
@@ -360,16 +360,6 @@ void GBrokerSwarm::updateFitness() {
 
    // Sort according to the individuals' neighborhoods
    sort(data.begin(), data.end(), indNeighborhoodComp());
-
-	// Update the personal best of all individuals.
-	for(it=this->begin(); it!=this->end(); ++it) {
-		// Update the personal best
-		if(inFirstIteration()) {
-			updatePersonalBest(*it);
-		} else {
-			updatePersonalBestIfBetter(*it);
-		}
-	}
 
 	// Now update the number of items in each neighborhood: First reset the number of members of each neighborhood
 	Gem::Common::assignVecConst(nNeighborhoodMembers_, (std::size_t)0);

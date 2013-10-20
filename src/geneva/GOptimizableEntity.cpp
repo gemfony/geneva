@@ -674,7 +674,16 @@ bool GOptimizableEntity::getMaxMode() const {
  * @return The worst case value, depending on maximization or minimization
  */
 double GOptimizableEntity::getWorstCase() const {
-   return (this->getMaxMode()?-DBL_MAX:DBL_MAX);
+   return (this->getMaxMode()?boost::numeric::bounds<double>::lowest():boost::numeric::bounds<double>::highest());
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the best possible evaluation result, depending on whether we are in
+ * maximization or minimization mode
+ */
+double GOptimizableEntity::getBestCase() const {
+   return (this->getMaxMode()?boost::numeric::bounds<double>::highest():boost::numeric::bounds<double>::lowest());
 }
 
 /******************************************************************************/

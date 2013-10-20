@@ -258,7 +258,7 @@ void GMultiThreadedEA::finalize() {
 
 /******************************************************************************/
 /**
- * Adapt all children in parallel. Evaluation is done in a seperate function (evaluateChildren).
+ * Adapt all children in parallel. Evaluation is done in a seperate function (runFitnessCalculation).
  */
 void GMultiThreadedEA::adaptChildren()
 {
@@ -277,7 +277,7 @@ void GMultiThreadedEA::adaptChildren()
 /**
  * Evaluate all children (and possibly parents, depending on the iteration and sorting mode) in parallel
  */
-void GMultiThreadedEA::evaluateChildren()
+void GMultiThreadedEA::runFitnessCalculation()
 {
 	boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
 	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
@@ -288,7 +288,7 @@ void GMultiThreadedEA::evaluateChildren()
    for(std::size_t i=this->getNParents(); i<this->size(); i++) {
       if(!this->at(i)->isDirty()) {
          glogger
-         << "In GMultiThreadedEA::evaluateChildren(): Error!" << std::endl
+         << "In GMultiThreadedEA::runFitnessCalculation(): Error!" << std::endl
          << "Tried to evaluate children in range " << boost::get<0>(range) << " - " << boost::get<1>(range) << std::endl
          << "but found \"clean\" individual in position " << i << std::endl
          << GEXCEPTION;

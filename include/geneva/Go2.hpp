@@ -304,6 +304,9 @@ protected:
 	/** @brief Retrieves a list of the best individuals found */
 	virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE;
 
+	/** @brief Satisfies a requirement of GOptimizableI */
+	virtual void runFitnessCalculation() OVERRIDE;
+
 private:
    /***************************************************************************/
    /**

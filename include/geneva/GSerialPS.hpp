@@ -127,7 +127,7 @@ protected:
    virtual void finalize() OVERRIDE;
 
    /** @brief Triggers fitness calculation of a number of individuals */
-   virtual double doFitnessCalculation(const std::size_t&) OVERRIDE;
+   virtual void runFitnessCalculation() OVERRIDE;
 
 public:
    /***************************************************************************/

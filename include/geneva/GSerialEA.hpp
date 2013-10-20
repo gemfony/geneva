@@ -120,7 +120,7 @@ protected:
 	/** @brief Adapt children in a serial manner */
 	virtual void adaptChildren() OVERRIDE;
 	/** @brief Evaluates all children (and possibly parents) of this population */
-	virtual void evaluateChildren() OVERRIDE;
+	virtual void runFitnessCalculation() OVERRIDE;
 
 	/** @brief Necessary initialization work before the start of the optimization */
 	virtual void init() OVERRIDE;

@@ -125,7 +125,7 @@ protected:
 	virtual void finalize() OVERRIDE;
 
 	/** @brief Updates the fitness of all individuals */
-	virtual void updateFitness() OVERRIDE;
+	virtual void runFitnessCalculation() OVERRIDE;
 
 public:
 	/***************************************************************************/

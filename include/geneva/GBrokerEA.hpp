@@ -140,8 +140,8 @@ protected:
 
    /** @brief Adapt children in a serial manner */
    virtual void adaptChildren() OVERRIDE;
-   /** @brief Evaluates all children (and possibly parents) of this population */
-   virtual void evaluateChildren() OVERRIDE;
+   /** @brief Calculates the fitness of all required individuals */
+   virtual void runFitnessCalculation() OVERRIDE;
    /** @brief Selects new parents */
    virtual void selectBest() OVERRIDE;
 

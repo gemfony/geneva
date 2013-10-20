@@ -412,6 +412,8 @@ void GBaseGD::load_(const GObject *cp) {
  * @return The value of the best individual found
  */
 double GBaseGD::cycleLogic() {
+   double bestFitness = this->getWorstCase();
+
 	if(afterFirstIteration()) {
 		// Update the parameters of the parent individuals. This
 		// only makes sense once the individuals have been evaluated
@@ -421,8 +423,21 @@ double GBaseGD::cycleLogic() {
 	// Update the individual parameters in each dimension of the "children"
 	this->updateChildParameters();
 
-	// Trigger value calculation for all individuals (including parents) and let the audience know
-	return doFitnessCalculation(this->size());
+	// Trigger value calculation for all individuals (including parents)
+	runFitnessCalculation();
+
+   // Retrieve information about the best fitness found and disallow re-evaluation
+	GBaseGD::iterator it;
+	for(it=this->begin(); it!=this->begin() + this->getNStartingPoints(); ++it) {
+      // Prevents re-evaluation
+      (*it)->setServerMode(true);
+
+      if(isBetter((*it)->fitness(0), bestFitness)) {
+         bestFitness = (*it)->fitness(0);
+      }
+   }
+
+	return bestFitness;
 }
 
 /******************************************************************************/

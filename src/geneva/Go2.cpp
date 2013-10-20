@@ -857,6 +857,13 @@ std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > Go2::customGetBestIn
 
 /******************************************************************************/
 /**
+ * Satisfies a requirement of GOptimizableI
+ */
+void Go2::runFitnessCalculation()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added

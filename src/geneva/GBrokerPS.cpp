@@ -282,17 +282,18 @@ std::string GBrokerPS::getIndividualCharacteristic() const {
  * @param finalPos The position in the vector up to which the fitness calculation should be performed
  * @return The best fitness found amongst all parents
  */
-double GBrokerPS::doFitnessCalculation(const std::size_t& finalPos) {
+void GBrokerPS::runFitnessCalculation() {
    using namespace Gem::Courtier;
    bool complete = false;
 
 #ifdef DEBUG
-   for (std::size_t i = 0; i < finalPos; i++) {
+   GBrokerPS::iterator it;
+   for(it=this->begin(); it!=this->end(); ++it) {
       // Make sure the evaluated individuals have the dirty flag set
-      if(!this->at(i)->isDirty()) {
+      if(!(*it)->isDirty()) {
          glogger
-         << "In GBrokerPS::doFitnessCalculation(const std::size_t&):" << std::endl
-         << "Found individual in position " << i << " whose dirty flag isn't set" << std::endl
+         << "In GBrokerPS::runFitnessCalculation():" << std::endl
+         << "Found individual in position " << std::distance(this->begin(), it) << ", whose dirty flag isn't set" << std::endl
          << GEXCEPTION;
       }
    }
@@ -310,24 +311,10 @@ double GBrokerPS::doFitnessCalculation(const std::size_t& finalPos) {
 
    if(!complete) {
       glogger
-      << "In GBrokerPS::doFitnessCalculation(): Error!" << std::endl
+      << "In GBrokerPS::runFitnessCalculation(): Error!" << std::endl
       << "No complete set of items received" << std::endl
       << GEXCEPTION;
    }
-
-   //--------------------------------------------------------------------------------
-   // Retrieve information about the best fitness found
-   double bestFitness = getWorstCase(); // Holds the best fitness found so far
-   double fitnessFound = 0.;
-   for (std::size_t i = 0; i < this->size(); i++) {
-      fitnessFound = this->at(i)->fitness();
-
-      if (isBetter(fitnessFound, bestFitness)) {
-         bestFitness = fitnessFound;
-      }
-   }
-
-   return bestFitness;
 }
 
 /******************************************************************************/

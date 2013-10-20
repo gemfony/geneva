@@ -215,7 +215,7 @@ protected:
    virtual void saveCheckpoint() const OVERRIDE;
 
    /** @brief Triggers fitness calculation of a number of individuals */
-   virtual double doFitnessCalculation(const std::size_t&) = 0;
+   virtual void runFitnessCalculation() = 0;
 
    /** @brief Retrieves the best individual found */
    virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE;

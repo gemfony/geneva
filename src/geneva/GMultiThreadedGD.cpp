@@ -321,69 +321,29 @@ std::string GMultiThreadedGD::getIndividualCharacteristic() const {
 /**
  * Triggers fitness calculation of a number of individuals. This function performs the same task as done
  * in GBaseGD, albeit multi-threaded.
- *
- * @param finalPos The position in the vector up to which the fitness calculation should be performed
- * @return The best fitness found amongst all parents
  */
-double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
+void GMultiThreadedGD::runFitnessCalculation() {
 	GMultiThreadedGD::iterator it; // An iterator that allows us to loop over the collection
-	double bestFitness = getWorstCase(); // Holds the best fitness found so far
-	std::size_t nStartingPoints = this->getNStartingPoints(); // The number of simultaneous starting points
-
+	for(it=this->begin(); it!=this->end(); ++it) {
 #ifdef DEBUG
-	if(finalPos > this->size()) {
-	   glogger
-	   << "In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
-      << "Got invalid final position: " << finalPos << "/" << this->size() << std::endl
-      << GEXCEPTION;
-	}
-
-	if(finalPos < nStartingPoints) {
-	   glogger
-	   << "In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
-      << "We require finalPos to be at least " << nStartingPoints << ", but got " << finalPos << std::endl
-      << GEXCEPTION;
-	}
-#endif
-
-	// Trigger value calculation for all individuals (including parents)
-	for(it=this->begin(); it!=this->begin() + finalPos; ++it) {
-#ifdef DEBUG
-		// Make sure the evaluated individuals have the dirty flag set
-		if(afterFirstIteration() && !(*it)->isDirty()) {
-		   glogger
-		   << "In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
+      // Make sure the evaluated individuals have the dirty flag set
+      if(afterFirstIteration() && !(*it)->isDirty()) {
+         glogger
+         << "In GMultiThreadedGD::runFitnessCalculation():" << std::endl
          << "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set" << std::endl
          << GEXCEPTION;
-		}
+      }
 #endif /* DEBUG */
 
-		// Make sure we are allowed to perform value calculation
-		(*it)->setServerMode(false);
+      // Make sure we are allowed to perform value calculation
+      (*it)->setServerMode(false);
 
-		// Submit the actual task
-		tp_->schedule(boost::function<double()>(boost::bind(&GParameterSet::fitness, *it, 0)));
-	}
+      // Submit the actual task
+      tp_->schedule(boost::function<double()>(boost::bind(&GParameterSet::fitness, *it, 0)));
+   }
 
 	// wait for the pool to run out of tasks
 	tp_->wait();
-
-	// Retrieve information about the best fitness found and disallow re-evaluation
-	double fitnessFound = 0.;
-	for(it=this->begin(); it!=this->begin() + finalPos; ++it) {
-		// Prevents re-evaluation
-		(*it)->setServerMode(true);
-
-		if(boost::numeric_cast<std::size_t>(std::distance(this->begin(), it)) < nStartingPoints) {
-			fitnessFound = (*it)->fitness(0);
-
-			if(isBetter(fitnessFound, bestFitness)) {
-				bestFitness = fitnessFound;
-			}
-		}
-	}
-
-	return bestFitness;
 }
 
 /******************************************************************************/

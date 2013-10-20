@@ -934,7 +934,7 @@ double GBaseSwarm::cycleLogic() {
 	updatePositions();
 
 	// Now update each individual's fitness
-	updateFitness();
+	runFitnessCalculation();
 
 	// Search for the personal, neighborhood and globally best individuals and
 	// update the lists of best solutions, if necessary.
@@ -1230,35 +1230,6 @@ void GBaseSwarm::pruneVelocity(std::vector<double>& velVec) {
 
 /******************************************************************************/
 /**
- * Prepares individuals for the fitness calculation and performs that calculation. Also updates the
- * personal best.
- *
- * @param iteration The current iteration of the optimization
- * @param neighborhood The neighborhood the individual is in
- * @param ind The individual for which the fitness calculation should be performed
- */
-void GBaseSwarm::updateIndividualFitness(
-	  const boost::uint32_t& iteration
-	  , boost::shared_ptr<GParameterSet> ind
-){
-	// Trigger the fitness calculation (if necessary). Make sure
-	// that fitness calculation is indeed allowed at this point.
-	bool originalServerMode = ind->setServerMode(false);
-	ind->fitness(0);
-	ind->setServerMode(originalServerMode);
-
-	// Update the personal best . This update is not performed in
-	// findBests() for performance reasons. This function can be
-	// executed in parallel in its own thread.
-	if(inFirstIteration()) {
-		updatePersonalBest(ind);
-	} else {
-		updatePersonalBestIfBetter(ind);
-	}
-}
-
-/******************************************************************************/
-/**
  * Updates the best individuals found. This function assumes that the population already contains individuals
  * and that the neighborhood and global bests have been initialized (possibly with dummy values). This should have
  * happened in the adjustPopulation() function. It also assumes that all individuals have already been evaluated.
@@ -1281,10 +1252,19 @@ double GBaseSwarm::findBests() {
 	}
 #endif /* DEBUG */
 
-	// NOTE: The personal bests are updated in the updateIndividualFitness() function for performance
-	// reasons. This way, the update can happen in parallel when running in multi-threaded mode
+	// Update the personal bests of all individuals
+   if(inFirstIteration()) {
+      GBaseSwarm::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         updatePersonalBest(*it);
+      }
+   } else {
+      for(it=this->begin(); it!=this->end(); ++it) {
+         updatePersonalBestIfBetter(*it);
+      }
+   }
 
-	// Sort all neighborhoods according to their fitness
+	// Sort individuals in all neighborhoods according to their fitness
 	for(std::size_t n=0; n<nNeighborhoods_; n++) {
 		// identify the first and last id of the individuals in the current neighborhood
 		std::size_t firstCounter = getFirstNIPos(n);

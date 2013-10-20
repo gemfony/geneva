@@ -177,6 +177,11 @@ protected:
 	virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() BASE = 0;
 	/** @brief Retrieves a list of the best individuals found */
 	virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() BASE = 0;
+   /***************************************************************************/
+   /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
+   virtual void runFitnessCalculation() BASE = 0;
+
+   /***************************************************************************/
 };
 
 /******************************************************************************/

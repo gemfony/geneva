@@ -274,7 +274,7 @@ bool GBrokerSA::usesBroker() const {
 
 /******************************************************************************/
 /**
- * Adapt all children in parallel. Evaluation is done in a seperate function (evaluateChildren).
+ * Adapt all children in parallel. Evaluation is done in a seperate function (runFitnessCalculation).
  */
 void GBrokerSA::adaptChildren()
 {
@@ -293,7 +293,7 @@ void GBrokerSA::adaptChildren()
 /**
  * We submit individuals to the broker and wait for processed items.
  */
-void GBrokerSA::evaluateChildren() {
+void GBrokerSA::runFitnessCalculation() {
    //--------------------------------------------------------------------------------
    // Start by marking the work to be done in the individuals.
    // "range" will hold the start- and end-points of the range
@@ -306,7 +306,7 @@ void GBrokerSA::evaluateChildren() {
    for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
       if(!this->at(i)->isDirty()) {
          glogger
-         << "In GBrokerSA::evaluateChildren(): Error!" << std::endl
+         << "In GBrokerSA::runFitnessCalculation(): Error!" << std::endl
          << "Tried to evaluate \"clean\" children." << std::endl
          << GEXCEPTION;
       }

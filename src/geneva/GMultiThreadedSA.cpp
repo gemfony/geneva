@@ -238,7 +238,7 @@ void GMultiThreadedSA::finalize() {
 
 /******************************************************************************/
 /**
- * Adapt all children in parallel. Evaluation is done in a seperate function (evaluateChildren).
+ * Adapt all children in parallel. Evaluation is done in a seperate function (runFitnessCalculation).
  */
 void GMultiThreadedSA::adaptChildren()
 {
@@ -257,7 +257,7 @@ void GMultiThreadedSA::adaptChildren()
 /**
  * Evaluate all children (and possibly parents, depending on the iteration and sorting mode) in parallel
  */
-void GMultiThreadedSA::evaluateChildren()
+void GMultiThreadedSA::runFitnessCalculation()
 {
    boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
    std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
@@ -268,7 +268,7 @@ void GMultiThreadedSA::evaluateChildren()
    for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
       if(!this->at(i)->isDirty()) {
          glogger
-         << "In GMultiThreadedSA::evaluateChildren(): Error!" << std::endl
+         << "In GMultiThreadedSA::runFitnessCalculation(): Error!" << std::endl
          << "Tried to evaluate \"clean\" children." << std::endl
          << GEXCEPTION;
       }

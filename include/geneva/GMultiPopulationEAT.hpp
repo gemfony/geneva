@@ -444,7 +444,7 @@ protected:
 
    /***************************************************************************/
    /**
-    * Adapt all children in parallel. Evaluation is done in a separate function (evaluateChildren).
+    * Adapt all children in parallel. Evaluation is done in a separate function (runFitnessCalculation).
     */
    virtual void adaptChildren() OVERRIDE {
       boost::tuple<std::size_t,std::size_t> range = this->getAdaptionRange();
@@ -471,7 +471,7 @@ protected:
    /**
     * Evaluate all children (and possibly parents, depending on the iteration and sorting mode) in parallel
     */
-   virtual void evaluateChildren() OVERRIDE {
+   virtual void runFitnessCalculation() OVERRIDE {
       boost::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
       typename std::vector<boost::shared_ptr<oa_type> >::iterator it;
 
@@ -481,7 +481,7 @@ protected:
       for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
          if(!this->at(i)->isDirty()) {
             glogger
-            << "In GMultiPopulationEAT<oa_type>::evaluateChildren(): Error!" << std::endl
+            << "In GMultiPopulationEAT<oa_type>::doFitnessCalculation(): Error!" << std::endl
             << "Tried to evaluate \"clean\" children." << std::endl
             << GEXCEPTION;
          }

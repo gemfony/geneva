@@ -135,7 +135,7 @@ protected:
 	/** @brief Updates all individual's positions */
 	virtual void updatePositions() OVERRIDE;
 	/** @brief Triggers the fitness calculation of all individuals */
-	virtual void updateFitness() OVERRIDE;
+	virtual void runFitnessCalculation() OVERRIDE;
 
    /** @brief Fixes the population after a job submission */
    virtual void adjustNeighborhoods() OVERRIDE;
