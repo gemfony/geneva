@@ -59,6 +59,7 @@ GOptimizableEntity::GOptimizableEntity()
    , evalPolicy_(Gem::Geneva::USESIMPLEEVALUATION)
    , steepness_(Gem::Geneva::FITNESSSIGMOIDSTEEPNESS)
    , barrier_(Gem::Geneva::WORSTALLOWEDVALIDFITNESS)
+   , worstKnownValid_(0.)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -85,6 +86,7 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
    , evalPolicy_(cp.evalPolicy_)
    , steepness_(cp.steepness_)
    , barrier_(cp.barrier_)
+   , worstKnownValid_(cp.worstKnownValid_)
 {
 	// Copy the personality pointer over
 	copyGenevaSmartPointer(cp.pt_ptr_, pt_ptr_);
@@ -174,6 +176,7 @@ boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", individualConstraint_, p_load->individualConstraint_, "individualConstraint_", "p_load->individualConstraint_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", steepness_, p_load->steepness_, "steepness_", "p_load->steepness_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", barrier_, p_load->barrier_, "barrier_", "p_load->barrier_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", worstKnownValid_, p_load->worstKnownValid_, "worstKnownValid_", "p_load->worstKnownValid_", e , limit));
 
 	return evaluateDiscrepancies("GOptimizableEntity", caller, deviations, e);
 }
@@ -245,6 +248,7 @@ void GOptimizableEntity::load_(const GObject* cp) {
 	evalPolicy_ = p_load->evalPolicy_;
 	steepness_ = p_load->steepness_;
 	barrier_ = p_load->barrier_;
+	worstKnownValid_ = p_load->worstKnownValid_;
 
 	copyGenevaSmartPointer(p_load->pt_ptr_, pt_ptr_);
    copyGenevaSmartPointer(p_load->individualConstraint_, individualConstraint_);
@@ -792,6 +796,24 @@ bool GOptimizableEntity::isValid_(double& validityLevel) const {
  */
 double GOptimizableEntity::getValidityLevel() const {
    return validityLevel_;
+}
+
+/******************************************************************************/
+/**
+ * Allows an optimization algorithm to set the worst known valid evaluation
+ * up to the current iteration
+ */
+void GOptimizableEntity::setWorstKnownValid(double worstKnownValid) {
+   worstKnownValid_ = worstKnownValid;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the worst known valid evaluation up to the current iteration,
+ * as set by an external optimization algorithm
+ */
+double GOptimizableEntity::getWorstKnownValid() const {
+   return worstKnownValid_;
 }
 
 /******************************************************************************/

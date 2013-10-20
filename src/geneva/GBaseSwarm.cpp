@@ -928,6 +928,8 @@ boost::shared_ptr<GPersonalityTraits> GBaseSwarm::getPersonalityTraits() const {
  * @return The value of the best individual found
  */
 double GBaseSwarm::cycleLogic() {
+   double bestIndividualFitness;
+
 	// First update the positions and neighborhood ids
 	updatePositions();
 
@@ -935,10 +937,24 @@ double GBaseSwarm::cycleLogic() {
 	updateFitness();
 
 	// Search for the personal, neighborhood and globally best individuals and
-	// update the lists of best solutions, if necessary. Return the result to
-	// the audience
-	return findBests();
+	// update the lists of best solutions, if necessary.
+	bestIndividualFitness = findBests();
+
+	// The population might be in a bad state. Check and fix.
+	adjustPopulation();
+
+	// Return the result to the audience
+	return bestIndividualFitness;
 }
+
+/******************************************************************************/
+/**
+ * Fixes the population after a job submission. We do nothing by default. This
+ * function was introduced to avoid having to add a separate cycleLogic to
+ * GBrokerSwarm.
+ */
+void GBaseSwarm::adjustNeighborhoods()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**

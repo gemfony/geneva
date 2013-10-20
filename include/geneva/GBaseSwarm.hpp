@@ -249,6 +249,8 @@ protected:
 
 	/** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
 	virtual double cycleLogic() OVERRIDE;
+   /** @brief Fixes an incomplete population */
+   virtual void adjustNeighborhoods() BASE;
 
 	/** @brief Saves the state of the class to disc. */
 	virtual void saveCheckpoint() const OVERRIDE;

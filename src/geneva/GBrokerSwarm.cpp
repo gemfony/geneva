@@ -330,26 +330,6 @@ void GBrokerSwarm::updatePositions() {
 	GBaseSwarm::updatePositions();
 }
 
-
-/******************************************************************************/
-/**
- * This function implements the logic that constitutes each cycle of a swarm algorithm. It
- * adds code to repair the population in case of incomplete returns to our parent class'es
- * function.
- *
- * @return The value of the best individual found
- */
-double GBrokerSwarm::cycleLogic() {
-   // Perform the actual business logic
-   double bestResult = GBaseSwarm::cycleLogic();
-
-   // Makes sure that each neighborhood has the right size before the next cycle starts
-   adjustNeighborhoods();
-
-   // Let the audience know
-   return bestResult;
-}
-
 /******************************************************************************/
 /**
  * Triggers the fitness calculation of all individuals

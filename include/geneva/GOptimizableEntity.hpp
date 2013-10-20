@@ -111,7 +111,8 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(evalPolicy_)
 	  & BOOST_SERIALIZATION_NVP(individualConstraint_)
 	  & BOOST_SERIALIZATION_NVP(steepness_)
-	  & BOOST_SERIALIZATION_NVP(barrier_);
+	  & BOOST_SERIALIZATION_NVP(barrier_)
+	  & BOOST_SERIALIZATION_NVP(worstKnownValid_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -329,6 +330,11 @@ public:
    /** @brief Checks whether this is a valid solution; meant to be called for "clean" individuals only */
    bool isValid() const;
 
+   /** @brief Allows an optimization algorithm to set the worst known valid evaluation up to the current iteration */
+   void setWorstKnownValid(double);
+   /** @brief Allows to retrieve the worst known valid evaluation up to the current iteration, as set by an external optimization algorithm */
+   double getWorstKnownValid() const;
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GOptimizableEntity */
@@ -396,6 +402,8 @@ private:
     double steepness_;
     /** @brief Determines the extreme values of a sigmoid function used by optimization algorithms */
     double barrier_;
+    /** @brief The worst known evaluation up to the current iteration */
+    double worstKnownValid_;
 
     /** @brief A constraint-check to be applied to one or more components of this individual */
     boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > individualConstraint_;

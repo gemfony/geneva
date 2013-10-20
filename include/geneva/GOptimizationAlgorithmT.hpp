@@ -107,6 +107,7 @@ private:
 	     & BOOST_SERIALIZATION_NVP(maxDuration_)
 	     & BOOST_SERIALIZATION_NVP(emitTerminationReason_)
 	     & BOOST_SERIALIZATION_NVP(halted_)
+	     & BOOST_SERIALIZATION_NVP(worstKnownValid_)
 	     & BOOST_SERIALIZATION_NVP(optimizationMonitor_ptr_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -136,6 +137,7 @@ public:
 		, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
 		, emitTerminationReason_(false)
 		, halted_(false)
+		, worstKnownValid_(boost::tuple<double,boost::uint32_t>(0.,0))
 		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
 	{ /* nothing */ }
 
@@ -165,6 +167,7 @@ public:
 		, maxDuration_(cp.maxDuration_)
 		, emitTerminationReason_(cp.emitTerminationReason_)
 		, halted_(cp.halted_)
+		, worstKnownValid_(cp.worstKnownValid_)
 		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>())
 	{ /* nothing */ }
 
@@ -392,6 +395,7 @@ public:
 		EXPECTATIONCHECK(maxDuration_);
 		EXPECTATIONCHECK(emitTerminationReason_);
 		EXPECTATIONCHECK(halted_);
+		EXPECTATIONCHECK(worstKnownValid_);
 		EXPECTATIONCHECK(optimizationMonitor_ptr_);
 
 		return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
@@ -1073,6 +1077,7 @@ protected:
 		maxDuration_ = p_load->maxDuration_;
 		emitTerminationReason_ = p_load->emitTerminationReason_;
 		halted_ = p_load->halted_;
+		worstKnownValid_ = p_load->worstKnownValid_;
 		this->optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 	}
 
@@ -1086,8 +1091,9 @@ protected:
 	 */
 	virtual void setIndividualPersonalities() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it)
+      for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->setPersonality(this->getPersonalityTraits());
+      }
 	}
 
 	/***************************************************************************/
@@ -1179,11 +1185,11 @@ protected:
 	 */
 	bool isBetter(double newValue, const double& oldValue) const {
 		if(this->getMaxMode()) {
-			if(newValue > oldValue) return true;
+			if(newValue >= oldValue) return true;
 			else return false;
 		}
 		else { // minimization
-			if(newValue < oldValue) return true;
+			if(newValue <= oldValue) return true;
 			else return false;
 		}
 	}
@@ -1261,7 +1267,7 @@ protected:
 	 * cycle.
 	 */
 	virtual void markIteration() BASE {
-		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
+      typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->setAssignedIteration(iteration_);
 		}
@@ -1287,6 +1293,59 @@ protected:
 	bool afterFirstIteration() const {
 		return iteration_ > offset_;
 	}
+
+   /***************************************************************************/
+   /**
+    * Searches for the worst known valid individual up to the current iteration
+    * and stores its fitness internally.
+    *
+    * @return The worst known valid invididual's fitness up to the current iteration
+    */
+   double findWorstKnownValid() {
+      typename GOptimizationAlgorithmT<ind_type>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         if((*it)->isValid() && this->isWorse((*it)->fitness(), boost::get<0>(worstKnownValid_))) {
+            boost::get<0>(worstKnownValid_) = (*it)->fitness();
+         }
+      }
+
+      // Update the iteration stored in worstKnownValid_ so we know searching for worse solutions has taken place
+      boost::get<1>(worstKnownValid_) = iteration_;
+
+      return boost::get<0>(worstKnownValid_);
+   }
+
+   /***************************************************************************/
+   /**
+    * Returns the fitness of the worst known valid individual up to the current iteration.
+    * Note that this function will only be able to make a valid statement if the individuals
+    * making up this population have already been evaluated. The function will throw, if this
+    * is not the case.
+    *
+    * @return The worst known valid invididual's fitness up to the current iteration
+    */
+   double getWorstKnownValid() {
+      // Check that our current iteration is identical to the one of the stored worst solution
+      if(boost::get<1>(worstKnownValid_) != this->iteration_) {
+         glogger
+         << "In GOptimizationAlgorithmT<>::getWorstKnownValid(): Error!" << std::endl
+         << "Stored solution comes from an older iteration: " << boost::get<1>(worstKnownValid_) << " / " << this->iteration_ << std::endl
+         << GEXCEPTION;
+      }
+
+      return boost::get<0>(worstKnownValid_);
+   }
+
+   /***************************************************************************/
+   /**
+    * Let the individuals know about the worst known valid solution so far
+    */
+   void markWorstKnownValid() {
+      typename GOptimizationAlgorithmT<ind_type>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->setWorstKnownValid(this->getWorstKnownValid());
+      }
+   }
 
 private:
    /***************************************************************************/
@@ -1475,7 +1534,7 @@ private:
 	 * Marks the globally best known fitness in all individuals
 	 */
 	void markBestFitness() {
-		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
+      typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->setBestKnownFitness(bestPastFitness_);
 		}
@@ -1486,7 +1545,7 @@ private:
 	 * Marks the number of stalled optimization attempts in all individuals
 	 */
 	void markNStalls() {
-		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
+      typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->setNStalls(stallCounter_);
 		}
@@ -1513,6 +1572,7 @@ private:
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_; ///< Set to true when halt() has returned "true"
+	boost::tuple<double,boost::uint32_t> worstKnownValid_; ///< Stores the worst known valid evaluation up to the current iteration
 	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 
 public:

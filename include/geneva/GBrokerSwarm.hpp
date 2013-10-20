@@ -132,16 +132,13 @@ protected:
 	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
 	virtual void finalize() OVERRIDE;
 
-   /** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
-   virtual double cycleLogic() OVERRIDE;
-
 	/** @brief Updates all individual's positions */
 	virtual void updatePositions() OVERRIDE;
 	/** @brief Triggers the fitness calculation of all individuals */
 	virtual void updateFitness() OVERRIDE;
 
    /** @brief Fixes the population after a job submission */
-   void adjustNeighborhoods();
+   virtual void adjustNeighborhoods() OVERRIDE;
    /** @brief Checks whether each neighborhood has the default size */
    bool neighborhoodsHaveNominalValues() const;
 
@@ -149,7 +146,6 @@ private:
 	/***************************************************************************/
 	bool storedServerMode_; ///< Indicates whether an individual runs in server mode
 	std::vector<boost::shared_ptr<GParameterSet> > oldIndividuals_; ///< A temporary copy of the last iteration's individuals
-
 	std::vector<boost::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
 
 	/***************************************************************************/
