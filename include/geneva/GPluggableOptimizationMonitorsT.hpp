@@ -77,6 +77,7 @@ public:
     * The default constructpr
     */
    GBasePluggableOMT()
+      : useTrueEvaluation_(false)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -84,6 +85,7 @@ public:
     * The copy constructor
     */
    GBasePluggableOMT(const GBasePluggableOMT<ind_type>& cp)
+      : useTrueEvaluation_(cp.useTrueEvaluation_)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -95,21 +97,41 @@ public:
 
    /***************************************************************************/
    /**
-    * Overload this function in dervied classes, specifying actions for
+    * Overload this function in derived classes, specifying actions for
     * initialization, the optimization cycles and finalization.
     */
    virtual void informationFunction(
          const infoMode& im
          , GOptimizationAlgorithmT<ind_type> * const goa
    ) = 0;
+
+   /***************************************************************************/
+   /**
+    * Allows to set the useTrueEvaluation_ variable
+    */
+   void setUseTrueEvaluation(bool useTrue) {
+      useTrueEvaluation_ = useTrue;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the value of the useTrueEvaluation_ variable
+    */
+   bool getUseTrueEvaluation() const {
+      return useTrueEvaluation_;
+   }
+
+protected:
+   /***************************************************************************/
+   bool useTrueEvaluation_; ///< Specifies whether the true (unmodified) evaluation should be used
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class accepts a number of other pluggable monitors and aggregates
- * their work
+ * This class accepts a number of other pluggable monitors and executes them
+ * in sequnce.
  */
 template <typename ind_type>
 class GCollectiveMonitorT
@@ -196,12 +218,12 @@ public:
     * The default constructor
     */
    GProgressPlotterT()
-   : profVarVec_()
-   , gpd_oa_("Progress information", 1, 1)
-   , fileName_("progressScan.C")
-   , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
-   , monitorBestOnly_(false)
-   , monitorValidOnly_(false)
+      : profVarVec_()
+      , gpd_oa_("Progress information", 1, 1)
+      , fileName_("progressScan.C")
+      , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
+      , monitorBestOnly_(false)
+      , monitorValidOnly_(false)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -210,12 +232,12 @@ public:
     * should be monitored and whether only valid items should be recorded.
     */
    GProgressPlotterT(bool monitorBestOnly, bool monitorValidOnly)
-   : profVarVec_()
-   , gpd_oa_("Progress information", 1, 1)
-   , fileName_("progressScan.C")
-   , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
-   , monitorBestOnly_(monitorBestOnly)
-   , monitorValidOnly_(monitorValidOnly)
+      : profVarVec_()
+      , gpd_oa_("Progress information", 1, 1)
+      , fileName_("progressScan.C")
+      , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
+      , monitorBestOnly_(monitorBestOnly)
+      , monitorValidOnly_(monitorValidOnly)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -223,13 +245,13 @@ public:
     * The copy constructor
     */
    GProgressPlotterT(const GProgressPlotterT<ind_type>& cp)
-   : GBasePluggableOMT<ind_type>(cp)
-   , profVarVec_(cp.profVarVec_)
-   , gpd_oa_("Progress information", 1, 1) // Not copied
-   , fileName_(cp.fileName_)
-   , canvasDimensions_(cp.canvasDimensions_)
-   , monitorBestOnly_(cp.monitorBestOnly_)
-   , monitorValidOnly_(cp.monitorValidOnly_)
+      : GBasePluggableOMT<ind_type>(cp)
+      , profVarVec_(cp.profVarVec_)
+      , gpd_oa_("Progress information", 1, 1) // Not copied
+      , fileName_(cp.fileName_)
+      , canvasDimensions_(cp.canvasDimensions_)
+      , monitorBestOnly_(cp.monitorBestOnly_)
+      , monitorValidOnly_(cp.monitorValidOnly_)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -328,7 +350,7 @@ public:
 
    /***************************************************************************/
    /**
-    * Allows to set the canvas dimensions using individual x and y values
+    * Allows to set the canvas dimensions using separate x and y values
     */
    void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
       canvasDimensions_ = boost::tuple<boost::uint32_t,boost::uint32_t>(x,y);
@@ -442,15 +464,21 @@ public:
       case Gem::Geneva::INFOPROCESSING:
       {
          bool isDirty = true;
+         double fitness;
+
          if(monitorBestOnly_) { // Monitor the best individuals only
             boost::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
+            if(GBasePluggableOMT<ind_type>::useTrueEvaluation_) {
+               fitness = p->trueFitness();
+            } else {
+               fitness = p->fitness();
+            }
+
             if(!monitorValidOnly_ || p->isValid()) {
                switch(this->nProfileVars()) {
                   case 1:
                   {
                      double val0    = p->GOptimizableEntity::getVarVal<double>(profVarVec_[0]);
-                     double fitness = p->getCachedFitness(isDirty);
-
                      progressPlotter2D_oa_->add(boost::tuple<double,double>(val0, fitness));
                   }
                   break;
@@ -459,8 +487,6 @@ public:
                   {
                      double val0 = p->GOptimizableEntity::getVarVal<double>(profVarVec_[0]);
                      double val1 = p->GOptimizableEntity::getVarVal<double>(profVarVec_[1]);
-                     double fitness = p->getCachedFitness(isDirty);
-
                      progressPlotter3D_oa_->add(boost::tuple<double,double,double>(val0, val1, fitness));
                   }
                   break;
@@ -470,8 +496,6 @@ public:
                      double val0 = p->GOptimizableEntity::getVarVal<double>(profVarVec_[0]);
                      double val1 = p->GOptimizableEntity::getVarVal<double>(profVarVec_[1]);
                      double val2 = p->GOptimizableEntity::getVarVal<double>(profVarVec_[2]);
-                     double fitness = p->getCachedFitness(isDirty);
-
                      progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(val0, val1, val2, fitness));
                   }
                   break;
@@ -489,13 +513,18 @@ public:
          } else { // Monitor all individuals
             typename GOptimizationAlgorithmT<ind_type>::iterator it;
             for(it=goa->begin(); it!=goa->end(); ++it) {
+
+               if(GBasePluggableOMT<ind_type>::useTrueEvaluation_) {
+                  fitness = (*it)->trueFitness();
+               } else {
+                  fitness = (*it)->fitness();
+               }
+
                if(!monitorValidOnly_ || (*it)->isValid()) {
                   switch(this->nProfileVars()) {
                      case 1:
                      {
                         double val0    = (*it)->GOptimizableEntity::template getVarVal<double>(profVarVec_[0]);
-                        double fitness = (*it)->getCachedFitness(isDirty);
-
                         progressPlotter2D_oa_->add(boost::tuple<double,double>(val0, fitness));
                      }
                      break;
@@ -504,8 +533,6 @@ public:
                      {
                         double val0 = (*it)->GOptimizableEntity::template getVarVal<double>(profVarVec_[0]);
                         double val1 = (*it)->GOptimizableEntity::template getVarVal<double>(profVarVec_[1]);
-                        double fitness = (*it)->getCachedFitness(isDirty);
-
                         progressPlotter3D_oa_->add(boost::tuple<double,double,double>(val0, val1, fitness));
                      }
                      break;
@@ -515,8 +542,6 @@ public:
                         double val0 = (*it)->GOptimizableEntity::template getVarVal<double>(profVarVec_[0]);
                         double val1 = (*it)->GOptimizableEntity::template getVarVal<double>(profVarVec_[1]);
                         double val2 = (*it)->GOptimizableEntity::template getVarVal<double>(profVarVec_[2]);
-                        double fitness = (*it)->getCachedFitness(isDirty);
-
                         progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(val0, val1, val2, fitness));
                      }
                      break;

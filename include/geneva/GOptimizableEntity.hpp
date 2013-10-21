@@ -101,6 +101,8 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(currentFitness_)
 	  & BOOST_SERIALIZATION_NVP(currentSecondaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(nFitnessCriteria_)
+	  & BOOST_SERIALIZATION_NVP(trueCurrentFitness_)
+	  & BOOST_SERIALIZATION_NVP(trueCurrentSecondaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(bestPastFitness_)
 	  & BOOST_SERIALIZATION_NVP(bestPastSecondaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(nStalls_)
@@ -148,6 +150,12 @@ public:
 	virtual double fitness() OVERRIDE;
 	/** @brief Calculate or returns the result of a fitness function with a given id */
 	virtual double fitness(const std::size_t&) OVERRIDE;
+
+   /** @brief Returns the untransformed result of the fitness function with id 0 */
+   double trueFitness();
+   /** @brief Returns the untransformed result of a fitness function with a given id */
+   double trueFitness(const std::size_t&);
+
 	/** @brief Adapts and evaluates the individual in one go */
 	virtual double adaptAndEvaluate();
 
@@ -381,6 +389,10 @@ private:
     std::vector<double> currentSecondaryFitness_;
     /** @brief The total number of fitness criteria */
     std::size_t nFitnessCriteria_;
+    /** @brief Holds this object's internal, "true" primary fitness (without transformations) */
+     double trueCurrentFitness_;
+     /** @brief Holds this object's internal, "true" secondary fitness values (without transformations) */
+     std::vector<double> trueCurrentSecondaryFitness_;
     /** @brief Holds the globally best known fitness of all individuals */
     double bestPastFitness_;
     /** @brief Holds the globally best known secondary fitness values of all individuals */

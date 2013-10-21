@@ -48,6 +48,8 @@ GOptimizableEntity::GOptimizableEntity()
 	, currentFitness_(0.)
    , currentSecondaryFitness_()
    , nFitnessCriteria_(1)
+   , trueCurrentFitness_(0.)
+   , trueCurrentSecondaryFitness_()
 	, bestPastFitness_(0.)
 	, bestPastSecondaryFitness_(0)
 	, nStalls_(0)
@@ -75,6 +77,8 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
 	, currentFitness_(cp.currentFitness_)
 	, currentSecondaryFitness_(cp.currentSecondaryFitness_)
    , nFitnessCriteria_(cp.nFitnessCriteria_)
+   , trueCurrentFitness_(cp.trueCurrentFitness_)
+   , trueCurrentSecondaryFitness_(cp.trueCurrentSecondaryFitness_)
 	, bestPastFitness_(cp.bestPastFitness_)
 	, bestPastSecondaryFitness_(cp.bestPastSecondaryFitness_)
 	, nStalls_(cp.nStalls_)
@@ -163,6 +167,8 @@ boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", currentFitness_, p_load->currentFitness_, "currentFitness_", "p_load->currentFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", currentSecondaryFitness_, p_load->currentSecondaryFitness_, "currentSecondaryFitness_", "p_load->currentSecondaryFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nFitnessCriteria_, p_load->nFitnessCriteria_, "nFitnessCriteria_", "p_load->nFitnessCriteria_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", trueCurrentFitness_, p_load->trueCurrentFitness_, "trueCurrentFitness_", "p_load->trueCurrentFitness_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", trueCurrentSecondaryFitness_, p_load->trueCurrentSecondaryFitness_, "trueCurrentSecondaryFitness_", "p_load->trueCurrentSecondaryFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", bestPastSecondaryFitness_, p_load->bestPastSecondaryFitness_, "bestPastSecondaryFitness_", "p_load->bestPastSecondaryFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nStalls_, p_load->nStalls_, "nStalls_", "p_load->nStalls_", e , limit));
@@ -238,6 +244,8 @@ void GOptimizableEntity::load_(const GObject* cp) {
 	currentFitness_ = p_load->currentFitness_;
 	currentSecondaryFitness_ = p_load->currentSecondaryFitness_;
 	nFitnessCriteria_ = p_load->nFitnessCriteria_;
+	trueCurrentFitness_ = p_load->trueCurrentFitness_;
+	trueCurrentSecondaryFitness_ = p_load->trueCurrentSecondaryFitness_;
 	bestPastFitness_ = p_load->bestPastFitness_;
 	bestPastSecondaryFitness_ = p_load->bestPastSecondaryFitness_;
 	nStalls_ = p_load->nStalls_;
@@ -327,6 +335,45 @@ double GOptimizableEntity::fitness() {
 
 /******************************************************************************/
 /**
+ * Returns the untransformed result of the fitness function with id 0.
+ */
+double GOptimizableEntity::trueFitness() {
+   return trueFitness(0);
+}
+
+/******************************************************************************/
+/**
+ * Returns the untransformed result of a fitness function with a given id. This
+ * can e.g. be important, when a sigmoid function was applied to the evaluation,
+ * so it always stays below a certain value. The function usually returns the worst
+ * possible evaluation for invalid individuals, with the exception of the USESIMPLEEVALUATION
+ * evaluation mode, which treats valid and invalid solutions alike and just calls the
+ * evaluation function. Note that this function throws if the individual hasn't been
+ * evaluated yet.
+ *
+ * @param id The id of the fitness criterion
+ * @return The "untransformed" fitness of this individual
+ */
+double GOptimizableEntity::trueFitness(const std::size_t& id) {
+   if(dirtyFlag_) {
+      glogger
+      << "In GOptimizableEntity::trueFitness(const std::size_t& id): Error!" << std::endl
+      << "Tried to retieve fitness of individual, whose dirty flag is set." << std::endl
+      << GEXCEPTION;
+   }
+
+   if(0==id) {
+      return trueCurrentFitness_;
+   } else {
+      return trueCurrentSecondaryFitness_.at(id-1);
+   }
+
+   // Make the compiler happy
+   return 0.;
+}
+
+/******************************************************************************/
+/**
  * Adapts and evaluates the individual in one go
  *
  * @return The main fitness result
@@ -381,6 +428,7 @@ double GOptimizableEntity::getCachedFitness(bool& dirtyFlag, const std::size_t& 
 double GOptimizableEntity::doFitnessCalculation() {
    // Make sure the secondary fitness vector is empty
    currentSecondaryFitness_.clear();
+   trueCurrentSecondaryFitness_.clear();
 
    // Find out, whether this is a valid solution
    bool valid = this->isValid_(validityLevel_);
@@ -389,6 +437,9 @@ double GOptimizableEntity::doFitnessCalculation() {
       // Trigger fitness calculation using the user-supplied function. This will also
       // register secondary fitness values used in multi-criterion optimization.
       currentFitness_ = fitnessCalculation();
+
+      // Make a note of the true measurement, in case we want to transform them later
+      trueCurrentFitness_ = currentFitness_;
 
 #ifdef DEBUG
       // Check that the correct number of secondary evaluation criteria has been registered
@@ -401,14 +452,19 @@ double GOptimizableEntity::doFitnessCalculation() {
       }
 #endif /* DEBUG */
 
+      // Make a note of the true secondary measurements, in case we want to transform them later
+      trueCurrentSecondaryFitness_ = currentSecondaryFitness_;
+
       if(USESIGMOID == evalPolicy_) { // Update the fitness value to use sigmoidal values
          currentFitness_ = Gem::Common::gsigmoid(currentFitness_, barrier_, steepness_);
       }
    } else {
       if(USEWORSTCASEFORINVALID==evalPolicy_) {
          currentFitness_ = this->getWorstCase();
+         trueCurrentFitness_ = this->getWorstCase();;
          for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
             currentSecondaryFitness_.push_back(currentFitness_);
+            trueCurrentSecondaryFitness_.push_back(currentFitness_);
          }
       } else if(USESIGMOID == evalPolicy_) {
          if(true == this->getMaxMode()) { // maximize
@@ -416,15 +472,20 @@ double GOptimizableEntity::doFitnessCalculation() {
          } else { // minimize
             currentFitness_ =  validityLevel_*barrier_;
          }
+         trueCurrentFitness_ = this->getWorstCase();
+
          for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
             currentSecondaryFitness_.push_back(currentFitness_);
+            trueCurrentSecondaryFitness_.push_back(currentFitness_);
          }
       } else if(USEWORSTKNOWNVALIDFORINVALID == evalPolicy_) {
-         // This will be reset later, in  indEvaluationUpdate(). The caller
+         // Some of this will be reset later, in  indEvaluationUpdate(). The caller
          // needs to tell us about the worst solution known up to now.
          currentFitness_ = this->getWorstCase();
+         trueCurrentFitness_ = this->getWorstCase();
          for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
             currentSecondaryFitness_.push_back(currentFitness_);
+            trueCurrentSecondaryFitness_.push_back(currentFitness_);
          }
       }
    }

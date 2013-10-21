@@ -53,15 +53,28 @@ int main(int argc, char **argv) {
    // We want to add an additional command line option
 
    bool printValid = false;
+   bool useTrueFitness = false;
+
    std::vector<boost::shared_ptr<po::option_description> > od;
-   boost::shared_ptr<po::option_description> print_option(
+
+   boost::shared_ptr<po::option_description> printValid_option(
       new po::option_description(
          "validOnly"
          , po::value<bool>(&printValid)->implicit_value(true)->default_value(false) // This allows you say both --validOnly and --validOnly=true
          , "Enforces output of valid solutions only"
       )
    );
-   od.push_back(print_option);
+   od.push_back(printValid_option);
+
+   boost::shared_ptr<po::option_description> printTrue_option(
+      new po::option_description(
+         "useTrueFitness"
+         , po::value<bool>(&useTrueFitness)->implicit_value(true)->default_value(false) // This allows you say both --useTrueFitness and --useTrueFitness=true
+         , "Plot untransformed fitness value, even if a transformation takes place for the purpose of optimization"
+      )
+   );
+   od.push_back(printTrue_option);
+
 
    Go2 go(argc, argv, "./config/Go2.json", od);
 
@@ -84,13 +97,14 @@ int main(int argc, char **argv) {
 	progplot_ptr->addProfileVar("d", 0); // first double parameter
    progplot_ptr->addProfileVar("d", 1); // second double parameter
    progplot_ptr->setMonitorValidOnly(printValid); // Only record valid parameters, when printValid is set to true
+   progplot_ptr->setUseTrueEvaluation(useTrueFitness); // Use untransformed evaluation values for logging
 
    go.registerPluggableOM(
       boost::bind(
-            &GProgressPlotterT<GParameterSet>::informationFunction
-            , progplot_ptr
-            , _1
-            , _2
+         &GProgressPlotterT<GParameterSet>::informationFunction
+         , progplot_ptr
+         , _1
+         , _2
       )
    );
 
