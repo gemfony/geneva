@@ -238,7 +238,10 @@ protected:
             glogger
             << "In GAsioTCPClientT<processable_type>::retrieve(): Warning" << std::endl
             << "Could not connect to server. Shutting down now." << std::endl
-            << GWARNING;
+            << "NOTE: This might be simply caused by the server shutting down" << std::endl
+            << "at the end of an optimization run, so that usually this is no" << std::endl
+            << "cause for concern." << std::endl
+            << GLOGGING;
 
             // Make sure we don't leave any open sockets lying around.
             disconnect(socket_);
