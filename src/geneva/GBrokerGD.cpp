@@ -46,7 +46,6 @@ namespace Geneva {
 GBrokerGD::GBrokerGD()
 	: GBaseGD()
 	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::RESUBMISSIONAFTERTIMEOUT)
-	, storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -59,7 +58,6 @@ GBrokerGD::GBrokerGD(
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize)
 	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::RESUBMISSIONAFTERTIMEOUT)
-	, storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -69,7 +67,6 @@ GBrokerGD::GBrokerGD(
 GBrokerGD::GBrokerGD(const GBrokerGD& cp)
 	: GBaseGD(cp)
 	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(cp)
-	, storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -215,27 +212,6 @@ void GBrokerGD::init() {
 
    // Initialize the broker connector
    Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
-
-	// We want to confine re-evaluation to defined places. However, we also want to restore
-	// the original flags. We thus record the previous setting when setting the flag to true.
-	// The function will throw if not all individuals have the same server mode flag.
-
-	// Set the server mode and store the original flag
-	bool first = true;
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it){
-		if(first){
-			storedServerMode_ = (*it)->getServerMode();
-			first = false;
-		}
-
-		if(storedServerMode_ != (*it)->setServerMode(true)) {
-		   glogger
-		   << "In GBrokerGD::init():" << std::endl
-         << "Not all server mode flags have the same value!" << std::endl
-         << GEXCEPTION;
-		}
-	}
 }
 
 /******************************************************************************/
@@ -243,12 +219,6 @@ void GBrokerGD::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GBrokerGD::finalize() {
-	// Restore the original values
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it) {
-		(*it)->setServerMode(storedServerMode_);
-	}
-
    // Finalize the broker connector
    Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
 

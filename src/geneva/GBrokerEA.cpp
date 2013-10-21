@@ -48,7 +48,6 @@ GBrokerEA::GBrokerEA()
 	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
    // , Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::EXPECTFULLRETURN)
 	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-	, storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -61,7 +60,6 @@ GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	: GBaseEA(cp)
 	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp)
 	, nThreads_(cp.nThreads_)
-	, storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -100,8 +98,6 @@ void GBrokerEA::load_(const GObject * cp) {
 
 	// ... and then our own
 	nThreads_ = p_load->nThreads_;
-
-	// Note that we do not copy storedServerMode_ as it is used for internal caching only
 }
 
 /******************************************************************************/
@@ -193,23 +189,6 @@ std::string GBrokerEA::name() const {
  * Performs any necessary initialization work before the start of the optimization cycle
  */
 void GBrokerEA::init() {
-	// Prevent usage of this brokered algorithms inside of this broker population - check type of individuals
-	// Note that evolutionary algorithms may store arbitrary "GParameterSet"-derivatives, hence it is also possible
-	// to store brokered optimization algorithms in it, which does not make sense.
-	{
-		std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			if((*it)->getIndividualCharacteristic() == "GENEVA_BROKEROPTALG"
-			   || (*it)->getIndividualCharacteristic() == "GENEVA_GO2WRAPPER") {
-			   glogger
-			   << "In GBrokerEA::optimize(): Error" << std::endl
-            << "GBrokerEA or Go2 stored as an individual inside of" << std::endl
-            << "the population." << std::endl
-            << GEXCEPTION;
-			}
-		}
-	}
-
 	// GBaseEA sees exactly the environment it would when called from its own class
 	GBaseEA::init();
 
@@ -217,28 +196,7 @@ void GBrokerEA::init() {
 	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
 
 	// Initialize our thread pool
-	tp_.reset(new Gem::Common::GThreadPool(nThreads_));
-
-	// We want to confine re-evaluation to defined places. However, we also want to restore
-	// the original flags. We thus record the previous setting when setting the flag to true.
-	// The function will throw if not all individuals have the same server mode flag.
-
-	// Set the server mode and store the original flag
-	bool first = true;
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it){
-		if(first){
-			storedServerMode_ = (*it)->getServerMode();
-			first = false;
-		}
-
-		if(storedServerMode_ != (*it)->setServerMode(true)) {
-		   glogger
-		   << "In GBrokerEA::init():" << std::endl
-         << "Not all server mode flags have the same value!" << std::endl
-         << GEXCEPTION;
-		}
-	}
+	tp_ptr_.reset(new Gem::Common::GThreadPool(nThreads_));
 }
 
 /******************************************************************************/
@@ -246,14 +204,28 @@ void GBrokerEA::init() {
  * Performs any necessary finalization work after the end of the optimization cycle
  */
 void GBrokerEA::finalize() {
-	// Restore the original values
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it) {
-		(*it)->setServerMode(storedServerMode_);
-	}
+   // Check whether there were any errors during thread execution
+   if(tp_ptr_->hasErrors()) {
+      std::vector<std::string> errors;
+      tp_ptr_->getErrors(errors);
+
+      glogger
+      << "========================================================================" << std::endl
+      << "In GBrokerEA::finalize():" << std::endl
+      << "There were errors during thread execution:" << std::endl
+      << std::endl;
+
+      for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
+         glogger << *it << std::endl;
+      }
+
+      glogger << "" << std::endl // This is a hack. Currently glogger does not accept a std::endl directly next to it TODO
+      << "========================================================================" << std::endl
+      << GEXCEPTION;
+   }
 
 	// Terminate our thread pool
-	tp_.reset();
+	tp_ptr_.reset();
 
    // Finalize the broker connector
    Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
@@ -282,11 +254,11 @@ void GBrokerEA::adaptChildren() {
 	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
 	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
-		tp_->schedule(boost::function<void()>(boost::bind(&GParameterSet::adapt, *it)));
+		tp_ptr_->async_schedule(boost::function<void()>(boost::bind(&GParameterSet::adapt, *it)));
 	}
 
 	// Wait for all threads in the pool to complete their work
-	tp_->wait();
+	tp_ptr_->wait();
 }
 
 /******************************************************************************/

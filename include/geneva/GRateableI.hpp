@@ -67,11 +67,6 @@ public:
 	virtual double fitness() BASE = 0;
 	/** @brief Retrieve a value for this class, using a fitness function with a given id */
 	virtual double fitness(const std::size_t&) BASE = 0;
-
-	/** @brief Retrieve a value for this class, taking into account invalid solutions; suitable for optimization algorithms only */
-	virtual double oa_fitness() BASE = 0;
-   /** @brief Retrieve a value for this class for a given id, taking into account invalid solutions; suitable for optimization algorithms only */
-   virtual double oa_fitness(const std::size_t&) BASE = 0;
 };
 
 } /* namespace Geneva */

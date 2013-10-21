@@ -265,8 +265,8 @@ int main(int argc, char **argv) {
    // boost::function<void()> parallelMeasurement  = boost::bind(startParallelMeasurement,  boost::ref(go_parallel), boost::ref(gdif_par), boost::ref(parallelExecutionTimes));
 
    // Start the reference and parallel threads
-   // tp.schedule(referenceMeasurement);
-   // tp.schedule(parallelMeasurement);
+   // tp.async_schedule(referenceMeasurement);
+   // tp.async_schedule(parallelMeasurement);
 
    // And wait for their return
    // tp.wait();

@@ -49,20 +49,17 @@ namespace Geneva {
 GMultiThreadedEA::GMultiThreadedEA()
    : GBaseEA()
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads()))
-   , storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
 /**
- * A standard copy constructor. Note that we do not copy storedServerMode_ as
- * it is used for internal caching only.
+ * A standard copy constructor.
  *
  * @param cp Reference to another GMultiThreadedEA object
  */
 GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
    : GBaseEA(cp)
    , nThreads_(cp.nThreads_)
-   , storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -99,8 +96,6 @@ void GMultiThreadedEA::load_(const GObject *cp) {
 
 	// ... and then our own
 	nThreads_ = p_load->nThreads_;
-
-	// Note that we do not copy storedServerMode_ as it is used for internal caching only
 }
 
 /******************************************************************************/
@@ -194,28 +189,7 @@ void GMultiThreadedEA::init() {
 	GBaseEA::init();
 
 	// Initialize our thread pool
-	tp_.reset(new Gem::Common::GThreadPool(nThreads_));
-
-	// We want to confine re-evaluation to defined places. However, we also want to restore
-	// the original flags. We thus record the previous setting when setting the flag to true.
-	// The function will throw if not all individuals have the same server mode flag.
-
-	// Set the server mode and store the original flag
-	bool first = true;
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it){
-		if(first){
-			storedServerMode_ = (*it)->getServerMode();
-			first = false;
-		}
-
-		if(storedServerMode_ != (*it)->setServerMode(true)) {
-		   glogger
-		   << "In GMultiThreadedEA::init():" << std::endl
-		   << "Not all server mode flags have the same value!" << std::endl
-		   << GEXCEPTION;
-		}
-	}
+	tp_ptr_.reset(new Gem::Common::GThreadPool(nThreads_));
 }
 
 /******************************************************************************/
@@ -223,16 +197,10 @@ void GMultiThreadedEA::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GMultiThreadedEA::finalize() {
-	// Restore the original values
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it) {
-		(*it)->setServerMode(storedServerMode_);
-	}
-
    // Check whether there were any errors during thread execution
-   if(tp_->hasErrors()) {
+   if(tp_ptr_->hasErrors()) {
       std::vector<std::string> errors;
-      tp_->getErrors(errors);
+      tp_ptr_->getErrors(errors);
 
       glogger
       << "========================================================================" << std::endl
@@ -244,13 +212,13 @@ void GMultiThreadedEA::finalize() {
          glogger << *it << std::endl;
       }
 
-      glogger << "" << std::endl // This is a hack. Currently glogger does not accept a std::endl directly next to it
+      glogger << "" << std::endl // This is a hack. Currently glogger does not accept a std::endl directly next to it TODO
       << "========================================================================" << std::endl
       << GEXCEPTION;
    }
 
 	// Terminate our thread pool
-	tp_.reset();
+	tp_ptr_.reset();
 
 	// GBaseEA sees exactly the environment it would when called from its own class
 	GBaseEA::finalize();
@@ -266,11 +234,11 @@ void GMultiThreadedEA::adaptChildren()
 	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
 	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
-		tp_->schedule(boost::function<void()>(boost::bind(&GParameterSet::adapt, *it)));
+		tp_ptr_->async_schedule(boost::function<void()>(boost::bind(&GParameterSet::adapt, *it)));
 	}
 
 	// Wait for all threads in the pool to complete their work
-	tp_->wait();
+	tp_ptr_->wait();
 }
 
 /******************************************************************************/
@@ -300,11 +268,11 @@ void GMultiThreadedEA::runFitnessCalculation()
 	for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
 	   // Do the actual scheduling
 		(*it)->setServerMode(false);
-		tp_->schedule(boost::function<double()>(boost::bind(&GParameterSet::doFitnessCalculation, *it)));
+		tp_ptr_->async_schedule(boost::function<double()>(boost::bind(&GParameterSet::fitness, *it, 0)));
 	}
 
 	// Wait for all threads in the pool to complete their work
-	tp_->wait();
+	tp_ptr_->wait();
 
 	// Make re-evaluation impossible
 	for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {

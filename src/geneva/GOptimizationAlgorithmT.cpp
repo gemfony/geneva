@@ -56,9 +56,9 @@ namespace Geneva {
  * optimizationInit() function instead.
  */
 template <> void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init() {
-   // Tell all individuals in this collection to update their random number generators
-   // with the one contained in GMutableSetT. Note: This will only have an effect on
-   // GParameterSet objects, as GOptimizableEntity contains an empty function.
+   // Tell all GParmaterSet-derivative in this collection to update their random number
+   // generators with the one contained in GMutableSetT. Note: This will only have an effect
+   // on GParameterSet objects, as this is an overload for GParameterSet objects only
    GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::iterator it;
    for(it=this->begin(); it!=this->end(); ++it) {
       (*it)->updateRNGs();

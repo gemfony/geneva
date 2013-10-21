@@ -428,13 +428,15 @@ double GBaseGD::cycleLogic() {
 
    // Retrieve information about the best fitness found and disallow re-evaluation
 	GBaseGD::iterator it;
+	bool originalServerMode;
 	for(it=this->begin(); it!=this->begin() + this->getNStartingPoints(); ++it) {
-      // Prevents re-evaluation
-      (*it)->setServerMode(true);
+	   originalServerMode=(*it)->setServerMode(true);
 
       if(isBetter((*it)->fitness(0), bestFitness)) {
          bestFitness = (*it)->fitness(0);
       }
+
+      setServerMode(originalServerMode);
    }
 
 	return bestFitness;

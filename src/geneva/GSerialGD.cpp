@@ -255,7 +255,9 @@ void GSerialGD::runFitnessCalculation() {
       }
 #endif /* DEBUG */
 
+      (*it)->setServerMode(false);
       (*it)->fitness();
+      (*it)->setServerMode(true);
    }
 }
 

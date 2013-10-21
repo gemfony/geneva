@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
 	for(std::size_t n = 0; n<NSUBMISSIONS; n++) {
 		// Submission number n
 		for(std::size_t i=0; i<NJOBS; i++) {
-			gtp.schedule(boost::function<void()>(boost::bind(&testTask::increment, tasks.at(i))));
+			gtp.async_schedule(boost::function<void()>(boost::bind(&testTask::increment, tasks.at(i))));
 		}
 
 		// Wait for all tasks to complete and check for errors

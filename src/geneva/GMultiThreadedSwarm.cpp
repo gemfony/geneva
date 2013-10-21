@@ -46,7 +46,6 @@ namespace Geneva {
 GMultiThreadedSwarm::GMultiThreadedSwarm()
    : GBaseSwarm()
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-   , storedServerMode_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -54,12 +53,11 @@ GMultiThreadedSwarm::GMultiThreadedSwarm()
  * A standard constructor. No local, dynamically allocated data, hence this function is empty.
  */
 GMultiThreadedSwarm::GMultiThreadedSwarm(
-		const std::size_t& nNeighborhoods
-		, const std::size_t& nNeighborhoodMembers
+   const std::size_t& nNeighborhoods
+   , const std::size_t& nNeighborhoodMembers
 )
    : GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-   , storedServerMode_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -71,7 +69,6 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(
 GMultiThreadedSwarm::GMultiThreadedSwarm(const GMultiThreadedSwarm& cp)
    : GBaseSwarm(cp)
    , nThreads_(cp.nThreads_)
-   , storedServerMode_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -202,28 +199,7 @@ void GMultiThreadedSwarm::init() {
 	GBaseSwarm::init();
 
 	// Initialize our thread pool
-	tp_.reset(new Gem::Common::GThreadPool(nThreads_));
-
-	// We want to confine re-evaluation to defined places. However, we also want to restore
-	// the original flags. We thus record the previous setting when setting the flag to true.
-	// The function will throw if not all individuals have the same server mode flag.
-
-	// Set the server mode and store the original flag
-	bool first = true;
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it){
-		if(first){
-			storedServerMode_ = (*it)->getServerMode();
-			first = false;
-		}
-
-		if(storedServerMode_ != (*it)->setServerMode(true)) {
-		   glogger
-		   << "In GMultiThreadedSwarm::init():" << std::endl
-         << "Not all server mode flags have the same vaue!" << std::endl
-         << GEXCEPTION;
-		}
-	}
+	tp_ptr_.reset(new Gem::Common::GThreadPool(nThreads_));
 }
 
 /******************************************************************************/
@@ -231,14 +207,28 @@ void GMultiThreadedSwarm::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GMultiThreadedSwarm::finalize() {
-	// Restore the original values
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it) {
-		(*it)->setServerMode(storedServerMode_);
-	}
+   // Check whether there were any errors during thread execution
+   if(tp_ptr_->hasErrors()) {
+      std::vector<std::string> errors;
+      tp_ptr_->getErrors(errors);
+
+      glogger
+      << "========================================================================" << std::endl
+      << "In GMultiThreadedSwarm::finalize():" << std::endl
+      << "There were errors during thread execution:" << std::endl
+      << std::endl;
+
+      for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
+         glogger << *it << std::endl;
+      }
+
+      glogger << "" << std::endl // This is a hack. Currently glogger does not accept a std::endl directly next to it TODO
+      << "========================================================================" << std::endl
+      << GEXCEPTION;
+   }
 
 	// Terminate our thread pool
-	tp_.reset();
+	tp_ptr_.reset();
 
 	// GBaseSwarm sees exactly the environment it would when called from its own class
 	GBaseSwarm::finalize();
@@ -293,27 +283,18 @@ std::string GMultiThreadedSwarm::getIndividualCharacteristic() const {
  * Updates the fitness of all individuals
  */
 void GMultiThreadedSwarm::runFitnessCalculation() {
-   bool originalServerMode = false;
    GMultiThreadedSwarm::iterator it;
    for(it=this->begin(); it!=this->end(); ++it) {
-      originalServerMode = (*it)->setServerMode(false);
-
-      // Schedule the fitness calculation as a thread
-      tp_->schedule(
-         boost::function<void()>(
-            boost::bind(
-                &GParameterSet::fitness
-               , *it
-               , 0
-            )
-         )
-      );
-
-      (*it)->setServerMode(originalServerMode);
+      (*it)->setServerMode(false); // Allow re-evaluation
+      tp_ptr_->async_schedule(boost::function<double()>(boost::bind(&GParameterSet::fitness, *it, 0)));
    }
 
 	// wait for the pool to run out of tasks
-	tp_->wait();
+	tp_ptr_->wait();
+
+   for(it=this->begin(); it!=this->end(); ++it) {
+      (*it)->setServerMode(true); // Prevent accidental re-evaluation
+   }
 }
 
 /******************************************************************************/
@@ -328,8 +309,7 @@ void GMultiThreadedSwarm::runFitnessCalculation() {
 void GMultiThreadedSwarm::setNThreads(boost::uint16_t nThreads) {
 	if(nThreads == 0) {
 		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
-	}
-	else {
+	} else {
 		nThreads_ = nThreads;
 	}
 }

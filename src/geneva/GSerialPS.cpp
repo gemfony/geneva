@@ -244,7 +244,9 @@ void GSerialPS::runFitnessCalculation() {
       }
 #endif /* DEBUG */
 
+      (*it)->setServerMode(false);
       (*it)->fitness();
+      (*it)->setServerMode(true);
    }
 }
 

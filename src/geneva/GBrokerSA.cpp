@@ -47,7 +47,6 @@ GBrokerSA::GBrokerSA()
    : GBaseSA()
    , Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-   , storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -60,7 +59,6 @@ GBrokerSA::GBrokerSA(const GBrokerSA& cp)
    : GBaseSA(cp)
    , Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp)
    , nThreads_(cp.nThreads_)
-   , storedServerMode_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -99,8 +97,6 @@ void GBrokerSA::load_(const GObject * cp) {
 
    // ... and then our own
    nThreads_ = p_load->nThreads_;
-
-   // Note that we do not copy storedServerMode_ as it is used for internal caching only
 }
 
 /******************************************************************************/
@@ -216,28 +212,7 @@ void GBrokerSA::init() {
    Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
 
    // Initialize our thread pool
-   tp_.reset(new Gem::Common::GThreadPool(nThreads_));
-
-   // We want to confine re-evaluation to defined places. However, we also want to restore
-   // the original flags. We thus record the previous setting when setting the flag to true.
-   // The function will throw if not all individuals have the same server mode flag.
-
-   // Set the server mode and store the original flag
-   bool first = true;
-   std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-   for(it=data.begin(); it!=data.end(); ++it){
-      if(first){
-         storedServerMode_ = (*it)->getServerMode();
-         first = false;
-      }
-
-      if(storedServerMode_ != (*it)->setServerMode(true)) {
-         glogger
-         << "In GBrokerSA::init():" << std::endl
-         << "Not all server mode flags have the same value!" << std::endl
-         << GEXCEPTION;
-      }
-   }
+   tp_ptr_.reset(new Gem::Common::GThreadPool(nThreads_));
 }
 
 /******************************************************************************/
@@ -245,14 +220,28 @@ void GBrokerSA::init() {
  * Performs any necessary finalization work after the end of the optimization cycle
  */
 void GBrokerSA::finalize() {
-   // Restore the original values
-   std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-   for(it=data.begin(); it!=data.end(); ++it) {
-      (*it)->setServerMode(storedServerMode_);
+   // Check whether there were any errors during thread execution
+   if(tp_ptr_->hasErrors()) {
+      std::vector<std::string> errors;
+      tp_ptr_->getErrors(errors);
+
+      glogger
+      << "========================================================================" << std::endl
+      << "In GBrokerSA::finalize():" << std::endl
+      << "There were errors during thread execution:" << std::endl
+      << std::endl;
+
+      for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
+         glogger << *it << std::endl;
+      }
+
+      glogger << "" << std::endl // This is a hack. Currently glogger does not accept a std::endl directly next to it TODO
+      << "========================================================================" << std::endl
+      << GEXCEPTION;
    }
 
    // Terminate our thread pool
-   tp_.reset();
+   tp_ptr_.reset();
 
    // Finalize the broker connector
    Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
@@ -282,11 +271,11 @@ void GBrokerSA::adaptChildren()
    std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
    for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
-      tp_->schedule(boost::function<void()>(boost::bind(&GParameterSet::adapt, *it)));
+      tp_ptr_->async_schedule(boost::function<void()>(boost::bind(&GParameterSet::adapt, *it)));
    }
 
    // Wait for all threads in the pool to complete their work
-   tp_->wait();
+   tp_ptr_->wait();
 }
 
 /******************************************************************************/

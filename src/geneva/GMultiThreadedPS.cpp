@@ -46,7 +46,6 @@ namespace Geneva {
 GMultiThreadedPS::GMultiThreadedPS()
    : GBasePS()
    , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-   , storedServerMode_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -56,7 +55,6 @@ GMultiThreadedPS::GMultiThreadedPS()
 GMultiThreadedPS::GMultiThreadedPS(const GMultiThreadedPS& cp)
    : GBasePS(cp)
    , nThreads_(cp.nThreads_)
-   , storedServerMode_(cp.storedServerMode_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -194,8 +192,6 @@ void GMultiThreadedPS::load_(const GObject *cp) {
 
    // ... and then our own
    nThreads_ = p_load->nThreads_;
-
-   // Note that we do not copy storedServerMode_ as it is used for internal caching only
 }
 
 /******************************************************************************/
@@ -217,28 +213,7 @@ void GMultiThreadedPS::init() {
    GBasePS::init();
 
    // Initialize our thread pool
-   tp_.reset(new Gem::Common::GThreadPool(nThreads_));
-
-   // We want to confine re-evaluation to defined places. However, we also want to restore
-   // the original flags. We thus record the previous setting when setting the flag to true.
-   // The function will throw if not all individuals have the same server mode flag.
-
-   // Set the server mode and store the original flag
-   bool first = true;
-   std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-   for(it=data.begin(); it!=data.end(); ++it){
-      if(first){
-         storedServerMode_ = (*it)->getServerMode();
-         first = false;
-      }
-
-      if(storedServerMode_ != (*it)->setServerMode(true)) {
-         glogger
-         << "In GMultiThreadedPS::init():" << std::endl
-         << "Not all server mode flags have the same value!" << std::endl
-         << GEXCEPTION;
-      }
-   }
+   tp_ptr_.reset(new Gem::Common::GThreadPool(nThreads_));
 }
 
 /******************************************************************************/
@@ -246,14 +221,29 @@ void GMultiThreadedPS::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GMultiThreadedPS::finalize() {
-   // Restore the original values
-   std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-   for(it=data.begin(); it!=data.end(); ++it) {
-      (*it)->setServerMode(storedServerMode_);
+   // Check whether there were any errors during thread execution
+   if(tp_ptr_->hasErrors()) {
+      std::vector<std::string> errors;
+      tp_ptr_->getErrors(errors);
+
+      glogger
+      << "========================================================================" << std::endl
+      << "In GMultiThreadedPS::finalize():" << std::endl
+      << "There were errors during thread execution:" << std::endl
+      << std::endl;
+
+      for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
+         glogger << *it << std::endl;
+      }
+
+      glogger << "" << std::endl // This is a hack. Currently glogger does not accept a std::endl directly next to it TODO
+      << "========================================================================" << std::endl
+      << GEXCEPTION;
    }
 
+
    // Terminate our thread pool
-   tp_.reset();
+   tp_ptr_.reset();
 
    // GBasePS sees exactly the environment it would when called from its own class
    GBasePS::finalize();
@@ -325,15 +315,20 @@ void GMultiThreadedPS::runFitnessCalculation() {
       }
 #endif /* DEBUG */
 
-      // Make sure we are allowed to perform value calculation
+      // Make sure the work items may be re-evaluated
       (*it)->setServerMode(false);
 
       // Submit the actual task
-      tp_->schedule(boost::function<double()>(boost::bind(&GParameterSet::fitness, *it, 0)));
+      tp_ptr_->async_schedule(boost::function<double()>(boost::bind(&GParameterSet::fitness, *it, 0)));
    }
 
    // wait for the pool to run out of tasks
-   tp_->wait();
+   tp_ptr_->wait();
+
+   for(it=this->begin(); it!=this->end(); ++it) {
+      // Prevent accidental re-evaluation
+      (*it)->setServerMode(true);
+   }
 }
 
 /******************************************************************************/

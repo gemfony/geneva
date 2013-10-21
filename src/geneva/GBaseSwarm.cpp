@@ -1246,7 +1246,8 @@ double GBaseSwarm::findBests() {
 		if((*it)->isDirty()) {
 		   glogger
 		   << "In GBaseSwarm::findBests(): Error!" << std::endl
-         << "Found individual whose dirty flag is set." << std::endl
+         << "Found individual in position " << std::distance(this->begin(), it) << " in iteration " << this->getIteration() << std::endl
+         << "whose dirty flag is set." << std::endl
          << GEXCEPTION;
 		}
 	}

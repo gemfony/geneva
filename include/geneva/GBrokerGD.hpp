@@ -153,7 +153,6 @@ private:
 	};
 	/***************************************************************************/
 
-	bool storedServerMode_; ///< Indicates whether an individual runs in server mode
 	std::vector<boost::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
 
 public:

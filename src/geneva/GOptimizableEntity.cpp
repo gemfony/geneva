@@ -52,7 +52,7 @@ GOptimizableEntity::GOptimizableEntity()
 	, bestPastSecondaryFitness_(0)
 	, nStalls_(0)
 	, dirtyFlag_(true)
-	, serverMode_(false)
+	, serverMode_(true) // We always assume that we are on a server. The server mode needs to be explicitly switched off to allow re-evaluation
 	, maximize_(false)
 	, assignedIteration_(0)
 	, validityLevel_(0.) // Always valid by default
@@ -289,13 +289,22 @@ double GOptimizableEntity::fitness(const std::size_t& id) {
          << "Tried to perform re-evaluation in server-mode" << std::endl
          << GEXCEPTION;
 		}
-
 		this->doFitnessCalculation();
 	}
 
-	// Return the desired result
-	bool tmpDirtyFlag = false;
-	return getCachedFitness(tmpDirtyFlag, id);
+	// Return the desired result -- there should be no situation where the dirtyFlag is still set
+   bool tmpDirtyFlag = true;
+#ifdef DEBUG
+   double f = getCachedFitness(tmpDirtyFlag, id);
+   if(tmpDirtyFlag) {
+      glogger
+      << "In GOptimizableEntity::fitness(const std::size_t& id): Error!" << std::endl
+      << "Dirty flag is still set in a location where it shouldn't be" << std::endl;
+   }
+   return f;
+#else
+   return getCachedFitness(tmpDirtyFlag, id);
+#endif
 }
 
 /* ----------------------------------------------------------------------------------
@@ -313,60 +322,6 @@ double GOptimizableEntity::fitness(const std::size_t& id) {
  */
 double GOptimizableEntity::fitness() {
 	return fitness(0);
-}
-
-/******************************************************************************/
-/**
- * Retrieve a value for this class for a given id, taking into account invalid solutions.
- * Suitable for optimization algorithms only.
- */
-double GOptimizableEntity::oa_fitness(const std::size_t& id) {
-   // First call to fitness will trigger validityLevel calculation. Hence we cannot
-   // safely assume that validityLevel is up-to-date. We thus call fitness(id) as
-   // our first action.
-   double evaluation = this->fitness(id);
-
-   if(!this->isValid()) {
-      switch(evalPolicy_) {
-         //---------------------------------------------------------------------
-         case USESIMPLEEVALUATION:
-            // Nothing -- we just continue with the evaluation as requested
-            break;
-
-         //---------------------------------------------------------------------
-         case USEWORSTCASEFORINVALID:
-            // Nothing -- the user has chosen to evaluate this individual with the worst possible value
-            break;
-
-         //---------------------------------------------------------------------
-         case USESIGMOID:
-            // Nothing -- the calculation was done already in doFitnessCalculation
-            break;
-
-         //---------------------------------------------------------------------
-         default:
-            {
-               glogger
-               << "In GOptimizableEntity::oa_fitness(const std::size_t& id): Error!" << std::endl
-               << "Got wrong evalPolicy_ parameter: " << evalPolicy_ << std::endl
-               << GEXCEPTION;
-            }
-            break;
-
-         //---------------------------------------------------------------------
-      }
-   }
-
-   return evaluation;
-}
-
-/******************************************************************************/
-/**
- * Retrieve a value for this class, taking into account invalid solutions.
- * Suitable for optimization algorithms only.
- */
-double GOptimizableEntity::oa_fitness() {
-   return oa_fitness(0);
 }
 
 /******************************************************************************/
@@ -579,7 +534,7 @@ void GOptimizableEntity::setFitness_(const double& f, const std::vector<double>&
  * @param sM The desired new value of the serverMode_ variable
  * @return The previous value of the serverMode_ variable
  */
-bool GOptimizableEntity::setServerMode(const bool& sM) {
+bool GOptimizableEntity::setServerMode(bool sM) {
 	bool previous = serverMode_;
 	serverMode_ = sM;
 	return previous;

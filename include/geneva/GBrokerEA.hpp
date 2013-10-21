@@ -154,9 +154,7 @@ private:
    /***************************************************************************/
 
    boost::uint16_t nThreads_; ///< The number of threads
-   bool storedServerMode_; ///< Indicates whether an individual runs in server mode
-
-   boost::shared_ptr<Gem::Common::GThreadPool> tp_; ///< Temporarily holds a thread pool
+   boost::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 
    std::vector<boost::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
 

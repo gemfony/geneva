@@ -89,8 +89,6 @@ public:
       : GBaseParChildT<oa_type>()
       , smodeMP_(DEFAULTSMODEMP)
       , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-      , storedServerMode_(true)
-      , tp_(nThreads_)
    {
       // Note: We do not currently register a custom optimization monitor.
       // A basic monitor has already been registered inside of GOptimizationMonitorT
@@ -107,8 +105,6 @@ public:
       : GBaseParChildT<oa_type>()
       , smodeMP_(DEFAULTSMODEMP)
       , nThreads_(nThreads?nThreads:(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))))
-      , storedServerMode_(true)
-      , tp_(nThreads_)
    {
       // Note: We do not currently register a custom optimization monitor.
       // A basic monitor has already been registered inside of GOptimizationMonitorT
@@ -127,8 +123,6 @@ public:
       : GBaseParChildT<oa_type>(cp)
       , smodeMP_(cp.smodeMP_)
       , nThreads_(cp.nThreads_)
-      , storedServerMode_(true)
-      , tp_(nThreads_)
    {
       // Copying / setting of the optimization algorithm id is done by the parent class. The same
       // applies to the copying of the optimization monitor.
@@ -460,11 +454,11 @@ protected:
          }
 #endif /* DEBUG */
 
-         tp_.schedule(boost::function<void()>(boost::bind(&oa_type::adapt, *it)));
+         tp_ptr_->async_schedule(boost::function<void()>(boost::bind(&oa_type::adapt, *it)));
       }
 
       // Wait for all threads in the pool to complete their work
-      tp_.wait();
+      tp_ptr_->wait();
    }
 
    /***************************************************************************/
@@ -491,13 +485,12 @@ protected:
       // Make evaluation possible and initiate the worker threads
       for(it=(this->data).begin() + boost::get<0>(range); it!=(this->data).begin() + boost::get<1>(range); ++it) {
          (*it)->setServerMode(false);
-         tp_.schedule(boost::function<double()>(boost::bind(&oa_type::doFitnessCalculation, *it)));
+         tp_ptr_->async_schedule(boost::function<double()>(boost::bind(&oa_type::fitness, *it)));
       }
 
       // Wait for all threads in the pool to complete their work
-      tp_.wait();
+      tp_ptr_->wait();
 
-      // Make re-evaluation impossible
       for(it=(this->data).begin() + boost::get<0>(range); it!=(this->data).begin() + boost::get<1>(range); ++it) {
          (*it)->setServerMode(true);
       }
@@ -602,6 +595,9 @@ protected:
    virtual void init() OVERRIDE {
       // To be performed before any other action
       GBaseParChildT<oa_type>::init();
+
+      // Initialize our thread pool
+      tp_ptr_.reset(new Gem::Common::GThreadPool(nThreads_));
    }
 
 
@@ -610,6 +606,29 @@ protected:
     * Does any necessary finalization work
     */
    virtual void finalize() OVERRIDE {
+      // Check whether there were any errors during thread execution
+      if(tp_ptr_->hasErrors()) {
+         std::vector<std::string> errors;
+         tp_ptr_->getErrors(errors);
+
+         glogger
+         << "========================================================================" << std::endl
+         << "In GMultiPopulationEAT::finalize():" << std::endl
+         << "There were errors during thread execution:" << std::endl
+         << std::endl;
+
+         for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
+            glogger << *it << std::endl;
+         }
+
+         glogger << "" << std::endl // This is a hack. Currently glogger does not accept a std::endl directly next to it TODO
+         << "========================================================================" << std::endl
+         << GEXCEPTION;
+      }
+
+      // Terminate our thread pool
+      tp_ptr_.reset();
+
       // Last action
       GBaseParChildT<oa_type>::finalize();
    }
@@ -628,11 +647,9 @@ private:
    // Local data
 
    sortingModeMP smodeMP_; ///< The chosen sorting scheme
-
    boost::uint16_t nThreads_; ///< The number of threads
-   bool storedServerMode_; ///< Temporary storage for individual server mode flags during optimization runs
 
-   Gem::Common::GThreadPool tp_; ///< Holds a thread pool
+   boost::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 
 public:
    /***************************************************************************/

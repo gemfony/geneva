@@ -119,12 +119,12 @@ bool GParameterSet::operator!=(const GParameterSet& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GParameterSet::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
 	using namespace Gem::Common;
 
@@ -288,6 +288,8 @@ void GParameterSet::randomInit() {
  * these. A likelihood specifies how likely a cross-over will actually be performed. Note that thus more
  * than one cross-over may occur if more than one parameter collection is stored in this object.
  * Cross-Over will be skipped if a different composition of the other object is detected.
+ *
+ * TODO: Not yet ready
  */
 void GParameterSet::crossOver(GParameterSet& cp, const double& likelihood) {
 #ifdef DEBUG
@@ -551,7 +553,6 @@ boost::shared_ptr<GParameterSet> GParameterSet::parameter_clone() const {
  * ----------------------------------------------------------------------------------
  */
 
-
 /******************************************************************************/
 /**
  * Performs all necessary (remote-)processing steps for this object.
@@ -566,7 +567,7 @@ bool GParameterSet::process(){
    // sure that re-evaluation is possible
    bool previousServerMode=setServerMode(false);
 
-   this->doFitnessCalculation();
+   this->fitness();
 
    // Restore the serverMode_ flag
    setServerMode(previousServerMode);

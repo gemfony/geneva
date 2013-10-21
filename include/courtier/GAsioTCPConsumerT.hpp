@@ -849,7 +849,7 @@ class GAsioServerSessionT
          disconnect(socket_);
 
          // ... and schedule the work item for de-serialization
-         master_->scheduleDeSerialization(
+         master_->async_scheduleDeSerialization(
                dataBody_ptr_
                , portId_
          );
@@ -1383,11 +1383,11 @@ class GAsioTCPConsumerT
     * Schedules the de-serialization of a completed work item, so the server
     * session does not need to perform this work
     */
-   void scheduleDeSerialization(
+   void async_scheduleDeSerialization(
          boost::shared_ptr<std::string> dataBody_ptr
          , Gem::Common::PORTIDTYPE portId
    ) {
-      gtp_.schedule(
+      gtp_.async_schedule(
             boost::function<void()>(
                boost::bind(
                   &GAsioTCPConsumerT<processable_type>::handle_workItemComplete // Does its own error checks

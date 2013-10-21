@@ -267,7 +267,7 @@ void GSerialEA::runFitnessCalculation()
 		// Make re-evaluation accessible
 		(*it)->setServerMode(false);
 		// Perform the actual evaluation
-		(*it)->doFitnessCalculation();
+		(*it)->fitness();
 		// Make re-evaluation impossible
 		(*it)->setServerMode(true);
 	}

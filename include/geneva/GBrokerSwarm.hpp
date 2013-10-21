@@ -144,8 +144,8 @@ protected:
 
 private:
 	/***************************************************************************/
-	bool storedServerMode_; ///< Indicates whether an individual runs in server mode
-	std::vector<boost::shared_ptr<GParameterSet> > oldIndividuals_; ///< A temporary copy of the last iteration's individuals
+
+   std::vector<boost::shared_ptr<GParameterSet> > oldIndividuals_; ///< A temporary copy of the last iteration's individuals
 	std::vector<boost::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
 
 	/***************************************************************************/

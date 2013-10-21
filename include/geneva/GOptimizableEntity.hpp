@@ -151,11 +151,6 @@ public:
 	/** @brief Adapts and evaluates the individual in one go */
 	virtual double adaptAndEvaluate();
 
-   /** @brief Retrieve a value for this class, taking into account invalid solutions; suitable for optimization algorithms only */
-   virtual double oa_fitness() OVERRIDE;
-   /** @brief Retrieve a value for this class for a given id, taking into account invalid solutions; suitable for optimization algorithms only */
-   virtual double oa_fitness(const std::size_t&) OVERRIDE;
-
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
 	double getCachedFitness(bool&, const std::size_t& = 0) const;
 	/** @brief Enforce fitness calculation */
@@ -173,7 +168,7 @@ public:
 	bool hasMultipleFitnessCriteria() const;
 
 	/** @brief (De-)activates the server mode */
-	bool setServerMode(const bool&);
+	bool setServerMode(bool);
 	/** @brief Checks whether the server mode is set */
 	bool getServerMode() const ;
 	/** @brief Checks whether the server mode is set */

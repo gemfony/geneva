@@ -944,7 +944,7 @@ protected:
     * @param w The work item to be processed
     */
    virtual void submit(boost::shared_ptr<processable_type> w) OVERRIDE {
-      tp_.schedule(boost::function<bool()>(boost::bind(&processable_type::process, w)));
+      tp_.async_schedule(boost::function<bool()>(boost::bind(&processable_type::process, w)));
    }
 
    /***************************************************************************/
