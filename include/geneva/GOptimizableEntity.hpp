@@ -328,11 +328,16 @@ public:
 
    /** @brief Checks whether this is a valid solution; meant to be called for "clean" individuals only */
    bool isValid() const;
+   /** @brief Checks whether this solution is invalid */
+   bool isInValid() const;
 
    /** @brief Allows an optimization algorithm to set the worst known valid evaluation up to the current iteration */
    void setWorstKnownValid(double);
    /** @brief Allows to retrieve the worst known valid evaluation up to the current iteration, as set by an external optimization algorithm */
    double getWorstKnownValid() const;
+
+   /** @brief Triggers an update of the internal evaluation, if necessary */
+   void indEvaluationUpdate();
 
 protected:
 	/***************************************************************************/

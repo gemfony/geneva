@@ -418,6 +418,13 @@ double GOptimizableEntity::doFitnessCalculation() {
          for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
             currentSecondaryFitness_.push_back(currentFitness_);
          }
+      } else if(USEWORSTKNOWNVALIDFORINVALID == evalPolicy_) {
+         // This will be reset later, in  indEvaluationUpdate(). The caller
+         // needs to tell us about the worst solution known up to now.
+         currentFitness_ = this->getWorstCase();
+         for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
+            currentSecondaryFitness_.push_back(currentFitness_);
+         }
       }
    }
 
@@ -743,6 +750,14 @@ bool GOptimizableEntity::isValid() const {
 
 /******************************************************************************/
 /**
+ * Checks whether this solution is invalid
+ */
+ bool GOptimizableEntity::isInValid() const {
+    return !this->isValid();
+ }
+
+/******************************************************************************/
+/**
  * Checks whether this solution is valid
  */
 bool GOptimizableEntity::isValid_(double& validityLevel) const {
@@ -778,6 +793,40 @@ void GOptimizableEntity::setWorstKnownValid(double worstKnownValid) {
  */
 double GOptimizableEntity::getWorstKnownValid() const {
    return worstKnownValid_;
+}
+
+/******************************************************************************/
+/**
+ * Triggers an update of the internal evaluation, if necessary
+ */
+void GOptimizableEntity::indEvaluationUpdate() {
+#ifdef DEBUG
+   if((nFitnessCriteria_-1) != currentSecondaryFitness_.size()) {
+      glogger
+      << "In GOptimizableEntity::indEvaluationUpdate(): Error!" << std::endl
+      << "Number of expected fitness criteria " << (nFitnessCriteria_-1) << " does not match actual number " << currentSecondaryFitness_.size() << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   if(USEWORSTKNOWNVALIDFORINVALID == evalPolicy_) {
+      if(this->isInValid()) {
+         if(true == maximize_) {
+            currentFitness_ = -std::max(worstKnownValid_,std::max(barrier_,1.))*validityLevel_;
+         } else {
+            currentFitness_ =  std::max(worstKnownValid_,std::max(barrier_,1.))*validityLevel_;
+         }
+
+         for(std::size_t i=1; i<nFitnessCriteria_; i++) {
+            currentSecondaryFitness_.at(i) = currentFitness_;
+         }
+      }
+
+      // Make sure the dirty flag is set to false
+      this->setDirtyFlag(false);
+   } else {
+      /* nothing */
+   }
 }
 
 /******************************************************************************/
@@ -879,6 +928,7 @@ void GOptimizableEntity::addConfigurationOptions (
    comment += "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions;";
    comment += "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions;";
    comment += "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations;";
+   comment += "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise;";
    if(showOrigin) comment += "[GOptimizableEntity];";
    gpb.registerFileParameter<evaluationPolicy>(
       "evalPolicy" // The name of the variable

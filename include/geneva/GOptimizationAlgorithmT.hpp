@@ -1226,7 +1226,7 @@ protected:
 	virtual void init() BASE
    {
 	   // Initialize the worstKnownValid_ variable according to the max-mode
-	   worstKnownValid_ = this->getBestCase();
+	   worstKnownValid_ = boost::tuple<double, boost::uint32_t>(this->getBestCase(), this->getStartIteration());
    }
 
 	/***************************************************************************/
@@ -1344,10 +1344,38 @@ protected:
     * Let the individuals know about the worst known valid solution so far
     */
    void markWorstKnownValid() {
+      double worst = this->findWorstKnownValid();
+
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->setWorstKnownValid(this->getWorstKnownValid());
+         (*it)->setWorstKnownValid(worst);
       }
+   }
+
+   /***************************************************************************/
+   /**
+    * Triggers an update of the individual's evaluation
+    */
+   void triggerEvaluationUpdate() {
+      typename GOptimizationAlgorithmT<ind_type>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->indEvaluationUpdate();
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Work to be performed right after the individuals were evaluated
+    */
+   void postEvaluationWork() {
+      // Find the worst known valid solution in the current iteration and
+      // propagate the knowledge to all individuals
+      this->markWorstKnownValid();
+
+      // Individuals may choose to update their fitness depending on
+      // the information relayed in this function. Give them a chance
+      // to do so.
+      this->triggerEvaluationUpdate();
    }
 
    /***************************************************************************/
