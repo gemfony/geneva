@@ -426,6 +426,9 @@ double GBaseGD::cycleLogic() {
 	// Trigger value calculation for all individuals (including parents)
 	runFitnessCalculation();
 
+   // Perform post-evaluation updates (mostly of individuals)
+   postEvaluationWork();
+
    // Retrieve information about the best fitness found and disallow re-evaluation
 	GBaseGD::iterator it;
 	bool originalServerMode;

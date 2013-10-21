@@ -366,6 +366,9 @@ double GBasePS::cycleLogic() {
    // re-implemented in derived classes
    runFitnessCalculation();
 
+   // Perform post-evaluation updates (mostly of individuals)
+   postEvaluationWork();
+
    // This function will sort the population according to
    // its primary fitness value
    sortPopulation();

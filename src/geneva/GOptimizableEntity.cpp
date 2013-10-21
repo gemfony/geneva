@@ -191,7 +191,8 @@ std::string GOptimizableEntity::name() const {
 
 /******************************************************************************/
 /**
- * Allows to register a constraint with this individual
+ * Allows to register a constraint with this individual. Note that the constraint
+ * object will be cloned.
  */
 void GOptimizableEntity::registerConstraint(boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > c_ptr) {
    if(!c_ptr) {
@@ -762,11 +763,15 @@ bool GOptimizableEntity::isValid() const {
  */
 bool GOptimizableEntity::isValid_(double& validityLevel) const {
    if(individualConstraint_) {
-      return individualConstraint_->isValid(this, validityLevel);
+      bool valid = individualConstraint_->isValid(this, validityLevel);
+      return valid;;
    } else { // Always valid, if no constraint object has been registered
       validityLevel = 0.;
       return true;
    }
+
+   // Make the compiler happy
+   return false;
 }
 
 /******************************************************************************/

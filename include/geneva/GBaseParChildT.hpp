@@ -800,8 +800,13 @@ protected:
 
       // adapt children
       adaptChildren();
+
       // calculate the children's (and possibly their parents' values)
       runFitnessCalculation();
+
+      // Perform post-evaluation updates (mostly of individuals)
+      GOptimizationAlgorithmT<ind_type>::postEvaluationWork();
+
       // find out the best individuals of the population
       selectBest();
 
