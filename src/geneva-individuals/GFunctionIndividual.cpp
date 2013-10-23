@@ -36,6 +36,7 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFunctionIndividual)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleSumConstraint)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleSumGapConstraint)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSphereConstraint)
 
 namespace Gem {
@@ -208,6 +209,173 @@ GObject* GDoubleSumConstraint::clone_() const {
 /**
  * The default constructor
  */
+GDoubleSumGapConstraint::GDoubleSumGapConstraint()
+   : C_(1.)
+   , gap_(0.5)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with the constant
+ */
+GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double& C, const double& gap)
+   : C_(C)
+   , gap_(gap)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The copy constructor
+ */
+GDoubleSumGapConstraint::GDoubleSumGapConstraint(const GDoubleSumGapConstraint& cp)
+   : GParameterSetConstraint(cp)
+   , C_(cp.C_)
+   , gap_(cp.gap_)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GDoubleSumGapConstraint::~GDoubleSumGapConstraint()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * A standard assignment operator
+ */
+const GDoubleSumGapConstraint& GDoubleSumGapConstraint::operator=(const GDoubleSumGapConstraint& cp)
+{
+   GParameterSetConstraint::load_(&cp);
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GIndividualConstraint object
+ */
+bool GDoubleSumGapConstraint::operator==(const GDoubleSumGapConstraint& cp) const {
+   using namespace Gem::Common;
+   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GDoubleSumGapConstraint::operator==","cp", CE_SILENT);
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GIndividualConstraint object
+ */
+bool GDoubleSumGapConstraint::operator!=(const GDoubleSumGapConstraint& cp) const {
+   using namespace Gem::Common;
+   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GDoubleSumGapConstraint::operator!=","cp", CE_SILENT);
+}
+
+/******************************************************************************/
+/**
+ * Checks whether a given expectation for the relationship between this object and another object is fulfilled.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+ */
+boost::optional<std::string> GDoubleSumGapConstraint::checkRelationshipWith(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with an object of the same type and that we are not
+   // accidently trying to compare this object with itself.
+   const GDoubleSumGapConstraint *p_load = GObject::gobject_conversion<GDoubleSumGapConstraint>(&cp);
+
+   // Will hold possible deviations from the expectation, including explanations
+   std::vector<boost::optional<std::string> > deviations;
+
+   // Check our parent class'es data ...
+   deviations.push_back(GParameterSetConstraint::checkRelationshipWith(cp, e, limit, "GDoubleSumGapConstraint", y_name, withMessages));
+
+   // ... and then our local data
+   deviations.push_back(checkExpectation(withMessages, "GDoubleSumGapConstraint", C_, p_load->C_, "C_", "p_load->C_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GDoubleSumGapConstraint", gap_, p_load->gap_, "gap_", "p_load->gap_", e , limit));
+
+   return evaluateDiscrepancies("GDoubleSumGapConstraint", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object
+ */
+void GDoubleSumGapConstraint::addConfigurationOptions(
+      Gem::Common::GParserBuilder& gpb
+      , const bool& showOrigin
+) {
+   // Call our parent class'es function
+   GParameterSetConstraint::addConfigurationOptions(gpb, showOrigin);
+}
+
+/******************************************************************************/
+/**
+ * Checks whether a given individual is valid
+ */
+double GDoubleSumGapConstraint::check_ (
+   const GParameterSet *p
+) const {
+   std::vector<double> parVec;
+   p->streamline(parVec);
+
+   double sum = 0.;
+   std::vector<double>::iterator it;
+   for(it=parVec.begin(); it!=parVec.end(); ++it) {
+      sum += *it;
+   }
+
+   // Is the sum in the allowed corridor ?
+   if(sum >= (C_ - gap_) && sum <= (C_ + gap_)) {
+      return 0.;
+   } else {
+      return 1. + fabs(sum-C_)/C_;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another GDoubleSumGapConstraint
+ */
+void GDoubleSumGapConstraint::load_(const GObject* cp) {
+   // Check that we are indeed dealing with an object of the same type and that we are not
+   // accidently trying to compare this object with itself.
+   const GDoubleSumGapConstraint *p_load = GObject::gobject_conversion<GDoubleSumGapConstraint>(cp);
+
+   // Load our parent class'es data ...
+   GParameterSetConstraint::load_(cp);
+
+   // ... and then our local data
+   C_ = p_load->C_;
+   gap_ = p_load->gap_;
+}
+
+/******************************************************************************/
+/**
+ * Creates a deep clone of this object
+ */
+GObject* GDoubleSumGapConstraint::clone_() const {
+   return new GDoubleSumGapConstraint(*this);
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The default constructor
+ */
 GSphereConstraint::GSphereConstraint()
    : diameter_(1.)
 { /* nothing */ }
@@ -333,7 +501,11 @@ double GSphereConstraint::check_(
    }
    sum = sqrt(sum);
 
-   return sum/diameter_;
+   if(sum <= diameter_) {
+      return 0.;
+   } else {
+      return GSQUARED(sum/diameter_);
+   }
 }
 
 /******************************************************************************/
@@ -1692,7 +1864,7 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 				if(i == perimeterPos) {
 					*gdo_ptr = minVar_;
 				} else {
-					*gdo_ptr = (maxVar_ - minVar_)/2.;
+					*gdo_ptr = (maxVar_ + minVar_)/2.;
 				}
 			}
 
@@ -1720,7 +1892,7 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 				if(i == perimeterPos) {
 					*gcdo_ptr = minVar_;
 				} else {
-					*gcdo_ptr = (maxVar_ - minVar_)/2.;
+					*gcdo_ptr = (maxVar_ + minVar_)/2.;
 				}
 			}
 
@@ -1744,7 +1916,7 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
             if(i == perimeterPos) {
                *gcdo_ptr = minVar_;
             } else {
-               *gcdo_ptr = (maxVar_ - minVar_)/2.;
+               *gcdo_ptr = (maxVar_ + minVar_)/2.;
             }
          }
 

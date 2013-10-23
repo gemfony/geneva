@@ -106,12 +106,12 @@ bool GParameterSetConstraint::operator!=(const GParameterSetConstraint& cp) cons
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GParameterSetConstraint::checkRelationshipWith(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
    using namespace Gem::Common;
 
@@ -135,8 +135,8 @@ boost::optional<std::string> GParameterSetConstraint::checkRelationshipWith(
  * Adds local configuration options to a GParserBuilder object
  */
 void GParameterSetConstraint::addConfigurationOptions(
-      Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
+   Gem::Common::GParserBuilder& gpb
+   , const bool& showOrigin
 ) {
    // Call our parent class'es function
    GValidityCheckT<GOptimizableEntity>::addConfigurationOptions(gpb, showOrigin);
@@ -147,7 +147,7 @@ void GParameterSetConstraint::addConfigurationOptions(
  * Checks whether a given individual is valid
  */
 double GParameterSetConstraint::check_(
-      const GOptimizableEntity * p_raw
+   const GOptimizableEntity * p_raw
 ) const {
    const GParameterSet * p = Gem::Common::convertSimplePointer<GOptimizableEntity, GParameterSet>(p_raw);
    return this->check_(p);
@@ -181,7 +181,7 @@ GParameterSetFormulaConstraint::GParameterSetFormulaConstraint()
 /**
  * A constructor that accepts a formula in string form as its argument
  */
-GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(const std::string& rawFormula)
+GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(std::string rawFormula)
    : rawFormula_(rawFormula)
 { /* nothing */ }
 
@@ -191,6 +191,7 @@ GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(const std::string
  */
 GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint& cp)
    : GParameterSetConstraint(cp)
+   , rawFormula_(cp.rawFormula_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -292,9 +293,9 @@ double GParameterSetFormulaConstraint::check_(
    const GParameterSet * p
 ) const {
    std::map<std::string, double> parameterValues;
-   p->streamline(parameterValues); // Extract the parameter values
+   p->streamline(parameterValues); // Extract the parameter values including names
    Gem::Common::GFormulaParserT<double> f(rawFormula_); // Create the parser
-   return f(); // Parse the formula and return the value
+   return f(parameterValues); // Parse the formula and return the value
 }
 
 /******************************************************************************/

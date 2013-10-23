@@ -59,7 +59,23 @@ using namespace std;
 
 
 int test_main(int argc, char** argv) {
-   {  // Test replacement of variables and constants
+   {  // Test replacement of variables and constants (1)
+      std::map<std::string, double> parameterValues;
+
+      std::string formula("sin({{0}})/{{1}}");
+
+      parameterValues["0"] = 4.34343434343434;
+      parameterValues["1"] = 8.98989898989899;
+
+      GFormulaParserT<double> f(formula);
+
+      double fp_val = sin(4.34343434343434)/8.98989898989899;
+      double parse_val = f(parameterValues);
+
+      BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
+   }
+
+   {  // Test replacement of variables and constants (2)
       std::map<std::string, double> parameterValues;
       std::map<std::string, double> userConstants;
 

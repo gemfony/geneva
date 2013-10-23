@@ -413,6 +413,7 @@ public:
 		if(val < lowerBoundary_ || val > upperBoundary_) {
 		   glogger
 		   << "In GConstrainedNumT<T>::setValue(val):" << std::endl
+		   << std::setprecision(20)
          << "Assigned value = " << val << " is outside of its allowed boundaries: " << std::endl
          << "lowerBoundary_ = " << lowerBoundary_ << std::endl
          << "upperBoundary_ = " << upperBoundary_ << std::endl

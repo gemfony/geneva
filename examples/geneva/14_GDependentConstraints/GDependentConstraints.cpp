@@ -90,6 +90,10 @@ int main(int argc, char **argv) {
 	boost::shared_ptr<GFunctionIndividualFactory>
 	   gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
 
+	// We want the GFunctionIndividual objects to always use GConstrainedDoubleObject objects
+	// so that parameter types have defined names
+	gfi_ptr->setPT(Gem::Geneva::USEGCONSTRAINEDDOUBLEOBJECT);
+
 	//---------------------------------------------------------------------------
    // Register a progress plotter with the global optimization algorithm factory
 	boost::shared_ptr<GProgressPlotterT<GParameterSet> > progplot_ptr(new GProgressPlotterT<GParameterSet>());
@@ -109,12 +113,34 @@ int main(int argc, char **argv) {
    );
 
    //---------------------------------------------------------------------------
-   // Add a number of start values to the go object.
-   // We also add a constraint definition here
+   // Add a number of start values to the go object. We also add some constraint definitions here.
    for(std::size_t i=0; i<10; i++) {
       boost::shared_ptr<GFunctionIndividual> p = gfi_ptr->get<GFunctionIndividual>();
-      boost::shared_ptr<GDoubleSumConstraint> constraint_ptr(new GDoubleSumConstraint(1.));
-      p->registerConstraint(constraint_ptr);
+
+      // Create the constraint objects
+      boost::shared_ptr<GDoubleSumConstraint>           doublesum_constraint_ptr(new GDoubleSumConstraint(1.));
+      boost::shared_ptr<GSphereConstraint>              sphere_constraint_ptr(new GSphereConstraint(3.));
+      boost::shared_ptr<GParameterSetFormulaConstraint> formula_constraint(new GParameterSetFormulaConstraint("fabs(sin({{0}})/min({{1}}, 0.000001))")); // sin(x) < y
+      boost::shared_ptr<GDoubleSumGapConstraint>        gap_constraint(new GDoubleSumGapConstraint(1.,0.05)); // The sum of all variables must be 1 +/- 0.05
+
+      // Create a check combiner and add the constraint objects to it
+      boost::shared_ptr<GCheckCombinerT<GOptimizableEntity> > combiner_ptr(new GCheckCombinerT<GOptimizableEntity>());
+      combiner_ptr->setCombinerPolicy(Gem::Geneva::MULTIPLYINVALID);
+
+      combiner_ptr->addCheck(doublesum_constraint_ptr);
+      combiner_ptr->addCheck(sphere_constraint_ptr);
+      combiner_ptr->addCheck(formula_constraint);
+      combiner_ptr->addCheck(gap_constraint);
+
+      // Register the combiner with the individual (note: we could also have registered
+      // one of the "single" constraints here (see below for commented-out examples)
+      p->registerConstraint(combiner_ptr);
+
+      // p->registerConstraint(doublesum_constraint_ptr);
+      // p->registerConstraint(sphere_constraint_ptr);
+      // p->registerConstraint(formula_constraint);
+      // p->registerConstraint(gap_constraint);
+
       go.push_back(p);
    }
 

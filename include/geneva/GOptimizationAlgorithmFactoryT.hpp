@@ -356,8 +356,8 @@ protected:
 
 	boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
 
-	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
    std::size_t waitFactor_; ///< A static factor to be applied to timeouts
+	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
 
 	boost::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
    boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)> pluggableInfoFunction_; ///< A user-defined call-back for information retrieval

@@ -97,6 +97,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
 #include "common/GMathHelperFunctions.hpp"
 
 namespace Gem {
@@ -256,13 +257,16 @@ public:
    /**
     * The standard constructor
     */
-   explicit GFormulaParserT(const std::string& formula, const parameter_map& user_constants = parameter_map() )
-   : GFormulaParserT::base_type(expression_rule_)
-   , raw_formula_(formula)
-   , stack_(4096)
-   , stack_ptr_(stack_.begin())
-   , error_handler(error_handler_())
-   , printCode_(false)
+   explicit GFormulaParserT(
+      const std::string& formula
+      , const parameter_map& user_constants = parameter_map()
+   )
+      : GFormulaParserT::base_type(expression_rule_)
+      , raw_formula_(formula)
+      , stack_(4096)
+      , stack_ptr_(stack_.begin())
+      , error_handler(error_handler_())
+      , printCode_(false)
    {
       boost::spirit::qi::char_type char_;
       boost::spirit::qi::string_type string_;
@@ -388,7 +392,10 @@ public:
          this->execute();
       } else {
          std::string rest(iter, end);
-         std::cout << "Parsing failed" << std::endl;
+         glogger
+         << "In GFormulaParserT<>::evaluate(): Error!" << std::endl
+         << "Parsing of formula " << formula << " failed at " << rest << std::endl
+         << GEXCEPTION;
       }
 
       return stack_.at(0);
@@ -424,21 +431,21 @@ public:
       boost::apply_visitor(*this, f.operand_);
 
       if(f.fname_ == "acos") code_.push_back(codeEntry(op_acos));
-      else if(f.fname_ == "asin") code_.push_back(codeEntry(op_asin));
-      else if(f.fname_ == "atan") code_.push_back(codeEntry(op_atan));
-      else if(f.fname_ == "ceil") code_.push_back(codeEntry(op_ceil));
-      else if(f.fname_ == "cos") code_.push_back(codeEntry(op_cos));
-      else if(f.fname_ == "cosh") code_.push_back(codeEntry(op_cosh));
-      else if(f.fname_ == "exp") code_.push_back(codeEntry(op_exp));
-      else if(f.fname_ == "fabs") code_.push_back(codeEntry(op_fabs));
+      else if(f.fname_ == "asin")  code_.push_back(codeEntry(op_asin));
+      else if(f.fname_ == "atan")  code_.push_back(codeEntry(op_atan));
+      else if(f.fname_ == "ceil")  code_.push_back(codeEntry(op_ceil));
+      else if(f.fname_ == "cos")   code_.push_back(codeEntry(op_cos));
+      else if(f.fname_ == "cosh")  code_.push_back(codeEntry(op_cosh));
+      else if(f.fname_ == "exp")   code_.push_back(codeEntry(op_exp));
+      else if(f.fname_ == "fabs")  code_.push_back(codeEntry(op_fabs));
       else if(f.fname_ == "floor") code_.push_back(codeEntry(op_floor));
-      else if(f.fname_ == "log") code_.push_back(codeEntry(op_log));
+      else if(f.fname_ == "log")   code_.push_back(codeEntry(op_log));
       else if(f.fname_ == "log10") code_.push_back(codeEntry(op_log10));
-      else if(f.fname_ == "sin") code_.push_back(codeEntry(op_sin));
-      else if(f.fname_ == "sinh") code_.push_back(codeEntry(op_sinh));
-      else if(f.fname_ == "sqrt") code_.push_back(codeEntry(op_sqrt));
-      else if(f.fname_ == "tan") code_.push_back(codeEntry(op_tan));
-      else if(f.fname_ == "tanh") code_.push_back(codeEntry(op_tanh));
+      else if(f.fname_ == "sin")   code_.push_back(codeEntry(op_sin));
+      else if(f.fname_ == "sinh")  code_.push_back(codeEntry(op_sinh));
+      else if(f.fname_ == "sqrt")  code_.push_back(codeEntry(op_sqrt));
+      else if(f.fname_ == "tan")   code_.push_back(codeEntry(op_tan));
+      else if(f.fname_ == "tanh")  code_.push_back(codeEntry(op_tanh));
       else BOOST_ASSERT(0);
    }
 

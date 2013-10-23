@@ -140,12 +140,14 @@ public:
 		  , const fp_type& lowerBoundary
 		  , const fp_type& upperBoundary
 	)
-		: GConstrainedNumT<fp_type>(
-		      (val==upperBoundary?boost::math::float_prior<fp_type>(val):val)
-		      , lowerBoundary
-		      , boost::math::float_prior<fp_type>(upperBoundary)
-        )
-	{ /* nothing */ }
+		: GConstrainedNumT<fp_type>(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary))
+	{
+	   if(val == upperBoundary) {
+	      GConstrainedNumT<fp_type>::setValue(boost::math::float_prior<fp_type>(upperBoundary));
+	   } else {
+	      GConstrainedNumT<fp_type>::setValue(val);
+	   }
+	}
 
 	/***************************************************************************/
 	/**
@@ -248,7 +250,12 @@ public:
 	 * @return The new external value of this object
 	 */
 	virtual fp_type operator=(const fp_type& val) {
-		return GConstrainedNumT<fp_type>::operator=(val);
+      fp_type tmpVal = val;
+      if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
+         tmpVal = boost::math::float_prior<fp_type>(val);
+      }
+
+		return GConstrainedNumT<fp_type>::operator=(tmpVal);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -267,9 +274,12 @@ public:
 	 * @param val The new fp_type value stored in this class
 	 */
 	virtual void setValue(const fp_type& val) OVERRIDE {
-		GConstrainedNumT<fp_type>::setValue(
-         val==this->getUpperBoundary()?boost::math::float_prior<fp_type>(val):val
-		);
+	   fp_type tmpVal = val;
+	   if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
+	      tmpVal = boost::math::float_prior<fp_type>(val);
+	   }
+
+		GConstrainedNumT<fp_type>::setValue(tmpVal);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -294,10 +304,15 @@ public:
       , const fp_type& lowerBoundary
       , const fp_type& upperBoundary
    ) OVERRIDE {
+      fp_type tmpVal = val;
+      if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
+         tmpVal = boost::math::float_prior<fp_type>(val);
+      }
+
 		GConstrainedNumT<fp_type>::setValue(
-		      (val==upperBoundary?boost::math::float_prior<fp_type>(val):val)
+		      tmpVal
 		      , lowerBoundary
-		      , boost::math::float_prior<fp_type>(upperBoundary)
+		      , upperBoundary
 		);
 	}
 

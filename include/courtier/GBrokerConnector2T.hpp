@@ -1008,11 +1008,11 @@ public:
     * The default constructor
     */
    GBrokerConnector2T()
-   : GBaseExecutorT<processable_type>()
-   , srm_(DEFAULTSRM)
-   , maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
-   , waitFactor_(DEFAULTBROKERWAITFACTOR2)
-   , doLogging_(false)
+      : GBaseExecutorT<processable_type>()
+      , srm_(DEFAULTSRM)
+      , maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
+      , waitFactor_(DEFAULTBROKERWAITFACTOR2)
+      , doLogging_(false)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -1022,11 +1022,11 @@ public:
     * @param srm The submission-return mode to be used
     */
    explicit GBrokerConnector2T(submissionReturnMode srm)
-   : GBaseExecutorT<processable_type>()
-   , srm_(srm)
-   , maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
-   , waitFactor_(DEFAULTBROKERWAITFACTOR2)
-   , doLogging_(false)
+      : GBaseExecutorT<processable_type>()
+      , srm_(srm)
+      , maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
+      , waitFactor_(DEFAULTBROKERWAITFACTOR2)
+      , doLogging_(false)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -1036,11 +1036,11 @@ public:
     * @param cp A copy of another GBrokerConnector object
     */
    GBrokerConnector2T(const GBrokerConnector2T<processable_type>& cp)
-   : GBaseExecutorT<processable_type>(cp)
-   , srm_(cp.srm_)
-   , maxResubmissions_(cp.maxResubmissions_)
-   , waitFactor_(cp.waitFactor_)
-   , doLogging_(cp.doLogging_)
+      : GBaseExecutorT<processable_type>(cp)
+      , srm_(cp.srm_)
+      , maxResubmissions_(cp.maxResubmissions_)
+      , waitFactor_(cp.waitFactor_)
+      , doLogging_(cp.doLogging_)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -1658,8 +1658,8 @@ private:
    // Local data
 
    submissionReturnMode srm_; ///< Indicates how (long) the object shall wait for returns
-   std::size_t waitFactor_; ///< A static factor to be applied to timeouts
    std::size_t maxResubmissions_; ///< The maximum number of re-submissions allowed if a full return of submitted items is attempted
+   std::size_t waitFactor_; ///< A static factor to be applied to timeouts
 
    bool doLogging_; ///< Specifies whether arrival times of work items should be logged
    std::vector<boost::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, boost::posix_time::ptime> > logData_; ///< Holds the sending and receiving iteration as well as the time needed for completion

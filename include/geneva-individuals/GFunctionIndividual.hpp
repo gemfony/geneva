@@ -627,6 +627,72 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * A constraint checker trying to enforce a condition x+y+z=C (note the equal
+ * sign!) for double variables
+ */
+class GDoubleSumGapConstraint : public GParameterSetConstraint
+{
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int){
+     using boost::serialization::make_nvp;
+     ar
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint)
+     & BOOST_SERIALIZATION_NVP(C_)
+     & BOOST_SERIALIZATION_NVP(gap_);
+   }
+   ///////////////////////////////////////////////////////////////////////
+public:
+
+   /** @brief The default constructor */
+   GDoubleSumGapConstraint();
+   /** @brief Initialization with the constant */
+   GDoubleSumGapConstraint(const double&, const double&);
+   /** @brief The copy constructor */
+   GDoubleSumGapConstraint(const GDoubleSumGapConstraint&);
+   /** @brief The destructor */
+   virtual ~GDoubleSumGapConstraint();
+
+   /** @brief A standard assignment operator */
+   const GDoubleSumGapConstraint& operator=(const GDoubleSumGapConstraint&);
+
+   /** @brief Checks for equality with another GIndividualConstraint object */
+   bool operator==(const GDoubleSumGapConstraint&) const;
+   /** @brief Checks for inequality with another GIndividualConstraint object */
+   bool operator!=(const GDoubleSumGapConstraint&) const;
+
+   /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
+   virtual boost::optional<std::string> checkRelationshipWith(
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
+   ) const;
+
+   /** @brief Adds local configuration options to a GParserBuilder object */
+   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+
+protected:
+   virtual double check_(const GParameterSet *) const;
+
+   /** @brief Loads the data of another GParameterSetMultiConstraint */
+   virtual void load_(const GObject*);
+   /** @brief Creates a deep clone of this object */
+   virtual GObject* clone_() const;
+
+private:
+   double C_; ///< The constant that should not be exceeded by the sum of parameters
+   double gap_; ///< A tolerance around C_ that is still considered to be valid
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * A simple constraint checker searching for valid solutions that fulfill
  * a given constraint. Here, valid solutions lie in a sphere around 0
  */
@@ -695,6 +761,7 @@ private:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividual)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumConstraint)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumGapConstraint)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSphereConstraint)
 
 #endif /* GFUNCTIONINDIVIDUAL_HPP_ */

@@ -584,6 +584,15 @@ protected:
                double result = 1.;
                std::vector<double>::const_iterator d_cit;
                for(d_cit=invalidChecks.begin(); d_cit!=invalidChecks.end(); ++d_cit) {
+#ifdef DEBUG
+                  if(1. >= *d_cit) {
+                     glogger
+                     << "In GCheckCombinerT<>::check_(): Error!" << std::endl
+                     << "Result " << *d_cit << " is marked as invalid although it is <= 1." << std::endl
+                     << GEXCEPTION;
+                  }
+#endif
+
                   result *= *d_cit;
                }
                return result;

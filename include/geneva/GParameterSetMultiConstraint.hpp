@@ -95,12 +95,12 @@ public:
 
    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject&
-         , const Gem::Common::expectation&
-         , const double&
-         , const std::string&
-         , const std::string&
-         , const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
    ) const OVERRIDE;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
@@ -124,7 +124,8 @@ protected:
 /**
  * This class accepts a string as input, which describes a formula. It then
  * inserts parameter values into the string, parses the formula and returns the
- * value represented by the formula as the "check"-value.
+ * value represented by the formula as the "check"-value. Note that this class
+ * currently only deals with double values.
  */
 class GParameterSetFormulaConstraint: public GParameterSetConstraint
 {
@@ -140,9 +141,10 @@ class GParameterSetFormulaConstraint: public GParameterSetConstraint
    }
    ///////////////////////////////////////////////////////////////////////
 public:
+   typedef std::map<std::string, double> parameter_map;
 
    /** @brief The default constructor */
-   GParameterSetFormulaConstraint(const std::string&);
+   GParameterSetFormulaConstraint(std::string);
    /** @brief The copy constructor */
    GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint&);
    /** @brief The destructor */
