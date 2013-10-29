@@ -1638,11 +1638,12 @@ std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
       }
 
       footer_data
-      << polyMarkerName << "->SetPoint(" << pos << ", " << x << ", " << y << ", " << z << "); // w = " << w << std::endl
-      << polyMarkerName << "->SetMarkerSize(" << markerSize << ");" << std::endl
-      << polyMarkerName << "->SetMarkerColor(" << (0==pos?4:2) << ");" << std::endl
-      << polyMarkerName << "->SetMarkerStyle(8);" << std::endl
-      << polyMarkerName << "->Draw();" << std::endl;
+      << "  " << polyMarkerName << "->SetPoint(" << pos << ", " << x << ", " << y << ", " << z << "); // w = " << w << std::endl
+      << "  " << polyMarkerName << "->SetMarkerSize(" << markerSize << ");" << std::endl
+      << "  " << polyMarkerName << "->SetMarkerColor(" << (0==pos?4:2) << ");" << std::endl
+      << "  " << polyMarkerName << "->SetMarkerStyle(8);" << std::endl
+      << "  " << polyMarkerName << "->Draw();" << std::endl
+      << std::endl;
 
       pos++;
 

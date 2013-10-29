@@ -50,7 +50,7 @@ namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
    //---------------------------------------------------------------------------
-   // We want to add an additional command line option
+   // We want to add additional command line options
 
    bool printValid = false;
    bool useTrueFitness = false;
@@ -100,6 +100,7 @@ int main(int argc, char **argv) {
 
 	progplot_ptr->addProfileVar("d", 0); // first double parameter
    progplot_ptr->addProfileVar("d", 1); // second double parameter
+   progplot_ptr->addProfileVar("d", 2); // second double parameter
    progplot_ptr->setMonitorValidOnly(printValid); // Only record valid parameters, when printValid is set to true
    progplot_ptr->setUseTrueEvaluation(useTrueFitness); // Use untransformed evaluation values for logging
 
