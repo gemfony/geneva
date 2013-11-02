@@ -1,0 +1,5 @@
+This directory contains a test for the parsing of strings like 
+"d(MY_DPAR_01,-10.3,12.8,100), d(0,-10.3,12.8,100), i(SOME_IPAR_17, 0,5, 20), b(SOME_BPAR, false, true, 10)".
+This is needed in the context of parameter scans. The string indicates, which variables should be scanned in
+which boundaries, and how many scan-points should be used per variable.
+ 

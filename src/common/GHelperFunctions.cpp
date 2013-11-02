@@ -224,7 +224,7 @@ std::vector<boost::tuple<unsigned int, unsigned int> > stringToUIntTupleVec(cons
    using namespace boost::spirit;
 
    typedef std::string::const_iterator cit_type;
-   typedef std::vector<boost::tuple<unsigned long, unsigned long> > res_type;
+   typedef std::vector<boost::tuple<unsigned int, unsigned int> > res_type;
 
    std::vector<boost::tuple<unsigned int, unsigned int> > result;
    bool success = false;

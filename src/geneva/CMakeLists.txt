@@ -65,6 +65,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterBaseWithAdaptorsT
 	GParameterCollectionT
 	GParameterObjectCollection
+	GParameterPropertyParser
 	GParameterScanFactory
 	GParameterSet
 	GParameterSetMultiConstraint
