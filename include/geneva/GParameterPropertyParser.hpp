@@ -40,6 +40,7 @@
 // Boost headers go here
 #include <boost/tuple/tuple.hpp>
 #include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/qi_lit.hpp>
 #include <boost/fusion/include/tuple.hpp>
 #include <boost/fusion/include/boost_tuple.hpp>
 #include <boost/fusion/adapted/boost_tuple.hpp>
@@ -73,8 +74,8 @@ const bool ISINDEX = false;
 const bool ISNAME  = true;
 
 /******************************************************************************/
-/** @brief Converts the nameOrId parameter into the desired target type */
-boost::variant<std::size_t, std::string> getNameOrId(bool &type, const std::string& nameOrId);
+/** @brief Storage of variable-related properties */
+typedef boost::tuple<std::size_t, std::string, std::size_t> NAMEANDIDTYPE;
 
 /******************************************************************************/
 /**
@@ -88,7 +89,10 @@ boost::variant<std::size_t, std::string> getNameOrId(bool &type, const std::stri
  */
 template <typename par_type>
 struct parPropSpec {
-   std::string nameOrId; ///< Either a unique variable name or the index of a vector of parameter objects
+   // mode: (0, ...), (VarName[0], ...) or (VarName, ...)
+   // variable name
+   // optional index
+   NAMEANDIDTYPE var;
    par_type lowerBoundary; ///< The lower boundary for the parameter scan
    par_type upperBoundary; ///< The upper boundary for the parameter scan
    std::size_t nSteps;   ///< The number of steps from the lower boundary to the upper boundary (or possibly the number of random values from this parameter range, depending on the scan mode and parameter type)
@@ -104,19 +108,27 @@ struct parPropSpec {
  */
 template <typename par_type>
 std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
-   bool noi = ISINDEX;
-   boost::variant<std::size_t, std::string> v = getNameOrId(noi, s.nameOrId);
-
-   if(ISINDEX==noi) {
-      o << "id = " << boost::get<std::size_t>(v) << std::endl;
+   if(0 == boost::get<0>(s.var)) {
+      o
+      << "index       = " << boost::get<2>(s.var) << std::endl;
+   } else if(1 == boost::get<0>(s.var)){
+      o
+      << "Address     = " << boost::get<1>(s.var) << "[" << boost::get<2>(s.var) << "]" << std::endl;
+   } else if (2 == boost::get<0>(s.var)){
+      o
+      << "Name        = " << boost::get<1>(s.var) << std::endl;
    } else {
-      o << "Name = " << boost::get<std::string>(v) << std::endl;
+      glogger
+      << "In std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s): Error!" << std::endl
+      << "Got invalid mode " << boost::get<0>(s.var) << std::endl
+      << GEXCEPTION;
    }
 
    o
+   << "mode          = " << boost::get<0>(s.var) << std::endl
    << "lowerBoundary = " << s.lowerBoundary << std::endl
    << "upperBoundary = " << s.upperBoundary << std::endl
-   << "nSteps = "        << s.nSteps << std::endl;
+   << "nSteps        = " << s.nSteps << std::endl;
 
    return o;
 }
@@ -133,7 +145,7 @@ std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
 /** @brief Makes the struct boost.fusion-compatible */
 BOOST_FUSION_ADAPT_STRUCT(
       Gem::Geneva::parPropSpec<double>,
-      (std::string, nameOrId)
+      (Gem::Geneva::NAMEANDIDTYPE, var)
       (double, lowerBoundary)
       (double, upperBoundary)
       (std::size_t, nSteps)
@@ -142,7 +154,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 /** @brief Makes the struct boost.fusion-compatible */
 BOOST_FUSION_ADAPT_STRUCT(
       Gem::Geneva::parPropSpec<float>,
-      (std::string, nameOrId)
+      (Gem::Geneva::NAMEANDIDTYPE, var)
       (float, lowerBoundary)
       (float, upperBoundary)
       (std::size_t, nSteps)
@@ -151,7 +163,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 /** @brief Makes the struct boost.fusion-compatible */
 BOOST_FUSION_ADAPT_STRUCT(
       Gem::Geneva::parPropSpec<boost::int32_t>,
-      (std::string, nameOrId)
+      (Gem::Geneva::NAMEANDIDTYPE, var)
       (boost::int32_t, lowerBoundary)
       (boost::int32_t, upperBoundary)
       (std::size_t, nSteps)
@@ -160,7 +172,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 /** @brief Makes the struct boost.fusion-compatible */
 BOOST_FUSION_ADAPT_STRUCT(
       Gem::Geneva::parPropSpec<bool>,
-      (std::string, nameOrId)
+      (Gem::Geneva::NAMEANDIDTYPE, var)
       (bool, lowerBoundary)
       (bool, upperBoundary)
       (std::size_t, nSteps)
@@ -230,6 +242,9 @@ private:
 
    boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> varSpec;
    boost::spirit::qi::rule<std::string::const_iterator, boost::tuple<char, std::string>(), boost::spirit::ascii::space_type> varString;
+
+   boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> identifier;
+   boost::spirit::qi::rule<std::string::const_iterator, NAMEANDIDTYPE(), boost::spirit::ascii::space_type> varReference;
 
    boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<double>()         , boost::spirit::ascii::space_type> doubleStringParser;
    boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<float>()          , boost::spirit::ascii::space_type> floatStringParser;

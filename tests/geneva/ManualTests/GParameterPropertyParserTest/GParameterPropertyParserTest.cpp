@@ -45,7 +45,7 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-   std::string raw = "d(MY_DPAR_01,-10.3,12.8,100), d(0,-10.3,12.8,100), i(SOME_IPAR_17, 0,5, 20), b(SOME_BPAR, false, true, 10)";
+   std::string raw = "d(MY_DPAR_01,-10.3,12.8,100), d(0,-10.3,12.8,100), i(SOME_IPAR_17, 0,5, 20), b(SOME_BPAR, false, true, 10), d(MY_DPAR_02[3], -5, 7, 20)";
    GParameterPropertyParser p(raw);
 
    // Retrieve double parameters

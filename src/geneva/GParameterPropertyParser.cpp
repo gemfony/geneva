@@ -39,24 +39,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * Converts the nameOrId parameter into the desired target type
- */
-boost::variant<std::size_t, std::string> getNameOrId(bool &type, const std::string& nameOrId) {
-   try { // TODO: Is there an easier way to check whether nameOrId represents an integer ? Boost.Regex ?
-      std::size_t id = boost::lexical_cast<std::size_t>(nameOrId);
-      type = ISINDEX;
-      return boost::variant<std::size_t, std::string>(id);
-   } catch (const boost::bad_lexical_cast&) {
-      type = ISNAME;
-      return boost::variant<std::size_t, std::string>(nameOrId);
-   }
-
-   // Make the compiler happy (returns an empty variant object)
-   return boost::variant<std::size_t, std::string>();
-}
-
-/******************************************************************************/
-/**
  * The standard constructor -- assignment of the "raw" paramter property string
  */
 GParameterPropertyParser::GParameterPropertyParser(const std::string& raw)
@@ -72,15 +54,26 @@ GParameterPropertyParser::GParameterPropertyParser(const std::string& raw)
    using boost::spirit::qi::int_;
    using boost::spirit::qi::bool_;
    using boost::spirit::qi::lit;
+   using boost::spirit::ascii::string;
    using boost::spirit::lexeme;
+   using boost::spirit::qi::attr;
 
-   varSpec   = +char_("0-9a-zA-Z_,.+-");;
-   varString = char_("dfib") >> '(' >> varSpec >> ')';
+   using boost::spirit::qi::raw;
+   using boost::spirit::qi::alpha;
+   using boost::spirit::qi::alnum;
+   using boost::spirit::qi::hold;
 
-   doubleStringParser = (lexeme[+char_("0-9a-zA-Z_")] >> ',' >> double_ >> ',' >> double_ >> ',' >> uint_);
-   floatStringParser  = (lexeme[+char_("0-9a-zA-Z_")] >> ',' >> float_  >> ',' >> float_  >> ',' >> uint_);
-   intStringParser    = (lexeme[+char_("0-9a-zA-Z_")] >> ',' >> int_    >> ',' >> int_    >> ',' >> uint_);
-   boolStringParser   = (lexeme[+char_("0-9a-zA-Z_")] >> ',' >> bool_   >> ',' >> bool_   >> ',' >> uint_);
+   varSpec   = +char_("0-9a-zA-Z_,.+-[]");;
+   varString = char_("dfib") > '(' > varSpec > ')';
+
+   identifier = raw[(alpha | '_') >> *(alnum | '_')];
+
+   varReference = ( hold[attr(0) >> attr("empty") >> uint_] | hold[attr(1) >> identifier >> '[' >> uint_ >> ']'] | (attr(2) >> identifier >> attr(0)) );
+
+   doubleStringParser = (varReference >> ',' >> double_ >> ',' >> double_ >> ',' >> uint_);
+   floatStringParser  = (varReference >> ',' >> float_  >> ',' >> float_  >> ',' >> uint_);
+   intStringParser    = (varReference >> ',' >> int_    >> ',' >> int_    >> ',' >> uint_);
+   boolStringParser   = (varReference >> ',' >> bool_   >> ',' >> bool_   >> ',' >> uint_);
 
    try {
       this->parse();
@@ -143,6 +136,7 @@ void GParameterPropertyParser::parse() {
    using boost::spirit::qi::bool_;
    using boost::spirit::qi::lit;
    using boost::spirit::lexeme;
+   using boost::spirit::qi::attr;
 
    using boost::phoenix::push_back;
    using boost::spirit::qi::_1;
