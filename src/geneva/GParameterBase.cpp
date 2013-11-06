@@ -537,7 +537,7 @@ void GParameterBase::streamline<bool>(
  */
 template <>
 void GParameterBase::streamline<float>(
-   std::map<std::string, float>& parVec
+   std::map<std::string, std::vector<float> >& parVec
 ) const {
    this->floatStreamline(parVec);
 }
@@ -550,7 +550,7 @@ void GParameterBase::streamline<float>(
  */
 template <>
 void GParameterBase::streamline<double>(
-   std::map<std::string, double>& parVec
+   std::map<std::string, std::vector<double> >& parVec
 ) const {
    this->doubleStreamline(parVec);
 }
@@ -563,7 +563,7 @@ void GParameterBase::streamline<double>(
  */
 template <>
 void GParameterBase::streamline<boost::int32_t>(
-   std::map<std::string, boost::int32_t>& parVec
+   std::map<std::string, std::vector<boost::int32_t> >& parVec
 ) const {
    this->int32Streamline(parVec);
 }
@@ -576,7 +576,7 @@ void GParameterBase::streamline<boost::int32_t>(
  */
 template <>
 void GParameterBase::streamline<bool>(
-   std::map<std::string, bool>& parVec
+   std::map<std::string, std::vector<bool> >& parVec
 ) const {
    this->booleanStreamline(parVec);
 }
@@ -656,7 +656,7 @@ void GParameterBase::booleanStreamline(
  * the actual work.
  */
 void GParameterBase::floatStreamline(
-   std::map<std::string, float>& parVec
+   std::map<std::string, std::vector<float> >& parVec
 ) const {
    /* do nothing by default */
 }
@@ -673,7 +673,7 @@ void GParameterBase::floatStreamline(
  * the actual work.
  */
 void GParameterBase::doubleStreamline(
-   std::map<std::string, double>& parVec
+   std::map<std::string, std::vector<double> >& parVec
 ) const {
    /* do nothing by default */
 }
@@ -690,7 +690,7 @@ void GParameterBase::doubleStreamline(
  * the actual work.
  */
 void GParameterBase::int32Streamline(
-   std::map<std::string, boost::int32_t>& parVec
+   std::map<std::string, std::vector<boost::int32_t> >& parVec
 ) const {
    /* do nothing by default */
 }
@@ -707,7 +707,7 @@ void GParameterBase::int32Streamline(
  * the actual work.
  */
 void GParameterBase::booleanStreamline(
-   std::map<std::string, bool>& parVec
+   std::map<std::string, std::vector<bool> >& parVec
 ) const {
    /* do nothing by default */
 }

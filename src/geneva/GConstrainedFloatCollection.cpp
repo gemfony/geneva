@@ -208,21 +208,19 @@ void GConstrainedFloatCollection::floatStreamline(std::vector<float>& parVec) co
  *
  * @param parVec The map to which the local value should be attached
  */
-void GConstrainedFloatCollection::floatStreamline(std::map<std::string, float>& parVec) const {
+void GConstrainedFloatCollection::floatStreamline(std::map<std::string, std::vector<float> >& parVec) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
-      << "In GConstrainedFloatCollection::floatStreamline(std::map<std::string, float>& parVec) const: Error!" << std::endl
+      << "In GConstrainedFloatCollection::floatStreamline(std::map<std::string, std::vector<float> >& parVec) const: Error!" << std::endl
       << "No name was assigned to the object" << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
-   GConstrainedFloatCollection::const_iterator cit;
-   std::size_t cnt = 0;
-   for(cit=this->begin(); cit!=this->end(); ++cit) {
-      parVec[this->getParameterName() + "-" + boost::lexical_cast<std::string>(cnt++)] = this->transfer(*cit);
-   }
+   std::vector<float> parameters;
+   this->floatStreamline(parameters);
+   parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/

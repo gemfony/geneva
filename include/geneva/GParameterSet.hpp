@@ -271,7 +271,7 @@ public:
     * @param parVec The map to which the parameters will be added
     */
    template <typename par_type>
-   void streamline(std::map<std::string,par_type>& parVec) const {
+   void streamline(std::map<std::string, std::vector<par_type> >& parVec) const {
       // Make sure the vector is clean
       parVec.clear();
 

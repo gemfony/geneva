@@ -225,8 +225,10 @@ void GConstrainedFloatObject::floatStreamline(std::vector<float>& parVec) const 
  *
  * @param parVec The map to which the local value should be attached
  */
-void GConstrainedFloatObject::floatStreamline(std::map<std::string, float>& parVec) const {
-   parVec[this->getParameterName()] = this->value();
+void GConstrainedFloatObject::floatStreamline(std::map<std::string, std::vector<float> >& parVec) const {
+   std::vector<float> parameters;
+   parameters.push_back(this->value());
+   parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/

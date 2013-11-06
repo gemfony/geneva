@@ -222,17 +222,19 @@ void GDoubleObject::doubleStreamline(std::vector<double>& parVec) const {
  *
  * @param parVec The map to which the local value should be attached
  */
-void GDoubleObject::doubleStreamline(std::map<std::string, double>& parVec) const {
+void GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double> >& parVec) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
-      << "In GDoubleObject::doubleStreamline(std::map<std::string, double>& parVec) const: Error!" << std::endl
+      << "In GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double> >& parVec) const: Error!" << std::endl
       << "No name was assigned to the object" << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
-   parVec[this->getParameterName()] = this->value();
+   std::vector<double> parameters;
+   parameters.push_back(this->value());
+   parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/

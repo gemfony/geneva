@@ -118,7 +118,7 @@ public:
 	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&) OVERRIDE;
 
    /** @brief Attach our local values to the vector. */
-   virtual void doubleStreamline(std::map<std::string, double>&) const OVERRIDE;
+   virtual void doubleStreamline(std::map<std::string, std::vector<double> >&) const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;

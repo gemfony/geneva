@@ -227,8 +227,10 @@ void GConstrainedInt32Object::int32Streamline(std::vector<boost::int32_t>& parVe
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GConstrainedInt32Object::int32Streamline(std::map<std::string, boost::int32_t>& parVec) const {
-   parVec[this->getParameterName()] = this->value();
+void GConstrainedInt32Object::int32Streamline(std::map<std::string, std::vector<boost::int32_t> >& parVec) const {
+   std::vector<boost::int32_t> parameters;
+   parameters.push_back(this->value());
+   parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/

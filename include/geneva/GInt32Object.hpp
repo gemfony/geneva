@@ -132,7 +132,7 @@ public:
 	virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&) OVERRIDE;
 
    /** @brief Attach our local value to the map. */
-   virtual void int32Streamline(std::map<std::string, boost::int32_t>&) const OVERRIDE;
+   virtual void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&) const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;

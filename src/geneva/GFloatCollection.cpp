@@ -211,7 +211,7 @@ void GFloatCollection::floatStreamline(std::vector<float>& parVec) const {
  *
  * @param parVec The map to which the local value should be attached
  */
-void GFloatCollection::floatStreamline(std::map<std::string, float>& parVec) const {
+void GFloatCollection::floatStreamline(std::map<std::string, std::vector<float> >& parVec) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
@@ -221,11 +221,9 @@ void GFloatCollection::floatStreamline(std::map<std::string, float>& parVec) con
    }
 #endif /* DEBUG */
 
-   GFloatCollection::const_iterator cit;
-   std::size_t cnt = 0;
-   for(cit=this->begin(); cit!=this->end(); ++cit) {
-      parVec[this->getParameterName() + "-" + boost::lexical_cast<std::string>(cnt++)] = *cit;
-   }
+   std::vector<float> parameters;
+   this->floatStreamline(parameters);
+   parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/

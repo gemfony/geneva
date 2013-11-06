@@ -225,17 +225,19 @@ void GInt32Object::int32Streamline(std::vector<boost::int32_t>& parVec) const {
  *
  * @param parVec The map to which the local value should be attached
  */
-void GInt32Object::int32Streamline(std::map<std::string, boost::int32_t>& parVec) const {
+void GInt32Object::int32Streamline(std::map<std::string, std::vector<boost::int32_t> >& parVec) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
-      << "In GInt32Object::int32Streamline(std::map<std::string, boost::int32_t>& parVec) const: Error!" << std::endl
+      << "In GInt32Object::int32Streamline(std::map<std::string, std::vector<boost::int32_t> >& parVec) const: Error!" << std::endl
       << "No name was assigned to the object" << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
-   parVec[this->getParameterName()] = this->value();
+   std::vector<boost::int32_t> parameters;
+   parameters.push_back(this->value());
+   parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/

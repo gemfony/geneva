@@ -51,10 +51,8 @@
 #include "common/GExceptions.hpp"
 #include "hap/GRandomT.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 /* The GConstrainedIntT class represents an integer type, such as an int or a long,

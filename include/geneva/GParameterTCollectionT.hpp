@@ -460,7 +460,7 @@ public:
     *
     * @param parVec The map to which the float parameters will be attached
     */
-   virtual void floatStreamline(std::map<std::string, float>& parVec) const OVERRIDE {
+   virtual void floatStreamline(std::map<std::string, std::vector<float> >& parVec) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->floatStreamline(parVec);
@@ -479,7 +479,7 @@ public:
     *
     * @param parVec The map to which the double parameters will be attached
     */
-   virtual void doubleStreamline(std::map<std::string, double>& parVec) const OVERRIDE {
+   virtual void doubleStreamline(std::map<std::string, std::vector<double> >& parVec) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->doubleStreamline(parVec);
@@ -498,7 +498,7 @@ public:
     *
     * @param parVec The map to which the boost::int32_t parameters will be attached
     */
-   virtual void int32Streamline(std::map<std::string, boost::int32_t>& parVec) const OVERRIDE {
+   virtual void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >& parVec) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->int32Streamline(parVec);
@@ -517,7 +517,7 @@ public:
     *
     * @param parVec The map to which the boolean parameters will be attached
     */
-   virtual void booleanStreamline(std::map<std::string, bool>& parVec) const OVERRIDE {
+   virtual void booleanStreamline(std::map<std::string, std::vector<bool> >& parVec) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->booleanStreamline(parVec);

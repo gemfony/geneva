@@ -41,10 +41,13 @@
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
+#include <boost/assign/list_of.hpp>
+#include <boost/assign/list_inserter.hpp>
 
 // Geneva headers go here
 #include "common/GFormulaParserT.hpp"
 
+using namespace boost::assign;
 using namespace Gem::Common;
 using namespace std;
 
@@ -60,12 +63,15 @@ using namespace std;
 
 int test_main(int argc, char** argv) {
    {  // Test replacement of variables and constants (1)
-      std::map<std::string, double> parameterValues;
+      std::map<std::string, std::vector<double> > parameterValues;
 
       std::string formula("sin({{0}})/{{1}}");
 
-      parameterValues["0"] = 4.34343434343434;
-      parameterValues["1"] = 8.98989898989899;
+      std::vector<double> list0 = boost::assign::list_of(4.34343434343434);
+      std::vector<double> list1 = boost::assign::list_of(8.98989898989899);
+
+      parameterValues["0"] = list0;
+      parameterValues["1"] = list1;
 
       GFormulaParserT<double> f(formula);
 
@@ -75,13 +81,33 @@ int test_main(int argc, char** argv) {
       BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
    }
 
+   {  // Test replacement of variables and constants (1)
+      std::map<std::string, std::vector<double> > parameterValues;
+
+      std::string formula("sin({{var0[2]}})/{{var1}}");
+
+      std::vector<double> list0 = boost::assign::list_of(1.5)(2.5)(3.5);
+      std::vector<double> list1 = boost::assign::list_of(8.98989898989899);
+
+      parameterValues["var0"] = list0;
+      parameterValues["var1"] = list1;
+
+      GFormulaParserT<double> f(formula);
+
+      double fp_val = sin(list0[2])/list1[0];
+      double parse_val = f(parameterValues);
+
+      BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
+   }
+
    {  // Test replacement of variables and constants (2)
-      std::map<std::string, double> parameterValues;
+      std::map<std::string, std::vector<double> > parameterValues;
       std::map<std::string, double> userConstants;
 
       std::string formula("gem*sin({{var1}})*cos(pi)");
 
-      parameterValues["var1"] = 2.;
+      std::vector<double> var1list = boost::assign::list_of(2.);
+      parameterValues["var1"] = var1list;
       userConstants["gem"] = -1.;
 
       GFormulaParserT<double> f(formula, userConstants);

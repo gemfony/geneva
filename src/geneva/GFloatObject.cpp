@@ -222,17 +222,20 @@ void GFloatObject::floatStreamline(std::vector<float>& parVec) const {
  *
  * @param parVec The map to which the local value should be attached
  */
-void GFloatObject::floatStreamline(std::map<std::string, float>& parVec) const {
+void GFloatObject::floatStreamline(std::map<std::string, std::vector<float> >& parVec) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
-      << "In GFloatObject::floatStreamline(std::map<std::string, float>& parVec) const: Error!" << std::endl
+      << "In GFloatObject::floatStreamline(std::map<std::string, std::vector<float> >& parVec) const: Error!" << std::endl
       << "No name was assigned to the object" << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
-   parVec[this->getParameterName()] = this->value();
+   std::vector<float> parameters;
+   parameters.push_back(this->value());
+
+   parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/

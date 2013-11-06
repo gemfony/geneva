@@ -162,10 +162,10 @@ public:
     * @oaram parVec The vector to which the items should be added
     */
    template <typename par_type>
-   void streamline(std::map<std::string, par_type>& parVec) const
+   void streamline(std::map<std::string, std::vector<par_type> >& parVec) const
    {
       glogger
-      << "In GParameterBase::streamline(std::map<std::string, par_type>)" << std::endl
+      << "In GParameterBase::streamline(std::map<std::string, std::vec<par_type> >)" << std::endl
       << "Function called for unsupported type!" << std::endl
       << GEXCEPTION;
    }
@@ -182,13 +182,13 @@ public:
 
    /***************************************************************************/
    /** @brief Attach parameters of type float to the map */
-   virtual void floatStreamline(std::map<std::string, float>&) const BASE;
+   virtual void floatStreamline(std::map<std::string, std::vector<float> >&) const BASE;
    /** @brief Attach parameters of type double to the map */
-   virtual void doubleStreamline(std::map<std::string, double>&) const BASE;
+   virtual void doubleStreamline(std::map<std::string, std::vector<double> >&) const BASE;
    /** @brief Attach parameters of type boost::int32_t to the map */
-   virtual void int32Streamline(std::map<std::string, boost::int32_t>&) const BASE;
+   virtual void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&) const BASE;
    /** @brief Attach parameters of type bool to the map */
-   virtual void booleanStreamline(std::map<std::string, bool>&) const BASE;
+   virtual void booleanStreamline(std::map<std::string, std::vector<bool> >&) const BASE;
 
 	/***************************************************************************/
 	/**
@@ -390,10 +390,10 @@ template <>	void GParameterBase::streamline<double>(std::vector<double>&) const;
 template <>	void GParameterBase::streamline<boost::int32_t>(std::vector<boost::int32_t>&) const;
 template <>	void GParameterBase::streamline<bool>(std::vector<bool>&) const;
 
-template <> void GParameterBase::streamline<float>(std::map<std::string, float>&) const;
-template <> void GParameterBase::streamline<double>(std::map<std::string, double>&) const;
-template <> void GParameterBase::streamline<boost::int32_t>(std::map<std::string, boost::int32_t>&) const;
-template <> void GParameterBase::streamline<bool>(std::map<std::string, bool>&) const;
+template <> void GParameterBase::streamline<float>(std::map<std::string, std::vector<float> >&) const;
+template <> void GParameterBase::streamline<double>(std::map<std::string, std::vector<double> >&) const;
+template <> void GParameterBase::streamline<boost::int32_t>(std::map<std::string, std::vector<boost::int32_t> >&) const;
+template <> void GParameterBase::streamline<bool>(std::map<std::string, std::vector<bool> >&) const;
 
 template <>	void GParameterBase::boundaries<float>(std::vector<float>&, std::vector<float>&) const;
 template <>	void GParameterBase::boundaries<double>(std::vector<double>&, std::vector<double>&) const;

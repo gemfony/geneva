@@ -292,7 +292,7 @@ void GParameterSetFormulaConstraint::addConfigurationOptions(
 double GParameterSetFormulaConstraint::check_(
    const GParameterSet * p
 ) const {
-   std::map<std::string, double> parameterValues;
+   std::map<std::string, std::vector<double> > parameterValues;
    p->streamline(parameterValues); // Extract the parameter values including names
    Gem::Common::GFormulaParserT<double> f(rawFormula_); // Create the parser
    return f(parameterValues); // Parse the formula and return the value

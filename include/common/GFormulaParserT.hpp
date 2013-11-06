@@ -196,9 +196,13 @@ namespace Common {
  * holders for variables, e.g. "(sin({{var1}})*sqrt({{var2}}) - ({{var3}}*pi))^2".
  * Formulas are provided in string form to the constructor. The evaluate()
  * function will then replace the place-holders with the corresponding entries of
- * a std::map<std::string, fp_type>. An object of this class may deal with a single
- * formula only, which is given to it through the constructor. When a formula cannot
- * be parsed, an exception will be thrown. Note that the class currently only handles
+ * a std::map<std::string, std::vector<fp_type> >. For simple variable names such
+ * as "var2" only the first value of the std::vector is used -- a notation such as
+ * "var3{2]" is also possible -- in this case the third value of the vector will be
+ * used. An exception will be thrown, if the vector doesn't have enough entroes.
+ * An object of this class may deal with a single formula only, which is
+ * given to it through the constructor. When a formula cannot be parsed,
+ * an exception will be thrown. Note that the class currently only handles
  * floating point values (float and double). The class is based on a number of
  * examples taken from the Boost.Spirit code base, particularly calc6.cpp from
  * Boost version 1.54.
@@ -251,7 +255,8 @@ public:
 
    typedef void result_type; // Needed for the operator() and apply_visitor
    typedef boost::variant<byte_code,fp_type> codeEntry;
-   typedef std::map<std::string, fp_type> parameter_map;
+   typedef std::map<std::string, std::vector<fp_type> > parameter_map;
+   typedef std::map<std::string, fp_type> constants_map;
 
    /***************************************************************************/
    /**
@@ -259,7 +264,7 @@ public:
     */
    explicit GFormulaParserT(
       const std::string& formula
-      , const parameter_map& user_constants = parameter_map()
+      , const constants_map& user_constants = constants_map()
    )
       : GFormulaParserT::base_type(expression_rule_)
       , raw_formula_(formula)
@@ -285,7 +290,7 @@ public:
       ;
 
       // Add user-defined constants
-      typename parameter_map::const_iterator cit;
+      typename constants_map::const_iterator cit;
       for(cit=user_constants.begin(); cit!=user_constants.end(); ++cit) {
          constants_.add(cit->first, cit->second);
       }
@@ -491,10 +496,25 @@ private:
       typename parameter_map::const_iterator cit;
       for(cit=vm.begin(); cit!=vm.end(); ++cit) {
          key = cit->first;
-         value = boost::lexical_cast<std::string>(cit->second);
-         re = as_xpr("{{" + key + "}}");
 
-         formula = regex_replace(formula, re, value);
+         if(1 == (cit->second).size()) { // Try just the key
+            value = boost::lexical_cast<std::string>((cit->second).at(0));
+            re = as_xpr("{{" + key + "}}");
+            formula = regex_replace(formula, re, value);
+         } else if ((cit->second).size() > 1) { // Try key[0], key[1], ...
+            std::size_t cnt = 0;
+            typename std::vector<fp_type>::const_iterator v_cit;
+            for(v_cit=(cit->second).begin(); v_cit!=(cit->second).end(); ++v_cit) {
+               value = boost::lexical_cast<std::string>(*v_cit);
+               re = as_xpr("{{" + key + "[" + boost::lexical_cast<std::string>(cnt++) + "]" + "}}");
+               formula = regex_replace(formula, re, value);
+            }
+         } else { // The vector is empty
+            glogger
+            << "In GFormulaParserT::replacePlaceHolders(): Error!" << std::endl
+            << "Vector is empty!" << std::endl
+            << GEXCEPTION;
+         }
       }
 
       return formula;

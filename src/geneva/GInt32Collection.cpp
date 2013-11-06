@@ -211,21 +211,19 @@ void GInt32Collection::int32Streamline(std::vector<boost::int32_t>& parVec) cons
  *
  * @param parVec The map to which the local values should be attached
  */
-void GInt32Collection::int32Streamline(std::map<std::string, boost::int32_t>& parVec) const {
+void GInt32Collection::int32Streamline(std::map<std::string, std::vector<boost::int32_t> >& parVec) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
-      << "In GInt32Collection::int32Streamline(std::map<std::string, boost::int32_t>& parVec) const: Error!" << std::endl
+      << "In GInt32Collection::int32Streamline(std::map<std::string, std::vector<boost::int32_t> >& parVec) const: Error!" << std::endl
       << "No name was assigned to the object" << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
-   GInt32Collection::const_iterator cit;
-   std::size_t cnt = 0;
-   for(cit=this->begin(); cit!=this->end(); ++cit) {
-      parVec[this->getParameterName() + "-" + boost::lexical_cast<std::string>(cnt++)] = *cit;
-   }
+   std::vector<boost::int32_t> parameters;
+   this->int32Streamline(parameters);
+   parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
