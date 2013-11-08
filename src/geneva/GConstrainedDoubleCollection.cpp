@@ -279,6 +279,16 @@ void GConstrainedDoubleCollection::assignDoubleValueVector(const std::vector<dou
 
 /******************************************************************************/
 /**
+ * Assigns part of a value map to the parameter
+ */
+void GConstrainedDoubleCollection::assignDoubleValueVectors(const std::map<std::string, std::vector<double> >& parMap) {
+   for(std::size_t i=0; i<this->size(); i++) {
+     this->setValue(i, this->transfer((Gem::Common::getMapItem(parMap,this->getParameterName())).at(i)));
+   }
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GConstrainedDoubleCollection object,
  * camouflaged as a GObject. We have no local data, so
  * all we need to do is to the standard identity check,

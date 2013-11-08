@@ -380,8 +380,11 @@ void Go2::registerDefaultAlgorithm(boost::shared_ptr<GOABase> default_algorithm)
 /**
  * Retrieves a parameter of a given type at the specified position
  */
-boost::any Go2::getVarVal(const std::string& descr, const std::size_t& pos) {
-   return this->GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, pos);
+boost::any Go2::getVarVal(
+   const std::string& descr
+   , const boost::tuple<std::size_t, std::string, std::size_t>& target
+){
+   return this->GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, target);
 }
 
 /******************************************************************************/
@@ -457,8 +460,8 @@ GObject *Go2::clone_() const {
 int Go2::clientRun() {
    // Check that we have indeed been given a valid name
    if(
-         GO2_DEF_NOCONSUMER == consumerName_
-         || !GConsumerStore->exists(consumerName_)
+      GO2_DEF_NOCONSUMER == consumerName_
+      || !GConsumerStore->exists(consumerName_)
    ) {
       glogger
       << "In Go2::clientRun(): Error!" << std::endl
@@ -1020,19 +1023,28 @@ void Go2::parseCommandLine(
 
 		// First add local options
 		desc.add_options()
-				("help,h", "emit help message")
-            ("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.str().c_str())
-				("executionMode,e", po::value<execMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE), "The execution mode: (0) means serial execution (1) means multi-threaded execution and (2) means execution through the broker. Note that you need to specifiy a consumer")
-				("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
-				("consumer,c", po::value<std::string>(&consumerName_), consumer_help.str().c_str())
+         ("help,h", "emit help message")
+         ("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.str().c_str())
+         ("executionMode,e", po::value<execMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE), "The execution mode: (0) means serial execution (1) means multi-threaded execution and (2) means execution through the broker. Note that you need to specifiy a consumer")
+         ("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
+         ("consumer,c", po::value<std::string>(&consumerName_), consumer_help.str().c_str())
 		;
 
 		// Retrieve available command line options from registered consumers, if any
-		GConsumerStore->rewind();
-		do {
-		   if(GConsumerStore->empty()) break;
-		   GConsumerStore->getCurrentItem()->addCLOptions(desc);
-		} while(GConsumerStore->goToNextPosition());
+		if(!GConsumerStore->empty()) {
+		   GConsumerStore->rewind();
+		   do {
+		      GConsumerStore->getCurrentItem()->addCLOptions(desc);
+		   } while(GConsumerStore->goToNextPosition());
+		}
+
+		// Retrieve available commmand line options from registered optimization algorithm factories, if any
+		if(!GOAFactoryStore->empty()) {
+	      GOAFactoryStore->rewind();
+	      do {
+	         GOAFactoryStore->getCurrentItem()->addCLOptions(desc);
+	      } while(GOAFactoryStore->goToNextPosition());
+		}
 
 		// Add additional options specified as an argument to the constructor
 		std::vector<boost::shared_ptr<boost::program_options::option_description> >::const_iterator po_cit;

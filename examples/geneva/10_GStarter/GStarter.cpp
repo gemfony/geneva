@@ -82,5 +82,5 @@ int main(int argc, char **argv) {
 	boost::shared_ptr<GStarterIndividual> bestIndividual_ptr = go.optimize<GStarterIndividual>();
 
 	// Do something with the best result. Here we simply print the result to stdout.
-	std::cout << *bestIndividual_ptr << std::endl;
+	std::cout << bestIndividual_ptr << std::endl;
 }

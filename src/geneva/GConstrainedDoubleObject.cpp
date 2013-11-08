@@ -280,6 +280,21 @@ void GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>
 
 /******************************************************************************/
 /**
+ * Assigns part of a value map to the parameter
+ */
+void GConstrainedDoubleObject::assignDoubleValueVectors(const std::map<std::string, std::vector<double> >& parMap) {
+   this->setValue(
+      this->transfer(
+         Gem::Common::getMapItem(
+            parMap
+            ,this->getParameterName()
+         ).at(0)
+      )
+   );
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GConstrainedDoubleObject object, camouflaged as a GObject

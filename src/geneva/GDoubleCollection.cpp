@@ -285,6 +285,18 @@ void GDoubleCollection::assignDoubleValueVector(
 
 /******************************************************************************/
 /**
+ * Assigns part of a value map to the parameter
+ */
+void GDoubleCollection::assignDoubleValueVectors(const std::map<std::string, std::vector<double> >& parMap) {
+   GDoubleCollection::iterator it;
+   std::size_t cnt = 0;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      *it = (Gem::Common::getMapItem(parMap,this->getParameterName())).at(cnt++);
+   }
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GDoubleCollection object, camouflaged as a GObject

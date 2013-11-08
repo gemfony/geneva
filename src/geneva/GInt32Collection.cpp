@@ -280,6 +280,18 @@ void GInt32Collection::assignInt32ValueVector(const std::vector<boost::int32_t>&
 
 /******************************************************************************/
 /**
+ * Assigns part of a value map to the parameter
+ */
+void GInt32Collection::assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >& parMap) {
+   GInt32Collection::iterator it;
+   std::size_t cnt = 0;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      *it = (Gem::Common::getMapItem(parMap,this->getParameterName())).at(cnt++);
+   }
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GInt32Collection object, camouflaged as a GObject

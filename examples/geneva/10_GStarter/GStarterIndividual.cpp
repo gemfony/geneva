@@ -308,7 +308,7 @@ double GStarterIndividual::getAverageSigma() const {
 /**
  * Emit information about this individual
  */
-std::string GStarterIndividual::print() const {
+std::string GStarterIndividual::print() {
    std::ostringstream result;
 
    // Retrieve the parameters
@@ -317,7 +317,7 @@ std::string GStarterIndividual::print() const {
 
    result
    << "GStarterIndividual with target function " << (targetFunction_==PARABOLA?" PARABOLA":" NOISY PARABOLA") << std::endl
-   << "has the following parameter values:" << std::endl;
+   << "and fitness " << this->fitness() << " has the following parameter values:" << std::endl;
 
    for(std::size_t i=0; i<parVec.size(); i++) {
       result << i << ": " << parVec.at(i) << std::endl;
@@ -556,8 +556,8 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests() {
  * Allows to output a GStarterIndividual or convert it to a string using
  * boost::lexical_cast
  */
-std::ostream& operator<<(std::ostream& stream, const GStarterIndividual& gsi) {
-   stream << gsi.print();
+std::ostream& operator<<(std::ostream& stream, boost::shared_ptr<GStarterIndividual> gsi_ptr) {
+   stream << gsi_ptr->print();
    return stream;
 }
 

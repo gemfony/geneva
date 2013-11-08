@@ -233,6 +233,21 @@ void GConstrainedFloatObject::floatStreamline(std::map<std::string, std::vector<
 
 /******************************************************************************/
 /**
+ * Assigns part of a value map to the parameter
+ */
+void GConstrainedFloatObject::assignFloatValueVectors(const std::map<std::string, std::vector<float> >& parMap) {
+   this->setValue(
+      this->transfer(
+         Gem::Common::getMapItem(
+            parMap
+            ,this->getParameterName()
+         ).at(0)
+      )
+   );
+}
+
+/******************************************************************************/
+/**
  * Attach boundaries of type float to the vectors.
  *
  * @param lBndVec A vector of lower float parameter boundaries

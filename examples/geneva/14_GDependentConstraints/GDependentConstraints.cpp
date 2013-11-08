@@ -54,6 +54,8 @@ int main(int argc, char **argv) {
 
    bool printValid = false;
    bool useTrueFitness = false;
+   std::string monitorSpec = "empty";
+   bool observeBoundaries = "false";
 
    std::vector<boost::shared_ptr<po::option_description> > od;
 
@@ -75,6 +77,23 @@ int main(int argc, char **argv) {
    );
    od.push_back(printTrue_option);
 
+   boost::shared_ptr<po::option_description> monitorSpec_option(
+      new po::option_description(
+         "monitorSpec"
+         , po::value<std::string>(&monitorSpec)->default_value(std::string("empty"))
+         , "Allows you to specify variables to be monitored like this: \"d(var0 -10 10)\""
+      )
+   );
+   od.push_back(monitorSpec_option);
+
+   boost::shared_ptr<po::option_description> observeBoundaries_option(
+      new po::option_description(
+         "observeBoundaries"
+         , po::value<bool>(&observeBoundaries)->implicit_value(true)->default_value(false) // This allows you say both --observeBoundaries and --observeBoundaries=true
+         , "Only plot inside of specified boundaries (no effect, when monitorSpec hasn't been set)"
+      )
+   );
+   od.push_back(observeBoundaries_option);
 
    Go2 go(argc, argv, "./config/Go2.json", od);
 
@@ -94,24 +113,25 @@ int main(int argc, char **argv) {
 	// so that parameter types have defined names
 	gfi_ptr->setPT(Gem::Geneva::USEGCONSTRAINEDDOUBLEOBJECT);
 
-	//---------------------------------------------------------------------------
+   //---------------------------------------------------------------------------
    // Register a progress plotter with the global optimization algorithm factory
-	boost::shared_ptr<GProgressPlotterT<GParameterSet> > progplot_ptr(new GProgressPlotterT<GParameterSet>());
+   if(monitorSpec != "empty") {
+      boost::shared_ptr<GProgressPlotterT<GParameterSet, double> > progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
 
-	progplot_ptr->addProfileVar("d", 0); // first double parameter
-   progplot_ptr->addProfileVar("d", 1); // second double parameter
-   progplot_ptr->addProfileVar("d", 2); // second double parameter
-   progplot_ptr->setMonitorValidOnly(printValid); // Only record valid parameters, when printValid is set to true
-   progplot_ptr->setUseTrueEvaluation(useTrueFitness); // Use untransformed evaluation values for logging
+      progplot_ptr->setProfileSpec(monitorSpec);
+      progplot_ptr->setObserveBoundaries(observeBoundaries);
+      progplot_ptr->setMonitorValidOnly(printValid); // Only record valid parameters, when printValid is set to true
+      progplot_ptr->setUseTrueEvaluation(useTrueFitness); // Use untransformed evaluation values for logging
 
-   go.registerPluggableOM(
-      boost::bind(
-         &GProgressPlotterT<GParameterSet>::informationFunction
-         , progplot_ptr
-         , _1
-         , _2
-      )
-   );
+      go.registerPluggableOM(
+         boost::bind(
+            &GProgressPlotterT<GParameterSet, double>::informationFunction
+            , progplot_ptr
+            , _1
+            , _2
+         )
+      );
+   }
 
    //---------------------------------------------------------------------------
    // Add a number of start values to the go object. We also add some constraint definitions here.

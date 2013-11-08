@@ -37,6 +37,8 @@
 namespace Gem {
 namespace Geneva {
 
+const std::size_t GPP_DEF_NSTEPS = 100; // The default number of steps for a given parameter
+
 /******************************************************************************/
 /**
  * The standard constructor -- assignment of the "raw" paramter property string
@@ -70,10 +72,10 @@ GParameterPropertyParser::GParameterPropertyParser(const std::string& raw)
 
    varReference = ( hold[attr(0) >> attr("empty") >> uint_] | hold[attr(1) >> identifier >> '[' >> uint_ >> ']'] | (attr(2) >> identifier >> attr(0)) );
 
-   doubleStringParser = (varReference >> ',' >> double_ >> ',' >> double_ >> ',' >> uint_);
-   floatStringParser  = (varReference >> ',' >> float_  >> ',' >> float_  >> ',' >> uint_);
-   intStringParser    = (varReference >> ',' >> int_    >> ',' >> int_    >> ',' >> uint_);
-   boolStringParser   = (varReference >> ',' >> bool_   >> ',' >> bool_   >> ',' >> uint_);
+   doubleStringParser = (hold[varReference >> ',' >> double_ >> ',' >> double_ >> ',' >> uint_] | (varReference >> ',' >> double_ >> ',' >> double_ >> attr(GPP_DEF_NSTEPS)));
+   floatStringParser  = (hold[varReference >> ',' >> float_  >> ',' >> float_  >> ',' >> uint_] | (varReference >> ',' >> float_  >> ',' >> float_  >> attr(GPP_DEF_NSTEPS)));
+   intStringParser    = (hold[varReference >> ',' >> int_    >> ',' >> int_    >> ',' >> uint_] | (varReference >> ',' >> int_    >> ',' >> int_    >> attr(GPP_DEF_NSTEPS)));
+   boolStringParser   = (hold[varReference >> ',' >> bool_   >> ',' >> bool_   >> ',' >> uint_] | (varReference >> attr(false) >> attr(true) >> attr(GPP_DEF_NSTEPS)));
 
    try {
       this->parse();

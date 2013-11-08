@@ -370,8 +370,8 @@ public:
     * @param id The id assigned to this object
     */
    virtual void toPropertyTree(
-         pt::ptree& ptr
-         , const std::string& baseName
+      pt::ptree& ptr
+      , const std::string& baseName
    ) const OVERRIDE {
 #ifdef DEBUG
       // Check that the object isn't empty

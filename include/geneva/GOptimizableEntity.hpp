@@ -34,6 +34,7 @@
 
 
 // Standard header files go here
+#include <typeinfo>
 
 // Boost header files go here
 #include <boost/limits.hpp>
@@ -229,38 +230,39 @@ public:
 	virtual void randomInit() = 0;
 
 	/** @brief Retrieves a parameter of a given type at the specified position */
-	virtual boost::any getVarVal(const std::string&, const std::size_t&) = 0;
+	virtual boost::any getVarVal(
+      const std::string&
+      , const boost::tuple<std::size_t, std::string, std::size_t>& target
+   ) = 0;
 
    /***************************************************************************/
-	/**
-	 * Retrieves a parameter of a given type at the specified position
-	 */
-	template <typename val_type>
-	val_type getVarVal(const boost::tuple<std::string,std::size_t>& target) {
-	   val_type result = val_type(0);
+   /**
+    * Retrieves a parameter of a given type at the specified position. Note: This
+    * function is a trap. Use one of the overloads for supported types.
+    */
+   template <typename val_type>
+   val_type getVarVal(
+      const boost::tuple<std::size_t, std::string, std::size_t>& target
+   ) {
+      val_type result = val_type(0);
 
-      std::string ttype = boost::get<0>(target);
-      std::size_t tpos  = boost::get<1>(target);
+      if(typeid(val_type) == typeid(double)) {
+         return boost::numeric_cast<val_type>(boost::any_cast<double>(this->getVarVal("d", target)));
+      } else if(typeid(val_type) == typeid(float)) {
+         return boost::numeric_cast<val_type>(boost::any_cast<float>(this->getVarVal("f", target)));
+      } if(typeid(val_type) == typeid(boost::int32_t)) {
+         return boost::numeric_cast<val_type>(boost::any_cast<boost::int32_t>(this->getVarVal("i", target)));
+      } if(typeid(val_type) == typeid(bool)) {
+         return boost::numeric_cast<val_type>(boost::any_cast<bool>(this->getVarVal("b", target)));
+      } else {
+         glogger
+         << "In GOptimizableEntity::getVarVal<>(): Error!" << std::endl
+         << "Received invalid type descriptor " << std::endl
+         << GEXCEPTION;
+      }
 
-	   boost::any val = this->getVarVal(ttype, tpos);
-
-	   if(ttype == "d") {
-	      result = boost::numeric_cast<val_type>(boost::any_cast<double>(val));
-	   } else if(ttype == "f") {
-	      result = boost::numeric_cast<val_type>(boost::any_cast<float>(val));
-	   } else if(ttype == "i") {
-	      result = boost::numeric_cast<val_type>(boost::any_cast<boost::int32_t>(val));
-	   } else if(ttype == "b") {
-	      result = boost::numeric_cast<val_type>(boost::any_cast<bool>(val));
-	   } else {
-	      glogger
-	      << "In GOptimizableEntity::getVarVal<>(): Error!" << std::endl
-	      << "Received invalid type descriptor " << ttype << std::endl
-	      << GEXCEPTION;
-	   }
-
-	   return result;
-	}
+      return result;
+   }
 
 	/***************************************************************************/
 	/**

@@ -45,7 +45,7 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-   std::string raw = "d(MY_DPAR_01,-10.3,12.8,100), d(0,-10.3,12.8,100), i(SOME_IPAR_17, 0,5, 20), b(SOME_BPAR, false, true, 10), d(MY_DPAR_02[3], -5, 7, 20)";
+   std::string raw = "d(MY_DPAR_01,-10.3,12.8,100), d(0,-10.3,12.8,100), i(SOME_IPAR_17, 0,5, 20), b(SOME_BPAR, false, true, 10), d(MY_DPAR_02[3], -5, 7, 20), f(MY_FPAR_03, -2, 10), b(MY_BPAR2)";
    GParameterPropertyParser p(raw);
 
    // Retrieve double parameters
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
       = p.getIterators<double>();
    std::vector<parPropSpec<double> >::const_iterator d_cit = boost::get<0>(t_d);
    std::vector<parPropSpec<double> >::const_iterator d_end = boost::get<1>(t_d);
-   for(; d_cit!=d_end; ++d_cit) { // Note: it is already set to the begin of the double parameter arrays
+   for(; d_cit!=d_end; ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
       std::cout
       << *d_cit << std::endl
       << std::endl;
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
       = p.getIterators<float>();
    std::vector<parPropSpec<float> >::const_iterator f_cit = boost::get<0>(t_f);
    std::vector<parPropSpec<float> >::const_iterator f_end = boost::get<1>(t_f);
-   for(; f_cit!=f_end; ++f_cit) { // Note: it is already set to the begin of the double parameter arrays
+   for(; f_cit!=f_end; ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
       std::cout
       << *f_cit << std::endl
       << std::endl;
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
       = p.getIterators<boost::int32_t>();
    std::vector<parPropSpec<boost::int32_t> >::const_iterator i_cit = boost::get<0>(t_i);
    std::vector<parPropSpec<boost::int32_t> >::const_iterator i_end = boost::get<1>(t_i);
-   for(; i_cit!=i_end; ++i_cit) { // Note: it is already set to the begin of the double parameter arrays
+   for(; i_cit!=i_end; ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
       std::cout
       << *i_cit << std::endl
       << std::endl;
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
       = p.getIterators<bool>();
    std::vector<parPropSpec<bool> >::const_iterator b_cit = boost::get<0>(t_b);
    std::vector<parPropSpec<bool> >::const_iterator b_end = boost::get<1>(t_b);
-   for(; b_cit!=b_end; ++b_cit) { // Note: it is already set to the begin of the double parameter arrays
+   for(; b_cit!=b_end; ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
       std::cout
       << *b_cit << std::endl
       << std::endl;

@@ -402,57 +402,128 @@ double GBasePS::cycleLogic() {
  */
 void GBasePS::updateIndividuals() {
    std::size_t indPos = 0;
-   std::vector<bool> bData;
-   std::vector<boost::int32_t> iData;
-   std::vector<float> fData;
-   std::vector<double> dData;
 
    while(true) {
       //------------------------------------------------------------------------
       // Retrieve a work item
-      boost::shared_ptr<parSet> pS = getParameterSet();
+      std::size_t mode = 0;
+      boost::shared_ptr<parSet> pS = getParameterSet(mode);
+
+      switch(mode) {
+         //---------------------------------------------------------------------
+         case 0: // Parameters are referenced by index
+         {
+            std::vector<bool> bData;
+            std::vector<boost::int32_t> iData;
+            std::vector<float> fData;
+            std::vector<double> dData;
+
+            // Fill the parameter set data into the current individual
+
+            // Retrieve the parameter vectors
+            this->at(indPos)->streamline<bool>(bData);
+            this->at(indPos)->streamline<boost::int32_t>(iData);
+            this->at(indPos)->streamline<float>(fData);
+            this->at(indPos)->streamline<double>(dData);
+
+            // Add the data items from the parSet object to the vectors
+
+            // 1) For boolean data
+            std::vector<singleBPar>::iterator b_it;
+            for(b_it=pS->bParVec.begin(); b_it!=pS->bParVec.end(); ++b_it) {
+               this->addDataPoint<bool>(*b_it, bData);
+            }
+
+            // 2) For boost::int32_t data
+            std::vector<singleInt32Par>::iterator i_it;
+            for(i_it=pS->iParVec.begin(); i_it!=pS->iParVec.end(); ++i_it) {
+               this->addDataPoint<boost::int32_t>(*i_it, iData);
+            }
+
+            // 3) For float values
+            std::vector<singleFPar>::iterator f_it;
+            for(f_it=pS->fParVec.begin(); f_it!=pS->fParVec.end(); ++f_it) {
+               this->addDataPoint<float>(*f_it, fData);
+            }
+
+            // 4) For double values
+            std::vector<singleDPar>::iterator d_it;
+            for(d_it=pS->dParVec.begin(); d_it!=pS->dParVec.end(); ++d_it) {
+               this->addDataPoint<double>(*d_it, dData);
+            }
+
+            // Copy the data back into the individual
+            this->at(indPos)->assignValueVector<bool>(bData);
+            this->at(indPos)->assignValueVector<boost::int32_t>(iData);
+            this->at(indPos)->assignValueVector<float>(fData);
+            this->at(indPos)->assignValueVector<double>(dData);
+         }
+         break;
+
+         //---------------------------------------------------------------------
+         // Mode 1 and 2 are treated alike
+         case 1: // Parameters are referenced as var[n]
+         case 2: // Parameters are references as var --> equivalent to var[0]
+         {
+            std::map<std::string, std::vector<bool> > bData;
+            std::map<std::string, std::vector<boost::int32_t> > iData;
+            std::map<std::string, std::vector<float> > fData;
+            std::map<std::string, std::vector<double> > dData;
+
+            // Retrieve the parameter maos
+            this->at(indPos)->streamline<bool>(bData);
+            this->at(indPos)->streamline<boost::int32_t>(iData);
+            this->at(indPos)->streamline<float>(fData);
+            this->at(indPos)->streamline<double>(dData);
+
+            // Add the data items from the parSet object to the maos
+
+            // 1) For boolean data
+            std::vector<singleBPar>::iterator b_it;
+            for(b_it=pS->bParVec.begin(); b_it!=pS->bParVec.end(); ++b_it) {
+               this->addDataPoint<bool>(*b_it, bData);
+            }
+
+            // 2) For boost::int32_t data
+            std::vector<singleInt32Par>::iterator i_it;
+            for(i_it=pS->iParVec.begin(); i_it!=pS->iParVec.end(); ++i_it) {
+               this->addDataPoint<boost::int32_t>(*i_it, iData);
+            }
+
+            // 3) For float values
+            std::vector<singleFPar>::iterator f_it;
+            for(f_it=pS->fParVec.begin(); f_it!=pS->fParVec.end(); ++f_it) {
+               this->addDataPoint<float>(*f_it, fData);
+            }
+
+            // 4) For double values
+            std::vector<singleDPar>::iterator d_it;
+            for(d_it=pS->dParVec.begin(); d_it!=pS->dParVec.end(); ++d_it) {
+               this->addDataPoint<double>(*d_it, dData);
+            }
+
+
+            // Copy the data back into the individual
+            this->at(indPos)->assignValueVectors<bool>(bData);
+            this->at(indPos)->assignValueVectors<boost::int32_t>(iData);
+            this->at(indPos)->assignValueVectors<float>(fData);
+            this->at(indPos)->assignValueVectors<double>(dData);
+         }
+
+         break;
+
+         //---------------------------------------------------------------------
+         default:
+         {
+            glogger
+            << "In GBasePS::updateIndividuals(): Error!" << std::endl
+            << "Encountered invalid mode " << mode << std::endl
+            << GEXCEPTION;
+         }
+         break;
+      }
 
       //------------------------------------------------------------------------
-      // Fill the parameter set data into the current individual
-
-      // Retrieve the parameter vectors
-      this->at(indPos)->streamline<bool>(bData);
-      this->at(indPos)->streamline<boost::int32_t>(iData);
-      this->at(indPos)->streamline<float>(fData);
-      this->at(indPos)->streamline<double>(dData);
-
-      // Add the data items from the parSet object to the vectors
-
-      // 1) For boolean data
-      std::vector<singleBPar>::iterator b_it;
-      for(b_it=pS->bParVec.begin(); b_it!=pS->bParVec.end(); ++b_it) {
-         this->addDataPoint<bool>(*b_it, bData);
-      }
-
-      // 2) For boost::int32_t data
-      std::vector<singleInt32Par>::iterator i_it;
-      for(i_it=pS->iParVec.begin(); i_it!=pS->iParVec.end(); ++i_it) {
-         this->addDataPoint<boost::int32_t>(*i_it, iData);
-      }
-
-      // 3) For float values
-      std::vector<singleFPar>::iterator f_it;
-      for(f_it=pS->fParVec.begin(); f_it!=pS->fParVec.end(); ++f_it) {
-         this->addDataPoint<float>(*f_it, fData);
-      }
-
-      // 4) For double values
-      std::vector<singleDPar>::iterator d_it;
-      for(d_it=pS->dParVec.begin(); d_it!=pS->dParVec.end(); ++d_it) {
-         this->addDataPoint<double>(*d_it, dData);
-      }
-
-      // Copy the data back into the individual
-      this->at(indPos)->assignValueVector<bool>(bData);
-      this->at(indPos)->assignValueVector<boost::int32_t>(iData);
-      this->at(indPos)->assignValueVector<float>(fData);
-      this->at(indPos)->assignValueVector<double>(dData);
-
       // Mark the individual as "dirty", so it gets re-evaluated the
       // next time the fitness() function is called
       this->at(indPos)->setDirtyFlag();
@@ -562,34 +633,94 @@ void GBasePS::resetParameterObjects() {
 /**
  * Retrieves a parameter set by filling the current parameter combinations
  * into a parSet object.
+ *
+ * @param mode Indicates whether parameters are identified by name or by id
  */
-boost::shared_ptr<parSet> GBasePS::getParameterSet() {
+boost::shared_ptr<parSet> GBasePS::getParameterSet(std::size_t& mode) {
    // Create a new parSet object
    boost::shared_ptr<parSet> result(new parSet());
+
+   bool modeSet = false;
 
    // Extract the relevant data and store it in a parSet object
    // 1) For boolean objects
    std::vector<boost::shared_ptr<bScanPar> >::iterator b_it;
    for(b_it=bVec_.begin(); b_it!=bVec_.end(); ++b_it) {
-      boost::tuple<bool, std::size_t> item((*b_it)->getCurrentItem(), (*b_it)->getPos());
+      NAMEANDIDTYPE var = (*b_it)->getVarAddress();
+
+      if(modeSet) {
+         if(boost::get<0>(var) != mode) {
+            glogger
+            << "In GBasePS::getParameterSet(): Error!" << std::endl
+            << "Expected mode " << mode << " but got " << boost::get<0>(var) << std::endl
+            << GEXCEPTION;
+         }
+      } else {
+         mode = boost::get<0>(var);
+         modeSet=true;
+      }
+
+      singleBPar item((*b_it)->getCurrentItem(), boost::get<0>(var), boost::get<1>(var), boost::get<2>(var));
       (result->bParVec).push_back(item);
    }
    // 2) For boost::int32_t objects
    std::vector<boost::shared_ptr<int32ScanPar> >::iterator i_it;
    for(i_it=int32Vec_.begin(); i_it!=int32Vec_.end(); ++i_it) {
-      boost::tuple<boost::int32_t, std::size_t> item((*i_it)->getCurrentItem(), (*i_it)->getPos());
-      (result->iParVec).push_back(item);
+      NAMEANDIDTYPE var = (*i_it)->getVarAddress();
+
+      if(modeSet) {
+         if(boost::get<0>(var) != mode) {
+            glogger
+            << "In GBasePS::getParameterSet(): Error!" << std::endl
+            << "Expected mode " << mode << " but got " << boost::get<0>(var) << std::endl
+            << GEXCEPTION;
+         }
+      } else {
+         mode = boost::get<0>(var);
+         modeSet=true;
+      }
+
+      singleInt32Par item((*i_it)->getCurrentItem(), boost::get<0>(var), boost::get<1>(var), boost::get<2>(var));
+      (result->bParVec).push_back(item);
    }
    // 3) For float objects
    std::vector<boost::shared_ptr<fScanPar> >::iterator f_it;
    for(f_it=fVec_.begin(); f_it!=fVec_.end(); ++f_it) {
-      boost::tuple<float, std::size_t> item((*f_it)->getCurrentItem(), (*f_it)->getPos());
+      NAMEANDIDTYPE var = (*f_it)->getVarAddress();
+
+      if(modeSet) {
+         if(boost::get<0>(var) != mode) {
+            glogger
+            << "In GBasePS::getParameterSet(): Error!" << std::endl
+            << "Expected mode " << mode << " but got " << boost::get<0>(var) << std::endl
+            << GEXCEPTION;
+         }
+      } else {
+         mode = boost::get<0>(var);
+         modeSet=true;
+      }
+
+      singleFPar item((*f_it)->getCurrentItem(), boost::get<0>(var), boost::get<1>(var), boost::get<2>(var));
       (result->fParVec).push_back(item);
    }
    // 4) For double objects
    std::vector<boost::shared_ptr<dScanPar> >::iterator d_it;
    for(d_it=dVec_.begin(); d_it!=dVec_.end(); ++d_it) {
-      boost::tuple<double, std::size_t> item((*d_it)->getCurrentItem(), (*d_it)->getPos());
+      NAMEANDIDTYPE var = (*d_it)->getVarAddress();
+
+      if(modeSet) {
+         if(boost::get<0>(var) != mode) {
+            glogger
+            << "In GBasePS::getParameterSet(): Error!" << std::endl
+            << "Expected mode " << mode << " but got " << boost::get<0>(var) << std::endl
+            << GEXCEPTION;
+         }
+      } else {
+         mode = boost::get<0>(var);
+         modeSet=true;
+      }
+
+      singleDPar item((*d_it)->getCurrentItem(), boost::get<0>(var), boost::get<1>(var), boost::get<2>(var));
       (result->dParVec).push_back(item);
    }
 
@@ -759,73 +890,91 @@ void GBasePS::addConfigurationOptions (
    comment += "(1) or on a grid (0);";
    if(showOrigin) comment += "[GBasePS]";
    gpb.registerFileParameter<bool>(
-      "scanRandomly_" // The name of the variable
+      "scanRandomly" // The name of the variable
       , scanRandomly_
       , true // The default value
       , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-      , comment
-   );
-
-   std::vector<std::string> defaultStrParVec; // The default values
-   defaultStrParVec.push_back("d 0 0.3 0.7 10"); // double value in position 0, scan from 0.3-0.7 (inclusive) in 10 steps
-   defaultStrParVec.push_back("f 1 0.3 0.7 10"); // float value in position 1, scan from 0.3-0.7 (inclusive) in 10 steps
-   defaultStrParVec.push_back("i 2 5 8 10");     // 32 bit integer in position 2, scan from 5-8 (inclusive). 10 steps are specified. Higher number of steps than possible will be ignored, except for random mode.
-   defaultStrParVec.push_back("b 3 0 1 10");     // Boolean in position 3; false and true will be tested. Note that the "boundaries" still need to be specified. 10 steps are specified. A number of steps other than 2 will be ignored, except for random mode.
-
-   comment = ""; // Reset the comment string
-   comment += "Specification of the parameters to be used;";
-   comment += "in the parameter scan.;";
-   gpb.registerFileParameter<std::string>(
-      "parameterOptions"
-      , defaultStrParVec
-      , boost::bind(
-            &GBasePS::parseParameterValues // The call-back function
-            , this
-            , _1
-        )
-      , Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
       , comment
    );
 }
 
 /******************************************************************************/
 /**
- * Fills vectors with parameter values
+ * Analyzes the parameters to be scanned. Note that this function will clear any
+ * existing parameter definitions, as parStr represents a new set of parameters
+ * to be scanned.
  */
-void GBasePS::parseParameterValues(std::vector<std::string> parStrVec) {
-   std::vector<std::string>::iterator it;
-   for(it=parStrVec.begin(); it!=parStrVec.end(); ++it) {
-      // Remove white-space characters at the edges of the string
-      boost::trim(*it);
-
-      // Check that the parameter string isn't empty
-      if(it->empty()) {
-         glogger
-         << "In GBasePS::parseParameterValues(): Error!" << std::endl
-         << "Parameter string in position " << it-parStrVec.begin() << " seems to be empty" << std::endl
-         << GEXCEPTION;
-      }
-
-      // Retrieve the first character
-      char first = it->at(0);
-
-      // Act on the character -- This will result in a collection of parameter objects,
-      // which can be used to extract allowed parameter values
-      if(first == 'd') {
-         dVec_.push_back(boost::shared_ptr<dScanPar>(new dScanPar(*it, scanRandomly_)));
-      } else if(first == 'f') {
-         fVec_.push_back(boost::shared_ptr<fScanPar>(new fScanPar(*it, scanRandomly_)));
-      } else if(first == 'i') {
-         int32Vec_.push_back(boost::shared_ptr<int32ScanPar>(new int32ScanPar(*it, scanRandomly_)));
-      } else if(first == 'b') {
-         bVec_.push_back(boost::shared_ptr<bScanPar>(new bScanPar(*it, scanRandomly_)));
-      } else { // Raise an exception
-         glogger
-         << "In GBasePS::parseParameterValues(): Error!" << std::endl
-         << "Parameter string in position " << it-parStrVec.begin() << " has invalid type: \"" << first << "\"" << std::endl
-         << GEXCEPTION;
-      }
+void GBasePS::setParameterSpecs(std::string parStr) {
+   // Check that the parameter string isn't empty
+   if(parStr.empty()) {
+      glogger
+      << "In GBasePS::addParameterSpecs(): Error!" << std::endl
+      << "Parameter string " << parStr << " is empty" << std::endl
+      << GEXCEPTION;
    }
+
+   //---------------------------------------------------------------------------
+   // Clear the parameter vectors
+   dVec_.clear();
+   fVec_.clear();
+   int32Vec_.clear();
+   bVec_.clear();
+
+   // Parse the parameter string
+   GParameterPropertyParser ppp(parStr);
+
+   //---------------------------------------------------------------------------
+   // Assign the parameter definitions to our internal parameter vectors
+
+   // Retrieve double parameters
+   boost::tuple<
+      std::vector<parPropSpec<double> >::const_iterator
+      , std::vector<parPropSpec<double> >::const_iterator
+   > t_d = ppp.getIterators<double>();
+
+   std::vector<parPropSpec<double> >::const_iterator d_cit = boost::get<0>(t_d);
+   std::vector<parPropSpec<double> >::const_iterator d_end = boost::get<1>(t_d);
+   for(; d_cit!=d_end; ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
+      dVec_.push_back(boost::shared_ptr<dScanPar>(new dScanPar(*d_cit, scanRandomly_)));
+   }
+
+   // Retrieve float parameters
+   boost::tuple<
+      std::vector<parPropSpec<float> >::const_iterator
+      , std::vector<parPropSpec<float> >::const_iterator
+   > t_f = ppp.getIterators<float>();
+
+   std::vector<parPropSpec<float> >::const_iterator f_cit = boost::get<0>(t_f);
+   std::vector<parPropSpec<float> >::const_iterator f_end = boost::get<1>(t_f);
+   for(; f_cit!=f_end; ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
+      fVec_.push_back(boost::shared_ptr<fScanPar>(new fScanPar(*f_cit, scanRandomly_)));
+   }
+
+   // Retrieve integer parameters
+   boost::tuple<
+      std::vector<parPropSpec<boost::int32_t> >::const_iterator
+      , std::vector<parPropSpec<boost::int32_t> >::const_iterator
+   > t_i = ppp.getIterators<boost::int32_t>();
+
+   std::vector<parPropSpec<boost::int32_t> >::const_iterator i_cit = boost::get<0>(t_i);
+   std::vector<parPropSpec<boost::int32_t> >::const_iterator i_end = boost::get<1>(t_i);
+   for(; i_cit!=i_end; ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
+      int32Vec_.push_back(boost::shared_ptr<int32ScanPar>(new int32ScanPar(*i_cit, scanRandomly_)));
+   }
+
+   // Retrieve boolean parameters
+   boost::tuple<
+      std::vector<parPropSpec<bool> >::const_iterator
+      , std::vector<parPropSpec<bool> >::const_iterator
+   > t_b = ppp.getIterators<bool>();
+
+   std::vector<parPropSpec<bool> >::const_iterator b_cit = boost::get<0>(t_b);
+   std::vector<parPropSpec<bool> >::const_iterator b_end = boost::get<1>(t_b);
+   for(; b_cit!=b_end; ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
+      bVec_.push_back(boost::shared_ptr<bScanPar>(new bScanPar(*b_cit, scanRandomly_)));
+   }
+
+   //---------------------------------------------------------------------------
 }
 
 /******************************************************************************/

@@ -154,57 +154,20 @@ std::string GParameterSet::name() const {
 /**
  * Retrieves a parameter of a given type at the specified position
  */
-boost::any GParameterSet::getVarVal(const std::string& descr, const std::size_t& pos) {
+boost::any GParameterSet::getVarVal(
+   const std::string& descr
+   , const boost::tuple<std::size_t, std::string, std::size_t>& target
+) {
    boost::any result;
 
    if(descr == "d") {
-      std::vector<double> vars;
-      this->streamline<double>(vars);
-
-      if(pos >= vars.size()) {
-         glogger
-         << "In GParameterSet::getVarVal(): Error!" << std::endl
-         << "Got invalid position " << pos << " for type double" << std::endl
-         << GEXCEPTION;
-      } else {
-         result = vars[pos];
-      }
-   } else if (descr == "f") {
-      std::vector<float> vars;
-      this->streamline<float>(vars);
-
-      if(pos >= vars.size()) {
-         glogger
-         << "In GParameterSet::getVarVal(): Error!" << std::endl
-         << "Got invalid position " << pos << " for type float" << std::endl
-         << GEXCEPTION;
-      } else {
-         result = vars[pos];
-      }
-   } else if (descr == "i") {
-      std::vector<boost::int32_t> vars;
-      this->streamline<boost::int32_t>(vars);
-
-      if(pos >= vars.size()) {
-         glogger
-         << "In GParameterSet::getVarVal(): Error!" << std::endl
-         << "Got invalid position " << pos << " for type boost::int32_t" << std::endl
-         << GEXCEPTION;
-      } else {
-         result = vars[pos];
-      }
-   } else if (descr == "b") {
-      std::vector<bool> vars;
-      this->streamline<bool>(vars);
-
-      if(pos >= vars.size()) {
-         glogger
-         << "In GParameterSet::getVarVal(): Error!" << std::endl
-         << "Got invalid position " << pos << " for type bool" << std::endl
-         << GEXCEPTION;
-      } else {
-         result = vars[pos];
-      }
+      result = GParameterSet::getVarItem<double>(target);
+   } else if(descr == "f") {
+      result = GParameterSet::getVarItem<float>(target);
+   } else if(descr == "i") {
+      result = GParameterSet::getVarItem<boost::int32_t>(target);
+   } else if(descr == "b") {
+      result = GParameterSet::getVarItem<bool>(target);
    } else {
       glogger
       << "In GParameterSet::getVarVal(): Error!" << std::endl

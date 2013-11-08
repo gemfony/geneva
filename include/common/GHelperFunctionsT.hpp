@@ -457,7 +457,61 @@ std::vector<boost::tuple<split_type1, split_type2> > splitStringT(
 }
 
 /******************************************************************************/
+/**
+ * Retrieves an item from a std::map and throws, if the corresponding key
+ * isn't found
+ */
+template <typename item_type>
+item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& key) {
+   if(m.empty()) {
+      glogger
+      << "In item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& key): Error!" << std::endl
+      << "Map is empty" << std::endl
+      << GEXCEPTION;
+   }
 
+   typename std::map<std::string, item_type>::iterator it = m.find(key);
+   if(it != m.end()) {
+      return it->second;
+   } else {
+      glogger
+      << "In \"item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& key)\": Error!" << std::endl
+      << "key " << key << " is not in the map." << std::endl
+      << GEXCEPTION;
+   }
+
+   // Make the compiler happy
+   return m.begin()->second;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves an item from a std::map and throws, if the corresponding key
+ * isn't found
+ */
+template <typename item_type>
+const item_type& getMapItem(const std::map<std::string, item_type>& m, const std::string& key) {
+   if(m.empty()) {
+      glogger
+      << "In const item_type& getMapItem(const std::map<std::string, item_type>& m, const std::string& key): Error!" << std::endl
+      << "Map is empty" << std::endl
+      << GEXCEPTION;
+   }
+
+   typename std::map<std::string, item_type>::const_iterator cit = m.find(key);
+   if(cit != m.end()) {
+      return cit->second;
+   } else {
+      glogger
+      << "In \"const item_type& getMapItem(const std::map<std::string, item_type>& m, const std::string& key)\": Error!" << std::endl
+      << "key " << key << " is not in the map." << std::endl
+      << GEXCEPTION;
+   }
+
+   return m.begin()->second;
+}
+
+/******************************************************************************/
 } /* namespace Common */
 } /* namespace Gem */
 

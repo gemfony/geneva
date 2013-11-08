@@ -50,6 +50,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "courtier/GSubmissionContainerT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
@@ -182,7 +183,10 @@ public:
 	virtual std::string name() const OVERRIDE;
 
    /** @brief Retrieves a parameter of a given type at the specified position */
-   virtual boost::any getVarVal(const std::string&, const std::size_t&) BASE;
+   virtual boost::any getVarVal(
+      const std::string&
+      , const boost::tuple<std::size_t, std::string, std::size_t>& target
+   ) OVERRIDE;
 
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
@@ -236,6 +240,52 @@ public:
 	 * So far untested.
 	 * ----------------------------------------------------------------------------------
 	 */
+
+   /***************************************************************************/
+	/**
+	 * Retrieves an item according to a description provided by the target tuple
+	 */
+	template <typename par_type>
+	boost::any getVarItem(
+      const boost::tuple<std::size_t, std::string, std::size_t>& target
+	) {
+	   boost::any result;
+
+      switch(boost::get<0>(target)) {
+         //---------------------------------------------------------------------
+         case 0:
+         {
+            std::vector<par_type> vars;
+            this->streamline<par_type>(vars);
+            result = vars.at(boost::get<2>(target));
+         }
+         break;
+
+         //---------------------------------------------------------------------
+         case 1: // var[3]
+         case 2: // var    --> treated as var[0]
+         {
+            std::map<std::string, std::vector<par_type> > varMap;
+            this->streamline<par_type>(varMap);
+            result = (Gem::Common::getMapItem<std::vector<par_type> >(varMap, boost::get<1>(target))).at(boost::get<2>(target));
+         }
+         break;
+
+         //---------------------------------------------------------------------
+         default:
+         {
+            glogger
+            << "In GParameterSet::getVarVal(): Error!" << std::endl
+            << "Got invalid mode setting: " << boost::get<0>(target) << std::endl
+            << GEXCEPTION;
+         }
+         break;
+
+         //---------------------------------------------------------------------
+      }
+
+      return result;
+	}
 
 	/***************************************************************************/
 	/**
@@ -348,6 +398,25 @@ public:
 		// As we have modified our internal data sets, make sure the dirty flag is set
 		GOptimizableEntity::setDirtyFlag();
 	}
+
+   /***************************************************************************/
+   /**
+    * Assigns values from a std::map<std::string, std::vector<par_type> > to the parameters in the collection
+    *
+    * @param parMap A map of values, to be assigned to be added to GParameterBase derivatives
+    */
+   template <typename par_type>
+   void assignValueVectors(const std::map<std::string, std::vector<par_type> >& parMap) {
+      // Loop over all GParameterBase objects. Each object will extract the relevant parameters
+      GParameterSet::const_iterator cit;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         (*cit)->assignValueVectors<par_type>(parMap);
+      }
+
+      // As we have modified our internal data sets, make sure the dirty flag is set
+      GOptimizableEntity::setDirtyFlag();
+   }
+
 
 protected:
 	/***************************************************************************/

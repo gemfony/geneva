@@ -128,6 +128,8 @@ public:
 
    /** @brief Attach our local values to the vector. */
    virtual void doubleStreamline(std::map<std::string, std::vector<double> >&) const OVERRIDE;
+   /** @brief Assigns part of a value map to the parameter */
+   virtual void assignDoubleValueVectors(const std::map<std::string, std::vector<double> >&) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;

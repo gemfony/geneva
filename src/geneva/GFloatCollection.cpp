@@ -206,6 +206,18 @@ void GFloatCollection::floatStreamline(std::vector<float>& parVec) const {
 
 /******************************************************************************/
 /**
+ * Assigns part of a value map to the parameter
+ */
+void GFloatCollection::assignFloatValueVectors(const std::map<std::string, std::vector<float> >& parMap) {
+   GFloatCollection::iterator it;
+   std::size_t cnt = 0;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      *it = (Gem::Common::getMapItem(parMap,this->getParameterName())).at(cnt++);
+   }
+}
+
+/******************************************************************************/
+/**
  * Attach our local values to the map. Names are built from the object name and the
  * position in the array.
  *

@@ -67,20 +67,20 @@ class GPSOptimizationMonitor;
 /******************************************************************************/
 // A number of typedefs that indicate the position and value of a parameter
 // inside of an individual
-typedef boost::tuple<bool,           std::size_t> singleBPar;
-typedef boost::tuple<boost::int32_t, std::size_t> singleInt32Par;
-typedef boost::tuple<float,          std::size_t> singleFPar;
-typedef boost::tuple<double,         std::size_t> singleDPar;
+typedef boost::tuple<bool,           std::size_t, std::string, std::size_t> singleBPar;
+typedef boost::tuple<boost::int32_t, std::size_t, std::string, std::size_t> singleInt32Par;
+typedef boost::tuple<float,          std::size_t, std::string, std::size_t> singleFPar;
+typedef boost::tuple<double,         std::size_t, std::string, std::size_t> singleDPar;
 
 /******************************************************************************/
 /**
  * This struct holds the entire data to be updated inside of an individual
  */
 struct parSet {
-  std::vector<singleBPar> bParVec;
+  std::vector<singleBPar>     bParVec;
   std::vector<singleInt32Par> iParVec;
-  std::vector<singleFPar> fParVec;
-  std::vector<singleDPar> dParVec;
+  std::vector<singleFPar>     fParVec;
+  std::vector<singleDPar>     dParVec;
 };
 
 /******************************************************************************/
@@ -157,12 +157,12 @@ public:
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject&
-         , const Gem::Common::expectation&
-         , const double&
-         , const std::string&
-         , const std::string&
-         , const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
    ) const OVERRIDE;
 
    /** @brief Loads a checkpoint */
@@ -190,6 +190,9 @@ public:
    void setNMonitorInds(std::size_t);
    /** @brief Allows to retrieve  the number of "best" individuals to be monitored over the course of the algorithm run */
    std::size_t getNMonitorInds() const;
+
+   /** @brief Fills vectors with parameter specifications */
+   void setParameterSpecs(std::string);
 
 protected:
    /***************************************************************************/
@@ -230,13 +233,22 @@ private:
    /**
     * Adds a given data point to a data vector
     */
-   template <typename dType>
+   template <typename data_type>
    void addDataPoint(
-         const boost::tuple<dType, std::size_t>& dataPoint
-         , std::vector<dType>& dataVec
+      const boost::tuple<data_type, std::size_t, std::string, std::size_t>& dataPoint
+      , std::vector<data_type>& dataVec
    ) {
-      dType       lData = boost::get<0>(dataPoint);
-      std::size_t lPos  = boost::get<1>(dataPoint);
+#ifdef DEBUG
+      if(0 != boost::get<1>(dataPoint)) {
+         glogger
+         << "In GBasePS::addDataPoint(mode 0): Error!" << std::endl
+         << "Function was called for invalid mode " << boost::get<1>(dataPoint) << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
+      data_type   lData = boost::get<0>(dataPoint);
+      std::size_t lPos  = boost::get<3>(dataPoint);
 
       // Check that we haven't exceeded the size of the boolean data vector
       if(lPos >= dataVec.size()) {
@@ -250,6 +262,22 @@ private:
    }
 
    /***************************************************************************/
+   /**
+    * Adds a given data point to a data map
+    */
+   template <typename data_type>
+   void addDataPoint(
+         const boost::tuple<data_type, std::size_t, std::string, std::size_t>& dataPoint
+         , std::map<std::string, std::vector<data_type> >& dataMap
+   ) {
+      data_type   lData = boost::get<0>(dataPoint);
+      std::string lName = boost::get<2>(dataPoint);
+      std::size_t lPos  = boost::get<3>(dataPoint);
+
+      (Gem::Common::getMapItem(dataMap, lName)).at(lPos) = lData;
+   }
+
+   /***************************************************************************/
    /** @brief Updates the best individuals found */
    void updateBests();
    /** @brief Resets all parameter objects */
@@ -257,7 +285,7 @@ private:
    /** @brief Adds new parameter sets to the population */
    void updateIndividuals();
    /** @brief Retrieves the next available parameter set */
-   boost::shared_ptr<parSet> getParameterSet();
+   boost::shared_ptr<parSet> getParameterSet(std::size_t&);
    /** @brief Switches to the next parameter set */
    bool switchToNextParameterSet();
    /** @brief Sorts the population according to the primary fitness values */
@@ -266,12 +294,9 @@ private:
    void fillAllParVec();
    /** @brief Clears the allParVec_ vector */
    void clearAllParVec();
-   /** @brief Fills vectors with parameter values */
-   void parseParameterValues(std::vector<std::string>);
 
    bool cycleLogicHalt_; ///< Temporary flag used to specify that the optimization should be halted
    bool scanRandomly_;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
-
    std::size_t nMonitorInds_; ///< The number of best individuals of the entire run to be kept
 
    std::vector<boost::shared_ptr<bScanPar> >      bVec_; ///< Holds boolean parameters to be scanned

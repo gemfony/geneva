@@ -133,6 +133,8 @@ public:
 
    /** @brief Attach our local value to the map. */
    virtual void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&) const OVERRIDE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;

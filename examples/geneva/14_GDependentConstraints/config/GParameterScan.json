@@ -124,7 +124,7 @@
         "default": "100",
         "value": "100"
     },
-    "scanRandomly_":
+    "scanRandomly":
     {
         "comment": "Indicates whether scans should be done randomly",
         "comment": "(1) or on a grid (0)",
@@ -136,17 +136,7 @@
     {
         "comment": "Specification of the parameters to be used",
         "comment": "in the parameter scan.",
-        "default":
-        {
-            "item": "d 0 0.3 0.7 10",
-            "item": "f 1 0.3 0.7 10",
-            "item": "i 2 5 8 10",
-            "item": "b 3 0 1 10"
-        },
-        "value":
-        {
-            "item": "d 0 -10 10 100",
-            "item": "d 1 -10 10 100"
-        }
+        "default": "d(0, -10., 10., 100), d(1, -10., 10., 100)"
+        "value": "d(0, -10., 10., 100), d(1, -10., 10., 100)"
     }
 }

@@ -330,6 +330,14 @@ void GBooleanObject::assignBooleanValueVector(const std::vector<bool>& parVec, s
 
 /******************************************************************************/
 /**
+ * Assigns part of a value map to the parameter
+ */
+void GBooleanObject::assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >& parMap) {
+   this->setValue((Gem::Common::getMapItem<std::vector<bool> >(parMap,this->getParameterName())).at(0));
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GBooleanObject object, camouflaged as a GObject

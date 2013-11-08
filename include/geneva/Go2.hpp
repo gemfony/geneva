@@ -283,7 +283,10 @@ public:
    void registerDefaultAlgorithm(const std::string& default_algorithm);
 
    /** @brief Retrieves a parameter of a given type at the specified position */
-   virtual boost::any getVarVal(const std::string&, const std::size_t&);
+   virtual boost::any getVarVal(
+      const std::string&
+      , const boost::tuple<std::size_t, std::string, std::size_t>& target
+   ) OVERRIDE;
 
    /** @brief Allows to register a pluggable optimization monitor */
    void registerPluggableOM (

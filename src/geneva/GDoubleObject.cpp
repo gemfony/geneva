@@ -237,6 +237,8 @@ void GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double> >
    parVec[this->getParameterName()] = parameters;
 }
 
+
+
 /******************************************************************************/
 /**
  * Attach boundaries of type double to the vectors. Since this is an unbounded type,
@@ -280,6 +282,14 @@ void GDoubleObject::assignDoubleValueVector(const std::vector<double>& parVec, s
 
 	this->setValue(parVec[pos]);
 	pos++;
+}
+
+/******************************************************************************/
+/**
+ * Assigns part of a value map to the parameter
+ */
+void GDoubleObject::assignDoubleValueVectors(const std::map<std::string, std::vector<double> >& parMap) {
+   this->setValue((Gem::Common::getMapItem(parMap,this->getParameterName())).at(0));
 }
 
 /******************************************************************************/

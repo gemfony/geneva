@@ -184,7 +184,7 @@ public:
     * By default we do nothing so that derived classes do not need to re-implement this
     * function.
     */
-   virtual void addCLOptions(boost::program_options::options_description& desc)
+   virtual void addCLOptions(boost::program_options::options_description& desc) BASE
    { /* nothing */ }
 
    /***************************************************************************/

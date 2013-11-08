@@ -269,6 +269,21 @@ public:
       << GEXCEPTION;
 	}
 
+   /***************************************************************************/
+   /**
+    * Assigns values from a std::map<std::string, std::vector<par_type> > to the parameter
+    *
+    * @param parMao The map with the parameters to be assigned to the object
+    */
+   template <typename par_type>
+   void assignValueVectors(const std::map<std::string, std::vector<par_type> >& parMap)
+   {
+      glogger
+      << "In GParameterBase::assignValueVectors()" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
+   }
+
 	/***************************************************************************/
 
 	/** @brief Assigns part of a value vector to the parameter */
@@ -279,6 +294,15 @@ public:
 	virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&) BASE;
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&) BASE;
+
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignFloatValueVectors(const std::map<std::string, std::vector<float> >&) BASE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignDoubleValueVectors(const std::map<std::string, std::vector<double> >&) BASE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&) BASE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&) BASE;
 
 	/** @brief Specifies that no random initialization should occur anymore */
 	void blockRandomInitialization();
@@ -410,6 +434,10 @@ template <>	void GParameterBase::assignValueVector<double>(const std::vector<dou
 template <>	void GParameterBase::assignValueVector<boost::int32_t>(const std::vector<boost::int32_t>&, std::size_t&);
 template <>	void GParameterBase::assignValueVector<bool>(const std::vector<bool>&, std::size_t&);
 
+template <> void GParameterBase::assignValueVectors<float>(const std::map<std::string, std::vector<float> >&);
+template <> void GParameterBase::assignValueVectors<double>(const std::map<std::string, std::vector<double> >&);
+template <> void GParameterBase::assignValueVectors<boost::int32_t>(const std::map<std::string, std::vector<boost::int32_t> >&);
+template <> void GParameterBase::assignValueVectors<bool>(const std::map<std::string, std::vector<bool> >&);
 } /* namespace Geneva */
 } /* namespace Gem */
 

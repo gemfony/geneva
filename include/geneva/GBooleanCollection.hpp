@@ -125,6 +125,8 @@ public:
 
    /** @brief Attach our local values to the map */
    virtual void booleanStreamline(std::map<std::string, std::vector<bool> >&) const OVERRIDE;
+   /** @brief Assigns part of a value map to the parameter */
+   virtual void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;

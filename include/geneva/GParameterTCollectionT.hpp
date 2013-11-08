@@ -676,7 +676,7 @@ public:
    /**
     * Assigns part of a value vector to the parameter
     */
-   void assignFloatValueVector(const std::vector<float>& parVec, std::size_t& pos) OVERRIDE {
+   virtual void assignFloatValueVector(const std::vector<float>& parVec, std::size_t& pos) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->assignFloatValueVector(parVec, pos);
@@ -692,7 +692,7 @@ public:
 	/**
 	 * Assigns part of a value vector to the parameter
 	 */
-	void assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) OVERRIDE {
+	virtual void assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) OVERRIDE {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->assignDoubleValueVector(parVec, pos);
@@ -708,7 +708,7 @@ public:
 	/**
 	 * Assigns part of a value vector to the parameter
 	 */
-	void assignInt32ValueVector(const std::vector<boost::int32_t>& parVec, std::size_t& pos) OVERRIDE {
+	virtual void assignInt32ValueVector(const std::vector<boost::int32_t>& parVec, std::size_t& pos) OVERRIDE {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->assignInt32ValueVector(parVec, pos);
@@ -724,7 +724,7 @@ public:
 	/**
 	 * Assigns part of a value vector to the parameter
 	 */
-	void assignBooleanValueVector(const std::vector<bool>& parVec, std::size_t& pos) OVERRIDE {
+	virtual void assignBooleanValueVector(const std::vector<bool>& parVec, std::size_t& pos) OVERRIDE {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->assignBooleanValueVector(parVec, pos);
@@ -735,6 +735,72 @@ public:
 	 * So far untested
 	 * ----------------------------------------------------------------------------------
 	 */
+
+	// !!!
+   /***************************************************************************/
+   /**
+    * Assigns part of a value vector to the parameter
+    */
+   virtual void assignFloatValueVectors(const std::map<std::string, std::vector<float> >& parMap) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->assignFloatValueVectors(parMap);
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * So far untested
+    * ----------------------------------------------------------------------------------
+    */
+
+   /***************************************************************************/
+   /**
+    * Assigns part of a value vector to the parameter
+    */
+   virtual void assignDoubleValueVectors(const std::map<std::string, std::vector<double> >& parMap) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->assignDoubleValueVectors(parMap);
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * So far untested
+    * ----------------------------------------------------------------------------------
+    */
+
+   /***************************************************************************/
+   /**
+    * Assigns part of a value vector to the parameter
+    */
+   virtual void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >& parMap) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->assignInt32ValueVectors(parMap);
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * So far untested
+    * ----------------------------------------------------------------------------------
+    */
+
+   /***************************************************************************/
+   /**
+    * Assigns part of a value vector to the parameter
+    */
+   virtual void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >& parMap) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->assignBooleanValueVectors(parMap);
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * So far untested
+    * ----------------------------------------------------------------------------------
+    */
+	// !!!
 
 	/***************************************************************************/
 	/**

@@ -89,8 +89,18 @@ public:
    /** @brief The destructor */
    virtual ~GParameterScanFactory();
 
+   /** @brief Adds local command line options to a boost::program_options::options_description object */
+   virtual void addCLOptions(boost::program_options::options_description&) OVERRIDE;
+
    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
    virtual std::string getMnemomic() const OVERRIDE;
+
+   /** @brief Allows to specify the parameter settings manually for variables to be scanned */
+   void setParameterSpecs(std::string parStr);
+   /** @brief Allows to retrieve the parameter settings for variables to be scanned */
+   std::string getParameterSpecs() const;
+   /** @brief Allows to reset the parameter specs */
+   void resetParameterSpecs();
 
 protected:
    /** @brief Creates individuals of this type */
@@ -99,6 +109,10 @@ protected:
    virtual void describeLocalOptions_(Gem::Common::GParserBuilder&) OVERRIDE;
    /** @brief Allows to act on the configuration options received from the configuration file */
    virtual void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
+
+private:
+   std::string parameterSpec_; ///< Holds information on the variables to be optimized -- set through the configuration file
+   std::string parameterSpecExt_; ///< Holds information on the variables to be optimized -- set through the corresponding member function
 };
 
 /******************************************************************************/

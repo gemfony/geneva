@@ -1037,9 +1037,12 @@ public:
 	/**
 	 * Retrieves a parameter of a given type at the specified position
 	 */
-	boost::any getVarVal(const std::string& descr, const std::size_t& pos) {
-	   return GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, pos);
-	}
+   virtual boost::any getVarVal(
+      const std::string& descr
+      , const boost::tuple<std::size_t, std::string, std::size_t>& target
+   ) OVERRIDE {
+      return GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, target);
+   }
 
    /***************************************************************************/
    /** @brief Emits a name for this class / object; this can be a long name with spaces */

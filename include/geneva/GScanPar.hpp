@@ -52,8 +52,10 @@
 
 // Geneva headers go here
 #include "hap/GRandomT.hpp"
+#include "common/GSerializeTupleT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GStdSimpleVectorInterfaceT.hpp"
+#include "geneva/GParameterPropertyParser.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -73,9 +75,9 @@ class g_end_of_par : public std::exception { /* nothing */ };
  */
 template <typename T>
 std::vector<T> fillWithData(
-      std::size_t /*nSteps*/
-      , T /* lower */
-      , T /* upper */
+   std::size_t /*nSteps*/
+   , T /* lower */
+   , T /* upper */
 ) {
    glogger
    << "In generic function template <typename T> std::vector<T> fillWithData(): Error!" << std::endl
@@ -89,33 +91,33 @@ std::vector<T> fillWithData(
 /** @bool Returns a set of boolean data items */
 template <>
 std::vector<bool> fillWithData<bool>(
-      std::size_t /* nSteps */
-      , bool      /* lower */
-      , bool      /* upper */
+   std::size_t /* nSteps */
+   , bool      /* lower */
+   , bool      /* upper */
 );
 
 /** @brief Returns a set of boost::int32_t data items */
 template <>
 std::vector<boost::int32_t> fillWithData<boost::int32_t>(
-      std::size_t      /* nSteps */
-      , boost::int32_t /* lower */
-      , boost::int32_t /* upper */
+   std::size_t      /* nSteps */
+   , boost::int32_t /* lower */
+   , boost::int32_t /* upper */
 );
 
 /** @brief Returns a set of float data items */
 template <>
 std::vector<float> fillWithData<float>(
-      std::size_t /* nSteps */
-      , float     /* lower */
-      , float     /* upper */
+   std::size_t /* nSteps */
+   , float     /* lower */
+   , float     /* upper */
 );
 
 /** @brief Returns a set of double data items */
 template <>
 std::vector<double> fillWithData<double>(
-      std::size_t /* nSteps */
-      , double    /* lower */
-      , double    /* upper */
+   std::size_t /* nSteps */
+   , double    /* lower */
+   , double    /* upper */
 );
 
 /******************************************************************************/
@@ -128,7 +130,7 @@ class scanParI {
 public:
    virtual ~scanParI(){ /* nothing */ }
 
-   virtual std::size_t getPos() const = 0;
+   virtual NAMEANDIDTYPE getVarAddress() const = 0;
    virtual bool goToNextItem() = 0;
    virtual bool isAtTerminalPosition() const = 0;
    virtual bool isAtFirstPosition() const = 0;
@@ -156,7 +158,7 @@ class baseScanParT
 
       ar
       & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GStdSimpleVectorInterfaceT<T>)
-      & BOOST_SERIALIZATION_NVP(pos_)
+      & BOOST_SERIALIZATION_NVP(var_)
       & BOOST_SERIALIZATION_NVP(step_)
       & BOOST_SERIALIZATION_NVP(nSteps_)
       & BOOST_SERIALIZATION_NVP(lower_)
@@ -173,68 +175,19 @@ public:
     * The standard constructor
     */
    baseScanParT(
-      std::size_t p
-      , std::size_t nSteps
-      , T lower
-      , T upper
+      parPropSpec<T> pps
       , bool randomScan
       , std::string t // typeDescription_
    )
       : GStdSimpleVectorInterfaceT<T>()
-      , pos_(p)
+      , var_(pps.var)
       , step_(0)
-      , nSteps_(nSteps)
-      , lower_(lower)
-      , upper_(upper)
+      , nSteps_(pps.nSteps)
+      , lower_(pps.lowerBoundary)
+      , upper_(pps.upperBoundary)
       , randomScan_(randomScan)
       , typeDescription_(t)
    {
-      if(!randomScan_) {
-         // Fill the object with data
-         this->data = fillWithData<T>(nSteps_, lower_, upper_);
-      }
-   }
-
-   /***************************************************************************/
-   /**
-    * A constructor that splits an input string into tokens
-    */
-   baseScanParT(
-         const std::string& desc
-         , bool randomScan
-   )
-      : GStdSimpleVectorInterfaceT<T>()
-      , pos_(0)
-      , step_(0)
-      , nSteps_(2)
-      , lower_(T(0))
-      , upper_(T(1))
-      , randomScan_(randomScan)
-      , typeDescription_("")
-   {
-      std::vector<std::string> tokens;
-      boost::split(tokens, desc, boost::is_any_of(" "));
-
-      // Check that we have the correct number of tokens
-      if(tokens.size() != 5) {
-         glogger
-         << "In baseScanParT<>::baseScanParT(): Error!" << std::endl
-         << "Invalid number of tokens" << std::endl
-         << GTERMINATION;
-      }
-
-      std::vector<std::string>::iterator it;
-      for(it=tokens.begin(); it!=tokens.end(); ++it) {
-         boost::trim(*it);
-      }
-
-      // Assign tokens to our local variables
-      typeDescription_ = tokens.at(0);
-      pos_             = boost::lexical_cast<std::size_t>(tokens.at(1));
-      lower_           = boost::lexical_cast<T>(tokens.at(2));
-      upper_           = boost::lexical_cast<T>(tokens.at(3));
-      nSteps_          = boost::lexical_cast<std::size_t>(tokens.at(4));
-
       if(!randomScan_) {
          // Fill the object with data
          this->data = fillWithData<T>(nSteps_, lower_, upper_);
@@ -247,7 +200,7 @@ public:
     */
    baseScanParT(const baseScanParT<T>& cp)
       : GStdSimpleVectorInterfaceT<T>(cp)
-      , pos_(cp.pos_)
+      , var_(cp.var_)
       , step_(cp.step_)
       , nSteps_(cp.nSteps_)
       , lower_(cp.lower_)
@@ -265,10 +218,10 @@ public:
 
    /***************************************************************************/
    /**
-    * Retrieve the position of this object
+    * Retrieve the address of this object
     */
-   virtual std::size_t getPos() const {
-      return pos_;
+   virtual NAMEANDIDTYPE getVarAddress() const OVERRIDE {
+      return var_;
    }
 
    /***************************************************************************/
@@ -343,7 +296,7 @@ protected:
    /***************************************************************************/
    // Data
 
-   std::size_t pos_; ///< The position of the parameter
+   NAMEANDIDTYPE var_; ///< Name and/or position of the variable
    std::size_t step_; ///< The current position in the data vector
    std::size_t nSteps_; ///< The number of stepts to be taken in a scan
    T lower_; ///< The lower boundary of an item
@@ -356,7 +309,7 @@ protected:
    /***************************************************************************/
    /** @brief The default constructor -- only needed for de-serialization, hence protected */
    baseScanParT()
-   : pos_(0)
+   : var_(NAMEANDIDTYPE(0, "empty", 0))
    , step_(0)
    , nSteps_(2)
    , lower_(T(0))
@@ -413,14 +366,9 @@ class bScanPar
 public:
   /** @brief Construction from local variables */
   bScanPar(
-      std::size_t
-      , std::size_t
-      , bool
-      , bool
-      , bool
+     parPropSpec<bool>
+     , bool
   );
-  /** @brief Construction from the specification string */
-  bScanPar(const std::string&, bool);
   /** @brief Copy constructor */
   bScanPar(const bScanPar&);
   /** @brief The destructor */
@@ -458,14 +406,9 @@ class int32ScanPar
 public:
    /** @brief The standard destructor */
    int32ScanPar(
-       std::size_t
-       , std::size_t
-       , boost::int32_t
-       , boost::int32_t
-       , bool
+      parPropSpec<boost::int32_t>
+      , bool
    );
-   /** @brief Construction from the specification string */
-   int32ScanPar(const std::string&,bool);
    /** @brief Copy constructor */
    int32ScanPar(const int32ScanPar&);
    /** @brief The destructor */
@@ -503,16 +446,8 @@ class dScanPar
 public:
    /** @brief The standard destructor */
    dScanPar(
-       std::size_t
-       , std::size_t
-       , double
-       , double
-       , bool
-   );
-   /** @brief Construction from the specification string */
-   dScanPar(
-         const std::string&
-         , bool
+      parPropSpec<double>
+      , bool
    );
    /** @brief The copy constructor */
    dScanPar(const dScanPar&);
@@ -552,16 +487,8 @@ class fScanPar
 public:
    /** @brief The standard destructor */
    fScanPar(
-       std::size_t
-       , std::size_t
-       , float
-       , float
-       , bool
-   );
-   /** @brief Construction from the specification string */
-   fScanPar(
-         const std::string&
-         , bool
+      parPropSpec<float>
+      , bool
    );
    /** @brief The copy constructor */
    fScanPar(const fScanPar&);

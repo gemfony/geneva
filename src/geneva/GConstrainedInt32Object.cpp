@@ -280,6 +280,21 @@ void GConstrainedInt32Object::assignInt32ValueVector(const std::vector<boost::in
 
 /******************************************************************************/
 /**
+ * Assigns part of a value map to the parameter
+ */
+void GConstrainedInt32Object::assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >& parMap) {
+   this->setValue(
+      this->transfer(
+         Gem::Common::getMapItem(
+            parMap
+            ,this->getParameterName()
+         ).at(0)
+      )
+   );
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GConstrainedInt32Object object, camouflaged as a GObject

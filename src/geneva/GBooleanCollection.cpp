@@ -353,6 +353,18 @@ void GBooleanCollection::assignBooleanValueVector(const std::vector<bool>& parVe
 
 /******************************************************************************/
 /**
+ * Assigns part of a value map to the parameter
+ */
+void GBooleanCollection::assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >& parMap) {
+   GBooleanCollection::iterator it;
+   std::size_t cnt = 0;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      *it = (Gem::Common::getMapItem<std::vector<bool> >(parMap,this->getParameterName())).at(cnt++);
+   }
+}
+
+/******************************************************************************/
+/**
  * Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made

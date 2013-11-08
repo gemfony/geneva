@@ -1055,6 +1055,110 @@ void GParameterBase::assignBooleanValueVector(const std::vector<bool>& parVec, s
 
 /******************************************************************************/
 /**
+ * Allows to assign the parameters inside of a map to the corresponding parameter objects.
+ *
+ * @param parMap The vector with the parameters to be assigned to the object
+ */
+template <>
+void GParameterBase::assignValueVectors<float>(
+   const std::map<std::string, std::vector<float> >& parMap
+) {
+   this->assignFloatValueVectors(parMap);
+}
+
+/******************************************************************************/
+/**
+ * Allows to assign the parameters inside of a map to the corresponding parameter objects.
+ *
+ * @param parMap The vector with the parameters to be assigned to the object
+ */
+template <>
+void GParameterBase::assignValueVectors<double>(
+   const std::map<std::string, std::vector<double> >& parMap
+) {
+   this->assignDoubleValueVectors(parMap);
+}
+
+/******************************************************************************/
+/**
+ * Allows to assign the parameters inside of a map to the corresponding parameter objects.
+ *
+ * @param parMap The vector with the parameters to be assigned to the object
+ */
+template <>
+void GParameterBase::assignValueVectors<boost::int32_t>(
+   const std::map<std::string, std::vector<boost::int32_t> >& parMap
+) {
+   this->assignInt32ValueVectors(parMap);
+}
+
+/******************************************************************************/
+/**
+ * Allows to assign the parameters inside of a map to the corresponding parameter objects.
+ *
+ * @param parMap The vector with the parameters to be assigned to the object
+ */
+template <>
+void GParameterBase::assignValueVectors<bool>(
+   const std::map<std::string, std::vector<bool> >& parMap
+) {
+   this->assignBooleanValueVectors(parMap);
+}
+
+/******************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter
+ */
+void GParameterBase::assignFloatValueVectors(const std::map<std::string, std::vector<float> >& parMap) {
+   /* Do nothing by default */
+}
+
+/* -----------------------------------------------------------------------------
+ * So far untested
+ * -----------------------------------------------------------------------------
+ */
+
+/******************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter
+ */
+void GParameterBase::assignDoubleValueVectors(const std::map<std::string, std::vector<double> >& parMap) {
+   /* Do nothing by default */
+}
+
+/* -----------------------------------------------------------------------------
+ * So far untested
+ * -----------------------------------------------------------------------------
+ */
+
+/******************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter
+ */
+void GParameterBase::assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >& parMap) {
+   /* Do nothing by default */
+}
+
+/* -----------------------------------------------------------------------------
+ * So far untested
+ * -----------------------------------------------------------------------------
+ */
+
+/******************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter
+ */
+void GParameterBase::assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >& parMap) {
+   /* Do nothing by default */
+}
+
+/* -----------------------------------------------------------------------------
+ * So far untested
+ * -----------------------------------------------------------------------------
+ */
+
+/******************************************************************************/
+/**
  * Specifies that no random initialization should occur anymore
  */
 void GParameterBase::blockRandomInitialization() {

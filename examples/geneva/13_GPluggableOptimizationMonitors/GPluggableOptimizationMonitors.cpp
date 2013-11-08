@@ -46,9 +46,36 @@
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
+namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
-   Go2 go(argc, argv, "./config/Go2.json");
+   //---------------------------------------------------------------------------
+   // We want to add additional command line options
+
+   std::string monitorSpec = "empty";
+   bool observeBoundaries = "false";
+
+   std::vector<boost::shared_ptr<po::option_description> > od;
+
+   boost::shared_ptr<po::option_description> monitorSpec_option(
+      new po::option_description(
+         "monitorSpec"
+         , po::value<std::string>(&monitorSpec)->default_value(std::string("empty"))
+         , "Allows you to specify variables to be monitored like this: \"d(var0 -10 10)\""
+      )
+   );
+   od.push_back(monitorSpec_option);
+
+   boost::shared_ptr<po::option_description> observeBoundaries_option(
+      new po::option_description(
+         "observeBoundaries"
+         , po::value<bool>(&observeBoundaries)->implicit_value(true)->default_value(false) // This allows you say both --observeBoundaries and --observeBoundaries=true
+         , "Only plot inside of specified boundaries (no effect, when monitorSpec hasn't been set)"
+      )
+   );
+   od.push_back(observeBoundaries_option);
+
+   Go2 go(argc, argv, "./config/Go2.json", od);
 
 	//---------------------------------------------------------------------------
 	// Client mode
@@ -64,17 +91,21 @@ int main(int argc, char **argv) {
 
 	//---------------------------------------------------------------------------
    // Register a progress plotter with the global optimization algorithm factory
-   boost::shared_ptr<GProgressPlotterT<GParameterSet> > progplot_ptr(new GProgressPlotterT<GParameterSet>());
-   progplot_ptr->addProfileVar("d", 0); // first double parameter
-   progplot_ptr->addProfileVar("d", 1); // second double parameter
-   go.registerPluggableOM(
-      boost::bind(
-            &GProgressPlotterT<GParameterSet>::informationFunction
-            , progplot_ptr
-            , _1
-            , _2
-      )
-   );
+	if(monitorSpec != "empty") {
+	   boost::shared_ptr<GProgressPlotterT<GParameterSet, double> > progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
+
+	   progplot_ptr->setProfileSpec(monitorSpec);
+	   progplot_ptr->setObserveBoundaries(observeBoundaries);
+
+	   go.registerPluggableOM(
+	      boost::bind(
+	         &GProgressPlotterT<GParameterSet, double>::informationFunction
+	         , progplot_ptr
+	         , _1
+	         , _2
+	      )
+	   );
+	}
 
    //---------------------------------------------------------------------------
 

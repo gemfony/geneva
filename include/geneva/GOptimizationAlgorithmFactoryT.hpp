@@ -140,6 +140,15 @@ public:
 
    /***************************************************************************/
    /**
+    * Adds local command line options to a boost::program_options::options_description object.
+    * By default we do nothing so that derived classes do not need to re-implement this
+    * function.
+    */
+   virtual void addCLOptions(boost::program_options::options_description& desc) BASE
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
     * Triggers the creation of objects of the desired type with the preset
     * parallelization mode.
     *

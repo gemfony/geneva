@@ -1825,7 +1825,7 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 		}
 
 		gdc_ptr->addAdaptor(gat_ptr);
-		gdc_ptr->setParameterName("0");
+		gdc_ptr->setParameterName("var0");
 
 		p->push_back(gdc_ptr);
 	}
@@ -1845,7 +1845,7 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 		}
 
 		gcdc_ptr->addAdaptor(gat_ptr);
-		gcdc_ptr->setParameterName("0");
+		gcdc_ptr->setParameterName("var0");
 
 		p->push_back(gcdc_ptr);
 	}
@@ -1869,7 +1869,7 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 			}
 
 			gdo_ptr->addAdaptor(gat_ptr);
-			gdo_ptr->setParameterName(boost::lexical_cast<std::string>(i));
+			gdo_ptr->setParameterName(std::string("var") + boost::lexical_cast<std::string>(i));
 
 			gdoc_ptr->push_back(gdo_ptr);
 		}
@@ -1897,7 +1897,7 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 			}
 
 			gcdo_ptr->addAdaptor(gat_ptr);
-         gcdo_ptr->setParameterName(boost::lexical_cast<std::string>(i));
+         gcdo_ptr->setParameterName(std::string("var") + boost::lexical_cast<std::string>(i));
 
 			gcdoc_ptr->push_back(gcdo_ptr);
 		}
@@ -1921,7 +1921,7 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
          }
 
          gcdo_ptr->addAdaptor(gat_ptr);
-         gcdo_ptr->setParameterName(boost::lexical_cast<std::string>(i));
+         gcdo_ptr->setParameterName(std::string("var") + boost::lexical_cast<std::string>(i));
 
          p->push_back(gcdo_ptr);
       }

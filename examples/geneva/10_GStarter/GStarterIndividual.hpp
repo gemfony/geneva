@@ -158,7 +158,7 @@ public:
 	double getAverageSigma() const;
 
 	/** @brief Emit information about this individual */
-	std::string print() const;
+	std::string print();
 
 	/***************************************************************************/
 	/**
@@ -277,7 +277,7 @@ public:
 };
 
 /** @brief Allows to output a GStarterIndividual or convert it to a string using boost::lexical_cast */
-std::ostream& operator<<(std::ostream&, const GStarterIndividual&);
+std::ostream& operator<<(std::ostream&, boost::shared_ptr<GStarterIndividual>);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

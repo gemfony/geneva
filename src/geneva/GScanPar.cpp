@@ -135,70 +135,6 @@ std::vector<double> fillWithData<double>(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor. Only needed for de-serialization.
- */
-bScanPar::bScanPar()
-   : baseScanParT<bool>()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Construction from local variables
- */
-bScanPar::bScanPar(
-    std::size_t p
-    , std::size_t nS
-    , bool l
-    , bool u
-    , bool s
-)
-   : baseScanParT<bool>(p,nS,l,u,s,"b")
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Construction from the specification string
- */
-bScanPar::bScanPar(
-      const std::string& desc
-      , bool s
-)
-   : baseScanParT<bool>(desc, s)
-{
-   if(this->typeDescription_ != "b") {
-      glogger
-      << "In bScanPar::bScanPar(const std::string& desc): Error!" << std::endl
-      << "Got invalid parameter description:" << std::endl
-      << desc
-      << GTERMINATION;
-   }
-}
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-bScanPar::bScanPar(const bScanPar& cp)
-   :baseScanParT<bool>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-bScanPar::~bScanPar()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Cloning of this object
- */
-boost::shared_ptr<bScanPar> bScanPar::clone() const {
-   return boost::shared_ptr<bScanPar>(new bScanPar(*this));
-}
-
-/******************************************************************************/
-/**
  * Retrieval of a random value for type bool
  */
 template <> bool baseScanParT<bool>::getRandomItem() const {
@@ -235,6 +171,50 @@ template <> double baseScanParT<double>::getRandomItem() const {
 /**
  * The default constructor. Only needed for de-serialization.
  */
+bScanPar::bScanPar()
+   : baseScanParT<bool>()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Construction from local variables
+ */
+bScanPar::bScanPar(
+   parPropSpec<bool> pps
+   , bool randomScan
+)
+   : baseScanParT<bool>(pps, randomScan,"b")
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The copy constructor
+ */
+bScanPar::bScanPar(const bScanPar& cp)
+   :baseScanParT<bool>(cp)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+bScanPar::~bScanPar()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Cloning of this object
+ */
+boost::shared_ptr<bScanPar> bScanPar::clone() const {
+   return boost::shared_ptr<bScanPar>(new bScanPar(*this));
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The default constructor. Only needed for de-serialization.
+ */
 int32ScanPar::int32ScanPar()
    : baseScanParT<boost::int32_t>()
 { /* nothing */ }
@@ -244,34 +224,11 @@ int32ScanPar::int32ScanPar()
  * The standard destructor
  */
 int32ScanPar::int32ScanPar(
-    std::size_t p
-    , std::size_t nS
-    , boost::int32_t l
-    , boost::int32_t u
-    , bool s
+   parPropSpec<boost::int32_t> pps
+   , bool randomScan
 )
-   : baseScanParT<boost::int32_t>(p,nS,l,u,s,"i")
+   : baseScanParT<boost::int32_t>(pps, randomScan, "i")
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * Construction from the specification string
- */
-int32ScanPar::int32ScanPar(
-      const std::string& desc
-      , bool s
-)
-   : baseScanParT<boost::int32_t>(desc,s)
-{
-   // Check that we are indeed dealing with a boolean description
-   if(this->typeDescription_ != "i") {
-      glogger
-      << "int32ScanPar::int32ScanPar(): Error!" << std::endl
-      << "Not a description of a boost::int32_t parameter:" << std::endl
-      << "\"" << desc << "\"" << std::endl
-      << GTERMINATION;
-   }
-}
 
 /******************************************************************************/
 /**
@@ -311,34 +268,11 @@ dScanPar::dScanPar()
  * The standard destructor
  */
 dScanPar::dScanPar(
-    std::size_t p
-    , std::size_t nS
-    , double l
-    , double u
-    , bool s
+   parPropSpec<double> pps
+   , bool randomScan
 )
-   : baseScanParT<double>(p,nS,l,u,s,"d")
+   : baseScanParT<double>(pps, randomScan, "d")
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * Construction from the specification string
- */
-dScanPar::dScanPar(
-      const std::string& desc
-      , bool s
-)
-   : baseScanParT<double>(desc,s)
-{
-   // Check that we are indeed dealing with a boolean description
-   if(this->typeDescription_ != "d") {
-      glogger
-      << "dScanPar::dScanPar(): Error!" << std::endl
-      << "Not a description of a double parameter:" << std::endl
-      << "\"" << desc << "\"" << std::endl
-      << GTERMINATION;
-   }
-}
 
 /******************************************************************************/
 /**
@@ -378,34 +312,11 @@ fScanPar::fScanPar()
  * The standard destructor
  */
 fScanPar::fScanPar(
-    std::size_t p
-    , std::size_t nS
-    , float l
-    , float u
-    , bool s
+      parPropSpec<float> pps
+      , bool randomScan
 )
-   : baseScanParT<float>(p,nS,l,u,s,"f")
+   : baseScanParT<float>(pps, randomScan, "f")
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * Construction from the specification string
- */
-fScanPar::fScanPar(
-      const std::string& desc
-      , bool s
-)
-   : baseScanParT<float>(desc,s)
-{
-   // Check that we are indeed dealing with a boolean description
-   if(this->typeDescription_ != "f") {
-      glogger
-      << "fScanPar::fScanPar(): Error!" << std::endl
-      << "Not a description of a float parameter:" << std::endl
-      << "\"" << desc << "\"" << std::endl
-      << GTERMINATION;
-   }
-}
 
 /******************************************************************************/
 /**

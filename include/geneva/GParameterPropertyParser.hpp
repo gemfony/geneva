@@ -70,9 +70,6 @@
 namespace Gem {
 namespace Geneva {
 
-const bool ISINDEX = false;
-const bool ISNAME  = true;
-
 /******************************************************************************/
 /** @brief Storage of variable-related properties */
 typedef boost::tuple<std::size_t, std::string, std::size_t> NAMEANDIDTYPE;
