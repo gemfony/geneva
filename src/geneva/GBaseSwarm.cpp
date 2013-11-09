@@ -1243,8 +1243,9 @@ double GBaseSwarm::findBests() {
 	std::size_t bestCurrentLocalId = 0;
 	double bestCurrentLocalFitness = getWorstCase();
 
+   GBaseSwarm::iterator it;
+
 #ifdef DEBUG
-	GBaseSwarm::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
 		if((*it)->isDirty()) {
 		   glogger
