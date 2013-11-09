@@ -119,12 +119,11 @@ public:
 		, lowerBoundary_(lowerBoundary)
 		, upperBoundary_(upperBoundary)
 	{
-		// Naturally the upper boundary should be >= the lower boundary
-		if(lowerBoundary_ >= upperBoundary_) {
+		// Naturally the upper boundary should be >= the lower boundary.
+	   if(lowerBoundary_ >= upperBoundary_) {
 		   glogger
 		   << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
-         << "lowerBoundary_ = " << lowerBoundary_ << "is >= than" << std::endl
-         << "upperBoundary_ = " << upperBoundary_ << std::endl
+         << "lowerBoundary_ = " << lowerBoundary_ << " is > upperBoundary_ = " << upperBoundary_ << std::endl
          << GEXCEPTION;
 		}
 

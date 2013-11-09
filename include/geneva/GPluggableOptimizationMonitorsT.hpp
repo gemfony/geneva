@@ -494,7 +494,7 @@ public:
             {
                progressPlotter2D_oa_ = boost::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
 
-               progressPlotter2D_oa_->setPlotMode(Gem::Common::SCATTER);
+               progressPlotter2D_oa_->setPlotMode(Gem::Common::CURVE);
                progressPlotter2D_oa_->setPlotLabel("Fitness as a function of a parameter value");
                progressPlotter2D_oa_->setXAxisLabel(this->getLabel(fp_profVarVec_[0]));
                progressPlotter2D_oa_->setYAxisLabel("Fitness");
