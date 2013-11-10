@@ -185,7 +185,17 @@ GCLParsableI::~GCLParsableI()
  * @param configurationFile The name of the configuration file
  */
 GParserBuilder::GParserBuilder()
-{ /* nothing */ }
+   : configFileBaseName_("empty")
+{
+   const char *jsonBaseName_ch = std::getenv("GENEVA_CONFIG_BASENAME");
+   if(jsonBaseName_ch) {
+      // Only convert to a string if the environment variable exists
+      configFileBaseName_ = std::string(jsonBaseName_ch);
+
+      // Convert to a std::string and remove any white space characters
+      boost::trim(configFileBaseName_);
+   }
+}
 
 /******************************************************************************/
 /**
@@ -209,14 +219,25 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
 	bool result = false;
 	pt::ptree ptr; // A property tree object;
 
+	// Add a base name, if possible and required
+	std::string configFile_withBase = configFile;
+	boost::trim(configFile_withBase);
+
+	// Check that configFile_withBase doesn't start with a / (--> absolute path)
+	if(!configFileBaseName_.empty() && "empty" != configFileBaseName_ && configFile.at(0) != '/') {
+	   configFile_withBase = configFileBaseName_ + configFile_withBase;
+	}
+
+	std::cout << "Using configuration file " << configFile_withBase << std::endl;
+
 	try
 	{
 		// Do some error checking. Also check that the configuration file exists.
 		// If not, create a default version
-		if(!bf::exists(configFile)) {
+		if(!bf::exists(configFile_withBase)) {
 			std::cerr
 			<< "Note: In GParserBuilder::parseConfigFile():" << std::endl
-			<< "Configuration file " << configFile << " does not exist." << std::endl
+			<< "Configuration file " << configFile_withBase << " does not exist." << std::endl
 			<< "We will try to create a file with default values for you." << std::endl;
 
 			std::string header = "This configuration file was automatically created by GParserBuilder;";
@@ -227,28 +248,28 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
 			);
 		} else { // configFile exists
 			// Is it a regular file ?
-			if(!bf::is_regular_file(configFile)) {
+			if(!bf::is_regular_file(configFile_withBase)) {
 				glogger
 				<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
-            << configFile << " exists but is no regular file." << std::endl
+            << configFile_withBase << " exists but is no regular file." << std::endl
             << GEXCEPTION;
 			}
 
 			// We require the file to have the json extension
 #if (BOOST_VERSION>104300)
-			if(!bf::path(configFile).has_extension() || bf::path(configFile).extension() != ".json") {
+			if(!bf::path(configFile_withBase).has_extension() || bf::path(configFile_withBase).extension() != ".json") {
 #else
-			if(bf::path(configFile).extension() != ".json") {
+			if(bf::path(configFile_withBase).extension() != ".json") {
 #endif
 				glogger
 				<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
-            << configFile << " does not have the required extension \".json\"" << std::endl
+            << configFile_withBase << " does not have the required extension \".json\"" << std::endl
             << GEXCEPTION;
 			}
 		}
 
 		// Do the actual parsing
-		pt::read_json(configFile, ptr);
+		pt::read_json(configFile_withBase, ptr);
 
 		// Load the data into our objects and execute the relevant call-back functions
 		std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
@@ -259,15 +280,15 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
 
 		result = true;
 	} catch(const gemfony_error_condition& e) {
-		std::cerr << "Caught gemfony_error_condition when parsing configuration file " << configFile << ":" << std::endl
+		std::cerr << "Caught gemfony_error_condition when parsing configuration file " << configFile_withBase << ":" << std::endl
 				  << e.what() << std::endl;
 		result=false;
 	} catch(const std::exception& e) {
-		std::cerr << "Caught std::exception when parsing configuration file " << configFile << ":" << std::endl
+		std::cerr << "Caught std::exception when parsing configuration file " << configFile_withBase << ":" << std::endl
 				  << e.what() << std::endl;
 		result=false;
 	} catch(...) {
-		std::cerr << "Unknown error while parsing the configuration file " << configFile << std::endl;
+		std::cerr << "Unknown error while parsing the configuration file " << configFile_withBase << std::endl;
 		result=false;
 	}
 
@@ -284,14 +305,23 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
  * @param writeAll A boolean parameter that indicates whether all or only essential parameters should be written
  */
 void GParserBuilder::writeConfigFile(
-		const std::string& configFile
-		, const std::string& header
-		, bool writeAll
+   const std::string& configFile
+   , const std::string& header
+   , bool writeAll
 ) const {
-    using namespace boost::property_tree;
-    using namespace boost::filesystem;
+   using namespace boost::property_tree;
+   using namespace boost::filesystem;
 
-    namespace bf = boost::filesystem;
+   namespace bf = boost::filesystem;
+
+   // Add a base name, if possible and required
+   std::string configFile_withBase = configFile;
+   boost::trim(configFile_withBase);
+
+   // Check that configFile_withBase doesn't start with a / (--> absolute path)
+   if(!configFileBaseName_.empty() && "empty" != configFileBaseName_ && configFile.at(0) != '/') {
+      configFile_withBase = configFileBaseName_ + configFile_withBase;
+   }
 
 	// Needed for the separation of comment strings
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -300,47 +330,47 @@ void GParserBuilder::writeConfigFile(
 	// Do some error checking
 	{
 		// Is configFile a directory ?
-		if(is_directory(configFile)) {
+		if(is_directory(configFile_withBase)) {
 			glogger
 			<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
-         << configFile << " is a directory." << std::endl
+         << configFile_withBase << " is a directory." << std::endl
          << GEXCEPTION;
 		}
 
 		// We do not allow to overwrite existing files
-		if(exists(configFile) && is_regular_file(configFile)) {
+		if(exists(configFile_withBase) && is_regular_file(configFile_withBase)) {
 		   glogger
 		   << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
-         << "You have specified an existing file (" << configFile << ")." << std::endl
+         << "You have specified an existing file (" << configFile_withBase << ")." << std::endl
          << GEXCEPTION;
 		}
 
 		// Check that the target path exists and is a directory
-		if(!exists(bf::path(configFile).remove_filename()) || !is_directory(bf::path(configFile).remove_filename())) {
+		if(!exists(bf::path(configFile_withBase).remove_filename()) || !is_directory(bf::path(configFile_withBase).remove_filename())) {
 		   glogger
 		   << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
-         << "The target path " << bf::path(configFile).remove_filename() << " does not exist or is no directory." << std::endl
+         << "The target path " << bf::path(configFile_withBase).remove_filename() << " does not exist or is no directory." << std::endl
          << GEXCEPTION;
 		}
 
 		// Check that the configuration file has the required extension
 #if BOOST_VERSION>104300
-		if(!bf::path(configFile).has_extension() || bf::path(configFile).extension() != ".json") {
+		if(!bf::path(configFile_withBase).has_extension() || bf::path(configFile_withBase).extension() != ".json") {
 #else
-		if(bf::path(configFile).extension() != ".json") { // This is a hack
+		if(bf::path(configFile_withBase).extension() != ".json") { // This is a hack
 #endif
 		   glogger
 		   << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
-         << configFile << " does not have the required extension \".json\"" << std::endl
+         << configFile_withBase << " does not have the required extension \".json\"" << std::endl
          << GEXCEPTION;
 		}
 	}
 
 	// Open the required configuration file
-	std::ofstream ofs(configFile.c_str());
+	std::ofstream ofs(configFile_withBase.c_str());
 	if (!ofs.good()) {
 		glogger
-		<< "In GParserBuilder::writeConfigFile(): Error writing the configuration file " << configFile << std::endl
+		<< "In GParserBuilder::writeConfigFile(): Error writing the configuration file " << configFile_withBase << std::endl
 		<< GEXCEPTION;
 	}
 

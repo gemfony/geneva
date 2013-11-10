@@ -33,6 +33,7 @@
  */
 
 // Standard headers go here
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -43,6 +44,7 @@
 #include "GGlobalDefines.hpp"
 
 // Boost headers go here
+#include <boost/algorithm/string.hpp>
 #include <boost/array.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/thread/thread.hpp>
@@ -1303,8 +1305,7 @@ private:
  * class assumes that the parameter_type can be streamed using operator<< or
  * operator>>
  */
-class GParserBuilder
-	:boost::noncopyable
+class GParserBuilder :boost::noncopyable
 {
 public:
 	/** @brief The default constructor */
@@ -1573,6 +1574,8 @@ private:
 
 	std::vector<boost::shared_ptr<GFileParsableI> > file_parameter_proxies_; ///< Holds file parameter proxies
 	std::vector<boost::shared_ptr<GCLParsableI> >   cl_parameter_proxies_;   ///< Holds command line parameter proxies
+
+	std::string configFileBaseName_;
 };
 
 /******************************************************************************/
