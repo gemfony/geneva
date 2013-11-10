@@ -3098,6 +3098,7 @@ GPlotDesigner::GPlotDesigner(
 	, c_x_dim_(DEFCXDIM)
 	, c_y_dim_(DEFCYDIM)
 	, canvasLabel_(canvasLabel)
+   , addPrintCommand_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -3108,7 +3109,7 @@ GPlotDesigner::GPlotDesigner(
  */
 void GPlotDesigner::writeToFile(const std::string& fileName) {
 	std::ofstream result(fileName.c_str());
-	result << plot();
+	result << plot(fileName);
 	result.close();
 }
 
@@ -3116,7 +3117,7 @@ void GPlotDesigner::writeToFile(const std::string& fileName) {
 /*
  * Emits the overall plot
  */
-std::string GPlotDesigner::plot() const {
+std::string GPlotDesigner::plot(const std::string& plotName) const {
 	std::ostringstream result;
 	std::size_t maxPlots = c_x_div_*c_y_div_;
 
@@ -3181,7 +3182,19 @@ std::string GPlotDesigner::plot() const {
 
 	result
 	<< "  graphPad->cd();" << std::endl
-	<< "  cc->cd();" << std::endl
+	<< "  cc->cd();" << std::endl;
+
+	// Check if we are supposed to output a png file
+	if(addPrintCommand_ && plotName != "empty" && !plotName.empty()) {
+	   std::string plotName_local = plotName; // Make sure there are no white spaces
+	   boost::trim(plotName_local);
+	   result
+	   << std::endl
+	   << "  // Print out the data of this file to a png file" << std::endl
+	   << "  cc->Print(\"" << plotName_local << ".png\");" << std::endl;
+	}
+
+	result
 	<< "}" << std::endl;
 
 	return result.str();
@@ -3283,6 +3296,22 @@ void GPlotDesigner::setCanvasLabel(const std::string& canvasLabel) {
  */
 std::string GPlotDesigner::getCanvasLabel() const {
    return canvasLabel_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to add a "Print" command to the end of the script so that picture files are created
+ */
+void GPlotDesigner::setAddPrintCommand(bool addPrintCommand) {
+   addPrintCommand_ = addPrintCommand_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the current value of the addPrintCommand_ variable
+ */
+bool GPlotDesigner::getAddPrintCommand() const {
+   return addPrintCommand_;
 }
 
 /******************************************************************************/

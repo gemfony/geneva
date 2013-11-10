@@ -232,6 +232,7 @@ public:
       , monitorBestOnly_(false)
       , monitorValidOnly_(false)
       , observeBoundaries_(false)
+      , addPrintCommand_(false)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -246,6 +247,7 @@ public:
       , monitorBestOnly_(monitorBestOnly)
       , monitorValidOnly_(monitorValidOnly)
       , observeBoundaries_(false)
+      , addPrintCommand_(false)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -260,6 +262,7 @@ public:
       , monitorBestOnly_(cp.monitorBestOnly_)
       , monitorValidOnly_(cp.monitorValidOnly_)
       , observeBoundaries_(cp.observeBoundaries_)
+      , addPrintCommand_(cp.addPrintCommand_)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -394,6 +397,22 @@ public:
     */
    boost::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
       return canvasDimensions_;
+   }
+
+   /******************************************************************************/
+   /**
+    * Allows to add a "Print" command to the end of the script so that picture files are created
+    */
+   void setAddPrintCommand(bool addPrintCommand) {
+      addPrintCommand_ = addPrintCommand_;
+   }
+
+   /******************************************************************************/
+   /**
+    * Allows to retrieve the current value of the addPrintCommand_ variable
+    */
+   bool getAddPrintCommand() const {
+      return addPrintCommand_;
    }
 
    /***************************************************************************/
@@ -709,6 +728,9 @@ public:
             progressPlotter2D_oa_->sortX();
          }
 
+         // Inform the plot designer whether it should print png files
+         gpd_oa_.setAddPrintCommand(addPrintCommand_);
+
          // Write out the result. Note that we add
          gpd_oa_.writeToFile(fileName_);
 
@@ -746,6 +768,8 @@ private:
    bool monitorBestOnly_;  ///< Indicates whether only the best individuals should be monitored
    bool monitorValidOnly_; ///< Indicates whether only valid individuals should be plotted
    bool observeBoundaries_; ///< When set to true, the plotter will ignore values outside of a scan boundary
+
+   bool addPrintCommand_; ///< Asks the GPlotDesigner to add a print command to result files
 };
 
 /******************************************************************************/

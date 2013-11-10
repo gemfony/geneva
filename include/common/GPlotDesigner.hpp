@@ -49,6 +49,7 @@
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/algorithm/string.hpp>
 
 #ifndef GPLOTDESIGNER_HPP_
 #define GPLOTDESIGNER_HPP_
@@ -147,7 +148,6 @@ public:
    std::size_t id() const;
    /** @brief Sets the id of the object */
    void setId(const std::size_t&);
-
 
 	/** @brief Retrieves a unique name for this plotter */
 	virtual std::string getPlotterName() const = 0;
@@ -1962,7 +1962,7 @@ public:
 	);
 
 	/* @brief Emits the overall plot */
-	std::string plot() const;
+	std::string plot(const std::string& = "empty") const;
 	/** @brief Writes the plot to a file */
 	void writeToFile(const std::string&);
 
@@ -1981,6 +1981,11 @@ public:
 	/** @brief Allows to retrieve the canvas label */
 	std::string getCanvasLabel() const;
 
+   /** @brief Allows to add a "Print" command to the end of the script so that picture files are created */
+   void setAddPrintCommand(bool);
+   /** @brief Allows to retrieve the current value of the addPrintCommand_ variable */
+   bool getAddPrintCommand() const;
+
 	/** @brief Resets the plotters */
 	void resetPlotters();
 
@@ -1997,6 +2002,8 @@ private:
 	boost::uint32_t c_x_dim_, c_y_dim_; ///< Holds the number of pixels of the canvas
 
 	std::string canvasLabel_; ///< A label to be assigned to the entire canvas
+
+   bool addPrintCommand_; ///< Indicates whether a print command for the creation of a png file should be added
 };
 
 /******************************************************************************/
