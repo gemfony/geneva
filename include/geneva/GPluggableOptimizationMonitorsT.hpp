@@ -704,6 +704,11 @@ public:
 
       case Gem::Geneva::INFOEND:
       {
+         // Make sure 1-D data is sorted
+         if(1 == this->nProfileVars()) {
+            progressPlotter2D_oa_->sortX();
+         }
+
          // Write out the result. Note that we add
          gpd_oa_.writeToFile(fileName_);
 

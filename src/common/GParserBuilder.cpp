@@ -228,8 +228,6 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
 	   configFile_withBase = configFileBaseName_ + configFile_withBase;
 	}
 
-	std::cout << "Using configuration file " << configFile_withBase << std::endl;
-
 	try
 	{
 		// Do some error checking. Also check that the configuration file exists.

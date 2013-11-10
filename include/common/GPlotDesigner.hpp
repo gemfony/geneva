@@ -482,7 +482,7 @@ private:
 
 /******************************************************************************/
 /**
- * A data collector for 2-d data of user-defined type
+ * A data collector for 2-d data of user-defined type, such as a TGraph
  */
 template <typename x_type, typename y_type>
 class GDataCollector2T :public GBasePlotter
@@ -672,6 +672,33 @@ public:
 		}
 	}
 
+private:
+   /***************************************************************************/
+   /**
+    * A simple comparator to sort our tuple
+    */
+   struct sortTuple {
+      bool operator() (
+         const boost::tuple<x_type, y_type>& x
+         , const boost::tuple<x_type, y_type>& y
+      ) {
+         return boost::get<0>(x) < boost::get<0>(y);
+      }
+   };
+
+public:
+   /***************************************************************************/
+   /**
+    * Sorts the data according to its x-component
+    */
+   void sortX() {
+      std::sort(
+         data_.begin()
+         , data_.end()
+         , sortTuple()
+      );
+   }
+
 protected:
 	/***************************************************************************/
 
@@ -850,6 +877,33 @@ public:
    template <typename data_type>
    void add(const data_type& item) {
       *this & item;
+   }
+
+private:
+   /***************************************************************************/
+   /**
+    * A simple comparator to sort our tuple
+    */
+   struct sortTuple {
+      bool operator()(
+         const boost::tuple<x_type, x_type, y_type, y_type>& x
+         , const boost::tuple<x_type, x_type, y_type, y_type>& y
+      ) {
+         return boost::get<0>(x) < boost::get<0>(y);
+      }
+   };
+
+public:
+   /***************************************************************************/
+   /**
+    * Sorts the data according to its x-component
+    */
+   void sortX() {
+      std::sort(
+         data_.begin()
+         , data_.end()
+         , sortTuple()
+      );
    }
 
 protected:
