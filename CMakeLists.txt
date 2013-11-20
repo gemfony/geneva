@@ -36,8 +36,24 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 # Set the library/package version
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "0")
+SET(VERSION_MINOR "1")
 SET(VERSION_PATCH "0")
+
+################################################################################
+# Identify the Operating System. This is particularly needed for MacOS
+
+SET(GENEVA_OS_NAME ${CMAKE_SYSTEM_NAME})
+
+# If this is MacOS, find out about the version
+IF("${GENEVA_OS_NAME}" MATCHES "Darwin")
+   EXEC_PROGRAM(uname ARGS -v  OUTPUT_VARIABLE DARWIN_VERSION)
+   STRING(REGEX MATCH "[0-9]+" DARWIN_VERSION ${DARWIN_VERSION})
+   IF (DARWIN_VERSION GREATER 12)
+     SET(GENEVA_OS_NAME "DarwinGE13")
+   ELSE ()
+   	 SET(GENEVA_OS_NAME "DarwinPre13")
+   ENDIF ()
+ENDIF()
 
 ################################################################################
 #
@@ -152,10 +168,17 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	
 	ADD_DEFINITIONS ("-Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread")
 	
-	IF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	IF("${GENEVA_OS_NAME}" MATCHES "DarwinPre13") # MacOS prior to 10.9
+		SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on MacOS prior to 10.9, hence switching to C++98-mode")
+		ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
+	ELSEIF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
+		SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on MacOS >= 10.9, hence switching to C++98-mode")
+		ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
+	ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1") # Older Clang-based systems
 		SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on ${CMAKE_SYSTEM_NAME}, hence switching to C++98-mode")
-		ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512")
-	ELSE()
+		# ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512")
+		ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
+	ELSE() # Newer, non-MacOS Clang-based systems
 		SET (MSG_CXXSTANDARDMODE "Using Clang version ${CMAKE_CXX_COMPILER_VERSION}, switching to C++11-mode")
 		ADD_DEFINITIONS ("-std=c++11")		
 	ENDIF()
@@ -197,15 +220,28 @@ ENDIF()
 
 ################################################################################
 # Specify linker flags
-IF( GENEVA_STATIC )
+IF( GENEVA_STATIC )	
 	SET (CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -lpthread")
 	SET (LINK_FLAGS "-static-libgcc -lpthread")
+		
+	# Some special linker flags for MacOS
+	IF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
+		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++ -macosx_version_min=10.8")
+		SET (LINK_FLAGS "${LINK_FLAGS} -stdlib=libstdc++ -macosx_version_min=10.8")		
+	ENDIF()
+	
 	SET (BUILD_SHARED_LIBS OFF)
 	SET (Boost_USE_STATIC_LIBS ON)
 	LINK_LIBRARIES (dl)
 	LINK_LIBRARIES (z)
 	LINK_LIBRARIES (pthread)
-ELSE()
+ELSE() # Dynamic libraries
+	# Some special linker flags for MacOS 10.9
+	IF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
+		SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lpthread -stdlib=libstdc++ -macosx_version_min=10.8")
+		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++ -macosx_version_min=10.8")
+	ENDIF()
+
 	SET (BUILD_SHARED_LIBS ON)
 	SET (Boost_USE_STATIC_LIBS OFF)
 	LINK_LIBRARIES (pthread)
@@ -239,12 +275,13 @@ ENDIF()
 # Add additional libraries if this is MacOS
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	LINK_LIBRARIES(
-		${Boost_FILESYSTEM_LIBRARY}
-		${Boost_SYSTEM_LIBRARY}
-		${Boost_SERIALIZATION_LIBRARY}
-		${Boost_THREAD_LIBRARY}
-		${Boost_PROGRAM_OPTIONS_LIBRARY}	
 		${Boost_DATE_TIME_LIBRARY}
+		${Boost_FILESYSTEM_LIBRARY}
+		${BOOST_REGEX_LIBRARY}
+		${Boost_SERIALIZATION_LIBRARY}
+		${Boost_SYSTEM_LIBRARY}
+		${Boost_THREAD_LIBRARY}
+		${Boost_PROGRAM_OPTIONS_LIBRARY}
 	)
 	
 	IF( GENEVA_BUILD_TESTS )

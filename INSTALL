@@ -43,8 +43,10 @@ sudo apt-get install --no-install-recommends libboost-dev libboost-date-time-dev
 See the Appendix "Installing Boost in Debian/Ubuntu", though.
 
 
-Installation prerequisites on MacOS X (tested only with version 10.8.4)
------------------------------------------------------------------------
+Installation prerequisites on MacOS X (tested only with version 10.8.4 and 10.9)
+--------------------------------------------------------------------------------
+
+MacOS 10.8.4:
 
 You should first install the Xcode environment from the App store. This
 will give you a working C++ compiler. You should also install Mac versions
@@ -59,6 +61,32 @@ sudo ./b2 -j 4 install
 
 The directories can of course be adapted.
 
+MacOS 10.9:
+
+MacOS contains two incompatible std C++ libs: libstdc++ and libc++ . With MacOS 10.9,
+libc++ has become the default. In order to compile Geneva with Mavericks (a.k.a. 10.9)
+you need to make sure that libstdc++ is being used both in Boost and in Geneva. All
+necessary modifications have been made in the Geneva build files so that the code 
+(hopefully) compiles cleanly with libstdc++ . For Boost, however, you need to do some
+manual work:
+
+- Create a file /etc/site-config.jam with the following content (or add the lines to
+an existing file, you could also use user-config.jam in your home-directory, if your
+are unsure about creating a system-wide configuration file):
+
+using clang : 98
+    : "/usr/bin/clang++"
+    : <cxxflags>"-std=c++98 -stdlib=libstdc++" <linkflags>"-stdlib=libstdc++ -macosx_version_min=10.8"
+    ;
+    
+This will enforce the usage of libstdc++ and the 98 C++ standard.
+
+- bootstrap boost, then call
+
+./b2 -j4 -d+2 toolset=clang-98 define=BOOST_SYSTEM_NO_DEPRECATED variant=release threading=multi address-model=64 stage install
+
+Through the increased verbosity (through -d+2) you can check that the correct arguments are
+passed to the compiler.
 
 Building and installing Geneva
 ==============================

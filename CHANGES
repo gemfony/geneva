@@ -19,6 +19,7 @@ Wishlist for version 1.1, yet unnamed, release-date unknown
  - Added the possibility to specifiy the path to configuration files in an environment variable
    (GENEVA_CONFIG_BASENAME). Set this variable to a path (ending in /), that points to the directory
    containg the ./config subdirectory.
+ - Experimental port to MacOS 10.9
  - Ported to Boost 1.55
 
 Recommended version of Boost: 1.55

@@ -43,8 +43,8 @@ const std::size_t GPP_DEF_NSTEPS = 100; // The default number of steps for a giv
 /**
  * The standard constructor -- assignment of the "raw" paramter property string
  */
-GParameterPropertyParser::GParameterPropertyParser(const std::string& raw)
-   : raw_(raw)
+GParameterPropertyParser::GParameterPropertyParser(const std::string& rw)
+   : raw_(rw)
    , parsed_(false)
 {
    using boost::spirit::ascii::space;

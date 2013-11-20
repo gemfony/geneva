@@ -3303,7 +3303,7 @@ std::string GPlotDesigner::getCanvasLabel() const {
  * Allows to add a "Print" command to the end of the script so that picture files are created
  */
 void GPlotDesigner::setAddPrintCommand(bool addPrintCommand) {
-   addPrintCommand_ = addPrintCommand_;
+   addPrintCommand_ = addPrintCommand;
 }
 
 /******************************************************************************/
