@@ -58,18 +58,19 @@ ENDIF()
 ################################################################################
 #
 # User settings:
-#   you can change some settings here, but we recommend that you use the
-#   'prepareBuild.sh' script and the sample settings file 'genevaConfig.gcfg'
-#   provided in the 'scripts' folder for building Geneva.
-#
+# You can change some settings here, but we recommend that you use the
+# 'prepareBuild.sh' script and the sample settings file 'genevaConfig.gcfg'
+# provided in the 'scripts' folder for building Geneva. Copy genevaConfig.gcfg
+# to its own build directory and edit it as needed. Then run the command 
+# "/where/geneva/resides/scripts/prepareBuild.sh ./genevaConfig.gcfg"
 
 # You can hard-code the Boost paths here, if you compiled Boost yourself and
 # it was not deployed in one of the standard system locations. Otherwise,
 # see the comments in the INSTALL file on how to set the path on the
 # command line.
-#SET(BOOST_ROOT "/opt/boost143")
-#SET(BOOST_INCLUDEDIR "/opt/boost143/include/boost")
-#SET(BOOST_LIBRARYDIR "/opt/boost143/lib")
+#SET(BOOST_ROOT "/opt/boost155")
+#SET(BOOST_INCLUDEDIR "/opt/boost155/include/boost")
+#SET(BOOST_LIBRARYDIR "/opt/boost155/lib")
 
 # Uncomment this if you want to see compiler options
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
@@ -78,7 +79,7 @@ ENDIF()
 #SET(GENEVA_STATIC TRUE)
 
 # Uncomment to build in 'Release' mode, default is 'Debug'
-#SET(GENEVA_BUILD_TYPE Release)
+SET(GENEVA_BUILD_TYPE Release)
 
 # Uncomment to build tests
 #SET(GENEVA_BUILD_TESTS TRUE)
@@ -90,7 +91,6 @@ ENDIF()
 # End of user settings
 #
 ################################################################################
-
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
@@ -134,7 +134,7 @@ IF(DEFINED GENEVA_BUILD_TYPE)
 		MESSAGE (FATAL_ERROR "Unknown compilation mode GENEVA_BUILD_TYPE=${GENEVA_BUILD_TYPE}")
 	ENDIF()
 ELSEIF(DEFINED CMAKE_BUILD_TYPE AND NOT CMAKE_BUILD_TYPE STREQUAL "")
-	MESSAGE ("Using provided value of CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
+	MESSAGE ("Using build type of CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 ELSE()
 	MESSAGE ("Setting the build type to default value Debug")
 	SET(CMAKE_BUILD_TYPE Debug)

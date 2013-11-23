@@ -66,19 +66,32 @@ const std::size_t P_YDIM=1400;
  * the class uses ROOT scripts for the output of its results.
  */
 class GSigmaMonitor
-      :public GBaseEA::GEAOptimizationMonitor
-       {
-       public:
+   :public GBaseEA::GEAOptimizationMonitor
+{
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int){
+      using boost::serialization::make_nvp;
+
+      ar
+      & make_nvp("GBaseEA_GEAOptimizationMonitor", boost::serialization::base_object<GBaseEA::GEAOptimizationMonitor>(*this))
+      & BOOST_SERIALIZATION_NVP(fileName_);
+   }
+   ///////////////////////////////////////////////////////////////////////
+
+public:
    /***************************************************************************/
    /**
     * The default constructor
     */
    GSigmaMonitor(const std::string fileName)
-      : GBaseEA::GEAOptimizationMonitor()
-      , fileName_(fileName)
-      , gpd_("Progress information", 1, 2)
-      , progressPlotter_(new Gem::Common::GGraph2D())
-      , sigmaPlotter_(new Gem::Common::GGraph2D())
+   : GBaseEA::GEAOptimizationMonitor()
+   , fileName_(fileName)
+   , gpd_("Progress information", 1, 2)
+   , progressPlotter_(new Gem::Common::GGraph2D())
+   , sigmaPlotter_(new Gem::Common::GGraph2D())
    { /* nothing */ }
 
    /***************************************************************************/
@@ -88,11 +101,11 @@ class GSigmaMonitor
     * @param cp A copy of another GSigmaMonitor object
     */
    GSigmaMonitor(const GSigmaMonitor& cp)
-      : GBaseEA::GEAOptimizationMonitor(cp)
-      , fileName_(cp.fileName_)
-      , gpd_("Progress information", 1, 2) // We do not want to copy progress information of another object
-      , progressPlotter_(new Gem::Common::GGraph2D())
-      , sigmaPlotter_(new Gem::Common::GGraph2D())
+   : GBaseEA::GEAOptimizationMonitor(cp)
+   , fileName_(cp.fileName_)
+   , gpd_("Progress information", 1, 2) // We do not want to copy progress information of another object
+   , progressPlotter_(new Gem::Common::GGraph2D())
+   , sigmaPlotter_(new Gem::Common::GGraph2D())
    { /* nothing */ }
 
    /***************************************************************************/
@@ -170,12 +183,12 @@ class GSigmaMonitor
    }
 
    /********************************************************************************************/
-    /**
-     * Loads the data of another object
-     *
-     * @param cp A copy of another GSigmaMonitor object, camouflaged as a GObject
-     */
-    virtual void load_(const GObject* cp) {
+   /**
+    * Loads the data of another object
+    *
+    * @param cp A copy of another GSigmaMonitor object, camouflaged as a GObject
+    */
+   virtual void load_(const GObject* cp) {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GSigmaMonitor *p_load = gobject_conversion<GSigmaMonitor>(cp);
@@ -185,7 +198,7 @@ class GSigmaMonitor
 
       // Load local data
       fileName_ = p_load->fileName_;
-    }
+   }
 
    /***************************************************************************/
    /**
@@ -197,12 +210,23 @@ class GSigmaMonitor
       return new GSigmaMonitor(*this);
    }
 
-       private:
+private:
+   /***************************************************************************/
+   /**
+    * The default constructor -- intentionally private
+    */
+   GSigmaMonitor()
+      : GBaseEA::GEAOptimizationMonitor()
+      , fileName_("empty")
+      , gpd_("Progress information", 1, 2)
+      , progressPlotter_(new Gem::Common::GGraph2D())
+      , sigmaPlotter_(new Gem::Common::GGraph2D())
+   { /* nothing */ }
+
    /***************************************************************************/
 
-   GSigmaMonitor(); ///< Default constructor; Intentionally private and undefined
-
    std::string fileName_; ///< The name of the output file
+
    Gem::Common::GPlotDesigner gpd_; ///< Ease recording of essential information
    boost::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
    boost::shared_ptr<Gem::Common::GGraph2D> sigmaPlotter_; ///< Records progress information about the current sigma
