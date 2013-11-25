@@ -177,7 +177,7 @@ public:
 	/** @brief Transformation of the individual's parameter objects into a boost::property_tree object */
 	void toPropertyTree(pt::ptree&, const std::string& = "parameterset") const BASE;
 	/** @brief Transformation of the individual's parameter objects into a list of comma-separated values */
-	std::string toCSV() const;
+	std::string toCSV(bool=false) const;
 
 	/** @brief Emits a name for this class / object */
 	virtual std::string name() const OVERRIDE;
@@ -202,7 +202,7 @@ public:
 	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
 	template <typename par_type>
-	inline const boost::shared_ptr<par_type> at(
+	const boost::shared_ptr<par_type> at(
 			  const std::size_t& pos
 			, typename boost::enable_if<boost::is_base_of<GParameterBase, par_type> >::type* dummy = 0
 	)  const {
@@ -214,6 +214,22 @@ public:
 	 * So far untested. See also the second version of the at() function.
 	 * ----------------------------------------------------------------------------------
 	 */
+
+	/******************************************************************************/
+	/**
+	 * Allows to retrieve a list of all variable names registered with the parameter set
+	 */
+   template <typename par_type>
+	std::vector<std::string> getVariableNames() const {
+      std::vector<std::string> varNames;
+	   std::map<std::string, std::vector<par_type> > pMap;
+	   this->streamline<par_type>(pMap);
+
+	   typename std::map<std::string, std::vector<par_type> >::const_iterator cit;
+	   for(cit=pMap.begin(); cit!=pMap.end(); ++cit) {
+	      varNames.push_back(cit->first);
+	   }
+	}
 
 	/***************************************************************************/
 	/**

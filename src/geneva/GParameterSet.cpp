@@ -745,90 +745,123 @@ void GParameterSet::toPropertyTree(
 /******************************************************************************/
 /**
  * Transformation of the individual's parameter objects into a list of
- * comma-separated values
+ * comma-separated values and fitness
+ *
+ * @param  withNameAndType Indicates whether a list of names and types should be prepended
+ * @return A string holding the parameter values and possibly the types
  */
-std::string GParameterSet::toCSV() const {
+std::string GParameterSet::toCSV(bool withNameAndType) const {
+   std::map<std::string, std::vector<double> > dData;
+   std::map<std::string, std::vector<float> > fData;
+   std::map<std::string, std::vector<boost::int32_t> > iData;
+   std::map<std::string, std::vector<bool> > bData;
+
+   std::map<std::string, std::vector<double> >::const_iterator d_it;
+   std::map<std::string, std::vector<float> >::const_iterator f_it;
+   std::map<std::string, std::vector<boost::int32_t> >::const_iterator i_it;
+   std::map<std::string, std::vector<bool> >::const_iterator b_it;
+
+   // Retrieve the parameter maps
+   this->streamline<double>(dData);
+   this->streamline<float>(fData);
+   this->streamline<boost::int32_t>(iData);
+   this->streamline<bool>(bData);
+
+   std::vector<std::string> varNames;
+   std::vector<std::string> varTypes;
+   std::vector<std::string> varValues;
+
+   std::vector<std::string>::const_iterator s_it;
+
+   // Extract the data
+   for(d_it=dData.begin(); d_it!=dData.end(); ++d_it) {
+      for(std::size_t pos=0; pos<(d_it->second).size(); pos++) {
+         if(withNameAndType) {
+            varNames.push_back(d_it->first + "_" + boost::lexical_cast<std::string>(pos));
+            varTypes.push_back("double");
+         }
+         varValues.push_back(boost::lexical_cast<std::string>((d_it->second).at(pos)));
+      }
+   }
+
+   for(f_it=fData.begin(); f_it!=fData.end(); ++f_it) {
+      for(std::size_t pos=0; pos<(f_it->second).size(); pos++) {
+         if(withNameAndType) {
+            varNames.push_back(f_it->first + "_" + boost::lexical_cast<std::string>(pos));
+            varTypes.push_back("float");
+         }
+         varValues.push_back(boost::lexical_cast<std::string>((f_it->second).at(pos)));
+      }
+   }
+
+   for(i_it=iData.begin(); i_it!=iData.end(); ++i_it) {
+      for(std::size_t pos=0; pos<(i_it->second).size(); pos++) {
+         if(withNameAndType) {
+            varNames.push_back(i_it->first + "_" + boost::lexical_cast<std::string>(pos));
+            varTypes.push_back("int32");
+         }
+         varValues.push_back(boost::lexical_cast<std::string>((i_it->second).at(pos)));
+      }
+   }
+
+   for(b_it=bData.begin(); b_it!=bData.end(); ++b_it) {
+      for(std::size_t pos=0; pos<(b_it->second).size(); pos++) {
+         if(withNameAndType) {
+            varNames.push_back(b_it->first + "_" + boost::lexical_cast<std::string>(pos));
+            varTypes.push_back("bool");
+         }
+         varValues.push_back(boost::lexical_cast<std::string>((b_it->second).at(pos)));
+      }
+   }
+
+   // Add fitness name, type and value
+   for(std::size_t f=0; f<this->getNumberOfFitnessCriteria(); f++) {
+      if(withNameAndType) {
+         varNames.push_back(std::string("Fitness_") + boost::lexical_cast<std::string>(f));
+         varTypes.push_back("double");
+      }
+      bool isDirty;
+      varValues.push_back(boost::lexical_cast<std::string>(this->getCachedFitness(isDirty, f)));
+
+#ifdef DEBUG
+      if(isDirty) {
+         glogger
+         << "In GParameterSet::toCSV(bool withNameAndType) const: Error!" << std::endl
+         << "Got dirty individual when clean individual was expected" << std::endl
+         << GEXCEPTION;
+      }
+#endif
+   }
+
+
+   // Transfer the data into the result string
    std::ostringstream result;
 
-   std::vector<bool> bData;
-   std::vector<boost::int32_t> iData;
-   std::vector<float> fData;
-   std::vector<double> dData;
+   if(withNameAndType) {
+      for(s_it=varNames.begin(); s_it!=varNames.end(); ++s_it) {
+         result << *s_it;
+         if(s_it+1 != varNames.end()) {
+            result << ",\t";
+         }
+      }
+      result << std::endl;
 
-   // Prepare a new header
-
-   // Retrieve the parameter vectors
-   this->streamline<bool>(bData);
-   this->streamline<boost::int32_t>(iData);
-   this->streamline<float>(fData);
-   this->streamline<double>(dData);
-
-   std::size_t bSize = bData.size();
-   std::size_t iSize = iData.size();
-   std::size_t fSize = fData.size();
-   std::size_t dSize = dData.size();
-
-   std::size_t sumSize = bSize+iSize+fSize+dSize;
-
-   // Prepare a header for this individual
-   bool dirtyFlag = false;
-   result
-   << "#-------------------------------------------------------------------------------" << std::endl
-   << "# New parameter set with " << sumSize << " values and fitness " << this->getCachedFitness(dirtyFlag) << (dirtyFlag?" (dirty)":"") << ":" << std::endl;
-
-   // Add the data items from the parSet object to the vectors
-
-   // 1) For boolean data
-   if(bSize) { // not empty
-      result << "# " << bSize << " boolean values" << std::endl;
-      std::vector<bool>::iterator b_it;
-      for(b_it=bData.begin(); b_it!=bData.end(); ++b_it) {
-         result << *b_it;
-         if(b_it+1 != bData.end()) {
-            result << ",";
+      for(s_it=varTypes.begin(); s_it!=varTypes.end(); ++s_it) {
+         result << *s_it;
+         if(s_it+1 != varTypes.end()) {
+            result << ",\t";
          }
       }
       result << std::endl;
    }
 
-   // 2) For boost::int32_t data
-   if(iSize) { // not empty
-      result << "# " << bSize << " boost::int32_t values" << std::endl;
-      std::vector<boost::int32_t>::iterator i_it;
-      for(i_it=iData.begin(); i_it!=iData.end(); ++i_it) {
-         result << *i_it;
-         if(i_it+1 != iData.end()) {
-            result << ",";
-         }
+   for(s_it=varValues.begin(); s_it!=varValues.end(); ++s_it) {
+      result << *s_it;
+      if(s_it+1 != varValues.end()) {
+         result << ",\t";
       }
-      result << std::endl;
    }
-
-   // 3) For float values
-   if(fSize) { // not empty
-      result << "# " << fSize << " float values" << std::endl;
-      std::vector<float>::iterator f_it;
-      for(f_it=fData.begin(); f_it!=fData.end(); ++f_it) {
-         result << *f_it;
-         if(f_it+1 != fData.end()) {
-            result << ",";
-         }
-      }
-      result << std::endl;
-   }
-
-   // 4) For double values
-   if(dSize) { // not empty
-      result << "# " << dSize << " double values" << std::endl;
-      std::vector<double>::iterator d_it;
-      for(d_it=dData.begin(); d_it!=dData.end(); ++d_it) {
-         result << *d_it;
-         if(d_it+1 != dData.end()) {
-            result << ", ";
-         }
-      }
-      result << std::endl;
-   }
+   result << std::endl;
 
    return result.str();
 }

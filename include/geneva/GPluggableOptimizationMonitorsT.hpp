@@ -550,9 +550,10 @@ public:
             default:
             {
                glogger
-               << "In GProgressPlotterT<ind_type, fp_type>::informationFunction(INFOINIT): Error!" << std::endl
-               << "Got invalid number of profiling dimensions: " << this->nProfileVars() << std::endl
-               << GEXCEPTION;
+               << "NOTE: In GProgressPlotterT<ind_type, fp_type>::informationFunction(INFOINIT): Error!" << std::endl
+               << "Number of profiling dimensions " << this->nProfileVars() << " can not be displayed." << std::endl
+               << "No graphical output will be created."
+               << GLOGGING;
             }
             break;
          }
@@ -630,13 +631,7 @@ public:
                   }
                   break;
 
-                  default:
-                  {
-                     glogger
-                     << "In GProgressPlotterT<ind_type, fp_type>::informationFunction(INFOPROCESSING/1): Error!" << std::endl
-                     << "Got invalid number of profiling dimensions" << std::endl
-                     << GEXCEPTION;
-                  }
+                  default: // Do nothing by default. The number of profiling dimensions is too large
                   break;
                }
             }
@@ -706,13 +701,7 @@ public:
                      }
                      break;
 
-                     default:
-                     {
-                        glogger
-                        << "In GProgressPlotterT<ind_type, fp_type>::informationFunction(INFOPROCESSING/2): Error!" << std::endl
-                        << "Got invalid number of profiling dimensions" << std::endl
-                        << GEXCEPTION;
-                     }
+                     default: // Do nothing by default. The number of profiling dimensions is too large
                      break;
                   }
                }

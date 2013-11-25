@@ -1274,10 +1274,10 @@ void GBasePS::GPSOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
    }
 #endif /* DEBUG */
 
-   std::ofstream result(csvResultFile_.c_str());
-   result
-   << "# Parameter scan results" << std::endl;
-   result.close();
+   // If a file with this name already exists, remove it
+   if(boost::filesystem::exists(csvResultFile_.c_str())) {
+      boost::filesystem::remove(csvResultFile_.c_str());
+   }
 }
 
 /******************************************************************************/
@@ -1290,20 +1290,21 @@ void GBasePS::GPSOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
  */
 void GBasePS::GPSOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
    // Perform the conversion to the target algorithm
-   GBasePS * const gd = static_cast<GBasePS * const>(goa);
+   GBasePS * const ps = static_cast<GBasePS * const>(goa);
 
    // Open the result file in append mode
    std::ofstream result(csvResultFile_.c_str(), std::ofstream::app);
 
-   result
-   << std::endl
-   << "################################################################################" << std::endl
-   << "# Iteration " << gd->getIteration() << " with " << gd->size() << " values" << std::endl
-   << "#" << std::endl;
-
    GBasePS::iterator it;
-   for(it=gd->begin(); it!=gd->end(); ++it) {
-      result << (*it)->toCSV();
+   std::size_t pos=0;
+   for(it=ps->begin(); it!=ps->end(); ++it) {
+      if(ps->inFirstIteration() && 0==pos) { // First call to this function
+         result << (*it)->toCSV(true); // output variable names and types header
+      } else {
+         result << (*it)->toCSV(false);
+      }
+
+      pos++;
    }
 
    result.close();
