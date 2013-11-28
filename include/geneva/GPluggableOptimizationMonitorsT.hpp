@@ -550,9 +550,9 @@ public:
             default:
             {
                glogger
-               << "NOTE: In GProgressPlotterT<ind_type, fp_type>::informationFunction(INFOINIT): Error!" << std::endl
+               << "NOTE: In GProgressPlotterT<ind_type, fp_type>::informationFunction(INFOINIT):" << std::endl
                << "Number of profiling dimensions " << this->nProfileVars() << " can not be displayed." << std::endl
-               << "No graphical output will be created."
+               << "No graphical output will be created." << std::endl
                << GLOGGING;
             }
             break;

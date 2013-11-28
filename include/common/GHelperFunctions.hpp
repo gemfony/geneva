@@ -84,7 +84,7 @@ std::string loadTextDataFromFile(const std::string&);
 
 /******************************************************************************/
 /** @brief This function executes an external command on the operating system */
-void runExternalCommand(const std::string&);
+int runExternalCommand(const std::string&);
 
 /******************************************************************************/
 /** @brief Returns a string for a given serialization mode */

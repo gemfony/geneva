@@ -87,28 +87,29 @@ private:
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<ind_type> >(*this))
-	     & make_nvp("GOptimizableI", boost::serialization::base_object<GOptimizableI>(*this))
-	     & BOOST_SERIALIZATION_NVP(iteration_)
-	     & BOOST_SERIALIZATION_NVP(offset_)
-	     & BOOST_SERIALIZATION_NVP(maxIteration_)
-	     & BOOST_SERIALIZATION_NVP(maxStallIteration_)
-	     & BOOST_SERIALIZATION_NVP(reportIteration_)
-	     & BOOST_SERIALIZATION_NVP(defaultPopulationSize_)
-	     & BOOST_SERIALIZATION_NVP(bestPastFitness_)
-	     & BOOST_SERIALIZATION_NVP(bestCurrentFitness_)
-	     & BOOST_SERIALIZATION_NVP(stallCounter_)
-  	     & BOOST_SERIALIZATION_NVP(cpInterval_)
-	     & BOOST_SERIALIZATION_NVP(cpBaseName_)
-	     & BOOST_SERIALIZATION_NVP(cpDirectory_)
-	     & BOOST_SERIALIZATION_NVP(cpSerMode_)
-	     & BOOST_SERIALIZATION_NVP(qualityThreshold_)
-	     & BOOST_SERIALIZATION_NVP(hasQualityThreshold_)
-	     & BOOST_SERIALIZATION_NVP(maxDuration_)
-	     & BOOST_SERIALIZATION_NVP(emitTerminationReason_)
-	     & BOOST_SERIALIZATION_NVP(halted_)
-	     & BOOST_SERIALIZATION_NVP(worstKnownValid_)
-	     & BOOST_SERIALIZATION_NVP(optimizationMonitor_ptr_);
+	  ar
+	  & make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<ind_type> >(*this))
+	  & make_nvp("GOptimizableI", boost::serialization::base_object<GOptimizableI>(*this))
+	  & BOOST_SERIALIZATION_NVP(iteration_)
+	  & BOOST_SERIALIZATION_NVP(offset_)
+	  & BOOST_SERIALIZATION_NVP(maxIteration_)
+	  & BOOST_SERIALIZATION_NVP(maxStallIteration_)
+	  & BOOST_SERIALIZATION_NVP(reportIteration_)
+	  & BOOST_SERIALIZATION_NVP(defaultPopulationSize_)
+	  & BOOST_SERIALIZATION_NVP(bestPastFitness_)
+	  & BOOST_SERIALIZATION_NVP(bestCurrentFitness_)
+	  & BOOST_SERIALIZATION_NVP(stallCounter_)
+	  & BOOST_SERIALIZATION_NVP(cpInterval_)
+	  & BOOST_SERIALIZATION_NVP(cpBaseName_)
+	  & BOOST_SERIALIZATION_NVP(cpDirectory_)
+	  & BOOST_SERIALIZATION_NVP(cpSerMode_)
+	  & BOOST_SERIALIZATION_NVP(qualityThreshold_)
+	  & BOOST_SERIALIZATION_NVP(hasQualityThreshold_)
+	  & BOOST_SERIALIZATION_NVP(maxDuration_)
+	  & BOOST_SERIALIZATION_NVP(emitTerminationReason_)
+	  & BOOST_SERIALIZATION_NVP(halted_)
+	  & BOOST_SERIALIZATION_NVP(worstKnownValid_)
+	  & BOOST_SERIALIZATION_NVP(optimizationMonitor_ptr_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -1771,12 +1772,12 @@ public:
 	     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	     */
 	    virtual boost::optional<std::string> checkRelationshipWith(
-	    		const GObject& cp
-	    		, const Gem::Common::expectation& e
-	    		, const double& limit
-	    		, const std::string& caller
-	    		, const std::string& y_name
-	    		, const bool& withMessages
+         const GObject& cp
+         , const Gem::Common::expectation& e
+         , const double& limit
+         , const std::string& caller
+         , const std::string& y_name
+         , const bool& withMessages
 	    ) const OVERRIDE {
 	        using namespace Gem::Common;
 
@@ -1817,35 +1818,35 @@ public:
          // Act on the information mode provided
 	      switch(im) {
 	    	case Gem::Geneva::INFOINIT:
-	    	{
-	    	   if(!quiet_) {
-	    	      std::cout << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
-	    	   }
-	    	   this->firstInformation(goa);
-	    	}
-	    	   break;
+            {
+               if(!quiet_) {
+                  std::cout << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
+               }
+               this->firstInformation(goa);
+            }
+            break;
 
 	    	case Gem::Geneva::INFOPROCESSING:
-	    	{
-	    	  if(!quiet_) std::cout << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentFitness() << " (" << goa->getBestFitness() << ")" << std::endl;
-	    	  this->cycleInformation(goa);
-	    	}
-	    		break;
+            {
+              if(!quiet_) std::cout << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentFitness() << " (" << goa->getBestFitness() << ")" << std::endl;
+              this->cycleInformation(goa);
+            }
+            break;
 
 	    	case Gem::Geneva::INFOEND:
-	    	{
-	    	   this->lastInformation(goa);
-	    	   if(!quiet_) std::cout << "End of optimization reached in algorithm \""<< goa->getAlgorithmName() << "\"" << std::endl;
-	    	}
-	    		break;
+            {
+               this->lastInformation(goa);
+               if(!quiet_) std::cout << "End of optimization reached in algorithm \""<< goa->getAlgorithmName() << "\"" << std::endl;
+            }
+            break;
 
 	    	default:
-	    	{
-	    	   glogger
-	    	   << "Received invalid infoMode " << im << std::endl
-	    	   << GEXCEPTION;
-	    	}
-	    	break;
+            {
+               glogger
+               << "Received invalid infoMode " << im << std::endl
+               << GEXCEPTION;
+            }
+            break;
 	    	};
 	    }
 

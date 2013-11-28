@@ -93,8 +93,9 @@ std::string loadTextDataFromFile(const std::string& fileName) {
  * Execute an external command, reacting to possible errors.
  *
  * @param command The command to be executed
+ * @return The error code
  */
-void runExternalCommand(const std::string& command) {
+int runExternalCommand(const std::string& command) {
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
 		std::cout << "Executing external command \"" << commandLine << "\" ...";
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
@@ -105,13 +106,7 @@ void runExternalCommand(const std::string& command) {
 		std::cout << "... done." << std::endl;
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
-	if(errorCode) {
-	   glogger
-	   << "In runExternalCommand(): Error" << std::endl
-      << "Command: " << command << std::endl
-      << "Error code: " << errorCode << std::endl
-      << GEXCEPTION;
-	}
+	return errorCode;
 }
 
 /******************************************************************************/
