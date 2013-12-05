@@ -76,7 +76,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 
 	switch(dType){
 	case GAUSSIAN: // standard distribution
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->normal_distribution<double>(0.,0.5)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->GRandomBase::normal_distribution<double>(0.,0.5)));
 		break;
 
 	case DOUBLEGAUSSIAN:
@@ -84,11 +84,11 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 		break;
 
 	case EVEN: // double in the range [0,1[
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->uniform_01<double>()));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->GRandomBase::uniform_01<double>()));
 		break;
 
 	case EVENWITHBOUNDARIES: // double in the range [-3,2[
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->uniform_real<double>(-3.,2.)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->GRandomBase::uniform_real<double>(-3.,2.)));
 		break;
 
 	case DISCRETE:

@@ -79,7 +79,7 @@ ENDIF()
 #SET(GENEVA_STATIC TRUE)
 
 # Uncomment to build in 'Release' mode, default is 'Debug'
-SET(GENEVA_BUILD_TYPE Release)
+#SET(GENEVA_BUILD_TYPE Release)
 
 # Uncomment to build tests
 #SET(GENEVA_BUILD_TESTS TRUE)

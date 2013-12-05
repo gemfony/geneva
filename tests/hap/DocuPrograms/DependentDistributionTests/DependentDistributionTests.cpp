@@ -100,10 +100,10 @@ int main(int argc, char **argv){
    sum4_all_ptr->setXAxisLabel("1-(x1+x2+x3+x4)"); sum4_all_ptr->setYAxisLabel("Number of Entries"); sum4_all_ptr->setPlotLabel("1.-(x_{1}+x_{2}+x_{3}+x_{4}), all");
 
    for(std::size_t i=0; i<NENTRIES; i++) {
-      x1=gr_ptr->uniform_01<double>();
-      x2=gr_ptr->uniform_01<double>();
-      x3=gr_ptr->uniform_01<double>();
-      x4=gr_ptr->uniform_01<double>();
+      x1=gr_ptr->GRandomBase::uniform_01<double>();
+      x2=gr_ptr->GRandomBase::uniform_01<double>();
+      x3=gr_ptr->GRandomBase::uniform_01<double>();
+      x4=gr_ptr->GRandomBase::uniform_01<double>();
 
       sum1 = x1;
       sum2 = x1+x2;
