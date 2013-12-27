@@ -39,6 +39,10 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+// Needed to allow catching of a SIGHUP
+std::sig_atomic_t GObject::GenevaSigHupSent = 0;
+
+/******************************************************************************/
 /**
  * The default constructor initializes the internal values of this class.
  * In particular, it sets the name of the Geneva object to "GObject"

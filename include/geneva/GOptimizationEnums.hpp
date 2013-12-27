@@ -63,6 +63,12 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * The number of individuals to be recorded in each iteration
+ */
+const std::size_t DEFNRECORDBESTINDIVIDUALS = 10;
+
+/******************************************************************************/
+/**
  * The worst allowed valid fitness value (positive or negative)
  */
 const double WORSTALLOWEDVALIDFITNESS = 10000.;

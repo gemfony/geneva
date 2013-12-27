@@ -95,6 +95,7 @@ private:
 	  & BOOST_SERIALIZATION_NVP(maxIteration_)
 	  & BOOST_SERIALIZATION_NVP(maxStallIteration_)
 	  & BOOST_SERIALIZATION_NVP(reportIteration_)
+	  & BOOST_SERIALIZATION_NVP(nRecordBestIndividuals_)
 	  & BOOST_SERIALIZATION_NVP(defaultPopulationSize_)
 	  & BOOST_SERIALIZATION_NVP(bestPastFitness_)
 	  & BOOST_SERIALIZATION_NVP(bestCurrentFitness_)
@@ -125,6 +126,7 @@ public:
 		, maxIteration_(DEFAULTMAXIT)
 		, maxStallIteration_(DEFAULTMAXSTALLIT)
 		, reportIteration_(DEFAULTREPORTITER)
+		, nRecordBestIndividuals_(DEFNRECORDBESTINDIVIDUALS)
 		, defaultPopulationSize_(DEFAULTPOPULATIONSIZE)
 		, bestPastFitness_(0.) // will be set appropriately in the optimize() function
 		, bestCurrentFitness_(0.) // will be set appropriately in the optimize() function
@@ -155,6 +157,7 @@ public:
 		, maxIteration_(cp.maxIteration_)
 		, maxStallIteration_(cp.maxStallIteration_)
 		, reportIteration_(cp.reportIteration_)
+		, nRecordBestIndividuals_(cp.nRecordBestIndividuals_)
 		, defaultPopulationSize_(cp.defaultPopulationSize_)
 		, bestPastFitness_(cp.bestPastFitness_)
 		, bestCurrentFitness_(cp.bestCurrentFitness_)
@@ -383,6 +386,7 @@ public:
 		EXPECTATIONCHECK(maxIteration_);
 		EXPECTATIONCHECK(maxStallIteration_);
 		EXPECTATIONCHECK(reportIteration_);
+		EXPECTATIONCHECK(nRecordBestIndividuals_);
 		EXPECTATIONCHECK(defaultPopulationSize_);
 		EXPECTATIONCHECK(bestPastFitness_);
 		EXPECTATIONCHECK(bestCurrentFitness_);
@@ -486,7 +490,7 @@ public:
 		// Finalize the info output
 		if(reportIteration_) doInfo(INFOEND);
 
-		// Remove information particular to evolutionary algorithms from the individuals
+		// Remove information particular to the optimization algorithms from the individuals
 		resetIndividualPersonalities();
 	}
 
@@ -912,6 +916,21 @@ public:
 			, comment
 		);
 
+      comment = ""; // Reset the comment string
+      comment += "Indicates how many \"best\" individuals should be recorded in each iteration;";
+      if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
+      gpb.registerFileParameter<std::size_t>(
+         "nRecordBestIndividuals" // The name of the variable
+         , DEFNRECORDBESTINDIVIDUALS // The default value
+         , boost::bind(
+            &GOptimizationAlgorithmT<ind_type>::setNRecordBestIndividuals
+            , this
+            , _1
+           )
+         , Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
+         , comment
+      );
+
 		comment = ""; // Reset the comment string
 		comment += "The number of iterations after which a checkpoint should be written.;";
 		comment += "-1 means: Write a checkpoint file whenever an improvement was encountered;";
@@ -1068,6 +1087,7 @@ protected:
 		maxIteration_ = p_load->maxIteration_;
 		maxStallIteration_ = p_load->maxStallIteration_;
 		reportIteration_ = p_load->reportIteration_;
+		nRecordBestIndividuals_ = p_load->nRecordBestIndividuals_;
 		defaultPopulationSize_ = p_load->defaultPopulationSize_;
 		bestPastFitness_ = p_load->bestPastFitness_;
 		bestCurrentFitness_ = p_load->bestCurrentFitness_;
@@ -1125,6 +1145,33 @@ protected:
 	 */
 	virtual void setDefaultPopulationSize(const std::size_t& defPopSize) BASE {
 		defaultPopulationSize_ = defPopSize;
+	}
+
+   /***************************************************************************/
+	/**
+	 * Set the number of "best" individuals to be recorded in each iteration
+	 *
+	 * @param nRecordBestIndividuals The number of "best" individuals to be recorded in each iteration
+	 */
+	void setNRecordBestIndividuals(std::size_t nRecordBestIndividuals) {
+	   if(0 == nRecordBestIndividuals) {
+	      glogger
+	      << "In GOptimizationAlgorithmT<>::setNRecordBestIndividuals(): Error!" << std::endl
+	      << "Invalid number of individuals to be recorded: " << nRecordBestIndividuals << std::endl
+	      << GEXCEPTION;
+	   }
+
+	   nRecordBestIndividuals_ = nRecordBestIndividuals;
+	}
+
+   /***************************************************************************/
+	/**
+	 * Retrieve the number of best individuals to be recorded in each iteration
+	 *
+	 * @return The number of best individuals to be recorded in each iteration
+	 */
+	std::size_t getNRecordBestIndividuals() const {
+	   return nRecordBestIndividuals_;
 	}
 
 	/***************************************************************************/
@@ -1486,6 +1533,22 @@ private:
 		}
 	}
 
+   /***************************************************************************/
+	/**
+	 * This function returns true if a SIGHUP signal was sent (provided the user
+	 * has registered the GObject::sigHupHandler signal handler
+	 *
+	 * @return A boolean indicating whether the program was interrupted with a SIGHUP signal
+	 */
+	bool sigHupHalt() const {
+	   if(1==GObject::GenevaSigHupSent) {
+	      std::cout
+	      << "Terminating optimization run because a SIGHUP signal has been received" << std::endl;
+	      return true;
+	   }
+	   else return false;
+	}
+
 	/***************************************************************************/
 	/**
 	 * A wrapper for the customHalt() function that allows us to emit the termination reason
@@ -1518,24 +1581,70 @@ private:
 	{
 		// Have we exceeded the maximum number of iterations and
 		// do we indeed intend to stop in this case ?
-		if(maxIteration_ && iterationHalt()) return true;
+		if(maxIterationHaltset() && iterationHalt()) return true;
 
 		// Has the optimization stalled too often ?
-		if(maxStallIteration_ && stallHalt()) return true;
+		if(stallHaltSet() && stallHalt()) return true;
+
+		// Have we received a SIGHUP signal ?
+		if(sigHupHalt()) return true;
 
 		// Do we have a scheduled halt time ? The comparatively expensive
 		// timedHalt() calculation is only called if maxDuration_
 		// is at least one microsecond.
-		if(maxDuration_.total_microseconds() && timedHalt()) return true;
+		if(maxDurationHaltSet() && timedHalt()) return true;
 
 		// Are we supposed to stop when the quality has exceeded a threshold ?
-		if(hasQualityThreshold_ && qualityHalt()) return true;
+		if(qualityThresholdHaltSet() && qualityHalt()) return true;
 
 		// Has the user specified an additional stop criterion ?
 		if(customHalt_()) return true;
 
 		// Fine, we can continue.
 		return false;
+	}
+
+   /***************************************************************************/
+	/**
+	 * Check whether the max-iteration halt is set
+	 *
+	 * @return A boolean indicating whether the "max-iteration halt" has been set
+	 */
+	bool maxIterationHaltset() const {
+	   if(0 == maxIteration_) return false;
+	   else return true;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Check whether a halt criterion based on the number of stalls has been set
+	 *
+	 * @return A boolean indicating whether a halt criterion based on the number of stalls has been set
+	 */
+	bool stallHaltSet() const {
+	   if(0 == maxStallIteration_) return false;
+	   else return true;
+	}
+
+   /***************************************************************************/
+	/**
+	 * Check whether the maxDuration-halt criterion has been set
+	 *
+	 * @return A boolean indication whether the max-duration halt criterion has been set
+	 */
+	bool maxDurationHaltSet() const {
+	   if(0 == maxDuration_.total_microseconds()) return false;
+	   else return true;
+	}
+
+   /***************************************************************************/
+	/**
+	 * Check whether the quality-threshold halt-criterion has been set
+	 *
+	 * @return A boolean indicating whether the quality-threshold halt-criterion has been set
+	 */
+	bool qualityThresholdHaltSet() const {
+	   return hasQualityThreshold_;
 	}
 
 	/***************************************************************************/
@@ -1597,6 +1706,7 @@ private:
 	boost::uint32_t maxIteration_; ///< The maximum number of iterations
 	boost::uint32_t maxStallIteration_; ///< The maximum number of generations without improvement, after which optimization is stopped
 	boost::uint32_t reportIteration_; ///< The number of generations after which a report should be issued
+	std::size_t nRecordBestIndividuals_; ///< Indicates the number of best individuals to be recorded/updated in each iteration
 	std::size_t defaultPopulationSize_; ///< The nominal size of the population
 	double bestPastFitness_; ///< Records the best fitness found in past generations
 	double bestCurrentFitness_; ///< Records the best fitness found in the current iteration

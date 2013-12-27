@@ -48,6 +48,7 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
+#include <csignal>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -124,7 +125,6 @@
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
 #pragma once
 #endif
-
 
 // Geneva header files go here
 #include "common/GDefaultValueT.hpp"
@@ -298,6 +298,19 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
+	/***************************************************************************/
+	/**
+	 * A handler for SIGHUP signals
+	 */
+	static void sigHupHandler(int signum) {
+	   if(SIGHUP == signum) {
+	      GObject::GenevaSigHupSent = 1;
+	   }
+	}
+
+	// Needed to allow interruption of the optimization run without loss of data
+	static std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
@@ -428,6 +441,8 @@ public:
 template <> boost::shared_ptr<GObject> GObject::clone<GObject>(
 		boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type*
 ) const;
+
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

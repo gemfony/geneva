@@ -57,6 +57,11 @@ int main(int argc, char **argv) {
 	} // Execution will end here in client mode
 
 	//---------------------------------------------------------------------------
+	// As we are dealing with a server, register a signal handler that allows us
+	// to interrupt execution "on the run"
+	signal(SIGHUP, GObject::sigHupHandler);
+
+	//---------------------------------------------------------------------------
    // Create a factory for GFunctionIndividual objects and perform
    // any necessary initial work.
 	boost::shared_ptr<GFunctionIndividualFactory>

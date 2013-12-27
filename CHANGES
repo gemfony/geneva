@@ -19,6 +19,9 @@ Wishlist for version 1.1, yet unnamed, release-date unknown
  - Added the possibility to specifiy the path to configuration files in an environment variable
    (GENEVA_CONFIG_BASENAME). Set this variable to a path (ending in /), that points to the directory
    containg the ./config subdirectory.
+ - Added an option to catch a SIGHUP signal and let GOptimizationAlgorithmT<> exit gracefully,
+   without discarding results. This requires that GObject::sigHupHandler is registered as a signal handler.
+   This needs to be done by the user, e.g. in main().
  - Experimental port to MacOS 10.9
  - Ported to Boost 1.55
 
