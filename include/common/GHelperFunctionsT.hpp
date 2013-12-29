@@ -52,6 +52,7 @@
 #include <boost/logic/tribool.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <boost/date_time.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <boost/variant.hpp>
 #include <boost/limits.hpp>
 #include <boost/type_traits.hpp>
@@ -75,6 +76,28 @@
 
 namespace Gem {
 namespace Common {
+
+/******************************************************************************/
+/**
+ * Creates a clone of a copy-constructible type, wrapped into a boost::shared_ptr
+ */
+template <typename T>
+boost::shared_ptr<T> clone_ptr(
+   const T& cp
+) {
+   return boost::shared_ptr<T>(new T(cp));
+}
+
+/******************************************************************************/
+/**
+ * Creates a clone of a copy-constructible type, wrapped into a boost::shared_ptr
+ */
+template <typename T>
+boost::shared_ptr<T> clone_ptr(
+   boost::shared_ptr<T> cp_ptr
+) {
+   return boost::shared_ptr<T>(new T(*cp_ptr));
+}
 
 /******************************************************************************/
 /**
@@ -512,6 +535,7 @@ const item_type& getMapItem(const std::map<std::string, item_type>& m, const std
 }
 
 /******************************************************************************/
+
 } /* namespace Common */
 } /* namespace Gem */
 

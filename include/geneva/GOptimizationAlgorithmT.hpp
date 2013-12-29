@@ -49,6 +49,7 @@
 // Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
+#include "common/GFixedSizePriorityQueueT.hpp"
 #include "courtier/GBrokerConnector2T.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
@@ -1706,7 +1707,10 @@ private:
 	boost::uint32_t maxIteration_; ///< The maximum number of iterations
 	boost::uint32_t maxStallIteration_; ///< The maximum number of generations without improvement, after which optimization is stopped
 	boost::uint32_t reportIteration_; ///< The number of generations after which a report should be issued
+
 	std::size_t nRecordBestIndividuals_; ///< Indicates the number of best individuals to be recorded/updated in each iteration
+
+
 	std::size_t defaultPopulationSize_; ///< The nominal size of the population
 	double bestPastFitness_; ///< Records the best fitness found in past generations
 	double bestCurrentFitness_; ///< Records the best fitness found in the current iteration
