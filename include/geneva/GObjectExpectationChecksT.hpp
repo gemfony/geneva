@@ -35,6 +35,7 @@
 
 // Standard headers go here
 #include <vector>
+#include <deque>
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -65,7 +66,7 @@
 
 // Geneva headers go here
 #include "common/GPODExpectationChecksT.hpp"
-#include "GObject.hpp"
+#include "geneva/GObject.hpp"
 
 namespace Gem {
 namespace Common {
@@ -213,15 +214,15 @@ boost::optional<std::string> checkExpectation (
 
 template <typename geneva_type>
 boost::optional<std::string> checkExpectation (
-        const bool& withMessages
-	  , const std::string& caller
-	  , const std::vector<boost::shared_ptr<geneva_type> >& x
-	  , const std::vector<boost::shared_ptr<geneva_type> >& y
-	  , const std::string& x_name
-	  , const std::string& y_name
-	  , const Gem::Common::expectation& e
-	  , const double& limit = 0
-	  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+  const bool& withMessages
+  , const std::string& caller
+  , const std::vector<boost::shared_ptr<geneva_type> >& x
+  , const std::vector<boost::shared_ptr<geneva_type> >& y
+  , const std::string& x_name
+  , const std::string& y_name
+  , const Gem::Common::expectation& e
+  , const double& limit = 0
+  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
 )
 {
 	bool expectationMet = false;
@@ -320,6 +321,135 @@ boost::optional<std::string> checkExpectation (
 	else {
 		return boost::optional<std::string>(message.str());
 	}
+}
+
+/******************************************************************************/
+/**
+ * This function checks whether two deques of smart pointers to complex types meet a given expectation.
+ * It is assumed that these types have the standard Geneva interface with corresponding "checkRelationshipWith"
+ * functions.
+ *
+ * @param withMessages Specifies whether messages should be emitted in case of failed expectations
+ * @param caller The name of the calling class
+ * @param x The first deque to be compared
+ * @param y The second deque to be compared
+ * @param x_name The name of the first deque
+ * @param y_name The name of the second deque
+ * @param e The expectation both deques need to fulfill
+ * @param limit The maximum allowed deviation of two floating point values
+ * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
+ * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
+ */
+
+template <typename geneva_type>
+boost::optional<std::string> checkExpectation (
+  const bool& withMessages
+  , const std::string& caller
+  , const std::deque<boost::shared_ptr<geneva_type> >& x
+  , const std::deque<boost::shared_ptr<geneva_type> >& y
+  , const std::string& x_name
+  , const std::string& y_name
+  , const Gem::Common::expectation& e
+  , const double& limit = 0
+  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+)
+{
+   bool expectationMet = false;
+   std::ostringstream message;
+
+   std::string myCaller = "[Gem::Common::checkExpectation(), called by " + caller + "]";
+
+   bool foundDeviation = false;
+   typename std::deque<boost::shared_ptr<geneva_type> >::const_iterator x_it, y_it;
+
+   switch(e) {
+   case Gem::Common::CE_FP_SIMILARITY:
+   case Gem::Common::CE_EQUALITY:
+      // Check whether all items are equal or similar
+      {
+         std::size_t failedIndex = 0;
+
+         // Check sizes
+         if(x.size() != y.size()) {
+            if(withMessages) {
+               message << "In expectation check initiated by \"" << myCaller << "\" : "
+                     << "The two deques " << x_name << " and " << y_name << " have different sizes "
+                     << "even though equality or similarity was expected. "
+                     << "Sizes are : "
+                     << x_name << ".size() = " << x.size() << "; "
+                     << y_name << ".size() = " << y.size();
+            }
+            break; // Expectation has not been met
+         }
+
+         // Check individual entries
+         boost::optional<std::string> o;
+         std::size_t index = 0;
+         for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
+            std::string first_name = "x[" + boost::lexical_cast<std::string>(index) + "]";
+            std::string second_name = "y[" + boost::lexical_cast<std::string>(index) + "]";
+
+            o = checkExpectation(withMessages, myCaller, *x_it, *y_it, first_name, second_name, e, limit);
+            if(o) {
+               foundDeviation = true;
+               failedIndex = index;
+               break; // Leave the for-loop, one deviation is enough
+            }
+         }
+
+         if(!foundDeviation) expectationMet = true;
+         else {
+            if(withMessages) {
+               message << "In expectation check initiated by \"" << myCaller << "\" : "
+                     << "The two deques " << x_name << " and " << y_name << " have deviations "
+                     << "even though equality or similarity was expected. "
+                     << "First deviating entry is at index " << failedIndex << ". Further analysis "
+                     << "of the first deviation:\n"
+                     << *o;
+            }
+         }
+      }
+      break;
+
+   case Gem::Common::CE_INEQUALITY:
+      // Check whether at least one item is inequal
+      {
+         // Check sizes
+         if(x.size() != y.size()) {
+            expectationMet = true;
+            break;
+         }
+
+         // Check individual entries
+         std::size_t nDeviationsFound = 0; // deviations from expectation "inequality"
+         std::size_t index = 0;
+         for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
+            std::string first_name = "x[" + boost::lexical_cast<std::string>(index) + "]";
+            std::string second_name = "y[" + boost::lexical_cast<std::string>(index) + "]";
+
+            if(checkExpectation(withMessages, myCaller, *x_it, *y_it, first_name, second_name, e, limit)) nDeviationsFound++;
+         }
+
+         if(nDeviationsFound == x.size()) {
+            if(withMessages) {
+               message << "In expectation check initiated by \"" << caller << "\" : "
+                     << "The two deques " << x_name << " and " << y_name << " are equal "
+                     << "even though inequality was expected.";
+            }
+         }
+         else { // Not all entries were equal
+            expectationMet = true;
+         }
+      }
+      break;
+   };
+
+   if(expectationMet) {
+      return boost::optional<std::string>();
+   }
+   else {
+      return boost::optional<std::string>(message.str());
+   }
 }
 
 /******************************************************************************/

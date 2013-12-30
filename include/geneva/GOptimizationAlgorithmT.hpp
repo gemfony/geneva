@@ -37,6 +37,7 @@
 #include <iostream>
 
 // Boost header files go here
+#include <boost/cstdint.hpp>
 
 #ifndef GOPTIMIZATIONALGORITHMT_HPP_
 #define GOPTIMIZATIONALGORITHMT_HPP_
@@ -49,7 +50,6 @@
 // Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
-#include "common/GFixedSizePriorityQueueT.hpp"
 #include "courtier/GBrokerConnector2T.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
@@ -57,6 +57,7 @@
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPersonalityTraits.hpp"
+#include "geneva/GParameterSetFixedSizePriorityQueue.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -97,6 +98,7 @@ private:
 	  & BOOST_SERIALIZATION_NVP(maxStallIteration_)
 	  & BOOST_SERIALIZATION_NVP(reportIteration_)
 	  & BOOST_SERIALIZATION_NVP(nRecordBestIndividuals_)
+	  & BOOST_SERIALIZATION_NVP(bestIndividuals_)
 	  & BOOST_SERIALIZATION_NVP(defaultPopulationSize_)
 	  & BOOST_SERIALIZATION_NVP(bestPastFitness_)
 	  & BOOST_SERIALIZATION_NVP(bestCurrentFitness_)
@@ -128,6 +130,7 @@ public:
 		, maxStallIteration_(DEFAULTMAXSTALLIT)
 		, reportIteration_(DEFAULTREPORTITER)
 		, nRecordBestIndividuals_(DEFNRECORDBESTINDIVIDUALS)
+		, bestIndividuals_(DEFNRECORDBESTINDIVIDUALS)
 		, defaultPopulationSize_(DEFAULTPOPULATIONSIZE)
 		, bestPastFitness_(0.) // will be set appropriately in the optimize() function
 		, bestCurrentFitness_(0.) // will be set appropriately in the optimize() function
@@ -159,6 +162,7 @@ public:
 		, maxStallIteration_(cp.maxStallIteration_)
 		, reportIteration_(cp.reportIteration_)
 		, nRecordBestIndividuals_(cp.nRecordBestIndividuals_)
+		, bestIndividuals_(cp.bestIndividuals_)
 		, defaultPopulationSize_(cp.defaultPopulationSize_)
 		, bestPastFitness_(cp.bestPastFitness_)
 		, bestCurrentFitness_(cp.bestCurrentFitness_)
@@ -370,41 +374,44 @@ public:
       , const std::string& y_name
       , const bool& withMessages
    ) const OVERRIDE {
-	    using namespace Gem::Common;
+	   using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GParamterBase reference
-		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(&cp);
+	   // Check that we are indeed dealing with a GParamterBase reference
+	   const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(&cp);
 
-		// Will hold possible deviations from the expectation, including explanations
-	    std::vector<boost::optional<std::string> > deviations;
+	   // Will hold possible deviations from the expectation, including explanations
+	   std::vector<boost::optional<std::string> > deviations;
 
-		// Check our parent class'es data ...
-	    deviations.push_back(GMutableSetT<ind_type>::checkRelationshipWith(cp, e, limit, caller, y_name, withMessages));
+	   // Check our parent class'es data ...
+	   deviations.push_back(GMutableSetT<ind_type>::checkRelationshipWith(cp, e, limit, caller, y_name, withMessages));
 
-		// ... and then our local data
-		EXPECTATIONCHECK(iteration_);
-		EXPECTATIONCHECK(offset_);
-		EXPECTATIONCHECK(maxIteration_);
-		EXPECTATIONCHECK(maxStallIteration_);
-		EXPECTATIONCHECK(reportIteration_);
-		EXPECTATIONCHECK(nRecordBestIndividuals_);
-		EXPECTATIONCHECK(defaultPopulationSize_);
-		EXPECTATIONCHECK(bestPastFitness_);
-		EXPECTATIONCHECK(bestCurrentFitness_);
-		EXPECTATIONCHECK(stallCounter_);
-		EXPECTATIONCHECK(cpInterval_);
-		EXPECTATIONCHECK(cpBaseName_);
-		EXPECTATIONCHECK(cpDirectory_);
-		EXPECTATIONCHECK(cpSerMode_);
-		EXPECTATIONCHECK(qualityThreshold_);
-		EXPECTATIONCHECK(hasQualityThreshold_);
-		EXPECTATIONCHECK(maxDuration_);
-		EXPECTATIONCHECK(emitTerminationReason_);
-		EXPECTATIONCHECK(halted_);
-		EXPECTATIONCHECK(worstKnownValid_);
-		EXPECTATIONCHECK(optimizationMonitor_ptr_);
+	   // Check our best individuals
+	   // deviations.push_back((this->bestIndividuals_).checkRelationshipWith(p_load->bestIndividuals_, e, limit, caller, y_name, withMessages));
 
-		return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
+	   // ... and then our local data
+	   EXPECTATIONCHECK(iteration_);
+	   EXPECTATIONCHECK(offset_);
+	   EXPECTATIONCHECK(maxIteration_);
+	   EXPECTATIONCHECK(maxStallIteration_);
+	   EXPECTATIONCHECK(reportIteration_);
+	   EXPECTATIONCHECK(nRecordBestIndividuals_);
+	   EXPECTATIONCHECK(defaultPopulationSize_);
+	   EXPECTATIONCHECK(bestPastFitness_);
+	   EXPECTATIONCHECK(bestCurrentFitness_);
+	   EXPECTATIONCHECK(stallCounter_);
+	   EXPECTATIONCHECK(cpInterval_);
+	   EXPECTATIONCHECK(cpBaseName_);
+	   EXPECTATIONCHECK(cpDirectory_);
+	   EXPECTATIONCHECK(cpSerMode_);
+	   EXPECTATIONCHECK(qualityThreshold_);
+	   EXPECTATIONCHECK(hasQualityThreshold_);
+	   EXPECTATIONCHECK(maxDuration_);
+	   EXPECTATIONCHECK(emitTerminationReason_);
+	   EXPECTATIONCHECK(halted_);
+	   EXPECTATIONCHECK(worstKnownValid_);
+	   EXPECTATIONCHECK(optimizationMonitor_ptr_);
+
+	   return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
 	}
 
 	/***************************************************************************/
@@ -1089,6 +1096,7 @@ protected:
 		maxStallIteration_ = p_load->maxStallIteration_;
 		reportIteration_ = p_load->reportIteration_;
 		nRecordBestIndividuals_ = p_load->nRecordBestIndividuals_;
+		bestIndividuals_ = p_load->bestIndividuals_;
 		defaultPopulationSize_ = p_load->defaultPopulationSize_;
 		bestPastFitness_ = p_load->bestPastFitness_;
 		bestCurrentFitness_ = p_load->bestCurrentFitness_;
@@ -1163,6 +1171,7 @@ protected:
 	   }
 
 	   nRecordBestIndividuals_ = nRecordBestIndividuals;
+	   bestIndividuals_.setMaxSize(nRecordBestIndividuals_);
 	}
 
    /***************************************************************************/
@@ -1709,7 +1718,7 @@ private:
 	boost::uint32_t reportIteration_; ///< The number of generations after which a report should be issued
 
 	std::size_t nRecordBestIndividuals_; ///< Indicates the number of best individuals to be recorded/updated in each iteration
-
+	Gem::Common::GFixedSizePriorityQueueT<GParameterSet> bestIndividuals_; ///< A priority queue with the best individuals found so far
 
 	std::size_t defaultPopulationSize_; ///< The nominal size of the population
 	double bestPastFitness_; ///< Records the best fitness found in past generations

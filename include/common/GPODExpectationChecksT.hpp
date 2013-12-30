@@ -35,6 +35,7 @@
 
 // Standard headers go here
 #include <vector>
+#include <deque>
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -46,7 +47,6 @@
 #include "GGlobalDefines.hpp"
 
 // Boost headers go here
-#include <boost/shared_ptr.hpp>
 #include <boost/cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -131,15 +131,100 @@ boost::optional<std::string> checkExpectation (
 
 /******************************************************************************/
 /**
- * This function checks whether two vectors of "basic" types meet a given expectation. It assumes that
+ * This function checks whether two floating point types meet a given expectation.
+ *
+ * @param withMessages Specifies whether messages should be emitted in case of failed expectations
+ * @param caller The name of the calling class
+ * @param x The first parameter to be compared
+ * @param y The second parameter to be compared
+ * @param x_name The name of the first parameter
+ * @param y_name The name of the second parameter
+ * @param e The expectation both parameters need to fulfill
+ * @param limit The maximum allowed deviation of two floating point values
+ * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
+ * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
+ */
+template <typename fp_type>
+boost::optional<std::string> checkExpectation (
+  const bool& withMessages
+  , const std::string& caller
+  , const fp_type& x
+  , const fp_type& y
+  , const std::string& x_name
+  , const std::string& y_name
+  , const Gem::Common::expectation& e
+  , const double& limit = pow(10,-10)
+  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+)
+{
+   bool expectationMet = false;
+   std::ostringstream message;
+
+   switch(e) {
+   case Gem::Common::CE_FP_SIMILARITY:
+      if(fabs(x-y) < boost::numeric_cast<fp_type>(limit)) expectationMet = true;
+      break;
+   case Gem::Common::CE_EQUALITY:
+      if(x==y) expectationMet = true;
+      break;
+   case Gem::Common::CE_INEQUALITY:
+      if(x!=y) expectationMet = true;
+      break;
+   };
+
+   if(withMessages && !expectationMet) {
+      std::streamsize originalPrecision = std::cerr.precision ( );
+      std::cerr.precision(15);
+
+      switch(e) {
+      case Gem::Common::CE_FP_SIMILARITY:
+         message << "In expectation check initiated by \"" << caller << "\" : "
+                 << "floating point values " << x_name << " and " << y_name << " where not similar as expected. "
+                 << "x = " << x << "; "
+                 << "y = " << y << "; "
+                 << "limit = " << boost::numeric_cast<fp_type>(limit) << "; "
+                 << "deviation = " << fabs(x-y);
+         break;
+
+      case Gem::Common::CE_EQUALITY:
+         message << "In expectation check initiated by \"" << caller << "\" : "
+               << "floating point values " << x_name << " and " << y_name << " where not equal as expected. "
+               << "x = " << x << "; "
+               << "y = " << y << "; "
+               << "limit = " << boost::numeric_cast<fp_type>(limit) << "; "
+               << "deviation = " << fabs(x-y);
+         break;
+
+      case Gem::Common::CE_INEQUALITY:
+         message << "In expectation check initiated by \"" << caller << "\" : "
+               << "floating point values " << x_name << " and " << y_name << " where equal contrary to expectation. "
+               << "x = " << x << "; "
+               << "y = " << y;
+         break;
+      };
+
+      std::cerr.precision(originalPrecision);
+   }
+
+   if(expectationMet) {
+      return boost::optional<std::string>();
+   }
+   else {
+      return boost::optional<std::string>(message.str());
+   }
+}
+
+/******************************************************************************/
+/**
+ * This function checks whether two containers of "basic" types meet a given expectation. It assumes that
  * these types understand the == and != operators. If they do not fulfill this requirement, you need to provide
  * a specialization of this function. A check for similarity is treated the same as a check for equality.
  * A  specialization of this function is provided for floating point values.
  *
  * @param withMessages Specifies whether messages should be emitted in case of failed expectations
  * @param caller The name of the calling class
- * @param x The first vector to be compared
- * @param y The second vector to be compared
+ * @param x The first container to be compared
+ * @param y The second container to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
@@ -149,17 +234,16 @@ boost::optional<std::string> checkExpectation (
  */
 template <typename basic_type>
 boost::optional<std::string> checkExpectation (
-        const bool& withMessages
-	  , const std::string& caller
-	  , const std::vector<basic_type>& x
-	  , const std::vector<basic_type>& y
-	  , const std::string& x_name
-	  , const std::string& y_name
-	  , const Gem::Common::expectation& e
-	  , const double& limit = 0.
-	  , typename boost::disable_if<boost::is_floating_point<basic_type> >::type* dummy = 0
-)
-{
+  const bool& withMessages
+  , const std::string& caller
+  , const std::vector<basic_type>& x
+  , const std::vector<basic_type>& y
+  , const std::string& x_name
+  , const std::string& y_name
+  , const Gem::Common::expectation& e
+  , const double& limit = 0.
+  , typename boost::disable_if<boost::is_floating_point<basic_type> >::type* dummy = 0
+){
 	bool expectationMet = false;
 	std::ostringstream message;
 
@@ -179,15 +263,17 @@ boost::optional<std::string> checkExpectation (
 		case Gem::Common::CE_FP_SIMILARITY:
 		case Gem::Common::CE_EQUALITY:
 			{
-				message << "In expectation check initiated by \"" << caller << "\" : "
-						<< "The two vectors " << x_name << " and " << y_name << " differ "
-						<< "while equality was expected. Further analysis: ";
+				message
+				<< "In expectation check initiated by \"" << caller << "\" : "
+				<< "The two vectors " << x_name << " and " << y_name << " differ "
+				<< "while equality was expected. Further analysis: ";
 
 				std::size_t x_size = x.size(), y_size = y.size();
 				if(x_size != y_size) {
-					message << "Different vector-sizes found : "
-							<< x_name << ".size() = " << x_size << "; "
-							<< y_name << ".size() = " << y_size;
+					message
+					<< "Different vector-sizes found : "
+					<< x_name << ".size() = " << x_size << "; "
+					<< y_name << ".size() = " << y_size;
 				}
 				else {
 					// Find out about the first entry that differs
@@ -223,12 +309,15 @@ boost::optional<std::string> checkExpectation (
 
 /******************************************************************************/
 /**
- * This function checks whether two floating point types meet a given expectation.
+ * This function checks whether two containers of "basic" types meet a given expectation. It assumes that
+ * these types understand the == and != operators. If they do not fulfill this requirement, you need to provide
+ * a specialization of this function. A check for similarity is treated the same as a check for equality.
+ * A  specialization of this function is provided for floating point values.
  *
  * @param withMessages Specifies whether messages should be emitted in case of failed expectations
  * @param caller The name of the calling class
- * @param x The first parameter to be compared
- * @param y The second parameter to be compared
+ * @param x The first container to be compared
+ * @param y The second container to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
@@ -236,74 +325,79 @@ boost::optional<std::string> checkExpectation (
  * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
-template <typename fp_type>
+template <typename basic_type>
 boost::optional<std::string> checkExpectation (
-        const bool& withMessages
-	  , const std::string& caller
-	  , const fp_type& x
-	  , const fp_type& y
-	  , const std::string& x_name
-	  , const std::string& y_name
-	  , const Gem::Common::expectation& e
-	  , const double& limit = pow(10,-10)
-	  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
-)
-{
-	bool expectationMet = false;
-	std::ostringstream message;
+  const bool& withMessages
+  , const std::string& caller
+  , const std::deque<basic_type>& x
+  , const std::deque<basic_type>& y
+  , const std::string& x_name
+  , const std::string& y_name
+  , const Gem::Common::expectation& e
+  , const double& limit = 0.
+  , typename boost::disable_if<boost::is_floating_point<basic_type> >::type* dummy = 0
+){
+   bool expectationMet = false;
+   std::ostringstream message;
 
-	switch(e) {
-	case Gem::Common::CE_FP_SIMILARITY:
-		if(fabs(x-y) < boost::numeric_cast<fp_type>(limit)) expectationMet = true;
-		break;
-	case Gem::Common::CE_EQUALITY:
-		if(x==y) expectationMet = true;
-		break;
-	case Gem::Common::CE_INEQUALITY:
-		if(x!=y) expectationMet = true;
-		break;
-	};
+   switch(e) {
+   case Gem::Common::CE_FP_SIMILARITY:
+   case Gem::Common::CE_EQUALITY:
+      if(x==y) expectationMet = true;
+      break;
+   case Gem::Common::CE_INEQUALITY:
+      if(x!=y) expectationMet = true;
+      break;
+   };
 
-	if(withMessages && !expectationMet) {
-		std::streamsize originalPrecision = std::cerr.precision ( );
-		std::cerr.precision(15);
+   if(withMessages && !expectationMet) {
+      switch(e) {
+      // Similarity and equality are treated the same for non-floating point types
+      case Gem::Common::CE_FP_SIMILARITY:
+      case Gem::Common::CE_EQUALITY:
+         {
+            message
+            << "In expectation check initiated by \"" << caller << "\" : "
+            << "The two vectors " << x_name << " and " << y_name << " differ "
+            << "while equality was expected. Further analysis: ";
 
-		switch(e) {
-		case Gem::Common::CE_FP_SIMILARITY:
-			message << "In expectation check initiated by \"" << caller << "\" : "
-			        << "floating point values " << x_name << " and " << y_name << " where not similar as expected. "
-			        << "x = " << x << "; "
-			        << "y = " << y << "; "
-			        << "limit = " << boost::numeric_cast<fp_type>(limit) << "; "
-			        << "deviation = " << fabs(x-y);
-			break;
+            std::size_t x_size = x.size(), y_size = y.size();
+            if(x_size != y_size) {
+               message
+               << "Different vector-sizes found : "
+               << x_name << ".size() = " << x_size << "; "
+               << y_name << ".size() = " << y_size;
+            }
+            else {
+               // Find out about the first entry that differs
+               typename std::deque<basic_type>::const_iterator x_it, y_it;
+               std::size_t failedIndex = 0;
+               for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++failedIndex) {
+                  if(*x_it != *y_it) {
+                     message << "Found inequality at index " << failedIndex << ": "
+                           << x_name << "[" << failedIndex << "] = " << *x_it << "; "
+                           << y_name << "[" << failedIndex << "] = " << *y_it;
+                     break;
+                  }
+               }
+            }
+         }
+         break;
 
-		case Gem::Common::CE_EQUALITY:
-			message << "In expectation check initiated by \"" << caller << "\" : "
-					<< "floating point values " << x_name << " and " << y_name << " where not equal as expected. "
-					<< "x = " << x << "; "
-					<< "y = " << y << "; "
-					<< "limit = " << boost::numeric_cast<fp_type>(limit) << "; "
-					<< "deviation = " << fabs(x-y);
-			break;
+      case Gem::Common::CE_INEQUALITY:
+         message << "In expectation check initiated by \"" << caller << "\" : "
+                 << "The two vectors " << x_name << " and " << y_name << " are equal "
+                 << "even though differences were expected";
+         break;
+      }
+   }
 
-		case Gem::Common::CE_INEQUALITY:
-			message << "In expectation check initiated by \"" << caller << "\" : "
-					<< "floating point values " << x_name << " and " << y_name << " where equal contrary to expectation. "
-					<< "x = " << x << "; "
-					<< "y = " << y;
-			break;
-		};
-
-		std::cerr.precision(originalPrecision);
-	}
-
-	if(expectationMet) {
-		return boost::optional<std::string>();
-	}
-	else {
-		return boost::optional<std::string>(message.str());
-	}
+   if(expectationMet) {
+      return boost::optional<std::string>();
+   }
+   else {
+      return boost::optional<std::string>(message.str());
+   }
 }
 
 /******************************************************************************/
@@ -323,15 +417,15 @@ boost::optional<std::string> checkExpectation (
  */
 template <typename fp_type>
 boost::optional<std::string> checkExpectation (
-        const bool& withMessages
-	  , const std::string& caller
-	  , const std::vector<fp_type>& x
-	  , const std::vector<fp_type>& y
-	  , const std::string& x_name
-	  , const std::string& y_name
-	  , const Gem::Common::expectation& e
-	  , const double& limit = pow(10,-10)
-	  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+  const bool& withMessages
+  , const std::string& caller
+  , const std::vector<fp_type>& x
+  , const std::vector<fp_type>& y
+  , const std::string& x_name
+  , const std::string& y_name
+  , const Gem::Common::expectation& e
+  , const double& limit = pow(10,-10)
+  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 )
 {
 	bool expectationMet = false;
@@ -453,14 +547,14 @@ boost::optional<std::string> checkExpectation (
  * @brief This function checks whether two objects of type boost::logic::tribool meet a given expectation.
  */
 boost::optional<std::string> checkExpectation (
-        const bool& withMessages
-	  , const std::string& caller
-	  , const boost::logic::tribool& x
-	  , const boost::logic::tribool& y
-	  , const std::string& x_name
-	  , const std::string& y_name
-	  , const Gem::Common::expectation& e
-	  , const double& limit = 0
+  const bool& withMessages
+  , const std::string& caller
+  , const boost::logic::tribool& x
+  , const boost::logic::tribool& y
+  , const std::string& x_name
+  , const std::string& y_name
+  , const Gem::Common::expectation& e
+  , const double& limit = 0
 );
 
 /******************************************************************************/
@@ -468,10 +562,10 @@ boost::optional<std::string> checkExpectation (
  * Helps to evaluate possible discrepancies between expectations in relationship tests
  */
 boost::optional<std::string> evaluateDiscrepancies(
-		const std::string&,
-		const std::string&,
-		const std::vector<boost::optional<std::string> >&,
-		const Gem::Common::expectation&
+   const std::string&
+   , const std::string&
+   , const std::vector<boost::optional<std::string> >&
+   , const Gem::Common::expectation&
 );
 
 /******************************************************************************/

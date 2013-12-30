@@ -40,6 +40,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
+#include <boost/shared_ptr.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -50,6 +51,7 @@
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/variant.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/deque.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/utility.hpp>
@@ -69,13 +71,16 @@
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GPODExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Common {
 
 /******************************************************************************/
 /**
- * This class implements a fixed-size priority queue
+ * This class implements a fixed-size priority queue. Note that data items
+ * are held inside of boost::shared_ptr objects and must be copy-constructible.
+ * It is also required that T can be compared using operator== and operator!= .
  */
 template <typename T>
 class GFixedSizePriorityQueueT
@@ -96,6 +101,14 @@ class GFixedSizePriorityQueueT
 public:
    /***************************************************************************/
    /**
+    * The default constructor
+    */
+   GFixedSizePriorityQueueT()
+      : maxSize_(10)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
     * The standard constructor
     *
     * @param maxSize The maximum size of the queue
@@ -111,7 +124,7 @@ public:
    GFixedSizePriorityQueueT(const GFixedSizePriorityQueueT<T>& cp)
       : maxSize_(cp.maxSize_)
    {
-      typename std::deque<T>::const_iterator cit;
+      typename std::deque<boost::shared_ptr<T> >::const_iterator cit;
       for(cit=cp.data_.begin(); cit!=cp.data_.end(); ++cit) {
          data_.push_back(Gem::Common::clone_ptr(*cit));
       }
@@ -121,8 +134,90 @@ public:
    /**
     * The destructor
     */
-   ~GFixedSizePriorityQueueT() {
+   virtual ~GFixedSizePriorityQueueT() {
       data_.clear();
+   }
+
+   /***************************************************************************/
+   /**
+    * Creates a deep clone of this object
+    */
+   boost::shared_ptr<GFixedSizePriorityQueueT> clone() {
+      return boost::shared_ptr<GFixedSizePriorityQueueT>(new GFixedSizePriorityQueueT(*this));
+   }
+
+   /***************************************************************************/
+   /**
+    * Loads the data of another GFixedSizePriorityQueue<T> object
+    */
+   void load(const GFixedSizePriorityQueueT<T>& cp) {
+#ifdef DEBUG
+      if(cp.data_.size() != cp.maxSize_) {
+         glogger
+         << "In GFixedSizePriorityQueue<T>::load(): Error!" << std::endl
+         << "maximum size " << cp.maxSize_ << " of cp does not match data size " << cp.data_.size() << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
+      // Make sure data_ is empty
+      data_.clear();
+
+      // Copy all data over
+      typename std::deque<boost::shared_ptr<T> >::const_iterator cit;
+      for(cit=cp.data_.begin(); cit!=cp.data_.end(); ++cit) {
+         data_.push_back(Gem::Common::clone_ptr(*cit));
+      }
+
+      // Copy the maximum data size
+      maxSize_ = cp.maxSize_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Copy the data of another GFixedSizePriorityQueueT<T> over
+    */
+   const GFixedSizePriorityQueueT<T>& operator=(const GFixedSizePriorityQueueT<T>& cp) {
+      this->load(cp);
+      return *this;
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks whether a given expectation for the relationship between this object and another object
+    * is fulfilled.
+    *
+    * @param cp A constant reference to another object of type GFixedSizePriorityQueueT<T>
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    * @param caller An identifier for the calling entity
+    * @param y_name An identifier for the object that should be compared to this one
+    * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+    * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+    */
+   virtual boost::optional<std::string> checkRelationshipWith (
+      const GFixedSizePriorityQueueT<T>& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
+   ) const BASE {
+       using namespace Gem::Common;
+
+      // Will hold possible deviations from the expectation, including explanations
+       std::vector<boost::optional<std::string> > deviations;
+
+       // Assemble a suitable caller string
+       std::string className = std::string("GFixedSizePriorityQueueT<") + typeid(T).name() + ">";
+
+      // No parent class to check ...
+
+      // Check local data
+      deviations.push_back(checkExpectation(withMessages, className , this->data_, cp.data_, "data_", "cp.data_", e , limit));
+      deviations.push_back(checkExpectation(withMessages, className , this->maxSize_, cp.maxSize_, "maxSize_", "cp.maxSize_", e , limit));
+
+      return evaluateDiscrepancies(className, caller, deviations, e);
    }
 
    /***************************************************************************/
@@ -224,17 +319,29 @@ public:
 
    /***************************************************************************/
    /**
-    * Creates a deep clone of this object
+    * Sets the maximum size of the priority queue
     */
-   boost::shared_ptr<GFixedSizePriorityQueueT> clone() {
-      return boost::shared_ptr<GFixedSizePriorityQueueT>(new GFixedSizePriorityQueueT(*this));
+   void setMaxSize(std::size_t maxSize) {
+      // Make sure the current size of data_ complies with maxSize
+      if(data_.size() > maxSize) {
+         data_.resize(maxSize);
+      }
+
+      maxSize_ = maxSize;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the maximum size of the priority queue
+    */
+   std::size_t getMaxSize() const {
+      return maxSize_;
    }
 
 private:
    /***************************************************************************/
-   GFixedSizePriorityQueueT(); ///< The default constructor -- intentionally private and undefined
 
-   std::deque<T> data_; ///< Holds the actual data
+   std::deque<boost::shared_ptr<T> > data_; ///< Holds the actual data
    std::size_t maxSize_; ///< The maximum number of work-items
 };
 
