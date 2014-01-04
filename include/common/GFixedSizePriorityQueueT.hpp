@@ -40,6 +40,8 @@
 #include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -113,7 +115,7 @@ public:
     *
     * @param maxSize The maximum size of the queue
     */
-   GFixedSizePriorityQueueT(const std::size_t& maxSize)
+   explicit GFixedSizePriorityQueueT(const std::size_t& maxSize)
       : maxSize_(maxSize)
    { /* nothing */ }
 
@@ -140,17 +142,15 @@ public:
 
    /***************************************************************************/
    /**
-    * Creates a deep clone of this object
+    * Creates a deep clone of this object -- to be re-implemented by derived classes
     */
-   boost::shared_ptr<GFixedSizePriorityQueueT> clone() {
-      return boost::shared_ptr<GFixedSizePriorityQueueT>(new GFixedSizePriorityQueueT(*this));
-   }
+   virtual boost::shared_ptr<GFixedSizePriorityQueueT<T> > clone() = 0;
 
    /***************************************************************************/
    /**
     * Loads the data of another GFixedSizePriorityQueue<T> object
     */
-   void load(const GFixedSizePriorityQueueT<T>& cp) {
+   virtual void load(const GFixedSizePriorityQueueT<T>& cp) {
 #ifdef DEBUG
       if(cp.data_.size() != cp.maxSize_) {
          glogger
@@ -260,16 +260,49 @@ public:
 
    /***************************************************************************/
    /**
-    * Add an item to the queue. We also provide an evaluation function for this
-    * object, so that we do not need to serialize that function. Note that the
-    * comparator should sort the data in descending order (assuming that higher
-    * values are better), so that the worst items are at the end of the queue.
+    * Add an item to the queue. Note that the comparator used in this function
+    * should sort the data in descending order (assuming that higher
+    * values are better) or ascending order (if lower values are better),
+    * so that the worst items are always at the end of the queue.
     */
-   void add(
-      T item
-      , boost::function<bool(const T&, const T&)> comp
+   virtual void add(
+      boost::shared_ptr<T> item
    ) {
+      // Create a suitable comparator
+      boost::function<bool(boost::shared_ptr<T>, boost::shared_ptr<T>)> comp
+          = boost::bind(&GFixedSizePriorityQueueT<T>::comparator, this, _1, _2);
+
+      // Add the work item to the queue
       data_.push_back(item);
+
+      // Sort the data, so that worst items are at the end of the queue
+      std::sort(data_.begin(), data_.end(), comp);
+
+      // Remove surplus work items, if the queue has reached the corresponding size
+      if(data_.size() > maxSize_) {
+         data_.resize(maxSize_);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Add a set of items to the queue. Note that the comparator used in this function
+    * should sort the data in descending order (assuming that higher
+    * values are better) or ascending order (if lower values are better),
+    * so that the worst items are always at the end of the queue.
+    */
+   virtual void add(
+      const std::vector<boost::shared_ptr<T> >& items
+   ) {
+      // Create a suitable comparator
+      boost::function<bool(boost::shared_ptr<T>, boost::shared_ptr<T>)> comp
+          = boost::bind(&GFixedSizePriorityQueueT<T>::comparator, this, _1, _2);
+
+      // Add the work items to the queue
+      typename std::vector<boost::shared_ptr<T> >::const_iterator cit;
+      for(cit=items.begin(); cit!=items.end(); ++cit) {
+         data_.push_back(*cit);
+      }
 
       // Sort the data, so that worst items are at the end of the queue
       std::sort(data_.begin(), data_.end(), comp);
@@ -296,7 +329,7 @@ public:
          return (T)0;
       } else {
          T item = data_.front();
-         data_.pop_back();
+         data_.pop_front();
          return item;
       }
    }
@@ -337,6 +370,11 @@ public:
    std::size_t getMaxSize() const {
       return maxSize_;
    }
+
+protected:
+   /***************************************************************************/
+   /** @brief Compares two work items -- to be re-implemented in derived classes */
+   virtual bool comparator(boost::shared_ptr<T>, boost::shared_ptr<T>) = 0;
 
 private:
    /***************************************************************************/

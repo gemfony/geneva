@@ -180,6 +180,50 @@ boost::any GParameterSet::getVarVal(
 
 /******************************************************************************/
 /**
+ * Checks whether this object is better than a given set of evaluations.
+ */
+bool GParameterSet::isGoodEnough(const std::vector<double>& boundaries) {
+#ifdef DEBUG
+   // Does the number of fitness criteria match the number of boundaries ?
+   if(boundaries.size() != this->getNumberOfFitnessCriteria()) {
+      glogger
+      << "In GParameterSet::isGoodEnough(): Error!" << std::endl
+      << "Number of boundaries does not match number of fitness criteria" << std::endl
+      << GEXCEPTION;
+   }
+
+   // Is the dirty flag set ?
+   if(this->isDirty()) {
+      glogger
+      << "In GParameterSet::isGoodEnough(): Error!" << std::endl
+      << "Trying to compare fitness values although dirty flag is set" << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   // Check the fitness values. If we find at least one
+   // which is worse than the one supplied by the boundaries
+   // vector, then this individual fails the test
+   if(true == this->getMaxMode()) { // Maximization
+      for(std::size_t i=0; i<boundaries.size(); i++) {
+         if(this->fitness(i) < boundaries.at(i)) {
+            return false;
+         }
+      }
+   } else { // Minimization
+      for(std::size_t i=0; i<boundaries.size(); i++) {
+         if(this->fitness(i) > boundaries.at(i)) {
+            return false;
+         }
+      }
+   }
+
+   // All fitness values are better than those supplied by boundaries
+   return true;
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GParameterSet object, camouflaged as a GObject.
  *
  * @param cp A copy of another GParameterSet object, camouflaged as a GObject
@@ -748,9 +792,10 @@ void GParameterSet::toPropertyTree(
  * comma-separated values and fitness
  *
  * @param  withNameAndType Indicates whether a list of names and types should be prepended
+ * @param  withCommas Indicates, whether commas should be printed
  * @return A string holding the parameter values and possibly the types
  */
-std::string GParameterSet::toCSV(bool withNameAndType) const {
+std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas) const {
    std::map<std::string, std::vector<double> > dData;
    std::map<std::string, std::vector<float> > fData;
    std::map<std::string, std::vector<boost::int32_t> > iData;
@@ -841,7 +886,7 @@ std::string GParameterSet::toCSV(bool withNameAndType) const {
       for(s_it=varNames.begin(); s_it!=varNames.end(); ++s_it) {
          result << *s_it;
          if(s_it+1 != varNames.end()) {
-            result << ",\t";
+            result << (withCommas?",\t":"\t");
          }
       }
       result << std::endl;
@@ -849,7 +894,7 @@ std::string GParameterSet::toCSV(bool withNameAndType) const {
       for(s_it=varTypes.begin(); s_it!=varTypes.end(); ++s_it) {
          result << *s_it;
          if(s_it+1 != varTypes.end()) {
-            result << ",\t";
+            result << (withCommas?",\t":"\t");
          }
       }
       result << std::endl;
@@ -858,7 +903,7 @@ std::string GParameterSet::toCSV(bool withNameAndType) const {
    for(s_it=varValues.begin(); s_it!=varValues.end(); ++s_it) {
       result << *s_it;
       if(s_it+1 != varValues.end()) {
-         result << ",\t";
+         result << (withCommas?",\t":"\t");
       }
    }
    result << std::endl;

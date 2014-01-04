@@ -467,10 +467,18 @@ public:
 			// Let all individuals know the current iteration
 			markIteration();
 
-			// Run the actual business logic, extract the fitness value and update the stall counter
-			updateStallCounter(bestCurrentFitness_ = cycleLogic());
+			// Run the actual business logic and extract the best known individual. Note that the returned item is a clone
+			// boost::shared_ptr<GParamterSet> bestCurrentItem = cycleLogic();
 
-			// Check whether a better value was found, and do the check-pointing, if necessary.
+			// Make the best item known to the priority queue, so we can keep track of good items
+			// bestIndividuals_.add(bestCurrentItem);
+
+			// Update fitness values and the stall counter
+			// updateStallCounter((bestCurrentFitness_=bestCurrentItem->fitness()));
+			updateStallCounter((bestCurrentFitness_=cycleLogic()));
+
+
+			// Check whether a better value was found, and do the check-pointing, if necessary and requested.
 			checkpoint(progress());
 
 			// Let all individuals know about the best fitness known so far
@@ -1718,7 +1726,7 @@ private:
 	boost::uint32_t reportIteration_; ///< The number of generations after which a report should be issued
 
 	std::size_t nRecordBestIndividuals_; ///< Indicates the number of best individuals to be recorded/updated in each iteration
-	Gem::Common::GFixedSizePriorityQueueT<GParameterSet> bestIndividuals_; ///< A priority queue with the best individuals found so far
+	GParameterSetFixedSizePriorityQueue bestIndividuals_; ///< A priority queue with the best individuals found so far
 
 	std::size_t defaultPopulationSize_; ///< The nominal size of the population
 	double bestPastFitness_; ///< Records the best fitness found in past generations

@@ -40,6 +40,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/filesystem.hpp>
+#include "boost/filesystem/path.hpp"
+#include "boost/filesystem/operations.hpp"
+#include "boost/filesystem/convenience.hpp"
+#include <boost/date_time.hpp>
 
 #ifndef GPLUGGABLEOPTIMIZATIONMONITORST_HPP_
 #define GPLUGGABLEOPTIMIZATIONMONITORST_HPP_
@@ -214,8 +219,7 @@ private:
  * supports floating point types only. double and float values may not be mixed.
  */
 template <typename ind_type, typename fp_type>
-class GProgressPlotterT
-: public GBasePluggableOMT<ind_type>
+class GProgressPlotterT : public GBasePluggableOMT<ind_type>
 {
    // Make sure this class can only be instantiated if fp_type really is a floating point type
    BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
@@ -759,6 +763,239 @@ private:
    bool observeBoundaries_; ///< When set to true, the plotter will ignore values outside of a scan boundary
 
    bool addPrintCommand_; ///< Asks the GPlotDesigner to add a print command to result files
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class allows to log all candidate solutions found to a file. NOTE that
+ * the file may become very large! Results are output in the following format:
+ * param1 param2 ... param_m eval1 eval2 ... eval_n . By default, no commas and
+ * explanations are printed. If withNameAndType is set to true, the values are
+ * prepended by a line with variable names and types. If withCommas is set to true,
+ * commas will be printed in-between values. It is possible to filter the results by
+ * asking the class to only log solutions better than a given set of values. What
+ * is considered better depends on whether evaluation criteria are maximized or minimized
+ * and is determined from the individual. Note that this class can only be instantiated
+ * if ind_type is either a derivative of GParamterSet or is an object of the
+ * GParameterSet class itself.
+ */
+template <typename ind_type>
+class GAllSolutionFileLoggerT : public GBasePluggableOMT<ind_type>
+{
+   // Make sure this class can only be instantiated if ind_type is a derivative of GParameterSet
+   BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
+
+public:
+   /***************************************************************************/
+   /**
+    * The default constructor
+    */
+   GAllSolutionFileLoggerT()
+      : fileName_("CompleteSolutionLog.txt")
+      , boundariesActive_(false)
+      , withNameAndType_(false)
+      , withCommas_(false)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Initialization with a file name
+    */
+   GAllSolutionFileLoggerT(const std::string& fileName)
+      : fileName_(fileName)
+      , boundariesActive_(false)
+      , withNameAndType_(false)
+      , withCommas_(false)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Initialization with a file name and boundaries
+    */
+   GAllSolutionFileLoggerT(
+      const std::string& fileName
+      , const std::vector<double>& boundaries
+   )
+      : fileName_(fileName)
+      , boundaries_(boundaries)
+      , boundariesActive_(true)
+      , withNameAndType_(false)
+      , withCommas_(false)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The copy constructor
+    */
+   GAllSolutionFileLoggerT(const GAllSolutionFileLoggerT<ind_type>& cp)
+      : fileName_(cp.fileName_)
+      , boundaries_(cp.boundaries_)
+      , boundariesActive_(cp.boundariesActive_)
+      , withNameAndType_(cp.withNameAndType_)
+      , withCommas_(cp.withCommas_)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The destructor
+    */
+   virtual ~GAllSolutionFileLoggerT()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Sets the file name
+    */
+   void setFileName(std::string fileName) {
+      fileName_ = fileName;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the current file name
+    */
+   std::string getFileName() const {
+      return fileName_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Sets the boundaries
+    */
+   void setBoundaries(std::vector<double> boundaries) {
+      boundaries_ = boundaries;
+      boundariesActive_ = true;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the boundaries
+    */
+   std::vector<double> getBoundaries() const {
+      return boundaries_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether boundaries are active
+    */
+   bool boundariesActive() const {
+      return boundariesActive_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to inactivate boundaries
+    */
+   void setBoundariesInactive() {
+      boundariesActive_ = false;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to specify whether explanations should be printed for parameter-
+    * and fitness values.
+    */
+   void setPrintWithNameAndType(bool withNameAndType) {
+      withNameAndType_ = withNameAndType;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether explanations should be printed for parameter-
+    * and fitness values
+    */
+   bool getPrintWithNameAndType() const {
+      return withNameAndType_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to specify whether commas should be printed in-between values
+    */
+   void setPrintWithCommas(bool withCommas) {
+      withCommas_ = withCommas;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether commas should be printed in-between values
+    */
+   bool getPrintWithCommas() const {
+      return withCommas_;
+   }
+
+
+   /***************************************************************************/
+   /**
+    * Allows to emit information in different stages of the information cycle
+    * (initialization, during each cycle and during finalization)
+    */
+   virtual void informationFunction(
+      const infoMode& im
+      , GOptimizationAlgorithmT<ind_type> * const goa
+   ) OVERRIDE {
+      switch(im) {
+      case Gem::Geneva::INFOINIT:
+      {
+         // If the file pointed to by fileName_ already exists, make a back-up
+         if(bf::exists(fileName_)) {
+            std::ostringstream timeStringStream;
+            const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
+            const boost::posix_time::time_facet *f = new boost::posix_time::time_facet("%H-%M-%S");
+            timeStringStream.imbue(std::locale(timeStringStream.getloc(),f));
+
+            std::string newFileName = fileName_ + timeStringStream.str();
+
+            glogger
+            << "In GAllSolutionFileLoggerT<T>::informationFunction(): Error!" << std::endl
+            << "Attempt to output information to file " << fileName_ << std::endl
+            << "which already exists. We will rename the old file to" << std::endl
+            << newFileName << std::endl
+            << GWARNING;
+
+            bf::rename(fileName_, newFileName);
+         }
+      }
+      break;
+
+      case Gem::Geneva::INFOPROCESSING:
+      {
+         // Open the external file
+         std::ofstream data(fileName_.c_str(), std::ofstream::app);
+
+         // Loop over all individuals of the algorithm.
+         for(std::size_t pos=0; pos<goa->size(); pos++) {
+            boost::shared_ptr<GParameterSet> ind = goa->GOptimizationAlgorithmT<ind_type>::template individual_cast<GParameterSet>(pos);
+
+            // Note that isGoodEnough may throw if loop acts on a "dirty" individual
+            if(!boundariesActive_ || ind->isGoodEnough(boundaries_)) {
+               // Append the data to the external file
+               data << ind->toCSV(withNameAndType_, withCommas_);
+            }
+         }
+
+         // Close the external file
+         data.close();
+      }
+      break;
+
+      case Gem::Geneva::INFOEND:
+      // nothing
+      break;
+      };
+   }
+
+private:
+   /***************************************************************************/
+
+   std::string fileName_; ///< The name of the file to which solutions should be stored
+   std::vector<double> boundaries_; ///< Value boundaries used to filter logged solutions
+   bool boundariesActive_; ///< Set to true if boundaries have been set
+   bool withNameAndType_; ///< When set to true, explanations for values are printed
+   bool withCommas_; ///< When set to true, commas will be printed in-between values
 };
 
 /******************************************************************************/

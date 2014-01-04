@@ -34,4 +34,106 @@
 
 #include "geneva/GParameterSetFixedSizePriorityQueue.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GFixedSizePriorityQueueT<Gem::Geneva::GParameterSet>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSetFixedSizePriorityQueue)
+
+namespace Gem {
+namespace Geneva {
+
+/******************************************************************************/
+/**
+ * The default constructor
+ */
+GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with the maximum size
+ */
+GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(const std::size_t& maxSize)
+   : Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The copy constructor
+ */
+GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
+   const GParameterSetFixedSizePriorityQueue& cp
+)
+   : Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(cp)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GParameterSetFixedSizePriorityQueue::~GParameterSetFixedSizePriorityQueue()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Copy the data of another GParameterSetFixedSizePriorityQueue over
+ */
+const GParameterSetFixedSizePriorityQueue& GParameterSetFixedSizePriorityQueue::operator=(
+   const GParameterSetFixedSizePriorityQueue& cp
+) {
+   this->load(cp);
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Creates a deep clone of this object
+ */
+boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > GParameterSetFixedSizePriorityQueue::clone() {
+   return boost::shared_ptr<GParameterSetFixedSizePriorityQueue>(new GParameterSetFixedSizePriorityQueue(*this));
+}
+
+/******************************************************************************/
+/**
+ * Load the data of another GParameterSetFixedSizePriorityQueue item
+ */
+void GParameterSetFixedSizePriorityQueue::load(
+   const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>& cp
+){
+   // If you need to load local data, convert cp accordingly
+   GFixedSizePriorityQueueT<GParameterSet>::load(cp);
+}
+
+/******************************************************************************/
+/**
+ * Compares two work items
+ */
+bool GParameterSetFixedSizePriorityQueue::comparator(
+   boost::shared_ptr<GParameterSet> x
+   , boost::shared_ptr<GParameterSet> y
+) {
+   bool dirtyFlag_x, dirtyFlag_y;
+   double fitness_x, fitness_y;
+
+   fitness_x = x->getCachedFitness(dirtyFlag_x);
+   fitness_y = y->getCachedFitness(dirtyFlag_y);
+
+#ifdef DEBUG
+   if(dirtyFlag_x || dirtyFlag_y) {
+      glogger
+      << "In GParameterSetFixedSizePriorityQueue::comparator(): Error!" << std::endl
+      << "Found dirty individual -- x: " << dirtyFlag_x << " y: " << dirtyFlag_y << std::endl
+      << GEXCEPTION;
+   }
+#endif
+
+   if(true == x->getMaxMode()) { // maximization
+      if(fitness_x > fitness_y) return true;
+      else return false;
+   } else { // minimization
+      if(fitness_x < fitness_y) return true;
+      else return false;
+   }
+}
+
+/******************************************************************************/
+
+} /* namespace Geneva */
+} /* namespace Gem */

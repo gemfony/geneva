@@ -67,6 +67,58 @@
 #include "common/GFixedSizePriorityQueueT.hpp"
 #include "geneva/GParameterSet.hpp"
 
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GFixedSizePriorityQueueT<Gem::Geneva::GParameterSet>)
+namespace Gem {
+namespace Geneva {
+
+/******************************************************************************/
+/**
+ * This class implements a fixed size priority queue for GParameterSet objects,
+ * based on the maximization/minimization property and the current fitness of
+ * the objects.
+ */
+class GParameterSetFixedSizePriorityQueue
+   : public Gem::Common::GFixedSizePriorityQueueT<GParameterSet>
+{
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int){
+     using boost::serialization::make_nvp;
+
+     ar
+     & make_nvp("GFSPQ", boost::serialization::base_object<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> >(*this));
+   }
+   ///////////////////////////////////////////////////////////////////////
+
+public:
+   /** @brief The default constructor */
+   GParameterSetFixedSizePriorityQueue();
+   /** @brief Initialization with the maximum size */
+   explicit GParameterSetFixedSizePriorityQueue(const std::size_t&);
+   /** @brief The copy constructor */
+   GParameterSetFixedSizePriorityQueue(const GParameterSetFixedSizePriorityQueue&);
+   /** @brief The destructor */
+   ~GParameterSetFixedSizePriorityQueue();
+
+   /** @brief Copy the data of another GParameterSetFixedSizePriorityQueue over */
+   const GParameterSetFixedSizePriorityQueue& operator=(const GParameterSetFixedSizePriorityQueue&);
+
+   /** @brief Creates a deep clone of this object */
+   virtual boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > clone();
+   /** @brief Load the data of another GParameterSetFixedSizePriorityQueue item */
+   virtual void load(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>&);
+
+protected:
+   /** @brief Compares two work items */
+   virtual bool comparator(boost::shared_ptr<GParameterSet>, boost::shared_ptr<GParameterSet>);
+};
+
+/******************************************************************************/
+
+} /* namespace Geneva */
+} /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSetFixedSizePriorityQueue)
 
 #endif /* GPARAMETERFIXEDSIZESETPRIORITYQUEUE_HPP_ */

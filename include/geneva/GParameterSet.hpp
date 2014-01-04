@@ -177,7 +177,7 @@ public:
 	/** @brief Transformation of the individual's parameter objects into a boost::property_tree object */
 	void toPropertyTree(pt::ptree&, const std::string& = "parameterset") const BASE;
 	/** @brief Transformation of the individual's parameter objects into a list of comma-separated values */
-	std::string toCSV(bool=false) const;
+	std::string toCSV(bool=false, bool=true) const;
 
 	/** @brief Emits a name for this class / object */
 	virtual std::string name() const OVERRIDE;
@@ -191,6 +191,9 @@ public:
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
+	/** @brief Checks whether this object is better than a given set of evaluations */
+	bool isGoodEnough(const std::vector<double>&);
+
 	/***************************************************************************/
 	/**
 	 * This function returns a parameter set at a given position of the data set.
@@ -203,8 +206,8 @@ public:
 	 */
 	template <typename par_type>
 	const boost::shared_ptr<par_type> at(
-			  const std::size_t& pos
-			, typename boost::enable_if<boost::is_base_of<GParameterBase, par_type> >::type* dummy = 0
+      const std::size_t& pos
+      , typename boost::enable_if<boost::is_base_of<GParameterBase, par_type> >::type* dummy = 0
 	)  const {
       // Does error checks on the conversion internally
       return Gem::Common::convertSmartPointer<GParameterBase, par_type>(data.at(pos));
