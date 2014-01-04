@@ -942,12 +942,19 @@ public:
       {
          // If the file pointed to by fileName_ already exists, make a back-up
          if(bf::exists(fileName_)) {
+            /*
             std::ostringstream timeStringStream;
             const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
             const boost::posix_time::time_facet *f = new boost::posix_time::time_facet("%H-%M-%S");
             timeStringStream.imbue(std::locale(timeStringStream.getloc(),f));
 
-            std::string newFileName = fileName_ + timeStringStream.str();
+            std::string newFileName = fileName_ + ".bak" + timeStringStream.str();
+
+            std::cout << "New file name is " << timeStringStream.str() << std::endl;
+             */
+
+            const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
+            std::string newFileName = fileName_ + ".bak_" + boost::lexical_cast<std::string>(currentTime);
 
             glogger
             << "In GAllSolutionFileLoggerT<T>::informationFunction(): Error!" << std::endl

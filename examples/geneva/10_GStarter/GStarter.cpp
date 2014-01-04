@@ -69,6 +69,24 @@ int main(int argc, char **argv) {
          , boost::shared_ptr<GSigmaMonitor>(new GSigmaMonitor("./sigmaProgress.C"))
    );
 
+   // Another possibility: Add a "pluggable optimization monitor" to Go2. This
+   // particular monitor will logg all solutions that were found into the file allLog.txt,
+   // provided their fitness is better than 1. . The option is usually used for monitors
+   // that do not discriminate between optimization algorithms.
+   std::vector<double> boundaries;
+   boundaries.push_back(1.);
+   boost::shared_ptr<GAllSolutionFileLoggerT<GParameterSet> >
+      allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>("allLog.txt", boundaries));
+
+   go.registerPluggableOM(
+      boost::bind(
+         &GAllSolutionFileLoggerT<GParameterSet>::informationFunction
+         , allSolutionLogger_ptr
+         , _1
+         , _2
+      )
+   );
+
    // Create a factory for GStarterIndividual objects and perform
    // any necessary initial work.
    boost::shared_ptr<GStarterIndividualFactory> gsif_ptr(
