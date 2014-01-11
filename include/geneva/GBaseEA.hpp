@@ -133,6 +133,12 @@ public:
    /** @brief Retrieve the current sorting scheme for this population */
    sortingMode getSortingScheme() const;
 
+   /** @brief Extracts all individuals on the pareto front */
+   void extractCurrentParetoIndividuals(std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> >&);
+
+   /** @brief Adds the individuals of this iteration to a priority queue */
+   void addIterationBests(GParameterSetFixedSizePriorityQueue&);
+
    /** @brief Returns the name of this optimization algorithm */
    virtual std::string getAlgorithmName() const OVERRIDE;
 

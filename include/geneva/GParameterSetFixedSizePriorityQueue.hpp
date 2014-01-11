@@ -105,13 +105,11 @@ public:
    const GParameterSetFixedSizePriorityQueue& operator=(const GParameterSetFixedSizePriorityQueue&);
 
    /** @brief Creates a deep clone of this object */
-   virtual boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > clone();
-   /** @brief Load the data of another GParameterSetFixedSizePriorityQueue item */
-   virtual void load(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>&);
+   virtual boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > clone() const;
 
 protected:
-   /** @brief Compares two work items */
-   virtual bool comparator(boost::shared_ptr<GParameterSet>, boost::shared_ptr<GParameterSet>);
+   /** @brief Evaluates a single work item, so that it can be sorted */
+   virtual double evaluation(const boost::shared_ptr<GParameterSet>&) const;
 };
 
 /******************************************************************************/

@@ -86,51 +86,30 @@ const GParameterSetFixedSizePriorityQueue& GParameterSetFixedSizePriorityQueue::
 /**
  * Creates a deep clone of this object
  */
-boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > GParameterSetFixedSizePriorityQueue::clone() {
+boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > GParameterSetFixedSizePriorityQueue::clone() const {
    return boost::shared_ptr<GParameterSetFixedSizePriorityQueue>(new GParameterSetFixedSizePriorityQueue(*this));
 }
 
 /******************************************************************************/
 /**
- * Load the data of another GParameterSetFixedSizePriorityQueue item
+ * Evaluates a single work item, so that it can be sorted. Note that this function
+ * will throw in DEBUG mode, of the dirty flag of item is set. Note that the function
+ * uses the primary evaluation criterion only.
  */
-void GParameterSetFixedSizePriorityQueue::load(
-   const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>& cp
-){
-   // If you need to load local data, convert cp accordingly
-   GFixedSizePriorityQueueT<GParameterSet>::load(cp);
-}
-
-/******************************************************************************/
-/**
- * Compares two work items
- */
-bool GParameterSetFixedSizePriorityQueue::comparator(
-   boost::shared_ptr<GParameterSet> x
-   , boost::shared_ptr<GParameterSet> y
-) {
-   bool dirtyFlag_x, dirtyFlag_y;
-   double fitness_x, fitness_y;
-
-   fitness_x = x->getCachedFitness(dirtyFlag_x);
-   fitness_y = y->getCachedFitness(dirtyFlag_y);
+double GParameterSetFixedSizePriorityQueue::evaluation(const boost::shared_ptr<GParameterSet>& item) const {
+   bool isDirty;
+   double result = item->getCachedFitness(isDirty);
 
 #ifdef DEBUG
-   if(dirtyFlag_x || dirtyFlag_y) {
+   if(isDirty) {
       glogger
-      << "In GParameterSetFixedSizePriorityQueue::comparator(): Error!" << std::endl
-      << "Found dirty individual -- x: " << dirtyFlag_x << " y: " << dirtyFlag_y << std::endl
+      << "In GParameterSetFixedSizePriorityQueue::evaluation(): Error!" << std::endl
+      << "Dirty flag of item is set." << std::endl
       << GEXCEPTION;
    }
-#endif
+#endif /* DEBUG */
 
-   if(true == x->getMaxMode()) { // maximization
-      if(fitness_x > fitness_y) return true;
-      else return false;
-   } else { // minimization
-      if(fitness_x < fitness_y) return true;
-      else return false;
-   }
+   return result;
 }
 
 /******************************************************************************/

@@ -315,6 +315,32 @@ public:
       return std::string("GMultiPopulationEAT<oa_type>");
    }
 
+   /***************************************************************************/
+   /**
+    * Adds the best individuals of this iteration to a priority queue. The
+    * queue will be sorted by the first evaluation criterion of the individuals
+    * and may either have a limited or unlimited size, depending on user-
+    * settings
+    */
+   void addIterationBests(
+      GParameterSetFixedSizePriorityQueue& bestIndividuals
+   ) OVERRIDE {
+      const bool CLONE = true;
+      const bool DONOTREPLACE = false;
+
+   #ifdef DEBUG
+      if(this->empty()) {
+         glogger
+         << "In GBaseParChildT<GParameterSet>::addIterationBests() :" << std::endl
+         << "Tried to retrieve the best individuals even though the population is empty." << std::endl
+         << GEXCEPTION;
+      }
+   #endif /* DEBUG */
+
+      // We simply add the individuals of our first member to the queue
+      this->at(0)->addIterationBests(bestIndividuals);
+   }
+
 protected:
    /***************************************************************************/
    /**
@@ -408,8 +434,8 @@ protected:
       // as it is theoretically possible that all children are better than the former
       // parents, so that the first parent individual will be replaced.
       if(
-            ((smodeMP_==MUCOMMANU_SINGLEEVAL_MP || smodeMP_==MUNU1PRETAIN_SINGLEEVAL_MP) && (popSize < 2*nP)) ||
-            (smodeMP_==MUPLUSNU_SINGLEEVAL_MP && popSize<=nP)
+         ((smodeMP_==MUCOMMANU_SINGLEEVAL_MP || smodeMP_==MUNU1PRETAIN_SINGLEEVAL_MP) && (popSize < 2*nP)) ||
+         (smodeMP_==MUPLUSNU_SINGLEEVAL_MP && popSize<=nP)
       ){
          std::ostringstream error;
          error

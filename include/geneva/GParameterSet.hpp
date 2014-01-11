@@ -436,7 +436,6 @@ public:
       GOptimizableEntity::setDirtyFlag();
    }
 
-
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */

@@ -49,6 +49,35 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * Adds the individuals of this iteration to a priority queue. The
+ * queue will be sorted by the first evaluation criterion of the individuals
+ * and may either have a limited or unlimited size, depending on user-
+ * settings
+ */
+template <>
+void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBests(
+   GParameterSetFixedSizePriorityQueue& bestIndividuals
+) BASE {
+   const bool CLONE = true;
+   const bool DONOTREPLACE = false;
+
+#ifdef DEBUG
+   if(this->empty()) {
+      glogger
+      << "In GBaseParChildT<GParameterSet>::addIterationBests() :" << std::endl
+      << "Tried to retrieve the best individuals even though the population is empty." << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   // We simply add all individuals to the queue -- only the best ones will actually be added (and cloned)
+   // Unless we have asked for the queue to have an unlimited size, the queue will be resized as required
+   // by its maximum allowed size.
+   bestIndividuals.add(this->data, CLONE, DONOTREPLACE);
+}
+
+/******************************************************************************/
+/**
  * Allows to perform initialization work before the optimization cycle starts. This
  * function will usually be overloaded by derived functions, which should however,
  * as one of their first actions, call this function. It is not recommended  to perform

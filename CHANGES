@@ -1,13 +1,13 @@
 //------------------------------------------------------------------------------------------------------
-Wishlist for version 1.1, yet unnamed, release-date unknown
+Wishlist for version 1.2, yet unnamed, release-date unknown
 
  - MPI Consumer/Client
  - A scripting interface to optimization algorithms, so that new algorithms can be 
    more easily implemented and tested
- - Additional optimization algorithms
+ - Additional optimization algorithms (particularly Simplex and Conjugate Gradient)
 
 //------------------------------------------------------------------------------------------------------
-* Version 1.0.1, yet unnamed, release-date unknown
+* Version 1.1, yet unnamed, release-date unknown
 
  - Added two functions for calculating a line best describing a set of data points
  - Updated the GParallelisationOverhead test so that it automatically calculates the speed-up
@@ -22,6 +22,8 @@ Wishlist for version 1.1, yet unnamed, release-date unknown
  - Added an option to catch a SIGHUP signal and let GOptimizationAlgorithmT<> exit gracefully,
    without discarding results. This requires that GObject::sigHupHandler is registered as a signal handler.
    This needs to be done by the user, e.g. in main().
+ - Based collection of best individuals on a priority queue and centralized the code for most cases
+   (multi-populations and multi-criterion optimization need seperate treatement)
  - Experimental port to MacOS 10.9
  - Ported to Boost 1.55
 

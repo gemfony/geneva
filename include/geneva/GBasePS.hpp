@@ -220,11 +220,6 @@ protected:
    /** @brief Triggers fitness calculation of a number of individuals */
    virtual void runFitnessCalculation() = 0;
 
-   /** @brief Retrieves the best individual found */
-   virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE;
-   /** @brief Retrieves a list of the best individuals found */
-   virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE;
-
    /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned */
    virtual bool customHalt() const OVERRIDE;
 

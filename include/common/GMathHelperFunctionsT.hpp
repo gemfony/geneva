@@ -52,6 +52,8 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/math/special_functions.hpp>
+#include <boost/limits.hpp>
+#include <boost/numeric/conversion/bounds.hpp>
 
 #ifndef GMATHHELPERFUNCTIONST_HPP_
 #define GMATHHELPERFUNCTIONST_HPP_
@@ -71,6 +73,32 @@ namespace Common {
 
 const bool GWARNINGONLY = true;
 const bool GERRORONLY = false;
+
+/******************************************************************************/
+/**
+ * Retrieves the worst known value for a given floating point type, depending
+ * on whether maximal or minimal values are considered to be better
+ */
+template <typename fp_type>
+fp_type getWorstCase(
+   bool maxMode
+   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+) {
+   return (maxMode?boost::numeric::bounds<fp_type>::lowest():boost::numeric::bounds<fp_type>::highest());
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the worst known value for a given floating point type, depending
+ * on whether maximal or minimal values are considered to be better
+ */
+template <typename fp_type>
+fp_type getBestCase(
+   bool maxMode
+   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+) {
+   return (maxMode?boost::numeric::bounds<fp_type>::highest():boost::numeric::bounds<fp_type>::lowest());
+}
 
 /******************************************************************************/
 /**

@@ -507,20 +507,12 @@ void GBaseGD::updateParentIndividuals() {
 
 		// Calculate the adaption of each parameter
 		double gradient = 0.;
-		//std::cout << "==============" << std::endl;
 		for(std::size_t j=0; j<nFPParmsFirst_; j++) {
 			// Calculate the position of the child
 			std::size_t childPos = nStartingPoints_ + i*nFPParmsFirst_ + j;
 
 			// Calculate the step to be performed in a given direction
 			gradient = (1./finiteStep_) * (this->at(childPos)->fitness(0) - parentFitness);
-
-			/*
-			std::cout << "parmVec[" << j << "] = " << parmVec[j] << std::endl
-					  << "gradient = " << gradient << std::endl
-					  << "stepSize_ = " << stepSize_ << std::endl
-					  << "adaption = " << stepSize_*gradient << std::endl;
-	        */
 
 			if(this->getMaxMode()) {
 				parmVec[j] += stepSize_*gradient;
@@ -529,81 +521,10 @@ void GBaseGD::updateParentIndividuals() {
 				parmVec[j] -= stepSize_*gradient;
 			}
 		}
-		// std::cout << "==============" << std::endl;
 
 		// Load the parameter vector back into the parent
 		this->at(i)->assignValueVector(parmVec);
 	}
-}
-
-/******************************************************************************/
-/**
- * Retrieves the best individual of the population and returns it in Gem::Geneva::GParameterSet format.
- * Note that this protected function will return the item itself. Direct usage of this function should
- * be avoided even by derived classes. We suggest to use the function
- * GOptimizableI::getBestIndividual<individual_type>() instead, which internally uses
- * this function and returns copies of the best individual, converted to the desired target type.
- *
- * @return A shared_ptr to the best individual of the population
- */
-boost::shared_ptr<GParameterSet> GBaseGD::customGetBestIndividual(){
-#ifdef DEBUG
-	// Check that data is present at all
-	if(data.size() < nStartingPoints_) {
-	   glogger
-	   << "In GBaseGD::customGetBestIndividual() : Error!" << std::endl
-      << "Population has fewer individuals than starting points: " << data.size() << " / " << nStartingPoints_ << std::endl
-      << GEXCEPTION;
-	}
-
-	// Check that no parent is in "dirty" state
-	for(std::size_t i=0; i<nStartingPoints_; i++) {
-		if(data.at(i)->isDirty()) {
-		   glogger
-		   << "In GBaseGD::customGetBestIndividual() : Error!" << std::endl
-         << "Found dirty parent at position : " << i << std::endl
-         << GEXCEPTION;
-		}
-	}
-#endif /* DEBUG */
-
-	// Loop over all "parent" individuals and find out which one is the best
-	std::size_t pos_best=0;
-	for(std::size_t i=1; i<nStartingPoints_; i++) {
-		if(isBetter(data.at(i)->fitness(0), data.at(i-1)->fitness(0))) {
-			pos_best=i;
-		}
-	}
-
-	// There will be an implicit downcast here, as data holds
-	// boost::shared_ptr<GParameterSet> objects
-	return data[pos_best];
-}
-
-/******************************************************************************/
-/**
- * Retrieves a list of the best individuals found. This might just be one individual.
- *
- * @return A list of the best individuals found
- */
-std::vector<boost::shared_ptr<GParameterSet> > GBaseGD::customGetBestIndividuals() {
-	// Some error checking
-	if(nStartingPoints_ == 0) {
-	   glogger
-	   << "In GBaseGD::customGetBestIndividuals() :" << std::endl
-      << "no starting points found" << std::endl
-      << GEXCEPTION;
-	}
-
-	std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals;
-	GBaseGD::iterator it;
-	for(it=this->begin(); it!=this->begin()+nStartingPoints_; ++it) {
-		// There will be an implicit downcast here, as data holds
-		// boost::shared_ptr<GParameterSet> objects
-		bestIndividuals.push_back(*it);
-	}
-
-	return bestIndividuals;
 }
 
 /******************************************************************************/

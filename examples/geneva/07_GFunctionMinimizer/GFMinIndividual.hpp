@@ -68,8 +68,8 @@ namespace Geneva {
  * This enum denotes the possible demo function types
  */
 enum targetFunction {
-	  PARABOLA=0
-	, NOISYPARABOLA=1
+	  GFM_PARABOLA=0
+	, GFM_NOISYPARABOLA=1
 };
 
 // Make sure targetFunction can be streamed

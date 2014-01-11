@@ -312,11 +312,6 @@ protected:
 	/** Updates the personal best of an individual, if a better solution was found */
 	void updatePersonalBestIfBetter(boost::shared_ptr<GParameterSet>);
 
-	/** @brief Retrieves the best individual found */
-	virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE;
-	/** @brief Retrieves a list of the best individuals found */
-	virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE;
-
 	/** @brief Returns the name of this optimization algorithm */
 	virtual std::string getAlgorithmName() const OVERRIDE;
 

@@ -599,56 +599,6 @@ void GBaseSwarm::updatePersonalBestIfBetter(
 
 /******************************************************************************/
 /**
- * Retrieves the best individual of the population. Note that this protected function will return the item
- * itself. Direct usage of this function should be avoided even by derived classes. We suggest to use the
- * function GOptimizableI::getBestIndividual<individual_type>() instead, which internally uses
- * this function and returns copies of the best individual, converted to the desired target type.
- *
- * @return A converted shared_ptr to a copy of the best individual of the population
- */
-boost::shared_ptr<GParameterSet> GBaseSwarm::customGetBestIndividual(){
-#ifdef DEBUG
-	// Check that global_best_ actually points somewhere
-	if(!global_best_) {
-	   glogger
-	   << "In GBaseSwarm::customGetBestIndividual() : Error" << std::endl
-      << "Tried to access uninitialized globally best individual." << std::endl
-      << GEXCEPTION;
-	}
-#endif /* DEBUG */
-
-	// There will be an implicit downcast here as swarms hold boost::shared_ptr<GParameterSet> objects
-	return global_best_;
-}
-
-/******************************************************************************/
-/**
- * Retrieves a list of the best individuals found. This might just be one individual.
- *
- * @return A list of the best individuals found
- */
-std::vector<boost::shared_ptr<GParameterSet> > GBaseSwarm::customGetBestIndividuals() {
-	// Some error checking
-	if(nNeighborhoods_ == 0) {
-	   glogger
-	   << "In GBaseSwarm::customGetBestIndividuals() :" << std::endl
-      << "no neighborhoods found" << std::endl
-      << GEXCEPTION;
-	}
-
-	std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals;
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-	for(it=neighborhood_bests_.begin(); it!=neighborhood_bests_.end(); ++it) {
-		// There will be an implicit downcast here, as the vector holds
-		// boost::shared_ptr<GParameterSet> objects
-		bestIndividuals.push_back(*it);
-	}
-
-	return bestIndividuals;
-}
-
-/******************************************************************************/
-/**
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added

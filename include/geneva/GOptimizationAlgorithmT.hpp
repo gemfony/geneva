@@ -467,16 +467,11 @@ public:
 			// Let all individuals know the current iteration
 			markIteration();
 
-			// Run the actual business logic and extract the best known individual. Note that the returned item is a clone
-			// boost::shared_ptr<GParamterSet> bestCurrentItem = cycleLogic();
-
-			// Make the best item known to the priority queue, so we can keep track of good items
-			// bestIndividuals_.add(bestCurrentItem);
-
 			// Update fitness values and the stall counter
-			// updateStallCounter((bestCurrentFitness_=bestCurrentItem->fitness()));
 			updateStallCounter((bestCurrentFitness_=cycleLogic()));
 
+			// Add the best individuals to the bestIndividuals_ vector
+			addIterationBests(bestIndividuals_);
 
 			// Check whether a better value was found, and do the check-pointing, if necessary and requested.
 			checkpoint(progress());
@@ -1081,6 +1076,20 @@ public:
    }
 
    /***************************************************************************/
+   /**
+    * Adds the best individuals of each iteration to a priority queue. The
+    * queue will be sorted by the first evaluation criterion of the individuals
+    * and may either have a limited or unlimited size.
+    */
+   virtual void addIterationBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
+      glogger
+      << "In GOptimizationAlgorithmT<ind_type>::addIterationBests(): Error!" << std::endl
+      << "This function should not have been called" << std::endl
+      << GEXCEPTION;
+   }
+
+   /***************************************************************************/
+
    /** @brief Emits a name for this class / object; this can be a long name with spaces */
    virtual std::string name() const = 0;
 
@@ -1125,6 +1134,38 @@ protected:
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
+
+   /***************************************************************************/
+   /**
+    * Retrieves the best individual found up to now (which is the best individual
+    * in the priority queue).
+    */
+   virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE {
+#ifdef DEBUG
+      boost::shared_ptr<GParameterSet> p = bestIndividuals_.best();
+      if(p) return p;
+      else {
+         glogger
+         << "In GOptimizationAlgorithmT<T>::customGetBestIndividual(): Error!" << std::endl
+         << "Best individual seems to be empty" << std::endl
+         << GEXCEPTION;
+
+         // Make the compiler happy
+         return boost::shared_ptr<GParameterSet>();
+      }
+#else
+      return bestIndividuals_.best();
+#endif
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves a list of the best individuals found (equal to the content of
+    * the priority queue)
+    */
+   virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE {
+      return bestIndividuals_.toVector();
+   }
 
 	/***************************************************************************/
 	/**
@@ -1522,7 +1563,8 @@ private:
 			if(emitTerminationReason_) {
 				std::cout
 				<< "Terminating optimization run because" << std::endl
-				<< "maximum number of stalls " << maxStallIteration_ << " has been exceeded." << std::endl;
+				<< "maximum number of stalls " << maxStallIteration_ << " has been exceeded." << std::endl
+				<< "This is considered to be a criterion for convergence." << std::endl;
 			}
 
 			return true;
@@ -2149,9 +2191,10 @@ public:
 };
 
 /******************************************************************************/
-// Specialization of the init and finalize functions for GParameterSet
+// Specialization of some functions for GParameterSet
 template <> void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init();
 template <> void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::finalize();
+template <> void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBests(GParameterSetFixedSizePriorityQueue&);
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -765,6 +765,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
       for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
          this->push_back(*best_it);
       }
+
       bestIndividuals.clear();
       p_base->clear();
 	}
@@ -774,8 +775,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	if(maxmode){
 		std::sort(this->begin(), this->end(),
 				boost::bind(&GParameterSet::fitness, _1, 0) > boost::bind(&GParameterSet::fitness, _2, 0));
-	}
-	else{ // Minimization
+	} else { // Minimization
 		std::sort(this->begin(), this->end(),
 				boost::bind(&GParameterSet::fitness, _1, 0) < boost::bind(&GParameterSet::fitness, _2, 0));
 	}
@@ -799,24 +799,24 @@ boost::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestIndividual() {
 	   << "In Go2::customGetBestIndividual(): Error!" << std::endl
       << "No individuals found" << std::endl
       << GEXCEPTION;
+   }
 
-		for(it=this->begin(); it!=this->end(); ++it) {
-			if((*it)->isDirty()) {
-			   glogger
-			   << "In Go2::customGetBestIndividual(): Error!" << std::endl
-            << "Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set" << std::endl
-            << GEXCEPTION;
-			}
-		}
-
-		if(!sorted_) {
-		   glogger
-		   << "In Go2::customGetBestIndividual(): Error!" << std::endl
-         << "Tried to retrieve best individual" << std::endl
-         << "from an unsorted population." << std::endl
+   for(it=this->begin(); it!=this->end(); ++it) {
+      if((*it)->isDirty()) {
+         glogger
+         << "In Go2::customGetBestIndividual(): Error!" << std::endl
+         << "Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set" << std::endl
          << GEXCEPTION;
-		}
-	}
+      }
+   }
+
+   if(!sorted_) {
+      glogger
+      << "In Go2::customGetBestIndividual(): Error!" << std::endl
+      << "Tried to retrieve best individual" << std::endl
+      << "from an unsorted population." << std::endl
+      << GEXCEPTION;
+   }
 
 	// Simply return the best individual. This will result in an implicit downcast
 	return this->front();
@@ -838,16 +838,16 @@ std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > Go2::customGetBestIn
 	   <<"In Go2::customGetBestIndividuals(): Error!" << std::endl
       << "No individuals found" << std::endl
       << GEXCEPTION;
+   }
 
-		for(it=this->begin(); it!=this->end(); ++it) {
-			if((*it)->isDirty()) {
-			   glogger
-			   << "In Go2::customGetBestIndividuals(): Error!" << std::endl
-            << "Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set" << std::endl
-            << GEXCEPTION;
-			}
-		}
-	}
+   for(it=this->begin(); it!=this->end(); ++it) {
+      if((*it)->isDirty()) {
+         glogger
+         << "In Go2::customGetBestIndividuals(): Error!" << std::endl
+         << "Found individual in position " << std::distance(this->begin(),it) << " whose dirty flag is set" << std::endl
+         << GEXCEPTION;
+      }
+   }
 
 	std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
 	for(it=this->begin(); it!=this->end(); ++it) {

@@ -436,6 +436,8 @@ public:
 	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
+/******************************************************************************/
+
 } /* namespace Geneva */
 } /* namespace Gem */
 

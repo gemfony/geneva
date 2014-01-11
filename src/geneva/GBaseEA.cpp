@@ -304,6 +304,22 @@ sortingMode GBaseEA::getSortingScheme() const {
 
 /******************************************************************************/
 /**
+ * Extracts all individuals on the pareto front
+ */
+void GBaseEA::extractCurrentParetoIndividuals(std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> >& paretoInds) {
+   // Make sure the vector is empty
+   paretoInds.clear();
+
+   GBaseEA::iterator it;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      if((*it)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) {
+         paretoInds.push_back(*it);
+      }
+   }
+}
+
+/******************************************************************************/
+/**
  * Some error checks related to population sizes
  */
 void GBaseEA::populationSanityChecks() const {
@@ -404,17 +420,75 @@ void GBaseEA::selectBest()
 
    //----------------------------------------------------------------------------
 	default:
-   {
-      glogger
-      << "In GBaseEA::selectBest(): Error" << std::endl
-      << "Incorrect sorting scheme requested: " << smode_ << std::endl
-      << GEXCEPTION;
-   }
+      {
+         glogger
+         << "In GBaseEA::selectBest(): Error" << std::endl
+         << "Incorrect sorting scheme requested: " << smode_ << std::endl
+         << GEXCEPTION;
+      }
 	   break;
 	}
 
 	// Let parents know they are parents
 	markParents();
+}
+
+/******************************************************************************/
+/**
+ * Adds the individuals of this iteration to a priority queue. The
+ * queue will be sorted by the first evaluation criterion of the individuals
+ * and may either have a limited or unlimited size, depending on user-
+ * settings. The procedure is different for pareto optimization, as we only
+ * want the individuals on the current pareto front to be added.
+ */
+void GBaseEA::addIterationBests(
+   GParameterSetFixedSizePriorityQueue& bestIndividuals
+) {
+   const bool REPLACE = true;
+   const bool CLONE = true;
+
+#ifdef DEBUG
+   if(this->empty()) {
+      glogger
+      << "In GBaseEA::addIterationBests() :" << std::endl
+      << "Tried to retrieve the best individuals even though the population is empty." << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   switch(smode_) {
+      //----------------------------------------------------------------------------
+      case MUPLUSNU_SINGLEEVAL:
+      case MUNU1PRETAIN_SINGLEEVAL:
+      case MUCOMMANU_SINGLEEVAL:
+         GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBests(bestIndividuals);
+         break;
+
+      //----------------------------------------------------------------------------
+      case MUPLUSNU_PARETO:
+      case MUCOMMANU_PARETO:
+         {
+            // Retrieve all individuals on the pareto front
+            std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > paretoInds;
+            this->extractCurrentParetoIndividuals(paretoInds);
+
+            // We simply add all parent individuals to the queue. As we only want
+            // the individuals on the current pareto front, we replace all members
+            // of the current priority queue
+            bestIndividuals.add(paretoInds, CLONE, REPLACE);
+         }
+         break;
+
+      //----------------------------------------------------------------------------
+      default:
+         {
+            glogger
+            << "In GBaseEA::addIterationBests(): Error" << std::endl
+            << "Incorrect sorting scheme requested: " << smode_ << std::endl
+            << GEXCEPTION;
+         }
+         break;
+   }
 }
 
 /******************************************************************************/
@@ -567,6 +641,7 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 	it=this->begin();
 	if(!(*it)->hasMultipleFitnessCriteria()) {
 		sortMuCommaNuMode();
+		return;
 	}
 
 	// Mark the last iterations parents as not being on the pareto front
@@ -581,7 +656,7 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 
 	// Compare all parameters of all children
 	for(it=this->begin()+nParents_; it!=this->end(); ++it) {
-		for(it_cmp=it+1; it_cmp != this->end(); ++it_cmp) {
+		for(it_cmp=it+1; it_cmp!=this->end(); ++it_cmp) {
 			// If we already know that this individual is *not*
 			// on the front we do not have to do any tests
 			if(!(*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) continue;

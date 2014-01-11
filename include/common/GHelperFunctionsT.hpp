@@ -79,28 +79,6 @@ namespace Common {
 
 /******************************************************************************/
 /**
- * Creates a clone of a copy-constructible type, wrapped into a boost::shared_ptr
- */
-template <typename T>
-boost::shared_ptr<T> clone_ptr(
-   const T& cp
-) {
-   return boost::shared_ptr<T>(new T(cp));
-}
-
-/******************************************************************************/
-/**
- * Creates a clone of a copy-constructible type, wrapped into a boost::shared_ptr
- */
-template <typename T>
-boost::shared_ptr<T> clone_ptr(
-   boost::shared_ptr<T> cp_ptr
-) {
-   return boost::shared_ptr<T>(new T(*cp_ptr));
-}
-
-/******************************************************************************/
-/**
  * This function takes two smart pointers and copies their contents (if any). Note that this
  * function might yield bad results for virtual types and will not work for purely virtual types.
  *
@@ -318,7 +296,7 @@ boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type
       // Check that we have indeed been given an item and that the pointer isn't empty
       if(!p_raw) {
          glogger
-         << "In boost::shared_ptr<dT> convertSmartPointer(boost::shared_ptr<source_type> p_raw) :" << std::endl
+         << "In boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type> p_raw) :" << std::endl
          << "Error: Pointer is empty." << std::endl
          << GEXCEPTION;
 
@@ -331,8 +309,8 @@ boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type
       if(p) return p;
       else {
          glogger
-         << "In boost::shared_ptr<dT> convertSmartPointer(boost::shared_ptr<source_type> p_raw) :" << std::endl
-         << "Error: Invalid conversion" << std::endl
+         << "In boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type> p_raw) :" << std::endl
+         << "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
          << GEXCEPTION;
 
          // Make the compiler happy
@@ -368,7 +346,7 @@ target_type *convertSimplePointer(source_type *p_raw) {
       else {
          glogger
          << "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
-         << "Error: Invalid conversion" << std::endl
+         << "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
          << GEXCEPTION;
 
          // Make the compiler happy
@@ -404,7 +382,7 @@ const target_type *convertSimplePointer(const source_type *p_raw) {
       else {
          glogger
          << "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
-         << "Error: Invalid conversion" << std::endl
+         << "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
          << GEXCEPTION;
 
          // Make the compiler happy

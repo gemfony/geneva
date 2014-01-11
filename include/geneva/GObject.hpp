@@ -233,24 +233,10 @@ public:
     * @return A converted clone of this object, wrapped into a boost::shared_ptr
     */
    template <typename clone_type>
-   inline boost::shared_ptr<clone_type> clone(
+   boost::shared_ptr<clone_type> clone(
       typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, clone_type> >::type* dummy = 0
    ) const {
-#ifdef DEBUG
-      boost::shared_ptr<clone_type> p = boost::dynamic_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
-      if(p) return p;
-      else {
-         glogger
-         << "In boost::shared_ptr<clone_type> GObject::clone<load_type>() :" << std::endl
-         << "Invalid conversion" << std::endl
-         << GEXCEPTION;
-
-         // Make the compiler happy
-         return boost::shared_ptr<clone_type>();
-      }
-#else
-      return boost::static_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
-#endif /* DEBUG */
+      return Gem::Common::convertSmartPointer<GObject, clone_type>(boost::shared_ptr<GObject>(this->clone_()));
    }
 
    /* ----------------------------------------------------------------------------------

@@ -190,11 +190,6 @@ protected:
 	/** @brief Performs a step of the parent individuals */
 	virtual void updateParentIndividuals();
 
-	/** @brief Retrieves the best individual found */
-	virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE;
-	/** @brief Retrieves a list of the best individuals found */
-	virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE;
-
 private:
 	/***************************************************************************/
 	std::size_t nStartingPoints_; ///< The number of starting positions in the parameter space

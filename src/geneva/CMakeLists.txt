@@ -5,7 +5,6 @@ SET ( OPTIMIZATIONSOURCES
 	GBaseGD
 	GBasePS
 	GBaseParChildPersonalityTraits
-	GBaseParChildT
 	GBaseSA
 	GBaseSwarm
 	GBooleanAdaptor

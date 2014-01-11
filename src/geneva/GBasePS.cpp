@@ -801,45 +801,6 @@ void GBasePS::clearAllParVec() {
 
 /******************************************************************************/
 /**
- * Retrieves the best individual of the population and returns it in Gem::Geneva::GParameterSet format.
- * Note that this protected function will return the item itself. Direct usage of this function should
- * be avoided even by derived classes. We suggest to use the function
- * GOptimizableI::getBestIndividual<individual_type>() instead, which internally uses
- * this function and returns copies of the best individual, converted to the desired target type.
- *
- * @return A shared_ptr to the best individual of the population
- */
-boost::shared_ptr<GParameterSet> GBasePS::customGetBestIndividual(){
-#ifdef DEBUG
-   if(bestIndividuals_.empty()) {
-      glogger
-      << "In GBasePS::getBestIndividual() :" << std::endl
-      << "Tried to access individual at position 0 of bestIndividuals_" << std::endl
-      << "even though population is empty." << std::endl
-      << GEXCEPTION;
-   }
-#endif /* DEBUG */
-
-   return bestIndividuals_.at(0);
-}
-
-/******************************************************************************/
-/**
- * Retrieves a list of the best individuals found. For now we only return a single
- * (the best individual).
- *
- * @return A list of the best individuals found
- */
-std::vector<boost::shared_ptr<GParameterSet> > GBasePS::customGetBestIndividuals() {
-   std::vector<boost::shared_ptr<GParameterSet> > result;
-   for(std::size_t ind=0; ind<bestIndividuals_.size(); ind++) {
-      result.push_back(bestIndividuals_.at(ind));
-   }
-   return result;
-}
-
-/******************************************************************************/
-/**
  * A custom halt criterion for the optimization, allowing to stop the loop
  * when no items are left to be scanned
  */

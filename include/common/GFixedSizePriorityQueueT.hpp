@@ -74,6 +74,9 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GPODExpectationChecksT.hpp"
+#include "common/GMathHelperFunctionsT.hpp"
+
+#include "geneva-individuals/GFunctionIndividual.hpp"
 
 namespace Gem {
 namespace Common {
@@ -83,6 +86,10 @@ namespace Common {
  * This class implements a fixed-size priority queue. Note that data items
  * are held inside of boost::shared_ptr objects and must be copy-constructible.
  * It is also required that T can be compared using operator== and operator!= .
+ * A maxSize_ of 0 stands for an unlimited size of the data vector.
+ *
+ * IMPORTANT: This class assumes that T has a member function clone<T>()
+ * which returns a boost::shared_ptr<T> as a copy of the T object.
  */
 template <typename T>
 class GFixedSizePriorityQueueT
@@ -96,7 +103,8 @@ class GFixedSizePriorityQueueT
 
      ar
      & BOOST_SERIALIZATION_NVP(data_)
-     & BOOST_SERIALIZATION_NVP(maxSize_);
+     & BOOST_SERIALIZATION_NVP(maxSize_)
+     & BOOST_SERIALIZATION_NVP(higherIsBetter_);
    }
    ///////////////////////////////////////////////////////////////////////
 
@@ -107,6 +115,7 @@ public:
     */
    GFixedSizePriorityQueueT()
       : maxSize_(10)
+      , higherIsBetter_(false)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -117,6 +126,7 @@ public:
     */
    explicit GFixedSizePriorityQueueT(const std::size_t& maxSize)
       : maxSize_(maxSize)
+      , higherIsBetter_(false)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -125,10 +135,11 @@ public:
     */
    GFixedSizePriorityQueueT(const GFixedSizePriorityQueueT<T>& cp)
       : maxSize_(cp.maxSize_)
+      , higherIsBetter_(cp.higherIsBetter_)
    {
       typename std::deque<boost::shared_ptr<T> >::const_iterator cit;
       for(cit=cp.data_.begin(); cit!=cp.data_.end(); ++cit) {
-         data_.push_back(Gem::Common::clone_ptr(*cit));
+         data_.push_back((*cit)->template clone<T>());
       }
    }
 
@@ -141,10 +152,8 @@ public:
    }
 
    /***************************************************************************/
-   /**
-    * Creates a deep clone of this object -- to be re-implemented by derived classes
-    */
-   virtual boost::shared_ptr<GFixedSizePriorityQueueT<T> > clone() = 0;
+   /** @brief Creates a deep clone of this object */
+   virtual boost::shared_ptr<GFixedSizePriorityQueueT<T> > clone() const = 0;
 
    /***************************************************************************/
    /**
@@ -152,7 +161,7 @@ public:
     */
    virtual void load(const GFixedSizePriorityQueueT<T>& cp) {
 #ifdef DEBUG
-      if(cp.data_.size() != cp.maxSize_) {
+      if(maxSize_ && cp.data_.size() != cp.maxSize_) { // Only act if maxSize_ is != 0
          glogger
          << "In GFixedSizePriorityQueue<T>::load(): Error!" << std::endl
          << "maximum size " << cp.maxSize_ << " of cp does not match data size " << cp.data_.size() << std::endl
@@ -166,11 +175,12 @@ public:
       // Copy all data over
       typename std::deque<boost::shared_ptr<T> >::const_iterator cit;
       for(cit=cp.data_.begin(); cit!=cp.data_.end(); ++cit) {
-         data_.push_back(Gem::Common::clone_ptr(*cit));
+         data_.push_back((*cit)->template clone<T>());
       }
 
-      // Copy the maximum data size
+      // Copy the singular data sets
       maxSize_ = cp.maxSize_;
+      higherIsBetter_ = cp.higherIsBetter_;
    }
 
    /***************************************************************************/
@@ -216,6 +226,7 @@ public:
       // Check local data
       deviations.push_back(checkExpectation(withMessages, className , this->data_, cp.data_, "data_", "cp.data_", e , limit));
       deviations.push_back(checkExpectation(withMessages, className , this->maxSize_, cp.maxSize_, "maxSize_", "cp.maxSize_", e , limit));
+      deviations.push_back(checkExpectation(withMessages, className , this->higherIsBetter_, cp.higherIsBetter_, "higherIsBetter_", "cp.higherIsBetter_", e , limit));
 
       return evaluateDiscrepancies(className, caller, deviations, e);
    }
@@ -224,7 +235,7 @@ public:
    /**
     * Gives access to the best item without copying it
     */
-   const T& best() const {
+   boost::shared_ptr<T> best() const {
       if(data_.empty()) {
          // Throw an exception
          glogger
@@ -233,7 +244,7 @@ public:
          << GEXCEPTION;
 
          // Make the compiler happy
-         return (T)0;
+         return boost::shared_ptr<T>();
       } else {
          return data_.front();
       }
@@ -243,7 +254,7 @@ public:
    /**
     * Gives access to the worst item without copying it
     */
-   const T& worst() const {
+   boost::shared_ptr<T> worst() const {
       if(data_.empty()) {
          // Throw an exception
          glogger
@@ -252,10 +263,28 @@ public:
          << GEXCEPTION;
 
          // Make the compiler happy
-         return (T)0;
+         return boost::shared_ptr<T>();
       } else {
          return data_.back();
       }
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to set the priority mode. A value of "true" means that higher
+    * values are considered better, "false" means that lower values are
+    * considered to be better.
+    */
+   void setMaxMode(bool maxMode) {
+      higherIsBetter_ = maxMode;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the current value of higherIsBetter_
+    */
+   bool getMaxMode() const {
+      return higherIsBetter_;
    }
 
    /***************************************************************************/
@@ -264,51 +293,91 @@ public:
     * should sort the data in descending order (assuming that higher
     * values are better) or ascending order (if lower values are better),
     * so that the worst items are always at the end of the queue.
+    *
+    * @param item The item to be added to the queue
+    * @param do_clone If set to true, work items will be cloned. Otherwise only the smart pointer will be added
     */
    virtual void add(
       boost::shared_ptr<T> item
+      , bool do_clone = false
    ) {
-      // Create a suitable comparator
-      boost::function<bool(boost::shared_ptr<T>, boost::shared_ptr<T>)> comp
-          = boost::bind(&GFixedSizePriorityQueueT<T>::comparator, this, _1, _2);
-
       // Add the work item to the queue
-      data_.push_back(item);
+      // - If the queue is unlimited
+      // - If the queue isn't full yet
+      // - If the item is better than the worst one contained in the queue
+      if(0==maxSize_ || data_.size() < maxSize_ || isBetter(this->evaluation(item), this->evaluation(this->worst()))) {
+         if(do_clone) {
+            data_.push_back(item->template clone<T>());
+         } else {
+            data_.push_back(item);
+         }
+      }
 
-      // Sort the data, so that worst items are at the end of the queue
-      std::sort(data_.begin(), data_.end(), comp);
+      // Sort the data
+      std::sort(
+         data_.begin()
+         , data_.end()
+         , priority_comp(this)
+      );
 
       // Remove surplus work items, if the queue has reached the corresponding size
-      if(data_.size() > maxSize_) {
+      // This will only have an effect if maxSize_ is != 0
+      if(maxSize_ && data_.size() > maxSize_) {
          data_.resize(maxSize_);
       }
    }
 
    /***************************************************************************/
    /**
-    * Add a set of items to the queue. Note that the comparator used in this function
-    * should sort the data in descending order (assuming that higher
+    * Add a set of items to the queue. Note that the comparator used in this
+    * function should sort the data in descending order (assuming that higher
     * values are better) or ascending order (if lower values are better),
     * so that the worst items are always at the end of the queue.
+    *
+    * @param items The items to be added to the queue
+    * @param do_clone If set to true, work items will be cloned. Otherwise only the smart pointer will be added
+    * @param replace If set to true, the queue will be emptied before adding new work items
     */
    virtual void add(
       const std::vector<boost::shared_ptr<T> >& items
+      , bool do_clone = false
+      , bool replace = false
    ) {
-      // Create a suitable comparator
-      boost::function<bool(boost::shared_ptr<T>, boost::shared_ptr<T>)> comp
-          = boost::bind(&GFixedSizePriorityQueueT<T>::comparator, this, _1, _2);
-
-      // Add the work items to the queue
-      typename std::vector<boost::shared_ptr<T> >::const_iterator cit;
-      for(cit=items.begin(); cit!=items.end(); ++cit) {
-         data_.push_back(*cit);
+      double worstKnownEvaluation = Gem::Common::getWorstCase<double>(higherIsBetter_);
+      if(true == replace || data_.empty()) {
+         data_.clear();
+      } else {
+         // Data already exists, we know better than the worst known valid
+         worstKnownEvaluation = this->evaluation(this->worst());
       }
 
-      // Sort the data, so that worst items are at the end of the queue
-      std::sort(data_.begin(), data_.end(), comp);
+      // At this point, worstKnownEvaluation will be
+      // - the worst case, if the queue is empty or all entries in the queue will be replaced
+      // - the evaluation of the worst entry in the queue if we only add items (regardless of whether they will be cloned or not)
+      typename std::vector<boost::shared_ptr<T> >::const_iterator cit;
+      for(cit=items.begin(); cit!=items.end(); ++cit) {
+         // Add the work item to the queue
+         // - If the queue is unlimited
+         // - If the queue isn't full yet
+         // - If the item is better than the worst one already contained in the queue
+         if(0==maxSize_ || data_.size() < maxSize_ || isBetter(this->evaluation(*cit), worstKnownEvaluation)) {
+            if(do_clone) {
+               data_.push_back((*cit)->template clone<T>());
+            } else {
+               data_.push_back(*cit);
+            }
+         }
+      }
+
+      std::sort(
+         data_.begin()
+         , data_.end()
+         , priority_comp(this)
+      );
 
       // Remove surplus work items, if the queue has reached the corresponding size
-      if(data_.size() > maxSize_) {
+      // This will only have an effect if maxSize_ is != 0
+      if(maxSize_ && data_.size() > maxSize_) {
          data_.resize(maxSize_);
       }
    }
@@ -336,7 +405,22 @@ public:
 
    /***************************************************************************/
    /**
-    * Returns the size of the queue
+    * Converts the local deque to a std::vector and returns it
+    */
+   std::vector<boost::shared_ptr<T> > toVector() {
+      std::vector<boost::shared_ptr<T> > result;
+
+      typename std::deque<boost::shared_ptr<T> >::iterator it;
+      for(it=data_.begin(); it!=data_.end(); ++it) {
+         result.push_back(*it);
+      }
+
+      return result;
+   }
+
+   /***************************************************************************/
+   /**
+    * Returns the current size of the queue
     */
    std::size_t size() const {
       return data_.size();
@@ -348,6 +432,14 @@ public:
     */
    bool empty() const {
       return data_.empty();
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to clear the queue
+    */
+   void clear() {
+      data_.clear();
    }
 
    /***************************************************************************/
@@ -373,14 +465,95 @@ public:
 
 protected:
    /***************************************************************************/
-   /** @brief Compares two work items -- to be re-implemented in derived classes */
-   virtual bool comparator(boost::shared_ptr<T>, boost::shared_ptr<T>) = 0;
+   /**
+    * Compares two entries with each other
+    */
+   struct priority_comp {
+   public:
+      priority_comp(
+         const GFixedSizePriorityQueueT<T> *pq
+      )
+         :pq_(pq)
+      { /* empty */ }
 
-private:
+      bool operator()(const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) {
+         if(pq_->getMaxMode()) { // higher is better
+            if(pq_->evaluation(x) > pq_->evaluation(y)) return true;
+            else return false;
+         } else {
+            if(pq_->evaluation(x) < pq_->evaluation(y)) return true;
+            else return false;
+         }
+      }
+
+   private:
+      const GFixedSizePriorityQueueT<T> *pq_;
+   };
+
    /***************************************************************************/
+   /**
+    * Checks whether value x is better than value y
+    */
+   bool isBetter(boost::shared_ptr<T> new_item, boost::shared_ptr<T> old_item) const {
+      if(higherIsBetter_) {
+         if(this->evaluation(new_item) > this->evaluation(old_item)) return true;
+         else return false;
+      } else { // lower is better
+         if(this->evaluation(new_item) < this->evaluation(old_item)) return true;
+         else return false;
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks whether value x is better than value y
+    */
+   bool isBetter(boost::shared_ptr<T> new_item, const double& old_item) const {
+      if(higherIsBetter_) {
+         if(this->evaluation(new_item) > old_item) return true;
+         else return false;
+      } else { // lower is better
+         if(this->evaluation(new_item) < old_item) return true;
+         else return false;
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks whether value x is better than value y
+    */
+   bool isBetter(const double& new_item, boost::shared_ptr<T> old_item) const {
+      if(higherIsBetter_) {
+         if(new_item > this->evaluation(old_item)) return true;
+         else return false;
+      } else { // lower is better
+         if(new_item < this->evaluation(old_item)) return true;
+         else return false;
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks whether value x is better than value y
+    */
+   bool isBetter(const double& new_item, const double& old_item) const {
+      if(higherIsBetter_) {
+         if(new_item > old_item) return true;
+         else return false;
+      } else { // lower is better
+         if(new_item < old_item) return true;
+         else return false;
+      }
+   }
+
+   /***************************************************************************/
+   /** @brief Evaluates a single work item, so that it can be sorted */
+   virtual double evaluation(const boost::shared_ptr<T>&) const = 0;
 
    std::deque<boost::shared_ptr<T> > data_; ///< Holds the actual data
+
    std::size_t maxSize_; ///< The maximum number of work-items
+   bool higherIsBetter_; ///< Indicates whether higher evaluations of items indicate a higher priority
 };
 
 /******************************************************************************/
