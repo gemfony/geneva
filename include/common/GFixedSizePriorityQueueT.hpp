@@ -76,8 +76,6 @@
 #include "common/GPODExpectationChecksT.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
 
-#include "geneva-individuals/GFunctionIndividual.hpp"
-
 namespace Gem {
 namespace Common {
 
