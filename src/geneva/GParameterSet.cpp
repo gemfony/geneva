@@ -756,8 +756,8 @@ void GParameterSet::custom_streamline(std::vector<boost::any>& var_vec)
  * Transformation of the individual's parameter objects into a boost::property_tree object
  */
 void GParameterSet::toPropertyTree(
-      pt::ptree& ptr
-      , const std::string& baseName
+   pt::ptree& ptr
+   , const std::string& baseName
 ) const {
 #ifdef DEBUG
    // Check if the object is empty. If so, complain
