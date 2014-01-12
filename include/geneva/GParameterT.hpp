@@ -275,11 +275,12 @@ public:
       , const std::string& baseName
 	) const OVERRIDE {
       ptr.put(baseName + ".name", this->getParameterName());
-	   ptr.put(baseName + ".nvar", 1);
-	   ptr.put(baseName + ".type", this->name());
-	   ptr.put(baseName + ".baseType", this->baseType());
-	   ptr.put(baseName + ".isLeaf", this->isLeaf());
-	   ptr.put(baseName + ".value0", this->value());
+      ptr.put(baseName + ".type", this->name());
+      ptr.put(baseName + ".baseType", this->baseType());
+      ptr.put(baseName + ".isLeaf", this->isLeaf());
+      ptr.put(baseName + ".nVals", 1);
+      ptr.put(baseName + ".values.value0", this->value());
+      ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
 	}
 
    /***************************************************************************/
@@ -414,9 +415,10 @@ public:
 };
 
 /******************************************************************************/
-
 /** @brief Returns a human-readable name for the base type of derived objects */
 template<> std::string GParameterT<double>::baseType() const;
+/** @brief Returns a human-readable name for the base type of derived objects */
+template<> std::string GParameterT<float>::baseType() const;
 /** @brief Returns a human-readable name for the base type of derived objects */
 template<> std::string GParameterT<boost::int32_t>::baseType() const;
 /** @brief Returns a human-readable name for the base type of derived objects */

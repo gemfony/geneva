@@ -293,6 +293,28 @@ public:
       return std::string("GNumT");
    }
 
+   /***************************************************************************/
+   /**
+    * Converts the local data to a boost::property_tree node
+    *
+    * @param ptr The boost::property_tree object the data should be saved to
+    * @param baseName The name assigned to the object
+    */
+   virtual void toPropertyTree (
+      pt::ptree& ptr
+      , const std::string& baseName
+   ) const OVERRIDE {
+      ptr.put(baseName + ".name", this->getParameterName());
+      ptr.put(baseName + ".type", this->name());
+      ptr.put(baseName + ".baseType", this->baseType());
+      ptr.put(baseName + ".isLeaf", this->isLeaf());
+      ptr.put(baseName + ".nVals", 1);
+      ptr.put(baseName + ".values.value0", this->value());
+      ptr.put(baseName + ".lowerBoundary", this->getLowerInitBoundary());
+      ptr.put(baseName + ".upperBoundary", this->getUpperInitBoundary());
+      ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
+   }
+
 protected:
 	/***************************************************************************/
 	/**

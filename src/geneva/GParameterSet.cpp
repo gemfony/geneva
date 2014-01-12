@@ -770,19 +770,28 @@ void GParameterSet::toPropertyTree(
 #endif
 
    ptr.put(baseName + ".iteration", this->getAssignedIteration());
-   ptr.put(baseName + ".nvar", this->size());
-   ptr.put(baseName + ".type", std::string("GParameterSet"));
-   ptr.put(baseName + ".nResultsExpected", this->getNumberOfFitnessCriteria());
+   ptr.put(baseName + ".isDirty"  , this->isDirty());
+   ptr.put(baseName + ".isValid"  , this->isDirty()?false:this->isValid());
+   ptr.put(baseName + ".type"     , std::string("GParameterSet"));
 
-   // Loop over all parameter objects and ask them to add their
-   // data to our ptree object
+   // Loop over all parameter objects and ask them to add their data to our ptree object
+   ptr.put(baseName + ".nVars"     , this->size());
    std::string base;
    std::size_t pos;
    GParameterSet::const_iterator cit;
    for(cit=this->begin(); cit!=this->end(); ++cit) {
       pos = std::distance(this->begin(), cit);
-      base = baseName + ".var" + boost::lexical_cast<std::string>(pos);
+      base = baseName + "vars.var" + boost::lexical_cast<std::string>(pos);
       (*cit)->toPropertyTree(ptr, base);
+   }
+
+   // Output all fitness criteria. We do not enforce re-calculation of the fitness here.
+   // Check the "isDirty" tag, if you need to know whether the results are current.
+   ptr.put(baseName + ".nResults", this->getNumberOfFitnessCriteria());
+   bool dirtyFlag;
+   for(std::size_t f=0; f<this->getNumberOfFitnessCriteria(); f++) {
+      base = baseName + "results.result" + boost::lexical_cast<std::string>(f);
+      ptr.put(baseName, this->getCachedFitness(dirtyFlag, f));
    }
 }
 

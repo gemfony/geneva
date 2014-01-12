@@ -51,6 +51,15 @@ std::string GParameterCollectionT<double>::baseType() const {
  * Returns a human-readable name for the base type of derived objects
  */
 template<>
+std::string GParameterCollectionT<float>::baseType() const {
+   return std::string("float");
+}
+
+/******************************************************************************/
+/**
+ * Returns a human-readable name for the base type of derived objects
+ */
+template<>
 std::string GParameterCollectionT<boost::int32_t>::baseType() const {
    return std::string("int32_t");
 }

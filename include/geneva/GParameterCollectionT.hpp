@@ -313,17 +313,18 @@ public:
 #endif /* DEBUG */
 
       ptr.put(baseName + ".name", this->getParameterName());
-	   ptr.put(baseName + ".nvar", this->size());
-	   ptr.put(baseName + ".type", this->name());
-	   ptr.put(baseName + ".baseType", this->baseType());
-	   ptr.put(baseName + ".isLeaf", this->isLeaf());
+      ptr.put(baseName + ".type", this->name());
+      ptr.put(baseName + ".baseType", this->baseType());
+      ptr.put(baseName + ".isLeaf", this->isLeaf());
+      ptr.put(baseName + ".nVals", this->size());
 
-	   typename GParameterCollectionT<T>::const_iterator cit;
-	   std::size_t pos;
-	   for(cit=this->begin(); cit!=this->end(); ++cit) {
-	      pos = cit - this->begin();
-	      ptr.put(baseName + ".value" + boost::lexical_cast<std::string>(pos), *cit);
-	   }
+      typename GParameterCollectionT<T>::const_iterator cit;
+      std::size_t pos;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         pos = cit - this->begin();
+         ptr.put(baseName + "values.value" + boost::lexical_cast<std::string>(pos), *cit);
+      }
+      ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
 	}
 
 	/***************************************************************************/
@@ -439,6 +440,8 @@ public:
 
 /** @brief Returns a human-readable name for the base type of derived objects */
 template<> std::string GParameterCollectionT<double>::baseType() const;
+/** @brief Returns a human-readable name for the base type of derived objects */
+template<> std::string GParameterCollectionT<float>::baseType() const;
 /** @brief Returns a human-readable name for the base type of derived objects */
 template<> std::string GParameterCollectionT<boost::int32_t>::baseType() const;
 /** @brief Returns a human-readable name for the base type of derived objects */

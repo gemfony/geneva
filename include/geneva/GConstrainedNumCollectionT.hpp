@@ -384,19 +384,20 @@ public:
 #endif /* DEBUG */
 
       ptr.put(baseName + ".name", this->getParameterName());
-      ptr.put(baseName + ".nvar", this->size());
       ptr.put(baseName + ".type", this->name());
       ptr.put(baseName + ".baseType", this->baseType());
       ptr.put(baseName + ".isLeaf", this->isLeaf());
-      ptr.put(baseName + ".lowerBoundary", this->getLowerBoundary());
-      ptr.put(baseName + ".upperBoundary", this->getUpperBoundary());
+      ptr.put(baseName + ".nVals", this->size());
 
       typename GConstrainedNumCollectionT<num_type>::const_iterator cit;
       std::size_t pos;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          pos = cit - this->begin();
-         ptr.put(baseName + ".value" + boost::lexical_cast<std::string>(pos), *cit);
+         ptr.put(baseName + "values.value" + boost::lexical_cast<std::string>(pos), *cit);
       }
+      ptr.put(baseName + ".lowerBoundary", this->getLowerBoundary());
+      ptr.put(baseName + ".upperBoundary", this->getUpperBoundary());
+      ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
    }
 
    /***************************************************************************/
