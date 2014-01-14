@@ -63,7 +63,7 @@ GBaseSA::GBaseSA()
    );
 
    // Make sure we start with a valid population size if the user does not supply these values
-   this->setDefaultPopulationSize(100,1);
+   this->setPopulationSizes(100,1);
 }
 
 /******************************************************************************/

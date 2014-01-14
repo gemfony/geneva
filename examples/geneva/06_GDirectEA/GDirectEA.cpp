@@ -234,7 +234,7 @@ int main(int argc, char **argv){
   }
  
   // Specify some general population settings
-  pop_ptr->setDefaultPopulationSize(populationSize,nParents);
+  pop_ptr->setPopulationSizes(populationSize,nParents);
   pop_ptr->setMaxIteration(maxIterations);
   pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
   pop_ptr->setReportIteration(reportIteration);

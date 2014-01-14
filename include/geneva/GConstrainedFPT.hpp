@@ -305,14 +305,14 @@ public:
       , const fp_type& upperBoundary
    ) OVERRIDE {
       fp_type tmpVal = val;
-      if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
+      if(val==upperBoundary) {
          tmpVal = boost::math::float_prior<fp_type>(val);
       }
 
 		GConstrainedNumT<fp_type>::setValue(
 		      tmpVal
 		      , lowerBoundary
-		      , upperBoundary
+		      , boost::math::float_prior<fp_type>(upperBoundary)
 		);
 	}
 
@@ -646,11 +646,29 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Assign boundaries and values
-			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+			BOOST_CHECK_NO_THROW(p_test->GConstrainedFPT<fp_type>::setValue(testVal, lowerBoundary, upperBoundary));
 
 			// Cross-check that value and boundaries are o.k.
-			BOOST_CHECK(p_test->getLowerBoundary() == lowerBoundary);
-			BOOST_CHECK(p_test->getUpperBoundary() == boost::math::float_prior<fp_type>(upperBoundary));
+         BOOST_CHECK_MESSAGE(
+               p_test->getLowerBoundary() == lowerBoundary
+               ,  "\n"
+               << std::setprecision(16)
+               << "Invalid lower boundary found:\n"
+               << "getLowerBoundary() = " << p_test->getLowerBoundary()
+               << "expected " << lowerBoundary << "\n"
+         );
+
+         BOOST_CHECK_MESSAGE(
+               p_test->getUpperBoundary() == boost::math::float_prior<fp_type>(upperBoundary)
+               ,  "\n"
+               << std::setprecision(16)
+               << "Invalid upper boundary found:\n"
+               << "getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
+               << "expected " << boost::math::float_prior<fp_type>(upperBoundary) << "\n"
+               << "Difference is " << p_test->getUpperBoundary() - boost::math::float_prior<fp_type>(upperBoundary) << "\n"
+         );
+
+
 			BOOST_CHECK(p_test->value() == testVal);
 		}
 
@@ -959,21 +977,6 @@ public:
 
 		// Call the parent classes' functions
 		GConstrainedNumT<fp_type>::specificTestsFailuresExpected_GUnitTests();
-
-		//------------------------------------------------------------------------------
-
-		{ // Check that assignment of a value equal to the upper boundary with operator= throws
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
-
-			// Reset the boundaries so we are free to do what we want
-			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
-
-			// Set value, upper and lower boundaries
-			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
-
-			// Try to set a value equal to the upper boundary, should throw
-			BOOST_CHECK_THROW((*p_test) = upperBoundary, Gem::Common::gemfony_error_condition);
-		}
 
 		//------------------------------------------------------------------------------
 

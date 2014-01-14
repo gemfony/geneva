@@ -66,7 +66,7 @@ boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, dou
    // Create the optimizer and set its options
    boost::shared_ptr<GMultiThreadedEA> ea_ptr(new GMultiThreadedEA());
 
-   ea_ptr->setDefaultPopulationSize(203,3);
+   ea_ptr->setPopulationSizes(203,3);
    ea_ptr->setMaxIteration(5000);
    ea_ptr->setMaxTime(boost::posix_time::seconds(60));
    ea_ptr->setReportIteration(0);

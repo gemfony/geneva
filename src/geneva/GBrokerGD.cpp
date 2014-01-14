@@ -150,7 +150,7 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GBaseGD::checkRelationshipWith(cp, e, limit, "GBrokerGD",	y_name, withMessages));
-	deviations.push_back(GBrokerConnector2T<Gem::Geneva::GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerGD", y_name, withMessages));
+	deviations.push_back(GBrokerConnector2T<Gem::Geneva::GParameterSet>::checkRelationshipWith_common(*p_load, e, limit, "GBrokerGD", y_name, withMessages));
 
 	// no local data
 

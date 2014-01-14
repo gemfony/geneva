@@ -181,7 +181,7 @@ boost::optional<std::string> GBrokerSwarm::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GBaseSwarm::checkRelationshipWith(cp, e, limit, "GBrokerSwarm", y_name, withMessages));
-	deviations.push_back(Gem::Courtier::GBrokerConnector2T<GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerSwarm", y_name, withMessages));
+	deviations.push_back(Gem::Courtier::GBrokerConnector2T<GParameterSet>::checkRelationshipWith_common(*p_load, e, limit, "GBrokerSwarm", y_name, withMessages));
 
 	// no local data
 

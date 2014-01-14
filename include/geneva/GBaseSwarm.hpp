@@ -134,7 +134,7 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Sets the number of neighborhoods and the number of members in them */
-	void setDefaultPopulationSize(std::size_t, std::size_t);
+	void setSwarmSizes(std::size_t, std::size_t);
 
 	/** @brief Returns information about the type of optimization algorithm */
 	virtual std::string getOptimizationAlgorithm() const OVERRIDE;

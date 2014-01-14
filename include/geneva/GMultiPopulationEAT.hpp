@@ -94,7 +94,7 @@ public:
       // A basic monitor has already been registered inside of GOptimizationMonitorT
 
       // Make sure we start with a valid population size if the user does not supply these values
-      this->setDefaultPopulationSize(10,1);
+      this->setPopulationSizes(10,1);
    }
 
    /***************************************************************************/
@@ -110,7 +110,7 @@ public:
       // A basic monitor has already been registered inside of GOptimizationMonitorT
 
       // Make sure we start with a valid population size if the user does not supply these values
-      this->setDefaultPopulationSize(10,1);
+      this->setPopulationSizes(10,1);
    }
 
    /***************************************************************************/

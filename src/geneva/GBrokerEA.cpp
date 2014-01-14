@@ -168,7 +168,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(
 
 	// Check our parent classes' data ...
 	deviations.push_back(GBaseEA::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
-	deviations.push_back(GBrokerConnector2T<GParameterSet>::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
+	deviations.push_back(GBrokerConnector2T<GParameterSet>::checkRelationshipWith_common(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));

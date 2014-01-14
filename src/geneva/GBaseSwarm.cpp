@@ -385,15 +385,15 @@ std::string GBaseSwarm::name() const {
  * @param nNeighborhoods The number of neighborhoods
  * @param defaultNNeighborhoodMembers The default number of individuals in each neighborhood
  */
-void GBaseSwarm::setDefaultPopulationSize(std::size_t nNeighborhoods, std::size_t defaultNNeighborhoodMembers) {
+void GBaseSwarm::setSwarmSizes(std::size_t nNeighborhoods, std::size_t defaultNNeighborhoodMembers) {
 	// Enforce useful settings
 	if(nNeighborhoods == 0) {
-		std::cerr << "In GBaseSwarm::setDefaultPopulationSize(): Warning!" << std::endl
+		std::cerr << "In GBaseSwarm::setSwarmSizes(): Warning!" << std::endl
 				  << "Requested number of neighborhoods is 0. Setting to 1." << std::endl;
 	}
 
 	if(defaultNNeighborhoodMembers <= 1) {
-		std::cerr << "In GBaseSwarm::setDefaultPopulationSize(): Warning!" << std::endl
+		std::cerr << "In GBaseSwarm::setSwarmSizes(): Warning!" << std::endl
 				  << "Requested number of members in each neighborhood is too small. Setting to 2." << std::endl;
 	}
 
@@ -628,7 +628,7 @@ void GBaseSwarm::addConfigurationOptions (
 		, DEFAULTNNEIGHBORHOODS // The default value for the first variable
 		, DEFAULTNNEIGHBORHOODMEMBERS // The default value for the second variable
 		, boost::bind(
-			&GBaseSwarm::setDefaultPopulationSize
+			&GBaseSwarm::setSwarmSizes
 			, this
 			, _1
 			, _2

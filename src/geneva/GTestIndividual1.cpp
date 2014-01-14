@@ -318,6 +318,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
 		boost::shared_ptr<GTestIndividual1> p_test_old = this->clone<GTestIndividual1>();
 
+      BOOST_CHECK_MESSAGE(!p_test, "\nPointer is empty!\n");
+
 		std::size_t nTests = 1000;
 
 		for(std::size_t i=0; i<nTests; i++) {
@@ -332,9 +334,13 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Tests customAdaptions, dirtyFlag and the effects of the fitness function
 		boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
 
+		BOOST_CHECK_MESSAGE(!p_test, "\nPointer is empty!\n");
+
 		// Make sure this individual is not dirty
-		if(p_test->isDirty()) BOOST_CHECK_NO_THROW(p_test->fitness());
-		BOOST_CHECK(!p_test->isDirty());
+		if(p_test->isDirty()) {
+		   BOOST_CHECK_NO_THROW(p_test->fitness());
+	      BOOST_CHECK(!p_test->isDirty());
+		}
 
 		std::size_t nTests = 1000;
 

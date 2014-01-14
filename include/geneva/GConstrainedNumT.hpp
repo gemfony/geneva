@@ -407,7 +407,7 @@ public:
 	 *
 	 * @param val The new T value stored in this class
 	 */
-	virtual void setValue(const T& val)  OVERRIDE {
+	virtual void setValue(const T& val) OVERRIDE {
 		// Do some error checking
 		if(val < lowerBoundary_ || val > upperBoundary_) {
 		   glogger
@@ -437,7 +437,11 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	virtual void setValue(const T& val, const T& lowerBoundary, const T& upperBoundary) {
+	virtual void setValue(
+      const T& val
+      , const T& lowerBoundary
+      , const T& upperBoundary
+   ) BASE {
 		// Do some error checking
 
 		// Do the boundaries make sense ?
@@ -713,7 +717,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Set the desired value
-			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+			BOOST_CHECK_NO_THROW(p_test->GConstrainedNumT<T>::setValue(testVal, lowerBoundary, upperBoundary));
 
 			// Check the values of these boundaries
 			BOOST_CHECK_MESSAGE(
@@ -723,7 +727,8 @@ public:
 					<< "lowerBoundary = " << lowerBoundary << "\n"
 			);
 			BOOST_CHECK_MESSAGE(
-					p_test->getUpperBoundary() == (typeid(T)==typeid(double)?boost::math::template float_prior<T>(upperBoundary):upperBoundary)
+					// p_test->getUpperBoundary() == (typeid(T)==typeid(double)?boost::math::template float_prior<T>(upperBoundary):upperBoundary)
+			      p_test->getUpperBoundary() == upperBoundary
 					,  "\n"
 					<< "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
 					<< "upperBoundary = " << upperBoundary << "\n"

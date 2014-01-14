@@ -123,7 +123,7 @@ int main(int argc, char **argv){
 	  }
 
 	  // Specify some general population settings
-	  sub_pop_ptr->setDefaultPopulationSize(populationSizeSub,nParentsSub);
+	  sub_pop_ptr->setPopulationSizes(populationSizeSub,nParentsSub);
 	  sub_pop_ptr->setMaxIteration(maxIterationsSub);
 	  sub_pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutesSub));
 	  sub_pop_ptr->setReportIteration(reportIterationSub);
@@ -137,7 +137,7 @@ int main(int argc, char **argv){
 
   /****************************************************************************/
   // Specify some general population settings
-  gmp.setDefaultPopulationSize(populationSizeSuper,nParentsSuper);
+  gmp.setPopulationSizes(populationSizeSuper,nParentsSuper);
   gmp.setMaxIteration(maxIterationsSuper);
   gmp.setMaxTime(boost::posix_time::minutes(maxMinutesSuper));
   gmp.setReportIteration(reportIterationSuper);

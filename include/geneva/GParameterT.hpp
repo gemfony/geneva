@@ -149,7 +149,7 @@ public:
 	 *
 	 * @param val The new T value stored in this class
 	 */
-	virtual void setValue(const T& val)  {
+	virtual void setValue(const T& val) BASE {
 		val_ = val;
 	}
 

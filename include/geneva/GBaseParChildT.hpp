@@ -74,7 +74,7 @@ namespace Geneva {
  * and GOptimizableEntity::adapt() functions.
  *
  * In order to add parents to an instance of this class use the default constructor,
- * then add at least one GOptimizableEntity-derivative to it, and call setDefaultPopulationSize().
+ * then add at least one GOptimizableEntity-derivative to it, and call setPopulationSizes().
  * The population will then be "filled up" with missing individuals as required, before the
  * optimization starts.
  */
@@ -120,7 +120,7 @@ public:
       , maxPopulationSize_(0)
    {
       // Make sure we start with a valid population size if the user does not supply these values
-      this->setDefaultPopulationSize(100,1);
+      this->setPopulationSizes(100,1);
    }
 
    /***************************************************************************/
@@ -239,7 +239,7 @@ public:
     * @param popSize The desired size of the population
     * @param nParents The desired number of parents
     */
-   void setDefaultPopulationSize(std::size_t popSize, std::size_t nParents) {
+   void setPopulationSizes(std::size_t popSize, std::size_t nParents) {
       GOptimizationAlgorithmT<ind_type>::setDefaultPopulationSize(popSize);
       nParents_ = nParents;
    }
@@ -469,7 +469,7 @@ public:
          , DEFAULTEAPOPULATIONSIZE
          , DEFAULTEANPARENTS
          , boost::bind(
-            &GBaseParChildT<ind_type>::setDefaultPopulationSize
+            &GBaseParChildT<ind_type>::setPopulationSizes
             , this
             , _1
             , _2
@@ -844,7 +844,7 @@ protected:
          glogger
          << "In GBaseParChildT<ind_type>::adjustPopulation() :" << std::endl
          << "The population size is 0." << std::endl
-         << "Did you call GOptimizationAlgorithmT<ind_type>::setDefaultPopulationSize() ?" << std::endl
+         << "Did you call GOptimizationAlgorithmT<ind_type>::setParentsAndPopulationSize() ?" << std::endl
          << GEXCEPTION;
       }
 
@@ -896,7 +896,7 @@ protected:
             && (this->size() < maxPopulationSize_)
       ) {
          // Set a new default population size
-         this->setDefaultPopulationSize(this->getDefaultPopulationSize() + growthRate_, this->getNParents());
+         this->setPopulationSizes(this->getDefaultPopulationSize() + growthRate_, this->getNParents());
 
          // Add missing items as copies of the last individual in the list
          this->resize_clone(GOptimizationAlgorithmT<ind_type>::getDefaultPopulationSize(), GOptimizationAlgorithmT<ind_type>::data[0]);

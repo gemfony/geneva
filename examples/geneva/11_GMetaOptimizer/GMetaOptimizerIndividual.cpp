@@ -429,7 +429,7 @@ double GMetaOptimizerIndividual::fitnessCalculation(){
       assert(0 == ea_ptr->getIteration());
 
       // Set the population parameters
-      ea_ptr->setDefaultPopulationSize(popSize, nParents);
+      ea_ptr->setPopulationSizes(popSize, nParents);
 
       // Add the required number of individuals
       for(std::size_t ind=0; ind<popSize; ind++) {

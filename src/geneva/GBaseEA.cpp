@@ -61,7 +61,7 @@ GBaseEA::GBaseEA()
 	);
 
 	// Make sure we start with a valid population size if the user does not supply these values
-	this->setDefaultPopulationSize(100,1);
+	this->setPopulationSizes(100,1);
 }
 
 /******************************************************************************/
@@ -837,18 +837,13 @@ void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
 				// Add the required number of individuals
 				p_test->fillWithObjects(nParents + nChildren);
 
-				BOOST_CHECK_NO_THROW(p_test->setDefaultPopulationSize(nParents+nChildren, nParents));
+				BOOST_CHECK_NO_THROW(p_test->setPopulationSizes(nParents+nChildren, nParents));
 
 				// Check that the number of parents is as expected
 				BOOST_CHECK_MESSAGE(p_test->getNParents() == nParents,
 					   "p_test->getNParents() == " << p_test->getNParents()
 					<< ", nParents = " << nParents
 					<< ", size = " << p_test->size());
-
-				// Check that the number of children is as expected
-				// BOOST_CHECK_MESSAGE(p_test->getDefaultNChildren() == nChildren,
-				//		"p_test->getDefaultNChildren() = " << p_test->getDefaultNChildren()
-				//		<< ", nChildren = " << nChildren);
 
 				// Check that the actual number of children has the same value
 				BOOST_CHECK_MESSAGE(p_test->getNChildren() == nChildren,

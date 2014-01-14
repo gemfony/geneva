@@ -176,7 +176,7 @@ public:
    bool operator==(const GBaseExecutorT<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseExecutorT<processable_type>::operator==","cp", CE_SILENT);
+      return !checkRelationshipWith_common(cp, CE_EQUALITY, 0.,"GBaseExecutorT<processable_type>::operator==","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -189,7 +189,7 @@ public:
    bool operator!=(const GBaseExecutorT<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseExecutorT<processable_type>::operator!=","cp", CE_SILENT);
+      return !checkRelationshipWith_common(cp, CE_INEQUALITY, 0.,"GBaseExecutorT<processable_type>::operator!=","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -205,7 +205,7 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith(
+   virtual boost::optional<std::string> checkRelationshipWith_common(
       const GBaseExecutorT<processable_type>& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -656,11 +656,17 @@ public:
     *
     * @param cp A constant pointer to another GSerialExecutorT object
     */
-   virtual void load(GSerialExecutorT<processable_type> const * const cp) OVERRIDE {
+   virtual void load(GBaseExecutorT<processable_type> const * const cp_base) OVERRIDE {
+      GSerialExecutorT<processable_type> const * const cp = dynamic_cast<GSerialExecutorT<processable_type> const * const>(cp_base);
+
+      if(!cp) { // NULL pointer
+         glogger
+         << "In GSerialExecutorT<processable_type>::load(): Conversion error!" << std::endl
+         << GEXCEPTION;
+      }
+
       // Load our parent classes data
       GBaseExecutorT<processable_type>::load(cp);
-
-      // No local data
    }
 
    /***************************************************************************/
@@ -673,7 +679,7 @@ public:
    bool operator==(const GSerialExecutorT<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSerialExecutorT<processable_type>::operator==","cp", CE_SILENT);
+      return !checkRelationshipWith_common(cp, CE_EQUALITY, 0.,"GSerialExecutorT<processable_type>::operator==","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -686,7 +692,7 @@ public:
    bool operator!=(const GSerialExecutorT<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSerialExecutorT<processable_type>::operator!=","cp", CE_SILENT);
+      return !checkRelationshipWith_common(cp, CE_INEQUALITY, 0.,"GSerialExecutorT<processable_type>::operator!=","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -702,8 +708,10 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith(
-      const GSerialExecutorT<processable_type>& cp
+
+
+   virtual boost::optional<std::string> checkRelationshipWith_common(
+      const GBaseExecutorT<processable_type>& cp_base
       , const Gem::Common::expectation& e
       , const double& limit
       , const std::string& caller
@@ -712,13 +720,26 @@ public:
    ) const OVERRIDE {
       using namespace Gem::Common;
 
-      // Will hold possible deviations from the expectation, including explanations
-      std::vector<boost::optional<std::string> > deviations;
+      try {
+         const GSerialExecutorT<processable_type>& cp = dynamic_cast<const GSerialExecutorT<processable_type>&>(cp_base);
 
-      // Check our parent classes data
-      deviations.push_back(GBaseExecutorT<processable_type>::checkRelationShipWith(cp, e, limit, "GSerialExecutorT<processable_type>", y_name, withMessages));
+         // Will hold possible deviations from the expectation, including explanations
+         std::vector<boost::optional<std::string> > deviations;
 
-      return evaluateDiscrepancies("GSerialExecutorT<processable_type>", caller, deviations, e);
+         // Check our parent classes data
+         deviations.push_back(GBaseExecutorT<processable_type>::checkRelationShipWith(cp, e, limit, "GSerialExecutorT<processable_type>", y_name, withMessages));
+
+         return evaluateDiscrepancies("GSerialExecutorT<processable_type>", caller, deviations, e);
+      } catch(const std::bad_cast& exp) {
+         glogger
+         << "In GSerialExecutorT<processable_type>::checkRelationshipWith_common(): Conversion error!" << std::endl
+         << "with message: " << std::endl
+         << exp.what() << std::endl
+         << GEXCEPTION;
+      }
+
+      // Make the compiler happy
+      return boost::optional<std::string>();
    }
 
    /***************************************************************************/
@@ -852,7 +873,15 @@ public:
     *
     * @param cp A constant pointer to another GMTExecutorT object
     */
-   virtual void load(GMTExecutorT<processable_type> const * const cp) OVERRIDE {
+   virtual void load(GBaseExecutorT<processable_type> const * const cp_base) OVERRIDE {
+      GMTExecutorT<processable_type> const * const cp = dynamic_cast<GMTExecutorT<processable_type> const * const>(cp_base);
+
+      if(!cp) { // NULL pointer
+         glogger
+         << "In GMTExecutorT<processable_type>::load(): Conversion error!" << std::endl
+         << GEXCEPTION;
+      }
+
       // Load our parent classes data
       GBaseExecutorT<processable_type>::load(cp);
 
@@ -870,7 +899,7 @@ public:
    bool operator==(const GMTExecutorT<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMTExecutorT<processable_type>::operator==","cp", CE_SILENT);
+      return !checkRelationshipWith_common(cp, CE_EQUALITY, 0.,"GMTExecutorT<processable_type>::operator==","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -883,7 +912,7 @@ public:
    bool operator!=(const GMTExecutorT<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMTExecutorT<processable_type>::operator!=","cp", CE_SILENT);
+      return !checkRelationshipWith_common(cp, CE_INEQUALITY, 0.,"GMTExecutorT<processable_type>::operator!=","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -899,8 +928,8 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith(
-      const GMTExecutorT<processable_type>& cp
+   virtual boost::optional<std::string> checkRelationshipWith_common(
+      const GBaseExecutorT<processable_type>& cp_base
       , const Gem::Common::expectation& e
       , const double& limit
       , const std::string& caller
@@ -909,13 +938,26 @@ public:
    ) const OVERRIDE {
       using namespace Gem::Common;
 
-      // Will hold possible deviations from the expectation, including explanations
-      std::vector<boost::optional<std::string> > deviations;
+      try {
+         const GMTExecutorT<processable_type>& cp = dynamic_cast<const GMTExecutorT<processable_type>&>(cp_base);
 
-      // Check our parent classes data
-      deviations.push_back(GBaseExecutorT<processable_type>::checkRelationshipWith(cp, e, limit, "GMTExecutorT<processable_type>", y_name, withMessages));
+         // Will hold possible deviations from the expectation, including explanations
+         std::vector<boost::optional<std::string> > deviations;
 
-      return evaluateDiscrepancies("GMTExecutorT<processable_type>", caller, deviations, e);
+         // Check our parent classes data
+         deviations.push_back(GBaseExecutorT<processable_type>::checkRelationshipWith_common(cp, e, limit, "GMTExecutorT<processable_type>", y_name, withMessages));
+
+         return evaluateDiscrepancies("GMTExecutorT<processable_type>", caller, deviations, e);
+      } catch(const std::bad_cast& exp) {
+         glogger
+         << "In GMTExecutorT<processable_type>::checkRelationshipWith_common(): Conversion error!" << std::endl
+         << "with message: " << std::endl
+         << exp.what() << std::endl
+         << GEXCEPTION;
+      }
+
+      // Make the compiler happy
+      return boost::optional<std::string>();
    }
 
    /***************************************************************************/
@@ -1068,7 +1110,15 @@ public:
     *
     * @param cp A constant pointer to another GBrokerConnector2T object
     */
-   virtual void load(GBrokerConnector2T<processable_type> const * const cp) BASE {
+   virtual void load(GBaseExecutorT<processable_type> const * const cp_base) OVERRIDE {
+      GBrokerConnector2T<processable_type> const * const cp = dynamic_cast<GBrokerConnector2T<processable_type> const * const>(cp_base);
+
+      if(!cp) { // NULL pointer
+         glogger
+         << "In GBrokerConnector2T<processable_type>::load(): Conversion error!" << std::endl
+         << GEXCEPTION;
+      }
+
       // Load our parent classes data
       GBaseExecutorT<processable_type>::load(cp);
 
@@ -1089,7 +1139,7 @@ public:
    bool operator==(const GBrokerConnector2T<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBrokerConnector2T<processable_type>::operator==","cp", CE_SILENT);
+      return !checkRelationshipWith_common(cp, CE_EQUALITY, 0.,"GBrokerConnector2T<processable_type>::operator==","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -1102,7 +1152,7 @@ public:
    bool operator!=(const GBrokerConnector2T<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBrokerConnector2T<processable_type>::operator!=","cp", CE_SILENT);
+      return !checkRelationshipWith_common(cp, CE_INEQUALITY, 0.,"GBrokerConnector2T<processable_type>::operator!=","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -1118,8 +1168,8 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   boost::optional<std::string> checkRelationshipWith(
-      const GBrokerConnector2T<processable_type>& cp
+   virtual boost::optional<std::string> checkRelationshipWith_common(
+      const GBaseExecutorT<processable_type>& cp_base
       , const Gem::Common::expectation& e
       , const double& limit
       , const std::string& caller
@@ -1128,19 +1178,32 @@ public:
    ) const BASE {
       using namespace Gem::Common;
 
-      // Will hold possible deviations from the expectation, including explanations
-      std::vector<boost::optional<std::string> > deviations;
+      try {
+         const GBrokerConnector2T<processable_type>& cp = dynamic_cast<const GBrokerConnector2T<processable_type>&>(cp_base);
 
-      // Check our parent classes data
-      deviations.push_back(GBaseExecutorT<processable_type>::checkRelationshipWith(cp, e, limit, "GBrokerConnector2T<processable_type>", y_name, withMessages));
+         // Will hold possible deviations from the expectation, including explanations
+         std::vector<boost::optional<std::string> > deviations;
 
-      // Check local data
-      deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", srm_, cp.srm_, "srm_", "cp.srm_", e , limit));
-      deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", maxResubmissions_, cp.maxResubmissions_, "maxResubmissions_", "cp.maxResubmissions_", e , limit));
-      deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", waitFactor_, cp.waitFactor_, "waitFactor_", "cp.waitFactor_", e , limit));
-      deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
+         // Check our parent classes data
+         deviations.push_back(GBaseExecutorT<processable_type>::checkRelationshipWith_common(cp, e, limit, "GBrokerConnector2T<processable_type>", y_name, withMessages));
 
-      return evaluateDiscrepancies("GBrokerConnector2T<processable_type>", caller, deviations, e);
+         // Check local data
+         deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", srm_, cp.srm_, "srm_", "cp.srm_", e , limit));
+         deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", maxResubmissions_, cp.maxResubmissions_, "maxResubmissions_", "cp.maxResubmissions_", e , limit));
+         deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", waitFactor_, cp.waitFactor_, "waitFactor_", "cp.waitFactor_", e , limit));
+         deviations.push_back(checkExpectation(withMessages, "GBrokerConnector2T<processable_type>", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
+
+         return evaluateDiscrepancies("GBrokerConnector2T<processable_type>", caller, deviations, e);
+      } catch(const std::bad_cast& exp) {
+         glogger
+         << "In GBrokerConnector2T<processable_type>::checkRelationshipWith_common(): Conversion error!" << std::endl
+         << "with message: " << std::endl
+         << exp.what() << std::endl
+         << GEXCEPTION;
+      }
+
+      // Make the compiler happy
+      return boost::optional<std::string>();
    }
 
    /***************************************************************************/
