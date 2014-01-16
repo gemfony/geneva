@@ -286,19 +286,20 @@ void GOptimizableEntity::adapt() {
  * the main fitness criterion.
  *
  * @param id The id of the fitness criterion
+ * @param reevaluationAllowed Explicit permission to re-evaluate the individual
  * @return The fitness of this individual
  */
-double GOptimizableEntity::fitness(const std::size_t& id) {
+double GOptimizableEntity::fitness(const std::size_t& id, bool reevaluationAllowed) {
 	// Check whether we need to recalculate the fitness
 	if (dirtyFlag_) {
-		// Re-evaluation is not allowed on the server
-		if (serverMode_) {
-		   glogger
-		   << "In GOptimizableEntity::fitness():" << std::endl
+      if(serverMode_ && !reevaluationAllowed) {
+         glogger
+         << "In GOptimizableEntity::fitness():" << std::endl
          << "Tried to perform re-evaluation in server-mode" << std::endl
          << GEXCEPTION;
-		}
-		this->doFitnessCalculation();
+      } else {
+         this->doFitnessCalculation();
+      }
 	}
 
 	// Return the desired result -- there should be no situation where the dirtyFlag is still set
@@ -324,13 +325,18 @@ double GOptimizableEntity::fitness(const std::size_t& id) {
 
 /******************************************************************************/
 /**
- * Returns the last known fitness calculation of this object, using the fitness function
- * with id 0.
- *
- * @return The fitness of this individual, according to the fitness function with id 0
+ * Calculates the result of the fitness function with id 0
  */
 double GOptimizableEntity::fitness() {
-	return fitness(0);
+   return fitness(0, Gem::Geneva::PREVENTREEVALUATION);
+}
+
+/******************************************************************************/
+/**
+ * Calculate or returns the result of a fitness function with a given id
+ */
+double GOptimizableEntity::fitness(const std::size_t& id) {
+   return fitness(id, Gem::Geneva::PREVENTREEVALUATION);
 }
 
 /******************************************************************************/
@@ -1137,13 +1143,15 @@ boost::shared_ptr<GPersonalityTraits> GOptimizableEntity::getPersonalityTraits()
 /******************************************************************************/
 /**
  * A wrapper for GOptimizableEntity::customUpdateOnStall() (or the corresponding overloaded
- * functions in derived classes) that does error-checking and sets the dirty flag.
+ * functions in derived classes) that does error-checking and sets the dirty flag. The function
+ * is called by GOptimizationAlgorithmT<>, whenever the optimization procedure is stalled.
  *
+ * @param nStalls The number of stalls since the last improvement
  * @return A boolean indicating whether an update was performed and the individual has changed
  */
-bool GOptimizableEntity::updateOnStall() {
+bool GOptimizableEntity::updateOnStall(const std::size_t& nStalls) {
 	// Do the actual update of the individual's structure
-	bool updatePerformed = customUpdateOnStall();
+	bool updatePerformed = customUpdateOnStall(nStalls);
 	if(updatePerformed) {
 		setDirtyFlag();
 	}
@@ -1158,19 +1166,11 @@ bool GOptimizableEntity::updateOnStall() {
 
 /******************************************************************************/
 /**
- * Updates the object's structure and/or parameters, if the optimization has
- * stalled. The quality of the object is likely to get worse. Hence it will
- * enter a micro-training environment to improve its quality. The function can
- * inform the caller that no action was taken, by returning false. Otherwise, if
- * an update was made that requires micro-training, true should be returned.
- * The actions to be taken for this update depend on the actual structure of the
- * individual and need to be implemented for each particular case individually.
- * Note that, as soon as the structure of this object changes, it should return
- * true, as otherwise no value calculation takes place.
+ * Allows users to update the structure of the individual when a stall has occurred
  *
  * @return A boolean indicating whether an update was performed and the object has changed
  */
-bool GOptimizableEntity::customUpdateOnStall() {
+bool GOptimizableEntity::customUpdateOnStall(const std::size_t& nStalls) {
 	return false;
 }
 

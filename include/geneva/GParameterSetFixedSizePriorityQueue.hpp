@@ -104,6 +104,8 @@ public:
    /** @brief Copy the data of another GParameterSetFixedSizePriorityQueue over */
    const GParameterSetFixedSizePriorityQueue& operator=(const GParameterSetFixedSizePriorityQueue&);
 
+   /** @brief Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<T> */
+   virtual void load(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>&);
    /** @brief Creates a deep clone of this object */
    virtual boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > clone() const;
 

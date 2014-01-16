@@ -1750,12 +1750,16 @@ private:
 
 	/***************************************************************************/
 	/**
-	 * Marks the number of stalled optimization attempts in all individuals
+	 * Marks the number of stalled optimization attempts in all individuals and
+	 * gives them an opportunity to update their internal structures.
 	 */
 	void markNStalls() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->setNStalls(stallCounter_);
+			if(stallCounter_ > 0) {
+			   (*it)->updateOnStall(stallCounter_);
+			}
 		}
 	}
 

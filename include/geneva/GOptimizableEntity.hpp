@@ -147,10 +147,12 @@ public:
 	/** @brief The adaption interface */
 	virtual void adapt() OVERRIDE;
 
-	/** @brief Calculates the result of the fitness function with id 0 */
-	virtual double fitness() OVERRIDE;
+   /** @brief Calculates the result of the fitness function with id 0 */
+   virtual double fitness() OVERRIDE;
+   /** @brief Calculate or returns the result of a fitness function with a given id */
+   virtual double fitness(const std::size_t&) OVERRIDE;
 	/** @brief Calculate or returns the result of a fitness function with a given id */
-	virtual double fitness(const std::size_t&) OVERRIDE;
+	virtual double fitness(const std::size_t&, bool) OVERRIDE;
 
    /** @brief Returns the untransformed result of the fitness function with id 0 */
    double trueFitness();
@@ -221,7 +223,7 @@ public:
 	boost::uint32_t getNStalls() const;
 
 	/** @brief Triggers updates when the optimization process has stalled */
-	virtual bool updateOnStall();
+	virtual bool updateOnStall(const std::size_t&);
 
 	/** @brief Retrieves an identifier for the current personality of this object */
 	std::string getPersonality() const;
@@ -364,7 +366,7 @@ protected:
 	/** @brief The actual adaption operations */
 	virtual void customAdaptions();
 	/** @brief Updates the object's structure and/or parameters, if the optimization has stalled */
-	virtual bool customUpdateOnStall();
+	virtual bool customUpdateOnStall(const std::size_t&) BASE;
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode_(const bool&);
 	/** @brief Sets the dirtyFlag_ to any desired value */

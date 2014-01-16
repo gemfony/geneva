@@ -16,15 +16,16 @@ Wishlist for version 1.2, yet unnamed, release-date unknown
  - Added three possibilities to treat invalid parameter sets
  - Added a parser for parameter descriptions of the kind "d(MY_DPAR_01,-10.3,12.8,100)" to facilitate 
    parameter scans from the command line (or in batch mode). Added a corresponding test.
- - Added the possibility to specifiy the path to configuration files in an environment variable
+ - Added the possibility to specify the path to configuration files in an environment variable
    (GENEVA_CONFIG_BASENAME). Set this variable to a path (ending in /), that points to the directory
-   containg the ./config subdirectory.
+   containg the ./config sub-directory.
  - Added an option to catch a SIGHUP signal and let GOptimizationAlgorithmT<> exit gracefully,
    without discarding results. This requires that GObject::sigHupHandler is registered as a signal handler.
    This needs to be done by the user, e.g. in main().
  - Based collection of best individuals on a priority queue and centralized the code for most cases
-   (multi-populations and multi-criterion optimization need seperate treatement)
+   (multi-populations and multi-criterion optimization need separate treatment)
  - Experimental port to MacOS 10.9
+ - Added the option to enforce a specific C++ standard for the compilation procedure
  - Ported to Boost 1.55
 
 Recommended version of Boost: 1.55

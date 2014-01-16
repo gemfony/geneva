@@ -63,6 +63,13 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * Explicit permission or denial to perform re-evaluation
+ */
+const bool ALLOWREEVALUATION = true;
+const bool PREVENTREEVALUATION = false;
+
+/******************************************************************************/
+/**
  * The number of individuals to be recorded in each iteration
  */
 const std::size_t DEFNRECORDBESTINDIVIDUALS = 10;

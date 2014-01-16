@@ -56,58 +56,50 @@ IF("${GENEVA_OS_NAME}" MATCHES "Darwin")
 ENDIF()
 
 ################################################################################
-#
-# User settings:
-# You can change some settings here, but we recommend that you use the
-# 'prepareBuild.sh' script and the sample settings file 'genevaConfig.gcfg'
-# provided in the 'scripts' folder for building Geneva. Copy genevaConfig.gcfg
-# to its own build directory and edit it as needed. Then run the command 
-# "/where/geneva/resides/scripts/prepareBuild.sh ./genevaConfig.gcfg"
-
-# You can hard-code the Boost paths here, if you compiled Boost yourself and
-# it was not deployed in one of the standard system locations. Otherwise,
-# see the comments in the INSTALL file on how to set the path on the
-# command line.
-#SET(BOOST_ROOT "/opt/boost155")
-#SET(BOOST_INCLUDEDIR "/opt/boost155/include/boost")
-#SET(BOOST_LIBRARYDIR "/opt/boost155/lib")
-
-# Uncomment this if you want to see compiler options
-#SET(CMAKE_VERBOSE_MAKEFILE ON)
-
-# Uncomment to compile static libs
-#SET(GENEVA_STATIC TRUE)
-
-# Uncomment to build in 'Release' mode, default is 'Debug'
-#SET(GENEVA_BUILD_TYPE Release)
-
-# Uncomment to build tests
-#SET(GENEVA_BUILD_TESTS TRUE)
-
-# Change this setting to install in a different directory
-#SET(CMAKE_INSTALL_PREFIX "/opt/geneva")
-
-#
-# End of user settings
-#
-################################################################################
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
-# Set the default install directory
-IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
-	SET( CMAKE_INSTALL_PREFIX "/opt/geneva" )
+################################################################################
+#
+# Set some default values for user-settings. Generally, these should be provided
+# through a custom genevaConfig.gcfg, in conjunction with the prepareBuild.sh script.
+
+IF( NOT DEFINED BOOST_ROOT )
+	SET( BOOST_ROOT "/opt/boost155" )
+ENDIF()
+ 
+IF( NOT DEFINED BOOST_LIBRARYDIR )
+	SET( BOOST_LIBRARYDIR "/opt/boost155/lib" )
 ENDIF()
 
-# Set the library type to shared by default
+IF( NOT DEFINED BOOST_INCLUDEDIR )
+	SET( BOOST_INCLUDEDIR "/opt/boost155/include/boost" )
+ENDIF()
+
+IF( NOT DEFINED GENEVA_BUILD_TYPE )
+	SET( GENEVA_BUILD_TYPE "Release" )
+ENDIF()
+
+IF( NOT DEFINED GENEVA_BUILD_TESTS )
+	SET( GENEVA_BUILD_TESTS FALSE )
+ENDIF()
+
+IF( NOT DEFINED GENEVA_CXX_STD )
+	SET( GENEVA_CXX_STD "cxx98" )
+ENDIF()
+
 IF( NOT DEFINED GENEVA_STATIC )
 	SET( GENEVA_STATIC FALSE )
 ENDIF()
 
-# Do not build tests by default
-IF( NOT DEFINED GENEVA_BUILD_TESTS )
-	SET( GENEVA_BUILD_TESTS FALSE )
+IF( NOT DEFINED CMAKE_VERBOSE_MAKEFILE )
+	SET( CMAKE_VERBOSE_MAKEFILE 0 )
 ENDIF()
+
+IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
+	SET( CMAKE_INSTALL_PREFIX "/opt/geneva" )
+ENDIF()
+
 
 # The "FOREACH IN LISTS" construct is only available starting with CMake 2.8.
 # Detect that case to avoid build errors in CMake 2.6.
@@ -168,20 +160,48 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	
 	ADD_DEFINITIONS ("-Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread")
 	
-	IF("${GENEVA_OS_NAME}" MATCHES "DarwinPre13") # MacOS prior to 10.9
-		SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on MacOS prior to 10.9, hence switching to C++98-mode")
-		ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
-	ELSEIF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
-		SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on MacOS >= 10.9, hence switching to C++98-mode")
-		ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
-	ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1") # Older Clang-based systems
-		SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on ${CMAKE_SYSTEM_NAME}, hence switching to C++98-mode")
-		# ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512")
-		ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
-	ELSE() # Newer, non-MacOS Clang-based systems
-		SET (MSG_CXXSTANDARDMODE "Using Clang version ${CMAKE_CXX_COMPILER_VERSION}, switching to C++11-mode")
-		ADD_DEFINITIONS ("-std=c++11")		
+	# Check which C++ standard should be used
+	IF("${GENEVA_CXX_STD}" MATCHES "auto")
+		IF("${GENEVA_OS_NAME}" MATCHES "DarwinPre13") # MacOS prior to 10.9
+			SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on MacOS prior to 10.9, hence switching to C++98-mode")
+			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
+		ELSEIF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
+			SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on MacOS >= 10.9, hence switching to C++98-mode")
+			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
+		ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1") # Older Clang-based systems
+			SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on ${CMAKE_SYSTEM_NAME}, hence switching to C++98-mode")
+			# ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512")
+			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
+		ELSE() # Newer, non-MacOS Clang-based systems
+			SET (MSG_CXXSTANDARDMODE "Using Clang version ${CMAKE_CXX_COMPILER_VERSION}, switching to C++11-mode")
+			ADD_DEFINITIONS ("-std=c++11")		
+		ENDIF()
+	ELSEIF("${GENEVA_CXX_STD}" MATCHES "cxx98")
+		SET (MSG_CXXSTANDARDMODE "C++98 mode enforced by the user. \n\t[Make sure that any accompanying libraries use the same standard.]")
+		IF("${GENEVA_OS_NAME}" MATCHES "DarwinPre13") # MacOS prior to 10.9
+			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
+		ELSEIF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
+			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
+		ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1") # Older Clang-based systems
+			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
+		ELSE() # Newer, non-MacOS Clang-based systems
+			ADD_DEFINITIONS ("-std=c++98")		
+		ENDIF()
+	ELSEIF("${GENEVA_CXX_STD}" MATCHES "cxx11")
+		SET (MSG_CXXSTANDARDMODE "C++11 mode enforced by the user. \n\t[Make sure that any accompanying libraries use the same standard.]")
+		IF("${GENEVA_OS_NAME}" MATCHES "DarwinPre13") # MacOS prior to 10.9
+			ADD_DEFINITIONS ("-std=c++11 -ftemplate-depth=512 -stdlib=libstdc++")
+		ELSEIF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
+			ADD_DEFINITIONS ("-std=c++11 -ftemplate-depth=512 -stdlib=libstdc++")
+		ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1") # Older Clang-based systems
+			ADD_DEFINITIONS ("-std=c++11 -ftemplate-depth=512 -stdlib=libstdc++")
+		ELSE() # Newer, non-MacOS Clang-based systems
+			ADD_DEFINITIONS ("-std=c++11")		
+		ENDIF()
+	ELSE()
+		MESSAGE (FATAL_ERROR "Invalid compilation mode ${GENEVA_CXX_STD}")
 	ENDIF()
+	
 ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	SET( MSG_COMPILER "GNU g++")
 
@@ -199,18 +219,28 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	# will likely trigger many warnings in boost.
 	ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth-1024")	
 	
-	# Switch to C++11-mode if the compiler version is suitable	
-	EXEC_PROGRAM( 
-		${CMAKE_CXX_COMPILER}
-		ARGS -dumpversion
-	 	OUTPUT_VARIABLE GCC_VERSION
-	)
-	IF(GCC_VERSION VERSION_GREATER "4.6.99")
-		SET (MSG_CXXSTANDARDMODE "Using g++ version ${GCC_VERSION}, hence switching to C++11-mode")
+	# Check, which C++ standard should be used	
+	IF("${GENEVA_CXX_STD}" MATCHES "auto")
+		EXEC_PROGRAM( 
+			${CMAKE_CXX_COMPILER}
+			ARGS -dumpversion
+		 	OUTPUT_VARIABLE GCC_VERSION
+		)
+		IF(GCC_VERSION VERSION_GREATER "4.6.99")
+			SET (MSG_CXXSTANDARDMODE "Using g++ version ${GCC_VERSION}, hence switching to C++11-mode")
+			ADD_DEFINITIONS ("-std=c++11")
+		ELSE()
+			SET (MSG_CXXSTANDARDMODE "Using g++ version ${GCC_VERSION}, hence switching to C++98-mode")
+			ADD_DEFINITIONS ("-std=c++98")
+		ENDIF()
+	ELSEIF("${GENEVA_CXX_STD}" MATCHES "cxx98")
+		SET (MSG_CXXSTANDARDMODE "C++98 mode enforced by the user. \n\t[Make sure that any accompanying libraries use the same standard.]")
+		ADD_DEFINITIONS ("-std=c++98")
+	ELSEIF("${GENEVA_CXX_STD}" MATCHES "cxx11")
+		SET (MSG_CXXSTANDARDMODE "C++11 mode enforced by the user. \n\t[Make sure that any accompanying libraries use the same standard.]")
 		ADD_DEFINITIONS ("-std=c++11")
 	ELSE()
-		SET (MSG_CXXSTANDARDMODE "Using g++ version ${GCC_VERSION}, hence switching to C++98-mode")
-		ADD_DEFINITIONS ("-std=c++98")
+		MESSAGE (FATAL_ERROR "Invalid compilation mode ${GENEVA_CXX_STD}")
 	ENDIF()
 ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	MESSAGE (FATAL_ERROR "Visual Studio C++ not yet supported")
@@ -252,22 +282,28 @@ ENDIF()
 SET (Boost_USE_MULTITHREAD ON)
 SET (Boost_ADDITIONAL_VERSIONS "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "1.52" "1.52.0" "1.53" "1.53.0" "1.54" "1.54.0" "1.55.0")
 
-FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
-	date_time
-	filesystem
-	program_options
-	regex
-	serialization
-	system
-	thread
-)
-
-################################################################################
-# Check whether we want to activate the test code and build tests
+# Search for required libraries
 IF( GENEVA_BUILD_TESTS )
 	ADD_DEFINITIONS ("-DGEM_TESTING")
 	FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
+		date_time
+		filesystem
+		program_options
+		regex
+		serialization
+		system
+		thread
 		test_exec_monitor
+	)
+ELSE()
+	FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
+		date_time
+		filesystem
+		program_options
+		regex
+		serialization
+		system
+		thread
 	)
 ENDIF()
 

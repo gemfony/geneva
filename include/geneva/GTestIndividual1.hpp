@@ -114,20 +114,18 @@ public:
 
 	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&,
-			const Gem::Common::expectation&,
-			const double&,
-			const std::string&,
-			const std::string&,
-			const bool&
+      const GObject&,
+      const Gem::Common::expectation&,
+      const double&,
+      const std::string&,
+      const std::string&,
+      const bool&
 	) const;
 
 	/** @brief Sets the fakeUpdateOnStall_ variable */
 	void setFakeCustomUpdateOnStall(const bool&);
 	/** @brief Retrieves the current value of the fakeUpdateOnStall_ flag */
 	bool getFakeCustomUpdateOnStall() const;
-	/** @brief An overload of GIndividual::customUpdateOnStall() that can fake updates */
-	bool customUpdateOnStall();
 
 protected:
 	/** @brief Loads the data of another GTestIndividual1 */
@@ -138,10 +136,12 @@ protected:
 	/** @brief The actual fitness calculation takes place here. */
 	virtual double fitnessCalculation();
 
+   /** @brief An overload of GIndividual::customUpdateOnStall() that can fake updates */
+   virtual bool customUpdateOnStall(const std::size_t&) OVERRIDE;
+
 private:
 	bool fakeUpdateOnStall_;
 
-#ifdef GEM_TESTING
 public:
 	// Note: The following functions are, in the context of GTestIndividual1,
 	// designed to mainly test parent classes
@@ -154,8 +154,6 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. */
 	virtual void specificTestsFailuresExpected_GUnitTests();
-
-#endif /* GEM_TESTING */
 };
 
 /******************************************************************************/

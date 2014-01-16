@@ -158,15 +158,6 @@ public:
     * Loads the data of another GFixedSizePriorityQueue<T> object
     */
    virtual void load(const GFixedSizePriorityQueueT<T>& cp) {
-#ifdef DEBUG
-      if(maxSize_ && cp.data_.size() != cp.maxSize_) { // Only act if maxSize_ is != 0
-         glogger
-         << "In GFixedSizePriorityQueue<T>::load(): Error!" << std::endl
-         << "maximum size " << cp.maxSize_ << " of cp does not match data size " << cp.data_.size() << std::endl
-         << GEXCEPTION;
-      }
-#endif
-
       // Make sure data_ is empty
       data_.clear();
 

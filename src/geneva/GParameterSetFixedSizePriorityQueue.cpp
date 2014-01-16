@@ -84,6 +84,15 @@ const GParameterSetFixedSizePriorityQueue& GParameterSetFixedSizePriorityQueue::
 
 /******************************************************************************/
 /**
+ * Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<GParameterSet>
+ */
+void GParameterSetFixedSizePriorityQueue::load(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>& cp) {
+   // No local data, so we only call the parent class'es function
+   Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::load(cp);
+}
+
+/******************************************************************************/
+/**
  * Creates a deep clone of this object
  */
 boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > GParameterSetFixedSizePriorityQueue::clone() const {

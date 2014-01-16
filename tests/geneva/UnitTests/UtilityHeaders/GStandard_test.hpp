@@ -311,9 +311,11 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
  */
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 	// Prepare printing of error messages in object comparisons
-	GEqualityPrinter gep("StandardTests_failures_expected",
-						 pow(10,-10),
-						 Gem::Common::CE_WITH_MESSAGES);
+	GEqualityPrinter gep(
+      "StandardTests_failures_expected"
+	   , pow(10,-10)
+		, Gem::Common::CE_WITH_MESSAGES
+	);
 
 	{
 		// Checks that self-assignment throws in DEBUG mode

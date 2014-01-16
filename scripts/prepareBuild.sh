@@ -50,9 +50,11 @@ if [ $# -eq 0 ]; then
 	BOOSTLIBS="${BOOSTROOT}/lib"              # Where the Boost libraries are
 	BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
 	BUILDMODE="Release"                       # Release or Debug
+	BUILDSTD="c++98"                          # "auto": choose automatically; "c++98": enforce the C++98 standard; "c++11": enforce the C++11 standard
 	BUILDTESTCODE="0"                         # Whether to build Geneva with testing code
 	VERBOSEMAKEFILE="0"                       # Whether compilation information should be emitted
 	INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
+	CEXTRAFLAGS=""                            # Further CMake settings you might want to provide
 elif [ $# -eq 1 ]; then
 	# Check that the command file has the expected form (ends with .gcfg)
 	testfile=`basename $1 .gcfg`.gcfg
@@ -116,6 +118,12 @@ if [ ! "${VERBOSEMAKEFILE}" = "0" -a ! "${VERBOSEMAKEFILE}" = "1" ]; then
 	exit
 fi
 
+if [ ! "${BUILDSTD}" = "auto" -a ! "${BUILDSTD}" = "cxx98" -a ! "${BUILDSTD}" = "cxx11" ]; then
+	echo "Error: Variable BUILDSTD must be auto, cxx98 or cxx11. Got ${BUILDSTD}"
+	echo "Leaving"
+	exit
+fi
+
 ####################################################################
 # Find out where this script is located and whether there is a
 # CMakeLists.txt file in the same directory. We then assume that
@@ -129,7 +137,7 @@ fi
 
 ####################################################################
 # Do the actual call to cmake
-CONFIGURE="${CMAKE} -DBoost_NO_SYSTEM_PATHS=1 -DBOOST_ROOT=${BOOSTROOT} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DGENEVA_BUILD_TYPE=${BUILDMODE} -DGENEVA_BUILD_TESTS=${BUILDTESTCODE} -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
+CONFIGURE="${CMAKE} -DBoost_NO_SYSTEM_PATHS=1 -DBOOST_ROOT=${BOOSTROOT} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DGENEVA_BUILD_TYPE=${BUILDMODE} -DGENEVA_BUILD_TESTS=${BUILDTESTCODE} -DGENEVA_CXX_STD=${BUILDSTD} -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
 
 if [ "x$CEXTRAFLAGS" != "x" ]; then
 	CONFIGURE="${CONFIGURE} ${CEXTRAFLAGS}"

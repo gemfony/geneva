@@ -46,6 +46,7 @@
 #define GUNITTESTFRAMEWORKT_HPP_
 
 // Geneva headers go here
+#include "common/GLogger.hpp"
 
 /******************************************************************************/
 /**
@@ -56,7 +57,21 @@
  */
 template <typename T>
 boost::shared_ptr<T> TFactory_GUnitTests() {
-	return boost::shared_ptr<T>(new T());
+   boost::shared_ptr<T> p;
+
+   try {
+      p = boost::shared_ptr<T>(new T());
+   } catch (const Gem::Common::gemfony_error_condition& g) {
+      // Re-throw
+      throw g;
+   } catch (...) {
+      glogger
+      << "In boost::shared_ptr<T> TFactory_GUnitTests(): Error!" << std::endl
+      << "Caught unknown exception" << std::endl
+      << GEXCEPTION;
+   }
+
+   return p;
 }
 
 /******************************************************************************/
