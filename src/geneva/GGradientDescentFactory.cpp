@@ -51,6 +51,7 @@ GOAInitializerT<GGradientDescentFactory> GGDStoreRegistrant;
  */
 GGradientDescentFactory::GGradientDescentFactory()
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GGradientDescent.json")
+   , maxResubmissions_(5)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -61,6 +62,7 @@ GGradientDescentFactory::GGradientDescentFactory(
       const std::string& configFile
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile)
+   , maxResubmissions_(5)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -87,7 +89,7 @@ GGradientDescentFactory::GGradientDescentFactory(
    , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
-   , maxResubmissions_(0)
+   , maxResubmissions_(5)
 { /* nothing */ }
 
 /******************************************************************************/

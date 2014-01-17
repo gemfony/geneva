@@ -332,6 +332,9 @@ protected:
       << "In baseScanParT::getRandomItem(): Error!" << std::endl
       << "Function called for unsupported type" << std::endl
       << GEXCEPTION;
+
+      // Make the compiler happy
+      return T(0);
    }
 };
 
