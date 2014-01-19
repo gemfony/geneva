@@ -44,7 +44,6 @@
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
-#include "geneva/GTestIndividual1.hpp"
 
 using namespace Gem::Geneva;
 
