@@ -100,12 +100,12 @@ public:
 
 		typedef boost::mpl::list<
 			GInt32FlipAdaptor
-			, GBooleanAdaptor
+			/*, GBooleanAdaptor
 			, GInt32GaussAdaptor
 			// , GFloatBiGaussAdaptor
 			// , GFloatGaussAdaptor
 			, GDoubleBiGaussAdaptor
-			, GDoubleGaussAdaptor
+			, GDoubleGaussAdaptor */
 		>
 		adaptor_types;
 
@@ -182,7 +182,7 @@ public:
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, adaptor_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, adaptor_types ) );
 
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, data_types ) );
+		/*add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, data_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, data_types ) );
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, object_collection_types ) );
@@ -201,7 +201,7 @@ public:
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, monitor_types ) );
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, individual_types ) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, individual_types ) );
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, individual_types ) );*/
 	}
 
 	~GenevaStandardTestSuite() {

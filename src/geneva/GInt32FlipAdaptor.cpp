@@ -45,6 +45,7 @@ namespace Geneva {
  * The default constructor
  */
 GInt32FlipAdaptor::GInt32FlipAdaptor()
+   : GIntFlipAdaptorT<boost::int32_t>()
 { /* nothing */ }
 
 /******************************************************************************/
