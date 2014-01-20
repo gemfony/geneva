@@ -49,7 +49,7 @@
 #include "geneva-individuals/GTestIndividual2.hpp"
 
 // The number of consecutive measurements
-const std::size_t NMEASUREMENTS=1000;
+const std::size_t NMEASUREMENTS=100;
 
 // The maximum object size
 const std::size_t MAXOBJECTSIZE = 100;
