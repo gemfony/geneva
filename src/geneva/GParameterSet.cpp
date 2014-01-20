@@ -781,7 +781,7 @@ void GParameterSet::toPropertyTree(
    GParameterSet::const_iterator cit;
    for(cit=this->begin(); cit!=this->end(); ++cit) {
       pos = std::distance(this->begin(), cit);
-      base = baseName + "vars.var" + boost::lexical_cast<std::string>(pos);
+      base = baseName + ".vars.var" + boost::lexical_cast<std::string>(pos);
       (*cit)->toPropertyTree(ptr, base);
    }
 
@@ -790,7 +790,7 @@ void GParameterSet::toPropertyTree(
    ptr.put(baseName + ".nResults", this->getNumberOfFitnessCriteria());
    bool dirtyFlag;
    for(std::size_t f=0; f<this->getNumberOfFitnessCriteria(); f++) {
-      base = baseName + "results.result" + boost::lexical_cast<std::string>(f);
+      base = baseName + ".results.result" + boost::lexical_cast<std::string>(f);
       ptr.put(baseName, this->getCachedFitness(dirtyFlag, f));
    }
 }
