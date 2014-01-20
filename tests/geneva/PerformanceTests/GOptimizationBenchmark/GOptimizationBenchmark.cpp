@@ -96,7 +96,6 @@ int main(int argc, char **argv) {
 		for(std::size_t test=0; test<nTests; test++) {
 			// Retrieve an individual from the factory
 			boost::shared_ptr<GFunctionIndividual> g = gfi.get<GFunctionIndividual>();
-			std::cout << "g has fitness " << g->fitness() << std::endl;
 
 #ifdef DEBUG
 			if(g->getParameterSize() != *it) {

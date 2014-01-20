@@ -171,7 +171,7 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1") # Older Clang-based systems
 			SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on ${CMAKE_SYSTEM_NAME}, hence switching to C++98-mode")
 			# ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512")
-			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
+			ADD_DEFINITIONS ("-std=c++98 -stdlib=libstdc++")
 		ELSE() # Newer, non-MacOS Clang-based systems
 			SET (MSG_CXXSTANDARDMODE "Using Clang version ${CMAKE_CXX_COMPILER_VERSION}, switching to C++11-mode")
 			ADD_DEFINITIONS ("-std=c++11")		
@@ -183,7 +183,7 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		ELSEIF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
 			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
 		ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1") # Older Clang-based systems
-			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
+			ADD_DEFINITIONS ("-std=c++98 -stdlib=libstdc++")
 		ELSE() # Newer, non-MacOS Clang-based systems
 			ADD_DEFINITIONS ("-std=c++98")		
 		ENDIF()
@@ -194,7 +194,7 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		ELSEIF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
 			ADD_DEFINITIONS ("-std=c++11 -ftemplate-depth=512 -stdlib=libstdc++")
 		ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1") # Older Clang-based systems
-			ADD_DEFINITIONS ("-std=c++11 -ftemplate-depth=512 -stdlib=libstdc++")
+			ADD_DEFINITIONS ("-std=c++11 -stdlib=libstdc++")
 		ELSE() # Newer, non-MacOS Clang-based systems
 			ADD_DEFINITIONS ("-std=c++11")		
 		ENDIF()
