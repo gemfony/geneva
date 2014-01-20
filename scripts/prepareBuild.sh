@@ -50,7 +50,7 @@ if [ $# -eq 0 ]; then
 	BOOSTLIBS="${BOOSTROOT}/lib"              # Where the Boost libraries are
 	BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
 	BUILDMODE="Release"                       # Release or Debug
-	BUILDSTD="c++98"                          # "auto": choose automatically; "c++98": enforce the C++98 standard; "c++11": enforce the C++11 standard
+	BUILDSTD="cxx98"                          # "auto": choose automatically; "cxx98": enforce the C++98 standard; "cxx11": enforce the C++11 standard
 	BUILDTESTCODE="0"                         # Whether to build Geneva with testing code
 	VERBOSEMAKEFILE="0"                       # Whether compilation information should be emitted
 	INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
