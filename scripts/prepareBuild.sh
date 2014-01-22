@@ -73,56 +73,56 @@ elif [ $# -eq 1 ]; then
 	# Source the config file
 	echo -e "\nUsing configuration file $1"
 	. $1
-	
+
 	# Check whether all required variables were set
 	if [ -z "${CMAKE}" ]; then
-		CMAKE=/usr/bin/cmake 
+		CMAKE=/usr/bin/cmake
 		echo "Variable CMAKE wasn't set. Setting to default value ${CMAKE}"
 	fi
-	
+
 	if [ -z "${BOOSTROOT}" ]; then
-		BOOSTROOT="/opt/boost" 
+		BOOSTROOT="/opt/boost"
 		echo "Variable BOOSTROOT wasn't set. Setting to default value ${BOOSTROOT}"
 	fi
-	
+
 	if [ -z "${BOOSTLIBS}" ]; then
 		BOOSTLIBS="${BOOSTROOT}/lib"
 		echo "Variable BOOSTLIBS wasn't set. Setting to default value ${BOOSTLIBS}"
-	fi	
-	
+	fi
+
 	if [ -z "${BOOSTINCL}" ]; then
 		BOOSTINCL="${BOOSTROOT}/include/boost"
 		echo "Variable BOOSTINCL wasn't set. Setting to default value ${BOOSTINCL}"
 	fi
-	
+
 	if [ -z "${BUILDMODE}" ]; then
 		BUILDMODE="Release"
 		echo "Variable BUILDMODE wasn't set. Setting to default value ${BUILDMODE}"
-	fi	
-	
+	fi
+
 	if [ -z "${BUILDSTD}" ]; then
 		BUILDSTD="cxx98"
 		echo "Variable BUILDSTD wasn't set. Setting to default value ${BUILDSTD}"
-	fi	
-	
+	fi
+
 	if [ -z "${BUILDTESTCODE}" ]; then
 		BUILDTESTCODE="0"
 		echo "Variable BUILDTESTCODE wasn't set. Setting to default value ${BUILDTESTCODE}"
-	fi	
-	
+	fi
+
 	if [ -z "${VERBOSEMAKEFILE}" ]; then
 		VERBOSEMAKEFILE="0"
 		echo "Variable VERBOSEMAKEFILE wasn't set. Setting to default value ${VERBOSEMAKEFILE}"
-	fi	
-	
+	fi
+
 	if [ -z "${INSTALLDIR}" ]; then
 		INSTALLDIR="/opt/geneva"
 		echo "Variable INSTALLDIR wasn't set. Setting to default value ${INSTALLDIR}"
-	fi	
-	
+	fi
+
 	if [ -z "${CEXTRAFLAGS}" ]; then
 		CEXTRAFLAGS=""
-	fi	
+	fi
 else
     echo "Received $# command line arguments, which is an invalid number."
     echo "You can either call this script without arguments, in which case"
