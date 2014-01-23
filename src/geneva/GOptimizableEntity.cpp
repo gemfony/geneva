@@ -364,7 +364,7 @@ double GOptimizableEntity::trueFitness(const std::size_t& id) {
    if(dirtyFlag_) {
       glogger
       << "In GOptimizableEntity::trueFitness(const std::size_t& id): Error!" << std::endl
-      << "Tried to retieve fitness of individual, whose dirty flag is set." << std::endl
+      << "Tried to retrieve fitness of individual, whose dirty flag is set." << std::endl
       << GEXCEPTION;
    }
 
@@ -397,7 +397,10 @@ double GOptimizableEntity::adaptAndEvaluate() {
  * @param id The id of the primary or secondary fitness value
  * @return The cached fitness value (not necessarily up-to-date) with id id
  */
-double GOptimizableEntity::getCachedFitness(bool& dirtyFlag, const std::size_t& id) const  {
+double GOptimizableEntity::getCachedFitness(
+   bool& dirtyFlag
+   , const std::size_t& id
+) const  {
 	dirtyFlag = dirtyFlag_;
 
 	if(0 == id) {
@@ -424,6 +427,40 @@ double GOptimizableEntity::getCachedFitness(bool& dirtyFlag, const std::size_t& 
  * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
+
+/******************************************************************************/
+/**
+ * Retrieve the untransformed current (not necessarily up-to-date) fitness
+ *
+ * @param dirtyFlag The value of the dirtyFlag_ variable
+ * @param id The id of the primary or secondary fitness value
+ * @return The cached fitness value (not necessarily up-to-date) with id id
+ */
+double GOptimizableEntity::getTrueCachedFitness(
+   bool& dirtyFlag
+   , const std::size_t& id
+) const {
+   dirtyFlag = dirtyFlag_;
+
+   if(0 == id) {
+      return trueCurrentFitness_;
+   } else {
+#ifdef DEBUG
+      if(trueCurrentSecondaryFitness_.size() < id) {
+         glogger
+         << "In GOptimizableEntity::getTrueCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
+         << "Got invalid result id: " << id << std::endl
+         << "where maximum allowed id would be " << trueCurrentSecondaryFitness_.size()-1 << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      return trueCurrentSecondaryFitness_.at(id - 1);
+   }
+
+   // Make the compiler happy
+   return trueCurrentFitness_;
+}
 
 /******************************************************************************/
 /**

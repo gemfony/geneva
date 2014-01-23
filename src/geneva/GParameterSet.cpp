@@ -785,6 +785,30 @@ void GParameterSet::toPropertyTree(
       (*cit)->toPropertyTree(ptr, base);
    }
 
+   // Output the transformation policy
+   switch(this->getEvaluationPolicy()) {
+      case USESIMPLEEVALUATION:
+      ptr.put(baseName + "transformationPolicy", "USESIMPLEEVALUATION");
+      break;
+
+      case USESIGMOID:
+      ptr.put(baseName + "transformationPolicy", "USESIGMOID");
+      break;
+
+      case USEWORSTKNOWNVALIDFORINVALID:
+      ptr.put(baseName + "transformationPolicy", "USEWORSTKNOWNVALIDFORINVALID");
+      break;
+
+      default:
+      {
+         glogger
+         << "In GParameterSet::toPropertyTree(): Error!" << std::endl
+         << "Got invalid evaluation policy: " << this->getEvaluationPolicy() << std::endl
+         << GEXCEPTION;
+      }
+      break;
+   }
+
    // Output all fitness criteria. We do not enforce re-calculation of the fitness here.
    // Check the "isDirty" tag, if you need to know whether the results are current.
    ptr.put(baseName + ".nResults", this->getNumberOfFitnessCriteria());
@@ -792,6 +816,8 @@ void GParameterSet::toPropertyTree(
    for(std::size_t f=0; f<this->getNumberOfFitnessCriteria(); f++) {
       base = baseName + ".results.result" + boost::lexical_cast<std::string>(f);
       ptr.put(base, this->getCachedFitness(dirtyFlag, f));
+      base = baseName + ".results.trueResult"  + boost::lexical_cast<std::string>(f);
+      ptr.put(base, this->getTrueCachedFitness(dirtyFlag, f));
    }
 }
 
