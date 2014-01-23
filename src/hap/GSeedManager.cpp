@@ -47,8 +47,6 @@ GSeedManager::GSeedManager()
 {
 	// Start the seed thread.
 	seedThread_ = thread_ptr(new boost::thread(boost::bind(&GSeedManager::seedProducer, this)));
-
-	std::cout << "Seeding has started" << std::endl;
 }
 
 /******************************************************************************/
@@ -67,8 +65,9 @@ GSeedManager::GSeedManager(const initial_seed_type& startSeed, const std::size_t
 {
 	// Cross-check the provided size of the seed queue
 	if(seedQueueSize == 0) {
-		std::cerr << "In GSeedManager::GSeedManager(const seed_type&, const std::size_t&): Error!" << std::endl
-				  << "Received seedQueueSize of 0." << std::endl;
+		std::cerr
+		<< "In GSeedManager::GSeedManager(const seed_type&, const std::size_t&): Error!" << std::endl
+      << "Received seedQueueSize of 0." << std::endl;
 		std::terminate();
 	}
 

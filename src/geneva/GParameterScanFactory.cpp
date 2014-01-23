@@ -52,7 +52,7 @@ GOAInitializerT<GParameterScanFactory> GPSStoreRegistrant;
 GParameterScanFactory::GParameterScanFactory()
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GParameterScan.json")
    , parameterSpec_("empty")
-   , parameterSpecExt_("empty")
+   , parameterSpecCL_("empty")
 { /* nothing */ }
 
 /******************************************************************************/
@@ -64,7 +64,7 @@ GParameterScanFactory::GParameterScanFactory(
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile)
    , parameterSpec_("empty")
-   , parameterSpecExt_("empty")
+   , parameterSpecCL_("empty")
 { /* nothing */ }
 
 /******************************************************************************/
@@ -78,7 +78,7 @@ GParameterScanFactory::GParameterScanFactory(
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm)
    , parameterSpec_("empty")
-   , parameterSpecExt_("empty")
+   , parameterSpecCL_("empty")
 { /* nothing */ }
 
 /******************************************************************************/
@@ -93,7 +93,7 @@ GParameterScanFactory::GParameterScanFactory(
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
    , parameterSpec_("empty")
-   , parameterSpecExt_("empty")
+   , parameterSpecCL_("empty")
 { /* nothing */ }
 
 /******************************************************************************/
@@ -106,25 +106,32 @@ GParameterScanFactory::~GParameterScanFactory()
 /***************************************************************************/
 /**
  * Adds local command line options to a boost::program_options::options_description object.
- * By default we do nothing so that derived classes do not need to re-implement this
- * function.
+ *
+ * @param visible Command line options that should always be visible
+ * @param hidden Command line options that should only be visible upon request
  */
-void GParameterScanFactory::addCLOptions(boost::program_options::options_description& desc) {
+void GParameterScanFactory::addCLOptions(
+   boost::program_options::options_description& visible
+   , boost::program_options::options_description& hidden
+) {
    namespace po = boost::program_options;
 
-   desc.add_options() (
+   visible.add_options() (
       "parameterSpec"
-      , po::value<std::string>(&parameterSpecExt_)->default_value(std::string("empty"))
+      , po::value<std::string>(&parameterSpecCL_)->default_value(std::string("empty"))
       , "\t[GParameterScanFactory] Specification of parameters to be scanned. Syntax: \"d(0, -10., 10., 100)\". Use a comma-separated list for more than one variable."
    )
    ;
+
+   // Add the parent class'es options
+   GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::addCLOptions(visible, hidden);
 }
 
 /******************************************************************************/
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-std::string GParameterScanFactory::getMnemomic() const {
+std::string GParameterScanFactory::getMnemonic() const {
    return GParameterScanFactory::nickname;
 }
 
@@ -132,9 +139,9 @@ std::string GParameterScanFactory::getMnemomic() const {
 /**
  * Allows to specify the parameter settings manually for variables to be scanned
  */
-void GParameterScanFactory::setParameterSpecs(std::string parStr) {
-   if(parStr != "empty" && !parStr.empty()) {
-      parameterSpecExt_ = parStr;
+void GParameterScanFactory::setParameterSpecs(std::string parameterSpecCL) {
+   if(parameterSpecCL != "empty" && !parameterSpecCL.empty()) {
+      parameterSpecCL_ = parameterSpecCL;
    }
 }
 
@@ -143,8 +150,8 @@ void GParameterScanFactory::setParameterSpecs(std::string parStr) {
  * Allows to retrieve the parameter settings for variables to be scanned
  */
 std::string GParameterScanFactory::getParameterSpecs() const {
-   if(parameterSpecExt_ != "empty") {
-      return parameterSpecExt_;
+   if(parameterSpecCL_ != "empty" && !parameterSpecCL_.empty()) {
+      return parameterSpecCL_;
    } else {
       return parameterSpec_;
    }
@@ -155,8 +162,8 @@ std::string GParameterScanFactory::getParameterSpecs() const {
  * Allows to reset the parameter specs
  */
 void GParameterScanFactory::resetParameterSpecs() {
-   parameterSpecExt_ = "empty";
-   parameterSpec_    = "empty";
+   parameterSpecCL_ = "empty";
+   parameterSpec_   = "empty";
 }
 
 /******************************************************************************/
@@ -233,11 +240,7 @@ void GParameterScanFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorith
       {
          boost::shared_ptr<GSerialPS> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GSerialPS>(p_base);
-         if(parameterSpecExt_ != "empty") {
-            p->setParameterSpecs(parameterSpecExt_);
-         } else {
-            p->setParameterSpecs(parameterSpec_);
-         }
+         p->setParameterSpecs(this->getParameterSpecs());
       }
       break;
 
@@ -246,12 +249,7 @@ void GParameterScanFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorith
          boost::shared_ptr<GMultiThreadedPS> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedPS>(p_base);
          p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
-
-         if(parameterSpecExt_ != "empty") {
-            p->setParameterSpecs(parameterSpecExt_);
-         } else {
-            p->setParameterSpecs(parameterSpec_);
-         }
+         p->setParameterSpecs(this->getParameterSpecs());
       }
       break;
 
@@ -262,15 +260,13 @@ void GParameterScanFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorith
 
          p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
          p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
-
-         if(parameterSpecExt_ != "empty") {
-            p->setParameterSpecs(parameterSpecExt_);
-         } else {
-            p->setParameterSpecs(parameterSpec_);
-         }
+         p->setParameterSpecs(this->getParameterSpecs());
       }
       break;
    }
+
+   // Call our parent class'es function
+   GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
 }
 
 /******************************************************************************/

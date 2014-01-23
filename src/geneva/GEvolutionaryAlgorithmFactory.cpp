@@ -99,7 +99,7 @@ GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-std::string GEvolutionaryAlgorithmFactory::getMnemomic() const {
+std::string GEvolutionaryAlgorithmFactory::getMnemonic() const {
    return GEvolutionaryAlgorithmFactory::nickname;
 }
 
@@ -172,6 +172,9 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
 		}
 		break;
 	}
+
+	// Call our parent class'es function
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
 }
 
 /******************************************************************************/

@@ -118,7 +118,7 @@ public:
    /**
     * Returns a short identifier for this consumer
     */
-   virtual std::string getMnemomic() const {
+   virtual std::string getMnemonic() const {
       return std::string("sc");
    }
 

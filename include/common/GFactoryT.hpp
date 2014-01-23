@@ -250,7 +250,7 @@ private:
 
 	std::string configFile_; ///< The name of the configuration file
 	std::size_t id_; ///< The id/number of the individual currently being created
-	bool initialized_; ///< Indicates whether the configuration file has already been parsed
+	bool initialized_; ///< Indicates whether the initialization work has already been done
 };
 
 /******************************************************************************/

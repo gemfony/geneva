@@ -99,7 +99,7 @@ GSimulatedAnnealingFactory::~GSimulatedAnnealingFactory()
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-std::string GSimulatedAnnealingFactory::getMnemomic() const {
+std::string GSimulatedAnnealingFactory::getMnemonic() const {
    return GSimulatedAnnealingFactory::nickname;
 }
 
@@ -171,6 +171,9 @@ void GSimulatedAnnealingFactory::postProcess_(boost::shared_ptr<GOptimizationAlg
       }
       break;
    }
+
+   // Call our parent class'es function
+   GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
 }
 
 /******************************************************************************/

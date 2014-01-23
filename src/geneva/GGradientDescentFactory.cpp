@@ -103,7 +103,7 @@ GGradientDescentFactory::~GGradientDescentFactory()
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-std::string GGradientDescentFactory::getMnemomic() const {
+std::string GGradientDescentFactory::getMnemonic() const {
    return GGradientDescentFactory::nickname;
 }
 
@@ -200,6 +200,9 @@ void GGradientDescentFactory::postProcess_(boost::shared_ptr<GOptimizationAlgori
 		}
 		break;
 	}
+
+   // Call our parent class'es function
+   GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
 }
 
 /******************************************************************************/

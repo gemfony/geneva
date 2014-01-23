@@ -95,6 +95,9 @@ public:
       , waitFactor_(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
       , doLogging_(false)
       , contentCreatorPtr_()
+      , maxIterationCL_(-1)
+      , maxStallIterationCL_(-1)
+      , maxSecondsCL_(-1)
    { /* nothing */ }
 
 
@@ -112,6 +115,9 @@ public:
 		, waitFactor_(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
 		, doLogging_(false)
 		, contentCreatorPtr_()
+	   , maxIterationCL_(-1)
+	   , maxStallIterationCL_(-1)
+	   , maxSecondsCL_(-1)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -129,6 +135,9 @@ public:
 	  , waitFactor_(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
 	  , doLogging_(false)
 	  , contentCreatorPtr_(contentCreatorPtr)
+	  , maxIterationCL_(-1)
+	  , maxStallIterationCL_(-1)
+	  , maxSecondsCL_(-1)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -141,11 +150,37 @@ public:
    /***************************************************************************/
    /**
     * Adds local command line options to a boost::program_options::options_description object.
-    * By default we do nothing so that derived classes do not need to re-implement this
-    * function.
+    * These are options common to all implemented algorithms. The command line parameter,
+    * however, needs to be specific to a given algorithm, so we can select which algorithm
+    * should receive which option. This happens with the help of the small mnemonic assigned
+    * to each algorithm (e.g. "ea" for evolutionary algorithms). In order not to "clutter"
+    * the output, some options are hidden and will only be shown upon explicit request by
+    * the user
+    *
+    * @param visible Command line options that should always be visible
+    * @param hidden Command line options that should only be visible upon request
     */
-   virtual void addCLOptions(boost::program_options::options_description& desc) BASE
-   { /* nothing */ }
+   virtual void addCLOptions(
+      boost::program_options::options_description& visible
+      , boost::program_options::options_description& hidden
+   ) BASE {
+      namespace po = boost::program_options;
+
+      hidden.add_options() (
+         (this->getMnemonic() + std::string("MaxIterations")).c_str()
+         , po::value<boost::int32_t>(&maxIterationCL_)->default_value(-1)
+         , (std::string("\t[GOptimizationAlgorithmFactoryT / ") + this->getMnemonic() + "] The maximum allowed number of iterations or 0 to disable limit").c_str()
+      ) (
+         (this->getMnemonic() + std::string("MaxStallIterations")).c_str()
+         , po::value<boost::int32_t>(&maxStallIterationCL_)->default_value(-1)
+         , (std::string("\t[GOptimizationAlgorithmFactoryT / ") + this->getMnemonic() + "] The maximum allowed number of stalled iterations or 0 to disable limit").c_str()
+      ) (
+         (this->getMnemonic() + std::string("MaxSeconds")).c_str()
+         , po::value<boost::int32_t>(&maxSecondsCL_)->default_value(-1)
+         , (std::string("\t[GOptimizationAlgorithmFactoryT / ") + this->getMnemonic() + "] The maximum allowed duration in seconds or 0 to disable limit").c_str()
+      )
+      ;
+   }
 
    /***************************************************************************/
    /**
@@ -172,9 +207,9 @@ public:
 
       // Has a custom optimization monitor been registered with the global store ?
       // If so, add a clone to the algorithm
-      if(GOAMonitorStore->exists(this->getMnemomic())) {
+      if(GOAMonitorStore->exists(this->getMnemonic())) {
          boost::shared_ptr<typename optalg_type::GOptimizationMonitorT> p_mon =
-               GOAMonitorStore->get(this->getMnemomic())->GObject::template clone<typename optalg_type::GOptimizationMonitorT>();
+               GOAMonitorStore->get(this->getMnemonic())->GObject::template clone<typename optalg_type::GOptimizationMonitorT>();
 
          if(pluggableInfoFunction_) {
             p_mon->registerPluggableOM(pluggableInfoFunction_);
@@ -306,7 +341,116 @@ public:
    /**
     * Gives access to the mnemonics / nickname describing an algorithm
     */
-   virtual std::string getMnemomic() const = 0;
+   virtual std::string getMnemonic() const = 0;
+
+   /***************************************************************************/
+   /**
+    * Allows to manually set the maximum number of iterations as is usually specified on the command line
+    */
+   void setMaxIterationCL(boost::uint32_t maxIterationCL) {
+      maxIterationCL_ = boost::numeric_cast<boost::int32_t>(maxIterationCL);
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether the maximum number of iterations was set on the command line or using the manual function
+    */
+   bool maxIterationsCLSet() const {
+      if(maxIterationCL_ >=0) return true;
+      else return false;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the maximum number of iterations as set on the command line
+    */
+   boost::uint32_t getMaxIterationCL() const {
+      if(maxIterationCL_ >= 0) {
+         return boost::numeric_cast<boost::uint32_t>(maxIterationCL_);
+      }
+      else {
+         glogger
+         << "In GOptimizationAlgorithmT<>::getMaxIterationCL(): Error!" << std::endl
+         << "maxIterationCL_ wasn't set" << std::endl
+         << GEXCEPTION;
+
+         // Make the compiler happy
+         return boost::uint32_t(0);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to manually set the maximum number of stall iterations as is usually specified on the command line
+    */
+   void setMaxStallIterationCL(boost::uint32_t maxStallIterationCL) {
+      maxStallIterationCL_ = boost::numeric_cast<boost::int32_t>(maxStallIterationCL);
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether the maximum number of stall iterations was set on the command line or using the manual function
+    */
+   bool maxStallIterationsCLSet() const {
+      if(maxStallIterationCL_ >=0) return true;
+      else return false;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the maximum number of stall iterations as set on the command line
+    */
+   boost::uint32_t getMaxStallIterationCL() const {
+      if(maxStallIterationCL_ >= 0) {
+         return boost::numeric_cast<boost::uint32_t>(maxStallIterationCL_);
+      }
+      else {
+         glogger
+         << "In GOptimizationAlgorithmT<>::getMaxStallIterationCL(): Error!" << std::endl
+         << "maxStallIterationCL_ wasn't set" << std::endl
+         << GEXCEPTION;
+
+         // Make the compiler happy
+         return boost::uint32_t(0);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to manually set the maximum number of seconds for a run as is usually specified on the command line
+    */
+   void setMaxSecondsCL(boost::uint32_t maxSecondsCL) {
+      maxSecondsCL_ = boost::numeric_cast<boost::int32_t>(maxSecondsCL);
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether the maximum number of seconds was set on the command line or using the manual function
+    */
+   bool maxSecondsCLSet() const {
+      if(maxSecondsCL_ >=0) return true;
+      else return false;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve the maximum number of seconds as set on the command line
+    */
+   boost::posix_time::time_duration getMaxTimeCL() const {
+      if(maxSecondsCL_ >= 0) {
+         boost::posix_time::time_duration maxDuration = boost::posix_time::seconds(boost::numeric_cast<long>(maxSecondsCL_));
+         return maxDuration;
+      }
+      else {
+         glogger
+         << "In GOptimizationAlgorithmT<>::getMaxTimeCL(): Error!" << std::endl
+         << "maxSecondsCL_ wasn't set" << std::endl
+         << GEXCEPTION;
+
+         // Make the compiler happy
+         return boost::posix_time::time_duration(boost::posix_time::seconds(0));
+      }
+   }
 
 protected:
 	/***************************************************************************/
@@ -355,14 +499,34 @@ protected:
       );
 	}
 
-	/***************************************************************************/
+   /***************************************************************************/
+   /**
+    * Allows to act on the configuration options received from the configuration file or from the command line
+    */
+   virtual void postProcess_(boost::shared_ptr<optalg_type>& p) BASE {
+      // Set local options
+
+      // The maximum allowed number of iterations
+      if(this->maxIterationsCLSet()) {
+         p->optalg_type::setMaxIteration(this->getMaxIterationCL());
+      }
+
+      // The maximum number of stalls until operation stops
+      if(this->maxStallIterationsCLSet()) {
+         p->optalg_type::setMaxStallIteration(this->getMaxStallIterationCL());
+      }
+
+      // The maximum amount of time until operation stops
+      if(this->maxSecondsCLSet()) {
+         p->optalg_type::setMaxTime(this->getMaxTimeCL());
+      }
+   }
+
+   /***************************************************************************/
 	/** @brief Creates individuals of this type */
 	virtual boost::shared_ptr<optalg_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
-	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(boost::shared_ptr<optalg_type>&) = 0;
 
 	execMode pm_; ///< Holds information about the desired parallelization mode
-
 	boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
 
    std::size_t waitFactor_; ///< A static factor to be applied to timeouts
@@ -375,6 +539,10 @@ private:
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally private and undefined */
 	GOptimizationAlgorithmFactoryT();
+
+   boost::int32_t maxIterationCL_; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
+   boost::int32_t maxStallIterationCL_; ///< The maximum number of generations without improvement, after which optimization is stopped. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
+   boost::int32_t maxSecondsCL_; ///< The maximum number of seconds for the optimization to run. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
 };
 
 /******************************************************************************/

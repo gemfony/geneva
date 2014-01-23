@@ -1341,7 +1341,7 @@ class GAsioTCPConsumerT
    /**
     * Returns a short identifier for this consumer
     */
-   virtual std::string getMnemomic() const {
+   virtual std::string getMnemonic() const {
       return std::string("tcpc");
    }
 
@@ -1358,13 +1358,21 @@ class GAsioTCPConsumerT
    /***************************************************************************/
    /**
     * Adds local command line options to a boost::program_options::options_description object.
+    *
+    * @param visible Command line options that should always be visible
+    * @param hidden Command line options that should only be visible upon request
     */
-   virtual void addCLOptions(boost::program_options::options_description& desc) {
+   virtual void addCLOptions(
+      boost::program_options::options_description& visible
+      , boost::program_options::options_description& hidden
+   ) {
       namespace po = boost::program_options;
 
-      desc.add_options()
+      visible.add_options()
          ("ip,i", po::value<std::string>(&server_)->default_value(GASIOTCPCONSUMERDEFAULTSERVER), "\t[tcpc] The name or ip of the server")
-         ("port,p", po::value<unsigned short>(&port_)->default_value(GASIOTCPCONSUMERDEFAULTPORT), "\t[tcpc] The port of the server")
+         ("port,p", po::value<unsigned short>(&port_)->default_value(GASIOTCPCONSUMERDEFAULTPORT), "\t[tcpc] The port of the server");
+
+      hidden.add_options()
          ("serializationMode,s", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GASIOTCPCONSUMERSERIALIZATIONMODE), "\t[tcpc] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
          ("maxStalls", po::value<boost::uint32_t>(&maxStalls_)->default_value(GASIOTCPCONSUMERMAXSTALLS), "\t[tcpc] The maximum allowed number of stalled connection attempts of a client")
          ("maxConnectionAttempts", po::value<boost::uint32_t>(&maxConnectionAttempts_)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS), "\t[tcpc] The maximum allowed number of failed connection attempts of a client")

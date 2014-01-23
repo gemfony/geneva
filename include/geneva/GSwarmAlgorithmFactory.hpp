@@ -91,7 +91,7 @@ public:
 	virtual ~GSwarmAlgorithmFactory();
 
    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-   virtual std::string getMnemomic() const OVERRIDE;
+   virtual std::string getMnemonic() const OVERRIDE;
 
 protected:
 	/** @brief Creates individuals of this type */

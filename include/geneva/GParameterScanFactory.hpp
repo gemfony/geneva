@@ -82,18 +82,21 @@ public:
    );
    /** @brief A constructor that also adds a content creation function */
    GParameterScanFactory(
-         const std::string&
-         , const execMode&
-         , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
+      const std::string&
+      , const execMode&
+      , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
    /** @brief The destructor */
    virtual ~GParameterScanFactory();
 
-   /** @brief Adds local command line options to a boost::program_options::options_description object */
-   virtual void addCLOptions(boost::program_options::options_description&) OVERRIDE;
+   /** @brief Adds local command line options to boost::program_options::options_description objects */
+   virtual void addCLOptions(
+      boost::program_options::options_description&
+      , boost::program_options::options_description&
+   ) OVERRIDE;
 
    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-   virtual std::string getMnemomic() const OVERRIDE;
+   virtual std::string getMnemonic() const OVERRIDE;
 
    /** @brief Allows to specify the parameter settings manually for variables to be scanned */
    void setParameterSpecs(std::string parStr);
@@ -112,7 +115,7 @@ protected:
 
 private:
    std::string parameterSpec_; ///< Holds information on the variables to be optimized -- set through the configuration file
-   std::string parameterSpecExt_; ///< Holds information on the variables to be optimized -- set through the corresponding member function
+   std::string parameterSpecCL_; ///< Holds information on the variables to be optimized -- set through the corresponding member function
 };
 
 /******************************************************************************/

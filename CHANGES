@@ -26,6 +26,9 @@ Wishlist for version 1.2, yet unnamed, release-date unknown
    (multi-populations and multi-criterion optimization need separate treatment)
  - Experimental port to MacOS 10.9
  - Added the option to enforce a specific C++ standard for the compilation procedure
+ - Added further command line options (when using Go2), such as the maximum number of iterations
+   or the maximum time for each algorithm type. Some options are now hidden and are only 
+   shown upon explicit request
  - Ported to Boost 1.55
 
 Recommended version of Boost: 1.55

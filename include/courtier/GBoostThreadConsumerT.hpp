@@ -168,7 +168,7 @@ public:
    /**
     * Returns a short identifier for this consumer
     */
-   virtual std::string getMnemomic() const {
+   virtual std::string getMnemonic() const {
       return std::string("btc");
    }
 
@@ -353,11 +353,17 @@ protected:
    /***************************************************************************/
    /**
     * Adds local command line options to a boost::program_options::options_description object.
+    *
+    * @param visible Command line options that should always be visible
+    * @param hidden Command line options that should only be visible upon request
     */
-   virtual void addCLOptions(boost::program_options::options_description& desc) {
+   virtual void addCLOptions(
+         boost::program_options::options_description& visible
+         , boost::program_options::options_description& hidden
+   ) {
       namespace po = boost::program_options;
 
-      desc.add_options()
+      hidden.add_options()
          ("threadsPerWorker", po::value<std::size_t>(&threadsPerWorker_)->default_value(threadsPerWorker_), "\t[btc] The number of threads used to process each worker")
       ;
    }

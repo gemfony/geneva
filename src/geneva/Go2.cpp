@@ -1019,46 +1019,71 @@ void Go2::parseCommandLine(
 	   << "The following consumers have been registered: " << GConsumerStore->getKeyVector();
 
 	   std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
-      po::options_description desc(usageString.c_str());
+
+	   boost::program_options::options_description general(usageString.c_str());
+	   boost::program_options::options_description basic("Basic options");
 
 		// First add local options
-		desc.add_options()
-         ("help,h", "emit help message")
+	   basic.add_options()
+         ("help,h", "Emit help message")
+         ("showAll", "Show all available options")
          ("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.str().c_str())
          ("executionMode,e", po::value<execMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE), "The execution mode: (0) means serial execution (1) means multi-threaded execution and (2) means execution through the broker. Note that you need to specifiy a consumer")
          ("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
          ("consumer,c", po::value<std::string>(&consumerName_), consumer_help.str().c_str())
 		;
 
-		// Retrieve available command line options from registered consumers, if any
+      // Add additional options specified as an argument to the constructor
+	   boost::program_options::options_description user("User options");
+      std::vector<boost::shared_ptr<boost::program_options::option_description> >::const_iterator po_cit;
+      for(po_cit=od.begin(); po_cit!=od.end(); ++po_cit) {
+         user.add(*po_cit);
+      }
+
+      // Add additional options coming from the algorithms and consumers
+      boost::program_options::options_description visible("Global algorithm- and consumer-options");
+      boost::program_options::options_description hidden("Hidden algorithm- and consumer-options");
+
+		// Retrieve available command-line options from registered consumers, if any
 		if(!GConsumerStore->empty()) {
 		   GConsumerStore->rewind();
 		   do {
-		      GConsumerStore->getCurrentItem()->addCLOptions(desc);
+		      GConsumerStore->getCurrentItem()->addCLOptions(visible, hidden);
 		   } while(GConsumerStore->goToNextPosition());
 		}
 
-		// Retrieve available commmand line options from registered optimization algorithm factories, if any
+		// Retrieve available command-line options from registered optimization algorithm factories, if any
 		if(!GOAFactoryStore->empty()) {
 	      GOAFactoryStore->rewind();
 	      do {
-	         GOAFactoryStore->getCurrentItem()->addCLOptions(desc);
+	         GOAFactoryStore->getCurrentItem()->addCLOptions(visible, hidden);
 	      } while(GOAFactoryStore->goToNextPosition());
 		}
 
-		// Add additional options specified as an argument to the constructor
-		std::vector<boost::shared_ptr<boost::program_options::option_description> >::const_iterator po_cit;
-		for(po_cit=od.begin(); po_cit!=od.end(); ++po_cit) {
-		   desc.add(*po_cit);
+      // Add the other options to "general"
+		if(user.options().empty()) {
+		   general.add(basic).add(visible).add(hidden);
+		} else {
+		   general.add(basic).add(user).add(visible).add(hidden);
 		}
 
 		// Do the actual parsing of the command line
       po::variables_map vm;
-      po::store(po::parse_command_line(argc, argv, desc), vm);
+      po::store(po::parse_command_line(argc, argv, general), vm);
 
       // Emit a help message, if necessary
-      if (vm.count("help")) {
-         std::cout << desc << std::endl;
+      if (vm.count("help") || vm.count("showAll")) { // Allow syntax "programm --help --showAll" and "program --showAll"
+         if(vm.count("showAll")) { // Show all options
+            std::cout << general << std::endl;
+         } else { // Just show a selection
+            boost::program_options::options_description selected(usageString.c_str());
+            if(user.options().empty()) {
+               selected.add(basic).add(visible);
+            } else {
+               selected.add(basic).add(user).add(visible);
+            }
+            std::cout << selected << std::endl;
+         }
          exit(0);
       }
 

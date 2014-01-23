@@ -99,7 +99,7 @@ GSwarmAlgorithmFactory::~GSwarmAlgorithmFactory()
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-std::string GSwarmAlgorithmFactory::getMnemomic() const {
+std::string GSwarmAlgorithmFactory::getMnemonic() const {
    return GSwarmAlgorithmFactory::nickname;
 }
 
@@ -169,6 +169,9 @@ void GSwarmAlgorithmFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorit
 		}
 		break;
 	}
+
+   // Call our parent class'es function
+   GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
 }
 
 /******************************************************************************/

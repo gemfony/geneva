@@ -183,9 +183,14 @@ public:
     * Adds local command line options to a boost::program_options::options_description object.
     * By default we do nothing so that derived classes do not need to re-implement this
     * function.
+    *
+    * @param visible Command line options that should always be visible
+    * @param hidden Command line options that should only be visible upon request
     */
-   virtual void addCLOptions(boost::program_options::options_description& desc) BASE
-   { /* nothing */ }
+   virtual void addCLOptions(
+      boost::program_options::options_description& visible
+      , boost::program_options::options_description& hidden
+   ) BASE { /* nothing */ }
 
    /***************************************************************************/
    /**
@@ -202,7 +207,7 @@ public:
    /** @brief A unique identifier for a given consumer */
    virtual std::string getConsumerName() const = 0;
    /** @brief Returns a short identifier for this consumer */
-   virtual std::string getMnemomic() const = 0;
+   virtual std::string getMnemonic() const = 0;
 
    /** @brief The actual business logic */
    virtual void async_startProcessing() = 0;

@@ -77,7 +77,7 @@ public:
    inline GOAInitializerT() {
       // Create a smart pointer holding the algorithm
       boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > > p(new oaf_type());
-      std::string mnemomic = p->getMnemomic();
+      std::string mnemomic = p->getMnemonic();
 
       // We require that the algorithm has a default
       // constructor and the static "nickname" data member
@@ -86,8 +86,6 @@ public:
          << "In GOAInitializerT<op_type>::GOAInitializerT(): Error!" << std::endl
          << "Identifier " << mnemomic << " already exists in store." << std::endl
          << GTERMINATION;
-      } else {
-         std::cout << "Registered factory for algorithm \"" << mnemomic << "\" in the store." << std::endl;
       }
    }
    /** @brief An empty destructor */
