@@ -1007,16 +1007,33 @@ void Go2::parseCommandLine(
 	try {
 	   std::string optimization_algorithms;
 
+      // Extract a list of algorithm mnemonics and clear-text descriptions
+      std::string algorithm_description;
+      std::vector<std::string> keys;
+      GOAFactoryStore->getKeyVector(keys);
+      std::vector<std::string>::iterator k_it;
+      for(k_it=keys.begin(); k_it!=keys.end(); ++k_it) {
+         algorithm_description += (*k_it + ":  " + GOAFactoryStore->get(*k_it)->getAlgorithmName() + "\n");
+      }
+
 	   std::ostringstream oa_help;
 	   oa_help
 	   << "A comma-separated list of optimization algorithms, e.g. \"arg1,arg2\". "
-	   << GOAFactoryStore->size() << " algorithms have been registered: "
-	   << GOAFactoryStore->getKeyVector();
+	   << GOAFactoryStore->size() << " algorithms have been registered: " << std::endl
+	   << algorithm_description;
+
+	   // Extract a list of consumer mnemonics and clear-text descriptions
+	   std::string consumer_description;
+	   GConsumerStore->getKeyVector(keys);
+	   for(k_it=keys.begin(); k_it!=keys.end(); ++k_it) {
+	      consumer_description += (*k_it + ":  " + GConsumerStore->get(*k_it)->getConsumerName() + "\n");
+	   }
 
 	   std::ostringstream consumer_help;
 	   consumer_help
 	   << "The name of a consumer for brokered execution (an error will be flagged if called with any other execution mode than (2). "
-	   << "The following consumers have been registered: " << GConsumerStore->getKeyVector();
+	   << GConsumerStore->size() << " consumers have been registered: " << std::endl
+	   << consumer_description;
 
 	   std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
 

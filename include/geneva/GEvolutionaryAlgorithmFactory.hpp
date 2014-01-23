@@ -95,6 +95,9 @@ public:
 
    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
    virtual std::string getMnemonic() const OVERRIDE;
+   /** @brief Gives access to a clear-text description of the algorithm */
+   virtual std::string getAlgorithmName() const OVERRIDE;
+
 protected:
 	/** @brief Creates individuals of this type */
 	virtual boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) OVERRIDE;

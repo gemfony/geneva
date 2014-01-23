@@ -345,6 +345,12 @@ public:
 
    /***************************************************************************/
    /**
+    * Gives access to a clear-text description of an algorithm
+    */
+   virtual std::string getAlgorithmName() const = 0;
+
+   /***************************************************************************/
+   /**
     * Allows to manually set the maximum number of iterations as is usually specified on the command line
     */
    void setMaxIterationCL(boost::uint32_t maxIterationCL) {

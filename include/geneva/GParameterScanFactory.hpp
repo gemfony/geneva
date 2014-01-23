@@ -97,6 +97,8 @@ public:
 
    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
    virtual std::string getMnemonic() const OVERRIDE;
+   /** @brief Gives access to a clear-text description of the algorithm */
+   virtual std::string getAlgorithmName() const OVERRIDE;
 
    /** @brief Allows to specify the parameter settings manually for variables to be scanned */
    void setParameterSpecs(std::string parStr);

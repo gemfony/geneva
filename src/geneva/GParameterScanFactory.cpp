@@ -137,6 +137,14 @@ std::string GParameterScanFactory::getMnemonic() const {
 
 /******************************************************************************/
 /**
+ * Gives access to a clear-text description of the algorithm
+ */
+std::string GParameterScanFactory::getAlgorithmName() const {
+   return std::string("Parameter-Scan");
+}
+
+/******************************************************************************/
+/**
  * Allows to specify the parameter settings manually for variables to be scanned
  */
 void GParameterScanFactory::setParameterSpecs(std::string parameterSpecCL) {

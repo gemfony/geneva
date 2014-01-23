@@ -105,6 +105,14 @@ std::string GSwarmAlgorithmFactory::getMnemonic() const {
 
 /******************************************************************************/
 /**
+ * Gives access to a clear-text description of the algorithm
+ */
+std::string GSwarmAlgorithmFactory::getAlgorithmName() const {
+   return std::string("Swarm Algorithm");
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type

@@ -198,9 +198,9 @@ public:
 
 	/************************************************************************/
 	/**
-	 * Retrieves a vector of all keys
+	 * Retrieves a full list of all keys
 	 */
-	std::string getKeyVector() const {
+	std::string getKeyDescription() const {
       boost::lock_guard<boost::mutex> guard(m_);
 	   std::string result;
 	   typename std::map<std::string, T>::const_iterator cit;
@@ -212,6 +212,19 @@ public:
 	      }
 	   }
 	   return result;
+	}
+
+	/************************************************************************/
+	/**
+	 * Retrieves a vector of all keys
+	 */
+	void getKeyVector(std::vector<std::string>& keys) const {
+	   keys.clear(); // Make sure the vector is empty
+	   boost::lock_guard<boost::mutex> guard(m_);
+	   typename std::map<std::string, T>::const_iterator cit;
+      for(cit=kvp_.begin(); cit!=kvp_.end(); ++cit) {
+         keys.push_back(cit->first);
+      }
 	}
 
 	/************************************************************************/

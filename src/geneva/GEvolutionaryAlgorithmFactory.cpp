@@ -105,6 +105,14 @@ std::string GEvolutionaryAlgorithmFactory::getMnemonic() const {
 
 /******************************************************************************/
 /**
+ * Gives access to a clear-text description of the algorithm
+ */
+std::string GEvolutionaryAlgorithmFactory::getAlgorithmName() const {
+   return std::string("Evolutionary Algorithm");
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type

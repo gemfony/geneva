@@ -109,6 +109,14 @@ std::string GGradientDescentFactory::getMnemonic() const {
 
 /******************************************************************************/
 /**
+ * Gives access to a clear-text description of the algorithm
+ */
+std::string GGradientDescentFactory::getAlgorithmName() const {
+   return std::string("Gradient Descent");
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type

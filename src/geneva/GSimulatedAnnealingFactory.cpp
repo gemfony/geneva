@@ -105,6 +105,14 @@ std::string GSimulatedAnnealingFactory::getMnemonic() const {
 
 /******************************************************************************/
 /**
+ * Gives access to a clear-text description of the algorithm
+ */
+std::string GSimulatedAnnealingFactory::getAlgorithmName() const {
+   return std::string("Simulated Annealing");
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type
