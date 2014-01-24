@@ -973,6 +973,8 @@ double GFunctionIndividual::fitnessCalculation(){
 	//-----------------------------------------------------------
 	};
 
+	if(fabs(result) < 0.5) this->userMarkAsInvalid();
+
 	// Let the audience know
 	return result;
 }

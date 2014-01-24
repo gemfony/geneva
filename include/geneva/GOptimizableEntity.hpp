@@ -117,7 +117,9 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(individualConstraint_)
 	  & BOOST_SERIALIZATION_NVP(steepness_)
 	  & BOOST_SERIALIZATION_NVP(barrier_)
-	  & BOOST_SERIALIZATION_NVP(worstKnownValid_);
+	  & BOOST_SERIALIZATION_NVP(worstKnownValid_)
+	  & BOOST_SERIALIZATION_NVP(markedAsInvalidExternally_)
+	  & BOOST_SERIALIZATION_NVP(changesToMarkedAsInvalidExternallyAllowed_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -384,10 +386,13 @@ protected:
 	/** @brief Combines secondary evaluation results by calculation the square root of the weighed squared sum */
 	double weighedSquaredSumCombiner(const std::vector<double>&) const;
 
+	/** @brief Allows users to mark this solution as invalid in derived classes (usually from within the evaluation function) */
+	void userMarkAsInvalid();
+
 private:
    /***************************************************************************/
    /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
-   bool isValid_(double&) const;
+   bool parameterSetFulfillsConstraints_(double&) const;
 
 	/***************************************************************************/
 	/** @brief Holds this object's internal, primary fitness */
@@ -427,6 +432,10 @@ private:
     double barrier_;
     /** @brief The worst known evaluation up to the current iteration */
     double worstKnownValid_;
+    /** @brief Indicates whether the user has marked this solution as invalid inside of the evaluation function */
+    bool markedAsInvalidExternally_;
+    /** @brief Indicates whether changes of the markedAsInvalidExternally_ flag are currently allowed */
+    bool changesToMarkedAsInvalidExternallyAllowed_;
 
     /** @brief A constraint-check to be applied to one or more components of this individual */
     boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > individualConstraint_;

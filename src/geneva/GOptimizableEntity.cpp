@@ -62,6 +62,8 @@ GOptimizableEntity::GOptimizableEntity()
    , steepness_(Gem::Geneva::FITNESSSIGMOIDSTEEPNESS)
    , barrier_(Gem::Geneva::WORSTALLOWEDVALIDFITNESS)
    , worstKnownValid_(0.)
+   , markedAsInvalidExternally_(false)
+   , changesToMarkedAsInvalidExternallyAllowed_(false)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -91,6 +93,8 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
    , steepness_(cp.steepness_)
    , barrier_(cp.barrier_)
    , worstKnownValid_(cp.worstKnownValid_)
+   , markedAsInvalidExternally_(cp.markedAsInvalidExternally_)
+   , changesToMarkedAsInvalidExternallyAllowed_(cp.changesToMarkedAsInvalidExternallyAllowed_)
 {
 	// Copy the personality pointer over
 	copyGenevaSmartPointer(cp.pt_ptr_, pt_ptr_);
@@ -183,6 +187,8 @@ boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", steepness_, p_load->steepness_, "steepness_", "p_load->steepness_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", barrier_, p_load->barrier_, "barrier_", "p_load->barrier_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", worstKnownValid_, p_load->worstKnownValid_, "worstKnownValid_", "p_load->worstKnownValid_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", markedAsInvalidExternally_, p_load->markedAsInvalidExternally_, "markedAsInvalidExternally_", "p_load->markedAsInvalidExternally_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", changesToMarkedAsInvalidExternallyAllowed_, p_load->changesToMarkedAsInvalidExternallyAllowed_, "changesToMarkedAsInvalidExternallyAllowed_", "p_load->changesToMarkedAsInvalidExternallyAllowed_", e , limit));
 
 	return evaluateDiscrepancies("GOptimizableEntity", caller, deviations, e);
 }
@@ -258,6 +264,8 @@ void GOptimizableEntity::load_(const GObject* cp) {
 	steepness_ = p_load->steepness_;
 	barrier_ = p_load->barrier_;
 	worstKnownValid_ = p_load->worstKnownValid_;
+	markedAsInvalidExternally_ = p_load->markedAsInvalidExternally_;
+	changesToMarkedAsInvalidExternallyAllowed_ = p_load->changesToMarkedAsInvalidExternallyAllowed_;
 
 	copyGenevaSmartPointer(p_load->pt_ptr_, pt_ptr_);
    copyGenevaSmartPointer(p_load->individualConstraint_, individualConstraint_);
@@ -464,42 +472,57 @@ double GOptimizableEntity::getTrueCachedFitness(
 
 /******************************************************************************/
 /**
- * Enforces re-calculation of the fitness.
+ * Enforces re-calculation of the fitness values.
  *
  * @return The main result of the fitness calculation
  */
 double GOptimizableEntity::doFitnessCalculation() {
+   // We start a new evaluation. Marking individuals as invalid
+   // happens inside of the user-supplied fitness calculation.
+   markedAsInvalidExternally_ = false;
+   // Make it clear that changes to the above flag are allowed
+   changesToMarkedAsInvalidExternallyAllowed_ = true;
+
    // Make sure the secondary fitness vector is empty
    currentSecondaryFitness_.clear();
    trueCurrentSecondaryFitness_.clear();
 
    // Find out, whether this is a valid solution
-   bool valid = this->isValid_(validityLevel_);
+   bool constraintsSatisfied = this->parameterSetFulfillsConstraints_(validityLevel_);
 
-   if(valid || USESIMPLEEVALUATION==evalPolicy_) {
+   if(constraintsSatisfied || USESIMPLEEVALUATION==evalPolicy_) {
       // Trigger fitness calculation using the user-supplied function. This will also
       // register secondary fitness values used in multi-criterion optimization.
       currentFitness_ = fitnessCalculation();
 
-      // Make a note of the true measurement, in case we want to transform them later
-      trueCurrentFitness_ = currentFitness_;
+      if(markedAsInvalidExternally_ || this->getWorstCase() == currentFitness_) {
+         currentFitness_ = this->getWorstCase();
+         trueCurrentFitness_ = this->getWorstCase();;
+         for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
+            currentSecondaryFitness_.push_back(currentFitness_);
+            trueCurrentSecondaryFitness_.push_back(currentFitness_);
+         }
+      } else {
+         // Make a note of the true measurement, in case we want to transform them later
+         trueCurrentFitness_ = currentFitness_;
 
 #ifdef DEBUG
-      // Check that the correct number of secondary evaluation criteria has been registered
-      if(currentSecondaryFitness_.size() != getNumberOfSecondaryFitnessCriteria()) {
-         glogger
-         << "In GOptimizableEntity::doFitnessCalculation(): Error!" << std::endl
-         << "Invalid number of secondary fitness values. Got " << currentSecondaryFitness_.size() << std::endl
-         << "but expected " << getNumberOfSecondaryFitnessCriteria() << std::endl
-         << GEXCEPTION;
-      }
+         // Check that the correct number of secondary evaluation criteria has been registered
+         if(currentSecondaryFitness_.size() != getNumberOfSecondaryFitnessCriteria()) {
+            glogger
+            << "In GOptimizableEntity::doFitnessCalculation(): Error!" << std::endl
+            << "Invalid number of secondary fitness values. Got " << currentSecondaryFitness_.size() << std::endl
+            << "but expected " << getNumberOfSecondaryFitnessCriteria() << std::endl
+            << GEXCEPTION;
+         }
 #endif /* DEBUG */
 
-      // Make a note of the true secondary measurements, in case we want to transform them later
-      trueCurrentSecondaryFitness_ = currentSecondaryFitness_;
+         // Make a note of the true secondary measurements, in case we want to transform them later
+         trueCurrentSecondaryFitness_ = currentSecondaryFitness_;
 
-      if(USESIGMOID == evalPolicy_) { // Update the fitness value to use sigmoidal values
-         currentFitness_ = Gem::Common::gsigmoid(currentFitness_, barrier_, steepness_);
+         if(USESIGMOID == evalPolicy_) { // Update the fitness value to use sigmoidal values
+            currentFitness_ = Gem::Common::gsigmoid(currentFitness_, barrier_, steepness_);
+         }
       }
    } else {
       if(USEWORSTCASEFORINVALID==evalPolicy_) {
@@ -535,6 +558,9 @@ double GOptimizableEntity::doFitnessCalculation() {
 
    // Clear the dirty flag
    setDirtyFlag(false);
+
+   // Prevent further changes to the markedAsInvalidExternallyAllowed_ may no longer be changed
+   changesToMarkedAsInvalidExternallyAllowed_ = false;
 
    // Return the main fitness value
    return currentFitness_;
@@ -846,7 +872,7 @@ bool GOptimizableEntity::isValid() const {
       << GEXCEPTION;
    }
 
-   if(validityLevel_ <= 1.) {
+   if(validityLevel_ <= 1. && !markedAsInvalidExternally_ && this->getWorstCase() != currentFitness_) {
       return true;
    } else {
       return false;
@@ -865,7 +891,7 @@ bool GOptimizableEntity::isValid() const {
 /**
  * Checks whether this solution is valid
  */
-bool GOptimizableEntity::isValid_(double& validityLevel) const {
+bool GOptimizableEntity::parameterSetFulfillsConstraints_(double& validityLevel) const {
    if(individualConstraint_) {
       bool valid = individualConstraint_->isValid(this, validityLevel);
       return valid;;
@@ -1013,6 +1039,24 @@ double GOptimizableEntity::weighedSquaredSumCombiner(const std::vector<double>& 
 	}
 
 	return sqrt(result);
+}
+
+/******************************************************************************/
+/**
+ * Allows users to mark this solution as invalid in derived classes (usually
+ * from within the evaluation function)
+ */
+void GOptimizableEntity::userMarkAsInvalid() {
+   if(changesToMarkedAsInvalidExternallyAllowed_) {
+      markedAsInvalidExternally_ = true;
+   } else {
+      glogger
+      << "In GOptimizableEntity::userMarkAsInvalid(): Error!" << std::endl
+      << "Tried to mark individual as invalid while changes to this property" << std::endl
+      << "were not allowed. This function may only be called from inside the" << std::endl
+      << "fitness evaluation!" << std::endl
+      << GEXCEPTION;
+   }
 }
 
 /******************************************************************************/

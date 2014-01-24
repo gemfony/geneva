@@ -816,7 +816,7 @@ void GParameterSet::toPropertyTree(
    for(std::size_t f=0; f<this->getNumberOfFitnessCriteria(); f++) {
       base = baseName + ".results.result" + boost::lexical_cast<std::string>(f);
       ptr.put(base, this->getCachedFitness(dirtyFlag, f));
-      base = baseName + ".results.trueResult"  + boost::lexical_cast<std::string>(f);
+      base = baseName + ".results.rawResult"  + boost::lexical_cast<std::string>(f);
       ptr.put(base, this->getTrueCachedFitness(dirtyFlag, f));
    }
 }

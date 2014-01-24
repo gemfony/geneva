@@ -84,6 +84,25 @@ int test_main(int argc, char** argv) {
    {  // Test replacement of variables and constants (1)
       std::map<std::string, std::vector<double> > parameterValues;
 
+      std::string formula("fabs(sin({{0}})/max({{1}}, 0.000001))");
+
+      std::vector<double> list0 = boost::assign::list_of(4.34343434343434);
+      std::vector<double> list1 = boost::assign::list_of(8.98989898989899);
+
+      parameterValues["0"] = list0;
+      parameterValues["1"] = list1;
+
+      GFormulaParserT<double> f(formula);
+
+      double fp_val = fabs(sin(4.34343434343434)/max(8.98989898989899, 0.000001));
+      double parse_val = f(parameterValues);
+
+      BOOST_CHECK_CLOSE(parse_val, fp_val, 0.001);
+   }
+
+   {  // Test replacement of variables and constants (1)
+      std::map<std::string, std::vector<double> > parameterValues;
+
       std::string formula("sin({{var0[2]}})/{{var1}}");
 
       std::vector<double> list0 = boost::assign::list_of(1.5)(2.5)(3.5);
