@@ -897,7 +897,7 @@ public:
 		);
 
 		comment = ""; // Reset the comment string
-		comment += "The maximum allowed number of iterations without improvement";
+		comment += "The maximum allowed number of iterations without improvement;";
 		comment += "0 means: no constraint.;";
 		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
 		gpb.registerFileParameter<boost::uint32_t>(
