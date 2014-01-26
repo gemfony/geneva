@@ -824,13 +824,14 @@ void GParameterSet::toPropertyTree(
 /******************************************************************************/
 /**
  * Transformation of the individual's parameter objects into a list of
- * comma-separated values and fitness
+ * comma-separated values and fitness plus possibly the validity
  *
  * @param  withNameAndType Indicates whether a list of names and types should be prepended
  * @param  withCommas Indicates, whether commas should be printed
+ * @param  useTrueFitness Indicates, whether the true fitness instead of the transformed fitness should be returned
  * @return A string holding the parameter values and possibly the types
  */
-std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas) const {
+std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool useTrueFitness, bool showValidity) const {
    std::map<std::string, std::vector<double> > dData;
    std::map<std::string, std::vector<float> > fData;
    std::map<std::string, std::vector<boost::int32_t> > iData;
@@ -901,7 +902,12 @@ std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas) const {
          varTypes.push_back("double");
       }
       bool isDirty;
-      varValues.push_back(boost::lexical_cast<std::string>(this->getCachedFitness(isDirty, f)));
+      if(useTrueFitness) {
+         varValues.push_back(boost::lexical_cast<std::string>(this->getTrueCachedFitness(isDirty, f)));
+      } else { // Output potentially transformed fitness
+         varValues.push_back(boost::lexical_cast<std::string>(this->getCachedFitness(isDirty, f)));
+      }
+
 
 #ifdef DEBUG
       if(isDirty) {
@@ -913,6 +919,14 @@ std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas) const {
 #endif
    }
 
+   if(showValidity) {
+      if(withNameAndType) {
+         varNames.push_back(std::string("validity"));
+         varTypes.push_back("bool");
+      }
+
+      varValues.push_back(boost::lexical_cast<std::string>(this->isValid()));
+   }
 
    // Transfer the data into the result string
    std::ostringstream result;

@@ -365,6 +365,26 @@ public:
       void setCSVResultFileName(const std::string&);
       /** @brief Allows to retrieve the name of the result file */
       std::string getCSVResultFileName() const;
+      /** @brief Allows to specify whether explanations should be printe
+       * d for parameter- and fitness values. */
+      void setPrintWithNameAndType(bool);
+      /** @brief Allows to check whether explanations should be printed for parameter- and fitness values */
+      bool getPrintWithNameAndType() const;
+
+      /** @brief Allows to specify whether commas should be printed in-between values */
+      void setPrintWithCommas(bool);
+      /** @brief Allows to check whether commas should be printed in-between values */
+      bool getPrintWithCommas() const;
+
+      /** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
+      void setUseTrueFitness(bool);
+      /** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
+      bool getUseTrueFitness() const;
+
+      /** @brief Allows to specify whether the validity of a solution should be shown */
+      void setShowValidity(bool);
+      /** @brief Allows to check whether the validity of a solution will be shown */
+      bool getShowValidity() const;
 
      protected:
       /** @brief A function that is called once before the optimization starts */
@@ -381,6 +401,10 @@ public:
 
      private:
       std::string csvResultFile_; ///< The name of the file to which data is emitted
+      bool withNameAndType_; ///< When set to true, explanations for values are printed
+      bool withCommas_; ///< When set to true, commas will be printed in-between values
+      bool useTrueFitness_; ///< Indicates whether true- or transformed fitness should be output
+      bool showValidity_; ///< Indicates whether the validity of a solution should be shown
 
      public:
       /** @brief Applies modifications to this object. This is needed for testing purposes */

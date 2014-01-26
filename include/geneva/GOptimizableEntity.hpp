@@ -393,6 +393,8 @@ private:
    /***************************************************************************/
    /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
    bool parameterSetFulfillsConstraints_(double&) const;
+   /** @brief Checks whether all results are at the worst possible value */
+   bool allResultsAtWorst() const;
 
 	/***************************************************************************/
 	/** @brief Holds this object's internal, primary fitness */

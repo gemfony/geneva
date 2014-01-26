@@ -797,6 +797,8 @@ public:
       , boundariesActive_(false)
       , withNameAndType_(false)
       , withCommas_(false)
+      , useTrueFitness_(true)
+      , showValidity_(true)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -808,6 +810,8 @@ public:
       , boundariesActive_(false)
       , withNameAndType_(false)
       , withCommas_(false)
+      , useTrueFitness_(true)
+      , showValidity_(true)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -823,6 +827,8 @@ public:
       , boundariesActive_(true)
       , withNameAndType_(false)
       , withCommas_(false)
+      , useTrueFitness_(true)
+      , showValidity_(true)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -835,6 +841,8 @@ public:
       , boundariesActive_(cp.boundariesActive_)
       , withNameAndType_(cp.withNameAndType_)
       , withCommas_(cp.withCommas_)
+      , useTrueFitness_(cp.useTrueFitness_)
+      , showValidity_(cp.showValidity_)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -927,6 +935,37 @@ public:
       return withCommas_;
    }
 
+   /***************************************************************************/
+   /**
+    * Allows to specify whether the true (instead of the transformed) fitness should be shown
+    */
+   void setUseTrueFitness(bool useTrueFitness) {
+      useTrueFitness_ = useTrueFitness;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
+    */
+   bool getUseTrueFitness() const {
+      return useTrueFitness_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to specify whether the validity of a solution should be shown
+    */
+   void setShowValidity(bool showValidity) {
+      showValidity_ = showValidity;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether the validity of a solution will be shown
+    */
+   bool getShowValidity() const {
+      return showValidity_;
+   }
 
    /***************************************************************************/
    /**
@@ -942,17 +981,6 @@ public:
       {
          // If the file pointed to by fileName_ already exists, make a back-up
          if(bf::exists(fileName_)) {
-            /*
-            std::ostringstream timeStringStream;
-            const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
-            const boost::posix_time::time_facet *f = new boost::posix_time::time_facet("%H-%M-%S");
-            timeStringStream.imbue(std::locale(timeStringStream.getloc(),f));
-
-            std::string newFileName = fileName_ + ".bak" + timeStringStream.str();
-
-            std::cout << "New file name is " << timeStringStream.str() << std::endl;
-             */
-
             const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
             std::string newFileName = fileName_ + ".bak_" + boost::lexical_cast<std::string>(currentTime);
 
@@ -980,7 +1008,7 @@ public:
             // Note that isGoodEnough may throw if loop acts on a "dirty" individual
             if(!boundariesActive_ || ind->isGoodEnough(boundaries_)) {
                // Append the data to the external file
-               data << ind->toCSV(withNameAndType_, withCommas_);
+               data << ind->toCSV(withNameAndType_, withCommas_, useTrueFitness_, showValidity_);
             }
          }
 
@@ -1003,6 +1031,8 @@ private:
    bool boundariesActive_; ///< Set to true if boundaries have been set
    bool withNameAndType_; ///< When set to true, explanations for values are printed
    bool withCommas_; ///< When set to true, commas will be printed in-between values
+   bool useTrueFitness_; ///< Indicates whether true- or transformed fitness should be output
+   bool showValidity_; ///< Indicates whether the validity of a solution should be shown
 };
 
 /******************************************************************************/

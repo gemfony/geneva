@@ -474,6 +474,8 @@ double GOptimizableEntity::getTrueCachedFitness(
 /**
  * Enforces re-calculation of the fitness values.
  *
+ * TODO: Check that all secondary fitnesses have been dealt with appropriately
+ *
  * @return The main result of the fitness calculation
  */
 double GOptimizableEntity::doFitnessCalculation() {
@@ -495,13 +497,19 @@ double GOptimizableEntity::doFitnessCalculation() {
       // register secondary fitness values used in multi-criterion optimization.
       currentFitness_ = fitnessCalculation();
 
-      if(markedAsInvalidExternally_ || this->getWorstCase() == currentFitness_) {
+      if(markedAsInvalidExternally_) {
+         // Make sure the secondary fitness vector is empty again
+         currentSecondaryFitness_.clear();
+         trueCurrentSecondaryFitness_.clear();
+
          currentFitness_ = this->getWorstCase();
-         trueCurrentFitness_ = this->getWorstCase();;
+         trueCurrentFitness_ = this->getWorstCase();
          for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
-            currentSecondaryFitness_.push_back(currentFitness_);
-            trueCurrentSecondaryFitness_.push_back(currentFitness_);
+            currentSecondaryFitness_.push_back(this->getWorstCase());
+            trueCurrentSecondaryFitness_.push_back(this->getWorstCase());
          }
+      } else if(this->allResultsAtWorst()) {
+         this->userMarkAsInvalid();
       } else {
          // Make a note of the true measurement, in case we want to transform them later
          trueCurrentFitness_ = currentFitness_;
@@ -522,6 +530,9 @@ double GOptimizableEntity::doFitnessCalculation() {
 
          if(USESIGMOID == evalPolicy_) { // Update the fitness value to use sigmoidal values
             currentFitness_ = Gem::Common::gsigmoid(currentFitness_, barrier_, steepness_);
+            for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
+               currentSecondaryFitness_.at(i-1) = Gem::Common::gsigmoid(currentSecondaryFitness_.at(i-1), barrier_, steepness_);
+            }
          }
       }
    } else {
@@ -545,8 +556,9 @@ double GOptimizableEntity::doFitnessCalculation() {
             trueCurrentSecondaryFitness_.push_back(currentFitness_);
          }
       } else if(USEWORSTKNOWNVALIDFORINVALID == evalPolicy_) {
-         // Some of this will be reset later, in  indEvaluationUpdate(). The caller
-         // needs to tell us about the worst solution known up to now.
+         // Some of this will be reset later, in  GOptimizableEntity::indEvaluationUpdate().
+         // The caller needs to tell us about the worst solution known up to now. It is only
+         // known once all individuals of this iteration have been evaluated.
          currentFitness_ = this->getWorstCase();
          trueCurrentFitness_ = this->getWorstCase();
          for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
@@ -906,6 +918,20 @@ bool GOptimizableEntity::parameterSetFulfillsConstraints_(double& validityLevel)
 
 /******************************************************************************/
 /**
+ * Checks whether all results are at the worst possible value
+ */
+bool GOptimizableEntity::allResultsAtWorst() const {
+   if(this->getWorstCase() != trueCurrentFitness_) return false;
+   for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
+      if(this->getWorstCase() != trueCurrentSecondaryFitness_.at(i-1)) return false;
+   }
+
+   // O.k., so all results are at their worst value
+   return true;
+}
+
+/******************************************************************************/
+/**
  * Check how valid a given solution is
  */
 double GOptimizableEntity::getValidityLevel() const {
@@ -952,6 +978,7 @@ void GOptimizableEntity::indEvaluationUpdate() {
             currentFitness_ =  std::max(worstKnownValid_,std::max(barrier_,1.))*validityLevel_;
          }
 
+         // TODO: MŸsste hier nicht die worstKnownSecondaryFitness stehen ???
          for(std::size_t i=1; i<nFitnessCriteria_; i++) {
             currentSecondaryFitness_.at(i) = currentFitness_;
          }

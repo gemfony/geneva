@@ -250,12 +250,12 @@ bool GBasePS::operator!=(const GBasePS& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GBasePS::checkRelationshipWith(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -1101,6 +1101,10 @@ void GBasePS::specificTestsFailuresExpected_GUnitTests() {
  */
 GBasePS::GPSOptimizationMonitor::GPSOptimizationMonitor()
    : csvResultFile_(DEFAULTCSVRESULTFILEOM)
+   , withNameAndType_(false)
+   , withCommas_ (true)
+   , useTrueFitness_(true)
+   , showValidity_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1112,6 +1116,10 @@ GBasePS::GPSOptimizationMonitor::GPSOptimizationMonitor()
 GBasePS::GPSOptimizationMonitor::GPSOptimizationMonitor(const GBasePS::GPSOptimizationMonitor& cp)
    : GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
    , csvResultFile_(cp.csvResultFile_)
+   , withNameAndType_(cp.withNameAndType_)
+   , withCommas_ (cp.withCommas_)
+   , useTrueFitness_(cp.useTrueFitness_)
+   , showValidity_(cp.showValidity_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1173,12 +1181,12 @@ bool GBasePS::GPSOptimizationMonitor::operator!=(const GBasePS::GPSOptimizationM
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GBasePS::GPSOptimizationMonitor::checkRelationshipWith(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
    using namespace Gem::Common;
 
@@ -1193,6 +1201,10 @@ boost::optional<std::string> GBasePS::GPSOptimizationMonitor::checkRelationshipW
 
    // ... and then our local data
    deviations.push_back(checkExpectation(withMessages, "GBasePS::GPSOptimizationMonitor", csvResultFile_, p_load->csvResultFile_, "csvResultFile_", "p_load->csvResultFile_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBasePS::GPSOptimizationMonitor", withNameAndType_, p_load->withNameAndType_, "withNameAndType_", "p_load->withNameAndType_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBasePS::GPSOptimizationMonitor", withCommas_, p_load->withCommas_, "withCommas_", "p_load->withCommas_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBasePS::GPSOptimizationMonitor", useTrueFitness_, p_load->useTrueFitness_, "useTrueFitness_", "p_load->useTrueFitness_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBasePS::GPSOptimizationMonitor", showValidity_, p_load->showValidity_, "showValidity_", "p_load->showValidity_", e , limit));
 
    return evaluateDiscrepancies("GBasePS::GPSOptimizationMonitor", caller, deviations, e);
 }
@@ -1204,7 +1216,7 @@ boost::optional<std::string> GBasePS::GPSOptimizationMonitor::checkRelationshipW
  * @param resultFile The desired name of the result file
  */
 void GBasePS::GPSOptimizationMonitor::setCSVResultFileName(
-      const std::string& csvResultFile
+   const std::string& csvResultFile
 ) {
    csvResultFile_ = csvResultFile;
 }
@@ -1217,6 +1229,72 @@ void GBasePS::GPSOptimizationMonitor::setCSVResultFileName(
  */
 std::string GBasePS::GPSOptimizationMonitor::getCSVResultFileName() const {
   return csvResultFile_;
+}
+
+/***************************************************************************/
+/**
+ * Allows to specify whether explanations should be printed for parameter-
+ * and fitness values.
+ */
+void GBasePS::GPSOptimizationMonitor::setPrintWithNameAndType(bool withNameAndType) {
+   withNameAndType_ = withNameAndType;
+}
+
+/***************************************************************************/
+/**
+ * Allows to check whether explanations should be printed for parameter-
+ * and fitness values
+ */
+bool GBasePS::GPSOptimizationMonitor::getPrintWithNameAndType() const {
+   return withNameAndType_;
+}
+
+/***************************************************************************/
+/**
+ * Allows to specify whether commas should be printed in-between values
+ */
+void GBasePS::GPSOptimizationMonitor::setPrintWithCommas(bool withCommas) {
+   withCommas_ = withCommas;
+}
+
+/***************************************************************************/
+/**
+ * Allows to check whether commas should be printed in-between values
+ */
+bool GBasePS::GPSOptimizationMonitor::getPrintWithCommas() const {
+   return withCommas_;
+}
+
+/***************************************************************************/
+/**
+ * Allows to specify whether the true (instead of the transformed) fitness should be shown
+ */
+void GBasePS::GPSOptimizationMonitor::setUseTrueFitness(bool useTrueFitness) {
+   useTrueFitness_ = useTrueFitness;
+}
+
+/***************************************************************************/
+/**
+ * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
+ */
+bool GBasePS::GPSOptimizationMonitor::getUseTrueFitness() const {
+   return useTrueFitness_;
+}
+
+/***************************************************************************/
+/**
+ * Allows to specify whether the validity of a solution should be shown
+ */
+void GBasePS::GPSOptimizationMonitor::setShowValidity(bool showValidity) {
+   showValidity_ = showValidity;
+}
+
+/***************************************************************************/
+/**
+ * Allows to check whether the validity of a solution will be shown
+ */
+bool GBasePS::GPSOptimizationMonitor::getShowValidity() const {
+   return showValidity_;
 }
 
 /******************************************************************************/
@@ -1260,9 +1338,9 @@ void GBasePS::GPSOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
    std::size_t pos=0;
    for(it=ps->begin(); it!=ps->end(); ++it) {
       if(ps->inFirstIteration() && 0==pos) { // First call to this function
-         result << (*it)->toCSV(true); // output variable names and types header
+         result << (*it)->toCSV(true, withCommas_, useTrueFitness_, showValidity_); // always output variable names and types header
       } else {
-         result << (*it)->toCSV(false);
+         result << (*it)->toCSV(withNameAndType_, withCommas_, useTrueFitness_, showValidity_);
       }
 
       pos++;
@@ -1295,6 +1373,10 @@ void GBasePS::GPSOptimizationMonitor::load_(const GObject* cp) {
 
    // ... and then our local data
    csvResultFile_ = p_load->csvResultFile_;
+   withNameAndType_ = p_load->withNameAndType_;
+   withCommas_ = p_load->withCommas_;
+   useTrueFitness_ = p_load->useTrueFitness_;
+   showValidity_ = p_load->showValidity_;
 }
 
 /******************************************************************************/
