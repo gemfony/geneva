@@ -136,7 +136,7 @@
     {
         "comment": "Specification of the parameters to be used",
         "comment": "in the parameter scan.",
-        "default": "d(0, -10., 10., 100), d(1, -10., 10., 100)"
+        "default": "d(0, -10., 10., 100), d(1, -10., 10., 100)",
         "value": "d(0, -10., 10., 100), d(1, -10., 10., 100)"
     }
 }

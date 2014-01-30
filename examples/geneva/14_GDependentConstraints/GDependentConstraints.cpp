@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
    // We want to add additional command line options
 
    bool printValid = false;
-   bool useTrueFitness = false;
+   bool useRawFitness = false;
    std::string monitorSpec = "empty";
    bool observeBoundaries = "false";
 
@@ -70,8 +70,8 @@ int main(int argc, char **argv) {
 
    boost::shared_ptr<po::option_description> printTrue_option(
       new po::option_description(
-         "useTrueFitness"
-         , po::value<bool>(&useTrueFitness)->implicit_value(true)->default_value(false) // This allows you say both --useTrueFitness and --useTrueFitness=true
+         "useRawFitness"
+         , po::value<bool>(&useRawFitness)->implicit_value(true)->default_value(false) // This allows you say both --useRawFitness and --useRawFitness=true
          , "Plot untransformed fitness value, even if a transformation takes place for the purpose of optimization"
       )
    );
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
       progplot_ptr->setProfileSpec(monitorSpec);
       progplot_ptr->setObserveBoundaries(observeBoundaries);
       progplot_ptr->setMonitorValidOnly(printValid); // Only record valid parameters, when printValid is set to true
-      progplot_ptr->setUseTrueEvaluation(useTrueFitness); // Use untransformed evaluation values for logging
+      progplot_ptr->setUseRawEvaluation(useRawFitness); // Use untransformed evaluation values for logging
 
       go.registerPluggableOM(
          boost::bind(
@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
       // Create the constraint objects
       boost::shared_ptr<GDoubleSumConstraint>           doublesum_constraint_ptr(new GDoubleSumConstraint(1.));
       boost::shared_ptr<GSphereConstraint>              sphere_constraint_ptr(new GSphereConstraint(3.));
-      boost::shared_ptr<GParameterSetFormulaConstraint> formula_constraint(new GParameterSetFormulaConstraint("fabs(sin({{var0}})/min({{var1}}, 0.000001))")); // sin(x) < y
+      boost::shared_ptr<GParameterSetFormulaConstraint> formula_constraint(new GParameterSetFormulaConstraint("fabs(sin({{var0}})/max(fabs({{var1}}), 0.000001))")); // sin(x) < y
       boost::shared_ptr<GDoubleSumGapConstraint>        gap_constraint(new GDoubleSumGapConstraint(1.,0.05)); // The sum of all variables must be 1 +/- 0.05
 
       // Create a check combiner and add the constraint objects to it
@@ -149,7 +149,7 @@ int main(int argc, char **argv) {
       combiner_ptr->setCombinerPolicy(Gem::Geneva::MULTIPLYINVALID);
 
       combiner_ptr->addCheck(doublesum_constraint_ptr);
-      // combiner_ptr->addCheck(sphere_constraint_ptr);
+      combiner_ptr->addCheck(sphere_constraint_ptr);
       combiner_ptr->addCheck(formula_constraint);
       // combiner_ptr->addCheck(gap_constraint);
 

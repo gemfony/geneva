@@ -47,11 +47,11 @@ GOptimizableEntity::GOptimizableEntity()
 	: GMutableI()
 	, GRateableI()
 	, GObject()
-	, currentFitness_(0.)
-   , currentSecondaryFitness_()
+	, transformedCurrentFitness_(0.)
+   , transformedCurrentSecondaryFitness_()
    , nFitnessCriteria_(1)
-   , trueCurrentFitness_(0.)
-   , trueCurrentSecondaryFitness_()
+   , rawCurrentFitness_(0.)
+   , rawCurrentSecondaryFitness_()
 	, bestPastPrimaryFitness_(0.)
 	, nStalls_(0)
 	, dirtyFlag_(true)
@@ -78,11 +78,11 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
 	: GMutableI(cp)
 	, GRateableI(cp)
 	, GObject(cp)
-	, currentFitness_(cp.currentFitness_)
-	, currentSecondaryFitness_(cp.currentSecondaryFitness_)
+	, transformedCurrentFitness_(cp.transformedCurrentFitness_)
+	, transformedCurrentSecondaryFitness_(cp.transformedCurrentSecondaryFitness_)
    , nFitnessCriteria_(cp.nFitnessCriteria_)
-   , trueCurrentFitness_(cp.trueCurrentFitness_)
-   , trueCurrentSecondaryFitness_(cp.trueCurrentSecondaryFitness_)
+   , rawCurrentFitness_(cp.rawCurrentFitness_)
+   , rawCurrentSecondaryFitness_(cp.rawCurrentSecondaryFitness_)
 	, bestPastPrimaryFitness_(cp.bestPastPrimaryFitness_)
 	, nStalls_(cp.nStalls_)
 	, dirtyFlag_(cp.dirtyFlag_)
@@ -170,11 +170,11 @@ boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
 	deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GOptimizableEntity", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", currentFitness_, p_load->currentFitness_, "currentFitness_", "p_load->currentFitness_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", currentSecondaryFitness_, p_load->currentSecondaryFitness_, "currentSecondaryFitness_", "p_load->currentSecondaryFitness_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", transformedCurrentFitness_, p_load->transformedCurrentFitness_, "transformedCurrentFitness_", "p_load->transformedCurrentFitness_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", transformedCurrentSecondaryFitness_, p_load->transformedCurrentSecondaryFitness_, "transformedCurrentSecondaryFitness_", "p_load->transformedCurrentSecondaryFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nFitnessCriteria_, p_load->nFitnessCriteria_, "nFitnessCriteria_", "p_load->nFitnessCriteria_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", trueCurrentFitness_, p_load->trueCurrentFitness_, "trueCurrentFitness_", "p_load->trueCurrentFitness_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", trueCurrentSecondaryFitness_, p_load->trueCurrentSecondaryFitness_, "trueCurrentSecondaryFitness_", "p_load->trueCurrentSecondaryFitness_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", rawCurrentFitness_, p_load->rawCurrentFitness_, "rawCurrentFitness_", "p_load->rawCurrentFitness_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", rawCurrentSecondaryFitness_, p_load->rawCurrentSecondaryFitness_, "rawCurrentSecondaryFitness_", "p_load->rawCurrentSecondaryFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", bestPastPrimaryFitness_, p_load->bestPastPrimaryFitness_, "bestPastPrimaryFitness_", "p_load->bestPastPrimaryFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nStalls_, p_load->nStalls_, "nStalls_", "p_load->nStalls_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", dirtyFlag_, p_load->dirtyFlag_, "dirtyFlag_", "p_load->dirtyFlag_", e , limit));
@@ -251,11 +251,11 @@ void GOptimizableEntity::load_(const GObject* cp) {
 	GObject::load_(cp);
 
 	// Then load our local data
-	currentFitness_ = p_load->currentFitness_;
-	currentSecondaryFitness_ = p_load->currentSecondaryFitness_;
+	transformedCurrentFitness_ = p_load->transformedCurrentFitness_;
+	transformedCurrentSecondaryFitness_ = p_load->transformedCurrentSecondaryFitness_;
 	nFitnessCriteria_ = p_load->nFitnessCriteria_;
-	trueCurrentFitness_ = p_load->trueCurrentFitness_;
-	trueCurrentSecondaryFitness_ = p_load->trueCurrentSecondaryFitness_;
+	rawCurrentFitness_ = p_load->rawCurrentFitness_;
+	rawCurrentSecondaryFitness_ = p_load->rawCurrentSecondaryFitness_;
 	bestPastPrimaryFitness_ = p_load->bestPastPrimaryFitness_;
 	nStalls_ = p_load->nStalls_;
 	dirtyFlag_ = p_load->dirtyFlag_;
@@ -355,8 +355,8 @@ double GOptimizableEntity::fitness(const std::size_t& id) {
 /**
  * Returns the untransformed result of the fitness function with id 0.
  */
-double GOptimizableEntity::trueFitness() {
-   return trueFitness(0);
+double GOptimizableEntity::rawFitness() {
+   return rawFitness(0);
 }
 
 /******************************************************************************/
@@ -372,18 +372,18 @@ double GOptimizableEntity::trueFitness() {
  * @param id The id of the fitness criterion
  * @return The "untransformed" fitness of this individual
  */
-double GOptimizableEntity::trueFitness(const std::size_t& id) {
+double GOptimizableEntity::rawFitness(const std::size_t& id) {
    if(dirtyFlag_) {
       glogger
-      << "In GOptimizableEntity::trueFitness(const std::size_t& id): Error!" << std::endl
+      << "In GOptimizableEntity::rawFitness(const std::size_t& id): Error!" << std::endl
       << "Tried to retrieve fitness of individual, whose dirty flag is set." << std::endl
       << GEXCEPTION;
    }
 
    if(0==id) {
-      return trueCurrentFitness_;
+      return rawCurrentFitness_;
    } else {
-      return trueCurrentSecondaryFitness_.at(id-1);
+      return rawCurrentSecondaryFitness_.at(id-1);
    }
 
    // Make the compiler happy
@@ -416,23 +416,23 @@ double GOptimizableEntity::getCachedFitness(
 	dirtyFlag = dirtyFlag_;
 
 	if(0 == id) {
-		return currentFitness_;
+		return transformedCurrentFitness_;
 	} else {
 #ifdef DEBUG
-		if(currentSecondaryFitness_.size() < id) {
+		if(transformedCurrentSecondaryFitness_.size() < id) {
 		   glogger
 		   << "In GOptimizableEntity::getCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
          << "Got invalid result id: " << id << std::endl
-         << "where maximum allowed id would be " << currentSecondaryFitness_.size()-1 << std::endl
+         << "where maximum allowed id would be " << transformedCurrentSecondaryFitness_.size()-1 << std::endl
          << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
-		return currentSecondaryFitness_.at(id - 1);
+		return transformedCurrentSecondaryFitness_.at(id - 1);
 	}
 
 	// Make the compiler happy
-	return currentFitness_;
+	return transformedCurrentFitness_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -455,23 +455,23 @@ double GOptimizableEntity::getTrueCachedFitness(
    dirtyFlag = dirtyFlag_;
 
    if(0 == id) {
-      return trueCurrentFitness_;
+      return rawCurrentFitness_;
    } else {
 #ifdef DEBUG
-      if(trueCurrentSecondaryFitness_.size() < id) {
+      if(rawCurrentSecondaryFitness_.size() < id) {
          glogger
          << "In GOptimizableEntity::getTrueCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
          << "Got invalid result id: " << id << std::endl
-         << "where maximum allowed id would be " << trueCurrentSecondaryFitness_.size()-1 << std::endl
+         << "where maximum allowed id would be " << rawCurrentSecondaryFitness_.size()-1 << std::endl
          << GEXCEPTION;
       }
 #endif /* DEBUG */
 
-      return trueCurrentSecondaryFitness_.at(id - 1);
+      return rawCurrentSecondaryFitness_.at(id - 1);
    }
 
    // Make the compiler happy
-   return trueCurrentFitness_;
+   return rawCurrentFitness_;
 }
 
 /******************************************************************************/
@@ -488,55 +488,58 @@ double GOptimizableEntity::doFitnessCalculation() {
 
    // We start a new evaluation. Marking individuals as invalid
    // happens inside of the user-supplied fitness calculation (if at all)
+   // so we want to reset the corresponding "invalid" flag
    markedAsInvalidExternally_ = false;
    // Make it clear that changes to the above flag are allowed
    changesAllowedTo_markedAsInvalidExternally_ = true;
 
    // Find out, whether this is a valid solution
-   bool constraintsSatisfied = this->parameterSetFulfillsConstraints_(validityLevel_);
-
-   if(constraintsSatisfied || USESIMPLEEVALUATION==evalPolicy_) {
+   if(
+      this->parameterSetFulfillsConstraints_(validityLevel_) // Needs to be called first, or else the validityLevel_ will not be filled
+      || USESIMPLEEVALUATION==evalPolicy_
+   ) {
       // Make sure the secondary fitness vector is empty
-      currentSecondaryFitness_.clear();
-      trueCurrentSecondaryFitness_.clear();
+      rawCurrentSecondaryFitness_.clear();
+      transformedCurrentSecondaryFitness_.clear();
 
       // Trigger actual fitness calculation using the user-supplied function. This will
       // also register secondary fitness values used in multi-criterion optimization.
-      currentFitness_ = fitnessCalculation();
+      rawCurrentFitness_ = fitnessCalculation();
+      transformedCurrentFitness_ = this->getWorstCase();
 
-      if(markedAsInvalidExternally_ || this->allResultsAtWorst()) { // Is this an invalid result ?
+      if(markedAsInvalidExternally_ || this->allRawResultsAtWorst()) { // Is this an invalid result ?
          // Make sure the secondary fitness vector is empty again
-         currentSecondaryFitness_.clear();
-         trueCurrentSecondaryFitness_.clear();
+         rawCurrentSecondaryFitness_.clear();
+         transformedCurrentSecondaryFitness_.clear();
 
-         currentFitness_ = this->getWorstCase();
-         trueCurrentFitness_ = this->getWorstCase();
+         rawCurrentFitness_ = this->getWorstCase();
+         transformedCurrentFitness_ = this->getWorstCase();
          for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
-            currentSecondaryFitness_.push_back(this->getWorstCase());
-            trueCurrentSecondaryFitness_.push_back(this->getWorstCase());
+            rawCurrentSecondaryFitness_.push_back(this->getWorstCase());
+            transformedCurrentSecondaryFitness_.push_back(this->getWorstCase());
          }
-      } else {
+      } else { // This is a valid solution nonetheless
          // Make a note of the true measurement, in case we want to transform them later
-         trueCurrentFitness_ = currentFitness_;
+         transformedCurrentFitness_ = rawCurrentFitness_;
 
 #ifdef DEBUG
          // Check that the correct number of secondary evaluation criteria has been registered
-         if(currentSecondaryFitness_.size() != getNumberOfSecondaryFitnessCriteria()) {
+         if(rawCurrentSecondaryFitness_.size() != getNumberOfSecondaryFitnessCriteria()) {
             glogger
             << "In GOptimizableEntity::doFitnessCalculation(): Error!" << std::endl
-            << "Invalid number of secondary fitness values. Got " << currentSecondaryFitness_.size() << std::endl
+            << "Invalid number of secondary fitness values. Got " << rawCurrentSecondaryFitness_.size() << std::endl
             << "but expected " << getNumberOfSecondaryFitnessCriteria() << std::endl
             << GEXCEPTION;
          }
 #endif /* DEBUG */
 
          // Make a note of the true secondary measurements, in case we want to transform them later
-         trueCurrentSecondaryFitness_ = currentSecondaryFitness_;
+         transformedCurrentSecondaryFitness_ = rawCurrentSecondaryFitness_;
 
          if(USESIGMOID == evalPolicy_) { // Update the fitness value to use sigmoidal values
-            currentFitness_ = Gem::Common::gsigmoid(currentFitness_, barrier_, steepness_);
+            transformedCurrentFitness_ = Gem::Common::gsigmoid(transformedCurrentFitness_, barrier_, steepness_);
             for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
-               currentSecondaryFitness_.at(i-1) = Gem::Common::gsigmoid(currentSecondaryFitness_.at(i-1), barrier_, steepness_);
+               transformedCurrentSecondaryFitness_.at(i-1) = Gem::Common::gsigmoid(transformedCurrentSecondaryFitness_.at(i-1), barrier_, steepness_);
             }
          }
       }
@@ -545,28 +548,33 @@ double GOptimizableEntity::doFitnessCalculation() {
       setDirtyFlag(false);
 
    } else { // Some constraints were violated. Act on the chosen policy
+      // Clear the secondary arrays so we can fill them as needed
+      rawCurrentSecondaryFitness_.clear();
+      transformedCurrentSecondaryFitness_.clear();
+
       if(USEWORSTCASEFORINVALID==evalPolicy_) {
-         currentFitness_ = this->getWorstCase();
-         trueCurrentFitness_ = this->getWorstCase();;
+         rawCurrentFitness_ = this->getWorstCase();
+         transformedCurrentFitness_ = this->getWorstCase();
+
          for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
-            currentSecondaryFitness_.push_back(this->getWorstCase());
-            trueCurrentSecondaryFitness_.push_back(this->getWorstCase());
+            rawCurrentSecondaryFitness_.push_back(this->getWorstCase());
+            transformedCurrentSecondaryFitness_.push_back(this->getWorstCase());
          }
 
          // Clear the dirty flag -- all possible evaluation work was done
          setDirtyFlag(false);
 
       } else if(USESIGMOID == evalPolicy_) {
+         rawCurrentFitness_ = this->getWorstCase();
          if(true == this->getMaxMode()) { // maximize
-            currentFitness_ = -validityLevel_*barrier_;
+            transformedCurrentFitness_ = -validityLevel_*barrier_;
          } else { // minimize
-            currentFitness_ =  validityLevel_*barrier_;
+            transformedCurrentFitness_ =  validityLevel_*barrier_;
          }
-         trueCurrentFitness_ = this->getWorstCase();
 
          for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
-            currentSecondaryFitness_.push_back(currentFitness_);
-            trueCurrentSecondaryFitness_.push_back(currentFitness_);
+            rawCurrentSecondaryFitness_.push_back(this->getWorstCase());
+            transformedCurrentSecondaryFitness_.push_back(transformedCurrentFitness_);
          }
 
          // Clear the dirty flag -- all possible evaluation work was done
@@ -576,15 +584,18 @@ double GOptimizableEntity::doFitnessCalculation() {
          // Some of this will be reset later, in  GOptimizableEntity::evaluationUpdate().
          // The caller needs to tell us about the worst solution known up to now. It is only
          // known once all individuals of this iteration have been evaluated.
-         currentFitness_ = this->getWorstCase();
-         trueCurrentFitness_ = this->getWorstCase();
+         rawCurrentFitness_ = this->getWorstCase();
+         transformedCurrentFitness_ = this->getWorstCase();
+
          for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
-            currentSecondaryFitness_.push_back(this->getWorstCase());
-            trueCurrentSecondaryFitness_.push_back(this->getWorstCase());
+            rawCurrentSecondaryFitness_.push_back(this->getWorstCase());
+            transformedCurrentSecondaryFitness_.push_back(this->getWorstCase());
          }
 
-         // Only placeholders have beens stored in the fitness criteria, the individual is still "dirty"
+         // As only place-holders have been stored in the fitness criteria, the individual is still "dirty"
+         //*****************
          setDirtyFlag(true);
+         //*****************
       }
    }
 
@@ -592,7 +603,7 @@ double GOptimizableEntity::doFitnessCalculation() {
    changesAllowedTo_markedAsInvalidExternally_ = false;
 
    // Return the main fitness value
-   return currentFitness_;
+   return transformedCurrentFitness_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -602,14 +613,14 @@ double GOptimizableEntity::doFitnessCalculation() {
 
 /******************************************************************************/
 /**
- * Registers a new, secondary result value of the custom fitness calculation. This is used in multi-criterion
- * optimization. fitnessCalculation() returns the main fitness value, but may also add further, secondary
- * results. Note that, whether these are used, depends on the optimization algorithm being used.
+ * Registers a new, "raw" secondary result value of the custom fitness calculation. This is used in
+ * multi-criterion optimization. fitnessCalculation() returns the main fitness value, but may also add further,
+ * secondary results. Note that, whether these are used, depends on the optimization algorithm being used.
  *
  * @param secondaryValue The secondary fitness value to be registered
  */
 void GOptimizableEntity::registerSecondaryResult(const double& secondaryValue) {
-	currentSecondaryFitness_.push_back(secondaryValue);
+	rawCurrentSecondaryFitness_.push_back(secondaryValue);
 }
 
 /******************************************************************************/
@@ -682,9 +693,9 @@ void GOptimizableEntity::challengeWorstFitness(
 #endif /* DEBUG */
 
    double transformedFitness = this->fitness(id, PREVENTREEVALUATION);
-   double trueFitness        = this->trueFitness(id);
+   double rawFitness        = this->rawFitness(id);
 
-   boost::tuple<double, double> eval(transformedFitness, trueFitness);
+   boost::tuple<double, double> eval(transformedFitness, rawFitness);
 
    if(isWorse(boost::get<0>(worstCandidate), boost::get<0>(eval))) {
       worstCandidate = eval;
@@ -698,7 +709,7 @@ void GOptimizableEntity::challengeWorstFitness(
 boost::tuple<double,double> GOptimizableEntity::getFitnessTuple(const boost::uint32_t& id) {
    return boost::tuple<double, double>(
       this->fitness(id, PREVENTREEVALUATION)
-      , this->trueFitness(id)
+      , this->rawFitness(id)
    );
 }
 
@@ -719,8 +730,8 @@ void GOptimizableEntity::setFitness_(const double& f, const std::vector<double>&
       << GEXCEPTION;
 	}
 
-	currentFitness_ = f;
-	currentSecondaryFitness_ = sec_f_vec;
+	transformedCurrentFitness_ = f;
+	transformedCurrentSecondaryFitness_ = sec_f_vec;
 
 	// Clear the dirty flag
 	setDirtyFlag(false);
@@ -938,7 +949,7 @@ bool GOptimizableEntity::isValid() const {
       << GEXCEPTION;
    }
 
-   if(validityLevel_ <= 1. && !markedAsInvalidExternally_ && !this->allResultsAtWorst()) {
+   if(validityLevel_ <= 1. && !markedAsInvalidExternally_ && !this->allRawResultsAtWorst()) {
       return true;
    } else {
       return false;
@@ -950,7 +961,7 @@ bool GOptimizableEntity::isValid() const {
  * Checks whether this solution is invalid
  */
  bool GOptimizableEntity::isInValid() const {
-    if(validityLevel_ > 1. || markedAsInvalidExternally_ || this->allResultsAtWorst()) {
+    if(validityLevel_ > 1. || markedAsInvalidExternally_ || this->allRawResultsAtWorst()) {
        return true;
     } else {
        return false;
@@ -963,8 +974,7 @@ bool GOptimizableEntity::isValid() const {
  */
 bool GOptimizableEntity::parameterSetFulfillsConstraints_(double& validityLevel) const {
    if(individualConstraint_) {
-      bool valid = individualConstraint_->isValid(this, validityLevel);
-      return valid;;
+      return individualConstraint_->isValid(this, validityLevel);
    } else { // Always valid, if no constraint object has been registered
       validityLevel = 0.;
       return true;
@@ -978,10 +988,10 @@ bool GOptimizableEntity::parameterSetFulfillsConstraints_(double& validityLevel)
 /**
  * Checks whether all results are at the worst possible value
  */
-bool GOptimizableEntity::allResultsAtWorst() const {
-   if(this->getWorstCase() != trueCurrentFitness_) return false;
-   for(std::size_t i=1; i<getNumberOfFitnessCriteria(); i++) {
-      if(this->getWorstCase() != trueCurrentSecondaryFitness_.at(i-1)) return false;
+bool GOptimizableEntity::allRawResultsAtWorst() const {
+   if(this->getWorstCase() != rawCurrentFitness_) return false;
+   for(std::size_t i=0; i<getNumberOfSecondaryFitnessCriteria(); i++) {
+      if(this->getWorstCase() != rawCurrentSecondaryFitness_.at(i)) return false;
    }
 
    // O.k., so all results are at their worst value
@@ -1083,32 +1093,32 @@ boost::tuple<double, double> GOptimizableEntity::getWorstKnownValid(
  */
 void GOptimizableEntity::evaluationUpdate() {
 #ifdef DEBUG
-   if((nFitnessCriteria_-1) != currentSecondaryFitness_.size()) {
+   if((nFitnessCriteria_-1) != transformedCurrentSecondaryFitness_.size()) {
       glogger
       << "In GOptimizableEntity::evaluationUpdate(): Error!" << std::endl
-      << "Number of expected fitness criteria " << (nFitnessCriteria_-1) << " does not match actual number " << currentSecondaryFitness_.size() << std::endl
+      << "Number of expected fitness criteria " << (nFitnessCriteria_-1) << " does not match actual number " << transformedCurrentSecondaryFitness_.size() << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
    if(USEWORSTKNOWNVALIDFORINVALID == evalPolicy_ && this->isInValid()) {
       if(true == maximize_) {
-         currentFitness_
+         transformedCurrentFitness_
                = -std::max(boost::get<0>(worstKnownValid_.at(0)),std::max(barrier_,1.))*validityLevel_;
          for(std::size_t i=1; i<nFitnessCriteria_; i++) {
-            currentSecondaryFitness_.at(i-1)
+            transformedCurrentSecondaryFitness_.at(i-1)
                  = -std::max(boost::get<0>(worstKnownValid_.at(i)), std::max(barrier_,1.))*validityLevel_;
          }
       } else {
-         currentFitness_
+         transformedCurrentFitness_
             =  std::max(boost::get<0>(worstKnownValid_.at(0)),std::max(barrier_,1.))*validityLevel_;
          for(std::size_t i=1; i<nFitnessCriteria_; i++) {
-            currentSecondaryFitness_.at(i-1)
+            transformedCurrentSecondaryFitness_.at(i-1)
                  = std::max(boost::get<0>(worstKnownValid_.at(i)), std::max(barrier_,1.))*validityLevel_;
          }
       }
 
-      // Note: the "trueFitness" values have already been set in doFitnessCalculation() to the worst known evaluation
+      // Note: the "rawFitness" values have already been set in doFitnessCalculation() to the worst known evaluation
 
       // Make sure the dirty flag is set to false, so our results do not get overwritten
       this->setDirtyFlag(false);
@@ -1124,7 +1134,7 @@ void GOptimizableEntity::evaluationUpdate() {
 double GOptimizableEntity::sumCombiner() const {
 	double result = 0.;
 	std::vector<double>::const_iterator cit;
-	for(cit=currentSecondaryFitness_.begin(); cit!=currentSecondaryFitness_.end(); ++cit) {
+	for(cit=transformedCurrentSecondaryFitness_.begin(); cit!=transformedCurrentSecondaryFitness_.end(); ++cit) {
 		result += *cit;
 	}
 	return result;
@@ -1139,7 +1149,7 @@ double GOptimizableEntity::sumCombiner() const {
 double GOptimizableEntity::fabsSumCombiner() const {
 	double result = 0.;
 	std::vector<double>::const_iterator cit;
-	for(cit=currentSecondaryFitness_.begin(); cit!=currentSecondaryFitness_.end(); ++cit) {
+	for(cit=transformedCurrentSecondaryFitness_.begin(); cit!=transformedCurrentSecondaryFitness_.end(); ++cit) {
 		result += fabs(*cit);
 	}
 	return result;
@@ -1156,7 +1166,7 @@ double GOptimizableEntity::fabsSumCombiner() const {
 double GOptimizableEntity::squaredSumCombiner() const {
 	double result = 0.;
 	std::vector<double>::const_iterator cit;
-	for(cit=currentSecondaryFitness_.begin(); cit!=currentSecondaryFitness_.end(); ++cit) {
+	for(cit=transformedCurrentSecondaryFitness_.begin(); cit!=transformedCurrentSecondaryFitness_.end(); ++cit) {
 		result += GSQUARED(*cit);
 	}
 	return sqrt(result);
@@ -1175,15 +1185,15 @@ double GOptimizableEntity::weighedSquaredSumCombiner(const std::vector<double>& 
 	double result = 0.;
 	std::vector<double>::const_iterator cit_eval, cit_weights;
 
-	if(currentSecondaryFitness_.size() != weights.size()) {
+	if(transformedCurrentSecondaryFitness_.size() != weights.size()) {
 	   glogger
 	   << "In GOptimizableEntity::weighedSquaredSumCombine(): Error!" << std::endl
-      << "Sizes of currentSecondaryFitness_ and the weights vector don't match: " << currentSecondaryFitness_.size() << " / " << weights.size() << std::endl
+      << "Sizes of transformedCurrentSecondaryFitness_ and the weights vector don't match: " << transformedCurrentSecondaryFitness_.size() << " / " << weights.size() << std::endl
       << GEXCEPTION;
 	}
 
-	for(cit_eval=currentSecondaryFitness_.begin(), cit_weights=weights.begin();
-		cit_eval!=currentSecondaryFitness_.end();
+	for(cit_eval=transformedCurrentSecondaryFitness_.begin(), cit_weights=weights.begin();
+		cit_eval!=transformedCurrentSecondaryFitness_.end();
 		++cit_eval, ++cit_weights
 	) {
 		result += GSQUARED((*cit_weights)*(*cit_eval));

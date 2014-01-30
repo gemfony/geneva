@@ -100,11 +100,11 @@ class GOptimizableEntity
 
 	  ar
 	  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-	  & BOOST_SERIALIZATION_NVP(currentFitness_)
-	  & BOOST_SERIALIZATION_NVP(currentSecondaryFitness_)
+	  & BOOST_SERIALIZATION_NVP(transformedCurrentFitness_)
+	  & BOOST_SERIALIZATION_NVP(transformedCurrentSecondaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(nFitnessCriteria_)
-	  & BOOST_SERIALIZATION_NVP(trueCurrentFitness_)
-	  & BOOST_SERIALIZATION_NVP(trueCurrentSecondaryFitness_)
+	  & BOOST_SERIALIZATION_NVP(rawCurrentFitness_)
+	  & BOOST_SERIALIZATION_NVP(rawCurrentSecondaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(bestPastPrimaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(nStalls_)
 	  & BOOST_SERIALIZATION_NVP(dirtyFlag_)
@@ -158,9 +158,9 @@ public:
 	virtual double fitness(const std::size_t&, bool) OVERRIDE;
 
    /** @brief Returns the untransformed result of the fitness function with id 0 */
-   double trueFitness();
+   double rawFitness();
    /** @brief Returns the untransformed result of a fitness function with a given id */
-   double trueFitness(const std::size_t&);
+   double rawFitness(const std::size_t&);
 
 	/** @brief Adapts and evaluates the individual in one go */
 	virtual double adaptAndEvaluate();
@@ -410,19 +410,19 @@ private:
    /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
    bool parameterSetFulfillsConstraints_(double&) const;
    /** @brief Checks whether all results are at the worst possible value */
-   bool allResultsAtWorst() const;
+   bool allRawResultsAtWorst() const;
 
 	/***************************************************************************/
 	/** @brief Holds this object's internal, primary fitness */
-   double currentFitness_;
+   double transformedCurrentFitness_;
    /** @brief Holds this object's internal, secondary fitness values */
-   std::vector<double> currentSecondaryFitness_;
+   std::vector<double> transformedCurrentSecondaryFitness_;
    /** @brief The total number of fitness criteria */
    std::size_t nFitnessCriteria_;
    /** @brief Holds this object's internal, "true" primary fitness (without transformations) */
-   double trueCurrentFitness_;
+   double rawCurrentFitness_;
    /** @brief Holds this object's internal, "true" secondary fitness values (without transformations) */
-   std::vector<double> trueCurrentSecondaryFitness_;
+   std::vector<double> rawCurrentSecondaryFitness_;
 
    /** @brief Holds the globally best known primary fitness of all individuals */
    double bestPastPrimaryFitness_;

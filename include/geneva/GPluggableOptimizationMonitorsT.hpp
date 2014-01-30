@@ -86,7 +86,7 @@ public:
     * The default constructpr
     */
    GBasePluggableOMT()
-      : useTrueEvaluation_(false)
+      : useRawEvaluation_(false)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -94,7 +94,7 @@ public:
     * The copy constructor
     */
    GBasePluggableOMT(const GBasePluggableOMT<ind_type>& cp)
-      : useTrueEvaluation_(cp.useTrueEvaluation_)
+      : useRawEvaluation_(cp.useRawEvaluation_)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -116,23 +116,23 @@ public:
 
    /***************************************************************************/
    /**
-    * Allows to set the useTrueEvaluation_ variable
+    * Allows to set the useRawEvaluation_ variable
     */
-   void setUseTrueEvaluation(bool useTrue) {
-      useTrueEvaluation_ = useTrue;
+   void setUseRawEvaluation(bool useRaw) {
+      useRawEvaluation_ = useRaw;
    }
 
    /***************************************************************************/
    /**
-    * Allows to retrieve the value of the useTrueEvaluation_ variable
+    * Allows to retrieve the value of the useRawEvaluation_ variable
     */
-   bool getUseTrueEvaluation() const {
-      return useTrueEvaluation_;
+   bool getUseRawEvaluation() const {
+      return useRawEvaluation_;
    }
 
 protected:
    /***************************************************************************/
-   bool useTrueEvaluation_; ///< Specifies whether the true (unmodified) evaluation should be used
+   bool useRawEvaluation_; ///< Specifies whether the true (unmodified) evaluation should be used
 };
 
 /******************************************************************************/
@@ -573,8 +573,8 @@ public:
 
          if(monitorBestOnly_) { // Monitor the best individuals only
             boost::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
-            if(GBasePluggableOMT<ind_type>::useTrueEvaluation_) {
-               fitness = p->trueFitness();
+            if(GBasePluggableOMT<ind_type>::useRawEvaluation_) {
+               fitness = p->rawFitness();
             } else {
                fitness = p->fitness();
             }
@@ -643,8 +643,8 @@ public:
             typename GOptimizationAlgorithmT<ind_type>::iterator it;
             for(it=goa->begin(); it!=goa->end(); ++it) {
 
-               if(GBasePluggableOMT<ind_type>::useTrueEvaluation_) {
-                  fitness = (*it)->trueFitness();
+               if(GBasePluggableOMT<ind_type>::useRawEvaluation_) {
+                  fitness = (*it)->rawFitness();
                } else {
                   fitness = (*it)->fitness();
                }
