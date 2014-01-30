@@ -403,6 +403,22 @@ double GOptimizableEntity::adaptAndEvaluate() {
 
 /******************************************************************************/
 /**
+ * Retrieve the current (not necessarily up-to-date) fitness
+ */
+double GOptimizableEntity::getCachedFitness(
+   bool& dirtyFlag
+   , const std::size_t& id
+   , const bool& useTransformedFitness
+) {
+   if(useTransformedFitness) {
+      return getTransformedCachedFitness(dirtyFlag, id);
+   } else {
+      return getRawCachedFitness(dirtyFlag, id);
+   }
+}
+
+/******************************************************************************/
+/**
  * Retrieves the cached (not necessarily up-to-date) fitness
  *
  * @param dirtyFlag The value of the dirtyFlag_ variable

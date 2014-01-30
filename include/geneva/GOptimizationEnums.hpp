@@ -63,6 +63,13 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * Whether to use raw or transformed fitness as return values or arguments
+ */
+const bool USERAWFITNESS         = false;
+const bool USETRANSFORMEDFITNESS = true;
+
+/******************************************************************************/
+/**
  * Explicit permission or denial to perform re-evaluation
  */
 const bool ALLOWREEVALUATION = true;
