@@ -70,7 +70,8 @@ class GTestIndividual1; // forward declaration, needed for test purposes
 namespace Gem {
 namespace Geneva {
 
-class GSerialSwarm; // forward declaration
+// Forward declarations
+class GSerialSwarm;
 
 /******************************************************************************/
 /**
@@ -104,8 +105,7 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(nFitnessCriteria_)
 	  & BOOST_SERIALIZATION_NVP(trueCurrentFitness_)
 	  & BOOST_SERIALIZATION_NVP(trueCurrentSecondaryFitness_)
-	  & BOOST_SERIALIZATION_NVP(bestPastFitness_)
-	  & BOOST_SERIALIZATION_NVP(bestPastSecondaryFitness_)
+	  & BOOST_SERIALIZATION_NVP(bestPastPrimaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(nStalls_)
 	  & BOOST_SERIALIZATION_NVP(dirtyFlag_)
 	  & BOOST_SERIALIZATION_NVP(serverMode_)
@@ -119,7 +119,7 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(barrier_)
 	  & BOOST_SERIALIZATION_NVP(worstKnownValid_)
 	  & BOOST_SERIALIZATION_NVP(markedAsInvalidExternally_)
-	  & BOOST_SERIALIZATION_NVP(changesToMarkedAsInvalidExternallyAllowed_);
+	  & BOOST_SERIALIZATION_NVP(changesAllowedTo_markedAsInvalidExternally_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -183,6 +183,11 @@ public:
 	/** @brief Determines whether more than one fitness criterion is present for this individual */
 	bool hasMultipleFitnessCriteria() const;
 
+	/** @brief Checks the worst fitness and updates it when needed */
+	void challengeWorstFitness(boost::tuple<double, double>&, const std::size_t&);
+   /** @brief Retrieve the fitness tuple at a given evaluation position */
+   boost::tuple<double,double> getFitnessTuple(const boost::uint32_t&);
+
 	/** @brief (De-)activates the server mode */
 	bool setServerMode(bool);
 	/** @brief Checks whether the server mode is set */
@@ -202,14 +207,14 @@ public:
    /** @brief Retrieves the best possible evaluation result, depending on whether we are in maximization or minimization mode */
    double getBestCase() const;
 
-	/** @brief Retrieves the steepness_ variable */
+	/** @brief Retrieves the steepness_ variable (used for the sigmoid transformation) */
 	double getSteepness() const;
-	/** @brief Sets the steepness variable */
+	/** @brief Sets the steepness variable (used for the sigmoid transformation) */
 	void setSteepness(double);
 
-	/** @brief Retrieves the barrier_ variable */
+	/** @brief Retrieves the barrier_ variable (used for the sigmoid transformation) */
 	double getBarrier() const;
-	/** @brief Sets the barrier variable */
+	/** @brief Sets the barrier variable (used for the sigmoid transformation) */
 	void setBarrier(double);
 
 	/** @brief Allows to set the current iteration of the parent optimization algorithm. */
@@ -217,14 +222,9 @@ public:
 	/** @brief Gives access to the parent optimization algorithm's iteration */
 	boost::uint32_t getAssignedIteration() const;
 
-	/** @brief Allows to set the globally best known fitness */
-	void setBestKnownFitness(const double&);
-	/** @brief Retrieves the value of the globally best known fitness */
-	double getBestKnownFitness() const;
-
-	/** @brief Allows to specify the number of optimization cycles without improvement */
+	/** @brief Allows to specify the number of optimization cycles without improvement of the primary fitness criterion */
 	void setNStalls(const boost::uint32_t&);
-	/** @brief Allows to retrieve the number of optimization cycles without improvement */
+	/** @brief Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion */
 	boost::uint32_t getNStalls() const;
 
 	/** @brief Triggers updates when the optimization process has stalled */
@@ -349,12 +349,17 @@ public:
    bool isInValid() const;
 
    /** @brief Allows an optimization algorithm to set the worst known valid evaluation up to the current iteration */
-   void setWorstKnownValid(double);
+   void setWorstKnownValid(const std::vector<boost::tuple<double, double> >&);
    /** @brief Allows to retrieve the worst known valid evaluation up to the current iteration, as set by an external optimization algorithm */
-   double getWorstKnownValid() const;
+   boost::tuple<double, double> getWorstKnownValid(const boost::uint32_t&) const;
 
    /** @brief Triggers an update of the internal evaluation, if necessary */
-   void indEvaluationUpdate();
+   void evaluationUpdate();
+
+   /** @brief Allows to set the globally best known primary fitness */
+   void setBestKnownPrimaryFitness(const double&);
+   /** @brief Retrieves the value of the globally best known primary fitness */
+   double getBestKnownPrimaryFitness() const;
 
 protected:
 	/***************************************************************************/
@@ -389,6 +394,11 @@ protected:
 	/** @brief Allows users to mark this solution as invalid in derived classes (usually from within the evaluation function) */
 	void userMarkAsInvalid();
 
+	/** @brief Checks whether a new solution is worse then an older solution, depending on the maxMode */
+	bool isWorse(double, const double&) const;
+	/** @brief Checks whether a new solution is better then an older solution, depending on the maxMode */
+	bool isBetter(double, const double&) const;
+
 private:
    /***************************************************************************/
    /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
@@ -398,58 +408,58 @@ private:
 
 	/***************************************************************************/
 	/** @brief Holds this object's internal, primary fitness */
-    double currentFitness_;
-    /** @brief Holds this object's internal, secondary fitness values */
-    std::vector<double> currentSecondaryFitness_;
-    /** @brief The total number of fitness criteria */
-    std::size_t nFitnessCriteria_;
-    /** @brief Holds this object's internal, "true" primary fitness (without transformations) */
-     double trueCurrentFitness_;
-     /** @brief Holds this object's internal, "true" secondary fitness values (without transformations) */
-     std::vector<double> trueCurrentSecondaryFitness_;
-    /** @brief Holds the globally best known fitness of all individuals */
-    double bestPastFitness_;
-    /** @brief Holds the globally best known secondary fitness values of all individuals */
-    std::vector<double> bestPastSecondaryFitness_;
-    /** @brief The number of stalls in the entire set of individuals */
-    boost::uint32_t nStalls_;
-    /** @brief Internal representation of the adaption status of this object */
-    bool dirtyFlag_;
-    /** @brief Prevents re-evaluation when set */
-    bool serverMode_;
-    /** @brief Indicates whether we are running in maximization or minimization mode */
-    bool maximize_;
-    /** @brief The iteration of the parent algorithm's optimization cycle */
-    boost::uint32_t assignedIteration_;
-    /** @brief Indicates how valid a given solution is */
-    double validityLevel_;
-    /** @brief Holds the actual personality information */
-    boost::shared_ptr<GPersonalityTraits> pt_ptr_;
+   double currentFitness_;
+   /** @brief Holds this object's internal, secondary fitness values */
+   std::vector<double> currentSecondaryFitness_;
+   /** @brief The total number of fitness criteria */
+   std::size_t nFitnessCriteria_;
+   /** @brief Holds this object's internal, "true" primary fitness (without transformations) */
+   double trueCurrentFitness_;
+   /** @brief Holds this object's internal, "true" secondary fitness values (without transformations) */
+   std::vector<double> trueCurrentSecondaryFitness_;
 
-    /** @brief Specifies what to do when the individual is marked as invalid */
-    evaluationPolicy evalPolicy_;
-    /** @brief Determines the "steepness" of a sigmoid function used by optimization algorithms */
-    double steepness_;
-    /** @brief Determines the extreme values of a sigmoid function used by optimization algorithms */
-    double barrier_;
-    /** @brief The worst known evaluation up to the current iteration */
-    double worstKnownValid_;
-    /** @brief Indicates whether the user has marked this solution as invalid inside of the evaluation function */
-    bool markedAsInvalidExternally_;
-    /** @brief Indicates whether changes of the markedAsInvalidExternally_ flag are currently allowed */
-    bool changesToMarkedAsInvalidExternallyAllowed_;
+   /** @brief Holds the globally best known primary fitness of all individuals */
+   double bestPastPrimaryFitness_;
+   /** @brief The number of stalls of the primary fitness criterion in the entire set of individuals */
+   boost::uint32_t nStalls_;
+   /** @brief Internal representation of the adaption status of this object */
+   bool dirtyFlag_;
+   /** @brief Prevents re-evaluation when set */
+   bool serverMode_;
+   /** @brief Indicates whether we are running in maximization or minimization mode */
+   bool maximize_;
+   /** @brief The iteration of the parent algorithm's optimization cycle */
+   boost::uint32_t assignedIteration_;
+   /** @brief Indicates how valid a given solution is */
+   double validityLevel_;
+   /** @brief Holds the actual personality information */
+   boost::shared_ptr<GPersonalityTraits> pt_ptr_;
 
-    /** @brief A constraint-check to be applied to one or more components of this individual */
-    boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > individualConstraint_;
+   /** @brief Specifies what to do when the individual is marked as invalid */
+   evaluationPolicy evalPolicy_;
+   /** @brief Determines the "steepness" of a sigmoid function used by optimization algorithms */
+   double steepness_;
+   /** @brief Determines the extreme values of a sigmoid function used by optimization algorithms */
+   double barrier_;
 
-    /***************************************************************************/
+   /** @brief The worst known evaluation up to the current iteration */
+   std::vector<boost::tuple<double, double> > worstKnownValid_;
+   /** @brief Indicates whether the user has marked this solution as invalid inside of the evaluation function */
+   bool markedAsInvalidExternally_;
+   /** @brief Indicates whether changes of the markedAsInvalidExternally_ flag are currently allowed */
+   bool changesAllowedTo_markedAsInvalidExternally_;
+
+   /** @brief A constraint-check to be applied to one or more components of this individual */
+   boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > individualConstraint_;
+
+   /***************************************************************************/
 public:
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+   /** @brief Applies modifications to this object. This is needed for testing purposes */
+   virtual bool modify_GUnitTests() OVERRIDE;
+   /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+   /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

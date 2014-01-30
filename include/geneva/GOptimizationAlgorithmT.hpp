@@ -100,8 +100,8 @@ private:
 	  & BOOST_SERIALIZATION_NVP(nRecordBestIndividuals_)
 	  & BOOST_SERIALIZATION_NVP(bestIndividuals_)
 	  & BOOST_SERIALIZATION_NVP(defaultPopulationSize_)
-	  & BOOST_SERIALIZATION_NVP(bestPastFitness_)
-	  & BOOST_SERIALIZATION_NVP(bestCurrentFitness_)
+	  & BOOST_SERIALIZATION_NVP(bestPastPrimaryFitness_)
+	  & BOOST_SERIALIZATION_NVP(bestCurrentPrimaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(stallCounter_)
 	  & BOOST_SERIALIZATION_NVP(cpInterval_)
 	  & BOOST_SERIALIZATION_NVP(cpBaseName_)
@@ -132,8 +132,8 @@ public:
 		, nRecordBestIndividuals_(DEFNRECORDBESTINDIVIDUALS)
 		, bestIndividuals_(DEFNRECORDBESTINDIVIDUALS)
 		, defaultPopulationSize_(DEFAULTPOPULATIONSIZE)
-		, bestPastFitness_(0.) // will be set appropriately in the optimize() function
-		, bestCurrentFitness_(0.) // will be set appropriately in the optimize() function
+		, bestPastPrimaryFitness_(0.) // will be set appropriately in the optimize() function
+		, bestCurrentPrimaryFitness_(0.) // will be set appropriately in the optimize() function
 		, stallCounter_(0)
 		, cpInterval_(DEFAULTCHECKPOINTIT)
 		, cpBaseName_(DEFAULTCPBASENAME)
@@ -144,7 +144,7 @@ public:
 		, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
 		, emitTerminationReason_(false)
 		, halted_(false)
-		, worstKnownValid_(boost::tuple<double,boost::uint32_t>(0.,0))
+		, worstKnownValid_()
 		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
 	{ /* nothing */ }
 
@@ -164,8 +164,8 @@ public:
 		, nRecordBestIndividuals_(cp.nRecordBestIndividuals_)
 		, bestIndividuals_(cp.bestIndividuals_)
 		, defaultPopulationSize_(cp.defaultPopulationSize_)
-		, bestPastFitness_(cp.bestPastFitness_)
-		, bestCurrentFitness_(cp.bestCurrentFitness_)
+		, bestPastPrimaryFitness_(cp.bestPastPrimaryFitness_)
+		, bestCurrentPrimaryFitness_(cp.bestCurrentPrimaryFitness_)
 		, stallCounter_(cp.stallCounter_)
 		, cpInterval_(cp.cpInterval_)
 		, cpBaseName_(cp.cpBaseName_)
@@ -396,8 +396,8 @@ public:
 	   EXPECTATIONCHECK(reportIteration_);
 	   EXPECTATIONCHECK(nRecordBestIndividuals_);
 	   EXPECTATIONCHECK(defaultPopulationSize_);
-	   EXPECTATIONCHECK(bestPastFitness_);
-	   EXPECTATIONCHECK(bestCurrentFitness_);
+	   EXPECTATIONCHECK(bestPastPrimaryFitness_);
+	   EXPECTATIONCHECK(bestCurrentPrimaryFitness_);
 	   EXPECTATIONCHECK(stallCounter_);
 	   EXPECTATIONCHECK(cpInterval_);
 	   EXPECTATIONCHECK(cpBaseName_);
@@ -450,8 +450,8 @@ public:
 		if(reportIteration_) doInfo(INFOINIT);
 
 		// We want to know if no better values were found for a longer period of time
-		bestPastFitness_ = this->getWorstCase();
-		bestCurrentFitness_ = this->getWorstCase();
+		bestPastPrimaryFitness_ = this->getWorstCase();
+		bestCurrentPrimaryFitness_ = this->getWorstCase();
 		stallCounter_ = 0;
 
 		// Give derived classes the opportunity to perform any necessary preparatory work.
@@ -468,7 +468,7 @@ public:
 			markIteration();
 
 			// Update fitness values and the stall counter
-			updateStallCounter((bestCurrentFitness_=cycleLogic()));
+			updateStallCounter((bestCurrentPrimaryFitness_=cycleLogic()));
 
 			// Add the best individuals to the bestIndividuals_ vector
 			addIterationBests(bestIndividuals_);
@@ -763,8 +763,8 @@ public:
 	 *
 	 * @return The best fitness found so far
 	 */
-	double getBestFitness() const {
-		return bestPastFitness_;
+	double getBestPrimaryFitness() const {
+		return bestPastPrimaryFitness_;
 	}
 
 	/***************************************************************************/
@@ -773,8 +773,8 @@ public:
 	 *
 	 * @return The best value found in the current iteration
 	 */
-	double getBestCurrentFitness() const {
-		return bestCurrentFitness_;
+	double getBestCurrentPrimaryFitness() const {
+		return bestCurrentPrimaryFitness_;
 	}
 
 	/***************************************************************************/
@@ -1115,8 +1115,8 @@ protected:
 		nRecordBestIndividuals_ = p_load->nRecordBestIndividuals_;
 		bestIndividuals_ = p_load->bestIndividuals_;
 		defaultPopulationSize_ = p_load->defaultPopulationSize_;
-		bestPastFitness_ = p_load->bestPastFitness_;
-		bestCurrentFitness_ = p_load->bestCurrentFitness_;
+		bestPastPrimaryFitness_ = p_load->bestPastPrimaryFitness_;
+		bestCurrentPrimaryFitness_ = p_load->bestCurrentPrimaryFitness_;
 		stallCounter_ = p_load->stallCounter_;
 		cpInterval_ = p_load->cpInterval_;
 		cpBaseName_ = p_load->cpBaseName_;
@@ -1334,10 +1334,7 @@ protected:
 	 * optimizationInit() function instead.
 	 */
 	virtual void init() BASE
-   {
-	   // Initialize the worstKnownValid_ variable according to the max-mode
-	   worstKnownValid_ = boost::tuple<double, boost::uint32_t>(this->getBestCase(), this->getStartIteration());
-   }
+   { /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -1409,44 +1406,44 @@ protected:
 
    /***************************************************************************/
    /**
-    * Searches for the worst known valid individual up to the current iteration
-    * and stores its fitness internally.
-    *
-    * @return The worst known valid invididual's fitness up to the current iteration
+    * Updates the worst known valid evaluations up to the current iteration
+    * and stores the fitness-values internally. Note: The first tuple-value
+    * in the vector signifies the (possibly transformed) evaluation, the
+    * second value the untransformed value.
     */
-   double findWorstKnownValid() {
+   void updateWorstKnownValid() {
+      std::size_t nFitnessCriteria = (*(this->begin()))->getNumberOfFitnessCriteria();
+
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         if((*it)->isValid() && this->isWorse((*it)->fitness(), boost::get<0>(worstKnownValid_))) {
-            boost::get<0>(worstKnownValid_) = (*it)->fitness();
+#ifdef DEBUG
+         if((*it)->getNumberOfFitnessCriteria() != nFitnessCriteria) {
+            glogger
+            << "In GOptimizationAlgorithmT<>::updateWorstKnownValid(): Error!" << std::endl
+            << "Got " << (*it)->getNumberOfFitnessCriteria() << " fitness criteria in individual " << (it-this->begin()) << std::endl
+            << "but expected " << nFitnessCriteria << " criteria" << std::endl
+            << GEXCEPTION;
+         }
+
+         if(!worstKnownValid_.empty() && worstKnownValid_.size() != nFitnessCriteria) {
+            glogger
+            << "In GOptimizationAlgorithmT<>::updateWorstKnownValid(): Error!" << std::endl
+            << "Got invalid number of evaluation criteria in worstKnownValid_:" << std::endl
+            << "Got " << worstKnownValid_.size() << " but expected " << nFitnessCriteria << std::endl
+            << GEXCEPTION;
+         }
+#endif /* DEBUG */
+
+         if((*it)->isValid()) {
+            for(std::size_t id=0; id<nFitnessCriteria; id++) {
+               if(worstKnownValid_.empty()) { // First call ? Fill with data
+                  worstKnownValid_.push_back((*it)->getFitnessTuple(id));
+               } else { // Subsequent call ? Update incrementally
+                  (*it)->challengeWorstFitness(worstKnownValid_.at(id), id);
+               }
+            }
          }
       }
-
-      // Update the iteration stored in worstKnownValid_ so we know searching for worse solutions has taken place
-      boost::get<1>(worstKnownValid_) = iteration_;
-
-      return boost::get<0>(worstKnownValid_);
-   }
-
-   /***************************************************************************/
-   /**
-    * Returns the fitness of the worst known valid individual up to the current iteration.
-    * Note that this function will only be able to make a valid statement if the individuals
-    * making up this population have already been evaluated. The function will throw, if this
-    * is not the case.
-    *
-    * @return The worst known valid invididual's fitness up to the current iteration
-    */
-   double getWorstKnownValid() {
-      // Check that our current iteration is identical to the one of the stored worst solution
-      if(boost::get<1>(worstKnownValid_) != this->iteration_) {
-         glogger
-         << "In GOptimizationAlgorithmT<>::getWorstKnownValid(): Error!" << std::endl
-         << "Stored solution comes from an older iteration: " << boost::get<1>(worstKnownValid_) << " / " << this->iteration_ << std::endl
-         << GEXCEPTION;
-      }
-
-      return boost::get<0>(worstKnownValid_);
    }
 
    /***************************************************************************/
@@ -1454,28 +1451,31 @@ protected:
     * Let the individuals know about the worst known valid solution so far
     */
    void markWorstKnownValid() {
-      double worst = this->findWorstKnownValid();
-
+      this->updateWorstKnownValid();
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->setWorstKnownValid(worst);
+         (*it)->setWorstKnownValid(worstKnownValid_);
       }
    }
 
    /***************************************************************************/
    /**
-    * Triggers an update of the individual's evaluation
+    * Triggers an update of the individual's evaluation (e.g. in order to
+    * act on the information regarding best or worst evaluations found
     */
    void triggerEvaluationUpdate() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->indEvaluationUpdate();
+         (*it)->evaluationUpdate();
       }
    }
 
    /***************************************************************************/
    /**
-    * Work to be performed right after the individuals were evaluated
+    * Work to be performed right after the individuals were evaluated. NOTE:
+    * this setup is sub-optimal, as this function isn't called from within
+    * GOptimizationAlgorithmT directly, but only from derived classes. This happens
+    * to prevent an additional split of the cycleLogic function.
     */
    void postEvaluationWork() {
       // Find the worst known valid solution in the current iteration and
@@ -1498,8 +1498,8 @@ private:
     * Update the stall counter
     */
    void updateStallCounter(const double& bestEval) {
-      if(isBetter(bestEval, bestPastFitness_)) {
-         bestPastFitness_ = bestEval;
+      if(isBetter(bestEval, bestPastPrimaryFitness_)) {
+         bestPastPrimaryFitness_ = bestEval;
          stallCounter_ = 0;
       } else {
          stallCounter_++;
@@ -1537,12 +1537,12 @@ private:
 	 * @return A boolean indicating whether the quality is above or below a given threshold
 	 */
 	bool qualityHalt() const {
-		if(isBetter(bestPastFitness_, qualityThreshold_)) {
+		if(isBetter(bestPastPrimaryFitness_, qualityThreshold_)) {
 			if(emitTerminationReason_) {
 				std::cerr
 				<< "Terminating optimization run because" << std::endl
 				<< "quality threshold " << qualityThreshold_ << " has been reached." << std::endl
-				<< "Best quality found was " << bestPastFitness_ << std::endl
+				<< "Best quality found was " << bestPastPrimaryFitness_ << std::endl
 				<< "with termination in iteration " << iteration_ << std::endl;
 			}
 
@@ -1744,7 +1744,7 @@ private:
 	void markBestFitness() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->setBestKnownFitness(bestPastFitness_);
+			(*it)->setBestKnownPrimaryFitness(bestPastPrimaryFitness_);
 		}
 	}
 
@@ -1775,8 +1775,8 @@ private:
 	GParameterSetFixedSizePriorityQueue bestIndividuals_; ///< A priority queue with the best individuals found so far
 
 	std::size_t defaultPopulationSize_; ///< The nominal size of the population
-	double bestPastFitness_; ///< Records the best fitness found in past generations
-	double bestCurrentFitness_; ///< Records the best fitness found in the current iteration
+	double bestPastPrimaryFitness_; ///< Records the best primary fitness found so far
+	double bestCurrentPrimaryFitness_; ///< Records the best fitness found in the current iteration
 	boost::uint32_t stallCounter_; ///< Counts the number of iterations without improvement
 	boost::int32_t cpInterval_; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	std::string cpBaseName_; ///< The base name of the checkpoint file
@@ -1788,7 +1788,7 @@ private:
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_; ///< Set to true when halt() has returned "true"
-	boost::tuple<double,boost::uint32_t> worstKnownValid_; ///< Stores the worst known valid evaluation up to the current iteration
+	std::vector<boost::tuple<double, double> > worstKnownValid_; ///< Stores the worst known valid evaluations up to the current iteration
 	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 
 public:
@@ -2005,7 +2005,7 @@ public:
 
 	    	case Gem::Geneva::INFOPROCESSING:
             {
-              if(!quiet_) std::cout << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentFitness() << " (" << goa->getBestFitness() << ")" << std::endl;
+              if(!quiet_) std::cout << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentPrimaryFitness() << " (" << goa->getBestPrimaryFitness() << ")" << std::endl;
               this->cycleInformation(goa);
             }
             break;

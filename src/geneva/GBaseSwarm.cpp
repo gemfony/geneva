@@ -1841,7 +1841,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizationAlgori
    // Perform the conversion to the target algorithm
    GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);
 
-   fitnessGraph_->add(boost::tuple<double,double>(swarm->getIteration(), swarm->getBestFitness()));
+   fitnessGraph_->add(boost::tuple<double,double>(swarm->getIteration(), swarm->getBestPrimaryFitness()));
 }
 
 /******************************************************************************/

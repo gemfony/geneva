@@ -716,7 +716,7 @@ void GBaseGD::saveCheckpoint() const {
 			getCheckpointDirectory() +
 			(this->halted()?"final":boost::lexical_cast<std::string>(getIteration())) +
 			"_"	+
-			boost::lexical_cast<std::string>(getBestFitness()) +
+			boost::lexical_cast<std::string>(getBestPrimaryFitness()) +
 			"_"	+
 			getCheckpointBaseName();
 
@@ -1024,7 +1024,7 @@ void GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
 	// Perform the conversion to the target algorithm
 	GBaseGD * const gd = static_cast<GBaseGD * const>(goa);
 
-	fitnessGraph_->add(boost::tuple<double,double>(gd->getIteration(), gd->getBestFitness()));
+	fitnessGraph_->add(boost::tuple<double,double>(gd->getIteration(), gd->getBestPrimaryFitness()));
 }
 
 /******************************************************************************/

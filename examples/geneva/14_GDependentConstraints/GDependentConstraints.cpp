@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
       // Create the constraint objects
       boost::shared_ptr<GDoubleSumConstraint>           doublesum_constraint_ptr(new GDoubleSumConstraint(1.));
       boost::shared_ptr<GSphereConstraint>              sphere_constraint_ptr(new GSphereConstraint(3.));
-      boost::shared_ptr<GParameterSetFormulaConstraint> formula_constraint(new GParameterSetFormulaConstraint("fabs(sin({{var0}})/max({{var1}}, 0.000001))")); // sin(x) < y
+      boost::shared_ptr<GParameterSetFormulaConstraint> formula_constraint(new GParameterSetFormulaConstraint("fabs(sin({{var0}})/min({{var1}}, 0.000001))")); // sin(x) < y
       boost::shared_ptr<GDoubleSumGapConstraint>        gap_constraint(new GDoubleSumGapConstraint(1.,0.05)); // The sum of all variables must be 1 +/- 0.05
 
       // Create a check combiner and add the constraint objects to it
@@ -149,9 +149,9 @@ int main(int argc, char **argv) {
       combiner_ptr->setCombinerPolicy(Gem::Geneva::MULTIPLYINVALID);
 
       combiner_ptr->addCheck(doublesum_constraint_ptr);
-      combiner_ptr->addCheck(sphere_constraint_ptr);
+      // combiner_ptr->addCheck(sphere_constraint_ptr);
       combiner_ptr->addCheck(formula_constraint);
-      combiner_ptr->addCheck(gap_constraint);
+      // combiner_ptr->addCheck(gap_constraint);
 
       // Register the combiner with the individual (note: we could also have registered
       // one of the "single" constraints here (see below for commented-out examples)
