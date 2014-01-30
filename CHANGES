@@ -31,7 +31,7 @@ Wishlist for version 1.2, yet unnamed, release-date unknown
    shown upon explicit request
  - Ported to Boost 1.55
 
-Recommended version of Boost: 1.55
+Recommended version of Boost: 1.55; ** Minimum Boost version is 1.48 **
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.0, "Chamonix" - August 31, 2013
@@ -40,7 +40,7 @@ The main changes for this release include:
  - Gave Go2 the ability to accept custom command line options from the user.
  - Updated all examples and tests.
 
-Recommended version of Boost: 1.54
+Recommended version of Boost: 1.54; Minimum Boost version is 1.41
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.11, "Route de Chamonix" - August 14, 2013
@@ -112,7 +112,7 @@ The main changes for this release include:
  - Ported to MacOS X (still highly experimental).
  - Ported to Boost 1.54.
 
-Recommended version of Boost: 1.54
+Recommended version of Boost: 1.54; Minimum Boost version is 1.41
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012

@@ -48,10 +48,10 @@
 #include <boost/version.hpp>
 
 /** The minimum allowed version of the Boost library */
-#define MIN_BOOST_VERSION 104100
+#define MIN_BOOST_VERSION 104800
 
 #if BOOST_VERSION < MIN_BOOST_VERSION
-#error "Error: Boost should at least have version 1.41 !"
+#error "Error: Boost should at least have version 1.48 !"
 #endif /* BOOST_VERSION */
 
 /** The current version of the Geneva library */
