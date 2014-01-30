@@ -818,7 +818,7 @@ void GParameterSet::toPropertyTree(
       base = baseName + ".results.result" + boost::lexical_cast<std::string>(f);
       ptr.put(base, this->getCachedFitness(dirtyFlag, f));
       base = baseName + ".results.rawResult"  + boost::lexical_cast<std::string>(f);
-      ptr.put(base, this->getTrueCachedFitness(dirtyFlag, f));
+      ptr.put(base, this->getRawCachedFitness(dirtyFlag, f));
    }
 }
 
@@ -829,10 +829,10 @@ void GParameterSet::toPropertyTree(
  *
  * @param  withNameAndType Indicates whether a list of names and types should be prepended
  * @param  withCommas Indicates, whether commas should be printed
- * @param  useTrueFitness Indicates, whether the true fitness instead of the transformed fitness should be returned
+ * @param  useRawFitness Indicates, whether the true fitness instead of the transformed fitness should be returned
  * @return A string holding the parameter values and possibly the types
  */
-std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool useTrueFitness, bool showValidity) const {
+std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool useRawFitness, bool showValidity) const {
    std::map<std::string, std::vector<double> > dData;
    std::map<std::string, std::vector<float> > fData;
    std::map<std::string, std::vector<boost::int32_t> > iData;
@@ -903,8 +903,8 @@ std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool use
          varTypes.push_back("double");
       }
       bool isDirty;
-      if(useTrueFitness) {
-         varValues.push_back(boost::lexical_cast<std::string>(this->getTrueCachedFitness(isDirty, f)));
+      if(useRawFitness) {
+         varValues.push_back(boost::lexical_cast<std::string>(this->getRawCachedFitness(isDirty, f)));
       } else { // Output potentially transformed fitness
          varValues.push_back(boost::lexical_cast<std::string>(this->getCachedFitness(isDirty, f)));
       }

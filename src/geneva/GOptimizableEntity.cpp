@@ -448,7 +448,7 @@ double GOptimizableEntity::getCachedFitness(
  * @param id The id of the primary or secondary fitness value
  * @return The cached fitness value (not necessarily up-to-date) with id id
  */
-double GOptimizableEntity::getTrueCachedFitness(
+double GOptimizableEntity::getRawCachedFitness(
    bool& dirtyFlag
    , const std::size_t& id
 ) const {
@@ -460,7 +460,7 @@ double GOptimizableEntity::getTrueCachedFitness(
 #ifdef DEBUG
       if(rawCurrentSecondaryFitness_.size() < id) {
          glogger
-         << "In GOptimizableEntity::getTrueCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
+         << "In GOptimizableEntity::getRawCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
          << "Got invalid result id: " << id << std::endl
          << "where maximum allowed id would be " << rawCurrentSecondaryFitness_.size()-1 << std::endl
          << GEXCEPTION;

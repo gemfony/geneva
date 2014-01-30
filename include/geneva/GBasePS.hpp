@@ -403,7 +403,7 @@ public:
       std::string csvResultFile_; ///< The name of the file to which data is emitted
       bool withNameAndType_; ///< When set to true, explanations for values are printed
       bool withCommas_; ///< When set to true, commas will be printed in-between values
-      bool useTrueFitness_; ///< Indicates whether true- or transformed fitness should be output
+      bool useRawFitness_; ///< Indicates whether true- or transformed fitness should be output
       bool showValidity_; ///< Indicates whether the validity of a solution should be shown
 
      public:

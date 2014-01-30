@@ -168,7 +168,7 @@ public:
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
 	double getCachedFitness(bool&, const std::size_t& = 0) const;
    /** @brief Retrieve the untransformed current (not necessarily up-to-date) fitness */
-   double getTrueCachedFitness(bool&, const std::size_t& = 0) const;
+   double getRawCachedFitness(bool&, const std::size_t& = 0) const;
 
 	/** @brief Enforce fitness calculation */
 	double doFitnessCalculation();

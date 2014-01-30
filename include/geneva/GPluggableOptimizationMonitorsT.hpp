@@ -797,7 +797,7 @@ public:
       , boundariesActive_(false)
       , withNameAndType_(false)
       , withCommas_(false)
-      , useTrueFitness_(true)
+      , useRawFitness_(true)
       , showValidity_(true)
    { /* nothing */ }
 
@@ -810,7 +810,7 @@ public:
       , boundariesActive_(false)
       , withNameAndType_(false)
       , withCommas_(false)
-      , useTrueFitness_(true)
+      , useRawFitness_(true)
       , showValidity_(true)
    { /* nothing */ }
 
@@ -827,7 +827,7 @@ public:
       , boundariesActive_(true)
       , withNameAndType_(false)
       , withCommas_(false)
-      , useTrueFitness_(true)
+      , useRawFitness_(true)
       , showValidity_(true)
    { /* nothing */ }
 
@@ -841,7 +841,7 @@ public:
       , boundariesActive_(cp.boundariesActive_)
       , withNameAndType_(cp.withNameAndType_)
       , withCommas_(cp.withCommas_)
-      , useTrueFitness_(cp.useTrueFitness_)
+      , useRawFitness_(cp.useRawFitness_)
       , showValidity_(cp.showValidity_)
    { /* nothing */ }
 
@@ -939,8 +939,8 @@ public:
    /**
     * Allows to specify whether the true (instead of the transformed) fitness should be shown
     */
-   void setUseTrueFitness(bool useTrueFitness) {
-      useTrueFitness_ = useTrueFitness;
+   void setUseTrueFitness(bool useRawFitness) {
+      useRawFitness_ = useRawFitness;
    }
 
    /***************************************************************************/
@@ -948,7 +948,7 @@ public:
     * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
     */
    bool getUseTrueFitness() const {
-      return useTrueFitness_;
+      return useRawFitness_;
    }
 
    /***************************************************************************/
@@ -1008,7 +1008,7 @@ public:
             // Note that isGoodEnough may throw if loop acts on a "dirty" individual
             if(!boundariesActive_ || ind->isGoodEnough(boundaries_)) {
                // Append the data to the external file
-               data << ind->toCSV(withNameAndType_, withCommas_, useTrueFitness_, showValidity_);
+               data << ind->toCSV(withNameAndType_, withCommas_, useRawFitness_, showValidity_);
             }
          }
 
@@ -1031,7 +1031,7 @@ private:
    bool boundariesActive_; ///< Set to true if boundaries have been set
    bool withNameAndType_; ///< When set to true, explanations for values are printed
    bool withCommas_; ///< When set to true, commas will be printed in-between values
-   bool useTrueFitness_; ///< Indicates whether true- or transformed fitness should be output
+   bool useRawFitness_; ///< Indicates whether true- or transformed fitness should be output
    bool showValidity_; ///< Indicates whether the validity of a solution should be shown
 };
 
