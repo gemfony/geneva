@@ -422,7 +422,7 @@ void GBaseSwarm::saveCheckpoint() const {
 #endif /* DEBUG */
 
 	bool isDirty;
-	double newValue = global_best_->getCachedFitness(isDirty);
+	double newValue = global_best_->getTransformedCachedFitness(isDirty);
 
 #ifdef DEBUG
 	if(isDirty) {

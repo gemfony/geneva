@@ -166,7 +166,7 @@ public:
 	virtual double adaptAndEvaluate();
 
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
-	double getCachedFitness(bool&, const std::size_t& = 0) const;
+	double getTransformedCachedFitness(bool&, const std::size_t& = 0) const;
    /** @brief Retrieve the untransformed current (not necessarily up-to-date) fitness */
    double getRawCachedFitness(bool&, const std::size_t& = 0) const;
 

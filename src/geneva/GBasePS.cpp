@@ -1031,7 +1031,7 @@ void GBasePS::loadCheckpoint(const std::string& cpFile) {
  */
 void GBasePS::saveCheckpoint() const {
    bool isDirty;
-   double newValue = this->at(0)->GOptimizableEntity::getCachedFitness(isDirty);
+   double newValue = this->at(0)->GOptimizableEntity::getTransformedCachedFitness(isDirty);
 
 #ifdef DEBUG
    if(isDirty) {

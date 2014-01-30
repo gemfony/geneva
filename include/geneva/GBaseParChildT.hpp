@@ -784,7 +784,7 @@ protected:
 
       // Retrieve the fitness of the best individual in the collection
       bool isDirty = false;
-      double bestFitness = this->at(0)->getCachedFitness(isDirty);
+      double bestFitness = this->at(0)->getTransformedCachedFitness(isDirty);
 
 #ifdef DEBUG
       if(isDirty) {

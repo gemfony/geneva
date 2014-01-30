@@ -736,7 +736,7 @@ void GBaseSA::GSAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
  */
 void GBaseSA::GSAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
    bool isDirty = false;
-   double currentEvaluation = 0.;
+   double currentTransformedEvaluation = 0.;
 
    // Convert the base pointer to the target type
    GBaseSA * const sa = static_cast<GBaseSA * const>(goa);
@@ -750,9 +750,9 @@ void GBaseSA::GSAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
 
       // Retrieve the fitness of this individual
       isDirty = false;
-      currentEvaluation = gi_ptr->getCachedFitness(isDirty);
+      currentTransformedEvaluation = gi_ptr->getTransformedCachedFitness(isDirty);
 
-      *(fitnessGraphVec_.at(ind)) & boost::tuple<double,double>(iteration, currentEvaluation);
+      *(fitnessGraphVec_.at(ind)) & boost::tuple<double,double>(iteration, currentTransformedEvaluation);
    }
 }
 

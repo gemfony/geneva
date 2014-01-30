@@ -107,7 +107,7 @@ boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > GParame
  */
 double GParameterSetFixedSizePriorityQueue::evaluation(const boost::shared_ptr<GParameterSet>& item) const {
    bool isDirty;
-   double result = item->getCachedFitness(isDirty);
+   double result = item->getTransformedCachedFitness(isDirty);
 
 #ifdef DEBUG
    if(isDirty) {

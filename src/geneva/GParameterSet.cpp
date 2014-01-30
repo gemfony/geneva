@@ -816,7 +816,7 @@ void GParameterSet::toPropertyTree(
    bool dirtyFlag;
    for(std::size_t f=0; f<this->getNumberOfFitnessCriteria(); f++) {
       base = baseName + ".results.result" + boost::lexical_cast<std::string>(f);
-      ptr.put(base, this->getCachedFitness(dirtyFlag, f));
+      ptr.put(base, this->getTransformedCachedFitness(dirtyFlag, f));
       base = baseName + ".results.rawResult"  + boost::lexical_cast<std::string>(f);
       ptr.put(base, this->getRawCachedFitness(dirtyFlag, f));
    }
@@ -906,7 +906,7 @@ std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool use
       if(useRawFitness) {
          varValues.push_back(boost::lexical_cast<std::string>(this->getRawCachedFitness(isDirty, f)));
       } else { // Output potentially transformed fitness
-         varValues.push_back(boost::lexical_cast<std::string>(this->getCachedFitness(isDirty, f)));
+         varValues.push_back(boost::lexical_cast<std::string>(this->getTransformedCachedFitness(isDirty, f)));
       }
 
 

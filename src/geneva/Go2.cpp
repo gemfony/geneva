@@ -551,7 +551,7 @@ double Go2::fitnessCalculation() {
 
 	boost::shared_ptr<GParameterSet> p = this->GOptimizableI::optimize<GParameterSet>(offset_ + iterationsConsumed_);
 
-	double val = p->getCachedFitness(dirty);
+	double val = p->getRawCachedFitness(dirty);
 	// is this the current fitness ? We should at this stage never
 	// run across an unevaluated individual.
 	if(dirty) {

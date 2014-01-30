@@ -1263,7 +1263,9 @@ protected:
 
 		GOptimizableI::optimize();
 
-		double val = this->at(0)->getCachedFitness(dirty);
+		// We use the raw fitness rather than the transformed fitness,
+		// as this is custom also for "normal" individuals
+		double val = this->at(0)->getRawCachedFitness(dirty);
 		// is this the current fitness ? We should at this stage never
 		// run across an unevaluated individual.
 		if(dirty) {

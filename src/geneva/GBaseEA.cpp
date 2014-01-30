@@ -1069,7 +1069,7 @@ void GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
  */
 void GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
    bool isDirty = false;
-   double currentEvaluation = 0.;
+   double currentTransformedEvaluation = 0.;
 
 	// Convert the base pointer to the target type
 	GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
@@ -1083,9 +1083,9 @@ void GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
 
       // Retrieve the fitness of this individual
       isDirty = false;
-      currentEvaluation = gi_ptr->getCachedFitness(isDirty);
+      currentTransformedEvaluation = gi_ptr->getTransformedCachedFitness(isDirty);
 
-      (fitnessGraphVec_.at(ind))->add(boost::tuple<double,double>(iteration, currentEvaluation));
+      (fitnessGraphVec_.at(ind))->add(boost::tuple<double,double>(iteration, currentTransformedEvaluation));
    }
 }
 

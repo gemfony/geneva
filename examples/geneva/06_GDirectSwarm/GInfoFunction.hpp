@@ -447,7 +447,7 @@ protected:
 			boost::shared_ptr<GParameterSet> g_best_ptr = swarm->GOptimizableI::getBestIndividual<GParameterSet>();
 			// Extract the fitness
 			bool isDirty;
-			double global_best_fitness = g_best_ptr->getCachedFitness(isDirty);
+			double global_best_fitness = g_best_ptr->getTransformedCachedFitness(isDirty);
 #ifdef DEBUG
 			// Check that the dirty flag isn't set
 			if(isDirty) {

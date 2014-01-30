@@ -339,7 +339,7 @@ std::string GMetaOptimizerIndividual::print() const {
    // Stream the results
    bool tmpDirtyFlag = false;
    result
-      << "Fitness = " << this->getCachedFitness(tmpDirtyFlag, 0) << (tmpDirtyFlag?"// dirty flag set":"") << std::endl
+      << "Fitness = " << this->getTransformedCachedFitness(tmpDirtyFlag, 0) << (tmpDirtyFlag?" // dirty flag set":"") << std::endl
       << "#Parents = " << npar_ptr->value() << std::endl
       << "#Children = " << nch_ptr->value() << std::endl
       << "adaption probability = " << adprob_ptr->value() << std::endl

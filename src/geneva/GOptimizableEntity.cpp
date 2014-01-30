@@ -317,7 +317,7 @@ double GOptimizableEntity::fitness(const std::size_t& id, bool reevaluationAllow
 	// Return the desired result -- there should be no situation where the dirtyFlag is still set
    bool tmpDirtyFlag = true;
 #ifdef DEBUG
-   double f = getCachedFitness(tmpDirtyFlag, id);
+   double f = getTransformedCachedFitness(tmpDirtyFlag, id);
    if(tmpDirtyFlag && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
       glogger
       << "In GOptimizableEntity::fitness(const std::size_t& id): Error!" << std::endl
@@ -325,7 +325,7 @@ double GOptimizableEntity::fitness(const std::size_t& id, bool reevaluationAllow
    }
    return f;
 #else
-   return getCachedFitness(tmpDirtyFlag, id);
+   return getTransformedCachedFitness(tmpDirtyFlag, id);
 #endif
 }
 
@@ -409,7 +409,7 @@ double GOptimizableEntity::adaptAndEvaluate() {
  * @param id The id of the primary or secondary fitness value
  * @return The cached fitness value (not necessarily up-to-date) with id id
  */
-double GOptimizableEntity::getCachedFitness(
+double GOptimizableEntity::getTransformedCachedFitness(
    bool& dirtyFlag
    , const std::size_t& id
 ) const  {
@@ -421,7 +421,7 @@ double GOptimizableEntity::getCachedFitness(
 #ifdef DEBUG
 		if(transformedCurrentSecondaryFitness_.size() < id) {
 		   glogger
-		   << "In GOptimizableEntity::getCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
+		   << "In GOptimizableEntity::getTransformedCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
          << "Got invalid result id: " << id << std::endl
          << "where maximum allowed id would be " << transformedCurrentSecondaryFitness_.size()-1 << std::endl
          << GEXCEPTION;
