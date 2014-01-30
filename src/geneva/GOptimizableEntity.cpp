@@ -484,7 +484,9 @@ double GOptimizableEntity::getTrueCachedFitness(
  */
 double GOptimizableEntity::doFitnessCalculation() {
    // Assign a new evaluation id
-   evaluationID_ = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
+   evaluationID_ = std::string("eval_") + boost::lexical_cast<std::string>(boost::uuids::random_generator()());
+
+   std::cout << evaluationID_ << std::endl;
 
    // We start a new evaluation. Marking individuals as invalid
    // happens inside of the user-supplied fitness calculation (if at all)
