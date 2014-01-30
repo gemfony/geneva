@@ -119,7 +119,8 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(barrier_)
 	  & BOOST_SERIALIZATION_NVP(worstKnownValid_)
 	  & BOOST_SERIALIZATION_NVP(markedAsInvalidExternally_)
-	  & BOOST_SERIALIZATION_NVP(changesAllowedTo_markedAsInvalidExternally_);
+	  & BOOST_SERIALIZATION_NVP(changesAllowedTo_markedAsInvalidExternally_)
+	  & BOOST_SERIALIZATION_NVP(evaluationID_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -335,6 +336,8 @@ public:
 
    /** @brief Check how valid a given solution is */
    double getValidityLevel() const;
+   /** @brief Checks whether all constraints were fulfilled */
+   bool constraintsFulfilled() const;
    /** @brief Allows to register a constraint with this individual */
    void registerConstraint(boost::shared_ptr<GValidityCheckT<GOptimizableEntity> >);
 
@@ -360,6 +363,9 @@ public:
    void setBestKnownPrimaryFitness(const double&);
    /** @brief Retrieves the value of the globally best known primary fitness */
    double getBestKnownPrimaryFitness() const;
+
+   /** @brief Retrieve the id assigned to the current evaluation */
+   std::string getCurrentEvaluationID() const;
 
 protected:
 	/***************************************************************************/
@@ -451,6 +457,9 @@ private:
 
    /** @brief A constraint-check to be applied to one or more components of this individual */
    boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > individualConstraint_;
+
+   /** @brief A unique id that is assigned to an evaluation */
+   std::string evaluationID_;
 
    /***************************************************************************/
 public:

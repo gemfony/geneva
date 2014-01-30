@@ -65,6 +65,7 @@ GOptimizableEntity::GOptimizableEntity()
    , worstKnownValid_()
    , markedAsInvalidExternally_(false)
    , changesAllowedTo_markedAsInvalidExternally_(false)
+   , evaluationID_("empty")
 { /* nothing */ }
 
 /******************************************************************************/
@@ -95,6 +96,7 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
    , worstKnownValid_(cp.worstKnownValid_)
    , markedAsInvalidExternally_(cp.markedAsInvalidExternally_)
    , changesAllowedTo_markedAsInvalidExternally_(cp.changesAllowedTo_markedAsInvalidExternally_)
+   , evaluationID_(cp.evaluationID_)
 {
 	// Copy the personality pointer over
 	copyGenevaSmartPointer(cp.pt_ptr_, pt_ptr_);
@@ -188,8 +190,9 @@ boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", worstKnownValid_, p_load->worstKnownValid_, "worstKnownValid_", "p_load->worstKnownValid_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", markedAsInvalidExternally_, p_load->markedAsInvalidExternally_, "markedAsInvalidExternally_", "p_load->markedAsInvalidExternally_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", changesAllowedTo_markedAsInvalidExternally_, p_load->changesAllowedTo_markedAsInvalidExternally_, "changesAllowedTo_markedAsInvalidExternally_", "p_load->changesAllowedTo_markedAsInvalidExternally_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", evaluationID_, p_load->evaluationID_, "evaluationID_", "p_load->evaluationID_", e , limit));
 
-	return evaluateDiscrepancies("GOptimizableEntity", caller, deviations, e);
+   return evaluateDiscrepancies("GOptimizableEntity", caller, deviations, e);
 }
 
 /******************************************************************************/
@@ -266,6 +269,7 @@ void GOptimizableEntity::load_(const GObject* cp) {
 	worstKnownValid_ = p_load->worstKnownValid_;
 	markedAsInvalidExternally_ = p_load->markedAsInvalidExternally_;
 	changesAllowedTo_markedAsInvalidExternally_ = p_load->changesAllowedTo_markedAsInvalidExternally_;
+	evaluationID_ = p_load->evaluationID_;
 
 	copyGenevaSmartPointer(p_load->pt_ptr_, pt_ptr_);
    copyGenevaSmartPointer(p_load->individualConstraint_, individualConstraint_);
@@ -479,6 +483,15 @@ double GOptimizableEntity::getTrueCachedFitness(
  * @return The main result of the fitness calculation
  */
 double GOptimizableEntity::doFitnessCalculation() {
+   // Assign a new evaluation id
+   evaluationID_ = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
+
+   // We start a new evaluation. Marking individuals as invalid
+   // happens inside of the user-supplied fitness calculation (if at all)
+   markedAsInvalidExternally_ = false;
+   // Make it clear that changes to the above flag are allowed
+   changesAllowedTo_markedAsInvalidExternally_ = true;
+
    // Find out, whether this is a valid solution
    bool constraintsSatisfied = this->parameterSetFulfillsConstraints_(validityLevel_);
 
@@ -486,12 +499,6 @@ double GOptimizableEntity::doFitnessCalculation() {
       // Make sure the secondary fitness vector is empty
       currentSecondaryFitness_.clear();
       trueCurrentSecondaryFitness_.clear();
-
-      // We start a new evaluation. Marking individuals as invalid
-      // happens inside of the user-supplied fitness calculation (if at all)
-      markedAsInvalidExternally_ = false;
-      // Make it clear that changes to the above flag are allowed
-      changesAllowedTo_markedAsInvalidExternally_ = true;
 
       // Trigger actual fitness calculation using the user-supplied function. This will
       // also register secondary fitness values used in multi-criterion optimization.
@@ -533,9 +540,6 @@ double GOptimizableEntity::doFitnessCalculation() {
             }
          }
       }
-
-      // Prevent further changes to markedAsInvalidExternallyAllowed_
-      changesAllowedTo_markedAsInvalidExternally_ = false;
 
       // Clear the dirty flag -- all possible evaluation work was done
       setDirtyFlag(false);
@@ -583,6 +587,9 @@ double GOptimizableEntity::doFitnessCalculation() {
          setDirtyFlag(true);
       }
    }
+
+   // Prevent further changes to markedAsInvalidExternallyAllowed_
+   changesAllowedTo_markedAsInvalidExternally_ = false;
 
    // Return the main fitness value
    return currentFitness_;
@@ -931,7 +938,7 @@ bool GOptimizableEntity::isValid() const {
       << GEXCEPTION;
    }
 
-   if(validityLevel_ <= 1. && !markedAsInvalidExternally_ && this->getWorstCase() != currentFitness_) {
+   if(validityLevel_ <= 1. && !markedAsInvalidExternally_ && !this->allResultsAtWorst()) {
       return true;
    } else {
       return false;
@@ -943,7 +950,11 @@ bool GOptimizableEntity::isValid() const {
  * Checks whether this solution is invalid
  */
  bool GOptimizableEntity::isInValid() const {
-    return !this->isValid();
+    if(validityLevel_ > 1. || markedAsInvalidExternally_ || this->allResultsAtWorst()) {
+       return true;
+    } else {
+       return false;
+    }
  }
 
 /******************************************************************************/
@@ -987,6 +998,15 @@ double GOptimizableEntity::getValidityLevel() const {
 
 /******************************************************************************/
 /**
+ * Checks whether all constraints were fulfilled
+ */
+bool GOptimizableEntity::constraintsFulfilled() const {
+   if(validityLevel_ <= 1.) return true;
+   else return false;
+}
+
+/******************************************************************************/
+/**
  * Allows to set the globally best known primary fitness so far
  *
  * @param bnf The best known primary fitness so far
@@ -1016,6 +1036,14 @@ double GOptimizableEntity::getBestKnownPrimaryFitness() const {
  * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
+
+/******************************************************************************/
+/**
+ * Retrieve the id assigned to the current evaluation
+ */
+std::string GOptimizableEntity::getCurrentEvaluationID() const {
+   return evaluationID_;
+}
 
 /******************************************************************************/
 /**

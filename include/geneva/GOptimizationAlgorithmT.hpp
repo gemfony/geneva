@@ -1434,7 +1434,7 @@ protected:
          }
 #endif /* DEBUG */
 
-         if((*it)->isValid()) {
+         if((*it)->constraintsFulfilled()  && !(*it)->isDirty()) { // Is this an individual which has been evaluated and fulfills all constraints ?
             for(std::size_t id=0; id<nFitnessCriteria; id++) {
                if(worstKnownValid_.empty()) { // First call ? Fill with data
                   worstKnownValid_.push_back((*it)->getFitnessTuple(id));

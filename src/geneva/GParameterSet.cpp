@@ -770,6 +770,7 @@ void GParameterSet::toPropertyTree(
 #endif
 
    ptr.put(baseName + ".iteration", this->getAssignedIteration());
+   ptr.put(baseName + ".id"       , this->getCurrentEvaluationID());
    ptr.put(baseName + ".isDirty"  , this->isDirty());
    ptr.put(baseName + ".isValid"  , this->isDirty()?false:this->isValid());
    ptr.put(baseName + ".type"     , std::string("GParameterSet"));
