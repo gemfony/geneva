@@ -245,8 +245,7 @@ void GMultiThreadedSA::adaptChildren()
 /**
  * Evaluate all children (and possibly parents, depending on the iteration and sorting mode) in parallel
  */
-void GMultiThreadedSA::runFitnessCalculation()
-{
+void GMultiThreadedSA::runFitnessCalculation() {
    boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
    std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
@@ -269,7 +268,7 @@ void GMultiThreadedSA::runFitnessCalculation()
       tp_ptr_->async_schedule(
          boost::function<double()>(
             boost::bind(
-               &GParameterSet::fitness
+               &GParameterSet::nonConstFitness
                , *it
                , 0
                , Gem::Geneva::ALLOWREEVALUATION

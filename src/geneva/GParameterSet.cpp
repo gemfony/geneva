@@ -762,10 +762,13 @@ void GParameterSet::toPropertyTree(
    }
 #endif
 
+   bool dirtyFlag = this->isDirty();
+   double rawFitness = 0., transformedFitness = 0.;
+
    ptr.put(baseName + ".iteration", this->getAssignedIteration());
    ptr.put(baseName + ".id"       , this->getCurrentEvaluationID());
-   ptr.put(baseName + ".isDirty"  , this->isDirty());
-   ptr.put(baseName + ".isValid"  , this->isDirty()?false:this->isValid());
+   ptr.put(baseName + ".isDirty"  , dirtyFlag);
+   ptr.put(baseName + ".isValid"  , dirtyFlag?false:this->isValid());
    ptr.put(baseName + ".type"     , std::string("GParameterSet"));
 
    // Loop over all parameter objects and ask them to add their data to our ptree object
@@ -803,15 +806,18 @@ void GParameterSet::toPropertyTree(
       break;
    }
 
-   // Output all fitness criteria. We do not enforce re-calculation of the fitness here.
+   // Output all fitness criteria. We do not enforce re-calculation of the fitness here,
+   // as the property is meant to capture the current state of the individual.
    // Check the "isDirty" tag, if you need to know whether the results are current.
    ptr.put(baseName + ".nResults", this->getNumberOfFitnessCriteria());
-   bool dirtyFlag;
    for(std::size_t f=0; f<this->getNumberOfFitnessCriteria(); f++) {
+      rawFitness         = dirtyFlag?this->getWorstCase():this->fitness(f, PREVENTREEVALUATION, USERAWFITNESS);
+      transformedFitness = dirtyFlag?this->getWorstCase():this->fitness(f, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+
       base = baseName + ".results.result" + boost::lexical_cast<std::string>(f);
-      ptr.put(base, this->getTransformedCachedFitness(dirtyFlag, f));
+      ptr.put(base, transformedFitness);
       base = baseName + ".results.rawResult"  + boost::lexical_cast<std::string>(f);
-      ptr.put(base, this->getRawCachedFitness(dirtyFlag, f));
+      ptr.put(base, rawFitness);
    }
 }
 
@@ -889,7 +895,7 @@ std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool use
       }
    }
 
-   // Add fitness name, type and value
+   // Note: The following will throw if this individual is in a "dirty" state
    for(std::size_t f=0; f<this->getNumberOfFitnessCriteria(); f++) {
       if(withNameAndType) {
          varNames.push_back(std::string("Fitness_") + boost::lexical_cast<std::string>(f));
@@ -897,20 +903,10 @@ std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool use
       }
       bool isDirty;
       if(useRawFitness) {
-         varValues.push_back(boost::lexical_cast<std::string>(this->getRawCachedFitness(isDirty, f)));
+         varValues.push_back(boost::lexical_cast<std::string>(this->fitness(f, PREVENTREEVALUATION, USERAWFITNESS)));
       } else { // Output potentially transformed fitness
-         varValues.push_back(boost::lexical_cast<std::string>(this->getTransformedCachedFitness(isDirty, f)));
+         varValues.push_back(boost::lexical_cast<std::string>(this->fitness(f, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)));
       }
-
-
-#ifdef DEBUG
-      if(isDirty) {
-         glogger
-         << "In GParameterSet::toCSV(bool withNameAndType) const: Error!" << std::endl
-         << "Got dirty individual when clean individual was expected" << std::endl
-         << GEXCEPTION;
-      }
-#endif
    }
 
    if(showValidity) {

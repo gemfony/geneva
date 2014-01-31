@@ -289,18 +289,18 @@ void GOptimizableEntity::adapt() {
 /******************************************************************************/
 /**
  * Returns the cached result of the fitness function with id 0. This function
- * will always return the transformed fitness.
+ * will always return the transformed fitness. This is the const version.
  */
-double GOptimizableEntity::fitness() {
+double GOptimizableEntity::fitness() const {
    return fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
 }
 
 /******************************************************************************/
 /**
  * Calculate or returns the result of a fitness function with a given id.
- * This function will always return the transformed fitness.
+ * This function will always return the transformed fitness. This is the const version.
  */
-double GOptimizableEntity::fitness(const std::size_t& id) {
+double GOptimizableEntity::fitness(const std::size_t& id) const {
    return fitness(id, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
 }
 
@@ -322,9 +322,6 @@ double GOptimizableEntity::fitness(
    , bool reevaluationAllowed
    , bool useTransformedFitness
 ) {
-   double result = 0.;
-   bool tmpDirtyFlag = true;
-
 	// Check whether we need to recalculate the fitness
 	if (dirtyFlag_) {
 	   if(reevaluationAllowed) {
@@ -337,18 +334,17 @@ double GOptimizableEntity::fitness(
 	   }
 	}
 
-	// Return the desired result -- there should be no situation where the dirtyFlag is still set
-   result = getCachedFitness(tmpDirtyFlag, id, useTransformedFitness);
-
 #ifdef DEBUG
-   if(tmpDirtyFlag && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
+   if(dirtyFlag_ && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
       glogger
       << "In GOptimizableEntity::fitness(const std::size_t& id): Error!" << std::endl
-      << "Dirty flag is still set in a location where it shouldn't be" << std::endl;
+      << "Dirty flag is still set in a location where it shouldn't be" << std::endl
+      << GEXCEPTION;
    }
 #endif
 
-   return result;
+	// Return the desired result -- there should be no situation where the dirtyFlag is still set
+   return getCachedFitness(id, useTransformedFitness);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -359,41 +355,61 @@ double GOptimizableEntity::fitness(
 
 /******************************************************************************/
 /**
- * Returns the untransformed result of the fitness function with id 0.
+ * Returns the last known fitness calculations of this object. This is the
+ * const version of the general fitness() function, which consequently cannot
+ * trigger re-evaluation, if the individual is dirty. Hence the function will
+ * throw, when it is called on a dirty individual (unless we use the
+ * USEWORSTKNOWNVALIDFORINVALID policy)
+ *
+ * @param id The id of the fitness criterion
+ * @param reevaluationAllowed Explicit permission to re-evaluate the individual
+ * @param useTransformedFitness Whether the transformed or the raw fitness should be returned
+ * @return The fitness of this individual
  */
-double GOptimizableEntity::rawFitness() {
-   return rawFitness(0);
+double GOptimizableEntity::fitness(
+   const std::size_t& id
+   , bool reevaluationAllowed
+   , bool useTransformedFitness
+) const {
+#ifdef DEBUG
+   if(dirtyFlag_ && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
+      glogger
+      << "In GOptimizableEntity::fitness(const std::size_t& id) const: Error!" << std::endl
+      << "Dirty flag is still set in a location where it shouldn't be" << std::endl
+      << GEXCEPTION;
+   }
+#endif
+
+   // Return the desired result -- there should be no situation where the dirtyFlag is still set
+   return getCachedFitness(id, useTransformedFitness);
 }
 
 /******************************************************************************/
 /**
- * Returns the untransformed result of a fitness function with a given id. This
- * can e.g. be important, when a sigmoid function was applied to the evaluation,
- * so it always stays below a certain value. The function usually returns the worst
- * possible evaluation for invalid individuals, with the exception of the USESIMPLEEVALUATION
- * evaluation mode, which treats valid and invalid solutions alike and just calls the
- * evaluation function. Note that this function throws if the individual hasn't been
- * evaluated yet.
- *
- * @param id The id of the fitness criterion
- * @return The "untransformed" fitness of this individual
+ * A wrapper for the non-const fitness function, so we can bind to it. It is
+ * needed as boost::bind cannot distinguish between the non-const and const
+ * overload of the fitness() function.
  */
-double GOptimizableEntity::rawFitness(const std::size_t& id) {
-   if(dirtyFlag_) {
-      glogger
-      << "In GOptimizableEntity::rawFitness(const std::size_t& id): Error!" << std::endl
-      << "Tried to retrieve fitness of individual, whose dirty flag is set." << std::endl
-      << GEXCEPTION;
-   }
+double GOptimizableEntity::nonConstFitness(
+   const std::size_t& id
+   , bool reevaluationAllowed
+   , bool useTransformedFitness
+) {
+   return this->fitness(id, reevaluationAllowed, useTransformedFitness);
+}
 
-   if(0==id) {
-      return rawCurrentFitness_;
-   } else {
-      return rawCurrentSecondaryFitness_.at(id-1);
-   }
-
-   // Make the compiler happy
-   return 0.;
+/******************************************************************************/
+/**
+ * A wrapper for the const fitness function, so we can bind to it. It is
+ * needed as boost::bind cannot distinguish between the non-const and const
+ * overload of the fitness() function.
+ */
+double GOptimizableEntity::constFitness(
+   const std::size_t& id
+   , bool reevaluationAllowed
+   , bool useTransformedFitness
+) const {
+   return this->fitness(id, reevaluationAllowed, useTransformedFitness);
 }
 
 /******************************************************************************/
@@ -412,88 +428,22 @@ double GOptimizableEntity::adaptAndEvaluate() {
  * Retrieve the current (not necessarily up-to-date) fitness
  */
 double GOptimizableEntity::getCachedFitness(
-   bool& dirtyFlag
-   , const std::size_t& id
+   const std::size_t& id
    , const bool& useTransformedFitness
-) {
-   if(useTransformedFitness) {
-      return getTransformedCachedFitness(dirtyFlag, id);
-   } else {
-      return getRawCachedFitness(dirtyFlag, id);
-   }
-}
-
-/******************************************************************************/
-/**
- * Retrieves the cached (not necessarily up-to-date) fitness
- *
- * @param dirtyFlag The value of the dirtyFlag_ variable
- * @param id The id of the primary or secondary fitness value
- * @return The cached fitness value (not necessarily up-to-date) with id id
- */
-double GOptimizableEntity::getTransformedCachedFitness(
-   bool& dirtyFlag
-   , const std::size_t& id
-) const  {
-	dirtyFlag = dirtyFlag_;
-
-	if(0 == id) {
-		return transformedCurrentFitness_;
-	} else {
-#ifdef DEBUG
-		if(transformedCurrentSecondaryFitness_.size() < id) {
-		   glogger
-		   << "In GOptimizableEntity::getTransformedCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
-         << "Got invalid result id: " << id << std::endl
-         << "where maximum allowed id would be " << transformedCurrentSecondaryFitness_.size()-1 << std::endl
-         << GEXCEPTION;
-		}
-#endif /* DEBUG */
-
-		return transformedCurrentSecondaryFitness_.at(id - 1);
-	}
-
-	// Make the compiler happy
-	return transformedCurrentFitness_;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Retrieve the untransformed current (not necessarily up-to-date) fitness
- *
- * @param dirtyFlag The value of the dirtyFlag_ variable
- * @param id The id of the primary or secondary fitness value
- * @return The cached fitness value (not necessarily up-to-date) with id id
- */
-double GOptimizableEntity::getRawCachedFitness(
-   bool& dirtyFlag
-   , const std::size_t& id
 ) const {
-   dirtyFlag = dirtyFlag_;
-
-   if(0 == id) {
-      return rawCurrentFitness_;
-   } else {
-#ifdef DEBUG
-      if(rawCurrentSecondaryFitness_.size() < id) {
-         glogger
-         << "In GOptimizableEntity::getRawCachedFitness(bool&, const std::size_t& id): Error!" << std::endl
-         << "Got invalid result id: " << id << std::endl
-         << "where maximum allowed id would be " << rawCurrentSecondaryFitness_.size()-1 << std::endl
-         << GEXCEPTION;
+   if(useTransformedFitness) {
+      if(0 == id) {
+         return transformedCurrentFitness_;
+      } else {
+         return transformedCurrentSecondaryFitness_.at(id - 1);
       }
-#endif /* DEBUG */
-
-      return rawCurrentSecondaryFitness_.at(id - 1);
+   } else {
+      if(0 == id) {
+         return rawCurrentFitness_;
+      } else {
+         return rawCurrentSecondaryFitness_.at(id - 1);
+      }
    }
-
-   // Make the compiler happy
-   return rawCurrentFitness_;
 }
 
 /******************************************************************************/

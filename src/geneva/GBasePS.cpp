@@ -1026,17 +1026,7 @@ void GBasePS::loadCheckpoint(const std::string& cpFile) {
  * Saves the state of the object to disc. We simply serialize the entire object.
  */
 void GBasePS::saveCheckpoint() const {
-   bool isDirty;
-   double newValue = this->at(0)->GOptimizableEntity::getTransformedCachedFitness(isDirty);
-
-#ifdef DEBUG
-   if(isDirty) {
-      glogger
-      << "In GBasePS::saveCheckpoint():" << std::endl
-      << "Best individual has dirty flag set!" << std::endl
-      << GEXCEPTION;
-   }
-#endif
+   double newValue = this->at(0)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 
    // Determine a suitable name for the output file
    std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(this->getIteration()) + "_"

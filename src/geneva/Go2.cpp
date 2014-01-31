@@ -540,28 +540,20 @@ void Go2::randomInit()
 
 /******************************************************************************/
 /**
- * Fitness calculation for an optimization algorithm means optimization. The fitness is
- * then determined by the best individual which, after the end of the optimization cycle.
+ * (Primary) fitness calculation for an optimization algorithm means optimization. The fitness
+ * is then determined by the best individual which, after the end of the optimization cycle.
  *
  * @param id The id of the target function (ignored here)
  * @return The fitness of the best individual in the population
  */
 double Go2::fitnessCalculation() {
-	bool dirty = false;
-
+   // Make sure all optimization work has been carried out
 	boost::shared_ptr<GParameterSet> p = this->GOptimizableI::optimize<GParameterSet>(offset_ + iterationsConsumed_);
 
-	double val = p->getRawCachedFitness(dirty);
-	// is this the current fitness ? We should at this stage never
-	// run across an unevaluated individual.
-	if(dirty) {
-	   glogger
-	   << "In Go2::fitnessCalculation():" << std::endl
-      << "Came across dirty individual" << std::endl
-      << GEXCEPTION;
-	}
-
-	return val;
+   // We use the raw fitness rather than the transformed fitness,
+   // as this is custom also for "normal" individuals. Re-evaluation
+   // should never happen at this point.
+	return p->fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USERAWFITNESS);
 }
 
 /******************************************************************************/

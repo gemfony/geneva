@@ -63,12 +63,15 @@ public:
 	/** @brief The standard destructor */
 	virtual ~GRateableI(){ /* nothing */ }
 
-	/** @brief Retrieve a value for this class, using a fixed fitness function */
-	virtual double fitness() BASE = 0;
-	/** @brief Retrieve a value for this class, using a fitness function with a given id */
-	virtual double fitness(const std::size_t&) BASE = 0;
+   /** @brief Retrieve a value for this class, using a fixed fitness function */
+   virtual double fitness() const BASE = 0;
+   /** @brief Retrieve a value for this class, using a fitness function with a given id */
+   virtual double fitness(const std::size_t&) const BASE = 0;
+
    /** @brief Calculate or returns the result of a fitness function with a given id */
    virtual double fitness(const std::size_t&, bool, bool) BASE = 0;
+   /** @brief Calculate or returns the result of a fitness function with a given id */
+   virtual double fitness(const std::size_t&, bool, bool) const BASE = 0;
 };
 
 } /* namespace Geneva */

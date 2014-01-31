@@ -748,10 +748,9 @@ void GBaseSA::GSAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
       // Get access to the individual
       boost::shared_ptr<GParameterSet> gi_ptr = sa->individual_cast<GParameterSet>(ind);
 
-      // Retrieve the fitness of this individual
-      isDirty = false;
-      currentTransformedEvaluation = gi_ptr->getTransformedCachedFitness(isDirty);
-
+      // Retrieve the fitness of this individual -- all individuals should be "clean" here
+      currentTransformedEvaluation = gi_ptr->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+      // Add the data to our graph
       *(fitnessGraphVec_.at(ind)) & boost::tuple<double,double>(iteration, currentTransformedEvaluation);
    }
 }

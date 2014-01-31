@@ -289,7 +289,7 @@ void GMultiThreadedSwarm::runFitnessCalculation() {
       tp_ptr_->async_schedule(
          boost::function<double()>(
             boost::bind(
-               &GParameterSet::fitness
+               &GParameterSet::nonConstFitness
                , *it
                , 0
                , Gem::Geneva::ALLOWREEVALUATION

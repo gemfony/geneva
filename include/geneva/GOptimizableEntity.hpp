@@ -150,26 +150,25 @@ public:
 	virtual void adapt() OVERRIDE;
 
    /** @brief Calculates the result of the fitness function with id 0 */
-   virtual double fitness() OVERRIDE;
+   virtual double fitness() const OVERRIDE;
    /** @brief Calculate or returns the result of a fitness function with a given id */
-   virtual double fitness(const std::size_t&) OVERRIDE;
-	/** @brief Calculate or returns the result of a fitness function with a given id */
-	virtual double fitness(const std::size_t&, bool, bool) OVERRIDE;
+   virtual double fitness(const std::size_t&) const OVERRIDE;
 
-   /** @brief Returns the untransformed result of the fitness function with id 0 */
-   double rawFitness();
-   /** @brief Returns the untransformed result of a fitness function with a given id */
-   double rawFitness(const std::size_t&);
+   /** @brief Calculate or returns the result of a fitness function with a given id */
+   virtual double fitness(const std::size_t&, bool, bool) OVERRIDE;
+   /** @brief Calculate or returns the result of a fitness function with a given id */
+   virtual double fitness(const std::size_t&, bool, bool) const OVERRIDE;
+
+   /** @brief A wrapper for the non-const fitness function, so we can bind to it */
+   double nonConstFitness(const std::size_t&, bool, bool);
+   /** @brief A wrapper for the const fitness function, so we can bind to it */
+   double constFitness(const std::size_t&, bool, bool) const;
 
 	/** @brief Adapts and evaluates the individual in one go */
 	virtual double adaptAndEvaluate();
 
    /** @brief Retrieve the current (not necessarily up-to-date) fitness */
-	double getCachedFitness(bool&, const std::size_t& = 0, const bool& = USETRANSFORMEDFITNESS);
-	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
-	double getTransformedCachedFitness(bool&, const std::size_t& = 0) const;
-   /** @brief Retrieve the untransformed current (not necessarily up-to-date) fitness */
-   double getRawCachedFitness(bool&, const std::size_t& = 0) const;
+	double getCachedFitness(const std::size_t& = 0, const bool& = USETRANSFORMEDFITNESS) const;
 
 	/** @brief Enforce fitness (re-)calculation */
 	double enforceFitnessUpdate();

@@ -337,9 +337,13 @@ std::string GMetaOptimizerIndividual::print() const {
    boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr = this->at<GConstrainedDoubleObject>(5);
 
    // Stream the results
-   bool tmpDirtyFlag = false;
+
+   bool dirtyFlag = this->isDirty();
+   double transformedPrimaryFitness
+      = dirtyFlag?this->getWorstCase():this->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+
    result
-      << "Fitness = " << this->getTransformedCachedFitness(tmpDirtyFlag, 0) << (tmpDirtyFlag?" // dirty flag set":"") << std::endl
+      << "Fitness = " << transformedPrimaryFitness << (dirtyFlag?" // dirty flag set":"") << std::endl
       << "#Parents = " << npar_ptr->value() << std::endl
       << "#Children = " << nch_ptr->value() << std::endl
       << "adaption probability = " << adprob_ptr->value() << std::endl

@@ -1259,22 +1259,13 @@ protected:
 	 * @return The fitness of the best individual in the population
 	 */
 	virtual double fitnessCalculation() OVERRIDE {
-		bool dirty = false;
-
-		GOptimizableI::optimize();
+	   // Make sure the population is optimized
+	   GOptimizableI::optimize();
 
 		// We use the raw fitness rather than the transformed fitness,
-		// as this is custom also for "normal" individuals
-		double val = this->at(0)->getRawCachedFitness(dirty);
-		// is this the current fitness ? We should at this stage never
-		// run across an unevaluated individual.
-		if(dirty) {
-		   glogger
-		   << "In GOptimizationAlgorithmT<ind_type>::fitnessCalculation():" << std::endl
-         << "Came across dirty individual" << std::endl
-         << GEXCEPTION;
-		}
-		return val;
+		// as this is custom also for "normal" individuals. Re-evaluation
+		// at this point should never happen.
+		return this->at(0)->fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USERAWFITNESS);
 	}
 
 	/***************************************************************************/

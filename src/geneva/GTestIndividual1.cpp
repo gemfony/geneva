@@ -366,31 +366,24 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 				dirtyFlag = false; // The next call should change this value
 				// Once oldFitness has been set (in iterations > 0), currentFitness() should return that value here
 				BOOST_CHECK_MESSAGE (
-						oldFitness == p_test->getTransformedCachedFitness(dirtyFlag)
+						oldFitness == p_test->getCachedFitness(0, Gem::Geneva::USETRANSFORMEDFITNESS)
 						,  "\n"
 						<< "oldFitness = " << oldFitness << "\n"
-						<< "p_test->getTransformedCachedFitness(dirtyFlag) = " << p_test->getTransformedCachedFitness(dirtyFlag) << "\n"
-						<< "dirtyFlag = " << dirtyFlag << "\n"
+						<< "p_test->getCachedFitness(0, Gem::Geneva::USETRANSFORMEDFITNESS) = " << p_test->getCachedFitness(0, Gem::Geneva::USETRANSFORMEDFITNESS) << "\n"
 						<< "iteration = " << i << "\n"
 				);
-				// Check that the dirty flag has been set
-				BOOST_CHECK(dirtyFlag == true);
 			}
 			// Trigger value calculation
          BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
 
-			// Check that getTransformedCachedFitness() returns the same value as fitness()
-			dirtyFlag = true; // The next call should change this value
+			// Check that getCachedFitness() returns the same value as fitness()
 			BOOST_CHECK_MESSAGE (
-					currentFitness == p_test->getTransformedCachedFitness(dirtyFlag)
+					currentFitness == p_test->getCachedFitness(0, Gem::Geneva::USETRANSFORMEDFITNESS)
 					,  "\n"
 					<< "currentFitness = " << currentFitness << "\n"
-					<< "p_test->getTransformedCachedFitness(dirtyFlag) = " << p_test->getTransformedCachedFitness(dirtyFlag) << "\n"
-					<< "dirtyFlag = " << dirtyFlag << "\n"
+					<< "p_test->getCachedFitness(0, Gem::Geneva::USETRANSFORMEDFITNESS) = " << p_test->getCachedFitness(0, Gem::Geneva::USETRANSFORMEDFITNESS) << "\n"
 					<< "iteration = " << i << "\n"
 			);
-			// Check that the dirtyFlag has the value "false"
-			BOOST_CHECK(dirtyFlag == false);
 			// Check that the individual is now clean
 			BOOST_CHECK(!p_test->isDirty());
 			BOOST_CHECK_MESSAGE(

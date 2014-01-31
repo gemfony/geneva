@@ -569,14 +569,14 @@ public:
       case Gem::Geneva::INFOPROCESSING:
       {
          bool isDirty = true;
-         double fitness;
+         double primaryFitness;
 
          if(monitorBestOnly_) { // Monitor the best individuals only
             boost::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
             if(GBasePluggableOMT<ind_type>::useRawEvaluation_) {
-               fitness = p->rawFitness();
+               primaryFitness = p->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
             } else {
-               fitness = p->fitness();
+               primaryFitness = p->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
             }
 
             if(!monitorValidOnly_ || p->isValid()) {
@@ -589,10 +589,10 @@ public:
                         if(
                            val0 >= fp_profVarVec_[0].lowerBoundary && val0 <= fp_profVarVec_[0].upperBoundary
                         ) {
-                           progressPlotter2D_oa_->add(boost::tuple<double,double>(double(val0), fitness));
+                           progressPlotter2D_oa_->add(boost::tuple<double,double>(double(val0), primaryFitness));
                         }
                      } else {
-                        progressPlotter2D_oa_->add(boost::tuple<double,double>(double(val0), fitness));
+                        progressPlotter2D_oa_->add(boost::tuple<double,double>(double(val0), primaryFitness));
                      }
                   }
                   break;
@@ -607,10 +607,10 @@ public:
                            val0 >= fp_profVarVec_[0].lowerBoundary && val0 <= fp_profVarVec_[0].upperBoundary
                            && val1 >= fp_profVarVec_[1].lowerBoundary && val1 <= fp_profVarVec_[1].upperBoundary
                         ) {
-                           progressPlotter3D_oa_->add(boost::tuple<double,double,double>(double(val0), double(val1), fitness));
+                           progressPlotter3D_oa_->add(boost::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
                         }
                      } else {
-                        progressPlotter3D_oa_->add(boost::tuple<double,double,double>(double(val0), double(val1), fitness));
+                        progressPlotter3D_oa_->add(boost::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
                      }
                   }
                   break;
@@ -627,10 +627,10 @@ public:
                            && val1 >= fp_profVarVec_[1].lowerBoundary && val1 <= fp_profVarVec_[1].upperBoundary
                            && val2 >= fp_profVarVec_[2].lowerBoundary && val2 <= fp_profVarVec_[2].upperBoundary
                         ) {
-                           progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(double(val0), double(val1), double(val2), fitness));
+                           progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
                         }
                      } else {
-                        progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(double(val0), double(val1), double(val2), fitness));
+                        progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
                      }
                   }
                   break;
@@ -644,9 +644,9 @@ public:
             for(it=goa->begin(); it!=goa->end(); ++it) {
 
                if(GBasePluggableOMT<ind_type>::useRawEvaluation_) {
-                  fitness = (*it)->rawFitness();
+                  primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
                } else {
-                  fitness = (*it)->fitness();
+                  primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
                }
 
                if(!monitorValidOnly_ || (*it)->isValid()) {
@@ -659,10 +659,10 @@ public:
                            if(
                               val0 >= fp_profVarVec_[0].lowerBoundary && val0 <= fp_profVarVec_[0].upperBoundary
                            ) {
-                              progressPlotter2D_oa_->add(boost::tuple<double,double>(double(val0), fitness));
+                              progressPlotter2D_oa_->add(boost::tuple<double,double>(double(val0), primaryFitness));
                            }
                         } else {
-                           progressPlotter2D_oa_->add(boost::tuple<double,double>(double(val0), fitness));
+                           progressPlotter2D_oa_->add(boost::tuple<double,double>(double(val0), primaryFitness));
                         }
                      }
                      break;
@@ -677,10 +677,10 @@ public:
                               val0 >= fp_profVarVec_[0].lowerBoundary && val0 <= fp_profVarVec_[0].upperBoundary
                               && val1 >= fp_profVarVec_[1].lowerBoundary && val1 <= fp_profVarVec_[1].upperBoundary
                            ) {
-                              progressPlotter3D_oa_->add(boost::tuple<double,double,double>(double(val0), double(val1), fitness));
+                              progressPlotter3D_oa_->add(boost::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
                            }
                         } else {
-                           progressPlotter3D_oa_->add(boost::tuple<double,double,double>(double(val0), double(val1), fitness));
+                           progressPlotter3D_oa_->add(boost::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
                         }
                      }
                      break;
@@ -697,10 +697,10 @@ public:
                               && val1 >= fp_profVarVec_[1].lowerBoundary && val1 <= fp_profVarVec_[1].upperBoundary
                               && val2 >= fp_profVarVec_[2].lowerBoundary && val2 <= fp_profVarVec_[2].upperBoundary
                            ) {
-                              progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(double(val0), double(val1), double(val2), fitness));
+                              progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
                            }
                         } else {
-                           progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(double(val0), double(val1), double(val2), fitness));
+                           progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
                         }
                      }
                      break;

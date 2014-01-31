@@ -102,23 +102,11 @@ boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > GParame
 /******************************************************************************/
 /**
  * Evaluates a single work item, so that it can be sorted. Note that this function
- * will throw in DEBUG mode, of the dirty flag of item is set. Note that the function
+ * will throw in DEBUG mode, if the dirty flag of item is set. Note that the function
  * uses the primary evaluation criterion only.
  */
 double GParameterSetFixedSizePriorityQueue::evaluation(const boost::shared_ptr<GParameterSet>& item) const {
-   bool isDirty;
-   double result = item->getTransformedCachedFitness(isDirty);
-
-#ifdef DEBUG
-   if(isDirty) {
-      glogger
-      << "In GParameterSetFixedSizePriorityQueue::evaluation(): Error!" << std::endl
-      << "Dirty flag of item is set." << std::endl
-      << GEXCEPTION;
-   }
-#endif /* DEBUG */
-
-   return result;
+   return item->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 }
 
 /******************************************************************************/

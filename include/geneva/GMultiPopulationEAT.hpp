@@ -513,7 +513,7 @@ protected:
          tp_ptr_->async_schedule(
             boost::function<double()>(
                boost::bind(
-                  &oa_type::fitness
+                  &oa_type::nonConstFitness
                   , *it
                   , 0
                   , Gem::Geneva::ALLOWREEVALUATION

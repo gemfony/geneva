@@ -421,17 +421,7 @@ void GBaseSwarm::saveCheckpoint() const {
 	}
 #endif /* DEBUG */
 
-	bool isDirty;
-	double newValue = global_best_->getTransformedCachedFitness(isDirty);
-
-#ifdef DEBUG
-	if(isDirty) {
-	   glogger
-	   << "In GBaseSwarm::saveCheckpoint():" << std::endl
-      << "global_best_ has dirty flag set!" << std::endl
-      << GEXCEPTION;
-	}
-#endif
+	double newValue = global_best_->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 
 	// Determine a suitable name for the output file
 	std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(getIteration()) + "_"

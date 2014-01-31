@@ -782,19 +782,9 @@ protected:
       // find out the best individuals of the population
       selectBest();
 
-      // Retrieve the fitness of the best individual in the collection
-      bool isDirty = false;
-      double bestFitness = this->at(0)->getTransformedCachedFitness(isDirty);
-
-#ifdef DEBUG
-      if(isDirty) {
-         glogger
-         << "In GBaseParChildT<ind_type>::cycleLogic(): Found dirty individual when it should be clean" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-
-      return bestFitness;
+      // Return the primary fitness of the best individual in the collection
+      // The dirty flag of this individual shouldn't be set
+      return this->at(0)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
    }
 
    /***************************************************************************/
