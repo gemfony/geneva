@@ -262,14 +262,8 @@ void GSerialSA::runFitnessCalculation()
    }
 #endif
 
-   bool originalServerModeFlag;
    for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
-      // Make re-evaluation accessible
-      (*it)->setServerMode(false);
-      // Perform the actual evaluation
-      (*it)->doFitnessCalculation();
-      // Make re-evaluation impossible
-      (*it)->setServerMode(true);
+      (*it)->enforceFitnessUpdate();
    }
 }
 

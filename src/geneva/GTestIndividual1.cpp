@@ -379,7 +379,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 				BOOST_CHECK(dirtyFlag == true);
 			}
 			// Trigger value calculation
-         BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION));
+         BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
 
 			// Check that getTransformedCachedFitness() returns the same value as fitness()
 			dirtyFlag = true; // The next call should change this value
@@ -414,7 +414,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
       // Make sure the individual is clean
       if(p_test1->isDirty()) {
-         BOOST_CHECK_NO_THROW(p_test1->fitness(0, Gem::Geneva::ALLOWREEVALUATION));
+         BOOST_CHECK_NO_THROW(p_test1->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
          BOOST_CHECK(!p_test1->isDirty());
       }
 
@@ -454,7 +454,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure the individual is clean
-      BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION));
+      BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
 
 		// Set the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());
@@ -479,7 +479,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	   boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure the individual is clean
-      BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION));
+      BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
 
 		// Set the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());
@@ -513,7 +513,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	   boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure the individual is clean
-      BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION));
+      BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
 
 		// Set the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());
@@ -571,8 +571,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Make sure both individuals are clean and evaluated
 		double fitness1_old = 0., fitness2_old = 0;
-		BOOST_CHECK_NO_THROW(fitness1_old = p_test1->fitness(0, Gem::Geneva::ALLOWREEVALUATION));
-		BOOST_CHECK_NO_THROW(fitness2_old = p_test2->fitness(0, Gem::Geneva::ALLOWREEVALUATION));
+		BOOST_CHECK_NO_THROW(fitness1_old = p_test1->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
+		BOOST_CHECK_NO_THROW(fitness2_old = p_test2->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
 		BOOST_CHECK(!p_test1->isDirty());
 		BOOST_CHECK(!p_test2->isDirty());
 
@@ -591,8 +591,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Make sure both individuals are clean and evaluated
 		double fitness1_new = 0., fitness2_new = 0;
-		BOOST_CHECK_NO_THROW(fitness1_new = p_test1->fitness(0, Gem::Geneva::ALLOWREEVALUATION));
-		BOOST_CHECK_NO_THROW(fitness2_new = p_test2->fitness(0, Gem::Geneva::ALLOWREEVALUATION));
+		BOOST_CHECK_NO_THROW(fitness1_new = p_test1->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
+		BOOST_CHECK_NO_THROW(fitness2_new = p_test2->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
 		BOOST_CHECK(!p_test1->isDirty());
 		BOOST_CHECK(!p_test2->isDirty());
 
@@ -614,8 +614,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Make sure both individuals are clean and evaluated
 		double fitness1_old = 0., fitness2_old = 0;
-		BOOST_CHECK_NO_THROW(fitness1_old = p_test1->fitness(0, Gem::Geneva::ALLOWREEVALUATION));
-		BOOST_CHECK_NO_THROW(fitness2_old = p_test2->fitness(0, Gem::Geneva::ALLOWREEVALUATION));
+		BOOST_CHECK_NO_THROW(fitness1_old = p_test1->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
+		BOOST_CHECK_NO_THROW(fitness2_old = p_test2->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
 		BOOST_CHECK(!p_test1->isDirty());
 		BOOST_CHECK(!p_test2->isDirty());
 
@@ -629,7 +629,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// The fitness of individual1 should have changed. Re-evaluate and check
 		double fitness1_new = 0.;
-		BOOST_CHECK_NO_THROW(fitness1_new = p_test1->fitness(0, Gem::Geneva::ALLOWREEVALUATION));
+		BOOST_CHECK_NO_THROW(fitness1_new = p_test1->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
 		BOOST_CHECK(fitness1_new != fitness1_old);
 
 		// The individuals should now differ

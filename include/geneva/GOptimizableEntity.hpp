@@ -155,7 +155,7 @@ public:
    /** @brief Calculate or returns the result of a fitness function with a given id */
    virtual double fitness(const std::size_t&) OVERRIDE;
 	/** @brief Calculate or returns the result of a fitness function with a given id */
-	virtual double fitness(const std::size_t&, bool) OVERRIDE;
+	virtual double fitness(const std::size_t&, bool, bool) OVERRIDE;
 
    /** @brief Returns the untransformed result of the fitness function with id 0 */
    double rawFitness();
@@ -172,8 +172,8 @@ public:
    /** @brief Retrieve the untransformed current (not necessarily up-to-date) fitness */
    double getRawCachedFitness(bool&, const std::size_t& = 0) const;
 
-	/** @brief Enforce fitness calculation */
-	double doFitnessCalculation();
+	/** @brief Enforce fitness (re-)calculation */
+	double enforceFitnessUpdate();
 
 	/** @brief Registers a new, secondary result value of the custom fitness calculation */
 	void registerSecondaryResult(const double&);

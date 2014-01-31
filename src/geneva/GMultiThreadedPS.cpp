@@ -309,7 +309,7 @@ void GMultiThreadedPS::runFitnessCalculation() {
       // Make sure the evaluated individuals have the dirty flag set
       if(!(*it)->isDirty()) {
          glogger
-         << "In GMultiThreadedPS::doFitnessCalculation(const std::size_t&):" << std::endl
+         << "In GMultiThreadedPS::runFitnessCalculation(const std::size_t&):" << std::endl
          << "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set" << std::endl
          << GEXCEPTION;
       }

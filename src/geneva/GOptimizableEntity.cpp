@@ -292,16 +292,42 @@ void GOptimizableEntity::adapt() {
 
 /******************************************************************************/
 /**
+ * Calculates the result of the fitness function with id 0. This function
+ * will always return the transformed fitness.
+ */
+double GOptimizableEntity::fitness() {
+   return fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+}
+
+/******************************************************************************/
+/**
+ * Calculate or returns the result of a fitness function with a given id.
+ * This function will always return the transformed fitness.
+ */
+double GOptimizableEntity::fitness(const std::size_t& id) {
+   return fitness(id, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+}
+
+/******************************************************************************/
+/**
  * Returns the last known fitness calculations of this object. Re-calculation
  * of the fitness is triggered, unless this is the server mode. By means of supplying
  * an id it is possible to distinguish between different target functions. 0 denotes
- * the main fitness criterion.
+ * the main fitness criterion. The user can specify whether he/she is interested
+ * in the transformed or the raw fitness value.
  *
  * @param id The id of the fitness criterion
  * @param reevaluationAllowed Explicit permission to re-evaluate the individual
+ * @param useTransformedFitness Whether the transformed or the raw fitness should be returned
  * @return The fitness of this individual
  */
-double GOptimizableEntity::fitness(const std::size_t& id, bool reevaluationAllowed) {
+double GOptimizableEntity::fitness(
+   const std::size_t& id
+   , bool reevaluationAllowed
+   , bool useTransformedFitness
+) {
+   double result = 0.;
+
 	// Check whether we need to recalculate the fitness
 	if (dirtyFlag_) {
       if(serverMode_ && !reevaluationAllowed) {
@@ -310,23 +336,27 @@ double GOptimizableEntity::fitness(const std::size_t& id, bool reevaluationAllow
          << "Tried to perform re-evaluation in server-mode" << std::endl
          << GEXCEPTION;
       } else {
-         this->doFitnessCalculation();
+         this->enforceFitnessUpdate();
       }
 	}
 
 	// Return the desired result -- there should be no situation where the dirtyFlag is still set
    bool tmpDirtyFlag = true;
+	if(useTransformedFitness) {
+	   result = getTransformedCachedFitness(tmpDirtyFlag, id);
+	} else {
+	   result = getRawCachedFitness(tmpDirtyFlag, id);
+	}
+
 #ifdef DEBUG
-   double f = getTransformedCachedFitness(tmpDirtyFlag, id);
    if(tmpDirtyFlag && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
       glogger
       << "In GOptimizableEntity::fitness(const std::size_t& id): Error!" << std::endl
       << "Dirty flag is still set in a location where it shouldn't be" << std::endl;
    }
-   return f;
-#else
-   return getTransformedCachedFitness(tmpDirtyFlag, id);
 #endif
+
+   return result;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -334,22 +364,6 @@ double GOptimizableEntity::fitness(const std::size_t& id, bool reevaluationAllow
  * Test for throw in serverMode tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
-
-/******************************************************************************/
-/**
- * Calculates the result of the fitness function with id 0
- */
-double GOptimizableEntity::fitness() {
-   return fitness(0, Gem::Geneva::PREVENTREEVALUATION);
-}
-
-/******************************************************************************/
-/**
- * Calculate or returns the result of a fitness function with a given id
- */
-double GOptimizableEntity::fitness(const std::size_t& id) {
-   return fitness(id, Gem::Geneva::PREVENTREEVALUATION);
-}
 
 /******************************************************************************/
 /**
@@ -398,7 +412,7 @@ double GOptimizableEntity::rawFitness(const std::size_t& id) {
  */
 double GOptimizableEntity::adaptAndEvaluate() {
 	adapt();
-	return doFitnessCalculation();
+	return enforceFitnessUpdate();
 }
 
 /******************************************************************************/
@@ -498,7 +512,7 @@ double GOptimizableEntity::getRawCachedFitness(
  *
  * @return The main result of the fitness calculation
  */
-double GOptimizableEntity::doFitnessCalculation() {
+double GOptimizableEntity::enforceFitnessUpdate() {
    // Assign a new evaluation id
    evaluationID_ = std::string("eval_") + boost::lexical_cast<std::string>(boost::uuids::random_generator()());
 
@@ -542,7 +556,7 @@ double GOptimizableEntity::doFitnessCalculation() {
          // Check that the correct number of secondary evaluation criteria has been registered
          if(rawCurrentSecondaryFitness_.size() != getNumberOfSecondaryFitnessCriteria()) {
             glogger
-            << "In GOptimizableEntity::doFitnessCalculation(): Error!" << std::endl
+            << "In GOptimizableEntity::enforceFitnessUpdate(): Error!" << std::endl
             << "Invalid number of secondary fitness values. Got " << rawCurrentSecondaryFitness_.size() << std::endl
             << "but expected " << getNumberOfSecondaryFitnessCriteria() << std::endl
             << GEXCEPTION;
@@ -708,8 +722,8 @@ void GOptimizableEntity::challengeWorstFitness(
    }
 #endif /* DEBUG */
 
-   double transformedFitness = this->fitness(id, PREVENTREEVALUATION);
-   double rawFitness        = this->rawFitness(id);
+   double rawFitness         = this->fitness(id, PREVENTREEVALUATION, USERAWFITNESS);
+   double transformedFitness = this->fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 
    boost::tuple<double, double> eval(transformedFitness, rawFitness);
 
@@ -724,8 +738,8 @@ void GOptimizableEntity::challengeWorstFitness(
  */
 boost::tuple<double,double> GOptimizableEntity::getFitnessTuple(const boost::uint32_t& id) {
    return boost::tuple<double, double>(
-      this->fitness(id, PREVENTREEVALUATION)
-      , this->rawFitness(id)
+      this->fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
+      , this->fitness(id, PREVENTREEVALUATION, USERAWFITNESS)
    );
 }
 
@@ -1134,7 +1148,7 @@ void GOptimizableEntity::evaluationUpdate() {
          }
       }
 
-      // Note: the "rawFitness" values have already been set in doFitnessCalculation() to the worst known evaluation
+      // Note: the "rawFitness" values have already been set in enforceFitnessUpdate() to the worst known evaluation
 
       // Make sure the dirty flag is set to false, so our results do not get overwritten
       this->setDirtyFlag(false);

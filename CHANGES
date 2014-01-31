@@ -13,7 +13,11 @@ Wishlist for version 1.2, yet unnamed, release-date unknown
  - Updated the GParallelisationOverhead test so that it automatically calculates the speed-up
  - Added a simple parser that allows to evaluate mathematical formulas like "sin({{var1}})*pow(2.,3.)"
  - Introduced a method to deal with dependent boundary conditions (double parameters only at the moment)  
- - Added three possibilities to treat invalid parameter sets
+ - Added three possibilities to treat invalid parameter sets (i.e. parameter sets that violate a number
+   of predefined constraints)
+ - In this context, introduced a "transformed" and a "raw" fitness. The latter comes from the user's
+   evaluation function, the former makes sure that individuals, which violate one or more constraints,
+   still get a useful evaluation without having to call the evaluation function  
  - Added a parser for parameter descriptions of the kind "d(MY_DPAR_01,-10.3,12.8,100)" to facilitate 
    parameter scans from the command line (or in batch mode). Added a corresponding test.
  - Added the possibility to specify the path to configuration files in an environment variable

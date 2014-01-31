@@ -238,7 +238,7 @@ void GSerialPS::runFitnessCalculation() {
       // Make sure the evaluated individuals have the dirty flag set
       if(!(*it)->isDirty()) {
          glogger
-         << "In GSerialPS::doFitnessCalculation(const std::size_t&):" << std::endl
+         << "In GSerialPS::runFitnessCalculation():" << std::endl
          << "In iteration " << this->getIteration() << ": Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set" << std::endl
          << GEXCEPTION;
       }

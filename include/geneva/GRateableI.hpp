@@ -68,7 +68,7 @@ public:
 	/** @brief Retrieve a value for this class, using a fitness function with a given id */
 	virtual double fitness(const std::size_t&) BASE = 0;
    /** @brief Calculate or returns the result of a fitness function with a given id */
-   virtual double fitness(const std::size_t&, bool) BASE = 0;
+   virtual double fitness(const std::size_t&, bool, bool) BASE = 0;
 };
 
 } /* namespace Geneva */
