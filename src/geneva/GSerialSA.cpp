@@ -263,7 +263,8 @@ void GSerialSA::runFitnessCalculation()
 #endif
 
    for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
-      (*it)->enforceFitnessUpdate();
+      // Perform the actual evaluation
+      (*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
    }
 }
 

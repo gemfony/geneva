@@ -265,17 +265,22 @@ void GMultiThreadedSA::runFitnessCalculation()
 
    // Make evaluation possible and initiate the worker threads
    for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
-      (*it)->setServerMode(false);
-      tp_ptr_->async_schedule(boost::function<double()>(boost::bind(&GParameterSet::fitness, *it, 0)));
+      // Do the actual scheduling
+      tp_ptr_->async_schedule(
+         boost::function<double()>(
+            boost::bind(
+               &GParameterSet::fitness
+               , *it
+               , 0
+               , Gem::Geneva::ALLOWREEVALUATION
+               , Gem::Geneva::USETRANSFORMEDFITNESS
+            )
+         )
+      );
    }
 
    // Wait for all threads in the pool to complete their work
    tp_ptr_->wait();
-
-   // Make re-evaluation impossible
-   for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
-      (*it)->setServerMode(true);
-   }
 }
 
 /******************************************************************************/

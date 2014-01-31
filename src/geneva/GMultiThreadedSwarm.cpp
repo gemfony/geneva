@@ -285,16 +285,22 @@ std::string GMultiThreadedSwarm::getIndividualCharacteristic() const {
 void GMultiThreadedSwarm::runFitnessCalculation() {
    GMultiThreadedSwarm::iterator it;
    for(it=this->begin(); it!=this->end(); ++it) {
-      (*it)->setServerMode(false); // Allow re-evaluation
-      tp_ptr_->async_schedule(boost::function<double()>(boost::bind(&GParameterSet::fitness, *it, 0)));
+      // Do the actual scheduling
+      tp_ptr_->async_schedule(
+         boost::function<double()>(
+            boost::bind(
+               &GParameterSet::fitness
+               , *it
+               , 0
+               , Gem::Geneva::ALLOWREEVALUATION
+               , Gem::Geneva::USETRANSFORMEDFITNESS
+            )
+         )
+      );
    }
 
 	// wait for the pool to run out of tasks
 	tp_ptr_->wait();
-
-   for(it=this->begin(); it!=this->end(); ++it) {
-      (*it)->setServerMode(true); // Prevent accidental re-evaluation
-   }
 }
 
 /******************************************************************************/

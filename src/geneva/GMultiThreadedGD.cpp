@@ -323,20 +323,22 @@ void GMultiThreadedGD::runFitnessCalculation() {
       }
 #endif /* DEBUG */
 
-      // Make sure we are allowed to perform value calculation
-      (*it)->setServerMode(false);
-
-      // Submit the actual task
-      tp_ptr_->async_schedule(boost::function<double()>(boost::bind(&GParameterSet::fitness, *it, 0)));
+      // Do the actual scheduling
+      tp_ptr_->async_schedule(
+         boost::function<double()>(
+            boost::bind(
+               &GParameterSet::fitness
+               , *it
+               , 0
+               , Gem::Geneva::ALLOWREEVALUATION
+               , Gem::Geneva::USETRANSFORMEDFITNESS
+            )
+         )
+      );
    }
 
 	// wait for the pool to run out of tasks
 	tp_ptr_->wait();
-
-	// Prevent accidental re-evaluation
-	for(it=this->begin(); it!=this->end(); ++it) {
-      (*it)->setServerMode(true);
-	}
 }
 
 /******************************************************************************/

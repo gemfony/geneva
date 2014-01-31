@@ -255,9 +255,8 @@ void GSerialGD::runFitnessCalculation() {
       }
 #endif /* DEBUG */
 
-      (*it)->setServerMode(false);
-      (*it)->fitness();
-      (*it)->setServerMode(true);
+      // Perform the actual evaluation
+      (*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
    }
 }
 

@@ -564,20 +564,13 @@ boost::shared_ptr<GParameterSet> GParameterSet::parameter_clone() const {
 /**
  * Performs all necessary (remote-)processing steps for this object.
  *
- * @return A boolean which indicates whether processing has led to a useful result
+ * @return A boolean which indicates whether processing was done
  */
 bool GParameterSet::process(){
    // Make sure GParameterBase objects are updated with our local random number generator
    this->updateRNGs();
 
-   // Record the previous setting of the serverMode_ flag and make
-   // sure that re-evaluation is possible
-   bool previousServerMode=setServerMode(false);
-
-   this->fitness();
-
-   // Restore the serverMode_ flag
-   setServerMode(previousServerMode);
+   this->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
 
    // Restore the local random number generators in the individuals
    this->restoreRNGs();

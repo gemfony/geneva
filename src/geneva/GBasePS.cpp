@@ -378,16 +378,12 @@ double GBasePS::cycleLogic() {
 
    // Retrieve information about the best fitness found and disallow re-evaluation
    GBasePS::iterator it;
-   bool originalServerMode;
+   double newEval = 0.;
    for(it=this->begin(); it!=this->end(); ++it) {
-      // Prevents re-evaluation
-      originalServerMode = (*it)->setServerMode(true);
-
-      if(isBetter((*it)->fitness(0), bestFitness)) {
-         bestFitness = (*it)->fitness(0);
+      newEval = (*it)->fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+      if(isBetter(newEval, bestFitness)) {
+         bestFitness = newEval;
       }
-
-      setServerMode(originalServerMode);
    }
 
    // Let the audience know

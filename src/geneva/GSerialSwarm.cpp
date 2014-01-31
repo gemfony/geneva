@@ -244,9 +244,8 @@ void GSerialSwarm::runFitnessCalculation() {
    bool originalServerMode = false;
    GSerialSwarm::iterator it;
    for(it=this->begin(); it!=this->end(); ++it) {
-      originalServerMode = (*it)->setServerMode(false);
-      (*it)->fitness();
-      (*it)->setServerMode(originalServerMode);
+      // Perform the actual evaluation
+      (*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
    }
 }
 

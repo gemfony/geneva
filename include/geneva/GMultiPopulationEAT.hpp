@@ -510,16 +510,21 @@ protected:
 
       // Make evaluation possible and initiate the worker threads
       for(it=(this->data).begin() + boost::get<0>(range); it!=(this->data).begin() + boost::get<1>(range); ++it) {
-         (*it)->setServerMode(false);
-         tp_ptr_->async_schedule(boost::function<double()>(boost::bind(&oa_type::fitness, *it)));
+         tp_ptr_->async_schedule(
+            boost::function<double()>(
+               boost::bind(
+                  &oa_type::fitness
+                  , *it
+                  , 0
+                  , Gem::Geneva::ALLOWREEVALUATION
+                  , Gem::Geneva::USETRANSFORMEDFITNESS
+               )
+            )
+         );
       }
 
       // Wait for all threads in the pool to complete their work
       tp_ptr_->wait();
-
-      for(it=(this->data).begin() + boost::get<0>(range); it!=(this->data).begin() + boost::get<1>(range); ++it) {
-         (*it)->setServerMode(true);
-      }
    }
 
    /***************************************************************************/

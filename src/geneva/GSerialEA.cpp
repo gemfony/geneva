@@ -264,12 +264,8 @@ void GSerialEA::runFitnessCalculation()
 #endif
 
 	for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
-		// Make re-evaluation accessible
-		(*it)->setServerMode(false);
 		// Perform the actual evaluation
-		(*it)->fitness();
-		// Make re-evaluation impossible
-		(*it)->setServerMode(true);
+		(*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
 	}
 }
 

@@ -55,7 +55,6 @@ GOptimizableEntity::GOptimizableEntity()
 	, bestPastPrimaryFitness_(0.)
 	, nStalls_(0)
 	, dirtyFlag_(true)
-	, serverMode_(true) // We always assume that we are on a server. The server mode needs to be explicitly switched off to allow re-evaluation
 	, maximize_(false)
 	, assignedIteration_(0)
 	, validityLevel_(0.) // Always valid by default
@@ -86,7 +85,6 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
 	, bestPastPrimaryFitness_(cp.bestPastPrimaryFitness_)
 	, nStalls_(cp.nStalls_)
 	, dirtyFlag_(cp.dirtyFlag_)
-	, serverMode_(cp.serverMode_)
 	, maximize_(cp.maximize_)
 	, assignedIteration_(cp.assignedIteration_)
 	, validityLevel_(cp.validityLevel_)
@@ -178,7 +176,6 @@ boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", bestPastPrimaryFitness_, p_load->bestPastPrimaryFitness_, "bestPastPrimaryFitness_", "p_load->bestPastPrimaryFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nStalls_, p_load->nStalls_, "nStalls_", "p_load->nStalls_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", dirtyFlag_, p_load->dirtyFlag_, "dirtyFlag_", "p_load->dirtyFlag_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", assignedIteration_, p_load->assignedIteration_, "assignedIteration_", "p_load->assignedIteration_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", validityLevel_, p_load->validityLevel_, "validityLevel_", "p_load->validityLevel_", e , limit));
@@ -259,7 +256,6 @@ void GOptimizableEntity::load_(const GObject* cp) {
 	bestPastPrimaryFitness_ = p_load->bestPastPrimaryFitness_;
 	nStalls_ = p_load->nStalls_;
 	dirtyFlag_ = p_load->dirtyFlag_;
-	serverMode_ = p_load->serverMode_;
 	maximize_ = p_load->maximize_;
 	assignedIteration_ = p_load->assignedIteration_;
 	validityLevel_ = p_load->validityLevel_;
@@ -292,7 +288,7 @@ void GOptimizableEntity::adapt() {
 
 /******************************************************************************/
 /**
- * Calculates the result of the fitness function with id 0. This function
+ * Returns the cached result of the fitness function with id 0. This function
  * will always return the transformed fitness.
  */
 double GOptimizableEntity::fitness() {
@@ -327,26 +323,22 @@ double GOptimizableEntity::fitness(
    , bool useTransformedFitness
 ) {
    double result = 0.;
+   bool tmpDirtyFlag = true;
 
 	// Check whether we need to recalculate the fitness
 	if (dirtyFlag_) {
-      if(serverMode_ && !reevaluationAllowed) {
+	   if(reevaluationAllowed) {
+         this->enforceFitnessUpdate();
+	   } else {
          glogger
          << "In GOptimizableEntity::fitness():" << std::endl
          << "Tried to perform re-evaluation in server-mode" << std::endl
          << GEXCEPTION;
-      } else {
-         this->enforceFitnessUpdate();
-      }
+	   }
 	}
 
 	// Return the desired result -- there should be no situation where the dirtyFlag is still set
-   bool tmpDirtyFlag = true;
-	if(useTransformedFitness) {
-	   result = getTransformedCachedFitness(tmpDirtyFlag, id);
-	} else {
-	   result = getRawCachedFitness(tmpDirtyFlag, id);
-	}
+   result = getCachedFitness(tmpDirtyFlag, id, useTransformedFitness);
 
 #ifdef DEBUG
    if(tmpDirtyFlag && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
@@ -771,50 +763,6 @@ void GOptimizableEntity::setFitness_(const double& f, const std::vector<double>&
  * Throwing and fitness setting is tested in GExternalEvaluatorIndividual
  * ----------------------------------------------------------------------------------
  */
-
-/******************************************************************************/
-/**
- * (De-)activates the server mode.
- *
- * @param sM The desired new value of the serverMode_ variable
- * @return The previous value of the serverMode_ variable
- */
-bool GOptimizableEntity::setServerMode(bool sM) {
-	bool previous = serverMode_;
-	serverMode_ = sM;
-	return previous;
-}
-
-/* ----------------------------------------------------------------------------------
- * Setting is tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
- * Test for throw of fitness() function in serverMode tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Checks whether the server mode is set
- *
- * @return The current value of the serverMode_ variable
- */
-bool GOptimizableEntity::serverMode() const {
-	return serverMode_;
-}
-
-/* ----------------------------------------------------------------------------------
- * Retrieval is tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Checks whether the server mode is set
- *
- * @return The current value of the serverMode_ variable
- */
-bool GOptimizableEntity::getServerMode() const {
-	return serverMode();
-}
 
 /******************************************************************************/
 /**
@@ -1602,17 +1550,6 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Call the parent class'es function
 	GObject::specificTestsNoFailureExpected_GUnitTests();
-
-	// --------------------------------------------------------------------------
-
-	{ // Test setting and retrieval of the server mode flag
-		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
-
-		BOOST_CHECK_NO_THROW(p_test->setServerMode(true));
-		BOOST_CHECK(p_test->serverMode() == true);
-		BOOST_CHECK_NO_THROW(p_test->setServerMode(false));
-		BOOST_CHECK(p_test->serverMode() == false);
-	}
 
 	// --------------------------------------------------------------------------
 

@@ -108,7 +108,6 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(bestPastPrimaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(nStalls_)
 	  & BOOST_SERIALIZATION_NVP(dirtyFlag_)
-	  & BOOST_SERIALIZATION_NVP(serverMode_)
 	  & BOOST_SERIALIZATION_NVP(maximize_)
 	  & BOOST_SERIALIZATION_NVP(assignedIteration_)
 	  & BOOST_SERIALIZATION_NVP(validityLevel_)
@@ -190,13 +189,6 @@ public:
 	void challengeWorstFitness(boost::tuple<double, double>&, const std::size_t&);
    /** @brief Retrieve the fitness tuple at a given evaluation position */
    boost::tuple<double,double> getFitnessTuple(const boost::uint32_t&);
-
-	/** @brief (De-)activates the server mode */
-	bool setServerMode(bool);
-	/** @brief Checks whether the server mode is set */
-	bool getServerMode() const ;
-	/** @brief Checks whether the server mode is set */
-	bool serverMode() const;
 
 	/** @brief Check whether the dirty flag is set */
 	bool isDirty() const ;
@@ -432,8 +424,6 @@ private:
    boost::uint32_t nStalls_;
    /** @brief Internal representation of the adaption status of this object */
    bool dirtyFlag_;
-   /** @brief Prevents re-evaluation when set */
-   bool serverMode_;
    /** @brief Indicates whether we are running in maximization or minimization mode */
    bool maximize_;
    /** @brief The iteration of the parent algorithm's optimization cycle */

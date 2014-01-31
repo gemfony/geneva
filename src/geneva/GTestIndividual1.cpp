@@ -343,9 +343,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Make sure this individual is not dirty
 		if(p_test->isDirty()) {
-		   BOOST_CHECK_NO_THROW(p_test->setServerMode(false));
-		   BOOST_CHECK_NO_THROW(evaluation = p_test->fitness());
-         BOOST_CHECK_NO_THROW(p_test->setServerMode(true));
+		   BOOST_CHECK_NO_THROW(evaluation = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
 		   BOOST_CHECK(!p_test->isDirty());
 		}
 
@@ -474,7 +472,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Check that processing works even in server mode and that this mode is restored
+	{ // Check the process() function
 	   double currentFitness = 0.;
 	   boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
@@ -490,20 +488,11 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		// Tell the individual about its personality
 		BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
 
-		// Set the server mode, so calling the fitness function throws
-		BOOST_CHECK_NO_THROW(p_test->setServerMode(true));
-
-		// Make sure the server mode is indeed set
-		BOOST_CHECK(p_test->serverMode());
-
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
 
 		// The dirty flag should have been cleared
 		BOOST_CHECK(!p_test->isDirty());
-
-		// Check that the individual is still in server mode
-		BOOST_CHECK(p_test->serverMode());
 	}
 
 	//------------------------------------------------------------------------------
@@ -923,12 +912,14 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Tests that evaluating a dirty individual in server mode throws
+	{ // Tests that evaluating a dirty individual in "server mode" throws
 		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());
-		BOOST_CHECK_NO_THROW(p_test->setServerMode(true));
-		BOOST_CHECK_THROW(p_test->fitness(), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(
+         p_test->fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS)
+         , Gem::Common::gemfony_error_condition
+      );
 	}
 
 	//------------------------------------------------------------------------------
