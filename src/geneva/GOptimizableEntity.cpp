@@ -337,7 +337,7 @@ double GOptimizableEntity::fitness(
 #ifdef DEBUG
    if(dirtyFlag_ && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
       glogger
-      << "In GOptimizableEntity::fitness(const std::size_t& id): Error!" << std::endl
+      << "In GOptimizableEntity::fitness(...): Error!" << std::endl
       << "Dirty flag is still set in a location where it shouldn't be" << std::endl
       << GEXCEPTION;
    }
@@ -374,7 +374,7 @@ double GOptimizableEntity::fitness(
 #ifdef DEBUG
    if(dirtyFlag_ && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
       glogger
-      << "In GOptimizableEntity::fitness(const std::size_t& id) const: Error!" << std::endl
+      << "In GOptimizableEntity::fitness(...) const: Error!" << std::endl
       << "Dirty flag is still set in a location where it shouldn't be" << std::endl
       << GEXCEPTION;
    }

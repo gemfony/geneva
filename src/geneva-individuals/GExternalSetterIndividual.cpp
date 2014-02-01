@@ -224,9 +224,6 @@ double GExternalSetterIndividual::fitnessCalculation(){
 	return 0.;
 }
 
-#ifdef GEM_TESTING
-// Note: The following code is designed to mainly test parent classes
-
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -234,6 +231,7 @@ double GExternalSetterIndividual::fitnessCalculation(){
  * @return A boolean which indicates whether modifications were made
  */
 bool GExternalSetterIndividual::modify_GUnitTests() {
+#ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -247,6 +245,10 @@ bool GExternalSetterIndividual::modify_GUnitTests() {
 	result = true;
 
 	return result;
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GExternalSetterIndividual::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -254,6 +256,7 @@ bool GExternalSetterIndividual::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GExternalSetterIndividual::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	using namespace Gem::Geneva;
 
 	using boost::unit_test_framework::test_suite;
@@ -283,6 +286,10 @@ void GExternalSetterIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	//---------------------------------------------------------------------------
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GExternalSetterIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -290,6 +297,7 @@ void GExternalSetterIndividual::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GExternalSetterIndividual::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	using namespace Gem::Geneva;
 
 	using boost::unit_test_framework::test_suite;
@@ -325,11 +333,14 @@ void GExternalSetterIndividual::specificTestsFailuresExpected_GUnitTests() {
 	}
 
 	//---------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GExternalSetterIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

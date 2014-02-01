@@ -314,10 +314,10 @@ public:
 	 */
 	void setXExtremes(const double& minX, const double& maxX) {
 		if(minX >= maxX) {
-			std::ostringstream error;
-			error << "In progressMonitor::setXExtremes(): Error!" << std::endl
-				  << "Invalid min/max x values provided: " << minX << " / " << maxX << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+		   glogger
+		   << "In progressMonitor::setXExtremes(): Error!" << std::endl
+		   << "Invalid min/max x values provided: " << minX << " / " << maxX << std::endl
+		   << GEXCEPTION;
 		}
 
 		minX_ = minX;
@@ -333,10 +333,10 @@ public:
 	 */
 	void setYExtremes(const double& minY, const double& maxY) {
 		if(minY >= maxY) {
-			std::ostringstream error;
-			error << "In progressMonitor::setYExtremes(): Error!" << std::endl
-				  << "Invalid min/max y values provided: " << minY << " / " << maxY << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+		   glogger
+		   << "In progressMonitor::setYExtremes(): Error!" << std::endl
+		   << "Invalid min/max y values provided: " << minY << " / " << maxY << std::endl
+		   << GEXCEPTION;
 		}
 
 		minY_ = minY;
@@ -448,10 +448,10 @@ protected:
 			// Open a file stream
 			std::ofstream ofs((outputPath_ + outputFileName).c_str());
 			if(!ofs) {
-				std::ostringstream error;
-				error << "In progressMonitor::cycleInformation(): Error!" << std::endl
-						<< "Could not open output file " << outputFileName << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+			   glogger
+			   << "In progressMonitor::cycleInformation(): Error!" << std::endl
+			   << "Could not open output file " << outputFileName << std::endl
+			   << GEXCEPTION;
 			}
 
 			// Retrieve the globally best individual for later use
@@ -460,37 +460,40 @@ protected:
 			double global_best_fitness = g_best_ptr->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 
 			// Output a ROOT header
-			ofs << "{" << std::endl
-					<< "  gROOT->Reset();" << std::endl
-					<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDimProgress_ << "," << yDimProgress_ << ");" << std::endl
-					<< "  gStyle->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration = " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");" << std::endl
-					<< std::endl
-					<< "  TF2 *tf = new TF2(\"tf\", \"" << GFunctionIndividual::get2DROOTFunction(df_) << "\", " << minX_ << ", " << maxX_ << ", " << minY_ << ", " << maxY_ << ");" << std::endl
-					<< "  tf->SetLineWidth(0.05);" << std::endl
-					<< "  tf->SetLineColor(16);" << std::endl
-					<< "  tf->GetXaxis()->SetLabelSize(0.02);" << std::endl
-					<< "  tf->GetXaxis()->SetTitle(\"x\");" << std::endl
-					<< "  tf->GetYaxis()->SetLabelSize(0.02);" << std::endl
-               << "  tf->GetYaxis()->SetTitle(\"y\");" << std::endl
-					<< "  tf->GetHistogram()->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");"
-					<< std::endl
-					<< "  tf->Draw();" << std::endl
-					<< std::endl;
+			ofs
+			<< "{" << std::endl
+			<< "  gROOT->Reset();" << std::endl
+			<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDimProgress_ << "," << yDimProgress_ << ");" << std::endl
+			<< "  gStyle->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration = " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");" << std::endl
+			<< std::endl
+			<< "  TF2 *tf = new TF2(\"tf\", \"" << GFunctionIndividual::get2DROOTFunction(df_) << "\", " << minX_ << ", " << maxX_ << ", " << minY_ << ", " << maxY_ << ");" << std::endl
+			<< "  tf->SetLineWidth(0.05);" << std::endl
+			<< "  tf->SetLineColor(16);" << std::endl
+			<< "  tf->GetXaxis()->SetLabelSize(0.02);" << std::endl
+			<< "  tf->GetXaxis()->SetTitle(\"x\");" << std::endl
+			<< "  tf->GetYaxis()->SetLabelSize(0.02);" << std::endl
+			<< "  tf->GetYaxis()->SetTitle(\"y\");" << std::endl
+			<< "  tf->GetHistogram()->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");"
+			<< std::endl
+			<< "  tf->Draw();" << std::endl
+			<< std::endl;
 
 			// Draw lines where the global optima are
 			std::vector<double> f_x_mins = GFunctionIndividual::getXMin(df_);
 			std::vector<double> f_y_mins = GFunctionIndividual::getYMin(df_);
 			for(std::size_t i=0; i<f_x_mins.size(); i++) {
-				ofs << "  TLine *tlx" << i << " = new TLine(" << f_x_mins[i] << ", " << minY_ << ", " << f_x_mins[i] << ", " << maxY_ << ");" << std::endl
-						<< "  tlx" << i << "->SetLineStyle(5);" << std::endl
-						<< "  tlx" << i << "->SetLineColor(45);" << std::endl
-						<< "  tlx" << i << "->Draw();" << std::endl;
+				ofs
+				<< "  TLine *tlx" << i << " = new TLine(" << f_x_mins[i] << ", " << minY_ << ", " << f_x_mins[i] << ", " << maxY_ << ");" << std::endl
+				<< "  tlx" << i << "->SetLineStyle(5);" << std::endl
+				<< "  tlx" << i << "->SetLineColor(45);" << std::endl
+				<< "  tlx" << i << "->Draw();" << std::endl;
 			}
 			for(std::size_t i=0; i<f_y_mins.size(); i++) {
-				ofs << "  TLine *tly" << i << " = new TLine(" << minX_ << ", " << f_y_mins[i] << ", " << maxX_ << ", " << f_y_mins[i] << ");" << std::endl
-						<< "  tly" << i << "->SetLineStyle(5);" << std::endl
-						<< "  tly" << i << "->SetLineColor(45);" << std::endl
-						<< "  tly" << i << "->Draw();" << std::endl;
+				ofs
+				<< "  TLine *tly" << i << " = new TLine(" << minX_ << ", " << f_y_mins[i] << ", " << maxX_ << ", " << f_y_mins[i] << ");" << std::endl
+				<< "  tly" << i << "->SetLineStyle(5);" << std::endl
+				<< "  tly" << i << "->SetLineColor(45);" << std::endl
+				<< "  tly" << i << "->Draw();" << std::endl;
 			}
 			ofs << std::endl;
 
@@ -504,11 +507,12 @@ protected:
 
 				// Add to the plot, if the marker would still be inside the main drawing area
 				if(x_parent > minX_ && x_parent < maxX_ && y_parent > minY_ && y_parent < maxY_) {
-					ofs << "  TMarker *parent_marker" << parentId << " = new TMarker(" << x_parent << ", " << y_parent << ", 26);" << std::endl // A circle
-							<< "  parent_marker" << parentId << "->SetMarkerColor(2);" << std::endl
-							<< "  parent_marker" << parentId << "->SetMarkerSize(1.5);" << std::endl
-							<< "  parent_marker" << parentId << "->Draw();" << std::endl
-							<< std::endl;
+					ofs
+					<< "  TMarker *parent_marker" << parentId << " = new TMarker(" << x_parent << ", " << y_parent << ", 26);" << std::endl // A circle
+					<< "  parent_marker" << parentId << "->SetMarkerColor(2);" << std::endl
+					<< "  parent_marker" << parentId << "->SetMarkerSize(1.5);" << std::endl
+					<< "  parent_marker" << parentId << "->Draw();" << std::endl
+					<< std::endl;
 				}
 			}
 
@@ -523,20 +527,21 @@ protected:
 #ifdef DEBUG
 				// Check that we indeed only have two dimensions
 				if(x_ref.size() != 2) {
-					std::ostringstream error;
-					error << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
-							<< "Found GDoubleCollection with invalid number of entries: " << x_ref.size() << std::endl;
-					throw(Gem::Common::gemfony_error_condition(error.str()));
+				   glogger
+				   << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
+					<< "Found GDoubleCollection with invalid number of entries: " << x_ref.size() << std::endl
+					<< GEXCEPTION;
 				}
 #endif /* DEBUG */
 
 				// Only draw the child if it is inside of the function plot
 				if(x_ref[0] > minX_ && x_ref[0] < maxX_ && x_ref[1] > minY_ && x_ref[1] < maxY_) {
-					ofs << "  TMarker *child_marker_" << cind << " = new TMarker(" << x_ref[0] << ", " << x_ref[1] << ", 8);" << std::endl // A circle
-							<< "  child_marker_" << cind << "->SetMarkerColor(1);" << std::endl
-							<< "  child_marker_" << cind << "->SetMarkerSize(1.1);" << std::endl
-							<< "  child_marker_" << cind << "->Draw();" << std::endl
-							<< std::endl;
+					ofs
+					<< "  TMarker *child_marker_" << cind << " = new TMarker(" << x_ref[0] << ", " << x_ref[1] << ", 8);" << std::endl // A circle
+					<< "  child_marker_" << cind << "->SetMarkerColor(1);" << std::endl
+					<< "  child_marker_" << cind << "->SetMarkerSize(1.1);" << std::endl
+					<< "  child_marker_" << cind << "->Draw();" << std::endl
+					<< std::endl;
 				}
 
 				cind++;
@@ -548,16 +553,18 @@ protected:
 
 			// Add to the plot, if the marker would still be inside the main drawing area
 			if(x_global_best > minX_ && x_global_best < maxX_ && y_global_best > minY_ && y_global_best < maxY_) {
-				ofs << "  TMarker *gbest = new TMarker(" << x_global_best << ", " << y_global_best << ", 22);" << std::endl // A circle
-						<< "  gbest->SetMarkerColor(4);" << std::endl
-						<< "  gbest->SetMarkerSize(1.6);" << std::endl
-						<< "  gbest->Draw();" << std::endl
-						<< std::endl;
+				ofs
+				<< "  TMarker *gbest = new TMarker(" << x_global_best << ", " << y_global_best << ", 22);" << std::endl // A circle
+				<< "  gbest->SetMarkerColor(4);" << std::endl
+				<< "  gbest->SetMarkerSize(1.6);" << std::endl
+				<< "  gbest->Draw();" << std::endl
+				<< std::endl;
 			}
 
-			ofs << std::endl
-					<< "  cc->Print(\"" << (snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".jpg") << "\");" << std::endl
-					<< "}" << std::endl;
+			ofs
+			<< std::endl
+			<< "  cc->Print(\"" << (snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".jpg") << "\");" << std::endl
+			<< "}" << std::endl;
 
 			// Close the file stream
 			ofs.close();

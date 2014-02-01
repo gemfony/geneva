@@ -7,8 +7,8 @@
     "adProb":
     {
         "comment": "The probability for random adaptions of values in evolutionary algorithms",
-        "default": "0.05",
-        "value": "0.05"
+        "default": "1.0",
+        "value": "1.0"
     },
     "sigma":
     {

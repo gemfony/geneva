@@ -143,12 +143,10 @@ protected:
 	/** @brief The actual fitness calculation takes place here. */
 	virtual double fitnessCalculation();
 
-
 private:
 	/** @brief The default constructor -- protected, as it is only needed for (de-)serialization purposes */
 	GTestIndividual2();
 
-#ifdef GEM_TESTING
 public:
 	/** @brief Applies modifications to this object. */
 	virtual bool modify_GUnitTests();
@@ -156,8 +154,6 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. */
 	virtual void specificTestsFailuresExpected_GUnitTests();
-
-#endif /* GEM_TESTING */
 };
 
 /******************************************************************************/

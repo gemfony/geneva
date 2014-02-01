@@ -36,10 +36,8 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual3)
 
-namespace Gem
-{
-namespace Tests
-{
+namespace Gem {
+namespace Tests {
 
 const std::size_t GTI_DEF_NITEMS = 300;
 const double GTI_DEF_SIGMA = 0.5;
@@ -310,8 +308,6 @@ boost::shared_array<float> GTestIndividual3::getPlainData() const {
    return result;
 }
 
-#ifdef GEM_TESTING
-
 /******************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -319,6 +315,8 @@ boost::shared_array<float> GTestIndividual3::getPlainData() const {
  * @return A boolean which indicates whether modifications were made
  */
 bool GTestIndividual3::modify_GUnitTests() {
+#ifdef GEM_TESTING
+
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
@@ -331,6 +329,11 @@ bool GTestIndividual3::modify_GUnitTests() {
 	result = true;
 
 	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GTestIndividual3::modify_GUnitTests", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -338,6 +341,7 @@ bool GTestIndividual3::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
 	using namespace Gem::Geneva;
 
 	using boost::unit_test_framework::test_suite;
@@ -365,6 +369,10 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GTestIndividual3::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -372,6 +380,8 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GTestIndividual3::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
+
 	using namespace Gem::Geneva;
 
 	using boost::unit_test_framework::test_suite;
@@ -382,11 +392,13 @@ void GTestIndividual3::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 	//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+   condnotset("GTestIndividual3::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
-
-#endif /* GEM_TESTING */
 
 } /* namespace Tests */
 } /* namespace Gem */
