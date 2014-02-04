@@ -326,6 +326,14 @@ double GOptimizableEntity::fitness(
 	if (dirtyFlag_) {
 	   if(reevaluationAllowed) {
          this->enforceFitnessUpdate();
+
+         // Check if the dirty flag is still set. This should only happen in special cases
+         if(dirtyFlag_ && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
+            glogger
+            << "In GOptimizableEntity::fitness(...): Error!" << std::endl
+            << "Dirty flag is still set in a location where it shouldn't be" << std::endl
+            << GEXCEPTION;
+         }
 	   } else {
          glogger
          << "In GOptimizableEntity::fitness():" << std::endl
@@ -333,15 +341,6 @@ double GOptimizableEntity::fitness(
          << GEXCEPTION;
 	   }
 	}
-
-#ifdef DEBUG
-   if(dirtyFlag_ && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
-      glogger
-      << "In GOptimizableEntity::fitness(...): Error!" << std::endl
-      << "Dirty flag is still set in a location where it shouldn't be" << std::endl
-      << GEXCEPTION;
-   }
-#endif
 
 	// Return the desired result -- there should be no situation where the dirtyFlag is still set
    return getCachedFitness(id, useTransformedFitness);
@@ -371,14 +370,12 @@ double GOptimizableEntity::fitness(
    , bool reevaluationAllowed
    , bool useTransformedFitness
 ) const {
-#ifdef DEBUG
    if(dirtyFlag_ && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
       glogger
       << "In GOptimizableEntity::fitness(...) const: Error!" << std::endl
       << "Dirty flag is still set in a location where it shouldn't be" << std::endl
       << GEXCEPTION;
    }
-#endif
 
    // Return the desired result -- there should be no situation where the dirtyFlag is still set
    return getCachedFitness(id, useTransformedFitness);

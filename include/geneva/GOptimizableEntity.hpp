@@ -452,8 +452,8 @@ private:
    /** @brief A unique id that is assigned to an evaluation */
    std::string evaluationID_;
 
-   /***************************************************************************/
 public:
+   /***************************************************************************/
    /** @brief Applies modifications to this object. This is needed for testing purposes */
    virtual bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
