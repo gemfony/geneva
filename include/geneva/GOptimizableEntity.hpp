@@ -354,7 +354,7 @@ public:
    void populateWorstKnownValid();
 
    /** @brief Triggers an update of the internal evaluation, if necessary */
-   void evaluationUpdate();
+   void postEvaluationUpdate();
 
    /** @brief Allows to set the globally best known primary fitness */
    void setBestKnownPrimaryFitness(const double&);

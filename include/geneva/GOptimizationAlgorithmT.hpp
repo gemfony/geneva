@@ -1401,8 +1401,8 @@ protected:
    /**
     * Updates the worst known valid evaluations up to the current iteration
     * and stores the fitness-values internally. Note: The first tuple-value
-    * in the vector signifies the (possibly transformed) evaluation, the
-    * second value the untransformed value.
+    * in the vector signifies the untransformed (but possible == MIN/MAX_DOUBLE)
+    * evaluation, the second value the potentially transformed value.
     */
    void updateWorstKnownValid() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
@@ -1414,6 +1414,7 @@ protected:
             (*it)->populateWorstKnownValid();
          }
 
+         // Initialize our own, local worstKnownValids_
          worstKnownValids_ = (*(this->begin()))->getWorstKnownValids();
       }
 
@@ -1464,7 +1465,7 @@ protected:
    void triggerEvaluationUpdate() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->evaluationUpdate();
+         (*it)->postEvaluationUpdate();
       }
    }
 
@@ -1786,7 +1787,7 @@ private:
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_; ///< Set to true when halt() has returned "true"
-	std::vector<boost::tuple<double, double> > worstKnownValids_; ///< Stores the worst known valid evaluations up to the current iteration
+	std::vector<boost::tuple<double, double> > worstKnownValids_; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
 	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 
 public:

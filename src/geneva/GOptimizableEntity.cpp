@@ -554,7 +554,7 @@ double GOptimizableEntity::enforceFitnessUpdate() {
          setDirtyFlag(false);
 
       } else if(USEWORSTKNOWNVALIDFORINVALID == evalPolicy_) {
-         // Some of this will be reset later, in  GOptimizableEntity::evaluationUpdate().
+         // Some of this will be reset later, in  GOptimizableEntity::postEvaluationUpdate().
          // The caller needs to tell us about the worst solution known up to now. It is only
          // known once all individuals of this iteration have been evaluated.
          rawCurrentFitness_ = this->getWorstCase();
@@ -682,9 +682,9 @@ void GOptimizableEntity::challengeWorstValidFitness(
    double rawFitness         = this->fitness(id, PREVENTREEVALUATION, USERAWFITNESS);
    double transformedFitness = this->fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 
-   boost::tuple<double, double> eval(transformedFitness, rawFitness);
+   boost::tuple<double, double> eval(rawFitness, transformedFitness);
 
-   if(isWorse(boost::get<0>(worstCandidate), boost::get<0>(eval))) { // TODO: Beim vertauschen von raw und transformed <0> --> <1>
+   if(isWorse(boost::get<G_TRANSFORMED_FITNESS>(worstCandidate), boost::get<G_TRANSFORMED_FITNESS>(eval))) {
       worstCandidate = eval;
    }
 }
@@ -1055,14 +1055,21 @@ void GOptimizableEntity::populateWorstKnownValid() {
 
 /******************************************************************************/
 /**
- * Triggers an update of the internal evaluation, if necessary
+ * Triggers an update of the internal evaluation, if necessary.
  */
-void GOptimizableEntity::evaluationUpdate() {
+void GOptimizableEntity::postEvaluationUpdate() {
 #ifdef DEBUG
    if((nFitnessCriteria_-1) != transformedCurrentSecondaryFitness_.size()) {
       glogger
-      << "In GOptimizableEntity::evaluationUpdate(): Error!" << std::endl
+      << "In GOptimizableEntity::postEvaluationUpdate(): Error!" << std::endl
       << "Number of expected fitness criteria " << (nFitnessCriteria_-1) << " does not match actual number " << transformedCurrentSecondaryFitness_.size() << std::endl
+      << GEXCEPTION;
+   }
+
+   if(worstKnownValids_.empty()) {
+      glogger
+      << "In GOptimizableEntity::postEvaluationUpdate(): Error!" << std::endl
+      << "worstKnownValids_ does not seem to be initialized" << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
@@ -1070,17 +1077,17 @@ void GOptimizableEntity::evaluationUpdate() {
    if(USEWORSTKNOWNVALIDFORINVALID == evalPolicy_ && this->isInValid()) {
       if(true == maximize_) {
          transformedCurrentFitness_
-               = -std::max(boost::get<0>(worstKnownValids_.at(0)),std::max(barrier_,1.))*validityLevel_;
+               = -std::max(boost::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(0)),std::max(barrier_,1.))*validityLevel_;
          for(std::size_t i=1; i<nFitnessCriteria_; i++) {
             transformedCurrentSecondaryFitness_.at(i-1)
-                 = -std::max(boost::get<0>(worstKnownValids_.at(i)), std::max(barrier_,1.))*validityLevel_;
+                 = -std::max(boost::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(i)), std::max(barrier_,1.))*validityLevel_;
          }
       } else {
          transformedCurrentFitness_
-            =  std::max(boost::get<0>(worstKnownValids_.at(0)),std::max(barrier_,1.))*validityLevel_;
+            =  std::max(boost::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(0)),std::max(barrier_,1.))*validityLevel_;
          for(std::size_t i=1; i<nFitnessCriteria_; i++) {
             transformedCurrentSecondaryFitness_.at(i-1)
-                 = std::max(boost::get<0>(worstKnownValids_.at(i)), std::max(barrier_,1.))*validityLevel_;
+                 = std::max(boost::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(i)), std::max(barrier_,1.))*validityLevel_;
          }
       }
 

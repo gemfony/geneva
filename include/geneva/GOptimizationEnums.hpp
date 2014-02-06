@@ -63,6 +63,13 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * Helps to better identify raw and transformed fitness
+ */
+const std::size_t G_RAW_FITNESS = 0;
+const std::size_t G_TRANSFORMED_FITNESS = 1;
+
+/******************************************************************************/
+/**
  * Whether to use raw or transformed fitness as return values or arguments
  */
 const bool USERAWFITNESS         = false;
