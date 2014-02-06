@@ -112,7 +112,7 @@ private:
 	  & BOOST_SERIALIZATION_NVP(maxDuration_)
 	  & BOOST_SERIALIZATION_NVP(emitTerminationReason_)
 	  & BOOST_SERIALIZATION_NVP(halted_)
-	  & BOOST_SERIALIZATION_NVP(worstKnownValid_)
+	  & BOOST_SERIALIZATION_NVP(worstKnownValids_)
 	  & BOOST_SERIALIZATION_NVP(optimizationMonitor_ptr_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ public:
 		, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
 		, emitTerminationReason_(false)
 		, halted_(false)
-		, worstKnownValid_()
+		, worstKnownValids_()
 		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
 	{ /* nothing */ }
 
@@ -176,7 +176,7 @@ public:
 		, maxDuration_(cp.maxDuration_)
 		, emitTerminationReason_(cp.emitTerminationReason_)
 		, halted_(cp.halted_)
-		, worstKnownValid_(cp.worstKnownValid_)
+		, worstKnownValids_(cp.worstKnownValids_)
 		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>())
 	{ /* nothing */ }
 
@@ -408,7 +408,7 @@ public:
 	   EXPECTATIONCHECK(maxDuration_);
 	   EXPECTATIONCHECK(emitTerminationReason_);
 	   EXPECTATIONCHECK(halted_);
-	   EXPECTATIONCHECK(worstKnownValid_);
+	   EXPECTATIONCHECK(worstKnownValids_);
 	   EXPECTATIONCHECK(optimizationMonitor_ptr_);
 
 	   return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
@@ -1127,7 +1127,7 @@ protected:
 		maxDuration_ = p_load->maxDuration_;
 		emitTerminationReason_ = p_load->emitTerminationReason_;
 		halted_ = p_load->halted_;
-		worstKnownValid_ = p_load->worstKnownValid_;
+		worstKnownValids_ = p_load->worstKnownValids_;
 		this->optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 	}
 
@@ -1405,9 +1405,18 @@ protected:
     * second value the untransformed value.
     */
    void updateWorstKnownValid() {
+      typename GOptimizationAlgorithmT<ind_type>::iterator it;
       std::size_t nFitnessCriteria = (*(this->begin()))->getNumberOfFitnessCriteria();
 
-      typename GOptimizationAlgorithmT<ind_type>::iterator it;
+      // Is this the first call ? Fill worstKnownValids_ with data
+      if(inFirstIteration()) {
+         for(it=this->begin(); it!=this->end(); ++it) {
+            (*it)->populateWorstKnownValid();
+         }
+
+         worstKnownValids_ = (*(this->begin()))->getWorstKnownValids();
+      }
+
       for(it=this->begin(); it!=this->end(); ++it) {
 #ifdef DEBUG
          if((*it)->getNumberOfFitnessCriteria() != nFitnessCriteria) {
@@ -1418,22 +1427,18 @@ protected:
             << GEXCEPTION;
          }
 
-         if(!worstKnownValid_.empty() && worstKnownValid_.size() != nFitnessCriteria) {
+         if(!worstKnownValids_.empty() && worstKnownValids_.size() != nFitnessCriteria) {
             glogger
             << "In GOptimizationAlgorithmT<>::updateWorstKnownValid(): Error!" << std::endl
-            << "Got invalid number of evaluation criteria in worstKnownValid_:" << std::endl
-            << "Got " << worstKnownValid_.size() << " but expected " << nFitnessCriteria << std::endl
+            << "Got invalid number of evaluation criteria in worstKnownValids_:" << std::endl
+            << "Got " << worstKnownValids_.size() << " but expected " << nFitnessCriteria << std::endl
             << GEXCEPTION;
          }
 #endif /* DEBUG */
 
-         if((*it)->constraintsFulfilled()  && !(*it)->isDirty()) { // Is this an individual which has been evaluated and fulfills all constraints ?
+         if(!(*it)->isDirty() && (*it)->isValid()) { // Is this an individual which has been evaluated and fulfills all constraints ?
             for(std::size_t id=0; id<nFitnessCriteria; id++) {
-               if(worstKnownValid_.empty()) { // First call ? Fill with data
-                  worstKnownValid_.push_back((*it)->getFitnessTuple(id));
-               } else { // Subsequent call ? Update incrementally
-                  (*it)->challengeWorstFitness(worstKnownValid_.at(id), id);
-               }
+               (*it)->challengeWorstValidFitness(worstKnownValids_.at(id), id);
             }
          }
       }
@@ -1447,7 +1452,7 @@ protected:
       this->updateWorstKnownValid();
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->setWorstKnownValid(worstKnownValid_);
+         (*it)->setWorstKnownValid(worstKnownValids_);
       }
    }
 
@@ -1781,7 +1786,7 @@ private:
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_; ///< Set to true when halt() has returned "true"
-	std::vector<boost::tuple<double, double> > worstKnownValid_; ///< Stores the worst known valid evaluations up to the current iteration
+	std::vector<boost::tuple<double, double> > worstKnownValids_; ///< Stores the worst known valid evaluations up to the current iteration
 	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 
 public:

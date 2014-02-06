@@ -116,7 +116,7 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(individualConstraint_)
 	  & BOOST_SERIALIZATION_NVP(steepness_)
 	  & BOOST_SERIALIZATION_NVP(barrier_)
-	  & BOOST_SERIALIZATION_NVP(worstKnownValid_)
+	  & BOOST_SERIALIZATION_NVP(worstKnownValids_)
 	  & BOOST_SERIALIZATION_NVP(markedAsInvalidExternally_)
 	  & BOOST_SERIALIZATION_NVP(changesAllowedTo_markedAsInvalidExternally_)
 	  & BOOST_SERIALIZATION_NVP(evaluationID_);
@@ -185,7 +185,7 @@ public:
 	bool hasMultipleFitnessCriteria() const;
 
 	/** @brief Checks the worst fitness and updates it when needed */
-	void challengeWorstFitness(boost::tuple<double, double>&, const std::size_t&);
+	void challengeWorstValidFitness(boost::tuple<double, double>&, const std::size_t&);
    /** @brief Retrieve the fitness tuple at a given evaluation position */
    boost::tuple<double,double> getFitnessTuple(const boost::uint32_t&);
 
@@ -348,6 +348,10 @@ public:
    void setWorstKnownValid(const std::vector<boost::tuple<double, double> >&);
    /** @brief Allows to retrieve the worst known valid evaluation up to the current iteration, as set by an external optimization algorithm */
    boost::tuple<double, double> getWorstKnownValid(const boost::uint32_t&) const;
+   /** @brief Allows to retrieve all worst known valid evaluations up to the current iteration, as set by an external optimization algorithm */
+   std::vector<boost::tuple<double, double> > getWorstKnownValids() const;
+   /** @brief Fills the worstKnownValid-vector with best values */
+   void populateWorstKnownValid();
 
    /** @brief Triggers an update of the internal evaluation, if necessary */
    void evaluationUpdate();
@@ -440,7 +444,7 @@ private:
    double barrier_;
 
    /** @brief The worst known evaluation up to the current iteration */
-   std::vector<boost::tuple<double, double> > worstKnownValid_;
+   std::vector<boost::tuple<double, double> > worstKnownValids_;
    /** @brief Indicates whether the user has marked this solution as invalid inside of the evaluation function */
    bool markedAsInvalidExternally_;
    /** @brief Indicates whether changes of the markedAsInvalidExternally_ flag are currently allowed */

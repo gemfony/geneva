@@ -307,8 +307,8 @@ void GExternalSetterIndividual::specificTestsFailuresExpected_GUnitTests() {
 	Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests();
 
 	//---------------------------------------------------------------------------
-
-	{ // Check that calling the fitness function throws
+#ifdef DEBUG
+	{ // Check that calling the fitness function throws in DEBUG mode
 		boost::shared_ptr<GExternalSetterIndividual> p_test = this->GObject::clone<GExternalSetterIndividual>();
 		boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(1.));
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.,0.6,0.,2.));
@@ -319,7 +319,7 @@ void GExternalSetterIndividual::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty()); // The dirty flag should be set after mutation
 		BOOST_CHECK_THROW(p_test->fitness(), Gem::Common::gemfony_error_condition); // No direct evaluation is allowed for this object
 	}
-
+#endif /* DEBUG */
 	//---------------------------------------------------------------------------
 
 	{ // Check that supplying secondary fitness values when no corresponding variables have been registered throws

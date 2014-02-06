@@ -74,9 +74,9 @@ public:
    virtual double fitness(const std::size_t&, bool, bool) const BASE = 0;
 };
 
+/******************************************************************************/
+
 } /* namespace Geneva */
 } /* namespace Gem */
-
-/******************************************************************************/
 
 #endif /* GRATEABLEI_HPP_ */
