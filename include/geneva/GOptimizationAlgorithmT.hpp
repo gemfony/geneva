@@ -1437,7 +1437,7 @@ protected:
          }
 #endif /* DEBUG */
 
-         if(!(*it)->isDirty() && (*it)->isValid()) { // Is this an individual which has been evaluated and fulfills all constraints ?
+         if((*it)->isClean() && (*it)->isValid()) { // Is this an individual which has been evaluated and fulfills all constraints ?
             for(std::size_t id=0; id<nFitnessCriteria; id++) {
                (*it)->challengeWorstValidFitness(worstKnownValids_.at(id), id);
             }

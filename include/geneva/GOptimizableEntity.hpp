@@ -189,10 +189,14 @@ public:
    /** @brief Retrieve the fitness tuple at a given evaluation position */
    boost::tuple<double,double> getFitnessTuple(const boost::uint32_t&);
 
+   /** @brief Check whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation */
+   bool isClean() const;
 	/** @brief Check whether the dirty flag is set */
 	bool isDirty() const ;
    /** @brief Sets the dirtyFlag_ */
    void setDirtyFlag();
+   /** @brief Checks whether evaluation was delayed */
+   bool evaluationDelayed() const;
 
 	/** @brief Allows to retrieve the maximize_ parameter */
 	bool getMaxMode() const;
@@ -383,7 +387,7 @@ protected:
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode_(const bool&);
 	/** @brief Sets the dirtyFlag_ to any desired value */
-	bool setDirtyFlag(const bool&) ;
+	boost::logic::tribool setDirtyFlag(const boost::logic::tribool&) ;
 
 	/** @brief Combines secondary evaluation results by adding the individual results */
 	double sumCombiner() const;
@@ -426,7 +430,7 @@ private:
    /** @brief The number of stalls of the primary fitness criterion in the entire set of individuals */
    boost::uint32_t nStalls_;
    /** @brief Internal representation of the adaption status of this object */
-   bool dirtyFlag_;
+   boost::logic::tribool dirtyFlag_; // boost::logic::indeterminate refers to "delayed evaluation"
    /** @brief Indicates whether we are running in maximization or minimization mode */
    bool maximize_;
    /** @brief The iteration of the parent algorithm's optimization cycle */

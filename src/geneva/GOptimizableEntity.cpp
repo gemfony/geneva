@@ -323,13 +323,13 @@ double GOptimizableEntity::fitness(
    , bool useTransformedFitness
 ) {
 	// Check whether we need to recalculate the fitness
-	if (dirtyFlag_) {
+	if (true==dirtyFlag_) {
 	   if(reevaluationAllowed) {
          this->enforceFitnessUpdate();
 
 #ifdef DEBUG
          // Check if the dirty flag is still set. This should only happen in special cases
-         if(dirtyFlag_ && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
+         if(true==dirtyFlag_) { // Note that dirtyFlag_ may also assume the state boost::logic::indeterminate, if evaluation was delayed
             glogger
             << "In GOptimizableEntity::fitness(...): Error!" << std::endl
             << "Dirty flag is still set in a location where it shouldn't be" << std::endl
@@ -339,7 +339,7 @@ double GOptimizableEntity::fitness(
 	   } else {
          glogger
          << "In GOptimizableEntity::fitness():" << std::endl
-         << "Tried to perform re-evaluation in server-mode" << std::endl
+         << "Tried to perform re-evaluation when this action was not allowed" << std::endl
          << GEXCEPTION;
 	   }
 	}
@@ -373,7 +373,8 @@ double GOptimizableEntity::fitness(
    , bool useTransformedFitness
 ) const {
 #ifdef DEBUG
-   if(dirtyFlag_ && USEWORSTKNOWNVALIDFORINVALID != evalPolicy_) { // evaluation is delayed for USEWORSTKNOWNVALIDFORINVALID
+   // This function should only be called for clean individuals
+   if(this->isDirty() || this->evaluationDelayed()) {
       glogger
       << "In GOptimizableEntity::fitness(...) const: Error!" << std::endl
       << "Dirty flag is still set in a location where it shouldn't be" << std::endl
@@ -565,9 +566,10 @@ double GOptimizableEntity::enforceFitnessUpdate() {
             transformedCurrentSecondaryFitness_.push_back(this->getWorstCase());
          }
 
-         // As only place-holders have been stored in the fitness criteria, the individual is still "dirty"
+         // As only place-holders have been stored in the fitness criteria, the individual is not clean.
+         // However, we can now tell the audience that evaluation was delayed
          //*****************
-         setDirtyFlag(true);
+         setDirtyFlag(boost::logic::indeterminate);
          //*****************
       }
    }
@@ -664,10 +666,10 @@ void GOptimizableEntity::challengeWorstValidFitness(
       << GEXCEPTION;
    }
 
-   if(this->isDirty()) {
+   if(!this->isClean()) {
       glogger
       << "In GOptimizableEntity::challengeWorstValidFitness(): Error!" << std::endl
-      << "Function called for dirty individual" << std::endl
+      << "Function called for dirty individual or with delayed evaluation" << std::endl
       << GEXCEPTION;
    }
 
@@ -731,12 +733,24 @@ void GOptimizableEntity::setFitness_(const double& f, const std::vector<double>&
 
 /******************************************************************************/
 /**
+ * Checks whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation
+ */
+bool GOptimizableEntity::isClean() const {
+   if(true==dirtyFlag_ || boost::logic::indeterminate(dirtyFlag_)) {
+      return false;
+   } else {
+      return true;
+   }
+}
+
+/******************************************************************************/
+/**
  * Checks whether the dirty flag is set
  *
  * @return The value of the dirtyFlag_ variable
  */
 bool GOptimizableEntity::isDirty() const  {
-	return dirtyFlag_;
+	return true==dirtyFlag_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -862,12 +876,24 @@ void GOptimizableEntity::setDirtyFlag()  {
 
 /******************************************************************************/
 /**
+ * Checks whether evaluation was delayed
+ */
+bool GOptimizableEntity::evaluationDelayed() const {
+   if(boost::logic::indeterminate(dirtyFlag_)) {
+      return true;
+   } else {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
  * Sets the dirtyFlag_ to any desired value
  *
  * @param dirtyFlag The new value for the dirtyFlag_ variable
  * @return The previous value of the dirtyFlag_ variable
  */
-bool GOptimizableEntity::setDirtyFlag(const bool& dirtyFlag)  {
+boost::logic::tribool GOptimizableEntity::setDirtyFlag(const boost::logic::tribool& dirtyFlag)  {
 	bool previous = dirtyFlag_;
 	dirtyFlag_ = dirtyFlag;
 	return previous;
@@ -882,7 +908,8 @@ bool GOptimizableEntity::setDirtyFlag(const bool& dirtyFlag)  {
 /**
  * Checks whether this solution is valid. This function is meant to be called
  * for "clean" individuals only and will throw when called for individuals, whose
- * dirty flag is set
+ * dirty flag is set. Note that it is well possible to call the function if
+ * evaluation was delayed.
  */
 bool GOptimizableEntity::isValid() const {
    if(this->isDirty()) {
@@ -1570,6 +1597,10 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty() == true); // Note the missing argument -- this is a different function
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(false));
 		BOOST_CHECK(p_test->isDirty() == false);
+      BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(boost::logic::indeterminate));
+      BOOST_CHECK(p_test->evaluationDelayed() == true);
+      BOOST_CHECK(p_test->isDirty() == false);
+      BOOST_CHECK(p_test->isClean() == false);
 	}
 
 	// --------------------------------------------------------------------------
