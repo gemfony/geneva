@@ -6,6 +6,7 @@ SET ( COMMONSOURCES
 	GDefaultValueT
 	GExceptions
 	GHelperFunctions
+	GLockVarT
 	GLogger
 	GMathHelperFunctions
 	GParserBuilder

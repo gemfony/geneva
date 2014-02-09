@@ -41,19 +41,25 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * The standard constructor. Initialization with the number of fitness
+ * criteria, so GOptimizableEntity can set up its internal data structures.
+ * This is the only "real" constructor, apart from the copy constructor.
+ */
+GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(
+   const std::size_t& nFitnessCriteria
+)
+   : GParameterSet(nFitnessCriteria)
+   , minima_(nFitnessCriteria)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * The default constructor. It is declared private in the header file, as it will only be
- * needed for (de-)serialization purposes. As all variables will be set by the Boost.Serialization
- * library, no variables are initialized here.
+ * needed for (de-)serialization purposes.
  */
 GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual()
-   : nPar_(NPAR_MC) // The actual number will be determined by the external configuration file
-   , par_min_(-10.)
-   , par_max_( 10.)
-   , minima_()
-   , minima_string_()
-{
-   this->setNumberOfFitnessCriteria(nPar_);
-}
+   : GParameterSet()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -71,14 +77,8 @@ GMultiCriterionParabolaIndividual::~GMultiCriterionParabolaIndividual()
  */
 GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(const GMultiCriterionParabolaIndividual& cp)
 	: GParameterSet(cp)
-	, nPar_(cp.nPar_)
-	, par_min_(cp.par_min_)
-	, par_max_(cp.par_max_)
-	, minima_(cp.minima_)
-   , minima_string_(cp.minima_string_)
-{
-   this->setNumberOfFitnessCriteria(nPar_);
-}
+   , minima_(cp.minima_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -94,97 +94,20 @@ const GMultiCriterionParabolaIndividual& GMultiCriterionParabolaIndividual::oper
 
 /******************************************************************************/
 /**
- * Adds local configuration options to a GParserBuilder object
- *
- * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
+ * Assigns a number of minima to this object
  */
-void GMultiCriterionParabolaIndividual::addConfigurationOptions (
-   Gem::Common::GParserBuilder& gpb
-   , const bool& showOrigin
-) {
-   std::string comment;
-
-   // Call our parent class'es function
-   GParameterSet::addConfigurationOptions(gpb, showOrigin);
-
-   // Add local data
-   comment = "";
-   comment += "The lower boundary of the parabola;";
-   gpb.registerFileParameter(
-         "par_min"
-         , par_min_
-         , par_min_
-         , Gem::Common::VAR_IS_ESSENTIAL
-         , comment
-   );
-
-   comment = "";
-   comment += "The upper boundary of the parabola;";
-   gpb.registerFileParameter(
-         "par_max"
-         , par_max_
-         , par_max_
-         , Gem::Common::VAR_IS_ESSENTIAL
-         , comment
-   );
-
-   comment = "";
-   comment += "A list of optima, encoded as a string;";
-   gpb.registerFileParameter(
-         "minima"
-         , minima_string_
-         , std::string("-1. 0. 1.")
-         , Gem::Common::VAR_IS_ESSENTIAL
-         , comment
-   );
-}
-
-/******************************************************************************/
-/**
- * Initialize with stored values
- */
-void GMultiCriterionParabolaIndividual::init() {
-   // Parse the minima string and break it into timing values
-   std::vector<std::string> minimaTokens;
-   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-   boost::char_separator<char> space_sep(" ");
-   tokenizer minimaTokenizer(minima_string_, space_sep);
-   tokenizer::iterator s;
-   std::size_t parabola_counter = 0;
-   for(s=minimaTokenizer.begin(); s!=minimaTokenizer.end(); ++s){
-      std::cout << "Parabola " << parabola_counter++ << " minimum = " << *s << std::endl;
-      minimaTokens.push_back(*s);
-   }
-   if(minimaTokens.empty()) { // No sleep tokens were provided
+void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double>& minima) {
+#ifdef DEBUG
+   if(minima.size() != this->getNumberOfFitnessCriteria()) {
       glogger
-      << "In GMultiCriterionParabolaIndividual::init(): Error!" << std::endl
-      << "You did not provide any minimum settings" << std::endl
+      << "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << std::endl
+      << "Invalid size of minima vector. Expected " << this->getNumberOfFitnessCriteria() << std::endl
+      << "but got " << minima.size() << std::endl
       << GEXCEPTION;
    }
+#endif /* DEBUG */
 
-   minima_.clear();
-
-   std::vector<std::string>::iterator t;
-   for(t=minimaTokens.begin(); t!=minimaTokens.end(); ++t) {
-      // Assign the converted minimum
-      minima_.push_back(boost::lexical_cast<double>(*t));
-   }
-
-   // Initialize the number of parabolas
-   nPar_ = minima_.size();
-
-   // Make sure we update the number of fitness criteria to be expected
-   this->setNumberOfFitnessCriteria(nPar_);
-
-   for(std::size_t npar=0; npar<nPar_; npar++) {
-      // GConstrainedDoubleObject cannot assume value below or above par_min_/max_
-      boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(par_min_, par_max_));
-      // Assign a random value in the expected range
-      gcdo_ptr->setValue(gr.uniform_real<double>(par_min_, par_max_));
-      // Add the parameters to this individual
-      this->push_back(gcdo_ptr);
-   }
+   minima_ = minima;
 }
 
 /******************************************************************************/
@@ -200,12 +123,18 @@ void GMultiCriterionParabolaIndividual::load_(const GObject* cp)
 	// Load our parent's data ...
 	GParameterSet::load_(cp);
 
-	// Local data
-	nPar_ = p_load->nPar_;
-	par_min_ = p_load->par_min_;
-	par_max_ = p_load->par_max_;
+#ifdef DEBUG
+   if((p_load->minima_).size() != minima_.size() || (p_load->minima_).size() != this->getNumberOfFitnessCriteria()) {
+      glogger
+      << "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << std::endl
+      << "Invalid size of minima vector. Expected " << minima_.size() << "/" << this->getNumberOfFitnessCriteria() << std::endl
+      << "but got " << (p_load->minima_).size() << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+	// Load local data
 	minima_ = p_load->minima_;
-	minima_string_ = p_load->minima_string_;
 }
 
 /******************************************************************************/
@@ -235,7 +164,7 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation(){
 	// secondary evaluation criteria.
 	main_result = GSQUARED(parVec[0] - minima_[0]);
 	for(std::size_t i=1; i<parVec.size(); i++) {
-		registerSecondaryResult(GSQUARED(parVec[i] - minima_[i]));
+		registerSecondaryResult(i, GSQUARED(parVec[i] - minima_[i]));
 	}
 
 	return main_result;
@@ -251,6 +180,12 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation(){
  */
 GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFactory(const std::string& cF)
 	: Gem::Common::GFactoryT<GParameterSet>(cF)
+   , par_min_(-10.)
+   , par_max_( 10.)
+   , minima_string_("-1., 0., 1.")
+   , minima_()
+   , nPar_(NPAR_MC) // The actual number will be determined by the external configuration file
+   , firstParsed_(true)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -265,7 +200,39 @@ GMultiCriterionParabolaIndividualFactory::~GMultiCriterionParabolaIndividualFact
  * Allows to describe configuration options in derived classes
  */
 void GMultiCriterionParabolaIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder& gpb)
-{ /* nothing */ }
+{
+   std::string comment;
+
+   comment = "";
+   comment += "The lower boundary of the parabola;";
+   gpb.registerFileParameter(
+      "par_min"
+      , par_min_.reference()
+      , par_min_.value()
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The upper boundary of the parabola;";
+   gpb.registerFileParameter(
+      "par_max"
+      , par_max_.reference()
+      , par_max_.value()
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "A list of optima, encoded as a string;";
+   gpb.registerFileParameter(
+      "minima"
+      , minima_string_.reference()
+      , minima_string_.value()
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+}
 
 /******************************************************************************/
 /**
@@ -277,8 +244,8 @@ void GMultiCriterionParabolaIndividualFactory::describeLocalOptions_(Gem::Common
  * @return An individual of the desired type
  */
 boost::shared_ptr<GParameterSet> GMultiCriterionParabolaIndividualFactory::getObject_(
-      Gem::Common::GParserBuilder& gpb
-      , const std::size_t& id
+   Gem::Common::GParserBuilder& gpb
+   , const std::size_t& id
 ) {
    // Will hold the result
    boost::shared_ptr<GMultiCriterionParabolaIndividual> target(new GMultiCriterionParabolaIndividual());
@@ -292,12 +259,28 @@ boost::shared_ptr<GParameterSet> GMultiCriterionParabolaIndividualFactory::getOb
 /******************************************************************************/
 
 void GMultiCriterionParabolaIndividualFactory::postProcess_(
-      boost::shared_ptr<GParameterSet>& p_base
+   boost::shared_ptr<GParameterSet>& p_base
 ) {
    boost::shared_ptr<GMultiCriterionParabolaIndividual> p
       = Gem::Common::convertSmartPointer<GParameterSet, GMultiCriterionParabolaIndividual>(p_base);
 
-   p->init();
+   if(firstParsed_) {
+      minima_ = Gem::Common::stringToDoubleVec(minima_string_);
+      nPar_ = minima_.size();
+
+      firstParsed_ = false;
+   }
+
+   p->setNumberOfFitnessCriteria(nPar_);
+
+   for(std::size_t npar=0; npar<nPar_; npar++) {
+      // GConstrainedDoubleObject cannot assume value below or above par_min_/max_
+      boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(par_min_.value(), par_max_.value()));
+      // Add the parameters to this individual
+      p->push_back(gcdo_ptr);
+   }
+
+   p->setMinima(minima_);
 }
 
 /******************************************************************************/

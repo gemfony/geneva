@@ -63,6 +63,13 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * Helps top better identify whether the object was marked as invalid
+ */
+const bool OE_NOT_MARKED_AS_INVALID = false;
+const bool OE_MARKED_AS_INVALID = true;
+
+/******************************************************************************/
+/**
  * Helps to better identify raw and transformed fitness
  */
 const std::size_t G_RAW_FITNESS = 0;

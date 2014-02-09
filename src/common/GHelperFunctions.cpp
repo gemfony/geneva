@@ -212,6 +212,42 @@ std::vector<unsigned int> stringToUIntVec(const std::string& raw) {
 
 /******************************************************************************/
 /**
+ * Splits a string into a vector of double values, if possible, or throws
+ * an exception. The list must at least contain one entry and must be
+ * comma-separated.
+ */
+std::vector<double> stringToDoubleVec(const std::string& raw) {
+   using namespace boost::spirit;
+
+   std::vector<double> result;
+   bool success = false;
+
+   std::string::const_iterator from = raw.begin();
+   std::string::const_iterator to   = raw.end();
+
+   // Do the actual parsing
+   success = qi::phrase_parse(
+      from , to
+      , ( double_ % ',')
+      , qi::space
+      , result
+   );
+
+   if (from != to || !success) {
+      std::string rest(from, to);
+      glogger
+      << "In stringToDoubleVec(const std::string& raw): Error!" << std::endl
+      << "Parsing failed." << std::endl
+      << "Stopped at: \": " << rest << "\"" << std::endl
+      << GEXCEPTION;
+   }
+
+   return result;
+}
+
+
+/******************************************************************************/
+/**
  * Splits a string into a vector of unsigned int-tuples, if possible, or
  * throws an exception. The string should have the form "(1,2), (3,4)" etc.
  */

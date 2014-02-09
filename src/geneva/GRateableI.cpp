@@ -1,5 +1,5 @@
 /**
- * @file GRateableI.hpp
+ * @file GRateableI.cpp
  */
 
 /*
@@ -32,51 +32,21 @@
  * http://www.gemfony.eu .
  */
 
-// Standard header files go here
-#include <sstream>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
-// Boost header files go here
-
-#ifndef GRATEABLEI_HPP_
-#define GRATEABLEI_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
-
-
-// Geneva header files go here
+#include "geneva/GRateableI.hpp"
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
 /**
- * A simple interface class for objects that can be evaluated.
+ * The destructor
  */
-class GRateableI {
-public:
-	/** @brief The destructor */
-	virtual ~GRateableI();
-
-   /** @brief Retrieve a value for this class, using a fixed fitness function */
-   virtual double fitness() const BASE = 0;
-   /** @brief Retrieve a value for this class, using a fitness function with a given id */
-   virtual double fitness(const std::size_t&) const BASE = 0;
-
-   /** @brief Calculate or returns the result of a fitness function with a given id */
-   virtual double fitness(const std::size_t&, bool, bool) BASE = 0;
-   /** @brief Calculate or returns the result of a fitness function with a given id */
-   virtual double fitness(const std::size_t&, bool, bool) const BASE = 0;
-};
+GRateableI::~GRateableI()
+{ /* nothing */ }
 
 /******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GRATEABLEI_HPP_ */
+

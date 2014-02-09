@@ -95,8 +95,12 @@ std::string serializationModeToString(const serializationMode&);
 std::vector<std::string> splitString(const std::string&, const char*);
 
 /******************************************************************************/
-/** @brief Splits a string into a vector of boost::uint16_t, if possible */
+/** @brief Splits a string into a vector of boost::uint16_t values, if possible */
 std::vector<unsigned int> stringToUIntVec(const std::string&);
+
+/******************************************************************************/
+/** @brief Splits a string into a vector of double values, if possible */
+std::vector<double> stringToDoubleVec(const std::string&);
 
 /******************************************************************************/
 /** @brief Splits a string into a vector of unsigned int-tuples, if possible */

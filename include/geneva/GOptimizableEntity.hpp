@@ -53,6 +53,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GMathHelperFunctions.hpp"
+#include "common/GLockVarT.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -100,11 +101,8 @@ class GOptimizableEntity
 
 	  ar
 	  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-	  & BOOST_SERIALIZATION_NVP(transformedCurrentFitness_)
-	  & BOOST_SERIALIZATION_NVP(transformedCurrentSecondaryFitness_)
+	  & BOOST_SERIALIZATION_NVP(currentFitnessVec_)
 	  & BOOST_SERIALIZATION_NVP(nFitnessCriteria_)
-	  & BOOST_SERIALIZATION_NVP(rawCurrentFitness_)
-	  & BOOST_SERIALIZATION_NVP(rawCurrentSecondaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(bestPastPrimaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(nStalls_)
 	  & BOOST_SERIALIZATION_NVP(dirtyFlag_)
@@ -117,8 +115,7 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(steepness_)
 	  & BOOST_SERIALIZATION_NVP(barrier_)
 	  & BOOST_SERIALIZATION_NVP(worstKnownValids_)
-	  & BOOST_SERIALIZATION_NVP(markedAsInvalidExternally_)
-	  & BOOST_SERIALIZATION_NVP(changesAllowedTo_markedAsInvalidExternally_)
+	  & BOOST_SERIALIZATION_NVP(markedAsInvalidByUser_)
 	  & BOOST_SERIALIZATION_NVP(evaluationID_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -128,6 +125,8 @@ public:
 	GOptimizableEntity();
 	/** @brief The copy constructor */
 	GOptimizableEntity(const GOptimizableEntity&);
+	/** @brief Initialization with the number of fitness criteria */
+	GOptimizableEntity(const std::size_t&);
 	/** @brief The destructor */
 	virtual ~GOptimizableEntity();
 
@@ -165,29 +164,27 @@ public:
    double constFitness(const std::size_t&, bool, bool) const;
 
 	/** @brief Adapts and evaluates the individual in one go */
-	virtual double adaptAndEvaluate();
+	virtual void adaptAndEvaluate();
 
    /** @brief Retrieve the current (not necessarily up-to-date) fitness */
 	double getCachedFitness(const std::size_t& = 0, const bool& = USETRANSFORMEDFITNESS) const;
 
 	/** @brief Enforce fitness (re-)calculation */
-	double enforceFitnessUpdate();
+	void enforceFitnessUpdate();
 
 	/** @brief Registers a new, secondary result value of the custom fitness calculation */
-	void registerSecondaryResult(const double&);
-	/** @brief Sets the number of fitness criteria to be used with this object */
-	void setNumberOfFitnessCriteria(std::size_t);
+	void registerSecondaryResult(const std::size_t&, const double&);
 	/** @brief Determines the overall number of fitness criteria present for this individual */
 	std::size_t getNumberOfFitnessCriteria() const;
-	/** @brief Determines the number of secondary fitness criteria present for this individual */
-	std::size_t getNumberOfSecondaryFitnessCriteria() const;
+	/** @brief Allows to reset the number of fitness criteria */
+	void setNumberOfFitnessCriteria(std::size_t);
 	/** @brief Determines whether more than one fitness criterion is present for this individual */
 	bool hasMultipleFitnessCriteria() const;
 
 	/** @brief Checks the worst fitness and updates it when needed */
 	void challengeWorstValidFitness(boost::tuple<double, double>&, const std::size_t&);
    /** @brief Retrieve the fitness tuple at a given evaluation position */
-   boost::tuple<double,double> getFitnessTuple(const boost::uint32_t&);
+   boost::tuple<double,double> getFitnessTuple(const boost::uint32_t&) const;
 
    /** @brief Check whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation */
    bool isClean() const;
@@ -378,7 +375,7 @@ protected:
 	/** @brief The fitness calculation for the main quality criterion takes place here */
 	virtual double fitnessCalculation() = 0;
 	/** @brief Sets the fitness to a given set of values and clears the dirty flag */
-	void setFitness_(const double&, const std::vector<double>&);
+	void setFitness_(const std::vector<double>&);
 
 	/** @brief The actual adaption operations */
 	virtual void customAdaptions();
@@ -399,7 +396,7 @@ protected:
 	double weighedSquaredSumCombiner(const std::vector<double>&) const;
 
 	/** @brief Allows users to mark this solution as invalid in derived classes (usually from within the evaluation function) */
-	void userMarkAsInvalid();
+	void markAsInvalid();
 
 	/** @brief Checks whether a new solution is worse then an older solution, depending on the maxMode */
 	bool isWorse(double, const double&) const;
@@ -414,16 +411,15 @@ private:
    bool allRawResultsAtWorst() const;
 
 	/***************************************************************************/
-	/** @brief Holds this object's internal, primary fitness */
-   double transformedCurrentFitness_;
-   /** @brief Holds this object's internal, secondary fitness values */
-   std::vector<double> transformedCurrentSecondaryFitness_;
    /** @brief The total number of fitness criteria */
    std::size_t nFitnessCriteria_;
-   /** @brief Holds this object's internal, "true" primary fitness (without transformations) */
-   double rawCurrentFitness_;
-   /** @brief Holds this object's internal, "true" secondary fitness values (without transformations) */
-   std::vector<double> rawCurrentSecondaryFitness_;
+   /** @brief Holds this object's internal, raw and transformed fitness */
+   std::vector<boost::tuple<double, double> > currentFitnessVec_;
+
+   /** @brief The worst known evaluation up to the current iteration */
+   std::vector<boost::tuple<double, double> > worstKnownValids_;
+   /** @brief Indicates whether the user has marked this solution as invalid inside of the evaluation function */
+   Gem::Common::GLockVarT<bool> markedAsInvalidByUser_;
 
    /** @brief Holds the globally best known primary fitness of all individuals */
    double bestPastPrimaryFitness_;
@@ -446,13 +442,6 @@ private:
    double steepness_;
    /** @brief Determines the extreme values of a sigmoid function used by optimization algorithms */
    double barrier_;
-
-   /** @brief The worst known evaluation up to the current iteration */
-   std::vector<boost::tuple<double, double> > worstKnownValids_;
-   /** @brief Indicates whether the user has marked this solution as invalid inside of the evaluation function */
-   bool markedAsInvalidExternally_;
-   /** @brief Indicates whether changes of the markedAsInvalidExternally_ flag are currently allowed */
-   bool changesAllowedTo_markedAsInvalidExternally_;
 
    /** @brief A constraint-check to be applied to one or more components of this individual */
    boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > individualConstraint_;

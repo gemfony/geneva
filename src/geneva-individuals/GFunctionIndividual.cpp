@@ -988,6 +988,7 @@ std::ostream& operator<<(std::ostream& s, const Gem::Geneva::GFunctionIndividual
    f.streamline(parVec);
 
    std::vector<double>::iterator it;
+   std::cout << "Fitness: " << f.fitness() << std::endl;
    for(it=parVec.begin(); it!=parVec.end(); ++it) {
       std::cout << (it-parVec.begin()) << ": " << *it << std::endl;
    }

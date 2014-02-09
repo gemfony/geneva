@@ -55,21 +55,25 @@
 #include <geneva/GConstrainedDoubleObject.hpp>
 #include <common/GFactoryT.hpp>
 #include <common/GParserBuilder.hpp>
+#include <common/GHelperFunctions.hpp>
 
 namespace Gem {
 namespace Geneva {
 
 // The number of parameters
-const std::size_t NPAR_MC = 2;
+const std::size_t NPAR_MC = 3;
+
+// Forward declaration
 
 /******************************************************************/
 /**
  * This individual implements several, possibly conflicting evaluation
  * criteria, each implemented as a parabola with its own minimum
  */
-class GMultiCriterionParabolaIndividual
-	:public GParameterSet
+class GMultiCriterionParabolaIndividual :public GParameterSet
 {
+   friend class GMultiCriterionParabolaIndividualFactory;
+
 	/**************************************************************/
 	/**
 	 * This function triggers serialization of this class and its
@@ -78,17 +82,16 @@ class GMultiCriterionParabolaIndividual
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		   & BOOST_SERIALIZATION_NVP(nPar_)
-		   & BOOST_SERIALIZATION_NVP(par_min_)
-		   & BOOST_SERIALIZATION_NVP(par_max_)
-		   & BOOST_SERIALIZATION_NVP(minima_);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 	}
+
+   /** @brief Make the class accessible to Boost.Serialization */
+   friend class boost::serialization::access;
 	/**************************************************************/
 
 public:
-	/** @brief The default constructor */
-	GMultiCriterionParabolaIndividual();
+	/** @brief The standard constructor */
+	GMultiCriterionParabolaIndividual(const std::size_t&);
 	/** @brief A standard copy constructor */
 	GMultiCriterionParabolaIndividual(const GMultiCriterionParabolaIndividual&);
 	/** @brief The destructor */
@@ -97,14 +100,8 @@ public:
 	/** @brief A standard assignment operator */
 	const GMultiCriterionParabolaIndividual& operator=(const GMultiCriterionParabolaIndividual&);
 
-	/** @brief Add local configuration options to the parser */
-	void addConfigurationOptions (
-	   Gem::Common::GParserBuilder&
-	   , const bool&
-	);
-
-	/** @brief Initialize with stored values */
-	void init();
+	/** @brief Assigns a number of minima to this object */
+	void setMinima(const std::vector<double>&);
 
 protected:
 	/** @brief Loads the data of another GMultiCriterionParabolaIndividual */
@@ -116,14 +113,10 @@ protected:
 	virtual double fitnessCalculation();
 
 private:
-	/** @brief Make the class accessible to Boost.Serialization */
-	friend class boost::serialization::access;
-
-	std::size_t nPar_; ///< The number of parameters of the parabola
-	double par_min_; ///< The lower boundary of the initialization range
-	double par_max_; ///< The upper boundary of the initialization range
-	std::vector<double> minima_; ///< The desired minima of the parabolas
-   std::string minima_string_;
+   /** @brief The default constructor -- intentionally private*/
+   GMultiCriterionParabolaIndividual();
+   /** @brief Holds the minima needed for multi-criterion optimization */
+   std::vector<double> minima_;
 };
 
 /******************************************************************/
@@ -148,6 +141,15 @@ protected:
    virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
    /** @brief Allows to act on the configuration options received from the configuration file */
    virtual void postProcess_(boost::shared_ptr<GParameterSet>&);
+
+private:
+   Gem::Common::GOneTimeRefParameterT<double> par_min_; ///< The lower boundary of the initialization range
+   Gem::Common::GOneTimeRefParameterT<double> par_max_; ///< The upper boundary of the initialization range
+   Gem::Common::GOneTimeRefParameterT<std::string> minima_string_; ///< The minima encoded as a string
+
+   std::vector<double> minima_; ///< The desired minima of the parabolas
+   std::size_t nPar_; ///< The number of parameters to be added to the individual
+   bool firstParsed_; ///< Set to false when the configuration files were parsed for the first time
 };
 
 

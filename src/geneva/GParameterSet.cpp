@@ -50,6 +50,15 @@ GParameterSet::GParameterSet()
 
 /******************************************************************************/
 /**
+ * Initialization with the number of fitness criteria
+ */
+GParameterSet::GParameterSet(const std::size_t& nFitnessCriteria)
+   : GMutableSetT<Gem::Geneva::GParameterBase>(nFitnessCriteria)
+   , Gem::Courtier::GSubmissionContainerT<GParameterSet>()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * The copy constructor. Note that we cannot rely on the operator=() of the vector
  * here, as we do not know the actual type of T objects.
  *

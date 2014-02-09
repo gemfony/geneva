@@ -112,13 +112,6 @@
         "default": "1",
         "value": "1"
     },
-    "validityThreshold":
-    {
-        "comment": "The [0,1] threshold as of which a solution is considered to be invalid",
-        "comment": " [GOptimizableEntity]",
-        "default": "0.5",
-        "value": "0.5"
-    },
     "maximize":
     {
         "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",

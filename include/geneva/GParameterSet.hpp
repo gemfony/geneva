@@ -102,6 +102,8 @@ class GParameterSet
 public:
 	/** @brief The default constructor */
 	GParameterSet();
+   /** @brief Initialization with the number of fitness criteria */
+   GParameterSet(const std::size_t&);
 	/** @brief The copy constructor */
 	GParameterSet(const GParameterSet&);
 	/** @brief The destructor */

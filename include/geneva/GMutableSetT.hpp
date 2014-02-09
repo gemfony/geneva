@@ -91,6 +91,17 @@ public:
 		, GStdPtrVectorInterfaceT<T>()
 	{ /* nothing */	}
 
+   /***************************************************************************/
+   /**
+    * Initialization with the number of fitness criteria
+    *
+    * @param nFitnessCriteria The number of fitness criteria used by this object
+    */
+   GMutableSetT(const std::size_t& nFitnessCriteria)
+      : GOptimizableEntity(nFitnessCriteria)
+      , GStdPtrVectorInterfaceT<T>()
+   { /* nothing */   }
+
 	/***************************************************************************/
 	/**
 	 * The copy constructor. Note that we cannot rely on the operator=() of the vector

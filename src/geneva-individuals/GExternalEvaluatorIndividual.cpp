@@ -348,7 +348,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
    if(!isUseful) { // Assign worst-case values to all result
       main_result = this->getWorstCase();
       for(std::size_t res=1; res<nResults_; res++) {
-         this->registerSecondaryResult(this->getWorstCase());
+         this->registerSecondaryResult(res, this->getWorstCase());
       }
    } else { // Extract and store all result values
       // Get the results node
@@ -364,7 +364,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
          currentResult = resultsNode.get<double>(resultString);
 
          if(res == 0) main_result = currentResult;
-         else registerSecondaryResult(currentResult);
+         else registerSecondaryResult(res, currentResult);
       }
    }
 

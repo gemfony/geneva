@@ -100,16 +100,16 @@ public:
 
 	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&,
-			const Gem::Common::expectation&,
-			const double&,
-			const std::string&,
-			const std::string&,
-			const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const;
 
 	/** @brief Sets the fitness to a given set of values and clears the dirty flag */
-	void setFitness(const double&, const std::vector<double>&);
+	void setFitness(const std::vector<double>&);
 
 protected:
 	/** @brief Loads the data of another GExternalSetterIndividual */

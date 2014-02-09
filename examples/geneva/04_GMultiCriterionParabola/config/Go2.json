@@ -4,13 +4,6 @@
 //-----------------------------------------------------------------
 
 {
-    "validityThreshold":
-    {
-        "comment": "The [0,1] threshold as of which a solution is considered to be invalid",
-        "comment": " [GOptimizableEntity]",
-        "default": "0.5",
-        "value": "0.5"
-    },
     "nProducerThreads":
     {
         "comment": "The number of threads simultaneously producing random numbers",

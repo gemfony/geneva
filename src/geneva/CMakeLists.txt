@@ -72,6 +72,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterT
 	GPersonalityTraits
 	GPSPersonalityTraits
+	GRateableI
 	GSAPersonalityTraits
 	GScanPar
 	GSerialEA

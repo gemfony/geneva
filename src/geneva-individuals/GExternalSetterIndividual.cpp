@@ -116,13 +116,13 @@ bool GExternalSetterIndividual::operator!=(const GExternalSetterIndividual& cp) 
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GExternalSetterIndividual::checkRelationshipWith(
-		const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
+) const {
 	using namespace Gem::Common;
 	using namespace Gem::Geneva;
 
@@ -146,14 +146,12 @@ boost::optional<std::string> GExternalSetterIndividual::checkRelationshipWith(
  * Sets the fitness to a given set of values and clears the dirty flag. This is meant for external
  * methods of performing the actual evaluation.
  *
- * @param f The primary fitness value
- * @param sec_f_vec A vector of secondary fitness values
+ * @param f_vec A vector of fitness values
  */
 void GExternalSetterIndividual::setFitness(
-		const double& f
-		, const std::vector<double>& sec_f_vec
+   const std::vector<double>& f_vec
 ) {
-	GOptimizableEntity::setFitness_(f, sec_f_vec);
+	GOptimizableEntity::setFitness_(f_vec);
 }
 
 
@@ -269,7 +267,7 @@ void GExternalSetterIndividual::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Check that we can set the value of this object and that it isn't dirty afterwards
 		double f = 0.; // For the fitness value
-		const double FITNESS = 3.0;
+		std::vector<double> FITNESS; FITNESS.push_back(3.0);
 		boost::shared_ptr<GExternalSetterIndividual> p_test = this->GObject::clone<GExternalSetterIndividual>();
 		boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(1.));
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.,0.6,0.,2.));
@@ -279,10 +277,10 @@ void GExternalSetterIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->adapt());
 		BOOST_CHECK(p_test->isDirty()); // The dirty flag should be set after mutation
 
-		BOOST_CHECK_NO_THROW(p_test->setFitness(FITNESS,std::vector<double>()));
+		BOOST_CHECK_NO_THROW(p_test->setFitness(FITNESS));
 		BOOST_CHECK(!p_test->isDirty());
 		BOOST_CHECK_NO_THROW(f = p_test->fitness());
-		BOOST_CHECK(f == FITNESS);
+		BOOST_CHECK(f == FITNESS.at(0));
 	}
 
 	//---------------------------------------------------------------------------
@@ -322,15 +320,14 @@ void GExternalSetterIndividual::specificTestsFailuresExpected_GUnitTests() {
 #endif /* DEBUG */
 	//---------------------------------------------------------------------------
 
+#ifdef DEBUG
 	{ // Check that supplying secondary fitness values when no corresponding variables have been registered throws
-		const double FITNESS = 3.0;
+      std::vector<double> FITNESS; FITNESS.push_back(1.); FITNESS.push_back(2.); FITNESS.push_back(3.);
 		boost::shared_ptr<GExternalSetterIndividual> p_test = this->GObject::clone<GExternalSetterIndividual>();
-		std::vector<double> x_vec;
-		x_vec.push_back(1.);
-		x_vec.push_back(2.);
-		x_vec.push_back(3.);
-		BOOST_CHECK_THROW(p_test->setFitness(FITNESS, x_vec), Gem::Common::gemfony_error_condition);
+      BOOST_CHECK(1==p_test->getNumberOfFitnessCriteria());
+		BOOST_CHECK_THROW(p_test->setFitness(FITNESS), Gem::Common::gemfony_error_condition);
 	}
+#endif
 
 	//---------------------------------------------------------------------------
 
