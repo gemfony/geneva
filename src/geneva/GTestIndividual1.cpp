@@ -349,7 +349,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		std::size_t nTests = 1000;
 
-		double currentFitness = p_test->fitness();
+		double currentFitness = p_test->fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
 		double oldFitness = currentFitness;
 		bool dirtyFlag = false;
 

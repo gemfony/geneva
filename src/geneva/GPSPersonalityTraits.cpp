@@ -117,11 +117,11 @@ bool GPSPersonalityTraits::operator!=(const GPSPersonalityTraits& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GPSPersonalityTraits::checkRelationshipWith(const GObject& cp,
-      const Gem::Common::expectation& e,
-      const double& limit,
-      const std::string& caller,
-      const std::string& y_name,
-      const bool& withMessages) const
+   const Gem::Common::expectation& e,
+   const double& limit,
+   const std::string& caller,
+   const std::string& y_name,
+   const bool& withMessages) const
 {
     using namespace Gem::Common;
 

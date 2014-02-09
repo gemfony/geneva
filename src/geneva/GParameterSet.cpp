@@ -189,7 +189,9 @@ boost::any GParameterSet::getVarVal(
 
 /******************************************************************************/
 /**
- * Checks whether this object is better than a given set of evaluations.
+ * Checks whether this object is better than a given set of evaluations. This
+ * function compares "real" boundaries with evaluations, hence we use "raw"
+ * measurements here instead of transformed measurements.
  */
 bool GParameterSet::isGoodEnough(const std::vector<double>& boundaries) {
 #ifdef DEBUG
@@ -215,13 +217,13 @@ bool GParameterSet::isGoodEnough(const std::vector<double>& boundaries) {
    // vector, then this individual fails the test
    if(true == this->getMaxMode()) { // Maximization
       for(std::size_t i=0; i<boundaries.size(); i++) {
-         if(this->fitness(i) < boundaries.at(i)) {
+         if(this->fitness(i, PREVENTREEVALUATION, USERAWFITNESS) < boundaries.at(i)) {
             return false;
          }
       }
    } else { // Minimization
       for(std::size_t i=0; i<boundaries.size(); i++) {
-         if(this->fitness(i) > boundaries.at(i)) {
+         if(this->fitness(i, PREVENTREEVALUATION, USERAWFITNESS) > boundaries.at(i)) {
             return false;
          }
       }

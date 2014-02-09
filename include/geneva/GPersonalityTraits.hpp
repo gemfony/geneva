@@ -91,12 +91,12 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-	      const GObject&
-	      , const Gem::Common::expectation&
-	      , const double&
-	      , const std::string&
-	      , const std::string&
-	      , const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
    /** @brief Emits a name for this class / object */

@@ -202,7 +202,7 @@ protected:
    virtual GObject *clone_() const = 0;
 
    /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-   virtual double cycleLogic() OVERRIDE;
+   virtual boost::tuple<double, double> cycleLogic() OVERRIDE;
    /** @brief Does some preparatory work before the optimization starts */
    virtual void init() OVERRIDE;
    /** @brief Does any necessary finalization work */

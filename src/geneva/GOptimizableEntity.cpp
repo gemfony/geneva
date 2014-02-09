@@ -53,7 +53,7 @@ GOptimizableEntity::GOptimizableEntity()
    , currentFitnessVec_(nFitnessCriteria_)
    , worstKnownValids_(nFitnessCriteria_)
    , markedAsInvalidByUser_(OE_NOT_MARKED_AS_INVALID) // Means: the object has not been marked as invalid by the user in the evaluation function
-   , bestPastPrimaryFitness_(0.)
+   , bestPastPrimaryFitness_(boost::make_tuple(0.,0.))
 	, nStalls_(0)
 	, dirtyFlag_(true)
 	, maximize_(false)
@@ -81,7 +81,7 @@ GOptimizableEntity::GOptimizableEntity(const std::size_t& nFitnessCriteria)
    , currentFitnessVec_(nFitnessCriteria_)
    , worstKnownValids_(nFitnessCriteria_)
    , markedAsInvalidByUser_(OE_NOT_MARKED_AS_INVALID) // Means: the object has not been marked as invalid by the user in the evaluation function
-   , bestPastPrimaryFitness_(0.)
+   , bestPastPrimaryFitness_(boost::make_tuple(0.,0.))
    , nStalls_(0)
    , dirtyFlag_(true)
    , maximize_(false)
@@ -292,7 +292,7 @@ void GOptimizableEntity::load_(const GObject* cp) {
  */
 void GOptimizableEntity::adapt() {
 	this->customAdaptions(); // The actual mutation and adaption process
-	GOptimizableEntity::setDirtyFlag(); // Make sure the individual is re-evaluated when fitness() is called next time
+	GOptimizableEntity::setDirtyFlag(); // Make sure the individual is re-evaluated when fitness(...) is called next time
 }
 
 /* ----------------------------------------------------------------------------------
@@ -303,19 +303,21 @@ void GOptimizableEntity::adapt() {
 /******************************************************************************/
 /**
  * Returns the cached result of the fitness function with id 0. This function
- * will always return the transformed fitness. This is the const version.
+ * will always return the raw fitness, as it is likely the one called by users
+ * directly -- they will expect untransformed values. This is the const version
  */
 double GOptimizableEntity::fitness() const {
-   return fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+   return fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 }
 
 /******************************************************************************/
 /**
- * Calculate or returns the result of a fitness function with a given id.
- * This function will always return the transformed fitness. This is the const version.
+ * Calculate or returns the result of a fitness function with a given id.This
+ * function will always return the raw fitness, as it is likely the one called by users
+ * directly -- they will expect untransformed values. This is the const version
  */
 double GOptimizableEntity::fitness(const std::size_t& id) const {
-   return fitness(id, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+   return fitness(id, PREVENTREEVALUATION, USERAWFITNESS);
 }
 
 /******************************************************************************/
@@ -996,7 +998,7 @@ bool GOptimizableEntity::constraintsFulfilled() const {
  * @param bnf The best known primary fitness so far
  */
 void GOptimizableEntity::setBestKnownPrimaryFitness(
-   const double& bnf
+   const boost::tuple<double, double>& bnf
 ) {
    bestPastPrimaryFitness_ = bnf;
 }
@@ -1012,7 +1014,7 @@ void GOptimizableEntity::setBestKnownPrimaryFitness(
  *
  * @return The best known primary fitness so far
  */
-double GOptimizableEntity::getBestKnownPrimaryFitness() const {
+boost::tuple<double, double> GOptimizableEntity::getBestKnownPrimaryFitness() const {
    return bestPastPrimaryFitness_;
 }
 
@@ -1239,10 +1241,10 @@ void GOptimizableEntity::markAsInvalid() {
  */
 bool GOptimizableEntity::isBetter(double newValue, const double& oldValue) const {
    if(this->getMaxMode()) {
-      if(newValue >= oldValue) return true;
+      if(newValue > oldValue) return true;
       else return false;
    } else { // minimization
-      if(newValue <= oldValue) return true;
+      if(newValue < oldValue) return true;
       else return false;
    }
 }
@@ -1632,9 +1634,9 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
 		for(double d=0.; d<1.; d+=0.1) {
-			BOOST_CHECK_NO_THROW(p_test->setBestKnownPrimaryFitness(d));
+			BOOST_CHECK_NO_THROW(p_test->setBestKnownPrimaryFitness(boost::make_tuple(d,d)));
 			BOOST_CHECK_MESSAGE(
-					p_test->getBestKnownPrimaryFitness() == d
+					p_test->getBestKnownPrimaryFitness() == boost::make_tuple(d,d)
 					,  "\n"
 					<< "p_test->getBestKnownPrimaryFitness() = " << p_test->getBestKnownPrimaryFitness() << "\n"
 					<< "d = " << d << "\n"

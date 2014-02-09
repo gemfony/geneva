@@ -196,7 +196,7 @@ protected:
     	boost::shared_ptr<GMetaOptimizerIndividual> p = ea->clone_at<GMetaOptimizerIndividual>(0);
 
     	// Retrieve the best fitness and average sigma value and add it to our local storage
-    	(*progressPlotter_) & boost::tuple<double,double>((double)ea->getIteration(), p->fitness(0));
+    	(*progressPlotter_) & boost::tuple<double,double>((double)ea->getIteration(), p->fitness());
     	(*nParentPlotter_) & boost::tuple<double,double>((double)ea->getIteration(), (double) p->getNParents());
     	(*nChildrenPlotter_) & boost::tuple<double,double>((double)ea->getIteration(), (double) p->getNChildren());
     	(*adProbPlotter_) & boost::tuple<double,double>((double)ea->getIteration(), p->getAdProb());

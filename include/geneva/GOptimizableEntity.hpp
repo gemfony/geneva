@@ -184,7 +184,7 @@ public:
 	/** @brief Checks the worst fitness and updates it when needed */
 	void challengeWorstValidFitness(boost::tuple<double, double>&, const std::size_t&);
    /** @brief Retrieve the fitness tuple at a given evaluation position */
-   boost::tuple<double,double> getFitnessTuple(const boost::uint32_t&) const;
+   boost::tuple<double,double> getFitnessTuple(const boost::uint32_t& = 0) const;
 
    /** @brief Check whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation */
    bool isClean() const;
@@ -358,9 +358,9 @@ public:
    void postEvaluationUpdate();
 
    /** @brief Allows to set the globally best known primary fitness */
-   void setBestKnownPrimaryFitness(const double&);
+   void setBestKnownPrimaryFitness(const boost::tuple<double, double>&);
    /** @brief Retrieves the value of the globally best known primary fitness */
-   double getBestKnownPrimaryFitness() const;
+   boost::tuple<double, double> getBestKnownPrimaryFitness() const;
 
    /** @brief Retrieve the id assigned to the current evaluation */
    std::string getCurrentEvaluationID() const;
@@ -403,6 +403,44 @@ protected:
 	/** @brief Checks whether a new solution is better then an older solution, depending on the maxMode */
 	bool isBetter(double, const double&) const;
 
+	/***************************************************************************/
+	/**
+	 * Checks if a given position of a boost::tuple is better then another,
+	 * depending on our maximization mode
+	 */
+	template <std::size_t pos>
+	bool isWorse(
+      boost::tuple<double, double> newValue
+      , boost::tuple<double, double> oldValue
+   ) const {
+	   if(this->getMaxMode()) {
+	      if(boost::get<pos>(newValue) < boost::get<pos>(oldValue)) return true;
+	      else return false;
+	   } else { // minimization
+	      if(boost::get<pos>(newValue) > boost::get<pos>(oldValue)) return true;
+	      else return false;
+	   }
+	}
+
+   /***************************************************************************/
+   /**
+    * Checks if a given position of a boost::tuple is better then another,
+    * depending on our maximization mode
+    */
+   template <std::size_t pos>
+   bool isBetter(
+      boost::tuple<double, double> newValue
+      , boost::tuple<double, double> oldValue
+   ) const {
+      if(this->getMaxMode()) {
+         if(boost::get<pos>(newValue) > boost::get<pos>(oldValue)) return true;
+         else return false;
+      } else { // minimization
+         if(boost::get<pos>(newValue) < boost::get<pos>(oldValue)) return true;
+         else return false;
+      }
+   }
+
 private:
    /***************************************************************************/
    /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
@@ -422,7 +460,7 @@ private:
    Gem::Common::GLockVarT<bool> markedAsInvalidByUser_;
 
    /** @brief Holds the globally best known primary fitness of all individuals */
-   double bestPastPrimaryFitness_;
+   boost::tuple<double, double> bestPastPrimaryFitness_;
    /** @brief The number of stalls of the primary fitness criterion in the entire set of individuals */
    boost::uint32_t nStalls_;
    /** @brief Internal representation of the adaption status of this object */

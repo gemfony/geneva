@@ -100,7 +100,7 @@ private:
 	  & BOOST_SERIALIZATION_NVP(nRecordBestIndividuals_)
 	  & BOOST_SERIALIZATION_NVP(bestIndividuals_)
 	  & BOOST_SERIALIZATION_NVP(defaultPopulationSize_)
-	  & BOOST_SERIALIZATION_NVP(bestPastPrimaryFitness_)
+	  & BOOST_SERIALIZATION_NVP(bestKnownPrimaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(bestCurrentPrimaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(stallCounter_)
 	  & BOOST_SERIALIZATION_NVP(cpInterval_)
@@ -132,8 +132,8 @@ public:
 		, nRecordBestIndividuals_(DEFNRECORDBESTINDIVIDUALS)
 		, bestIndividuals_(DEFNRECORDBESTINDIVIDUALS)
 		, defaultPopulationSize_(DEFAULTPOPULATIONSIZE)
-		, bestPastPrimaryFitness_(0.) // will be set appropriately in the optimize() function
-		, bestCurrentPrimaryFitness_(0.) // will be set appropriately in the optimize() function
+		, bestKnownPrimaryFitness_(boost::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
+		, bestCurrentPrimaryFitness_(boost::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 		, stallCounter_(0)
 		, cpInterval_(DEFAULTCHECKPOINTIT)
 		, cpBaseName_(DEFAULTCPBASENAME)
@@ -164,7 +164,7 @@ public:
 		, nRecordBestIndividuals_(cp.nRecordBestIndividuals_)
 		, bestIndividuals_(cp.bestIndividuals_)
 		, defaultPopulationSize_(cp.defaultPopulationSize_)
-		, bestPastPrimaryFitness_(cp.bestPastPrimaryFitness_)
+		, bestKnownPrimaryFitness_(cp.bestKnownPrimaryFitness_)
 		, bestCurrentPrimaryFitness_(cp.bestCurrentPrimaryFitness_)
 		, stallCounter_(cp.stallCounter_)
 		, cpInterval_(cp.cpInterval_)
@@ -396,7 +396,7 @@ public:
 	   EXPECTATIONCHECK(reportIteration_);
 	   EXPECTATIONCHECK(nRecordBestIndividuals_);
 	   EXPECTATIONCHECK(defaultPopulationSize_);
-	   EXPECTATIONCHECK(bestPastPrimaryFitness_);
+	   EXPECTATIONCHECK(bestKnownPrimaryFitness_);
 	   EXPECTATIONCHECK(bestCurrentPrimaryFitness_);
 	   EXPECTATIONCHECK(stallCounter_);
 	   EXPECTATIONCHECK(cpInterval_);
@@ -450,8 +450,9 @@ public:
 		if(reportIteration_) doInfo(INFOINIT);
 
 		// We want to know if no better values were found for a longer period of time
-		bestPastPrimaryFitness_ = this->getWorstCase();
-		bestCurrentPrimaryFitness_ = this->getWorstCase();
+		bestKnownPrimaryFitness_    = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+		bestCurrentPrimaryFitness_ = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+
 		stallCounter_ = 0;
 
 		// Give derived classes the opportunity to perform any necessary preparatory work.
@@ -761,19 +762,19 @@ public:
 	/**
 	 * Retrieve the best value found in the entire optimization run so far
 	 *
-	 * @return The best fitness found so far
+	 * @return The best raw and transformed fitness found so far
 	 */
-	double getBestPrimaryFitness() const {
-		return bestPastPrimaryFitness_;
+	boost::tuple<double, double> getBestKnownPrimaryFitness() const {
+		return bestKnownPrimaryFitness_;
 	}
 
 	/***************************************************************************/
 	/**
 	 * Retrieves the best value found in the current iteration
 	 *
-	 * @return The best value found in the current iteration
+	 * @return The best raw and transformed fitness found in the current iteration
 	 */
-	double getBestCurrentPrimaryFitness() const {
+	boost::tuple<double, double> getBestCurrentPrimaryFitness() const {
 		return bestCurrentPrimaryFitness_;
 	}
 
@@ -1115,7 +1116,7 @@ protected:
 		nRecordBestIndividuals_ = p_load->nRecordBestIndividuals_;
 		bestIndividuals_ = p_load->bestIndividuals_;
 		defaultPopulationSize_ = p_load->defaultPopulationSize_;
-		bestPastPrimaryFitness_ = p_load->bestPastPrimaryFitness_;
+		bestKnownPrimaryFitness_ = p_load->bestKnownPrimaryFitness_;
 		bestCurrentPrimaryFitness_ = p_load->bestCurrentPrimaryFitness_;
 		stallCounter_ = p_load->stallCounter_;
 		cpInterval_ = p_load->cpInterval_;
@@ -1193,7 +1194,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief The actual business logic to be performed during each iteration */
-	virtual double cycleLogic() = 0;
+	virtual boost::tuple<double, double> cycleLogic() BASE = 0;
 
 	/***************************************************************************/
 	/**
@@ -1494,11 +1495,13 @@ protected:
 private:
    /***************************************************************************/
    /**
-    * Update the stall counter
+    * Update the stall counter. We use the transformed fitness for comparison
+    * here, so we can usually deal with finite values (due to the transformation
+    * in the case of a constraint violation).
     */
-   void updateStallCounter(const double& bestEval) {
-      if(isBetter(bestEval, bestPastPrimaryFitness_)) {
-         bestPastPrimaryFitness_ = bestEval;
+   void updateStallCounter(const boost::tuple<double, double>& bestEval) {
+      if(isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestEval), boost::get<G_TRANSFORMED_FITNESS>(bestKnownPrimaryFitness_))) {
+         bestKnownPrimaryFitness_ = bestEval;
          stallCounter_ = 0;
       } else {
          stallCounter_++;
@@ -1531,17 +1534,19 @@ private:
 	/***************************************************************************/
 	/**
 	 * This function returns true once the quality is below or above a given threshold
-	 * (depending on whether we maximize or minimize).
+	 * (depending on whether we maximize or minimize). This function uses user-visible
+	 * (i.e. untransformed) fitness values, as a quality threshold will usually be
+	 * set using a true "physical" value.
 	 *
 	 * @return A boolean indicating whether the quality is above or below a given threshold
 	 */
 	bool qualityHalt() const {
-		if(isBetter(bestPastPrimaryFitness_, qualityThreshold_)) {
+		if(isBetter(boost::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_), qualityThreshold_)) {
 			if(emitTerminationReason_) {
 				std::cerr
 				<< "Terminating optimization run because" << std::endl
 				<< "quality threshold " << qualityThreshold_ << " has been reached." << std::endl
-				<< "Best quality found was " << bestPastPrimaryFitness_ << std::endl
+				<< "Best quality found was " << boost::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_) << std::endl
 				<< "with termination in iteration " << iteration_ << std::endl;
 			}
 
@@ -1743,7 +1748,7 @@ private:
 	void markBestFitness() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->setBestKnownPrimaryFitness(bestPastPrimaryFitness_);
+			(*it)->setBestKnownPrimaryFitness(bestKnownPrimaryFitness_);
 		}
 	}
 
@@ -1774,8 +1779,8 @@ private:
 	GParameterSetFixedSizePriorityQueue bestIndividuals_; ///< A priority queue with the best individuals found so far
 
 	std::size_t defaultPopulationSize_; ///< The nominal size of the population
-	double bestPastPrimaryFitness_; ///< Records the best primary fitness found so far
-	double bestCurrentPrimaryFitness_; ///< Records the best fitness found in the current iteration
+	boost::tuple<double, double> bestKnownPrimaryFitness_; ///< Records the best primary fitness found so far
+	boost::tuple<double, double> bestCurrentPrimaryFitness_; ///< Records the best fitness found in the current iteration
 	boost::uint32_t stallCounter_; ///< Counts the number of iterations without improvement
 	boost::int32_t cpInterval_; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	std::string cpBaseName_; ///< The base name of the checkpoint file
@@ -2004,7 +2009,15 @@ public:
 
 	    	case Gem::Geneva::INFOPROCESSING:
             {
-              if(!quiet_) std::cout << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentPrimaryFitness() << " (" << goa->getBestPrimaryFitness() << ")" << std::endl;
+              // We output raw values here, as this is likely what the user is interested in
+              if(!quiet_) {
+                 std::cout
+                 << std::setprecision(5)
+                 << goa->getIteration() << ": "
+                 << goa->getBestCurrentPrimaryFitness()
+                 << " // best past: " << goa->getBestKnownPrimaryFitness()
+                 << std::endl;
+              }
               this->cycleInformation(goa);
             }
             break;

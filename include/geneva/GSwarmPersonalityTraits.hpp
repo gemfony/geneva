@@ -48,14 +48,11 @@
 
 // Geneva headers go here
 #include "geneva/GPersonalityTraits.hpp"
+#include "geneva/GenevaHelperFunctionsT.hpp"
+#include "geneva/GParameterSet.hpp"
 
 namespace Gem {
 namespace Geneva {
-
-/******************************************************************************/
-// Forward declaration needed as GSwarmPersonalityTraits.hpp is
-// included in GIndividual.hpp. Breaks circular dependency.
-class GParameterSet;
 
 /******************************************************************************/
 /**
@@ -71,11 +68,12 @@ class GSwarmPersonalityTraits :public GPersonalityTraits
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-	     & BOOST_SERIALIZATION_NVP(neighborhood_)
-	     & BOOST_SERIALIZATION_NVP(noPositionUpdate_)
-	     & BOOST_SERIALIZATION_NVP(personal_best_)
-	     & BOOST_SERIALIZATION_NVP(personal_best_quality_);
+	  ar
+	  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
+	  & BOOST_SERIALIZATION_NVP(neighborhood_)
+	  & BOOST_SERIALIZATION_NVP(noPositionUpdate_)
+	  & BOOST_SERIALIZATION_NVP(personal_best_)
+	  & BOOST_SERIALIZATION_NVP(personal_best_quality_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -97,12 +95,12 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-	      const GObject&
-	      , const Gem::Common::expectation&
-	      , const double&
-	      , const std::string&
-	      , const std::string&
-	      , const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
 	/** @brief Specifies in which neighborhood the individual is at present */
@@ -124,7 +122,7 @@ public:
 	/** @brief Resets the personal best individual */
 	void resetPersonalBest();
 	/** @brief Retrieve quality of personally best individual */
-	double getPersonalBestQuality() const;
+	boost::tuple<double, double> getPersonalBestQuality() const;
 
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;
@@ -145,7 +143,7 @@ private:
 	/** @brief Holds the personally best GParameterSet */
 	boost::shared_ptr<GParameterSet> personal_best_;
 	/** @brief The quality of the personally best individual */
-	double personal_best_quality_;
+	boost::tuple<double, double> personal_best_quality_;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

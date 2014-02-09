@@ -607,11 +607,11 @@ void GBaseEA::sortMuPlusNuParetoMode() {
 		// Sort the non-pareto-front individuals according to their master fitness
 		if(this->getMaxMode()){
 			std::partial_sort(data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
-				  boost::bind(&GParameterSet::fitness, _1) > boost::bind(&GParameterSet::fitness, _2));
+				  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
 		}
 		else{
 			std::partial_sort(data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
-				  boost::bind(&GParameterSet::fitness, _1) < boost::bind(&GParameterSet::fitness, _2));
+				  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
 		}
 	}
 
@@ -620,11 +620,11 @@ void GBaseEA::sortMuPlusNuParetoMode() {
 	// random recombination scheme.
 	if(this->getMaxMode()){
 		std::sort(data.begin(), data.begin() + nParents_,
-			  boost::bind(&GParameterSet::fitness, _1) > boost::bind(&GParameterSet::fitness, _2));
+			  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
 	}
 	else{
 		std::sort(data.begin(), data.begin() + nParents_,
-			  boost::bind(&GParameterSet::fitness, _1) < boost::bind(&GParameterSet::fitness, _2));
+			  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
 	}
 }
 
@@ -704,11 +704,11 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 		// Sort the non-pareto-front individuals according to their master fitness
 		if(this->getMaxMode()){
 			std::partial_sort(data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
-				  boost::bind(&GParameterSet::fitness, _1) > boost::bind(&GParameterSet::fitness, _2));
+				  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
 		}
 		else{
 			std::partial_sort(data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
-				  boost::bind(&GParameterSet::fitness, _1) < boost::bind(&GParameterSet::fitness, _2));
+				  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
 		}
 	}
 
@@ -717,11 +717,11 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 	// random recombination scheme.
 	if(this->getMaxMode()){
 		std::sort(data.begin(), data.begin() + nParents_,
-			  boost::bind(&GParameterSet::fitness, _1) > boost::bind(&GParameterSet::fitness, _2));
+			  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
 	}
 	else{
 		std::sort(data.begin(), data.begin() + nParents_,
-			  boost::bind(&GParameterSet::fitness, _1) < boost::bind(&GParameterSet::fitness, _2));
+			  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
 	}
 }
 
@@ -750,7 +750,7 @@ bool GBaseEA::aDominatesB(
 #endif
 
    for(std::size_t i=0; i<nCriteriaA; i++) {
-      if(isWorse(a->fitness(i),b->fitness(i))) return false;
+      if(isWorse(a->fitness(i, PREVENTREEVALUATION, USETRANSFORMEDFITNESS), b->fitness(i, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) return false;
    }
 
    return true;

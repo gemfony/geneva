@@ -355,8 +355,8 @@ void GBasePS::load_(const GObject *cp) {
  *
  * @return The value of the best individual found
  */
-double GBasePS::cycleLogic() {
-   double bestFitness = this->getWorstCase();
+boost::tuple<double, double> GBasePS::cycleLogic() {
+   boost::tuple<double, double> bestFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
 
    // Apply all necessary modifications to individuals
    updateIndividuals();
@@ -378,10 +378,19 @@ double GBasePS::cycleLogic() {
 
    // Retrieve information about the best fitness found and disallow re-evaluation
    GBasePS::iterator it;
-   double newEval = 0.;
+   boost::tuple<double, double> newEval = boost::make_tuple(0., 0.);
    for(it=this->begin(); it!=this->end(); ++it) {
-      newEval = (*it)->fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
-      if(isBetter(newEval, bestFitness)) {
+#ifdef DEBUG
+      if(!(*it)->isClean()) {
+         glogger
+         << "In GBasePS::cycleLogic(): Error!" << std::endl
+         << "Individual in position " << (it-this->begin()) << " is not clean" << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
+      newEval = (*it)->getFitnessTuple();
+      if(isBetter(boost::get<G_TRANSFORMED_FITNESS>(newEval), boost::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
          bestFitness = newEval;
       }
    }
@@ -579,15 +588,22 @@ void GBasePS::updateBests() {
       for(std::size_t ind=0; ind<std::min(nMonitorInds_,this->size()); ind++) {
          // Compare the fitness of the best individual with the last individual
          // in the bestIndividuals_ vector. If it is better, replace it.
-         if(isBetter(this->at(ind)->fitness(0),bestIndividuals_.back()->fitness(0))) {
+         if(isBetter(this->at(ind)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS),bestIndividuals_.back()->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) {
             // Copy a clone over
             bestIndividuals_.back() = this->at(ind)->clone<GParameterSet>();
 
             // Sort the "bests" vector for the next iteration
             if(true == this->getMaxMode()) { // Maximization
-               std::sort(bestIndividuals_.begin(), bestIndividuals_.end(), boost::bind(&GParameterSet::fitness, _1, 0) > boost::bind(&GParameterSet::fitness, _2, 0));
+               std::sort(
+                     bestIndividuals_.begin()
+                     , bestIndividuals_.end()
+                     , boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
+               );
             } else { // Minimization
-               std::sort(bestIndividuals_.begin(), bestIndividuals_.end(), boost::bind(&GParameterSet::fitness, _1, 0) < boost::bind(&GParameterSet::fitness, _2, 0));
+               std::sort(
+                     bestIndividuals_.begin()
+                     , bestIndividuals_.end()
+                     , boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
             }
          }
       }
@@ -754,9 +770,16 @@ bool GBasePS::switchToNextParameterSet() {
  */
 void GBasePS::sortPopulation() {
    if(true == this->getMaxMode()) { // Maximization
-      std::sort((this->data).begin(), (this->data).end(), boost::bind(&GParameterSet::fitness, _1, 0) > boost::bind(&GParameterSet::fitness, _2, 0));
+      std::sort(
+            (this->data).begin()
+            , (this->data).end()
+            , boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
+      );
    } else { // Minimization
-      std::sort((this->data).begin(), (this->data).end(), boost::bind(&GParameterSet::fitness, _1, 0) < boost::bind(&GParameterSet::fitness, _2, 0));
+      std::sort(
+            (this->data).begin()
+            , (this->data).end()
+            , boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
    }
 }
 

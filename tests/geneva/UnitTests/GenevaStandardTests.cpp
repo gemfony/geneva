@@ -71,6 +71,8 @@ using namespace boost::unit_test;
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GEAPersonalityTraits.hpp"
 #include "geneva/GGDPersonalityTraits.hpp"
+#include "geneva/GPSPersonalityTraits.hpp"
+#include "geneva/GSAPersonalityTraits.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
 #include "geneva/GSerialSwarm.hpp"
 #include "geneva/GMultiThreadedSwarm.hpp"
@@ -157,6 +159,8 @@ public:
 			GEAPersonalityTraits
 			, GGDPersonalityTraits
 			, GSwarmPersonalityTraits
+         , GSAPersonalityTraits
+			, GPSPersonalityTraits
 		>
 		trait_types;
 

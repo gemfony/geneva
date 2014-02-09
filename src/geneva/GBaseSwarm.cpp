@@ -548,6 +548,13 @@ void GBaseSwarm::updatePersonalBest(
 		boost::shared_ptr<GParameterSet> p
 ) {
 #ifdef DEBUG
+   if(!p) {
+      glogger
+      << "In GBaseSwarm::updatePersonalBest():" << std::endl
+      << "Got empty p" << std::endl
+      << GEXCEPTION;
+   }
+
 	if(p->isDirty()) {
 	   glogger
 	   << "In GBaseSwarm::updatePersonalBest():" << std::endl
@@ -566,10 +573,17 @@ void GBaseSwarm::updatePersonalBest(
  * @param p A pointer to the GParameterSet object to be updated
  */
 void GBaseSwarm::updatePersonalBestIfBetter(
-		boost::shared_ptr<GParameterSet> p
+   boost::shared_ptr<GParameterSet> p
 ) {
 #ifdef DEBUG
-	if(p->isDirty()) {
+   if(!p) {
+      glogger
+      << "In GBaseSwarm::updatePersonalBestIfBetter():" << std::endl
+      << "Got empty p" << std::endl
+      << GEXCEPTION;
+   }
+
+	if(!p->isClean()) {
 	   glogger
 	   << "In GBaseSwarm::updatePersonalBestIfBetter(): Error!" << std::endl
       << "dirty flag of individual is set." << std::endl
@@ -578,10 +592,10 @@ void GBaseSwarm::updatePersonalBestIfBetter(
 #endif /* DEBUG */
 
 	if(GOptimizationAlgorithmT<GParameterSet>::isBetter
-			(
-					p->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBestQuality()
-					, p->fitness(0)
-			)
+	      (
+	            boost::get<G_TRANSFORMED_FITNESS>(p->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBestQuality())
+	            , p->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
+	      )
 	) {
 		p->getPersonalityTraits<GSwarmPersonalityTraits>()->registerPersonalBest(p);
 	}
@@ -867,8 +881,8 @@ boost::shared_ptr<GPersonalityTraits> GBaseSwarm::getPersonalityTraits() const {
  *
  * @return The value of the best individual found
  */
-double GBaseSwarm::cycleLogic() {
-   double bestIndividualFitness;
+boost::tuple<double, double> GBaseSwarm::cycleLogic() {
+   boost::tuple<double, double> bestIndividualFitness;
 
 	// First update the positions and neighborhood ids
 	updatePositions();
@@ -1179,9 +1193,9 @@ void GBaseSwarm::pruneVelocity(std::vector<double>& velVec) {
  *
  * @return The best evaluation found in this iteration
  */
-double GBaseSwarm::findBests() {
+boost::tuple<double, double> GBaseSwarm::findBests() {
 	std::size_t bestCurrentLocalId = 0;
-	double bestCurrentLocalFitness = getWorstCase();
+	boost::tuple<double, double> bestCurrentLocalFitness = boost::make_tuple(getWorstCase(), getWorstCase());
 
    GBaseSwarm::iterator it;
 
@@ -1218,45 +1232,48 @@ double GBaseSwarm::findBests() {
 		// Only partially sort the arrays
 		if(this->getMaxMode() == true){
 			std::sort(this->begin() + firstCounter, this->begin() + lastCounter,
-					boost::bind(&GOptimizableEntity::fitness, _1, 0) > boost::bind(&GOptimizableEntity::fitness, _2, 0));
-		}
-		else{
+					boost::bind(&GOptimizableEntity::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GOptimizableEntity::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
+		} else{
 			std::sort(this->begin() + firstCounter, this->begin() + lastCounter,
-					boost::bind(&GOptimizableEntity::fitness, _1, 0) < boost::bind(&GOptimizableEntity::fitness, _2, 0));
+					boost::bind(&GOptimizableEntity::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GOptimizableEntity::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
 		}
 
 		// Check whether the best individual of the neighborhood is better than
 		// the best individual found so far in this neighborhood
 		if(inFirstIteration()) {
-			neighborhood_bests_[n] = (*(this->begin() + firstCounter))->clone<GParameterSet>();
+			neighborhood_bests_.at(n) = (*(this->begin() + firstCounter))->clone<GParameterSet>();
 		}
 		else {
-			if(isBetter((*(this->begin() + firstCounter))->fitness(0), neighborhood_bests_[n]->fitness(0))) {
-				neighborhood_bests_[n]->load(*(this->begin() + firstCounter));
+			if(isBetter(
+			      (*(this->begin() + firstCounter))->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
+			      , neighborhood_bests_.at(n)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
+            )
+			) {
+				(neighborhood_bests_.at(n))->load(*(this->begin() + firstCounter));
 			}
 		}
 	}
 
 	// Identify the best individuals among all neighborhood bests
 	for(std::size_t n=0; n<nNeighborhoods_; n++) {
-		if(isBetter(neighborhood_bests_[n]->fitness(0), bestCurrentLocalFitness)) {
+		if(isBetter((neighborhood_bests_.at(n))->constFitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS), boost::get<G_TRANSFORMED_FITNESS>(bestCurrentLocalFitness))) {
 			bestCurrentLocalId = n;
-			bestCurrentLocalFitness = neighborhood_bests_[n]->fitness(0);
+			bestCurrentLocalFitness = (neighborhood_bests_.at(n))->getFitnessTuple();
 		}
 	}
 
 	// Compare the best neighborhood individual with the globally best individual and
 	// update it, if necessary. Initialize it in the first generation.
 	if(inFirstIteration()) {
-		global_best_= neighborhood_bests_[bestCurrentLocalId]->clone<GParameterSet>();
+		global_best_= (neighborhood_bests_.at(bestCurrentLocalId))->clone<GParameterSet>();
 	}
 	else {
-		if(isBetter(bestCurrentLocalFitness, global_best_->fitness(0))) {
-			global_best_->load(neighborhood_bests_[bestCurrentLocalId]);
+		if(isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestCurrentLocalFitness), global_best_->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) {
+			global_best_->load(neighborhood_bests_.at(bestCurrentLocalId));
 		}
 	}
 
-	return global_best_->fitness(0);
+	return global_best_->getFitnessTuple();
 }
 
 /******************************************************************************/
@@ -1831,7 +1848,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizationAlgori
    // Perform the conversion to the target algorithm
    GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);
 
-   fitnessGraph_->add(boost::tuple<double,double>(swarm->getIteration(), swarm->getBestPrimaryFitness()));
+   fitnessGraph_->add(boost::tuple<double,double>(swarm->getIteration(), boost::get<G_TRANSFORMED_FITNESS>(swarm->getBestKnownPrimaryFitness())));
 }
 
 /******************************************************************************/

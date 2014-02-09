@@ -43,8 +43,8 @@ namespace Geneva {
  * The default constructor
  */
 GGDPersonalityTraits::GGDPersonalityTraits()
-	: GPersonalityTraits()
-	, popPos_(0)
+   : GPersonalityTraits()
+   , popPos_(0)
 { /* nothing */ }
 
 /******************************************************************************/

@@ -248,7 +248,7 @@ protected:
    virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const OVERRIDE;
 
 	/** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
-	virtual double cycleLogic() OVERRIDE;
+	virtual boost::tuple<double, double> cycleLogic() OVERRIDE;
    /** @brief Fixes an incomplete population */
    virtual void adjustNeighborhoods() BASE;
 
@@ -256,7 +256,7 @@ protected:
 	virtual void saveCheckpoint() const OVERRIDE;
 
 	/** @brief Updates the best individuals found */
-	virtual double findBests();
+	virtual boost::tuple<double, double> findBests();
 	/** @brief Resizes the population to the desired level and does some error checks */
 	virtual void adjustPopulation() OVERRIDE;
 

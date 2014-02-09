@@ -33,7 +33,6 @@
  */
 
 #include "geneva/GSwarmPersonalityTraits.hpp"
-#include "geneva/GParameterSet.hpp" // Included here to break circular dependency
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSwarmPersonalityTraits)
 
@@ -45,11 +44,11 @@ namespace Geneva {
  * The default constructor
  */
 GSwarmPersonalityTraits::GSwarmPersonalityTraits()
-	: GPersonalityTraits()
-	, neighborhood_(0)
-	, noPositionUpdate_(false)
-	, personal_best_(boost::shared_ptr<GParameterSet>(new GParameterSet()))
-	, personal_best_quality_(0.)
+   : GPersonalityTraits()
+   , neighborhood_(0)
+   , noPositionUpdate_(false)
+   , personal_best_() // empty
+   , personal_best_quality_(boost::make_tuple(0.,0.))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -62,9 +61,16 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits& 
 	: GPersonalityTraits(cp)
 	, neighborhood_(cp.neighborhood_)
 	, noPositionUpdate_(cp.noPositionUpdate_)
-	, personal_best_((cp.personal_best_)->clone<GParameterSet>())
+	, personal_best_() // empty at this point
 	, personal_best_quality_(cp.personal_best_quality_)
-{ /* nothing */ }
+{
+   // Copy the personal_best_ vector over
+   copyGenevaSmartPointer(cp.personal_best_, personal_best_);
+   // Make sure we do not get a "chain" of individuals
+   if(personal_best_) {
+      personal_best_->resetPersonality();
+   }
+}
 
 /******************************************************************************/
 /**
@@ -125,12 +131,12 @@ bool GSwarmPersonalityTraits::operator!=(const GSwarmPersonalityTraits& cp) cons
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GSwarmPersonalityTraits::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+   const Gem::Common::expectation& e,
+   const double& limit,
+   const std::string& caller,
+   const std::string& y_name,
+   const bool& withMessages
+) const {
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
@@ -232,8 +238,11 @@ void GSwarmPersonalityTraits::registerPersonalBest(boost::shared_ptr<GParameterS
 	}
 #endif
 
-	personal_best_ = p->parameter_clone();
-	personal_best_quality_ = p->fitness();
+   // Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
+   copyGenevaSmartPointer(p, personal_best_);
+   personal_best_->resetPersonality();
+
+	personal_best_quality_ = p->getFitnessTuple();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -248,6 +257,15 @@ void GSwarmPersonalityTraits::registerPersonalBest(boost::shared_ptr<GParameterS
  * @return The personally best individual
  */
 boost::shared_ptr<GParameterSet> GSwarmPersonalityTraits::getPersonalBest() const {
+#ifdef DEBUG
+   if(!personal_best_) {
+      glogger
+      << "In GSwarmPersonalityTraits::getPersonalBest(): Error!" << std::endl
+      << "Tried to retrieve personal_best_ while pointer is empty" << std::endl
+      << GEXCEPTION;
+   }
+#endif
+
 	return personal_best_;
 }
 
@@ -262,8 +280,8 @@ boost::shared_ptr<GParameterSet> GSwarmPersonalityTraits::getPersonalBest() cons
  * parameter set.
  */
 void GSwarmPersonalityTraits::resetPersonalBest() {
-	personal_best_ = boost::shared_ptr<GParameterSet>(new GParameterSet());
-	personal_best_quality_ = 0.;
+	personal_best_ = boost::shared_ptr<GParameterSet>(); // empty
+	personal_best_quality_ = boost::make_tuple(0.,0.);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -277,7 +295,7 @@ void GSwarmPersonalityTraits::resetPersonalBest() {
  *
  * @return The fitness of the personally best individual
  */
-double GSwarmPersonalityTraits::getPersonalBestQuality() const {
+boost::tuple<double, double> GSwarmPersonalityTraits::getPersonalBestQuality() const {
 	return personal_best_quality_;
 }
 
@@ -311,7 +329,11 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
 	// and then the local data
 	neighborhood_ = p_load->neighborhood_;
 	noPositionUpdate_ = p_load->noPositionUpdate_;
-	personal_best_ = p_load->personal_best_->clone<GParameterSet>();
+
+   // Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
+	copyGenevaSmartPointer(p_load->personal_best_, personal_best_);
+   personal_best_->resetPersonality();
+
 	personal_best_quality_ = p_load->personal_best_quality_;
 }
 

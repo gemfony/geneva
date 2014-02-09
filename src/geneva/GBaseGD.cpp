@@ -407,13 +407,11 @@ void GBaseGD::load_(const GObject *cp) {
 
 /******************************************************************************/
 /**
- * The actual business logic to be performed during each iteration. Returns the best achieved fitness
+ * The actual business logic to be performed during each iteration.
  *
- * @return The value of the best individual found
+ * @return The value of the best individual found in this iteration
  */
-double GBaseGD::cycleLogic() {
-   double bestFitness = this->getWorstCase();
-
+boost::tuple<double, double> GBaseGD::cycleLogic() {
 	if(afterFirstIteration()) {
 		// Update the parameters of the parent individuals. This
 		// only makes sense once the individuals have been evaluated
@@ -429,13 +427,17 @@ double GBaseGD::cycleLogic() {
    // Perform post-evaluation updates (mostly of individuals)
    postEvaluationWork();
 
+   boost::tuple<double,double> bestFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+   boost::tuple<double,double> fitnessCandidate = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+
    // Retrieve information about the best fitness found and disallow re-evaluation
 	GBaseGD::iterator it;
-	double newEval = 0.;
 	for(it=this->begin(); it!=this->begin() + this->getNStartingPoints(); ++it) {
-	   newEval = (*it)->fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
-      if(isBetter(newEval, bestFitness)) {
-         bestFitness = newEval;
+	   boost::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
+	   boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+
+	   if(isBetter(boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate), boost::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
+	      bestFitness = fitnessCandidate;
       }
    }
 
@@ -500,7 +502,7 @@ void GBaseGD::updateParentIndividuals() {
 #endif /* DEBUG */
 
 		// Retrieve the fitness of the individual again
-		double parentFitness = this->at(i)->fitness(0);
+		double parentFitness = this->at(i)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 
 		// Calculate the adaption of each parameter
 		double gradient = 0.;
@@ -509,7 +511,7 @@ void GBaseGD::updateParentIndividuals() {
 			std::size_t childPos = nStartingPoints_ + i*nFPParmsFirst_ + j;
 
 			// Calculate the step to be performed in a given direction
-			gradient = (1./finiteStep_) * (this->at(childPos)->fitness(0) - parentFitness);
+			gradient = (1./finiteStep_) * (this->at(childPos)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) - parentFitness);
 
 			if(this->getMaxMode()) {
 				parmVec[j] += stepSize_*gradient;
@@ -713,7 +715,7 @@ void GBaseGD::saveCheckpoint() const {
 			getCheckpointDirectory() +
 			(this->halted()?"final":boost::lexical_cast<std::string>(getIteration())) +
 			"_"	+
-			boost::lexical_cast<std::string>(getBestPrimaryFitness()) +
+			boost::lexical_cast<std::string>(boost::get<G_TRANSFORMED_FITNESS>(getBestKnownPrimaryFitness())) +
 			"_"	+
 			getCheckpointBaseName();
 
@@ -1021,7 +1023,7 @@ void GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
 	// Perform the conversion to the target algorithm
 	GBaseGD * const gd = static_cast<GBaseGD * const>(goa);
 
-	fitnessGraph_->add(boost::tuple<double,double>(gd->getIteration(), gd->getBestPrimaryFitness()));
+	fitnessGraph_->add(boost::tuple<double,double>(gd->getIteration(), boost::get<G_TRANSFORMED_FITNESS>(gd->getBestKnownPrimaryFitness())));
 }
 
 /******************************************************************************/

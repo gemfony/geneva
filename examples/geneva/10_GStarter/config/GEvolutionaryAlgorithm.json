@@ -35,7 +35,7 @@
         "comment": "The maximum allowed number of iterations without improvement0 means: no constraint.",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "0",
-        "value": "0"
+        "value": "20"
     },
     "reportIteration":
     {

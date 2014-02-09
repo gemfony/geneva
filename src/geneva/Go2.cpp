@@ -766,10 +766,10 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	// to extract the best individuals found.
 	if(maxmode){
 		std::sort(this->begin(), this->end(),
-				boost::bind(&GParameterSet::fitness, _1, 0) > boost::bind(&GParameterSet::fitness, _2, 0));
+				boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
 	} else { // Minimization
 		std::sort(this->begin(), this->end(),
-				boost::bind(&GParameterSet::fitness, _1, 0) < boost::bind(&GParameterSet::fitness, _2, 0));
+				boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
 	}
 
 	sorted_ = true;
