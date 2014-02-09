@@ -1194,8 +1194,9 @@ void GBaseSwarm::pruneVelocity(std::vector<double>& velVec) {
  * @return The best evaluation found in this iteration
  */
 boost::tuple<double, double> GBaseSwarm::findBests() {
-	std::size_t bestCurrentLocalId = 0;
-	boost::tuple<double, double> bestCurrentLocalFitness = boost::make_tuple(getWorstCase(), getWorstCase());
+	std::size_t bestLocalId = 0;
+	boost::tuple<double, double> bestLocalFitness = boost::make_tuple(getWorstCase(), getWorstCase());
+	boost::tuple<double, double> bestIterationFitness = boost::make_tuple(getWorstCase(), getWorstCase());
 
    GBaseSwarm::iterator it;
 
@@ -1256,24 +1257,30 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 
 	// Identify the best individuals among all neighborhood bests
 	for(std::size_t n=0; n<nNeighborhoods_; n++) {
-		if(isBetter((neighborhood_bests_.at(n))->constFitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS), boost::get<G_TRANSFORMED_FITNESS>(bestCurrentLocalFitness))) {
-			bestCurrentLocalId = n;
-			bestCurrentLocalFitness = (neighborhood_bests_.at(n))->getFitnessTuple();
+		if(isBetter((neighborhood_bests_.at(n))->constFitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS), boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness))) {
+			bestLocalId = n;
+			bestLocalFitness = (neighborhood_bests_.at(n))->getFitnessTuple();
 		}
 	}
 
 	// Compare the best neighborhood individual with the globally best individual and
 	// update it, if necessary. Initialize it in the first generation.
 	if(inFirstIteration()) {
-		global_best_= (neighborhood_bests_.at(bestCurrentLocalId))->clone<GParameterSet>();
-	}
-	else {
-		if(isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestCurrentLocalFitness), global_best_->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) {
-			global_best_->load(neighborhood_bests_.at(bestCurrentLocalId));
+		global_best_= (neighborhood_bests_.at(bestLocalId))->clone<GParameterSet>();
+	} else {
+		if(isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness), global_best_->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) {
+			global_best_->load(neighborhood_bests_.at(bestLocalId));
 		}
 	}
 
-	return global_best_->getFitnessTuple();
+	// Identify the best fitness in the current iteration
+	for(std::size_t i=0; i<this->size(); i++) {
+	   if(isBetter(boost::get<G_TRANSFORMED_FITNESS>(this->at(i)->getFitnessTuple()), boost::get<G_TRANSFORMED_FITNESS>(bestIterationFitness))) {
+	      bestIterationFitness = this->at(i)->getFitnessTuple();
+	   }
+	}
+
+	return bestIterationFitness;
 }
 
 /******************************************************************************/
