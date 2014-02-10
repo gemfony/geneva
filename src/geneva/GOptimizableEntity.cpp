@@ -322,6 +322,22 @@ double GOptimizableEntity::fitness(const std::size_t& id) const {
 
 /******************************************************************************/
 /**
+ * Returns the transformed result of the fitness function with id 0
+ */
+double GOptimizableEntity::transformedFitness() const {
+   return fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+}
+
+/******************************************************************************/
+/**
+ * Returns the transformed result of the fitness function with id 0
+ */
+double GOptimizableEntity::transformedFitness(const std::size_t& id) const {
+   return fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+}
+
+/******************************************************************************/
+/**
  * Returns the last known fitness calculations of this object. Re-calculation
  * of the fitness is triggered, unless this is the server mode. By means of supplying
  * an id it is possible to distinguish between different target functions. 0 denotes
@@ -1265,6 +1281,34 @@ bool GOptimizableEntity::isWorse(double newValue, const double& oldValue) const 
       else return false;
    } else { // minimization
       if(newValue > oldValue) return true;
+      else return false;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Checks whether this object is better than the argument, depending on the maxMode
+ */
+bool GOptimizableEntity::isBetterThan(boost::shared_ptr<GOptimizableEntity> p) const {
+   if(this->getMaxMode()) {
+      if(this->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > p->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)) return true;
+      else return false;
+   } else { // minimization
+      if(this->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < p->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)) return true;
+      else return false;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Checks whether this object is worse than the argument, depending on the maxMode
+ */
+bool GOptimizableEntity::isWorseThan(boost::shared_ptr<GOptimizableEntity> p) const {
+   if(this->getMaxMode()) {
+      if(this->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < p->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)) return true;
+      else return false;
+   } else { // minimization
+      if(this->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > p->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)) return true;
       else return false;
    }
 }

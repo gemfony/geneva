@@ -750,7 +750,7 @@ bool GBaseEA::aDominatesB(
 #endif
 
    for(std::size_t i=0; i<nCriteriaA; i++) {
-      if(isWorse(a->fitness(i, PREVENTREEVALUATION, USETRANSFORMEDFITNESS), b->fitness(i, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) return false;
+      if(this->isWorse(a->fitness(i, PREVENTREEVALUATION, USETRANSFORMEDFITNESS), b->fitness(i, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) return false;
    }
 
    return true;

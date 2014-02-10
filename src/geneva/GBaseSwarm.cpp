@@ -591,7 +591,7 @@ void GBaseSwarm::updatePersonalBestIfBetter(
 	}
 #endif /* DEBUG */
 
-	if(GOptimizationAlgorithmT<GParameterSet>::isBetter
+	if(this->isBetter
 	      (
 	            boost::get<G_TRANSFORMED_FITNESS>(p->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBestQuality())
 	            , p->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
@@ -1177,8 +1177,8 @@ void GBaseSwarm::pruneVelocity(std::vector<double>& velVec) {
  */
 boost::tuple<double, double> GBaseSwarm::findBests() {
 	std::size_t bestLocalId = 0;
-	boost::tuple<double, double> bestLocalFitness = boost::make_tuple(getWorstCase(), getWorstCase());
-	boost::tuple<double, double> bestIterationFitness = boost::make_tuple(getWorstCase(), getWorstCase());
+	boost::tuple<double, double> bestLocalFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+	boost::tuple<double, double> bestIterationFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
 
    GBaseSwarm::iterator it;
 
@@ -1227,7 +1227,7 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 			neighborhood_bests_.at(n) = (*(this->begin() + firstCounter))->clone<GParameterSet>();
 		}
 		else {
-			if(isBetter(
+			if(this->isBetter(
 			      (*(this->begin() + firstCounter))->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
 			      , neighborhood_bests_.at(n)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
             )
@@ -1239,7 +1239,7 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 
 	// Identify the best individuals among all neighborhood bests
 	for(std::size_t n=0; n<nNeighborhoods_; n++) {
-		if(isBetter((neighborhood_bests_.at(n))->constFitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS), boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness))) {
+		if(this->isBetter((neighborhood_bests_.at(n))->constFitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS), boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness))) {
 			bestLocalId = n;
 			bestLocalFitness = (neighborhood_bests_.at(n))->getFitnessTuple();
 		}
@@ -1250,14 +1250,14 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 	if(inFirstIteration()) {
 		global_best_= (neighborhood_bests_.at(bestLocalId))->clone<GParameterSet>();
 	} else {
-		if(isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness), global_best_->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) {
+		if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness), global_best_->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) {
 			global_best_->load(neighborhood_bests_.at(bestLocalId));
 		}
 	}
 
 	// Identify the best fitness in the current iteration
 	for(std::size_t i=0; i<this->size(); i++) {
-	   if(isBetter(boost::get<G_TRANSFORMED_FITNESS>(this->at(i)->getFitnessTuple()), boost::get<G_TRANSFORMED_FITNESS>(bestIterationFitness))) {
+	   if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(this->at(i)->getFitnessTuple()), boost::get<G_TRANSFORMED_FITNESS>(bestIterationFitness))) {
 	      bestIterationFitness = this->at(i)->getFitnessTuple();
 	   }
 	}

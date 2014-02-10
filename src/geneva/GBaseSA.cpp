@@ -297,7 +297,7 @@ void GBaseSA::sortSAMode() {
  */
 double GBaseSA::saProb(const double& qParent, const double& qChild) {
    // We do not have to do anything if the child is better than the parent
-   if(isBetter(qChild, qParent)) {
+   if(this->isBetter(qChild, qParent)) {
       return 2.;
    }
 

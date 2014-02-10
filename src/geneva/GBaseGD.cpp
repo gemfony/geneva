@@ -436,7 +436,7 @@ boost::tuple<double, double> GBaseGD::cycleLogic() {
 	   boost::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 	   boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 
-	   if(isBetter(boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate), boost::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
+	   if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate), boost::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
 	      bestFitness = fitnessCandidate;
       }
    }

@@ -1146,7 +1146,7 @@ protected:
          double bestTranformedParentFitness = (*(GOptimizationAlgorithmT<ind_type>::data.begin()))->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 
          // Leave the best parent in place, if no better child was found
-         if(GOptimizationAlgorithmT<ind_type>::isBetter(bestTranformedChildFitness, bestTranformedParentFitness)) { // A better child was found. Overwrite all parents
+         if(this->isBetter(bestTranformedChildFitness, bestTranformedParentFitness)) { // A better child was found. Overwrite all parents
             std::swap_ranges(GOptimizationAlgorithmT<ind_type>::data.begin(),GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_);
          } else {
             std::swap_ranges(GOptimizationAlgorithmT<ind_type>::data.begin()+1,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_);

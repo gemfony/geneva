@@ -148,15 +148,20 @@ public:
 	/** @brief The adaption interface */
 	virtual void adapt() OVERRIDE;
 
-   /** @brief Calculates the result of the fitness function with id 0 */
+   /** @brief Returns the raw result of the fitness function with id 0 */
    virtual double fitness() const OVERRIDE;
-   /** @brief Calculate or returns the result of a fitness function with a given id */
+   /** @brief Returns the raw result of a fitness function with a given id */
    virtual double fitness(const std::size_t&) const OVERRIDE;
 
    /** @brief Calculate or returns the result of a fitness function with a given id */
    virtual double fitness(const std::size_t&, bool, bool) OVERRIDE;
    /** @brief Calculate or returns the result of a fitness function with a given id */
    virtual double fitness(const std::size_t&, bool, bool) const OVERRIDE;
+
+   /** @brief Returns the transformed result of the fitness function with id 0 */
+   virtual double transformedFitness() const OVERRIDE;
+   /** @brief Returns the transformed result of a fitness function with a given id */
+   virtual double transformedFitness(const std::size_t&) const OVERRIDE;
 
    /** @brief A wrapper for the non-const fitness function, so we can bind to it */
    double nonConstFitness(const std::size_t&, bool, bool);
@@ -197,10 +202,11 @@ public:
 
 	/** @brief Allows to retrieve the maximize_ parameter */
 	bool getMaxMode() const;
+
 	/** @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode */
-	double getWorstCase() const;
+	virtual double getWorstCase() const BASE;
    /** @brief Retrieves the best possible evaluation result, depending on whether we are in maximization or minimization mode */
-   double getBestCase() const;
+   virtual double getBestCase() const BASE;
 
 	/** @brief Retrieves the steepness_ variable (used for the sigmoid transformation) */
 	double getSteepness() const;
@@ -365,6 +371,16 @@ public:
    /** @brief Retrieve the id assigned to the current evaluation */
    std::string getCurrentEvaluationID() const;
 
+   /** @brief Checks whether a new solution is worse then an older solution, depending on the maxMode */
+   virtual bool isWorse(double, const double&) const BASE;
+   /** @brief Checks whether a new solution is better then an older solution, depending on the maxMode */
+   virtual bool isBetter(double, const double&) const BASE;
+
+   /** @brief Checks whether this object is better than the argument, depending on the maxMode */
+   bool isBetterThan(boost::shared_ptr<GOptimizableEntity>) const;
+   /** @brief Checks whether this object is worse than the argument, depending on the maxMode */
+   bool isWorseThan(boost::shared_ptr<GOptimizableEntity>) const;
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GOptimizableEntity */
@@ -397,11 +413,6 @@ protected:
 
 	/** @brief Allows users to mark this solution as invalid in derived classes (usually from within the evaluation function) */
 	void markAsInvalid();
-
-	/** @brief Checks whether a new solution is worse then an older solution, depending on the maxMode */
-	bool isWorse(double, const double&) const;
-	/** @brief Checks whether a new solution is better then an older solution, depending on the maxMode */
-	bool isBetter(double, const double&) const;
 
 	/***************************************************************************/
 	/**

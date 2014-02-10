@@ -390,7 +390,7 @@ boost::tuple<double, double> GBasePS::cycleLogic() {
 #endif
 
       newEval = (*it)->getFitnessTuple();
-      if(isBetter(boost::get<G_TRANSFORMED_FITNESS>(newEval), boost::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
+      if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(newEval), boost::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
          bestFitness = newEval;
       }
    }
@@ -588,7 +588,7 @@ void GBasePS::updateBests() {
       for(std::size_t ind=0; ind<std::min(nMonitorInds_,this->size()); ind++) {
          // Compare the fitness of the best individual with the last individual
          // in the bestIndividuals_ vector. If it is better, replace it.
-         if(isBetter(this->at(ind)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS),bestIndividuals_.back()->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) {
+         if(this->isBetter(this->at(ind)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS),bestIndividuals_.back()->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) {
             // Copy a clone over
             bestIndividuals_.back() = this->at(ind)->clone<GParameterSet>();
 

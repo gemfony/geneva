@@ -433,7 +433,8 @@ public:
 		// Let the algorithm know that the optimization process hasn't been halted yet
 		halted_ = false; // general halt criterion
 
-		// Resize the population to the desired size and do some error checks
+		// Resize the population to the desired size and do some error checks.
+		// This function will also check that individuals have indeed been registered
 		adjustPopulation();
 
 		// Set the individual's personalities (some algorithm-specific information needs to be stored
@@ -441,22 +442,20 @@ public:
 		// the required functionality.)
 		setIndividualPersonalities();
 
-		// Check the maximization mode of all individuals and set our own mode accordingly.
-		setLocalMaxMode();
-
 		// Emit the info header, unless we do not want any info (parameter 0).
 		// Note that this call needs to come after the initialization, so we have the
 		// complete set of individuals available.
 		if(reportIteration_) doInfo(INFOINIT);
 
 		// We want to know if no better values were found for a longer period of time
-		bestKnownPrimaryFitness_    = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
-		bestCurrentPrimaryFitness_ = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+		double worstCase = this->getWorstCase();
+		bestKnownPrimaryFitness_    = boost::make_tuple(worstCase, worstCase);
+		bestCurrentPrimaryFitness_ = boost::make_tuple(worstCase, worstCase);
 
 		stallCounter_ = 0;
 
       // Initialize the start time with the current time.
-      startTime_ = boost::posix_time::second_clock::local_time(); /// Hmmm - not necessarily thread-safe, if each population runs in its own thread ...
+      startTime_ = boost::posix_time::second_clock::local_time();
 
 		// Give derived classes the opportunity to perform any necessary preparatory work.
 		init();
@@ -1088,6 +1087,90 @@ public:
    /** @brief Emits a name for this class / object; this can be a long name with spaces */
    virtual std::string name() const = 0;
 
+   /***************************************************************************/
+   /**
+    * Helps to determine whether a given value is strictly better (i.e. better than equal)
+    * than another one. As "better" means something different for maximization and minimization,
+    * this function helps to make the code easier to understand. This function requires
+    * that at least one individual has been registered with the algorithm.
+    *
+    * @param newValue The new value
+    * @param oldValue The old value
+    * @return true if newValue is better than oldValue, otherwise false.
+    */
+   virtual bool isBetter(double newValue, const double& oldValue) const OVERRIDE {
+#ifdef DEBUG
+      if(this->empty()) {
+         glogger
+         << "In GOptimizationAlgorithmT<>::isBetter(): Error!" << std::endl
+         << "No individuals have been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
+      return this->at(0)->isBetter(newValue, oldValue);
+   }
+
+   /***************************************************************************/
+   /**
+    * Helps to determine whether a given value is strictly worse (i.e. worse than equal)
+    * than another one. As "worse" means something different for maximization and minimization,
+    * this function helps to make the code easier to understand. This function requires
+    * that at least one individual has been registered with the algorithm.
+    *
+    * @param newValue The new value
+    * @param oldValue The old value
+    * @return true of newValue is worse than oldValue, otherwise false.
+    */
+   virtual bool isWorse(double newValue, const double& oldValue) const OVERRIDE {
+#ifdef DEBUG
+      if(this->empty()) {
+         glogger
+         << "In GOptimizationAlgorithmT<>::isWorse(): Error!" << std::endl
+         << "No individuals have been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
+      return this->at(0)->isWorse(newValue, oldValue);
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the worst possible evaluation result, depending on whether we are
+    * in maximization or minimization mode
+    */
+   virtual double getWorstCase() const OVERRIDE {
+#ifdef DEBUG
+      if(this->empty()) {
+         glogger
+         << "In GOptimizationAlgorithmT<>::getWorstCase(): Error!" << std::endl
+         << "No individuals have been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
+      return this->at(0)->getWorstCase();
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the best possible evaluation result, depending on whether we are
+    * in maximization or minimization mode
+    */
+   virtual double getBestCase() const OVERRIDE {
+#ifdef DEBUG
+      if(this->empty()) {
+         glogger
+         << "In GOptimizationAlgorithmT<>::getBestCase(): Error!" << std::endl
+         << "No individuals have been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
+      return this->at(0)->getBestCase();
+   }
+
 protected:
 	/***************************************************************************/
 	/**
@@ -1273,48 +1356,6 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * Helps to determine whether a given value is strictly better (i.e. better than equal)
-	 * than another one. As "better" means something different for maximization and minimization,
-	 * this function helps to make the code easier to understand.
-	 *
-	 * @param newValue The new value
-	 * @param oldValue The old value
-	 * @return true if newValue is better than oldValue, otherwise false.
-	 */
-	bool isBetter(double newValue, const double& oldValue) const {
-		if(this->getMaxMode()) {
-			if(newValue >= oldValue) return true;
-			else return false;
-		}
-		else { // minimization
-			if(newValue <= oldValue) return true;
-			else return false;
-		}
-	}
-
-	/***************************************************************************/
-	/**
-	 * Helps to determine whether a given value is strictly worse (i.e. worse than equal)
-	 * than another one. As "worse" means something different for maximization and minimization,
-	 * this function helps to make the code easier to understand.
-	 *
-	 * @param newValue The new value
-	 * @param oldValue The old value
-	 * @return true of newValue is worse than oldValue, otherwise false.
-	 */
-	bool isWorse(double newValue, const double& oldValue) const {
-		if(this->getMaxMode()) {
-			if(newValue < oldValue) return true;
-			else return false;
-		}
-		else { // minimization
-			if(newValue > oldValue) return true;
-			else return false;
-		}
-	}
-
-	/***************************************************************************/
-	/**
 	 * Allows to perform initialization work before the optimization cycle starts. This
 	 * function will usually be overloaded by derived functions, which should however,
 	 * as one of their first actions, call this function.
@@ -1474,7 +1515,7 @@ private:
     * in the case of a constraint violation).
     */
    void updateStallCounter(const boost::tuple<double, double>& bestEval) {
-      if(isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestEval), boost::get<G_TRANSFORMED_FITNESS>(bestKnownPrimaryFitness_))) {
+      if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestEval), boost::get<G_TRANSFORMED_FITNESS>(bestKnownPrimaryFitness_))) {
          bestKnownPrimaryFitness_ = bestEval;
          stallCounter_ = 0;
       } else {
@@ -1515,7 +1556,7 @@ private:
 	 * @return A boolean indicating whether the quality is above or below a given threshold
 	 */
 	bool qualityHalt() const {
-		if(isBetter(boost::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_), qualityThreshold_)) {
+		if(this->isBetter(boost::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_), qualityThreshold_)) {
 			if(emitTerminationReason_) {
 				std::cerr
 				<< "Terminating optimization run because" << std::endl
@@ -1683,36 +1724,6 @@ private:
 	 */
 	bool qualityThresholdHaltSet() const {
 	   return hasQualityThreshold_;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Retrieves the individual's maximization mode and sets our own mode accordingly. This
-	 * function effectively steers whether the entire algorithm will maximize or minimize the
-	 * evaluation function.
-	 */
-	void setLocalMaxMode() {
-		// Do some error checking
-		if(this->empty()) {
-		   glogger
-		   << "In GOptimizationAlgorithmT::setLocalMaxMode():" << std::endl
-         << "There should at least be one individual present at this stage." << std::endl
-         << "Found none." << std::endl
-         << GEXCEPTION;
-		}
-
-		bool localMaxMode = this->at(0)->getMaxMode();
-		for(std::size_t i=1; i<this->size(); i++) {
-			if(this->at(i)->getMaxMode() != localMaxMode) {
-			   glogger
-			   << "In GOptimizationAlgorithmT::setLocalMaxMode():" << std::endl
-            << "Found individual with maximization mode " << this->at(i)->getMaxMode() << " in position " << i << std::endl
-            << "where " << localMaxMode << " was expected." << std::endl
-            << GEXCEPTION;
-			}
-		}
-
-		this->setMaxMode_(localMaxMode);
 	}
 
 	/***************************************************************************/
