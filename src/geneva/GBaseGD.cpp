@@ -434,7 +434,7 @@ boost::tuple<double, double> GBaseGD::cycleLogic() {
 	GBaseGD::iterator it;
 	for(it=this->begin(); it!=this->begin() + this->getNStartingPoints(); ++it) {
 	   boost::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
-	   boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+	   boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->transformedFitness();
 
 	   if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate), boost::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
 	      bestFitness = fitnessCandidate;
@@ -502,7 +502,7 @@ void GBaseGD::updateParentIndividuals() {
 #endif /* DEBUG */
 
 		// Retrieve the fitness of the individual again
-		double parentFitness = this->at(i)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+		double parentFitness = this->at(i)->transformedFitness();
 
 		// Calculate the adaption of each parameter
 		double gradient = 0.;
@@ -511,7 +511,7 @@ void GBaseGD::updateParentIndividuals() {
 			std::size_t childPos = nStartingPoints_ + i*nFPParmsFirst_ + j;
 
 			// Calculate the step to be performed in a given direction
-			gradient = (1./finiteStep_) * (this->at(childPos)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) - parentFitness);
+			gradient = (1./finiteStep_) * (this->at(childPos)->transformedFitness() - parentFitness);
 
 			if(this->getMaxMode()) {
 				parmVec[j] += stepSize_*gradient;

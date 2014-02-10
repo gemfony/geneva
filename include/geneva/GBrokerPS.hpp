@@ -135,7 +135,7 @@ protected:
    virtual void finalize();
 
    /** @brief Triggers fitness calculation of a number of individuals */
-   virtual void runFitnessCalculation();
+   virtual void runFitnessCalculation() OVERRIDE;
 
 private:
    std::vector<boost::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items

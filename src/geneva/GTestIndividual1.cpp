@@ -349,7 +349,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		std::size_t nTests = 1000;
 
-		double currentFitness = p_test->fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+		double currentFitness = p_test->transformedFitness();
 		double oldFitness = currentFitness;
 		bool dirtyFlag = false;
 
@@ -910,7 +910,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());
 		BOOST_CHECK_THROW(
-         p_test->fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS)
+         p_test->transformedFitness()
          , Gem::Common::gemfony_error_condition
       );
 	}

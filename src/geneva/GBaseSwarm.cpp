@@ -421,7 +421,7 @@ void GBaseSwarm::saveCheckpoint() const {
 	}
 #endif /* DEBUG */
 
-	double newValue = global_best_->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+	double newValue = global_best_->transformedFitness();
 
 	// Determine a suitable name for the output file
 	std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(getIteration()) + "_"
@@ -593,8 +593,8 @@ void GBaseSwarm::updatePersonalBestIfBetter(
 
 	if(this->isBetter
 	      (
-	            boost::get<G_TRANSFORMED_FITNESS>(p->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBestQuality())
-	            , p->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
+            boost::get<G_TRANSFORMED_FITNESS>(p->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBestQuality())
+            , p->transformedFitness()
 	      )
 	) {
 		p->getPersonalityTraits<GSwarmPersonalityTraits>()->registerPersonalBest(p);
@@ -1213,13 +1213,11 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 		std::size_t lastCounter = getLastNIPos(n);
 
 		// Only partially sort the arrays
-		if(this->getMaxMode() == true){
-			std::sort(this->begin() + firstCounter, this->begin() + lastCounter,
-					boost::bind(&GOptimizableEntity::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GOptimizableEntity::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-		} else{
-			std::sort(this->begin() + firstCounter, this->begin() + lastCounter,
-					boost::bind(&GOptimizableEntity::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GOptimizableEntity::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-		}
+      std::sort(
+         this->begin() + firstCounter
+         , this->begin() + lastCounter
+         , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+      );
 
 		// Check whether the best individual of the neighborhood is better than
 		// the best individual found so far in this neighborhood
@@ -1228,8 +1226,8 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 		}
 		else {
 			if(this->isBetter(
-			      (*(this->begin() + firstCounter))->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
-			      , neighborhood_bests_.at(n)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
+			      (*(this->begin() + firstCounter))->transformedFitness()
+			      , neighborhood_bests_.at(n)->transformedFitness()
             )
 			) {
 				(neighborhood_bests_.at(n))->load(*(this->begin() + firstCounter));
@@ -1239,7 +1237,7 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 
 	// Identify the best individuals among all neighborhood bests
 	for(std::size_t n=0; n<nNeighborhoods_; n++) {
-		if(this->isBetter((neighborhood_bests_.at(n))->constFitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS), boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness))) {
+		if(this->isBetter((neighborhood_bests_.at(n))->transformedFitness(), boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness))) {
 			bestLocalId = n;
 			bestLocalFitness = (neighborhood_bests_.at(n))->getFitnessTuple();
 		}
@@ -1250,7 +1248,7 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 	if(inFirstIteration()) {
 		global_best_= (neighborhood_bests_.at(bestLocalId))->clone<GParameterSet>();
 	} else {
-		if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness), global_best_->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) {
+		if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness), global_best_->transformedFitness())) {
 			global_best_->load(neighborhood_bests_.at(bestLocalId));
 		}
 	}

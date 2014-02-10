@@ -1291,10 +1291,10 @@ bool GOptimizableEntity::isWorse(double newValue, const double& oldValue) const 
  */
 bool GOptimizableEntity::isBetterThan(boost::shared_ptr<GOptimizableEntity> p) const {
    if(this->getMaxMode()) {
-      if(this->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > p->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)) return true;
+      if(this->transformedFitness() > p->transformedFitness()) return true;
       else return false;
    } else { // minimization
-      if(this->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < p->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)) return true;
+      if(this->transformedFitness() < p->transformedFitness()) return true;
       else return false;
    }
 }
@@ -1305,10 +1305,10 @@ bool GOptimizableEntity::isBetterThan(boost::shared_ptr<GOptimizableEntity> p) c
  */
 bool GOptimizableEntity::isWorseThan(boost::shared_ptr<GOptimizableEntity> p) const {
    if(this->getMaxMode()) {
-      if(this->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < p->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)) return true;
+      if(this->transformedFitness() < p->transformedFitness()) return true;
       else return false;
    } else { // minimization
-      if(this->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > p->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)) return true;
+      if(this->transformedFitness() > p->transformedFitness()) return true;
       else return false;
    }
 }

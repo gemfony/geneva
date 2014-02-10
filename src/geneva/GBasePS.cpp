@@ -588,23 +588,16 @@ void GBasePS::updateBests() {
       for(std::size_t ind=0; ind<std::min(nMonitorInds_,this->size()); ind++) {
          // Compare the fitness of the best individual with the last individual
          // in the bestIndividuals_ vector. If it is better, replace it.
-         if(this->isBetter(this->at(ind)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS),bestIndividuals_.back()->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) {
+         if(this->isBetter(this->at(ind)->transformedFitness(), bestIndividuals_.back()->transformedFitness())) {
             // Copy a clone over
             bestIndividuals_.back() = this->at(ind)->clone<GParameterSet>();
 
             // Sort the "bests" vector for the next iteration
-            if(true == this->getMaxMode()) { // Maximization
-               std::sort(
-                     bestIndividuals_.begin()
-                     , bestIndividuals_.end()
-                     , boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
-               );
-            } else { // Minimization
-               std::sort(
-                     bestIndividuals_.begin()
-                     , bestIndividuals_.end()
-                     , boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-            }
+            std::sort(
+               bestIndividuals_.begin()
+               , bestIndividuals_.end()
+               , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+            );
          }
       }
    } else {  // No update has taken place yet
@@ -769,18 +762,11 @@ bool GBasePS::switchToNextParameterSet() {
  * This function will sort the population according to its primary fitness value.
  */
 void GBasePS::sortPopulation() {
-   if(true == this->getMaxMode()) { // Maximization
-      std::sort(
-            (this->data).begin()
-            , (this->data).end()
-            , boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS)
-      );
-   } else { // Minimization
-      std::sort(
-            (this->data).begin()
-            , (this->data).end()
-            , boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-   }
+   std::sort(
+      (this->data).begin()
+      , (this->data).end()
+      , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+   );
 }
 
 /******************************************************************************/
@@ -1049,7 +1035,7 @@ void GBasePS::loadCheckpoint(const std::string& cpFile) {
  * Saves the state of the object to disc. We simply serialize the entire object.
  */
 void GBasePS::saveCheckpoint() const {
-   double newValue = this->at(0)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+   double newValue = this->at(0)->transformedFitness();
 
    // Determine a suitable name for the output file
    std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(this->getIteration()) + "_"

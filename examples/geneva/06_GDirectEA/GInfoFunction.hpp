@@ -457,7 +457,7 @@ protected:
 			// Retrieve the globally best individual for later use
 			boost::shared_ptr<GParameterSet> g_best_ptr = ea->GOptimizableI::getBestIndividual<GParameterSet>();
 			// Extract the fitness (Note: this will throw, if the individual is "dirty")
-			double global_best_fitness = g_best_ptr->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+			double global_best_fitness = g_best_ptr->transformedFitness();
 
 			// Output a ROOT header
 			ofs

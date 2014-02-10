@@ -605,27 +605,20 @@ void GBaseEA::sortMuPlusNuParetoMode() {
 		std::random_shuffle(this->begin(), this->begin()+nIndividualsOnParetoFront);
 	} else if(nIndividualsOnParetoFront < getNParents()) {
 		// Sort the non-pareto-front individuals according to their master fitness
-		if(this->getMaxMode()){
-			std::partial_sort(data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
-				  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-		}
-		else{
-			std::partial_sort(data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
-				  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-		}
+	   std::partial_sort(
+         data.begin() + nIndividualsOnParetoFront
+         , data.begin() + nParents_
+         , data.end()
+         , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2));
 	}
 
 	// Finally, we sort the parents only according to their master fitness. This is meant
 	// to give some sense to the value recombination scheme. It won't change much in case of the
 	// random recombination scheme.
-	if(this->getMaxMode()){
-		std::sort(data.begin(), data.begin() + nParents_,
-			  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-	}
-	else{
-		std::sort(data.begin(), data.begin() + nParents_,
-			  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-	}
+   std::sort(
+      data.begin()
+      , data.begin() + nParents_
+      , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2));
 }
 
 /******************************************************************************/
@@ -702,27 +695,22 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 		std::random_shuffle(this->begin(), this->begin()+nIndividualsOnParetoFront);
 	} else if(nIndividualsOnParetoFront < getNParents()) {
 		// Sort the non-pareto-front individuals according to their master fitness
-		if(this->getMaxMode()){
-			std::partial_sort(data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
-				  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-		}
-		else{
-			std::partial_sort(data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
-				  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-		}
+	   std::partial_sort(
+         data.begin() + nIndividualsOnParetoFront
+         , data.begin() + nParents_
+         , data.end()
+         , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+	   );
 	}
 
 	// Finally, we sort the parents only according to their master fitness. This is meant
 	// to give some sense to the value recombination scheme. It won't change much in case of the
 	// random recombination scheme.
-	if(this->getMaxMode()){
-		std::sort(data.begin(), data.begin() + nParents_,
-			  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-	}
-	else{
-		std::sort(data.begin(), data.begin() + nParents_,
-			  boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-	}
+	std::sort(
+      data.begin()
+      , data.begin() + nParents_
+      , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+	);
 }
 
 /******************************************************************************/
@@ -750,7 +738,7 @@ bool GBaseEA::aDominatesB(
 #endif
 
    for(std::size_t i=0; i<nCriteriaA; i++) {
-      if(this->isWorse(a->fitness(i, PREVENTREEVALUATION, USETRANSFORMEDFITNESS), b->fitness(i, PREVENTREEVALUATION, USETRANSFORMEDFITNESS))) return false;
+      if(this->isWorse(a->transformedFitness(i), b->transformedFitness(i))) return false;
    }
 
    return true;
@@ -1082,7 +1070,7 @@ void GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
       boost::shared_ptr<GParameterSet> gi_ptr = ea->individual_cast<GParameterSet>(ind);
 
       // Retrieve the fitness of this individual -- all individuals should be "clean" here
-      currentTransformedEvaluation = gi_ptr->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+      currentTransformedEvaluation = gi_ptr->transformedFitness();
       // Add the data to our graph
       (fitnessGraphVec_.at(ind))->add(boost::tuple<double,double>(iteration, currentTransformedEvaluation));
    }

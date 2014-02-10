@@ -711,23 +711,10 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	   }
 	}
 
-	// Retrieve the minimization/maximization mode of the first individual
-	bool maxmode = this->front()->getMaxMode();
-
-	// Check that all individuals have the same mode
-	GOABase::iterator ind_it;
-	for(ind_it=this->begin()+1; ind_it!=this->end(); ++ind_it) {
-		if((*ind_it)->getMaxMode() != maxmode) {
-		   glogger
-		   << "In Go2::optimize(): Error!" << std::endl
-         << "Found inconsistent min/max modes" << std::endl
-         << GEXCEPTION;
-		}
-	}
-
 	// Loop over all algorithms
 	iterationsConsumed_ = offset_;
 	sorted_ = false;
+   GOABase::iterator ind_it;
 	std::vector<boost::shared_ptr<GOABase> >::iterator alg_it;
 	for(alg_it=algorithms_.begin(); alg_it!=algorithms_.end(); ++alg_it) {
 		boost::shared_ptr<GOABase> p_base = (*alg_it);
@@ -764,13 +751,11 @@ void Go2::optimize(const boost::uint32_t& offset) {
 
 	// Sort the individuals according to their fitness so we have it easier later on
 	// to extract the best individuals found.
-	if(maxmode){
-		std::sort(this->begin(), this->end(),
-				boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-	} else { // Minimization
-		std::sort(this->begin(), this->end(),
-				boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-	}
+   std::sort(
+      this->begin()
+      , this->end()
+      , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+   );
 
 	sorted_ = true;
 }

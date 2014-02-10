@@ -340,7 +340,7 @@ std::string GMetaOptimizerIndividual::print() const {
 
    bool dirtyFlag = this->isDirty();
    double transformedPrimaryFitness
-      = dirtyFlag?this->getWorstCase():this->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+      = dirtyFlag?this->getWorstCase():this->transformedFitness();
 
    result
       << "Fitness = " << transformedPrimaryFitness << (dirtyFlag?" // dirty flag set":"") << std::endl

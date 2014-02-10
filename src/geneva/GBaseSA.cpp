@@ -251,18 +251,15 @@ boost::shared_ptr<GPersonalityTraits> GBaseSA::getPersonalityTraits() const {
  */
 void GBaseSA::sortSAMode() {
    // Position the nParents best children of the population right behind the parents
-   if(this->getMaxMode()){
-      std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
-           boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-   }
-   else{
-      std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
-           boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-   }
+   std::partial_sort(
+      data.begin() + nParents_
+      , data.begin() + 2*nParents_, data.end()
+      , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+   );
 
    // Check for each parent whether it should be replaced by the corresponding child
    for(std::size_t np=0; np<nParents_; np++) {
-      double pPass = saProb(this->at(np)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS), this->at(nParents_+np)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
+      double pPass = saProb(this->at(np)->transformedFitness(), this->at(nParents_+np)->transformedFitness());
       if(pPass >= 1.) {
          this->at(np)->load(this->at(nParents_+np));
       } else {
@@ -274,14 +271,11 @@ void GBaseSA::sortSAMode() {
    }
 
    // Sort the parents -- it is possible that a child with a worse fitness has replaced a parent
-   if(this->getMaxMode()){
-      std::sort(data.begin(), data.begin() + nParents_,
-           boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-   }
-   else{
-      std::sort(data.begin(), data.begin() + nParents_,
-           boost::bind(&GParameterSet::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&GParameterSet::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-   }
+   std::sort(
+      data.begin()
+      , data.begin() + nParents_
+      , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+   );
 
    // Make sure the temperature gets updated
    updateTemperature();
@@ -749,7 +743,7 @@ void GBaseSA::GSAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
       boost::shared_ptr<GParameterSet> gi_ptr = sa->individual_cast<GParameterSet>(ind);
 
       // Retrieve the fitness of this individual -- all individuals should be "clean" here
-      currentTransformedEvaluation = gi_ptr->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+      currentTransformedEvaluation = gi_ptr->transformedFitness();
       // Add the data to our graph
       *(fitnessGraphVec_.at(ind)) & boost::tuple<double,double>(iteration, currentTransformedEvaluation);
    }

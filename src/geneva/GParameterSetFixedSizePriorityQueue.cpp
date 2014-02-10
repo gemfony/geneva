@@ -106,7 +106,7 @@ boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > GParame
  * uses the primary evaluation criterion only.
  */
 double GParameterSetFixedSizePriorityQueue::evaluation(const boost::shared_ptr<GParameterSet>& item) const {
-   return item->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+   return item->transformedFitness();
 }
 
 /******************************************************************************/

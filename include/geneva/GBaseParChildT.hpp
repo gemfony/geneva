@@ -1061,13 +1061,12 @@ protected:
 #endif /* DEBUG */
 
       // Only partially sort the arrays
-      if(true == this->getMaxMode()){ // Maximization
-         std::partial_sort(GOptimizationAlgorithmT<ind_type>::data.begin(), GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_, GOptimizationAlgorithmT<ind_type>::data.end(),
-               boost::bind(&ind_type::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&ind_type::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-      } else{ // Minimization
-         std::partial_sort(GOptimizationAlgorithmT<ind_type>::data.begin(), GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_, GOptimizationAlgorithmT<ind_type>::data.end(),
-               boost::bind(&ind_type::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&ind_type::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-      }
+      std::partial_sort(
+            GOptimizationAlgorithmT<ind_type>::data.begin()
+            , GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
+            , GOptimizationAlgorithmT<ind_type>::data.end()
+            , boost::bind(&ind_type::transformedFitness, _1) < boost::bind(&ind_type::transformedFitness, _2)
+      );
    }
 
    /***************************************************************************/
@@ -1092,14 +1091,13 @@ protected:
 #endif /* DEBUG */
 
       // Only sort the children
-      if(true == this->getMaxMode()){ // Maximization
-         std::partial_sort(GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_, GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_, GOptimizationAlgorithmT<ind_type>::data.end(),
-              boost::bind(&ind_type::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&ind_type::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-      }
-      else{ // Minimization
-         std::partial_sort(GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_, GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_, GOptimizationAlgorithmT<ind_type>::data.end(),
-              boost::bind(&ind_type::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&ind_type::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-      }
+      std::partial_sort(
+            GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
+            , GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_
+            , GOptimizationAlgorithmT<ind_type>::data.end()
+            , boost::bind(&ind_type::transformedFitness, _1) < boost::bind(&ind_type::transformedFitness, _2)
+      );
+
       std::swap_ranges(GOptimizationAlgorithmT<ind_type>::data.begin(),GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_);
    }
 
@@ -1132,24 +1130,30 @@ protected:
          sortMuPlusNuMode();
       } else {
          // Sort the children
-         if(this->getMaxMode()){
-            std::partial_sort(GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_, GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_, GOptimizationAlgorithmT<ind_type>::data.end(),
-                 boost::bind(&ind_type::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) > boost::bind(&ind_type::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-         }
-         else{
-            std::partial_sort(GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_, GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_, GOptimizationAlgorithmT<ind_type>::data.end(),
-                 boost::bind(&ind_type::constFitness, _1, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS) < boost::bind(&ind_type::constFitness, _2, 0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS));
-         }
+         std::partial_sort(
+            GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
+            , GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_
+            , GOptimizationAlgorithmT<ind_type>::data.end()
+            , boost::bind(&ind_type::transformedFitness, _1) < boost::bind(&ind_type::transformedFitness, _2)
+         );
 
          // Retrieve the best child's and the last generation's best parent's fitness
-         double bestTranformedChildFitness = (*(GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_))->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
-         double bestTranformedParentFitness = (*(GOptimizationAlgorithmT<ind_type>::data.begin()))->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+         double bestTranformedChildFitness = (*(GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_))->transformedFitness();
+         double bestTranformedParentFitness = (*(GOptimizationAlgorithmT<ind_type>::data.begin()))->transformedFitness();
 
          // Leave the best parent in place, if no better child was found
          if(this->isBetter(bestTranformedChildFitness, bestTranformedParentFitness)) { // A better child was found. Overwrite all parents
-            std::swap_ranges(GOptimizationAlgorithmT<ind_type>::data.begin(),GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_);
+            std::swap_ranges(
+               GOptimizationAlgorithmT<ind_type>::data.begin()
+               ,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_
+               ,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_
+            );
          } else {
-            std::swap_ranges(GOptimizationAlgorithmT<ind_type>::data.begin()+1,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_);
+            std::swap_ranges(
+               GOptimizationAlgorithmT<ind_type>::data.begin()+1
+               ,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_
+               ,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_
+            );
          }
       }
    }
