@@ -455,14 +455,11 @@ public:
 
 		stallCounter_ = 0;
 
+      // Initialize the start time with the current time.
+      startTime_ = boost::posix_time::second_clock::local_time(); /// Hmmm - not necessarily thread-safe, if each population runs in its own thread ...
+
 		// Give derived classes the opportunity to perform any necessary preparatory work.
 		init();
-
-		// Initialize the start time with the current time.
-		startTime_ = boost::posix_time::second_clock::local_time(); /// Hmmm - not necessarily thread-safe, if each population runs in its own thread ...
-
-		// Perform any initial optimization work necessary (usually evaluation of individuals)
-		optimizationInit();
 
 		do {
 			// Let all individuals know the current iteration
@@ -492,9 +489,6 @@ public:
 			iteration_++;
 		}
 		while(!(halted_ = halt()));
-
-		// Perform any remaining optimization work (usually evaluation of individuals)
-		optimizationFinalize();
 
 		// Give derived classes the opportunity to perform any remaining clean-up work
 		finalize();
@@ -1323,9 +1317,7 @@ protected:
 	/**
 	 * Allows to perform initialization work before the optimization cycle starts. This
 	 * function will usually be overloaded by derived functions, which should however,
-	 * as one of their first actions, call this function. It is not recommended  to perform
-	 * any "real" optimization work here, such as evaluation of individuals. Use the
-	 * optimizationInit() function instead.
+	 * as one of their first actions, call this function.
 	 */
 	virtual void init() BASE
    { /* nothing */ }
@@ -1334,9 +1326,7 @@ protected:
 	/**
 	 * Allows to perform any remaining work after the optimization cycle has finished.
 	 * This function will usually be overloaded by derived functions, which should however
-	 * call this function as one of their last actions. It is not recommended  to perform
-	 * any "real" optimization work here, such as evaluation of individuals. Use the
-	 * optimizationFinalize() function instead.
+	 * call this function as one of their last actions.
 	 */
 	virtual void finalize() BASE
    { /* nothing */ }
@@ -1344,22 +1334,6 @@ protected:
    /***************************************************************************/
    /** @brief Retrieve a personality trait object belong to this algorithm */
    virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const = 0;
-
-	/***************************************************************************/
-	/**
-	 * This function performs any initial optimization work (such as the evaluation of a
-	 * single individual).
-	 */
-	virtual void optimizationInit() BASE
-	{ /* nothing */ }
-
-	/***************************************************************************/
-	/**
-	 * This function performs any final optimization work (such as the evaluation of a
-	 * single individual).
-	 */
-	virtual void optimizationFinalize() BASE
-	{ /* nothing */ }
 
 	/***************************************************************************/
 	/** @brief Resizes the population to the desired level and does some error checks */

@@ -151,7 +151,7 @@ boost::optional<std::string> GSwarmPersonalityTraits::checkRelationshipWith(cons
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", neighborhood_, p_load->neighborhood_, "neighborhood_", "p_load->neighborhood_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", noPositionUpdate_, p_load->noPositionUpdate_, "noPositionUpdate_", "p_load->noPositionUpdate_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", personal_best_, p_load->personal_best_, "personal_best_", "p_load->personal_best_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", personal_best_, p_load->personal_best_, "personal_best_", "p_load->personal_best_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", personal_best_quality_, p_load->personal_best_quality_, "personal_best_quality_", "p_load->personal_best_quality_", e , limit));
 
 	return evaluateDiscrepancies("GEAPersonalityTraits", caller, deviations, e);
@@ -240,7 +240,9 @@ void GSwarmPersonalityTraits::registerPersonalBest(boost::shared_ptr<GParameterS
 
    // Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
    copyGenevaSmartPointer(p, personal_best_);
-   personal_best_->resetPersonality();
+   if(personal_best_) {
+      personal_best_->resetPersonality();
+   }
 
 	personal_best_quality_ = p->getFitnessTuple();
 }
@@ -332,7 +334,9 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
 
    // Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
 	copyGenevaSmartPointer(p_load->personal_best_, personal_best_);
-   personal_best_->resetPersonality();
+	if(personal_best_) {
+      personal_best_->resetPersonality();
+	}
 
 	personal_best_quality_ = p_load->personal_best_quality_;
 }

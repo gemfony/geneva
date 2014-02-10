@@ -237,12 +237,8 @@ protected:
 
 	/** @brief Does some preparatory work before the optimization starts */
 	virtual void init() OVERRIDE;
-	/** @brief Initialization work relating directly to the optimization algorithm */
-	virtual void optimizationInit() OVERRIDE;
 	/** @brief Does any necessary finalization work */
 	virtual void finalize() OVERRIDE;
-	/** @brief Finalization work relating directly to the optimization algorithm. */
-	virtual void optimizationFinalize() OVERRIDE;
 
    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
    virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const OVERRIDE;

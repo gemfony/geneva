@@ -769,6 +769,69 @@ std::string GBaseSwarm::getAlgorithmName() const {
 void GBaseSwarm::init() {
 	// To be performed before any other action
 	GOptimizationAlgorithmT<GParameterSet>::init();
+
+   // Extract the boundaries of all parameters
+   this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_);
+
+#ifdef DEBUG
+   // Size matters!
+   if(dblLowerParameterBoundaries_.size() != dblUpperParameterBoundaries_.size()) {
+      glogger
+      << "In GBaseSwarm::init(): Error!" << std::endl
+      << "Found invalid sizes: "
+      << dblLowerParameterBoundaries_.size() << " / " << dblUpperParameterBoundaries_.size() << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   // Calculate the allowed maximum values of the velocities
+   double l = getVelocityRangePercentage();
+   dblVelVecMax_.clear();
+   for(std::size_t i=0; i<dblLowerParameterBoundaries_.size(); i++) {
+      dblVelVecMax_.push_back(l * (dblUpperParameterBoundaries_[i] - dblLowerParameterBoundaries_[i]));
+   }
+
+   // Make sure the velocities_ vector is really empty
+   velocities_.clear();
+
+   // Create copies of our individuals in the velocities_ vector.
+   for(GBaseSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
+      // Create a copy of the current individual. Note that, if you happen
+      // to have assigned anything else than a GParameterSet derivative to
+      // the swarm, then the following line will throw in DEBUG mode or return
+      // undefined results in RELEASE mode
+      boost::shared_ptr<GParameterSet> p((*it)->clone<GParameterSet>());
+
+      // Extract the parameter vector
+      std::vector<double> velVec;
+      p->streamline(velVec);
+
+#ifdef DEBUG
+      // Check that the number of parameters equals those in the velocity boundaries
+      if(velVec.size() != dblLowerParameterBoundaries_.size() || velVec.size() != dblVelVecMax_.size()) {
+         glogger
+         << "In GBaseSwarm::init(): Error! (2)" << std::endl
+         << "Found invalid sizes: " << velVec.size()
+         << " / " << dblLowerParameterBoundaries_.size() << std::endl
+         << " / " << dblVelVecMax_.size() << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Randomly initialize the velocities
+      for(std::size_t i=0; i<velVec.size(); i++) {
+         double range = dblVelVecMax_[i];
+         velVec[i] = gr.uniform_real<double>(-range, range);
+      }
+
+      // Load the array into the velocity object
+      p->assignValueVector<double>(velVec);
+
+      // Add the initialized velocity to the array.
+      velocities_.push_back(p);
+
+      // TODO: do we need to mark any individuals as dirty here ?
+   }
 }
 
 /******************************************************************************/
@@ -776,93 +839,12 @@ void GBaseSwarm::init() {
  * Does any necessary finalization work
  */
 void GBaseSwarm::finalize() {
+   // Remove remaining velocity individuals. The boost::shared_ptr<GParameterSet>s
+   // will take care of deleting the GParameterSet objects.
+   velocities_.clear();
+
 	// Last action
 	GOptimizationAlgorithmT<GParameterSet>::finalize();
-}
-
-/******************************************************************************/
-/**
- * Initialization work relating directly to the optimization algorithm. Here we extract the individual
- * parameter boundaries. Note that we assume that the number of parameters is equal for all individuals
- * and does not change over time.
- */
-void GBaseSwarm::optimizationInit() {
-	// Always call the parent class'es init function first
-	GOptimizationAlgorithmT<GParameterSet>::optimizationInit();
-
-	// Extract the boundaries of all parameters
-	this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_);
-
-#ifdef DEBUG
-	// Size matters!
-	if(dblLowerParameterBoundaries_.size() != dblUpperParameterBoundaries_.size()) {
-	   glogger
-	   << "In GBaseSwarm::optimizationInit(): Error!" << std::endl
-      << "Found invalid sizes: "
-      << dblLowerParameterBoundaries_.size() << " / " << dblUpperParameterBoundaries_.size() << std::endl
-      << GEXCEPTION;
-	}
-#endif /* DEBUG */
-
-	// Calculate the allowed maximum values of the velocities
-	double l = getVelocityRangePercentage();
-	dblVelVecMax_.clear();
-	for(std::size_t i=0; i<dblLowerParameterBoundaries_.size(); i++) {
-		dblVelVecMax_.push_back(l * (dblUpperParameterBoundaries_[i] - dblLowerParameterBoundaries_[i]));
-	}
-
-	// Make sure the velocities_ vector is really empty
-	velocities_.clear();
-
-	// Create copies of our individuals in the velocities_ vector.
-	for(GBaseSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		// Create a copy of the current individual. Note that, if you happen
-		// to have assigned anything else than a GParameterSet derivative to
-		// the swarm, then the following line will throw in DEBUG mode or return
-		// undefined results in RELEASE mode
-		boost::shared_ptr<GParameterSet> p((*it)->clone<GParameterSet>());
-
-		// Extract the parameter vector
-		std::vector<double> velVec;
-		p->streamline(velVec);
-
-#ifdef DEBUG
-		// Check that the number of parameters equals those in the velocity boundaries
-		if(velVec.size() != dblLowerParameterBoundaries_.size() || velVec.size() != dblVelVecMax_.size()) {
-		   glogger
-		   << "In GBaseSwarm::optimizationInit(): Error! (2)" << std::endl
-         << "Found invalid sizes: " << velVec.size()
-         << " / " << dblLowerParameterBoundaries_.size() << std::endl
-         << " / " << dblVelVecMax_.size() << std::endl
-         << GEXCEPTION;
-		}
-#endif /* DEBUG */
-
-		// Randomly initialize the velocities
-		for(std::size_t i=0; i<velVec.size(); i++) {
-			double range = dblVelVecMax_[i];
-			velVec[i] = gr.uniform_real<double>(-range, range);
-		}
-
-		// Load the array into the velocity object
-		p->assignValueVector<double>(velVec);
-
-		// Add the initialized velocity to the array.
-		velocities_.push_back(p);
-	}
-}
-
-/******************************************************************************/
-/**
- * Finalization work relating directly to the optimization algorithm.
- */
-void GBaseSwarm::optimizationFinalize() {
-	// Remove remaining velocity individuals. The boost::shared_ptr<GParameterSet>s
-	// will take care of deleting the GParameterSet objects.
-	velocities_.clear();
-
-	// Always call the parent class'es finalize function last
-	GOptimizationAlgorithmT<GParameterSet>::optimizationFinalize();
 }
 
 /******************************************************************************/
