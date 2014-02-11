@@ -338,6 +338,34 @@ double GOptimizableEntity::transformedFitness(const std::size_t& id) const {
 
 /******************************************************************************/
 /**
+ * A wrapper for the non-const fitness function, so we can bind to it. It is
+ * needed as boost::bind cannot distinguish between the non-const and const
+ * overload of the fitness() function.
+ */
+double GOptimizableEntity::nonConstFitness(
+   const std::size_t& id
+   , bool reevaluationAllowed
+   , bool useTransformedFitness
+) {
+   return this->fitness(id, reevaluationAllowed, useTransformedFitness);
+}
+
+/******************************************************************************/
+/**
+ * A wrapper for the const fitness function, so we can bind to it. It is
+ * needed as boost::bind cannot distinguish between the non-const and const
+ * overload of the fitness() function.
+ */
+double GOptimizableEntity::constFitness(
+   const std::size_t& id
+   , bool reevaluationAllowed
+   , bool useTransformedFitness
+) const {
+   return this->fitness(id, reevaluationAllowed, useTransformedFitness);
+}
+
+/******************************************************************************/
+/**
  * Returns the last known fitness calculations of this object. Re-calculation
  * of the fitness is triggered, unless this is the server mode. By means of supplying
  * an id it is possible to distinguish between different target functions. 0 denotes
@@ -377,7 +405,11 @@ double GOptimizableEntity::fitness(
 	}
 
 	// Return the desired result -- there should be no situation where the dirtyFlag is still set
-   return getCachedFitness(id, useTransformedFitness);
+	if(useTransformedFitness && true == this->getMaxMode()) {
+	   return -getCachedFitness(id, useTransformedFitness); // This negation will transform maximization problems into minimization problems
+	} else {
+	   return getCachedFitness(id, useTransformedFitness);
+	}
 }
 
 /* ----------------------------------------------------------------------------------
@@ -415,35 +447,11 @@ double GOptimizableEntity::fitness(
 #endif /* DEBUG */
 
    // Return the desired result -- there should be no situation where the dirtyFlag is still set
-   return getCachedFitness(id, useTransformedFitness);
-}
-
-/******************************************************************************/
-/**
- * A wrapper for the non-const fitness function, so we can bind to it. It is
- * needed as boost::bind cannot distinguish between the non-const and const
- * overload of the fitness() function.
- */
-double GOptimizableEntity::nonConstFitness(
-   const std::size_t& id
-   , bool reevaluationAllowed
-   , bool useTransformedFitness
-) {
-   return this->fitness(id, reevaluationAllowed, useTransformedFitness);
-}
-
-/******************************************************************************/
-/**
- * A wrapper for the const fitness function, so we can bind to it. It is
- * needed as boost::bind cannot distinguish between the non-const and const
- * overload of the fitness() function.
- */
-double GOptimizableEntity::constFitness(
-   const std::size_t& id
-   , bool reevaluationAllowed
-   , bool useTransformedFitness
-) const {
-   return this->fitness(id, reevaluationAllowed, useTransformedFitness);
+   if(useTransformedFitness && true == this->getMaxMode()) {
+      return -getCachedFitness(id, useTransformedFitness); // This negation will transform maximization problems into minimization problems
+   } else {
+      return getCachedFitness(id, useTransformedFitness);
+   }
 }
 
 /******************************************************************************/
