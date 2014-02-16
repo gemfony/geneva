@@ -905,6 +905,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
+#ifdef DEBUG
 	{ // Tests that evaluating a dirty individual in "server mode" throws
 		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
@@ -914,6 +915,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
          , Gem::Common::gemfony_error_condition
       );
 	}
+#endif /* DEBUG */
 
 	//------------------------------------------------------------------------------
 
@@ -947,7 +949,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
-		// Try to insert a number of empty smart pointers. Should throw
+		// Try to insert an empty smart pointers. Should throw
 		BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
 	}
 
