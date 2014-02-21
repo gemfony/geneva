@@ -34,13 +34,16 @@
 
 // Standard header files go here
 #include <iostream>
+#include <algorithm>
 
 // Boost header files go here
+#include <boost/date_time.hpp>
 
 // Geneva header files go here
 #include <common/GHelperFunctionsT.hpp>
 #include <common/GPlotDesigner.hpp>
 #include <geneva/Go2.hpp>
+
 #include "GOptimizationBenchmarkConfig.hpp"
 
 // The individual that should be optimized
@@ -74,6 +77,7 @@ int main(int argc, char **argv) {
 	// Loop over all dimensions and the number of tests in each dimension
 	std::size_t nTests = gbc.getNTests();
 	std::vector<xyWE> resultVec; // Will hold the results for each dimension
+   std::vector<xyWE> timingVec; // Will hold the results for each dimension
 	std::vector<boost::uint32_t> dimVec = gbc.getParDim(); // Will hold the dimensions for each test row
 	std::vector<boost::uint32_t>::iterator it;
 	std::string functionName;
@@ -84,13 +88,17 @@ int main(int argc, char **argv) {
 	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
 	for(it=dimVec.begin(); it!=dimVec.end(); ++it) {
+      // Individual test results go here
+      std::vector<double> bestResult;
+      // The time consumed until the optimization was terminated
+      std::vector<double> timeConsumed;
+      // Holds timing measurements
+	   boost::posix_time::ptime startTime, endTime;
+
 		std::cout << "Starting new measurement with dimension " << *it << std::endl;
 
 		// Set the appropriate dimension of the function individuals
 		gfi.setParDim(*it);
-
-		// Individual test results go here
-		std::vector<double> bestResult;
 
 		// Run the desired number of tests
 		for(std::size_t test=0; test<nTests; test++) {
@@ -99,23 +107,28 @@ int main(int argc, char **argv) {
 
 #ifdef DEBUG
 			if(g->getParameterSize() != *it) {
-				raiseException(
-					"In main(): parameter size of individual != requested size: " << g->getParameterSize() << " / " << *it << std::endl
-				);
+			   glogger
+			   << "In main(): parameter size of individual != requested size: " << g->getParameterSize() << " / " << *it << std::endl
+			   << GEXCEPTION;
 			}
 
 			if(!go.empty()) {
-				raiseException(
-					"In main(): go contains " << go.size() << " items when it should be empty." << std::endl
-				);
+			   glogger
+			   << "In main(): go contains " << go.size() << " items when it should be empty." << std::endl
+			   << GEXCEPTION;
 			}
 #endif /* DEBUG */
 
 			// Make an individual known to the optimizer
 			go.push_back(g);
 
+			// Start recording of time
+			startTime = boost::posix_time::microsec_clock::local_time();
+
 			// Perform the actual optimization and extract the best individual
 			boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
+
+			endTime = boost::posix_time::microsec_clock::local_time();
 
 			// Extract the function name in the first test row
 			if(it==dimVec.begin() && test==0) {
@@ -126,7 +139,9 @@ int main(int argc, char **argv) {
 
 			// Add the fitness to the result vector
 			bestResult.push_back(p->fitness());
-			std::cout << "Best result in iteration " << test+1 << "/" << nTests << " with dimension " << *it << " has fitness " << p->fitness() << std::endl;
+
+			// Add timing information to the result vector
+			timeConsumed.push_back(double((endTime-startTime).total_milliseconds())/1000.);
 
 			// Reset the go object
 			go = goTmp;
@@ -134,41 +149,47 @@ int main(int argc, char **argv) {
 
 		// Post process the vector, extracting mean and sigma
 		boost::tuple<double,double> resultY = GStandardDeviation<double>(bestResult);
+		boost::tuple<double,double> timing2 = GStandardDeviation<double>(timeConsumed);
 
-		std::cout << std::endl
-				  << "mean = " << boost::get<0>(resultY) << std::endl
-				  << "sigma = " << boost::get<1>(resultY) << std::endl
-				  << std::endl;
+		std::cout
+		<< std::endl
+		<< "best result = " << boost::get<0>(resultY) << " +/- " << boost::get<1>(resultY) << std::endl
+		<< "timing      = " << boost::get<0>(timing2) << " +/- " << boost::get<1>(timing2) << " s" << std::endl
+		<< std::endl;
 
-		xyWE result(double(*it), 0., boost::get<0>(resultY), boost::get<1>(resultY));
+		xyWE resultE(double(*it), 0., boost::get<0>(resultY), boost::get<1>(resultY));
+		xyWE timingE(double(*it), 0., boost::get<0>(timing2), boost::get<1>(timing2));
 
-		resultVec.push_back(result);
+		resultVec.push_back(resultE);
+		timingVec.push_back(timingE);
 	}
 
 	//-------------------------------------------------------------------------
 	// Create plots from the result vector
 
-	// Create a 2d-representation of the chosen function; We use the same boundaries in x- and y-direction
-	boost::shared_ptr<GFunctionPlotter2D> optFunction_ptr(new GFunctionPlotter2D(functionCode, varBoundaries, varBoundaries));
-	optFunction_ptr->setPlotLabel("2D Representation of the test function");
-
+   boost::shared_ptr<GGraph2ED> timing_ptr(new GGraph2ED());
+   timing_ptr->setPlotMode(CURVE);
+   timing_ptr->setPlotLabel("Timings of optimization runs [s]");
+   timing_ptr->setXAxisLabel("Function Dimension");
+   timing_ptr->setYAxisLabel("Seconds consumed");
 
 	boost::shared_ptr<GGraph2ED> gopt_ptr(new GGraph2ED());
 	gopt_ptr->setPlotMode(CURVE);
-	gopt_ptr->setPlotLabel("Measurements");
+	gopt_ptr->setPlotLabel("Best measurements and errors");
 	gopt_ptr->setXAxisLabel("Function Dimension");
 	gopt_ptr->setYAxisLabel("Best Result");
 
-	// Add the data to the plot
-	(*gopt_ptr) & resultVec;
+	// Add the data to the plots
+	(*timing_ptr) & timingVec;
+	(*gopt_ptr)   & resultVec;
 
 	// Create the canvas
 	std::string canvasLabel = "Optimization benchmarks for function " + functionName;
 	GPlotDesigner gpd(canvasLabel, 1,2);
-	gpd.setCanvasDimensions(1200,1400);
+	gpd.setCanvasDimensions(800,1200);
 
 	// Register the two plots
-	gpd.registerPlotter(optFunction_ptr);
+	gpd.registerPlotter(timing_ptr);
 	gpd.registerPlotter(gopt_ptr);
 
 	// Emit the result file

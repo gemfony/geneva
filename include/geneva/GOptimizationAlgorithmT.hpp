@@ -455,7 +455,7 @@ public:
 		stallCounter_ = 0;
 
       // Initialize the start time with the current time.
-      startTime_ = boost::posix_time::second_clock::local_time();
+      startTime_ = boost::posix_time::microsec_clock::local_time();
 
 		// Give derived classes the opportunity to perform any necessary preparatory work.
 		init();
