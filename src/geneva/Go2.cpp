@@ -203,7 +203,8 @@ Go2::Go2(const Go2& cp)
 	// Copy the best individual over (if any)
 	copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
 
-	// Copy the algorithms vector over
+	// Copy the algorithms vectors over
+   copyGenevaSmartPointerVector(cp.cl_algorithms_, cl_algorithms_);
 	copyGenevaSmartPointerVector(cp.algorithms_, algorithms_);
 
 	//--------------------------------------------
@@ -436,8 +437,9 @@ void Go2::load_(const GObject *cp) {
 	copyGenevaSmartPointer<GParameterSet>(p_load->bestIndividual_, bestIndividual_);
 	copyGenevaSmartPointer<GOABase>(p_load->default_algorithm_, default_algorithm_);
 
-	// Copy the algorithms vector over
+	// Copy the algorithm vectors over
 	copyGenevaSmartPointerVector(p_load->algorithms_, algorithms_);
+   copyGenevaSmartPointerVector(p_load->cl_algorithms_, cl_algorithms_);
 
 	// Cross check other data has been added
 }
@@ -558,6 +560,22 @@ double Go2::fitnessCalculation() {
 
 /******************************************************************************/
 /**
+ * Retrieves the currently registered number of algorithms
+ */
+std::size_t Go2::getNAlgorithms() const {
+   return algorithms_.size();
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the currently registered number of command line algorithms
+ */
+std::size_t Go2::getNCLAlgorithms() const {
+   return cl_algorithms_.size();
+}
+
+/******************************************************************************/
+/**
  * Allows to add an optimization algorithm to the chain. If any individuals have
  * been registered, the algorithm will unload them.
  *
@@ -654,7 +672,7 @@ void Go2::registerContentCreator (
 void Go2::optimize(const boost::uint32_t& offset) {
    // Algorithms specified manually in main() take precedence
    // before those specified on the command line. E.g., a line
-   // "go & ea_ptr;" (where ea_ptr pointd to an evolutionary
+   // "go & ea_ptr;" (where ea_ptr pointed to an evolutionary
    // algorithm) will add this algorithm as the first entry to
    // the algorithms_ vector.
    if(!cl_algorithms_.empty()) {

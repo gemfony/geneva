@@ -736,7 +736,7 @@ void GBaseSwarm::addConfigurationOptions (
 
 	comment = ""; // Reset the comment string
 	comment += "Specifies whether neighborhoods should be filled up;";
-	comment += "randomly or start with equal values;";
+	comment += "randomly (true) or start with equal values (false);";
 	if(showOrigin) comment += "[GBaseSwarm]";
 	gpb.registerFileParameter<bool>(
 		"randomFillUp" // The name of the variable

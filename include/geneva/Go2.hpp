@@ -204,6 +204,11 @@ public:
    /** @brief Makes it easier to add algorithms */
    Go2& operator&(const std::string&);
 
+   /** @brief Retrieves the currently registered number of algorithms */
+   std::size_t getNAlgorithms() const;
+   /** @brief Retrieves the currently registered number of command line algorithms */
+   std::size_t getNCLAlgorithms() const;
+
    /** @brief Allows to register a content creator */
    void registerContentCreator(
          boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
