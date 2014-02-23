@@ -383,7 +383,7 @@ public:
 
    /***************************************************************************/
 	/**
-	 * Performs a cross-over operation at a given position. Note: We do not require
+	 * Performs a cross-over operation at a given position. Note: We do NOT require
 	 * the two vectors to be of the same size
 	 *
 	 * @param cp A copy of another GStdSimpleVectorInterfaceT<T> object

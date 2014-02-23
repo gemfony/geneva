@@ -126,6 +126,16 @@ const std::size_t DEFAULTEAPOPULATIONSIZE = 100;
  */
 const std::size_t DEFAULTEANPARENTS = 1;
 
+/**
+ * The default likelihood for an amalgamation of two obects to take place
+ */
+const double DEFAULTAMALGAMATIONLIKELIHOOD = 0.;
+
+/**
+ * The default likelihood for two items of a GParameterSet to be exchanged
+ */
+const double DEFAULTPERITEMEXCHANGELIKELIHOOD = 0.5;
+
 /******************************************************************************/
 /**
  * The default name of the output file of the optimization monitor base class

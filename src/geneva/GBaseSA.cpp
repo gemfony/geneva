@@ -50,7 +50,7 @@ const std::string GBaseSA::nickname = "sa";
  * vital parameters, such as the population size or the parent individuals by hand.
  */
 GBaseSA::GBaseSA()
-   : GBaseParChildT<GParameterSet>()
+   : GParameterSetParChild()
    , t0_(SA_T0)
    , t_(t0_)
    , alpha_(SA_ALPHA)
@@ -75,7 +75,7 @@ GBaseSA::GBaseSA()
  * @param cp Another GBaseSA object
  */
 GBaseSA::GBaseSA(const GBaseSA& cp)
-   : GBaseParChildT<GParameterSet>(cp)
+   : GParameterSetParChild(cp)
    , t0_(cp.t0_)
    , t_(cp.t_)
    , alpha_(cp.alpha_)
@@ -114,7 +114,7 @@ void GBaseSA::load_(const GObject * cp)
    const GBaseSA *p_load = gobject_conversion<GBaseSA>(cp);
 
    // First load the parent class'es data ...
-   GBaseParChildT<GParameterSet>::load_(cp);
+   GParameterSetParChild::load_(cp);
 
    // ... and then our own data
    t0_ = p_load->t0_;
@@ -162,12 +162,12 @@ bool GBaseSA::operator!=(const GBaseSA& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GBaseSA::checkRelationshipWith(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages) const
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages) const
 {
     using namespace Gem::Common;
 
@@ -178,7 +178,7 @@ boost::optional<std::string> GBaseSA::checkRelationshipWith(
    std::vector<boost::optional<std::string> > deviations;
 
    // Check our parent class'es data ...
-   deviations.push_back(GBaseParChildT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GBaseSA", y_name, withMessages));
+   deviations.push_back(GParameterSetParChild::checkRelationshipWith(cp, e, limit, "GBaseSA", y_name, withMessages));
 
    // ... and then our local data
    deviations.push_back(checkExpectation(withMessages, "GBaseSA", t0_, p_load->t0_, "t0_", "p_load->t0_", e , limit));
@@ -225,7 +225,7 @@ std::string GBaseSA::getAlgorithmName() const {
  */
 void GBaseSA::init() {
    // To be performed before any other action
-   GBaseParChildT<GParameterSet>::init();
+   GParameterSetParChild::init();
 }
 
 /******************************************************************************/
@@ -234,7 +234,7 @@ void GBaseSA::init() {
  */
 void GBaseSA::finalize() {
    // Last action
-   GBaseParChildT<GParameterSet>::finalize();
+   GParameterSetParChild::finalize();
 }
 
 /******************************************************************************/
@@ -391,7 +391,7 @@ void GBaseSA::addConfigurationOptions (
    std::string comment;
 
    // Call our parent class'es function
-   GBaseParChildT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+   GParameterSetParChild::addConfigurationOptions(gpb, showOrigin);
 
    comment = ""; // Reset the comment string
    comment += "The start temperature used in simulated annealing;";
@@ -490,7 +490,7 @@ bool GBaseSA::modify_GUnitTests() {
    bool result = false;
 
    // Call the parent class'es function
-   if(GBaseParChildT<GParameterSet>::modify_GUnitTests()) result = true;
+   if(GParameterSetParChild::modify_GUnitTests()) result = true;
 
    return result;
 
@@ -507,7 +507,7 @@ bool GBaseSA::modify_GUnitTests() {
 void GBaseSA::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
    // Call the parent class'es function
-   GBaseParChildT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests();
+   GParameterSetParChild::specificTestsNoFailureExpected_GUnitTests();
 
    //------------------------------------------------------------------------------
    //------------------------------------------------------------------------------
@@ -524,7 +524,7 @@ void GBaseSA::specificTestsNoFailureExpected_GUnitTests() {
 void GBaseSA::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
    // Call the parent class'es function
-   GBaseParChildT<GParameterSet>::specificTestsFailuresExpected_GUnitTests();
+   GParameterSetParChild::specificTestsFailuresExpected_GUnitTests();
 
    //------------------------------------------------------------------------------
    //------------------------------------------------------------------------------

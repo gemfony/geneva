@@ -67,6 +67,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterPropertyParser
 	GParameterScanFactory
 	GParameterSet
+	GParameterSetParChild
 	GParameterSetFixedSizePriorityQueue
 	GParameterSetMultiConstraint
 	GParameterT

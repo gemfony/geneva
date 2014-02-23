@@ -55,6 +55,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GBaseParChildT.hpp"
+#include "geneva/GParameterSetParChild.hpp"
 #include "geneva/GSAPersonalityTraits.hpp"
 
 namespace Gem {
@@ -65,13 +66,11 @@ class GSAOptimizationMonitor;
 
 /******************************************************************************/
 /**
- * This is a specialization of the GBaseParChildT<ind_type> class for GParameterSet
- * objects. Almost all of Geneva's EA-algorithms will use this class as their
- * base class. The class also adds an infrastructure for simulated annealing
- * to the class.
+ * This is a specialization of the GParameterSetParChild class. The class adds
+ * an infrastructure for simulated annealing (Geneva-style, i.e. with larger populations).
  */
 class GBaseSA
-   :public GBaseParChildT<GParameterSet>
+   :public GParameterSetParChild
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -81,7 +80,7 @@ class GBaseSA
       using boost::serialization::make_nvp;
 
       ar
-      & make_nvp("GBaseParChildT_GParameterSet", boost::serialization::base_object<GBaseParChildT<GParameterSet> >(*this))
+      & make_nvp("GParameterSetParChild", boost::serialization::base_object<GParameterSetParChild >(*this))
       & BOOST_SERIALIZATION_NVP(t0_)
       & BOOST_SERIALIZATION_NVP(t_)
       & BOOST_SERIALIZATION_NVP(alpha_);
@@ -109,12 +108,12 @@ public:
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject&
-         , const Gem::Common::expectation&
-         , const double&
-         , const std::string&
-         , const std::string&
-         , const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
    ) const OVERRIDE;
 
    /** @brief Returns information about the type of optimization algorithm */
@@ -125,8 +124,8 @@ public:
 
    /** @brief Adds local configuration options to a GParserBuilder object */
    virtual void addConfigurationOptions (
-         Gem::Common::GParserBuilder& gpb
-         , const bool& showOrigin
+      Gem::Common::GParserBuilder& gpb
+      , const bool& showOrigin
    ) OVERRIDE;
 
    /** @brief Determines the strength of the temperature degradation */

@@ -71,8 +71,6 @@ int main(int argc, char **argv) {
 	// Create a copy so we may reset the Go2 object to its original settings later
 	Go2 goTmp = go;
 
-	std::cout << "NCL: " << go.getNCLAlgorithms() << " / " << goTmp.getNCLAlgorithms() << std::endl;
-
 	// Load benchmark configuration options
 	GOptimizationBenchmarkConfig gbc("./config/GOptimizationBenchmark.json");
 

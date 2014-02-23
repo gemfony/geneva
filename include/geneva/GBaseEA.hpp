@@ -56,6 +56,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GBaseParChildT.hpp"
+#include "geneva/GParameterSetParChild.hpp"
 #include "geneva/GEAPersonalityTraits.hpp"
 
 #ifdef GEM_TESTING
@@ -75,13 +76,12 @@ const sortingMode DEFAULTSMODE = MUCOMMANU_SINGLEEVAL;
 
 /******************************************************************************/
 /**
- * This is a specialization of the GBaseParChildT<ind_type> class for GParameterSet
- * objects. Almost all of Geneva's EA-algorithms will use this class as their
- * base class. The class also adds an infrastructure for simulated annealing
- * to the class.
+ * This is a specialization of the GParameterSetParChild class. It provides the
+ * main infrastructure for evolutionary algorithms (except those that deal with
+ * multi-populations).
  */
 class GBaseEA
-   :public GBaseParChildT<GParameterSet>
+   :public GParameterSetParChild
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -91,7 +91,7 @@ class GBaseEA
       using boost::serialization::make_nvp;
 
       ar
-      & make_nvp("GBaseParChildT_GParameterSet", boost::serialization::base_object<GBaseParChildT<GParameterSet> >(*this))
+      & make_nvp("GParameterSetParChild", boost::serialization::base_object<GParameterSetParChild>(*this))
       & BOOST_SERIALIZATION_NVP(smode_);
    }
    ///////////////////////////////////////////////////////////////////////
@@ -117,12 +117,12 @@ public:
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject&
-         , const Gem::Common::expectation&
-         , const double&
-         , const std::string&
-         , const std::string&
-         , const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
    ) const OVERRIDE;
 
    /** @brief Returns information about the type of optimization algorithm */
@@ -260,12 +260,12 @@ public:
 
       /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
       virtual boost::optional<std::string> checkRelationshipWith(
-            const GObject&
-            , const Gem::Common::expectation&
-            , const double&
-            , const std::string&
-            , const std::string&
-            , const bool&
+         const GObject&
+         , const Gem::Common::expectation&
+         , const double&
+         , const std::string&
+         , const std::string&
+         , const bool&
       ) const OVERRIDE;
 
       /** @brief Set the dimension of the output canvas */

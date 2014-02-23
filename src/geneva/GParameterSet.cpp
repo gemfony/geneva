@@ -46,6 +46,7 @@ namespace Geneva {
 GParameterSet::GParameterSet()
 	: GMutableSetT<Gem::Geneva::GParameterBase>()
 	, Gem::Courtier::GSubmissionContainerT<GParameterSet>()
+	, perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -55,6 +56,7 @@ GParameterSet::GParameterSet()
 GParameterSet::GParameterSet(const std::size_t& nFitnessCriteria)
    : GMutableSetT<Gem::Geneva::GParameterBase>(nFitnessCriteria)
    , Gem::Courtier::GSubmissionContainerT<GParameterSet>()
+   , perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -67,6 +69,7 @@ GParameterSet::GParameterSet(const std::size_t& nFitnessCriteria)
 GParameterSet::GParameterSet(const GParameterSet& cp)
 	: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
 	, Gem::Courtier::GSubmissionContainerT<GParameterSet>() // The data is intentionally not copied, as this class only stores a temporary parameter
+	, perItemCrossOverProbability_(cp.perItemCrossOverProbability_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -137,8 +140,8 @@ boost::optional<std::string> GParameterSet::checkRelationshipWith(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are not accidently assigning this object to itself
-	GObject::selfAssignmentCheck<GParameterSet>(&cp);
+   // Check that we are indeed dealing with a GParameterSet reference
+   const GParameterSet *p_load = GObject::gobject_conversion<GParameterSet>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
 	std::vector<boost::optional<std::string> > deviations;
@@ -146,7 +149,8 @@ boost::optional<std::string> GParameterSet::checkRelationshipWith(
 	// Check our parent class'es data ...
 	deviations.push_back(GMutableSetT<Gem::Geneva::GParameterBase>::checkRelationshipWith(cp, e, limit, "GParameterSet", y_name, withMessages));
 
-	// ... and there is no local data
+	// ... and the local data
+	deviations.push_back(checkExpectation(withMessages, "GParameterSet", perItemCrossOverProbability_, p_load->perItemCrossOverProbability_, "perItemCrossOverProbability_", "p_load->perItemCrossOverProbability_", e , limit));
 
 	return evaluateDiscrepancies("GParameterSet", caller, deviations, e);
 }
@@ -235,20 +239,55 @@ bool GParameterSet::isGoodEnough(const std::vector<double>& boundaries) {
 
 /******************************************************************************/
 /**
+ * Perform a fusion operation between this object and another.
+ */
+boost::shared_ptr<GParameterSet> GParameterSet::amalgamate(const boost::shared_ptr<GParameterSet> cp) const {
+   // Create a copy of this object
+   boost::shared_ptr<GParameterSet> this_cp = this->GObject::clone<GParameterSet>();
+
+   this_cp->perItemCrossOver(*cp, perItemCrossOverProbability_);
+
+   return this_cp;
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the "per item" cross-over probability
+ */
+void GParameterSet::setPerItemCrossOverProbability(double perItemCrossOverProbability) {
+   if(perItemCrossOverProbability < 0. || perItemCrossOverProbability > 1.) {
+      glogger
+      << "In GParameterSet::setPerItemCrossOverProbability(" << perItemCrossOverProbability << "): Error!" << std::endl
+      << "Variable outside of allowed ranged [0:1]" << std::endl
+      << GEXCEPTION;
+   }
+
+   perItemCrossOverProbability_ = perItemCrossOverProbability;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the "per item" cross-over probability
+ */
+double GParameterSet::getPerItemCrossOverProbability() const {
+   return perItemCrossOverProbability_;
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GParameterSet object, camouflaged as a GObject.
  *
  * @param cp A copy of another GParameterSet object, camouflaged as a GObject
  */
-void GParameterSet::load_(const GObject* cp){
+void GParameterSet::load_(const GObject* cp) {
 	// Convert to local format
-	// const GParameterSet *p_load = this->gobject_conversion<GParameterSet>(cp);
-	// Uncomment the previous line and comment the following line if you wish to use local data
-	GObject::selfAssignmentCheck<GParameterSet>(cp);
+	const GParameterSet *p_load = this->gobject_conversion<GParameterSet>(cp);
 
 	// Load the parent class'es data
 	GMutableSetT<Gem::Geneva::GParameterBase>::load_(cp);
 
-	// No local data
+	// and then our local data
+	perItemCrossOverProbability_ = p_load->perItemCrossOverProbability_;
 }
 
 /******************************************************************************/
@@ -303,13 +342,11 @@ void GParameterSet::randomInit() {
  * This function performs a cross-over with another GParameterSet object with a given likelihood.
  * Items subject to cross-over may either be located in the GParameterSet-root or in one of the
  * GParmeterBase-derivatives stored in this object. Hence the cross-over operation is propagated to
- * these. A likelihood specifies how likely a cross-over will actually be performed. Note that thus more
- * than one cross-over may occur if more than one parameter collection is stored in this object.
- * Cross-Over will be skipped if a different composition of the other object is detected.
- *
- * TODO: Not yet ready
+ * these. The whole procedure happens on an "per item" basis, i.e., each item is swapped with the
+ * corresponding "foreign" item with a given likelihood. The procedure requires both objects to have
+ * the same "architecture" and will throw, if this is not the case.
  */
-void GParameterSet::crossOver(GParameterSet& cp, const double& likelihood) {
+void GParameterSet::perItemCrossOver(const GParameterSet& cp, const double& likelihood) {
 #ifdef DEBUG
 	// Do some error checking
 	if(likelihood < 0. || likelihood > 1.) {
@@ -320,56 +357,96 @@ void GParameterSet::crossOver(GParameterSet& cp, const double& likelihood) {
 	}
 #endif /* DEBUG */
 
-	// Check the architecture and leave, if it is different. Cross-over does not make sense
-	// if there are differences. These are only tolerated inside of parameter collections of
-	// the same type.
-	// a) We require both objects to have the same size
-	if(this->size() != cp.size()) {
-		return;
-	}
-	// b) We require both objects to have individual parameters in the same locations.
-	// We count the number of individual parameters along the way
-	std::size_t nIndividualParameters = 0;
-	for(std::size_t i=0; i<this->size(); i++) {
-		if(this->at(i)->isIndividualParameter()) {
-			if((cp.at(i))->isParameterCollection()) {
-				// This will terminate all cross-over for the entire object
-				return;
-			} else {
-				nIndividualParameters++;
-			}
-		}
-	}
+	// Extract all data items
+	std::vector<double>         this_double_vec, cp_double_vec;
+	std::vector<float>          this_float_vec , cp_float_vec;
+	std::vector<bool>           this_bool_vec  , cp_bool_vec;
+	std::vector<boost::int32_t> this_int_vec   , cp_int_vec;
 
-	// Calculate a random number in the range [0,1[ . We only cross over at the root
-	// level if this probe is below the "likelihood" threshold
-	double probe = gr.uniform_01<double>();
-	if(probe <= likelihood) {
-		// Cross over at a random position inside of the root-level's individual objects
-		// a) Determine a suitable swap-over position. swap_pos indicates the first position
-		// where a swap should be carried out. Note that swapping from position 0 onwards
-		// does not make sense. Hence we only act if there is more than one individual parameter.
-		if(nIndividualParameters > 1) {
-			std::size_t swap_pos = nIndividualParameters==2?1:gr.uniform_int<std::size_t>(1,nIndividualParameters-1);
-			std::size_t actualIndPos = 0;
+	this->streamline(this_double_vec);
+	this->streamline(this_float_vec);
+	this->streamline(this_bool_vec);
+	this->streamline(this_int_vec);
 
-			for(std::size_t i=0; i<this->size(); i++) {
-				if(this->at(i)->isIndividualParameter()) {
-					if(actualIndPos >= swap_pos) {
-						std::swap((this->data).at(i), cp.data.at(i));
-					}
-					actualIndPos++;
-				}
-			}
-		}
-	}
+   cp.streamline(cp_double_vec);
+   cp.streamline(cp_float_vec);
+   cp.streamline(cp_bool_vec);
+   cp.streamline(cp_int_vec);
 
-	// Now propagate the cross-over command to all contained parameter collections
-	for(std::size_t i=0; i<this->size(); i++) {
-		if(this->at(i)->isParameterCollection()) {
-			// this->at(i)->crossOver(cp.at(i));
-		}
-	}
+#ifdef DEBUG
+   // Do some error checking
+   if(this_double_vec.size() != cp_double_vec.size()) {
+      glogger
+      << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
+      << "Got invalid sizes (double): " << this_double_vec.size() << " / " << cp_double_vec.size() << std::endl
+      << GEXCEPTION;
+    }
+   if(this_float_vec.size() != cp_float_vec.size()) {
+      glogger
+      << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
+      << "Got invalid sizes (float): " << this_float_vec.size() << " / " << cp_float_vec.size() << std::endl
+      << GEXCEPTION;
+    }
+   if(this_bool_vec.size() != cp_bool_vec.size()) {
+      glogger
+      << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
+      << "Got invalid sizes (bool): " << this_bool_vec.size() << " / " << cp_bool_vec.size() << std::endl
+      << GEXCEPTION;
+    }
+   if(this_int_vec.size() != cp_int_vec.size()) {
+      glogger
+      << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
+      << "Got invalid sizes (boost::int32_t): " << this_int_vec.size() << " / " << cp_int_vec.size() << std::endl
+      << GEXCEPTION;
+    }
+#endif /* DEBUG */
+
+   // Do the actual cross-over
+   if(!this_double_vec.empty()) {
+      // Calculate a suitable position for the cross-over
+      std::size_t pos = gr.uniform_int(std::size_t(0), this_double_vec.size() - std::size_t(1));
+
+      // Perform the actual cross-over operation
+      for(std::size_t i=pos; i<this_double_vec.size(); i++) {
+         this_double_vec[i] = cp_double_vec[i];
+      }
+   }
+
+   if(!this_float_vec.empty()) {
+      // Calculate a suitable position for the cross-over
+      std::size_t pos = gr.uniform_int(std::size_t(0), this_float_vec.size() - std::size_t(1));
+
+      // Perform the actual cross-over operation
+      for(std::size_t i=pos; i<this_float_vec.size(); i++) {
+         this_float_vec[i] = cp_float_vec[i];
+      }
+   }
+
+   if(!this_bool_vec.empty()) {
+      // Calculate a suitable position for the cross-over
+      std::size_t pos = gr.uniform_int(std::size_t(0), this_bool_vec.size() - std::size_t(1));
+
+      // Perform the actual cross-over operation
+      for(std::size_t i=pos; i<this_bool_vec.size(); i++) {
+         this_bool_vec[i] = cp_bool_vec[i];
+      }
+   }
+
+   if(!this_int_vec.empty()) {
+      // Calculate a suitable position for the cross-over
+      std::size_t pos = gr.uniform_int(std::size_t(0), this_int_vec.size() - std::size_t(1));
+
+      // Perform the actual cross-over operation
+      for(std::size_t i=pos; i<this_int_vec.size(); i++) {
+         this_int_vec[i] = cp_int_vec[i];
+      }
+   }
+
+   // Load the data vectors back into this object
+   this->assignValueVector(this_double_vec);
+   this->assignValueVector(this_float_vec);
+   this->assignValueVector(this_bool_vec);
+   this->assignValueVector(this_int_vec);
 }
 
 /******************************************************************************/
@@ -734,6 +811,22 @@ void GParameterSet::addConfigurationOptions (
 		, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
 		, comment
 	);
+
+   comment = ""; // Reset the comment string
+   comment += "The likelihood for two data items to be exchanged;";
+   comment += "in a \"per-item\" cross-over operation;";
+   if(showOrigin) comment += "[GParameterset]";
+   gpb.registerFileParameter<double>(
+      "perItemCrossOverProbability" // The name of the variable
+      , DEFAULTPERITEMEXCHANGELIKELIHOOD // The default value
+      , boost::bind(
+         &GParameterSet::setPerItemCrossOverProbability
+         , this
+         , _1
+        )
+      , Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
+      , comment
+   );
 }
 
 /******************************************************************************/

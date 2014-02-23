@@ -50,7 +50,7 @@ const std::string GBaseEA::nickname = "ea";
  * vital parameters, such as the population size or the parent individuals by hand.
  */
 GBaseEA::GBaseEA()
-	: GBaseParChildT<GParameterSet>()
+	: GParameterSetParChild()
 	, smode_(DEFAULTSMODE)
 {
 	// Register the default optimization monitor
@@ -73,7 +73,7 @@ GBaseEA::GBaseEA()
  * @param cp Another GBaseEA object
  */
 GBaseEA::GBaseEA(const GBaseEA& cp)
-	: GBaseParChildT<GParameterSet>(cp)
+	: GParameterSetParChild(cp)
 	, smode_(cp.smode_)
 {
 	// Copying / setting of the optimization algorithm id is done by the parent class. The same
@@ -110,7 +110,7 @@ void GBaseEA::load_(const GObject * cp)
 	const GBaseEA *p_load = gobject_conversion<GBaseEA>(cp);
 
 	// First load the parent class'es data ...
-	GBaseParChildT<GParameterSet>::load_(cp);
+	GParameterSetParChild::load_(cp);
 
 	// ... and then our own data
 	smode_ = p_load->smode_;
@@ -171,7 +171,7 @@ boost::optional<std::string> GBaseEA::checkRelationshipWith(const GObject& cp,
    std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GBaseParChildT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GBaseEA", y_name, withMessages));
+	deviations.push_back(GParameterSetParChild::checkRelationshipWith(cp, e, limit, "GBaseEA", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GBaseEA", smode_, p_load->smode_, "smode_", "p_load->smode_", e , limit));
@@ -216,7 +216,7 @@ std::string GBaseEA::getAlgorithmName() const {
  */
 void GBaseEA::init() {
 	// To be performed before any other action
-	GBaseParChildT<GParameterSet>::init();
+	GParameterSetParChild::init();
 }
 
 /******************************************************************************/
@@ -225,7 +225,7 @@ void GBaseEA::init() {
  */
 void GBaseEA::finalize() {
 	// Last action
-   GBaseParChildT<GParameterSet>::finalize();
+   GParameterSetParChild::finalize();
 }
 
 /******************************************************************************/
@@ -252,7 +252,7 @@ void GBaseEA::addConfigurationOptions (
 	std::string comment2;
 
 	// Call our parent class'es function
-	GBaseParChildT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+	GParameterSetParChild::addConfigurationOptions(gpb, showOrigin);
 
 	comment = ""; // Reset the comment string
 	comment += "The sorting scheme. Options;";
@@ -756,7 +756,7 @@ bool GBaseEA::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GBaseParChildT<GParameterSet>::modify_GUnitTests()) result = true;
+	if(GParameterSetParChild::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -797,7 +797,7 @@ void GBaseEA::fillWithObjects(const std::size_t& nIndividuals) {
 void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
    // Call the parent class'es function
-   GBaseParChildT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests();
+   GParameterSetParChild::specificTestsNoFailureExpected_GUnitTests();
 
 	//------------------------------------------------------------------------------
 
@@ -808,7 +808,7 @@ void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
 		p_test->fillWithObjects();
 
 		// Run the parent class'es tests
-		p_test->GBaseParChildT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests();
+		p_test->GParameterSetParChild::specificTestsNoFailureExpected_GUnitTests();
 	}
 
 	//------------------------------------------------------------------------------
@@ -855,7 +855,7 @@ void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
 void GBaseEA::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-   GBaseParChildT<GParameterSet>::specificTestsFailuresExpected_GUnitTests();
+   GParameterSetParChild::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */
    condnotset("GBaseEA::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

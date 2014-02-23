@@ -95,7 +95,8 @@ class GParameterSet
 	  using boost::serialization::make_nvp;
 	  ar
 	  & make_nvp("GMutableSetT_GParameterBase", boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase> >(*this))
-     & make_nvp("GSubmissionContainerT_GParameterSet", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GParameterSet> >(*this));
+     & make_nvp("GSubmissionContainerT_ParameterSet", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GParameterSet> >(*this))
+	  & BOOST_SERIALIZATION_NVP(perItemCrossOverProbability_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -119,19 +120,16 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&
-			, const Gem::Common::expectation&
-			, const double&
-			, const std::string&
-			, const std::string&
-			, const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
 	/** @brief Allows to randomly initialize parameter members */
 	virtual void randomInit() OVERRIDE;
-
-	/** @brief Performs a cross-over with another GParameterSet object */
-	void crossOver(GParameterSet&, const double&);
 
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode(const bool&);
@@ -195,6 +193,17 @@ public:
 
 	/** @brief Checks whether this object is better than a given set of evaluations */
 	bool isGoodEnough(const std::vector<double>&);
+
+   /** @brief Perform a fusion operation between this object and another */
+   virtual boost::shared_ptr<GParameterSet> amalgamate(const boost::shared_ptr<GParameterSet>) const BASE;
+
+   /** @brief Performs a cross-over with another GParameterSet object on a "per item" basis */
+   void perItemCrossOver(const GParameterSet&, const double&);
+
+   /** @brief Allows to set the "per item" cross-over probability */
+   void setPerItemCrossOverProbability(double);
+   /** @brief Allows to retrieve the "per item" cross-over probability */
+   double getPerItemCrossOverProbability() const;
 
 	/***************************************************************************/
 	/**
@@ -452,6 +461,8 @@ protected:
 
 private:
 	explicit GParameterSet(const float&); ///< Intentionally private and undefined
+
+	double perItemCrossOverProbability_; ///< A likelihood for "per item" cross-over operations to be performed
 
 public:
 	/***************************************************************************/

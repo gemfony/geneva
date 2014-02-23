@@ -201,16 +201,16 @@ public:
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject& cp
-         , const Gem::Common::expectation& e
-         , const double& limit
-         , const std::string& caller
-         , const std::string& y_name
-         , const bool& withMessages
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
    ) const OVERRIDE {
        using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GParamterBase reference
+      // Check that we are indeed dealing with a GBaseParChildT<ind_type> reference
       const GBaseParChildT<ind_type> *p_load = GObject::gobject_conversion<GBaseParChildT<ind_type> >(&cp);
 
       // Will hold possible deviations from the expectation, including explanations
@@ -411,8 +411,8 @@ public:
     * @param maxPopulationSize The maximum allowed size of the population
     */
    void setPopulationGrowth(
-         std::size_t growthRate
-         , std::size_t maxPopulationSize
+      std::size_t growthRate
+      , std::size_t maxPopulationSize
    ) {
       growthRate_ = growthRate;
       maxPopulationSize_ = maxPopulationSize;
@@ -589,8 +589,7 @@ protected:
     *
     * @param cp A pointer to another GBaseParChildT<ind_type> object, camouflaged as a GObject
     */
-   virtual void load_(const GObject * cp) OVERRIDE
-   {
+   virtual void load_(const GObject * cp) OVERRIDE {
       const GBaseParChildT<ind_type> *p_load = GObject::gobject_conversion<GBaseParChildT<ind_type> >(cp);
 
       // First load the parent class'es data ...
@@ -607,71 +606,67 @@ protected:
    /***************************************************************************/
    /**
     * This function assigns a new value to each child individual according to the chosen
-    * recombination scheme.
+    * recombination scheme. Note that this function may be overloaded in derived classes,
+    * to e.g. add features such as cross-over.
     */
-   void doRecombine() {
-      typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
-
-      switch(recombinationMethod_){
-      case DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
-      case RANDOMDUPLICATIONSCHEME:
-      {
-         std::size_t child_id=0;
-         for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; it!= GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
-            randomRecombine(*it);
+   virtual void doRecombine() {
+      std::size_t i;
+      std::vector<double> threshold(nParents_);
+      double thresholdSum=0.;
+      // TODO: Check whether it is sufficient to do this only once
+      if(VALUEDUPLICATIONSCHEME == recombinationMethod_ && nParents_ > 1) {          // Calculate a weight vector
+         for(i=0; i<nParents_; i++) {
+            thresholdSum += 1./(static_cast<double>(i)+2.);
          }
+         for(i=0; i<nParents_-1; i++) {
+            // Normalizing the sum to 1
+            threshold[i] = (1./(static_cast<double>(i)+2.)) / thresholdSum;
+
+            // Make sure the subsequent range is in the right position
+            if(i>0) threshold[i] += threshold[i-1];
+         }
+         threshold[nParents_-1] = 1.; // Necessary due to rounding errors
       }
-         break;
 
-      case VALUEDUPLICATIONSCHEME:
-         // Recombination according to the parents' fitness only makes sense if
-         // we have at least 2 parents. We do the recombination manually otherwise
-         if(nParents_==1) {
-            for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+1; it!= GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
-               (*it)->GObject::load(*(GOptimizationAlgorithmT<ind_type>::data.begin()));
-               (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(0);
+      typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
+      for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; it!= GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
+         switch(recombinationMethod_){
+         case DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
+         case RANDOMDUPLICATIONSCHEME:
+            {
+               randomRecombine(*it);
             }
-         } else {
-            // TODO: Check whether it is sufficient to do this only once
+            break;
 
-            // Calculate a vector of recombination likelihoods for all parents
-            std::size_t i;
-            std::vector<double> threshold(nParents_);
-            double thresholdSum=0.;
-            for(i=0; i<nParents_; i++) {
-#ifdef DEBUG
-               thresholdSum += 1./(boost::numeric_cast<double>(i)+2.);
-#else
-               thresholdSum += 1./(static_cast<double>(i)+2.);
-#endif /* DEBUG */
+         case VALUEDUPLICATIONSCHEME:
+            {
+               if(nParents_ == 1) {
+                  (*it)->GObject::load(*(GOptimizationAlgorithmT<ind_type>::data.begin()));
+                  (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(0);
+               } else {
+                  // A recombination taking into account the value does not make
+                  // sense in the first iteration, as parents might not have a suitable
+                  // value. Instead, this function might accidently trigger value
+                  // calculation. Hence we fall back to random recombination in iteration 0.
+                  // No value calculation takes place there.
+                  if(GOptimizationAlgorithmT<ind_type>::inFirstIteration()) {
+                     randomRecombine(*it);
+                  } else {
+                     valueRecombine(*it, threshold);
+                  }
+               }
             }
-            for(i=0; i<nParents_-1; i++) {
-               // Normalizing the sum to 1
-#ifdef DEBUG
-               threshold[i] = (1./(boost::numeric_cast<double>(i)+2.)) / thresholdSum;
-#else
-               threshold[i] = (1./(static_cast<double>(i)+2.)) / thresholdSum;
-#endif /* DEBUG */
+            break;
 
-               // Make sure the subsequent range is in the right position
-               if(i>0) threshold[i] += threshold[i-1];
+         default:
+            {
+               glogger
+               << "In GBaseParChildT<ind_type>::doRecombine(): Error!" << std::endl
+               << "Got invalid duplication scheme: " << recombinationMethod_ << std::endl
+               << GEXCEPTION;
             }
-            threshold[nParents_-1] = 1.; // Necessary due to rounding errors
-
-            // Do the actual recombination
-            for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; it!= GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
-               // A recombination taking into account the value does not make
-               // sense in the first iteration, as parents might not have a suitable
-               // value. Instead, this function might accidently trigger value
-               // calculation in this case. Hence we fall back to random
-               // recombination in generation 0. No value calculation takes
-               // place there.
-               if(GOptimizationAlgorithmT<ind_type>::inFirstIteration()) randomRecombine(*it);
-               else valueRecombine(*it, threshold);
-            }
+            break;
          }
-
-         break;
       }
    }
 
@@ -1012,8 +1007,8 @@ protected:
     * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
     */
    void valueRecombine(
-         boost::shared_ptr<ind_type>& p
-         , const std::vector<double>& threshold
+      boost::shared_ptr<ind_type>& p
+      , const std::vector<double>& threshold
    ) {
       bool done=false;
       double randTest // get the test value

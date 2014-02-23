@@ -256,11 +256,11 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated */
-	virtual GObject* clone_() const = 0;
+	virtual GObject* clone_() const BASE = 0;
 
 	/***************************************************************************/
 	/** @brief The actual fitness calculation takes place in derived objects */
-	virtual double fitnessCalculation() = 0;
+	virtual double fitnessCalculation() BASE = 0;
 
 	/***************************************************************************/
 	/**
