@@ -103,6 +103,7 @@ private:
 	  & BOOST_SERIALIZATION_NVP(bestKnownPrimaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(bestCurrentPrimaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(stallCounter_)
+	  & BOOST_SERIALIZATION_NVP(stallCounterThreshold_)
 	  & BOOST_SERIALIZATION_NVP(cpInterval_)
 	  & BOOST_SERIALIZATION_NVP(cpBaseName_)
 	  & BOOST_SERIALIZATION_NVP(cpDirectory_)
@@ -135,6 +136,7 @@ public:
 		, bestKnownPrimaryFitness_(boost::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 		, bestCurrentPrimaryFitness_(boost::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 		, stallCounter_(0)
+		, stallCounterThreshold_(DEFAULTSTALLCOUNTERTHRESHOLD)
 		, cpInterval_(DEFAULTCHECKPOINTIT)
 		, cpBaseName_(DEFAULTCPBASENAME)
 		, cpDirectory_(DEFAULTCPDIR)
@@ -167,6 +169,7 @@ public:
 		, bestKnownPrimaryFitness_(cp.bestKnownPrimaryFitness_)
 		, bestCurrentPrimaryFitness_(cp.bestCurrentPrimaryFitness_)
 		, stallCounter_(cp.stallCounter_)
+		, stallCounterThreshold_(cp.stallCounterThreshold_)
 		, cpInterval_(cp.cpInterval_)
 		, cpBaseName_(cp.cpBaseName_)
 		, cpDirectory_(cp.cpDirectory_)
@@ -399,6 +402,7 @@ public:
 	   EXPECTATIONCHECK(bestKnownPrimaryFitness_);
 	   EXPECTATIONCHECK(bestCurrentPrimaryFitness_);
 	   EXPECTATIONCHECK(stallCounter_);
+	   EXPECTATIONCHECK(stallCounterThreshold_);
 	   EXPECTATIONCHECK(cpInterval_);
 	   EXPECTATIONCHECK(cpBaseName_);
 	   EXPECTATIONCHECK(cpDirectory_);
@@ -476,8 +480,9 @@ public:
 			// Let all individuals know about the best fitness known so far
 			markBestFitness();
 
-			// Let all individuals know about the number of failed optimization attempts in a row
-			markNStalls();
+         // Let all individuals know about the number of failed optimization attempts in a row so far
+			// and give them a chance to update their internal data structures
+         markStalls();
 
 			// We want to provide feedback to the user in regular intervals.
 			// Set the reportGeneration_ variable to 0 in order not to emit
@@ -753,6 +758,24 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Allows to set the number of iterations without improvement, after which
+	 * individuals are asked to update their internal data structures
+	 */
+	void setStallCounterThreshold(boost::uint32_t stallCounterThreshold) {
+	   stallCounterThreshold_ = stallCounterThreshold;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Allows to retrieve the number of iterations without improvement, after which
+	 * individuals are asked to update their internal data structures
+	 */
+	boost::uint32_t getStallCounterThreshold() const {
+	   return stallCounterThreshold_;
+	}
+
+	/***************************************************************************/
+	/**
 	 * Retrieve the best value found in the entire optimization run so far
 	 *
 	 * @return The best raw and transformed fitness found so far
@@ -905,6 +928,22 @@ public:
 			, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 			, comment
 		);
+
+      comment = ""; // Reset the comment string
+      comment += "The number of iterations without improvement after which;";
+      comment += "individuals are asked to update their internal data structures;";
+      if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
+      gpb.registerFileParameter<boost::uint32_t>(
+         "indivdualUpdateStallCounterThreshold" // The name of the variable
+         , DEFAULTSTALLCOUNTERTHRESHOLD // The default value
+         , boost::bind(
+            &GOptimizationAlgorithmT<ind_type>::setStallCounterThreshold
+            , this
+            , _1
+           )
+         , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+         , comment
+      );
 
 		comment = ""; // Reset the comment string
 		comment += "The number of iterations after which a report should be issued;";
@@ -1196,6 +1235,7 @@ protected:
 		bestKnownPrimaryFitness_ = p_load->bestKnownPrimaryFitness_;
 		bestCurrentPrimaryFitness_ = p_load->bestCurrentPrimaryFitness_;
 		stallCounter_ = p_load->stallCounter_;
+		stallCounterThreshold_ = p_load->stallCounterThreshold_;
 		cpInterval_ = p_load->cpInterval_;
 		cpBaseName_ = p_load->cpBaseName_;
 		cpDirectory_ = p_load->cpDirectory_;
@@ -1504,6 +1544,14 @@ protected:
    }
 
    /***************************************************************************/
+   /**
+    * Triggers updates of "modifiable" individuals, when a stall has occurred too often. By default we do
+    * nothing. Used e.g. in evolutionary algorithms.
+    */
+   virtual void updateModifiables(const boost::uint32_t& stallCounter) BASE
+   { /* nothing */ }
+
+   /***************************************************************************/
    /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
    virtual void runFitnessCalculation() = 0;
 
@@ -1742,14 +1790,17 @@ private:
 	 * Marks the number of stalled optimization attempts in all individuals and
 	 * gives them an opportunity to update their internal structures.
 	 */
-	void markNStalls() {
+	void markStalls() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->setNStalls(stallCounter_);
-			if(stallCounter_ > 0) {
-			   (*it)->updateOnStall(stallCounter_);
-			}
 		}
+
+		// Give derived algorithms a chance to update the data structures
+		// of work items (used for example in evolutionary algorithms)
+	   if(stallCounter_ > stallCounterThreshold_) {
+	      this->updateModifiables(stallCounter_);
+	   }
 	}
 
 	/***************************************************************************/
@@ -1767,6 +1818,7 @@ private:
 	boost::tuple<double, double> bestKnownPrimaryFitness_; ///< Records the best primary fitness found so far
 	boost::tuple<double, double> bestCurrentPrimaryFitness_; ///< Records the best fitness found in the current iteration
 	boost::uint32_t stallCounter_; ///< Counts the number of iterations without improvement
+	boost::uint32_t stallCounterThreshold_; ///< The number of stalls after which individuals are asked to update their internal data structures
 	boost::int32_t cpInterval_; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	std::string cpBaseName_; ///< The base name of the checkpoint file
 	std::string cpDirectory_; ///< The directory where checkpoint files should be stored

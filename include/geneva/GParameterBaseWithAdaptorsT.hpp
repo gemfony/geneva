@@ -398,6 +398,17 @@ public:
 	   return std::string("GParameterBaseWithAdaptorsT");
 	}
 
+	/******************************************************************************/
+	/**
+	 * Triggers updates when the optimization process has stalled
+	 *
+	 * @param nStalls The number of consecutive stalls up to this point
+	 * @return A boolean indicating whether updates were performed
+	 */
+	virtual bool updateOnStall(const std::size_t& nStalls) OVERRIDE {
+	   return this->adaptor_->updateOnStall(nStalls);
+	}
+
 protected:
 	/***************************************************************************/
 	/**

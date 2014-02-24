@@ -155,7 +155,7 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		ADD_DEFINITIONS ("-DDEBUG -g")
 	ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
-		ADD_DEFINITIONS ("-DNDEBUG -O3")
+		ADD_DEFINITIONS ("-DNDEBUG -O3 -Wunreachable-code")
 	ENDIF()	
 	
 	ADD_DEFINITIONS ("-Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread")

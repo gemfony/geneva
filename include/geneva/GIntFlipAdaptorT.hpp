@@ -130,12 +130,12 @@ public:
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	boost::optional<std::string> checkRelationshipWith(
-			const GObject& cp
-			, const Gem::Common::expectation& e
-			, const double& limit
-			, const std::string& caller
-			, const std::string& y_name
-			, const bool& withMessages
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
 	) const OVERRIDE {
 	    using namespace Gem::Common;
 
@@ -175,6 +175,11 @@ public:
    virtual std::string name() const OVERRIDE {
       return std::string("GIntFlipAdaptorT");
    }
+
+   /***************************************************************************/
+   /** @brief Allows derived classes to randomly initialize parameter members */
+   virtual void randomInit() OVERRIDE
+   { /* nothing - no local data */ }
 
 protected:
 	/***************************************************************************/

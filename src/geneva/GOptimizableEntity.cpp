@@ -1495,6 +1495,8 @@ boost::shared_ptr<GPersonalityTraits> GOptimizableEntity::getPersonalityTraits()
 bool GOptimizableEntity::updateOnStall(const std::size_t& nStalls) {
 	// Do the actual update of the individual's structure
 	bool updatePerformed = customUpdateOnStall(nStalls);
+
+	// Mark the individual as "dirty", if an update was indeed performed
 	if(updatePerformed) {
 		setDirtyFlag();
 	}

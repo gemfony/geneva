@@ -2393,13 +2393,13 @@ std::string GHistogram2D::drawingArguments(bool isSecondary) const {
          break;
 
       default:
-      {
-         glogger
-         << "In GHistogram2D::drawingArguments(): Error!" << std::endl
-         << "Encountered unknown drawing option " << dropt_ << std::endl
-         << GEXCEPTION;
-      }
-      break;
+         {
+            glogger
+            << "In GHistogram2D::drawingArguments(): Error!" << std::endl
+            << "Encountered unknown drawing option " << dropt_ << std::endl
+            << GEXCEPTION;
+         }
+         break;
       }
 
       if(isSecondary) {

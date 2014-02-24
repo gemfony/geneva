@@ -109,6 +109,11 @@ public:
    /** @brief Creates a deep clone of this object */
    virtual boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > clone() const;
 
+   /** @brief Checks whether no item has the dirty flag set */
+   bool allClean(std::size_t&) const;
+   /** @brief Emits information about the "dirty flag" of all items */
+   std::string getCleanStatus() const;
+
 protected:
    /** @brief Evaluates a single work item, so that it can be sorted */
    virtual double evaluation(const boost::shared_ptr<GParameterSet>&) const;

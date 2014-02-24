@@ -101,6 +101,37 @@ boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > GParame
 
 /******************************************************************************/
 /**
+ * Checks whether no item has the dirty flag set
+ */
+bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t& pos) const {
+   pos = 0;
+   std::deque<boost::shared_ptr<GParameterSet> >::const_iterator cit;
+   for(cit=data_.begin(); cit!=data_.end(); ++cit) {
+      if(true == (*cit)->isDirty()) {
+         pos = std::distance(data_.begin(), cit);
+         return false;
+      }
+   }
+
+   return true;
+}
+
+/******************************************************************************/
+/**
+ * Emits information about the "dirty flag" of all items
+ */
+std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
+   std::ostringstream oss;
+   std::deque<boost::shared_ptr<GParameterSet> >::const_iterator cit;
+   for(cit=data_.begin(); cit!=data_.end(); ++cit) {
+      oss << "(" << std::distance(data_.begin(), cit) << ", " << ((*cit)->isDirty()?"d":"c") << ") ";
+   }
+
+   return oss.str();
+}
+
+/******************************************************************************/
+/**
  * Evaluates a single work item, so that it can be sorted. Note that this function
  * will throw in DEBUG mode, if the dirty flag of item is set. Note that the function
  * uses the primary evaluation criterion only.

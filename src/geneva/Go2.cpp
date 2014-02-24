@@ -750,6 +750,14 @@ void Go2::optimize(const boost::uint32_t& offset) {
       // Remove our local copies
       this->clear();
 
+#ifdef DEBUG
+      if(!this->empty()) {
+         glogger
+         << "Go2 collection still contains " << this->size() << " individuals after clear()" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
       // Do the actual optimization
       bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
 

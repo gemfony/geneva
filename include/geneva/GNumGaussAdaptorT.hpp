@@ -72,12 +72,12 @@ class GNumGaussAdaptorT :public GAdaptorT<num_type>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		// Save all necessary data
-		ar & make_nvp("GAdaptorT_num", boost::serialization::base_object<GAdaptorT<num_type> >(*this))
-		   & BOOST_SERIALIZATION_NVP(sigma_)
-		   & BOOST_SERIALIZATION_NVP(sigmaSigma_)
-		   & BOOST_SERIALIZATION_NVP(minSigma_)
-		   & BOOST_SERIALIZATION_NVP(maxSigma_);
+		ar
+		& make_nvp("GAdaptorT_num", boost::serialization::base_object<GAdaptorT<num_type> >(*this))
+		& BOOST_SERIALIZATION_NVP(sigma_)
+		& BOOST_SERIALIZATION_NVP(sigmaSigma_)
+		& BOOST_SERIALIZATION_NVP(minSigma_)
+		& BOOST_SERIALIZATION_NVP(maxSigma_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -451,7 +451,9 @@ protected:
 
 		// We do not want to favor the decrease or increase of sigma, hence we choose
 		// randomly whether to multiply or divide. TODO: cross-check.
-		if(sigmaSigma_ > fp_type(0.)) sigma_ *= gexp(GAdaptorT<num_type>::gr->normal_distribution(sigmaSigma_)*(GAdaptorT<num_type>::gr->uniform_bool()?fp_type(1):fp_type(-1)));
+		if(sigmaSigma_ > fp_type(0.)) {
+		   sigma_ *= gexp(GAdaptorT<num_type>::gr->normal_distribution(sigmaSigma_)*(GAdaptorT<num_type>::gr->uniform_bool()?fp_type(1):fp_type(-1)));
+		}
 
 		// make sure sigma_ doesn't get out of range
 		if(sigma_ < minSigma_) sigma_ = minSigma_;
@@ -466,6 +468,15 @@ protected:
 	 * @param value The value that is going to be adapted in situ
 	 */
 	virtual void customAdaptions(num_type&) = 0;
+
+   /***************************************************************************/
+   /**
+    * Allows to randomly initialize parameter members
+    */
+   virtual void randomInit() OVERRIDE {
+      using namespace Gem::Hap;
+      sigma_ = this->gr->template uniform_real<fp_type>(minSigma_, maxSigma_);
+   }
 
 protected: // For performance reasons, so we do not have to go through access functions
 	/***************************************************************************/

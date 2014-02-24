@@ -229,13 +229,13 @@ public:
 	boost::uint32_t getNStalls() const;
 
 	/** @brief Triggers updates when the optimization process has stalled */
-	virtual bool updateOnStall(const std::size_t&);
+	virtual bool updateOnStall(const std::size_t&) BASE;
 
 	/** @brief Retrieves an identifier for the current personality of this object */
 	std::string getPersonality() const;
 
 	/** @brief Allows to randomly initialize parameter members */
-	virtual void randomInit() = 0;
+	virtual void randomInit() BASE = 0;
 
 	/** @brief Retrieves a parameter of a given type at the specified position */
 	virtual boost::any getVarVal(

@@ -120,6 +120,9 @@ protected:
    /** @brief Performs recombination, taking into account possible amalgamation actions */
    virtual void doRecombine();
 
+   /** @brief Triggers updates of "modifiable" individuals, when a stall has occurred too often */
+   virtual void updateModifiables(const boost::uint32_t&) OVERRIDE;
+
    /** @brief Does some preparatory work before the optimization starts */
    virtual void init() OVERRIDE;
    /** @brief Does any necessary finalization work */

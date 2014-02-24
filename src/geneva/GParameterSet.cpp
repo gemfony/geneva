@@ -447,6 +447,9 @@ void GParameterSet::perItemCrossOver(const GParameterSet& cp, const double& like
    this->assignValueVector(this_float_vec);
    this->assignValueVector(this_bool_vec);
    this->assignValueVector(this_int_vec);
+
+   // Makr this individual as "dirty"
+   this->setDirtyFlag(true);
 }
 
 /******************************************************************************/

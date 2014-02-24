@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------------------------------
-Wishlist for version 1.2, yet unnamed, release-date unknown
+Wishlist for version 1.4, yet unnamed, release-date unknown
 
  - MPI Consumer/Client
  - A scripting interface to optimization algorithms, so that new algorithms can be 
@@ -33,6 +33,8 @@ Wishlist for version 1.2, yet unnamed, release-date unknown
  - Added further command line options (when using Go2), such as the maximum number of iterations
    or the maximum time for each algorithm type. Some options are now hidden and are only 
    shown upon explicit request
+ - Added a new "per-item" cross-over method to evolutionary algorithms
+ - Added a mechanism to update adaptors in EA when optimization has stalled
  - Starting with this version, release-versions get an even minor version number
  - Ported to Boost 1.55
 

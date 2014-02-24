@@ -223,7 +223,7 @@ void GParameterSetParChild::doRecombine() {
       threshold[nParents_-1] = 1.; // Necessary due to rounding errors
    }
 
-   typename std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+   std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
    for(it=GOptimizationAlgorithmT<GParameterSet>::data.begin()+nParents_; it!= GOptimizationAlgorithmT<GParameterSet>::data.end(); ++it) {
       // Retrieve a random number so we can decide whether to perform cross-over or duplication
       // If we do perform cross-over, we always cross the best individual with another random parent
@@ -245,7 +245,7 @@ void GParameterSetParChild::doRecombine() {
             {
                if(nParents_ == 1) {
                   (*it)->GObject::load(*(GOptimizationAlgorithmT<GParameterSet>::data.begin()));
-                  (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(0);
+                  (*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(0);
                } else {
                   // A recombination taking into account the value does not make
                   // sense in the first iteration, as parents might not have a suitable
@@ -271,6 +271,23 @@ void GParameterSetParChild::doRecombine() {
             break;
          }
       }
+   }
+}
+
+/***************************************************************************/
+/**
+ * Triggers updates of "modifiable" individuals, when a stall has occurred too often.
+ * In our case this means an update of childen. Parents aren't touched by the function.
+ *
+ * NOTE: This function is used only when there were too many stalls.
+ */
+void GParameterSetParChild::updateModifiables(const boost::uint32_t& stallCounter) {
+   GParameterSetParChild::iterator it;
+   for(it=this->begin() + this->getNParents(); it!=this->end(); ++it) {
+      // Give individuals an opportunity to update their
+      // internal data structures. Called by the optimization
+      // algorithm if there were too many calls.
+      (*it)->updateOnStall(stallCounter);
    }
 }
 

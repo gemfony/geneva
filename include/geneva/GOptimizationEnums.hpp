@@ -208,6 +208,13 @@ const boost::uint32_t DEFAULTCHECKPOINTIT = 0;
 
 /******************************************************************************/
 /**
+ * The default number of stalls as of which individuals are asked to update
+ * their internal data structures by the optimization algorithm.
+ */
+const boost::uint32_t DEFAULTSTALLCOUNTERTHRESHOLD = 10;
+
+/******************************************************************************/
+/**
  * The default base name used for check-pointing. Derivatives of this
  * class can build distinguished filenames from this e.g. by adding
  * the current generation.

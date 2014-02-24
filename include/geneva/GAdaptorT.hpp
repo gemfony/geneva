@@ -463,6 +463,24 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
+   /***************************************************************************/
+	/**
+	 * Triggers updates when the optimization process has stalled. We randomize
+	 * the adaptor plus the adaption probability.
+	 *
+	 * @param nStalls The number of consecutive stalls up to this point
+	 * @return A boolean indicating whether updates were performed
+	 */
+	virtual bool updateOnStall(const std::size_t& nStalls) BASE
+	{
+	   // Adapt our local adaption probability
+	   // TODO (compare GNumGaussAdaptorT<T>::customAdaptAdaption() )
+
+	   // Randomize specific adaptor parameters (at the choice of the derived class)
+	   this->randomInit();
+	   return true;
+	}
+
 	/***************************************************************************/
 	/**
 	 * Assign a random number generator from another object.
@@ -550,6 +568,10 @@ public:
       return std::string("GAdaptorT");
    }
 
+   /***************************************************************************/
+   /** @brief Allows derived classes to randomly initialize parameter members */
+   virtual void randomInit() BASE = 0;
+
 protected:
 	/***************************************************************************/
     /**
@@ -588,7 +610,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep copy of this object */
-	virtual GObject *clone_(void) const =0;
+	virtual GObject *clone_(void) const = 0;
 
 	/***************************************************************************/
 	/**
