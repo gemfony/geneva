@@ -473,8 +473,19 @@ public:
 	 */
 	virtual bool updateOnStall(const std::size_t& nStalls) BASE
 	{
-	   // Adapt our local adaption probability
-	   // TODO (compare GNumGaussAdaptorT<T>::customAdaptAdaption() )
+#ifdef DEBUG
+	   if(0 == nStalls) {
+	      glogger
+	      << "In GAdaptorT<>::updateOnStall(" << nStalls << "): Error!" << std::endl
+	      << "Function called for non-zero nStalls" << std::endl
+	      << GEXCEPTION;
+	   }
+#endif
+
+	   using namespace Gem::Hap;
+
+	   // Randomize our local adaption probability
+	   adProb_ = gr->uniform_real<double>(0.,1.);
 
 	   // Randomize specific adaptor parameters (at the choice of the derived class)
 	   this->randomInit();

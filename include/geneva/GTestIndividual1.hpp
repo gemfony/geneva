@@ -91,8 +91,7 @@ class GTestIndividual1 :public Gem::Geneva::GParameterSet
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		   & BOOST_SERIALIZATION_NVP(fakeUpdateOnStall_);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -122,11 +121,6 @@ public:
       const bool&
 	) const;
 
-	/** @brief Sets the fakeUpdateOnStall_ variable */
-	void setFakeCustomUpdateOnStall(const bool&);
-	/** @brief Retrieves the current value of the fakeUpdateOnStall_ flag */
-	bool getFakeCustomUpdateOnStall() const;
-
 protected:
 	/** @brief Loads the data of another GTestIndividual1 */
 	virtual void load_(const GObject*);
@@ -135,13 +129,6 @@ protected:
 
 	/** @brief The actual fitness calculation takes place here. */
 	virtual double fitnessCalculation();
-
-   /** @brief An overload of GIndividual::customUpdateOnStall() that can fake updates */
-   virtual bool customUpdateOnStall(const std::size_t&) OVERRIDE;
-
-private:
-	bool fakeUpdateOnStall_;
-
 public:
 	// Note: The following functions are, in the context of GTestIndividual1,
 	// designed to mainly test parent classes

@@ -963,7 +963,7 @@ void GBaseSwarm::updatePositions() {
 						, getCNeighborhood()
 						, getCGlobal()
 						, getCVelocity()
-					  )
+					)
 				);
 			}
 

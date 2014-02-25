@@ -921,12 +921,12 @@ public:
    /**
     * Triggers updates when the optimization process has stalled
     */
-   virtual bool updateOnStall(const std::size_t& nStalls) OVERRIDE {
+   virtual bool updateAdaptorsOnStall(const std::size_t& nStalls) OVERRIDE {
       bool updatePerformed = false;
 
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         if((*it)->updateOnStall(nStalls)) {
+         if((*it)->updateAdaptorsOnStall(nStalls)) {
             updatePerformed = true;
          }
       }

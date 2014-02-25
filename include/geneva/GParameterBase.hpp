@@ -96,7 +96,7 @@ public:
 	virtual void adaptImpl() = 0;
 
    /** @brief Triggers updates when the optimization process has stalled */
-   virtual bool updateOnStall(const std::size_t&) BASE = 0;
+   virtual bool updateAdaptorsOnStall(const std::size_t&) BASE = 0;
 
 	/** @brief Switches on adaptions for this object */
 	bool setAdaptionsActive();

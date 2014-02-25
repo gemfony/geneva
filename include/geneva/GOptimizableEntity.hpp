@@ -228,9 +228,6 @@ public:
 	/** @brief Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion */
 	boost::uint32_t getNStalls() const;
 
-	/** @brief Triggers updates when the optimization process has stalled */
-	virtual bool updateOnStall(const std::size_t&) BASE;
-
 	/** @brief Retrieves an identifier for the current personality of this object */
 	std::string getPersonality() const;
 
@@ -395,8 +392,6 @@ protected:
 
 	/** @brief The actual adaption operations */
 	virtual void customAdaptions();
-	/** @brief Updates the object's structure and/or parameters, if the optimization has stalled */
-	virtual bool customUpdateOnStall(const std::size_t&) BASE;
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode_(const bool&);
 	/** @brief Sets the dirtyFlag_ to any desired value */

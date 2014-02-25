@@ -255,26 +255,6 @@ protected:
 	}
 
 	/***************************************************************************/
-	/**
-	 * Allows users to update the structure of the individual when a stall has occurred
-	 *
-	 * @param nStalls The number of consecutive stalls in the optimization algorithm up to this point
-	 * @return A boolean indicating whether an update was performed and the object has changed
-	 */
-	virtual bool customUpdateOnStall(const std::size_t& nStalls) OVERRIDE {
-	   bool updatePerformed=false;
-
-	   typename GMutableSetT<T>::iterator it;
-	   for(it=this->begin(); it!=this->end(); ++it) {
-	      if((*it)->updateOnStall(nStalls)) {
-	         updatePerformed = true;
-	      }
-	   }
-
-	   return updatePerformed;
-	}
-
-	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated */
 	virtual GObject* clone_() const BASE = 0;
 

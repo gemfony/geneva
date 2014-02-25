@@ -209,9 +209,10 @@ const boost::uint32_t DEFAULTCHECKPOINTIT = 0;
 /******************************************************************************/
 /**
  * The default number of stalls as of which individuals are asked to update
- * their internal data structures by the optimization algorithm.
+ * their internal data structures by the optimization algorithm. A value of 0
+ * means "disabled".
  */
-const boost::uint32_t DEFAULTSTALLCOUNTERTHRESHOLD = 10;
+const boost::uint32_t DEFAULTSTALLCOUNTERTHRESHOLD = 0;
 
 /******************************************************************************/
 /**

@@ -275,6 +275,17 @@ double GParameterSet::getPerItemCrossOverProbability() const {
 
 /******************************************************************************/
 /**
+ * Triggers updates of adaptors contained in this object.
+ */
+void GParameterSet::updateAdaptorsOnStall(const boost::uint32_t& nStalls) {
+   GParameterSet::iterator it;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      (*it)->updateAdaptorsOnStall(nStalls);
+   }
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GParameterSet object, camouflaged as a GObject.
  *
  * @param cp A copy of another GParameterSet object, camouflaged as a GObject

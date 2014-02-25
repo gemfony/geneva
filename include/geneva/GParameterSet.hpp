@@ -205,6 +205,9 @@ public:
    /** @brief Allows to retrieve the "per item" cross-over probability */
    double getPerItemCrossOverProbability() const;
 
+   /** @brief Triggers updates of adaptors contained in this object */
+   virtual void updateAdaptorsOnStall(const boost::uint32_t&);
+
 	/***************************************************************************/
 	/**
 	 * This function returns a parameter set at a given position of the data set.

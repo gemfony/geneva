@@ -1485,47 +1485,6 @@ boost::shared_ptr<GPersonalityTraits> GOptimizableEntity::getPersonalityTraits()
 
 /******************************************************************************/
 /**
- * A wrapper for GOptimizableEntity::customUpdateOnStall() (or the corresponding overloaded
- * functions in derived classes) that does error-checking and sets the dirty flag. The function
- * is called by GOptimizationAlgorithmT<>, whenever the optimization procedure is stalled.
- *
- * @param nStalls The number of stalls since the last improvement
- * @return A boolean indicating whether an update was performed and the individual has changed
- */
-bool GOptimizableEntity::updateOnStall(const std::size_t& nStalls) {
-	// Do the actual update of the individual's structure
-	bool updatePerformed = customUpdateOnStall(nStalls);
-
-	// Mark the individual as "dirty", if an update was indeed performed
-	if(updatePerformed) {
-		setDirtyFlag();
-	}
-
-	return updatePerformed;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Allows users to update the structure of the individual when a stall has occurred
- *
- * @return A boolean indicating whether an update was performed and the object has changed
- */
-bool GOptimizableEntity::customUpdateOnStall(const std::size_t& nStalls) {
-	return false;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
  * Actions to be performed when adapting this object. This function will be overloaded particularly
  * for the GParameterSet class.
  */

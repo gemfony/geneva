@@ -276,18 +276,21 @@ void GParameterSetParChild::doRecombine() {
 
 /***************************************************************************/
 /**
- * Triggers updates of "modifiable" individuals, when a stall has occurred too often.
- * In our case this means an update of childen. Parents aren't touched by the function.
- *
- * NOTE: This function is used only when there were too many stalls.
+ * Gives individuals an opportunity to update their internal structures. Here
+ * we just trigger an update of the adaptors. We only do so for parents, as
+ * they will be replicated in the next iteration. We leave the best parent
+ * untouched, so that otherwise successful adaptor settings may survive.
  */
-void GParameterSetParChild::updateModifiables(const boost::uint32_t& stallCounter) {
-   GParameterSetParChild::iterator it;
-   for(it=this->begin() + this->getNParents(); it!=this->end(); ++it) {
-      // Give individuals an opportunity to update their
-      // internal data structures. Called by the optimization
-      // algorithm if there were too many calls.
-      (*it)->updateOnStall(stallCounter);
+void GParameterSetParChild::actOnStalls() {
+   // Make sure the actions of our parent class are carried out
+   GBaseParChildT<GParameterSet>::actOnStalls();
+
+   if(this->getNParents() > 1) {
+      // Update parent individuals. We leave the best parent untouched
+      GParameterSetParChild::iterator it;
+      for(it=this->begin()+1; it!=this->begin() + this->getNParents(); ++it) {
+         (*it)->updateAdaptorsOnStall(this->getStallCounter());
+      }
    }
 }
 

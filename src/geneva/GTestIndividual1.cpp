@@ -45,7 +45,6 @@ namespace Tests {
  */
 GTestIndividual1::GTestIndividual1()
 : GParameterSet()
-, fakeUpdateOnStall_(false)
 {
    // Fill with some data
    boost::shared_ptr<Gem::Geneva::GDoubleCollection > gdc_ptr(new Gem::Geneva::GDoubleCollection(100, -10., 10.));
@@ -63,7 +62,6 @@ GTestIndividual1::GTestIndividual1()
  */
 GTestIndividual1::GTestIndividual1(const GTestIndividual1& cp)
 : Gem::Geneva::GParameterSet(cp)
-, fakeUpdateOnStall_(cp.fakeUpdateOnStall_)
 {	/* nothing */ }
 
 /******************************************************************************/
@@ -143,43 +141,9 @@ boost::optional<std::string> GTestIndividual1::checkRelationshipWith(const GObje
 	// Check our parent class'es data ...
 	deviations.push_back(Gem::Geneva::GParameterSet::checkRelationshipWith(cp, e, limit, "GTestIndividual1", y_name, withMessages));
 
-	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GTestIndividual1", fakeUpdateOnStall_, p_load->fakeUpdateOnStall_, "fakeUpdateOnStall_", "p_load->fakeUpdateOnStall_", e , limit));
+	// ... no local data
 
 	return evaluateDiscrepancies("GTestIndividual1", caller, deviations, e);
-}
-
-/******************************************************************************/
-/**
- * Sets the fakeUpdateOnStall_ variable. When set, this object's customUpdateOnStall() function
- * will return true.
- *
- * @param fakeUpdateOnStall The desired new value for the fakeUpdateOnStall_ flag
- */
-void GTestIndividual1::setFakeCustomUpdateOnStall(const bool& fakeUpdateOnStall) {
-	fakeUpdateOnStall_ = fakeUpdateOnStall;
-}
-
-/******************************************************************************/
-/**
- * Retrieves the current value of the fakeUpdateOnStall_ flag
- *
- * @return The current value of the fakeUpdateOnStall_ flag
- */
-bool GTestIndividual1::getFakeCustomUpdateOnStall() const {
-	return fakeUpdateOnStall_;
-}
-
-/******************************************************************************/
-/**
- * An overload of GIndividual::customUpdateOnStall() that can fake updates.
- *
- * @param nStalls The number of stalls since the last improvement
- * @return A boolean indicating whether an update was performed and the object has changed
- */
-bool GTestIndividual1::customUpdateOnStall(const std::size_t& nStalls) {
-	if(fakeUpdateOnStall_) return true;
-	else return false;
 }
 
 /******************************************************************************/
@@ -199,8 +163,7 @@ void GTestIndividual1::load_(const GObject* cp)
 	// Load our parent's data
 	GParameterSet::load_(cp);
 
-	// Load our local data
-	fakeUpdateOnStall_ = p_load->fakeUpdateOnStall_;
+	// No local data
 }
 
 /******************************************************************************/
@@ -511,32 +474,6 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// The dirty flag should have been cleared
 		BOOST_CHECK(!p_test->isDirty());
-	}
-
-	//------------------------------------------------------------------------------
-
-	{ // Check the effects of the customUpdateOnStall() function
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
-
-		// Make the individual fake updates
-		p_test->setFakeCustomUpdateOnStall(true);
-
-		// Check that customUpdateOnStall() indeed returns "true"
-		BOOST_CHECK(p_test->customUpdateOnStall(10) == true);
-
-		// Make this a parent individual in EA mode
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
-		BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent());
-
-		// Perform the actual update
-		bool updatePerformed = false;
-		BOOST_CHECK_NO_THROW(updatePerformed = p_test->updateOnStall(10));
-
-		// Check whether an update was performed
-		BOOST_CHECK(updatePerformed == true);
-
-		// Check that the individual's dirty flag is set
-		BOOST_CHECK(p_test->isDirty());
 	}
 
 	//------------------------------------------------------------------------------
