@@ -286,7 +286,6 @@ void GExternalSetterIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GExternalSetterIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-   return false;
 #endif /* GEM_TESTING */
 }
 
@@ -333,7 +332,6 @@ void GExternalSetterIndividual::specificTestsFailuresExpected_GUnitTests() {
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GExternalSetterIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-   return false;
 #endif /* GEM_TESTING */
 }
 
