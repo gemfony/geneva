@@ -74,9 +74,10 @@ class GNumCollectionT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<T> >(*this))
-		   & BOOST_SERIALIZATION_NVP(lowerInitBoundary_)
-		   & BOOST_SERIALIZATION_NVP(upperInitBoundary_);
+		ar
+		& make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<T> >(*this))
+		& BOOST_SERIALIZATION_NVP(lowerInitBoundary_)
+		& BOOST_SERIALIZATION_NVP(upperInitBoundary_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -105,10 +106,10 @@ public:
 	 * @param max The upper boundary for random entries
 	 */
 	GNumCollectionT(
-			const std::size_t& nval
-			, const T& min
-			, const T& max
-			, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
+      const std::size_t& nval
+      , const T& min
+      , const T& max
+      , typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
 	)
 		: GParameterCollectionT<T> (nval, min)
 		, lowerInitBoundary_(min)
@@ -128,11 +129,11 @@ public:
 	 * @param max The upper boundary for random entries
 	 */
 	GNumCollectionT(
-			const std::size_t& nval
-			, const T& val
-			, const T& min
-			, const T& max
-			, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
+      const std::size_t& nval
+      , const T& val
+      , const T& min
+      , const T& max
+      , typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
 	)
 		: GParameterCollectionT<T> (nval, val)
 		, lowerInitBoundary_(min)
@@ -366,6 +367,15 @@ protected:
 		upperInitBoundary_ = p_load->upperInitBoundary_;
 	}
 
+   /***************************************************************************/
+   /**
+    * Returns a "comparative range". This is e.g. used to make Gauss-adaption
+    * independent of a parameters value range
+    */
+   virtual T range() const {
+      return upperInitBoundary_ - lowerInitBoundary_;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Creates a deep copy of this object. Purely virtual as this class
@@ -471,6 +481,9 @@ public:
 };
 
 /******************************************************************************/
+
+// Specialization for T==bool
+template<> bool GNumCollectionT<bool>::range() const;
 
 } /* namespace Geneva */
 } /* namespace Gem */

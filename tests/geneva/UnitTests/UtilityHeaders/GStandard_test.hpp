@@ -57,11 +57,12 @@ using boost::unit_test_framework::test_case;
 #define GSTANDARDTEST_HPP_
 
 // Geneva headers go here
-#include "GEqualityPrinter.hpp"
-#include "geneva/GObject.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
+#include "geneva/GObject.hpp"
+
+#include "GEqualityPrinter.hpp"
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -76,9 +77,11 @@ using boost::unit_test_framework::test_case;
  */
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	// Prepare printing of error messages in object comparisons
-	GEqualityPrinter gep("StandardTests_no_failure_expected",
-						 pow(10,-7),
-						 Gem::Common::CE_WITH_MESSAGES);
+	GEqualityPrinter gep(
+      "StandardTests_no_failure_expected"
+      , pow(10,-7)
+		, Gem::Common::CE_WITH_MESSAGES
+	);
 
 	//---------------------------------------------------------------------------//
 	// Tests of construction, loading, cloning, ...
@@ -259,7 +262,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		boost::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr2); // must point somewhere
 
-		//Modify and check inequality
+		// Modify and check inequality
 		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
@@ -273,7 +276,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		boost::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr2); // must point somewhere
 
-		//Modify and check inequality
+		// Modify and check inequality
 		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
@@ -287,7 +290,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		boost::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr2); // must point somewhere
 
-		//Modify and check inequality
+		// Modify and check inequality
 		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities

@@ -94,7 +94,10 @@ public:
 	 * @param nval The number of values
 	 * @param val  The value to be assigned to each position
 	 */
-	GParameterCollectionT(const std::size_t& nval, const T& val)
+	GParameterCollectionT(
+      const std::size_t& nval
+      , const T& val
+   )
 		: GParameterBaseWithAdaptorsT<T> ()
 		, GStdSimpleVectorInterfaceT<T>(nval, val)
 	{ /* nothing */ }
@@ -209,12 +212,12 @@ public:
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	boost::optional<std::string> checkRelationshipWith(
-			const std::vector<T>& cp
-			, const Gem::Common::expectation& e
-			, const double& limit
-			, const std::string& caller
-			, const std::string& y_name
-			, const bool& withMessages
+      const std::vector<T>& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
 	) const	{
 	    using namespace Gem::Common;
 
@@ -233,7 +236,10 @@ public:
 	 * a reference to its data vector to the function.
 	 */
 	virtual void adaptImpl() OVERRIDE {
-		GParameterBaseWithAdaptorsT<T>::applyAdaptor(GStdSimpleVectorInterfaceT<T>::data);
+		GParameterBaseWithAdaptorsT<T>::applyAdaptor(
+         GStdSimpleVectorInterfaceT<T>::data
+         , this->range()
+      );
 	}
 
 	/* ----------------------------------------------------------------------------------

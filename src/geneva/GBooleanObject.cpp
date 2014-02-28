@@ -206,6 +206,15 @@ void GBooleanObject::randomInit_() {
  * ----------------------------------------------------------------------------------
  */
 
+/***************************************************************************/
+/**
+ * Returns a "comparative range". In the case of boolean values this must
+ * be considered to be more of a "dummy".
+ */
+bool GBooleanObject::range() const {
+   return true;
+}
+
 /******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object

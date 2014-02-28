@@ -128,12 +128,12 @@ public:
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	boost::optional<std::string> checkRelationshipWith(
-			const GObject& cp
-			, const Gem::Common::expectation& e
-			, const double& limit
-			, const std::string& caller
-			, const std::string& y_name
-			, const bool& withMessages
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
 	) const OVERRIDE {
 	    using namespace Gem::Common;
 
@@ -208,34 +208,18 @@ protected:
 	 * range of [0,1[, so we make a tiny error here.
 	 *
 	 * @param value The bit value to be adapted
+	 * @param range A typical range for the parameter with type T (unused here)
 	 */
-	virtual void customAdaptions(num_type& value) OVERRIDE {
+	virtual void customAdaptions(
+      num_type& value
+      , const num_type&
+   ) OVERRIDE {
 		bool up = this->gr->uniform_bool();
 		if(up){
-#if defined (CHECKOVERFLOWS)
-			if(boost::numeric::bounds<num_type>::highest() == value) {
-#ifdef DEBUG
-				std::cout << "Warning: Had to change adaption due to overflow in GNumFlipAdaptorT<>::customAdaptions()" << std::endl;
-#endif
-				value -= 1;
-			}
-			else value += 1;
-#else
 			value += 1;
-#endif
 		}
 		else {
-#if defined (CHECKOVERFLOWS)
-			if(boost::numeric::bounds<num_type>::lowest() == value) {
-#ifdef DEBUG
-				std::cout << "Warning: Had to change adaption due to underflow in GNumFlipAdaptorT<>::customAdaptions()" << std::endl;
-#endif
-				value += 1;
-			}
-			else value -= 1;
-#else
 			value -= 1;
-#endif
 		}
 	}
 

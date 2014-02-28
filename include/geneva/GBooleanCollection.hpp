@@ -142,6 +142,9 @@ protected:
    /** @brief Triggers random initialization of the parameter collection, with a given likelihood structure */
    void randomInit_(const double&);
 
+   /** @brief Returns a "comparative range" for this type */
+   virtual bool range() const OVERRIDE;
+
 public:
    /** @brief Applies modifications to this object. This is needed for testing purposes */
    virtual bool modify_GUnitTests() OVERRIDE;

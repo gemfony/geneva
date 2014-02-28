@@ -228,45 +228,16 @@ protected:
 	 * The actual adaption of the supplied value takes place here.
 	 *
 	 * @param value The value that is going to be adapted in situ
+	 * @param range A typical range for the parameter with type num_type
 	 */
-	virtual void customAdaptions(fp_type& value) OVERRIDE {
+	virtual void customAdaptions(
+      fp_type& value
+      , const fp_type& range
+   ) OVERRIDE {
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
-#if defined (CHECKOVERFLOWS)
-		// Prevent over- and underflows. Note that we currently do not check the
-		// size of "addition" in comparison to "value".
-		fp_type addition = this->gr->normal_distribution(GNumGaussAdaptorT<fp_type, fp_type>::sigma_);
-
-		if(value >= fp_type(0.)){
-			if(addition >= fp_type(0) && (boost::numeric::bounds<fp_type>::highest()-value < addition)) { // We will exceed the largest possible value in this case
-#ifdef DEBUG
-				std::cout << "Warning in GFPGaussAdaptor<fp_type>::customAdaptions():" << std::endl
-						  << "Had to change adaption due to overflow" << std::endl
-						  << "value = " << value << std::endl
-						  << "addition = " << addition << std::endl
-						  << "boost::numeric::bounds<fp_type>::highest() = " << boost::numeric::bounds<fp_type>::highest() << std::endl;
-#endif
-				addition *= fp_type(-1.);
-			}
-		}
-		else { // value < 0
-			if(addition < fp_type(0) && (Gem::Common::GFabs(boost::numeric::bounds<fp_type>::lowest() - value) < Gem::Common::GFabs(addition))) {
-#ifdef DEBUG
-				std::cout << "Warning in GFPGaussAdaptorT<fp_type>::customAdaptions():" << std::endl
-						  << "Had to change adaption due to underflow" << std::endl
-						  << "value = " << value << std::endl
-						  << "addition = " << addition << std::endl
-						  << "boost::numeric::bounds<fp_type>::lowest() = " << boost::numeric::bounds<fp_type>::lowest() << std::endl;
-#endif
-				addition *= fp_type(-1.);
-			}
-		}
-
-		value += addition;
-#else
-		// We do not check for over- or underflows for performance reasons.
-		value += this->gr->normal_distribution(GNumGaussAdaptorT<fp_type, fp_type>::sigma_);
-#endif /* CHECKOVERFLOWS */
+		value
+		+= range * this->gr->normal_distribution(GNumGaussAdaptorT<fp_type, fp_type>::sigma_);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -292,8 +263,8 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GFPGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
-   return false;
+      condnotset("GFPGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
+      return false;
 #endif /* GEM_TESTING */
 	}
 

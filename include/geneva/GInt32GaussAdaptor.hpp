@@ -87,18 +87,18 @@ public:
 	explicit GInt32GaussAdaptor(const double&);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian */
 	GInt32GaussAdaptor(
-	      const double&
-	      , const double&
-	      , const double&
-	      , const double&
+      const double&
+      , const double&
+      , const double&
+      , const double&
 	);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian and the adaption probability */
 	GInt32GaussAdaptor(
-	      const double&
-	      , const double&
-	      , const double&
-	      , const double&
-	      , const double&
+      const double&
+      , const double&
+      , const double&
+      , const double&
+      , const double&
 	);
 	/** @brief The destructor */
 	virtual ~GInt32GaussAdaptor();
@@ -113,12 +113,12 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-	      const GObject&
-	      , const Gem::Common::expectation&
-	      , const double&
-	      , const std::string&
-	      , const std::string&
-	      , const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
 	/** @brief Retrieves the id of this adaptor */

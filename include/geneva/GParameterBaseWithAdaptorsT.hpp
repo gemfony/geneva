@@ -53,6 +53,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterBase.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
+#include "geneva/GConstrainedValueLimitT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -77,8 +78,9 @@ class GParameterBaseWithAdaptorsT:	public GParameterBase
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterBase)
-		   & BOOST_SERIALIZATION_NVP(adaptor_);
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterBase)
+      & BOOST_SERIALIZATION_NVP(adaptor_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -195,9 +197,7 @@ public:
 		if(adaptor_) { // Is an adaptor already present ?
 			if (adaptor_->getAdaptorId() == gat_ptr->getAdaptorId()) {
 				adaptor_->GObject::load(gat_ptr);
-			}
-			// Different type - need to clone and assign to gat_ptr
-			else {
+			} else { // Different type - need to clone and assign to gat_ptr
 				adaptor_ = gat_ptr->GObject::template clone<GAdaptorT<T> >();
 			}
 		}
@@ -260,7 +260,7 @@ public:
 	 */
 	template <typename adaptor_type>
 	boost::shared_ptr<adaptor_type> getAdaptor(
-			typename boost::enable_if<boost::is_base_of<GAdaptorT<T>, adaptor_type> >::type* dummy = 0
+      typename boost::enable_if<boost::is_base_of<GAdaptorT<T>, adaptor_type> >::type* dummy = 0
 	) const {
 #ifdef DEBUG
 		if(!adaptor_) {
@@ -437,17 +437,16 @@ protected:
 		// Same type: We can just load the data
 		if (adaptor_->getAdaptorId() == p_load->adaptor_->getAdaptorId()) {
 			adaptor_->GObject::load(p_load->adaptor_);
-		}
-		// Different type - need to convert
-		else {
+		} else { // Different type - need to convert
 			adaptor_ = p_load->adaptor_->GObject::template clone<GAdaptorT<T> >();
 		}
 	}
 
 	/***************************************************************************/
-	/** @brief Creates a deep clone of this object. Purely virtual, as we do not want this
-	 * class to be instantiated directly */
+	/** @brief Creates a deep clone of this object. Purely virtual, as we do not want this class to be instantiated directly */
 	virtual GObject* clone_() const = 0;
+   /** @brief Returns a "comparative range"; this is e.g. used to make Gauss-adaption independent of a parameters value range */
+   virtual T range() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -455,8 +454,12 @@ protected:
 	 * this function will get changed.
 	 *
 	 * @param value The parameter to be adapted
+	 * @param range A typical value range of underlying parameter types
 	 */
-	void applyAdaptor(T &value) {
+	void applyAdaptor(
+      T &value
+      , const T& range
+   ) {
 #ifdef DEBUG
 		if (!adaptor_) {
 		   glogger
@@ -467,7 +470,7 @@ protected:
 		}
 #endif /* DEBUG */
 
-		adaptor_->adapt(value);
+		adaptor_->adapt(value, range);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -482,8 +485,12 @@ protected:
 	 * of this function will get changed.
 	 *
 	 * @param collection A vector of values that shall be adapted
+	 * @param range A typical value range of underlying parameter types
 	 */
-	void applyAdaptor(std::vector<T> &collection) {
+	void applyAdaptor(
+      std::vector<T> &collection
+      , const T& range
+   ) {
 #ifdef DEBUG
 		if(!adaptor_) {
 		   glogger
@@ -497,7 +504,7 @@ protected:
 		// Apply the adaptor to each data item in turn
 		typename std::vector<T>::iterator it;
 		for (it = collection.begin(); it != collection.end(); ++it)	{
-			adaptor_->adapt(*it);
+			adaptor_->adapt(*it, range);
 		}
 	}
 
@@ -587,7 +594,7 @@ public:
 
 			T testVal = T(0);
 			// We have a local adaptor, so trying to call the applyAdaptor() function should not throw
-			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVal));
+			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVal, T(1)));
 		}
 
 		//------------------------------------------------------------------------------
@@ -602,7 +609,7 @@ public:
 			std::vector<T> testVec;
 			for(std::size_t i=0; i<10; i++) testVec.push_back(T(0));
 			// We have a local adaptor, so trying to call the applyAdaptor(collection) function should not throw
-			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVec));
+			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVec, T(1)));
 		}
 
 		//------------------------------------------------------------------------------
@@ -629,8 +636,8 @@ public:
 	/***************************************************************************/
 };
 
-// Declaration of specializations for std::vector<bool>
-template<> void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>&);
+// Declaration of specializations for specific types
+template<> void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>&, const bool&);
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -71,9 +71,10 @@ class GNumT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterT",	boost::serialization::base_object<GParameterT<T> >(*this))
-		   & BOOST_SERIALIZATION_NVP(lowerInitBoundary_)
-		   & BOOST_SERIALIZATION_NVP(upperInitBoundary_);
+		ar
+		& make_nvp("GParameterT",	boost::serialization::base_object<GParameterT<T> >(*this))
+		& BOOST_SERIALIZATION_NVP(lowerInitBoundary_)
+		& BOOST_SERIALIZATION_NVP(upperInitBoundary_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -337,6 +338,15 @@ protected:
 		upperInitBoundary_ = p_load->upperInitBoundary_;
 	}
 
+   /***************************************************************************/
+   /**
+    * Returns a "comparative range". This is e.g. used to make Gauss-adaption
+    * independent of a parameters value range
+    */
+   virtual T range() const OVERRIDE {
+      return upperInitBoundary_ - lowerInitBoundary_;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Creates a deep copy of this object. Purely virtual as this class
@@ -441,6 +451,10 @@ public:
 	}
 
 };
+
+/******************************************************************************/
+// Specialization for T==bool
+template<> bool GNumT<bool>::range() const;
 
 } /* namespace Geneva */
 } /* namespace Gem */

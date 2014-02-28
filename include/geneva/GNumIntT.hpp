@@ -122,8 +122,8 @@ public:
 	 * @param max The upper boundary for random entries
 	 */
 	GNumIntT(
-			const int_type& min
-			, const int_type& max
+      const int_type& min
+      , const int_type& max
 	)
 		: GNumT<int_type> (min, max)
 	{
@@ -140,9 +140,9 @@ public:
 	 * @param max The upper boundary for random entries
 	 */
 	GNumIntT(
-			const int_type& val
-			, const int_type& min
-			, const int_type& max
+      const int_type& val
+      , const int_type& min
+      , const int_type& max
 	)
 		: GNumT<int_type> (min, max)
 	{

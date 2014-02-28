@@ -121,10 +121,10 @@ public:
 	 * @param maxSigma The maximal value allowed for sigma_
 	 */
 	GNumGaussAdaptorT (
-			const fp_type& sigma
-			, const fp_type& sigmaSigma
-			, const fp_type& minSigma
-			, const fp_type& maxSigma
+      const fp_type& sigma
+      , const fp_type& sigmaSigma
+      , const fp_type& minSigma
+      , const fp_type& maxSigma
 	)
 		: GAdaptorT<num_type> ()
 		, sigma_(fp_type(DEFAULTSIGMA))
@@ -149,11 +149,11 @@ public:
 	 * @param probability The likelihood for a adaption actually taking place
 	 */
 	GNumGaussAdaptorT (
-			const fp_type& sigma
-			, const fp_type& sigmaSigma
-			, const fp_type& minSigma
-			, const fp_type& maxSigma
-			, const double& probability
+      const fp_type& sigma
+      , const fp_type& sigmaSigma
+      , const fp_type& minSigma
+      , const fp_type& maxSigma
+      , const double& probability
 	)
 		: GAdaptorT<num_type> (probability)
 		, sigma_(fp_type(DEFAULTSIGMA))
@@ -233,14 +233,17 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * This function sets the value of the sigma_ parameter.
+	 * This function sets the value of the sigma_ parameter. It is recommended
+    * that the value lies in the range [0.:1.]. A value below 0 is not allowed.
+    * Sigma is interpreted as a percentage of the allowed or desired value range
+    * of the target variable.
 	 *
 	 * @param sigma The new value of the sigma_ parameter
 	 */
 	void setSigma(const fp_type& sigma)
 	{
 		// Sigma must be in the allowed value range.
-		if(sigma < minSigma_ || sigma > maxSigma_)
+		if(sigma < minSigma_ || sigma > maxSigma_ || sigma < fp_type(0))
 		{
 		   glogger
 		   << "In GNumGaussAdaptorT::setSigma(const fp_type&):" << std::endl
@@ -267,34 +270,38 @@ public:
 	/***************************************************************************/
 	/**
 	 * Sets the allowed value range of sigma_. A minimum sigma of 0 will silently be adapted
-	 * to a very small value (DEFAULTMINSIGMA), as otherwise adaptions would stop entirely,
-	 * which does not make sense.  Using 0. as lower boundary is however allowed for practical
-	 * reasons. Note that this function will also adapt sigma itself, if it falls outside of the allowed
-	 * range.
+    * to a very small value (DEFAULTMINSIGMA), as otherwise adaptions would stop entirely,
+    * which does not make sense.  Using 0. as lower boundary is however allowed for practical
+    * reasons. Note that this function will also adapt sigma itself, if it falls outside of the
+    * allowed range. It is not recommended (but not enforced) to set a maxSigma > 1, as sigma
+    * is interpreted as a percentage of the allowed or desired value range of the target variable.
 	 *
 	 * @param minSigma The minimum allowed value of sigma_
 	 * @param maxSigma The maximum allowed value of sigma_
 	 */
-	void setSigmaRange(const fp_type& minSigma, const fp_type& maxSigma){
-		fp_type tmpMinSigma = minSigma;
+	void setSigmaRange(
+      const fp_type& minSigma
+      , const fp_type& maxSigma
+   ){
+	   using namespace Gem::Common;
 
-		// Silently adapt minSigma, if necessary. A value of 0. does not make sense.
-		if(tmpMinSigma>=fp_type(0.) && tmpMinSigma<fp_type(DEFAULTMINSIGMA)) tmpMinSigma = fp_type(DEFAULTMINSIGMA);
+      if(minSigma < fp_type(0.) || minSigma > maxSigma || maxSigma < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
+         glogger
+         << "In GNumBiGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
+         << "Invalid values for minSigma and maxSigma given: " << minSigma << " / " << maxSigma << std::endl
+         << GEXCEPTION;
+      }
 
-		// Do some error checks
-		if(tmpMinSigma<fp_type(0.) || tmpMinSigma >= maxSigma){
-		   glogger
-		   << "In GNumGaussAdaptorT<num_type, fp_type>::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
-		   << "Invalid values for minSigma and maxSigma given:" << tmpMinSigma << " " << maxSigma << std::endl
-		   << GEXCEPTION;
-		} // maxSigma will automatically be > 0. now
+      minSigma_ = minSigma;
+      maxSigma_ = maxSigma;
 
-		minSigma_ = tmpMinSigma;
-		maxSigma_ = maxSigma;
+      // Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
+      if(minSigma_ < fp_type(DEFAULTMINSIGMA)) {
+         minSigma_ = fp_type(DEFAULTMINSIGMA);
+      }
 
-		// Adapt sigma, if necessary
-		if(sigma_ < minSigma_) sigma_ = minSigma_;
-		else if(sigma_>maxSigma_) sigma_ = maxSigma_;
+      // Rectify sigma_, if necessary
+      enforceRangeConstraint(sigma_, minSigma_, maxSigma_);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -364,8 +371,12 @@ public:
 	 * @param minSigma The minimal value allowed for sigma_
 	 * @param minSigma The maximum value allowed for sigma_
 	 */
-	void setAll(const fp_type& sigma, const fp_type& sigmaSigma, const fp_type& minSigma, const fp_type& maxSigma)
-	{
+	void setAll(
+      const fp_type& sigma
+      , const fp_type& sigmaSigma
+      , const fp_type& minSigma
+      , const fp_type& maxSigma
+   )	{
 		setSigmaAdaptionRate(sigmaSigma);
 		setSigmaRange(minSigma, maxSigma);
 		setSigma(sigma);
@@ -426,10 +437,10 @@ protected:
 		GAdaptorT<num_type>::load_(cp);
 
 		// ... and then our own data
-		sigma_ = p_load->sigma_;
+		sigma_      = p_load->sigma_;
 		sigmaSigma_ = p_load->sigmaSigma_;
-		minSigma_ = p_load->minSigma_;
-		maxSigma_ = p_load->maxSigma_;
+		minSigma_   = p_load->minSigma_;
+		maxSigma_   = p_load->maxSigma_;
 	}
 
 	/***************************************************************************/
@@ -445,19 +456,19 @@ protected:
 	/**
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	 * algorithm to adapt to changing geometries of the quality surface.
+	 *
+	 * @param range A typical range for the parameter with type num_type (unused here)
 	 */
-	virtual void customAdaptAdaption() OVERRIDE {
+	virtual void customAdaptAdaption(const num_type&) OVERRIDE {
 	    using namespace Gem::Common;
 
 		// We do not want to favor the decrease or increase of sigma, hence we choose
-		// randomly whether to multiply or divide. TODO: cross-check.
-		if(sigmaSigma_ > fp_type(0.)) {
-		   sigma_ *= gexp(GAdaptorT<num_type>::gr->normal_distribution(sigmaSigma_)*(GAdaptorT<num_type>::gr->uniform_bool()?fp_type(1):fp_type(-1)));
-		}
+		// randomly whether to multiply or divide.
+	   // TODO: cross-check, if symmetric adaption makes sense
+      sigma_ *= gexp(GAdaptorT<num_type>::gr->normal_distribution(gfabs(sigmaSigma_))*(GAdaptorT<num_type>::gr->uniform_bool()?fp_type(1):fp_type(-1)));
 
 		// make sure sigma_ doesn't get out of range
-		if(sigma_ < minSigma_) sigma_ = minSigma_;
-		else if(sigma_ > maxSigma_) sigma_ = maxSigma_;
+      enforceRangeConstraint(sigma_, minSigma_, maxSigma_);
 	}
 
 	/***************************************************************************/
@@ -467,7 +478,7 @@ protected:
 	 *
 	 * @param value The value that is going to be adapted in situ
 	 */
-	virtual void customAdaptions(num_type&) = 0;
+	virtual void customAdaptions(num_type&, const num_type&) = 0;
 
    /***************************************************************************/
    /**
@@ -627,7 +638,7 @@ public:
 			std::size_t maxCounter = 0;
 			std::size_t maxMaxCounter = 500;
 			for(std::size_t i=0; i<nTests; i++) {
-				BOOST_CHECK_NO_THROW(p_test->adaptAdaption());
+				BOOST_CHECK_NO_THROW(p_test->adaptAdaption(num_type(1)));
 				BOOST_CHECK(newSigma = p_test->getSigma());
 				BOOST_CHECK(newSigma >= minSigma && newSigma <= maxSigma);
 

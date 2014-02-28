@@ -70,8 +70,9 @@ class GParameterT
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GParameterBaseWithAdaptors_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this))
-	     & BOOST_SERIALIZATION_NVP(val_);
+	  ar
+	  & make_nvp("GParameterBaseWithAdaptors_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this))
+	  & BOOST_SERIALIZATION_NVP(val_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -88,17 +89,6 @@ public:
 
    /***************************************************************************/
 	/**
-	 * The copy constructor.
-	 *
-	 * @param cp A copy of another GParameterT<T> object
-	 */
-	GParameterT(const GParameterT<T>& cp)
-	   : GParameterBaseWithAdaptorsT<T>(cp)
-	   , val_(cp.val_)
-	{ /* nothing */   }
-
-   /***************************************************************************/
-	/**
 	 * Initialization by contained value.
 	 *
 	 * @param val The new value of val_
@@ -107,6 +97,32 @@ public:
 	   : GParameterBaseWithAdaptorsT<T>()
 	   , val_(val)
 	{ /* nothing */   }
+
+   /***************************************************************************/
+	/**
+	 * Initialization with boundaries
+	 *
+    * @param lowerBoundary Lower boundary of value- or initialization range
+    * @param upperBoundary Upper boundary of value- or initialization range
+	 */
+   GParameterT(
+      const T& lowerBoundary
+      , const T& upperBoundary
+   )
+      : GParameterBaseWithAdaptorsT<T>(lowerBoundary, upperBoundary)
+      , val_(Gem::Common::GDefaultValueT<T>())
+   { /* nothing */   }
+
+   /***************************************************************************/
+   /**
+    * The copy constructor.
+    *
+    * @param cp A copy of another GParameterT<T> object
+    */
+   GParameterT(const GParameterT<T>& cp)
+      : GParameterBaseWithAdaptorsT<T>(cp)
+      , val_(cp.val_)
+   { /* nothing */   }
 
    /***************************************************************************/
 	/**
@@ -255,7 +271,10 @@ public:
 	 * Allows to adapt the value stored in this class.
 	 */
 	virtual void adaptImpl() OVERRIDE {
-		GParameterBaseWithAdaptorsT<T>::applyAdaptor(val_);
+		GParameterBaseWithAdaptorsT<T>::applyAdaptor(
+         val_
+         , this->range()
+      );
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -344,8 +363,7 @@ protected:
 	}
 
 	/***************************************************************************/
-	/**
-	 * @brief Creates a deep clone of this object */
+	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 	/** @brief Triggers random initialization of the parameter(-collection) */
 	virtual void randomInit_() = 0;

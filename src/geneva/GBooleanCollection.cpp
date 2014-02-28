@@ -195,6 +195,15 @@ void GBooleanCollection::randomInit(const double& probability) {
    if(!GParameterBase::randomInitializationBlocked()) randomInit_(probability);
 }
 
+/***************************************************************************/
+/**
+ * Returns a "comparative range". In the case of boolean values this must
+ * be considered to be more of a "dummy".
+ */
+bool GBooleanCollection::range() const {
+   return true;
+}
+
 /******************************************************************************/
 /**
  * Checks for equality with another GBooleanCollection object

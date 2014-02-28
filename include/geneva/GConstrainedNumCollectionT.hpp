@@ -103,15 +103,15 @@ public:
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	GConstrainedNumCollectionT(
-			const std::size_t size
-			, const num_type& lowerBoundary
-			, const num_type& upperBoundary
+      const std::size_t size
+      , const num_type& lowerBoundary
+      , const num_type& upperBoundary
 	)
 		: GParameterCollectionT<num_type> (size, lowerBoundary)
 		, lowerBoundary_(lowerBoundary)
 		, upperBoundary_(upperBoundary)
 	{
-		// Naturally the upper boundary should be > the lower boundary
+		// Naturally the upper boundary should be >= the lower boundary
 		if(lowerBoundary_ > upperBoundary_) {
 			std:: cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, lower,upper):" << std::endl
 					   << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
@@ -430,6 +430,15 @@ protected:
 		upperBoundary_ = p_load->upperBoundary_;
 	}
 
+   /***************************************************************************/
+   /**
+    * Returns a "comparative range". This is e.g. used to make Gauss-adaption
+    * independent of a parameters value range
+    */
+   virtual num_type range() const {
+      return upperBoundary_ - lowerBoundary_;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Creates a deep copy of this object. Purely virtual as this class
@@ -512,6 +521,9 @@ public:
 };
 
 /******************************************************************************/
+
+// Specialization for T==bool
+template<> bool GConstrainedNumCollectionT<bool>::range() const;
 
 } /* namespace Geneva */
 } /* namespace Gem */

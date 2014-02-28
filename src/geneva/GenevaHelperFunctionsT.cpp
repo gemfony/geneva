@@ -38,10 +38,8 @@
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 /**

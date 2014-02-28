@@ -125,6 +125,22 @@ struct GConstrainedValueLimitT<boost::int32_t>
 };
 
 /******************************************************************************/
+/**
+ * Specialization of GConstrainedValueLimitT for bool values.
+ */
+template <>
+struct GConstrainedValueLimitT<bool>
+{
+   static bool highest() {
+      return true;
+   }
+
+   static bool lowest() {
+      return false;
+   }
+};
+
+/******************************************************************************/
 
 } /* Geneva */
 } /* Gem */

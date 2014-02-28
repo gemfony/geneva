@@ -270,12 +270,12 @@ public:
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject& cp
-			, const Gem::Common::expectation& e
-			, const double& limit
-			, const std::string& caller
-			, const std::string& y_name
-			, const bool& withMessages
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
 	) const OVERRIDE {
 	    using namespace Gem::Common;
 
@@ -590,6 +590,15 @@ protected:
 		upperBoundary_ = p_load->upperBoundary_;
 	}
 
+   /***************************************************************************/
+   /**
+    * Returns a "comparative range". This is e.g. used to make Gauss-adaption
+    * independent of a parameters value range
+    */
+   virtual T range() const {
+      return upperBoundary_ - lowerBoundary_;
+   }
+
 	/***************************************************************************/
 	/** @brief Create a deep copy of this object. */
 	virtual GObject *clone_() const = 0;
@@ -598,6 +607,7 @@ protected:
 
 private:
 	/***************************************************************************/
+
 	T lowerBoundary_; ///< The lower allowed boundary for our value
 	T upperBoundary_; ///< The upper allowed boundary for our value
 
@@ -848,6 +858,10 @@ public:
 	/***************************************************************************/
 
 };
+
+/******************************************************************************/
+// Specialization for T==bool
+template<> bool GConstrainedNumT<bool>::range() const;
 
 } /* namespace Geneva */
 } /* namespace Gem */

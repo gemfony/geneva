@@ -103,12 +103,12 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-	      const GObject&
-	      , const Gem::Common::expectation&
-	      , const double&
-	      , const std::string&
-	      , const std::string&
-	      , const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
 	/** @brief Attach our local value to the vector. */
@@ -138,6 +138,9 @@ protected:
 	virtual void randomInit_() OVERRIDE;
 	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
 	void randomInit_(const double&);
+
+	/** @brief Returns a "comparative range" for this type */
+	virtual bool range() const OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

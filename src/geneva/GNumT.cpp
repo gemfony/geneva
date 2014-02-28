@@ -1,5 +1,5 @@
 /**
- * @file GParameterBaseWithAdaptorsT.cpp
+ * @file GNumT.cpp
  */
 
 /*
@@ -32,45 +32,21 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/GParameterBaseWithAdaptorsT.hpp"
+#include "geneva/GNumT.hpp"
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
-/////////////////////////// Specializations for T == bool //////////////////////
-/******************************************************************************/
 /**
- * This function applies the first adaptor of the adaptor sequence to a collection of values.
- * Note that the parameter of this function will get changed. This is a specialization of a
- * generic template function which is needed due to the peculiarities of a std::vector<bool>
- * (which doesn't return a bool but an object).
- *
- * @param collection A vector of values that shall be adapted
+ * Returns a "comparative range". Specialization for T==bool;
  */
 template<>
-void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
-   std::vector<bool>& collection
-   , const bool& range
-) {
-#ifdef DEBUG
-		if(!adaptor_) {
-		   glogger
-		   << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
-         << "Error: No adaptor was found." << std::endl
-         << GEXCEPTION;
-		}
-#endif /* DEBUG */
-
-	std::vector<bool>::iterator it;
-	for (it = collection.begin(); it != collection.end(); ++it)	{
-		bool value = *it;
-		adaptor_->adapt(value, range);
-		*it = value;
-	}
+bool GNumT<bool>::range() const {
+   return true;
 }
 
 /******************************************************************************/
 
-} /* namespace Geneva  */
+} /* namespace Geneva */
 } /* namespace Gem */

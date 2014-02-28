@@ -207,8 +207,9 @@ Gem::Geneva::adaptorId GBooleanAdaptor::getAdaptorId() const {
  * The actual adaption logic
  *
  * @param value The parameter to be adapted
+ * @param range A typical range for the parameter with type bool (unused)
  */
-void GBooleanAdaptor::customAdaptions(bool& value) {
+void GBooleanAdaptor::customAdaptions(bool& value, const bool&) {
 	value==true?value=false:value=true;
 }
 

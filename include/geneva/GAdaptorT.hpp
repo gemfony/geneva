@@ -442,17 +442,20 @@ public:
 	 * specifies the actual actions in the customAdaptions() function.
 	 *
 	 * @param val The value that needs to be adapted
+	 * @param range A typical value range for type T
 	 */
-	void adapt(T& val) {
-		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate
+	void adapt(
+      T& val
+      , const T& range
+   ) {
+		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
 			if(gr->uniform_01<double>() <= adProb_) { // Should we perform adaption
-				adaptAdaption();
-				customAdaptions(val);
+				adaptAdaption(range);
+				customAdaptions(val, range);
 			}
-		}
-		else if(adaptionMode_) { // always adapt
-			adaptAdaption();
-			customAdaptions(val);
+		} else if(true == adaptionMode_) { // always adapt
+			adaptAdaption(range);
+			customAdaptions(val, range);
 		}
 
 		// No need to test for adaptionMode_ == false as no action is needed in this case
@@ -471,8 +474,7 @@ public:
 	 * @param nStalls The number of consecutive stalls up to this point
 	 * @return A boolean indicating whether updates were performed
 	 */
-	virtual bool updateOnStall(const std::size_t& nStalls) BASE
-	{
+	virtual bool updateOnStall(const std::size_t& nStalls) BASE {
 #ifdef DEBUG
 	   if(0 == nStalls) {
 	      glogger
@@ -620,38 +622,42 @@ protected:
 	}
 
 	/***************************************************************************/
-	/** @brief Creates a deep copy of this object */
-	virtual GObject *clone_(void) const = 0;
-
-	/***************************************************************************/
-	/**
-	 * 	This function is re-implemented by derived classes, if they wish to
-	 *  implement special behavior upon a new adaption run. E.g., an internal
-	 *  variable could be set to a new value.
-	 */
-	virtual void customAdaptAdaption() { /* nothing */ }
-
-	/***************************************************************************/
 	/**
 	 * This function helps to adapt the adaption parameters, if certain conditions are met.
+	 *
+	 *  @param range A typical range for the parameter with type T
 	 */
-	void adaptAdaption() {
+	void adaptAdaption(const T& range) {
 		// The adaption parameters are modified every adaptionThreshold_ number of adaptions.
-		if(adaptionThreshold_) {
+		if(adaptionThreshold_ > 0) {
 			if(++adaptionCounter_ >= adaptionThreshold_){
 				adaptionCounter_ = 0;
-				customAdaptAdaption();
+				customAdaptAdaption(range);
 			}
 		} else if(adaptAdaptionProbability_) { // Do the same with probability settings
 			if(gr->uniform_01<double>() <= adaptAdaptionProbability_) {
-				customAdaptAdaption();
+				customAdaptAdaption(range);
 			}
 		}
 	}
 
+   /***************************************************************************/
+   /**
+    *  This function is re-implemented by derived classes, if they wish to
+    *  implement special behavior for a new adaption run. E.g., an internal
+    *  variable could be set to a new value.
+    *
+    *  @param range A typical range for the parameter with type T
+    */
+   virtual void customAdaptAdaption(const T&) { /* nothing */ }
+
 	/***************************************************************************/
+
 	/** @brief Adaption of values as specified by the user */
-	virtual void customAdaptions(T& val)=0;
+	virtual void customAdaptions(T&, const T&) = 0;
+
+   /** @brief Creates a deep copy of this object */
+   virtual GObject *clone_(void) const = 0;
 
 private:
 	/***************************************************************************/
@@ -748,7 +754,7 @@ public:
 				if(prob > 1.) prob = 1.;
 
 				BOOST_CHECK_NO_THROW(p_test->setAdaptionProbability(prob));
-				BOOST_CHECK_NO_THROW(p_test->adapt(testVal));
+				BOOST_CHECK_NO_THROW(p_test->adapt(testVal, T(1)));
 			}
 		}
 
@@ -776,7 +782,7 @@ public:
 
 				// Mutating a boolean value a number of times should now result in a certain number of changed values
 				for(std::size_t i=0; i<nTests; i++) {
-					p_test->adapt(testVal);
+					p_test->adapt(testVal, T(1));
 					if(testVal != prevTestVal) {
 						nChanged++;
 						prevTestVal=testVal;
@@ -853,7 +859,7 @@ public:
 			T currentValue = T(0);
 			T oldValue = currentValue;
 			for(std::size_t i=0; i<nTests; i++) {
-				p_test->adapt(currentValue);
+				p_test->adapt(currentValue, T(1));
 				BOOST_CHECK_MESSAGE (
 						currentValue == oldValue
 						,  "\n"
@@ -869,7 +875,7 @@ public:
 			currentValue = T(0);
 			oldValue = currentValue;
 			for(std::size_t i=0; i<nTests; i++) {
-				p_test->adapt(currentValue);
+				p_test->adapt(currentValue, T(1));
 				BOOST_CHECK_MESSAGE (
 						currentValue != oldValue
 						,  "\n"
@@ -946,7 +952,7 @@ public:
 				// adapting a value a number of times > adThr
 				for(boost::uint32_t adCnt=0; adCnt<3*adThr; adCnt++) {
 					// Do the actual adaption
-					p_test->adapt(testVal);
+					p_test->adapt(testVal, T(1));
 
 					// Check that testVal has indeed been adapted
 					BOOST_CHECK_MESSAGE(
@@ -1002,7 +1008,7 @@ public:
 
 			// Check that we have adaption powers when using a local random number generator
 			for(std::size_t i=0; i<1000; i++) {
-				p_test->adapt(testVal);
+				p_test->adapt(testVal, T(1));
 				BOOST_CHECK_MESSAGE(
 						testVal != oldTestVal
 						,  "(1)\n"
@@ -1025,7 +1031,7 @@ public:
 			testVal = T(0);
 			oldTestVal = T(0);
 			for(std::size_t i=0; i<1000; i++) {
-				BOOST_CHECK_NO_THROW(p_test->adapt(testVal));
+				BOOST_CHECK_NO_THROW(p_test->adapt(testVal, T(1)));
 				BOOST_CHECK_MESSAGE(
 						testVal != oldTestVal
 						,  "(2)\n"
@@ -1049,13 +1055,13 @@ public:
 			testVal = T(0);
 			oldTestVal = T(0);
 			for(std::size_t i=0; i<1000; i++) {
-				p_test->adapt(testVal);
+				p_test->adapt(testVal, T(1));
 				BOOST_CHECK_MESSAGE(
-						testVal != oldTestVal
-						,  "(3)\n"
-						<< "testVal = " << testVal << "\n"
-						<< "oldTestVal = " << oldTestVal << "\n"
-						<< "iteration = " << i << "\n"
+               testVal != oldTestVal
+               ,  "(3)\n"
+               << "testVal = " << testVal << "\n"
+               << "oldTestVal = " << oldTestVal << "\n"
+               << "iteration = " << i << "\n"
 				);
 				oldTestVal = testVal;
 			}
@@ -1071,14 +1077,14 @@ public:
 			T testVal = T(0);
 			T oldTestVal = T(0);
 			for(std::size_t i=0; i<nTests; i++) {
-				BOOST_CHECK_NO_THROW(p_test->customAdaptions(testVal));
+				BOOST_CHECK_NO_THROW(p_test->customAdaptions(testVal, T(1)));
 				BOOST_CHECK_MESSAGE(
-						testVal != oldTestVal
-						,  "\n"
-						<< "Found identical values after adaption took place" << "\n"
-						<< "testVal = " << testVal << "\n"
-						<< "oldTestVal = " << oldTestVal << "\n"
-						<< "iteration = " << i << "\n"
+               testVal != oldTestVal
+               ,  "\n"
+               << "Found identical values after adaption took place" << "\n"
+               << "testVal = " << testVal << "\n"
+               << "oldTestVal = " << oldTestVal << "\n"
+               << "iteration = " << i << "\n"
 				);
 				oldTestVal = testVal;
 			}

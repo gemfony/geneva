@@ -76,10 +76,10 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& adProb)
  * @param maxSigma The maximal value allowed for sigma_
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(
-		const double& sigma
-		, const double& sigmaSigma
-		, const double& minSigma
-		, const double& maxSigma
+   const double& sigma
+   , const double& sigmaSigma
+   , const double& minSigma
+   , const double& maxSigma
 )
 	: GFPGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma)
 { /* nothing */ }
@@ -96,11 +96,11 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(
  * @param adProb The adaption probability
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(
-		const double& sigma
-		, const double& sigmaSigma
-		, const double& minSigma
-		, const double& maxSigma
-		, const double& adProb
+   const double& sigma
+   , const double& sigmaSigma
+   , const double& minSigma
+   , const double& maxSigma
+   , const double& adProb
 )
 	: GFPGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
 { /* nothing */ }
@@ -174,12 +174,12 @@ bool GDoubleGaussAdaptor::operator!=(const GDoubleGaussAdaptor& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GDoubleGaussAdaptor::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 

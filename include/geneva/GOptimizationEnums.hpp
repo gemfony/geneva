@@ -425,19 +425,19 @@ const bool DEFAULTMARKOLDPARENTS = false;
 
 /******************************************************************************/
 
-const double DEFAULTSIGMA = 1; ///< Default start value for sigma_
-const double DEFAULTINT32SIGMA = 5; ///< Default sigma start value for GInt32GaussAdaptor
+const double DEFAULTSIGMA = 0.1; ///< Default start value for sigma_
+const double DEFAULTINT32SIGMA = 0.1; ///< Default sigma start value for GInt32GaussAdaptor
 const double DEFAULTSIGMASIGMA = 0.8; ///< Default width of the gaussian used for sigma adaption
-const double DEFAULTMINSIGMA = 0.0001; ///< Default minimum allowed value for sigma_
-const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_
-const double DEFAULTDELTA = 1; ///< Default value of distance between two gaussians in GNumBiGaussAdaptorT
+const double DEFAULTMINSIGMA = 0.001; ///< Default minimum allowed value for sigma_
+const double DEFAULTMAXSIGMA = 1; ///< Default maximum allowed value for sigma_
+const double DEFAULTDELTA = 0.2; ///< Default value of distance between two gaussians in GNumBiGaussAdaptorT
 const double DEFAULTSIGMADELTA = 0.8; ///< Default width of the gaussian used for delta adaption in GNumBiGaussAdaptorT
 const double DEFAULTMINDELTA = 0.; ///< Default minimum value of distance between two gaussians in GNumBiGaussAdaptorT
-const double DEFAULTMAXDELTA = 0.; ///< Default maximum value of distance between two gaussians in GNumBiGaussAdaptorT
+const double DEFAULTMAXDELTA = 0.5; ///< Default maximum value of distance between two gaussians in GNumBiGaussAdaptorT
 const double DEFAULTBITADPROB = 0.05; // 5 percent adaption probability for bits
 const double DEFAULTADPROB = 1.0; // 100 percent adaption probability for all other cases
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD = 1; // Adaption parameters should be adapted whenever an adaption takes place
-const double DEFAULTADAPTADAPTIONPROB = 0.; // 0 percent probability for the adaption of adaption parameters
+const double DEFAULTADAPTADAPTIONPROB = 0.1; // 10 percent probability for the adaption of adaption parameters
 
 /******************************************************************************/
 // Adaption modes

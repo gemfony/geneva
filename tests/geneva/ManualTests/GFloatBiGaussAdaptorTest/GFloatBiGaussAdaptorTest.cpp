@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
 	for (boost::uint32_t i = 0; i < maxIter; i++) {
 		mutValOld = mutVal;
 
-		gfdga_ptr->adapt(mutVal);
+		gfdga_ptr->adapt(mutVal, float(1));
 
 		(*gmutpar_iter_ptr) & boost::tuple<float, float>((float)i, (float)mutVal); // The new value of sigma
 		(*gmutpardiff_iter_ptr) & boost::tuple<float, float>((float)i, (float)(mutVal - mutValOld)); // Difference between last known value and current value

@@ -232,48 +232,21 @@ protected:
 	 * The actual adaption of the supplied value takes place here.
 	 *
 	 * @param value The value that is going to be adapted in situ
+	 * @param range A typical range for the parameter with type num_type
 	 */
-	virtual void customAdaptions(int_type& value) OVERRIDE {
-		// adapt the value in situ. Note that this changes
-		// the argument of this function
-#if defined (DEBUG)
-		int_type addition = boost::numeric_cast<int_type>(this->gr->normal_distribution(GNumGaussAdaptorT<int_type, double>::sigma_));
-#else
-		int_type addition = static_cast<int_type>(this->gr->normal_distribution(GNumGaussAdaptorT<int_type, double>::sigma_));
-#endif /* DEBUG */
+	virtual void customAdaptions(
+      int_type& value
+      , const int_type& range
+   ) OVERRIDE {
+	   // Calculate a suitable addition to the current parameter value
+		int_type addition = static_cast<int_type>(static_cast<double>(range) * this->gr->normal_distribution(this->getSigma()));
 
 		if(addition == 0) { // Enforce a minimal change of 1.
-			this->gr->uniform_bool()?(addition=1):(addition=-1);
+			addition = this->gr->uniform_bool()?1:-1;
 		}
 
-#if defined (CHECKOVERFLOWS)
-		// Prevent over- and underflows.
-		if(value >= 0){
-			if(addition >= 0 && (boost::numeric::bounds<int_type>::highest()-value < addition)) {
-#ifdef DEBUG
-				std::cout << "Warning in GInt32GaussAdaptor::customAdaptions():"
-						  << "Had to change adaption due to overflow" << std::endl
-						  << "addition = " << addition << std::endl
-						  << "value = " << value << std::endl
-						  << "boost::numeric::bounds<int_type>::highest() = " << boost::numeric::bounds<int_type>::highest() << std::endl;
-#endif
-				addition *= -1;
-			}
-		}
-		else { // value < 0
-			if(addition < 0 && (Gem::Common::GIabs(boost::numeric::bounds<int_type>::lowest()-value) < Gem::Common::GIabs(addition))) {
-#ifdef DEBUG
-				std::cout << "Warning in GInt32GaussAdaptor::customAdaptions():"
-						  << "Had to change adaption due to underflow" << std::endl
-						  << "addition = " << addition << std::endl
-						  << "value = " << value << std::endl
-						  << "boost::numeric::bounds<int_type>::lowest() = " << boost::numeric::bounds<int_type>::lowest() << std::endl;
-#endif
-				addition *= -1;
-			}
-		}
-#endif /* CHECKOVERFLOWS  */
-
+      // adapt the value in situ. Note that this changes
+      // the argument of this function
 		value += addition;
 	}
 

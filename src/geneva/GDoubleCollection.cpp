@@ -431,7 +431,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test of GParameterT<T>::swap(const GParameterT<T>&)
+	{ // Test of GParameterCollectionT<T>::swap(const GParameterCollectionT<T>&)
 		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 		boost::shared_ptr<GDoubleCollection> p_test2 = this->clone<GDoubleCollection>();
 		boost::shared_ptr<GDoubleCollection> p_test3 = this->clone<GDoubleCollection>();
@@ -466,8 +466,13 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 			// Swap the data of p_test2 and p_test1
 			BOOST_CHECK_NO_THROW(p_test2->swap(*p_test1));
 
-			// Now p_test1 and p_test3 should be the same, while p_test2 differs from both
-			BOOST_CHECK(*p_test1 == *p_test3);
+			// Extract the data vectors from p_test1 and p_test3
+			std::vector<double> data1, data3;
+			BOOST_CHECK_NO_THROW(p_test1->GStdSimpleVectorInterfaceT<double>::getDataCopy(data1));
+			BOOST_CHECK_NO_THROW(p_test3->GStdSimpleVectorInterfaceT<double>::getDataCopy(data3));
+
+			// Now p_test1->data  and p_test3->data should be the same, while p_test2 differs from both
+			BOOST_CHECK(data1 == data3);
 			BOOST_CHECK(*p_test2 != *p_test1);
 			BOOST_CHECK(*p_test2 != *p_test3);
 		}

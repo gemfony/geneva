@@ -33,7 +33,6 @@
  */
 
 
-
 // Standard headers go here
 
 // Boost headers go here
@@ -133,12 +132,12 @@ public:
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject& cp
-			, const Gem::Common::expectation& e
-			, const double& limit
-			, const std::string& caller
-			, const std::string& y_name
-			, const bool& withMessages
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
 	) const OVERRIDE	{
 	    using namespace Gem::Common;
 
@@ -196,102 +195,31 @@ protected:
 	 * The actual adaption of the supplied value takes place here
 	 *
 	 * @param value The value that is going to be adapted in situ
+	 * @param range A typical range for the parameter with type num_type
 	 */
-	virtual void customAdaptions(fp_type& value) OVERRIDE {
+	virtual void customAdaptions(
+      fp_type& value
+      , const fp_type& range
+   ) OVERRIDE {
 		if(GNumBiGaussAdaptorT<fp_type, fp_type>::useSymmetricSigmas_) { // Should we use the same sigma for both gaussians ?
 			// adapt the value in situ. Note that this changes
 			// the argument of this function
-#if defined (CHECKOVERFLOWS)
-			// Prevent over- and underflows. Note that we currently do not check the
-			// size of "addition" in comparison to "value".
-			fp_type addition = this->gr->bi_normal_distribution(
-						fp_type(0.)
-						, GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
-						, GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
+			value
+			+= range * this->gr->bi_normal_distribution(
+            fp_type(0.)
+            , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
+            , GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
 			);
-
-			if(value >= fp_type(0.)){
-				if(addition >= fp_type(0.) && (boost::numeric::bounds<fp_type>::highest()-value < addition)) {
-#ifdef DEBUG
-					std::cout << "Warning in GFPBiGaussAdaptor<fp_type>::customAdaptions():"
-							  << "Had to change adaption due to overflow" << std::endl
-							  << "value = " << value << std::endl
-							  << "addition = " << addition << std::endl
-							  << "boost::numeric::bounds<fp_type>::highest() = " << boost::numeric::bounds<fp_type>::highest() << std::endl;
-#endif
-					addition *= fp_type(-1.);
-				}
-			}
-			else { // value < 0
-				if(addition < fp_type(0.) && (Gem::Common::GFabs(boost::numeric::bounds<fp_type>::lowest() - value) < Gem::Common::GFabs(addition))) {
-#ifdef DEBUG
-					std::cout << "Warning in GFPGaussAdaptorT<fp_type>::customAdaptions():" << std::endl
-							  << "Had to change adaption due to underflow" << std::endl
-							  << "value = " << value << std::endl
-							  << "addition = " << addition << std::endl
-							  << "boost::numeric::bounds<fp_type>::lowest() = " << boost::numeric::bounds<fp_type>::lowest() << std::endl;
-#endif
-					addition *= fp_type(-1.);
-				}
-			}
-
-			value += addition;
-#else
-			// We do not check for over- or underflows for performance reasons.
-			value += this->gr->bi_normal_distribution(
-					fp_type(0.)
-					, GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
-					, GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
-			);
-#endif /* CHECKOVERFLOWS */
 		} else { // We allow asymmetric sigmas, i.e. different widths of both gaussians
 			// adapt the value in situ. Note that this changes
 			// the argument of this function
-#if defined (CHECKOVERFLOWS)
-			// Prevent over- and underflows. Note that we currently do not check the
-			// size of "addition" in comparison to "value".
-			fp_type addition = this->gr->bi_normal_distribution(
-						fp_type(0.)
-						, GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
-						, GNumBiGaussAdaptorT<fp_type, fp_type>::sigma2_
-						, GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
+			value
+			+= range * this->gr->bi_normal_distribution(
+            fp_type(0.)
+            , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
+            , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma2_
+            , GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
 			);
-
-			if(value >= fp_type(0.)){
-				if(addition >= fp_type(0.) && (boost::numeric::bounds<fp_type>::highest()-value < addition)) {
-#ifdef DEBUG
-					std::cout << "Warning in GFPBiGaussAdaptor<fp_type>::customAdaptions():"
-							  << "Had to change adaption due to overflow" << std::endl
-							  << "value = " << value << std::endl
-							  << "addition = " << addition << std::endl
-							  << "boost::numeric::bounds<fp_type>::highest() = " << boost::numeric::bounds<fp_type>::highest() << std::endl;
-#endif
-					addition *= fp_type(-1.);
-				}
-			}
-			else { // value < 0
-				if(addition < fp_type(0.) && (Gem::Common::GFabs(boost::numeric::bounds<fp_type>::lowest() - value) < Gem::Common::GFabs(addition))) {
-#ifdef DEBUG
-					std::cout << "Warning in GFPGaussAdaptorT<fp_type>::customAdaptions():" << std::endl
-							  << "Had to change adaption due to underflow" << std::endl
-							  << "value = " << value << std::endl
-							  << "addition = " << addition << std::endl
-							  << "boost::numeric::bounds<fp_type>::lowest() = " << boost::numeric::bounds<fp_type>::lowest() << std::endl;
-#endif
-					addition *= fp_type(-1.);
-				}
-			}
-
-			value += addition;
-#else
-			// We do not check for over- or underflows for performance reasons.
-			value += this->gr->bi_normal_distribution(
-					fp_type(0.)
-					, GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
-					, GNumBiGaussAdaptorT<fp_type, fp_type>::sigma2_
-					, GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
-			);
-#endif /* CHECKOVERFLOWS */
 		}
 	}
 
