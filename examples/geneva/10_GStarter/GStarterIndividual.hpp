@@ -84,10 +84,10 @@ std::istream& operator>>(std::istream&, Gem::Geneva::targetFunction&);
 /******************************************************************************/
 // A number of default settings for the factory
 const double GSI_DEF_ADPROB = 1.0;
-const double GSI_DEF_SIGMA = 0.5;
+const double GSI_DEF_SIGMA = 0.025;
 const double GSI_DEF_SIGMASIGMA = 0.8;
 const double GSI_DEF_MINSIGMA = 0.001;
-const double GSI_DEF_MAXSIGMA = 2;
+const double GSI_DEF_MAXSIGMA = 1;
 const targetFunction GO_DEF_TARGETFUNCTION = boost::numeric_cast<targetFunction>(0);
 
 /******************************************************************************/

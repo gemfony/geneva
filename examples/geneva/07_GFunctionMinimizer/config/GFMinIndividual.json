@@ -13,8 +13,8 @@
     "sigma":
     {
         "comment": "The sigma for gauss-adaption in ES",
-        "default": "0.5",
-        "value": "0.5"
+        "default": "0.025",
+        "value": "0.025"
     },
     "sigmaSigma":
     {
@@ -26,13 +26,13 @@
     {
         "comment": "The minimum amount value of sigma",
         "default": "0.001",
-        "value": "0.0001"
+        "value": "0.001"
     },
     "maxSigma":
     {
         "comment": "The maximum amount value of sigma",
-        "default": "2",
-        "value": "2"
+        "default": "1",
+        "value": "1"
     },
     "parDim":
     {

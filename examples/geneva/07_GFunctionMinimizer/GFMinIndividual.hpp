@@ -82,10 +82,10 @@ std::istream& operator>>(std::istream&, Gem::Geneva::targetFunction&);
 /******************************************************************************/
 // A number of default settings for the factory
 const double GFI_DEF_ADPROB = 1.0;
-const double GFI_DEF_SIGMA = 0.5;
+const double GFI_DEF_SIGMA = 0.025;
 const double GFI_DEF_SIGMASIGMA = 0.8;
 const double GFI_DEF_MINSIGMA = 0.001;
-const double GFI_DEF_MAXSIGMA = 2;
+const double GFI_DEF_MAXSIGMA = 1;
 const std::size_t GFI_DEF_PARDIM = 2;
 const double GFI_DEF_MINVAR = -10.;
 const double GFI_DEF_MAXVAR = 10.;

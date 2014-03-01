@@ -26,8 +26,8 @@
     {
         "comment": "The sigma for gauss-adaption in ES",
         "comment": "(or the sigma of the left peak of a double gaussian)",
-        "default": "0.5",
-        "value": "0.5"
+        "default": "0.025",
+        "value": "0.025"
     },
     "sigmaSigma1":
     {
@@ -44,14 +44,14 @@
     "maxSigma1":
     {
         "comment": "The maximum value of sigma1",
-        "default": "2",
-        "value": "2"
+        "default": "1",
+        "value": "1"
     },
     "sigma2":
     {
         "comment": "The sigma of the right peak of a double gaussian (if any)",
-        "default": "0.5",
-        "value": "0.5"
+        "default": "0.025",
+        "value": "0.025"
     },
     "sigmaSigma2":
     {
@@ -68,14 +68,14 @@
     "maxSigma2":
     {
         "comment": "The maximum value of sigma2",
-        "default": "2",
-        "value": "2"
+        "default": "1",
+        "value": "1"
     },
     "delta":
     {
         "comment": "The start distance between both peaks used for bi-gaussian mutations in ES",
-        "default": "0.5",
-        "value": "0.5"
+        "default": "0.025",
+        "value": "0.025"
     },
     "sigmaDelta":
     {
@@ -93,13 +93,13 @@
     {
         "comment": "The maximum allowed value of delta",
         "default": "2",
-        "value": "2"
+        "value": "0.5"
     },
     "parDim":
     {
         "comment": "The number of dimensions used for the demo function",
         "default": "2",
-        "value": "2"
+        "value": "5"
     },
     "minVar":
     {
@@ -152,6 +152,6 @@
         "comment": "6: Salomon",
         "comment": "[GFunctionIndividual]",
         "default": "0",
-        "value": "3"
+        "value": "0"
     }
 }

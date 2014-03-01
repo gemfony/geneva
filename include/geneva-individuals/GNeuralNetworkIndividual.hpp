@@ -334,10 +334,10 @@ typedef Gem::Common::GSingletonT<Gem::Geneva::networkData> GDatStore;
 // A number of default settings for the factory
 const std::string      GNN_DEF_DATAFILE="./Datasets/hyper_sphere.dat";
 const double           GNN_DEF_ADPROB = 1.;
-const double           GNN_DEF_SIGMA = 0.5;
+const double           GNN_DEF_SIGMA = 0.025;
 const double           GNN_DEF_SIGMASIGMA = 0.8;
 const double           GNN_DEF_MINSIGMA = 0.001;
-const double           GNN_DEF_MAXSIGMA = 2;
+const double           GNN_DEF_MAXSIGMA = 1;
 const double           GNN_DEF_MINVAR = -1.;
 const double           GNN_DEF_MAXVAR = 1.;
 const transferFunction GNN_DEF_TRANSFER = SIGMOID;
