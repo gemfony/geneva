@@ -49,6 +49,10 @@ GTestIndividual1::GTestIndividual1()
    // Fill with some data
    boost::shared_ptr<Gem::Geneva::GDoubleCollection > gdc_ptr(new Gem::Geneva::GDoubleCollection(100, -10., 10.));
    boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga1(new Gem::Geneva::GDoubleGaussAdaptor(1.,0.6,0.,2.));
+
+   // Prevent changes to adProb_
+   gdga1->setAdaptAdProb(0.);
+
    gdc_ptr->addAdaptor(gdga1);
    gdc_ptr->randomInit();
    this->push_back(gdc_ptr);

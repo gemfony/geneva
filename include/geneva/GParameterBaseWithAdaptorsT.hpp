@@ -406,7 +406,17 @@ public:
 	 * @return A boolean indicating whether updates were performed
 	 */
 	virtual bool updateAdaptorsOnStall(const std::size_t& nStalls) OVERRIDE {
-	   return this->adaptor_->updateOnStall(nStalls);
+#ifdef DEBUG
+      if (!adaptor_) {
+         glogger
+         << "In GParameterBaseWithAdaptorsT<T>::updateAdaptorsOnStall(...):" << std::endl
+         << "with typeid(T).name() = " << typeid(T).name() << std::endl
+         << "Error: No adaptor was found." << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+	   return this->adaptor_->updateOnStall(nStalls, this->range());
 	}
 
 protected:
@@ -463,13 +473,14 @@ protected:
 #ifdef DEBUG
 		if (!adaptor_) {
 		   glogger
-		   << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(T& value):" << std::endl
+		   << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(value,range):" << std::endl
          << "with typeid(T).name() = " << typeid(T).name() << std::endl
          << "Error: No adaptor was found." << std::endl
          << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
+		// Apply the adaptor
 		adaptor_->adapt(value, range);
 	}
 
@@ -494,7 +505,7 @@ protected:
 #ifdef DEBUG
 		if(!adaptor_) {
 		   glogger
-		   << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<T>& collection):" << std::endl
+		   << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(collection, range):" << std::endl
          << "with typeid(T).name() = " << typeid(T).name() << std::endl
          << "Error: No adaptor was found." << std::endl
          << GEXCEPTION;
@@ -502,10 +513,7 @@ protected:
 #endif /* DEBUG */
 
 		// Apply the adaptor to each data item in turn
-		typename std::vector<T>::iterator it;
-		for (it = collection.begin(); it != collection.end(); ++it)	{
-			adaptor_->adapt(*it, range);
-		}
+		adaptor_->adapt(collection, range);
 	}
 
 	/* ----------------------------------------------------------------------------------

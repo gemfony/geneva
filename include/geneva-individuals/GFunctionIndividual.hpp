@@ -129,6 +129,9 @@ std::istream& operator>>(std::istream&, Gem::Geneva::initMode&);
 /******************************************************************************/
 // A number of default settings for the factory
 const double GFI_DEF_ADPROB = 1.0;
+const double GFI_DEF_ADAPTADPROB = 0.1;
+const double GFI_DEF_MINADPROB = 0.05;
+const double GFI_DEF_MAXADPROB = 1.;
 const boost::uint32_t GFI_DEF_ADAPTIONTHRESHOLD = 1;
 const bool GFI_DEF_USEBIGAUSSIAN = false;
 const double GFI_DEF_SIGMA1 = 0.025;
@@ -501,6 +504,16 @@ public:
    /** @brief Set the value of the sigmaSigma2_ variable */
    void setSigmaSigma2(double sigmaSigma2);
 
+   /** @brief Allows to retrieve the rate of evolutionary adaption of adProb_ */
+   double getAdaptAdProb() const;
+   /** @brief Allows to specify an adaption factor for adProb_ (or 0, if you do not want this feature) */
+   void setAdaptAdProb(double adaptAdProb);
+
+   /** Allows to retrieve the allowed range for adProb_ variation */
+   boost::tuple<double,double> getAdProbRange() const;
+   /** @brief Allows to set the allowed range for adaption probability variation */
+   void setAdProbRange(double minAdProb, double maxAdProb);
+
    // End of public getters and setters
    /**************************************************************************/
 
@@ -537,6 +550,9 @@ private:
 	GFunctionIndividualFactory();
 
 	Gem::Common::GOneTimeRefParameterT<double> adProb_;
+	Gem::Common::GOneTimeRefParameterT<double> adaptAdProb_;
+	Gem::Common::GOneTimeRefParameterT<double> minAdProb_;
+	Gem::Common::GOneTimeRefParameterT<double> maxAdProb_;
 	Gem::Common::GOneTimeRefParameterT<boost::uint32_t> adaptionThreshold_;
 	Gem::Common::GOneTimeRefParameterT<bool> useBiGaussian_;
 	Gem::Common::GOneTimeRefParameterT<double> sigma1_;

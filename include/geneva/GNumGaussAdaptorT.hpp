@@ -462,10 +462,9 @@ protected:
 	virtual void customAdaptAdaption(const num_type&) OVERRIDE {
 	    using namespace Gem::Common;
 
-		// We do not want to favor the decrease or increase of sigma, hence we choose
-		// randomly whether to multiply or divide.
-	   // TODO: cross-check, if symmetric adaption makes sense
-      sigma_ *= gexp(GAdaptorT<num_type>::gr->normal_distribution(gfabs(sigmaSigma_))*(GAdaptorT<num_type>::gr->uniform_bool()?fp_type(1):fp_type(-1)));
+	    // The following random distribution slightly favours values < 1. Selection pressure
+	    // will keep the values higher if needed
+	    sigma_ *= gexp(GAdaptorT<num_type>::gr->normal_distribution(gfabs(sigmaSigma_)));
 
 		// make sure sigma_ doesn't get out of range
       enforceRangeConstraint(sigma_, minSigma_, maxSigma_);

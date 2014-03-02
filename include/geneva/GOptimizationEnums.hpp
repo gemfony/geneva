@@ -434,8 +434,11 @@ const double DEFAULTDELTA = 0.2; ///< Default value of distance between two gaus
 const double DEFAULTSIGMADELTA = 0.8; ///< Default width of the gaussian used for delta adaption in GNumBiGaussAdaptorT
 const double DEFAULTMINDELTA = 0.; ///< Default minimum value of distance between two gaussians in GNumBiGaussAdaptorT
 const double DEFAULTMAXDELTA = 0.5; ///< Default maximum value of distance between two gaussians in GNumBiGaussAdaptorT
-const double DEFAULTBITADPROB = 0.05; // 5 percent adaption probability for bits
-const double DEFAULTADPROB = 1.0; // 100 percent adaption probability for all other cases
+const double DEFAULTBITADPROB = 0.05; ///< 5 percent adaption probability for bits
+const double DEFAULTADPROB = 1.0; ///< 100 percent adaption probability for all other cases
+const double DEFAUPTADAPTADPROB = 0.1; ///< Whether adProb_ should undergo evolutionary adaption
+const double DEFMINADPROB = 0.05; ///< The lower boundary for variations of adProb_
+const double DEFMAXADPROB = 1.0; ///< The upper boundary for variations of adProb_
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD = 1; // Adaption parameters should be adapted whenever an adaption takes place
 const double DEFAULTADAPTADAPTIONPROB = 0.1; // 10 percent probability for the adaption of adaption parameters
 

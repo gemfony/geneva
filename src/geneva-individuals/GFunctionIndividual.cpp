@@ -1016,6 +1016,9 @@ std::ostream& operator<<(std::ostream& s, boost::shared_ptr<Gem::Geneva::GFuncti
 GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& configFile)
 	: Gem::Common::GFactoryT<GParameterSet>(configFile)
 	, adProb_(GFI_DEF_ADPROB)
+	, adaptAdProb_(GFI_DEF_ADAPTADPROB)
+   , minAdProb_(GFI_DEF_MINADPROB)
+   , maxAdProb_(GFI_DEF_MAXADPROB)
 	, adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD)
 	, useBiGaussian_(GFI_DEF_USEBIGAUSSIAN)
 	, sigma1_(GFI_DEF_SIGMA1)
@@ -1542,6 +1545,64 @@ void GFunctionIndividualFactory::setUseBiGaussian(bool useBiGaussian)
 
 /******************************************************************************/
 /**
+ * Allows to retrieve the rate of evolutionary adaption of adProb_
+ */
+double GFunctionIndividualFactory::getAdaptAdProb() const {
+   return adaptAdProb_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to specify an adaption factor for adProb_ (or 0, if you do not want this feature)
+ */
+void GFunctionIndividualFactory::setAdaptAdProb(double adaptAdProb) {
+#ifdef DEBUG
+      if(adaptAdProb < 0.) {
+         glogger
+         << "In GFunctionIndividualFactory::setAdaptAdProb(): Error!" << std::endl
+         << "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+   adaptAdProb_ = adaptAdProb;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the allowed range for adProb_ variation
+ */
+boost::tuple<double,double> GFunctionIndividualFactory::getAdProbRange() const {
+   return boost::tuple<double, double>(minAdProb_.value(), maxAdProb_.value());
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the allowed range for adaption probability variation
+ */
+void GFunctionIndividualFactory::setAdProbRange(double minAdProb, double maxAdProb) {
+#ifdef DEBUG
+      if(minAdProb < 0.) {
+         glogger
+         << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
+         << "minAdProb < 0: " << minAdProb << std::endl
+         << GEXCEPTION;
+      }
+
+      if(minAdProb > maxAdProb) {
+         glogger
+         << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
+         << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+   minAdProb_ = minAdProb;
+   maxAdProb_ = maxAdProb;
+}
+
+/******************************************************************************/
+/**
  * Creates items of this type
  *
  * @return Items of the desired type
@@ -1579,8 +1640,39 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 		, comment
 	);
 
+   comment = "";
+   comment += "Determines the rate of adaption of adProb. Set to 0, if you do not need this feature;";
+   gpb.registerFileParameter<double>(
+      "adaptAdProb"
+      , adaptAdProb_.reference()
+      , GFI_DEF_ADAPTADPROB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The lower allowed boundary for adProb-variation;";
+   gpb.registerFileParameter<double>(
+      "minAdProb_"
+      , minAdProb_.reference()
+      , GFI_DEF_MINADPROB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The upper allowed boundary for adProb-variation;";
+   gpb.registerFileParameter<double>(
+      "maxAdProb_"
+      , maxAdProb_.reference()
+      , GFI_DEF_MAXADPROB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
 	comment = "";
-	comment += "The number of calls to an adaptor after which adaption takes place;";
+	comment += "The number of successful calls to an adaptor after which adaption;";
+	comment += "of mutation parameters takes place (e.g sigma-variation in gauss mutation);";
 	gpb.registerFileParameter<boost::uint32_t>(
 		"adaptionThreshold"
 		, adaptionThreshold_.reference()
@@ -1801,6 +1893,10 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 		gdga_ptr->setAdaptionProbability(adProb_);
 		gat_ptr = gdga_ptr;
 	}
+
+	// Store parameters pertaining to the adaption probability in the adaptor
+	gat_ptr->setAdaptAdProb(adaptAdProb_);
+	gat_ptr->setAdProbRange(minAdProb_, maxAdProb_);
 
 	// Find out about the amount of data items to be added
 	// std::size_t nData = parDimLocal_?parDimLocal_:parDim_;

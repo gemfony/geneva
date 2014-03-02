@@ -98,12 +98,16 @@ class GAdaptorT:
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-		   & BOOST_SERIALIZATION_NVP(adaptionCounter_)
-		   & BOOST_SERIALIZATION_NVP(adaptionThreshold_)
-		   & BOOST_SERIALIZATION_NVP(adProb_)
-		   & BOOST_SERIALIZATION_NVP(adaptionMode_)
-		   & BOOST_SERIALIZATION_NVP(adaptAdaptionProbability_);
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+		& BOOST_SERIALIZATION_NVP(adaptionCounter_)
+		& BOOST_SERIALIZATION_NVP(adaptionThreshold_)
+		& BOOST_SERIALIZATION_NVP(adProb_)
+		& BOOST_SERIALIZATION_NVP(adaptAdProb_)
+		& BOOST_SERIALIZATION_NVP(minAdProb_)
+		& BOOST_SERIALIZATION_NVP(maxAdProb_)
+		& BOOST_SERIALIZATION_NVP(adaptionMode_)
+		& BOOST_SERIALIZATION_NVP(adaptAdaptionProbability_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -125,6 +129,9 @@ public:
 		, adaptionCounter_(0)
 		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
 		, adProb_(DEFAULTADPROB)
+	   , adaptAdProb_(DEFAUPTADAPTADPROB)
+	   , minAdProb_(DEFMINADPROB)
+	   , maxAdProb_(DEFMAXADPROB)
 		, adaptionMode_(DEFAULTADAPTIONMODE)
 		, adaptAdaptionProbability_(DEFAULTADAPTADAPTIONPROB)
 	{ /* nothing */ }
@@ -143,14 +150,20 @@ public:
 		, adaptionCounter_(0)
 		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
 		, adProb_(adProb)
+	   , adaptAdProb_(DEFAUPTADAPTADPROB)
+      , minAdProb_(DEFMINADPROB)
+      , maxAdProb_(DEFMAXADPROB)
 		, adaptionMode_(DEFAULTADAPTIONMODE)
 		, adaptAdaptionProbability_(DEFAULTADAPTADAPTIONPROB)
 	{
 		// Do some error checking
 		if(adProb < 0. || adProb > 1.) {
-			std::cerr << "In GAdaptorT<T>::GadaptorT(const double& prob):" << std::endl
-					  << "Provided adaption probability is invalid: " << adProb << std::endl
-					  << "Setting to the maximum allowed value 1." << std::endl;
+			glogger
+			<< "In GAdaptorT<T>::GadaptorT(const double& prob):" << std::endl
+			<< "Provided adaption probability is invalid: " << adProb << std::endl
+			<< "Setting to the maximum allowed value 1." << std::endl
+			<< GWARNING;
+
 			adProb_ = 1.;
 		}
 	}
@@ -168,6 +181,9 @@ public:
 		, adaptionCounter_(cp.adaptionCounter_)
 		, adaptionThreshold_(cp.adaptionThreshold_)
 		, adProb_(cp.adProb_)
+	   , adaptAdProb_(cp.adaptAdProb_)
+      , minAdProb_(cp.minAdProb_)
+      , maxAdProb_(cp.maxAdProb_)
 		, adaptionMode_(cp.adaptionMode_)
 		, adaptAdaptionProbability_(cp.adaptAdaptionProbability_)
 	{ /* nothing */ }
@@ -232,12 +248,12 @@ public:
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	virtual boost::optional<std::string> checkRelationshipWith(
-	      const GObject& cp
-	      , const Gem::Common::expectation& e
-	      , const double& limit
-	      , const std::string& caller
-	      , const std::string& y_name
-	      , const bool& withMessages
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+      , const std::string& caller
+      , const std::string& y_name
+      , const bool& withMessages
 	) const OVERRIDE {
 	   using namespace Gem::Common;
 
@@ -254,6 +270,9 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionCounter_, p_load->adaptionCounter_, "adaptionCounter_", "p_load->adaptionCounter_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionThreshold_, p_load->adaptionThreshold_, "adaptionThreshold_", "p_load->adaptionThreshold_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adProb_, p_load->adProb_, "adProb_", "p_load->adProb_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptAdProb_, p_load->adaptAdProb_, "adaptAdProb_", "p_load->adaptAdProb_", e , limit));
+      deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", minAdProb_, p_load->minAdProb_, "minAdProb_", "p_load->minAdProb_", e , limit));
+      deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", maxAdProb_, p_load->maxAdProb_, "maxAdProb_", "p_load->maxAdProb_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionMode_, p_load->adaptionMode_, "adaptionMode_", "p_load->adaptionMode_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptAdaptionProbability_, p_load->adaptAdaptionProbability_, "adaptAdaptionProbability_", "p_load->adaptAdaptionProbability_", e , limit));
 
@@ -282,17 +301,17 @@ public:
 	 * Sets the adaption probability to a given value. This function will throw
 	 * if the probability is not in the allowed range.
 	 *
-	 * @param probability The new value of the probability of adaptions taking place
+	 * @param adProb The new value of the probability of adaptions taking place
 	 */
-	void setAdaptionProbability(const double& probability) {
+	void setAdaptionProbability(const double& adProb) {
 		// Check the supplied probability value
-		if(probability < 0. || probability > 1.) {
+		if(adProb < 0. || adProb > 1.) {
 			glogger
 			<< "In GAdaptorT<T>::setAdaptionProbability(const double&):" << std::endl
-			<< "Bad probability value given: " << probability << GEXCEPTION;
+			<< "Bad probability value given: " << adProb << GEXCEPTION;
 		}
 
-		adProb_ = probability;
+		adProb_ = adProb;
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -354,6 +373,32 @@ public:
 	 * Retrieval of probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
+
+	/***************************************************************************/
+	/**
+	 * Allows to specify an adaption factor for adProb_ (or 0, if you do not
+	 * want this feature)
+	 */
+	void setAdaptAdProb(double adaptAdProb) {
+#ifdef DEBUG
+	   if(adaptAdProb < 0.) {
+	      glogger
+	      << "In GAdaptorT<>::setAdaptAdProb(): Error!" << std::endl
+	      << "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
+	      << GEXCEPTION;
+	   }
+#endif /* DEBUG */
+
+	   adaptAdProb_ = adaptAdProb;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Allows to retrieve the rate of evolutionary adaption of adProb_
+	 */
+	double getAdaptAdProb() const {
+	   return adaptAdProb_;
+	}
 
 	/***************************************************************************/
 	/**
@@ -438,27 +483,82 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Allows to set the allowed range for adaption probability variation
+	 */
+	void setAdProbRange(double minAdProb, double maxAdProb) {
+#ifdef DEBUG
+	   if(minAdProb < 0.) {
+	      glogger
+	      << "In GAdaptorT<T>::setAdProbRange(): Error!" << std::endl
+	      << "minAdProb < 0: " << minAdProb << std::endl
+	      << GEXCEPTION;
+	   }
+
+      if(maxAdProb > 1.) {
+         glogger
+         << "In GAdaptorT<T>::setAdProbRange(): Error!" << std::endl
+         << "maxAdProb > 1: " << maxAdProb << std::endl
+         << GEXCEPTION;
+      }
+
+	   if(minAdProb > maxAdProb) {
+         glogger
+         << "In GAdaptorT<T>::setAdProbRange(): Error!" << std::endl
+         << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
+         << GEXCEPTION;
+	   }
+#endif /* DEBUG */
+
+	   minAdProb_ = minAdProb;
+	   maxAdProb_ = maxAdProb;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Allows to retrieve the allowed range for adProb_ variation
+	 */
+	boost::tuple<double,double> getAdProbRange() const {
+	   return boost::tuple<double,double>(minAdProb_, maxAdProb_);
+	}
+
+	/***************************************************************************/
+	/**
 	 * Common interface for all adaptors to the adaption functionality. The user
 	 * specifies the actual actions in the customAdaptions() function.
 	 *
 	 * @param val The value that needs to be adapted
 	 * @param range A typical value range for type T
+	 * @return A boolean indicating whether an adaption has indeed taken place
 	 */
-	void adapt(
+	bool adapt(
       T& val
       , const T& range
    ) {
+	   using namespace Gem::Common;
+
+	   bool adapted = false;
+
+	   // Update the adaption probability, if requested by the user
+	   if(adaptAdProb_ > 0) {
+	      adProb_ *= gexp(this->gr->normal_distribution(adaptAdProb_));
+	      enforceRangeConstraint(adProb_, minAdProb_, maxAdProb_);
+	   }
+
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
 			if(gr->uniform_01<double>() <= adProb_) { // Should we perform adaption
-				adaptAdaption(range);
+			   adaptAdaption(range);
 				customAdaptions(val, range);
+				adapted = true;
 			}
 		} else if(true == adaptionMode_) { // always adapt
-			adaptAdaption(range);
+		   adaptAdaption(range);
 			customAdaptions(val, range);
+			adapted = true;
 		}
 
-		// No need to test for adaptionMode_ == false as no action is needed in this case
+		// No need to test for "adaptionMode_ == false" as no action is needed in this case
+
+		return adapted;
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -467,14 +567,83 @@ public:
 	 */
 
    /***************************************************************************/
+   /**
+    * Common interface for all adaptors to the adaption functionality. The user
+    * specifies the actual actions in the customAdaptions() function. This function
+    * deals with entire parameter vectors. The philosophy behind these vectors is
+    * that they represent a common logical entity and should thus be mutated together,
+    * using a single adaptor. However, it is not clear whether adaptions of mutation
+    * parameters (such as adaption of the sigma value) should happen whenever
+    * customAdaptions() are called (which would be equivalent to individual parameter
+    * objects) or only once, before customAdaptions is applied to each position in
+    * turn. As adaption e.g. of the sigma value slightly favors changes towards smaller
+    * values, we incur a small bias in the first case, where mutations of parameters
+    * at the end of the array might be smaller than at the beginning. In the second case,
+    * metaAdaption might not be called often enough to adapt the mutation process
+    * to different geometries of the quality surface. Our tests show that the latter
+    * might be more severe, so we have implemented repeated adaption of mutation parameters
+    * in this function.
+    *
+    * @param valVec A vector of values that need to be adapted
+    * @param range A typical value range for type T
+    * @return A boolean indicating whether an adaption has indeed taken place
+    */
+   bool adapt(
+      std::vector<T>& valVec
+      , const T& range
+   ) {
+      using namespace Gem::Common;
+
+      bool adapted = false;
+      typename std::vector<T>::iterator it;
+
+      // Update the adaption probability, if requested by the user
+      if(adaptAdProb_ > 0) {
+         adProb_ *= gexp(this->gr->normal_distribution(adaptAdProb_));
+         enforceRangeConstraint(adProb_, minAdProb_, maxAdProb_);
+      }
+
+      if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
+         if(gr->uniform_01<double>() <= adProb_) { // Should we perform adaption
+            for (it = valVec.begin(); it != valVec.end(); ++it) {
+               adaptAdaption(range);
+               customAdaptions(*it, range);
+            }
+
+            adapted = true;
+         }
+      } else if(true == adaptionMode_) { // always adapt
+         for (it = valVec.begin(); it != valVec.end(); ++it) {
+            adaptAdaption(range);
+            customAdaptions(*it, range);
+         }
+
+         adapted = true;
+      }
+
+      // No need to test for "adaptionMode_ == false" as no action is needed in this case
+
+      return adapted;
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * Adaption is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+    * ----------------------------------------------------------------------------------
+    */
+
+   /***************************************************************************/
 	/**
 	 * Triggers updates when the optimization process has stalled. We randomize
-	 * the adaptor plus the adaption probability.
+	 * the adaptor settings
 	 *
 	 * @param nStalls The number of consecutive stalls up to this point
+	 * @param range A typical value range for type T
 	 * @return A boolean indicating whether updates were performed
 	 */
-	virtual bool updateOnStall(const std::size_t& nStalls) BASE {
+	virtual bool updateOnStall(
+      const std::size_t& nStalls
+      , const T& range
+   ) BASE {
 #ifdef DEBUG
 	   if(0 == nStalls) {
 	      glogger
@@ -486,11 +655,8 @@ public:
 
 	   using namespace Gem::Hap;
 
-	   // Randomize our local adaption probability
-	   adProb_ = gr->uniform_real<double>(0.,1.);
-
-	   // Randomize specific adaptor parameters (at the choice of the derived class)
-	   this->randomInit();
+	   // Update adaption parameters
+	   this->adaptAdaption(range);
 	   return true;
 	}
 
@@ -617,29 +783,33 @@ protected:
 		adaptionCounter_ = p_load->adaptionCounter_;
 		adaptionThreshold_ = p_load->adaptionThreshold_;
 		adProb_ = p_load->adProb_;
+		adaptAdProb_ = p_load->adaptAdProb_;
+		minAdProb_ = p_load->minAdProb_;
+		maxAdProb_ = p_load->maxAdProb_;
 		adaptionMode_ = p_load->adaptionMode_;
 		adaptAdaptionProbability_ = p_load->adaptAdaptionProbability_;
 	}
 
-	/***************************************************************************/
-	/**
-	 * This function helps to adapt the adaption parameters, if certain conditions are met.
-	 *
-	 *  @param range A typical range for the parameter with type T
-	 */
-	void adaptAdaption(const T& range) {
-		// The adaption parameters are modified every adaptionThreshold_ number of adaptions.
-		if(adaptionThreshold_ > 0) {
-			if(++adaptionCounter_ >= adaptionThreshold_){
-				adaptionCounter_ = 0;
-				customAdaptAdaption(range);
-			}
-		} else if(adaptAdaptionProbability_) { // Do the same with probability settings
-			if(gr->uniform_01<double>() <= adaptAdaptionProbability_) {
-				customAdaptAdaption(range);
-			}
-		}
-	}
+   /***************************************************************************/
+   /**
+    * This function helps to adapt the adaption parameters, if certain conditions are met.
+    * Adaption is triggered by the parameter object.
+    *
+    *  @param range A typical range for the parameter with type T
+    */
+   void adaptAdaption(const T& range) {
+      // The adaption parameters are modified every adaptionThreshold_ number of adaptions.
+      if(adaptionThreshold_ > 0) {
+         if(++adaptionCounter_ >= adaptionThreshold_){
+            adaptionCounter_ = 0;
+            customAdaptAdaption(range);
+         }
+      } else if(adaptAdaptionProbability_) { // Do the same with probability settings
+         if(gr->uniform_01<double>() <= adaptAdaptionProbability_) {
+            customAdaptAdaption(range);
+         }
+      }
+   }
 
    /***************************************************************************/
    /**
@@ -664,6 +834,9 @@ private:
 	boost::uint32_t adaptionCounter_; ///< A local counter
 	boost::uint32_t adaptionThreshold_; ///< Specifies after how many adaptions the adaption itself should be adapted
 	double adProb_; ///< internal representation of the adaption probability
+   double adaptAdProb_; ///< The rate, at which adProb_ should be adapted
+   double minAdProb_; ///< The lower allowed value for adProb_ during variation
+   double maxAdProb_; ///< The upper allowed value for adProb_ during variation
 	boost::logic::tribool adaptionMode_; ///< false == never adapt; indeterminate == adapt with adProb_ probability; true == always adapt
 	double adaptAdaptionProbability_; ///< Influences the likelihood for the adaption of the adaption parameters
 
@@ -765,6 +938,8 @@ public:
 
 			// Make sure the adaption probability is taken into account
 			p_test->setAdaptionMode(boost::logic::indeterminate);
+			// Prevent changes to adProb_
+			p_test->setAdaptAdProb(0.);
 
 			const std::size_t nTests=100000;
 
@@ -799,8 +974,7 @@ public:
 								<< "prob = " << prob << "\n"
 								<< "with allowed window = [" << 0. << " : " << 0.0001 << "]" << "\n"
 					);
-				}
-				else {
+				} else {
 					BOOST_CHECK_MESSAGE(
 							changeProb>0.95*prob && changeProb<1.05*prob
 							,  "\n"
@@ -938,7 +1112,7 @@ public:
 			// Set the adaption threshold to a specific value
 			for(boost::uint32_t adThr=10; adThr>0; adThr--) {
 				// Just make sure our logic is right and we stay in the right window
-				assert(adThr<=10);
+				BOOST_CHECK(adThr<=10);
 
 				BOOST_CHECK_NO_THROW(p_test->setAdaptionThreshold(adThr));
 				BOOST_CHECK_MESSAGE(
@@ -952,41 +1126,41 @@ public:
 				// adapting a value a number of times > adThr
 				for(boost::uint32_t adCnt=0; adCnt<3*adThr; adCnt++) {
 					// Do the actual adaption
-					p_test->adapt(testVal, T(1));
+				   if(p_test->adapt(testVal, T(1))) {
+                  // Check that testVal has indeed been adapted
+                  BOOST_CHECK_MESSAGE(
+                        testVal != oldTestVal
+                        ,  "\n"
+                        << "testVal = " << testVal << "\n"
+                        << "oldTestVal = " << oldTestVal << "\n"
+                        << "adThr = " << adThr << "\n"
+                        << "adCnt = " << adCnt << "\n"
+                  );
+                  oldTestVal = testVal;
 
-					// Check that testVal has indeed been adapted
-					BOOST_CHECK_MESSAGE(
-							testVal != oldTestVal
-							,  "\n"
-							<< "testVal = " << testVal << "\n"
-							<< "oldTestVal = " << oldTestVal << "\n"
-							<< "adThr = " << adThr << "\n"
-							<< "adCnt = " << adCnt << "\n"
-					);
-					oldTestVal = testVal;
+                  // Check that the adaption counter has changed at all, as it should
+                  // for adaption thresholds > 1
+                  if(adThr > 1) {
+                     BOOST_CHECK_MESSAGE(
+                           p_test->getAdaptionCounter() != oldAdaptionCounter
+                           ,  "\n"
+                           << "p_test->getAdaptionCounter() = " << p_test->getAdaptionCounter() << "\n"
+                           << "oldAdaptionCounter = " << oldAdaptionCounter << "\n"
+                           << "adThr = " << adThr << "\n"
+                           << "adCnt = " << adCnt << "\n"
+                     );
+                     oldAdaptionCounter = p_test->getAdaptionCounter();
+                  }
 
-					// Check that the adaption counter has changed at all, as it should
-					// for adaption thresholds > 1
-					if(adThr > 1) {
-						BOOST_CHECK_MESSAGE(
-								p_test->getAdaptionCounter() != oldAdaptionCounter
-								,  "\n"
-								<< "p_test->getAdaptionCounter() = " << p_test->getAdaptionCounter() << "\n"
-								<< "oldAdaptionCounter = " << oldAdaptionCounter << "\n"
-								<< "adThr = " << adThr << "\n"
-								<< "adCnt = " << adCnt << "\n"
-						);
-						oldAdaptionCounter = p_test->getAdaptionCounter();
-					}
-
-					// Check that the adaption counter is behaving nicely
-					BOOST_CHECK_MESSAGE(
-							p_test->getAdaptionCounter() < adThr
-							, "\n"
-							<< "p_test->getAdaptionCounter() = " << p_test->getAdaptionCounter() << "\n"
-							<< "adThr = " << adThr << "\n"
-							<< "adCnt = " << adCnt << "\n"
-					);
+                  // Check that the adaption counter is behaving nicely
+                  BOOST_CHECK_MESSAGE(
+                        p_test->getAdaptionCounter() < adThr
+                        , "\n"
+                        << "p_test->getAdaptionCounter() = " << p_test->getAdaptionCounter() << "\n"
+                        << "adThr = " << adThr << "\n"
+                        << "adCnt = " << adCnt << "\n"
+                  );
+				   }
 				}
 			}
 		}

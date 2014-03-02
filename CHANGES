@@ -9,6 +9,15 @@ Wishlist for version 1.4, yet unnamed, release-date unknown
 //------------------------------------------------------------------------------------------------------
 * Version 1.2, yet unnamed, release-date unknown
 
+******************************** BREAKING CHANGES ******************************************************
+ - sigma values of gauss adaption are now relative to the allowed or preferred value
+   range of a parameter type. Values are given as a percentage of this value range. E.g. a value of 0.1
+   for a sigma and an allowed parameter range of -50:50 will result in a "real" sigma used in the gaussian
+   of 10.
+ - Minimal BOOST version is now 1.48
+********************************************************************************************************
+
+Other changes:
  - Added two functions for calculating a line best describing a set of data points
  - Updated the GParallelisationOverhead test so that it automatically calculates the speed-up
  - Added a simple parser that allows to evaluate mathematical formulas like "sin({{var1}})*pow(2.,3.)"
@@ -34,15 +43,13 @@ Wishlist for version 1.4, yet unnamed, release-date unknown
    or the maximum time for each algorithm type. Some options are now hidden and are only 
    shown upon explicit request
  - Added a new "per-item" cross-over method to evolutionary algorithms
- - Added a mechanism to update adaptors in EA when optimization has stalled
- - *** BREAKING CHANGE: sigma values of gauss adaption are now relative to the allowed or preferred value
-   range of a parameter type. Values are given as a percentage of this value range. E.g. a value of 0.1
-   for a sigma and an allowed parameter range of -50:50 will result in a "real" sigma used in the gaussian
-   of 10. ***
+ - Added a new mechanism to update adaptors in EA when optimization has stalled
+ - Adaption of adaption parameters ("adaptAdaption()") now happens only once per adaption of entire
+   parameter collections such as GDoubleCollection 
  - Starting with this version, release-versions get an even minor version number
- - Ported to Boost 1.55
+ - Ported to Boost 1.55.
 
-Recommended version of Boost: 1.55; ** Minimum Boost version is 1.48 **
+Recommended version of Boost: 1.55; Minimum Boost version is 1.48
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.0, "Chamonix" - August 31, 2013
