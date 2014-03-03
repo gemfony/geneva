@@ -149,7 +149,7 @@
         "comment": "(0) randomly",
         "comment": "(1) with a value on the perimeter of the allowed or recommended value range",
         "default": "0",
-        "value": "0"
+        "value": "1"
     },
     "evalPolicy":
     {

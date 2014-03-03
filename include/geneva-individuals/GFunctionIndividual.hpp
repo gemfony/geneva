@@ -151,7 +151,7 @@ const double GFI_DEF_MINVAR = -10.;
 const double GFI_DEF_MAXVAR = 10.;
 const bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
 const parameterType GFI_DEF_PARAMETERTYPE = USEGDOUBLECOLLECTION;
-const initMode GFI_DEF_INITMODE = INITRANDOM;
+const initMode GFI_DEF_INITMODE = INITPERIMETER;
 const solverFunction GO_DEF_EVALFUNCTION = boost::numeric_cast<solverFunction>(0);
 
 /******************************************************************************/
