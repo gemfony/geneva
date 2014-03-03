@@ -119,12 +119,12 @@ const std::size_t DEFAULTPOPULATIONSIZE = 100;
 /**
  * The default population size in evolutionary algorithms
  */
-const std::size_t DEFAULTEAPOPULATIONSIZE = 100;
+const std::size_t DEFAULTEAPOPULATIONSIZE = 42;
 
 /**
  * The default number of parents in evolutionary algorithms
  */
-const std::size_t DEFAULTEANPARENTS = 1;
+const std::size_t DEFAULTEANPARENTS = 2;
 
 /**
  * The default likelihood for an amalgamation of two obects to take place
@@ -194,6 +194,12 @@ const bool MINIMIZE = false;
 
 /******************************************************************************/
 /**
+ * Whether reasons for the termination of an optimization run should be emitted
+ */
+const bool DEFAULTEMITTERMINATIONREASON = true;
+
+/******************************************************************************/
+/**
  * The number of iterations after which information should be
  * emitted about the inner state of the optimization algorithm.
  */
@@ -252,7 +258,7 @@ const boost::uint32_t DEFAULTMAXIT = 1000;
 /**
  * The default maximum number of iterations without improvement. 0 means: ignore
  */
-const boost::uint32_t DEFAULTMAXSTALLIT = 0;
+const boost::uint32_t DEFAULTMAXSTALLIT = 20;
 
 /******************************************************************************/
 /**
@@ -425,13 +431,13 @@ const bool DEFAULTMARKOLDPARENTS = false;
 
 /******************************************************************************/
 
-const double DEFAULTSIGMA = 0.1; ///< Default start value for sigma_
+const double DEFAULTSIGMA = 0.025; ///< Default start value for sigma_
 const double DEFAULTINT32SIGMA = 0.1; ///< Default sigma start value for GInt32GaussAdaptor
-const double DEFAULTSIGMASIGMA = 0.8; ///< Default width of the gaussian used for sigma adaption
+const double DEFAULTSIGMASIGMA = 0.2; ///< Default width of the gaussian used for sigma adaption
 const double DEFAULTMINSIGMA = 0.001; ///< Default minimum allowed value for sigma_
 const double DEFAULTMAXSIGMA = 1; ///< Default maximum allowed value for sigma_
-const double DEFAULTDELTA = 0.2; ///< Default value of distance between two gaussians in GNumBiGaussAdaptorT
-const double DEFAULTSIGMADELTA = 0.8; ///< Default width of the gaussian used for delta adaption in GNumBiGaussAdaptorT
+const double DEFAULTDELTA = 0.05; ///< Default value of distance between two gaussians in GNumBiGaussAdaptorT
+const double DEFAULTSIGMADELTA = 0.2; ///< Default width of the gaussian used for delta adaption in GNumBiGaussAdaptorT
 const double DEFAULTMINDELTA = 0.; ///< Default minimum value of distance between two gaussians in GNumBiGaussAdaptorT
 const double DEFAULTMAXDELTA = 0.5; ///< Default maximum value of distance between two gaussians in GNumBiGaussAdaptorT
 const double DEFAULTBITADPROB = 0.05; ///< 5 percent adaption probability for bits

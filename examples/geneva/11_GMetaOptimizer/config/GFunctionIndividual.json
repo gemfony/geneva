@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2013-Aug-25 12:21:03
+// File creation date: 2014-Mar-03 20:36:53
 //-----------------------------------------------------------------
 
 {
@@ -10,9 +10,28 @@
         "default": "1",
         "value": "1"
     },
+    "adaptAdProb":
+    {
+        "comment": "Determines the rate of adaption of adProb. Set to 0, if you do not need this feature",
+        "default": "0.1",
+        "value": "0.1"
+    },
+    "minAdProb_":
+    {
+        "comment": "The lower allowed boundary for adProb-variation",
+        "default": "0.05",
+        "value": "0.05"
+    },
+    "maxAdProb_":
+    {
+        "comment": "The upper allowed boundary for adProb-variation",
+        "default": "1",
+        "value": "1"
+    },
     "adaptionThreshold":
     {
-        "comment": "The number of calls to an adaptor after which adaption takes place",
+        "comment": "The number of successful calls to an adaptor after which adaption",
+        "comment": "of mutation parameters takes place (e.g sigma-variation in gauss mutation)",
         "default": "1",
         "value": "1"
     },
@@ -26,14 +45,14 @@
     {
         "comment": "The sigma for gauss-adaption in ES",
         "comment": "(or the sigma of the left peak of a double gaussian)",
-        "default": "0.5",
-        "value": "0.5"
+        "default": "0.025",
+        "value": "0.025"
     },
     "sigmaSigma1":
     {
         "comment": "Influences the self-adaption of gauss-mutation in ES",
-        "default": "0.8",
-        "value": "0.8"
+        "default": "0.2",
+        "value": "0.2"
     },
     "minSigma1":
     {
@@ -44,20 +63,20 @@
     "maxSigma1":
     {
         "comment": "The maximum value of sigma1",
-        "default": "2",
-        "value": "2"
+        "default": "1",
+        "value": "1"
     },
     "sigma2":
     {
         "comment": "The sigma of the right peak of a double gaussian (if any)",
-        "default": "0.5",
-        "value": "0.5"
+        "default": "0.025",
+        "value": "0.025"
     },
     "sigmaSigma2":
     {
         "comment": "Influences the self-adaption of gauss-mutation in ES",
-        "default": "0.8",
-        "value": "0.8"
+        "default": "0.2",
+        "value": "0.2"
     },
     "minSigma2":
     {
@@ -68,20 +87,20 @@
     "maxSigma2":
     {
         "comment": "The maximum value of sigma2",
-        "default": "2",
-        "value": "2"
+        "default": "1",
+        "value": "1"
     },
     "delta":
     {
         "comment": "The start distance between both peaks used for bi-gaussian mutations in ES",
-        "default": "0.5",
-        "value": "0.5"
+        "default": "0.05",
+        "value": "0.05"
     },
     "sigmaDelta":
     {
         "comment": "The width of the gaussian used for mutations of the delta parameter",
-        "default": "0.8",
-        "value": "0.8"
+        "default": "0.2",
+        "value": "0.2"
     },
     "minDelta":
     {
@@ -92,8 +111,8 @@
     "maxDelta":
     {
         "comment": "The maximum allowed value of delta",
-        "default": "2",
-        "value": "2"
+        "default": "1",
+        "value": "1"
     },
     "parDim":
     {
@@ -132,6 +151,35 @@
         "default": "0",
         "value": "0"
     },
+    "evalPolicy":
+    {
+        "comment": "Specifies which strategy should be used to calculate the evaluation:",
+        "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
+        "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
+        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
+        "comment": "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise",
+        "comment": "[GOptimizableEntity]",
+        "default": "0",
+        "value": "0"
+    },
+    "steepness":
+    {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter influences the steepness of the function at the center of the sigmoid.",
+        "comment": "The parameter must have a value > 0.",
+        "comment": "[GOptimizableEntity]",
+        "default": "1000",
+        "value": "1000"
+    },
+    "barrier":
+    {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter sets the upper\/lower boundary of the sigmoid.",
+        "comment": "The parameter must have a value > 0.",
+        "comment": "[GOptimizableEntity]",
+        "default": "10000",
+        "value": "10000"
+    },
     "maximize":
     {
         "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
@@ -139,6 +187,14 @@
         "comment": "[GParameterset]",
         "default": "0",
         "value": "0"
+    },
+    "perItemCrossOverProbability":
+    {
+        "comment": "The likelihood for two data items to be exchanged",
+        "comment": "in a \"per-item\" cross-over operation",
+        "comment": "[GParameterset]",
+        "default": "0.5",
+        "value": "0.5"
     },
     "demoFunction":
     {

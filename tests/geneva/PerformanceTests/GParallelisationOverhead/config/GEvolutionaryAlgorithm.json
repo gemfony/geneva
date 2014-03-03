@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2013-Aug-26 02:54:49
+// File creation date: 2014-Mar-03 20:36:53
 //-----------------------------------------------------------------
 
 {
@@ -9,7 +9,7 @@
         "comment": "Determines the number of threads simultaneously running",
         "comment": "evaluations in multi-threaded mode. 0 means \"automatic\"",
         "default": "0",
-        "value": "4"
+        "value": "0"
     },
     "doLogging":
     {
@@ -23,16 +23,55 @@
         "default": "2",
         "value": "2"
     },
+    "evalPolicy":
+    {
+        "comment": "Specifies which strategy should be used to calculate the evaluation:",
+        "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
+        "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
+        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
+        "comment": "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise",
+        "comment": "[GOptimizableEntity]",
+        "default": "0",
+        "value": "0"
+    },
+    "steepness":
+    {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter influences the steepness of the function at the center of the sigmoid.",
+        "comment": "The parameter must have a value > 0.",
+        "comment": "[GOptimizableEntity]",
+        "default": "1000",
+        "value": "1000"
+    },
+    "barrier":
+    {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter sets the upper\/lower boundary of the sigmoid.",
+        "comment": "The parameter must have a value > 0.",
+        "comment": "[GOptimizableEntity]",
+        "default": "10000",
+        "value": "10000"
+    },
     "maxIteration":
     {
         "comment": "The maximum allowed number of iterations",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "1000",
-        "value": "10"
+        "value": "1000"
     },
     "maxStallIteration":
     {
-        "comment": "The maximum allowed number of iterations without improvement0 means: no constraint.",
+        "comment": "The maximum allowed number of iterations without improvement",
+        "comment": "0 means: no constraint.",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "20",
+        "value": "20"
+    },
+    "indivdualUpdateStallCounterThreshold":
+    {
+        "comment": "The number of iterations without improvement after which",
+        "comment": "individuals are asked to update their internal data structures",
+        "comment": "through the actOnStalls() function. A value of 0 disables this check",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "0",
         "value": "0"
@@ -42,7 +81,14 @@
         "comment": "The number of iterations after which a report should be issued",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "1",
-        "value": "0"
+        "value": "1"
+    },
+    "nRecordBestIndividuals":
+    {
+        "comment": "Indicates how many \"best\" individuals should be recorded in each iteration",
+        "comment": "[GOptimizationAlgorithmT<ind_type>]",
+        "default": "10",
+        "value": "10"
     },
     "cpInterval":
     {
@@ -59,8 +105,8 @@
         {
             "comment": "The directory where checkpoint files should be stored.",
             "comment": "[GOptimizationAlgorithmT<ind_type>]",
-            "default": "./checkpoints/",
-            "value": "./checkpoints/"
+            "default": ".\/checkpoints\/",
+            "value": ".\/checkpoints\/"
         },
         "cpBaseName":
         {
@@ -107,8 +153,8 @@
     {
         "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
-        "default": "false",
-        "value": "false"
+        "default": "true",
+        "value": "true"
     },
     "population":
     {
@@ -116,15 +162,15 @@
         {
             "comment": "The total size of the population",
             "comment": " [GBaseParChildT<ind_type>]",
-            "default": "100",
-            "value": "10"
+            "default": "42",
+            "value": "42"
         },
         "nParents":
         {
             "comment": "The number of parents in the population",
             "comment": " [GBaseParChildT<ind_type>]",
-            "default": "1",
-            "value": "1"
+            "default": "2",
+            "value": "2"
         }
     },
     "recombinationMethod":
@@ -153,6 +199,14 @@
             "default": "0",
             "value": "0"
         }
+    },
+    "amalgamationLikelihood":
+    {
+        "comment": "The likelihood for parent individuals to be \"fused\" together",
+        "comment": "rather than \"just\" being created through duplication schemes",
+        "comment": "[GParameterSetParChild]",
+        "default": "0",
+        "value": "0"
     },
     "sortingMethod":
     {

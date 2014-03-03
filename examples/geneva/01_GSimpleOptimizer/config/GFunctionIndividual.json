@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2014-Mar-02 01:36:27
+// File creation date: 2014-Mar-03 20:36:53
 //-----------------------------------------------------------------
 
 {
@@ -51,8 +51,8 @@
     "sigmaSigma1":
     {
         "comment": "Influences the self-adaption of gauss-mutation in ES",
-        "default": "0.8",
-        "value": "0.8"
+        "default": "0.2",
+        "value": "0.2"
     },
     "minSigma1":
     {
@@ -75,8 +75,8 @@
     "sigmaSigma2":
     {
         "comment": "Influences the self-adaption of gauss-mutation in ES",
-        "default": "0.8",
-        "value": "0.8"
+        "default": "0.2",
+        "value": "0.2"
     },
     "minSigma2":
     {
@@ -93,14 +93,14 @@
     "delta":
     {
         "comment": "The start distance between both peaks used for bi-gaussian mutations in ES",
-        "default": "0.5",
-        "value": "0.5"
+        "default": "0.05",
+        "value": "0.05"
     },
     "sigmaDelta":
     {
         "comment": "The width of the gaussian used for mutations of the delta parameter",
-        "default": "0.8",
-        "value": "0.8"
+        "default": "0.2",
+        "value": "0.2"
     },
     "minDelta":
     {

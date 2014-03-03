@@ -144,7 +144,7 @@ public:
 		, qualityThreshold_(DEFAULTQUALITYTHRESHOLD)
 		, hasQualityThreshold_(false)
 		, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
-		, emitTerminationReason_(false)
+		, emitTerminationReason_(DEFAULTEMITTERMINATIONREASON)
 		, halted_(false)
 		, worstKnownValids_()
 		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
@@ -1082,7 +1082,7 @@ public:
 		if(showOrigin) comment += "[GOptimizationAlgorithmT<ind_type>]";
 		gpb.registerFileParameter<bool>(
 			"emitTerminationReason" // The name of the variable
-			, false // The default value
+			, DEFAULTEMITTERMINATIONREASON // The default value
 			, boost::bind(
 				&GOptimizationAlgorithmT<ind_type>::setEmitTerminationReason
 				, this
