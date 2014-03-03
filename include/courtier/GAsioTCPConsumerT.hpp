@@ -1289,10 +1289,8 @@ class GAsioTCPConsumerT
          // Create a number of threads responsible for the io_service_ objects
          // This absolutely needs to happen after the first session has started,
          // so the io_service doesn't run out of work
-         gtg_.create_threads(
-            boost::bind(&boost::asio::io_service::run, &io_service_)
-            , listenerThreads_
-         );
+         boost::function<void()> io_s = boost::bind<std::size_t>(&boost::asio::io_service::run, &io_service_);
+         gtg_.create_threads(io_s, listenerThreads_);
       } catch(const boost::system::system_error &e) {
          glogger
          << "In GAsioTCPConsumerT::async_startProcessing():" << std::endl

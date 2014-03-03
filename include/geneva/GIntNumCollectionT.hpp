@@ -321,11 +321,11 @@ public:
 			}
 
 			// Set initialization boundaries
-			BOOST_CHECK_NO_THROW(p_test1->GNumCollectionT<int_type>::setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
 			// Check that the boundaries have been set as expected
-			BOOST_CHECK(p_test1->GNumCollectionT<int_type>::getLowerInitBoundary() == LOWERINITBOUNDARY);
-			BOOST_CHECK(p_test1->GNumCollectionT<int_type>::getUpperInitBoundary() == UPPERINITBOUNDARY);
+			BOOST_CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
+			BOOST_CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
 
 			// Load the data of p_test1 into p_test2
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));

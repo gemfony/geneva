@@ -308,7 +308,8 @@ public:
 		if(adProb < 0. || adProb > 1.) {
 			glogger
 			<< "In GAdaptorT<T>::setAdaptionProbability(const double&):" << std::endl
-			<< "Bad probability value given: " << adProb << GEXCEPTION;
+			<< "Bad probability value given: " << adProb << std::endl
+			<< GEXCEPTION;
 		}
 
 		adProb_ = adProb;
@@ -347,7 +348,8 @@ public:
 		if(probability < 0. || probability > 1.) {
 			glogger
 			<<	"In GAdaptorT<T>::setAdaptAdaptionProbability(const double&) :" << std::endl
-			<< "Bad probability value given: " << probability << GEXCEPTION;
+			<< "Bad probability value given: " << probability << std::endl
+			<< GEXCEPTION;
 		}
 
 		adaptAdaptionProbability_ = probability;

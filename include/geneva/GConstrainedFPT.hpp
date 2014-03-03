@@ -646,7 +646,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Assign boundaries and values
-			BOOST_CHECK_NO_THROW(p_test->GConstrainedFPT<fp_type>::setValue(testVal, lowerBoundary, upperBoundary));
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
 
 			// Cross-check that value and boundaries are o.k.
          BOOST_CHECK_MESSAGE(

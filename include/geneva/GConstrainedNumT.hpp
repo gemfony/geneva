@@ -681,10 +681,10 @@ public:
 			BOOST_CHECK(p_test->value() == testVal);
 
 			// Check with the corresponding GParameterT<T> function
-			BOOST_CHECK(p_test->GParameterT<T>::value() == testVal);
+			BOOST_CHECK(p_test->value() == testVal);
 
 			// Check that getInternalValue() behaves as expected
-			BOOST_CHECK(p_test->GParameterT<T>::value() == p_test->getInternalValue());
+			BOOST_CHECK(p_test->value() == p_test->getInternalValue());
 		}
 
 		//------------------------------------------------------------------------------
@@ -727,7 +727,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Set the desired value
-			BOOST_CHECK_NO_THROW(p_test->GConstrainedNumT<T>::setValue(testVal, lowerBoundary, upperBoundary));
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
 
 			// Check the values of these boundaries
 			BOOST_CHECK_MESSAGE(
@@ -737,8 +737,8 @@ public:
 					<< "lowerBoundary = " << lowerBoundary << "\n"
 			);
 			BOOST_CHECK_MESSAGE(
-					// p_test->getUpperBoundary() == (typeid(T)==typeid(double)?boost::math::template float_prior<T>(upperBoundary):upperBoundary)
-			      p_test->getUpperBoundary() == upperBoundary
+					p_test->getUpperBoundary() == ((typeid(T)==typeid(double) || typeid(T)==typeid(float))?boost::math::template float_prior<T>(upperBoundary):upperBoundary)
+			      // p_test->getUpperBoundary() == upperBoundary
 					,  "\n"
 					<< "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
 					<< "upperBoundary = " << upperBoundary << "\n"

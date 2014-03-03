@@ -435,7 +435,7 @@ public:
 			boost::shared_ptr<GNumFPT<fp_type> > p_test2 = this->GObject::clone<GNumFPT<fp_type> >();
 
 			// Assign a defined start value
-			p_test1->GParameterT<fp_type>::setValue(fp_type(0));
+			p_test1->setValue(fp_type(0));
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(boost::numeric_cast<float>(2.*UPPERINITBOUNDARY))); // Make sure the parameters indeed change

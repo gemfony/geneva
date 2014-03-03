@@ -110,9 +110,9 @@ public:
     * initialization, the optimization cycles and finalization.
     */
    virtual void informationFunction(
-         const infoMode& im
-         , GOptimizationAlgorithmT<ind_type> * const goa
-   ) = 0;
+      const infoMode& im
+      , GOptimizationAlgorithmT<ind_type> * const goa
+   ) BASE = 0;
 
    /***************************************************************************/
    /**
@@ -179,7 +179,7 @@ public:
    ) OVERRIDE {
       typename std::vector<boost::shared_ptr<GBasePluggableOMT<ind_type> > >::iterator it;
       for(it=pluggable_monitors_.begin(); it!=pluggable_monitors_.end(); ++it) {
-         (*it)->GBasePluggableOMT<ind_type>::informationFunction(im,goa);
+         (*it)->informationFunction(im,goa);
       }
    }
 
@@ -408,7 +408,7 @@ public:
     * Allows to add a "Print" command to the end of the script so that picture files are created
     */
    void setAddPrintCommand(bool addPrintCommand) {
-      addPrintCommand_ = addPrintCommand_;
+      addPrintCommand_ = addPrintCommand;
    }
 
    /******************************************************************************/
@@ -1003,7 +1003,7 @@ public:
 
          // Loop over all individuals of the algorithm.
          for(std::size_t pos=0; pos<goa->size(); pos++) {
-            boost::shared_ptr<GParameterSet> ind = goa->GOptimizationAlgorithmT<ind_type>::template individual_cast<GParameterSet>(pos);
+            boost::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
 
             // Note that isGoodEnough may throw if loop acts on a "dirty" individual
             if(!boundariesActive_ || ind->isGoodEnough(boundaries_)) {
