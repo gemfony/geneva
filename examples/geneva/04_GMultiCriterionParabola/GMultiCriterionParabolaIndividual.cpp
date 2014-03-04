@@ -40,6 +40,38 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Provide an easy way to print the individual's content
+ */
+std::ostream& operator<<(std::ostream& s, const Gem::Geneva::GMultiCriterionParabolaIndividual& f) {
+   std::vector<double> parVec;
+   f.streamline(parVec);
+
+   for(std::size_t i=0; i<f.getNumberOfFitnessCriteria(); i++) {
+      std::cout << "Fitness " << i << ": " << f.fitness(i) << std::endl;
+   }
+
+   std::vector<double>::iterator it;
+   for(it=parVec.begin(); it!=parVec.end(); ++it) {
+      std::cout << std::distance(parVec.begin(), it) << ": " << *it << std::endl;
+   }
+
+   return s;
+}
+
+/******************************************************************************/
+/**
+ * Provide an easy way to print the individual's content through a smart-pointer
+ */
+std::ostream& operator<<(std::ostream& s, boost::shared_ptr<Gem::Geneva::GMultiCriterionParabolaIndividual> f_ptr) {
+   return operator<<(s,*f_ptr);
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * The standard constructor. Initialization with the number of fitness
  * criteria, so GOptimizableEntity can set up its internal data structures.

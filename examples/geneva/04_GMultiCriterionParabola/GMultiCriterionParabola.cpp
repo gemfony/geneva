@@ -74,4 +74,5 @@ int main(int argc, char **argv) {
 	boost::shared_ptr<GMultiCriterionParabolaIndividual> bestIndividual_ptr = go.optimize<GMultiCriterionParabolaIndividual>();
 
 	// Do something with the best result
+	std::cout << bestIndividual_ptr << std::endl;
 }

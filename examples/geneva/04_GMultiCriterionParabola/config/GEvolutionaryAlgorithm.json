@@ -220,6 +220,6 @@
         "comment": "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection",
         "comment": "[GBaseEA]",
         "default": "1",
-        "value": "1"
+        "value": "4"
     }
 }

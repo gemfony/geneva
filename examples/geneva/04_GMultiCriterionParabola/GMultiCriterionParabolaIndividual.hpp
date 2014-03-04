@@ -63,9 +63,7 @@ namespace Geneva {
 // The number of parameters
 const std::size_t NPAR_MC = 3;
 
-// Forward declaration
-
-/******************************************************************/
+/******************************************************************************/
 /**
  * This individual implements several, possibly conflicting evaluation
  * criteria, each implemented as a parabola with its own minimum
@@ -74,7 +72,7 @@ class GMultiCriterionParabolaIndividual :public GParameterSet
 {
    friend class GMultiCriterionParabolaIndividualFactory;
 
-	/**************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function triggers serialization of this class and its
 	 * base classes.
@@ -87,7 +85,7 @@ class GMultiCriterionParabolaIndividual :public GParameterSet
 
    /** @brief Make the class accessible to Boost.Serialization */
    friend class boost::serialization::access;
-	/**************************************************************/
+   /***************************************************************************/
 
 public:
 	/** @brief The standard constructor */
@@ -119,9 +117,9 @@ private:
    std::vector<double> minima_;
 };
 
-/******************************************************************/
-////////////////////////////////////////////////////////////////////
-/******************************************************************/
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * A factory for GMultiCriterionParabolaIndividual objects
  */
@@ -152,8 +150,14 @@ private:
    bool firstParsed_; ///< Set to false when the configuration files were parsed for the first time
 };
 
+/******************************************************************************/
+/**
+ * Provide an easy way to print the individual's content
+ */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::GMultiCriterionParabolaIndividual&);
+std::ostream& operator<<(std::ostream&, boost::shared_ptr<Gem::Geneva::GMultiCriterionParabolaIndividual>);
 
-/************************************************************************************************/
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
