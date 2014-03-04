@@ -19,8 +19,8 @@
     "sigmaSigma":
     {
         "comment": "Influences the self-adaption of gauss-mutation in ES",
-        "default": "0.8",
-        "value": "0.8"
+        "default": "0.2",
+        "value": "0.2"
     },
     "minSigma":
     {
