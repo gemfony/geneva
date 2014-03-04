@@ -75,19 +75,19 @@ namespace po = boost::program_options;
 /******************************************************************************/
 // Default settings
 const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
-const std::size_t DEFAULTPOPULATIONSIZESUPER=10;
+const std::size_t DEFAULTPOPULATIONSIZESUPER=5;
 const std::size_t DEFAULTNPARENTSSUPER=1;
-const boost::uint32_t DEFAULTMAXITERATIONSSUPER=20;
+const boost::uint32_t DEFAULTMAXITERATIONSSUPER=10;
 const long DEFAULTMAXMINUTESSUPER=0;
 const boost::uint32_t DEFAULTREPORTITERATIONSUPER=1;
 const sortingModeMP DEFAULTSORTINGSCHEMESUPER=MUPLUSNU_SINGLEEVAL_MP;
 const duplicationScheme DEFAULTRSCHEMESUPER=VALUEDUPLICATIONSCHEME;
-const std::size_t DEFAULTPOPULATIONSIZESUB=100;
-const std::size_t DEFAULTNPARENTSSUB=5; // Allow to explore the parameter space from many starting points
+const std::size_t DEFAULTPOPULATIONSIZESUB=22;
+const std::size_t DEFAULTNPARENTSSUB=2; // Allow to explore the parameter space from many starting points
 const boost::uint32_t DEFAULTMAXITERATIONSSUB=100;
 const long DEFAULTMAXMINUTESSUB=0;
 const boost::uint32_t DEFAULTREPORTITERATIONSUB=0;
-const sortingMode DEFAULTSORTINGSCHEMESUB=MUPLUSNU_SINGLEEVAL;
+const sortingMode DEFAULTSORTINGSCHEMESUB=MUCOMMANU_SINGLEEVAL;
 const duplicationScheme DEFAULTRSCHEMESUB=VALUEDUPLICATIONSCHEME;
 
 /******************************************************************************/
