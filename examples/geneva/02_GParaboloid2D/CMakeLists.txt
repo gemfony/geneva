@@ -40,8 +40,8 @@ IF(NOT CMAKE_BUILD_TYPE)
 	ENDIF()
 ENDIF()
 
-# At least Boost 1.41 must be installed
-FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
+# At least Boost 1.48 must be installed
+FIND_PACKAGE( Boost 1.48 REQUIRED COMPONENTS
 	date_time
 	filesystem
 	program_options
@@ -53,7 +53,7 @@ FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
 # Check whether we want to activate the test code and build tests, if not done yet
 IF ( NOT GENEVA_INFO_MSG AND GENEVA_BUILD_TESTS )
 	ADD_DEFINITIONS ("-DGEM_TESTING")
-	FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
+	FIND_PACKAGE( Boost 1.48 REQUIRED COMPONENTS
 		test_exec_monitor
 	)
 ENDIF()
