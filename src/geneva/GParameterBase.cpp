@@ -48,12 +48,7 @@ GParameterBase::GParameterBase()
 	, gr(gr_local)
 	, adaptionsActive_(true)
 	, randomInitializationBlocked_(false)
-// Boost.Uuid was only introduced with Boost version 1.42
-#if BOOST_VERSION > 104100
-   , parameterName_(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
-#else
-   , parameterName_(boost::lexical_cast<std::string>(this))
-#endif /* BOOST_VERSION */
+	, parameterName_(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -69,7 +64,7 @@ GParameterBase::GParameterBase(const GParameterBase& cp)
 	, gr(gr_local)
 	, adaptionsActive_(cp.adaptionsActive_)
 	, randomInitializationBlocked_(cp.randomInitializationBlocked_)
-   , parameterName_(cp.parameterName_)
+	, parameterName_(cp.parameterName_)
 { /* nothing */ }
 
 /******************************************************************************/
