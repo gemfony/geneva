@@ -40,11 +40,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-#if BOOST_VERSION < 104200
-#include <boost/exception.hpp> // Deprecated as of Boost 1.42
-#else
 #include <boost/exception/all.hpp>
-#endif
 
 #ifndef GMUTABLEI_HPP_
 #define GMUTABLEI_HPP_

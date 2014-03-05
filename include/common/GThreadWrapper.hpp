@@ -54,12 +54,7 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>
-
-#if BOOST_VERSION < 104200
-#include <boost/exception.hpp> // Deprecated as of Boost 1.42
-#else
 #include <boost/exception/all.hpp>
-#endif
 
 
 #ifndef GTHREADWRAPPER_HPP_
