@@ -285,7 +285,7 @@ SET (Boost_ADDITIONAL_VERSIONS "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "
 # Search for required libraries
 IF( GENEVA_BUILD_TESTS )
 	ADD_DEFINITIONS ("-DGEM_TESTING")
-	FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
+	FIND_PACKAGE( Boost 1.48 REQUIRED COMPONENTS
 		date_time
 		filesystem
 		program_options
@@ -296,7 +296,7 @@ IF( GENEVA_BUILD_TESTS )
 		test_exec_monitor
 	)
 ELSE()
-	FIND_PACKAGE( Boost 1.41 REQUIRED COMPONENTS
+	FIND_PACKAGE( Boost 1.48 REQUIRED COMPONENTS
 		date_time
 		filesystem
 		program_options
@@ -477,22 +477,22 @@ SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}
 )
 SET(CPACK_DEBIAN_PACKAGE_SECTION "Science")
 SET(CPACK_DEBIAN_PACKAGE_PRIORITY "Extra")
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-dev (>= 1.41.0),
-	libboost-date-time-dev (>= 1.41.0),
-	libboost-filesystem-dev (>= 1.41.0),
-	libboost-program-options-dev (>= 1.41.0),
-	libboost-regex-dev (>= 1.41.0),
-	libboost-serialization-dev (>= 1.41.0),
-	libboost-system-dev (>= 1.41.0),
-	libboost-thread-dev (>= 1.41.0),
-	libboost-test-dev (>= 1.41.0)"
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-dev (>= 1.48.0),
+	libboost-date-time-dev (>= 1.48.0),
+	libboost-filesystem-dev (>= 1.48.0),
+	libboost-program-options-dev (>= 1.48.0),
+	libboost-regex-dev (>= 1.48.0),
+	libboost-serialization-dev (>= 1.48.0),
+	libboost-system-dev (>= 1.48.0),
+	libboost-thread-dev (>= 1.48.0),
+	libboost-test-dev (>= 1.48.0)"
 )
 
 # RPM specific variables
 SET(CPACK_RPM_PACKAGE_DESCRIPTION ${CPACK_AUX_PACKAGE_DESCRIPTION})
 SET(CPACK_RPM_PACKAGE_LICENSE "Affero GPL v3")
 SET(CPACK_RPM_PACKAGE_GROUP "Sciences/Libraries")
-SET(CPACK_RPM_PACKAGE_REQUIRES "boost-devel >= 1.41")
+SET(CPACK_RPM_PACKAGE_REQUIRES "boost-devel >= 1.48")
 
 # Detect the distribution to autoselect the package generator...
 EXECUTE_PROCESS(COMMAND lsb_release -is
