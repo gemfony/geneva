@@ -37,12 +37,6 @@
 #include <fstream>
 
 // Boost headers go here
-#include <boost/version.hpp>
-
-#if BOOST_VERSION < 104100
-#error "Error: Boost should at least have version 1.41 !"
-#endif /* BOOST_VERSION */
-
 #include <boost/cstdint.hpp>
 #include <boost/program_options.hpp>
 
