@@ -530,9 +530,9 @@ public:
 	 *
 	 * @param val The value that needs to be adapted
 	 * @param range A typical value range for type T
-	 * @return A boolean indicating whether an adaption has indeed taken place
+	 * @return The number of adaptions that were carried out
 	 */
-	bool adapt(
+	std::size_t adapt(
       T& val
       , const T& range
    ) {
@@ -560,7 +560,11 @@ public:
 
 		// No need to test for "adaptionMode_ == false" as no action is needed in this case
 
-		return adapted;
+		if(adapted) {
+		   return std::size_t(1);
+		} else {
+		   return std::size_t(0);
+		}
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -576,7 +580,7 @@ public:
     * that they represent a common logical entity and should thus be mutated together,
     * using a single adaptor. However, it is not clear whether adaptions of mutation
     * parameters (such as adaption of the sigma value) should happen whenever
-    * customAdaptions() are called (which would be equivalent to individual parameter
+    * customAdaptions() is called (which would be equivalent to individual parameter
     * objects) or only once, before customAdaptions is applied to each position in
     * turn. As adaption e.g. of the sigma value slightly favors changes towards smaller
     * values, we incur a small bias in the first case, where mutations of parameters
@@ -588,15 +592,16 @@ public:
     *
     * @param valVec A vector of values that need to be adapted
     * @param range A typical value range for type T
-    * @return A boolean indicating whether an adaption has indeed taken place
+    * @return The number of adaptions that were carried out
     */
-   bool adapt(
+   std::size_t adapt(
       std::vector<T>& valVec
       , const T& range
    ) {
       using namespace Gem::Common;
 
-      bool adapted = false;
+      std::size_t nAdapted = 0;
+
       typename std::vector<T>::iterator it;
 
       // Update the adaption probability, if requested by the user
@@ -606,26 +611,26 @@ public:
       }
 
       if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
-         if(gr->uniform_01<double>() <= adProb_) { // Should we perform adaption
-            for (it = valVec.begin(); it != valVec.end(); ++it) {
+         for (it = valVec.begin(); it != valVec.end(); ++it) {
+            if(gr->uniform_01<double>() <= adProb_) { // Should we perform adaption ?
                adaptAdaption(range);
                customAdaptions(*it, range);
-            }
 
-            adapted = true;
+               nAdapted += 1;
+            }
          }
       } else if(true == adaptionMode_) { // always adapt
          for (it = valVec.begin(); it != valVec.end(); ++it) {
             adaptAdaption(range);
             customAdaptions(*it, range);
-         }
 
-         adapted = true;
+            nAdapted += 1;
+         }
       }
 
       // No need to test for "adaptionMode_ == false" as no action is needed in this case
 
-      return adapted;
+      return nAdapted;
    }
 
    /* ----------------------------------------------------------------------------------

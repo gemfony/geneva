@@ -102,7 +102,7 @@ void GParameterBase::load_(const GObject* cp){
  *
  * @return A boolean which indicates whether a modification was indeed made
  */
-bool GParameterBase::adapt() {
+std::size_t GParameterBase::adapt() {
 	if(adaptionsActive_) {
 	   return adaptImpl(); // Will determine whether a modification was made
 	} else {

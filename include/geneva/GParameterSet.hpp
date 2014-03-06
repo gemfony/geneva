@@ -460,7 +460,7 @@ protected:
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation() OVERRIDE ;
 	/* @brief The actual adaption operations. */
-	virtual bool customAdaptions() OVERRIDE ;
+	virtual std::size_t customAdaptions() OVERRIDE ;
 
 private:
 	explicit GParameterSet(const float&); ///< Intentionally private and undefined

@@ -117,6 +117,7 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(worstKnownValids_)
 	  & BOOST_SERIALIZATION_NVP(markedAsInvalidByUser_)
 	  & BOOST_SERIALIZATION_NVP(maxUnsuccessfulAdaptions_)
+	  & BOOST_SERIALIZATION_NVP(nAdaptions_)
 	  & BOOST_SERIALIZATION_NVP(evaluationID_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -147,7 +148,7 @@ public:
 	) const OVERRIDE;
 
 	/** @brief The adaption interface */
-	virtual bool adapt() OVERRIDE;
+	virtual std::size_t adapt() OVERRIDE;
 
    /** @brief Returns the raw result of the fitness function with id 0 */
    virtual double fitness() const OVERRIDE;
@@ -223,6 +224,9 @@ public:
 	void setMaxUnsuccessfulAdaptions(std::size_t);
 	/** @brief Retrieves the maximum number of calls to customAdaptions that may pass without actual modifications */
 	std::size_t getMaxUnsuccessfulAdaptions() const;
+
+	/** @brief Retrieves the number of adaptions performed during the last call to adapt() */
+	std::size_t getNAdaptions() const;
 
 	/** @brief Allows to set the current iteration of the parent optimization algorithm. */
 	void setAssignedIteration(const boost::uint32_t&);
@@ -397,7 +401,7 @@ protected:
 	void setFitness_(const std::vector<double>&);
 
 	/** @brief The actual adaption operations */
-	virtual bool customAdaptions() BASE;
+	virtual std::size_t customAdaptions() BASE;
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode_(const bool&);
 	/** @brief Sets the dirtyFlag_ to any desired value */
@@ -497,6 +501,7 @@ private:
    boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > individualConstraint_;
 
    std::size_t maxUnsuccessfulAdaptions_; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
+   std::size_t nAdaptions_; ///< Stores the actual number of adaptions after a call to "adapt()"
 
    /** @brief A unique id that is assigned to an evaluation */
    std::string evaluationID_;

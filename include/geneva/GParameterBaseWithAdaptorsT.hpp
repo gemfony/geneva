@@ -465,9 +465,9 @@ protected:
 	 *
 	 * @param value The parameter to be adapted
 	 * @param range A typical value range of underlying parameter types
-	 * @return A boolean which indicates whether adaptions were indeed made
+	 * @return The number of adaptions that were carried out
 	 */
-	bool applyAdaptor(
+	std::size_t applyAdaptor(
       T &value
       , const T& range
    ) {
@@ -498,9 +498,9 @@ protected:
 	 *
 	 * @param collection A vector of values that shall be adapted
 	 * @param range A typical value range of underlying parameter types
-	 * @return A boolean which indicates whether adaptions were indeed made
+	 * @return The number of adaptions that were carried out
 	 */
-	bool applyAdaptor(
+	std::size_t applyAdaptor(
       std::vector<T> &collection
       , const T& range
    ) {
@@ -647,7 +647,7 @@ public:
 };
 
 // Declaration of specializations for specific types
-template<> bool GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>&, const bool&);
+template<> std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>&, const bool&);
 
 } /* namespace Geneva */
 } /* namespace Gem */

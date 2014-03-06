@@ -270,9 +270,9 @@ public:
 	/**
 	 * Allows to adapt the value stored in this class.
 	 *
-	 * @return A boolean indicating whether adaptions were indeed made
+	 * @return The number of adaptions that were performed
 	 */
-	virtual bool adaptImpl() OVERRIDE {
+	virtual std::size_t adaptImpl() OVERRIDE {
 		return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
          val_
          , this->range()

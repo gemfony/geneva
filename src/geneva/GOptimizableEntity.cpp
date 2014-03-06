@@ -63,6 +63,7 @@ GOptimizableEntity::GOptimizableEntity()
    , steepness_(Gem::Geneva::FITNESSSIGMOIDSTEEPNESS)
    , barrier_(Gem::Geneva::WORSTALLOWEDVALIDFITNESS)
    , maxUnsuccessfulAdaptions_(DEFMAXUNSUCCESSFULADAPTIONS)
+   , nAdaptions_(0)
    , evaluationID_("empty")
 { /* nothing */ }
 
@@ -92,6 +93,7 @@ GOptimizableEntity::GOptimizableEntity(const std::size_t& nFitnessCriteria)
    , steepness_(Gem::Geneva::FITNESSSIGMOIDSTEEPNESS)
    , barrier_(Gem::Geneva::WORSTALLOWEDVALIDFITNESS)
    , maxUnsuccessfulAdaptions_(DEFMAXUNSUCCESSFULADAPTIONS)
+   , nAdaptions_(0)
    , evaluationID_("empty")
 { /* nothing */ }
 
@@ -119,6 +121,7 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
    , steepness_(cp.steepness_)
    , barrier_(cp.barrier_)
    , maxUnsuccessfulAdaptions_(cp.maxUnsuccessfulAdaptions_)
+   , nAdaptions_(cp.nAdaptions_)
    , evaluationID_(cp.evaluationID_)
 {
 	// Copy the personality pointer over
@@ -209,6 +212,7 @@ boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", steepness_, p_load->steepness_, "steepness_", "p_load->steepness_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", barrier_, p_load->barrier_, "barrier_", "p_load->barrier_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", maxUnsuccessfulAdaptions_, p_load->maxUnsuccessfulAdaptions_, "maxUnsuccessfulAdaptions_", "p_load->maxUnsuccessfulAdaptions_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nAdaptions_, p_load->nAdaptions_, "nAdaptions_", "p_load->nAdaptions_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", evaluationID_, p_load->evaluationID_, "evaluationID_", "p_load->evaluationID_", e , limit));
 
    return evaluateDiscrepancies("GOptimizableEntity", caller, deviations, e);
@@ -284,6 +288,7 @@ void GOptimizableEntity::load_(const GObject* cp) {
 	steepness_ = p_load->steepness_;
 	barrier_ = p_load->barrier_;
 	maxUnsuccessfulAdaptions_ = p_load->maxUnsuccessfulAdaptions_;
+	nAdaptions_ = p_load->nAdaptions_;
 	evaluationID_ = p_load->evaluationID_;
 
 	copyGenevaSmartPointer(p_load->pt_ptr_, pt_ptr_);
@@ -295,11 +300,21 @@ void GOptimizableEntity::load_(const GObject* cp) {
  * The adaption interface. Triggers adaption of the individual, using each parameter object's adaptor.
  * Sets the dirty flag, as the parameters have been changed.
  */
-bool GOptimizableEntity::adapt() {
-   std::size_t nAdaptions = 0;
-   while(false == this->customAdaptions()) { // Try again if no adaption has taken place
+std::size_t GOptimizableEntity::adapt() {
+   std::size_t nAdaptionAttempts = 0;
+   std::size_t nAdaptions = 0; // This is a measure of the "effective" adaption probability
+
+   while(true) { // Try again if no adaption has taken place
+      // Perform the actual adaption
+      nAdaptions = this->customAdaptions();
+
+      // Terminate, if at least one adaption was performed
+      if(nAdaptions > 0) {
+         break;
+      }
+
       // Terminate, if the maximum number of adaptions has been exceeded
-      if(maxUnsuccessfulAdaptions_ > 0 && ++nAdaptions > maxUnsuccessfulAdaptions_) {
+      if(maxUnsuccessfulAdaptions_ > 0 && ++nAdaptionAttempts > maxUnsuccessfulAdaptions_) {
          break;
       }
    }
@@ -308,7 +323,10 @@ bool GOptimizableEntity::adapt() {
    // that individuals carry the "dirty flag" when they have been adapted.
 	GOptimizableEntity::setDirtyFlag(); // Make sure the individual is re-evaluated when fitness(...) is called next time
 
-	return true;
+	// Store the number of adaptions for later use
+   nAdaptions_ = nAdaptions;
+
+	return nAdaptions;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -926,6 +944,15 @@ std::size_t GOptimizableEntity::getMaxUnsuccessfulAdaptions() const {
 
 /******************************************************************************/
 /**
+ * Retrieves the number of adaptions performed during the last call to adapt()
+ * (or 0, if no adaptions were performed so far).
+ */
+std::size_t GOptimizableEntity::getNAdaptions() const {
+   return nAdaptions_;
+}
+
+/******************************************************************************/
+/**
  * Sets the dirtyFlag_. This is a "one way" function, accessible to derived classes. Once the dirty flag
  * has been set, the only way to reset it is to calculate the fitness of this object.
  */
@@ -1539,8 +1566,8 @@ boost::shared_ptr<GPersonalityTraits> GOptimizableEntity::getPersonalityTraits()
  * Actions to be performed when adapting this object. This function will be overloaded particularly
  * for the GParameterSet class.
  */
-bool GOptimizableEntity::customAdaptions() BASE {
-   return false;
+std::size_t GOptimizableEntity::customAdaptions() BASE {
+   return 0;
 }
 
 /******************************************************************************/

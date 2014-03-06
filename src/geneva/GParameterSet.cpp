@@ -781,17 +781,15 @@ boost::shared_ptr<Gem::Geneva::GParameterBase> GParameterSet::at(const std::size
  * in this collection must implement the adapt() function, as they are
  * derived from the GMutableI class / interface.
  */
-bool GParameterSet::customAdaptions() {
-   bool adapted = false;
+std::size_t GParameterSet::customAdaptions() {
+   std::size_t nAdaptions = 0;
 
 	GParameterSet::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
-		if(true == (*it)->adapt()) {
-		   adapted = true;
-		}
+	   nAdaptions += (*it)->adapt();
 	}
 
-	return adapted;
+	return nAdaptions;
 }
 
 /* ----------------------------------------------------------------------------------

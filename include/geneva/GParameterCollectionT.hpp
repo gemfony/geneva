@@ -235,9 +235,9 @@ public:
 	 * to a std::vector<T>. As we are derived from a wrapper of this class, we can just pass
 	 * a reference to its data vector to the function.
 	 *
-	 * @return A boolean which indicates whether adpations were indeed made
+	 * @return The number of adaptions that were carried out
 	 */
-	virtual bool adaptImpl() OVERRIDE {
+	virtual std::size_t adaptImpl() OVERRIDE {
 	   return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
          GStdSimpleVectorInterfaceT<T>::data
          , this->range()

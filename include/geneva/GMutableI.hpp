@@ -66,7 +66,7 @@ public:
 	virtual ~GMutableI(){ /* nothing */ }
 
 	/** @brief Allows derivatives to be adapted */
-	virtual bool adapt() BASE = 0;
+	virtual std::size_t adapt() BASE = 0;
 };
 
 } /* namespace Geneva */

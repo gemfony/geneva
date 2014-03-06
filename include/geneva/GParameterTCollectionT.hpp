@@ -215,18 +215,18 @@ public:
 	 * Allows to adapt the values stored in this class. We assume here that
 	 * each item has its own adapt function. Hence we do not need to use or
 	 * store own adaptors.
+	 *
+	 * @return The number of adaptions that were carried out
 	 */
-	virtual bool adaptImpl() OVERRIDE {
-	   bool adapted = false;
+	virtual std::size_t adaptImpl() OVERRIDE {
+	   std::size_t nAdapted = 0;
 
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			if(true == (*it)->adapt()) {
-			   adapted = true;
-			}
+			nAdapted += (*it)->adapt();
 		}
 
-		return adapted;
+		return nAdapted;
 	}
 
 	/* ----------------------------------------------------------------------------------
