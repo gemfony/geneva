@@ -354,9 +354,6 @@ private:
 	boost::uint32_t iterationsConsumed_; ///< The number of successive iterations performed by this object so far
 
 	//---------------------------------------------------------------------------
-	boost::shared_ptr<GParameterSet> bestIndividual_; ///< The best individual found during an optimization run
-
-	//---------------------------------------------------------------------------
 	// The list of "chained" optimization algorithms
 	std::vector<boost::shared_ptr<GOABase> > algorithms_;
 	// Algorithms that were specified on the command line

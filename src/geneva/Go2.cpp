@@ -200,9 +200,6 @@ Go2::Go2(const Go2& cp)
 	, iterationsConsumed_(0)
 	, default_algorithm_str_(DEFAULTOPTALG)
 {
-	// Copy the best individual over (if any)
-	copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
-
 	// Copy the algorithms vectors over
    copyGenevaSmartPointerVector(cp.cl_algorithms_, cl_algorithms_);
 	copyGenevaSmartPointerVector(cp.algorithms_, algorithms_);
@@ -223,7 +220,6 @@ Go2::Go2(const Go2& cp)
  */
 Go2::~Go2() {
 	this->clear(); // Get rid of the local individuals
-	bestIndividual_.reset(); // Get rid of the stored best individual
 	algorithms_.clear(); // Get rid of the optimization algorithms
 	cl_algorithms_.clear(); // Get rid of algorithms registered on the command line
 }
@@ -307,7 +303,6 @@ boost::optional<std::string> Go2::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go2", offset_, p_load->offset_, "offset_", "p_load->offset_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", sorted_, p_load->sorted_, "sorted_", "p_load->sorted_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", iterationsConsumed_, p_load->iterationsConsumed_, "iterationsConsumed_", "p_load->iterationsConsumed_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", bestIndividual_, p_load->bestIndividual_, "bestIndividual_", "p_load->bestIndividual_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go2", default_algorithm_, p_load->default_algorithm_, "default_algorithm_", "p_load->default_algorithm_", e , limit));
 
 	// TODO: Compare algorithms; cross check whether other data has been added
@@ -434,7 +429,6 @@ void Go2::load_(const GObject *cp) {
 	sorted_ = p_load->sorted_;
 	iterationsConsumed_ = p_load->iterationsConsumed_;
 
-	copyGenevaSmartPointer<GParameterSet>(p_load->bestIndividual_, bestIndividual_);
 	copyGenevaSmartPointer<GOABase>(p_load->default_algorithm_, default_algorithm_);
 
 	// Copy the algorithm vectors over
@@ -759,7 +753,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 #endif /* DEBUG */
 
       // Do the actual optimization
-      bestIndividual_ = p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
+      p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
 
       // Make sure we start with the correct iteration in the next algorithm
       iterationsConsumed_ = p_base->getIteration();
@@ -775,7 +769,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
       p_base->clear();
 	}
 
-	// Sort the individuals according to their fitness so we have it easier later on
+	// Sort the individuals according to their primary fitness so we have it easier later on
 	// to extract the best individuals found.
    std::sort(
       this->begin()
