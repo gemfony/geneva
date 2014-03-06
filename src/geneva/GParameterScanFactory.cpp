@@ -197,7 +197,7 @@ void GParameterScanFactory::addCLOptions(
 ) {
    namespace po = boost::program_options;
 
-   visible.add_options() (
+   hidden.add_options() (
       "parameterSpec"
       , po::value<std::string>(&parameterSpecCL_)->default_value(std::string("empty"))
       , "\t[GParameterScanFactory] Specification of parameters to be scanned. Syntax: \"d(0, -10., 10., 100)\". Use a comma-separated list for more than one variable. A single entry \"s(1000)\" will lead to a random scan over all parameters of up to 1000 individuals"
