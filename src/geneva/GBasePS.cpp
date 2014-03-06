@@ -118,6 +118,8 @@ GBasePS::GBasePS()
    , cycleLogicHalt_(false)
    , scanRandomly_(true)
    , nMonitorInds_(DEFAULTNMONITORINDS)
+   , simpleScanItems_(0)
+   , scansPerformed_(0)
 {
    // Register the default optimization monitor
    this->registerOptimizationMonitor(
@@ -138,6 +140,8 @@ GBasePS::GBasePS(const GBasePS& cp)
    , cycleLogicHalt_(cp.cycleLogicHalt_)
    , scanRandomly_(cp.scanRandomly_)
    , nMonitorInds_(cp.nMonitorInds_)
+   , simpleScanItems_(cp.simpleScanItems_)
+   , scansPerformed_(cp.scansPerformed_)
 {
    // Copying / setting of the optimization algorithm id is done by the parent class. The same
    // applies to the copying of the optimization monitor.
@@ -272,7 +276,8 @@ boost::optional<std::string> GBasePS::checkRelationshipWith(
    deviations.push_back(checkExpectation(withMessages, "GBasePS", cycleLogicHalt_, p_load->cycleLogicHalt_, "cycleLogicHalt_", "p_load->cycleLogicHalt_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GBasePS", scanRandomly_, p_load->scanRandomly_, "scanRandomly_", "p_load->scanRandomly_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GBasePS", nMonitorInds_, p_load->nMonitorInds_, "nMonitorInds_", "p_load->nMonitorInds_", e , limit));
-
+   deviations.push_back(checkExpectation(withMessages, "GBasePS", simpleScanItems_, p_load->simpleScanItems_, "simpleScanItems_", "p_load->simpleScanItems_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GBasePS", scansPerformed_, p_load->scansPerformed_, "scansPerformed_", "p_load->scansPerformed_", e , limit));
 
    // We do not check our temporary parameter objects yet (bVec_ etc.)
 
@@ -319,9 +324,11 @@ void GBasePS::load_(const GObject *cp) {
    GOptimizationAlgorithmT<GParameterSet>::load_(cp);
 
    // ... and then our own data
-   cycleLogicHalt_ = p_load->cycleLogicHalt_;
-   scanRandomly_   = p_load->scanRandomly_;
-   nMonitorInds_   = p_load->nMonitorInds_;
+   cycleLogicHalt_  = p_load->cycleLogicHalt_;
+   scanRandomly_    = p_load->scanRandomly_;
+   nMonitorInds_    = p_load->nMonitorInds_;
+   simpleScanItems_ = p_load->simpleScanItems_;
+   scansPerformed_  = p_load->scansPerformed_;
 
    // Load the parameter objects
    bVec_.clear();
@@ -359,7 +366,11 @@ boost::tuple<double, double> GBasePS::cycleLogic() {
    boost::tuple<double, double> bestFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
 
    // Apply all necessary modifications to individuals
-   updateIndividuals();
+   if(0 == simpleScanItems_) { // We have been asked to deal with specific parameters
+      updateSelectedParameters();
+   } else { // We have been asked to randomly initialize the individuals a given number of times
+      randomShuffle();
+   }
 
    // Trigger value calculation for all individuals
    // This function is purely virtual and needs to be
@@ -368,13 +379,6 @@ boost::tuple<double, double> GBasePS::cycleLogic() {
 
    // Perform post-evaluation updates (mostly of individuals)
    postEvaluationWork();
-
-   // This function will sort the population according to
-   // its primary fitness value
-   sortPopulation();
-
-   // Updates the vector of best individuals found so far
-   updateBests();
 
    // Retrieve information about the best fitness found and disallow re-evaluation
    GBasePS::iterator it;
@@ -405,7 +409,7 @@ boost::tuple<double, double> GBasePS::cycleLogic() {
  * may resize the population and set the default population size, if there
  * is no sufficient number of data sets to be evaluated left.
  */
-void GBasePS::updateIndividuals() {
+void GBasePS::updateSelectedParameters() {
    std::size_t indPos = 0;
 
    while(true) {
@@ -521,7 +525,7 @@ void GBasePS::updateIndividuals() {
          default:
          {
             glogger
-            << "In GBasePS::updateIndividuals(): Error!" << std::endl
+            << "In GBasePS::updateSelectedParameters(): Error!" << std::endl
             << "Encountered invalid mode " << mode << std::endl
             << GEXCEPTION;
          }
@@ -560,50 +564,41 @@ void GBasePS::updateIndividuals() {
 
 /******************************************************************************/
 /**
- * Updates the best individuals found. Note that, when this function is called,
- * the population has already been sorted according to its fitness.
+ * Randomly initialize the individuals a given number of times
  */
-void GBasePS::updateBests() {
-   // Some error checks
-#ifdef DEBUG
-   if(this->empty()) {
-      glogger
-      << "In GBasePS::updateBests(): Error!" << std::endl
-      << "Algorithm does not contain any individuals." << std::endl
-      << GEXCEPTION;
-   }
-#endif /* DEBUG */
+void GBasePS::randomShuffle() {
+   std::size_t indPos = 0;
 
-   if(this->getIteration() > this->getStartIteration()) {
-#ifdef DEBUG
-      if(bestIndividuals_.empty()) {
-         glogger
-         << "In GBasePS::updateBests(): Error!" << std::endl
-         << "Vector of best individuals is empty when it shouldn't be."
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
+   while(true) {
+      // Update the individual and mark it as "dirty"
+      this->at(indPos)->randomInit();
+      // Mark the individual as "dirty", so it gets re-evaluated the
+      // next time the fitness() function is called
+      this->at(indPos)->setDirtyFlag();
 
-      // Note: The best individuals are found in the beginning of this population
-      for(std::size_t ind=0; ind<std::min(nMonitorInds_,this->size()); ind++) {
-         // Compare the fitness of the best individual with the last individual
-         // in the bestIndividuals_ vector. If it is better, replace it.
-         if(this->isBetter(this->at(ind)->transformedFitness(), bestIndividuals_.back()->transformedFitness())) {
-            // Copy a clone over
-            bestIndividuals_.back() = this->at(ind)->clone<GParameterSet>();
+      // We were successful
+      cycleLogicHalt_ = false;
 
-            // Sort the "bests" vector for the next iteration
-            std::sort(
-               bestIndividuals_.begin()
-               , bestIndividuals_.end()
-               , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
-            );
-         }
-      }
-   } else {  // No update has taken place yet
-      // We clone the nMonitorInds_ best individuals and store them in the bestIndividuals_ vector
-      for(std::size_t ind=0; ind<std::min(nMonitorInds_,this->size()); ind++) {
-         bestIndividuals_.push_back(this->at(ind)->clone<GParameterSet>());
+      //------------------------------------------------------------------------
+      // We do not want to exceed the boundaries of the population -- stop
+      // if we have reached the end of the population
+      if(++indPos >= this->getDefaultPopulationSize()) break;
+
+      //------------------------------------------------------------------------
+      // Make sure we terminate when the desired overall number of random scans has
+      // been performed
+      if(++scansPerformed_ >= simpleScanItems_) {
+         // Let the audience know that the optimization may be stopped
+         this->cycleLogicHalt_ = true;
+
+         // Reset all parameter objects for the next run (if desired)
+         this->resetParameterObjects();
+
+         // Resize the population, so we only have modified individuals
+         this->resize(indPos+1);
+
+         // Terminate the loop
+         break;
       }
    }
 }
@@ -632,6 +627,8 @@ void GBasePS::resetParameterObjects() {
    for(d_it=dVec_.begin(); d_it!=dVec_.end(); ++d_it) {
       (*d_it)->resetPosition();
    }
+
+   simpleScanItems_ = std::size_t(0);
 }
 
 /******************************************************************************/
@@ -741,7 +738,7 @@ boost::shared_ptr<parSet> GBasePS::getParameterSet(std::size_t& mode) {
  * collection (false)
  */
 bool GBasePS::switchToNextParameterSet() {
-   std::vector<boost::shared_ptr<scanParI> >::iterator it = allParVec_.begin();
+   std::vector<boost::shared_ptr<scanParInterface> >::iterator it = allParVec_.begin();
 
    // Switch to the next parameter set
    while(true) {
@@ -755,18 +752,6 @@ bool GBasePS::switchToNextParameterSet() {
 
    // Make the compiler happy
    return false;
-}
-
-/******************************************************************************/
-/**
- * This function will sort the population according to its primary fitness value.
- */
-void GBasePS::sortPopulation() {
-   std::sort(
-      (this->data).begin()
-      , (this->data).end()
-      , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
-   );
 }
 
 /******************************************************************************/
@@ -852,7 +837,7 @@ void GBasePS::addConfigurationOptions (
    );
 
    comment = ""; // Reset the comment string
-   comment += "Indicates whether scans should be done randomly;";
+   comment += "Indicates whether scans of individual variables should be done randomly;";
    comment += "(1) or on a grid (0);";
    if(showOrigin) comment += "[GBasePS]";
    gpb.registerFileParameter<bool>(
@@ -890,57 +875,85 @@ void GBasePS::setParameterSpecs(std::string parStr) {
    GParameterPropertyParser ppp(parStr);
 
    //---------------------------------------------------------------------------
-   // Assign the parameter definitions to our internal parameter vectors
+   // Assign the parameter definitions to our internal parameter vectors.
+   // We distinguish between a simple scan, where only a number of work items
+   // will be initialized randomly repeatedly, and scans of individual variables.
+   simpleScanItems_ = ppp.getNSimpleScanItems();
+   if(0 == simpleScanItems_) { // Only act if no "simple scan" was requested
+      // Retrieve double parameters
+      boost::tuple<
+         std::vector<parPropSpec<double> >::const_iterator
+         , std::vector<parPropSpec<double> >::const_iterator
+      > t_d = ppp.getIterators<double>();
 
-   // Retrieve double parameters
-   boost::tuple<
-      std::vector<parPropSpec<double> >::const_iterator
-      , std::vector<parPropSpec<double> >::const_iterator
-   > t_d = ppp.getIterators<double>();
+      std::vector<parPropSpec<double> >::const_iterator d_cit = boost::get<0>(t_d);
+      std::vector<parPropSpec<double> >::const_iterator d_end = boost::get<1>(t_d);
+      for(; d_cit!=d_end; ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
+         dVec_.push_back(boost::shared_ptr<dScanPar>(new dScanPar(*d_cit, scanRandomly_)));
+      }
 
-   std::vector<parPropSpec<double> >::const_iterator d_cit = boost::get<0>(t_d);
-   std::vector<parPropSpec<double> >::const_iterator d_end = boost::get<1>(t_d);
-   for(; d_cit!=d_end; ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
-      dVec_.push_back(boost::shared_ptr<dScanPar>(new dScanPar(*d_cit, scanRandomly_)));
-   }
+      // Retrieve float parameters
+      boost::tuple<
+         std::vector<parPropSpec<float> >::const_iterator
+         , std::vector<parPropSpec<float> >::const_iterator
+      > t_f = ppp.getIterators<float>();
 
-   // Retrieve float parameters
-   boost::tuple<
-      std::vector<parPropSpec<float> >::const_iterator
-      , std::vector<parPropSpec<float> >::const_iterator
-   > t_f = ppp.getIterators<float>();
+      std::vector<parPropSpec<float> >::const_iterator f_cit = boost::get<0>(t_f);
+      std::vector<parPropSpec<float> >::const_iterator f_end = boost::get<1>(t_f);
+      for(; f_cit!=f_end; ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
+         fVec_.push_back(boost::shared_ptr<fScanPar>(new fScanPar(*f_cit, scanRandomly_)));
+      }
 
-   std::vector<parPropSpec<float> >::const_iterator f_cit = boost::get<0>(t_f);
-   std::vector<parPropSpec<float> >::const_iterator f_end = boost::get<1>(t_f);
-   for(; f_cit!=f_end; ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
-      fVec_.push_back(boost::shared_ptr<fScanPar>(new fScanPar(*f_cit, scanRandomly_)));
-   }
+      // Retrieve integer parameters
+      boost::tuple<
+         std::vector<parPropSpec<boost::int32_t> >::const_iterator
+         , std::vector<parPropSpec<boost::int32_t> >::const_iterator
+      > t_i = ppp.getIterators<boost::int32_t>();
 
-   // Retrieve integer parameters
-   boost::tuple<
-      std::vector<parPropSpec<boost::int32_t> >::const_iterator
-      , std::vector<parPropSpec<boost::int32_t> >::const_iterator
-   > t_i = ppp.getIterators<boost::int32_t>();
+      std::vector<parPropSpec<boost::int32_t> >::const_iterator i_cit = boost::get<0>(t_i);
+      std::vector<parPropSpec<boost::int32_t> >::const_iterator i_end = boost::get<1>(t_i);
+      for(; i_cit!=i_end; ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
+         int32Vec_.push_back(boost::shared_ptr<int32ScanPar>(new int32ScanPar(*i_cit, scanRandomly_)));
+      }
 
-   std::vector<parPropSpec<boost::int32_t> >::const_iterator i_cit = boost::get<0>(t_i);
-   std::vector<parPropSpec<boost::int32_t> >::const_iterator i_end = boost::get<1>(t_i);
-   for(; i_cit!=i_end; ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
-      int32Vec_.push_back(boost::shared_ptr<int32ScanPar>(new int32ScanPar(*i_cit, scanRandomly_)));
-   }
+      // Retrieve boolean parameters
+      boost::tuple<
+         std::vector<parPropSpec<bool> >::const_iterator
+         , std::vector<parPropSpec<bool> >::const_iterator
+      > t_b = ppp.getIterators<bool>();
 
-   // Retrieve boolean parameters
-   boost::tuple<
-      std::vector<parPropSpec<bool> >::const_iterator
-      , std::vector<parPropSpec<bool> >::const_iterator
-   > t_b = ppp.getIterators<bool>();
-
-   std::vector<parPropSpec<bool> >::const_iterator b_cit = boost::get<0>(t_b);
-   std::vector<parPropSpec<bool> >::const_iterator b_end = boost::get<1>(t_b);
-   for(; b_cit!=b_end; ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
-      bVec_.push_back(boost::shared_ptr<bScanPar>(new bScanPar(*b_cit, scanRandomly_)));
+      std::vector<parPropSpec<bool> >::const_iterator b_cit = boost::get<0>(t_b);
+      std::vector<parPropSpec<bool> >::const_iterator b_end = boost::get<1>(t_b);
+      for(; b_cit!=b_end; ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
+         bVec_.push_back(boost::shared_ptr<bScanPar>(new bScanPar(*b_cit, scanRandomly_)));
+      }
    }
 
    //---------------------------------------------------------------------------
+}
+
+/******************************************************************************/
+/**
+ * Specified the number of simple scans an puts the class in "simple scan" mode
+ */
+void GBasePS::setNSimpleScans(std::size_t simpleScanItems) {
+   simpleScanItems_ = simpleScanItems;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the number of simple scans (or 0, if disabled)
+ */
+std::size_t GBasePS::getNSimpleScans() const {
+   return simpleScanItems_;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the number of simple scans performed so far
+ */
+std::size_t GBasePS::getNScansPerformed() const {
+   return scansPerformed_;
 }
 
 /******************************************************************************/
@@ -954,8 +967,8 @@ void GBasePS::init() {
    // Reset the custom halt criterion
    cycleLogicHalt_ = false;
 
-   // Remove all previous "best individuals"
-   bestIndividuals_.clear();
+   // No scans have been peformed so far
+   scansPerformed_ = 0;
 
    // Make sure we start with a fresh central vector of parameter objects
    this->clearAllParVec();

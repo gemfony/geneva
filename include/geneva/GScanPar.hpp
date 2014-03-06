@@ -126,9 +126,9 @@ std::vector<double> fillWithData<double>(
 /**
  * An interface class for parameter scan objects
  */
-class scanParI {
+class scanParInterface {
 public:
-   virtual ~scanParI(){ /* nothing */ }
+   virtual ~scanParInterface(){ /* nothing */ }
 
    virtual NAMEANDIDTYPE getVarAddress() const = 0;
    virtual bool goToNextItem() = 0;
@@ -147,7 +147,7 @@ public:
 template <typename T>
 class baseScanParT
    : public GStdSimpleVectorInterfaceT<T>
-   , public scanParI
+   , public scanParInterface
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;

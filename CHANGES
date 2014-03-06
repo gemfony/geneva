@@ -44,8 +44,11 @@ Other changes:
    shown upon explicit request
  - Added a new "per-item" cross-over method to evolutionary algorithms
  - Added a new mechanism to update adaptors in EA when optimization has stalled
- - Adaption of adaption parameters ("adaptAdaption()") now happens only once per adaption of entire
-   parameter collections such as GDoubleCollection 
+ - Added a new option to GParameterScan to randomly initialize a predefined number of work items.
+   This "brute force" approach may help to find a good starting point. E.g., for example 01_GSimpleOptimizer,
+   one can now say "./GSimpleOptimizer -a "ps,ea" --parameterSpec="s(1000)". This would result in a random
+   scan of 1000 work items. The best individuals found will then form the start values of an evolutionary
+   algorithm 
  - Starting with this version, release-versions get an even minor version number
  - Ported to Boost 1.55.
 

@@ -117,7 +117,7 @@ protected:
 
 private:
    std::string parameterSpec_; ///< Holds information on the variables to be optimized -- set through the configuration file
-   std::string parameterSpecCL_; ///< Holds information on the variables to be optimized -- set through the corresponding member function
+   std::string parameterSpecCL_; ///< Holds information on the variables to be optimized -- set through the corresponding member function or on the command line
 };
 
 /******************************************************************************/

@@ -66,12 +66,13 @@ GParameterPropertyParser::GParameterPropertyParser(const std::string& rw)
    using boost::spirit::qi::hold;
 
    varSpec   = +char_("0-9a-zA-Z_,.+-[]");;
-   varString = char_("dfib") > '(' > varSpec > ')';
+   varString = char_("dfibs") > '(' > varSpec > ')';
 
    identifier = raw[(alpha | '_') >> *(alnum | '_')];
 
    varReference = ( hold[attr(0) >> attr("empty") >> uint_] | hold[attr(1) >> identifier >> '[' >> uint_ >> ']'] | (attr(2) >> identifier >> attr(0)) );
 
+   simpleScanParser   = uint_;
    doubleStringParser = (hold[varReference >> ',' >> double_ >> ',' >> double_ >> ',' >> uint_] | (varReference >> ',' >> double_ >> ',' >> double_ >> attr(GPP_DEF_NSTEPS)));
    floatStringParser  = (hold[varReference >> ',' >> float_  >> ',' >> float_  >> ',' >> uint_] | (varReference >> ',' >> float_  >> ',' >> float_  >> attr(GPP_DEF_NSTEPS)));
    intStringParser    = (hold[varReference >> ',' >> int_    >> ',' >> int_    >> ',' >> uint_] | (varReference >> ',' >> int_    >> ',' >> int_    >> attr(GPP_DEF_NSTEPS)));
@@ -112,6 +113,7 @@ bool GParameterPropertyParser::isParsed() const {
 void GParameterPropertyParser::setNewParameterDescription(std::string raw) {
    raw_ = raw;
 
+   sSpecVec.clear();
    dSpecVec.clear();
    fSpecVec.clear();
    iSpecVec.clear();
@@ -155,10 +157,10 @@ void GParameterPropertyParser::parse() {
 
    // Dissect the raw string into sub-strings responsible for individual parameters
    success = phrase_parse(
-         from, to
-         , (varString % ',')
-         , space
-         , variableDescriptions
+      from, to
+      , (varString % ',')
+      , space
+      , variableDescriptions
    );
 
    if(!success || from != to) {
@@ -179,27 +181,33 @@ void GParameterPropertyParser::parse() {
 
       if('d' == boost::get<0>(*it)) {
          success = phrase_parse(
-               from, to
-               , doubleStringParser[push_back(boost::phoenix::ref(dSpecVec), _1)]
-               , space
+            from, to
+            , doubleStringParser[push_back(boost::phoenix::ref(dSpecVec), _1)]
+            , space
          );
       } else if('f' == boost::get<0>(*it)) {
          success = phrase_parse(
-               from, to
-               , floatStringParser[push_back(boost::phoenix::ref(fSpecVec), _1)]
-               , space
+            from, to
+            , floatStringParser[push_back(boost::phoenix::ref(fSpecVec), _1)]
+            , space
          );
       } else if('i' == boost::get<0>(*it)) {
          success = phrase_parse(
-               from, to
-               , intStringParser[push_back(boost::phoenix::ref(iSpecVec), _1)]
-               , space
+            from, to
+            , intStringParser[push_back(boost::phoenix::ref(iSpecVec), _1)]
+            , space
          );
       } else if('b' == boost::get<0>(*it)) {
          success = phrase_parse(
-               from, to
-               , boolStringParser[push_back(boost::phoenix::ref(bSpecVec), _1)]
-               , space
+            from, to
+            , boolStringParser[push_back(boost::phoenix::ref(bSpecVec), _1)]
+            , space
+         );
+      } else if('s' == boost::get<0>(*it)){
+         success = phrase_parse(
+            from, to
+            , simpleScanParser[push_back(boost::phoenix::ref(sSpecVec), _1)]
+            , space
          );
       } else {
          glogger
@@ -212,13 +220,88 @@ void GParameterPropertyParser::parse() {
          std::string rest(from, to);
          glogger
          << "In GParameterPropertyParser::parse(): Error[2]!" << std::endl
-         << "Parsing of variable descriptions failed. Unparsed fragement: " << rest << std::endl
+         << "Parsing of variable descriptions failed. Unparsed fragment: " << rest << std::endl
          << GEXCEPTION;
+      }
+
+      // We only accept a single "simple-scan" entry. Complain, if more than one was found
+      if(sSpecVec.size() > 1) {
+         glogger
+         << "In GParameterPropertyParser::parse(): Error!" << std::endl
+         << "Found " << sSpecVec.size() << "simple scan entries where a" << std::endl
+         << "maximum of 1 is allowed" << std::endl
+         << GEXCEPTION;
+      } else if(sSpecVec.size() == 1) { // If we did find a "simple scan" entry, we will discard the other entries.
+         if(!dSpecVec.empty()) {
+            glogger
+            << "In GParameterPropertyParser::parse(): Warning!" << std::endl
+            << "You have specified both a simple-scan component and " << std::endl
+            << "scan-components for double variables. These entries" << std::endl
+            << "will be discarded" << std::endl
+            << GWARNING;
+
+            dSpecVec.clear();
+         }
+
+         if(!fSpecVec.empty()) {
+            glogger
+            << "In GParameterPropertyParser::parse(): Warning!" << std::endl
+            << "You have specified both a simple-scan component and " << std::endl
+            << "scan-components for float variables. These entries" << std::endl
+            << "will be discarded" << std::endl
+            << GWARNING;
+
+            fSpecVec.clear();
+         }
+
+         if(!iSpecVec.empty()) {
+            glogger
+            << "In GParameterPropertyParser::parse(): Warning!" << std::endl
+            << "You have specified both a simple-scan component and " << std::endl
+            << "scan-components for integer variables. These entries" << std::endl
+            << "will be discarded" << std::endl
+            << GWARNING;
+
+            iSpecVec.clear();
+         }
+
+         if(!bSpecVec.empty()) {
+            glogger
+            << "In GParameterPropertyParser::parse(): Warning!" << std::endl
+            << "You have specified both a simple-scan component and " << std::endl
+            << "scan-components for boolean variables. These entries" << std::endl
+            << "will be discarded" << std::endl
+            << GWARNING;
+
+            bSpecVec.clear();
+         }
       }
    }
 
    // Prevent further use of this function
    parsed_ = true;
+}
+
+/******************************************************************************/
+/**
+ * Retrieve the number of "simple scan" items
+ */
+std::size_t GParameterPropertyParser::getNSimpleScanItems() const {
+   if(sSpecVec.empty()) {
+      return std::size_t(0);
+   } else { // Return the data of the first item
+#ifdef DEBUG
+      if(sSpecVec.size() > 1) {
+         glogger
+         << "In GParameterPropertyParser::getNSimpleScanItems() const: Error!" << std::endl
+         << "Found " << sSpecVec.size() << "simple scan entries where a" << std::endl
+         << "maximum of 1 is allowed" << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
+      return (sSpecVec.front()).nItems;
+   }
 }
 
 /******************************************************************************/

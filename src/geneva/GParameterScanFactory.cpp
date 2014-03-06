@@ -103,30 +103,6 @@ GParameterScanFactory::GParameterScanFactory(
 GParameterScanFactory::~GParameterScanFactory()
 { /* nothing */ }
 
-/***************************************************************************/
-/**
- * Adds local command line options to a boost::program_options::options_description object.
- *
- * @param visible Command line options that should always be visible
- * @param hidden Command line options that should only be visible upon request
- */
-void GParameterScanFactory::addCLOptions(
-   boost::program_options::options_description& visible
-   , boost::program_options::options_description& hidden
-) {
-   namespace po = boost::program_options;
-
-   visible.add_options() (
-      "parameterSpec"
-      , po::value<std::string>(&parameterSpecCL_)->default_value(std::string("empty"))
-      , "\t[GParameterScanFactory] Specification of parameters to be scanned. Syntax: \"d(0, -10., 10., 100)\". Use a comma-separated list for more than one variable."
-   )
-   ;
-
-   // Add the parent class'es options
-   GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::addCLOptions(visible, hidden);
-}
-
 /******************************************************************************/
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
@@ -206,6 +182,30 @@ boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GParameterScanFactory
    target->GBasePS::addConfigurationOptions(gpb, true);
 
    return target;
+}
+
+/***************************************************************************/
+/**
+ * Adds local command line options to a boost::program_options::options_description object.
+ *
+ * @param visible Command line options that should always be visible
+ * @param hidden Command line options that should only be visible upon request
+ */
+void GParameterScanFactory::addCLOptions(
+   boost::program_options::options_description& visible
+   , boost::program_options::options_description& hidden
+) {
+   namespace po = boost::program_options;
+
+   visible.add_options() (
+      "parameterSpec"
+      , po::value<std::string>(&parameterSpecCL_)->default_value(std::string("empty"))
+      , "\t[GParameterScanFactory] Specification of parameters to be scanned. Syntax: \"d(0, -10., 10., 100)\". Use a comma-separated list for more than one variable. The option has no effect if --simpleScan has been set."
+   )
+   ;
+
+   // Add the parent class'es options
+   GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::addCLOptions(visible, hidden);
 }
 
 /******************************************************************************/

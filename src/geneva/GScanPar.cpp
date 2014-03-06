@@ -50,9 +50,9 @@ namespace Geneva {
  */
 template <>
 std::vector<bool> fillWithData<bool>(
-      std::size_t nSteps
-      , bool      lower
-      , bool      upper
+   std::size_t nSteps
+   , bool      lower
+   , bool      upper
 ) {
    std::vector<bool> result;
    result.push_back(false);
@@ -66,9 +66,9 @@ std::vector<bool> fillWithData<bool>(
  */
 template <>
 std::vector<boost::int32_t> fillWithData<boost::int32_t>(
-      std::size_t      nSteps // will only be used for random entries
-      , boost::int32_t lower
-      , boost::int32_t upper // inclusive
+   std::size_t      nSteps // will only be used for random entries
+   , boost::int32_t lower
+   , boost::int32_t upper // inclusive
 ) {
    std::vector<boost::int32_t> result;
    for(boost::int32_t i=lower; i<=upper; i++) {

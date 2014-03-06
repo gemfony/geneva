@@ -1118,7 +1118,9 @@ public:
    /**
     * Adds the best individuals of each iteration to a priority queue. The
     * queue will be sorted by the first evaluation criterion of the individuals
-    * and may either have a limited or unlimited size.
+    * and may either have a limited or unlimited size. Note: this function is
+    * a trap -- the real action happens in overloads of this function, of which
+    * the one for GParameterSet-derivatives is likely the most important.
     */
    virtual void addIterationBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
       glogger

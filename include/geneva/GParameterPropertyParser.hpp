@@ -97,6 +97,16 @@ struct parPropSpec {
 
 /******************************************************************************/
 /**
+ * This struct holds all information relating to "simple" parameter scans, i.e.
+ * parameter scans, where all variables are varied randomly. Currently the only
+ * data component is the number of items to be scanned.
+ */
+struct simpleScanSpec {
+   std::size_t nItems;
+};
+
+/******************************************************************************/
+/**
  * A simple output operator, mostly for debugging purposes
  *
  * @param o A reference to the output stream
@@ -175,6 +185,12 @@ BOOST_FUSION_ADAPT_STRUCT(
       (std::size_t, nSteps)
 )
 
+/** @brief Makes the struct boost.fusion-compatible */
+BOOST_FUSION_ADAPT_STRUCT(
+      Gem::Geneva::simpleScanSpec,
+      (std::size_t, nItems)
+)
+
 /******************************************************************************/
 
 namespace Gem {
@@ -183,9 +199,10 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * This class accepts a "raw" parameter description, parses it and provides
- * functions to access individual parameter properties. Note that this class
- * is meant for setup purposes only and thus cannot be serialized (nor can it
- * be copied).
+ * functions to access individual parameter properties. This is used by parameter
+ * scans to parse a string holding informations about the variables to be scanned
+ * (including ranges and steps). Note that this class is meant for setup purposes
+ * only and thus cannot be serialized (nor can it be copied).
  */
 class GParameterPropertyParser: boost::noncopyable // Make sure this class cannot be copied
 {
@@ -203,6 +220,9 @@ public:
 
    /** @brief Initiates parsing of the raw string */
    void parse();
+
+   /** @brief Retrieve the number of "simple scan" items */
+   std::size_t getNSimpleScanItems() const;
 
    /***************************************************************************/
    /**
@@ -243,6 +263,7 @@ private:
    boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> identifier;
    boost::spirit::qi::rule<std::string::const_iterator, NAMEANDIDTYPE(), boost::spirit::ascii::space_type> varReference;
 
+   boost::spirit::qi::rule<std::string::const_iterator, simpleScanSpec()              , boost::spirit::ascii::space_type> simpleScanParser;
    boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<double>()         , boost::spirit::ascii::space_type> doubleStringParser;
    boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<float>()          , boost::spirit::ascii::space_type> floatStringParser;
    boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<boost::int32_t>() , boost::spirit::ascii::space_type> intStringParser;
@@ -251,6 +272,7 @@ private:
    std::string raw_; ///< Holds the "raw" parameter description
    bool parsed_;     ///< Indicates whether the raw_ string has already been parsed
 
+   std::vector<simpleScanSpec>               sSpecVec; ///< Holds parameter specifications for simple scans
    std::vector<parPropSpec<double> >         dSpecVec; ///< Holds parameter specifications for double values
    std::vector<parPropSpec<float> >          fSpecVec; ///< Holds parameter specifications for float values
    std::vector<parPropSpec<boost::int32_t> > iSpecVec; ///< Holds parameter specifications for integer values

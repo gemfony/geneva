@@ -65,8 +65,7 @@ namespace Geneva {
 class GPSOptimizationMonitor;
 
 /******************************************************************************/
-// A number of typedefs that indicate the position and value of a parameter
-// inside of an individual
+// A number of typedefs that indicate the position and value of a parameter inside of an individual
 typedef boost::tuple<bool,           std::size_t, std::string, std::size_t> singleBPar;
 typedef boost::tuple<boost::int32_t, std::size_t, std::string, std::size_t> singleInt32Par;
 typedef boost::tuple<float,          std::size_t, std::string, std::size_t> singleFPar;
@@ -131,7 +130,9 @@ class GBasePS
       & BOOST_SERIALIZATION_NVP(bVec_)
       & BOOST_SERIALIZATION_NVP(int32Vec_)
       & BOOST_SERIALIZATION_NVP(dVec_)
-      & BOOST_SERIALIZATION_NVP(fVec_);
+      & BOOST_SERIALIZATION_NVP(fVec_)
+      & BOOST_SERIALIZATION_NVP(simpleScanItems_)
+      & BOOST_SERIALIZATION_NVP(scansPerformed_);
    }
 
    ///////////////////////////////////////////////////////////////////////
@@ -193,6 +194,13 @@ public:
 
    /** @brief Fills vectors with parameter specifications */
    void setParameterSpecs(std::string);
+
+   /** @brief Puts the class in "simple scan" mode */
+   void setNSimpleScans(std::size_t);
+   /** @brief Retrieves the number of simple scans (or 0, if disabled) */
+   std::size_t getNSimpleScans() const;
+   /** @brief Retrieves the number of scans performed so far */
+   std::size_t getNScansPerformed() const;
 
 protected:
    /***************************************************************************/
@@ -273,12 +281,12 @@ private:
    }
 
    /***************************************************************************/
-   /** @brief Updates the best individuals found */
-   void updateBests();
    /** @brief Resets all parameter objects */
    void resetParameterObjects();
    /** @brief Adds new parameter sets to the population */
-   void updateIndividuals();
+   void updateSelectedParameters();
+   /** @brief Randomly shuffle the work items a number of times */
+   void randomShuffle();
    /** @brief Retrieves the next available parameter set */
    boost::shared_ptr<parSet> getParameterSet(std::size_t&);
    /** @brief Switches to the next parameter set */
@@ -294,14 +302,15 @@ private:
    bool scanRandomly_;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
    std::size_t nMonitorInds_; ///< The number of best individuals of the entire run to be kept
 
-   std::vector<boost::shared_ptr<bScanPar> >      bVec_; ///< Holds boolean parameters to be scanned
+   std::vector<boost::shared_ptr<bScanPar> >      bVec_;     ///< Holds boolean parameters to be scanned
    std::vector<boost::shared_ptr<int32ScanPar> >  int32Vec_; ///< Holds 32 bit integer parameters to be scanned
-   std::vector<boost::shared_ptr<dScanPar> >      dVec_; ///< Holds double values to be scanned
-   std::vector<boost::shared_ptr<fScanPar> >      fVec_; ///< Holds float values to be scanned
+   std::vector<boost::shared_ptr<dScanPar> >      dVec_;     ///< Holds double values to be scanned
+   std::vector<boost::shared_ptr<fScanPar> >      fVec_;     ///< Holds float values to be scanned
 
-   std::vector<boost::shared_ptr<scanParI> >      allParVec_; /// Holds pointers to all parameter objects
+   std::vector<boost::shared_ptr<scanParInterface> > allParVec_; /// Holds pointers to all parameter objects
 
-   std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals_; ///< Holds the best individuals found during the run
+   std::size_t simpleScanItems_; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file
+   std::size_t scansPerformed_;  ///< Holds the number of processed items so far while a simple scan is performed
 
 public:
    /***************************************************************************/
@@ -353,12 +362,12 @@ public:
 
       /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
       virtual boost::optional<std::string> checkRelationshipWith(
-            const GObject&
-            , const Gem::Common::expectation&
-            , const double&
-            , const std::string&
-            , const std::string&
-            , const bool&
+         const GObject&
+         , const Gem::Common::expectation&
+         , const double&
+         , const std::string&
+         , const std::string&
+         , const bool&
       ) const OVERRIDE;
 
       /** @brief Allows to set the name of the result file */
