@@ -99,9 +99,15 @@ void GParameterBase::load_(const GObject* cp){
 /**
  * Calls the function that does the actual adaption (which is in turn implemented
  * by derived classes. Will omit adaption if the adaptionsActive_ parameter is set.
+ *
+ * @return A boolean which indicates whether a modification was indeed made
  */
-void GParameterBase::adapt() {
-	if(adaptionsActive_) adaptImpl();
+bool GParameterBase::adapt() {
+	if(adaptionsActive_) {
+	   return adaptImpl(); // Will determine whether a modification was made
+	} else {
+	   return false;
+	}
 }
 
 /* -----------------------------------------------------------------------------

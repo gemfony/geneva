@@ -1008,7 +1008,11 @@ public:
             // Note that isGoodEnough may throw if loop acts on a "dirty" individual
             if(!boundariesActive_ || ind->isGoodEnough(boundaries_)) {
                // Append the data to the external file
-               data << ind->toCSV(withNameAndType_, withCommas_, useRawFitness_, showValidity_);
+               if(0 == pos && goa->inFirstIteration()) { // Only output name and type in the very first line (if at all)
+                  data << ind->toCSV(withNameAndType_, withCommas_, useRawFitness_, showValidity_);
+               } else {
+                  data << ind->toCSV(false, withCommas_, useRawFitness_, showValidity_);
+               }
             }
          }
 

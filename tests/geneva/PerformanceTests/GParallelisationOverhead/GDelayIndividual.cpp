@@ -170,10 +170,9 @@ Gem::Geneva::GObject* GDelayIndividual::clone_() const {
 /**
  * The actual adaption operations. We want to avoid spending time on adaptions, as
  * all we want to do is measure the overhead of the parallelization. We thus simply
- * provide an empty replacement for the default behavior.
+ * provide an empty replacement for the default behavior and "fake" an adaption.
  */
-void GDelayIndividual::customAdaptions(){ /* nothing */ }
-
+bool GDelayIndividual::customAdaptions() { return true; }
 
 /******************************************************************************/
 /**
@@ -181,7 +180,7 @@ void GDelayIndividual::customAdaptions(){ /* nothing */ }
  *
  * @return The value of this object
  */
-double GDelayIndividual::fitnessCalculation(){
+double GDelayIndividual::fitnessCalculation() {
 	// Sleep for the desired amount of time
 	boost::this_thread::sleep(sleepTime_);
 

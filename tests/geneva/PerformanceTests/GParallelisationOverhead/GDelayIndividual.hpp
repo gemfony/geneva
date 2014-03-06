@@ -129,9 +129,9 @@ protected:
    virtual Gem::Geneva::GObject* clone_() const;
 
    /** @brief The actual adaption operations */
-   virtual void customAdaptions();
+   virtual bool customAdaptions() OVERRIDE;
    /** @brief The actual fitness calculation takes place here */
-   virtual double fitnessCalculation();
+   virtual double fitnessCalculation() OVERRIDE;
 
 private:
    boost::posix_time::time_duration sleepTime_; ///< The amount of time the evaluation function should sleep before continuing

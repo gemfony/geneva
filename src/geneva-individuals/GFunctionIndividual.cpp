@@ -859,7 +859,7 @@ GObject* GFunctionIndividual::clone_() const {
  * @param The id of the target function (ignored here)
  * @return The value of this object, as calculated with the evaluation function
  */
-double GFunctionIndividual::fitnessCalculation(){
+double GFunctionIndividual::fitnessCalculation() {
 	double result = 0;
 
 	// Retrieve the parameters

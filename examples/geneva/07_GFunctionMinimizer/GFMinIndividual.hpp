@@ -140,7 +140,7 @@ protected:
 	virtual GObject* clone_() const;
 
 	/** @brief The actual value calculation takes place here */
-	virtual double fitnessCalculation();
+	virtual double fitnessCalculation() OVERRIDE;
 
 	/***************************************************************************/
 

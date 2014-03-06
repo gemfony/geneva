@@ -47,9 +47,10 @@ namespace Geneva {
  * (which doesn't return a bool but an object).
  *
  * @param collection A vector of values that shall be adapted
+ * @return A boolean which indicates whether adaptions were indeed made
  */
 template<>
-void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
+bool GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
    std::vector<bool>& collection
    , const bool& range
 ) {
@@ -62,12 +63,18 @@ void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
 		}
 #endif /* DEBUG */
 
+	bool adapted = false;
+
 	std::vector<bool>::iterator it;
 	for (it = collection.begin(); it != collection.end(); ++it)	{
 		bool value = *it;
-		adaptor_->adapt(value, range);
-		*it = value;
+		if(true == adaptor_->adapt(value, range)) {
+		   adapted = true;
+	      *it = value;
+		}
 	}
+
+	return adapted;
 }
 
 /******************************************************************************/

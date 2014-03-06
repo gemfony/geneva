@@ -111,7 +111,7 @@ GObject* GParaboloidIndividual2D::clone_() const {
  *
  * @return The value of this object
  */
-double GParaboloidIndividual2D::fitnessCalculation(){
+double GParaboloidIndividual2D::fitnessCalculation() {
 	double result = 0.; // Will hold the result
 	std::vector<double> parVec; // Will hold the parameters
 

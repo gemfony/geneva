@@ -38,9 +38,11 @@
 // Boost header files go here
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
+#include <boost/program_options.hpp>
 
 // Geneva header files go here
 #include "geneva/Go2.hpp"
+#include "geneva/GPluggableOptimizationMonitorsT.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -48,14 +50,37 @@
 using namespace Gem::Geneva;
 namespace po = boost::program_options;
 
-int main(int argc, char **argv) {
-   //---------------------------------------------------------------------------
-   // We want to add additional command line options
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A function that allows parsing of the command line
+ */
+void parseCommandLine(
+   std::vector<boost::shared_ptr<po::option_description> >& od
+   , bool& printValid
+   , bool& useRawFitness
+   , std::string& monitorSpec
+   , bool& observeBoundaries
+   , std::string& logAll
+) {
+   boost::shared_ptr<po::option_description> printValid_option(
+      new po::option_description(
+         "validOnly"
+         , po::value<bool>(&printValid)->implicit_value(true)->default_value(false) // This allows you say both --validOnly and --validOnly=true
+         , "Enforces output of valid solutions only"
+      )
+   );
+   od.push_back(printValid_option);
 
-   std::string monitorSpec = "empty";
-   bool observeBoundaries = "false";
-
-   std::vector<boost::shared_ptr<po::option_description> > od;
+   boost::shared_ptr<po::option_description> printTrue_option(
+      new po::option_description(
+         "useRawFitness"
+         , po::value<bool>(&useRawFitness)->implicit_value(true)->default_value(false) // This allows you say both --useRawFitness and --useRawFitness=true
+         , "Plot untransformed fitness value, even if a transformation takes place for the purpose of optimization"
+      )
+   );
+   od.push_back(printTrue_option);
 
    boost::shared_ptr<po::option_description> monitorSpec_option(
       new po::option_description(
@@ -75,6 +100,43 @@ int main(int argc, char **argv) {
    );
    od.push_back(observeBoundaries_option);
 
+   boost::shared_ptr<po::option_description> logAll_option(
+      new po::option_description(
+         "logAll"
+         , po::value<std::string>(&logAll)->implicit_value(std::string("./log.txt"))->default_value("empty")
+         , "Logs all solutions to the file name provided as argument to this switch"
+      )
+   );
+   od.push_back(logAll_option);
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The main function
+ */
+int main(int argc, char **argv) {
+   //---------------------------------------------------------------------------
+   // We want to add additional command line options
+
+   bool printValid = false;
+   bool useRawFitness = false;
+   std::string monitorSpec = "empty";
+   bool observeBoundaries = "false";
+   std::string logAll = "empty";
+
+   std::vector<boost::shared_ptr<po::option_description> > od;
+
+   parseCommandLine(
+      od
+      , printValid
+      , useRawFitness
+      , monitorSpec
+      , observeBoundaries
+      , logAll
+   );
+
    Go2 go(argc, argv, "./config/Go2.json", od);
 
 	//---------------------------------------------------------------------------
@@ -90,22 +152,45 @@ int main(int argc, char **argv) {
 	   gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
 
 	//---------------------------------------------------------------------------
+   // Register pluggable optimization monitors, if requested by the user
+
+   boost::shared_ptr<GCollectiveMonitorT<GParameterSet> > collectiveMonitor_ptr(new GCollectiveMonitorT<GParameterSet>());
+
    // Register a progress plotter with the global optimization algorithm factory
-	if(monitorSpec != "empty") {
-	   boost::shared_ptr<GProgressPlotterT<GParameterSet, double> > progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
+   if(monitorSpec != "empty") {
+      boost::shared_ptr<GProgressPlotterT<GParameterSet, double> > progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
 
-	   progplot_ptr->setProfileSpec(monitorSpec);
-	   progplot_ptr->setObserveBoundaries(observeBoundaries);
+      progplot_ptr->setProfileSpec(monitorSpec);
+      progplot_ptr->setObserveBoundaries(observeBoundaries);
+      progplot_ptr->setMonitorValidOnly(printValid); // Only record valid parameters, when printValid is set to true
+      progplot_ptr->setUseRawEvaluation(useRawFitness); // Use untransformed evaluation values for logging
 
-	   go.registerPluggableOM(
-	      boost::bind(
-	         &GProgressPlotterT<GParameterSet, double>::informationFunction
-	         , progplot_ptr
-	         , _1
-	         , _2
-	      )
-	   );
-	}
+      // Request printing of png files (upon processing of the .C file with ROOT)
+      progplot_ptr->setAddPrintCommand(true);
+
+      collectiveMonitor_ptr->registerPluggableOM(progplot_ptr);
+   }
+
+   if(logAll != "empty") {
+      boost::shared_ptr<GAllSolutionFileLoggerT<GParameterSet> > allsolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>(logAll));
+
+      allsolutionLogger_ptr->setPrintWithNameAndType(true); // Output information about variable names and types
+      allsolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
+      allsolutionLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
+      allsolutionLogger_ptr->setShowValidity(true); // Indicate, whether this is a valid solution
+
+      collectiveMonitor_ptr->registerPluggableOM(allsolutionLogger_ptr);
+   }
+
+   if(monitorSpec != "empty" || logAll != "empty")
+   go.registerPluggableOM(
+      boost::bind(
+         &GCollectiveMonitorT<GParameterSet>::informationFunction
+         , collectiveMonitor_ptr
+         , _1
+         , _2
+      )
+   );
 
    //---------------------------------------------------------------------------
 

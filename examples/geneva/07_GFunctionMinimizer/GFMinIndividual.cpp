@@ -225,7 +225,7 @@ GObject* GFMinIndividual::clone_() const {
  * @param The id of the target function (ignored here)
  * @return The value of this object, as calculated with the evaluation function
  */
-double GFMinIndividual::fitnessCalculation(){
+double GFMinIndividual::fitnessCalculation() {
 	// Retrieve the parameters
 	std::vector<double> parVec;
 	this->streamline(parVec);

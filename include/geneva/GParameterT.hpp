@@ -269,9 +269,11 @@ public:
 	/***************************************************************************/
 	/**
 	 * Allows to adapt the value stored in this class.
+	 *
+	 * @return A boolean indicating whether adaptions were indeed made
 	 */
-	virtual void adaptImpl() OVERRIDE {
-		GParameterBaseWithAdaptorsT<T>::applyAdaptor(
+	virtual bool adaptImpl() OVERRIDE {
+		return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
          val_
          , this->range()
       );

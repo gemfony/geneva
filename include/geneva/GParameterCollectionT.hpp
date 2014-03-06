@@ -234,9 +234,11 @@ public:
 	 * Allows to adapt the values stored in this class. applyAdaptor expects a reference
 	 * to a std::vector<T>. As we are derived from a wrapper of this class, we can just pass
 	 * a reference to its data vector to the function.
+	 *
+	 * @return A boolean which indicates whether adpations were indeed made
 	 */
-	virtual void adaptImpl() OVERRIDE {
-		GParameterBaseWithAdaptorsT<T>::applyAdaptor(
+	virtual bool adaptImpl() OVERRIDE {
+	   return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
          GStdSimpleVectorInterfaceT<T>::data
          , this->range()
       );

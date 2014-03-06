@@ -1220,6 +1220,27 @@ public:
       return this->at(0)->getBestCase();
    }
 
+   /***************************************************************************/
+   /**
+    * A little helper function that determines whether we are currently inside of the first
+    * iteration
+    *
+    * @return A boolean indicating whether we are inside of the first iteration
+    */
+   bool inFirstIteration() const {
+      return iteration_ == offset_;
+   }
+
+   /***************************************************************************/
+   /**
+    * A little helper function that determines whether we are after the first iteration
+    *
+    * @return A boolean indicating whether we are after the first iteration
+    */
+   bool afterFirstIteration() const {
+      return iteration_ > offset_;
+   }
+
 protected:
 	/***************************************************************************/
 	/**
@@ -1440,27 +1461,6 @@ protected:
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->setAssignedIteration(iteration_);
 		}
-	}
-
-	/***************************************************************************/
-	/**
-	 * A little helper function that determines whether we are currently inside of the first
-	 * iteration
-	 *
-	 * @return A boolean indicating whether we are inside of the first iteration
-	 */
-	bool inFirstIteration() const {
-		return iteration_ == offset_;
-	}
-
-	/***************************************************************************/
-	/**
-	 * A little helper function that determines whether we are after the first iteration
-	 *
-	 * @return A boolean indicating whether we are after the first iteration
-	 */
-	bool afterFirstIteration() const {
-		return iteration_ > offset_;
 	}
 
    /***************************************************************************/

@@ -91,9 +91,9 @@ public:
 	virtual ~GParameterBase();
 
 	/** @brief The adaption interface */
-	void adapt();
+	virtual bool adapt() OVERRIDE;
 	/** @brief The actual adaption logic */
-	virtual void adaptImpl() = 0;
+	virtual bool adaptImpl() BASE = 0;
 
    /** @brief Triggers updates when the optimization process has stalled */
    virtual bool updateAdaptorsOnStall(const std::size_t&) BASE = 0;

@@ -89,8 +89,8 @@ namespace Geneva {
  * the other Geneva classes.
  */
 template <typename T>
-class GAdaptorT:
-	public GObject
+class GAdaptorT
+	: public GObject
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

@@ -36,10 +36,8 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GTestIndividual2)
 
-namespace Gem
-{
-namespace Tests
-{
+namespace Gem {
+namespace Tests {
 
 /******************************************************************************/
 /**
@@ -252,7 +250,7 @@ Gem::Geneva::GObject* GTestIndividual2::clone_() const {
  * @param id The id of the target function (ignored here)
  * @return The value of this object
  */
-double GTestIndividual2::fitnessCalculation(){
+double GTestIndividual2::fitnessCalculation() {
 	double result = 0.;
 
 	// We just calculate the square of all double values

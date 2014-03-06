@@ -212,7 +212,7 @@ Gem::Geneva::GObject* GExternalSetterIndividual::clone_() const {
  * @param id The id of the target function (ignored here)
  * @return The value of this object
  */
-double GExternalSetterIndividual::fitnessCalculation(){
+double GExternalSetterIndividual::fitnessCalculation() {
    glogger
    << "In GExternalSetterIndividual::fitnessCalculation(): Error!" << std::endl
    << "This function is not supposed to be called for this individual." << std::endl

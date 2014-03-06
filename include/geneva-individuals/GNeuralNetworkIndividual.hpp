@@ -938,7 +938,7 @@ protected:
 	virtual GObject* clone_() const;
 
 	/** @brief The actual fitness calculation */
-	virtual double fitnessCalculation();
+	virtual double fitnessCalculation() OVERRIDE;
 
 private:
 	/***************************************************************************/

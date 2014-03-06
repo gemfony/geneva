@@ -185,7 +185,7 @@ GObject* GMultiCriterionParabolaIndividual::clone_() const {
  *
  * @return The value of this object
  */
-double GMultiCriterionParabolaIndividual::fitnessCalculation(){
+double GMultiCriterionParabolaIndividual::fitnessCalculation() {
 	double main_result = 0.; // Will hold the main result
 	std::vector<double> parVec; // Will hold the individual parameters
 

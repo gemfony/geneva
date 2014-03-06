@@ -210,7 +210,7 @@ Gem::Geneva::GObject* GLineFitIndividual::clone_() const {
  * @param id The id of the target function (ignored here)
  * @return The value of this object
  */
-double GLineFitIndividual::fitnessCalculation(){
+double GLineFitIndividual::fitnessCalculation() {
 	double result = 0.;
 
 	// We just calculate the square of all double values

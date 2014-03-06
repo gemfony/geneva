@@ -108,7 +108,7 @@ protected:
 	virtual GObject* clone_() const;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual double fitnessCalculation();
+	virtual double fitnessCalculation() OVERRIDE;
 
 private:
    /** @brief The default constructor -- intentionally private*/

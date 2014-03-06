@@ -236,7 +236,7 @@ Gem::Geneva::GObject* GTestIndividual3::clone_() const {
  * @param id The id of the target function (ignored here)
  * @return The value of this object
  */
-double GTestIndividual3::fitnessCalculation(){
+double GTestIndividual3::fitnessCalculation() {
 	double result = 0.;
 
 	// We just calculate the square of all double values

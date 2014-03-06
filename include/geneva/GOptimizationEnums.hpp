@@ -63,6 +63,13 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * The number of calls to the GOptimizableEntity::customAdaption() function
+ * without actual modifications
+ */
+const std::size_t DEFMAXUNSUCCESSFULADAPTIONS = 1000;
+
+/******************************************************************************/
+/**
  * Helps top better identify whether the object was marked as invalid
  */
 const bool OE_NOT_MARKED_AS_INVALID = false;

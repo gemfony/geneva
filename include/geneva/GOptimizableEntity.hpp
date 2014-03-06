@@ -116,6 +116,7 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(barrier_)
 	  & BOOST_SERIALIZATION_NVP(worstKnownValids_)
 	  & BOOST_SERIALIZATION_NVP(markedAsInvalidByUser_)
+	  & BOOST_SERIALIZATION_NVP(maxUnsuccessfulAdaptions_)
 	  & BOOST_SERIALIZATION_NVP(evaluationID_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -146,7 +147,7 @@ public:
 	) const OVERRIDE;
 
 	/** @brief The adaption interface */
-	virtual void adapt() OVERRIDE;
+	virtual bool adapt() OVERRIDE;
 
    /** @brief Returns the raw result of the fitness function with id 0 */
    virtual double fitness() const OVERRIDE;
@@ -217,6 +218,11 @@ public:
 	double getBarrier() const;
 	/** @brief Sets the barrier variable (used for the sigmoid transformation) */
 	void setBarrier(double);
+
+	/** @brief Sets the maximum number of calls to customAdaptions() that may pass without actual modifications */
+	void setMaxUnsuccessfulAdaptions(std::size_t);
+	/** @brief Retrieves the maximum number of calls to customAdaptions that may pass without actual modifications */
+	std::size_t getMaxUnsuccessfulAdaptions() const;
 
 	/** @brief Allows to set the current iteration of the parent optimization algorithm. */
 	void setAssignedIteration(const boost::uint32_t&);
@@ -386,12 +392,12 @@ protected:
 	virtual GObject* clone_() const = 0;
 
 	/** @brief The fitness calculation for the main quality criterion takes place here */
-	virtual double fitnessCalculation() = 0;
+	virtual double fitnessCalculation() BASE = 0;
 	/** @brief Sets the fitness to a given set of values and clears the dirty flag */
 	void setFitness_(const std::vector<double>&);
 
 	/** @brief The actual adaption operations */
-	virtual void customAdaptions();
+	virtual bool customAdaptions() BASE;
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode_(const bool&);
 	/** @brief Sets the dirtyFlag_ to any desired value */
@@ -489,6 +495,8 @@ private:
 
    /** @brief A constraint-check to be applied to one or more components of this individual */
    boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > individualConstraint_;
+
+   std::size_t maxUnsuccessfulAdaptions_; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
 
    /** @brief A unique id that is assigned to an evaluation */
    std::string evaluationID_;

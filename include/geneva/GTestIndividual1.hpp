@@ -128,7 +128,7 @@ protected:
 	virtual GObject* clone_() const;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual double fitnessCalculation();
+	virtual double fitnessCalculation() OVERRIDE;
 public:
 	// Note: The following functions are, in the context of GTestIndividual1,
 	// designed to mainly test parent classes

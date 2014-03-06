@@ -391,7 +391,7 @@ GObject* GMetaOptimizerIndividual::clone_() const {
  * @param The id of the target function (ignored here)
  * @return The value of this object, as calculated with the evaluation function
  */
-double GMetaOptimizerIndividual::fitnessCalculation(){
+double GMetaOptimizerIndividual::fitnessCalculation() {
 	// Retrieve the parameters
    boost::shared_ptr<GConstrainedInt32Object>  npar_ptr       = this->at<GConstrainedInt32Object>(0);
    boost::shared_ptr<GConstrainedInt32Object>  nch_ptr        = this->at<GConstrainedInt32Object>(1);

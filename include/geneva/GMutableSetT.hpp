@@ -255,14 +255,6 @@ protected:
 	}
 
 	/***************************************************************************/
-	/** @brief Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated */
-	virtual GObject* clone_() const BASE = 0;
-
-	/***************************************************************************/
-	/** @brief The actual fitness calculation takes place in derived objects */
-	virtual double fitnessCalculation() BASE = 0;
-
-	/***************************************************************************/
 	/**
 	 * Re-implementation of a corresponding function in GStdPtrVectorInterface.
 	 * Make the vector wrapper purely virtual allows the compiler to perform

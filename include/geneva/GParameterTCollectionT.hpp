@@ -216,11 +216,17 @@ public:
 	 * each item has its own adapt function. Hence we do not need to use or
 	 * store own adaptors.
 	 */
-	virtual void adaptImpl() OVERRIDE {
+	virtual bool adaptImpl() OVERRIDE {
+	   bool adapted = false;
+
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->adapt();
+			if(true == (*it)->adapt()) {
+			   adapted = true;
+			}
 		}
+
+		return adapted;
 	}
 
 	/* ----------------------------------------------------------------------------------

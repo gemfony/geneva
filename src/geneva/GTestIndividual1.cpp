@@ -187,7 +187,7 @@ Gem::Geneva::GObject* GTestIndividual1::clone_() const {
  * @param id The id of the target function (ignored here)
  * @return The value of this object
  */
-double GTestIndividual1::fitnessCalculation(){
+double GTestIndividual1::fitnessCalculation() {
 	double result = 0.;
 
 	// Extract the first Gem::Geneva::GDoubleCollection object. In a realistic scenario, you might want

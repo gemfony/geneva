@@ -458,9 +458,9 @@ protected:
 	virtual GObject* clone_() const OVERRIDE;
 
 	/** @brief The actual fitness calculation takes place here */
-	virtual double fitnessCalculation() BASE;
+	virtual double fitnessCalculation() OVERRIDE ;
 	/* @brief The actual adaption operations. */
-	virtual void customAdaptions() BASE;
+	virtual bool customAdaptions() OVERRIDE ;
 
 private:
 	explicit GParameterSet(const float&); ///< Intentionally private and undefined
