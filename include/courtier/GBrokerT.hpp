@@ -161,7 +161,7 @@ public:
          boost::mutex::scoped_lock findProcessedBufferLock(findProcesedBufferMutex_);
 
          // Clear raw and processed buffers and the consumer lists
-         RawBuffers_.clear(); // Somehow that gets rid of the Boost 1.46 crash
+         RawBuffers_.clear();
          ProcessedBuffers_.clear();
          consumerCollection_.clear();
          buffersPresent_=false;

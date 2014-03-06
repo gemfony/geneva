@@ -93,8 +93,7 @@ trainingSet::trainingSet(const trainingSet& cp)
 
 /******************************************************************************/
 /**
- * The destructor. A virtual destructor is needed due to a
- * serialization problem in Boost 1.41
+ * The destructor.
  */
 trainingSet::~trainingSet()
 {
@@ -260,8 +259,7 @@ networkData::networkData(const networkData& cp)
 
 /******************************************************************************/
 /**
- * A standard destructor. Declared virtual in the header
- * due to a serialization problem in Boost 1.41.
+ * A standard destructor.
  */
 networkData::~networkData()
 {
