@@ -786,7 +786,9 @@ public:
 	 * @return The best raw and transformed fitness found so far
 	 */
 	boost::tuple<double, double> getBestKnownPrimaryFitness() const {
-		return bestKnownPrimaryFitness_;
+	   return (bestIndividuals_.best())->getFitnessTuple();
+
+	   // return bestKnownPrimaryFitness_;
 	}
 
 	/***************************************************************************/
@@ -1802,7 +1804,7 @@ private:
 	void markBestFitness() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->setBestKnownPrimaryFitness(bestKnownPrimaryFitness_);
+			(*it)->setBestKnownPrimaryFitness(this->getBestKnownPrimaryFitness());
 		}
 	}
 
