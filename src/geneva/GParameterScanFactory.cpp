@@ -200,7 +200,7 @@ void GParameterScanFactory::addCLOptions(
    visible.add_options() (
       "parameterSpec"
       , po::value<std::string>(&parameterSpecCL_)->default_value(std::string("empty"))
-      , "\t[GParameterScanFactory] Specification of parameters to be scanned. Syntax: \"d(0, -10., 10., 100)\". Use a comma-separated list for more than one variable. The option has no effect if --simpleScan has been set."
+      , "\t[GParameterScanFactory] Specification of parameters to be scanned. Syntax: \"d(0, -10., 10., 100)\". Use a comma-separated list for more than one variable."
    )
    ;
 
