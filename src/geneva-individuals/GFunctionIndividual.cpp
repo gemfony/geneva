@@ -1842,7 +1842,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	);
 
 	comment = "";
-	comment += "Indicates what type of parameter object should be used;(0) GDoubleCollection;(1) GConstrainedDoubleCollection;(2) GDoubleObjectCollection; (3) GConstrainedDoubleObjectCollection; [4] GConstrainedDoubleObject;";
+	comment += "Indicates what type of parameter object should be used;(0) GDoubleCollection;(1) GConstrainedDoubleCollection;(2) GDoubleObjectCollection; (3) GConstrainedDoubleObjectCollection; (4) GConstrainedDoubleObjects on the root level;";
 	gpb.registerFileParameter<parameterType>(
 		"parameterType"
 		, pT_.reference()
