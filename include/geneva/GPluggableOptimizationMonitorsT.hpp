@@ -1284,7 +1284,7 @@ public:
             nAdaptionsHist2D_oa_ = boost::shared_ptr<GHistogram2D>(
                   new GHistogram2D(
                         nIterationsRecorded_
-                        , double(maxNAdaptions)
+                        , double(maxNAdaptions+1)
                         , 0., double(maxIteration_)
                         , 0., double(maxNAdaptions)
                   )
