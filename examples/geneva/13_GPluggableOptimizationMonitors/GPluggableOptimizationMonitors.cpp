@@ -63,6 +63,7 @@ void parseCommandLine(
    , std::string& monitorSpec
    , bool& observeBoundaries
    , std::string& logAll
+   , std::string& monitorNAdaptions
 ) {
    boost::shared_ptr<po::option_description> printValid_option(
       new po::option_description(
@@ -108,6 +109,15 @@ void parseCommandLine(
       )
    );
    od.push_back(logAll_option);
+
+   boost::shared_ptr<po::option_description> nAdaptionsLog_option(
+      new po::option_description(
+         "monitorAdaptions"
+         , po::value<std::string>(&monitorNAdaptions)->implicit_value(std::string("./nAdaptions.C"))->default_value("empty")
+         , "Logs the number of adaptions for all individuals over the course of the optimization. Useful for evolutionary algorithms only."
+      )
+   );
+   od.push_back(nAdaptionsLog_option);
 }
 
 /******************************************************************************/
@@ -125,6 +135,7 @@ int main(int argc, char **argv) {
    std::string monitorSpec = "empty";
    bool observeBoundaries = "false";
    std::string logAll = "empty";
+   std::string monitorNAdaptions = "empty";
 
    std::vector<boost::shared_ptr<po::option_description> > od;
 
@@ -135,6 +146,7 @@ int main(int argc, char **argv) {
       , monitorSpec
       , observeBoundaries
       , logAll
+      , monitorNAdaptions
    );
 
    Go2 go(argc, argv, "./config/Go2.json", od);
@@ -182,7 +194,16 @@ int main(int argc, char **argv) {
       collectiveMonitor_ptr->registerPluggableOM(allsolutionLogger_ptr);
    }
 
-   if(monitorSpec != "empty" || logAll != "empty")
+   if(monitorNAdaptions != "empty") {
+      boost::shared_ptr<GNAdpationsLoggerT<GParameterSet> > nAdaptionsLogger_ptr(new GNAdpationsLoggerT<GParameterSet>(monitorNAdaptions));
+
+      nAdaptionsLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
+      nAdaptionsLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
+
+      collectiveMonitor_ptr->registerPluggableOM(nAdaptionsLogger_ptr);
+   }
+
+   if(monitorSpec != "empty" || logAll != "empty" || monitorNAdaptions != "empty")
    go.registerPluggableOM(
       boost::bind(
          &GCollectiveMonitorT<GParameterSet>::informationFunction

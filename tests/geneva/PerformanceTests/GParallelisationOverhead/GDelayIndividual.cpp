@@ -172,7 +172,7 @@ Gem::Geneva::GObject* GDelayIndividual::clone_() const {
  * all we want to do is measure the overhead of the parallelization. We thus simply
  * provide an empty replacement for the default behavior and "fake" an adaption.
  */
-bool GDelayIndividual::customAdaptions() { return true; }
+std::size_t GDelayIndividual::customAdaptions() { return std::size_t(1); }
 
 /******************************************************************************/
 /**

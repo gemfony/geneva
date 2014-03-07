@@ -1042,6 +1042,310 @@ private:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+/**
+ * This class allows to log all candidate solutions found to a file. NOTE that
+ * the file may become very large! Results are output in the following format:
+ * param1 param2 ... param_m eval1 eval2 ... eval_n . By default, no commas and
+ * explanations are printed. If withNameAndType is set to true, the values are
+ * prepended by a line with variable names and types. If withCommas is set to true,
+ * commas will be printed in-between values. It is possible to filter the results by
+ * asking the class to only log solutions better than a given set of values. What
+ * is considered better depends on whether evaluation criteria are maximized or minimized
+ * and is determined from the individual. Note that this class can only be instantiated
+ * if ind_type is either a derivative of GParamterSet or is an object of the
+ * GParameterSet class itself.
+ */
+template <typename ind_type>
+class GNAdpationsLoggerT : public GBasePluggableOMT<ind_type>
+{
+   // Make sure this class can only be instantiated if ind_type is a derivative of GParameterSet
+   BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
+
+public:
+   /***************************************************************************/
+   /**
+    * The default constructor
+    */
+   GNAdpationsLoggerT()
+      : fileName_("NAdaptions.C")
+      , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+      , gpd_oa_("Number of adaptions per iteration", 1, 2)
+      , monitorBestOnly_(false)
+      , addPrintCommand_(false)
+      , maxIteration_(0)
+      , nIterationsRecorded_(0)
+      , nAdaptionsStore_()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Initialization with a file name
+    */
+   GNAdpationsLoggerT(const std::string& fileName)
+      : fileName_(fileName)
+      , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+      , gpd_oa_("Number of adaptions per iteration", 1, 2)
+      , monitorBestOnly_(false)
+      , addPrintCommand_(false)
+      , maxIteration_(0)
+      , nIterationsRecorded_(0)
+      , nAdaptionsStore_()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The copy constructor
+    */
+   GNAdpationsLoggerT(const GNAdpationsLoggerT<ind_type>& cp)
+      : fileName_(cp.fileName_)
+      , canvasDimensions_(cp.canvasDimensions_)
+      , gpd_oa_("Number of adaptions per iteration", 1, 2) // Not copied
+      , monitorBestOnly_(cp.monitorBestOnly_)
+      , addPrintCommand_(cp.addPrintCommand_)
+      , maxIteration_(cp.maxIteration_)
+      , nIterationsRecorded_(cp.nIterationsRecorded_)
+      , nAdaptionsStore_(cp.nAdaptionsStore_)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The destructor
+    */
+   virtual ~GNAdpationsLoggerT()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Sets the file name
+    */
+   void setFileName(std::string fileName) {
+      fileName_ = fileName;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the current file name
+    */
+   std::string getFileName() const {
+      return fileName_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to specify whether only the best individuals should be monitored.
+    */
+   void setMonitorBestOnly(bool monitorBestOnly = true) {
+      monitorBestOnly_ = monitorBestOnly;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether only the best individuals should be monitored.
+    */
+   bool getMonitorBestOnly() const {
+      return monitorBestOnly_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to set the canvas dimensions
+    */
+   void setCanvasDimensions(boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
+      canvasDimensions_ = canvasDimensions;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to set the canvas dimensions using separate x and y values
+    */
+   void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
+      canvasDimensions_ = boost::tuple<boost::uint32_t,boost::uint32_t>(x,y);
+   }
+
+   /***************************************************************************/
+   /**
+    * Gives access to the canvas dimensions
+    */
+   boost::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
+      return canvasDimensions_;
+   }
+
+   /******************************************************************************/
+   /**
+    * Allows to add a "Print" command to the end of the script so that picture files are created
+    */
+   void setAddPrintCommand(bool addPrintCommand) {
+      addPrintCommand_ = addPrintCommand;
+   }
+
+   /******************************************************************************/
+   /**
+    * Allows to retrieve the current value of the addPrintCommand_ variable
+    */
+   bool getAddPrintCommand() const {
+      return addPrintCommand_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to emit information in different stages of the information cycle
+    * (initialization, during each cycle and during finalization)
+    */
+   virtual void informationFunction(
+      const infoMode& im
+      , GOptimizationAlgorithmT<ind_type> * const goa
+   ) OVERRIDE {
+      using namespace Gem::Common;
+
+      switch(im) {
+      case Gem::Geneva::INFOINIT:
+      {
+         // If the file pointed to by fileName_ already exists, make a back-up
+         if(bf::exists(fileName_)) {
+            const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
+            std::string newFileName = fileName_ + ".bak_" + boost::lexical_cast<std::string>(currentTime);
+
+            glogger
+            << "In GNAdpationsLoggerT<T>::informationFunction(): Error!" << std::endl
+            << "Attempt to output information to file " << fileName_ << std::endl
+            << "which already exists. We will rename the old file to" << std::endl
+            << newFileName << std::endl
+            << GWARNING;
+
+            bf::rename(fileName_, newFileName);
+         }
+
+         // Make sure the progress plotter has the desired size
+         gpd_oa_.setCanvasDimensions(canvasDimensions_);
+
+         // Set up a graph to monitor the best fitness found
+         fitnessGraph2D_oa_ = boost::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+         fitnessGraph2D_oa_->setXAxisLabel("Iteration");
+         fitnessGraph2D_oa_->setYAxisLabel("Fitness");
+         fitnessGraph2D_oa_->setPlotMode(Gem::Common::CURVE);
+      }
+      break;
+
+      case Gem::Geneva::INFOPROCESSING:
+      {
+         boost::uint32_t iteration = goa->getIteration();
+
+         // Record the current fitness
+         boost::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
+         (*fitnessGraph2D_oa_) & boost::tuple<double,double>(double(iteration), double(p->fitness()));
+
+         // Update the largest known iteration and the number of recorded iterations
+         maxIteration_ = iteration;
+         nIterationsRecorded_++;
+
+         // Do the actual logging
+         if(monitorBestOnly_) {
+            boost::shared_ptr<GParameterSet> best = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
+            nAdaptionsStore_.push_back(boost::tuple<double,double>(double(iteration), double(best->getNAdaptions())));
+         } else { // Monitor all individuals
+            // Loop over all individuals of the algorithm.
+            for(std::size_t pos=0; pos<goa->size(); pos++) {
+               boost::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+               nAdaptionsStore_.push_back(boost::tuple<double,double>(double(iteration), double(ind->getNAdaptions())));
+            }
+         }
+      }
+      break;
+
+      case Gem::Geneva::INFOEND:
+      {
+         std::vector<boost::tuple<double, double> >::iterator it;
+
+         if(monitorBestOnly_) {
+            // Create the graph object
+            nAdaptionsGraph2D_oa_ = boost::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+            nAdaptionsGraph2D_oa_->setXAxisLabel("Iteration");
+            nAdaptionsGraph2D_oa_->setYAxisLabel("Number of parameter adaptions");
+            nAdaptionsGraph2D_oa_->setPlotMode(Gem::Common::CURVE);
+
+            // Fill the object with data
+            for(it=nAdaptionsStore_.begin(); it!=nAdaptionsStore_.end(); ++it) {
+               (*nAdaptionsGraph2D_oa_) & *it;
+            }
+
+            // Add the histogram to the plot designer
+            gpd_oa_.registerPlotter(nAdaptionsGraph2D_oa_);
+
+         } else { // All individuals are monitored
+            // Within nAdaptionsStore_, find the largest number of adaptions performed
+            std::size_t maxNAdaptions = 0;
+            for(it=nAdaptionsStore_.begin(); it!=nAdaptionsStore_.end(); ++it) {
+               if(boost::get<1>(*it) > maxNAdaptions) {
+                  maxNAdaptions = boost::get<1>(*it);
+               }
+            }
+
+            // Create the histogram object
+            nAdaptionsHist2D_oa_ = boost::shared_ptr<GHistogram2D>(
+                  new GHistogram2D(
+                        nIterationsRecorded_
+                        , double(maxNAdaptions)
+                        , 0., double(maxIteration_)
+                        , 0., double(maxNAdaptions)
+                  )
+            );
+
+            nAdaptionsHist2D_oa_->setXAxisLabel("Iteration");
+            nAdaptionsHist2D_oa_->setYAxisLabel("Number of parameter adaptions");
+            nAdaptionsHist2D_oa_->setDrawingArguments("BOX");
+
+            // Fill the object with data
+            for(it=nAdaptionsStore_.begin(); it!=nAdaptionsStore_.end(); ++it) {
+               (*nAdaptionsHist2D_oa_) & *it;
+            }
+
+            // Add the histogram to the plot designer
+            gpd_oa_.registerPlotter(nAdaptionsHist2D_oa_);
+         }
+
+         // Add the fitness monitor
+         gpd_oa_.registerPlotter(fitnessGraph2D_oa_);
+
+         // Inform the plot designer whether it should print png files
+         gpd_oa_.setAddPrintCommand(addPrintCommand_);
+
+         // Write out the result. Note that we add
+         gpd_oa_.writeToFile(fileName_);
+
+         // Remove all plotters
+         gpd_oa_.resetPlotters();
+         nAdaptionsHist2D_oa_.reset();
+         nAdaptionsGraph2D_oa_.reset();
+      }
+      break;
+      };
+   }
+
+private:
+   /***************************************************************************/
+
+   std::string fileName_; ///< The name of the file to which solutions should be stored
+
+   boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
+
+   Gem::Common::GPlotDesigner gpd_oa_; ///< A wrapper for the plots
+
+   boost::shared_ptr<Gem::Common::GHistogram2D> nAdaptionsHist2D_oa_;  ///< Holds the actual histogram
+   boost::shared_ptr<Gem::Common::GGraph2D>     nAdaptionsGraph2D_oa_; ///< Used if we only monitor the best solution in each iteration
+   boost::shared_ptr<Gem::Common::GGraph2D>     fitnessGraph2D_oa_;    ///< Lets us monitor the current fitness of the population
+
+   bool monitorBestOnly_; ///< Indicates whether only the best individuals should be monitored
+   bool addPrintCommand_; ///< Asks the GPlotDesigner to add a print command to result files
+
+   std::size_t maxIteration_; ///< Holds the largest iteration recorded for the algorithm
+   std::size_t nIterationsRecorded_; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
+
+   std::vector<boost::tuple<double, double> > nAdaptionsStore_; ///< Holds all information about the number of adaptions
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

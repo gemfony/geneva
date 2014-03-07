@@ -129,7 +129,7 @@ protected:
    virtual Gem::Geneva::GObject* clone_() const;
 
    /** @brief The actual adaption operations */
-   virtual bool customAdaptions() OVERRIDE;
+   virtual std::size_t customAdaptions() OVERRIDE;
    /** @brief The actual fitness calculation takes place here */
    virtual double fitnessCalculation() OVERRIDE;
 
