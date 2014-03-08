@@ -150,9 +150,10 @@ const std::size_t GFI_DEF_PARDIM = 2;
 const double GFI_DEF_MINVAR = -10.;
 const double GFI_DEF_MAXVAR = 10.;
 const bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
-const parameterType GFI_DEF_PARAMETERTYPE = USEGDOUBLECOLLECTION;
+const parameterType GFI_DEF_PARAMETERTYPE = USEGCONSTRAINEDDOUBLEOBJECT;
 const initMode GFI_DEF_INITMODE = INITPERIMETER;
 const solverFunction GO_DEF_EVALFUNCTION = boost::numeric_cast<solverFunction>(0);
+const double GFI_DEF_CROSSOVERPROB = 0.5;
 
 /******************************************************************************/
 /**
@@ -509,7 +510,7 @@ public:
    /** @brief Allows to specify an adaption factor for adProb_ (or 0, if you do not want this feature) */
    void setAdaptAdProb(double adaptAdProb);
 
-   /** Allows to retrieve the allowed range for adProb_ variation */
+   /** @brief Allows to retrieve the allowed range for adProb_ variation */
    boost::tuple<double,double> getAdProbRange() const;
    /** @brief Allows to set the allowed range for adaption probability variation */
    void setAdProbRange(double minAdProb, double maxAdProb);

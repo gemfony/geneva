@@ -1595,6 +1595,13 @@ void GFunctionIndividualFactory::setAdProbRange(double minAdProb, double maxAdPr
          << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
          << GEXCEPTION;
       }
+
+      if(maxAdProb > 1.) {
+         glogger
+         << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
+         << "maxAdProb > 1: " << maxAdProb << std::endl
+         << GEXCEPTION;
+      }
 #endif /* DEBUG */
 
    minAdProb_ = minAdProb;

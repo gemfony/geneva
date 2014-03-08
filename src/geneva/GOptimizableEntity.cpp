@@ -549,7 +549,7 @@ void GOptimizableEntity::enforceFitnessUpdate() {
    evaluationID_ = std::string("eval_") + boost::lexical_cast<std::string>(boost::uuids::random_generator()());
 
    // We start a new evaluation. Make sure the object isn't marked as invalid,
-   // and this state cannot be changed.
+   // and that this state cannot be changed.
    markedAsInvalidByUser_.reset();
 
    // Find out, whether this is a valid solution

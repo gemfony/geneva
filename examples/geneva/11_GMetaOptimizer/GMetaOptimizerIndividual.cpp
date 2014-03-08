@@ -121,12 +121,12 @@ bool GMetaOptimizerIndividual::operator!=(const GMetaOptimizerIndividual& cp) co
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GMetaOptimizerIndividual::checkRelationshipWith(const GObject& cp,
-      const Gem::Common::expectation& e,
-      const double& limit,
-      const std::string& caller,
-      const std::string& y_name,
-      const bool& withMessages) const
-{
+   const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
+) const {
    using namespace Gem::Common;
    using namespace Gem::Geneva;
 
@@ -329,27 +329,40 @@ std::string GMetaOptimizerIndividual::print() const {
    std::ostringstream result;
 
    // Retrieve the parameters
-   boost::shared_ptr<GConstrainedInt32Object>  npar_ptr       = this->at<GConstrainedInt32Object>(0);
-   boost::shared_ptr<GConstrainedInt32Object>  nch_ptr        = this->at<GConstrainedInt32Object>(1);
-   boost::shared_ptr<GConstrainedDoubleObject> adprob_ptr     = this->at<GConstrainedDoubleObject>(2);
-   boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr   = this->at<GConstrainedDoubleObject>(3);
-   boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr = this->at<GConstrainedDoubleObject>(4);
-   boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr = this->at<GConstrainedDoubleObject>(5);
+   boost::shared_ptr<GConstrainedInt32Object>  npar_ptr                  = this->at<GConstrainedInt32Object>(0);
+   boost::shared_ptr<GConstrainedInt32Object>  nch_ptr                   = this->at<GConstrainedInt32Object>(1);
+   boost::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr          = this->at<GConstrainedDoubleObject>(2);
+   boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(3);
+   boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(4);
+   boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(5);
+   boost::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr           = this->at<GConstrainedDoubleObject>(6);
+   boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr              = this->at<GConstrainedDoubleObject>(7);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr            = this->at<GConstrainedDoubleObject>(8);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr  = this->at<GConstrainedDoubleObject>(9);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr            = this->at<GConstrainedDoubleObject>(10);
+   boost::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr         = this->at<GConstrainedDoubleObject>(11);
 
    // Stream the results
 
    bool dirtyFlag = this->isDirty();
-   double transformedPrimaryFitness
-      = dirtyFlag?this->getWorstCase():this->transformedFitness();
+   double transformedPrimaryFitness = dirtyFlag?this->getWorstCase():this->transformedFitness();
 
    result
-      << "Fitness = " << transformedPrimaryFitness << (dirtyFlag?" // dirty flag set":"") << std::endl
-      << "#Parents = " << npar_ptr->value() << std::endl
-      << "#Children = " << nch_ptr->value() << std::endl
-      << "adaption probability = " << adprob_ptr->value() << std::endl
-      << "minimum sigma = " << minsigma_ptr->value() << std::endl
-      << "maximum sigma = " << minsigma_ptr->value() + sigmarange_ptr->value() << std::endl
-      << "sigma-sigma = " << sigmasigma_ptr->value() << std::endl;
+   << "Fitness = " << transformedPrimaryFitness << (dirtyFlag?" // dirty flag set":"") << std::endl
+   << std::endl
+   << "population::size = " << npar_ptr->value() + nch_ptr->value() << std::endl
+   << "population::nParents = " << npar_ptr->value() << std::endl
+   << "population::amalgamationLikelihood = " << amalgamation_ptr->value() << std::endl
+   << "individual::adProb = " << minAdProb_ptr->value() + adProbRange_ptr->value()*adProbRange_ptr->value() << std::endl
+   << "individual::minAdProb = " << minAdProb_ptr->value() << std::endl
+   << "individual::maxAdProb = " << minAdProb_ptr->value() + adProbRange_ptr->value() << std::endl
+   << "individual::adaptAdProb = " << adaptAdprob_ptr->value() << std::endl
+   << "individual::sigma1 = " << minsigma_ptr->value() + sigmarange_ptr->value()*sigmaRangePercentage_ptr->value() << std::endl
+   << "individual::minSigma1 = " << minsigma_ptr->value() << std::endl
+   << "individual::maxSigma1 = " << minsigma_ptr->value() + sigmarange_ptr->value() << std::endl
+   << "individual::sigmaSigma1 = " << sigmasigma_ptr->value() << std::endl
+   << "individual::perItemCrossOverProbability = " << crossOverProb_ptr->value() << std::endl
+   << std::endl;
 
    return result.str();
 }
@@ -392,13 +405,22 @@ GObject* GMetaOptimizerIndividual::clone_() const {
  * @return The value of this object, as calculated with the evaluation function
  */
 double GMetaOptimizerIndividual::fitnessCalculation() {
+   bool first = true;
+   bool maxMode = false;
+
 	// Retrieve the parameters
-   boost::shared_ptr<GConstrainedInt32Object>  npar_ptr       = this->at<GConstrainedInt32Object>(0);
-   boost::shared_ptr<GConstrainedInt32Object>  nch_ptr        = this->at<GConstrainedInt32Object>(1);
-   boost::shared_ptr<GConstrainedDoubleObject> adprob_ptr     = this->at<GConstrainedDoubleObject>(2);
-   boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr   = this->at<GConstrainedDoubleObject>(3);
-   boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr = this->at<GConstrainedDoubleObject>(4);
-   boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr = this->at<GConstrainedDoubleObject>(5);
+   boost::shared_ptr<GConstrainedInt32Object>  npar_ptr                  = this->at<GConstrainedInt32Object>(0);
+   boost::shared_ptr<GConstrainedInt32Object>  nch_ptr                   = this->at<GConstrainedInt32Object>(1);
+   boost::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr          = this->at<GConstrainedDoubleObject>(2);
+   boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(3);
+   boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(4);
+   boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(5);
+   boost::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr           = this->at<GConstrainedDoubleObject>(6);
+   boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr              = this->at<GConstrainedDoubleObject>(7);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr            = this->at<GConstrainedDoubleObject>(8);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr  = this->at<GConstrainedDoubleObject>(9);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr            = this->at<GConstrainedDoubleObject>(10);
+   boost::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr         = this->at<GConstrainedDoubleObject>(11);
 
    // Create a factory for GFunctionIndividual objects and perform
    // any necessary initial work.
@@ -407,24 +429,40 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
    double minSigma = minsigma_ptr->value();
    double sigmaRange = sigmarange_ptr->value();
    double maxSigma = minSigma + sigmaRange;
+   double sigmaRangePercentage = sigmaRangePercentage_ptr->value();
+   double startSigma = minSigma + sigmaRangePercentage*sigmaRange;
 
-   gfi.setAdProb(adprob_ptr->value());
    gfi.setSigma1Range(boost::tuple<double,double>(minSigma, maxSigma));
-   gfi.setSigma1(minSigma + 0.5*sigmaRange); // Use a defined sigma
+   gfi.setSigma1(startSigma);
    gfi.setSigmaSigma1(sigmasigma_ptr->value());
+
+   double minAdProb = minAdProb_ptr->value();
+   double adProbRange = minAdProb_ptr->value();
+   double maxAdProb = minAdProb + adProbRange;
+   double adProbStartPercentage = adProbStartPercentage_ptr->value();
+   double startAdProb = minAdProb + adProbStartPercentage*adProbRange;
+
+   double adaptAdProb = adaptAdprob_ptr->value();
+
+   gfi.setAdProbRange(minAdProb, maxAdProb);
+   gfi.setAdProb(startAdProb);
+   gfi.setAdaptAdProb(adaptAdProb);
 
    // Set up a population factory
    GEvolutionaryAlgorithmFactory ea("./config/GSubEvolutionaryAlgorithm.json", EXECMODE_MULTITHREADED);
 
    // Run the required number of optimizations
    boost::shared_ptr<GBaseEA> ea_ptr;
+
    boost::uint32_t nChildren = boost::numeric_cast<boost::uint32_t>(nch_ptr->value());
    boost::uint32_t nParents = boost::numeric_cast<boost::uint32_t>(npar_ptr->value());
    boost::uint32_t popSize = nParents + nChildren;
    boost::uint32_t iterationsConsumed = 0;
+   double amalgamationLikelihood = amalgamation_ptr->value();
 
    std::vector<double> solverCallsPerOptimization;
    std::vector<double> iterationsPerOptimization;
+   std::vector<double> bestEvaluations;
 
    std::cout << "============================================" << std::endl;
    for(std::size_t opt=0; opt<nRunsPerOptimization_; opt++) {
@@ -437,39 +475,85 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
 
       // Add the required number of individuals
       for(std::size_t ind=0; ind<popSize; ind++) {
-         ea_ptr->push_back(gfi());
+         // Retrieve an individual
+         boost::shared_ptr<GParameterSet> gfi_ptr = gfi();
+
+         // Find out whether this is a maximization or minimization once per call to fitnessCalculation
+         if(first) {
+            maxMode = gfi_ptr->getMaxMode();
+            first = false;
+         }
+
+         // Set the "per item cross-over probability"
+         gfi_ptr->setPerItemCrossOverProbability(crossOverProb_ptr->value());
+
+         ea_ptr->push_back(gfi_ptr);
       }
+
+      // Set the likelihood for work items to be produced through cross-over rather than mutation alone
+      ea_ptr->setAmalgamationLikelihood(amalgamationLikelihood);
 
       // Set the stop criteria (either maxIterations_ iterations or falling below the quality threshold
       ea_ptr->setQualityThreshold(fitnessTarget_);
       ea_ptr->setMaxIteration(iterationThreshold_);
 
+      // Make sure the optimization does not stop due to stalls (which is the default in the EA-config
+      ea_ptr->setMaxStallIteration(0);
+
       // Make sure the optimization is quiet
       ea_ptr->setReportIteration(0);
 
+      // Make sure the optimization does not emit the termination reason
+      ea_ptr->setEmitTerminationReason(false);
+
       // Run the actual optimization
-      ea_ptr->optimize();
+       ea_ptr->optimize();
+
+       // Retrieve the best individual
+       boost::shared_ptr<GParameterSet> bestIndividual = ea_ptr->getBestIndividual<GParameterSet>();
 
       // Retrieve the number of iterations
       iterationsConsumed = ea_ptr->getIteration();
+
+      // Do book-keeping
       solverCallsPerOptimization.push_back(double((iterationsConsumed+1)*nChildren + nParents));
       iterationsPerOptimization.push_back(double(iterationsConsumed+1));
+
+      if(bestIndividual->isValid()) {
+         bestEvaluations.push_back(bestIndividual->fitness());
+      }
    }
 
-	// Calculate the average number of iterations
+	// Calculate the average number of iterations and solver calls
    boost::tuple<double,double> sd = Gem::Common::GStandardDeviation(solverCallsPerOptimization);
    boost::tuple<double,double> itmean = Gem::Common::GStandardDeviation(iterationsPerOptimization);
 
+   // Mark the solution as invalid, if at least one invalid result was found or the average
+   // best evaluation is worse than the target
+   if(bestEvaluations.size() != nRunsPerOptimization_) {
+      this->markAsInvalid();
+   } else { // We know we have a full set of valid "bests"
+      boost::tuple<double,double> bestAverage = Gem::Common::GStandardDeviation(bestEvaluations);
+      if(true == maxMode) {
+         if(boost::get<0>(bestAverage) < fitnessTarget_) {
+            this->markAsInvalid();
+         }
+      } else { // minimization
+         if(boost::get<0>(bestAverage) > fitnessTarget_) {
+            this->markAsInvalid();
+         }
+      }
+   }
+
    // Emit some information
-   std::cout << std::endl
-         << *this << std::endl
-         << boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " <<  boost::get<0>(itmean) << " average iterations" << std::endl << std::endl;
+   std::cout
+   << std::endl
+   << *this << std::endl
+   << boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " <<  boost::get<0>(itmean) << " average iterations" << std::endl << std::endl;
 
    // Let the audience know
    return boost::get<0>(sd);
 }
-
-#ifdef GEM_TESTING
 
 /******************************************************************************/
 /**
@@ -478,6 +562,7 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
  * @return A boolean indicating whether
  */
 bool GMetaOptimizerIndividual::modify_GUnitTests() {
+#ifdef GEM_TESTING
    using boost::unit_test_framework::test_suite;
    using boost::unit_test_framework::test_case;
 
@@ -494,6 +579,11 @@ bool GMetaOptimizerIndividual::modify_GUnitTests() {
 
    // Let the audience know whether we have changed the content
    return result;
+
+#else /* GEM_TESTING */
+   condnotset("GMetaOptimizerIndividual::modify_GUnitTests()", "GEM_TESTING");
+   return false;
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -501,6 +591,7 @@ bool GMetaOptimizerIndividual::modify_GUnitTests() {
  * Performs self tests that are expected to succeed.
  */
 void GMetaOptimizerIndividual::specificTestsNoFailureExpected_GUnitTests() {
+#ifdef GEM_TESTING
    using namespace Gem::Geneva;
 
    using boost::unit_test_framework::test_suite;
@@ -516,6 +607,9 @@ void GMetaOptimizerIndividual::specificTestsNoFailureExpected_GUnitTests() {
    }
 
    //------------------------------------------------------------------------------
+#else /* GEM_TESTING */
+   condnotset("GMetaOptimizerIndividual::specificTestsNoFailureExpected_GUnitTests()", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/
@@ -523,6 +617,7 @@ void GMetaOptimizerIndividual::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail.
  */
 void GMetaOptimizerIndividual::specificTestsFailuresExpected_GUnitTests() {
+#ifdef GEM_TESTING
    using namespace Gem::Geneva;
 
    using boost::unit_test_framework::test_suite;
@@ -542,56 +637,11 @@ void GMetaOptimizerIndividual::specificTestsFailuresExpected_GUnitTests() {
    }
 
    //------------------------------------------------------------------------------
-}
 
 #else /* GEM_TESTING */
-
-/******************************************************************************/
-/**
- * Applies modifications to this object. This is function is a trap, as it
- * should not be called if GEM_TESTING isn't set. However, its existence is
- * mandatory, as otherwise this class will have a different API depending on
- * whether GEM_TESTING is set or not.
- */
-bool GMetaOptimizerIndividual::modify_GUnitTests() {
-   raiseException(
-      "In GMetaOptimizerIndividual::modify_GUnitTests(): Error!" << std::endl
-      << "Function was called even though GEM_TESTING hasn't been set." << std::endl
-   );
-
-   // Make the compiler happy
-   return true;
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to succeed. This is function is a trap,
- * as it should not be called if GEM_TESTING isn't set. However, its existence is
- * mandatory, as otherwise this class will have a different API depending on
- * whether GEM_TESTING is set or not.
- */
-void GMetaOptimizerIndividual::specificTestsNoFailureExpected_GUnitTests() {
-   raiseException(
-      "In GMetaOptimizerIndividual::specificTestsNoFailureExpected_GUnitTests(): Error!" << std::endl
-      << "Function was called even though GEM_TESTING hasn't been set." << std::endl
-   );
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to fail. This is function is a trap, as
- * it should not be called if GEM_TESTING isn't set. However, its existence is
- * mandatory, as otherwise this class will have a different API depending on
- * whether GEM_TESTING is set or not.
- */
-void GMetaOptimizerIndividual::specificTestsFailuresExpected_GUnitTests() {
-   raiseException(
-      "In GMetaOptimizerIndividual::specificTestsFailuresExpected_GUnitTests(): Error!" << std::endl
-      << "Function was called even though GEM_TESTING hasn't been set." << std::endl
-   );
-}
-
+   condnotset("GMetaOptimizerIndividual::specificTestsNoFailureExpected_GUnitTests()", "GEM_TESTING");
 #endif /* GEM_TESTING */
+}
 
 /******************************************************************************/
 /**
@@ -614,24 +664,38 @@ std::ostream& operator<<(std::ostream& stream, const GMetaOptimizerIndividual& g
  */
 GMetaOptimizerIndividualFactory::GMetaOptimizerIndividualFactory(const std::string& configFile)
 	: Gem::Common::GFactoryT<GParameterSet>(configFile)
-	, initSubNParents_(GMETAOPT_DEF_INITSUBNPARENTS)
-	, subNParentsLB_(GMETAOPT_DEF_SUBNPARENTSLB)
-	, subNParentsUB_(GMETAOPT_DEF_SUBNPARENTSUB)
-	, initSubNChildren_(GMETAOPT_DEF_INITSUBNCHILDREN)
-	, subNChildrenLB_(GMETAOPT_DEF_SUBNCHILDRENLB)
-	, subNChildrenUB_(GMETAOPT_DEF_SUBNCHILDRENUB)
-	, initSubAdProb_(GMETAOPT_DEF_INITSUBADPROB)
-	, subAdProbLB_(GMETAOPT_DEF_SUBADPROBLB)
-	, subAdProbUB_(GMETAOPT_DEF_SUBADPROBUB)
-	, initSubMinSigma_(GMETAOPT_DEF_INITSUBMINSIGMA)
-	, subMinSigmaLB_(GMETAOPT_DEF_SUBMINSIGMALB)
-	, subMinSigmaUB_(GMETAOPT_DEF_SUBMINSIGMAUB)
-	, initSubSigmaRange_(GMETAOPT_DEF_INITSUBSIGMARANGE)
-	, subSigmaRangeLB_(GMETAOPT_DEF_SUBSIGMARANGELB)
-	, subSigmaRangeUB_(GMETAOPT_DEF_SUBSIGMARANGEUB)
-	, initSubSigmaSigma_(GMETAOPT_DEF_INITSUBSIGMASIGMA)
-	, subSigmaSigmaLB_(GMETAOPT_DEF_SUBSIGMASIGMALB)
-	, subSigmaSigmaUB_(GMETAOPT_DEF_SUBSIGMASIGMAUB)
+	, initNParents_(GMETAOPT_DEF_INITNPARENTS)
+	, nParents_LB_(GMETAOPT_DEF_NPARENTS_LB)
+	, nParents_UB_(GMETAOPT_DEF_NPARENTS_UB)
+	, initNChildren_(GMETAOPT_DEF_INITNCHILDREN)
+	, nChildren_LB_(GMETAOPT_DEF_NCHILDREN_LB)
+	, nChildren_UB_(GMETAOPT_DEF_NCHILDREN_UB)
+	, initAmalgamationLklh_(GMETAOPT_DEF_INITAMALGLKLHOOD)
+	, amalgamationLklh_LB_(GMETAOPT_DEF_AMALGLKLHOOD_LB)
+	, amalgamationLklh_UB_(GMETAOPT_DEF_AMALGLKLHOOD_UB)
+   , initMinAdProb_(GMETAOPT_DEF_INITMINADPROB)
+   , minAdProb_LB_(GMETAOPT_DEF_MINADPROB_LB)
+   , minAdProb_UB_(GMETAOPT_DEF_MINADPROB_UB)
+   , initAdProbRange_(GMETAOPT_DEF_INITADPROBRANGE)
+   , adProbRange_LB_(GMETAOPT_DEF_ADPROBRANGE_LB)
+   , adProbRange_UB_(GMETAOPT_DEF_ADPROBRANGE_UB)
+   , initAdProbStartPercentage_(GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE)
+	, initAdaptAdProb_(GMETAOPT_DEF_INITADAPTADPROB)
+	, adaptAdProb_LB_(GMETAOPT_DEF_ADAPTADPROB_LB)
+	, adaptAdProb_UB_(GMETAOPT_DEF_ADAPTADPROB_UB)
+	, initMinSigma_(GMETAOPT_DEF_INITMINSIGMA)
+	, minSigma_LB_(GMETAOPT_DEF_MINSIGMA_LB)
+	, minSigma_UB_(GMETAOPT_DEF_MINSIGMA_UB)
+	, initSigmaRange_(GMETAOPT_DEF_INITSIGMARANGE)
+	, sigmaRange_LB_(GMETAOPT_DEF_SIGMARANGE_LB)
+	, sigmaRange_UB_(GMETAOPT_DEF_SIGMARANGE_UB)
+	, initSigmaRangePercentage_(GMETAOPT_DEF_INITSIGMARANGEPERCENTAGE)
+	, initSigmaSigma_(GMETAOPT_DEF_INITSIGMASIGMA)
+	, sigmaSigma_LB_(GMETAOPT_DEF_SIGMASIGMA_LB)
+	, sigmaSigma_UB_(GMETAOPT_DEF_SIGMASIGMA_UB)
+	, initCrossOverProb_(GMETAOPT_DEF_INITCROSSOVERPROB)
+	, crossOverProb_LB_(GMETAOPT_DEF_CROSSOVERPROB_LB)
+	, crossOverProb_UB_(GMETAOPT_DEF_CROSSOVERPROB_UB)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -673,9 +737,9 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The initial number of parents in a population;";
    gpb.registerFileParameter<std::size_t>(
-      "initSubNParents"
-      , initSubNParents_
-      , GMETAOPT_DEF_INITSUBNPARENTS
+      "initNParents"
+      , initNParents_
+      , GMETAOPT_DEF_INITNPARENTS
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -683,9 +747,9 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The lower boundary for variations of the number of parents;";
    gpb.registerFileParameter<std::size_t>(
-      "subNParentsLB"
-      , subNParentsLB_
-      , GMETAOPT_DEF_SUBNPARENTSLB
+      "nParents_LB"
+      , nParents_LB_
+      , GMETAOPT_DEF_NPARENTS_LB
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -693,9 +757,9 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The upper boundary for variations of the number of parents;";
    gpb.registerFileParameter<std::size_t>(
-      "subNParentsUB"
-      , subNParentsUB_
-      , GMETAOPT_DEF_SUBNPARENTSUB
+      "nParents_UB"
+      , nParents_UB_
+      , GMETAOPT_DEF_NPARENTS_UB
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -703,9 +767,9 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The initial number of children in a population;";
    gpb.registerFileParameter<std::size_t>(
-      "initSubNChildren"
-      , initSubNChildren_
-      , GMETAOPT_DEF_INITSUBNCHILDREN
+      "initNChildren"
+      , initNChildren_
+      , GMETAOPT_DEF_INITNCHILDREN
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -713,9 +777,9 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The lower boundary for the variation of the number of children;";
    gpb.registerFileParameter<std::size_t>(
-      "subNChildrenLB"
-      , subNChildrenLB_
-      , GMETAOPT_DEF_SUBNCHILDRENLB
+      "nChildren_LB"
+      , nChildren_LB_
+      , GMETAOPT_DEF_NCHILDREN_LB
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -723,39 +787,139 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The upper boundary for the variation of the number of children;";
    gpb.registerFileParameter<std::size_t>(
-      "subNChildrenUB"
-      , subNChildrenUB_
-      , GMETAOPT_DEF_SUBNCHILDRENUB
+      "nChildren_UB"
+      , nChildren_UB_
+      , GMETAOPT_DEF_NCHILDREN_UB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The initial likelihood for an individual being created from cross-over rather than just duplication;";
+   gpb.registerFileParameter<double>(
+      "initAmalgamationLklh"
+      , initAmalgamationLklh_
+      , GMETAOPT_DEF_INITAMALGLKLHOOD
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The lower boundary for the variation of the amalgamation likelihood ;";
+   gpb.registerFileParameter<double>(
+      "amalgamationLklh_LB"
+      , amalgamationLklh_LB_
+      , GMETAOPT_DEF_AMALGLKLHOOD_LB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The upper boundary for the variation of the amalgamation likelihood ;";
+   gpb.registerFileParameter<double>(
+      "amalgamationLklh_UB"
+      , amalgamationLklh_UB_
+      , GMETAOPT_DEF_AMALGLKLHOOD_UB
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
 
 	comment = "";
-	comment += "The initial probability for random adaptions of values in evolutionary algorithms;";
+	comment += "The initial lower boundary for the variation of adProb;";
 	gpb.registerFileParameter<double>(
-		"initSubAdProb"
-		, initSubAdProb_
-		, GMETAOPT_DEF_INITSUBADPROB
+		"initMinAdProb"
+		, initMinAdProb_
+		, GMETAOPT_DEF_INITMINADPROB
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
 	);
 
    comment = "";
-   comment += "The lower boundary for the variation of the adaption probability;";
+   comment += "The lower boundary for minAdProb;";
    gpb.registerFileParameter<double>(
-      "subAdProbLB"
-      , subAdProbLB_
-      , GMETAOPT_DEF_SUBADPROBLB
+      "minAdProb_LB"
+      , minAdProb_LB_
+      , GMETAOPT_DEF_MINADPROB_LB
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
 
    comment = "";
-   comment += "The upper boundary for the variation of the adaption probability;";
+   comment += "The upper boundary for minAdProb;";
    gpb.registerFileParameter<double>(
-      "subAdProbUB"
-      , subAdProbUB_
-      , GMETAOPT_DEF_SUBADPROBUB
+      "minAdProb_UB"
+      , minAdProb_UB_
+      , GMETAOPT_DEF_MINADPROB_UB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The initial range for the variation of adProb;";
+   gpb.registerFileParameter<double>(
+      "initAdProbRange"
+      , initAdProbRange_
+      , GMETAOPT_DEF_INITADPROBRANGE
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The lower boundary for adProbRange;";
+   gpb.registerFileParameter<double>(
+      "adProbRange_LB"
+      , adProbRange_LB_
+      , GMETAOPT_DEF_ADPROBRANGE_LB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The upper boundary for adProbRange;";
+   gpb.registerFileParameter<double>(
+      "adProbRange_UB"
+      , adProbRange_UB_
+      , GMETAOPT_DEF_ADPROBRANGE_UB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The start value for adProb relative to the allowed value range;";
+   gpb.registerFileParameter<double>(
+      "initAdProbStartPercentage"
+      , initAdProbStartPercentage_
+      , GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The initial value of the strength of adProb_ adaption;";
+   gpb.registerFileParameter<double>(
+      "initAdaptAdProb"
+      , initAdaptAdProb_
+      , GMETAOPT_DEF_INITADAPTADPROB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The lower boundary for the variation of the strength of adProb_ adaption;";
+   gpb.registerFileParameter<double>(
+      "adaptAdProb_LB"
+      , adaptAdProb_LB_
+      , GMETAOPT_DEF_ADAPTADPROB_LB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The upper boundary for the variation of the strength of adProb_ adaption;";
+   gpb.registerFileParameter<double>(
+      "adaptAdProb_UB"
+      , adaptAdProb_UB_
+      , GMETAOPT_DEF_ADAPTADPROB_UB
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -763,9 +927,9 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
 	comment = "";
 	comment += "The initial minimum sigma for gauss-adaption in ES;";
 	gpb.registerFileParameter<double>(
-		"initSubMinSigma"
-		, initSubMinSigma_
-		, GMETAOPT_DEF_INITSUBMINSIGMA
+		"initMinSigma"
+		, initMinSigma_
+		, GMETAOPT_DEF_INITMINSIGMA
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
 	);
@@ -773,9 +937,9 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The lower boundary for the variation of the lower boundary of sigma;";
    gpb.registerFileParameter<double>(
-      "subMinSigmaLB"
-      , subMinSigmaLB_
-      , GMETAOPT_DEF_SUBMINSIGMALB
+      "minSigma_LB"
+      , minSigma_LB_
+      , GMETAOPT_DEF_MINSIGMA_LB
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -783,9 +947,9 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The upper boundary for the variation of the lower boundary of sigma;";
    gpb.registerFileParameter<double>(
-      "subMinSigmaUB"
-      , subMinSigmaUB_
-      , GMETAOPT_DEF_SUBMINSIGMAUB
+      "minSigma_UB"
+      , minSigma_UB_
+      , GMETAOPT_DEF_MINSIGMA_UB
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -793,9 +957,9 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The initial maximum range for sigma;";
    gpb.registerFileParameter<double>(
-      "initSubSigmaRange"
-      , initSubSigmaRange_
-      , GMETAOPT_DEF_INITSUBSIGMARANGE
+      "initSigmaRange"
+      , initSigmaRange_
+      , GMETAOPT_DEF_INITSIGMARANGE
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -803,9 +967,9 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The lower boundary for the variation of the maximum range of sigma;";
    gpb.registerFileParameter<double>(
-      "subSigmaRangeLB"
-      , subSigmaRangeLB_
-      , GMETAOPT_DEF_SUBSIGMARANGELB
+      "sigmaRange_LB"
+      , sigmaRange_LB_
+      , GMETAOPT_DEF_SIGMARANGE_LB
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -813,9 +977,19 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The upper boundary for the variation of the maximum range of sigma;";
    gpb.registerFileParameter<double>(
-      "subSigmaRangeUB"
-      , subSigmaRangeUB_
-      , GMETAOPT_DEF_SUBSIGMARANGEUB
+      "sigmaRange_UB"
+      , sigmaRange_UB_
+      , GMETAOPT_DEF_SIGMARANGE_UB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The initial percentage of the sigma range as a start value;";
+   gpb.registerFileParameter<double>(
+      "initSigmaRangePercentage"
+      , initSigmaRangePercentage_
+      , GMETAOPT_DEF_INITSIGMARANGEPERCENTAGE
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -823,9 +997,9 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
 	comment = "";
 	comment += "The initial strength of self-adaption of gauss-mutation in ES;";
 	gpb.registerFileParameter<double>(
-		"initSubSigmaSigma"
-		, initSubSigmaSigma_
-		, GMETAOPT_DEF_INITSUBSIGMASIGMA
+		"initSigmaSigma"
+		, initSigmaSigma_
+		, GMETAOPT_DEF_INITSIGMASIGMA
 		, Gem::Common::VAR_IS_ESSENTIAL
 		, comment
 	);
@@ -833,9 +1007,9 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The lower boundary for the variation of the strength of sigma adaption;";
    gpb.registerFileParameter<double>(
-      "subSigmaSigmaLB"
-      , subSigmaSigmaLB_
-      , GMETAOPT_DEF_SUBSIGMASIGMALB
+      "sigmaSigma_LB"
+      , sigmaSigma_LB_
+      , GMETAOPT_DEF_SIGMASIGMA_LB
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -843,9 +1017,39 @@ void GMetaOptimizerIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The upper boundary for the variation of the strength of sigma adaption;";
    gpb.registerFileParameter<double>(
-      "subSigmaSigmaUB"
-      , subSigmaSigmaUB_
-      , GMETAOPT_DEF_SUBSIGMASIGMAUB
+      "sigmaSigma_UB"
+      , sigmaSigma_UB_
+      , GMETAOPT_DEF_SIGMASIGMA_UB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The likelihood for two data items to be exchanged in a cross-over operation;";
+   gpb.registerFileParameter<double>(
+      "initCrossOverProb"
+      , initCrossOverProb_
+      , GMETAOPT_DEF_INITCROSSOVERPROB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The lower boundary for the variation of the cross-over probability ;";
+   gpb.registerFileParameter<double>(
+      "crossOverProb_LB"
+      , crossOverProb_LB_
+      , GMETAOPT_DEF_CROSSOVERPROB_LB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The upper boundary for the variation of the cross-over probability ;";
+   gpb.registerFileParameter<double>(
+      "crossOverProb_UB"
+      , crossOverProb_UB_
+      , GMETAOPT_DEF_CROSSOVERPROB_UB
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -870,25 +1074,39 @@ void GMetaOptimizerIndividualFactory::postProcess_(boost::shared_ptr<GParameterS
 
    // We simply use a static function defined in GMetaOptimizerIndividual
    GMetaOptimizerIndividual::addContent(
-         p
-         , initSubNParents_
-         , subNParentsLB_
-         , subNParentsUB_
-         , initSubNChildren_
-         , subNChildrenLB_
-         , subNChildrenUB_
-         , initSubAdProb_
-         , subAdProbLB_
-         , subAdProbUB_
-         , initSubMinSigma_
-         , subMinSigmaLB_
-         , subMinSigmaUB_
-         , initSubSigmaRange_
-         , subSigmaRangeLB_
-         , subSigmaRangeUB_
-         , initSubSigmaSigma_
-         , subSigmaSigmaLB_
-         , subSigmaSigmaUB_
+      p
+      , initNParents_
+      , nParents_LB_
+      , nParents_UB_
+      , initNChildren_
+      , nChildren_LB_
+      , nChildren_UB_
+      , initAmalgamationLklh_
+      , amalgamationLklh_LB_
+      , amalgamationLklh_UB_
+      , initMinAdProb_
+      , minAdProb_LB_
+      , minAdProb_UB_
+      , initAdProbRange_
+      , adProbRange_LB_
+      , adProbRange_UB_
+      , initAdProbStartPercentage_
+      , initAdaptAdProb_
+      , adaptAdProb_LB_
+      , adaptAdProb_UB_
+      , initMinSigma_
+      , minSigma_LB_
+      , minSigma_UB_
+      , initSigmaRange_
+      , sigmaRange_LB_
+      , sigmaRange_UB_
+      , initSigmaRangePercentage_
+      , initSigmaSigma_
+      , sigmaSigma_LB_
+      , sigmaSigma_UB_
+      , initCrossOverProb_
+      , crossOverProb_LB_
+      , crossOverProb_UB_
    );
 }
 

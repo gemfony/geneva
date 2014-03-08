@@ -72,25 +72,55 @@ namespace Geneva {
 
 /******************************************************************************/
 // A number of default settings for the factory and individual
-const std::size_t     GMETAOPT_DEF_INITSUBNPARENTS = 1;        ///< The initial number of parents
-const std::size_t     GMETAOPT_DEF_SUBNPARENTSLB = 1;          ///< The lower boundary for variations of the number of parents
-const std::size_t     GMETAOPT_DEF_SUBNPARENTSUB = 6;          ///< The upper boundary for variations of the number of parents
-const std::size_t     GMETAOPT_DEF_INITSUBNCHILDREN = 100;     ///< The initial number of children
-const std::size_t     GMETAOPT_DEF_SUBNCHILDRENLB = 5;         ///< The lower boundary for the variation of the number of children
-const std::size_t     GMETAOPT_DEF_SUBNCHILDRENUB = 200;       ///< The upper boundary for the variation of the number of children
-const double          GMETAOPT_DEF_INITSUBADPROB = 0.99;       ///< The initial adaption probability
-const double          GMETAOPT_DEF_SUBADPROBLB = 0.0001;       ///< The lower boundary for the variation of the adaption probability
-const double          GMETAOPT_DEF_SUBADPROBUB = 0.9999;       ///< The upper boundary for the variation of the adaption probability
-const double          GMETAOPT_DEF_INITSUBMINSIGMA = 0.00001;  ///< The initial lower boundary for sigma
-const double          GMETAOPT_DEF_SUBMINSIGMALB = 0.00001;    ///< The lower boundary for the variation of the lower boundary of sigma
-const double          GMETAOPT_DEF_SUBMINSIGMAUB = 0.4999;     ///< The upper boundary for the variation of the lower boundary of sigma
-const double          GMETAOPT_DEF_INITSUBSIGMARANGE = 1.;     ///< The initial maximum range for sigma
-const double          GMETAOPT_DEF_SUBSIGMARANGELB = 0.5;      ///< The lower boundary for the variation of the maximum range of sigma
-const double          GMETAOPT_DEF_SUBSIGMARANGEUB = 1.;       ///< The upper boundary for the variation of the maximum range of sigma
-const double          GMETAOPT_DEF_INITSUBSIGMASIGMA = 0.999;  ///< The initial strength of sigma adaption
-const double          GMETAOPT_DEF_SUBSIGMASIGMALB = 0.01;     ///< The lower boundary for the variation of the strength of sigma adaption
-const double          GMETAOPT_DEF_SUBSIGMASIGMAUB = 1.;       ///< The upper boundary for the variation of the strength of sigma adaption
-const std::size_t     GMETAOPT_DEF_NRUNSPEROPT=50;             ///< The number of successive optimization runs
+
+// Pertaining to the population
+const std::size_t     GMETAOPT_DEF_INITNPARENTS = 1;        ///< The initial number of parents
+const std::size_t     GMETAOPT_DEF_NPARENTS_LB = 1;         ///< The lower boundary for variations of the number of parents
+const std::size_t     GMETAOPT_DEF_NPARENTS_UB = 6;         ///< The upper boundary for variations of the number of parents
+
+const std::size_t     GMETAOPT_DEF_INITNCHILDREN = 100;     ///< The initial number of children
+const std::size_t     GMETAOPT_DEF_NCHILDREN_LB = 5;        ///< The lower boundary for the variation of the number of children
+const std::size_t     GMETAOPT_DEF_NCHILDREN_UB = 250;      ///< The upper boundary for the variation of the number of children
+
+const double          GMETAOPT_DEF_INITAMALGLKLHOOD = 0.;      ///< The initial likelihood for an individual being created from cross-over rather than "just" duplication | !!! NEW
+const double          GMETAOPT_DEF_AMALGLKLHOOD_LB = 0.;       ///< The lower boundary for the variation of the amalgamation likelihood | !!! NEW
+const double          GMETAOPT_DEF_AMALGLKLHOOD_UB = 1.;       ///< The upper boundary for the variation of the amalgamation likelihood | !!! NEW
+
+// Concerning the individual
+const double          GMETAOPT_DEF_INITMINADPROB = 0.;         ///< The initial lower boundary for the variation of adProb
+const double          GMETAOPT_DEF_MINADPROB_LB = 0.;          ///< The lower boundary for minAdProb
+const double          GMETAOPT_DEF_MINADPROB_UB = 0.1;         ///< The upper boundary for minAdProb -- 0.1, effectively
+
+const double          GMETAOPT_DEF_INITADPROBRANGE = 0.9;      ///< The initial upper boundary for the variation of adProb
+const double          GMETAOPT_DEF_ADPROBRANGE_LB = 0.1;       ///< The lower boundary for adProbRange
+const double          GMETAOPT_DEF_ADPROBRANGE_UB = 0.9;       ///< The upper boundary for adProbRange
+
+const double          GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE = 1.; ///< Defines the place inside of the allowed value range where adProb starts. Boundaries are 0./1.
+
+const double          GMETAOPT_DEF_INITADAPTADPROB = 0.1;   ///< The initial value of the strength of adProb_ adaption   | !!! NEW
+const double          GMETAOPT_DEF_ADAPTADPROB_LB = 0.;     ///< The lower boundary for the variation of the strength of adProb_ adaption | !!! NEW
+const double          GMETAOPT_DEF_ADAPTADPROB_UB = 1.;     ///< The upper boundary for the variation of the strength of adProb_ adaption | !!! NEW
+
+const double          GMETAOPT_DEF_INITMINSIGMA = 0.001;    ///< The initial lower boundary for sigma
+const double          GMETAOPT_DEF_MINSIGMA_LB = 0.001;     ///< The lower boundary for the variation of the lower boundary of sigma
+const double          GMETAOPT_DEF_MINSIGMA_UB = 0.09999;   ///< The upper boundary for the variation of the lower boundary of sigma, means ~0.1
+
+const double          GMETAOPT_DEF_INITSIGMARANGE = 0.2;    ///< The initial maximum range for sigma --> note that the initial start value for sigma will always be set to the upper boundary of its variation limits
+const double          GMETAOPT_DEF_SIGMARANGE_LB = 0.1;     ///< The lower boundary for the variation of the maximum range of sigma --> maxSigma is 0.2
+const double          GMETAOPT_DEF_SIGMARANGE_UB = 0.9;     ///< The upper boundary for the variation of the maximum range of sigma --> maxSigma is 1.
+
+const double          GMETAOPT_DEF_INITSIGMARANGEPERCENTAGE = 1.; ///< The initial percentage of the sigma range as a start value
+
+const double          GMETAOPT_DEF_INITSIGMASIGMA = 0.1;    ///< The initial strength of sigma adaption
+const double          GMETAOPT_DEF_SIGMASIGMA_LB = 0.;      ///< The lower boundary for the variation of the strength of sigma adaption
+const double          GMETAOPT_DEF_SIGMASIGMA_UB = 1.;      ///< The upper boundary for the variation of the strength of sigma adaption
+
+const double          GMETAOPT_DEF_INITCROSSOVERPROB = 0.;    ///< The likelihood for two data items to be exchanged in a cross-over operation | !!! NEW
+const double          GMETAOPT_DEF_CROSSOVERPROB_LB  = 0.;   ///< The lower boundary for the variation of the cross-over probability  | !!! NEW
+const double          GMETAOPT_DEF_CROSSOVERPROB_UB  = 1.;     ///< The upper boundary for the variation of the cross-over probability  | !!! NEW
+
+// General meta-optimization parameters
+const std::size_t     GMETAOPT_DEF_NRUNSPEROPT=10;             ///< The number of successive optimization runs
 const double          GMETAOPT_DEF_FITNESSTARGET = 0.001;      ///< The fitness target
 const boost::uint32_t GMETAOPT_DEF_ITERATIONTHRESHOLD = 10000; ///< The maximum allowed number of iterations
 
@@ -106,10 +136,11 @@ class GMetaOptimizerIndividual : public GParameterSet
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int) {
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		   & BOOST_SERIALIZATION_NVP(nRunsPerOptimization_)
-		   & BOOST_SERIALIZATION_NVP(fitnessTarget_)
-		   & BOOST_SERIALIZATION_NVP(iterationThreshold_);
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		& BOOST_SERIALIZATION_NVP(nRunsPerOptimization_)
+		& BOOST_SERIALIZATION_NVP(fitnessTarget_)
+		& BOOST_SERIALIZATION_NVP(iterationThreshold_);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -132,12 +163,12 @@ public:
 
    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled. */
    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject&,
-         const Gem::Common::expectation&,
-         const double&,
-         const std::string&,
-         const std::string&,
-         const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
    ) const;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
@@ -180,105 +211,237 @@ public:
     * and factory.
     */
    static void addContent(
-         boost::shared_ptr<GMetaOptimizerIndividual> p
-         , const std::size_t& initSubNParents
-         , const std::size_t& subNParentsLB
-         , const std::size_t& subNParentsUB
-         , const std::size_t& initSubNChildren
-         , const std::size_t& subNChildrenLB
-         , const std::size_t& subNChildrenUB
-         , const double& initSubAdProb
-         , const double& subAdProbLB
-         , const double& subAdProbUB
-         , const double& initSubMinSigma
-         , const double& subMinSigmaLB
-         , const double& subMinSigmaUB
-         , const double& initSubSigmaRange
-         , const double& subSigmaRangeLB
-         , const double& subSigmaRangeUB
-         , const double& initSubSigmaSigma
-         , const double& subSigmaSigmaLB
-         , const double& subSigmaSigmaUB
+      boost::shared_ptr<GMetaOptimizerIndividual> p
+      , const std::size_t& initNParents
+      , const std::size_t& nParents_LB
+      , const std::size_t& nParents_UB
+      , const std::size_t& initNChildren
+      , const std::size_t& nChildren_LB
+      , const std::size_t& nChildren_UB
+      , const double& initAmalgamationLklh
+      , const double& amalgamationLklh_LB
+      , const double& amalgamationLklh_UB
+      , const double& initMinAdProb
+      , const double& minAdProb_LB
+      , const double& minAdProb_UB
+      , const double& initAdProbRange
+      , const double& adProbRange_LB
+      , const double& adProbRange_UB
+      , const double& initAdProbStartPercentage
+      , const double& initAdaptAdProb
+      , const double& adaptAdProb_LB
+      , const double& adaptAdProb_UB
+      , const double& initMinSigma
+      , const double& minSigma_LB
+      , const double& minSigma_UB
+      , const double& initSigmaRange
+      , const double& sigmaRange_LB
+      , const double& sigmaRange_UB
+      , const double& initSigmaRangePercentage
+      , const double& initSigmaSigma
+      , const double& sigmaSigma_LB
+      , const double& sigmaSigma_UB
+      , const double& initCrossOverProb
+      , const double& crossOverProb_LB
+      , const double& crossOverProb_UB
    ) {
       // We will add parameter types in the same order as the arguments
 
+      //------------------------------------------------------------
+      // nParents
+
       // Small number of possible values -- use a flip-adaptor
       boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
-      gifa_ptr->setAdaptionProbability(0.5);
+      gifa_ptr->setAdaptionProbability(1.);
 
-      // We allow between 1 and 5 parents
-      boost::shared_ptr<GConstrainedInt32Object> npar_ptr(new GConstrainedInt32Object(boost::numeric_cast<boost::int32_t>(initSubNParents), subNParentsLB, subNParentsUB));
+      boost::shared_ptr<GConstrainedInt32Object> npar_ptr(new GConstrainedInt32Object(boost::numeric_cast<boost::int32_t>(initNParents), nParents_LB, nParents_UB));
       npar_ptr->addAdaptor(gifa_ptr);
+      npar_ptr->setParameterName("nParents");
+
       // Add to the individual
       p->push_back(npar_ptr);
 
+      //------------------------------------------------------------
+      // nChildren
+
       // Create a default standard gauss adaptor
       boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(
-            4.99    // sigma
-            , 0.5   // sigmaSigma
-            , 0.5   // minSigma
-            , 5.    // maxSigma
-            , 0.5   // adProb
+            0.025   // sigma
+            , 0.2   // sigmaSigma
+            , 0.001   // minSigma
+            , 0.5    // maxSigma
+            , 1.   // adProb
          )
       );
 
-      // We allow between 5 and 1000 children
-      boost::shared_ptr<GConstrainedInt32Object> nch_ptr(new GConstrainedInt32Object(boost::numeric_cast<boost::int32_t>(initSubNChildren), subNChildrenLB, subNChildrenUB));
+      boost::shared_ptr<GConstrainedInt32Object> nch_ptr(new GConstrainedInt32Object(boost::numeric_cast<boost::int32_t>(initNChildren), nChildren_LB, nChildren_UB));
       nch_ptr->addAdaptor(giga_ptr);
+      nch_ptr->setParameterName("nChildren");
+
       // Add to the individual
       p->push_back(nch_ptr);
 
+      //------------------------------------------------------------
+      // amalgamationLklh
+
       // Create a default standard gauss adaptor
       boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(
-            0.5    // sigma
-            , 0.5  // sigmaSigma
-            , 0.01 // minSigma
-            , 2.   // maxSigma
-            , 0.5   // adProb
+            0.025    // sigma
+            , 0.2    // sigmaSigma
+            , 0.001  // minSigma
+            , 0.5    // maxSigma
+            , 1.     // adProb
          )
       );
-
-      // We allow adProb values between 0.001 and 1.
-      boost::shared_ptr<GConstrainedDoubleObject> adprob_ptr(new GConstrainedDoubleObject(
-            initSubAdProb // initial value
-            , subAdProbLB  // lower boundary
-            , subAdProbUB // upper boundary
+      boost::shared_ptr<GConstrainedDoubleObject> amalgamationLklh_ptr(new GConstrainedDoubleObject(
+            initAmalgamationLklh // initial value
+            , amalgamationLklh_LB  // lower boundary
+            , amalgamationLklh_UB // upper boundary
           )
       );
       // Add the gauss adaptor to the parameter
-      adprob_ptr->addAdaptor(gdga_ptr);
-      // Add to the individual
-      p->push_back(adprob_ptr);
+      amalgamationLklh_ptr->addAdaptor(gdga_ptr);
+      amalgamationLklh_ptr->setParameterName("amalgamationLikelihood");
 
-      // MinSigma may change between 0.0001 and 5
+      // Add to the individual
+      p->push_back(amalgamationLklh_ptr);
+
+      //------------------------------------------------------------
+      // minAdProb
+
+      boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr(new GConstrainedDoubleObject(
+            initMinAdProb  // initial value
+            , minAdProb_LB // lower boundary
+            , minAdProb_UB // upper boundary
+          )
+      );
+      // Add the gauss adaptor to the parameter
+      minAdProb_ptr->addAdaptor(gdga_ptr);
+      minAdProb_ptr->setParameterName("minAdProb");
+
+      // Add to the individual
+      p->push_back(minAdProb_ptr);
+
+      //------------------------------------------------------------
+      // adProbRange
+
+      boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr(new GConstrainedDoubleObject(
+            initAdProbRange  // initial value
+            , adProbRange_LB // lower boundary
+            , adProbRange_UB // upper boundary
+          )
+      );
+      // Add the gauss adaptor to the parameter
+      adProbRange_ptr->addAdaptor(gdga_ptr);
+      adProbRange_ptr->setParameterName("adProbRange");
+
+      // Add to the individual
+      p->push_back(adProbRange_ptr);
+
+      //------------------------------------------------------------
+      // adProbStartPercentage
+
+      boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr(new GConstrainedDoubleObject(
+            initAdProbStartPercentage  // initial value
+            , 0. // lower boundary
+            , 1. // upper boundary
+          )
+      );
+      // Add the gauss adaptor to the parameter
+      adProbStartPercentage_ptr->addAdaptor(gdga_ptr);
+      adProbStartPercentage_ptr->setParameterName("adProbStartPercentage");
+
+      // Add to the individual
+      p->push_back(adProbStartPercentage_ptr);
+
+      //------------------------------------------------------------
+      // adaptAdProb
+
+      boost::shared_ptr<GConstrainedDoubleObject> adaptAdProb_ptr(new GConstrainedDoubleObject(
+            initAdaptAdProb // initial value
+            , adaptAdProb_LB // lower boundary
+            , adaptAdProb_UB // upper boundary
+      ));
+      adaptAdProb_ptr->addAdaptor(gdga_ptr);
+      adaptAdProb_ptr->setParameterName("adaptAdProb");
+
+      // Add to the individual
+      p->push_back(adaptAdProb_ptr);
+
+      //------------------------------------------------------------
+      // minSigma
+
       boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr(new GConstrainedDoubleObject(
-            initSubMinSigma // initial value
-            , subMinSigmaLB // lower boundary
-            , subMinSigmaUB // upper boundary
+            initMinSigma // initial value
+            , minSigma_LB // lower boundary
+            , minSigma_UB // upper boundary
       ));
       minsigma_ptr->addAdaptor(gdga_ptr);
+      minsigma_ptr->setParameterName("minSigma");
+
       // Add to the individual
       p->push_back(minsigma_ptr);
 
-      // The sigma-range (aka maxSigma) may change between 0.1 and 5
+      //------------------------------------------------------------
+      // sigmaRange
+
       boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr(new GConstrainedDoubleObject(
-            initSubSigmaRange // initial value
-            , subSigmaRangeLB // lower boundary
-            , subSigmaRangeUB // upper boundary
+            initSigmaRange // initial value
+            , sigmaRange_LB // lower boundary
+            , sigmaRange_UB // upper boundary
        ));
       sigmarange_ptr->addAdaptor(gdga_ptr);
+      sigmarange_ptr->setParameterName("sigmaRange");
+
       // Add to the individual
       p->push_back(sigmarange_ptr);
 
+      //------------------------------------------------------------
+      // sigmaRangePercentage
+
+      boost::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr(new GConstrainedDoubleObject(
+            initSigmaRangePercentage  // initial value
+            , 0. // lower boundary
+            , 1. // upper boundary
+          )
+      );
+      // Add the gauss adaptor to the parameter
+      sigmaRangePercentage_ptr->addAdaptor(gdga_ptr);
+      sigmaRangePercentage_ptr->setParameterName("sigmaRangePercentage");
+
+      // Add to the individual
+      p->push_back(sigmaRangePercentage_ptr);
+
+      //------------------------------------------------------------
+      // sigmaSigma
+
       // The sigma adaption strength may change between 0.01 and 1
       boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr(new GConstrainedDoubleObject(
-            initSubSigmaSigma  // initial value
-            , subSigmaSigmaLB  // lower boundary
-            , subSigmaSigmaUB  // upper boundary
+            initSigmaSigma  // initial value
+            , sigmaSigma_LB  // lower boundary
+            , sigmaSigma_UB  // upper boundary
        ));
       sigmasigma_ptr->addAdaptor(gdga_ptr);
+      sigmasigma_ptr->setParameterName("sigmaSigma");
+
       // Add to the individual
       p->push_back(sigmasigma_ptr);
+
+      //------------------------------------------------------------
+      // crossOverProb
+
+      boost::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr(new GConstrainedDoubleObject(
+            initCrossOverProb  // initial value
+            , crossOverProb_LB  // lower boundary
+            , crossOverProb_UB  // upper boundary
+       ));
+      crossOverProb_ptr->addAdaptor(gdga_ptr);
+      crossOverProb_ptr->setParameterName("crossOverProb");
+
+      // Add to the individual
+      p->push_back(crossOverProb_ptr);
+
+      //------------------------------------------------------------
    }
 
 protected:
@@ -337,29 +500,50 @@ private:
 	/** @brief The default constructor. Intentionally private and undefined */
 	GMetaOptimizerIndividualFactory();
 
-	std::size_t initSubNParents_;  ///< The initial number of parents
-	std::size_t subNParentsLB_;    ///< The lower boundary for variations of the number of parents
-	std::size_t subNParentsUB_;    ///< The upper boundary for variations of the number of parents
+	// Parameters pertaining to the ea population
+	std::size_t initNParents_;  ///< The initial number of parents
+	std::size_t nParents_LB_;    ///< The lower boundary for variations of the number of parents
+	std::size_t nParents_UB_;    ///< The upper boundary for variations of the number of parents
 
-	std::size_t initSubNChildren_; ///< The initial number of children
-	std::size_t subNChildrenLB_;   ///< The lower boundary for the variation of the number of children
-	std::size_t subNChildrenUB_;   ///< The upper boundary for the variation of the number of children
+	std::size_t initNChildren_; ///< The initial number of children
+	std::size_t nChildren_LB_;   ///< The lower boundary for the variation of the number of children
+	std::size_t nChildren_UB_;   ///< The upper boundary for the variation of the number of children
 
-	double initSubAdProb_;         ///< The initial adaption probability
-	double subAdProbLB_;           ///< The lower boundary for the variation of the adaption probability
-	double subAdProbUB_;           ///< The upper boundary for the variation of the adaption probability
+	double initAmalgamationLklh_;  ///< The initial likelihood for an individual being created from cross-over rather than "just" duplication | !!! NEW
+	double amalgamationLklh_LB_;    ///< The upper boundary for the variation of the amalgamation likelihood | !!! NEW
+	double amalgamationLklh_UB_;    ///< The upper boundary for the variation of the amalgamation likelihood | !!! NEW
 
-	double initSubMinSigma_;       ///< The initial minimal value of sigma
-	double subMinSigmaLB_;         ///< The lower boundary for the variation of the lower boundary of sigma
-	double subMinSigmaUB_;         ///< The upper boundary for the variation of the lower boundary of sigma
+	double initMinAdProb_;      ///< The initial lower boundary for the variation of adProb
+	double minAdProb_LB_;       ///< The lower boundary for minAdProb
+	double minAdProb_UB_;       ///< The upper boundary for minAdProb
 
-	double initSubSigmaRange_;     ///< The initial range of sigma (beyond minSigma
-	double subSigmaRangeLB_;       ///< The lower boundary for the variation of the maximum range of sigma
-	double subSigmaRangeUB_;       ///< The upper boundary for the variation of the maximum range of sigma
+	double initAdProbRange_;    ///< The initial range for the variation of adProb
+	double adProbRange_LB_;     ///< The lower boundary for adProbRange
+	double adProbRange_UB_;     ///< The upper boundary for adProbRange
 
-	double initSubSigmaSigma_;     ///< The initial strength of sigma adaption
-	double subSigmaSigmaLB_;       ///< The lower boundary for the variation of the strength of sigma adaption
-	double subSigmaSigmaUB_;       ///< The upper boundary for the variation of the strength of sigma adaption
+	double initAdProbStartPercentage_; ///< The start value for adProb relative to the allowed value range
+
+   double initAdaptAdProb_;    ///< The initial value of the strength of adProb_ adaption   | !!! NEW
+   double adaptAdProb_LB_;      ///< The lower boundary for the variation of the strength of adProb_ adaption | !!! NEW
+   double adaptAdProb_UB_;      ///< The upper boundary for the variation of the strength of adProb_ adaption | !!! NEW
+
+	double initMinSigma_;       ///< The initial minimal value of sigma
+	double minSigma_LB_;         ///< The lower boundary for the variation of the lower boundary of sigma
+	double minSigma_UB_;         ///< The upper boundary for the variation of the lower boundary of sigma
+
+	double initSigmaRange_;     ///< The initial range of sigma (beyond minSigma
+	double sigmaRange_LB_;       ///< The lower boundary for the variation of the maximum range of sigma
+	double sigmaRange_UB_;       ///< The upper boundary for the variation of the maximum range of sigma
+
+	double initSigmaRangePercentage_; ///< The initial percentage of the sigma range as a start value
+
+	double initSigmaSigma_;     ///< The initial strength of sigma adaption
+	double sigmaSigma_LB_;       ///< The lower boundary for the variation of the strength of sigma adaption
+	double sigmaSigma_UB_;       ///< The upper boundary for the variation of the strength of sigma adaption
+
+	double initCrossOverProb_;     ///< The likelihood for two data items to be exchanged in a cross-over operation | !!! NEW
+	double crossOverProb_LB_;       ///< The lower boundary for the variation of the cross-over probability | !!! NEW
+	double crossOverProb_UB_;       ///< The upper boundary for the variation of the cross-over probability | !!! NEW
 };
 
 /******************************************************************************/
