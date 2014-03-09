@@ -9,3 +9,6 @@ NOTE that the example currently only covers the optimization of
 the parameters of evolutionary algorithms, but that it can easily
 be extended to other algorithm types. Also, this example only takes
 into account the primary fitness value.
+
+NOTE: Optimization of the best evaluation found will only work for
+minimization problems at the moment.

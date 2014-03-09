@@ -1318,6 +1318,14 @@ void GOptimizableEntity::markAsInvalid() {
 
 /******************************************************************************/
 /**
+ * Allows to check whether this solution was marked as invalid
+ */
+bool GOptimizableEntity::markedAsInvalidByUser() const {
+   return markedAsInvalidByUser_;
+}
+
+/******************************************************************************/
+/**
  * Helps to determine whether a given value is strictly better (i.e. better than equal)
  * than another one. As "better" means something different for maximization and minimization,
  * this function helps to make the code easier to understand.

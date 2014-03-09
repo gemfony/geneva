@@ -48,6 +48,7 @@ GMetaOptimizerIndividual::GMetaOptimizerIndividual()
    , nRunsPerOptimization_(GMETAOPT_DEF_NRUNSPEROPT)
    , fitnessTarget_(GMETAOPT_DEF_FITNESSTARGET)
    , iterationThreshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
+   , optimizeSolverCalls_(GMETAOPT_DEF_OPTIMIZESOLVERCALLS)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -61,6 +62,7 @@ GMetaOptimizerIndividual::GMetaOptimizerIndividual(const GMetaOptimizerIndividua
    , nRunsPerOptimization_(cp.nRunsPerOptimization_)
    , fitnessTarget_(cp.fitnessTarget_)
    , iterationThreshold_(cp.iterationThreshold_)
+   , optimizeSolverCalls_(cp.optimizeSolverCalls_)
 { /* nothing */	}
 
 /******************************************************************************/
@@ -143,6 +145,7 @@ boost::optional<std::string> GMetaOptimizerIndividual::checkRelationshipWith(con
    deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividual", nRunsPerOptimization_, p_load->nRunsPerOptimization_, "nRunsPerOptimization_", "p_load->nRunsPerOptimization_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividual", fitnessTarget_, p_load->fitnessTarget_, "fitnessTarget_", "p_load->fitnessTarget_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividual", iterationThreshold_, p_load->iterationThreshold_, "iterationThreshold_", "p_load->iterationThreshold_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividual", optimizeSolverCalls_, p_load->optimizeSolverCalls_, "optimizeSolverCalls_", "p_load->optimizeSolverCalls_", e , limit));
 
    return evaluateDiscrepancies("GMetaOptimizerIndividual", caller, deviations, e);
 }
@@ -208,6 +211,37 @@ void GMetaOptimizerIndividual::addConfigurationOptions (
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
+
+   comment = ""; // Reset the comment string
+   comment += "Whether to optimize the number of solver calls or the best fitness found";
+   if(showOrigin) comment += "[GMetaOptimizerIndividual]";
+   gpb.registerFileParameter<bool>(
+      "optimizeSolverCalls" // The name of the variable
+      , GMETAOPT_DEF_OPTIMIZESOLVERCALLS // The default value
+      , boost::bind(
+         &GMetaOptimizerIndividual::setOptimizeSolverCalls
+         , this
+         , _1
+        )
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+}
+
+/*******************************************************************************************/
+/**
+ * Allows to set whether to optimize the number of solver calls or the best fitness found
+ */
+void GMetaOptimizerIndividual::setOptimizeSolverCalls(bool optimizeSolverCalls) {
+   optimizeSolverCalls_ = optimizeSolverCalls;
+}
+
+/*******************************************************************************************/
+/**
+ * Allows to check whether to optimize the number of solver calls or the best fitness found
+ */
+bool GMetaOptimizerIndividual::getOptimizeSolverCalls() const {
+   return optimizeSolverCalls_;
 }
 
 /*******************************************************************************************/
@@ -348,7 +382,9 @@ std::string GMetaOptimizerIndividual::print() const {
    double transformedPrimaryFitness = dirtyFlag?this->getWorstCase():this->transformedFitness();
 
    result
+   << "============================================================================================" << std::endl
    << "Fitness = " << transformedPrimaryFitness << (dirtyFlag?" // dirty flag set":"") << std::endl
+   << "Optimization target: " << (optimizeSolverCalls_?"number of solver calls":"best fitness found") << std::endl
    << std::endl
    << "population::size = " << npar_ptr->value() + nch_ptr->value() << std::endl
    << "population::nParents = " << npar_ptr->value() << std::endl
@@ -362,6 +398,7 @@ std::string GMetaOptimizerIndividual::print() const {
    << "individual::maxSigma1 = " << minsigma_ptr->value() + sigmarange_ptr->value() << std::endl
    << "individual::sigmaSigma1 = " << sigmasigma_ptr->value() << std::endl
    << "individual::perItemCrossOverProbability = " << crossOverProb_ptr->value() << std::endl
+   << "============================================================================================" << std::endl
    << std::endl;
 
    return result.str();
@@ -437,7 +474,7 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
    gfi.setSigmaSigma1(sigmasigma_ptr->value());
 
    double minAdProb = minAdProb_ptr->value();
-   double adProbRange = minAdProb_ptr->value();
+   double adProbRange = adProbRange_ptr->value();
    double maxAdProb = minAdProb + adProbRange;
    double adProbStartPercentage = adProbStartPercentage_ptr->value();
    double startAdProb = minAdProb + adProbStartPercentage*adProbRange;
@@ -464,7 +501,6 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
    std::vector<double> iterationsPerOptimization;
    std::vector<double> bestEvaluations;
 
-   std::cout << "============================================" << std::endl;
    for(std::size_t opt=0; opt<nRunsPerOptimization_; opt++) {
       ea_ptr = ea.get<GBaseEA>();
 
@@ -493,18 +529,29 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
       // Set the likelihood for work items to be produced through cross-over rather than mutation alone
       ea_ptr->setAmalgamationLikelihood(amalgamationLikelihood);
 
-      // Set the stop criteria (either maxIterations_ iterations or falling below the quality threshold
-      ea_ptr->setQualityThreshold(fitnessTarget_);
-      ea_ptr->setMaxIteration(iterationThreshold_);
+      if(optimizeSolverCalls_) {
+         // Set the stop criteria (either maxIterations_ iterations or falling below the quality threshold
+         ea_ptr->setQualityThreshold(fitnessTarget_);
+         ea_ptr->setMaxIteration(iterationThreshold_);
 
-      // Make sure the optimization does not stop due to stalls (which is the default in the EA-config
-      ea_ptr->setMaxStallIteration(0);
+         // Make sure the optimization does not emit the termination reason
+         ea_ptr->setEmitTerminationReason(false);
+
+         // Make sure the optimization does not stop due to stalls (which is the default in the EA-config
+         ea_ptr->setMaxStallIteration(0);
+      } else { // Optimization of best fitness found
+         // Set the stop criterion maxIterations only
+         ea_ptr->setMaxIteration(iterationThreshold_);
+
+         // Make sure the optimization does not emit the termination reason
+         ea_ptr->setEmitTerminationReason(false);
+
+         // Set a relatively high stall threshold
+         ea_ptr->setMaxStallIteration(50);
+      }
 
       // Make sure the optimization is quiet
       ea_ptr->setReportIteration(0);
-
-      // Make sure the optimization does not emit the termination reason
-      ea_ptr->setEmitTerminationReason(false);
 
       // Run the actual optimization
        ea_ptr->optimize();
@@ -519,40 +566,34 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
       solverCallsPerOptimization.push_back(double((iterationsConsumed+1)*nChildren + nParents));
       iterationsPerOptimization.push_back(double(iterationsConsumed+1));
 
-      if(bestIndividual->isValid()) {
-         bestEvaluations.push_back(bestIndividual->fitness());
-      }
+      bestEvaluations.push_back(bestIndividual->fitness());
+
+      // TODO: Deal with invalid solutions. MAX_DOUBLE wouldn't work because of mean calculation
+      // We need a tool to add "invalidity" to user-solutions
    }
 
 	// Calculate the average number of iterations and solver calls
    boost::tuple<double,double> sd = Gem::Common::GStandardDeviation(solverCallsPerOptimization);
    boost::tuple<double,double> itmean = Gem::Common::GStandardDeviation(iterationsPerOptimization);
+   boost::tuple<double,double> bestAverage = Gem::Common::GStandardDeviation(bestEvaluations);
 
-   // Mark the solution as invalid, if at least one invalid result was found or the average
-   // best evaluation is worse than the target
-   if(bestEvaluations.size() != nRunsPerOptimization_) {
-      this->markAsInvalid();
-   } else { // We know we have a full set of valid "bests"
-      boost::tuple<double,double> bestAverage = Gem::Common::GStandardDeviation(bestEvaluations);
-      if(true == maxMode) {
-         if(boost::get<0>(bestAverage) < fitnessTarget_) {
-            this->markAsInvalid();
-         }
-      } else { // minimization
-         if(boost::get<0>(bestAverage) > fitnessTarget_) {
-            this->markAsInvalid();
-         }
-      }
+   double evaluation = 0.;
+   if(optimizeSolverCalls_) {
+      evaluation = boost::get<0>(sd);
+   } else {
+      evaluation = boost::get<0>(bestAverage);
    }
 
    // Emit some information
    std::cout
    << std::endl
-   << *this << std::endl
-   << boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " <<  boost::get<0>(itmean) << " average iterations" << std::endl << std::endl;
+   << boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " <<  boost::get<0>(itmean) << " average iterations" << std::endl
+   << "Best solution found was " << boost::get<0>(bestAverage) << " +/- " << boost::get<1>(bestAverage) << std::endl
+   << "Solution is " << (this->markedAsInvalidByUser()?"invalid":"valid") << std::endl
+   << std::endl;
 
    // Let the audience know
-   return boost::get<0>(sd);
+   return evaluation;
 }
 
 /******************************************************************************/

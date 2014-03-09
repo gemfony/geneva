@@ -120,9 +120,10 @@ const double          GMETAOPT_DEF_CROSSOVERPROB_LB  = 0.;   ///< The lower boun
 const double          GMETAOPT_DEF_CROSSOVERPROB_UB  = 1.;     ///< The upper boundary for the variation of the cross-over probability  | !!! NEW
 
 // General meta-optimization parameters
-const std::size_t     GMETAOPT_DEF_NRUNSPEROPT=10;             ///< The number of successive optimization runs
-const double          GMETAOPT_DEF_FITNESSTARGET = 0.001;      ///< The fitness target
-const boost::uint32_t GMETAOPT_DEF_ITERATIONTHRESHOLD = 10000; ///< The maximum allowed number of iterations
+const std::size_t     GMETAOPT_DEF_NRUNSPEROPT=10;              ///< The number of successive optimization runs
+const double          GMETAOPT_DEF_FITNESSTARGET = 0.001;       ///< The fitness target
+const boost::uint32_t GMETAOPT_DEF_ITERATIONTHRESHOLD = 10000;  ///< The maximum allowed number of iterations
+const bool            GMETAOPT_DEF_OPTIMIZESOLVERCALLS = false; ///< Whether to optimize the best fitness found or to minimize the number of solver calls
 
 /******************************************************************************/
 /**
@@ -140,7 +141,8 @@ class GMetaOptimizerIndividual : public GParameterSet
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
 		& BOOST_SERIALIZATION_NVP(nRunsPerOptimization_)
 		& BOOST_SERIALIZATION_NVP(fitnessTarget_)
-		& BOOST_SERIALIZATION_NVP(iterationThreshold_);
+		& BOOST_SERIALIZATION_NVP(iterationThreshold_)
+		& BOOST_SERIALIZATION_NVP(optimizeSolverCalls_);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -181,13 +183,18 @@ public:
 
 	/** @brief Allows to set the fitness target for each optimization */
 	void setFitnessTarget(double);
-	/** @brief Retrieves the fitnes target for each optimization */
+	/** @brief Retrieves the fitness target for each optimization */
 	double getFitnessTarget() const;
 
 	/** @brief Allows to set the iteration threshold */
 	void setIterationThreshold(boost::uint32_t);
 	/** @brief Allows to retrieve the iteration threshold */
 	boost::uint32_t getIterationThreshold() const;
+
+	/** @brief Allows to set whether to optimize the number of solver calls or the best fitness found */
+	void setOptimizeSolverCalls(bool);
+	/** @brief Allows to check whether to optimize the number of solver calls or the best fitness found */
+	bool getOptimizeSolverCalls() const;
 
 	/** @brief Retrieves the current number of parents */
 	std::size_t getNParents() const;
@@ -460,6 +467,7 @@ private:
 	std::size_t nRunsPerOptimization_; ///< The number of runs performed for each (sub-)optimization
 	double fitnessTarget_; ///< The quality target to be reached by
 	boost::uint32_t iterationThreshold_; ///< The maximum allowed number of iterations
+	bool optimizeSolverCalls_; ///< When set to false, minimizes the best fitness found, else minimizes the number of calls until a target fitness is reached
 
 public:
    /** @brief Applies modifications to this object. */

@@ -418,6 +418,8 @@ protected:
 
 	/** @brief Allows users to mark this solution as invalid in derived classes (usually from within the evaluation function) */
 	void markAsInvalid();
+	/** @brief Allows to check whether this solution was marked as invalid */
+	bool markedAsInvalidByUser() const;
 
 	/***************************************************************************/
 	/**
