@@ -1,116 +1,236 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2013-Aug-25 12:21:02
+// File creation date: 2014-Mar-08 19:09:07
 //-----------------------------------------------------------------
 
 {
-    "initSubNParents":
+    "initNParents":
     {
         "comment": "The initial number of parents in a population",
         "default": "1",
         "value": "1"
     },
-    "subNParentsLB":
+    "nParents_LB":
     {
         "comment": "The lower boundary for variations of the number of parents",
         "default": "1",
         "value": "1"
     },
-    "subNParentsUB":
+    "nParents_UB":
     {
         "comment": "The upper boundary for variations of the number of parents",
-        "default": "5",
-        "value": "5"
+        "default": "6",
+        "value": "6"
     },
-    "initSubNChildren":
+    "initNChildren":
     {
         "comment": "The initial number of children in a population",
         "default": "100",
-        "value": "100"
+        "value": "20"
     },
-    "subNChildrenLB":
+    "nChildren_LB":
     {
         "comment": "The lower boundary for the variation of the number of children",
         "default": "5",
         "value": "5"
     },
-    "subNChildrenUB":
+    "nChildren_UB":
     {
         "comment": "The upper boundary for the variation of the number of children",
-        "default": "100",
-        "value": "100"
+        "default": "250",
+        "value": "250"
     },
-    "initSubAdProb":
+    "initAmalgamationLklh":
     {
-        "comment": "The initial probability for random adaptions of values in evolutionary algorithms",
-        "default": "0.99",
-        "value": "0.99"
+        "comment": "The initial likelihood for an individual being created from cross-over rather than just duplication",
+        "default": "0",
+        "value": "0"
     },
-    "subAdProbLB":
+    "amalgamationLklh_LB":
     {
-        "comment": "The lower boundary for the variation of the adaption probability",
-        "default": "0.01",
-        "value": "0.01"
+        "comment": "The lower boundary for the variation of the amalgamation likelihood ",
+        "default": "0",
+        "value": "0"
     },
-    "subAdProbUB":
+    "amalgamationLklh_UB":
     {
-        "comment": "The upper boundary for the variation of the adaption probability",
-        "default": "0.9999",
-        "value": "0.9999"
-    },
-    "initSubMinSigma":
-    {
-        "comment": "The initial minimum sigma for gauss-adaption in ES",
-        "default": "0.01",
-        "value": "0.01"
-    },
-    "subMinSigmaLB":
-    {
-        "comment": "The lower boundary for the variation of the lower boundary of sigma",
-        "default": "0.01",
-        "value": "0.01"
-    },
-    "subMinSigmaUB":
-    {
-        "comment": "The upper boundary for the variation of the lower boundary of sigma",
+        "comment": "The upper boundary for the variation of the amalgamation likelihood ",
         "default": "1",
         "value": "1"
     },
-    "initSubSigmaRange":
+    "initMinAdProb":
+    {
+        "comment": "The initial lower boundary for the variation of adProb",
+        "default": "0",
+        "value": "0"
+    },
+    "minAdProb_LB":
+    {
+        "comment": "The lower boundary for minAdProb",
+        "default": "0",
+        "value": "0"
+    },
+    "minAdProb_UB":
+    {
+        "comment": "The upper boundary for minAdProb",
+        "default": "0.1",
+        "value": "0.1"
+    },
+    "initAdProbRange":
+    {
+        "comment": "The initial range for the variation of adProb",
+        "default": "0.9",
+        "value": "0.9"
+    },
+    "adProbRange_LB":
+    {
+        "comment": "The lower boundary for adProbRange",
+        "default": "0.1",
+        "value": "0.1"
+    },
+    "adProbRange_UB":
+    {
+        "comment": "The upper boundary for adProbRange",
+        "default": "0.9",
+        "value": "0.9"
+    },
+    "initAdProbStartPercentage":
+    {
+        "comment": "The start value for adProb relative to the allowed value range",
+        "default": "1",
+        "value": "1"
+    },
+    "initAdaptAdProb":
+    {
+        "comment": "The initial value of the strength of adProb_ adaption",
+        "default": "0.1",
+        "value": "0.1"
+    },
+    "adaptAdProb_LB":
+    {
+        "comment": "The lower boundary for the variation of the strength of adProb_ adaption",
+        "default": "0",
+        "value": "0"
+    },
+    "adaptAdProb_UB":
+    {
+        "comment": "The upper boundary for the variation of the strength of adProb_ adaption",
+        "default": "1",
+        "value": "1"
+    },
+    "initMinSigma":
+    {
+        "comment": "The initial minimum sigma for gauss-adaption in ES",
+        "default": "0.001",
+        "value": "0.001"
+    },
+    "minSigma_LB":
+    {
+        "comment": "The lower boundary for the variation of the lower boundary of sigma",
+        "default": "0.001",
+        "value": "0.001"
+    },
+    "minSigma_UB":
+    {
+        "comment": "The upper boundary for the variation of the lower boundary of sigma",
+        "default": "0.09999",
+        "value": "0.09999"
+    },
+    "initSigmaRange":
     {
         "comment": "The initial maximum range for sigma",
-        "default": "4.999",
-        "value": "4.999"
+        "default": "0.2",
+        "value": "0.2"
     },
-    "subSigmaRangeLB":
+    "sigmaRange_LB":
     {
         "comment": "The lower boundary for the variation of the maximum range of sigma",
         "default": "0.1",
         "value": "0.1"
     },
-    "subSigmaRangeUB":
+    "sigmaRange_UB":
     {
         "comment": "The upper boundary for the variation of the maximum range of sigma",
-        "default": "5",
-        "value": "5"
+        "default": "0.9",
+        "value": "0.9"
     },
-    "initSubSigmaSigma":
+    "initSigmaRangePercentage":
+    {
+        "comment": "The initial percentage of the sigma range as a start value",
+        "default": "1",
+        "value": "1"
+    },
+    "initSigmaSigma":
     {
         "comment": "The initial strength of self-adaption of gauss-mutation in ES",
-        "default": "0.999",
-        "value": "0.999"
+        "default": "0.1",
+        "value": "0.1"
     },
-    "subSigmaSigmaLB":
+    "sigmaSigma_LB":
     {
         "comment": "The lower boundary for the variation of the strength of sigma adaption",
-        "default": "0.01",
-        "value": "0.01"
+        "default": "0",
+        "value": "0"
     },
-    "subSigmaSigmaUB":
+    "sigmaSigma_UB":
     {
         "comment": "The upper boundary for the variation of the strength of sigma adaption",
         "default": "1",
         "value": "1"
+    },
+    "initCrossOverProb":
+    {
+        "comment": "The likelihood for two data items to be exchanged in a cross-over operation",
+        "default": "0.",
+        "value": "0."
+    },
+    "crossOverProb_LB":
+    {
+        "comment": "The lower boundary for the variation of the cross-over probability ",
+        "default": "0.",
+        "value": "0."
+    },
+    "crossOverProb_UB":
+    {
+        "comment": "The upper boundary for the variation of the cross-over probability ",
+        "default": "1",
+        "value": "1"
+    },
+    "evalPolicy":
+    {
+        "comment": "Specifies which strategy should be used to calculate the evaluation:",
+        "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
+        "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
+        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
+        "comment": "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise",
+        "comment": "[GOptimizableEntity]",
+        "default": "0",
+        "value": "0"
+    },
+    "steepness":
+    {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter influences the steepness of the function at the center of the sigmoid.",
+        "comment": "The parameter must have a value > 0.",
+        "comment": "[GOptimizableEntity]",
+        "default": "1000",
+        "value": "1000"
+    },
+    "barrier":
+    {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter sets the upper\/lower boundary of the sigmoid.",
+        "comment": "The parameter must have a value > 0.",
+        "comment": "[GOptimizableEntity]",
+        "default": "10000",
+        "value": "10000"
+    },
+    "maxUnsuccessfulAdaptions":
+    {
+        "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
+        "comment": "[GOptimizableEntity]",
+        "default": "1000",
+        "value": "1000"
     },
     "maximize":
     {
@@ -120,22 +240,36 @@
         "default": "0",
         "value": "0"
     },
+    "perItemCrossOverProbability":
+    {
+        "comment": "The likelihood for two data items to be exchanged",
+        "comment": "in a \"per-item\" cross-over operation",
+        "comment": "[GParameterset]",
+        "default": "0.5",
+        "value": "0.5"
+    },
     "nRunsPerOptimization":
     {
         "comment": "Specifies the number of optimizations performed[GMetaOptimizerIndividual]",
         "default": "50",
-        "value": "50"
+        "value": "10"
     },
     "fitnessTarget_":
     {
         "comment": "The fitness below which optimization should stop[GMetaOptimizerIndividual]",
         "default": "0.001",
-        "value": "0.001"
+        "value": "20"
     },
     "iterationThreshold":
     {
         "comment": "The maximum number of iterations per sub-optimization[GMetaOptimizerIndividual]",
         "default": "10000",
-        "value": "10000"
+        "value": "2000"
+    },
+    "optimizeSolverCalls":
+    {
+        "comment": "Whether to optimize the number of solver calls or the best fitness found[GMetaOptimizerIndividual]",
+        "default": "false",
+        "value": "false"
     }
 }

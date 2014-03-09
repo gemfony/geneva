@@ -1,9 +1,45 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2013-Aug-25 12:21:02
+// File creation date: 2014-Mar-09 00:09:39
 //-----------------------------------------------------------------
 
 {
+    "evalPolicy":
+    {
+        "comment": "Specifies which strategy should be used to calculate the evaluation:",
+        "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
+        "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
+        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
+        "comment": "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise",
+        "comment": "[GOptimizableEntity]",
+        "default": "0",
+        "value": "0"
+    },
+    "steepness":
+    {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter influences the steepness of the function at the center of the sigmoid.",
+        "comment": "The parameter must have a value > 0.",
+        "comment": "[GOptimizableEntity]",
+        "default": "1000",
+        "value": "1000"
+    },
+    "barrier":
+    {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter sets the upper\/lower boundary of the sigmoid.",
+        "comment": "The parameter must have a value > 0.",
+        "comment": "[GOptimizableEntity]",
+        "default": "10000",
+        "value": "10000"
+    },
+    "maxUnsuccessfulAdaptions":
+    {
+        "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
+        "comment": "[GOptimizableEntity]",
+        "default": "1000",
+        "value": "1000"
+    },
     "nProducerThreads":
     {
         "comment": "The number of threads simultaneously producing random numbers",

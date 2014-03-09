@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2014-Mar-03 20:36:53
+// File creation date: 2014-Mar-08 19:09:07
 //-----------------------------------------------------------------
 
 {
@@ -52,12 +52,19 @@
         "default": "10000",
         "value": "10000"
     },
+    "maxUnsuccessfulAdaptions":
+    {
+        "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
+        "comment": "[GOptimizableEntity]",
+        "default": "1000",
+        "value": "1000"
+    },
     "maxIteration":
     {
         "comment": "The maximum allowed number of iterations",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "1000",
-        "value": "1000"
+        "value": "2000"
     },
     "maxStallIteration":
     {

@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2014-Mar-03 20:36:53
+// File creation date: 2014-Mar-08 19:09:07
 //-----------------------------------------------------------------
 
 {
@@ -118,7 +118,7 @@
     {
         "comment": "The number of dimensions used for the demo function",
         "default": "2",
-        "value": "2"
+        "value": "32"
     },
     "minVar":
     {
@@ -139,16 +139,16 @@
         "comment": "(1) GConstrainedDoubleCollection",
         "comment": "(2) GDoubleObjectCollection",
         "comment": " (3) GConstrainedDoubleObjectCollection",
-        "comment": " [4] GConstrainedDoubleObject",
+        "comment": " (4) GConstrainedDoubleObjects on the root level",
         "default": "0",
-        "value": "0"
+        "value": "4"
     },
     "initMode":
     {
         "comment": "Indicates how the parameters are initialized",
         "comment": "(0) randomly",
         "comment": "(1) with a value on the perimeter of the allowed or recommended value range",
-        "default": "0",
+        "default": "1",
         "value": "1"
     },
     "evalPolicy":
@@ -180,6 +180,13 @@
         "default": "10000",
         "value": "10000"
     },
+    "maxUnsuccessfulAdaptions":
+    {
+        "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
+        "comment": "[GOptimizableEntity]",
+        "default": "1000",
+        "value": "1000"
+    },
     "maximize":
     {
         "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
@@ -208,6 +215,6 @@
         "comment": "6: Salomon",
         "comment": "[GFunctionIndividual]",
         "default": "0",
-        "value": "0"
+        "value": "1"
     }
 }

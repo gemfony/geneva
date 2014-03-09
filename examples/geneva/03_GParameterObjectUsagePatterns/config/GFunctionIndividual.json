@@ -139,9 +139,9 @@
         "comment": "(1) GConstrainedDoubleCollection",
         "comment": "(2) GDoubleObjectCollection",
         "comment": " (3) GConstrainedDoubleObjectCollection",
-        "comment": " [4] GConstrainedDoubleObject",
-        "default": "0",
-        "value": "0"
+        "comment": " (4) GConstrainedDoubleObject",
+        "default": "4",
+        "value": "4"
     },
     "initMode":
     {
