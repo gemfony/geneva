@@ -49,11 +49,16 @@ using namespace Gem::Geneva;
 int main(int argc, char **argv) {
    Go2 go(argc, argv, "./config/Go2.json");
 
-   //---------------------------------------------------------------------
+   //---------------------------------------------------------------------------
    // Client mode
    if(go.clientMode()) {
       return go.clientRun();
    } // Execution will end here in client mode
+
+   //---------------------------------------------------------------------------
+   // As we are dealing with a server, register a signal handler that allows us
+   // to interrupt execution "on the run"
+   signal(SIGHUP, GObject::sigHupHandler);
 
    //---------------------------------------------------------------------
 
@@ -87,4 +92,6 @@ int main(int argc, char **argv) {
    std::cout
    << "Best Result was:" << std::endl
    << *bestIndividual_ptr << std::endl;
+
+   //---------------------------------------------------------------------------
 }

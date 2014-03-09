@@ -107,7 +107,8 @@ class GAdaptorT
 		& BOOST_SERIALIZATION_NVP(minAdProb_)
 		& BOOST_SERIALIZATION_NVP(maxAdProb_)
 		& BOOST_SERIALIZATION_NVP(adaptionMode_)
-		& BOOST_SERIALIZATION_NVP(adaptAdaptionProbability_);
+		& BOOST_SERIALIZATION_NVP(adaptAdaptionProbability_)
+		& BOOST_SERIALIZATION_NVP(adProb_reset_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -134,7 +135,20 @@ public:
 	   , maxAdProb_(DEFMAXADPROB)
 		, adaptionMode_(DEFAULTADAPTIONMODE)
 		, adaptAdaptionProbability_(DEFAULTADAPTADAPTIONPROB)
-	{ /* nothing */ }
+	   , adProb_reset_(adProb_)
+	{
+	   // Check that adProb_ is in the allowed range. Adapt, if necessary
+	   if(!Gem::Common::checkRangeCompliance<double>(adProb_, minAdProb_, maxAdProb_)) {
+	      glogger
+	      << "In GAdaptorT<T>::GadaptorT():" << std::endl
+	      << "adProb_ value " << adProb_ << " is outside of allowed value range [" << minAdProb_ << ", " << maxAdProb_ << "]" << std::endl
+	      << "The value will be adapted to fit this range." << std::endl
+	      << GWARNING;
+
+	      Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
+	      Gem::Common::enforceRangeConstraint<double>(adProb_reset_, minAdProb_, maxAdProb_);
+	   }
+	}
 
 	/***************************************************************************/
 	/**
@@ -155,17 +169,20 @@ public:
       , maxAdProb_(DEFMAXADPROB)
 		, adaptionMode_(DEFAULTADAPTIONMODE)
 		, adaptAdaptionProbability_(DEFAULTADAPTADAPTIONPROB)
+	   , adProb_reset_(adProb_)
 	{
 		// Do some error checking
-		if(adProb < 0. || adProb > 1.) {
-			glogger
-			<< "In GAdaptorT<T>::GadaptorT(const double& prob):" << std::endl
-			<< "Provided adaption probability is invalid: " << adProb << std::endl
-			<< "Setting to the maximum allowed value 1." << std::endl
-			<< GWARNING;
+      // Check that adProb_ is in the allowed range. Adapt, if necessary
+      if(!Gem::Common::checkRangeCompliance<double>(adProb_, minAdProb_, maxAdProb_)) {
+         glogger
+         << "In GAdaptorT<T>::GadaptorT(const double& adProb):" << std::endl
+         << "adProb value " << adProb_ << " is outside of allowed value range [" << minAdProb_ << ", " << maxAdProb_ << "]" << std::endl
+         << "The value will be adapted to fit this range." << std::endl
+         << GWARNING;
 
-			adProb_ = 1.;
-		}
+         Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
+         Gem::Common::enforceRangeConstraint<double>(adProb_reset_, minAdProb_, maxAdProb_);
+      }
 	}
 
 	/***************************************************************************/
@@ -186,7 +203,11 @@ public:
       , maxAdProb_(cp.maxAdProb_)
 		, adaptionMode_(cp.adaptionMode_)
 		, adaptAdaptionProbability_(cp.adaptAdaptionProbability_)
-	{ /* nothing */ }
+	   , adProb_reset_(cp.adProb_reset_)
+	{
+	   // We do not check the value of adProb_ here, as it is assumed that this happened during
+	   // the construction of cp
+	}
 
 	/***************************************************************************/
 	/**
@@ -275,6 +296,7 @@ public:
       deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", maxAdProb_, p_load->maxAdProb_, "maxAdProb_", "p_load->maxAdProb_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionMode_, p_load->adaptionMode_, "adaptionMode_", "p_load->adaptionMode_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptAdaptionProbability_, p_load->adaptAdaptionProbability_, "adaptAdaptionProbability_", "p_load->adaptAdaptionProbability_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adProb_reset_, p_load->adProb_reset_, "adProb_reset_", "p_load->adProb_reset_", e , limit));
 
 		return evaluateDiscrepancies("GAdaptorT<T>", caller, deviations, e);
 	}
@@ -312,6 +334,15 @@ public:
 			<< GEXCEPTION;
 		}
 
+		// Check that the new value fits in the allowed value range
+      if(!Gem::Common::checkRangeCompliance<double>(adProb, minAdProb_, maxAdProb_)) {
+         glogger
+         << "In GAdaptorT<T>::setAdaptionProbability(const double& adProb):" << std::endl
+         << "adProb value " << adProb << " is outside of allowed value range [" << minAdProb_ << ", " << maxAdProb_ << "]" << std::endl
+         << "Set new boundaries first before setting a new \"adProb\" value" << std::endl
+         << GEXCEPTION;
+      }
+
 		adProb_ = adProb;
 	}
 
@@ -337,6 +368,37 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
+   /***************************************************************************/
+   /**
+    * Sets the "reset" adaption probability to a given value. This is the probability
+    * to which adProb_ will be reset if updateOnStall() is called. This function will
+    * throw if the probability is not in the allowed range.
+    *
+    * @param adProb_reset The new value of the "reset" probability
+    */
+   void setResetAdaptionProbability(const double& adProb_reset) {
+      // Check the supplied probability value
+      if(!Gem::Common::checkRangeCompliance<double>(adProb_reset, minAdProb_, maxAdProb_)) {
+         glogger
+         << "In GAdaptorT<T>::setResetAdaptionProbability(const double&):" << std::endl
+         << "adProb_reset value " << adProb_reset << " is outside of allowed value range [" << minAdProb_ << ", " << maxAdProb_ << "]" << std::endl
+         << "Set new boundaries first before setting a new \"adProb_reset\" value" << std::endl
+         << GEXCEPTION;
+      }
+
+      adProb_reset_ = adProb_reset;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the current value of the "reset" adaption probability
+    *
+    * @return The current value of the "reset" adaption probability
+    */
+   double getResetAdaptionProbability() const {
+      return adProb_reset_;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Sets the probability for the adaption of adaption parameters
@@ -345,10 +407,10 @@ public:
 	 */
 	void setAdaptAdaptionProbability(const double& probability) {
 		// Check the supplied probability value
-		if(probability < 0. || probability > 1.) {
+		if(!Gem::Common::checkRangeCompliance<double>(probability, 0., 1.)) {
 			glogger
 			<<	"In GAdaptorT<T>::setAdaptAdaptionProbability(const double&) :" << std::endl
-			<< "Bad probability value given: " << probability << std::endl
+			<< "Probability " << probability << " not in allowed range [0.,1.]" << std::endl
 			<< GEXCEPTION;
 		}
 
@@ -386,7 +448,7 @@ public:
 	   if(adaptAdProb < 0.) {
 	      glogger
 	      << "In GAdaptorT<>::setAdaptAdProb(): Error!" << std::endl
-	      << "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
+	      << "adaptAdProb < 0: " << adaptAdProb << std::endl
 	      << GEXCEPTION;
 	   }
 #endif /* DEBUG */
@@ -485,7 +547,9 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Allows to set the allowed range for adaption probability variation
+	 * Allows to set the allowed range for adaption probability variation.
+	 * NOTE that this function will silently adapt the values of adProb_ and
+	 * adProb_reset_, if they fall outside of the new range.
 	 */
 	void setAdProbRange(double minAdProb, double maxAdProb) {
 #ifdef DEBUG
@@ -511,8 +575,13 @@ public:
 	   }
 #endif /* DEBUG */
 
+	   // Store the new values
 	   minAdProb_ = minAdProb;
 	   maxAdProb_ = maxAdProb;
+
+	   // Make sure adProb_ and adProb_reset_ fit the new allowed range
+	   Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
+	   Gem::Common::enforceRangeConstraint<double>(adProb_reset_, minAdProb_, maxAdProb_);
 	}
 
 	/***************************************************************************/
@@ -543,7 +612,7 @@ public:
 	   // Update the adaption probability, if requested by the user
 	   if(adaptAdProb_ > 0) {
 	      adProb_ *= gexp(this->gr->normal_distribution(adaptAdProb_));
-	      enforceRangeConstraint(adProb_, minAdProb_, maxAdProb_);
+	      Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
 	   }
 
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
@@ -607,7 +676,7 @@ public:
       // Update the adaption probability, if requested by the user
       if(adaptAdProb_ > 0) {
          adProb_ *= gexp(this->gr->normal_distribution(adaptAdProb_));
-         enforceRangeConstraint(adProb_, minAdProb_, maxAdProb_);
+         Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
       }
 
       if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
@@ -640,8 +709,8 @@ public:
 
    /***************************************************************************/
 	/**
-	 * Triggers updates when the optimization process has stalled. We randomize
-	 * the adaptor settings
+	 * Triggers updates when the optimization process has stalled. This function
+	 * resets the adaption probability to its original value
 	 *
 	 * @param nStalls The number of consecutive stalls up to this point
 	 * @param range A typical value range for type T
@@ -655,16 +724,18 @@ public:
 	   if(0 == nStalls) {
 	      glogger
 	      << "In GAdaptorT<>::updateOnStall(" << nStalls << "): Error!" << std::endl
-	      << "Function called for non-zero nStalls" << std::endl
+	      << "Function called for zero nStalls" << std::endl
 	      << GEXCEPTION;
 	   }
 #endif
 
-	   using namespace Gem::Hap;
-
-	   // Update adaption parameters
-	   this->adaptAdaption(range);
-	   return true;
+	   // Reset the adaption probability
+	   if(adProb_ == adProb_reset_) {
+	      return false;
+	   } else {
+	      adProb_ = adProb_reset_;
+	      return true;
+	   }
 	}
 
 	/***************************************************************************/
@@ -795,6 +866,7 @@ protected:
 		maxAdProb_ = p_load->maxAdProb_;
 		adaptionMode_ = p_load->adaptionMode_;
 		adaptAdaptionProbability_ = p_load->adaptAdaptionProbability_;
+		adProb_reset_ = p_load->adProb_reset_;
 	}
 
    /***************************************************************************/
@@ -846,6 +918,8 @@ private:
    double maxAdProb_; ///< The upper allowed value for adProb_ during variation
 	boost::logic::tribool adaptionMode_; ///< false == never adapt; indeterminate == adapt with adProb_ probability; true == always adapt
 	double adaptAdaptionProbability_; ///< Influences the likelihood for the adaption of the adaption parameters
+
+	double adProb_reset_; ///< The value to which adProb_ will be reset if "updateOnStall()" is called
 
 public:
 	/***************************************************************************/

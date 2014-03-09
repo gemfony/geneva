@@ -359,7 +359,7 @@ double GMetaOptimizerIndividual::getSigmaSigma() const {
 /**
  * Emit information about this individual
  */
-std::string GMetaOptimizerIndividual::print() const {
+std::string GMetaOptimizerIndividual::print(bool withFitness) const {
    std::ostringstream result;
 
    // Retrieve the parameters
@@ -382,8 +382,13 @@ std::string GMetaOptimizerIndividual::print() const {
    double transformedPrimaryFitness = dirtyFlag?this->getWorstCase():this->transformedFitness();
 
    result
-   << "============================================================================================" << std::endl
-   << "Fitness = " << transformedPrimaryFitness << (dirtyFlag?" // dirty flag set":"") << std::endl
+   << "============================================================================================" << std::endl;
+
+   if(withFitness) {
+      result << "Fitness = " << transformedPrimaryFitness << (dirtyFlag?" // dirty flag set":"") << std::endl;
+   }
+
+   result
    << "Optimization target: " << (optimizeSolverCalls_?"number of solver calls":"best fitness found") << std::endl
    << std::endl
    << "population::size = " << npar_ptr->value() + nch_ptr->value() << std::endl
@@ -565,31 +570,32 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
       // Do book-keeping
       solverCallsPerOptimization.push_back(double((iterationsConsumed+1)*nChildren + nParents));
       iterationsPerOptimization.push_back(double(iterationsConsumed+1));
-
       bestEvaluations.push_back(bestIndividual->fitness());
-
-      // TODO: Deal with invalid solutions. MAX_DOUBLE wouldn't work because of mean calculation
-      // We need a tool to add "invalidity" to user-solutions
    }
 
 	// Calculate the average number of iterations and solver calls
    boost::tuple<double,double> sd = Gem::Common::GStandardDeviation(solverCallsPerOptimization);
    boost::tuple<double,double> itmean = Gem::Common::GStandardDeviation(iterationsPerOptimization);
-   boost::tuple<double,double> bestAverage = Gem::Common::GStandardDeviation(bestEvaluations);
 
    double evaluation = 0.;
    if(optimizeSolverCalls_) {
       evaluation = boost::get<0>(sd);
    } else {
-      evaluation = boost::get<0>(bestAverage);
+      // Retrieve the worst solution found
+      boost::tuple<double,double> minMax = Gem::Common::getMinMax<double>(bestEvaluations);
+
+      if(maxMode) {
+         evaluation = boost::get<0>(minMax); // The smallest (i.e. worst) "best" result during maximization
+      } else {
+         evaluation = boost::get<1>(minMax); // The largest (i.e. worst) "best" result during minimization
+      }
    }
 
    // Emit some information
    std::cout
    << std::endl
    << boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " <<  boost::get<0>(itmean) << " average iterations" << std::endl
-   << "Best solution found was " << boost::get<0>(bestAverage) << " +/- " << boost::get<1>(bestAverage) << std::endl
-   << "Solution is " << (this->markedAsInvalidByUser()?"invalid":"valid") << std::endl
+   << this->print(false) << std::endl // print without fitness -- not defined at this stage
    << std::endl;
 
    // Let the audience know

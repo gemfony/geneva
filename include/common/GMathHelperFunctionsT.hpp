@@ -108,6 +108,37 @@ void enforceRangeConstraint(
 
 /******************************************************************************/
 /**
+ * Checks that a given value is inside of a given set of boundaries (both inclusive)
+ *
+ * @param val The value to be check
+ * @param lower The lower boundary of the allowed value range
+ * @param upper The upper boundary of the allowed value range
+ */
+template <typename fp_type>
+bool checkRangeCompliance(
+   const fp_type& val
+   , const fp_type& lower
+   , const fp_type& upper
+   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+) {
+#ifdef DEBUG
+   if(lower > upper) {
+      glogger
+      << "In enforceRangeConstraint<fp_type>(...): Error!" << std::endl
+      << "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   if(val < lower || val > upper) {
+      return false;
+   } else {
+      return true;
+   }
+}
+
+/******************************************************************************/
+/**
  * Retrieves the worst known value for a given floating point type, depending
  * on whether maximal or minimal values are considered to be better
  */

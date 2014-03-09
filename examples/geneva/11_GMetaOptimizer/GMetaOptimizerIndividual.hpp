@@ -210,7 +210,7 @@ public:
    double getSigmaSigma() const;
 
 	/** @brief Emit information about this individual */
-	std::string print() const;
+	std::string print(bool = true) const;
 
    /***************************************************************************/
    /**

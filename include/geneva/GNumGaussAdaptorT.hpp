@@ -63,7 +63,8 @@ namespace Geneva {
  * The type used needs to be specified as a template parameter.
  */
 template<typename num_type, typename fp_type>
-class GNumGaussAdaptorT :public GAdaptorT<num_type>
+class GNumGaussAdaptorT
+      :public GAdaptorT<num_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -75,6 +76,7 @@ class GNumGaussAdaptorT :public GAdaptorT<num_type>
 		ar
 		& make_nvp("GAdaptorT_num", boost::serialization::base_object<GAdaptorT<num_type> >(*this))
 		& BOOST_SERIALIZATION_NVP(sigma_)
+		& BOOST_SERIALIZATION_NVP(sigma_reset_)
 		& BOOST_SERIALIZATION_NVP(sigmaSigma_)
 		& BOOST_SERIALIZATION_NVP(minSigma_)
 		& BOOST_SERIALIZATION_NVP(maxSigma_);
@@ -92,6 +94,7 @@ public:
 	GNumGaussAdaptorT()
 		: GAdaptorT<num_type> ()
 		, sigma_(fp_type(DEFAULTSIGMA))
+		, sigma_reset_(sigma_)
 		, sigmaSigma_(fp_type(DEFAULTSIGMASIGMA))
 		, minSigma_(fp_type(DEFAULTMINSIGMA))
 		, maxSigma_(fp_type(DEFAULTMAXSIGMA))
@@ -106,6 +109,7 @@ public:
 	GNumGaussAdaptorT(const double& probability)
 		: GAdaptorT<num_type> (probability)
 		, sigma_(fp_type(DEFAULTSIGMA))
+      , sigma_reset_(sigma_)
 		, sigmaSigma_(fp_type(DEFAULTSIGMASIGMA))
 		, minSigma_(fp_type(DEFAULTMINSIGMA))
 		, maxSigma_(fp_type(DEFAULTMAXSIGMA))
@@ -128,6 +132,7 @@ public:
 	)
 		: GAdaptorT<num_type> ()
 		, sigma_(fp_type(DEFAULTSIGMA))
+		, sigma_reset_(fp_type(DEFAULTSIGMA))
 		, sigmaSigma_(fp_type(DEFAULTSIGMASIGMA))
 		, minSigma_(fp_type(DEFAULTMINSIGMA))
 		, maxSigma_(fp_type(DEFAULTMAXSIGMA))
@@ -135,7 +140,9 @@ public:
 		// These functions do error checks on their values
 		setSigmaAdaptionRate(sigmaSigma);
 		setSigmaRange(minSigma, maxSigma);
-		setSigma(sigma);
+		setSigma(sigma); // Must be set last so an error check for compliance with the boundaries can be made
+
+		sigma_reset_ = sigma_;
 	}
 
 	/***************************************************************************/
@@ -157,6 +164,7 @@ public:
 	)
 		: GAdaptorT<num_type> (probability)
 		, sigma_(fp_type(DEFAULTSIGMA))
+		, sigma_reset_(fp_type(DEFAULTSIGMA))
 		, sigmaSigma_(fp_type(DEFAULTSIGMASIGMA))
 		, minSigma_(fp_type(DEFAULTMINSIGMA))
 		, maxSigma_(fp_type(DEFAULTMAXSIGMA))
@@ -164,7 +172,9 @@ public:
 		// These functions do error checks on their values
 		setSigmaAdaptionRate(sigmaSigma);
 		setSigmaRange(minSigma, maxSigma);
-		setSigma(sigma);
+		setSigma(sigma); // Must be set last so an error check for compliance with the boundaries can be made
+
+		sigma_reset_ = sigma_;
 	}
 
 	/***************************************************************************/
@@ -177,6 +187,7 @@ public:
 	GNumGaussAdaptorT(const GNumGaussAdaptorT<num_type, fp_type>& cp)
 		: GAdaptorT<num_type> (cp)
 		, sigma_(cp.sigma_)
+		, sigma_reset_(cp.sigma_reset_)
 		, sigmaSigma_(cp.sigmaSigma_)
 		, minSigma_(cp.minSigma_)
 		, maxSigma_(cp.maxSigma_)
@@ -224,6 +235,7 @@ public:
 
 		// ... and then our local data
 		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<num_type, fp_type>", sigma_, p_load->sigma_, "sigma_", "p_load->sigma_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<num_type, fp_type>", sigma_reset_, p_load->sigma_reset_, "sigma_reset_", "p_load->sigma_reset_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<num_type, fp_type>", sigmaSigma_, p_load->sigmaSigma_, "sigmaSigma_", "p_load->sigmaSigma_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<num_type, fp_type>", minSigma_, p_load->minSigma_, "minSigma_", "p_load->minSigma_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<num_type, fp_type>", maxSigma_, p_load->maxSigma_, "maxSigma_", "p_load->maxSigma_", e , limit));
@@ -236,14 +248,15 @@ public:
 	 * This function sets the value of the sigma_ parameter. It is recommended
     * that the value lies in the range [0.:1.]. A value below 0 is not allowed.
     * Sigma is interpreted as a percentage of the allowed or desired value range
-    * of the target variable.
+    * of the target variable. Setting the allowed value range will enforce
+    * a constraint of [0,1], so it is not necessary in this function.
 	 *
 	 * @param sigma The new value of the sigma_ parameter
 	 */
 	void setSigma(const fp_type& sigma)
 	{
 		// Sigma must be in the allowed value range.
-		if(sigma < minSigma_ || sigma > maxSigma_ || sigma < fp_type(0))
+		if(!Gem::Common::checkRangeCompliance<fp_type>(sigma, minSigma_, maxSigma_))
 		{
 		   glogger
 		   << "In GNumGaussAdaptorT::setSigma(const fp_type&):" << std::endl
@@ -259,13 +272,47 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Retrieves the current value of sigma_.
+	 * Retrieves the current value of "reset" sigma_.
 	 *
-	 * @return The current value of sigma_
+	 * @return The current value of sigma_reset_
 	 */
-	fp_type getSigma() const  {
-		return sigma_;
+	fp_type getResetSigma() const  {
+		return sigma_reset_;
 	}
+
+   /***************************************************************************/
+   /**
+    * This function sets the value of the sigma_reset_ parameter. It is used
+    * to rall back sigma_, if the optimization process has stalled
+    *
+    * @param sigma_reset The new value of the sigma_ parameter
+    */
+   void setResetSigma(const fp_type& sigma_reset)
+   {
+      // Sigma must be in the allowed value range.
+      if(!Gem::Common::checkRangeCompliance<fp_type>(sigma_reset, minSigma_, maxSigma_))
+      {
+         glogger
+         << "In GNumGaussAdaptorT::setResetSigma(const fp_type&):" << std::endl
+         << "sigma_reset is not in the allowed range: " << std::endl
+         << minSigma_ << " <= " << sigma_reset << " < " << maxSigma_ << std::endl
+         << "If you want to use these values you need to" << std::endl
+         << "adapt the allowed range first." << std::endl
+         << GEXCEPTION;
+      }
+
+      sigma_reset_ = sigma_reset;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the current value of sigma_.
+    *
+    * @return The current value of sigma_
+    */
+   fp_type getSigma() const  {
+      return sigma_;
+   }
 
 	/***************************************************************************/
 	/**
@@ -285,7 +332,7 @@ public:
    ){
 	   using namespace Gem::Common;
 
-      if(minSigma < fp_type(0.) || minSigma > maxSigma || maxSigma < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
+      if(minSigma < fp_type(0.) || minSigma > maxSigma || maxSigma > fp_type(1.)) {
          glogger
          << "In GNumBiGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
          << "Invalid values for minSigma and maxSigma given: " << minSigma << " / " << maxSigma << std::endl
@@ -295,13 +342,9 @@ public:
       minSigma_ = minSigma;
       maxSigma_ = maxSigma;
 
-      // Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
-      if(minSigma_ < fp_type(DEFAULTMINSIGMA)) {
-         minSigma_ = fp_type(DEFAULTMINSIGMA);
-      }
-
-      // Rectify sigma_, if necessary
-      enforceRangeConstraint(sigma_, minSigma_, maxSigma_);
+      // Rectify sigma_ and reset_sigma_, if necessary
+      Gem::Common::enforceRangeConstraint<fp_type>(sigma_, Gem::Common::gmax(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA)), maxSigma_);
+      Gem::Common::enforceRangeConstraint<fp_type>(sigma_reset_, Gem::Common::gmax(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA)), maxSigma_);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -402,6 +445,7 @@ public:
 		<< "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
 		<< "and typeid(fp_type).name() = " << typeid(fp_type).name() << " :" << std::endl
 		<< "getSigma() = " << getSigma() << std::endl
+		<< "getResetSigma() = " << getResetSigma() << std::endl
 		<< "getSigmaRange() = " << boost::get<0>(sigmaRange) << " --> " << boost::get<1>(sigmaRange) << std::endl
 		<< "getSigmaAdaptionRate() = " << getSigmaAdaptionRate() << std::endl;
 
@@ -421,6 +465,31 @@ public:
       return std::string("GNumGaussAdaptorT");
    }
 
+   /***************************************************************************/
+   /**
+    * Triggers updates when the optimization process has stalled. This function
+    * resets the sigma value to its original value and calls the parent class'es function
+    *
+    * @param nStalls The number of consecutive stalls up to this point
+    * @param range A typical value range for type T
+    * @return A boolean indicating whether updates were performed
+    */
+   virtual bool updateOnStall(
+      const std::size_t& nStalls
+      , const num_type& range
+   ) OVERRIDE {
+      // Call our parent class'es function
+      GAdaptorT<num_type>::updateOnStall(nStalls, range);
+
+      // Reset the adaption probability
+      if(sigma_ == sigma_reset_) {
+         return false;
+      } else {
+         sigma_ = sigma_reset_;
+         return true;
+      }
+   }
+
 protected:
 	/***************************************************************************/
 	/**
@@ -437,10 +506,11 @@ protected:
 		GAdaptorT<num_type>::load_(cp);
 
 		// ... and then our own data
-		sigma_      = p_load->sigma_;
-		sigmaSigma_ = p_load->sigmaSigma_;
-		minSigma_   = p_load->minSigma_;
-		maxSigma_   = p_load->maxSigma_;
+		sigma_       = p_load->sigma_;
+		sigma_reset_ = p_load->sigma_reset_;
+		sigmaSigma_  = p_load->sigmaSigma_;
+		minSigma_    = p_load->minSigma_;
+		maxSigma_    = p_load->maxSigma_;
 	}
 
 	/***************************************************************************/
@@ -467,7 +537,7 @@ protected:
 	    sigma_ *= gexp(GAdaptorT<num_type>::gr->normal_distribution(gfabs(sigmaSigma_)));
 
 		// make sure sigma_ doesn't get out of range
-      enforceRangeConstraint(sigma_, minSigma_, maxSigma_);
+      Gem::Common::enforceRangeConstraint<fp_type>(sigma_, minSigma_, maxSigma_);
 	}
 
 	/***************************************************************************/
@@ -491,6 +561,7 @@ protected:
 protected: // For performance reasons, so we do not have to go through access functions
 	/***************************************************************************/
 	fp_type sigma_; ///< The width of the gaussian used to adapt values
+	fp_type sigma_reset_; ///< The value to which sigma_ will be reset if "updateOnStall()" is called
 	fp_type sigmaSigma_; ///< affects sigma_ adaption
 	fp_type minSigma_; ///< minimum allowed value for sigma_
 	fp_type maxSigma_; ///< maximum allowed value for sigma_
