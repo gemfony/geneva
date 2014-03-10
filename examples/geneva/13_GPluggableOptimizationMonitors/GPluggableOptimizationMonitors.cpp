@@ -203,15 +203,16 @@ int main(int argc, char **argv) {
       collectiveMonitor_ptr->registerPluggableOM(nAdaptionsLogger_ptr);
    }
 
-   if(monitorSpec != "empty" || logAll != "empty" || monitorNAdaptions != "empty")
-   go.registerPluggableOM(
-      boost::bind(
-         &GCollectiveMonitorT<GParameterSet>::informationFunction
-         , collectiveMonitor_ptr
-         , _1
-         , _2
-      )
-   );
+   if(monitorSpec != "empty" || logAll != "empty" || monitorNAdaptions != "empty") {
+      go.registerPluggableOM(
+            boost::bind(
+                  &GCollectiveMonitorT<GParameterSet>::informationFunction
+                  , collectiveMonitor_ptr
+                  , _1
+                  , _2
+            )
+      );
+   }
 
    //---------------------------------------------------------------------------
 

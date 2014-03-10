@@ -582,19 +582,15 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
       evaluation = boost::get<0>(sd);
    } else {
       // Retrieve the worst solution found
-      boost::tuple<double,double> minMax = Gem::Common::getMinMax<double>(bestEvaluations);
-
-      if(maxMode) {
-         evaluation = boost::get<0>(minMax); // The smallest (i.e. worst) "best" result during maximization
-      } else {
-         evaluation = boost::get<1>(minMax); // The largest (i.e. worst) "best" result during minimization
-      }
+      boost::tuple<double,double> bestMean = Gem::Common::GStandardDeviation(bestEvaluations);
+      evaluation = boost::get<0>(bestMean);
    }
 
    // Emit some information
    std::cout
    << std::endl
    << boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " <<  boost::get<0>(itmean) << " average iterations" << std::endl
+   << "and evaluation " << evaluation << std::endl
    << this->print(false) << std::endl // print without fitness -- not defined at this stage
    << std::endl;
 
