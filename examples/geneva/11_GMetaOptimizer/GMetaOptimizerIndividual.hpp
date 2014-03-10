@@ -71,6 +71,23 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+// Different types of optimization targets
+enum metaOptimizationTarget {
+   BESTFITNESS = 0
+   , MINSOLVERCALLS = 1
+   , MC_MINSOLVER_BESTFITNESS = 2 // Multi-criterion optimization with least number of solver calls and best average fitness as targets
+};
+
+/******************************************************************************/
+// Input and output of metaOptimizationTarget, so we can serialize this data
+
+/** @brief Puts a Gem::Geneva::metaOptimizationTarget into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::metaOptimizationTarget&);
+
+/** @brief Reads a Gem::Geneva::metaOptimizationTarget from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::metaOptimizationTarget&);
+
+/******************************************************************************/
 // A number of default settings for the factory and individual
 
 // Pertaining to the population
@@ -120,10 +137,24 @@ const double          GMETAOPT_DEF_CROSSOVERPROB_LB  = 0.;   ///< The lower boun
 const double          GMETAOPT_DEF_CROSSOVERPROB_UB  = 1.;     ///< The upper boundary for the variation of the cross-over probability  | !!! NEW
 
 // General meta-optimization parameters
-const std::size_t     GMETAOPT_DEF_NRUNSPEROPT=10;              ///< The number of successive optimization runs
-const double          GMETAOPT_DEF_FITNESSTARGET = 0.001;       ///< The fitness target
-const boost::uint32_t GMETAOPT_DEF_ITERATIONTHRESHOLD = 10000;  ///< The maximum allowed number of iterations
-const bool            GMETAOPT_DEF_OPTIMIZESOLVERCALLS = false; ///< Whether to optimize the best fitness found or to minimize the number of solver calls
+const std::size_t            GMETAOPT_DEF_NRUNSPEROPT=10;              ///< The number of successive optimization runs
+const double                 GMETAOPT_DEF_FITNESSTARGET = 0.001;       ///< The fitness target
+const boost::uint32_t        GMETAOPT_DEF_ITERATIONTHRESHOLD = 10000;  ///< The maximum allowed number of iterations
+const metaOptimizationTarget GMETAOPT_DEF_MOTARGET = BESTFITNESS;      ///< The target used for the meta optimization
+
+// Make sure we do not mix parameter items
+const std::size_t MOT_NPARENTS = 0;
+const std::size_t MOT_NCHILDREN = 1;
+const std::size_t MOT_AMALGAMATION = 2;
+const std::size_t MOT_MINADPROB = 3;
+const std::size_t MOT_ADPROBRANGE = 4;
+const std::size_t MOT_ADPROBSTARTPERCENTAGE = 5;
+const std::size_t MOT_ADAPTADPROB = 6;
+const std::size_t MOT_MINSIGMA = 7;
+const std::size_t MOT_SIGMARANGE = 8;
+const std::size_t MOT_SIGMARANGEPERCENTAGE = 9;
+const std::size_t MOT_SIGMASIGMA = 10;
+const std::size_t MOT_CROSSOVERPROB = 11;
 
 /******************************************************************************/
 /**
@@ -142,7 +173,7 @@ class GMetaOptimizerIndividual : public GParameterSet
 		& BOOST_SERIALIZATION_NVP(nRunsPerOptimization_)
 		& BOOST_SERIALIZATION_NVP(fitnessTarget_)
 		& BOOST_SERIALIZATION_NVP(iterationThreshold_)
-		& BOOST_SERIALIZATION_NVP(optimizeSolverCalls_);
+		& BOOST_SERIALIZATION_NVP(moTarget_);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -191,13 +222,13 @@ public:
 	/** @brief Allows to retrieve the iteration threshold */
 	boost::uint32_t getIterationThreshold() const;
 
-	/** @brief Allows to set whether to optimize the number of solver calls or the best fitness found */
-	void setOptimizeSolverCalls(bool);
-	/** @brief Allows to check whether to optimize the number of solver calls or the best fitness found */
-	bool getOptimizeSolverCalls() const;
+	/** @brief Allows to set the desired target of the meta-optimization */
+	void setMetaOptimizationTarget(metaOptimizationTarget);
+	/** @brief Allows to retrieve the current target of the meta-optimization */
+	metaOptimizationTarget getMetaOptimizationTarget() const;
 
-	/** @brief Retrieves the current number of parents */
-	std::size_t getNParents() const;
+   /** @brief Retrieves the current number of parents */
+   std::size_t getNParents() const;
    /** @brief Retrieves the current number of children */
    std::size_t getNChildren() const;
    /** @brief Retrieves the adaption probability */
@@ -268,6 +299,8 @@ public:
       // Add to the individual
       p->push_back(npar_ptr);
 
+      assert(p->size() == MOT_NPARENTS + 1);
+
       //------------------------------------------------------------
       // nChildren
 
@@ -287,6 +320,8 @@ public:
 
       // Add to the individual
       p->push_back(nch_ptr);
+
+      assert(p->size() == MOT_NCHILDREN + 1);
 
       //------------------------------------------------------------
       // amalgamationLklh
@@ -313,6 +348,8 @@ public:
       // Add to the individual
       p->push_back(amalgamationLklh_ptr);
 
+      assert(p->size() == MOT_AMALGAMATION + 1);
+
       //------------------------------------------------------------
       // minAdProb
 
@@ -328,6 +365,8 @@ public:
 
       // Add to the individual
       p->push_back(minAdProb_ptr);
+
+      assert(p->size() == MOT_MINADPROB + 1);
 
       //------------------------------------------------------------
       // adProbRange
@@ -345,6 +384,8 @@ public:
       // Add to the individual
       p->push_back(adProbRange_ptr);
 
+      assert(p->size() == MOT_ADPROBRANGE + 1);
+
       //------------------------------------------------------------
       // adProbStartPercentage
 
@@ -361,6 +402,8 @@ public:
       // Add to the individual
       p->push_back(adProbStartPercentage_ptr);
 
+      assert(p->size() == MOT_ADPROBSTARTPERCENTAGE + 1);
+
       //------------------------------------------------------------
       // adaptAdProb
 
@@ -374,6 +417,8 @@ public:
 
       // Add to the individual
       p->push_back(adaptAdProb_ptr);
+
+      assert(p->size() == MOT_ADAPTADPROB + 1);
 
       //------------------------------------------------------------
       // minSigma
@@ -389,6 +434,8 @@ public:
       // Add to the individual
       p->push_back(minsigma_ptr);
 
+      assert(p->size() == MOT_MINSIGMA + 1);
+
       //------------------------------------------------------------
       // sigmaRange
 
@@ -402,6 +449,8 @@ public:
 
       // Add to the individual
       p->push_back(sigmarange_ptr);
+
+      assert(p->size() == MOT_SIGMARANGE + 1);
 
       //------------------------------------------------------------
       // sigmaRangePercentage
@@ -419,6 +468,8 @@ public:
       // Add to the individual
       p->push_back(sigmaRangePercentage_ptr);
 
+      assert(p->size() == MOT_SIGMARANGEPERCENTAGE + 1);
+
       //------------------------------------------------------------
       // sigmaSigma
 
@@ -434,6 +485,8 @@ public:
       // Add to the individual
       p->push_back(sigmasigma_ptr);
 
+      assert(p->size() == MOT_SIGMASIGMA + 1);
+
       //------------------------------------------------------------
       // crossOverProb
 
@@ -448,6 +501,8 @@ public:
       // Add to the individual
       p->push_back(crossOverProb_ptr);
 
+      assert(p->size() == MOT_CROSSOVERPROB + 1);
+
       //------------------------------------------------------------
    }
 
@@ -461,13 +516,16 @@ protected:
 	/** @brief The actual value calculation takes place here */
 	virtual double fitnessCalculation() OVERRIDE;
 
+	/** @brief Retrieves a clear-text description of the optimization target */
+	std::string getClearTextMOT(const metaOptimizationTarget&) const;
+
 	/***************************************************************************/
 
 private:
 	std::size_t nRunsPerOptimization_; ///< The number of runs performed for each (sub-)optimization
 	double fitnessTarget_; ///< The quality target to be reached by
 	boost::uint32_t iterationThreshold_; ///< The maximum allowed number of iterations
-	bool optimizeSolverCalls_; ///< When set to false, minimizes the best fitness found, else minimizes the number of calls until a target fitness is reached
+	metaOptimizationTarget moTarget_; ///< The target used for the meta-optimization
 
 public:
    /** @brief Applies modifications to this object. */

@@ -40,6 +40,45 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Puts a Gem::Geneva::metaOptimizationTarget item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param mot the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::metaOptimizationTarget& mot) {
+   boost::uint16_t tmp = static_cast<boost::uint16_t>(mot);
+   o << tmp;
+   return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Geneva::metaOptimizationTarget item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param mot The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::Geneva::metaOptimizationTarget& mot) {
+   boost::uint16_t tmp;
+   i >> tmp;
+
+#ifdef DEBUG
+   mot = boost::numeric_cast<Gem::Geneva::metaOptimizationTarget>(tmp);
+#else
+   mot = static_cast<Gem::Geneva::metaOptimizationTarget>(tmp);
+#endif /* DEBUG */
+
+   return i;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * The default constructor.
  */
@@ -48,7 +87,7 @@ GMetaOptimizerIndividual::GMetaOptimizerIndividual()
    , nRunsPerOptimization_(GMETAOPT_DEF_NRUNSPEROPT)
    , fitnessTarget_(GMETAOPT_DEF_FITNESSTARGET)
    , iterationThreshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
-   , optimizeSolverCalls_(GMETAOPT_DEF_OPTIMIZESOLVERCALLS)
+   , moTarget_(GMETAOPT_DEF_MOTARGET)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -62,7 +101,7 @@ GMetaOptimizerIndividual::GMetaOptimizerIndividual(const GMetaOptimizerIndividua
    , nRunsPerOptimization_(cp.nRunsPerOptimization_)
    , fitnessTarget_(cp.fitnessTarget_)
    , iterationThreshold_(cp.iterationThreshold_)
-   , optimizeSolverCalls_(cp.optimizeSolverCalls_)
+   , moTarget_(cp.moTarget_)
 { /* nothing */	}
 
 /******************************************************************************/
@@ -145,9 +184,29 @@ boost::optional<std::string> GMetaOptimizerIndividual::checkRelationshipWith(con
    deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividual", nRunsPerOptimization_, p_load->nRunsPerOptimization_, "nRunsPerOptimization_", "p_load->nRunsPerOptimization_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividual", fitnessTarget_, p_load->fitnessTarget_, "fitnessTarget_", "p_load->fitnessTarget_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividual", iterationThreshold_, p_load->iterationThreshold_, "iterationThreshold_", "p_load->iterationThreshold_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividual", optimizeSolverCalls_, p_load->optimizeSolverCalls_, "optimizeSolverCalls_", "p_load->optimizeSolverCalls_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividual", moTarget_, p_load->moTarget_, "moTarget_", "p_load->moTarget_", e , limit));
 
    return evaluateDiscrepancies("GMetaOptimizerIndividual", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the desired target of the meta-optimization
+ */
+void GMetaOptimizerIndividual::setMetaOptimizationTarget(metaOptimizationTarget moTarget) {
+   moTarget_ = moTarget;
+
+   if(MC_MINSOLVER_BESTFITNESS == moTarget_) { // multi-criterion optimization. We need to set the number of fitness criteria
+      this->setNumberOfFitnessCriteria(2);
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the current target of the meta-optimization
+ */
+metaOptimizationTarget GMetaOptimizerIndividual::getMetaOptimizationTarget() const {
+   return moTarget_;
 }
 
 /******************************************************************************/
@@ -213,35 +272,21 @@ void GMetaOptimizerIndividual::addConfigurationOptions (
    );
 
    comment = ""; // Reset the comment string
-   comment += "Whether to optimize the number of solver calls or the best fitness found";
+   comment += "The target for the meta-optimization: best fitness (0),;";
+   comment += "minimum number of solver calls (1), multi-criterion with best fitness;";
+   comment += "and smallest number of solver calls as target (2);";
    if(showOrigin) comment += "[GMetaOptimizerIndividual]";
-   gpb.registerFileParameter<bool>(
-      "optimizeSolverCalls" // The name of the variable
-      , GMETAOPT_DEF_OPTIMIZESOLVERCALLS // The default value
+   gpb.registerFileParameter<metaOptimizationTarget>(
+      "metaOptimizationTarget" // The name of the variable
+      , GMETAOPT_DEF_MOTARGET // The default value
       , boost::bind(
-         &GMetaOptimizerIndividual::setOptimizeSolverCalls
+         &GMetaOptimizerIndividual::setMetaOptimizationTarget
          , this
          , _1
         )
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
-}
-
-/*******************************************************************************************/
-/**
- * Allows to set whether to optimize the number of solver calls or the best fitness found
- */
-void GMetaOptimizerIndividual::setOptimizeSolverCalls(bool optimizeSolverCalls) {
-   optimizeSolverCalls_ = optimizeSolverCalls;
-}
-
-/*******************************************************************************************/
-/**
- * Allows to check whether to optimize the number of solver calls or the best fitness found
- */
-bool GMetaOptimizerIndividual::getOptimizeSolverCalls() const {
-   return optimizeSolverCalls_;
 }
 
 /*******************************************************************************************/
@@ -306,7 +351,7 @@ boost::uint32_t GMetaOptimizerIndividual::getIterationThreshold() const {
  * Retrieves the current number of parents. Needed for the optimization monitor.
  */
 std::size_t GMetaOptimizerIndividual::getNParents() const {
-   boost::shared_ptr<GConstrainedInt32Object>  npar_ptr = this->at<GConstrainedInt32Object>(0);
+   boost::shared_ptr<GConstrainedInt32Object>  npar_ptr = this->at<GConstrainedInt32Object>(MOT_NPARENTS);
    return npar_ptr->value();
 }
 
@@ -315,7 +360,7 @@ std::size_t GMetaOptimizerIndividual::getNParents() const {
  * Retrieves the current number of children. Needed for the optimization monitor.
  */
 std::size_t GMetaOptimizerIndividual::getNChildren() const {
-   boost::shared_ptr<GConstrainedInt32Object>  nch_ptr = this->at<GConstrainedInt32Object>(1);
+   boost::shared_ptr<GConstrainedInt32Object>  nch_ptr = this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
    return nch_ptr->value();
 }
 
@@ -324,8 +369,11 @@ std::size_t GMetaOptimizerIndividual::getNChildren() const {
  * Retrieves the adaption probability. Needed for the optimization monitor.
  */
 double GMetaOptimizerIndividual::getAdProb() const {
-   boost::shared_ptr<GConstrainedDoubleObject> adprob_ptr = this->at<GConstrainedDoubleObject>(2);
-   return adprob_ptr->value();
+   boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
+   boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
+   boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
+
+   return minAdProb_ptr->value() + adProbStartPercentage_ptr->value() * adProbRange_ptr->value();
 }
 
 /******************************************************************************/
@@ -333,7 +381,7 @@ double GMetaOptimizerIndividual::getAdProb() const {
  * Retrieves the lower sigma boundary. Needed for the optimization monitor.
  */
 double GMetaOptimizerIndividual::getMinSigma() const {
-   boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr = this->at<GConstrainedDoubleObject>(3);
+   boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr              = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
    return minsigma_ptr->value();
 }
 
@@ -342,7 +390,7 @@ double GMetaOptimizerIndividual::getMinSigma() const {
  * Retrieves the sigma range. Needed for the optimization monitor.
  */
 double GMetaOptimizerIndividual::getSigmaRange() const {
-   boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr = this->at<GConstrainedDoubleObject>(4);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
    return sigmarange_ptr->value();
 }
 
@@ -351,8 +399,31 @@ double GMetaOptimizerIndividual::getSigmaRange() const {
  * Retrieves the sigma-sigma parameter. Needed for the optimization monitor.
  */
 double GMetaOptimizerIndividual::getSigmaSigma() const {
-   boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr = this->at<GConstrainedDoubleObject>(5);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
    return sigmasigma_ptr->value();
+}
+
+/******************************************************************************/
+/**
+ * Retrieves a clear-text description of the optimization target
+ */
+std::string GMetaOptimizerIndividual::getClearTextMOT(const metaOptimizationTarget& mot) const {
+   switch(mot) {
+      case BESTFITNESS:
+      return std::string("\"best fitness\"");
+      break;
+
+      case MINSOLVERCALLS:
+      return std::string("\"minimum number of solver calls\"");
+      break;
+
+      case MC_MINSOLVER_BESTFITNESS:
+      return std::string("\"multi-criterion target with best fitness, minimum number of solver calls\"");
+      break;
+   }
+
+   // Make the compiler happy
+   return std::string();
 }
 
 /******************************************************************************/
@@ -363,18 +434,19 @@ std::string GMetaOptimizerIndividual::print(bool withFitness) const {
    std::ostringstream result;
 
    // Retrieve the parameters
-   boost::shared_ptr<GConstrainedInt32Object>  npar_ptr                  = this->at<GConstrainedInt32Object>(0);
-   boost::shared_ptr<GConstrainedInt32Object>  nch_ptr                   = this->at<GConstrainedInt32Object>(1);
-   boost::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr          = this->at<GConstrainedDoubleObject>(2);
-   boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(3);
-   boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(4);
-   boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(5);
-   boost::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr           = this->at<GConstrainedDoubleObject>(6);
-   boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr              = this->at<GConstrainedDoubleObject>(7);
-   boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr            = this->at<GConstrainedDoubleObject>(8);
-   boost::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr  = this->at<GConstrainedDoubleObject>(9);
-   boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr            = this->at<GConstrainedDoubleObject>(10);
-   boost::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr         = this->at<GConstrainedDoubleObject>(11);
+   boost::shared_ptr<GConstrainedInt32Object>  npar_ptr                  = this->at<GConstrainedInt32Object> (MOT_NPARENTS);
+   boost::shared_ptr<GConstrainedInt32Object>  nch_ptr                   = this->at<GConstrainedInt32Object> (MOT_NCHILDREN);
+   boost::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr          = this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
+   boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
+   boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
+   boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
+   boost::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
+   boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr              = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr  = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
+   boost::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr         = this->at<GConstrainedDoubleObject>(MOT_CROSSOVERPROB);
+
 
    // Stream the results
 
@@ -389,7 +461,7 @@ std::string GMetaOptimizerIndividual::print(bool withFitness) const {
    }
 
    result
-   << "Optimization target: " << (optimizeSolverCalls_?"number of solver calls":"best fitness found") << std::endl
+   << "Optimization target: " << getClearTextMOT(moTarget_) << std::endl
    << std::endl
    << "population::size = " << npar_ptr->value() + nch_ptr->value() << std::endl
    << "population::nParents = " << npar_ptr->value() << std::endl
@@ -427,6 +499,7 @@ void GMetaOptimizerIndividual::load_(const GObject* cp){
 	nRunsPerOptimization_ = p_load->nRunsPerOptimization_;
 	fitnessTarget_ = p_load->fitnessTarget_;
 	iterationThreshold_ = p_load->iterationThreshold_;
+	moTarget_ = p_load->moTarget_;
 }
 
 /******************************************************************************/
@@ -451,18 +524,18 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
    bool maxMode = false;
 
 	// Retrieve the parameters
-   boost::shared_ptr<GConstrainedInt32Object>  npar_ptr                  = this->at<GConstrainedInt32Object>(0);
-   boost::shared_ptr<GConstrainedInt32Object>  nch_ptr                   = this->at<GConstrainedInt32Object>(1);
-   boost::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr          = this->at<GConstrainedDoubleObject>(2);
-   boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(3);
-   boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(4);
-   boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(5);
-   boost::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr           = this->at<GConstrainedDoubleObject>(6);
-   boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr              = this->at<GConstrainedDoubleObject>(7);
-   boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr            = this->at<GConstrainedDoubleObject>(8);
-   boost::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr  = this->at<GConstrainedDoubleObject>(9);
-   boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr            = this->at<GConstrainedDoubleObject>(10);
-   boost::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr         = this->at<GConstrainedDoubleObject>(11);
+   boost::shared_ptr<GConstrainedInt32Object>  npar_ptr                  = this->at<GConstrainedInt32Object> (MOT_NPARENTS);
+   boost::shared_ptr<GConstrainedInt32Object>  nch_ptr                   = this->at<GConstrainedInt32Object> (MOT_NCHILDREN);
+   boost::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr          = this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
+   boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
+   boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
+   boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
+   boost::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
+   boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr              = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr  = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
+   boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
+   boost::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr         = this->at<GConstrainedDoubleObject>(MOT_CROSSOVERPROB);
 
    // Create a factory for GFunctionIndividual objects and perform
    // any necessary initial work.
@@ -534,7 +607,7 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
       // Set the likelihood for work items to be produced through cross-over rather than mutation alone
       ea_ptr->setAmalgamationLikelihood(amalgamationLikelihood);
 
-      if(optimizeSolverCalls_) {
+      if(MINSOLVERCALLS == moTarget_) {
          // Set the stop criteria (either maxIterations_ iterations or falling below the quality threshold
          ea_ptr->setQualityThreshold(fitnessTarget_);
          ea_ptr->setMaxIteration(iterationThreshold_);
@@ -544,7 +617,7 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
 
          // Make sure the optimization does not stop due to stalls (which is the default in the EA-config
          ea_ptr->setMaxStallIteration(0);
-      } else { // Optimization of best fitness found
+      } else  { // Optimization of best fitness found or multi-criterion optimization: BESTFITNESS / MC_MINSOLVER_BESTFITNESS
          // Set the stop criterion maxIterations only
          ea_ptr->setMaxIteration(iterationThreshold_);
 
@@ -576,21 +649,25 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
 	// Calculate the average number of iterations and solver calls
    boost::tuple<double,double> sd = Gem::Common::GStandardDeviation(solverCallsPerOptimization);
    boost::tuple<double,double> itmean = Gem::Common::GStandardDeviation(iterationsPerOptimization);
+   boost::tuple<double,double> bestMean = Gem::Common::GStandardDeviation(bestEvaluations); // TODO: Deal with vectors containing max-double
 
    double evaluation = 0.;
-   if(optimizeSolverCalls_) {
+   if(MINSOLVERCALLS == moTarget_) {
       evaluation = boost::get<0>(sd);
-   } else {
-      // Retrieve the worst solution found
-      boost::tuple<double,double> bestMean = Gem::Common::GStandardDeviation(bestEvaluations);
+   } else if(BESTFITNESS == moTarget_) {
       evaluation = boost::get<0>(bestMean);
+   } else if(MC_MINSOLVER_BESTFITNESS == moTarget_) {
+      evaluation = boost::get<0>(bestMean); // The primary result
+      this->registerSecondaryResult(1, boost::get<0>(sd)); // The secondary result
    }
 
    // Emit some information
    std::cout
    << std::endl
-   << boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " <<  boost::get<0>(itmean) << " average iterations" << std::endl
-   << "and evaluation " << evaluation << std::endl
+   << boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " << std::endl
+   << boost::get<0>(itmean) << " +/-" << boost::get<1>(itmean) << " average iterations " << std::endl
+   << "and a mean evaluation of " << boost::get<0>(bestMean) << " +/- " << boost::get<1>(bestMean) << std::endl
+   << " out of " << nRunsPerOptimization_ << " consecutive runs" << std::endl
    << this->print(false) << std::endl // print without fitness -- not defined at this stage
    << std::endl;
 

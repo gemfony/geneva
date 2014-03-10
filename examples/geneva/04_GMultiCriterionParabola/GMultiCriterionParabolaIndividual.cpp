@@ -1,5 +1,5 @@
 /**
- * @file GMultiCriterionParabolaIndividual.hpp
+ * @file GMultiCriterionParabolaIndividual.cpp
  */
 
 /*
