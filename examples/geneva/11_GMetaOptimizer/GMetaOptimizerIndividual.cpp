@@ -666,7 +666,7 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
    std::cout
    << std::endl
    << boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " << std::endl
-   << boost::get<0>(itmean) << " +/-" << boost::get<1>(itmean) << " average iterations " << std::endl
+   << boost::get<0>(itmean) << " +/- " << boost::get<1>(itmean) << " average iterations " << std::endl
    << "and a mean evaluation of " << boost::get<0>(bestMean) << " +/- " << boost::get<1>(bestMean) << std::endl
    << "out of " << nRunsPerOptimization_ << " consecutive runs" << std::endl
    << this->print(false) << std::endl // print without fitness -- not defined at this stage
