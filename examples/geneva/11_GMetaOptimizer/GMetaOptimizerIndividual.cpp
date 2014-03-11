@@ -580,7 +580,7 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
    std::vector<double> bestEvaluations;
 
    for(std::size_t opt=0; opt<nRunsPerOptimization_; opt++) {
-      std::cout << "Starting measurement " << opt << " / " << nRunsPerOptimization_ << std::endl;
+      std::cout << "Starting measurement " << opt+1 << " / " << nRunsPerOptimization_ << std::endl;
       ea_ptr = ea.get<GBaseEA>();
 
       assert(0 == ea_ptr->getIteration());
