@@ -64,6 +64,7 @@ void parseCommandLine(
    , bool& observeBoundaries
    , std::string& logAll
    , std::string& monitorNAdaptions
+   , std::string& logSigma
 ) {
    boost::shared_ptr<po::option_description> printValid_option(
       new po::option_description(
@@ -118,6 +119,15 @@ void parseCommandLine(
       )
    );
    od.push_back(nAdaptionsLog_option);
+
+   boost::shared_ptr<po::option_description> sigmaLog_option(
+      new po::option_description(
+         "logSigma"
+         , po::value<std::string>(&logSigma)->implicit_value(std::string("./sigmaLog.C"))->default_value("empty")
+         , "Logs the value of sigma for all or the best adaptors, if GDoubleGaussAdaptors are being used"
+      )
+   );
+   od.push_back(sigmaLog_option);
 }
 
 /******************************************************************************/
@@ -136,6 +146,7 @@ int main(int argc, char **argv) {
    bool observeBoundaries = "false";
    std::string logAll = "empty";
    std::string monitorNAdaptions = "empty";
+   std::string logSigma = "empty";
 
    std::vector<boost::shared_ptr<po::option_description> > od;
 
@@ -147,6 +158,7 @@ int main(int argc, char **argv) {
       , observeBoundaries
       , logAll
       , monitorNAdaptions
+      , logSigma
    );
 
    Go2 go(argc, argv, "./config/Go2.json", od);
@@ -203,7 +215,17 @@ int main(int argc, char **argv) {
       collectiveMonitor_ptr->registerPluggableOM(nAdaptionsLogger_ptr);
    }
 
-   if(monitorSpec != "empty" || logAll != "empty" || monitorNAdaptions != "empty") {
+   if(logSigma != "empty") {
+      boost::shared_ptr<GAdaptorPropertyLoggerT<GParameterSet, double> >
+         sigmaLogger_ptr(new GAdaptorPropertyLoggerT<GParameterSet, double>(logSigma, "GDoubleGaussAdaptor", "sigma"));
+
+      sigmaLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
+      sigmaLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
+
+      collectiveMonitor_ptr->registerPluggableOM(sigmaLogger_ptr);
+   }
+
+   if(collectiveMonitor_ptr->hasOptimizationMonitors()) {
       go.registerPluggableOM(
             boost::bind(
                   &GCollectiveMonitorT<GParameterSet>::informationFunction

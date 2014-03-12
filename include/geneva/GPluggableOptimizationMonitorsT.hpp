@@ -200,6 +200,14 @@ public:
 
    /***************************************************************************/
    /**
+    * Checks if adaptors have been registered in the collective monitor
+    */
+   bool hasOptimizationMonitors() const {
+      return !pluggable_monitors_.empty();
+   }
+
+   /***************************************************************************/
+   /**
     * Allows to clear all registered monitors
     */
    void reset() {
@@ -1073,7 +1081,7 @@ public:
    /**
     * Initialization with a file name
     */
-   GNAdpationsLoggerT(const std::string& fileName)
+   explicit GNAdpationsLoggerT(const std::string& fileName)
       : fileName_(fileName)
       , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
       , gpd_oa_("Number of adaptions per iteration", 1, 2)
@@ -1276,7 +1284,7 @@ public:
             nAdaptionsHist2D_oa_ = boost::shared_ptr<GHistogram2D>(
                   new GHistogram2D(
                         nIterationsRecorded_
-                        , double(maxNAdaptions+1)
+                        , maxNAdaptions+1
                         , 0., double(maxIteration_)
                         , 0., double(maxNAdaptions)
                   )
@@ -1333,6 +1341,348 @@ private:
    std::size_t nIterationsRecorded_; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
 
    std::vector<boost::tuple<double, double> > nAdaptionsStore_; ///< Holds all information about the number of adaptions
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class allows to log chosen properties of adaptors. Such properties
+ * are limited to numeric entities, that may be converted to double
+ */
+template <typename ind_type, typename num_type>
+class GAdaptorPropertyLoggerT : public GBasePluggableOMT<ind_type>
+{
+   // Make sure this class can only be instantiated if ind_type is a derivative of GParameterSet
+   BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
+   // Make sure this class can only be instantiated if num_type is numeric
+   BOOST_MPL_ASSERT((boost::is_arithmetic<num_type>));
+
+public:
+   /***************************************************************************/
+   /**
+    * The default constructor
+    */
+   GAdaptorPropertyLoggerT()
+      : fileName_("NAdaptions.C")
+      , adaptorName_("GDoubleGaussAdaptor")
+      , property_("sigma")
+      , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+      , gpd_oa_("Adaptor properties", 1, 2)
+      , monitorBestOnly_(false)
+      , addPrintCommand_(false)
+      , maxIteration_(0)
+      , nIterationsRecorded_(0)
+      , adaptorPropertyStore_()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Initialization with a file name
+    */
+   GAdaptorPropertyLoggerT(
+      const std::string& fileName
+      , const std::string& adaptorName
+      , const std::string& property
+   )
+      : fileName_(fileName)
+      , adaptorName_(adaptorName)
+      , property_(property)
+      , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+      , gpd_oa_("Adaptor properties", 1, 2)
+      , monitorBestOnly_(false)
+      , addPrintCommand_(false)
+      , maxIteration_(0)
+      , nIterationsRecorded_(0)
+      , adaptorPropertyStore_()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The copy constructor
+    */
+   GAdaptorPropertyLoggerT(const GAdaptorPropertyLoggerT<ind_type, num_type>& cp)
+      : fileName_(cp.fileName_)
+      , adaptorName_(cp.adaptorName_)
+      , property_(cp.property_)
+      , canvasDimensions_(cp.canvasDimensions_)
+      , gpd_oa_("Number of adaptions per iteration", 1, 2) // Not copied
+      , monitorBestOnly_(cp.monitorBestOnly_)
+      , addPrintCommand_(cp.addPrintCommand_)
+      , maxIteration_(cp.maxIteration_)
+      , nIterationsRecorded_(cp.nIterationsRecorded_)
+      , adaptorPropertyStore_(cp.adaptorPropertyStore_)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The destructor
+    */
+   virtual ~GAdaptorPropertyLoggerT()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Sets the file name
+    */
+   void setFileName(std::string fileName) {
+      fileName_ = fileName;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the current file name
+    */
+   std::string getFileName() const {
+      return fileName_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Sets the name of the adaptor
+    */
+   void setAdaptorName(std::string adaptorName) {
+      adaptorName_ = adaptorName;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the name of the adaptor
+    */
+   std::string getAdaptorName() const {
+      return adaptorName_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Sets the name of the property
+    */
+   void setPropertyName(std::string property) {
+      property_ = property;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the name of the property
+    */
+   std::string getPropertyName() const {
+      return property_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to specify whether only the best individuals should be monitored.
+    */
+   void setMonitorBestOnly(bool monitorBestOnly = true) {
+      monitorBestOnly_ = monitorBestOnly;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether only the best individuals should be monitored.
+    */
+   bool getMonitorBestOnly() const {
+      return monitorBestOnly_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to set the canvas dimensions
+    */
+   void setCanvasDimensions(boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
+      canvasDimensions_ = canvasDimensions;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to set the canvas dimensions using separate x and y values
+    */
+   void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
+      canvasDimensions_ = boost::tuple<boost::uint32_t,boost::uint32_t>(x,y);
+   }
+
+   /***************************************************************************/
+   /**
+    * Gives access to the canvas dimensions
+    */
+   boost::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
+      return canvasDimensions_;
+   }
+
+   /******************************************************************************/
+   /**
+    * Allows to add a "Print" command to the end of the script so that picture files are created
+    */
+   void setAddPrintCommand(bool addPrintCommand) {
+      addPrintCommand_ = addPrintCommand;
+   }
+
+   /******************************************************************************/
+   /**
+    * Allows to retrieve the current value of the addPrintCommand_ variable
+    */
+   bool getAddPrintCommand() const {
+      return addPrintCommand_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to emit information in different stages of the information cycle
+    * (initialization, during each cycle and during finalization)
+    */
+   virtual void informationFunction(
+      const infoMode& im
+      , GOptimizationAlgorithmT<ind_type> * const goa
+   ) OVERRIDE {
+      using namespace Gem::Common;
+
+      switch(im) {
+      case Gem::Geneva::INFOINIT:
+      {
+         // If the file pointed to by fileName_ already exists, make a back-up
+         if(bf::exists(fileName_)) {
+            const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
+            std::string newFileName = fileName_ + ".bak_" + boost::lexical_cast<std::string>(currentTime);
+
+            glogger
+            << "In GAdaptorPropertyLoggerT<S,T>::informationFunction(): Error!" << std::endl
+            << "Attempt to output information to file " << fileName_ << std::endl
+            << "which already exists. We will rename the old file to" << std::endl
+            << newFileName << std::endl
+            << GWARNING;
+
+            bf::rename(fileName_, newFileName);
+         }
+
+         // Make sure the progress plotter has the desired size
+         gpd_oa_.setCanvasDimensions(canvasDimensions_);
+
+         // Set up a graph to monitor the best fitness found
+         fitnessGraph2D_oa_ = boost::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+         fitnessGraph2D_oa_->setXAxisLabel("Iteration");
+         fitnessGraph2D_oa_->setYAxisLabel("Fitness");
+         fitnessGraph2D_oa_->setPlotMode(Gem::Common::CURVE);
+      }
+      break;
+
+      case Gem::Geneva::INFOPROCESSING:
+      {
+         boost::uint32_t iteration = goa->getIteration();
+
+         // Record the current fitness
+         boost::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
+         (*fitnessGraph2D_oa_) & boost::tuple<double,double>(double(iteration), double(p->fitness()));
+
+         // Update the largest known iteration and the number of recorded iterations
+         maxIteration_ = iteration;
+         nIterationsRecorded_++;
+
+         // Will hold the adaptor properties
+         std::vector<boost::any> data;
+
+         // Do the actual logging
+         if(monitorBestOnly_) {
+            boost::shared_ptr<GParameterSet> best = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
+
+            // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
+            best->queryAdaptor(adaptorName_, property_, data);
+
+            // Attach the data to adaptorPropertyStore_
+            std::vector<boost::any>::iterator prop_it;
+            for(prop_it=data.begin(); prop_it!=data.end(); ++prop_it) {
+               adaptorPropertyStore_.push_back(boost::tuple<double,double>(double(iteration), double(boost::any_cast<num_type>(*prop_it))));
+            }
+         } else { // Monitor all individuals
+            // Loop over all individuals of the algorithm.
+            for(std::size_t pos=0; pos<goa->size(); pos++) {
+               boost::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+
+               // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
+               ind->queryAdaptor(adaptorName_, property_, data);
+
+               // Attach the data to adaptorPropertyStore_
+               std::vector<boost::any>::iterator prop_it;
+               for(prop_it=data.begin(); prop_it!=data.end(); ++prop_it) {
+                  adaptorPropertyStore_.push_back(boost::tuple<double,double>(double(iteration), double(boost::any_cast<num_type>(*prop_it))));
+               }
+            }
+         }
+      }
+      break;
+
+      case Gem::Geneva::INFOEND:
+      {
+         std::vector<boost::tuple<double, double> >::iterator it;
+
+         // Within adaptorPropertyStore_, find the largest number of adaptions performed
+         double maxProperty = 0.;
+         for(it=adaptorPropertyStore_.begin(); it!=adaptorPropertyStore_.end(); ++it) {
+            if(boost::get<1>(*it) > maxProperty) {
+               maxProperty = boost::get<1>(*it);
+            }
+         }
+
+         // Create the histogram object
+         adaptorPropertyHist2D_oa_ = boost::shared_ptr<GHistogram2D>(
+               new GHistogram2D(
+                     nIterationsRecorded_
+                     , 100
+                     , 0., double(maxIteration_)
+                     , 0., maxProperty
+               )
+         );
+
+         adaptorPropertyHist2D_oa_->setXAxisLabel("Iteration");
+         adaptorPropertyHist2D_oa_->setYAxisLabel(std::string("Adaptor-Name: ") + adaptorName_ + std::string(", Property: ") + property_);
+         adaptorPropertyHist2D_oa_->setDrawingArguments("BOX");
+
+         // Fill the object with data
+         for(it=adaptorPropertyStore_.begin(); it!=adaptorPropertyStore_.end(); ++it) {
+            (*adaptorPropertyHist2D_oa_) & *it;
+         }
+
+         // Add the histogram to the plot designer
+         gpd_oa_.registerPlotter(adaptorPropertyHist2D_oa_);
+
+         // Add the fitness monitor
+         gpd_oa_.registerPlotter(fitnessGraph2D_oa_);
+
+         // Inform the plot designer whether it should print png files
+         gpd_oa_.setAddPrintCommand(addPrintCommand_);
+
+         // Write out the result. Note that we add
+         gpd_oa_.writeToFile(fileName_);
+
+         // Remove all plotters (they will survive inside of gpd)
+         gpd_oa_.resetPlotters();
+         adaptorPropertyHist2D_oa_.reset();
+      }
+      break;
+      };
+   }
+
+private:
+   /***************************************************************************/
+
+   std::string fileName_; ///< The name of the file to which solutions should be stored
+
+   std::string adaptorName_; ///< The  name of the adaptor for which properties should be logged
+   std::string property_; ///< The name of the property to be logged
+
+   boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
+
+   Gem::Common::GPlotDesigner gpd_oa_; ///< A wrapper for the plots
+
+   boost::shared_ptr<Gem::Common::GHistogram2D> adaptorPropertyHist2D_oa_;  ///< Holds the actual histogram
+   boost::shared_ptr<Gem::Common::GGraph2D>     fitnessGraph2D_oa_;    ///< Lets us monitor the current fitness of the population
+
+   bool monitorBestOnly_; ///< Indicates whether only the best individuals should be monitored
+   bool addPrintCommand_; ///< Asks the GPlotDesigner to add a print command to result files
+
+   std::size_t maxIteration_; ///< Holds the largest iteration recorded for the algorithm
+   std::size_t nIterationsRecorded_; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
+
+   std::vector<boost::tuple<double, double> > adaptorPropertyStore_; ///< Holds all information about the number of adaptions
 };
 
 /******************************************************************************/
