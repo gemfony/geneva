@@ -558,6 +558,24 @@ protected:
       sigma_ = this->gr->template uniform_real<fp_type>(minSigma_, maxSigma_);
    }
 
+   /***************************************************************************/
+   /**
+    * Adds a given property value to the vector or returns false, if the property
+    * was not found.
+    */
+   virtual bool customQueryProperty (
+      const std::string& property
+      , std::vector<boost::any>& data
+   ) const OVERRIDE {
+      if(property == "sigma") {
+         data.push_back(boost::any(sigma_));
+      } else {
+         return false;
+      }
+
+      return true;
+   }
+
 protected: // For performance reasons, so we do not have to go through access functions
 	/***************************************************************************/
 	fp_type sigma_; ///< The width of the gaussian used to adapt values

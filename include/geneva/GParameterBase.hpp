@@ -97,6 +97,12 @@ public:
 
    /** @brief Triggers updates when the optimization process has stalled */
    virtual bool updateAdaptorsOnStall(const std::size_t&) BASE = 0;
+   /** @brief Retrieves information from an adaptor on a given property */
+   virtual void queryAdaptor(
+      const std::string& adaptorName
+      , const std::string& property
+      , std::vector<boost::any>& data
+   ) const BASE = 0;
 
 	/** @brief Switches on adaptions for this object */
 	bool setAdaptionsActive();

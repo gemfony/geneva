@@ -826,6 +826,43 @@ public:
    }
 
    /***************************************************************************/
+   /**
+    * Allows to query specific properties of a given adaptor. Note that the
+    * adaptor must have implemented a "response" for the query, as the function
+    * will otherwise throw. This function is meant for debugging and profiling.
+    * It might e.g. be useful if you want to know why an EA-based optimization has
+    * stalled. Note that the permanent use of this function, e.g. from a permanently
+    * enabled "pluggable optimization monitor, will be inefficient due to the
+    * constant need to compare strings.
+    *
+    * @param adaoptorName The name of the adaptor to be queried
+    * @param property The property for which information is sought
+    * @param data A vector, to which the properties should be added
+    */
+   void queryPropertyFrom(
+      const std::string& adaptorName
+      , const std::string& property
+      , std::vector<boost::any>& data
+   ) const BASE {
+      // Do nothing, if this query is not for us
+      if(adaptorName != this->name()) {
+         return;
+      } else { // O.k., this query is for us!
+         if(property == "adProb") { // The only property that can be queried for this class
+            data.push_back(boost::any(adProb_));
+         } else { // Ask derived classes
+            if(!this->customQueryProperty(property, data)) {
+               glogger
+               << "In GAdaptorT<T>::queryPropertyFrom(): Error!" << std::endl
+               << "Function was called for unimplemented property " << property << std::endl
+               << "on adaptor " << adaptorName << std::endl
+               << GEXCEPTION;
+            }
+         }
+      }
+   }
+
+   /***************************************************************************/
    /** @brief Allows derived classes to randomly initialize parameter members */
    virtual void randomInit() BASE = 0;
 
@@ -888,6 +925,21 @@ protected:
             customAdaptAdaption(range);
          }
       }
+   }
+
+   /***************************************************************************/
+   /**
+    * Adds a given property value to the vector or returns false, if the property
+    * was not found. We do not check anymore if this query was for as, as this was
+    * already done by  queryPropertyFrom(). Thus function needs to be re-implemented
+    * by derived classes wishing to emit information. If there is no re-implementation,
+    * this function will simply return false.
+    */
+   virtual bool customQueryProperty (
+      const std::string& property
+      , std::vector<boost::any>& data
+   ) const {
+      return false;
    }
 
    /***************************************************************************/

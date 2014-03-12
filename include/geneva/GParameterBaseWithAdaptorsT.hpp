@@ -419,6 +419,34 @@ public:
 	   return this->adaptor_->updateOnStall(nStalls, this->range());
 	}
 
+   /******************************************************************************/
+   /**
+    * Retrieves information from an adaptor on a given property
+    *
+    * @param adaoptorName The name of the adaptor to be queried
+    * @param property The property for which information is sought
+    * @param data A vector, to which the properties should be added
+    */
+   virtual void queryAdaptor(
+      const std::string& adaptorName
+      , const std::string& property
+      , std::vector<boost::any>& data
+   ) const {
+#ifdef DEBUG
+      if (!adaptor_) {
+         glogger
+         << "In GParameterBaseWithAdaptorsT<T>::queryAdaptor(...):" << std::endl
+         << "with typeid(T).name() = " << typeid(T).name() << std::endl
+         << "Error: No adaptor was found." << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Note: The following will throw if the adaptor with name "adaptorName" has
+      // no property named "property".
+      this->adaptor_->queryPropertyFrom(adaptorName, property, data);
+   }
+
 protected:
 	/***************************************************************************/
 	/**

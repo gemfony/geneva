@@ -1043,17 +1043,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class allows to log all candidate solutions found to a file. NOTE that
- * the file may become very large! Results are output in the following format:
- * param1 param2 ... param_m eval1 eval2 ... eval_n . By default, no commas and
- * explanations are printed. If withNameAndType is set to true, the values are
- * prepended by a line with variable names and types. If withCommas is set to true,
- * commas will be printed in-between values. It is possible to filter the results by
- * asking the class to only log solutions better than a given set of values. What
- * is considered better depends on whether evaluation criteria are maximized or minimized
- * and is determined from the individual. Note that this class can only be instantiated
- * if ind_type is either a derivative of GParamterSet or is an object of the
- * GParameterSet class itself.
+ * This class allows to log the number of adaptions made inside of adaptors
+ * to a file. This is mostly needed for debugging and profiling purposes. The
+ * number of adaptions made is a good measure for the adaption probability.
  */
 template <typename ind_type>
 class GNAdpationsLoggerT : public GBasePluggableOMT<ind_type>

@@ -690,6 +690,28 @@ protected:
 		maxDelta_ = p_load->maxDelta_;
 	}
 
+   /***************************************************************************/
+   /**
+    * Adds a given property value to the vector or returns false, if the property
+    * was not found.
+    */
+   virtual bool customQueryProperty (
+      const std::string& property
+      , std::vector<boost::any>& data
+   ) const OVERRIDE {
+      if(property == "sigma1") {
+         data.push_back(boost::any(sigma1_));
+      } else if(property == "sigma2") {
+         data.push_back(boost::any(sigma1_));
+      } else if(property == "delta") {
+         data.push_back(boost::any(delta_));
+      } else {
+         return false;
+      }
+
+      return true;
+   }
+
 	/***************************************************************************/
 	/** @brief This function creates a deep copy of this object */
 	virtual GObject *clone_() const = 0;

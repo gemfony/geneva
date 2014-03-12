@@ -976,6 +976,25 @@ public:
       }
    }
 
+   /******************************************************************************/
+   /**
+    * Retrieves information from adaptors with a given property
+    *
+    * @param adaoptorName The name of the adaptor to be queried
+    * @param property The property for which information is sought
+    * @param data A vector, to which the properties should be added
+    */
+   virtual void queryAdaptor(
+      const std::string& adaptorName
+      , const std::string& property
+      , std::vector<boost::any>& data
+   ) const OVERRIDE {
+      typename GParameterTCollectionT<T>::const_iterator cit;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         (*cit)->queryAdaptor(adaptorName, property, data);
+      }
+   }
+
 protected:
 	/***************************************************************************/
 	/**

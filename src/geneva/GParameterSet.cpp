@@ -286,6 +286,25 @@ void GParameterSet::updateAdaptorsOnStall(const boost::uint32_t& nStalls) {
 
 /******************************************************************************/
 /**
+ * Retrieves information from adaptors with a given property
+ *
+ * @param adaoptorName The name of the adaptor to be queried
+ * @param property The property for which information is sought
+ * @param data A vector, to which the properties should be added
+ */
+void GParameterSet::queryAdaptor(
+   const std::string& adaptorName
+   , const std::string& property
+   , std::vector<boost::any>& data
+) const {
+   GParameterSet::const_iterator cit;
+   for(cit=this->begin(); cit!=this->end(); ++cit) {
+      (*cit)->queryAdaptor(adaptorName, property, data);
+   }
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GParameterSet object, camouflaged as a GObject.
  *
  * @param cp A copy of another GParameterSet object, camouflaged as a GObject

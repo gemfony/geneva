@@ -207,6 +207,12 @@ public:
 
    /** @brief Triggers updates of adaptors contained in this object */
    virtual void updateAdaptorsOnStall(const boost::uint32_t&);
+   /** @brief Retrieves information from adaptors with a given property */
+   virtual void queryAdaptor(
+      const std::string& adaptorName
+      , const std::string& property
+      , std::vector<boost::any>& data
+   ) const BASE;
 
 	/***************************************************************************/
 	/**
