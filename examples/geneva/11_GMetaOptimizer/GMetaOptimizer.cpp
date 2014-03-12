@@ -68,22 +68,20 @@ int main(int argc, char **argv) {
          new GMetaOptimizerIndividualFactory("./config/GMetaOptimizerIndividual.json")
    );
 
-   // Create a factory for evolutionary algorithms in serial mode.
-   // We choose serial execution, to allow the sub-populations to use multiple threads.
-   GEvolutionaryAlgorithmFactory ea_factory(
-      "./config/GEvolutionaryAlgorithm.json"
-      , EXECMODE_SERIAL
-      , gmoi_ptr
+   // Add a content creator so Go2 can generate its own individuals, if necessary
+   go.registerContentCreator(gmoi_ptr);
+
+   // Create an optimization monitor (targeted at evolutionary algorithms) and register
+   // it with the global store. This step is OPTIONAL. We recommend checking the chapters
+   // on writing custom progress monitors within the Geneva framework.
+   GOAMonitorStore->setOnce(
+         "ea"
+         , boost::shared_ptr<GOptOptMonitor>(new GOptOptMonitor("./optProgress.C"))
    );
 
-   boost::shared_ptr<GBaseEA> ea_ptr = ea_factory.get<GBaseEA>();
 
-   // Create an optimization monitor and register it with the optimizer
-   boost::shared_ptr<GOptOptMonitor> mon_ptr(new GOptOptMonitor("./optProgress.C"));
-   ea_ptr->registerOptimizationMonitor(mon_ptr);
-
-   // Add an EA-object to the Go2 object
-   go & ea_ptr;
+   // Add a default optimization algorithm to the Go2 object
+   go.registerDefaultAlgorithm("ea");
 
    // Perform the actual optimization
    boost::shared_ptr<GMetaOptimizerIndividual> bestIndividual_ptr = go.optimize<GMetaOptimizerIndividual>();

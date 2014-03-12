@@ -564,7 +564,7 @@ double GMetaOptimizerIndividual::fitnessCalculation() {
    gfi.setAdaptAdProb(adaptAdProb);
 
    // Set up a population factory
-   GEvolutionaryAlgorithmFactory ea("./config/GSubEvolutionaryAlgorithm.json", EXECMODE_MULTITHREADED);
+   GEvolutionaryAlgorithmFactory ea("./config/GSubEvolutionaryAlgorithm.json", EXECMODE_SERIAL);
 
    // Run the required number of optimizations
    boost::shared_ptr<GBaseEA> ea_ptr;

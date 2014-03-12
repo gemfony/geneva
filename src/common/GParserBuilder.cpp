@@ -38,6 +38,12 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
+/**
+ * Initialization of static data members
+ */
+boost::mutex Gem::Common::GParserBuilder::configFileParser_mutex_;
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
@@ -213,6 +219,11 @@ GParserBuilder::~GParserBuilder()
  * @return A boolean indicating whether parsing was successful
  */
 bool GParserBuilder::parseConfigFile(const std::string& configFile) {
+   // Make sure only one entity is parsed at once. This allows us to
+   // concurrently create e.g. optimization algorithms, letting them
+   // parse the same config file.
+   boost::mutex::scoped_lock lk(GParserBuilder::configFileParser_mutex_);
+
 	namespace pt = boost::property_tree;
 	namespace bf = boost::filesystem;
 

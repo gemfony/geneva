@@ -58,6 +58,7 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
+#include <boost/thread/mutex.hpp>
 
 /**
  * Check that we have support for threads. This collection of classes is useless
@@ -1576,6 +1577,8 @@ private:
 	std::vector<boost::shared_ptr<GCLParsableI> >   cl_parameter_proxies_;   ///< Holds command line parameter proxies
 
 	std::string configFileBaseName_;
+
+   static boost::mutex configFileParser_mutex_; ///< Synchronization of access to configuration files (may only happen serially)
 };
 
 /******************************************************************************/
