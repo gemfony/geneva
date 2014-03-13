@@ -382,7 +382,6 @@ protected:
             disconnect(socket_);
 
             // We can continue. But let's wait for a time specified by the server in its idle-command
-            std::cout << "Sleeping for " << idleTime << "milli-seconds" << std::endl;
             boost::this_thread::sleep(boost::posix_time::milliseconds(long(idleTime)));
 
             // Indicate that we want to continue
