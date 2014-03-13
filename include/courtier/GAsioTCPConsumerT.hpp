@@ -961,7 +961,7 @@ class GAsioServerSessionT
       // no item could be retrieved
       std::size_t nRetries = 0;
 
-      if(!broker_ptr_->get(portId, p, timeout_) && (nRetries++ > brokerRetrieveMaxRetries_)) {
+      if(!broker_ptr_->get(portId, p, timeout_) || (nRetries++ > brokerRetrieveMaxRetries_)) {
          std::string idleCommand
             = std::string("idle(") + boost::lexical_cast<std::string>(noDataClientSleepMilliSeconds_) + std::string(")");
          this->async_sendSingleCommand(idleCommand);
