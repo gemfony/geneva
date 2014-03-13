@@ -62,6 +62,16 @@
 #include <boost/utility.hpp>
 #include <boost/date_time.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/fusion/include/tuple.hpp>
+#include <boost/fusion/include/boost_tuple.hpp>
+#include <boost/fusion/adapted/boost_tuple.hpp>
+#include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/fusion/include/io.hpp>
+#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/qi_lit.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_stl.hpp>
 
 #ifndef GASIOTCPCONSUMERT_HPP_
 #define GASIOTCPCONSUMERT_HPP_
@@ -82,6 +92,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GBaseClientT.hpp"
+
 
 namespace Gem {
 namespace Courtier {
@@ -132,6 +143,7 @@ public:
       : GBaseClientT<processable_type>()
       , maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
       , maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
+      , totalConnectionAttempts_(0)
       , stalls_(0)
       , io_service_()
       , socket_(io_service_)
@@ -159,6 +171,7 @@ public:
       : GBaseClientT<processable_type>(additionalDataTemplate)
       , maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
       , maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
+      , totalConnectionAttempts_(0)
       , stalls_(0)
       , io_service_()
       , socket_(io_service_)
@@ -176,6 +189,12 @@ public:
     */
    virtual ~GAsioTCPClientT() {
       delete [] tmpBuffer_;
+
+      glogger
+      << "In GAsioTCPClinetT<>::~GAsioTCPClientT():" << std::endl
+      << "Recorded " << this->getTotalConnectionAttempts() << " failed connection" << std::endl
+      << "attempts during the runtime of this client" << std::endl
+      << GLOGGING;
    }
 
    /***************************************************************************/
@@ -218,7 +237,57 @@ public:
       return maxConnectionAttempts_;
    }
 
+   /***************************************************************************/
+   /**
+    * Retrieves the total number of failed connection attempts during program execution
+    * up the point of the call;
+    */
+   boost::uint32_t getTotalConnectionAttempts() const {
+      return totalConnectionAttempts_;
+   }
+
 protected:
+   /***************************************************************************/
+   /**
+    * Parses an in-bound "idle" command string, so we know how long the client
+    * should wait before reconnecting to the server. The idle command will be
+    * of the type "idle(5000)", where the number specifies the amount of
+    * milliseconds the client should wait before reconnecting.
+    */
+   bool parseIdleCommand(boost::uint32_t& idleTime, const std::string& idleCommand) {
+      using boost::spirit::ascii::space;
+      using boost::spirit::qi::phrase_parse;
+      using boost::spirit::qi::uint_;
+      using boost::spirit::qi::lit;
+      using boost::spirit::ascii::string;
+      using boost::spirit::lexeme;
+      using boost::spirit::qi::attr;
+
+      using boost::spirit::qi::raw;
+      using boost::spirit::qi::alpha;
+      using boost::spirit::qi::alnum;
+      using boost::spirit::qi::hold;
+
+      using boost::spirit::qi::_1;
+
+      bool success = false;
+
+      std::string::const_iterator from = idleCommand.begin();
+      std::string::const_iterator to   = idleCommand.end();
+
+      success = phrase_parse(
+           from, to
+           , (lit("idle") >> '(' >> uint_ >> ')')[boost::phoenix::ref(idleTime) = _1]
+           , space
+     );
+
+      if(!success || from != to) {
+        return false;
+      } else {
+        return true;
+      }
+   }
+
    /***************************************************************************/
    /**
     * Retrieve work items from the server.
@@ -231,6 +300,7 @@ protected:
       , std::string& serMode, std::string& portId
    ) {
       item = "empty"; // Indicates that no item could be retrieved
+      boost::uint32_t idleTime = 0; // Holds information on the idle time in milliseconds, if "idle" command is received
 
       try {
          // Try to make a connection
@@ -293,7 +363,7 @@ protected:
             disconnect(socket_);
             // Indicate that we want to continue
             return CLIENT_CONTINUE;
-         } else if("idle" == inboundCommandString) { // Received no work. Try again a number of times
+         } else if(this->parseIdleCommand(idleTime, inboundCommandString)) { // Received no work. We have been instructed to wait for a certain time
             // We will usually only allow a given number of timeouts / stalls
             if (maxStalls_ && (stalls_++ > maxStalls_)) {
                glogger
@@ -311,8 +381,9 @@ protected:
             // Make sure we don't leave any open sockets lying around.
             disconnect(socket_);
 
-            // We can continue. But let's wait a short time (0.5 seconds) first before we try again
-            boost::this_thread::sleep(boost::posix_time::milliseconds(500));
+            // We can continue. But let's wait for a time specified by the server in its idle-command
+            std::cout << "Sleeping for " << idleTime << "milli-seconds" << std::endl;
+            boost::this_thread::sleep(boost::posix_time::milliseconds(long(idleTime)));
 
             // Indicate that we want to continue
             return CLIENT_CONTINUE;
@@ -464,6 +535,10 @@ private:
             disconnect(socket_);
             // Make the connection attempt
             socket_.connect(*endpoint_iterator++, error);
+
+            if(error) {
+               totalConnectionAttempts_++;
+            }
          }
 
          // We were successful
@@ -483,6 +558,7 @@ private:
 
    boost::uint32_t maxStalls_; ///< The maximum allowed number of stalled connection attempts
    boost::uint32_t maxConnectionAttempts_; ///< The maximum allowed number of failed connection attempts
+   boost::uint32_t totalConnectionAttempts_; ///< The total number of failed connection attempts during program execution
 
    boost::uint32_t stalls_; ///< counter for stalled connection attempts
 
@@ -536,7 +612,9 @@ class GAsioServerSessionT
    , serializationMode_(serMod)
    , master_(master)
    , broker_ptr_(master->broker_ptr_)
-   , timeout_(boost::posix_time::milliseconds(10))
+   , timeout_(boost::posix_time::milliseconds(50))
+   , brokerRetrieveMaxRetries_(10)
+   , noDataClientSleepMilliSeconds_(5000)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -881,8 +959,12 @@ class GAsioServerSessionT
 
       // Retrieve an item. Terminate the submission if
       // no item could be retrieved
-      if(!broker_ptr_->get(portId, p, timeout_)) {
-         this->async_sendSingleCommand("idle");
+      std::size_t nRetries = 0;
+
+      if(!broker_ptr_->get(portId, p, timeout_) && (nRetries++ > brokerRetrieveMaxRetries_)) {
+         std::string idleCommand
+            = std::string("idle(") + boost::lexical_cast<std::string>(noDataClientSleepMilliSeconds_) + std::string(")");
+         this->async_sendSingleCommand(idleCommand);
          return;
       }
 
@@ -892,12 +974,13 @@ class GAsioServerSessionT
 
       // Format the command
       std::string outbound_command_header = assembleQueryString(
-            "compute"
-            , Gem::Courtier::COMMANDLENGTH
+         "compute"
+         , Gem::Courtier::COMMANDLENGTH
       );
 
       // Format the size header
-      std::string outbound_size_header = assembleQueryString(boost::lexical_cast<std::string>(item.size()), Gem::Courtier::COMMANDLENGTH);
+      std::string outbound_size_header
+         = assembleQueryString(boost::lexical_cast<std::string>(item.size()), Gem::Courtier::COMMANDLENGTH);
 
       // Format a header for the serialization mode
       std::string serialization_header = assembleQueryString(
@@ -924,13 +1007,13 @@ class GAsioServerSessionT
       // command, header and data in a single write operation.
       try {
          boost::asio::async_write(
-               socket_
-               , buffers
-               , strand_.wrap(boost::bind(
-                     &GAsioServerSessionT<processable_type>::handle_write
-                     , GAsioServerSessionT<processable_type>::shared_from_this()
-                     , boost::asio::placeholders::error
-               ))
+            socket_
+            , buffers
+            , strand_.wrap(boost::bind(
+                  &GAsioServerSessionT<processable_type>::handle_write
+                  , GAsioServerSessionT<processable_type>::shared_from_this()
+                  , boost::asio::placeholders::error
+            ))
          );
       } catch(const boost::system::system_error &e) {
          glogger
@@ -1036,6 +1119,9 @@ class GAsioServerSessionT
    boost::shared_ptr<Gem::Courtier::GBrokerT<processable_type> > broker_ptr_;
 
    boost::posix_time::time_duration timeout_; ///< A timeout for put- and get-operations
+
+   std::size_t brokerRetrieveMaxRetries_; ///< The maximum amount
+   boost::uint32_t noDataClientSleepMilliSeconds_; ///< The amount of milliseconds the client should sleep when no data could be retrieved from the broker
  };
 
 /******************************************************************************/

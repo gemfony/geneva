@@ -49,6 +49,8 @@ Other changes:
    one can now say "./GSimpleOptimizer -a "ps,ea" --parameterSpec="s(1000)". This would result in a random
    scan of 1000 work items. The best individuals found will then form the start values of an evolutionary
    algorithm 
+ - The server now tells the client how long it should sleep in networked execution, before reconnecting.
+   Repeated idle calls are avoided, reducing the network load
  - Starting with this version, release-versions get an even minor version number
  - Ported to Boost 1.55.
 
