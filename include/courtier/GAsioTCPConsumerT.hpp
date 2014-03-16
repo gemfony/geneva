@@ -403,14 +403,12 @@ protected:
       // fatal and leads to the termination, by returning false.
       catch (boost::system::system_error&) {
          { // Make sure we do not hide the next error declaration (avoid a warning message)
-#ifdef DEBUG
             glogger
             << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
             << "Caught boost::system::system_error exception." << std::endl
             << "This is likely normal and due to a server shutdown." << std::endl
             << "Leaving now." << std::endl
             << GWARNING;
-#endif /* DEBUG */
          }
 
          // Make sure we don't leave any open sockets lying around.
@@ -484,14 +482,12 @@ protected:
       // fatal and leads to the termination, by returning false.
       catch (boost::system::system_error&) {
          {
-#ifdef DEBUG
             glogger
             << "In GAsioTCPClientT<processable_type>::submit():" << std::endl
             << "Caught boost::system::system_error exception." << std::endl
             << "This is likely normal and due to a server shutdown." << std::endl
             << "Leaving now." << std::endl
             << GLOGGING;
-#endif /* DEBUG */
          }
 
          // Make sure we don't leave any open sockets lying around.
