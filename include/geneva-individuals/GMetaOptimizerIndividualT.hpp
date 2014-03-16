@@ -1120,15 +1120,22 @@ protected:
       // Calculate the average number of iterations and solver calls
       boost::tuple<double,double> sd = Gem::Common::GStandardDeviation(solverCallsPerOptimization);
       boost::tuple<double,double> itmean = Gem::Common::GStandardDeviation(iterationsPerOptimization);
-      boost::tuple<double,double> bestMean = Gem::Common::GStandardDeviation(bestEvaluations); // TODO: Deal with vectors containing max-double
+      boost::tuple<double,double> minMax = Gem::Common::getMinMax(bestEvaluations);
+
+      double worstBest = 0.;
+      if(true == maxMode) { // Maximization
+         worstBest=boost::get<0>(minMax); // the "worst best" evaluation is the lowest number
+      } else { // Minimization
+         worstBest=boost::get<1>(minMax); // the "worst best" evaluation is the highest number
+      }
 
       double evaluation = 0.;
       if(MINSOLVERCALLS == moTarget_) {
          evaluation = boost::get<0>(sd);
       } else if(BESTFITNESS == moTarget_) {
-         evaluation = boost::get<0>(bestMean);
+         evaluation = worstBest;
       } else if(MC_MINSOLVER_BESTFITNESS == moTarget_) {
-         evaluation = boost::get<0>(bestMean); // The primary result
+         evaluation = worstBest;
          this->registerSecondaryResult(1, boost::get<0>(sd)); // The secondary result
       }
 
@@ -1137,7 +1144,7 @@ protected:
       << std::endl
       << boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " << std::endl
       << boost::get<0>(itmean) << " +/- " << boost::get<1>(itmean) << " average iterations " << std::endl
-      << "and a mean evaluation of " << boost::get<0>(bestMean) << " +/- " << boost::get<1>(bestMean) << std::endl
+      << "and a \"worst best\" evaluation of " << worstBest << std::endl
       << "out of " << nRunsPerOptimization_ << " consecutive runs" << std::endl
       << this->print(false) << std::endl // print without fitness -- not defined at this stage
       << std::endl;
