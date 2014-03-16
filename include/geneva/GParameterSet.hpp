@@ -189,7 +189,7 @@ public:
    ) OVERRIDE;
 
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
-	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
+   GMutableSetT<Gem::Geneva::GParameterBase>::reference at(const std::size_t& pos);
 
 	/** @brief Checks whether this object is better than a given set of evaluations */
 	bool isGoodEnough(const std::vector<double>&);

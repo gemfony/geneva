@@ -543,7 +543,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(!p_test2->isDirty());
 
 		// Extract and clone the first individual's GDoubleCollection object for later comparisons
-		boost::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr_old = p_test1->at(0)->clone<Gem::Geneva::GDoubleCollection>();
+		boost::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr_old = p_test1->at(std::size_t(0))->clone<Gem::Geneva::GDoubleCollection>();
 
 		// Adapt and evaluate the first individual
 		BOOST_CHECK_NO_THROW(p_test1->customAdaptions());

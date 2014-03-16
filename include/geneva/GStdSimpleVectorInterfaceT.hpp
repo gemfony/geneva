@@ -351,6 +351,14 @@ public:
 	 */
 	void resize(size_type amount, const T& item) { data.resize(amount, item);} // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
+	/***************************************************************************/
+	/**
+	 * Resize the vector without "template" items. This essentially means that
+	 * T will be default-constructed. For numeric values this will usually mean
+	 * T(0).
+	 */
+	void resize(size_type amount) { data.resize(amount); }
+
    /***************************************************************************/
 	/** @brief Clearing the data vector */
 	void clear() { data.clear(); } // Used/tested in GDoubleCollection::fillWithData()

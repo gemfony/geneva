@@ -707,6 +707,14 @@ bool GParameterSet::process(){
 void GParameterSet::updateRNGs() {
 	GParameterSet::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
+#ifdef DEBUG
+	   if(!(*it)) { // Does it point somewhere ?
+	      glogger
+	      << "In GParameterSet::updateRNGs(): Error!" << std::endl
+	      << "Found empty parameter object in position " << std::distance(this->begin(), it) << std::endl
+	      << GEXCEPTION;
+	   }
+#endif
 		(*it)->assignGRandomPointer(&(GMutableSetT<Gem::Geneva::GParameterBase>::gr));
 	}
 }
@@ -785,8 +793,8 @@ bool GParameterSet::assignedRNGUsed() const {
  * @param pos The position of the item we aim to retrieve from the std::vector<GParameterBase>
  * @return The item we aim to retrieve from the std::vector<GParameterBase>
  */
-boost::shared_ptr<Gem::Geneva::GParameterBase> GParameterSet::at(const std::size_t& pos) {
-	return data.at(pos);
+GMutableSetT<Gem::Geneva::GParameterBase>::reference GParameterSet::at(const std::size_t& pos) {
+	return GMutableSetT<Gem::Geneva::GParameterBase>::at(pos);
 }
 
 /* ----------------------------------------------------------------------------------

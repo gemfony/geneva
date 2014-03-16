@@ -4,6 +4,7 @@ SET ( SAMPLEINDIVIDUALSOURCES
 	GExternalEvaluatorIndividual
 	GExternalSetterIndividual
 	GFunctionIndividual
+	GMetaOptimizerIndividualT
 	GNeuralNetworkIndividual
 	GTestIndividual2
 	GTestIndividual3

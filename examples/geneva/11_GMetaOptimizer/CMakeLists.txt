@@ -97,7 +97,6 @@ SET ( EXECUTABLENAME GMetaOptimizer )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	GMetaOptimizer
-	GMetaOptimizerIndividual
 )
 
 SET ( CONFIGFILE

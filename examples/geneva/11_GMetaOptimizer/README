@@ -12,3 +12,6 @@ into account the primary fitness value.
 
 NOTE: Optimization of the best evaluation found will only work for
 minimization problems at the moment.
+
+NOTE that this example can be computationally *very* expensive. 
+Finding good configuration options may well take a day or more.

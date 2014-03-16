@@ -41,8 +41,7 @@
 #include <geneva/Go2.hpp>
 
 // The individual that should be optimized
-#include "GMetaOptimizerIndividual.hpp"
-#include "GOptOptMonitor.hpp"
+#include "geneva-individuals/GMetaOptimizerIndividualT.hpp"
 
 using namespace Gem::Geneva;
 
@@ -64,8 +63,8 @@ int main(int argc, char **argv) {
 
    // Create a factory for GMetaOptimizerIndividual objects and perform
    // any necessary initial work.
-   boost::shared_ptr<GMetaOptimizerIndividualFactory> gmoi_ptr(
-         new GMetaOptimizerIndividualFactory("./config/GMetaOptimizerIndividual.json")
+   boost::shared_ptr<GMetaOptimizerIndividualFactoryT<GFunctionIndividual> > gmoi_ptr(
+         new GMetaOptimizerIndividualFactoryT<GFunctionIndividual>("./config/GMetaOptimizerIndividual.json")
    );
 
    // Add a content creator so Go2 can generate its own individuals, if necessary
@@ -75,8 +74,8 @@ int main(int argc, char **argv) {
    // it with the global store. This step is OPTIONAL. We recommend checking the chapters
    // on writing custom progress monitors within the Geneva framework.
    GOAMonitorStore->setOnce(
-         "ea"
-         , boost::shared_ptr<GOptOptMonitor>(new GOptOptMonitor("./optProgress.C"))
+      "ea"
+      , boost::shared_ptr<GOptOptMonitorT<GFunctionIndividual> >(new GOptOptMonitorT<GFunctionIndividual>("./optProgress.C"))
    );
 
 
@@ -84,9 +83,9 @@ int main(int argc, char **argv) {
    go.registerDefaultAlgorithm("ea");
 
    // Perform the actual optimization
-   boost::shared_ptr<GMetaOptimizerIndividual> bestIndividual_ptr = go.optimize<GMetaOptimizerIndividual>();
+   boost::shared_ptr<GMetaOptimizerIndividualT<GFunctionIndividual> > bestIndividual_ptr = go.optimize<GMetaOptimizerIndividualT<GFunctionIndividual> >();
 
-   // Do something with the best result. Here we simply print the result to stdout.
+   // Do something with the best result. Here we simply print the result to std-out.
    std::cout
    << "Best Result was:" << std::endl
    << *bestIndividual_ptr << std::endl;

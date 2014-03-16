@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2014-Mar-12 11:05:15
+// File creation date: 2014-Mar-16 15:30:47
 //-----------------------------------------------------------------
 
 {
@@ -250,19 +250,19 @@
     },
     "nRunsPerOptimization":
     {
-        "comment": "Specifies the number of optimizations performed[GMetaOptimizerIndividual]",
+        "comment": "Specifies the number of optimizations performed[GMetaOptimizerIndividualT<ind_type>]",
         "default": "10",
         "value": "10"
     },
     "fitnessTarget_":
     {
-        "comment": "The fitness below which optimization should stop[GMetaOptimizerIndividual]",
+        "comment": "The fitness below which optimization should stop[GMetaOptimizerIndividualT<ind_type>]",
         "default": "0.001",
         "value": "0.001"
     },
     "iterationThreshold":
     {
-        "comment": "The maximum number of iterations per sub-optimization[GMetaOptimizerIndividual]",
+        "comment": "The maximum number of iterations per sub-optimization[GMetaOptimizerIndividualT<ind_type>]",
         "default": "10000",
         "value": "10000"
     },
@@ -271,8 +271,30 @@
         "comment": "The target for the meta-optimization: best fitness (0),",
         "comment": "minimum number of solver calls (1), multi-criterion with best fitness",
         "comment": "and smallest number of solver calls as target (2)",
-        "comment": "[GMetaOptimizerIndividual]",
+        "comment": "[GMetaOptimizerIndividualT<ind_type>]",
         "default": "0",
         "value": "0"
+    },
+    "individualConfig":
+    {
+        "comment": "Path and name of the configuration file used for (sub-)individuals",
+        "comment": "[GMetaOptimizerIndividualT<ind_type>]",
+        "default": ".\/config\/GFunctionIndividual.json",
+        "value": ".\/config\/GFunctionIndividual.json"
+    },
+    "subEAConfig":
+    {
+        "comment": "Path and name of the configuration file used for the (sub-)evolutionary algorithm",
+        "comment": "[GMetaOptimizerIndividualT<ind_type>]",
+        "default": ".\/config\/GSubEvolutionaryAlgorithm.json",
+        "value": ".\/config\/GSubEvolutionaryAlgorithm.json"
+    },
+    "subExecMode":
+    {
+        "comment": "The execution mode for the sub-optimization algorithm:",
+        "comment": "serial (0\/false), multithreaded (1\/true)",
+        "comment": "[GMetaOptimizerIndividualT<ind_type>]",
+        "default": "true",
+        "value": "true"
     }
 }

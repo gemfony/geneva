@@ -156,6 +156,10 @@ const solverFunction GO_DEF_EVALFUNCTION = boost::numeric_cast<solverFunction>(0
 const double GFI_DEF_CROSSOVERPROB = 0.5;
 
 /******************************************************************************/
+// Forward declaraion
+class GFunctionIndividualFactory;
+
+/******************************************************************************/
 /**
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
@@ -176,6 +180,8 @@ class GFunctionIndividual
 	///////////////////////////////////////////////////////////////////////
 
 public:
+	typedef GFunctionIndividualFactory FACTORYTYPE;
+
 	/** @brief The default constructor */
 	GFunctionIndividual();
 	/** @brief Initialization with the desired demo function */

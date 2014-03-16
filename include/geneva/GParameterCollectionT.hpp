@@ -297,6 +297,10 @@ public:
 	 */
 	virtual void setValue(const std::size_t& pos, const T& val)  {
 		this->at(pos) = val;
+
+#ifdef DEBUG
+		assert(this->at(pos) == val);
+#endif
 	}
 
 	/***************************************************************************/

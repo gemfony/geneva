@@ -256,8 +256,8 @@ IF( GENEVA_STATIC )
 		
 	# Some special linker flags for MacOS
 	IF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
-		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++ -macosx_version_min=10.8")
-		SET (LINK_FLAGS "${LINK_FLAGS} -stdlib=libstdc++ -macosx_version_min=10.8")		
+		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++") # -macosx_version_min=10.8
+		SET (LINK_FLAGS "${LINK_FLAGS} -stdlib=libstdc++") # -macosx_version_min=10.8		
 	ENDIF()
 	
 	SET (BUILD_SHARED_LIBS OFF)
@@ -268,8 +268,8 @@ IF( GENEVA_STATIC )
 ELSE() # Dynamic libraries
 	# Some special linker flags for MacOS 10.9
 	IF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
-		SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lpthread -stdlib=libstdc++ -macosx_version_min=10.8")
-		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++ -macosx_version_min=10.8")
+		SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lpthread -stdlib=libstdc++") # -macosx_version_min=10.8
+		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++") # -macosx_version_min=10.8
 	ENDIF()
 
 	SET (BUILD_SHARED_LIBS ON)

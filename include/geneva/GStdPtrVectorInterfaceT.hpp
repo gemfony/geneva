@@ -743,6 +743,23 @@ public:
 	 */
 
 	/***************************************************************************/
+	/**
+	 * Fills the collection with empty smart pointers. This is meant for situations
+	 * where we want to first resize the collection to a given size and then assign
+	 * data items to each position.
+	 */
+	void resize_empty(size_type amount) {
+	   std::size_t dataSize = data.size();
+	   if(amount < dataSize) {
+	      data.resize(amount);
+	   } else if(amount > dataSize) { // Add empty smart pointers
+         for(std::size_t i=dataSize; i<amount; i++) {
+            data.push_back(boost::shared_ptr<T>());
+         }
+	   }
+	}
+
+	/***************************************************************************/
 	/** @brief Clearing the data vector */
 	void clear() { data.clear(); } // Not tested -- trivial mapping
 
