@@ -954,7 +954,7 @@ protected:
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GMetaOptimizerIndividualT<ind_type> *p_load
-         = gobject_conversion<GMetaOptimizerIndividualT<ind_type>>(cp);
+         = gobject_conversion<GMetaOptimizerIndividualT<ind_type> >(cp);
 
       // Load our parent class'es data ...
       GParameterSet::load_(cp);
