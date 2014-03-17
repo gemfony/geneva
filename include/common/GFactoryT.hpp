@@ -44,6 +44,23 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/type_traits.hpp>
 
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/variant.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
+
 #ifndef GFACTORYT_HPP_
 #define GFACTORYT_HPP_
 
@@ -73,9 +90,21 @@ const std::size_t GFACTORYWRITEID =std::size_t(0);
  * object individually, or in specializations of this class.
  */
 template <typename prod_type>
-class GFactoryT
-	:private boost::noncopyable
-{
+class GFactoryT {
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int)  {
+     using boost::serialization::make_nvp;
+
+     ar
+     & BOOST_SERIALIZATION_NVP(configFile_)
+     & BOOST_SERIALIZATION_NVP(id_)
+     & BOOST_SERIALIZATION_NVP(initialized_);
+   }
+   ///////////////////////////////////////////////////////////////////////
+
 public:
 	/***************************************************************************/
 	/**
@@ -87,6 +116,16 @@ public:
 		: configFile_(configFile)
 		, id_(GFACTTORYFIRSTID)
 		, initialized_(false)
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The copy constructor
+	 */
+	GFactoryT(const GFactoryT<prod_type>& cp)
+	   : configFile_(cp.configFile_)
+	   , id_(cp.id_)
+	   , initialized_(cp.initialized_)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -210,6 +249,33 @@ public:
 		}
 	}
 
+	/***************************************************************************/
+	/**
+	 * Loads the data of another GFactoryT<> object
+	 */
+	virtual void load(boost::shared_ptr<GFactoryT<prod_type> > cp) {
+	   configFile_ = cp->configFile_;
+	   id_ = cp->id_;
+	   initialized_ = cp->initialized_;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Creates a deep clone of this object. This function is a trap. Factories
+	 * wishing to use this functionality need to overload this function.
+	 * Others don't have to due to this "pseudo-implementation".
+	 */
+	virtual boost::shared_ptr<GFactoryT<prod_type> > clone() const {
+	   glogger
+	   << "In GFactoryT<prod_type>::clone(): Error!" << std::endl
+	   << "Function was called when it shouldn't be." << std::endl
+	   << "This function is a trap." << std::endl
+	   << GEXCEPTION;
+
+	   // Make the compiler happy
+	   return boost::shared_ptr<GFactoryT<prod_type> >();
+	}
+
 protected:
 	/***************************************************************************/
 	/** @brief Performs necessary initialization work */
@@ -257,5 +323,20 @@ private:
 
 } /* namespace Common */
 } /* namespace Gem */
+
+/******************************************************************************/
+/** @brief Mark this class as abstract. This is the content of
+ * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
+
+namespace boost {
+   namespace serialization {
+      template<typename T>
+      struct is_abstract<Gem::Common::GFactoryT<T> > : public boost::true_type {};
+      template<typename T>
+      struct is_abstract< const Gem::Common::GFactoryT<T> > : public boost::true_type {};
+   }
+}
+
+/******************************************************************************/
 
 #endif /* GFACTORYT_HPP_ */

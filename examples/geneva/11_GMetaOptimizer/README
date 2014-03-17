@@ -4,7 +4,7 @@ type. The target function may be
 - the average amount of calls to the individual's objective function over the course of an optimization
 run, which needs to be minimized, until a given target fitness is surpassed
 - the worst "best fitness" found in a number of consecutive runs
-- A combination of both --> multi-criterion optimization.
+- A combination of both --> multi-criterion optimization
 Thus, with this application, you can tune the parameters of optimization algorithms themselves.
 
 The example uses the GMetaOptimizerIndividualT, which by default will optimize 
@@ -13,10 +13,14 @@ class. GMetaOptimizerIndividualT may however be combined with other individual t
 as long as their factory supports the required functions to set certain optimization
 paramters.
 
+NOTE that the GMetaOptimizerIndividualT currently assumes by default that the 
+target individual needs to be minimized. It will not currently set its mode automatically.
+
 NOTE that GMetaOptimizerIndividualT currently only covers the optimization of
 the parameters of evolutionary algorithms, but that it can easily
 be extended to other algorithm types. Also, this example only takes
-into account the primary fitness value.
+into account the primary fitness value and is not suitable for multi-criterion 
+optimization yet.
 
 NOTE that this example can be computationally *very* expensive. 
 Finding good configuration options may well take a day or more.

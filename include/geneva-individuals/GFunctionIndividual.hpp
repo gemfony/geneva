@@ -408,9 +408,45 @@ std::ostream& operator<<(std::ostream&, boost::shared_ptr<Gem::Geneva::GFunction
 class GFunctionIndividualFactory
 	: public Gem::Common::GFactoryT<GParameterSet>
 {
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
+   template<class Archive>
+   void serialize(Archive & ar, const unsigned int) {
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GFactoryT<GParameterSet>)
+      & BOOST_SERIALIZATION_NVP(adProb_)
+      & BOOST_SERIALIZATION_NVP(adaptAdProb_)
+      & BOOST_SERIALIZATION_NVP(minAdProb_)
+      & BOOST_SERIALIZATION_NVP(maxAdProb_)
+      & BOOST_SERIALIZATION_NVP(adaptionThreshold_)
+      & BOOST_SERIALIZATION_NVP(useBiGaussian_)
+      & BOOST_SERIALIZATION_NVP(sigma1_)
+      & BOOST_SERIALIZATION_NVP(sigmaSigma1_)
+      & BOOST_SERIALIZATION_NVP(minSigma1_)
+      & BOOST_SERIALIZATION_NVP(maxSigma1_)
+      & BOOST_SERIALIZATION_NVP(sigma2_)
+      & BOOST_SERIALIZATION_NVP(sigmaSigma2_)
+      & BOOST_SERIALIZATION_NVP(minSigma2_)
+      & BOOST_SERIALIZATION_NVP(maxSigma2_)
+      & BOOST_SERIALIZATION_NVP(delta_)
+      & BOOST_SERIALIZATION_NVP(sigmaDelta_)
+      & BOOST_SERIALIZATION_NVP(minDelta_)
+      & BOOST_SERIALIZATION_NVP(maxDelta_)
+      & BOOST_SERIALIZATION_NVP(parDim_)
+      & BOOST_SERIALIZATION_NVP(minVar_)
+      & BOOST_SERIALIZATION_NVP(maxVar_)
+      & BOOST_SERIALIZATION_NVP(pT_)
+      & BOOST_SERIALIZATION_NVP(iM_);
+   }
+
+   ///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The standard constructor */
 	GFunctionIndividualFactory(const std::string&);
+	/** @brief The copy constructor */
+	GFunctionIndividualFactory(const GFunctionIndividualFactory&);
 	/** @brief The destructor */
 	virtual ~GFunctionIndividualFactory();
 
@@ -523,7 +559,12 @@ public:
    void setAdProbRange(double minAdProb, double maxAdProb);
 
    // End of public getters and setters
-   /**************************************************************************/
+   /***************************************************************************/
+
+   /** @brief Loads the data of another GFunctionIndividualFactory object */
+   virtual void load(boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >);
+   /** @brief Creates a deep clone of this object */
+   virtual boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > clone() const;
 
 protected:
 	/** @brief Creates individuals of this type */
@@ -554,7 +595,7 @@ private:
    /** @brief Set the value of the maxSigma2_ variable */
    void setMaxSigma2(double maxSigma2);
 
-	/** @brief The default constructor. Intentionally private and undefined */
+	/** @brief The default constructor; Only needed for (de-)serialization purposes. */
 	GFunctionIndividualFactory();
 
 	Gem::Common::GOneTimeRefParameterT<double> adProb_;
@@ -784,6 +825,7 @@ private:
 } /* namespace Gem */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividual)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividualFactory)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumConstraint)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumGapConstraint)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSphereConstraint)

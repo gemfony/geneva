@@ -59,13 +59,21 @@ int main(int argc, char **argv) {
    // to interrupt execution "on the run"
    signal(SIGHUP, GObject::sigHupHandler);
 
-   //---------------------------------------------------------------------
+   //---------------------------------------------------------------------------
+   // Create a factory for GFunctionIndividual objects and perform
+   // any necessary initial work.
+   boost::shared_ptr<GFunctionIndividualFactory>
+      gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
 
    // Create a factory for GMetaOptimizerIndividual objects and perform
    // any necessary initial work.
    boost::shared_ptr<GMetaOptimizerIndividualFactoryT<GFunctionIndividual> > gmoi_ptr(
          new GMetaOptimizerIndividualFactoryT<GFunctionIndividual>("./config/GMetaOptimizerIndividual.json")
    );
+
+   // Register the GFunctionIndividualFactory with the meta-optimizer,
+   // so it can be handed to the meta-optimization individuals later
+   gmoi_ptr->registerIndividualFactory(gfi_ptr);
 
    // Add a content creator so Go2 can generate its own individuals, if necessary
    go.registerContentCreator(gmoi_ptr);
@@ -83,7 +91,8 @@ int main(int argc, char **argv) {
    go.registerDefaultAlgorithm("ea");
 
    // Perform the actual optimization
-   boost::shared_ptr<GMetaOptimizerIndividualT<GFunctionIndividual> > bestIndividual_ptr = go.optimize<GMetaOptimizerIndividualT<GFunctionIndividual> >();
+   boost::shared_ptr<GMetaOptimizerIndividualT<GFunctionIndividual> > bestIndividual_ptr
+      = go.optimize<GMetaOptimizerIndividualT<GFunctionIndividual> >();
 
    // Do something with the best result. Here we simply print the result to std-out.
    std::cout

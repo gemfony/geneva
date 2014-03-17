@@ -185,9 +185,9 @@ class GMetaOptimizerIndividualT : public GParameterSet
       & BOOST_SERIALIZATION_NVP(fitnessTarget_)
       & BOOST_SERIALIZATION_NVP(iterationThreshold_)
       & BOOST_SERIALIZATION_NVP(moTarget_)
-      & BOOST_SERIALIZATION_NVP(individual_config_)
       & BOOST_SERIALIZATION_NVP(subEA_config_)
-      & BOOST_SERIALIZATION_NVP(subExecMode_);
+      & BOOST_SERIALIZATION_NVP(subExecMode_)
+      & BOOST_SERIALIZATION_NVP(ind_factory_);
    }
 
    ///////////////////////////////////////////////////////////////////////
@@ -203,9 +203,9 @@ public:
       , fitnessTarget_(GMETAOPT_DEF_FITNESSTARGET)
       , iterationThreshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
       , moTarget_(GMETAOPT_DEF_MOTARGET)
-      , individual_config_(GMETAOPT_DEF_INDCONFIG)
       , subEA_config_(GMETAOPT_DEF_SUBEACONFIG)
       , subExecMode_(GMETAOPT_DEF_SUBEXECMODE)
+      , ind_factory_()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -220,9 +220,9 @@ public:
       , fitnessTarget_(cp.fitnessTarget_)
       , iterationThreshold_(cp.iterationThreshold_)
       , moTarget_(cp.moTarget_)
-      , individual_config_(cp.individual_config_)
       , subEA_config_(cp.subEA_config_)
       , subExecMode_(cp.subExecMode_)
+      , ind_factory_(Gem::Common::convertSmartPointer<Gem::Common::GFactoryT<GParameterSet>, typename ind_type::FACTORYTYPE>((cp.ind_factory_)->clone()))
    { /* nothing */   }
 
    /***************************************************************************/
@@ -313,9 +313,10 @@ public:
       deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividualT<ind_type>", fitnessTarget_, p_load->fitnessTarget_, "fitnessTarget_", "p_load->fitnessTarget_", e , limit));
       deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividualT<ind_type>", iterationThreshold_, p_load->iterationThreshold_, "iterationThreshold_", "p_load->iterationThreshold_", e , limit));
       deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividualT<ind_type>", moTarget_, p_load->moTarget_, "moTarget_", "p_load->moTarget_", e , limit));
-      deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividualT<ind_type>", individual_config_, p_load->individual_config_, "individual_config_", "p_load->individual_config_", e , limit));
       deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividualT<ind_type>", subEA_config_, p_load->subEA_config_, "subEA_config_", "p_load->subEA_config_", e , limit));
       deviations.push_back(checkExpectation(withMessages, "GMetaOptimizerIndividualT<ind_type>", subExecMode_, p_load->subExecMode_, "subExecMode_", "p_load->subExecMode_", e , limit));
+
+      // We do not check the individual-factory
 
       return evaluateDiscrepancies("GMetaOptimizerIndividualT<ind_type>", caller, deviations, e);
    }
@@ -400,21 +401,6 @@ public:
       );
 
       comment = ""; // Reset the comment string
-      comment += "Path and name of the configuration file used for (sub-)individuals;";
-      if(showOrigin) comment += "[GMetaOptimizerIndividualT<ind_type>]";
-      gpb.registerFileParameter<std::string>(
-         "individualConfig" // The name of the variable
-         , GMETAOPT_DEF_INDCONFIG // The default value
-         , boost::bind(
-            &GMetaOptimizerIndividualT<ind_type>::setSubIndConfig
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL
-         , comment
-      );
-
-      comment = ""; // Reset the comment string
       comment += "Path and name of the configuration file used for the (sub-)evolutionary algorithm;";
       if(showOrigin) comment += "[GMetaOptimizerIndividualT<ind_type>]";
       gpb.registerFileParameter<std::string>(
@@ -462,24 +448,6 @@ public:
     */
    bool getSubExecMode() const {
       return subExecMode_;
-   }
-
-   /***************************************************************************/
-   /**
-    * Allows to specify the path and name of a configuration file passed to
-    * the individual factory
-    */
-   void setSubIndConfig(std::string individual_config) {
-      individual_config_ = individual_config;
-   }
-
-   /***************************************************************************/
-   /**
-    * Allows to retrieve the path and name of a configuration file passed to
-    * the individual factory
-    */
-   std::string getSubIndConfig() const {
-      return individual_config_;
    }
 
    /***************************************************************************/
@@ -943,6 +911,23 @@ public:
       return result.str();
    }
 
+   /***************************************************************************/
+   /**
+    * Registers a factory class with this object. This function clones the factory,
+    * so the individual can be sure to have a unique factory.
+    */
+   void registerIndividualFactory(boost::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
+      if(!factory) {
+         glogger
+         << "In GMetaOptimizerIndividualT<T>::registerIndividualFactory(): Error!" << std::endl
+         << "Individual is empty" << std::endl
+         << GEXCEPTION;
+      }
+
+      ind_factory_
+         = Gem::Common::convertSmartPointer<Gem::Common::GFactoryT<GParameterSet>, typename ind_type::FACTORYTYPE>(factory->clone());
+   }
+
 protected:
    /***************************************************************************/
    /**
@@ -964,9 +949,10 @@ protected:
       fitnessTarget_ = p_load->fitnessTarget_;
       iterationThreshold_ = p_load->iterationThreshold_;
       moTarget_ = p_load->moTarget_;
-      individual_config_ = p_load->individual_config_;
       subEA_config_ = p_load->subEA_config_;
       subExecMode_ = p_load->subExecMode_;
+
+      // We simply keep our local individual factory, as all settings are made inside of fitnessCalculation
    }
 
    /***************************************************************************/
@@ -987,7 +973,7 @@ protected:
     * @return The value of this object, as calculated with the evaluation function
     */
    virtual double fitnessCalculation() {
-      bool first = true;
+      bool first_maxMode = true;
       bool maxMode = false;
 
       // Retrieve the parameters
@@ -1004,8 +990,15 @@ protected:
       boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
       boost::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr         = this->at<GConstrainedDoubleObject>(MOT_CROSSOVERPROB);
 
-      // Create a factory for individual objects and perform any necessary initial work.
-      typename ind_type::FACTORYTYPE gif(individual_config_);
+#ifdef DEBUG
+      // Check that we have been given a factory
+      if(!ind_factory_) {
+         glogger
+         << "In GMetaOptimizerIndividualT<T>::fitnessCalculation(): Error!" << std::endl
+         << "No factory class for individuals has been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif
 
       // Set the parameters
       double minSigma = minsigma_ptr->value();
@@ -1014,9 +1007,9 @@ protected:
       double sigmaRangePercentage = sigmaRangePercentage_ptr->value();
       double startSigma = minSigma + sigmaRangePercentage*sigmaRange;
 
-      gif.setSigma1Range(boost::tuple<double,double>(minSigma, maxSigma));
-      gif.setSigma1(startSigma);
-      gif.setSigmaSigma1(sigmasigma_ptr->value());
+      ind_factory_->setSigma1Range(boost::tuple<double,double>(minSigma, maxSigma));
+      ind_factory_->setSigma1(startSigma);
+      ind_factory_->setSigmaSigma1(sigmasigma_ptr->value());
 
       double minAdProb = minAdProb_ptr->value();
       double adProbRange = adProbRange_ptr->value();
@@ -1026,12 +1019,12 @@ protected:
 
       double adaptAdProb = adaptAdprob_ptr->value();
 
-      gif.setAdProbRange(minAdProb, maxAdProb);
-      gif.setAdProb(startAdProb);
-      gif.setAdaptAdProb(adaptAdProb);
+      ind_factory_->setAdProbRange(minAdProb, maxAdProb);
+      ind_factory_->setAdProb(startAdProb);
+      ind_factory_->setAdaptAdProb(adaptAdProb);
 
       // Determine the desired execution mode
-      execMode em = subExecMode_ == GMETAOPT_SUBEXEC_SERIAL?EXECMODE_SERIAL:EXECMODE_MULTITHREADED;
+      execMode em = (subExecMode_==GMETAOPT_SUBEXEC_SERIAL?EXECMODE_SERIAL:EXECMODE_MULTITHREADED);
 
       // Set up a population factory
       GEvolutionaryAlgorithmFactory ea(subEA_config_, em);
@@ -1053,20 +1046,18 @@ protected:
          std::cout << "Starting measurement " << opt+1 << " / " << nRunsPerOptimization_ << std::endl;
          ea_ptr = ea.get<GBaseEA>();
 
-         assert(0 == ea_ptr->getIteration());
-
          // Set the population parameters
          ea_ptr->setPopulationSizes(popSize, nParents);
 
          // Add the required number of individuals
          for(std::size_t ind=0; ind<popSize; ind++) {
             // Retrieve an individual
-            boost::shared_ptr<GParameterSet> gi_ptr = gif();
+            boost::shared_ptr<GParameterSet> gi_ptr = (*ind_factory_)();
 
             // Find out whether this is a maximization or minimization once per call to fitnessCalculation
-            if(first) {
+            if(first_maxMode) {
                maxMode = gi_ptr->getMaxMode();
-               first = false;
+               first_maxMode = false;
             }
 
             // Set the "per item cross-over probability"
@@ -1114,28 +1105,21 @@ protected:
          // Do book-keeping
          solverCallsPerOptimization.push_back(double((iterationsConsumed+1)*nChildren + nParents));
          iterationsPerOptimization.push_back(double(iterationsConsumed+1));
-         bestEvaluations.push_back(bestIndividual->fitness());
+         bestEvaluations.push_back(bestIndividual->transformedFitness()); // We use the transformed fitness to avoid MAX_DOUBLE
       }
 
       // Calculate the average number of iterations and solver calls
       boost::tuple<double,double> sd = Gem::Common::GStandardDeviation(solverCallsPerOptimization);
       boost::tuple<double,double> itmean = Gem::Common::GStandardDeviation(iterationsPerOptimization);
-      boost::tuple<double,double> minMax = Gem::Common::getMinMax(bestEvaluations);
-
-      double worstBest = 0.;
-      if(true == maxMode) { // Maximization
-         worstBest=boost::get<0>(minMax); // the "worst best" evaluation is the lowest number
-      } else { // Minimization
-         worstBest=boost::get<1>(minMax); // the "worst best" evaluation is the highest number
-      }
+      boost::tuple<double,double> bestMean = Gem::Common::GStandardDeviation(bestEvaluations);
 
       double evaluation = 0.;
       if(MINSOLVERCALLS == moTarget_) {
          evaluation = boost::get<0>(sd);
       } else if(BESTFITNESS == moTarget_) {
-         evaluation = worstBest;
+         evaluation = boost::get<0>(bestMean);
       } else if(MC_MINSOLVER_BESTFITNESS == moTarget_) {
-         evaluation = worstBest;
+         evaluation = boost::get<0>(bestMean);
          this->registerSecondaryResult(1, boost::get<0>(sd)); // The secondary result
       }
 
@@ -1144,7 +1128,7 @@ protected:
       << std::endl
       << boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " << std::endl
       << boost::get<0>(itmean) << " +/- " << boost::get<1>(itmean) << " average iterations " << std::endl
-      << "and a \"worst best\" evaluation of " << worstBest << std::endl
+      << "and a best evaluation of " << bestMean << " +/- " << boost::get<1>(bestMean) << std::endl
       << "out of " << nRunsPerOptimization_ << " consecutive runs" << std::endl
       << this->print(false) << std::endl // print without fitness -- not defined at this stage
       << std::endl;
@@ -1186,6 +1170,8 @@ private:
    std::string individual_config_; ///< Path and name of the configuration file needed for the individual
    std::string subEA_config_; ///< Path and name of the configuration file needed for (sub-)evolutionary algorithms
    bool subExecMode_; ///< Whether to use serial (false) or multi-threaded (true) execution for sub-optimization algorithms
+
+   boost::shared_ptr<typename ind_type::FACTORYTYPE> ind_factory_; ///< Holds a factory for our individuals
 
 public:
    /***************************************************************************/
@@ -1345,6 +1331,7 @@ public:
       , initCrossOverProb_(GMETAOPT_DEF_INITCROSSOVERPROB)
       , crossOverProb_LB_(GMETAOPT_DEF_CROSSOVERPROB_LB)
       , crossOverProb_UB_(GMETAOPT_DEF_CROSSOVERPROB_UB)
+      , ind_factory_()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -1353,6 +1340,23 @@ public:
     */
    virtual ~GMetaOptimizerIndividualFactoryT()
    { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Registers a factory class with this object. This function clones the factory,
+    * so the individual can be sure to have a unique factory.
+    */
+   void registerIndividualFactory(boost::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
+      if(!factory) {
+         glogger
+         << "In GMetaOptimizerIndividualFactoryT<T>::registerIndividualFactory(): Error!" << std::endl
+         << "Individual is empty" << std::endl
+         << GEXCEPTION;
+      }
+
+      ind_factory_
+            = Gem::Common::convertSmartPointer<Gem::Common::GFactoryT<GParameterSet>, typename ind_type::FACTORYTYPE>(factory->clone());
+   }
 
 protected:
    /***************************************************************************/
@@ -1762,6 +1766,9 @@ protected:
          , crossOverProb_LB_
          , crossOverProb_UB_
       );
+
+      // Finally add the individual factory to p
+      p->registerIndividualFactory(ind_factory_);
    }
 
 private:
@@ -1813,6 +1820,8 @@ private:
    double initCrossOverProb_;     ///< The likelihood for two data items to be exchanged in a cross-over operation
    double crossOverProb_LB_;       ///< The lower boundary for the variation of the cross-over probability
    double crossOverProb_UB_;       ///< The upper boundary for the variation of the cross-over probability
+
+   boost::shared_ptr<typename ind_type::FACTORYTYPE> ind_factory_; ///< Holds a factory for our individuals. It will be added to the individuals when needed
 };
 
 /******************************************************************************/

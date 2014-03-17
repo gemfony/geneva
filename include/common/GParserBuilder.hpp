@@ -60,6 +60,23 @@
 #include <boost/foreach.hpp>
 #include <boost/thread/mutex.hpp>
 
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/variant.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
+
 /**
  * Check that we have support for threads. This collection of classes is useless
  * without this.
@@ -107,8 +124,21 @@ const bool GCL_IMPLICIT_NOT_ALLOWED = false;
  */
 template <typename T>
 class GOneTimeRefParameterT
-   :private boost::noncopyable
 {
+   ///////////////////////////////////////////////////////////////////////
+   friend class boost::serialization::access;
+
+   template<typename Archive>
+   void serialize(Archive & ar, const unsigned int)  {
+     using boost::serialization::make_nvp;
+
+     ar
+     & BOOST_SERIALIZATION_NVP(parm_)
+     & BOOST_SERIALIZATION_NVP(parmDummy_)
+     & BOOST_SERIALIZATION_NVP(parmSet_);
+   }
+   ///////////////////////////////////////////////////////////////////////
+
 public:
    /***************************************************************************/
    /**
@@ -119,6 +149,28 @@ public:
       , parmDummy_(def)
       , parmSet_(false)
    { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The copy constructor
+    */
+   GOneTimeRefParameterT(const GOneTimeRefParameterT<T>& cp)
+      : parm_(cp.parm_)
+      , parmDummy_(cp.parmDummy_)
+      , parmSet_(cp.parmDummy_)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Assignment of another object of this type
+    */
+   GOneTimeRefParameterT<T>& operator=(const GOneTimeRefParameterT<T>& cp) {
+      parm_ = cp.parm_;
+      parmDummy_ = cp.parmDummy_;
+      parmSet_ = cp.parmSet_;
+
+      return *this;
+   }
 
    /***************************************************************************/
    /**
