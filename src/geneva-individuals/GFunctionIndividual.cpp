@@ -2095,7 +2095,6 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 
 	case USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION:
 	{
-
 		// Set up a collection of GConstrainedDoubleObject objects
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> gcdoc_ptr(new GConstrainedDoubleObjectCollection());
 

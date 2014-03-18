@@ -1109,8 +1109,8 @@ protected:
       }
 
       // Calculate the average number of iterations and solver calls
-      boost::tuple<double,double> sd = Gem::Common::GStandardDeviation(solverCallsPerOptimization);
-      boost::tuple<double,double> itmean = Gem::Common::GStandardDeviation(iterationsPerOptimization);
+      boost::tuple<double,double> sd       = Gem::Common::GStandardDeviation(solverCallsPerOptimization);
+      boost::tuple<double,double> itmean   = Gem::Common::GStandardDeviation(iterationsPerOptimization);
       boost::tuple<double,double> bestMean = Gem::Common::GStandardDeviation(bestEvaluations);
 
       double evaluation = 0.;
@@ -1128,7 +1128,7 @@ protected:
       << std::endl
       << boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " << std::endl
       << boost::get<0>(itmean) << " +/- " << boost::get<1>(itmean) << " average iterations " << std::endl
-      << "and a best evaluation of " << bestMean << " +/- " << boost::get<1>(bestMean) << std::endl
+      << "and a best evaluation of " << boost::get<0>(bestMean) << " +/- " << boost::get<1>(bestMean) << std::endl
       << "out of " << nRunsPerOptimization_ << " consecutive runs" << std::endl
       << this->print(false) << std::endl // print without fitness -- not defined at this stage
       << std::endl;
