@@ -157,7 +157,7 @@ public:
    GOneTimeRefParameterT(const GOneTimeRefParameterT<T>& cp)
       : parm_(cp.parm_)
       , parmDummy_(cp.parmDummy_)
-      , parmSet_(cp.parmDummy_)
+      , parmSet_(cp.parmSet_)
    { /* nothing */ }
 
    /***************************************************************************/

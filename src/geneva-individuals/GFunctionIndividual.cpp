@@ -2027,70 +2027,70 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 	// Set up the data collections
 	switch(pT_.value()) {
 	case USEGDOUBLECOLLECTION:
-	{
-		// Set up a collection, each initialized with a random number in the range [min,max[
-		// Random initialization happens in the constructor.
-		boost::shared_ptr<GDoubleCollection> gdc_ptr;
+      {
+         // Set up a collection, each initialized with a random number in the range [min,max[
+         // Random initialization happens in the constructor.
+         boost::shared_ptr<GDoubleCollection> gdc_ptr;
 
-		if(INITRANDOM == iM_) {
-			gdc_ptr = boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, minVar_, maxVar_));
-		} else { // INITPERIMETER
-			gdc_ptr = boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, (maxVar_ + minVar_) / 2., minVar_, maxVar_));
-			gdc_ptr->at(perimeterPos) = minVar_;
-		}
+         if(INITRANDOM == iM_) {
+            gdc_ptr = boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, minVar_, maxVar_));
+         } else { // INITPERIMETER
+            gdc_ptr = boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, (maxVar_ + minVar_) / 2., minVar_, maxVar_));
+            gdc_ptr->at(perimeterPos) = minVar_;
+         }
 
-		gdc_ptr->addAdaptor(gat_ptr);
-		gdc_ptr->setParameterName("var0");
+         gdc_ptr->addAdaptor(gat_ptr);
+         gdc_ptr->setParameterName("var0");
 
-		p->push_back(gdc_ptr);
-	}
+         p->push_back(gdc_ptr);
+      }
 		break;
 
 	case USEGCONSTRAINEDOUBLECOLLECTION:
-	{
+      {
 
-		// Set up a collection
-		boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr;
+         // Set up a collection
+         boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr;
 
-		if(INITRANDOM == iM_) {
-			gcdc_ptr = boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, minVar_, maxVar_));
-		} else { // INITPERIMETER
-			gcdc_ptr = boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, (maxVar_ + minVar_) / 2., minVar_, maxVar_));
-			gcdc_ptr->at(perimeterPos) = minVar_;
-		}
+         if(INITRANDOM == iM_) {
+            gcdc_ptr = boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, minVar_, maxVar_));
+         } else { // INITPERIMETER
+            gcdc_ptr = boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, (maxVar_ + minVar_) / 2., minVar_, maxVar_));
+            gcdc_ptr->at(perimeterPos) = minVar_;
+         }
 
-		gcdc_ptr->addAdaptor(gat_ptr);
-		gcdc_ptr->setParameterName("var0");
+         gcdc_ptr->addAdaptor(gat_ptr);
+         gcdc_ptr->setParameterName("var0");
 
-		p->push_back(gcdc_ptr);
-	}
+         p->push_back(gcdc_ptr);
+      }
 		break;
 
 	case USEGDOUBLEOBJECTCOLLECTION:
-	{
-		// Set up a collection of GDoubleObject objects
-		boost::shared_ptr<GDoubleObjectCollection> gdoc_ptr(new GDoubleObjectCollection());
+      {
+         // Set up a collection of GDoubleObject objects
+         boost::shared_ptr<GDoubleObjectCollection> gdoc_ptr(new GDoubleObjectCollection());
 
-		// Fill the collection with GDoubleObject objects, each equipped with a copy of our adaptor
-		// Note that addAdaptor() itself will take care of cloning the adaptor
-		for(std::size_t i=0; i<nData; i++) {
-			boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(minVar_, maxVar_));
-			if(INITPERIMETER == iM_) {
-				if(i == perimeterPos) {
-					*gdo_ptr = minVar_;
-				} else {
-					*gdo_ptr = (maxVar_ + minVar_)/2.;
-				}
-			}
+         // Fill the collection with GDoubleObject objects, each equipped with a copy of our adaptor
+         // Note that addAdaptor() itself will take care of cloning the adaptor
+         for(std::size_t i=0; i<nData; i++) {
+            boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(minVar_, maxVar_));
+            if(INITPERIMETER == iM_) {
+               if(i == perimeterPos) {
+                  *gdo_ptr = minVar_;
+               } else {
+                  *gdo_ptr = (maxVar_ + minVar_)/2.;
+               }
+            }
 
-			gdo_ptr->addAdaptor(gat_ptr);
-			gdo_ptr->setParameterName(std::string("var") + boost::lexical_cast<std::string>(i));
+            gdo_ptr->addAdaptor(gat_ptr);
+            gdo_ptr->setParameterName(std::string("var") + boost::lexical_cast<std::string>(i));
 
-			gdoc_ptr->push_back(gdo_ptr);
-		}
+            gdoc_ptr->push_back(gdo_ptr);
+         }
 
-		p->push_back(gdoc_ptr);
-	}
+         p->push_back(gdoc_ptr);
+      }
 		break;
 
 	case USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION:

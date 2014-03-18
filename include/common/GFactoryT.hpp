@@ -189,6 +189,16 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Allows to retrieve the name of the config file
+	 *
+	 * @return The name of the config-file
+	 */
+	std::string getConfigFile() const {
+	   return configFile_;
+	}
+
+	/***************************************************************************/
+	/**
 	 * Sets a new name for the configuration file. Will only have an effect for
 	 * the next individual
 	 */

@@ -1052,7 +1052,7 @@ protected:
          // Add the required number of individuals
          for(std::size_t ind=0; ind<popSize; ind++) {
             // Retrieve an individual
-            boost::shared_ptr<GParameterSet> gi_ptr = (*ind_factory_)();
+            boost::shared_ptr<GParameterSet> gi_ptr = ind_factory_->get();
 
             // Find out whether this is a maximization or minimization once per call to fitnessCalculation
             if(first_maxMode) {
