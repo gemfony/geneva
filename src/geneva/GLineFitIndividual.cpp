@@ -62,7 +62,7 @@ GLineFitIndividual::GLineFitIndividual(
 
    for(std::size_t i=0; i<2; i++) {
       boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject());
-      boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.0, 0.8, 0.02, 2.,1.)); // sigma, sigmaSigma, minSigma, maxSigma, adProb
+      boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0.0001, 0.4, 1.)); // sigma, sigmaSigma, minSigma, maxSigma, adProb
       gdo_ptr->addAdaptor(gdga_ptr);
       this->push_back(gdo_ptr);
    }
