@@ -12,7 +12,7 @@
     "delays":
     {
         "default": "(0,1), (0,10), (0,100), (0,500), (1,0)",
-        "value": "(0,1), (0,10), (0,100), (0,500), (1,0)"
+        "value": "(0,1), (0,10), (0,100)"
     },
     "resultFile":
     {
@@ -27,7 +27,7 @@
     "nMeasurements":
     {
         "default": "10",
-        "value": "5"
+        "value": "3"
     },
     "interMeasurementDelay":
     {
