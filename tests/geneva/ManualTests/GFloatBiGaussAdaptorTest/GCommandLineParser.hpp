@@ -58,18 +58,18 @@ namespace Gem {
 namespace Tests {
 
 // Default settings
-const float CMD_DEFAULTSIGMA1 = 1.f;
-const float CMD_DEFAULTSIGMA2 = 1.f;
-const float CMD_DEFAULTSIGMASIGMA1 = 0.001f;
-const float CMD_DEFAULTSIGMASIGMA2 = 0.001f;
-const float CMD_DEFAULTMINSIGMA1 = 0.002f;
-const float CMD_DEFAULTMAXSIGMA1 = 4.f;
-const float CMD_DEFAULTMINSIGMA2 = 0.002f;
-const float CMD_DEFAULTMAXSIGMA2 = 4.f;
-const float CMD_DEFAULTDELTA = 0.5f;
-const float CMD_DEFAULTSIGMADELTA = 0.8f;
+const float CMD_DEFAULTSIGMA1 = 0.025f;
+const float CMD_DEFAULTSIGMA2 = 0.025f;
+const float CMD_DEFAULTSIGMASIGMA1 = 0.1f;
+const float CMD_DEFAULTSIGMASIGMA2 = 0.1f;
+const float CMD_DEFAULTMINSIGMA1 = 0.001f;
+const float CMD_DEFAULTMAXSIGMA1 = 1.f;
+const float CMD_DEFAULTMINSIGMA2 = 0.001f;
+const float CMD_DEFAULTMAXSIGMA2 = 1.f;
+const float CMD_DEFAULTDELTA = 0.1f;
+const float CMD_DEFAULTSIGMADELTA = 0.1f;
 const float CMD_DEFAULTMINDELTA = 0.001f;
-const float CMD_DEFAULTMAXDELTA = 2.f;
+const float CMD_DEFAULTMAXDELTA = 1.f;
 const boost::uint32_t CMD_DEFAULTMAXITER = 100000;
 const std::string CMD_DEFAULTRESULTFILE = "result.C";
 const bool CMD_DEFAULTVERBOSE = true;

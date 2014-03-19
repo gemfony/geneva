@@ -71,15 +71,16 @@ int main(int argc, char **argv) {
 	boost::uint32_t maxIter, adaptionThreshold;
 	std::string resultFile;
 
-	if (!parseCommandLine(argc, argv,
-		                  sigma,
-		                  sigmaSigma,
-		                  minSigma,
-		                  maxSigma,
-		                  adaptionThreshold,
-		                  resultFile,
-		                  maxIter,
-		                  verbose))
+	if (!parseCommandLine(
+      argc, argv
+      , sigma
+      , sigmaSigma
+      , minSigma
+      , maxSigma
+      , adaptionThreshold
+      , resultFile
+      , maxIter
+      , verbose))
 	{ exit(1); }
 
 	// The adaptor object to be tested

@@ -86,27 +86,28 @@ int main(int argc, char **argv){
 		       configFile,
 		       parallelizationMode)
      ||
-     !Gem::Tests::parseConfigFile(configFile,
-		      nProducerThreads,
-		      nEvaluationThreads,
-		      populationSize,
-		      nParents,
-		      maxIterations,
-		      maxMinutes,
-		      reportIteration,
-		      rScheme,
-		      smode,
-		      nProcessingUnits,
-		      adProb,
-		      adaptionThreshold,
-			  sigma,
-			  sigmaSigma,
-			  minSigma,
-			  maxSigma,
-		      parDim,
-		      minVar,
-		      maxVar,
-		      df))
+     !Gem::Tests::parseConfigFile(
+         configFile
+         , nProducerThreads
+         , nEvaluationThreads
+         , populationSize
+         , nParents
+         , maxIterations
+         , maxMinutes
+         , reportIteration
+         , rScheme
+         , smode
+         , nProcessingUnits
+         , adProb
+         , adaptionThreshold
+         , sigma
+         , sigmaSigma
+         , minSigma
+         , maxSigma
+         , parDim
+         , minVar
+         , maxVar
+         , df))
     { exit(1); }
 
   // Random numbers are our most valuable good. Set the number of threads

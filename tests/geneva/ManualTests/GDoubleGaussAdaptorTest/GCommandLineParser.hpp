@@ -58,10 +58,10 @@ namespace Gem {
 namespace Tests {
 
 // Default settings
-const double CMD_DEFAULTSIGMA = 1.;
-const double CMD_DEFAULTSIGMASIGMA = 0.001;
-const double CMD_DEFAULTMINSIGMA = 0.002;
-const double CMD_DEFAULTMAXSIGMA = 4.;
+const double CMD_DEFAULTSIGMA = 0.025;
+const double CMD_DEFAULTSIGMASIGMA = 0.1;
+const double CMD_DEFAULTMINSIGMA = 0.001;
+const double CMD_DEFAULTMAXSIGMA = 1.;
 const boost::uint32_t CMD_DEFAULTMAXITER = 100000;
 const std::string CMD_DEFAULTRESULTFILE = "result.C";
 const bool CMD_DEFAULTVERBOSE = true;

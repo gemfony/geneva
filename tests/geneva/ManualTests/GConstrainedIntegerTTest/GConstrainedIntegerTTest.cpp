@@ -93,10 +93,10 @@ int main(int argc, char **argv){
 
    GConstrainedInt32Object gMultGaussMut(1, 1, 50);
    boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(
-         5. // sigma
-         , 0.8 // sigmaSigma
-         , 1. // minSigma
-         , 10. // maxSigma
+         0.025 // sigma
+         , 0.1 // sigmaSigma
+         , 0. // minSigma
+         , 1. // maxSigma
          , 1. // adProb
          )
    );
