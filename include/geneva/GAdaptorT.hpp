@@ -1053,9 +1053,10 @@ public:
 
 			// Make sure the adaption probability is taken into account
 			p_test->setAdaptionMode(boost::logic::indeterminate);
+			p_test->setAdProbRange(0.001, 1.);
 
 			T testVal = T(0);
-			for(double prob=0.; prob<1.; prob+=0.01) {
+			for(double prob=0.001; prob<1.; prob+=0.01) {
 				// Account for rounding problems
 				if(prob > 1.) prob = 1.;
 
