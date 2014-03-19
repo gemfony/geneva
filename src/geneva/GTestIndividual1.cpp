@@ -48,7 +48,7 @@ GTestIndividual1::GTestIndividual1()
 {
    // Fill with some data
    boost::shared_ptr<Gem::Geneva::GDoubleCollection > gdc_ptr(new Gem::Geneva::GDoubleCollection(100, -10., 10.));
-   boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga1(new Gem::Geneva::GDoubleGaussAdaptor(1.,0.6,0.,2.));
+   boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga1(new Gem::Geneva::GDoubleGaussAdaptor(0.025,0.1,0.,1.));
 
    // Prevent changes to adProb_
    gdga1->setAdaptAdProb(0.);
@@ -249,7 +249,7 @@ void GTestIndividual1::addGDoubleObjects(const std::size_t& nItems) {
 		// Create a suitable adaptor
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
 
-		BOOST_CHECK_NO_THROW(gdga_ptr = boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0)));
+		BOOST_CHECK_NO_THROW(gdga_ptr = boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0)));
 		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
 		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionMode(true)); // Always adapt
 

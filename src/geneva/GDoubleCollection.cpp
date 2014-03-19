@@ -385,7 +385,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);
@@ -658,7 +658,7 @@ void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);

@@ -395,7 +395,7 @@ void GDelayIndividualFactory::postProcess_(
       // and register them with the collection. The configuration parameters don't matter for this use case
       for(std::size_t var=0; var<nVariables_; var++) {
          boost::shared_ptr<Gem::Geneva::GDoubleObject> gbd_ptr(new Gem::Geneva::GDoubleObject(0.5));
-         boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
+         boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.));
          gdga_ptr->setAdaptionThreshold(1);
          gbd_ptr->addAdaptor(gdga_ptr);
 
@@ -421,7 +421,7 @@ void GDelayIndividualFactory::postProcess_(
       // and register them with the collection. The configuration parameters don't matter for this use case
       for(std::size_t var=0; var<nVariables_; var++) {
          boost::shared_ptr<Gem::Geneva::GDoubleObject> gbd_ptr(new Gem::Geneva::GDoubleObject(0.5));
-         boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
+         boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.));
          gdga_ptr->setAdaptionThreshold(1);
          gbd_ptr->addAdaptor(gdga_ptr);
 

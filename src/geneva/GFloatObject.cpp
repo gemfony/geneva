@@ -346,7 +346,7 @@ void GFloatObject::specificTestsNoFailureExpected_GUnitTests() {
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GFloatGaussAdaptor> gdga_ptr(new GFloatGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	boost::shared_ptr<GFloatGaussAdaptor> gdga_ptr(new GFloatGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);
@@ -490,7 +490,7 @@ void GFloatObject::specificTestsFailuresExpected_GUnitTests() {
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GFloatGaussAdaptor> gdga_ptr(new GFloatGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	boost::shared_ptr<GFloatGaussAdaptor> gdga_ptr(new GFloatGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);

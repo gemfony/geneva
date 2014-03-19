@@ -248,7 +248,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	// Add a GInt32 object
 	// Create a suitable adaptor
 	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr;
-	BOOST_CHECK_NO_THROW(giga_ptr = boost::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(10, 0.8, 5, 10, 1.0)));
+	BOOST_CHECK_NO_THROW(giga_ptr = boost::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
 	BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
 	BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionMode(true)); // Always adapt
 
@@ -268,7 +268,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	// Add a GDouble object
 	// Create a suitable adaptor
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
-	BOOST_CHECK_NO_THROW(gdga_ptr = boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0)));
+	BOOST_CHECK_NO_THROW(gdga_ptr = boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
 	BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
 	BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionMode(true)); // Always adapt
 

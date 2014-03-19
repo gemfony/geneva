@@ -304,7 +304,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		boost::shared_ptr<T> T_ptr;
 		BOOST_CHECK_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
 		BOOST_REQUIRE(T_ptr); // must point somewhere
-		BOOST_CHECK_NO_THROW(T_ptr->specificTestsNoFailureExpected_GUnitTests());
+		// BOOST_CHECK_NO_THROW(T_ptr->specificTestsNoFailureExpected_GUnitTests());
+		T_ptr->specificTestsNoFailureExpected_GUnitTests();
 	}
 }
 

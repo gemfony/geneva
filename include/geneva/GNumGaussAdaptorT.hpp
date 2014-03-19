@@ -334,12 +334,12 @@ public:
 
       if(minSigma < fp_type(0.) || minSigma > maxSigma || maxSigma > fp_type(1.)) {
          glogger
-         << "In GNumBiGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
+         << "In GNumGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
          << "Invalid values for minSigma and maxSigma given: " << minSigma << " / " << maxSigma << std::endl
          << GEXCEPTION;
       }
 
-      minSigma_ = minSigma;
+      minSigma_ = minSigma; if(minSigma_ < DEFAULTMINSIGMA) minSigma_ = DEFAULTMINSIGMA; // Silently adapt minSigma
       maxSigma_ = maxSigma;
 
       // Rectify sigma_ and reset_sigma_, if necessary
@@ -630,22 +630,30 @@ public:
 		{ // Test setting and retrieval of the sigma range
 			boost::shared_ptr<GNumGaussAdaptorT<num_type, fp_type> > p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type> >();
 
-			for(fp_type dlower=fp_type(0.); dlower<fp_type(1.); dlower+=fp_type(0.1)) {
-				fp_type dupper = fp_type(2.)*dlower;
+			for(fp_type dlower=fp_type(0.); dlower<fp_type(0.8); dlower+=fp_type(0.1)) {
+				fp_type dupper = Gem::Common::gmin(fp_type(2.)*dlower, fp_type(1.));
+				if(0==dupper) {
+				   dupper = 1.;
+				}
 
-				BOOST_CHECK_NO_THROW(p_test->setSigmaRange(dlower, dlower==fp_type(0.)?fp_type(1.):dupper));
+				BOOST_CHECK_NO_THROW(p_test->setSigmaRange(dlower, dupper));
 				typename boost::tuple<fp_type, fp_type> range;
 				BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
 
 				using namespace boost;
 
 				if(dlower == 0.) { // Account for the fact that a lower boundary of 0. will be silently changed
-					BOOST_CHECK(boost::get<0>(range) == boost::numeric_cast<fp_type>(DEFAULTMINSIGMA));
-					BOOST_CHECK(boost::get<1>(range) == boost::numeric_cast<fp_type>(1.));
+					BOOST_CHECK_MESSAGE(
+					      boost::get<0>(range) == boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
+					      , boost::get<0>(range) << " / " << boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
+               );
+					BOOST_CHECK_MESSAGE(
+					      boost::get<1>(range) == boost::numeric_cast<fp_type>(1.)
+					      , boost::get<1>(range) << " / " << boost::numeric_cast<fp_type>(1.)
+               );
 				}
 				else {
 					BOOST_CHECK(boost::get<0>(range) == dlower);
-					BOOST_CHECK(fabs(boost::get<1>(range) - 2.*dlower) < fp_type(pow(10,-8))); // Take into account rounding errors
 				}
 			}
 
@@ -656,7 +664,7 @@ public:
 		{ // Test that setting a sigma of 0. will result in a sigma with value DEFAULTMINSIGMA
 			boost::shared_ptr<GNumGaussAdaptorT<num_type, fp_type> > p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type> >();
 
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(2.)));
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
 			BOOST_CHECK_NO_THROW(p_test->setSigma(fp_type(DEFAULTMINSIGMA)));
 			BOOST_CHECK(p_test->getSigma() == fp_type(DEFAULTMINSIGMA));
 		}
@@ -666,9 +674,9 @@ public:
 		{ // Tests setting and retrieval of the sigma parameter
 			boost::shared_ptr<GNumGaussAdaptorT<num_type, fp_type> > p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type> >();
 
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(2.)));
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
 
-			for(fp_type d=fp_type(0.1); d<fp_type(1.9); d+=fp_type(0.1)) {
+			for(fp_type d=fp_type(0.1); d<fp_type(0.9); d+=fp_type(0.1)) {
 				BOOST_CHECK_NO_THROW(p_test->setSigma(d));
 				BOOST_CHECK(p_test->getSigma() == d);
 			}
@@ -679,7 +687,7 @@ public:
 		{ // Test setting and retrieval of the sigma adaption rate
 			boost::shared_ptr<GNumGaussAdaptorT<num_type, fp_type> > p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type> >();
 
-			for(fp_type d=fp_type(0.1); d<fp_type(1.9); d+=fp_type(0.1)) {
+			for(fp_type d=fp_type(0.1); d<fp_type(0.9); d+=fp_type(0.1)) {
 				BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(d));
 				BOOST_CHECK(p_test->getSigmaAdaptionRate() == d);
 			}
@@ -710,8 +718,8 @@ public:
 			BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(true));
 
 			const fp_type minSigma = fp_type(0.0001);
-			const fp_type maxSigma = fp_type(5);
-			const fp_type sigmaStart = fp_type(1);
+			const fp_type maxSigma = fp_type(1.);
+			const fp_type sigmaStart = fp_type(1.);
 			const fp_type sigmaSigma = fp_type(0.001);
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(minSigma, maxSigma));
@@ -802,7 +810,7 @@ public:
 		{ // Test that setting a sigma below the allowed range throws
 			boost::shared_ptr<GNumGaussAdaptorT<num_type, fp_type> > p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type> >();
 
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(2.)));
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
 			BOOST_CHECK_THROW(p_test->setSigma(fp_type(0.1)), Gem::Common::gemfony_error_condition);
 		}
 
@@ -811,7 +819,7 @@ public:
 		{ // Test that setting a sigma above the allowed range throws
 			boost::shared_ptr<GNumGaussAdaptorT<num_type, fp_type> > p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type> >();
 
-			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(2.)));
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
 			BOOST_CHECK_THROW(p_test->setSigma(fp_type(3.)), Gem::Common::gemfony_error_condition);
 		}
 

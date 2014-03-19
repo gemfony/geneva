@@ -55,8 +55,8 @@ GConstrainedDoubleObject::GConstrainedDoubleObject()
  * @param upperBoundary The upper boundary of the value range
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject(
-		const double& lowerBoundary
-		, const double& upperBoundary
+   const double& lowerBoundary
+   , const double& upperBoundary
 )
 	: GConstrainedFPT<double>(lowerBoundary, upperBoundary)
 { /* nothing */ }
@@ -70,9 +70,9 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(
  * @param upperBoundary The upper boundary of the value range
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject (
-		  const double& val
-		, const double& lowerBoundary
-		, const double& upperBoundary
+     const double& val
+   , const double& lowerBoundary
+   , const double& upperBoundary
 )
 	: GConstrainedFPT<double>(val, lowerBoundary, upperBoundary)
 { /* nothing */ }
@@ -353,7 +353,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);
@@ -450,7 +450,7 @@ void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);

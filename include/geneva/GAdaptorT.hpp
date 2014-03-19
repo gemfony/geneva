@@ -576,7 +576,7 @@ public:
 #endif /* DEBUG */
 
 	   // Store the new values
-	   minAdProb_ = minAdProb;
+	   minAdProb_ = minAdProb; if(minAdProb_ < DEFMINADPROB) minAdProb_ = DEFMINADPROB;
 	   maxAdProb_ = maxAdProb;
 
 	   // Make sure adProb_ and adProb_reset_ fit the new allowed range
@@ -1033,6 +1033,9 @@ public:
 					<< "this->getAdaptionProbability() = " << this->getAdaptionProbability() << "\n"
 			);
 
+			// Set an appropriate range for the adaption
+			p_test->setAdProbRange(0.001, 1.);
+
 			// Set the adaption probability to a sensible value and check the new setting
 			double testAdProb = 0.5;
 			BOOST_CHECK_NO_THROW(
@@ -1053,6 +1056,7 @@ public:
 
 			// Make sure the adaption probability is taken into account
 			p_test->setAdaptionMode(boost::logic::indeterminate);
+			// Set an appropriate range for the adaption
 			p_test->setAdProbRange(0.001, 1.);
 
 			T testVal = T(0);
@@ -1060,6 +1064,7 @@ public:
 				// Account for rounding problems
 				if(prob > 1.) prob = 1.;
 
+				p_test->setAdaptionProbability(prob);
 				BOOST_CHECK_NO_THROW(p_test->setAdaptionProbability(prob));
 				BOOST_CHECK_NO_THROW(p_test->adapt(testVal, T(1)));
 			}
@@ -1075,9 +1080,11 @@ public:
 			// Prevent changes to adProb_
 			p_test->setAdaptAdProb(0.);
 
+         p_test->setAdProbRange(0., 1.);
+
 			const std::size_t nTests=100000;
 
-			for(double prob=0.; prob<1.; prob+=0.1) {
+			for(double prob=0.1; prob<1.; prob+=0.1) {
 				// Account for rounding problems
 				if(prob > 1.) prob = 1.;
 
@@ -1100,23 +1107,13 @@ public:
 
 				double changeProb = double(nChanged)/double(nTests);
 
-				if(prob==0.) {
-					BOOST_CHECK_MESSAGE(
-								changeProb<0.0001
-								,  "\n"
-								<< "changeProb = " << changeProb << "\n"
-								<< "prob = " << prob << "\n"
-								<< "with allowed window = [" << 0. << " : " << 0.0001 << "]" << "\n"
-					);
-				} else {
-					BOOST_CHECK_MESSAGE(
-							changeProb>0.95*prob && changeProb<1.05*prob
-							,  "\n"
-							<< "changeProb = " << changeProb << "\n"
-							<< "prob = " << prob << "\n"
-							<< "with allowed window = [" << 0.95*prob << " : " << 1.05*prob << "]" << "\n"
-					);
-				}
+            BOOST_CHECK_MESSAGE(
+                  changeProb>0.8*prob && changeProb<1.2*prob
+                  ,  "\n"
+                  << "changeProb = " << changeProb << "\n"
+                  << "prob = " << prob << "\n"
+                  << "with allowed window = [" << 0.8*prob << " : " << 1.2*prob << "]" << "\n"
+            );
 			}
 		}
 

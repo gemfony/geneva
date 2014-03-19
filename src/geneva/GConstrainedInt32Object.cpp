@@ -56,8 +56,8 @@ GConstrainedInt32Object::GConstrainedInt32Object()
  * @param upperBoundary The upper boundary of the value range
  */
 GConstrainedInt32Object::GConstrainedInt32Object(
-		const boost::int32_t& lowerBoundary
-		, const boost::int32_t& upperBoundary
+   const boost::int32_t& lowerBoundary
+   , const boost::int32_t& upperBoundary
 )
 	: GConstrainedIntT<boost::int32_t>(lowerBoundary, upperBoundary)
 { /* nothing */ }
@@ -71,9 +71,9 @@ GConstrainedInt32Object::GConstrainedInt32Object(
  * @param upperBoundary The upper boundary of the value range
  */
 GConstrainedInt32Object::GConstrainedInt32Object (
-		  const boost::int32_t& val
-		, const boost::int32_t& lowerBoundary
-		, const boost::int32_t& upperBoundary
+     const boost::int32_t& val
+   , const boost::int32_t& lowerBoundary
+   , const boost::int32_t& upperBoundary
 )
 	: GConstrainedIntT<boost::int32_t>(val, lowerBoundary, upperBoundary)
 { /* nothing */ }
@@ -358,7 +358,7 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	giga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(giga_ptr);
@@ -394,7 +394,7 @@ void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	giga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(giga_ptr);

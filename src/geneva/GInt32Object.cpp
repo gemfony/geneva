@@ -353,7 +353,7 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
 	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	giga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(giga_ptr);
@@ -428,7 +428,7 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests() {
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	giga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(giga_ptr);

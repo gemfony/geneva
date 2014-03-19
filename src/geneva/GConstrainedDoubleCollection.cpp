@@ -58,9 +58,9 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection()
  * @param upperBoundary The upper boundary for data members
  */
 GConstrainedDoubleCollection::GConstrainedDoubleCollection (
-		const std::size_t& size
-		, const double& lowerBoundary
-		, const double& upperBoundary
+   const std::size_t& size
+   , const double& lowerBoundary
+   , const double& upperBoundary
 )
 	: GConstrainedFPNumCollectionT<double> (size, lowerBoundary, upperBoundary)
 { /* nothing */ }

@@ -270,7 +270,7 @@ void GExternalSetterIndividual::specificTestsNoFailureExpected_GUnitTests() {
 		std::vector<double> FITNESS; FITNESS.push_back(3.0);
 		boost::shared_ptr<GExternalSetterIndividual> p_test = this->GObject::clone<GExternalSetterIndividual>();
 		boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(1.));
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.,0.6,0.,2.));
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025,0.1,0.,1.));
 		gdo_ptr->addAdaptor(gdga_ptr);
 		p_test->push_back(gdo_ptr);
 
@@ -308,7 +308,7 @@ void GExternalSetterIndividual::specificTestsFailuresExpected_GUnitTests() {
 	{ // Check that calling the fitness function throws in DEBUG mode
 		boost::shared_ptr<GExternalSetterIndividual> p_test = this->GObject::clone<GExternalSetterIndividual>();
 		boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(1.));
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.,0.6,0.,2.));
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025,0.1,0.,1.));
 		gdo_ptr->addAdaptor(gdga_ptr);
 		p_test->push_back(gdo_ptr);
 

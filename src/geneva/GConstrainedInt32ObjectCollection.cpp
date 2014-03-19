@@ -216,7 +216,7 @@ void GConstrainedInt32ObjectCollection::fillWithObjects(const std::size_t& nAdde
 		// Create a suitable adaptor
 		boost::shared_ptr<GInt32GaussAdaptor> giga_ptr;
 
-		BOOST_CHECK_NO_THROW(giga_ptr = boost::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(10, 0.8, 5, 10, 1.0)));
+		BOOST_CHECK_NO_THROW(giga_ptr = boost::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
 		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
 		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionMode(true)); // Always adapt
 

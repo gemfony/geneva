@@ -175,12 +175,12 @@ bool GDoubleObject::operator!=(const GDoubleObject& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GDoubleObject::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+   const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
+) const {
     using namespace Gem::Common;
 
     // Check that we are not accidently assigning this object to itself
@@ -347,7 +347,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);
@@ -497,7 +497,7 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);

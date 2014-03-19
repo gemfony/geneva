@@ -40,9 +40,9 @@ namespace Gem {
 namespace Tests {
 
 const std::size_t GTI_DEF_NITEMS = 300;
-const double GTI_DEF_SIGMA = 0.5;
-const double GTI_DEF_SIGMASIGMA = 0.8;
-const double GTI_DEF_MINSIGMA = 0.02;
+const double GTI_DEF_SIGMA = 0.025;
+const double GTI_DEF_SIGMASIGMA = 0.1;
+const double GTI_DEF_MINSIGMA = 0.001;
 const double GTI_DEF_MAXSIGMA = 1.0;
 const double GTI_DEF_ADPROB = 0.05;
 
