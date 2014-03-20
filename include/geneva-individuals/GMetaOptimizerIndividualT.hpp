@@ -1106,6 +1106,8 @@ protected:
          solverCallsPerOptimization.push_back(double((iterationsConsumed+1)*nChildren + nParents));
          iterationsPerOptimization.push_back(double(iterationsConsumed+1));
          bestEvaluations.push_back(bestIndividual->transformedFitness()); // We use the transformed fitness to avoid MAX_DOUBLE
+
+         std::cout << "Best individual has fitness " << bestIndividual->transformedFitness() << std::endl;
       }
 
       // Calculate the average number of iterations and solver calls
@@ -1130,6 +1132,7 @@ protected:
       << boost::get<0>(itmean) << " +/- " << boost::get<1>(itmean) << " average iterations " << std::endl
       << "and a best evaluation of " << boost::get<0>(bestMean) << " +/- " << boost::get<1>(bestMean) << std::endl
       << "out of " << nRunsPerOptimization_ << " consecutive runs" << std::endl
+      << "fitnessCalculation() will return the value " << evaluation << std::endl
       << this->print(false) << std::endl // print without fitness -- not defined at this stage
       << std::endl;
 
