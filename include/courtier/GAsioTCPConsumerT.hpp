@@ -104,7 +104,7 @@ namespace Courtier {
  * Global variables for failed transfers and connection attempts.
  */
 const boost::uint32_t                GASIOTCPCONSUMERMAXSTALLS=10;
-const boost::uint32_t                GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS=1000;
+const boost::uint32_t                GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS=10;
 const unsigned short                 GASIOTCPCONSUMERDEFAULTPORT=10000;
 const std::string                    GASIOTCPCONSUMERDEFAULTSERVER="localhost";
 const boost::uint16_t                GASIOTCPCONSUMERTHREADS = 4;
@@ -509,12 +509,20 @@ protected:
 private:
    /***************************************************************************/
    /**
-    * Tries to make a connection to the remote site.
+    * Tries to make a connection to the remote site. If a maximum number of
+    * connection attempts has been set, the function will increase the waiting
+    * time by a factor of 2 each time a connection could not be established, starting with
+    * 10 milliseconds. Thus, with a maximum of 10 connection attempts, the maximum
+    * sleep time would be about 10 seconds. This is the recommended mode of operation.
+    * If no maximum amount of connection attempts has been set, the function will
+    * sleep for 10 milliseconds every time a connection could not be established.
     *
     * @return true if the connection could be established, false otherwise.
     */
    bool tryConnect(){
       // Try to make a connection, at max maxConnectionAttempts_ times
+      long milliSecondsWait = 10;
+
       boost::uint32_t connectionAttempt = 0;
 
       boost::system::error_code error;
@@ -540,7 +548,11 @@ private:
          if (!error) break;
 
          // Unsuccessful. Sleep for 0.01 seconds, then try again
-         boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+         boost::this_thread::sleep(boost::posix_time::milliseconds(milliSecondsWait));
+
+         if(maxConnectionAttempts_ > 0) {
+            milliSecondsWait *= 2;
+         }
       }
 
       // Still error ? Return, terminate
