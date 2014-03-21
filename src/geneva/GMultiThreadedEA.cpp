@@ -199,22 +199,28 @@ void GMultiThreadedEA::init() {
 void GMultiThreadedEA::finalize() {
    // Check whether there were any errors during thread execution
    if(tp_ptr_->hasErrors()) {
+      std::ostringstream oss;
+
+
       std::vector<std::string> errors;
       tp_ptr_->getErrors(errors);
 
-      glogger
+      oss
       << "========================================================================" << std::endl
-      << "In GMultiThreadedEA::finalize():" << std::endl
+      << "In GMultiThreadedEA::finalize(): WARNING" << std::endl
       << "There were errors during thread execution:" << std::endl
       << std::endl;
 
       for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
-         glogger << *it << std::endl;
+         oss << *it << std::endl;
       }
 
-      glogger << "" << std::endl // This is a hack. Currently glogger does not accept a std::endl directly next to it TODO
-      << "========================================================================" << std::endl
-      << GEXCEPTION;
+      oss << "" << std::endl // This is a hack. Currently glogger does not accept a std::endl directly next to it TODO
+      << "========================================================================" << std::endl;
+
+      glogger // We cannot currently interrupt glogger input, all input must be transferred in one go
+      << oss.str()
+      << GWARNING;
    }
 
 	// Terminate our thread pool
