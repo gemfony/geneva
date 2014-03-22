@@ -1,57 +1,79 @@
 //------------------------------------------------------------------------------------------------------
 Wishlist for version 1.4, yet unnamed, release-date unknown
 
- - MPI Consumer/Client
- - A scripting interface to optimization algorithms, so that new algorithms can be 
-   more easily implemented and tested
- - Additional optimization algorithms (particularly Simplex and Conjugate Gradient)
+ - MPI Consumer/Client.
+ - A scripting interface to optimization algorithms, so that new
+   algorithms can be more easily implemented and tested.
+ - Additional optimization algorithms (particularly Simplex
+   and Conjugate Gradient).
 
 //------------------------------------------------------------------------------------------------------
-* Version 1.2, yet unnamed, release-date unknown
+* Version 1.2, "Mont Blanc" - March 22, 2014
 
-******************************** BREAKING CHANGES ******************************************************
- - sigma values of gauss adaption are now relative to the allowed or preferred value
-   range of a parameter type. Values are given as a percentage of this value range. E.g. a value of 0.1
-   for a sigma and an allowed parameter range of -50:50 will result in a "real" sigma used in the gaussian
-   of 10.
- - Minimal BOOST version is now 1.48
-********************************************************************************************************
+The main changes for this release include:
 
-Other changes:
- - Added two functions for calculating a line best describing a set of data points
- - Updated the GParallelisationOverhead test so that it automatically calculates the speed-up
- - Added a simple parser that allows to evaluate mathematical formulas like "sin({{var1}})*pow(2.,3.)"
- - Introduced a method to deal with dependent boundary conditions (double parameters only at the moment)  
- - Added three possibilities to treat invalid parameter sets (i.e. parameter sets that violate a number
-   of predefined constraints)
- - In this context, introduced a "transformed" and a "raw" fitness. The latter comes from the user's
-   evaluation function, the former makes sure that individuals, which violate one or more constraints,
-   still get a useful evaluation without having to call the evaluation function  
- - Added a parser for parameter descriptions of the kind "d(MY_DPAR_01,-10.3,12.8,100)" to facilitate 
-   parameter scans from the command line (or in batch mode). Added a corresponding test.
- - Added the possibility to specify the path to configuration files in an environment variable
-   (GENEVA_CONFIG_BASENAME). Set this variable to a path (ending in /), that points to the directory
-   containg the ./config sub-directory.
- - Added an option to catch a SIGHUP signal and let GOptimizationAlgorithmT<> exit gracefully,
-   without discarding results. This requires that GObject::sigHupHandler is registered as a signal handler.
-   This needs to be done by the user, e.g. in main().
- - Based collection of best individuals on a priority queue and centralized the code for most cases
-   (multi-populations and multi-criterion optimization need separate treatment)
- - Experimental port to MacOS 10.9
- - Added the option to enforce a specific C++ standard for the compilation procedure
- - Added further command line options (when using Go2), such as the maximum number of iterations
-   or the maximum time for each algorithm type. Some options are now hidden and are only 
-   shown upon explicit request
- - Added a new "per-item" cross-over method to evolutionary algorithms
- - Added a new mechanism to update adaptors in EA when optimization has stalled
- - Added a new option to GParameterScan to randomly initialize a predefined number of work items.
-   This "brute force" approach may help to find a good starting point. E.g., for example 01_GSimpleOptimizer,
-   one can now say "./GSimpleOptimizer -a "ps,ea" --parameterSpec="s(1000)". This would result in a random
-   scan of 1000 work items. The best individuals found will then form the start values of an evolutionary
-   algorithm 
- - The server now tells the client how long it should sleep in networked execution, before reconnecting.
-   Repeated idle calls are avoided, reducing the network load
- - Starting with this version, release-versions get an even minor version number
+****************************** BREAKING CHANGES ********************************
+
+ - Sigma values of gauss adaption are now relative to the allowed or
+   preferred value range of a parameter type. Values are given as a
+   percentage of this value range. E.g., a sigma value of 0.1 and an
+   allowed parameter range of [-50, 50] will result in the gaussian
+   distribution using a "real" sigma value of 10.
+ - The minimal BOOST version required for compiling Geneva is now v1.48.
+
+********************************************************************************
+
+ - Added a simple parser that allows to evaluate mathematical formulas
+   like "sin({{var1}})*pow(2.,3.)".
+ - Introduced a method to deal with dependent boundary conditions
+   a.k.a. "constraints" (double parameters only at the moment).
+ - Added three possibilities to treat invalid parameter sets (i.e.,
+   parameter sets that violate a number of predefined constraints).
+ - In this context, introduced a "transformed" and a "raw" fitness.
+   The latter comes from the user's evaluation function, the former
+   makes sure that individuals which violate one or more constraints
+   still get a useful evaluation, without having to call the
+   evaluation function.
+ - Added a new "per-item" cross-over method to evolutionary algorithms.
+ - Added a new mechanism to update adaptors in EA when optimization
+   has stalled.
+ - Based collection of best individuals on a priority queue and
+   centralized the code for most cases (multi-populations and
+   multi-criterion optimization need separate treatment).
+ - Added a parser for parameter descriptions of the kind
+   "d(MY_DPAR_01,-10.3,12.8,100)" to facilitate parameter scans from
+   the command line (or in batch mode).
+ - Added a new option to GParameterScan to randomly initialize a predefined
+   number of work items. This "brute force" approach may help to find a
+   good starting point. E.g., for the example 01_GSimpleOptimizer one
+   may now run './GSimpleOptimizer -a "ps,ea" --parameterSpec="s(1000)"'.
+   This would result in a random scan of 1000 work items. The best
+   individuals found will then form the start values of an evolutionary
+   algorithm.
+ - Added further command line options (when using Go2), such as the
+   maximum number of iterations or the maximum time for each algorithm
+   type. Some options are now hidden and are only shown upon explicit
+   request.
+ - Added the ability to catch a SIGHUP signal and let
+   GOptimizationAlgorithmT<> exit gracefully, without discarding results.
+   This requires that GObject::sigHupHandler is registered as a signal
+   handler, which needs to be done by the user, e.g. in main().
+ - In networked execution, the server now tells the client how long it
+   should sleep before reconnecting. Repeated idle calls are so avoided,
+   reducing the network load.
+ - Added two functions for calculating a line best describing a set
+   of data points.
+ - Updated the GParallelisationOverhead test so that it automatically
+   calculates the speed-up.
+ - Added the possibility to specify the path to configuration files in
+   an environment variable (GENEVA_CONFIG_BASENAME). Set this variable
+   to the "/"-terminated path of a directory containg the "./config"
+   sub-directory where the configuration files are to be found.
+ - Added an option to enforce a specific C++ standard for the
+   compilation procedure.
+ - Starting with this version, stable release versions get an even
+   minor version number.
+ - Experimental port to MacOS 10.9.
  - Ported to Boost 1.55.
 
 Recommended version of Boost: 1.55; Minimum Boost version is 1.48
