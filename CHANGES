@@ -1,9 +1,21 @@
 //------------------------------------------------------------------------------------------------------
-Wishlist for version 1.4, yet unnamed, release-date unknown
+* Version 1.4, yet unnamed, release-date unknown
 
+The main feature additions for this release include:
+
+****************************** BREAKING CHANGES ********************************
+none so far
+********************************************************************************
+
+The main bug fixes for this release include:
+- Work items could be added more than once to the priority queue defining the best solutions found
+  under certain circumstances
+
+Wishlist for version 1.4:
  - MPI Consumer/Client.
  - A scripting interface to optimization algorithms, so that new
-   algorithms can be more easily implemented and tested.
+   algorithms can be more easily implemented and tested even by
+   people not familiar with all of Geneva
  - Additional optimization algorithms (particularly Simplex
    and Conjugate Gradient).
 

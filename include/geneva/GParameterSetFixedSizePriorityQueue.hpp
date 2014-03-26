@@ -117,6 +117,8 @@ public:
 protected:
    /** @brief Evaluates a single work item, so that it can be sorted */
    virtual double evaluation(const boost::shared_ptr<GParameterSet>&) const;
+   /** @brief Returns a unique id for a work item */
+   virtual std::string id(const boost::shared_ptr<GParameterSet>&) const;
 };
 
 /******************************************************************************/

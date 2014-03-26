@@ -136,8 +136,21 @@ std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
  * will throw in DEBUG mode, if the dirty flag of item is set. Note that the function
  * uses the primary evaluation criterion only.
  */
-double GParameterSetFixedSizePriorityQueue::evaluation(const boost::shared_ptr<GParameterSet>& item) const {
+double GParameterSetFixedSizePriorityQueue::evaluation(
+   const boost::shared_ptr<GParameterSet>& item
+) const {
    return item->transformedFitness();
+}
+
+/******************************************************************************/
+/**
+ * Returns a unique id for a work item. This is used to uniquely identify duplicates
+ * in the priority queue.
+ */
+std::string GParameterSetFixedSizePriorityQueue::id(
+   const boost::shared_ptr<GParameterSet>& item
+) const {
+   return item->getCurrentEvaluationID();
 }
 
 /******************************************************************************/

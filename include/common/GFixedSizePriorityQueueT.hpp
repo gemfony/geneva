@@ -302,7 +302,24 @@ public:
          }
       }
 
-      // Sort the data
+      // Sort the data according to their ids, so we may remove duplicates
+      std::sort(
+         data_.begin()
+         , data_.end()
+         , id_comp(this)
+      );
+
+      // Remove duplicate items
+      data_.erase(
+         std::unique(
+               data_.begin()
+               , data_.end()
+               ,  id_equal(this)
+         )
+         , data_.end()
+      );
+
+      // Sort the data according to the evaluation
       std::sort(
          data_.begin()
          , data_.end()
@@ -357,6 +374,23 @@ public:
             }
          }
       }
+
+      // Sort the data according to their ids, so we may remove duplicates
+      std::sort(
+         data_.begin()
+         , data_.end()
+         , id_comp(this)
+      );
+
+      // Remove duplicate items
+      data_.erase(
+         std::unique(
+               data_.begin()
+               , data_.end()
+               ,  id_equal(this)
+         )
+         , data_.end()
+      );
 
       std::sort(
          data_.begin()
@@ -455,7 +489,7 @@ public:
 protected:
    /***************************************************************************/
    /**
-    * Compares two entries with each other
+    * Compares two entries with each other regarding their quality
     */
    struct priority_comp {
    public:
@@ -473,6 +507,48 @@ protected:
             if(pq_->evaluation(x) < pq_->evaluation(y)) return true;
             else return false;
          }
+      }
+
+   private:
+      const GFixedSizePriorityQueueT<T> *pq_;
+   };
+
+   /***************************************************************************/
+   /**
+    * Compares the ids of two work items. Allows us to sort the vector of
+    * work items, so we can remove duplicates
+    */
+   struct id_comp {
+   public:
+      id_comp(
+         const GFixedSizePriorityQueueT<T> *pq
+      ) :pq_(pq)
+      { /* empty */ }
+
+      bool operator()(const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) {
+         if(pq_->id(x) < pq_->id(y)) return true;
+         else return false;
+      }
+
+   private:
+      const GFixedSizePriorityQueueT<T> *pq_;
+   };
+
+   /***************************************************************************/
+   /**
+    * Checks if two items are identical (according to a criterion defined
+    * by derived classes.
+    */
+   struct id_equal {
+   public:
+      id_equal(
+         const GFixedSizePriorityQueueT<T> *pq
+      ) :pq_(pq)
+      { /* empty */ }
+
+      bool operator()(const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) {
+         if(pq_->id(x) == pq_->id(y)) return true;
+         else return false;
       }
 
    private:
@@ -538,6 +614,8 @@ protected:
    /***************************************************************************/
    /** @brief Evaluates a single work item, so that it can be sorted */
    virtual double evaluation(const boost::shared_ptr<T>&) const = 0;
+   /** @brief Returns a unique id for a work item */
+   virtual std::string id(const boost::shared_ptr<T>&) const = 0;
 
    std::deque<boost::shared_ptr<T> > data_; ///< Holds the actual data
 
