@@ -116,8 +116,7 @@ Go2::Go2(
 
 /******************************************************************************/
 /**
- * A constructor that first parses the command line for relevant parameters and then
- * loads data from a configuration file
+ * A constructor that only loads data from a configuration file
  *
  * @param configFilename The name of a configuration file
  */
