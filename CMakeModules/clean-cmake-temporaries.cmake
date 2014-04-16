@@ -18,13 +18,17 @@ SET(
 
 MESSAGE ("Removing CMake-temporaries ${CMAKE_TEMPORARIES}")
 
-FOREACH(
-	TEMPORARY
-	${CMAKE_TEMPORARIES}
-)
-	IF(EXISTS ${TEMPORARY})
-		FILE(REMOVE_RECURSE ${TEMPORARY})
-	ENDIF()
-ENDFOREACH()
+IF( OLD_CMAKE )
+	MESSAGE("Cannot remove CMake temporaries, as an old version of CMake is being used")
+ELSE()
+	FOREACH(
+		TEMPORARY
+		${CMAKE_TEMPORARIES}
+	)
+		IF(EXISTS ${TEMPORARY})
+			FILE(REMOVE_RECURSE ${TEMPORARY})
+		ENDIF()
+	ENDFOREACH()
+ENDIF()
 
 MESSAGE ("done ...")

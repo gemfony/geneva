@@ -82,7 +82,11 @@ IF( NOT DEFINED GENEVA_CXX_STD )
 ENDIF()
 
 IF( NOT DEFINED GENEVA_STATIC )
-	SET( GENEVA_STATIC FALSE )
+	SET( GENEVA_STATIC 0 )
+ENDIF()
+
+IF( NOT DEFINED GENEVA_WITH_MPI )
+	SET( GENEVA_WITH_MPI 0 )
 ENDIF()
 
 IF( NOT DEFINED CMAKE_VERBOSE_MAKEFILE )
@@ -165,19 +169,15 @@ ADD_DEFINITIONS("${GENEVA_COMPILER_FLAGS_OUT}")
 # Specify linker flags
 IF( GENEVA_STATIC )	
 	SET (CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -lpthread")
-#	SET (LINK_FLAGS "-static-libgcc -lpthread")
 		
 	# Some special linker flags for MacOS
 	IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
 		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
-		SET (LINK_FLAGS "${LINK_FLAGS} -stdlib=libstdc++")
 	ENDIF()
 	
 	SET (BUILD_SHARED_LIBS OFF)
 	SET (Boost_USE_STATIC_LIBS ON)
-	LINK_LIBRARIES (dl)
-	LINK_LIBRARIES (z)
-	LINK_LIBRARIES (pthread)
+	LINK_LIBRARIES (dl z pthread)
 ELSE() # Dynamic libraries
 	# Some special linker flags for MacOS 10.9
 	IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
