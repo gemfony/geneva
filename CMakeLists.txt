@@ -52,6 +52,19 @@ SET(VERSION_PATCH "0")
 
 SET(GENEVA_MIN_BOOST_VERSION 1.48)
 
+###############################################################################
+# Identify old CMake version
+
+# The "FOREACH IN LISTS" construct is only available starting with CMake 2.8.
+# Detect that case to avoid build errors in CMake 2.6. 
+IF( ${CMAKE_VERSION} VERSION_LESS 2.8.0 )
+	SET( OLD_CMAKE TRUE )
+	# We print a warning at end of the generation, to avoid it getting lost
+ENDIF()
+
+# Nice formatting
+MESSAGE ("")
+
 ################################################################################
 #
 # Set some default values for user-settings. Generally, these should be provided
@@ -97,24 +110,20 @@ IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
 	SET( CMAKE_INSTALL_PREFIX "/opt/geneva-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}" )
 ENDIF()
 
-
-###############################################################################
-# Identify old CMake version
-
-# The "FOREACH IN LISTS" construct is only available starting with CMake 2.8.
-# Detect that case to avoid build errors in CMake 2.6. 
-IF( ${CMAKE_VERSION} VERSION_LESS 2.8.0 )
-	SET( OLD_CMAKE TRUE )
-	# We print a warning at end of the generation, to avoid it getting lost
-ENDIF()
-
-# Nice formatting
-MESSAGE ("")
-
 ################################################################################
 # Validates the build type chosen by the user (Release or Debug). Also sets
 # the CMAKE_BUILD_TYPE accordingly
 VALIDATE_BUILD_TYPE()
+
+################################################################################
+# Set a number of variables related to static or dynamic build-mode
+IF ( GENEVA_STATIC ) 
+	SET (BUILD_SHARED_LIBS OFF)
+	SET (Boost_USE_STATIC_LIBS ON)
+ELSE() # dynamic libraries
+	SET (BUILD_SHARED_LIBS ON)
+	SET (Boost_USE_STATIC_LIBS OFF)
+ENDIF()  
 
 ################################################################################
 # Identify the operating system
@@ -175,8 +184,6 @@ IF( GENEVA_STATIC )
 		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
 	ENDIF()
 	
-	SET (BUILD_SHARED_LIBS OFF)
-	SET (Boost_USE_STATIC_LIBS ON)
 	LINK_LIBRARIES (dl z pthread)
 ELSE() # Dynamic libraries
 	# Some special linker flags for MacOS 10.9
@@ -185,8 +192,6 @@ ELSE() # Dynamic libraries
 		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
 	ENDIF()
 
-	SET (BUILD_SHARED_LIBS ON)
-	SET (Boost_USE_STATIC_LIBS OFF)
 	LINK_LIBRARIES (pthread)
 ENDIF()
 
@@ -292,9 +297,9 @@ ADD_CUSTOM_TARGET( "geneva-individuals"       DEPENDS ${GENEVA_INDIVIDUAL_LIBNAM
 #
 IF(UNIX)
 	ADD_CUSTOM_TARGET(
-		"clean-all" 
-		COMMAND ${CMAKE_BUILD_TOOL} clean
-		COMMAND ${CMAKE_COMMAND} -P ${PROJECT_SOURCE_DIR}/CMakeModules/clean-cmake-temporaries.cmake
+		"clean-cmake" 
+		COMMAND ${CMAKE_BUILD_TOOL} clean 2>&1 > /dev/null
+		COMMAND ${CMAKE_COMMAND} -DOLD_CMAKE=${OLD_CMAKE} -P ${PROJECT_SOURCE_DIR}/CMakeModules/clean-cmake-temporaries.cmake
 	)
 ENDIF()
 

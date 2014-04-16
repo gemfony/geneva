@@ -222,7 +222,7 @@ fi
 if [ -e ${GENEVA_BUILDROOT}/Makefile ]; then
 	cd ${GENEVA_BUILDROOT}
 	echo "Cleaning old build-environment ..."
-	make clean-all 2>&1 > /dev/null
+	make clean-cmake 2>&1 > /dev/null
 	echo "... done"
 fi
 
