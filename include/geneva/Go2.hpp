@@ -199,7 +199,7 @@ public:
 	void addAlgorithm(boost::shared_ptr<GOABase>);
 	/** @brief Makes it easier to add algorithms */
 	Go2& operator&(boost::shared_ptr<GOABase>);
-	/** @brief Allows to add an optimization algorithm through its mnemomic */
+	/** @brief Allows to add an optimization algorithm through its mnemonic */
    void addAlgorithm(const std::string&);
    /** @brief Makes it easier to add algorithms */
    Go2& operator&(const std::string&);

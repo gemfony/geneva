@@ -327,7 +327,7 @@ std::string Go2::name() const {
  * small nickname, such as "ea" for "Evolutionary Algorithms". See the available
  * algorithms in the Geneva distribution for further information.
  *
- * @param mn A small mnemomic for the optimization algorithm
+ * @param mn A small mnemonic for the optimization algorithm
  */
 void Go2::registerDefaultAlgorithm(const std::string& mn) {
    // Retrieve the algorithm from the global store
@@ -335,7 +335,7 @@ void Go2::registerDefaultAlgorithm(const std::string& mn) {
    if(!GOAFactoryStore->get(mn, p)) {
       glogger
       << "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
-      << "Got invalid algorithm mnemomic " << mn << std::endl
+      << "Got invalid algorithm mnemonic " << mn << std::endl
       << GEXCEPTION;
    }
 
@@ -613,7 +613,7 @@ Go2& Go2::operator&(boost::shared_ptr<GOABase> alg) {
 
 /***************************************************************************/
 /**
- * Allows to add an optimization algorithm through its mnemomic
+ * Allows to add an optimization algorithm through its mnemonic
  */
 void Go2::addAlgorithm(const std::string& mn) {
    // Retrieve the algorithm from the global store
@@ -621,7 +621,7 @@ void Go2::addAlgorithm(const std::string& mn) {
    if(!GOAFactoryStore->get(mn, p)) {
       glogger
       << "In Go2::addAlgorithm(std::string): Error!" << std::endl
-      << "Got invalid algorithm mnemomic " << mn << std::endl
+      << "Got invalid algorithm mnemonic " << mn << std::endl
       << GEXCEPTION;
    }
 
@@ -630,7 +630,7 @@ void Go2::addAlgorithm(const std::string& mn) {
 
 /***************************************************************************/
 /**
- * Makes it easier to add algorithms through their mnemomics
+ * Makes it easier to add algorithms through their mnemonics
  */
 Go2& Go2::operator&(const std::string& mn) {
    this->addAlgorithm(mn);
@@ -1181,7 +1181,7 @@ void Go2::parseCommandLine(
             if(!GOAFactoryStore->get(*it, p)) {
                glogger
                << "In Go2::parseCommandLine(int, char**): Error!" << std::endl
-               << "Got invalid algorithm mnemomic \"" << *it << "\"." << std::endl
+               << "Got invalid algorithm mnemonic \"" << *it << "\"." << std::endl
                << "No algorithm found for this string." << std::endl
                << GEXCEPTION;
             }

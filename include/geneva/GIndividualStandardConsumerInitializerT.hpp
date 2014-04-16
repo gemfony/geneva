@@ -76,13 +76,13 @@ public:
    inline GIndividualStandardConsumerInitializerT() {
       // Create a smart pointer holding the consumer
       boost::shared_ptr<Gem::Courtier::GBaseConsumerT<pl_type> > p(new c_type());
-      std::string mnemomic = p->getMnemonic();
+      std::string mnemonic = p->getMnemonic();
 
       // We require that the consumer has a default constructor and the static "nickname" data member
-      if(!GConsumerStore->setOnce(mnemomic, p)) { // The consumer already exists in the store
+      if(!GConsumerStore->setOnce(mnemonic, p)) { // The consumer already exists in the store
          glogger
          << "In GIndividualStandardConsumerInitializerT<pl_type, c_type>::GIndividualStandardConsumerInitializerT(): Error!" << std::endl
-         << "Consumer with identifier " << mnemomic << " already exists in store." << std::endl
+         << "Consumer with identifier " << mnemonic << " already exists in store." << std::endl
          << GTERMINATION;
       }
    }
