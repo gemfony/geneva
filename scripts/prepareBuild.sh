@@ -51,7 +51,9 @@ if [ $# -eq 0 ]; then
 	BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
 	BUILDMODE="Release"                       # Release or Debug
 	BUILDSTD="cxx98"                          # "auto": choose automatically; "cxx98": enforce the C++98 standard; "cxx11": enforce the C++11 standard
+	BUILDWITHMPI="0"                          # Whether Geneva should be built with MPI support (experimental)
 	BUILDTESTCODE="0"                         # Whether to build Geneva with testing code
+	BUILDSTATIC="0"                           # Whether to build static code / libraries (experimental)
 	VERBOSEMAKEFILE="0"                       # Whether compilation information should be emitted
 	INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
 	CEXTRAFLAGS=""                            # Further CMake settings you might want to provide
@@ -105,9 +107,19 @@ elif [ $# -eq 1 ]; then
 		echo "Variable BUILDSTD wasn't set. Setting to default value ${BUILDSTD}"
 	fi
 
+	if [ -z "${BUILDWITHMPI}" ]; then
+		BUILDWITHMPI="0"
+		echo "Variable BUILDWITHMPI wasn't set. Setting to default value ${BUILDWITHMPI}"
+	fi
+
 	if [ -z "${BUILDTESTCODE}" ]; then
 		BUILDTESTCODE="0"
 		echo "Variable BUILDTESTCODE wasn't set. Setting to default value ${BUILDTESTCODE}"
+	fi
+
+	if [ -z "${BUILDSTATIC}" ]; then
+		BUILDSTATIC="0"
+		echo "Variable BUILDSTATIC wasn't set. Setting to default value ${BUILDSTATIC}"
 	fi
 
 	if [ -z "${VERBOSEMAKEFILE}" ]; then
@@ -162,6 +174,18 @@ if [ ! "${BUILDTESTCODE}" = "0" -a ! "${BUILDTESTCODE}" = "1" ]; then
 	exit
 fi
 
+if [ ! "${BUILDWITHMPI}" = "0" -a ! "${BUILDWITHMPI}" = "1" ]; then
+	echo "Error: Variable BUILDWITHMPI must be 0 or 1. Got ${BUILDWITHMPI}"
+	echo "Leaving"
+	exit
+fi
+
+if [ ! "${BUILDSTATIC}" = "0" -a ! "${BUILDSTATIC}" = "1" ]; then
+	echo "Error: Variable BUILDSTATIC must be 0 or 1. Got ${BUILDSTATIC}"
+	echo "Leaving"
+	exit
+fi
+
 if [ ! "${VERBOSEMAKEFILE}" = "0" -a ! "${VERBOSEMAKEFILE}" = "1" ]; then
 	echo "Error: Variable VERBOSEMAKEFILE must be 0 or 1. Got ${VERBOSEMAKEFILE}"
 	echo "Leaving"
@@ -187,7 +211,18 @@ fi
 
 ####################################################################
 # Do the actual call to cmake
-CONFIGURE="${CMAKE} -DBoost_NO_SYSTEM_PATHS=1 -DBOOST_ROOT=${BOOSTROOT} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DGENEVA_BUILD_TYPE=${BUILDMODE} -DGENEVA_BUILD_TESTS=${BUILDTESTCODE} -DGENEVA_CXX_STD=${BUILDSTD} -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
+CONFIGURE="${CMAKE} \
+-DBoost_NO_SYSTEM_PATHS=1 \
+-DBOOST_ROOT=${BOOSTROOT} \
+-DBOOST_LIBRARYDIR=${BOOSTLIBS} \
+-DBOOST_INCLUDEDIR=${BOOSTINCL} \
+-DGENEVA_BUILD_TYPE=${BUILDMODE} \
+-DGENEVA_BUILD_TESTS=${BUILDTESTCODE} \
+-DGENEVA_STATIC=${BUILDSTATIC} \
+-DGENEVA_CXX_STD=${BUILDSTD} \
+-DGENEVA_WITH_MPI=${BUILDWITHMPI} \
+-DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} \
+-DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
 
 if [ "x$CEXTRAFLAGS" != "x" ]; then
 	CONFIGURE="${CONFIGURE} ${CEXTRAFLAGS}"
@@ -201,7 +236,7 @@ ${CONFIGURE} ${PROJECTROOT}
 # Finish by telling the user how to continue :-)
 echo -e "\n\n---------------------------------------------------------------------"
 echo -e "\nYou may now build and install Geneva in the usual way:"
-echo -e "\tmake\t\t\t# Use '-j2' if in a dual-core machine"
-echo -e "\tmake install\n\n"
+echo -e "make\t\t# Use '-jn', where 'n' is the number of cores in your system"
+echo -e "make install\n\n"
 
 ####################################################################

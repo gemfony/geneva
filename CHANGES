@@ -4,7 +4,12 @@
 The main feature additions for this release include:
 
 ****************************** BREAKING CHANGES ********************************
-none so far
+
+ - As we do not have any testing facilities for older versions and most users
+   will upgrade to the newest version anyway, support for MacOS is now constrained 
+   to the latest version with all updates (10.9 Mavericks, at the time of writing). 
+   Note that support for this OS is still experimental.
+
 ********************************************************************************
 
 The main bug fixes for this release include:
@@ -19,7 +24,7 @@ Wishlist:
    people not familiar with all of Geneva
  - Additional optimization algorithms (particularly Simplex
    and Conjugate Gradient)
- - MS Windows Port
+ - MS Windows port
  - Rework of the test infrastructure
  - Variable length parents in evolutionary algorithms to better support pareto optimization
 

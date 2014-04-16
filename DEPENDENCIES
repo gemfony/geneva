@@ -1,0 +1,13 @@
+###############################################################################
+# 
+# This file lists dependencies to be taken care of when updating individual files
+#
+###############################################################################
+
+- Geneva/CMakeModules/IdentifySystemParameters.cmake:
+  
+  This file holds some CMake macros needed to identify system parameters. It is 
+  replicated verbatim in a number of directories, particularly all of the 
+  Geneva optimization library examples. When the master file is updated, all of
+  the duplicates should be updated as well.
+  

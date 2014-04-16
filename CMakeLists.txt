@@ -34,30 +34,23 @@ PROJECT (geneva-library-collection)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-# Set the library/package version
-SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "2")
-SET(VERSION_PATCH "0")
-
-################################################################################
-# Identify the Operating System. This is particularly needed for MacOS
-
-SET(GENEVA_OS_NAME ${CMAKE_SYSTEM_NAME})
-
-# If this is MacOS, find out about the version
-IF("${GENEVA_OS_NAME}" MATCHES "Darwin")
-   EXEC_PROGRAM(uname ARGS -v  OUTPUT_VARIABLE DARWIN_VERSION)
-   STRING(REGEX MATCH "[0-9]+" DARWIN_VERSION ${DARWIN_VERSION})
-   IF (DARWIN_VERSION GREATER 12)
-     SET(GENEVA_OS_NAME "DarwinGE13")
-   ELSE ()
-   	 SET(GENEVA_OS_NAME "DarwinPre13")
-   ENDIF ()
-ENDIF()
-
 ################################################################################
 # Make sure we first check our local modules directory
+#
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
+
+###############################################################################
+# Includes
+#
+INCLUDE(IdentifySystemParameters)
+
+###############################################################################
+# Set the library/package version
+SET(VERSION_MAJOR "1")
+SET(VERSION_MINOR "3")
+SET(VERSION_PATCH "0")
+
+SET(GENEVA_MIN_BOOST_VERSION 1.48)
 
 ################################################################################
 #
@@ -97,13 +90,16 @@ IF( NOT DEFINED CMAKE_VERBOSE_MAKEFILE )
 ENDIF()
 
 IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
-	SET( CMAKE_INSTALL_PREFIX "/opt/geneva" )
+	SET( CMAKE_INSTALL_PREFIX "/opt/geneva-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}" )
 ENDIF()
 
 
+###############################################################################
+# Identify old CMake version
+
 # The "FOREACH IN LISTS" construct is only available starting with CMake 2.8.
-# Detect that case to avoid build errors in CMake 2.6.
-IF( CMAKE_MAJOR_VERSION GREATER 1 AND CMAKE_MINOR_VERSION LESS 8 )
+# Detect that case to avoid build errors in CMake 2.6. 
+IF( ${CMAKE_VERSION} VERSION_LESS 2.8.0 )
 	SET( OLD_CMAKE TRUE )
 	# We print a warning at end of the generation, to avoid it getting lost
 ENDIF()
@@ -112,141 +108,58 @@ ENDIF()
 MESSAGE ("")
 
 ################################################################################
-# Set the build type according to the GENEVA_BUILD_TYPE value, if defined.
-# Otherwise use CMAKE_BUILD_TYPE if defined, or use build type 'Debug'
-# as default.
-IF(DEFINED GENEVA_BUILD_TYPE)
-	IF(GENEVA_BUILD_TYPE STREQUAL "Debug")
-		MESSAGE ("Setting the build type to Debug")
-		SET(CMAKE_BUILD_TYPE Debug)
-	ELSEIF(GENEVA_BUILD_TYPE STREQUAL "Release")
-		MESSAGE ("Setting the build type to Release")
-		SET(CMAKE_BUILD_TYPE Release)
-	ELSE()
-		MESSAGE (FATAL_ERROR "Unknown compilation mode GENEVA_BUILD_TYPE=${GENEVA_BUILD_TYPE}")
-	ENDIF()
-ELSEIF(DEFINED CMAKE_BUILD_TYPE AND NOT CMAKE_BUILD_TYPE STREQUAL "")
-	MESSAGE ("Using build type of CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
-ELSE()
-	MESSAGE ("Setting the build type to default value Debug")
-	SET(CMAKE_BUILD_TYPE Debug)
-ENDIF()
-MESSAGE ("")
+# Validates the build type chosen by the user (Release or Debug). Also sets
+# the CMAKE_BUILD_TYPE accordingly
+VALIDATE_BUILD_TYPE()
 
 ################################################################################
-# Set up compiler flags
+# Identify the operating system
 
-IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-	SET( MSG_COMPILER "icpc/icc")
-	SET (MSG_CXXSTANDARDMODE "Using Intel compiler, hence avoiding C++ standard settings")
-		
-	IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		ADD_DEFINITIONS ("-DDEBUG -g")
-	ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
-		ADD_DEFINITIONS ("-DNDEBUG -O3")
-	ENDIF()	
-	
-	# Specifics for Intel compiler (tested with 10.1). Removes two rather annoying
-	# (and, according to the authors' opinion, irrelevant in this context) warnings
-	ADD_DEFINITIONS ("-Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
-ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	SET( MSG_COMPILER "CLang")
-	
-	IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		ADD_DEFINITIONS ("-DDEBUG -g")
-	ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
-		ADD_DEFINITIONS ("-DNDEBUG -O3 -Wunreachable-code")
-	ENDIF()	
-	
-	ADD_DEFINITIONS ("-Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread")
-	
-	# Check which C++ standard should be used
-	IF("${GENEVA_CXX_STD}" MATCHES "auto")
-		IF("${GENEVA_OS_NAME}" MATCHES "DarwinPre13") # MacOS prior to 10.9
-			SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on MacOS prior to 10.9, hence switching to C++98-mode")
-			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
-		ELSEIF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
-			SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on MacOS >= 10.9, hence switching to C++98-mode")
-			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
-		ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1") # Older Clang-based systems
-			SET (MSG_CXXSTANDARDMODE "Using CLang version ${CMAKE_CXX_COMPILER_VERSION} on ${CMAKE_SYSTEM_NAME}, hence switching to C++98-mode")
-			# ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512")
-			ADD_DEFINITIONS ("-std=c++98 -stdlib=libstdc++")
-		ELSE() # Newer, non-MacOS Clang-based systems
-			SET (MSG_CXXSTANDARDMODE "Using Clang version ${CMAKE_CXX_COMPILER_VERSION}, switching to C++11-mode")
-			ADD_DEFINITIONS ("-std=c++11")		
-		ENDIF()
-	ELSEIF("${GENEVA_CXX_STD}" MATCHES "cxx98")
-		SET (MSG_CXXSTANDARDMODE "C++98 mode enforced by the user. \n\t[Make sure that any accompanying libraries use the same standard.]")
-		IF("${GENEVA_OS_NAME}" MATCHES "DarwinPre13") # MacOS prior to 10.9
-			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
-		ELSEIF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
-			ADD_DEFINITIONS ("-std=c++98 -ftemplate-depth=512 -stdlib=libstdc++")
-		ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1") # Older Clang-based systems
-			ADD_DEFINITIONS ("-std=c++98 -stdlib=libstdc++")
-		ELSE() # Newer, non-MacOS Clang-based systems
-			ADD_DEFINITIONS ("-std=c++98")		
-		ENDIF()
-	ELSEIF("${GENEVA_CXX_STD}" MATCHES "cxx11")
-		SET (MSG_CXXSTANDARDMODE "C++11 mode enforced by the user. \n\t[Make sure that any accompanying libraries use the same standard.]")
-		IF("${GENEVA_OS_NAME}" MATCHES "DarwinPre13") # MacOS prior to 10.9
-			ADD_DEFINITIONS ("-std=c++11 -ftemplate-depth=512 -stdlib=libstdc++")
-		ELSEIF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
-			ADD_DEFINITIONS ("-std=c++11 -ftemplate-depth=512 -stdlib=libstdc++")
-		ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1") # Older Clang-based systems
-			ADD_DEFINITIONS ("-std=c++11 -stdlib=libstdc++")
-		ELSE() # Newer, non-MacOS Clang-based systems
-			ADD_DEFINITIONS ("-std=c++11")		
-		ENDIF()
-	ELSE()
-		MESSAGE (FATAL_ERROR "Invalid compilation mode ${GENEVA_CXX_STD}")
-	ENDIF()
-	
-ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-	SET( MSG_COMPILER "GNU g++")
+FIND_HOST_OS (
+	GENEVA_OS_NAME 
+	GENEVA_OS_VERSION
+)
 
-	# Make gcc/g++ output its error messages on a single line, so Eclipse-CDT can parse them
-  	ADD_DEFINITIONS ("-fmessage-length=0")
+################################################################################
+# Identify the compiler
 
-	IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		ADD_DEFINITIONS ("-DDEBUG -g")
-	ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
-		ADD_DEFINITIONS ("-DNDEBUG -O3")
-	ENDIF()	
+FIND_HOST_COMPILER (
+	GENEVA_COMPILER_NAME
+	GENEVA_COMPILER_VERSION
+	GENEVA_MAX_CXX_STANDARD
+)
 
-	# Note: -fno-unsafe-math-optimizations -fno-finite-math-only prevent false optimization of some critical
-	# code in GRandomBaseT inside uniform_real(). Add "-Wall -Wextra -ansi -pedantic" to make tests even more thorough. This
-	# will likely trigger many warnings in boost.
-	ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth-1024")	
-	
-	# Check, which C++ standard should be used	
-	IF("${GENEVA_CXX_STD}" MATCHES "auto")
-		EXEC_PROGRAM( 
-			${CMAKE_CXX_COMPILER}
-			ARGS -dumpversion
-		 	OUTPUT_VARIABLE GCC_VERSION
-		)
-		IF(GCC_VERSION VERSION_GREATER "4.6.99")
-			SET (MSG_CXXSTANDARDMODE "Using g++ version ${GCC_VERSION}, hence switching to C++11-mode")
-			ADD_DEFINITIONS ("-std=c++11")
-		ELSE()
-			SET (MSG_CXXSTANDARDMODE "Using g++ version ${GCC_VERSION}, hence switching to C++98-mode")
-			ADD_DEFINITIONS ("-std=c++98")
-		ENDIF()
-	ELSEIF("${GENEVA_CXX_STD}" MATCHES "cxx98")
-		SET (MSG_CXXSTANDARDMODE "C++98 mode enforced by the user. \n\t[Make sure that any accompanying libraries use the same standard.]")
-		ADD_DEFINITIONS ("-std=c++98")
-	ELSEIF("${GENEVA_CXX_STD}" MATCHES "cxx11")
-		SET (MSG_CXXSTANDARDMODE "C++11 mode enforced by the user. \n\t[Make sure that any accompanying libraries use the same standard.]")
-		ADD_DEFINITIONS ("-std=c++11")
-	ELSE()
-		MESSAGE (FATAL_ERROR "Invalid compilation mode ${GENEVA_CXX_STD}")
-	ENDIF()
-ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-	MESSAGE (FATAL_ERROR "Visual Studio C++ not yet supported")
-ELSE()
-	MESSAGE (FATAL_ERROR "Unknown compiler CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}")
-ENDIF()
+SET(MSG_COMPILER ${GENEVA_COMPILER_NAME})
+
+################################################################################
+# Determine the C++ standard to be used (depending on the desired standard
+# and the maximum supported standard by the chosen compiler. This function
+# will raise an error if the desired standard is higher than the maximum
+# supported standard. It will also resolve the "auto" setting of the standard
+# by setting it to the maximum supported standard.
+
+GET_ACTUAL_CXX_STANDARD (
+	${GENEVA_CXX_STD}
+	${GENEVA_MAX_CXX_STANDARD}
+	GENEVA_ACTUAL_CXX_STANDARD
+)
+
+SET (MSG_CXXSTANDARDMODE "Using ${GENEVA_COMPILER_NAME} compiler with ${GENEVA_ACTUAL_CXX_STANDARD} standard")
+
+################################################################################
+# Set up compiler flags and add them to the compiler definitions
+
+GET_COMPILER_FLAGS (
+	${GENEVA_OS_NAME}
+	${GENEVA_OS_VERSION}
+	${GENEVA_COMPILER_NAME}
+	${GENEVA_COMPILER_VERSION}
+	${GENEVA_ACTUAL_CXX_STANDARD}
+	${GENEVA_BUILD_TYPE}
+	GENEVA_COMPILER_FLAGS_OUT
+)
+
+ADD_DEFINITIONS("${GENEVA_COMPILER_FLAGS_OUT}")
 
 ################################################################################
 # Specify linker flags
@@ -255,9 +168,9 @@ IF( GENEVA_STATIC )
 	SET (LINK_FLAGS "-static-libgcc -lpthread")
 		
 	# Some special linker flags for MacOS
-	IF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
-		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++") # -macosx_version_min=10.8
-		SET (LINK_FLAGS "${LINK_FLAGS} -stdlib=libstdc++") # -macosx_version_min=10.8		
+	IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
+		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
+		SET (LINK_FLAGS "${LINK_FLAGS} -stdlib=libstdc++")
 	ENDIF()
 	
 	SET (BUILD_SHARED_LIBS OFF)
@@ -267,9 +180,9 @@ IF( GENEVA_STATIC )
 	LINK_LIBRARIES (pthread)
 ELSE() # Dynamic libraries
 	# Some special linker flags for MacOS 10.9
-	IF("${GENEVA_OS_NAME}" MATCHES "DarwinGE13") # MacOS >= 10.9
-		SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lpthread -stdlib=libstdc++") # -macosx_version_min=10.8
-		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++") # -macosx_version_min=10.8
+	IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
+		SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lpthread -stdlib=libstdc++")
+		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
 	ENDIF()
 
 	SET (BUILD_SHARED_LIBS ON)
@@ -282,34 +195,48 @@ ENDIF()
 SET (Boost_USE_MULTITHREAD ON)
 SET (Boost_ADDITIONAL_VERSIONS "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "1.52" "1.52.0" "1.53" "1.53.0" "1.54" "1.54.0" "1.55.0")
 
-# Search for required libraries
+# These are the libraries required for any Geneva build
+SET (
+	GENEVA_BOOST_LIBS
+	date_time
+	filesystem
+	program_options
+	regex
+	serialization
+	system
+	thread	
+)
+
+# Only build tests if requested by the user
 IF( GENEVA_BUILD_TESTS )
 	ADD_DEFINITIONS ("-DGEM_TESTING")
-	FIND_PACKAGE( Boost 1.48 REQUIRED COMPONENTS
-		date_time
-		filesystem
-		program_options
-		regex
-		serialization
-		system
-		thread
+	SET (
+		GENEVA_BOOST_LIBS
+		${GENEVA_BOOST_LIBS}
 		test_exec_monitor
-	)
-ELSE()
-	FIND_PACKAGE( Boost 1.48 REQUIRED COMPONENTS
-		date_time
-		filesystem
-		program_options
-		regex
-		serialization
-		system
-		thread
 	)
 ENDIF()
 
+# Add MPI-Support if requested by the user
+IF( GENEVA_WITH_MPI )
+	SET (
+		GENEVA_BOOST_LIBS
+		${GENEVA_BOOST_LIBS}
+		mpi
+	)
+ENDIF()
+
+# Search for the required libraries
+FIND_PACKAGE( 
+	Boost 
+	${GENEVA_MIN_BOOST_VERSION} REQUIRED 
+	COMPONENTS ${GENEVA_BOOST_LIBS}
+)
+
 ################################################################################
 # Add additional libraries if this is MacOS
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+#
+IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
 	LINK_LIBRARIES(
 		${Boost_DATE_TIME_LIBRARY}
 		${Boost_FILESYSTEM_LIBRARY}
@@ -329,6 +256,7 @@ ENDIF()
 
 ################################################################################
 # Include- and link-directories, libraries
+#
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
 	${Boost_INCLUDE_DIRS}
@@ -351,14 +279,24 @@ SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
 
 ################################################################################
 # Custom targets for building single libraries only
-ADD_CUSTOM_TARGET( "common"       DEPENDS ${COMMON_LIBNAME}
-				COMMENT "Building only the Common library." )
-ADD_CUSTOM_TARGET( "hap"          DEPENDS ${HAP_LIBNAME}
-				COMMENT "Building only the Hap library." )
-ADD_CUSTOM_TARGET( "courtier"     DEPENDS ${COURTIER_LIBNAME}
-				COMMENT "Building only the Courtier library." )
-ADD_CUSTOM_TARGET( "geneva"       DEPENDS ${GENEVA_LIBNAME}
-				COMMENT "Building only the Geneva library." )
+#
+ADD_CUSTOM_TARGET( "common"                   DEPENDS ${COMMON_LIBNAME}              COMMENT "Building only the Common library." )
+ADD_CUSTOM_TARGET( "hap"                      DEPENDS ${HAP_LIBNAME}  	             COMMENT "Building only the Hap library." )
+ADD_CUSTOM_TARGET( "courtier"                 DEPENDS ${COURTIER_LIBNAME}            COMMENT "Building only the Courtier library." )
+ADD_CUSTOM_TARGET( "geneva"                   DEPENDS ${GENEVA_LIBNAME}              COMMENT "Building only the Geneva library." )
+ADD_CUSTOM_TARGET( "geneva-individuals"       DEPENDS ${GENEVA_INDIVIDUAL_LIBNAME}   COMMENT "Building only the Geneva-Individuals library." )
+
+################################################################################
+# On a Unix-system, run a "make clean" and remove temporaries, so the configuration 
+# process may start fresh. The make command will not be available on windows, so
+#
+IF(UNIX)
+	ADD_CUSTOM_TARGET(
+		"clean-all" 
+		COMMAND ${CMAKE_BUILD_TOOL} clean
+		COMMAND ${CMAKE_COMMAND} -P ${PROJECT_SOURCE_DIR}/CMakeModules/clean-cmake-temporaries.cmake
+	)
+ENDIF()
 
 ################################################################################
 # Print a summary of the build settings before going to the subfolders
@@ -385,6 +323,7 @@ ELSE()
 	MESSAGE ("\tand sparse CMake output")
 ENDIF()
 MESSAGE ("\t${MSG_CXXSTANDARDMODE}")
+MESSAGE ("\tBuilding for operating system ${GENEVA_OS_NAME}")
 MESSAGE ("========================================\n")
 
 ################################################################################
@@ -434,9 +373,12 @@ INSTALL ( FILES ${INFORMATIONFILES} DESTINATION .
 # Warning for CMake 2.6, comes last to avoid the message being "lost" in the later output.
 #
 IF( OLD_CMAKE )
-	MESSAGE( AUTHOR_WARNING ": You are using CMake 2.6. Some files will not be copied to the _build_ tree, "
-				"in particular the configuration files for the examples will be missing. "
-				"Updating to CMake 2.8 or later is recommended!" )
+	MESSAGE( 
+		AUTHOR_WARNING 
+		": You are using CMake 2.6. Some files will not be copied to the _build_ tree, "
+		"in particular the configuration files for the examples will be missing. "
+		"Updating to CMake 2.8 or later is recommended!" 
+	)
 ENDIF()
 
 ################################################################################
@@ -472,27 +414,30 @@ SET(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
 SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt/geneva")
 
 # DEB specific variables. Indentation is important in the description!
-SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}
- ${CPACK_AUX_PACKAGE_DESCRIPTION}"
+SET(
+	CPACK_DEBIAN_PACKAGE_DESCRIPTION 
+	"${CPACK_PACKAGE_DESCRIPTION_SUMMARY} ${CPACK_AUX_PACKAGE_DESCRIPTION}"
 )
 SET(CPACK_DEBIAN_PACKAGE_SECTION "Science")
 SET(CPACK_DEBIAN_PACKAGE_PRIORITY "Extra")
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-dev (>= 1.48.0),
-	libboost-date-time-dev (>= 1.48.0),
-	libboost-filesystem-dev (>= 1.48.0),
-	libboost-program-options-dev (>= 1.48.0),
-	libboost-regex-dev (>= 1.48.0),
-	libboost-serialization-dev (>= 1.48.0),
-	libboost-system-dev (>= 1.48.0),
-	libboost-thread-dev (>= 1.48.0),
-	libboost-test-dev (>= 1.48.0)"
+SET(
+	CPACK_DEBIAN_PACKAGE_DEPENDS 
+	"libboost-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
+	libboost-date-time-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
+	libboost-filesystem-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
+	libboost-program-options-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
+	libboost-regex-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
+	libboost-serialization-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
+	libboost-system-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
+	libboost-thread-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
+	libboost-test-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0)"
 )
 
 # RPM specific variables
 SET(CPACK_RPM_PACKAGE_DESCRIPTION ${CPACK_AUX_PACKAGE_DESCRIPTION})
 SET(CPACK_RPM_PACKAGE_LICENSE "Affero GPL v3")
 SET(CPACK_RPM_PACKAGE_GROUP "Sciences/Libraries")
-SET(CPACK_RPM_PACKAGE_REQUIRES "boost-devel >= 1.48")
+SET(CPACK_RPM_PACKAGE_REQUIRES "boost-devel >= ${GENEVA_MIN_BOOST_VERSION}")
 
 # Detect the distribution to autoselect the package generator...
 EXECUTE_PROCESS(COMMAND lsb_release -is

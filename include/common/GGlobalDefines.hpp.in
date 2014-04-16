@@ -70,24 +70,15 @@
 #define BOOST_FILESYSTEM_VERSION 3
 #endif /* BOOST_VERSION >= 104400 */
 
-// Check for C++11
-#ifdef __GNUC__
-#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
-#if __cplusplus == 201103L
-#define GCPPELEVEN
-#endif
-#endif
-#endif
-
-// Define some macros that selectively switch on C++11 constructs when supported
-#ifdef GCPPELEVEN
-#define BASE /* Simply helps to mark functions considered to be at the base of the hierarchy */
+// Check for C++11 and enable some macros, if possible. 
+// We only support this for gcc, clang and Intel compilers
+#define BASE
+#if (defined(__GNUC__) || defined(__clang__) || defined(__ICC)) && __cplusplus == 201103L 
 #define OVERRIDE override
 #define FINAL final
-#else /* GCPPELEVEN */
-#define BASE
+#else
 #define OVERRIDE
 #define FINAL
-#endif /* GCPPELEVEN */
+#endif
 
 #endif /* GGLOBALDEFINES_HPP_ */

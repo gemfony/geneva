@@ -1,9 +1,11 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( CMAKEFILES
+	clean-cmake-temporaries.cmake
 	COPYING-CMAKE-SCRIPTS
 	FindBoost.cmake
 	FindGeneva.cmake
+	IdentifySystemParameters.cmake
 )
 
 INSTALL ( FILES ${CMAKEFILES} DESTINATION CMakeModules
