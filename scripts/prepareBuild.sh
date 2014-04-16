@@ -250,10 +250,13 @@ echo -e "---------------------------------------------------------------------\n
 ${CONFIGURE} ${PROJECTROOT}
 
 ####################################################################
-# Finish by telling the user how to continue :-)
-echo -e "\n\n---------------------------------------------------------------------"
-echo -e "\nYou may now build and install Geneva in the usual way:"
-echo -e "make\t\t# Use '-jn', where 'n' is the number of cores in your system"
-echo -e "make install\n\n"
+# Finish by telling the user how to continue, unless there were errors
+if [ $? -eq 0 ]; then
+	echo -e "\n\n---------------------------------------------------------------------"
+	echo -e "\nYou may now build and install Geneva in the usual way:"
+	echo -e "make\t\t# Use '-jn', where 'n' is the number of cores in your system"
+	echo -e "make install\n\n"
+fi
 
 ####################################################################
+# done

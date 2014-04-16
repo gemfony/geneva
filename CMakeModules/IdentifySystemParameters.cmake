@@ -605,4 +605,56 @@ FUNCTION (
 ENDFUNCTION()
 
 ###############################################################################
+# Identifies unsupported setups as early as possible
+#
+FUNCTION (
+	FLAG_UNSUPPORTED_SETUPS
+	GENEVA_OS_NAME_IN 
+	GENEVA_OS_VERSION_IN
+	GENEVA_COMPILER_NAME_IN
+	GENEVA_COMPILER_VERSION_IN
+	GENEVA_CXX_STANDARD_IN
+	GENEVA_STATIC_IN
+)
+
+	#--------------------------------------------------------------------------
+	
+	IF("${GENEVA_OS_NAME_IN}" STREQUAL "MacOSX")
+		# Only clang is currently supported on MacOS
+		IF(NOT "${GENEVA_COMPILER_NAME_IN}" STREQUAL "${CLANG_DEF_IDENTIFIER}")
+			MESSAGE(FATAL_ERROR "Compiler ${GENEVA_COMPILER_NAME_IN} is not supported on MacOSX. Use Clang instead.")
+		ENDIF()
+		
+		# Only MacOS X >= 10.9 Mavericks is supported
+		IF(${GENEVA_OS_VERSION_IN} VERSION_LESS 13.0)
+			MESSAGE(FATAL_ERROR "Geneva only supports MacOS X >= 10.9 / Mavericks")
+		ENDIF()
+		
+		# Static linking on MacOSX is not currently supported
+		IF("${GENEVA_STATIC_IN}" STREQUAL "1")
+			MESSAGE(FATAL_ERROR "Static linking is not currently supported by Geneva on MacOS X")
+		ENDIF()
+		
+		# Only C++98 is supported at the time being on MacOS X
+		IF(NOT "${GENEVA_CXX_STANDARD_IN}" STREQUAL "cxx98")
+			MESSAGE(FATAL_ERROR "Geneva only supports C++98 on MacOS X")
+		ENDIF()
+		
+	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "Linux")
+		# No restrictions at the moment
+	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "FreeBSD")
+		# No restrictions at the moment
+	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "Windows")
+		MESSAGE(FATAL_ERROR "Windows is not yet supported")
+	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "unsupported")
+		MESSAGE(FATAL_ERROR "Operating system is not supported")
+	ELSE()
+		MESSAGE(FATAL_ERROR "${GENEVA_OS_NAME_IN} is not supported")
+	ENDIF()
+	
+	#--------------------------------------------------------------------------
+
+ENDFUNCTION()
+
+###############################################################################
 # done

@@ -119,10 +119,8 @@ VALIDATE_BUILD_TYPE()
 # Set a number of variables related to static or dynamic build-mode
 IF ( GENEVA_STATIC ) 
 	SET (BUILD_SHARED_LIBS OFF)
-	SET (Boost_USE_STATIC_LIBS ON)
 ELSE() # dynamic libraries
 	SET (BUILD_SHARED_LIBS ON)
-	SET (Boost_USE_STATIC_LIBS OFF)
 ENDIF()  
 
 ################################################################################
@@ -159,6 +157,17 @@ GET_ACTUAL_CXX_STANDARD (
 
 SET (MSG_CXXSTANDARDMODE "Using ${GENEVA_COMPILER_NAME} compiler with ${GENEVA_ACTUAL_CXX_STANDARD} standard")
 
+###############################################################################
+# Identify unsupported setups as early as possible
+FLAG_UNSUPPORTED_SETUPS(
+	GENEVA_OS_NAME 
+	GENEVA_OS_VERSION
+	GENEVA_COMPILER_NAME
+	GENEVA_COMPILER_VERSION
+	GENEVA_ACTUAL_CXX_STANDARD
+	GENEVA_STATIC
+)
+
 ################################################################################
 # Set up compiler flags and add them to the compiler definitions
 
@@ -175,30 +184,16 @@ GET_COMPILER_FLAGS (
 ADD_DEFINITIONS("${GENEVA_COMPILER_FLAGS_OUT}")
 
 ################################################################################
-# Specify linker flags
-IF( GENEVA_STATIC )	
-	SET (CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -lpthread")
-		
-	# Some special linker flags for MacOS
-	IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
-		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
-	ENDIF()
-	
-	LINK_LIBRARIES (dl z pthread)
-ELSE() # Dynamic libraries
-	# Some special linker flags for MacOS 10.9
-	IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
-		SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lpthread -stdlib=libstdc++")
-		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
-	ENDIF()
-
-	LINK_LIBRARIES (pthread)
-ENDIF()
-
-################################################################################
 # Boost-specific code
+
 SET (Boost_USE_MULTITHREAD ON)
 SET (Boost_ADDITIONAL_VERSIONS "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "1.52" "1.52.0" "1.53" "1.53.0" "1.54" "1.54.0" "1.55.0")
+
+IF ( GENEVA_STATIC ) 
+	SET (Boost_USE_STATIC_LIBS ON)
+ELSE() # dynamic libraries
+	SET (Boost_USE_STATIC_LIBS OFF)
+ENDIF()  
 
 # These are the libraries required for any Geneva build
 SET (
@@ -239,24 +234,44 @@ FIND_PACKAGE(
 )
 
 ################################################################################
-# Add additional libraries if this is MacOS
+# Add additional libraries and flags
 #
-IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
-	LINK_LIBRARIES(
-		${Boost_DATE_TIME_LIBRARY}
-		${Boost_FILESYSTEM_LIBRARY}
-		${BOOST_REGEX_LIBRARY}
-		${Boost_SERIALIZATION_LIBRARY}
-		${Boost_SYSTEM_LIBRARY}
-		${Boost_THREAD_LIBRARY}
-		${Boost_PROGRAM_OPTIONS_LIBRARY}
-	)
-	
-	IF( GENEVA_BUILD_TESTS )
+IF(UNIX)
+	#---------------------------------------------------------------------------
+	IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
 		LINK_LIBRARIES(
-			${Boost_TEST_EXEC_MONITOR_LIBRARY}
+			${Boost_DATE_TIME_LIBRARY}
+			${Boost_FILESYSTEM_LIBRARY}
+			${Boost_REGEX_LIBRARY}
+			${Boost_SERIALIZATION_LIBRARY}
+			${Boost_SYSTEM_LIBRARY}
+			${Boost_THREAD_LIBRARY}
+			${Boost_PROGRAM_OPTIONS_LIBRARY}
 		)
+		
+		IF( GENEVA_BUILD_TESTS )
+			LINK_LIBRARIES(
+				${Boost_TEST_EXEC_MONITOR_LIBRARY}
+			)
+		ENDIF()
+		
+		IF( GENEVA_STATIC )	
+			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
+		ELSE() # Dynamic libraries
+			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lpthread -stdlib=libstdc++")
+			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
+		ENDIF()
 	ENDIF()
+	
+	#---------------------------------------------------------------------------
+	IF( GENEVA_STATIC )	
+		LINK_LIBRARIES (dl z pthread)
+	ELSE() # Dynamic linking
+		LINK_LIBRARIES (pthread)
+	ENDIF()
+	#---------------------------------------------------------------------------
+ELSEIF(WIN32)
+	# Nothing yet
 ENDIF()
 
 ################################################################################
