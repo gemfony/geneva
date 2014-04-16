@@ -39,6 +39,10 @@
 #!/bin/bash
 
 ####################################################################
+# Make a note of the build-root-directory
+GENEVA_BUILDROOT=${PWD}
+
+####################################################################
 # Check variables, set variable defaults if no config file was given
 if [ $# -eq 0 ]; then
 	echo -e "\nSetting variable defaults, as no Geneva config"
@@ -207,6 +211,19 @@ if [ ! -e ${PROJECTROOT}/CMakeLists.txt ]; then
 	echo "Error: the script should reside in the project root."
 	echo "Leaving."
 	exit
+fi
+
+####################################################################
+# If there is a Makefile in the directory, reset the CMake build
+# system, as we are about to launch a new configuration run
+# clean-all is a build-target defined by the Geneva-build-system.
+# If a Makefile exists, we assume that the build environment has been
+# set up before
+if [ -e ${GENEVA_BUILDROOT}/Makefile ]; then
+	cd ${GENEVA_BUILDROOT}
+	echo "Cleaning old build-environment ..."
+	make clean-all 2>&1 > /dev/null
+	echo "... done"
 fi
 
 ####################################################################

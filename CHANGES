@@ -1,8 +1,6 @@
 //------------------------------------------------------------------------------------------------------
 * Development version 1.3, will be released as version 1.4 when ready
 
-The main feature additions for this release include:
-
 ****************************** BREAKING CHANGES ********************************
 
  - As we do not have any testing facilities for older versions and most users
@@ -12,16 +10,25 @@ The main feature additions for this release include:
 
 ********************************************************************************
 
+The main feature additions for this release include:
+- prepareBuild.sh can now be called multiple times (it will do a "make clean-all" if
+  a Makefile is found in the build-directory
+
 The main bug fixes for this release include:
 - Work items could be added more than once to the priority queue defining the best solutions found
   under certain circumstances
 
+Other changes in this release
+- The build-system was renovated to make it easier to add new platforms and to
+  make the build system more manageable
+
 Wishlist:
  - MPI Consumer/Client
- - Re-ordering of build-scripts to allow easier integration of new platforms
  - A scripting interface to optimization algorithms, so that new
    algorithms can be more easily implemented and tested even by
    people not familiar with all of Geneva
+ - A "Python-Individual", so that optimization algorithms may be
+   specified in Python
  - Additional optimization algorithms (particularly Simplex
    and Conjugate Gradient)
  - MS Windows port

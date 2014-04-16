@@ -165,7 +165,7 @@ ADD_DEFINITIONS("${GENEVA_COMPILER_FLAGS_OUT}")
 # Specify linker flags
 IF( GENEVA_STATIC )	
 	SET (CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -lpthread")
-	SET (LINK_FLAGS "-static-libgcc -lpthread")
+#	SET (LINK_FLAGS "-static-libgcc -lpthread")
 		
 	# Some special linker flags for MacOS
 	IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
