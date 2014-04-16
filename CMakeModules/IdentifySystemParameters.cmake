@@ -622,22 +622,34 @@ FUNCTION (
 	IF("${GENEVA_OS_NAME_IN}" STREQUAL "MacOSX")
 		# Only clang is currently supported on MacOS
 		IF(NOT "${GENEVA_COMPILER_NAME_IN}" STREQUAL "${CLANG_DEF_IDENTIFIER}")
-			MESSAGE(FATAL_ERROR "Compiler ${GENEVA_COMPILER_NAME_IN} is not supported on MacOSX. Use Clang instead.")
+			MESSAGE("######################################################################################")
+			MESSAGE("# Compiler ${GENEVA_COMPILER_NAME_IN} is not supported on MacOSX. Use Clang instead. #")
+			MESSAGE("######################################################################################")
+			MESSAGE(FATAL_ERROR)
 		ENDIF()
 		
 		# Only MacOS X >= 10.9 Mavericks is supported
 		IF(${GENEVA_OS_VERSION_IN} VERSION_LESS 13.0)
-			MESSAGE(FATAL_ERROR "Geneva only supports MacOS X >= 10.9 / Mavericks")
+			MESSAGE("######################################################")
+			MESSAGE("# "Geneva only supports MacOS X >= 10.9 / Mavericks" #")
+			MESSAGE("######################################################")
+			MESSAGE(FATAL_ERROR)
 		ENDIF()
 		
 		# Static linking on MacOSX is not currently supported
 		IF("${GENEVA_STATIC_IN}" STREQUAL "1")
-			MESSAGE(FATAL_ERROR "Static linking is not currently supported by Geneva on MacOS X")
+			MESSAGE("##################################################################")
+			MESSAGE("# Static linking is not currently supported by Geneva on MacOS X #")
+			MESSAGE("##################################################################")
+			MESSAGE(FATAL_ERROR)
 		ENDIF()
 		
 		# Only C++98 is supported at the time being on MacOS X
 		IF(NOT "${GENEVA_CXX_STANDARD_IN}" STREQUAL "cxx98")
-			MESSAGE(FATAL_ERROR "Geneva only supports C++98 on MacOS X")
+			MESSAGE("#########################################")
+			MESSAGE("# Geneva only supports C++98 on MacOS X #")
+			MESSAGE("#########################################")
+			MESSAGE(FATAL_ERROR)
 		ENDIF()
 		
 	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "Linux")
@@ -645,11 +657,20 @@ FUNCTION (
 	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "FreeBSD")
 		# No restrictions at the moment
 	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "Windows")
-		MESSAGE(FATAL_ERROR "Windows is not yet supported")
+		MESSAGE("################################")
+		MESSAGE("# Windows is not yet supported #")
+		MESSAGE("################################")
+		MESSAGE(FATAL_ERROR)
 	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "unsupported")
-		MESSAGE(FATAL_ERROR "Operating system is not supported")
+		MESSAGE("#####################################")
+		MESSAGE("# Operating system is not supported #")
+		MESSAGE("#####################################")
+		MESSAGE(FATAL_ERROR)
 	ELSE()
-		MESSAGE(FATAL_ERROR "${GENEVA_OS_NAME_IN} is not supported")
+		MESSAGE("#########################################")
+		MESSAGE("# ${GENEVA_OS_NAME_IN} is not supported #")
+		MESSAGE("#########################################")
+		MESSAGE(FATAL_ERROR)
 	ENDIF()
 	
 	#--------------------------------------------------------------------------
