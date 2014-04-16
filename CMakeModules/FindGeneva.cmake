@@ -31,17 +31,27 @@
 #
 # This code defines the following variables:
 #
-# GENEVA_FOUND    - TRUE if all components are found
+# GENEVA_ROOT_DIR             The directory below which Geneva can be found
+# GENEVA_INCLUDE_DIR          The directory below which Geneva includes may be found
+# GENEVA_LIBRARY_DIR          The directory where the Geneva libraries may be found
+# GENEVA_BASE_LIBRARY         Points to the geneva optimization library
+# GENEVA_INDIVIDUAL_LIBRARY   Points to a library of sample individuals
+# GENEVA_COMMON_LIBRARY       Points to a library with common functionality needed by all parts of Geneva
+# GENEVA_HAP_LIBRARY          Points to a library for random number generation
+# GENEVA_COURTIER_LIBRARY     Points to a library for parallel/distributed computing
+# GENEVA_LIBRARIES            A list of all Geneva libraries
+# GENEVA_FOUND                TRUE if all of the above components were found
 #
-# Example Usages:
-#  FIND_PACKAGE(Geneva)
+# Example Usages: FIND_PACKAGE(Geneva)
 #
 ###############################################################################
 
 # Handles standard arguments
 include(FindPackageHandleStandardArgs)
 
-# Search for the file GENEVAROOT in the search path
+###############################################################################
+# Search for the file GENEVAROOT in the search path and an environment variable
+
 find_path(
   GENEVA_ROOT_DIR GENEVAROOT
   HINTS
@@ -51,15 +61,19 @@ find_path(
     ENV GENEVA_ROOT
 )
 
+###############################################################################
 # find the include directories. We search for a single include
 # directory only and assume that the others can be found on the
 # same level 
+
 find_path(
   GENEVA_INCLUDE_DIR geneva/GIndividual.hpp
   PATHS ${GENEVA_ROOT_DIR}/include
   )
 
+###############################################################################
 # Find the libraries
+
 find_library(
   GENEVA_BASE_LIBRARY 
   NAMES gemfony-geneva
@@ -86,7 +100,9 @@ find_library(
   PATHS ${GENEVA_ROOT_DIR}/lib
   )
 
+###############################################################################
 # Check that all files and directories were properly found
+
 find_package_handle_standard_args (
   GENEVA 
   DEFAULT_MSG
@@ -114,8 +130,14 @@ get_filename_component(
   PATH
 )
 
+###############################################################################
+# Mark as finished
+
 mark_as_advanced(
   GENEVA_INCLUDE_DIR
   GENEVA_LIBRARY_DIR
   GENEVA_LIBRARIES
 )
+
+###############################################################################
+# done
