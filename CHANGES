@@ -7,6 +7,13 @@
    will upgrade to the newest version anyway, support for MacOS is now constrained 
    to the latest version with all updates (10.9 Mavericks, at the time of writing). 
    Note that support for this OS is still experimental.
+ - The CMakeLists.txt file of the 10_GStarter example can no longer be used for
+   builds independent of the Geneva main source tree. Instead, if you want to build
+   example 10 independently (for example in order to build your own code on top), 
+   rename CMakeLists.txt-independent to CMakeLists.txt . This allows independent
+   builds. All other Geneva examples can only be built inside of the Geneva source
+   tree. CMakeLists.txt-independent should however give you a good starting point
+   to make other examples independent from the main Geneva source tree.
 
 ********************************************************************************
 
@@ -34,6 +41,9 @@ Wishlist:
  - MS Windows port
  - Rework of the test infrastructure
  - Variable length parents in evolutionary algorithms to better support pareto optimization
+ - Make the build-system log whether the libraries were built with or without 
+   test- and mpi-support, so independent builds may configure themselves automatically
+ - Automatic recreation and distribution of relevant configuration files
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.2, "Mont Blanc" - March 22, 2014

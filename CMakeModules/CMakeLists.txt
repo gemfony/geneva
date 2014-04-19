@@ -6,6 +6,7 @@ SET ( CMAKEFILES
 	FindBoost.cmake
 	FindGeneva.cmake
 	IdentifySystemParameters.cmake
+	independent-built.cmake
 )
 
 INSTALL ( FILES ${CMAKEFILES} DESTINATION CMakeModules

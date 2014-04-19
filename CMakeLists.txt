@@ -39,13 +39,23 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 #
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
+################################################################################
+# We create some examples and test programs as part of the build process.
+# This variable allows their build-scripts to detect that they are being
+# called from within the master build-script. This prevents redundant searches
+# and checks and allows examples to be built independent of the main Geneva
+# source tree. 
+
+SET(GENEVA_DEPENDENT_BUILD TRUE)
+
 ###############################################################################
 # Includes
-#
+
 INCLUDE(IdentifySystemParameters)
 
 ###############################################################################
 # Set the library/package version
+
 SET(VERSION_MAJOR "1")
 SET(VERSION_MINOR "3")
 SET(VERSION_PATCH "0")
@@ -113,15 +123,17 @@ ENDIF()
 ################################################################################
 # Validates the build type chosen by the user (Release or Debug). Also sets
 # the CMAKE_BUILD_TYPE accordingly
+
 VALIDATE_BUILD_TYPE()
 
 ################################################################################
 # Set a number of variables related to static or dynamic build-mode
+
 IF ( GENEVA_STATIC ) 
 	SET (BUILD_SHARED_LIBS OFF)
 ELSE() # dynamic libraries
 	SET (BUILD_SHARED_LIBS ON)
-ENDIF()  
+ENDIF()
 
 ################################################################################
 # Identify the operating system
@@ -298,15 +310,6 @@ SET ( GENEVA_LIBNAME            "gemfony-geneva" )
 SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
 
 ################################################################################
-# Custom targets for building single libraries only
-#
-ADD_CUSTOM_TARGET( "common"                   DEPENDS ${COMMON_LIBNAME}              COMMENT "Building only the Common library." )
-ADD_CUSTOM_TARGET( "hap"                      DEPENDS ${HAP_LIBNAME}  	             COMMENT "Building only the Hap library." )
-ADD_CUSTOM_TARGET( "courtier"                 DEPENDS ${COURTIER_LIBNAME}            COMMENT "Building only the Courtier library." )
-ADD_CUSTOM_TARGET( "geneva"                   DEPENDS ${GENEVA_LIBNAME}              COMMENT "Building only the Geneva library." )
-ADD_CUSTOM_TARGET( "geneva-individuals"       DEPENDS ${GENEVA_INDIVIDUAL_LIBNAME}   COMMENT "Building only the Geneva-Individuals library." )
-
-################################################################################
 # On a Unix-system, run a "make clean" and remove temporaries, so the configuration 
 # process may start fresh. The make command will not be available on windows, so
 #
@@ -319,7 +322,17 @@ IF(UNIX)
 ENDIF()
 
 ################################################################################
+# Custom targets for building single libraries only
+#
+ADD_CUSTOM_TARGET( "common"                   DEPENDS ${COMMON_LIBNAME}              COMMENT "Building only the Common library." )
+ADD_CUSTOM_TARGET( "hap"                      DEPENDS ${HAP_LIBNAME}  	             COMMENT "Building only the Hap library." )
+ADD_CUSTOM_TARGET( "courtier"                 DEPENDS ${COURTIER_LIBNAME}            COMMENT "Building only the Courtier library." )
+ADD_CUSTOM_TARGET( "geneva"                   DEPENDS ${GENEVA_LIBNAME}              COMMENT "Building only the Geneva library." )
+ADD_CUSTOM_TARGET( "geneva-individuals"       DEPENDS ${GENEVA_INDIVIDUAL_LIBNAME}   COMMENT "Building only the Geneva-Individuals library." )
+
+################################################################################
 # Print a summary of the build settings before going to the subfolders
+
 MESSAGE ("\n========================================")
 MESSAGE ("Building:")
 IF( GENEVA_STATIC )
@@ -414,19 +427,18 @@ SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Geneva optimization library")
 
 # The package description. Indentation is important!
 SET(CPACK_AUX_PACKAGE_DESCRIPTION
- "This is a beta version of the Geneva optimization library. As the name
- suggests --it stands for 'Grid-enabled evolutionary algorithms'--, Geneva
- aims to provide the necessary tools to perform parametric optimization
- in parallel on devices ranging from multi-processor machines over
- clusters all the way to Grids and Cloud installations.
- .
- Geneva does not want to be the fastest library of evolutionary
- algorithms on single-processor machines, but is instead targeted at
- large scale problems, where the evaluation of a single individual will
- typically take longer than a few seconds."
+ "This is the Geneva optimization library. As the name suggests --it stands for 
+ 'Grid-enabled evolutionary algorithms'--, Geneva aims to provide the necessary 
+ tools to perform parametric optimization in parallel on devices ranging from 
+ multi-processor machines over clusters all the way to Grids and Cloud installations.
+ Geneva does not want to be the fastest library of evolutionary algorithms on 
+ single-processor machines, but is instead targeted at large scale problems, 
+ where the evaluation of a single candidate solution will typically take longer 
+ than a few seconds. Geneva was developed with kind support from Karlsruhe Institute
+ of technology."
 )
 
-SET(CPACK_PACKAGE_VENDOR "Gemfony scientific and Karlsruhe Institute of Technology")
+SET(CPACK_PACKAGE_VENDOR "Gemfony scientific")
 SET(CPACK_PACKAGE_CONTACT "Gemfony scientific <contact@gemfony.eu>")
 SET(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
 SET(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})

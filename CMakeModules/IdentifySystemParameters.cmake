@@ -30,6 +30,11 @@
 # http://www.gemfony.eu .
 #
 ###############################################################################
+# Include guard
+IF(NOT IDENTIFY_SYSTEM_PARAMETERS_INCLUDED)
+SET(IDENTIFY_SYSTEM_PARAMETERS_INCLUDED TRUE)
+
+###############################################################################
 # Includes
 
 INCLUDE(CheckCXXCompilerFlag)
@@ -630,9 +635,9 @@ FUNCTION (
 		
 		# Only MacOS X >= 10.9 Mavericks is supported
 		IF(${GENEVA_OS_VERSION_IN} VERSION_LESS 13.0)
-			MESSAGE("######################################################")
-			MESSAGE("# "Geneva only supports MacOS X >= 10.9 / Mavericks" #")
-			MESSAGE("######################################################")
+			MESSAGE("####################################################")
+			MESSAGE("# Geneva only supports MacOS X >= 10.9 / Mavericks #")
+			MESSAGE("####################################################")
 			MESSAGE(FATAL_ERROR)
 		ENDIF()
 		
@@ -678,4 +683,10 @@ FUNCTION (
 ENDFUNCTION()
 
 ###############################################################################
+# End of the include-guard
+
+ENDIF(NOT IDENTIFY_SYSTEM_PARAMETERS_INCLUDED)
+
+###############################################################################
 # done
+

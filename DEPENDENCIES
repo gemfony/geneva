@@ -4,10 +4,8 @@
 #
 ###############################################################################
 
-- Geneva/CMakeModules/IdentifySystemParameters.cmake:
-  
-  This file holds some CMake macros needed to identify system parameters. It is 
-  replicated verbatim in a number of directories, particularly all of the 
-  Geneva optimization library examples. When the master file is updated, all of
-  the duplicates should be updated as well.
+- A current FindGeneva.cmake must be made available to all examples
+- The GENEVA_MIN_BOOST_VERSION variable needs to be updated in all instances
+  of FindGeneva.cmake and in the main CMakeLists.txt file
+
   
