@@ -430,7 +430,7 @@ protected:
 
       // In MUCOMMANU_SINGLEEVAL mode we want to have at least as many children as parents,
       // whereas MUPLUSNU_SINGLEEVAL only requires the population size to be larger than the
-      // number of parents. MUNU1PRETAIN has the same requirements as MUCOMMANU_SINGLEEVAL and SA_SINGLEEVAL,
+      // number of parents. MUNU1PRETAIN has the same requirements as MUCOMMANU_SINGLEEVAL,
       // as it is theoretically possible that all children are better than the former
       // parents, so that the first parent individual will be replaced.
       if(
