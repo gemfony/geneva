@@ -180,8 +180,8 @@ public:
 
    /** @brief Adds local configuration options to a GParserBuilder object */
    virtual void addConfigurationOptions (
-         Gem::Common::GParserBuilder& gpb
-         , const bool& showOrigin
+      Gem::Common::GParserBuilder& gpb
+      , const bool& showOrigin
    ) OVERRIDE;
 
    /** @brief Emits a name for this class / object */

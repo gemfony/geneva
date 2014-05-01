@@ -116,7 +116,7 @@ protected:
    virtual void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
 
 private:
-   std::string parameterSpec_; ///< Holds information on the variables to be optimized -- set through the configuration file
+   std::string parameterSpec_;   ///< Holds information on the variables to be optimized -- set through the configuration file
    std::string parameterSpecCL_; ///< Holds information on the variables to be optimized -- set through the corresponding member function or on the command line
 };
 

@@ -117,7 +117,7 @@
         "default": "100",
         "value": "100"
     },
-    "scanRandomly_":
+    "scanRandomly":
     {
         "comment": "Indicates whether scans should be done randomly",
         "comment": "(1) or on a grid (0)",
