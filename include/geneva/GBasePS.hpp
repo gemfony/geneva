@@ -202,6 +202,11 @@ public:
    /** @brief Retrieves the number of scans performed so far */
    std::size_t getNScansPerformed() const;
 
+   /** @brief Allows to specify whether the parameter space should be scanned randomly or on a grid */
+   void setScanRandomly(bool);
+   /** @brief Allows to check whether the parameter space should be scanned randomly or on a grid */
+   bool getScanRandomly() const;
+
 protected:
    /***************************************************************************/
    /** @brief Loads the data of another population */

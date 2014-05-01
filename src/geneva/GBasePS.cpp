@@ -958,6 +958,24 @@ std::size_t GBasePS::getNScansPerformed() const {
 
 /******************************************************************************/
 /**
+ * Allows to specify whether the parameter space should be scanned randomly
+ * or on a grid
+ */
+void GBasePS::setScanRandomly(bool scanRandomly) {
+   scanRandomly_ = scanRandomly;
+}
+
+/******************************************************************************/
+/**
+ * Allows to check whether the parameter space should be scanned randomly
+ * or on a grid
+ */
+bool GBasePS::getScanRandomly() const {
+   return scanRandomly_;
+}
+
+/******************************************************************************/
+/**
  * Does some preparatory work before the optimization starts
  */
 void GBasePS::init() {
