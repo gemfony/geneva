@@ -39,6 +39,7 @@ SET ( EXECUTABLENAME GFunctionMinimizer )
 SET ( ${EXECUTABLENAME}_SRCS
 	GFunctionMinimizer
 	GFMinIndividual
+	GSigmaMonitor
 )
 
 SET ( CONFIGFILES
