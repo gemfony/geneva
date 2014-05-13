@@ -30,7 +30,6 @@ Other changes in this release
   make the build system more manageable
 
 Wishlist:
- - MPI Consumer/Client
  - A scripting interface to optimization algorithms, so that new
    algorithms can be more easily implemented and tested even by
    people not familiar with all of Geneva
