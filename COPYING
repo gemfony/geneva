@@ -1,6 +1,8 @@
-The Geneva library collection is covered by version 3 of the GNU Affero General 
-Public License. You should have received a copy of that license along with the 
-Geneva library (see the file licenses/AfferoGPLv3). If not, see <http://www.gnu.org/licenses/>.
+Unless explicitly agreed to in writing by the management of Gemfony scientific UG 
+(haftungsbeschränkt), the Geneva library collection may be used solely according 
+to the terms and conditions of version 3 of the GNU Affero General Public License. 
+You should have received a copy of that license along with the Geneva library (see 
+the file licenses/AfferoGPLv3). If not, see <http://www.gnu.org/licenses/>.
 
 A small number of files of the Geneva library collection is covered by the Boost Software
 License v1. You should have received a copy of the Boost Software License v1
@@ -19,7 +21,7 @@ IMPORTANT:
 Each code file of the Geneva library contains licensing information. So if
 in doubt, please have a look at each file individually. If doubts still
 remain, please contact the authors PRIOR TO USING THIS LIBRARY through
-contact@gemfony.eu. If doubts still remain, we recommend to not use the 
+contact@gemfony.eu. If doubts continue to remain, we recommend to not use the 
 library at all.
 ***************************************************************************
 
