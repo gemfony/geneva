@@ -415,6 +415,24 @@ IF( OLD_CMAKE )
 ENDIF()
 
 ################################################################################
+# Code for the creation of reference documentation for Geneva
+#
+FIND_PACKAGE(Doxygen)
+
+IF( DOXYGEN_FOUND )
+	CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+	ADD_CUSTOM_TARGET (
+		doc
+		${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		COMMENT "Creation of reference documentation for Geneva with 'make doc'" VERBATIM
+	)
+	MESSAGE("-- Reference documentation for Geneva may now be created with 'make doc'")
+ELSE()
+	MESSAGE("Doxygen not found. No support for the creation of reference documentation")
+ENDIF()
+
+################################################################################
 # Code for package generation with CPack. This is experimental and the packages 
 # don't satisfy the Linux FHS yet. Use with care.
 #  

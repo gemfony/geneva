@@ -20,6 +20,8 @@
 The main feature additions for this release include:
 - prepareBuild.sh can now be called multiple times (it will do a "make clean-all" if
   a Makefile is found in the build-directory
+- Added support for "make doc" to create reference documentation for the entire
+  Geneva source tree
 
 The main bug fixes for this release include:
 - Work items could be added more than once to the priority queue defining the best solutions found
