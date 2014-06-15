@@ -12,6 +12,11 @@
    value yourself. Note that this is easily possible using the Boost function 
    boost::math::float_prior<fp_type>(x) . See the manual for further information.
    NOTE: THIS CHANGE IS STILL WORK IN PROGRESS
+ - Constraint objects now use a new nomenclature to flag valid and invalid checks.
+   Values > 1 are considered to be "invalid" as before. Values < 0 are now flagged
+   as invalid (with an automatic calculation of an "invalidity"), unless the
+   "allowNegative" parameter of the constraint objects has been set. In this case
+   negative values are still considered to be valid in constraint objects. 
  - The CMakeLists.txt file of the 10_GStarter example can no longer be used for
    builds independent of the Geneva main source tree. Instead, if you want to build
    example 10 independently (for example in order to build your own code on top), 
@@ -31,6 +36,9 @@ The main feature additions for this release include:
   a Makefile is found in the build-directory
 - Added support for "make doc" to create reference documentation for the entire
   Geneva source tree
+- The formula parser will now throw custom exceptions when invalid calculations (such 
+  as a division by 0) were requested. This allows you to deal with invalid parameters
+  to your formulas more easily.
 
 The main bug fixes for this release include:
 - Work items could be added more than once to the priority queue defining the best solutions found
