@@ -322,6 +322,7 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
  */
 enum validityCheckCombinerPolicy {
    MULTIPLYINVALID = 0   // Multiplies all invalid checks (i.e. return values > 1) or returns 0, if all checks are valid
+   , ADDINVALID = 1      // Adds all invalid checks or returns 0, if all checks are valid
 };
 
 /******************************************************************************/

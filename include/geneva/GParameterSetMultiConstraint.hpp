@@ -173,7 +173,7 @@ public:
 
 protected:
    /** @brief Checks whether a given GParameterSet object is valid */
-   virtual double check_(const GParameterSet *) const;
+   virtual double check_(const GParameterSet *) const OVERRIDE;
 
    /** @brief Loads the data of another GParameterSetConstraint */
    virtual void load_(const GObject*) OVERRIDE;

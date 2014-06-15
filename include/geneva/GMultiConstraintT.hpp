@@ -48,6 +48,7 @@
 
 // Geneva header files go here
 #include "common/GPODExpectationChecksT.hpp"
+#include "common/GMathHelperFunctions.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
@@ -74,7 +75,8 @@ class GValidityCheckT : public GObject
    void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject);
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+     & BOOST_SERIALIZATION_NVP(allowNegative_);
    }
    ///////////////////////////////////////////////////////////////////////
 
@@ -87,6 +89,7 @@ public:
     * The default constructor
     */
    GValidityCheckT()
+      : allowNegative_(false)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -95,6 +98,7 @@ public:
     */
    GValidityCheckT(const GValidityCheckT<ind_type>& cp)
       : GObject(cp)
+      , allowNegative_(cp.allowNegative_)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -165,7 +169,8 @@ public:
       // Check our parent class'es data ...
       deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GValidityCheckT<ind_type>", y_name, withMessages));
 
-      // no local data
+      // ... and then our local data
+      deviations.push_back(checkExpectation(withMessages, "GValidityCheckT<ind_type>", allowNegative_, p_load->allowNegative_, "allowNegative_", "p_load->allowNegative_", e , limit));
 
       return evaluateDiscrepancies("GValidityCheckT<ind_type>", caller, deviations, e);
    }
@@ -173,6 +178,8 @@ public:
    /***************************************************************************/
    /**
     * Adds local configuration options to a GParserBuilder object
+    *
+    * TODO: Check whether it makes sense to provide custom configuration files -- if so, add allowNegative_ here
     */
    virtual void addConfigurationOptions(
       Gem::Common::GParserBuilder& gpb
@@ -185,26 +192,47 @@ public:
    /***************************************************************************/
    /**
     * Checks whether a given parameter set is valid. The function returns a
-    * double value which is expected to be larger than 0. Values in the range
-    * [0,1] indicate valid parameters (according to this constraint). Values
-    * above 1 indicate invalid parameters. The size of the return value can thus
-    * be used to indicate the extent of the invalidity.
+    * double value which is expected to be >= 0. Values in the range [0,1]
+    * indicate valid parameters (according to this constraint). Values above 1
+    * indicate invalid parameters. The size of the return value can thus
+    * be used to indicate the extent of the invalidity. Two policies are implemented
+    * when check_() returns a value < 0: If allowNevative is set to true, such
+    * evaluations are considered to be valid, and the function returns 0. If
+    * allowNegative is set to false, am invalidity is calculated, and the return-
+    * value will be > 1.
     */
    double check(
       const ind_type *cp
    ) const {
       double result = check_(cp);
 
-#ifdef DEBUG
-      if(result < 0.) {
-         glogger
-         << "In GValidityCheckT<>::check(): Error!" << std::endl
-         << "Validity check yielded a result < 0: " << result << std::endl
-         << GEXCEPTION;
+      if(allowNegative_) {
+         if(result <= 1.) { // valid
+            return 0.;
+         } else {
+            return result;
+         }
+      } else {
+         if(result >= 0. && result <= 1.) { // valid
+            return 0.;
+         } else { // invalid
+            if(result < 0.) { // we need to calculate a replacement value
+               // Will be the more invalid the further below 0 "result" is
+               return 1. + Gem::Common::gfabs(result);
+            } else { // result > 1, we may just return the unmodified value
+               return result;
+            }
+         }
       }
-#endif /* DEBUG */
 
-      return result;
+      glogger
+      << "In GValidityCheckT<ind_type>::check(): Error!" << std::endl
+      << "Error: This location should never be reached" << std::endl
+      << GEXCEPTION;
+
+      // Make the compiler happy -- we return MAX_DOUBLE.
+      // Note that this line should never be reached.
+      return boost::numeric::bounds<double>::highest();
    }
 
    /***************************************************************************/
@@ -216,7 +244,28 @@ public:
     */
    bool isValid(const ind_type *cp, double &validityLevel) const {
       validityLevel = this->check(cp);
-      return (validityLevel <= 1.);
+
+      if(allowNegative_) {
+         return (validityLevel <= 1.);
+      } else {
+         return (validityLevel >= 0. && validityLevel <= 1.);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to specify whether negative values are considered to be valid
+    */
+   bool getAllowNegative() const {
+      return allowNegative_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to specify whether negative values are considered to be valid
+    */
+   void setAllowNegative(bool allowNegative) {
+      allowNegative_ = allowNegative;
    }
 
 protected:
@@ -241,7 +290,8 @@ protected:
       // Load our parent class'es data ...
       GObject::load_(cp);
 
-      // no local data
+      // ... and then our local data
+      allowNegative_ = p_load->allowNegative_;
    }
 
    /***************************************************************************/
@@ -249,6 +299,9 @@ protected:
    virtual GObject* clone_() const = 0;
 
    /***************************************************************************/
+
+private:
+   bool allowNegative_; ///< Set to true if negative values are considered to be valid
 };
 
 /******************************************************************************/
@@ -566,39 +619,48 @@ protected:
     * Combines all parameters according to a user-defined policy
     */
    virtual double check_(const ind_type *cp) const {
+      // First identify invalid checks
+      std::vector<double> invalidChecks;
+      double validityLevel;
+      typename std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >::const_iterator cit;
+      for(cit=GValidityCheckContainerT<ind_type>::validityChecks_.begin(); cit!=GValidityCheckContainerT<ind_type>::validityChecks_.end(); ++cit) {
+         if(!(*cit)->isValid(cp, validityLevel)) {
+            invalidChecks.push_back(validityLevel);
+         }
+      }
+
+      // We can leave now, if no invalid checks were found
+      if(invalidChecks.empty()) { // All checks were valid
+         return 0.;
+      }
+
+      // Now act on the invalid tests
       switch(combinerPolicy_) {
          // --------------------------------------------------------------------
+         // Multiply all invalidities
          case Gem::Geneva::MULTIPLYINVALID:
          {
-            std::vector<double> invalidChecks;
-            double validityLevel;
-            typename std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >::const_iterator cit;
-            for(cit=GValidityCheckContainerT<ind_type>::validityChecks_.begin(); cit!=GValidityCheckContainerT<ind_type>::validityChecks_.end(); ++cit) {
-               if(!(*cit)->isValid(cp, validityLevel)) {
-                  invalidChecks.push_back(validityLevel);
-               }
+            double result = 1.;
+            std::vector<double>::const_iterator d_cit;
+            for(d_cit=invalidChecks.begin(); d_cit!=invalidChecks.end(); ++d_cit) {
+               result *= *d_cit;
             }
-            if(invalidChecks.empty()) { // All checks were valid
-               return 0.;
-            } else { // There were invalid results
-               double result = 1.;
-               std::vector<double>::const_iterator d_cit;
-               for(d_cit=invalidChecks.begin(); d_cit!=invalidChecks.end(); ++d_cit) {
-#ifdef DEBUG
-                  if(1. >= *d_cit) {
-                     glogger
-                     << "In GCheckCombinerT<>::check_(): Error!" << std::endl
-                     << "Result " << *d_cit << " is marked as invalid although it is <= 1." << std::endl
-                     << GEXCEPTION;
-                  }
-#endif
-
-                  result *= *d_cit;
-               }
-               return result;
-            }
+            return result;
          }
             break;
+
+         // --------------------------------------------------------------------
+         // Add all invalidities
+         case Gem::Geneva::ADDINVALID:
+         {
+            double result = 0.;
+            std::vector<double>::const_iterator d_cit;
+            for(d_cit=invalidChecks.begin(); d_cit!=invalidChecks.end(); ++d_cit) {
+               result += *d_cit;
+            }
+            return result;
+         }
+         break;
 
          // --------------------------------------------------------------------
          default:
@@ -607,13 +669,23 @@ protected:
             << "In GCheckCombinerT<ind_type>::check_(): Error!" << std::endl
             << "Got invalid combinerPolicy_ value: " << combinerPolicy_ << std::endl
             << GEXCEPTION;
+
+            // Make the compiler happy -- we return MAX_DOUBLE.
+            // Note that this line should never be reached.
+            return boost::numeric::bounds<double>::highest();
          }
             break;
          // --------------------------------------------------------------------
       }
 
-      // Make the compiler happy
-      return 0.;
+      glogger
+      << "In GCheckCombinerT<ind_type>::check_(): Error!" << std::endl
+      << "Error: This location should never be reached" << std::endl
+      << GEXCEPTION;
+
+      // Make the compiler happy -- we return MAX_DOUBLE.
+      // Note that this line should never be reached.
+      return boost::numeric::bounds<double>::highest();
    }
 
    /***************************************************************************/
