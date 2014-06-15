@@ -104,6 +104,154 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
+// Exceptions for some error conditions
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * An exception to be thrown in case of mathematical errors,
+ * such as division by 0
+ */
+class math_logic_error : public gemfony_error_condition {
+public:
+   /** @brief The standard constructor */
+   math_logic_error(const std::string&) throw();
+   /** @brief The destructor */
+   virtual ~math_logic_error() throw();
+
+private:
+   /** @brief The default constructor: Intentionally private and undefined */
+   math_logic_error();
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * An exception indicating a division by 0
+ */
+class division_by_0 : public math_logic_error {
+public:
+   /** @brief The default constructor */
+   division_by_0() throw();
+   /** @brief The destructor */
+   virtual ~division_by_0() throw();
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * An exception indicating a range outside [-1:1] in acos
+ */
+template <typename fp_type>
+class acos_invalid_range : public math_logic_error {
+public:
+   /** @brief The standard constructor */
+   acos_invalid_range(const fp_type& val) throw()
+         : math_logic_error(std::string("acos: Value ") + boost::lexical_cast<std::string>(val) + std::string(" out of valid range [-1:1] in GFormulaParserT"))
+   { /* nothing */ }
+   /** @brief The destructor */
+   virtual ~acos_invalid_range() throw()
+   { /* nothing */ }
+
+private:
+   /** @brief The default constructor: Intentionally private and undefined */
+   acos_invalid_range();
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * An exception indicating a range outside [-1:1] in acos
+ */
+template <typename fp_type>
+class asin_invalid_range : public math_logic_error {
+public:
+   /** @brief The standard constructor */
+   asin_invalid_range(const fp_type& val) throw()
+         : math_logic_error(std::string("asin: Value ") + boost::lexical_cast<std::string>(val) + std::string(" out of valid range [-1:1] in GFormulaParserT"))
+   { /* nothing */ }
+   /** @brief The destructor */
+   virtual ~asin_invalid_range() throw()
+   { /* nothing */ }
+
+private:
+   /** @brief The default constructor: Intentionally private and undefined */
+   asin_invalid_range();
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * An exception indicating a value <= 0
+ */
+template <typename fp_type>
+class log_negative_value : public math_logic_error {
+public:
+   /** @brief The standard constructor */
+   log_negative_value(const fp_type& val) throw()
+         : math_logic_error(std::string("log: Value ") + boost::lexical_cast<std::string>(val) + std::string(" <= 0 in GFormulaParserT"))
+   { /* nothing */ }
+   /** @brief The destructor */
+   virtual ~log_negative_value() throw()
+   { /* nothing */ }
+
+private:
+   /** @brief The default constructor: Intentionally private and undefined */
+   log_negative_value();
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * An exception indicating a value <= 0
+ */
+template <typename fp_type>
+class log10_negative_value : public math_logic_error {
+public:
+   /** @brief The standard constructor */
+   log10_negative_value(const fp_type& val) throw()
+         : math_logic_error(std::string("log10: Value ") + boost::lexical_cast<std::string>(val) + std::string(" <= 0  in GFormulaParserT"))
+   { /* nothing */ }
+   /** @brief The destructor */
+   virtual ~log10_negative_value() throw()
+   { /* nothing */ }
+
+private:
+   /** @brief The default constructor: Intentionally private and undefined */
+   log10_negative_value();
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * An exception indicating a value <= 0
+ */
+template <typename fp_type>
+class sqrt_negative_value : public math_logic_error {
+public:
+   /** @brief The standard constructor */
+   sqrt_negative_value(const fp_type& val) throw()
+         : math_logic_error(std::string("sqrt: Value ") + boost::lexical_cast<std::string>(val) + std::string(" < 0  in GFormulaParserT"))
+   { /* nothing */ }
+   /** @brief The destructor */
+   virtual ~sqrt_negative_value() throw()
+   { /* nothing */ }
+
+private:
+   /** @brief The default constructor: Intentionally private and undefined */
+   sqrt_negative_value();
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 // The Abstract Syntax Tree + access functions
 
 struct nil {};
@@ -199,13 +347,14 @@ namespace Common {
  * a std::map<std::string, std::vector<fp_type> >. For simple variable names such
  * as "var2" only the first value of the std::vector is used -- a notation such as
  * "var3{2]" is also possible -- in this case the third value of the vector will be
- * used. An exception will be thrown, if the vector doesn't have enough entroes.
+ * used. An exception will be thrown, if the vector doesn't have enough entries.
  * An object of this class may deal with a single formula only, which is
  * given to it through the constructor. When a formula cannot be parsed,
- * an exception will be thrown. Note that the class currently only handles
- * floating point values (float and double). The class is based on a number of
- * examples taken from the Boost.Spirit code base, particularly calc6.cpp from
- * Boost version 1.54.
+ * an exception will be thrown. Likewise, exceptions derived from "Gem::Common::math_logic_error"
+ * will be thrown for common mathematical errors, such as division by 0 or sqrt(-1).
+ * Note that the class currently only handles floating point values (float and double).
+ * The class is based on a number of examples taken from the Boost.Spirit code base,
+ * particularly calc6.cpp from Boost version 1.54.
  */
 /*****************************************************************************/
 /**
@@ -428,15 +577,15 @@ public:
       if(x.operator_ == '+') code_.push_back(codeEntry(op_add));
       else if(x.operator_ == '-') code_.push_back(codeEntry(op_sub));
       else if(x.operator_ == '*') code_.push_back(codeEntry(op_mul));
-      else if(x.operator_ == '/') code_.push_back(codeEntry(op_div));
+      else if(x.operator_ == '/') code_.push_back(codeEntry(op_div));  // division by 0 throws Gem::Common::division_by_0 exception
       else BOOST_ASSERT(0);
    }
 
    void operator()(const unary_function_& f) const {
       boost::apply_visitor(*this, f.operand_);
 
-      if(f.fname_ == "acos") code_.push_back(codeEntry(op_acos));
-      else if(f.fname_ == "asin")  code_.push_back(codeEntry(op_asin));
+      if(f.fname_ == "acos") code_.push_back(codeEntry(op_acos)); // Value out of valid range [-1,1] throws Gem::Common::acos_invalid_range
+      else if(f.fname_ == "asin")  code_.push_back(codeEntry(op_asin)); // Value out of valid range [-1,1] throws Gem::Common::asin_invalid_range
       else if(f.fname_ == "atan")  code_.push_back(codeEntry(op_atan));
       else if(f.fname_ == "ceil")  code_.push_back(codeEntry(op_ceil));
       else if(f.fname_ == "cos")   code_.push_back(codeEntry(op_cos));
@@ -444,11 +593,11 @@ public:
       else if(f.fname_ == "exp")   code_.push_back(codeEntry(op_exp));
       else if(f.fname_ == "fabs")  code_.push_back(codeEntry(op_fabs));
       else if(f.fname_ == "floor") code_.push_back(codeEntry(op_floor));
-      else if(f.fname_ == "log")   code_.push_back(codeEntry(op_log));
-      else if(f.fname_ == "log10") code_.push_back(codeEntry(op_log10));
+      else if(f.fname_ == "log")   code_.push_back(codeEntry(op_log)); // Value <= 0 throws Gem::Common::log_negative_value
+      else if(f.fname_ == "log10") code_.push_back(codeEntry(op_log10)); // Value <= 0 throws Gem::Common::log10_negative_value
       else if(f.fname_ == "sin")   code_.push_back(codeEntry(op_sin));
       else if(f.fname_ == "sinh")  code_.push_back(codeEntry(op_sinh));
-      else if(f.fname_ == "sqrt")  code_.push_back(codeEntry(op_sqrt));
+      else if(f.fname_ == "sqrt")  code_.push_back(codeEntry(op_sqrt)); // Value < 0 throws Gem::Common::sqrt_negative_value
       else if(f.fname_ == "tan")   code_.push_back(codeEntry(op_tan));
       else if(f.fname_ == "tanh")  code_.push_back(codeEntry(op_tanh));
       else BOOST_ASSERT(0);
@@ -501,7 +650,7 @@ private:
             value = boost::lexical_cast<std::string>((cit->second).at(0));
             re = as_xpr("{{" + key + "}}");
             formula = regex_replace(formula, re, value);
-         } else if ((cit->second).size() > 1) { // Try key[0], key[1], ...
+         } else if ((cit->second).size() > 1) { // Try key[0], key[1] --> you may use formulas with place holders sin({{x[2]}})
             std::size_t cnt = 0;
             typename std::vector<fp_type>::const_iterator v_cit;
             for(v_cit=(cit->second).begin(); v_cit!=(cit->second).end(); ++v_cit) {
@@ -543,7 +692,12 @@ private:
       while (code_ptr != code_.end()) {
          switch (boost::get<byte_code>(*code_ptr++)) { // Read out code_ptr, then switch it to the next position
             case op_trap:
-            BOOST_ASSERT(0);
+            {
+               glogger
+               << "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
+               << "op_trap encountered" << std::endl
+               << GEXCEPTION;
+            }
             break;
 
             case op_neg:
@@ -566,8 +720,14 @@ private:
             break;
 
             case op_div:
-            --stack_ptr_;
-            stack_ptr_[-1] /= stack_ptr_[0];
+            {
+               --stack_ptr_;
+               if(0 == stack_ptr_[0]) {
+                  throw Gem::Common::division_by_0();
+               } else {
+                  stack_ptr_[-1] /= stack_ptr_[0];
+               }
+            }
             break;
 
             case op_min:
@@ -591,11 +751,23 @@ private:
             break;
 
             case op_acos:
-            stack_ptr_[-1] = std::acos(stack_ptr_[-1]);
+            {
+               if(stack_ptr_[-1] < -1. || stack_ptr_[-1] > 1.) {
+                  throw Gem::Common::acos_invalid_range<fp_type>(stack_ptr_[-1]);
+               } else {
+                  stack_ptr_[-1] = std::acos(stack_ptr_[-1]);
+               }
+            }
             break;
 
             case op_asin:
-            stack_ptr_[-1] = std::asin(stack_ptr_[-1]);
+            {
+               if(stack_ptr_[-1] < -1. || stack_ptr_[-1] > 1.) {
+                  throw Gem::Common::asin_invalid_range<fp_type>(stack_ptr_[-1]);
+               } else {
+                  stack_ptr_[-1] = std::asin(stack_ptr_[-1]);
+               }
+            }
             break;
 
             case op_atan:
@@ -627,11 +799,23 @@ private:
             break;
 
             case op_log:
-            stack_ptr_[-1] = std::log(stack_ptr_[-1]);
+            {
+               if(stack_ptr_[-1] <= 0.) {
+                  throw Gem::Common::log_negative_value<fp_type>(stack_ptr_[-1]);
+               } else {
+                  stack_ptr_[-1] = std::log(stack_ptr_[-1]);
+               }
+            }
             break;
 
             case op_log10:
-            stack_ptr_[-1] = std::log10(stack_ptr_[-1]);
+            {
+               if(stack_ptr_[-1] <= 0.) {
+                  throw Gem::Common::log10_negative_value<fp_type>(stack_ptr_[-1]);
+               } else {
+                  stack_ptr_[-1] = std::log10(stack_ptr_[-1]);
+               }
+            }
             break;
 
             case op_sin:
@@ -643,7 +827,13 @@ private:
             break;
 
             case op_sqrt:
-            stack_ptr_[-1] = std::sqrt(stack_ptr_[-1]);
+            {
+               if(stack_ptr_[-1] < 0.) {
+                  throw Gem::Common::sqrt_negative_value<fp_type>(stack_ptr_[-1]);
+               } else {
+                  stack_ptr_[-1] = std::sqrt(stack_ptr_[-1]);
+               }
+            }
             break;
 
             case op_tan:
@@ -659,7 +849,12 @@ private:
             break;
 
             default:
-            BOOST_ASSERT(0);
+            {
+               glogger
+               << "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
+               << "Invalid instruction " << boost::get<byte_code>(*code_ptr--) << std::endl
+               << GEXCEPTION;
+            }
             break;
          }
       }

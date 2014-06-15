@@ -285,7 +285,8 @@ void GParameterSetFormulaConstraint::addConfigurationOptions(
 /**
  * This function extracts all double parameter values including their names from the GParameterSet
  * objects. It then initiates replacement of parameter values in the formula string and
- * parsing of the string.
+ * parsing of the string. If a math error occurs inside of the formula (such as division by 0),
+ * the worst possible value will be returned (MAX_DOUBLE, taken from a Boost function).
  *
  * TODO: Make this work for all parameter types
  */
@@ -295,7 +296,12 @@ double GParameterSetFormulaConstraint::check_(
    std::map<std::string, std::vector<double> > parameterValues;
    p->streamline(parameterValues); // Extract the parameter values including names
    Gem::Common::GFormulaParserT<double> f(rawFormula_); // Create the parser
-   return f(parameterValues); // Parse the formula and return the value
+
+   try {
+      return f(parameterValues); // Parse the formula. This may throw a Gem::Common::math_logic_error
+   } catch(Gem::Common::math_logic_error& m) {
+      return boost::numeric::bounds<double>::highest();
+   }
 }
 
 /******************************************************************************/

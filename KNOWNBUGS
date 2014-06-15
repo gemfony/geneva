@@ -1,15 +1,7 @@
 Known Bugs and issues
 =====================
 
-
 Add new bugs here ...
-
---
-
-Likely due to a problem with the termination of singletons in the Boost.Serialization
-library after main() has ended, some Geneva programs will segfault at the end of the
-program execution for Boost versions 1.44 - 1.46 . This should not affect the
-results of the optimization in any way, though.  
 
 --
 

@@ -85,7 +85,9 @@ namespace Common {
 /******************************************************************************/
 // Exceptions and related definitions
 
-/** @brief General error class to be thrown in the case of severe errors */
+/**
+ * General error class to be thrown in the case of severe errors
+ */
 class gemfony_error_condition : public std::exception {
 public:
    /** @brief The standard constructor */

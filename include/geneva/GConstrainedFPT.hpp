@@ -349,8 +349,7 @@ public:
 
 		if(val >= lowerBoundary && val < upperBoundary) {
 			return val;
-		}
-		else {
+		} else {
 			// Find out which region the value is in (compare figure transferFunction.pdf
 			// that should have been delivered with this software). Note that boost::numeric_cast<>
 			// may throw - exceptions must be caught in surrounding functions.

@@ -5,6 +5,7 @@ SET ( COMMONSOURCES
 	GCommonEnums
 	GDefaultValueT
 	GExceptions
+	GFormulaParserT
 	GHelperFunctions
 	GLockVarT
 	GLogger

@@ -5,31 +5,37 @@ The main development work of the Geneva library collection is currently done
 on Ubuntu and Debian. It is likely that Geneva compiles on most other Linux
 and Unix systems using the GNU Compiler Collection. 
 
-We have recently managed to compile Geneva on MacOS 10.8.4 and 10.9 using the 
-Clang compiler, which comes with the development suite. Note that support for MacOS 
-is experimental at best. We have also successfully built Geneva with Clang on BSD.
+We have recently managed to compile Geneva on MacOS 10.9 using the Clang compiler, 
+which comes with the development suite. Note that support for MacOS is experimental 
+at best. We have also successfully built Geneva with Clang on BSD.
 
 The authors would very much appreciate your feedback through the Geneva Development 
 Forum http://www.gemfony.eu/index.php?forums .
 
+For further information, please also have a look at our user-manual, available from
+the Downloads section of our web page.
+
+In case you encounter any bugs or issues please let us know through the Geneva
+bugtracker: https://bugs.launchpad.net/geneva
 
 Prerequisites
 =============
 
-The build system uses CMake in version 2.6 or later.
+The build system uses CMake in version 2.6 or later. We recommend at least CMake 2.8,
+as certain functionality of the build-system will otherwise be missing.
 
 You will also need the Boost libraries (see http://www.boost.org) in version
 1.48 or newer. See either the Appendix "Installing Boost in Debian/Ubuntu" or
 the Appendix "Compiling Boost" below for more details. We currently recommend
 Boost 1.55 .
 
-Please do make sure that the Boost has been compiled with the same C++ standard
-mode that you wish to use for Geneva (i.e., do not mix libraries compiled in
-C++11 and C++98 mode.
+Please do make sure that Boost has been compiled with the same C++ standard
+mode that you wish to use for Geneva (in particular, do not mix libraries compiled 
+in C++11 and C++98 mode.
 
-If you wish to build from the source code version control tree you will also
-need the Bazaar version control tools. This is not needed if you only intend
-to build the official releases from the provided "tar balls".
+If you wish to build from the source code available from our version control 
+tree you will also need the Bazaar version control tools. This is not needed 
+if you only intend to build the official releases from the provided "tar balls".
 
 
 Installation prerequisites in Debian/Ubuntu
@@ -44,13 +50,13 @@ sudo apt-get install --no-install-recommends libboost-dev libboost-date-time-dev
         libboost-serialization-dev libboost-system-dev libboost-test-dev \
         libboost-thread-dev
 
-See the Appendix "Installing Boost in Debian/Ubuntu", though.
+See the section "Installing Boost in Debian/Ubuntu" below, though. Alternatively,
+you may want to install a custom Boost version from its source tree, available
+from http://www.boost.org.
 
 
-Installation prerequisites on MacOS X (tested only with version 10.8.4 and 10.9)
---------------------------------------------------------------------------------
-
-MacOS 10.8.4:
+Installation prerequisites on MacOS X (tested only 10.9)
+---------------------------------------------------------
 
 You should first install the Xcode environment from the App store. This
 will give you a working C++ compiler. You should also install Mac versions
@@ -63,9 +69,7 @@ directory of the boost source tree:
 ./bootstrap.sh --prefix=/opt/boost155/
 sudo ./b2 -j 4 install
 
-The directories can of course be adapted.
-
-MacOS 10.9:
+This assumes a system with 4 cores. The directories can of course be adapted.
 
 MacOS contains two incompatible std C++ libs: libstdc++ and libc++ . With MacOS 10.9,
 libc++ has become the default. In order to compile Geneva with Mavericks (a.k.a. 10.9)
@@ -92,14 +96,11 @@ This will enforce the usage of libstdc++ and the 98 C++ standard.
 Through the increased verbosity (through -d+2) you can check that the correct arguments are
 passed to the compiler.
 
+
 Building and installing Geneva
 ==============================
 
 To build the Geneva library use one of the two procedures enumerated below.
-In case you encounter any bugs or issues please let us know through the Geneva
-bugtracker:
-
-    https://bugs.launchpad.net/geneva
 
 
 a) The easy (but more restricted) way
@@ -160,8 +161,6 @@ Adding a -DCMAKE_VERBOSE_MAKEFILE="1" will allow you to see the command
 line that was used to call the compiler.
 
 This command needs to be called on a single line.
-
-The commands shown here were tested on an Ubuntu 9.10 system.
 
 Have a look at the configuration script prepareBuild.sh for some of the options 
 available for a direct call to cmake,
