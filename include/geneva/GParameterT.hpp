@@ -302,6 +302,7 @@ public:
       ptr.put(baseName + ".nVals", 1);
       ptr.put(baseName + ".values.value0", this->value());
       ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
+      ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
 	}
 
    /***************************************************************************/

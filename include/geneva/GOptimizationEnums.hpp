@@ -62,6 +62,13 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+// Indicates whether only active, inactive or all parameters should be extracted
+const boost::logic::tribool ACTIVEONLY = true; // Extract only active parameters
+const boost::logic::tribool ALLPARAMETERS = boost::logic::indeterminate; // Extract all parameters
+const boost::logic::tribool INACTIVEONLY = false; // Only extract inactive parameters
+const boost::logic::tribool DEFAULTACTIVITYMODE = ALLPARAMETERS; // The default extraction mode
+
+/******************************************************************************/
 /**
  * The number of calls to the GOptimizableEntity::customAdaption() function
  * without actual modifications

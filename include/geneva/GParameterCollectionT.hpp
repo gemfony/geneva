@@ -318,7 +318,7 @@ public:
 	   // Check that the object isn't empty
 	   if(this->empty()) {
 	      glogger
-	      << "In GParameterCollection<T>::toPropertyTree(): Error!" << std::endl
+	      << "In GParameterCollectionT<T>::toPropertyTree(): Error!" << std::endl
 	      << "Object is empty!" << std::endl
 	      << GEXCEPTION;
 	   }
@@ -337,6 +337,7 @@ public:
          ptr.put(baseName + "values.value" + boost::lexical_cast<std::string>(pos), *cit);
       }
       ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
+      ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
 	}
 
 	/***************************************************************************/

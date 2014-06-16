@@ -343,6 +343,7 @@ public:
       ptr.put(baseName + ".lowerBoundary", this->getLowerInitBoundary());
       ptr.put(baseName + ".upperBoundary", this->getUpperInitBoundary());
       ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
+      ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
    }
 
 protected:
