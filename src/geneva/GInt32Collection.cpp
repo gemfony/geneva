@@ -251,10 +251,55 @@ void GInt32Collection::int32Boundaries(
 /**
  * Tell the audience that we own a number of boost::int32_t values
  *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of boost::int32_t parameters
  */
-std::size_t GInt32Collection::countInt32Parameters() const {
-	return this->size();
+std::size_t GInt32Collection::countInt32Parameters(
+   const activityMode& am
+) const {
+   switch(am) {
+      case ACTIVEONLY:
+      {
+         if(this->adaptionsActive()) {
+            return this->size();
+         } else {
+            return 0;
+         }
+      }
+      break;
+
+      case ALLPARAMETERS:
+      {
+         return this->size();
+      }
+      break;
+
+      case INACTIVEONLY:
+      {
+         if(this->adaptionsInactive()) {
+            return this->size();
+         } else {
+            return 0;
+         }
+      }
+      break;
+
+      default:
+      {
+         glogger
+         << "In GInt32Collection::countFloatParameters(): Error!" << std::endl
+         << "Got invalid activity mode " << am << std::endl
+         << GEXCEPTION;
+      }
+      break;
+   }
+
+   glogger
+   << "In GInt32Collection::countFloatParameters(): Error!" << std::endl
+   << "This line should never be reached" << std::endl;
+
+   // Make the compiler happy
+   return 0;
 }
 
 /******************************************************************************/

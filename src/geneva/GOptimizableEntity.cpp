@@ -608,9 +608,17 @@ void GOptimizableEntity::enforceFitnessUpdate() {
       } else if(USESIGMOID == evalPolicy_) {
          double uniformFitnessValue = 0.;
          if(true == this->getMaxMode()) { // maximize
-            uniformFitnessValue = -validityLevel_*barrier_;
+            if(boost::numeric::bounds<double>::highest() == validityLevel_) {
+               uniformFitnessValue = this->getWorstCase();
+            } else {
+               uniformFitnessValue = -validityLevel_*barrier_;
+            }
          } else { // minimize
-            uniformFitnessValue =  validityLevel_*barrier_;
+            if(boost::numeric::bounds<double>::highest() == validityLevel_) {
+               uniformFitnessValue = this->getWorstCase();
+            } else {
+               uniformFitnessValue = validityLevel_*barrier_;
+            }
          }
 
          for(std::size_t i=0; i<getNumberOfFitnessCriteria(); i++) {
@@ -1203,13 +1211,21 @@ void GOptimizableEntity::postEvaluationUpdate() {
    if(USEWORSTKNOWNVALIDFORINVALID == evalPolicy_ && this->isInValid()) {
       if(true == maximize_) {
          for(std::size_t i=0; i<nFitnessCriteria_; i++) {
-            boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i))
-                 = -std::max(boost::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(i)), std::max(barrier_,1.))*validityLevel_;
+            if(boost::numeric::bounds<double>::highest() == validityLevel_ || boost::numeric::bounds<double>::lowest() == validityLevel_) {
+               boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
+            } else {
+               boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i))
+                    = -std::max(boost::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(i)), std::max(barrier_,1.))*validityLevel_;
+            }
          }
       } else {
          for(std::size_t i=1; i<nFitnessCriteria_; i++) {
-            boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i))
-                 = std::max(boost::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(i)), std::max(barrier_,1.))*validityLevel_;
+            if(boost::numeric::bounds<double>::highest() == validityLevel_ || boost::numeric::bounds<double>::lowest() == validityLevel_) {
+               boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
+            } else {
+               boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i))
+                    = std::max(boost::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(i)), std::max(barrier_,1.))*validityLevel_;
+            }
          }
       }
 

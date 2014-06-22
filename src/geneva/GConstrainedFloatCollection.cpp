@@ -254,12 +254,62 @@ void GConstrainedFloatCollection::floatBoundaries(
 
 /******************************************************************************/
 /**
- * Tell the audience that we own a number of float values
+ * Tell the audience that we own a number of float values. The function will act
+ * differently depending on the argument. E.g., if the ACTIVEONLY parameter is
+ * given, it will return 0 unless this parameter is active. Likewise, you may pass
+ * INACTIVEONLY and will retrieve a 0 unless this parameter type is active.
+ * Passing ALLPARAMETERS will just return the number of parameters stored in this
+ * object.
  *
- * @return The number of float parameters
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
+ * @return The number of active, inactive or all float parameters
  */
-std::size_t GConstrainedFloatCollection::countFloatParameters() const {
-	return this->size();
+std::size_t GConstrainedFloatCollection::countFloatParameters(
+   const activityMode& am
+) const {
+   switch(am) {
+      case ACTIVEONLY:
+      {
+         if(this->adaptionsActive()) {
+            return this->size();
+         } else {
+            return 0;
+         }
+      }
+      break;
+
+      case ALLPARAMETERS:
+      {
+         return this->size();
+      }
+      break;
+
+      case INACTIVEONLY:
+      {
+         if(this->adaptionsInactive()) {
+            return this->size();
+         } else {
+            return 0;
+         }
+      }
+      break;
+
+      default:
+      {
+         glogger
+         << "In GConstrainedFloatCollection::countFloatParameters(): Error!" << std::endl
+         << "Got invalid activity mode " << am << std::endl
+         << GEXCEPTION;
+      }
+      break;
+   }
+
+   glogger
+   << "In GConstrainedFloatCollection::countFloatParameters(): Error!" << std::endl
+   << "This line should never be reached" << std::endl;
+
+   // Make the compiler happy
+   return 0;
 }
 
 /******************************************************************************/

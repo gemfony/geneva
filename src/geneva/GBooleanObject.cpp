@@ -312,10 +312,53 @@ void GBooleanObject::booleanBoundaries(
 /**
  * Tell the audience that we own a bool value
  *
- * @return The number 1, as we own a single boolean value
+ * @param @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
+ * @return The number of active, incactive or all float parameters
  */
-std::size_t GBooleanObject::countBoolParameters() const {
-	return 1;
+std::size_t GBooleanObject::countBoolParameters(const activityMode& am) const {
+   switch(am) {
+      case ACTIVEONLY:
+      {
+         if(this->adaptionsActive()) {
+            return 1;
+         } else {
+            return 0;
+         }
+      }
+      break;
+
+      case ALLPARAMETERS:
+      {
+         return 1;
+      }
+      break;
+
+      case INACTIVEONLY:
+      {
+         if(this->adaptionsInactive()) {
+            return 1;
+         } else {
+            return 0;
+         }
+      }
+      break;
+
+      default:
+      {
+         glogger
+         << "In GConstrainedFloatObject::countFloatParameters(): Error!" << std::endl
+         << "Got invalid activity mode " << am << std::endl
+         << GEXCEPTION;
+      }
+      break;
+   }
+
+   glogger
+   << "In GConstrainedFloatObject::countFloatParameters(): Error!" << std::endl
+   << "This line should never be reached" << std::endl;
+
+   // Make the compiler happy
+   return 0;
 }
 
 /******************************************************************************/

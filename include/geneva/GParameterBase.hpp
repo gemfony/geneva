@@ -110,6 +110,8 @@ public:
 	bool setAdaptionsInactive();
 	/** @brief Determines whether adaptions are performed for this object */
 	bool adaptionsActive() const;
+   /** @brief Determines whether adaptions are inactive for this object */
+   bool adaptionsInactive() const;
 
 	/** @brief Checks for equality with another GParameter Base object */
 	bool operator==(const GParameterBase&) const;
@@ -235,11 +237,13 @@ public:
 	 * catch attempts to use this function with unsupported types. Use the supplied
 	 * specializations instead.
 	 *
+	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
 	 * @return The number of parameters of a given Type
 	 */
 	template <typename par_type>
-	std::size_t countParameters() const
-	{
+	std::size_t countParameters(
+      const activityMode& am
+	) const {
 	   glogger
 	   << "In GParameterBase::countParameters()" << std::endl
       << "Function called for unsupported type!" << std::endl
@@ -252,13 +256,13 @@ public:
 	/***************************************************************************/
 
 	/** @brief Count the number of float parameters */
-	virtual std::size_t countFloatParameters() const BASE;
+	virtual std::size_t countFloatParameters(const activityMode& am) const BASE;
 	/** @brief Count the number of double parameters */
-	virtual std::size_t countDoubleParameters() const BASE;
+	virtual std::size_t countDoubleParameters(const activityMode& am) const BASE;
 	/** @brief Count the number of boost::int32_t parameters */
-	virtual std::size_t countInt32Parameters() const BASE;
+	virtual std::size_t countInt32Parameters(const activityMode& am) const BASE;
 	/** @brief Count the number of bool parameters */
-	virtual std::size_t countBoolParameters() const BASE;
+	virtual std::size_t countBoolParameters(const activityMode& am) const BASE;
 
 	/***************************************************************************/
 	/**
@@ -433,10 +437,10 @@ template <>	void GParameterBase::boundaries<double>(std::vector<double>&, std::v
 template <>	void GParameterBase::boundaries<boost::int32_t>(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&) const;
 template <>	void GParameterBase::boundaries<bool>(std::vector<bool>&, std::vector<bool>&) const;
 
-template <>	std::size_t GParameterBase::countParameters<float>() const;
-template <>	std::size_t GParameterBase::countParameters<double>() const;
-template <>	std::size_t GParameterBase::countParameters<boost::int32_t>() const;
-template <>	std::size_t GParameterBase::countParameters<bool>() const;
+template <>	std::size_t GParameterBase::countParameters<float>(const activityMode& am) const;
+template <>	std::size_t GParameterBase::countParameters<double>(const activityMode& am) const;
+template <>	std::size_t GParameterBase::countParameters<boost::int32_t>(const activityMode& am) const;
+template <>	std::size_t GParameterBase::countParameters<bool>(const activityMode& am) const;
 
 template <>	void GParameterBase::assignValueVector<float>(const std::vector<float>&, std::size_t&);
 template <>	void GParameterBase::assignValueVector<double>(const std::vector<double>&, std::size_t&);
@@ -447,6 +451,7 @@ template <> void GParameterBase::assignValueVectors<float>(const std::map<std::s
 template <> void GParameterBase::assignValueVectors<double>(const std::map<std::string, std::vector<double> >&);
 template <> void GParameterBase::assignValueVectors<boost::int32_t>(const std::map<std::string, std::vector<boost::int32_t> >&);
 template <> void GParameterBase::assignValueVectors<bool>(const std::map<std::string, std::vector<bool> >&);
+
 } /* namespace Geneva */
 } /* namespace Gem */
 

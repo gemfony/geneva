@@ -31,7 +31,7 @@
 
 ********************************************************************************
 
-The main feature additions for this release include:
+The main other changes for this release include:
 - prepareBuild.sh can now be called multiple times (it will do a "make clean-all" if
   a Makefile is found in the build-directory
 - Added support for "make doc" to create reference documentation for the entire
@@ -39,6 +39,8 @@ The main feature additions for this release include:
 - The formula parser will now throw custom exceptions when invalid calculations (such 
   as a division by 0) were requested. This allows you to deal with invalid parameters
   to your formulas more easily.
+- MUCOMMANU-modes (single-eval and pareto) will now be the same as MUPLUSNU in the first
+  iteration. All individuals will be evaluated in MUCOMMANU-mode in the first iteration.
 
 The main bug fixes for this release include:
 - Work items could be added more than once to the priority queue defining the best solutions found

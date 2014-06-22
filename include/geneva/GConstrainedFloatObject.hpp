@@ -99,12 +99,12 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-	      const GObject&
-	      , const Gem::Common::expectation&
-	      , const double&
-	      , const std::string&
-	      , const std::string&
-	      , const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
 	/** @brief Attach our local value to the vector. */
@@ -112,7 +112,7 @@ public:
 	/** @brief Attach boundaries of type float to the vectors */
 	virtual void floatBoundaries(std::vector<float>&, std::vector<float>&) const OVERRIDE;
 	/** @brief Tell the audience that we own a float value */
-	virtual std::size_t countFloatParameters() const OVERRIDE;
+	virtual std::size_t countFloatParameters(const activityMode& am) const OVERRIDE;
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&) OVERRIDE;
 

@@ -162,6 +162,16 @@ bool GParameterBase::adaptionsActive() const {
 
 /******************************************************************************/
 /**
+ * Determines whether adaptions are inactive for this object
+ *
+ * @return A boolean indicating whether adaptions are inactive for this object
+ */
+bool GParameterBase::adaptionsInactive() const {
+   return !adaptionsActive_;
+}
+
+/******************************************************************************/
+/**
  * Checks for equality with another GParameterBase object
  *
  * @param  cp A constant reference to another GParameterBase object
@@ -838,54 +848,68 @@ void GParameterBase::booleanBoundaries(
 /**
  * Allows to count parameters of type float.
  *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of parameters of type float
  */
 template <>
-std::size_t GParameterBase::countParameters<float>() const {
-	return this->countFloatParameters();
+std::size_t GParameterBase::countParameters<float>(
+   const activityMode& am
+) const {
+	return this->countFloatParameters(am);
 }
 
 /******************************************************************************/
 /**
  * Allows to count parameters of type double.
  *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of parameters of type double
  */
 template <>
-std::size_t GParameterBase::countParameters<double>() const {
-	return this->countDoubleParameters();
+std::size_t GParameterBase::countParameters<double>(
+   const activityMode& am
+) const {
+	return this->countDoubleParameters(am);
 }
 
 /******************************************************************************/
 /**
  * Allows to count parameters of type boost::int32_t.
  *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of parameters of type boost::int32_t
  */
 template <>
-std::size_t GParameterBase::countParameters<boost::int32_t>() const {
-	return this->countInt32Parameters();
+std::size_t GParameterBase::countParameters<boost::int32_t>(
+   const activityMode& am
+) const {
+	return this->countInt32Parameters(am);
 }
 
 /******************************************************************************/
 /**
  * Allows to count parameters of type bool.
  *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of parameters of type bool
  */
 template <>
-std::size_t GParameterBase::countParameters<bool>() const {
-	return this->countBoolParameters();
+std::size_t GParameterBase::countParameters<bool>(
+   const activityMode& am
+) const {
+	return this->countBoolParameters(am);
 }
 
 /******************************************************************************/
 /**
- * Count the number of float parameters. The actual work needs to be done by
- * derived classes, if they possess float parameters.
+ * Count the number of float parameters.
  *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of float parameters in this object
  */
-std::size_t GParameterBase::countFloatParameters() const {
+std::size_t GParameterBase::countFloatParameters(
+   const activityMode& am
+) const {
 	return 0;
 }
 
@@ -899,9 +923,12 @@ std::size_t GParameterBase::countFloatParameters() const {
  * Count the number of double parameters. The actual work needs to be done by
  * derived classes, if they possess double parameters.
  *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of double parameters in this object
  */
-std::size_t GParameterBase::countDoubleParameters() const {
+std::size_t GParameterBase::countDoubleParameters(
+   const activityMode& am
+) const {
 	return 0;
 }
 
@@ -915,9 +942,12 @@ std::size_t GParameterBase::countDoubleParameters() const {
  * Count the number of boost::int32_t parameters. The actual work needs to be done by
  * derived classes, if they possess boost::int32_t parameters.
  *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of boost::int32_t parameters in this object
  */
-std::size_t GParameterBase::countInt32Parameters() const {
+std::size_t GParameterBase::countInt32Parameters(
+   const activityMode& am
+) const {
 	return 0;
 }
 
@@ -931,9 +961,12 @@ std::size_t GParameterBase::countInt32Parameters() const {
  * Count the number of bool parameters. The actual work needs to be done by
  * derived classes, if they possess bool parameters.
  *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of bool parameters in this object
  */
-std::size_t GParameterBase::countBoolParameters() const {
+std::size_t GParameterBase::countBoolParameters(
+   const activityMode& am
+) const {
 	return 0;
 }
 

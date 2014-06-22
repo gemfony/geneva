@@ -548,20 +548,30 @@ protected:
 
       switch(smodeMP_) {
       //----------------------------------------------------------------------------
+
       case MUPLUSNU_SINGLEEVAL_MP:
          this->sortMuPlusNuMode();
          break;
 
       //----------------------------------------------------------------------------
+
       case MUNU1PRETAIN_SINGLEEVAL_MP:
-         this->sortMunu1pretainMode();
+         if(this->inFirstIteration()) {
+            this->sortMuPlusNuMode();
+         } else {
+            this->sortMunu1pretainMode();
+         }
          break;
 
       //----------------------------------------------------------------------------
+
       case MUCOMMANU_SINGLEEVAL_MP:
-         this->sortMuCommaNuMode();
+         if(this->inFirstIteration()) {
+            this->sortMuPlusNuMode();
+         } else {
+            this->sortMuCommaNuMode();
+         }
          break;
-      //----------------------------------------------------------------------------
 
       //----------------------------------------------------------------------------
       default:
@@ -587,34 +597,10 @@ protected:
     * @return The range inside which evaluation should take place
     */
    virtual boost::tuple<std::size_t,std::size_t> getEvaluationRange() const OVERRIDE {
-      std::size_t nParents = GMultiPopulationEAT<oa_type>::getNParents();
-      std::size_t first=nParents, last=(this->data).size();
-
-      if(this->inFirstIteration()) {
-         switch(this->getSortingScheme()) {
-         //--------------------------------------------------------------
-         case MUPLUSNU_SINGLEEVAL:
-         case MUNU1PRETAIN_SINGLEEVAL: // same procedure. We do not know which parent is best
-         {
-            first = 0;
-         }
-            break;
-
-         case MUCOMMANU_SINGLEEVAL: // No evaluation of parents is necessary
-            break; // nothing -- we start with the first child, i.e. first == nParents;
-
-         default:
-         {
-            glogger
-            << "In GMultiPopulationEAT<oa_type>::getEvaluationRange(): Error" << std::endl
-            << "Incorrect sorting scheme requested: " << getSortingScheme() << std::endl
-            << GEXCEPTION;
-         }
-            break;
-         }
-      }
-
-      return boost::tuple<std::size_t, std::size_t>(first, last);
+      return boost::tuple<std::size_t, std::size_t>(
+            this->inFirstIteration()?0:GMultiPopulationEAT<oa_type>::getNParents()
+            ,  this->data.size()
+      );
    }
 
    /***************************************************************************/

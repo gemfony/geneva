@@ -611,14 +611,17 @@ public:
     * Count the number of float parameters. This function returns the responses from all
     * objects contained in this collection.
     *
+    * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     * @return The number of float parameters in this collection
     */
-   virtual std::size_t countFloatParameters() const OVERRIDE {
+   virtual std::size_t countFloatParameters(
+      const activityMode& am
+   ) const OVERRIDE {
       std::size_t result = 0;
 
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         result += (*cit)->countFloatParameters();
+         result += (*cit)->countFloatParameters(am);
       }
 
       return result;
@@ -629,14 +632,17 @@ public:
 	 * Count the number of double parameters. This function returns the responses from all
 	 * objects contained in this collection.
 	 *
+	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
 	 * @return The number of double parameters in this collection
 	 */
-	virtual std::size_t countDoubleParameters() const OVERRIDE {
+	virtual std::size_t countDoubleParameters(
+      const activityMode& am
+	) const OVERRIDE {
 		std::size_t result = 0;
 
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			result += (*cit)->countDoubleParameters();
+			result += (*cit)->countDoubleParameters(am);
 		}
 
 		return result;
@@ -647,14 +653,17 @@ public:
 	 * Count the number of boost::int32_t parameters. This function returns the responses from all
 	 * objects contained in this collection.
 	 *
+	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
 	 * @return The number of boost::int32_t parameters in this collection
 	 */
-	virtual std::size_t countInt32Parameters() const OVERRIDE {
+	virtual std::size_t countInt32Parameters(
+      const activityMode& am
+	) const OVERRIDE {
 		std::size_t result = 0;
 
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			result += (*cit)->countInt32Parameters();
+			result += (*cit)->countInt32Parameters(am);
 		}
 
 		return result;
@@ -665,14 +674,17 @@ public:
 	 * Count the number of bool parameters. This function returns the responses from all
 	 * objects contained in this collection.
 	 *
+	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
 	 * @return The number of bool parameters in this collection
 	 */
-	virtual std::size_t countBoolParameters() const OVERRIDE {
+	virtual std::size_t countBoolParameters(
+      const activityMode& am
+	) const OVERRIDE {
 		std::size_t result = 0;
 
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			result += (*cit)->countBoolParameters();
+			result += (*cit)->countBoolParameters(am);
 		}
 
 		return result;

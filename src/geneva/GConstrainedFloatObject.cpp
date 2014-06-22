@@ -263,12 +263,62 @@ void GConstrainedFloatObject::floatBoundaries(
 
 /******************************************************************************/
 /**
- * Tell the audience that we own a float value
+ * Tell the audience that we own a float value. The function will act
+ * differently depending on the argument. E.g., if the ACTIVEONLY parameter is
+ * given, it will return 0 unless this parameter is active. Likewise, you may pass
+ * INACTIVEONLY and will retrieve a 0 unless this parameter type is active.
+ * Passing ALLPARAMETERS will just return the number of parameters stored in this
+ * object.
  *
- * @return The number 1, as we own a single float parameter
+ * @param @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
+ * @return The number of active, incactive or all float parameters
  */
-std::size_t GConstrainedFloatObject::countFloatParameters() const {
-	return 1;
+std::size_t GConstrainedFloatObject::countFloatParameters(
+   const activityMode& am
+) const {
+   switch(am) {
+      case ACTIVEONLY:
+      {
+         if(this->adaptionsActive()) {
+            return 1;
+         } else {
+            return 0;
+         }
+      }
+      break;
+
+      case ALLPARAMETERS:
+      {
+         return 1;
+      }
+      break;
+
+      case INACTIVEONLY:
+      {
+         if(this->adaptionsInactive()) {
+            return 1;
+         } else {
+            return 0;
+         }
+      }
+      break;
+
+      default:
+      {
+         glogger
+         << "In GConstrainedFloatObject::countFloatParameters(): Error!" << std::endl
+         << "Got invalid activity mode " << am << std::endl
+         << GEXCEPTION;
+      }
+      break;
+   }
+
+   glogger
+   << "In GConstrainedFloatObject::countFloatParameters(): Error!" << std::endl
+   << "This line should never be reached" << std::endl;
+
+   // Make the compiler happy
+   return 0;
 }
 
 /******************************************************************************/

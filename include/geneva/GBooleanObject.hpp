@@ -116,7 +116,7 @@ public:
 	/** @brief Attach boundaries of type bool to the vectors */
 	virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&) const OVERRIDE;
 	/** @brief Tell the audience that we own a boost::int32_t value */
-	virtual std::size_t countBoolParameters() const OVERRIDE;
+	virtual std::size_t countBoolParameters(const activityMode& am) const OVERRIDE;
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&) OVERRIDE;
 

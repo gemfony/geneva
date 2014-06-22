@@ -306,11 +306,11 @@ public:
     * par_type in the individual. Note that the GParameterBase-template
     * function will throw if this function is called for an unsupported type.
     *
-    * @param activityMode A boost::tribool indicating whether only information about active, inactive or all parameters of this type should be extracted
+    * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     */
    template <typename par_type>
    std::size_t countParameters(
-      const boost::logic::tribool activityMode = ALLPARAMETERS
+      const activityMode& am = DEFAULTACTIVITYMODE
    ) const {
       std::size_t result = 0;
 
@@ -319,7 +319,7 @@ public:
       // to the result.
       GParameterSet::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         result += (*cit)->countParameters<par_type>();
+         result += (*cit)->countParameters<par_type>(am);
       }
 
       return result;
@@ -337,10 +337,13 @@ public:
 	 * type of the parameters to be stored in the vector.
 	 *
 	 * @param parVec The vector to which the parameters will be added
-	 * @param activityMode A boost::tribool indicating whether only active, inactive or all parameters of this type should be extracted
+	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
 	 */
 	template <typename par_type>
-	void streamline(std::vector<par_type>& parVec) const {
+	void streamline(
+      std::vector<par_type>& parVec
+      , const activityMode& am = DEFAULTACTIVITYMODE
+	) const {
 		// Make sure the vector is clean
 		parVec.clear();
 
@@ -363,10 +366,13 @@ public:
     * type of the parameters to be stored in the vector.
     *
     * @param parVec The map to which the parameters will be added
-    * @param activityMode A boost::tribool indicating whether only active, inactive or all parameters of this type should be extracted
+    * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     */
    template <typename par_type>
-   void streamline(std::map<std::string, std::vector<par_type> >& parVec) const {
+   void streamline(
+      std::map<std::string, std::vector<par_type> >& parVec
+      , const activityMode& am = DEFAULTACTIVITYMODE
+   ) const {
       // Make sure the vector is clean
       parVec.clear();
 
@@ -391,12 +397,13 @@ public:
 	 *
 	 * @param lBndVec The vector to which the lower boundaries will be added
 	 * @param uBndVec The vector to which the upper boundaries will be added
-	 * @param activityMode A boost::tribool indicating whether only active, inactive or all parameters of this type should be extracted
+	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
 	 */
 	template <typename par_type>
 	void boundaries(
 			std::vector<par_type>& lBndVec
 			, std::vector<par_type>& uBndVec
+			, const activityMode& am = DEFAULTACTIVITYMODE
 	) const {
 		// Make sure the vectors are clean
 		lBndVec.clear();
@@ -419,10 +426,13 @@ public:
 	 * Assigns values from a std::vector to the parameters in the collection
 	 *
 	 * @param parVec A vector of values, to be assigned to be added to GParameterBase derivatives
-	 * @param activityMode A boost::tribool indicating whether only active, inactive or all parameters of this type should be extracted
+	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
 	 */
 	template <typename par_type>
-	void assignValueVector(const std::vector<par_type>& parVec) {
+	void assignValueVector(
+      const std::vector<par_type>& parVec
+      , const activityMode& am = DEFAULTACTIVITYMODE
+   ) {
 #ifdef DEBUG
 		if(countParameters<par_type>() != parVec.size()) {
 		   glogger
@@ -451,10 +461,13 @@ public:
     * Assigns values from a std::map<std::string, std::vector<par_type> > to the parameters in the collection
     *
     * @param parMap A map of values, to be assigned to be added to GParameterBase derivatives
-    * @param activityMode A boost::tribool indicating whether only active, inactive or all parameters of this type should be extracted
+    * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
     */
    template <typename par_type>
-   void assignValueVectors(const std::map<std::string, std::vector<par_type> >& parMap) {
+   void assignValueVectors(
+      const std::map<std::string, std::vector<par_type> >& parMap
+      , const activityMode& am = DEFAULTACTIVITYMODE
+   ) {
       // Loop over all GParameterBase objects. Each object will extract the relevant parameters
       GParameterSet::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {

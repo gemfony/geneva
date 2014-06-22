@@ -300,6 +300,13 @@ double GParameterSetFormulaConstraint::check_(
    try {
       return f(parameterValues); // Parse the formula. This may throw a Gem::Common::math_logic_error
    } catch(Gem::Common::math_logic_error& m) {
+      glogger
+      << "In GParameterSetFormulaConstraint::check_(): WARNING" << std::endl
+      << "Caught Gem::Common::math_logic_error with message" << std::endl
+      << m.what() << std::endl
+      << "We will return MAX_DOUBLE" << std::endl
+      << GWARNING;
+
       return boost::numeric::bounds<double>::highest();
    }
 }

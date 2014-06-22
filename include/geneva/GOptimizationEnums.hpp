@@ -63,10 +63,12 @@ namespace Geneva {
 
 /******************************************************************************/
 // Indicates whether only active, inactive or all parameters should be extracted
-const boost::logic::tribool ACTIVEONLY = true; // Extract only active parameters
-const boost::logic::tribool ALLPARAMETERS = boost::logic::indeterminate; // Extract all parameters
-const boost::logic::tribool INACTIVEONLY = false; // Only extract inactive parameters
-const boost::logic::tribool DEFAULTACTIVITYMODE = ALLPARAMETERS; // The default extraction mode
+enum activityMode {
+   ACTIVEONLY = 0 // Extract only active parameters
+   , ALLPARAMETERS = 1 // Extract all parameters
+   , INACTIVEONLY = 2 // Only extract inactive parameters
+   , DEFAULTACTIVITYMODE = 1 // The default extraction mode
+};
 
 /******************************************************************************/
 /**
@@ -495,6 +497,12 @@ enum updateRule {
 const updateRule DEFAULTUPDATERULE = SWARM_UPDATERULE_CLASSIC; ///< The default update rule in swarms
 
 /******************************************************************************/
+
+/** @brief Puts a Gem::Geneva::activityMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::activityMode&);
+
+/** @brief Reads a Gem::Geneva::activityMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::activityMode&);
 
 /** @brief Puts a Gem::Geneva::evaluationPolicy into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Geneva::evaluationPolicy&);

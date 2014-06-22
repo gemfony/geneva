@@ -241,15 +241,32 @@ public:
     *
     * @param cp A pointer to the individual to be checked
     * @param validityLevel Will be filled with the validity level of this individual
+    * @return A boolean indicating whether a constraint is valid
     */
    bool isValid(const ind_type *cp, double &validityLevel) const {
       validityLevel = this->check(cp);
+
+      if(boost::numeric::bounds<double>::highest() == validityLevel || boost::numeric::bounds<double>::lowest() == validityLevel) {
+         return false;
+      }
 
       if(allowNegative_) {
          return (validityLevel <= 1.);
       } else {
          return (validityLevel >= 0. && validityLevel <= 1.);
       }
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks whether a constraint it invalid
+    *
+    * @param cp A pointer to the individual to be checked
+    * @param validityLevel Will be filled with the validity level of this individual
+    * @return A boolean indicating whether a constraint is invalid
+    */
+   bool isInvalid(const ind_type *cp, double &validityLevel) const {
+      return !this->isValid(cp, validityLevel);
    }
 
    /***************************************************************************/
@@ -616,7 +633,9 @@ public:
 protected:
    /***************************************************************************/
    /**
-    * Combines all parameters according to a user-defined policy
+    * Combines all parameters according to a user-defined policy. Note that we
+    * DO have to take care here of a situation where the invalidity equals
+    * MIN- or MAX_DOUBLE.
     */
    virtual double check_(const ind_type *cp) const {
       // First identify invalid checks
@@ -643,6 +662,12 @@ protected:
             double result = 1.;
             std::vector<double>::const_iterator d_cit;
             for(d_cit=invalidChecks.begin(); d_cit!=invalidChecks.end(); ++d_cit) {
+               // If we encounter an invalidity at the numeric boundaries, we simply
+               // return MAX_DOUBLE
+               if(boost::numeric::bounds<double>::highest() == *d_cit || boost::numeric::bounds<double>::lowest() == *d_cit) {
+                  return boost::numeric::bounds<double>::highest();
+               }
+
                result *= *d_cit;
             }
             return result;
@@ -656,6 +681,12 @@ protected:
             double result = 0.;
             std::vector<double>::const_iterator d_cit;
             for(d_cit=invalidChecks.begin(); d_cit!=invalidChecks.end(); ++d_cit) {
+               // If we encounter an invalidity at the numeric boundaries, we simply
+               // return MAX_DOUBLE
+               if(boost::numeric::bounds<double>::highest() == *d_cit || boost::numeric::bounds<double>::lowest() == *d_cit) {
+                  return boost::numeric::bounds<double>::highest();
+               }
+
                result += *d_cit;
             }
             return result;

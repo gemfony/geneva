@@ -397,25 +397,47 @@ void GBaseEA::selectBest()
 	switch(smode_) {
 	//----------------------------------------------------------------------------
 	case MUPLUSNU_SINGLEEVAL:
-		sortMuPlusNuMode();
+      {
+         sortMuPlusNuMode();
+      }
 		break;
 
 	//----------------------------------------------------------------------------
 	case MUNU1PRETAIN_SINGLEEVAL:
-		sortMunu1pretainMode();
+      {
+         if(this->inFirstIteration()) {
+            sortMuPlusNuMode();
+         } else {
+            sortMunu1pretainMode();
+         }
+      }
 		break;
 
 	//----------------------------------------------------------------------------
 	case MUCOMMANU_SINGLEEVAL:
-		sortMuCommaNuMode();
+      {
+         if(this->inFirstIteration()) {
+            sortMuPlusNuMode();
+         } else {
+            sortMuCommaNuMode();
+         }
+      }
 		break;
+
 	//----------------------------------------------------------------------------
 	case MUPLUSNU_PARETO:
 		sortMuPlusNuParetoMode();
 		break;
+
 	//----------------------------------------------------------------------------
 	case MUCOMMANU_PARETO:
-		sortMuCommaNuParetoMode();
+      {
+         if(this->inFirstIteration()) {
+            sortMuPlusNuParetoMode();
+         } else {
+            sortMuCommaNuParetoMode();
+         }
+      }
 		break;
 
    //----------------------------------------------------------------------------
@@ -500,42 +522,8 @@ void GBaseEA::addIterationBests(
  * @return The range inside which evaluation should take place
  */
 boost::tuple<std::size_t,std::size_t> GBaseEA::getEvaluationRange() const {
-   /*
-	std::size_t nParents = GBaseEA::getNParents();
-   std::size_t first=nParents, last=data.size();
-
-	if(inFirstIteration()) {
-		switch(getSortingScheme()) {
-		//--------------------------------------------------------------
-		case MUPLUSNU_SINGLEEVAL:
-		case MUPLUSNU_PARETO:
-		case MUCOMMANU_PARETO: // The current setup will still allow some old parents to become new parents
-		case MUNU1PRETAIN_SINGLEEVAL: // same procedure. We do not know which parent is best
-		{
-			first = 0;
-		}
-			break;
-
-		case MUCOMMANU_SINGLEEVAL: // No evaluation of parents is necessary
-		   break; // nothing -- we start with the first child, i.e. first == nParents;
-
-		default:
-		{
-		   glogger
-		   << "In GBaseEA::getEvaluationRange(): Error" << std::endl
-         << "Incorrect sorting scheme requested: " << getSortingScheme() << std::endl
-         << GEXCEPTION;
-		}
-			break;
-		}
-	}
-
-	return boost::tuple<std::size_t, std::size_t>(first, last);
-	*/
-
-   // We evaluate all individuals, even though this is not strictly required for MUCOMMANU_SINGLEEVAL
-   // in the first iteration This happens so pluggable optimization monitors do not need to distinguish
-   // between algorithms
+   // We evaluate all individuals in the first iteration This happens so pluggable
+   // optimization monitors do not need to distinguish between algorithms
    return boost::tuple<std::size_t, std::size_t>(
          inFirstIteration()?0:getNParents()
          ,  data.size()

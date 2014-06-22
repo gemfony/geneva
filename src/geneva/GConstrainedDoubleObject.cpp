@@ -252,10 +252,55 @@ void GConstrainedDoubleObject::doubleBoundaries(
 /**
  * Tell the audience that we own a double value
  *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number 1, as we own a single double parameter
  */
-std::size_t GConstrainedDoubleObject::countDoubleParameters() const {
-	return 1;
+std::size_t GConstrainedDoubleObject::countDoubleParameters(
+   const activityMode& am
+) const {
+   switch(am) {
+      case ACTIVEONLY:
+      {
+         if(this->adaptionsActive()) {
+            return 1;
+         } else {
+            return 0;
+         }
+      }
+      break;
+
+      case ALLPARAMETERS:
+      {
+         return 1;
+      }
+      break;
+
+      case INACTIVEONLY:
+      {
+         if(this->adaptionsInactive()) {
+            return 1;
+         } else {
+            return 0;
+         }
+      }
+      break;
+
+      default:
+      {
+         glogger
+         << "In GConstrainedDoubleObject::countFloatParameters(): Error!" << std::endl
+         << "Got invalid activity mode " << am << std::endl
+         << GEXCEPTION;
+      }
+      break;
+   }
+
+   glogger
+   << "In GConstrainedDoubleObject::countFloatParameters(): Error!" << std::endl
+   << "This line should never be reached" << std::endl;
+
+   // Make the compiler happy
+   return 0;
 }
 
 /******************************************************************************/

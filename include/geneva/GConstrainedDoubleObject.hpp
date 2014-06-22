@@ -115,7 +115,7 @@ public:
 	/** @brief Attach boundaries of type double to the vectors */
 	virtual void doubleBoundaries(std::vector<double>&, std::vector<double>&) const OVERRIDE;
 	/** @brief Tell the audience that we own a double value */
-	virtual std::size_t countDoubleParameters() const OVERRIDE;
+	virtual std::size_t countDoubleParameters(const activityMode& am) const OVERRIDE;
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&) OVERRIDE;
 

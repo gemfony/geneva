@@ -333,10 +333,55 @@ void GBooleanCollection::booleanBoundaries(
 /**
  * Tell the audience that we own a number of bool values
  *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of bool parameters
  */
-std::size_t GBooleanCollection::countBoolParameters() const {
-   return this->size();
+std::size_t GBooleanCollection::countBoolParameters(
+   const activityMode& am
+) const {
+   switch(am) {
+      case ACTIVEONLY:
+      {
+         if(this->adaptionsActive()) {
+            return this->size();
+         } else {
+            return 0;
+         }
+      }
+      break;
+
+      case ALLPARAMETERS:
+      {
+         return this->size();
+      }
+      break;
+
+      case INACTIVEONLY:
+      {
+         if(this->adaptionsInactive()) {
+            return this->size();
+         } else {
+            return 0;
+         }
+      }
+      break;
+
+      default:
+      {
+         glogger
+         << "In GConstrainedFloatCollection::countFloatParameters(): Error!" << std::endl
+         << "Got invalid activity mode " << am << std::endl
+         << GEXCEPTION;
+      }
+      break;
+   }
+
+   glogger
+   << "In GConstrainedFloatCollection::countFloatParameters(): Error!" << std::endl
+   << "This line should never be reached" << std::endl;
+
+   // Make the compiler happy
+   return 0;
 }
 
 /******************************************************************************/
