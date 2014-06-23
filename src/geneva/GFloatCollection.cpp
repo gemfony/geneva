@@ -268,49 +268,7 @@ void GFloatCollection::floatBoundaries(
 std::size_t GFloatCollection::countFloatParameters(
    const activityMode& am
 ) const {
-   switch(am) {
-      case ACTIVEONLY:
-      {
-         if(this->adaptionsActive()) {
-            return this->size();
-         } else {
-            return 0;
-         }
-      }
-      break;
-
-      case ALLPARAMETERS:
-      {
-         return this->size();
-      }
-      break;
-
-      case INACTIVEONLY:
-      {
-         if(this->adaptionsInactive()) {
-            return this->size();
-         } else {
-            return 0;
-         }
-      }
-      break;
-
-      default:
-      {
-         glogger
-         << "In GFloatCollection::countFloatParameters(): Error!" << std::endl
-         << "Got invalid activity mode " << am << std::endl
-         << GEXCEPTION;
-      }
-      break;
-   }
-
-   glogger
-   << "In GFloatCollection::countFloatParameters(): Error!" << std::endl
-   << "This line should never be reached" << std::endl;
-
-   // Make the compiler happy
-   return 0;
+   return this->size();
 }
 
 /******************************************************************************/

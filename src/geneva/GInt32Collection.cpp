@@ -257,49 +257,7 @@ void GInt32Collection::int32Boundaries(
 std::size_t GInt32Collection::countInt32Parameters(
    const activityMode& am
 ) const {
-   switch(am) {
-      case ACTIVEONLY:
-      {
-         if(this->adaptionsActive()) {
-            return this->size();
-         } else {
-            return 0;
-         }
-      }
-      break;
-
-      case ALLPARAMETERS:
-      {
-         return this->size();
-      }
-      break;
-
-      case INACTIVEONLY:
-      {
-         if(this->adaptionsInactive()) {
-            return this->size();
-         } else {
-            return 0;
-         }
-      }
-      break;
-
-      default:
-      {
-         glogger
-         << "In GInt32Collection::countFloatParameters(): Error!" << std::endl
-         << "Got invalid activity mode " << am << std::endl
-         << GEXCEPTION;
-      }
-      break;
-   }
-
-   glogger
-   << "In GInt32Collection::countFloatParameters(): Error!" << std::endl
-   << "This line should never be reached" << std::endl;
-
-   // Make the compiler happy
-   return 0;
+   return this->size();
 }
 
 /******************************************************************************/

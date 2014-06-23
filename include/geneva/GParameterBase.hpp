@@ -147,6 +147,11 @@ public:
 	/** @brief Allows to retrieve the name of this parameter */
 	std::string getParameterName() const;
 
+	/** @brief Checks whether this object matches a given activity mode */
+	bool amMatch(const activityMode&) const;
+	/** @brief Returns true on the case of an activity mode mismatch */
+	bool amMismatch(const activityMode&) const;
+
 	/***************************************************************************/
 	/**
 	 * Allows to add all parameters of a specific type to the vector. This function is a

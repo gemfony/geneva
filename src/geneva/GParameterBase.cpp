@@ -259,6 +259,69 @@ std::string GParameterBase::getParameterName() const {
 
 /***********************************************************************************/
 /**
+ * Checks whether this object matches a given activity mode. This helper function
+ * saves us from having to repeat this switch statement in all GParmaterBase-derivatives.
+ *
+ * @param am The desired activity mode (ACTIVEONLY, ALLPARAMETERS or INACTIVEONLY)
+ * @return A boolean indicating whether a given GParameterBase-derivative matches the activity mode
+ */
+bool GParameterBase::amMatch(const activityMode& am) const {
+   switch(am) {
+      case ACTIVEONLY:
+      {
+         if(this->adaptionsActive()) {
+            return true;
+         } else {
+            return false;
+         }
+      }
+      break;
+
+      case ALLPARAMETERS:
+      {
+         return true;
+      }
+      break;
+
+      case INACTIVEONLY:
+      {
+         if(this->adaptionsInactive()) {
+            return true;
+         } else {
+            return false;
+         }
+      }
+      break;
+
+      default:
+      {
+         glogger
+         << "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
+         << "Got invalid activity mode " << am << std::endl
+         << GEXCEPTION;
+      }
+      break;
+   }
+
+   glogger
+   << "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
+   << "This line should never be reached" << std::endl
+   << GEXCEPTION;
+
+   // Make the compiler happy
+   return false;
+}
+
+/***********************************************************************************/
+/**
+ * Returns true on the case of an activity mode mismatch
+ */
+bool GParameterBase::amMismatch(const activityMode& am) const {
+   return !amMatch(am);
+}
+
+/***********************************************************************************/
+/**
  * Returns a human-readable name for the base type of derived objects
  */
 std::string GParameterBase::baseType() const {

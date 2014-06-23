@@ -639,8 +639,8 @@ void GBaseGD::adjustPopulation() {
       << GEXCEPTION;
 	}
 
-	// Update the number of floating point parameters in the individuals
-	nFPParmsFirst_ = this->at(0)->countParameters<double>();
+	// Update the number of active floating point parameters in the individuals
+	nFPParmsFirst_ = this->at(0)->countParameters<double>(ACTIVEONLY);
 
 	// Check that the first individual has floating point parameters (double for the moment)
 	if(nFPParmsFirst_ == 0) {
@@ -651,15 +651,17 @@ void GBaseGD::adjustPopulation() {
 	}
 
 	// Check that all individuals currently available have the same amount of parameters
+#ifdef DEBUG
 	for(std::size_t i=1; i<this->size(); i++) {
-		if(this->at(i)->countParameters<double>() != nFPParmsFirst_) {
+		if(this->at(i)->countParameters<double>(ACTIVEONLY) != nFPParmsFirst_) {
 		   glogger
 		   << "In GBaseGD::adjustPopulation():" << std::endl
          << "Found individual in position " <<  i << " with different" << std::endl
-         << "number of floating point parameters than the first one: " << this->at(i)->countParameters<double>() << "/" << nFPParmsFirst_ << std::endl
+         << "number of floating point parameters than the first one: " << this->at(i)->countParameters<double>(ACTIVEONLY) << "/" << nFPParmsFirst_ << std::endl
          << GEXCEPTION;
 		}
 	}
+#endif
 
 	// Set the default size of the population
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nStartingPoints_*(nFPParmsFirst_+1));

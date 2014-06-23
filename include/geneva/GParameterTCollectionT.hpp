@@ -621,7 +621,12 @@ public:
 
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         result += (*cit)->countFloatParameters(am);
+         // We count the parameters if they are a leaf matching the activity mode.
+         // If cit does not represent a leaf, it must be an object collection. We hand
+         // over data collection to this object in this case.
+         if(((*cit)->isLeaf() && (*cit)->amMatch(am)) || !(*cit)->isLeaf()) {
+            result += (*cit)->countFloatParameters(am);
+         }
       }
 
       return result;
@@ -641,9 +646,14 @@ public:
 		std::size_t result = 0;
 
 		typename GParameterTCollectionT<T>::const_iterator cit;
-		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			result += (*cit)->countDoubleParameters(am);
-		}
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         // We count the parameters if they are a leaf matching the activity mode
+         // If cit does not represent a leaf, it must be a collection. We hand over
+         // data collection to this object,
+         if(((*cit)->isLeaf() && (*cit)->amMatch(am)) || !(*cit)->isLeaf()) {
+            result += (*cit)->countDoubleParameters(am);
+         }
+      }
 
 		return result;
 	}
@@ -662,9 +672,14 @@ public:
 		std::size_t result = 0;
 
 		typename GParameterTCollectionT<T>::const_iterator cit;
-		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			result += (*cit)->countInt32Parameters(am);
-		}
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         // We count the parameters if they are a leaf matching the activity mode
+         // If cit does not represent a leaf, it must be a collection. We hand over
+         // data collection to this object,
+         if(((*cit)->isLeaf() && (*cit)->amMatch(am)) || !(*cit)->isLeaf()) {
+            result += (*cit)->countInt32Parameters(am);
+         }
+      }
 
 		return result;
 	}
@@ -683,9 +698,14 @@ public:
 		std::size_t result = 0;
 
 		typename GParameterTCollectionT<T>::const_iterator cit;
-		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			result += (*cit)->countBoolParameters(am);
-		}
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         // We count the parameters if they are a leaf matching the activity mode
+         // If cit does not represent a leaf, it must be a collection. We hand over
+         // data collection to this object,
+         if(((*cit)->isLeaf() && (*cit)->amMatch(am)) || !(*cit)->isLeaf()) {
+            result += (*cit)->countBoolParameters(am);
+         }
+      }
 
 		return result;
 	}

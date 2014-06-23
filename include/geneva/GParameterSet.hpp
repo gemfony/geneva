@@ -319,7 +319,12 @@ public:
       // to the result.
       GParameterSet::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         result += (*cit)->countParameters<par_type>(am);
+         // We count the parameters if they are a leaf matching the activity mode.
+         // If cit does not represent a leaf, it must be an object collection. We hand
+         // over data collection to this object in this case.
+         if(((*cit)->isLeaf() && (*cit)->amMatch(am)) || !(*cit)->isLeaf()) {
+            result += (*cit)->countParameters<par_type>(am);
+         }
       }
 
       return result;

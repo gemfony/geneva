@@ -1531,7 +1531,63 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			counter++;
 		}
 
-		//-----------------------------------------------------------------
+      //-----------------------------------------------------------------
+	}
+
+   //---------------------------------------------------------------------
+
+	{ // Check counting of active and inactive parameters
+      // Some settings for the collection of tests below
+      const double MINGCONSTRDOUBLE    = -4.;
+      const double MAXGCONSTRDOUBLE    =  4.;
+      const double MINGDOUBLE          = -5.;
+      const double MAXGDOUBLE          =  5.;
+      const double MINGDOUBLECOLL      = -3.;
+      const double MAXGDOUBLECOLL      =  3.;
+      const std::size_t NGDOUBLECOLL    = 10 ;
+      const std::size_t FPLOOPCOUNT     =  5 ;
+      const double FPFIXEDVALINITMIN   = -3.;
+      const double FPFIXEDVALINITMAX   =  3.;
+      const double FPMULTIPLYBYRANDMIN = -5.;
+      const double FPMULTIPLYBYRANDMAX =  5.;
+      const double FPADD               =  2.;
+      const double FPSUBTRACT          =  2.;
+
+      // Create a GParameterSet object as a clone of this object for further usage
+      boost::shared_ptr<GParameterSet> p_test_0 = this->clone<GParameterSet>();
+      // Clear the collection
+      p_test_0->clear();
+      // Make sure it is really empty
+      BOOST_CHECK(p_test_0->empty());
+      // Add some floating pount parameters
+      for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
+         boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(gr.uniform_real<double>(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE));
+         boost::shared_ptr<GDoubleObject> gdo_ptr = boost::shared_ptr<GDoubleObject>(new GDoubleObject(gr.uniform_real<double>(MINGDOUBLE,MAXGDOUBLE)));
+         boost::shared_ptr<GDoubleCollection> gdc_ptr = boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL));
+
+         // Mark the last parameter type as inactive
+         gdc_ptr->setAdaptionsInactive();
+
+         // Add the parameter objects to the parameter set
+         p_test_0->push_back(gcdo_ptr);
+         p_test_0->push_back(gdo_ptr);
+         p_test_0->push_back(gdc_ptr);
+      }
+
+      // Attach a few other parameter types
+      p_test_0->push_back(boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(7, -10, 10)));
+      p_test_0->push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject(true)));
+
+      // Count the number of parameters and compare with the expected number
+      BOOST_CHECK(p_test_0->countParameters<double>(ACTIVEONLY) == FPLOOPCOUNT*2);
+      BOOST_CHECK(p_test_0->countParameters<double>(INACTIVEONLY) == FPLOOPCOUNT*NGDOUBLECOLL);
+      BOOST_CHECK(p_test_0->countParameters<double>(ALLPARAMETERS) == FPLOOPCOUNT*(NGDOUBLECOLL+2));
+      BOOST_CHECK(p_test_0->countParameters<boost::int32_t>(ACTIVEONLY) == 1);
+      BOOST_CHECK(p_test_0->countParameters<boost::int32_t>(INACTIVEONLY) == 0);
+      BOOST_CHECK(p_test_0->countParameters<boost::int32_t>(ALLPARAMETERS) == 1);
+      BOOST_CHECK(p_test_0->countParameters<bool>(ACTIVEONLY) == 1);
+      BOOST_CHECK(p_test_0->countParameters<bool>(INACTIVEONLY) == 0);
+      BOOST_CHECK(p_test_0->countParameters<bool>(ALLPARAMETERS) == 1);
 	}
 
 	//---------------------------------------------------------------------

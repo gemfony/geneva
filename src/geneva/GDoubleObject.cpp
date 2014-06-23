@@ -265,49 +265,7 @@ void GDoubleObject::doubleBoundaries(
 std::size_t GDoubleObject::countDoubleParameters(
    const activityMode& am
 ) const {
-   switch(am) {
-      case ACTIVEONLY:
-      {
-         if(this->adaptionsActive()) {
-            return 1;
-         } else {
-            return 0;
-         }
-      }
-      break;
-
-      case ALLPARAMETERS:
-      {
-         return 1;
-      }
-      break;
-
-      case INACTIVEONLY:
-      {
-         if(this->adaptionsInactive()) {
-            return 1;
-         } else {
-            return 0;
-         }
-      }
-      break;
-
-      default:
-      {
-         glogger
-         << "In GDoubleObject::countFloatParameters(): Error!" << std::endl
-         << "Got invalid activity mode " << am << std::endl
-         << GEXCEPTION;
-      }
-      break;
-   }
-
-   glogger
-   << "In GDoubleObject::countFloatParameters(): Error!" << std::endl
-   << "This line should never be reached" << std::endl;
-
-   // Make the compiler happy
-   return 0;
+   return 1;
 }
 
 /******************************************************************************/
