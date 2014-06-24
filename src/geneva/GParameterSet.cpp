@@ -1544,8 +1544,11 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
       const double MAXGDOUBLE          =  5.;
       const double MINGDOUBLECOLL      = -3.;
       const double MAXGDOUBLECOLL      =  3.;
-      const std::size_t NGDOUBLECOLL    = 10 ;
-      const std::size_t FPLOOPCOUNT     =  5 ;
+      const std::size_t NGDOUBLECOLL   = 10 ;
+      const std::size_t NINTCOLL       = 10 ;
+      const boost::int32_t MININT      = -10;
+      const boost::int32_t MAXINT      =  10;
+      const std::size_t FPLOOPCOUNT    =  5 ;
       const double FPFIXEDVALINITMIN   = -3.;
       const double FPFIXEDVALINITMAX   =  3.;
       const double FPMULTIPLYBYRANDMIN = -5.;
@@ -1578,16 +1581,63 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
       p_test_0->push_back(boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(7, -10, 10)));
       p_test_0->push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject(true)));
 
+      // Finally we add a tree structure
+      boost::shared_ptr<GParameterObjectCollection> poc_ptr =
+            boost::shared_ptr<GParameterObjectCollection>(new GParameterObjectCollection());
+
+      for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
+         boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(gr.uniform_real<double>(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE));
+         boost::shared_ptr<GDoubleObject> gdo_ptr = boost::shared_ptr<GDoubleObject>(new GDoubleObject(gr.uniform_real<double>(MINGDOUBLE,MAXGDOUBLE)));
+         boost::shared_ptr<GConstrainedInt32ObjectCollection> gcioc_ptr
+            = boost::shared_ptr<GConstrainedInt32ObjectCollection>(
+                  new GConstrainedInt32ObjectCollection()
+            );
+
+         boost::shared_ptr<GParameterObjectCollection> sub_poc_ptr =
+               boost::shared_ptr<GParameterObjectCollection>(new GParameterObjectCollection());
+
+         for(std::size_t ip=0; ip<NINTCOLL; ip++) {
+            boost::shared_ptr<GConstrainedInt32Object> gci32o_ptr
+               = boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(MININT, MAXINT));
+            gci32o_ptr->setAdaptionsInactive(); // The parameter should not be modifiable now
+
+            sub_poc_ptr->push_back(gci32o_ptr);
+         }
+
+         boost::shared_ptr<GDoubleObject> gdo2_ptr
+            = boost::shared_ptr<GDoubleObject>(new GDoubleObject(gr.uniform_real<double>(MINGDOUBLE,MAXGDOUBLE)));
+         gdo2_ptr->setAdaptionsInactive();
+         sub_poc_ptr->push_back(gdo2_ptr);
+
+         // Add the parameter objects to the parameter set
+         poc_ptr->push_back(gcdo_ptr);
+         poc_ptr->push_back(gdo_ptr);
+         poc_ptr->push_back(gcioc_ptr);
+         poc_ptr->push_back(sub_poc_ptr);
+      }
+
+      p_test_0->push_back(poc_ptr);
+
+      std::size_t NDOUBLEACTIVE = 2*FPLOOPCOUNT + 2*FPLOOPCOUNT;
+      std::size_t NDOUBLEINACTIVE = NGDOUBLECOLL*FPLOOPCOUNT + FPLOOPCOUNT;
+      std::size_t NDOUBLEALL = NDOUBLEINACTIVE + NDOUBLEACTIVE;
+      std::size_t NINTACTIVE = 1;
+      std::size_t NINTINACTIVE = NINTCOLL*FPLOOPCOUNT;
+      std::size_t NINTALL = NINTINACTIVE + NINTACTIVE;
+      std::size_t NBOOLACTIVE = 1;
+      std::size_t NBOOLINACTIVE = 0;
+      std::size_t NBOOLALL = NBOOLINACTIVE + NBOOLACTIVE;
+
       // Count the number of parameters and compare with the expected number
-      BOOST_CHECK(p_test_0->countParameters<double>(ACTIVEONLY) == FPLOOPCOUNT*2);
-      BOOST_CHECK(p_test_0->countParameters<double>(INACTIVEONLY) == FPLOOPCOUNT*NGDOUBLECOLL);
-      BOOST_CHECK(p_test_0->countParameters<double>(ALLPARAMETERS) == FPLOOPCOUNT*(NGDOUBLECOLL+2));
-      BOOST_CHECK(p_test_0->countParameters<boost::int32_t>(ACTIVEONLY) == 1);
-      BOOST_CHECK(p_test_0->countParameters<boost::int32_t>(INACTIVEONLY) == 0);
-      BOOST_CHECK(p_test_0->countParameters<boost::int32_t>(ALLPARAMETERS) == 1);
-      BOOST_CHECK(p_test_0->countParameters<bool>(ACTIVEONLY) == 1);
-      BOOST_CHECK(p_test_0->countParameters<bool>(INACTIVEONLY) == 0);
-      BOOST_CHECK(p_test_0->countParameters<bool>(ALLPARAMETERS) == 1);
+      BOOST_CHECK(p_test_0->countParameters<double>(ACTIVEONLY) == NDOUBLEACTIVE);
+      BOOST_CHECK(p_test_0->countParameters<double>(INACTIVEONLY) == NDOUBLEINACTIVE);
+      BOOST_CHECK(p_test_0->countParameters<double>(ALLPARAMETERS) == NDOUBLEALL);
+      BOOST_CHECK(p_test_0->countParameters<boost::int32_t>(ACTIVEONLY) == NINTACTIVE);
+      BOOST_CHECK(p_test_0->countParameters<boost::int32_t>(INACTIVEONLY) == NINTINACTIVE);
+      BOOST_CHECK(p_test_0->countParameters<boost::int32_t>(ALLPARAMETERS) == NINTALL);
+      BOOST_CHECK(p_test_0->countParameters<bool>(ACTIVEONLY) == NBOOLACTIVE);
+      BOOST_CHECK(p_test_0->countParameters<bool>(INACTIVEONLY) == NBOOLINACTIVE);
+      BOOST_CHECK(p_test_0->countParameters<bool>(ALLPARAMETERS) == NBOOLALL);
 	}
 
 	//---------------------------------------------------------------------
