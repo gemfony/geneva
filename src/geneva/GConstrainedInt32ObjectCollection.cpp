@@ -229,7 +229,7 @@ void GConstrainedInt32ObjectCollection::fillWithObjects(const std::size_t& nAdde
 		BOOST_CHECK_NO_THROW(gcio_ptr->addAdaptor(giga_ptr));
 
 		// Randomly initialize the GConstrainedInt32Object object, so it is unique
-		BOOST_CHECK_NO_THROW(gcio_ptr->randomInit());
+		BOOST_CHECK_NO_THROW(gcio_ptr->randomInit(ALLPARAMETERS));
 
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gcio_ptr));

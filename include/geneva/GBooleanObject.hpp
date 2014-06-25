@@ -97,9 +97,9 @@ public:
 	bool operator!=(const GBooleanObject&) const;
 
 	/** @brief Triggers random initialization of the parameter object */
-	virtual void randomInit() OVERRIDE;
+	virtual void randomInit(const activityMode&) OVERRIDE;
 	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
-	void randomInit(const double&);
+	void randomInit(const double&, const activityMode&);
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(

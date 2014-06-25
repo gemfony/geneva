@@ -232,7 +232,7 @@ void GConstrainedFloatObjectCollection::fillWithObjects(const std::size_t& nAdde
 		BOOST_CHECK_NO_THROW(gcdo_ptr->addAdaptor(gdga_ptr));
 
 		// Randomly initialize the GConstrainedFloatObject object, so it is unique
-		BOOST_CHECK_NO_THROW(gcdo_ptr->randomInit());
+		BOOST_CHECK_NO_THROW(gcdo_ptr->randomInit(ALLPARAMETERS));
 
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gcdo_ptr));

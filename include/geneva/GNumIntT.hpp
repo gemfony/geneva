@@ -127,7 +127,8 @@ public:
 	)
 		: GNumT<int_type> (min, max)
 	{
-		GNumIntT<int_type>::randomInit_();
+	   // TODO: Check: can this function ideed be called
+		GNumIntT<int_type>::randomInit(ACTIVEONLY);
 	}
 
 	/***************************************************************************/

@@ -110,7 +110,8 @@ public:
 	)
 		: GNumT<fp_type> (min, max)
 	{
-		GNumFPT<fp_type>::randomInit_();
+	   // TODO: This is an overloaded function. Is it available here ?
+		GNumFPT<fp_type>::randomInit(ACTIVEONLY);
 	}
 
 	/***************************************************************************/
@@ -379,7 +380,9 @@ protected:
 	virtual void randomInit_() OVERRIDE {
 		fp_type lowerBoundary = GNumT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumT<fp_type>::getUpperInitBoundary();
-		GParameterT<fp_type>::setValue(this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary, upperBoundary));
+		GParameterT<fp_type>::setValue(
+         this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary, upperBoundary)
+      );
 	}
 
 	/* ----------------------------------------------------------------------------------

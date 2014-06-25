@@ -232,7 +232,7 @@ void GInt32ObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
 		BOOST_CHECK_NO_THROW(gio_ptr->addAdaptor(giga_ptr));
 
 		// Randomly initialize the GInt32Object object, so it is unique
-		BOOST_CHECK_NO_THROW(gio_ptr->randomInit());
+		BOOST_CHECK_NO_THROW(gio_ptr->randomInit(ALLPARAMETERS));
 
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gio_ptr));

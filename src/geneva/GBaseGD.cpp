@@ -672,7 +672,7 @@ void GBaseGD::adjustPopulation() {
 			// Create a copy of the first individual
 			this->push_back(this->at(0)->clone<GParameterSet>());
 			// Make sure our start values differ
-			this->back()->randomInit();
+			this->back()->randomInit(ACTIVEONLY);
 		}
 	} else {
 		// Start with a defined size. This will remove surplus items.

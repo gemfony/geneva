@@ -771,7 +771,7 @@ void GBaseEA::fillWithObjects(const std::size_t& nIndividuals) {
 	}
 
 	// Make sure we have unique data items
-	this->randomInit();
+	this->randomInit(ALLPARAMETERS);
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBaseEA::fillWithObjects", "GEM_TESTING");

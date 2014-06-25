@@ -351,11 +351,11 @@ double GParameterSet::fitnessCalculation() {
 /**
  * Allows to randomly initialize parameter members
  */
-void GParameterSet::randomInit() {
+void GParameterSet::randomInit(const activityMode& am) {
 	// Trigger random initialization of all our parameter objects
 	GParameterSet::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)->randomInit();
+	   (*it)->randomInit(am);
 	}
 
 	// As we have modified our internal data sets, make sure the dirty flag is set
@@ -1187,7 +1187,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			// Create a GParameterSet object as a clone of p_test_0 for further usage
 			boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
-			BOOST_CHECK_NO_THROW(p_test->randomInit());
+			BOOST_CHECK_NO_THROW(p_test->randomInit(ALLPARAMETERS));
 			BOOST_CHECK(*p_test != *p_test_0);
 		}
 

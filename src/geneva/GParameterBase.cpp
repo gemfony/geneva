@@ -320,6 +320,14 @@ bool GParameterBase::amMismatch(const activityMode& am) const {
    return !amMatch(am);
 }
 
+/******************************************************************************/
+/**
+ * Checks whether this object matches a given activity mode and is modifiable
+ */
+bool GParameterBase::modifiableAmMatchOrHandover(const activityMode& am) const {
+   return ((this->isLeaf() && this->amMatch(am)) || !this->isLeaf());
+}
+
 /***********************************************************************************/
 /**
  * Returns a human-readable name for the base type of derived objects
@@ -426,8 +434,13 @@ bool GParameterBase::hasAdaptor() const {
  * Triggers random initialization of the parameter(-collection). This is the public
  * version of this function, which only acts if initialization has not been blocked.
  */
-void GParameterBase::randomInit() {
-	if(!randomInitializationBlocked_) randomInit_();
+void GParameterBase::randomInit(const activityMode& am) {
+	if(
+      !randomInitializationBlocked_
+      && this->modifiableAmMatchOrHandover(am)
+   ) {
+	   randomInit_();
+	}
 }
 
 /* -----------------------------------------------------------------------------
@@ -1338,7 +1351,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
 		// Random initialization should leave the object unchanged
-		BOOST_CHECK_NO_THROW(p_test1->randomInit());
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(ALLPARAMETERS));
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Unblock random initialization
@@ -1348,7 +1361,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == false);
 
 		// Random initialization should change p_test1
-		BOOST_CHECK_NO_THROW(p_test1->randomInit());
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(ALLPARAMETERS));
 		BOOST_CHECK(*p_test1 != *p_test2);
 	}
 

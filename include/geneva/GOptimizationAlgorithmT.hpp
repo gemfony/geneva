@@ -862,7 +862,7 @@ public:
 	 * are unaffected. It might be useful to implement actions here as well, though, in order
 	 * to make better use of Multi-Populations in Evolutionary Algorithms.
 	 */
-	void randomInit() { /* nothing */ }
+	virtual void randomInit(const activityMode&) OVERRIDE { /* nothing */ }
 
 	/***************************************************************************/
 	/**

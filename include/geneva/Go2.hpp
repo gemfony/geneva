@@ -191,7 +191,7 @@ public:
 	bool onlyBestIndividualsAreCopied() const;
 
 	/** @brief Allows to randomly initialize parameter members. Unused in this wrapper object */
-	virtual void randomInit() OVERRIDE;
+	virtual void randomInit(const activityMode&) OVERRIDE;
 	/** @brief Triggers fitness calculation (i.e. optimization) for this object */
 	virtual double fitnessCalculation() OVERRIDE;
 

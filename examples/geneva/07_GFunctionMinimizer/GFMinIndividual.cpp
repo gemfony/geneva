@@ -459,7 +459,7 @@ void GFMinIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& p) {
 	boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(parDim_, minVar_, maxVar_));
 
 	// Randomly initialize
-	gcdc_ptr->randomInit();
+	gcdc_ptr->randomInit(ACTIVEONLY);
 
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma_, sigmaSigma_, minSigma_, maxSigma_));
 	gdga_ptr->setAdaptionProbability(adProb_);

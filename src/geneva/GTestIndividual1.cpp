@@ -54,7 +54,7 @@ GTestIndividual1::GTestIndividual1()
    gdga1->setAdaptAdProb(0.);
 
    gdc_ptr->addAdaptor(gdga1);
-   gdc_ptr->randomInit();
+   gdc_ptr->randomInit(Gem::Geneva::ACTIVEONLY);
    this->push_back(gdc_ptr);
 }
 
@@ -262,7 +262,7 @@ void GTestIndividual1::addGDoubleObjects(const std::size_t& nItems) {
 		BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
 
 		// Randomly initialize the GDoubleObject object, so it is unique
-		BOOST_CHECK_NO_THROW(gdo_ptr->randomInit());
+		BOOST_CHECK_NO_THROW(gdo_ptr->randomInit(Gem::Geneva::ACTIVEONLY));
 
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gdo_ptr));

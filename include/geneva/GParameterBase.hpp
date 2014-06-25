@@ -119,7 +119,7 @@ public:
 	bool operator!=(const GParameterBase&) const;
 
 	/** @brief Triggers random initialization of the parameter(-collection) */
-	virtual void randomInit() BASE;
+	virtual void randomInit(const activityMode&) BASE;
 
 	/** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
 	virtual bool isIndividualParameter() const BASE;
@@ -151,6 +151,9 @@ public:
 	bool amMatch(const activityMode&) const;
 	/** @brief Returns true on the case of an activity mode mismatch */
 	bool amMismatch(const activityMode&) const;
+
+	/** @brief Checks whether this object matches a given activity mode and is modifiable */
+	bool modifiableAmMatchOrHandover(const activityMode&) const;
 
 	/***************************************************************************/
 	/**

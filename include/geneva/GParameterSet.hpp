@@ -131,7 +131,7 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Allows to randomly initialize parameter members */
-	virtual void randomInit() OVERRIDE;
+	virtual void randomInit(const activityMode&) OVERRIDE;
 
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode(const bool&);
@@ -324,7 +324,7 @@ public:
          // We count the parameters if they are a leaf matching the activity mode.
          // If cit does not represent a leaf, it must be an object collection. We hand
          // over data collection to this object in this case.
-         if(((*cit)->isLeaf() && (*cit)->amMatch(am)) || !(*cit)->isLeaf()) {
+         if((*cit)->modifiableAmMatchOrHandover(am)) {
             result += (*cit)->countParameters<par_type>(am);
          }
       }

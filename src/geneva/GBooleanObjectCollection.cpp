@@ -251,7 +251,7 @@ void GBooleanObjectCollection::fillWithObjects(const std::size_t& nAddedObjects)
 		BOOST_CHECK_NO_THROW(gbo_ptr->addAdaptor(gba_ptr));
 
 		// Randomly initialize the GBooleanObject object, so it is unique
-		BOOST_CHECK_NO_THROW(gbo_ptr->randomInit());
+		BOOST_CHECK_NO_THROW(gbo_ptr->randomInit(ALLPARAMETERS));
 
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gbo_ptr));

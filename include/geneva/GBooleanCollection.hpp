@@ -110,9 +110,9 @@ public:
    ) const OVERRIDE;
 
    /** @brief Random initialization */
-   virtual void randomInit() OVERRIDE;
+   virtual void randomInit(const activityMode&) OVERRIDE;
    /** @brief Random initialization with a given probability structure */
-   void randomInit(const double&);
+   void randomInit(const double&, const activityMode&);
 
    /** @brief Attach our local values to the vector. */
    virtual void booleanStreamline(std::vector<bool>&) const OVERRIDE;

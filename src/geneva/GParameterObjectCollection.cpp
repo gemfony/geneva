@@ -240,7 +240,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	BOOST_CHECK_NO_THROW(gbo_ptr->addAdaptor(gba_ptr));
 
 	// Randomly initialize the GBooleanObject object, so it is unique
-	BOOST_CHECK_NO_THROW(gbo_ptr->randomInit());
+	BOOST_CHECK_NO_THROW(gbo_ptr->randomInit(ALLPARAMETERS));
 
 	// Add the object to the collection
 	BOOST_CHECK_NO_THROW(this->push_back(gbo_ptr));
@@ -260,7 +260,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	BOOST_CHECK_NO_THROW(gio_ptr->addAdaptor(giga_ptr));
 
 	// Randomly initialize the GInt32Object object, so it is unique
-	BOOST_CHECK_NO_THROW(gio_ptr->randomInit());
+	BOOST_CHECK_NO_THROW(gio_ptr->randomInit(ALLPARAMETERS));
 
 	// Add the object to the collection
 	BOOST_CHECK_NO_THROW(this->push_back(gio_ptr));
@@ -280,7 +280,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
 
 	// Randomly initialize the GDoubleObject object, so it is unique
-	BOOST_CHECK_NO_THROW(gdo_ptr->randomInit());
+	BOOST_CHECK_NO_THROW(gdo_ptr->randomInit(ALLPARAMETERS));
 
 	// Add the object to the collection
 	BOOST_CHECK_NO_THROW(this->push_back(gdo_ptr));
@@ -547,8 +547,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		// Check that both individuals are identical
 		BOOST_CHECK(*p_test1 == *p_test2);
 
-		// Randomly initialize p_test2, using GParameterTCollectionT<T>::randomInit_()
-		BOOST_CHECK_NO_THROW(p_test2->randomInit_());
+		// Randomly initialize p_test2, using GParameterTCollectionT<T>::randomInit()
+		BOOST_CHECK_NO_THROW(p_test2->randomInit(ALLPARAMETERS));
 
 		// Check that the two objects differ
 		BOOST_CHECK(*p_test1 != *p_test2);

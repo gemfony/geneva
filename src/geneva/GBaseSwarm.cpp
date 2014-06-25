@@ -1285,7 +1285,7 @@ void GBaseSwarm::adjustPopulation() {
 		// Fill up with random items to the number of neighborhoods
 		for(std::size_t i=1; i<nNeighborhoods_; i++) {
 			this->push_back(this->front()->clone<GParameterSet>());
-			this->back()->randomInit();
+			this->back()->randomInit(ACTIVEONLY);
 		}
 
 		// Fill in remaining items in each neighborhood. This will
@@ -1307,7 +1307,7 @@ void GBaseSwarm::adjustPopulation() {
 			// First fill up the neighborhoods, if required
 			for(std::size_t m=0; m < (nNeighborhoods_-currentSize); m++) {
 				this->push_back(this->front()->clone<GParameterSet>());
-				this->back()->randomInit();
+				this->back()->randomInit(ACTIVEONLY);
 			}
 
 			// Now follow the procedure used for the "nNeighborhoods_" case
@@ -1383,7 +1383,7 @@ void GBaseSwarm::fillUpNeighborhood1() {
 				}
 #endif /* DEBUG */
 
-				(*(this->begin()+n+1))->randomInit();
+				(*(this->begin()+n+1))->randomInit(ACTIVEONLY);
 			}
 		}
 

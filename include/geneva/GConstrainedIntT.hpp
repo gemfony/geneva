@@ -342,7 +342,12 @@ protected:
 	 * Randomly initializes the parameter (within its limits)
 	 */
 	virtual void randomInit_() OVERRIDE {
-		this->setValue(this->GParameterBase::gr->uniform_int(GConstrainedNumT<int_type>::getLowerBoundary(), GConstrainedNumT<int_type>::getUpperBoundary()));
+		this->setValue(
+         this->GParameterBase::gr->uniform_int(
+            GConstrainedNumT<int_type>::getLowerBoundary()
+            , GConstrainedNumT<int_type>::getUpperBoundary()
+         )
+      );
 	}
 
 	/* ----------------------------------------------------------------------------------

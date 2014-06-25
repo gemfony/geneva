@@ -228,7 +228,7 @@ void GDoubleObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) 
 		BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
 
 		// Randomly initialize the GDoubleObject object, so it is unique
-		BOOST_CHECK_NO_THROW(gdo_ptr->randomInit());
+		BOOST_CHECK_NO_THROW(gdo_ptr->randomInit(ALLPARAMETERS));
 
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gdo_ptr));

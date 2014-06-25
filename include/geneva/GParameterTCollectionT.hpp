@@ -624,7 +624,7 @@ public:
          // We count the parameters if they are a leaf matching the activity mode.
          // If cit does not represent a leaf, it must be an object collection. We hand
          // over data collection to this object in this case.
-         if(((*cit)->isLeaf() && (*cit)->amMatch(am)) || !(*cit)->isLeaf()) {
+         if((*cit)->modifiableAmMatchOrHandover(am)) {
             result += (*cit)->countFloatParameters(am);
          }
       }
@@ -650,7 +650,7 @@ public:
          // We count the parameters if they are a leaf matching the activity mode
          // If cit does not represent a leaf, it must be a collection. We hand over
          // data collection to this object,
-         if(((*cit)->isLeaf() && (*cit)->amMatch(am)) || !(*cit)->isLeaf()) {
+         if((*cit)->modifiableAmMatchOrHandover(am)) {
             result += (*cit)->countDoubleParameters(am);
          }
       }
@@ -676,7 +676,7 @@ public:
          // We count the parameters if they are a leaf matching the activity mode
          // If cit does not represent a leaf, it must be a collection. We hand over
          // data collection to this object,
-         if(((*cit)->isLeaf() && (*cit)->amMatch(am)) || !(*cit)->isLeaf()) {
+         if((*cit)->modifiableAmMatchOrHandover(am)) {
             result += (*cit)->countInt32Parameters(am);
          }
       }
@@ -702,7 +702,7 @@ public:
          // We count the parameters if they are a leaf matching the activity mode
          // If cit does not represent a leaf, it must be a collection. We hand over
          // data collection to this object,
-         if(((*cit)->isLeaf() && (*cit)->amMatch(am)) || !(*cit)->isLeaf()) {
+         if((*cit)->modifiableAmMatchOrHandover(am)) {
             result += (*cit)->countBoolParameters(am);
          }
       }
@@ -1027,7 +1027,47 @@ public:
       }
    }
 
+   /***************************************************************************/
+   /**
+    * Triggers random initialization of all parameter objects. Essentially,
+    * this function replicates the functionality of GParameterBase::randomInit(activityMode).
+    * However, we distribute the calls to the objects in the container. This
+    * should really go into randomInit_(), however we need to pass the activity-mode
+    * to these objects, so the only option seems to be to overload randomInit().
+    */
+   virtual void randomInit(const activityMode& am) OVERRIDE {
+      if(
+         !this->randomInitializationBlocked()
+         && this->modifiableAmMatchOrHandover(am) // will always be true for this object, as we are not a "leaf"
+      ) {
+         typename GParameterTCollectionT<T>::iterator it;
+         for(it=this->begin(); it!=this->end(); ++it) {
+            // Note that we do not call the randomInit_() function. First of all, we
+            // do not have access to it. Secondly it might be that re-initialization of
+            // a specific object is not desired.
+            (*it)->GParameterBase::randomInit(am);
+         }
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * Tested in GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests()
+    * ----------------------------------------------------------------------------------
+    */
+
 protected:
+   /***************************************************************************/
+   /**
+    * This function is a trap
+    */
+   virtual void randomInit_() OVERRIDE {
+      glogger
+      << "In GParameterTCollectionT<>::ramdonInit_(): Error!" << std::endl
+      << "This function should never be called. Instead randomInit()" << std::endl
+      << "(without \"_\") should be called" << std::endl
+      << GEXCEPTION;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Loads the data of another GParameterTCollectionT<T> object, camouflaged as a GObject
@@ -1057,25 +1097,6 @@ protected:
 	 * further optimizations.
 	 */
 	virtual void dummyFunction() OVERRIDE { /* nothing */ }
-
-	/***************************************************************************/
-	/**
-	 * Triggers random initialization of all parameter objects
-	 */
-	virtual void randomInit_() OVERRIDE {
-		typename GParameterTCollectionT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			// Note that we do not call the randomInit_() function. First of all, we
-			// do not have access to it. Secondly it might be that re-initialization of
-			// a specific object is not desired.
-			(*it)->GParameterBase::randomInit();
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
 
 public:
 	/***************************************************************************/

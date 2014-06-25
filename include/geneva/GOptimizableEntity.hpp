@@ -242,7 +242,7 @@ public:
 	std::string getPersonality() const;
 
 	/** @brief Allows to randomly initialize parameter members */
-	virtual void randomInit() BASE = 0;
+	virtual void randomInit(const activityMode&) BASE = 0;
 
 	/** @brief Retrieves a parameter of a given type at the specified position */
 	virtual boost::any getVarVal(

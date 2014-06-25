@@ -156,8 +156,8 @@ bool GBooleanObject::operator!=(const GBooleanObject& cp) const {
  * Random initialization. This is a helper function, without it we'd
  * have to say things like "myGBooleanObject.GParameterBase::randomInit();".
  */
-void GBooleanObject::randomInit() {
-	  GParameterBase::randomInit();
+void GBooleanObject::randomInit(const activityMode& am) {
+	  GParameterBase::randomInit(am);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -169,8 +169,13 @@ void GBooleanObject::randomInit() {
 /**
  * Triggers random initialization of the parameter object, with a given likelihood structure
  */
-void GBooleanObject::randomInit(const double& probability) {
-  if(!GParameterBase::randomInitializationBlocked()) randomInit_(probability);
+void GBooleanObject::randomInit(const double& probability, const activityMode& am) {
+  if(
+     !GParameterBase::randomInitializationBlocked()
+     && this->modifiableAmMatchOrHandover(am)
+  ) {
+     randomInit_(probability);
+  }
 }
 
 /* ----------------------------------------------------------------------------------
@@ -598,7 +603,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
 		// Try to randomly initialize, using the *external* function
-		BOOST_CHECK_NO_THROW(p_test1->randomInit());
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(ALLPARAMETERS));
 
 		// Check that both objects are still the same
 		BOOST_CHECK(*p_test1 == *p_test2);
@@ -629,7 +634,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
 		// Try to randomly initialize, using the *external* function
-		BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7));
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, ALLPARAMETERS));
 
 		// Check that both objects are still the same
 		BOOST_CHECK(*p_test1 == *p_test2);

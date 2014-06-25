@@ -530,7 +530,7 @@ execMode Go2::getParallelizationMode() const {
  * this function doesn't make any sense. It is made available to satisfy a requirement
  * of GOptimizableEntity.
  */
-void Go2::randomInit()
+void Go2::randomInit(const activityMode&)
 { /* nothing */ }
 
 /******************************************************************************/

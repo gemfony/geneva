@@ -154,7 +154,9 @@ void GBooleanCollection::load_(const GObject * cp){
  * that is added later will remain unaffected.
  */
 void GBooleanCollection::randomInit_() {
-   for(std::size_t i=0; i<this->size(); i++) (*this)[i] = gr->uniform_bool();
+   for(std::size_t i=0; i<this->size(); i++) {
+      (*this)[i] = gr->uniform_bool();
+   }
 }
 
 /******************************************************************************/
@@ -172,7 +174,9 @@ void GBooleanCollection::randomInit_(const double& probability) {
       << GEXCEPTION;
    }
 
-   for(std::size_t i=0; i<this->size(); i++) (*this)[i] = gr->weighted_bool(probability);
+   for(std::size_t i=0; i<this->size(); i++) {
+      (*this)[i] = gr->weighted_bool(probability);
+   }
 }
 
 /******************************************************************************/
@@ -180,8 +184,8 @@ void GBooleanCollection::randomInit_(const double& probability) {
  * Random initialization. This is a helper function, without it we'd
  * have to say things like "myGBooleanCollectionObject.GParameterBase::randomInit();".
  */
-void GBooleanCollection::randomInit() {
-   GParameterBase::randomInit(); // This will also take into account the "blocked initialization" flag
+void GBooleanCollection::randomInit(const activityMode& am) {
+   GParameterBase::randomInit(am); // This will also take into account the "blocked initialization" flag
 }
 
 /******************************************************************************/
@@ -191,8 +195,13 @@ void GBooleanCollection::randomInit() {
  *
  * @param probability The probability for true values in the collection
  */
-void GBooleanCollection::randomInit(const double& probability) {
-   if(!GParameterBase::randomInitializationBlocked()) randomInit_(probability);
+void GBooleanCollection::randomInit(const double& probability, const activityMode& am) {
+   if(
+      !GParameterBase::randomInitializationBlocked()
+      && this->modifiableAmMatchOrHandover(am)
+   ) {
+      randomInit_(probability);
+   }
 }
 
 /***************************************************************************/
@@ -705,7 +714,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
       BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
       // Try to randomly initialize, using the *external* function
-      BOOST_CHECK_NO_THROW(p_test1->randomInit());
+      BOOST_CHECK_NO_THROW(p_test1->randomInit(ALLPARAMETERS));
 
       // Check that both objects are still the same
       BOOST_CHECK(*p_test1 == *p_test2);
@@ -740,7 +749,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
       BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
       // Try to randomly initialize, using the *external* function
-      BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7));
+      BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, ALLPARAMETERS));
 
       // Check that both objects are still the same
       BOOST_CHECK(*p_test1 == *p_test2);
