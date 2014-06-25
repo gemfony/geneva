@@ -73,8 +73,8 @@ GFloatObject::GFloatObject(const float& val)
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
 GFloatObject::GFloatObject(
-		const float& lowerBoundary
-		, const float& upperBoundary
+   const float& lowerBoundary
+   , const float& upperBoundary
 )
 	: GNumFPT<float>(lowerBoundary, upperBoundary)
 { /* nothing */ }
@@ -88,9 +88,9 @@ GFloatObject::GFloatObject(
  * @param upperBoundary The upper boundary for random initialization
  */
 GFloatObject::GFloatObject(
-		const float& val
-		, const float& lowerBoundary
-		, const float& upperBoundary
+   const float& val
+   , const float& lowerBoundary
+   , const float& upperBoundary
 )
 	: GNumFPT<float>(val, lowerBoundary, upperBoundary)
 { /* nothing */ }
@@ -175,11 +175,11 @@ bool GFloatObject::operator!=(const GFloatObject& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GFloatObject::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
+   const Gem::Common::expectation& e,
+   const double& limit,
+   const std::string& caller,
+   const std::string& y_name,
+   const bool& withMessages) const
 {
     using namespace Gem::Common;
 
@@ -212,7 +212,10 @@ std::string GFloatObject::name() const {
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GFloatObject::floatStreamline(std::vector<float>& parVec) const {
+void GFloatObject::floatStreamline(
+   std::vector<float>& parVec
+   , const activityMode& am
+) const {
 	parVec.push_back(this->value());
 }
 
@@ -222,7 +225,10 @@ void GFloatObject::floatStreamline(std::vector<float>& parVec) const {
  *
  * @param parVec The map to which the local value should be attached
  */
-void GFloatObject::floatStreamline(std::map<std::string, std::vector<float> >& parMap) const {
+void GFloatObject::floatStreamline(
+   std::map<std::string, std::vector<float> >& parMap
+   , const activityMode& am
+) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
@@ -242,7 +248,10 @@ void GFloatObject::floatStreamline(std::map<std::string, std::vector<float> >& p
 /**
  * Assigns part of a value map to the parameter
  */
-void GFloatObject::assignFloatValueVectors(const std::map<std::string, std::vector<float> >& parMap) {
+void GFloatObject::assignFloatValueVectors(
+   const std::map<std::string, std::vector<float> >& parMap
+   , const activityMode& am
+) {
    this->setValue((Gem::Common::getMapItem(parMap,this->getParameterName())).at(0));
 }
 
@@ -255,8 +264,9 @@ void GFloatObject::assignFloatValueVectors(const std::map<std::string, std::vect
  * @param uBndVec A vector of upper float parameter boundaries
  */
 void GFloatObject::floatBoundaries(
-		std::vector<float>& lBndVec
-		, std::vector<float>& uBndVec
+   std::vector<float>& lBndVec
+   , std::vector<float>& uBndVec
+   , const activityMode& am
 ) const {
 	lBndVec.push_back(this->getLowerInitBoundary());
 	uBndVec.push_back(this->getUpperInitBoundary());
@@ -279,7 +289,11 @@ std::size_t GFloatObject::countFloatParameters(
 /**
  * Assigns part of a value vector to the parameter
  */
-void GFloatObject::assignFloatValueVector(const std::vector<float>& parVec, std::size_t& pos) {
+void GFloatObject::assignFloatValueVector(
+   const std::vector<float>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {

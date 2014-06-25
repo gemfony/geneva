@@ -178,12 +178,12 @@ bool GConstrainedInt32Object::operator!=(const GConstrainedInt32Object& cp) cons
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GConstrainedInt32Object::checkRelationshipWith (
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -216,7 +216,10 @@ std::string GConstrainedInt32Object::name() const {
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GConstrainedInt32Object::int32Streamline(std::vector<boost::int32_t>& parVec) const {
+void GConstrainedInt32Object::int32Streamline(
+   std::vector<boost::int32_t>& parVec
+   , const activityMode& am
+) const {
 	parVec.push_back(this->value());
 }
 
@@ -227,7 +230,10 @@ void GConstrainedInt32Object::int32Streamline(std::vector<boost::int32_t>& parVe
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GConstrainedInt32Object::int32Streamline(std::map<std::string, std::vector<boost::int32_t> >& parVec) const {
+void GConstrainedInt32Object::int32Streamline(
+   std::map<std::string, std::vector<boost::int32_t> >& parVec
+   , const activityMode& am
+) const {
    std::vector<boost::int32_t> parameters;
    parameters.push_back(this->value());
    parVec[this->getParameterName()] = parameters;
@@ -241,8 +247,9 @@ void GConstrainedInt32Object::int32Streamline(std::map<std::string, std::vector<
  * @param uBndVec A vector of upper boost::int32_t parameter boundaries
  */
 void GConstrainedInt32Object::int32Boundaries(
-		std::vector<boost::int32_t>& lBndVec
-		, std::vector<boost::int32_t>& uBndVec
+   std::vector<boost::int32_t>& lBndVec
+   , std::vector<boost::int32_t>& uBndVec
+   , const activityMode& am
 ) const {
 	lBndVec.push_back(this->getLowerBoundary());
 	uBndVec.push_back(this->getUpperBoundary());
@@ -266,7 +273,11 @@ std::size_t GConstrainedInt32Object::countInt32Parameters(
  * Assigns part of a value vector to the parameter. Note that we apply a transformation
  * to the assigned value, so that it lies inside of the allowed value range.
  */
-void GConstrainedInt32Object::assignInt32ValueVector(const std::vector<boost::int32_t>& parVec, std::size_t& pos) {
+void GConstrainedInt32Object::assignInt32ValueVector(
+   const std::vector<boost::int32_t>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
@@ -285,7 +296,10 @@ void GConstrainedInt32Object::assignInt32ValueVector(const std::vector<boost::in
 /**
  * Assigns part of a value map to the parameter
  */
-void GConstrainedInt32Object::assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >& parMap) {
+void GConstrainedInt32Object::assignInt32ValueVectors(
+   const std::map<std::string, std::vector<boost::int32_t> >& parMap
+   , const activityMode& am
+) {
    this->setValue(
       this->transfer(
          Gem::Common::getMapItem(

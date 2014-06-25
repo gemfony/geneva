@@ -55,9 +55,9 @@ GInt32Collection::GInt32Collection()
  * @param max The maximum random value
  */
 GInt32Collection::GInt32Collection(
-		const std::size_t& nval
-		, const boost::int32_t& min
-		, const boost::int32_t& max
+   const std::size_t& nval
+   , const boost::int32_t& min
+   , const boost::int32_t& max
 )
 	: GIntNumCollectionT<boost::int32_t>(nval, min, max)
 { /* nothing */ }
@@ -72,10 +72,10 @@ GInt32Collection::GInt32Collection(
  * @param max The maximum random value
  */
 GInt32Collection::GInt32Collection(
-		const std::size_t& nval
-		, const boost::int32_t& val
-		, const boost::int32_t& min
-		, const boost::int32_t& max
+   const std::size_t& nval
+   , const boost::int32_t& val
+   , const boost::int32_t& min
+   , const boost::int32_t& max
 )
 	: GIntNumCollectionT<boost::int32_t>(nval, val, min, max)
 { /* nothing */ }
@@ -159,12 +159,12 @@ bool GInt32Collection::operator!=(const GInt32Collection& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GInt32Collection::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -197,7 +197,10 @@ std::string GInt32Collection::name() const {
  *
  * @param parVec The vector to which the local values should be attached
  */
-void GInt32Collection::int32Streamline(std::vector<boost::int32_t>& parVec) const {
+void GInt32Collection::int32Streamline(
+   std::vector<boost::int32_t>& parVec
+   , const activityMode& am
+) const {
 	GInt32Collection::const_iterator cit;
 	for(cit=this->begin(); cit!=this->end(); ++cit) {
 		parVec.push_back(*cit);
@@ -211,7 +214,10 @@ void GInt32Collection::int32Streamline(std::vector<boost::int32_t>& parVec) cons
  *
  * @param parVec The map to which the local values should be attached
  */
-void GInt32Collection::int32Streamline(std::map<std::string, std::vector<boost::int32_t> >& parVec) const {
+void GInt32Collection::int32Streamline(
+   std::map<std::string, std::vector<boost::int32_t> >& parVec
+   , const activityMode& am
+) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
@@ -222,7 +228,7 @@ void GInt32Collection::int32Streamline(std::map<std::string, std::vector<boost::
 #endif /* DEBUG */
 
    std::vector<boost::int32_t> parameters;
-   this->int32Streamline(parameters);
+   this->int32Streamline(parameters, am);
    parVec[this->getParameterName()] = parameters;
 }
 
@@ -235,8 +241,9 @@ void GInt32Collection::int32Streamline(std::map<std::string, std::vector<boost::
  * @param uBndVec A vector of upper boost::int32_t parameter boundaries
  */
 void GInt32Collection::int32Boundaries(
-		std::vector<boost::int32_t>& lBndVec
-		, std::vector<boost::int32_t>& uBndVec
+   std::vector<boost::int32_t>& lBndVec
+   , std::vector<boost::int32_t>& uBndVec
+   , const activityMode& am
 ) const {
 	// Add as man lower and upper boundaries to the vector as
 	// there are variables
@@ -264,28 +271,34 @@ std::size_t GInt32Collection::countInt32Parameters(
 /**
  * Assigns part of a value vector to the parameter
  */
-void GInt32Collection::assignInt32ValueVector(const std::vector<boost::int32_t>& parVec, std::size_t& pos) {
-	  for(GInt32Collection::iterator it=this->begin(); it!=this->end(); ++it) {
+void GInt32Collection::assignInt32ValueVector(
+   const std::vector<boost::int32_t>& parVec, std::size_t& pos
+   , const activityMode& am
+) {
+   for(GInt32Collection::iterator it=this->begin(); it!=this->end(); ++it) {
 #ifdef DEBUG
-		  // Do we have a valid position ?
-		  if(pos >= parVec.size()) {
-		     glogger
-		     << "In GInt32Collection::assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&):" << std::endl
-           << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
-           << GEXCEPTION;
-		  }
+      // Do we have a valid position ?
+      if(pos >= parVec.size()) {
+         glogger
+         << "In GInt32Collection::assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&):" << std::endl
+         << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+         << GEXCEPTION;
+      }
 #endif
 
-		  (*it) = parVec[pos];
-		  pos++;
-	  }
+      (*it) = parVec[pos];
+      pos++;
+   }
 }
 
 /******************************************************************************/
 /**
  * Assigns part of a value map to the parameter
  */
-void GInt32Collection::assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >& parMap) {
+void GInt32Collection::assignInt32ValueVectors(
+   const std::map<std::string, std::vector<boost::int32_t> >& parMap
+   , const activityMode& am
+) {
    GInt32Collection::iterator it;
    std::size_t cnt = 0;
    for(it=this->begin(); it!=this->end(); ++it) {

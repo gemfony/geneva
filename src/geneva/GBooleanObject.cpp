@@ -233,13 +233,14 @@ bool GBooleanObject::range() const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GBooleanObject::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+boost::optional<std::string> GBooleanObject::checkRelationshipWith(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
+) const {
     using namespace Gem::Common;
 
 	// Check for a possible self-assignment
@@ -271,7 +272,10 @@ std::string GBooleanObject::name() const {
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GBooleanObject::booleanStreamline(std::vector<bool>& parVec) const {
+void GBooleanObject::booleanStreamline(
+   std::vector<bool>& parVec
+   , const activityMode& am
+) const {
 	parVec.push_back(this->value());
 }
 
@@ -281,7 +285,10 @@ void GBooleanObject::booleanStreamline(std::vector<bool>& parVec) const {
  *
  * @param parVec The map to which the local value should be attached
  */
-void GBooleanObject::booleanStreamline(std::map<std::string, std::vector<bool> >& parVec) const {
+void GBooleanObject::booleanStreamline(
+   std::map<std::string, std::vector<bool> >& parVec
+   , const activityMode& am
+) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
@@ -305,8 +312,9 @@ void GBooleanObject::booleanStreamline(std::map<std::string, std::vector<bool> >
  * @param uBndVec A vector of upper bool parameter boundaries
  */
 void GBooleanObject::booleanBoundaries(
-		std::vector<bool>& lBndVec
-		, std::vector<bool>& uBndVec
+   std::vector<bool>& lBndVec
+   , std::vector<bool>& uBndVec
+   , const activityMode& am
 ) const {
 	lBndVec.push_back(false);
 	uBndVec.push_back(true);
@@ -320,7 +328,9 @@ void GBooleanObject::booleanBoundaries(
  * @param @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
  * @return The number of active, incactive or all float parameters
  */
-std::size_t GBooleanObject::countBoolParameters(const activityMode& am) const {
+std::size_t GBooleanObject::countBoolParameters(
+   const activityMode& am
+) const {
    return 1;
 }
 
@@ -328,7 +338,11 @@ std::size_t GBooleanObject::countBoolParameters(const activityMode& am) const {
 /**
  * Assigns part of a value vector to the parameter
  */
-void GBooleanObject::assignBooleanValueVector(const std::vector<bool>& parVec, std::size_t& pos) {
+void GBooleanObject::assignBooleanValueVector(
+   const std::vector<bool>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
@@ -347,7 +361,11 @@ void GBooleanObject::assignBooleanValueVector(const std::vector<bool>& parVec, s
 /**
  * Assigns part of a value map to the parameter
  */
-void GBooleanObject::assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >& parMap) {
+void GBooleanObject::assignBooleanValueVectors(
+   const std::map<std::string
+   , std::vector<bool> >& parMap
+   , const activityMode& am
+) {
    this->setValue((Gem::Common::getMapItem<std::vector<bool> >(parMap,this->getParameterName())).at(0));
 }
 

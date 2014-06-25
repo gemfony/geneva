@@ -253,12 +253,12 @@ bool GBooleanCollection::operator!=(const GBooleanCollection& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GBooleanCollection::checkRelationshipWith (
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
    using namespace Gem::Common;
 
@@ -291,7 +291,10 @@ std::string GBooleanCollection::name() const {
  *
  * @param parVec The vector to which the local values should be attached
  */
-void GBooleanCollection::booleanStreamline(std::vector<bool>& parVec) const {
+void GBooleanCollection::booleanStreamline(
+   std::vector<bool>& parVec
+   , const activityMode&
+) const {
    GBooleanCollection::const_iterator cit;
    for(cit=this->begin(); cit!=this->end(); ++cit) {
       parVec.push_back(*cit);
@@ -305,7 +308,11 @@ void GBooleanCollection::booleanStreamline(std::vector<bool>& parVec) const {
  *
  * @param parVec The map to which the local values should be attached
  */
-void GBooleanCollection::booleanStreamline(std::map<std::string, std::vector<bool> >& parVec) const {
+void GBooleanCollection::booleanStreamline(
+   std::map<std::string
+   , std::vector<bool> >& parVec
+   , const activityMode& am
+) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
@@ -316,7 +323,7 @@ void GBooleanCollection::booleanStreamline(std::map<std::string, std::vector<boo
 #endif /* DEBUG */
 
    std::vector<bool> parameters;
-   this->booleanStreamline(parameters);
+   this->booleanStreamline(parameters, am);
    parVec[this->getParameterName()] = parameters;
 }
 
@@ -328,8 +335,9 @@ void GBooleanCollection::booleanStreamline(std::map<std::string, std::vector<boo
  * @param uBndVec A vector of upper bool parameter boundaries
  */
 void GBooleanCollection::booleanBoundaries(
-      std::vector<bool>& lBndVec
-      , std::vector<bool>& uBndVec
+   std::vector<bool>& lBndVec
+   , std::vector<bool>& uBndVec
+   , const activityMode& am
 ) const {
    GBooleanCollection::const_iterator cit;
    for(cit=this->begin(); cit!=this->end(); ++cit) {
@@ -355,7 +363,11 @@ std::size_t GBooleanCollection::countBoolParameters(
 /**
  * Assigns part of a value vector to the parameter
  */
-void GBooleanCollection::assignBooleanValueVector(const std::vector<bool>& parVec, std::size_t& pos) {
+void GBooleanCollection::assignBooleanValueVector(
+   const std::vector<bool>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
    for(GBooleanCollection::iterator it=this->begin(); it!=this->end(); ++it) {
 #ifdef DEBUG
       // Do we have a valid position ?
@@ -376,7 +388,11 @@ void GBooleanCollection::assignBooleanValueVector(const std::vector<bool>& parVe
 /**
  * Assigns part of a value map to the parameter
  */
-void GBooleanCollection::assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >& parMap) {
+void GBooleanCollection::assignBooleanValueVectors(
+   const std::map<std::string
+   , std::vector<bool> >& parMap
+   , const activityMode& am
+) {
    GBooleanCollection::iterator it;
    std::size_t cnt = 0;
    for(it=this->begin(); it!=this->end(); ++it) {

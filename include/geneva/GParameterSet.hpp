@@ -321,12 +321,7 @@ public:
       // to the result.
       GParameterSet::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         // We count the parameters if they are a leaf matching the activity mode.
-         // If cit does not represent a leaf, it must be an object collection. We hand
-         // over data collection to this object in this case.
-         if((*cit)->modifiableAmMatchOrHandover(am)) {
-            result += (*cit)->countParameters<par_type>(am);
-         }
+         result += (*cit)->countParameters<par_type>(am);
       }
 
       return result;
@@ -357,7 +352,7 @@ public:
 		// Loop over all GParameterBase objects.
 		GParameterSet::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			(*cit)->streamline<par_type>(parVec);
+			(*cit)->streamline<par_type>(parVec, am);
 		}
 	}
 
@@ -386,7 +381,7 @@ public:
       // Loop over all GParameterBase objects.
       GParameterSet::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->streamline<par_type>(parVec);
+         (*cit)->streamline<par_type>(parVec, am);
       }
    }
 
@@ -394,39 +389,6 @@ public:
     * So far untested.
     * ----------------------------------------------------------------------------------
     */
-
-	/***************************************************************************/
-	/**
-	 * Loops over all GParameterBase objects. Each object will add the
-	 * lower and upper boundaries of its parameters to the vector, if
-	 * they comply with the type of the parameters to be stored in the
-	 * vector.
-	 *
-	 * @param lBndVec The vector to which the lower boundaries will be added
-	 * @param uBndVec The vector to which the upper boundaries will be added
-	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
-	 */
-	template <typename par_type>
-	void boundaries(
-			std::vector<par_type>& lBndVec
-			, std::vector<par_type>& uBndVec
-			, const activityMode& am = DEFAULTACTIVITYMODE
-	) const {
-		// Make sure the vectors are clean
-		lBndVec.clear();
-		uBndVec.clear();
-
-		// Loop over all GParameterBase objects.
-		GParameterSet::const_iterator cit;
-		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			(*cit)->boundaries<par_type>(lBndVec, uBndVec);
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * So far untested.
-	 * ----------------------------------------------------------------------------------
-	 */
 
 	/***************************************************************************/
 	/**
@@ -456,7 +418,7 @@ public:
 		// parameters and increment the position counter as required.
 		GParameterSet::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			(*cit)->assignValueVector<par_type>(parVec, pos);
+			(*cit)->assignValueVector<par_type>(parVec, pos, am);
 		}
 
 		// As we have modified our internal data sets, make sure the dirty flag is set
@@ -478,12 +440,45 @@ public:
       // Loop over all GParameterBase objects. Each object will extract the relevant parameters
       GParameterSet::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->assignValueVectors<par_type>(parMap);
+         (*cit)->assignValueVectors<par_type>(parMap, am);
       }
 
       // As we have modified our internal data sets, make sure the dirty flag is set
       GOptimizableEntity::setDirtyFlag();
    }
+
+   /***************************************************************************/
+   /**
+    * Loops over all GParameterBase objects. Each object will add the
+    * lower and upper boundaries of its parameters to the vector, if
+    * they comply with the type of the parameters to be stored in the
+    * vector.
+    *
+    * @param lBndVec The vector to which the lower boundaries will be added
+    * @param uBndVec The vector to which the upper boundaries will be added
+    * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
+    */
+   template <typename par_type>
+   void boundaries(
+      std::vector<par_type>& lBndVec
+      , std::vector<par_type>& uBndVec
+      , const activityMode& am = DEFAULTACTIVITYMODE
+   ) const {
+      // Make sure the vectors are clean
+      lBndVec.clear();
+      uBndVec.clear();
+
+      // Loop over all GParameterBase objects.
+      GParameterSet::const_iterator cit;
+      for(cit=this->begin(); cit!=this->end(); ++cit) {
+         (*cit)->boundaries<par_type>(lBndVec, uBndVec, am);
+      }
+   }
+
+   /* ----------------------------------------------------------------------------------
+    * So far untested.
+    * ----------------------------------------------------------------------------------
+    */
 
 protected:
 	/***************************************************************************/

@@ -76,16 +76,16 @@ public:
 	GFloatCollection(const GFloatCollection&);
 	/** @brief Initialization with a number of random values in a given range */
 	GFloatCollection(
-			const std::size_t&
-			, const float&
-			, const float&
+      const std::size_t&
+      , const float&
+      , const float&
 	);
 	/** @brief Initialization with a number of predefined values in all positions */
 	GFloatCollection(
-			const std::size_t&
-			, const float&
-			, const float&
-			, const float&
+      const std::size_t&
+      , const float&
+      , const float&
+      , const float&
 	);
 	/** @brief The destructor */
 	virtual ~GFloatCollection();
@@ -100,27 +100,13 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&
-			, const Gem::Common::expectation&
-			, const double&
-			, const std::string&
-			, const std::string&
-			, const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
-
-	/** @brief Attach our local values to the vector. */
-	virtual void floatStreamline(std::vector<float>&) const OVERRIDE;
-	/** @brief Attach boundaries of type float to the vectors */
-	virtual void floatBoundaries(std::vector<float>&, std::vector<float>&) const OVERRIDE;
-	/** @brief Tell the audience that we own a number of float values */
-	virtual std::size_t countFloatParameters(const activityMode& am) const OVERRIDE;
-	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&) OVERRIDE;
-
-   /** @brief Attach our local values to the vector. */
-   virtual void floatStreamline(std::map<std::string, std::vector<float> >&) const OVERRIDE;
-   /** @brief Assigns part of a value vector to the parameter */
-   virtual void assignFloatValueVectors(const std::map<std::string, std::vector<float> >&) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;
@@ -130,6 +116,20 @@ protected:
 	virtual void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const OVERRIDE;
+
+   /** @brief Attach our local values to the vector. */
+   virtual void floatStreamline(std::vector<float>&, const activityMode& am) const OVERRIDE;
+   /** @brief Attach boundaries of type float to the vectors */
+   virtual void floatBoundaries(std::vector<float>&, std::vector<float>&, const activityMode& am) const OVERRIDE;
+   /** @brief Tell the audience that we own a number of float values */
+   virtual std::size_t countFloatParameters(const activityMode& am) const OVERRIDE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&, const activityMode& am) OVERRIDE;
+   /** @brief Attach our local values to the vector. */
+   virtual void floatStreamline(std::map<std::string, std::vector<float> >&, const activityMode& am) const OVERRIDE;
+   /** Assigns part of a value map to the parameter */
+   void assignFloatValueVectors(const std::map<std::string, std::vector<float> >& parMap, const activityMode& am);
+
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

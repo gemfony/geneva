@@ -55,9 +55,9 @@ GDoubleCollection::GDoubleCollection()
  * @param max The maximum random value
  */
 GDoubleCollection::GDoubleCollection(
-		const std::size_t& nval
-		, const double& min
-		, const double& max
+   const std::size_t& nval
+   , const double& min
+   , const double& max
 )
 	: GFPNumCollectionT<double>(nval, min, max)
 { /* nothing */ }
@@ -72,10 +72,10 @@ GDoubleCollection::GDoubleCollection(
  * @param max The maximum random value
  */
 GDoubleCollection::GDoubleCollection(
-		const std::size_t& nval
-		, const double& val
-		, const double& min
-		, const double& max
+   const std::size_t& nval
+   , const double& val
+   , const double& min
+   , const double& max
 )
 	: GFPNumCollectionT<double>(nval, val, min, max)
 { /* nothing */ }
@@ -159,12 +159,12 @@ bool GDoubleCollection::operator!=(const GDoubleCollection& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GDoubleCollection::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -197,7 +197,10 @@ std::string GDoubleCollection::name() const {
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GDoubleCollection::doubleStreamline(std::vector<double>& parVec) const {
+void GDoubleCollection::doubleStreamline(
+   std::vector<double>& parVec
+   , const activityMode& am
+) const {
 	GDoubleCollection::const_iterator cit;
 	for(cit=this->begin(); cit!=this->end(); ++cit) {
 		parVec.push_back(*cit);
@@ -211,7 +214,10 @@ void GDoubleCollection::doubleStreamline(std::vector<double>& parVec) const {
  *
  * @param parVec The map to which the local value should be attached
  */
-void GDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double> >& parVec) const {
+void GDoubleCollection::doubleStreamline(
+   std::map<std::string, std::vector<double> >& parVec
+   , const activityMode& am
+) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
@@ -222,7 +228,7 @@ void GDoubleCollection::doubleStreamline(std::map<std::string, std::vector<doubl
 #endif /* DEBUG */
 
    std::vector<double> parameters;
-   this->streamline(parameters);
+   this->streamline(parameters, am);
    parVec[this->getParameterName()] = parameters;
 }
 
@@ -234,8 +240,9 @@ void GDoubleCollection::doubleStreamline(std::map<std::string, std::vector<doubl
  * @param uBndVec A vector of upper double parameter boundaries
  */
 void GDoubleCollection::doubleBoundaries(
-		std::vector<double>& lBndVec
-		, std::vector<double>& uBndVec
+   std::vector<double>& lBndVec
+   , std::vector<double>& uBndVec
+   , const activityMode& am
 ) const {
 	// Add as man lower and upper boundaries to the vector as
 	// there are variables
@@ -267,8 +274,9 @@ std::size_t GDoubleCollection::countDoubleParameters(
  * @param pos The position inside of the vector from which the data is extracted in each turn of the loop
  */
 void GDoubleCollection::assignDoubleValueVector(
-		const std::vector<double>& parVec
-		, std::size_t& pos
+   const std::vector<double>& parVec
+   , std::size_t& pos
+   , const activityMode& am
 ) {
 	  for(GDoubleCollection::iterator it=this->begin(); it!=this->end(); ++it) {
 #ifdef DEBUG
@@ -290,7 +298,10 @@ void GDoubleCollection::assignDoubleValueVector(
 /**
  * Assigns part of a value map to the parameter
  */
-void GDoubleCollection::assignDoubleValueVectors(const std::map<std::string, std::vector<double> >& parMap) {
+void GDoubleCollection::assignDoubleValueVectors(
+   const std::map<std::string, std::vector<double> >& parMap
+   , const activityMode& am
+) {
    GDoubleCollection::iterator it;
    std::size_t cnt = 0;
    for(it=this->begin(); it!=this->end(); ++it) {

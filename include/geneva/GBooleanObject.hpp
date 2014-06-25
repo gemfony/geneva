@@ -111,20 +111,6 @@ public:
       , const bool&
 	) const OVERRIDE;
 
-	/** @brief Attach our local value to the vector. */
-	virtual void booleanStreamline(std::vector<bool>&) const OVERRIDE;
-	/** @brief Attach boundaries of type bool to the vectors */
-	virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&) const OVERRIDE;
-	/** @brief Tell the audience that we own a boost::int32_t value */
-	virtual std::size_t countBoolParameters(const activityMode& am) const OVERRIDE;
-	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&) OVERRIDE;
-
-   /** @brief Attach our local value to the map. */
-   virtual void booleanStreamline(std::map<std::string, std::vector<bool> >&) const OVERRIDE;
-   /** @brief Assigns part of a value map to the parameter */
-   virtual void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&) OVERRIDE;
-
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;
 
@@ -141,6 +127,19 @@ protected:
 
 	/** @brief Returns a "comparative range" for this type */
 	virtual bool range() const OVERRIDE;
+
+   /** @brief Attach our local value to the vector. */
+   virtual void booleanStreamline(std::vector<bool>&, const activityMode& am) const OVERRIDE;
+   /** @brief Attach boundaries of type bool to the vectors */
+   virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&, const activityMode& am) const OVERRIDE;
+   /** @brief Tell the audience that we own a boost::int32_t value */
+   virtual std::size_t countBoolParameters(const activityMode& am) const OVERRIDE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode& am) OVERRIDE;
+   /** @brief Attach our local value to the map. */
+   virtual void booleanStreamline(std::map<std::string, std::vector<bool> >&, const activityMode& am) const OVERRIDE;
+   /** @brief Assigns part of a value map to the parameter */
+   virtual void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&, const activityMode& am) OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

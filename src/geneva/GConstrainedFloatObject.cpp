@@ -177,12 +177,12 @@ bool GConstrainedFloatObject::operator!=(const GConstrainedFloatObject& cp) cons
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GConstrainedFloatObject::checkRelationshipWith (
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -215,7 +215,10 @@ std::string GConstrainedFloatObject::name() const {
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GConstrainedFloatObject::floatStreamline(std::vector<float>& parVec) const {
+void GConstrainedFloatObject::floatStreamline(
+   std::vector<float>& parVec
+   , const activityMode& am
+) const {
 	parVec.push_back(this->value());
 }
 
@@ -225,7 +228,10 @@ void GConstrainedFloatObject::floatStreamline(std::vector<float>& parVec) const 
  *
  * @param parVec The map to which the local value should be attached
  */
-void GConstrainedFloatObject::floatStreamline(std::map<std::string, std::vector<float> >& parVec) const {
+void GConstrainedFloatObject::floatStreamline(
+   std::map<std::string, std::vector<float> >& parVec
+   , const activityMode& am
+) const {
    std::vector<float> parameters;
    parameters.push_back(this->value());
    parVec[this->getParameterName()] = parameters;
@@ -235,7 +241,10 @@ void GConstrainedFloatObject::floatStreamline(std::map<std::string, std::vector<
 /**
  * Assigns part of a value map to the parameter
  */
-void GConstrainedFloatObject::assignFloatValueVectors(const std::map<std::string, std::vector<float> >& parMap) {
+void GConstrainedFloatObject::assignFloatValueVectors(
+   const std::map<std::string, std::vector<float> >& parMap
+   , const activityMode& am
+) {
    this->setValue(
       this->transfer(
          Gem::Common::getMapItem(
@@ -254,8 +263,9 @@ void GConstrainedFloatObject::assignFloatValueVectors(const std::map<std::string
  * @param uBndVec A vector of upper float parameter boundaries
  */
 void GConstrainedFloatObject::floatBoundaries(
-		std::vector<float>& lBndVec
-		, std::vector<float>& uBndVec
+   std::vector<float>& lBndVec
+   , std::vector<float>& uBndVec
+   , const activityMode& am
 ) const {
 	lBndVec.push_back(this->getLowerBoundary());
 	uBndVec.push_back(this->getUpperBoundary());
@@ -284,7 +294,11 @@ std::size_t GConstrainedFloatObject::countFloatParameters(
  * Assigns part of a value vector to the parameter. Note that we apply a transformation to
  * the parameter value, so that it lies inside of the allowed value range.
  */
-void GConstrainedFloatObject::assignFloatValueVector(const std::vector<float>& parVec, std::size_t& pos) {
+void GConstrainedFloatObject::assignFloatValueVector(
+   const std::vector<float>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {

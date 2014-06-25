@@ -77,16 +77,16 @@ public:
 	GInt32Collection();
 	/** @brief Initialization with a number of random values in a given range */
 	GInt32Collection(
-			const std::size_t&
-			, const boost::int32_t&
-			, const boost::int32_t&
+      const std::size_t&
+      , const boost::int32_t&
+      , const boost::int32_t&
 	);
 	/** @brief Initialization with a number of predefined values and the initialization range */
 	GInt32Collection(
-			const std::size_t&
-			, const boost::int32_t&
-			, const boost::int32_t&
-			, const boost::int32_t&
+      const std::size_t&
+      , const boost::int32_t&
+      , const boost::int32_t&
+      , const boost::int32_t&
 	);
 	/** @brief The copy constructor */
 	GInt32Collection(const GInt32Collection&);
@@ -103,27 +103,13 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-	      const GObject&
-	      , const Gem::Common::expectation&
-	      , const double&
-	      , const std::string&
-	      , const std::string&
-	      , const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
-
-	/** @brief Attach our local values to the vector. */
-	virtual void int32Streamline(std::vector<boost::int32_t>&) const OVERRIDE;
-	/** @brief Attach boundaries of type boost::int32_t to the vectors */
-	virtual void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&) const OVERRIDE;
-	/** @brief Tell the audience that we own a number of boost::int32_t values */
-	virtual std::size_t countInt32Parameters(const activityMode& am) const OVERRIDE;
-	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&) OVERRIDE;
-
-   /** @brief Attach our local values to the vector. */
-   virtual void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&) const OVERRIDE;
-   /** @brief Assigns part of a value vector to the parameter */
-   virtual void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;
@@ -133,6 +119,19 @@ protected:
 	virtual void load_(const GObject* cp) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const OVERRIDE;
+
+   /** @brief Attach our local values to the vector. */
+   virtual void int32Streamline(std::vector<boost::int32_t>&, const activityMode& am) const OVERRIDE;
+   /** @brief Attach boundaries of type boost::int32_t to the vectors */
+   virtual void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode& am) const OVERRIDE;
+   /** @brief Tell the audience that we own a number of boost::int32_t values */
+   virtual std::size_t countInt32Parameters(const activityMode& am) const OVERRIDE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&, const activityMode& am) OVERRIDE;
+   /** @brief Attach our local values to the vector. */
+   virtual void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) const OVERRIDE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

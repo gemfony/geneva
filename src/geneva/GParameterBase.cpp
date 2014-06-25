@@ -209,13 +209,14 @@ bool GParameterBase::operator!=(const GParameterBase& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject& cp,
-														           const Gem::Common::expectation& e,
-														           const double& limit,
-														           const std::string& caller,
-														           const std::string& y_name,
-														           const bool& withMessages) const
-{
+boost::optional<std::string> GParameterBase::checkRelationshipWith(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
+) const {
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
@@ -573,8 +574,13 @@ void GParameterBase::fpSubtract(boost::shared_ptr<GParameterBase> p)
 template <>
 void GParameterBase::streamline<float>(
    std::vector<float>& parVec
+   , const activityMode& am
 ) const {
-	this->floatStreamline(parVec);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->floatStreamline(parVec, am);
+   }
 }
 
 /******************************************************************************/
@@ -586,8 +592,13 @@ void GParameterBase::streamline<float>(
 template <>
 void GParameterBase::streamline<double>(
    std::vector<double>& parVec
+   , const activityMode& am
 ) const {
-	this->doubleStreamline(parVec);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->doubleStreamline(parVec, am);
+   }
 }
 
 /******************************************************************************/
@@ -599,8 +610,13 @@ void GParameterBase::streamline<double>(
 template <>
 void GParameterBase::streamline<boost::int32_t>(
    std::vector<boost::int32_t>& parVec
+   , const activityMode& am
 ) const {
-	this->int32Streamline(parVec);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->int32Streamline(parVec, am);
+   }
 }
 
 /******************************************************************************/
@@ -612,8 +628,13 @@ void GParameterBase::streamline<boost::int32_t>(
 template <>
 void GParameterBase::streamline<bool>(
    std::vector<bool>& parVec
+   , const activityMode& am
 ) const {
-	this->booleanStreamline(parVec);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->booleanStreamline(parVec, am);
+   }
 }
 
 /******************************************************************************/
@@ -625,8 +646,13 @@ void GParameterBase::streamline<bool>(
 template <>
 void GParameterBase::streamline<float>(
    std::map<std::string, std::vector<float> >& parVec
+   , const activityMode& am
 ) const {
-   this->floatStreamline(parVec);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->floatStreamline(parVec, am);
+   }
 }
 
 /******************************************************************************/
@@ -638,8 +664,13 @@ void GParameterBase::streamline<float>(
 template <>
 void GParameterBase::streamline<double>(
    std::map<std::string, std::vector<double> >& parVec
+   , const activityMode& am
 ) const {
-   this->doubleStreamline(parVec);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->doubleStreamline(parVec, am);
+   }
 }
 
 /******************************************************************************/
@@ -651,8 +682,13 @@ void GParameterBase::streamline<double>(
 template <>
 void GParameterBase::streamline<boost::int32_t>(
    std::map<std::string, std::vector<boost::int32_t> >& parVec
+   , const activityMode& am
 ) const {
-   this->int32Streamline(parVec);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->int32Streamline(parVec, am);
+   }
 }
 
 /******************************************************************************/
@@ -664,8 +700,13 @@ void GParameterBase::streamline<boost::int32_t>(
 template <>
 void GParameterBase::streamline<bool>(
    std::map<std::string, std::vector<bool> >& parVec
+   , const activityMode& am
 ) const {
-   this->booleanStreamline(parVec);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->booleanStreamline(parVec, am);
+   }
 }
 
 /******************************************************************************/
@@ -676,6 +717,7 @@ void GParameterBase::streamline<bool>(
  */
 void GParameterBase::floatStreamline(
    std::vector<float>& parVec
+   , const activityMode&
 ) const {
 	/* do nothing by default */
 }
@@ -693,6 +735,7 @@ void GParameterBase::floatStreamline(
  */
 void GParameterBase::doubleStreamline(
    std::vector<double>& parVec
+   , const activityMode&
 ) const {
 	/* do nothing by default */
 }
@@ -710,6 +753,7 @@ void GParameterBase::doubleStreamline(
  */
 void GParameterBase::int32Streamline(
    std::vector<boost::int32_t>& parVec
+   , const activityMode&
 ) const {
 	/* do nothing by default */
 }
@@ -727,6 +771,7 @@ void GParameterBase::int32Streamline(
  */
 void GParameterBase::booleanStreamline(
    std::vector<bool>& parVec
+   , const activityMode&
 ) const {
 	/* do nothing by default */
 }
@@ -743,7 +788,9 @@ void GParameterBase::booleanStreamline(
  * the actual work.
  */
 void GParameterBase::floatStreamline(
-   std::map<std::string, std::vector<float> >& parVec
+   std::map<std::string
+   , std::vector<float> >& parVec
+   , const activityMode&
 ) const {
    /* do nothing by default */
 }
@@ -760,7 +807,9 @@ void GParameterBase::floatStreamline(
  * the actual work.
  */
 void GParameterBase::doubleStreamline(
-   std::map<std::string, std::vector<double> >& parVec
+   std::map<std::string
+   , std::vector<double> >& parVec
+   , const activityMode&
 ) const {
    /* do nothing by default */
 }
@@ -777,7 +826,9 @@ void GParameterBase::doubleStreamline(
  * the actual work.
  */
 void GParameterBase::int32Streamline(
-   std::map<std::string, std::vector<boost::int32_t> >& parVec
+   std::map<std::string
+   , std::vector<boost::int32_t> >& parVec
+   , const activityMode&
 ) const {
    /* do nothing by default */
 }
@@ -794,7 +845,9 @@ void GParameterBase::int32Streamline(
  * the actual work.
  */
 void GParameterBase::booleanStreamline(
-   std::map<std::string, std::vector<bool> >& parVec
+   std::map<std::string
+   , std::vector<bool> >& parVec
+   , const activityMode&
 ) const {
    /* do nothing by default */
 }
@@ -815,8 +868,13 @@ template <>
 void GParameterBase::boundaries<float>(
    std::vector<float>& lBndVec
    , std::vector<float>& uBndVec
+   , const activityMode& am
 ) const {
-	this->floatBoundaries(lBndVec, uBndVec);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->floatBoundaries(lBndVec, uBndVec, am);
+   }
 }
 
 /******************************************************************************/
@@ -828,10 +886,15 @@ void GParameterBase::boundaries<float>(
  */
 template <>
 void GParameterBase::boundaries<double>(
-		std::vector<double>& lBndVec
-		, std::vector<double>& uBndVec
+   std::vector<double>& lBndVec
+   , std::vector<double>& uBndVec
+   , const activityMode& am
 ) const {
-	this->doubleBoundaries(lBndVec, uBndVec);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->doubleBoundaries(lBndVec, uBndVec, am);
+   }
 }
 
 /******************************************************************************/
@@ -843,10 +906,15 @@ void GParameterBase::boundaries<double>(
  */
 template <>
 void GParameterBase::boundaries<boost::int32_t>(
-		std::vector<boost::int32_t>& lBndVec
-		, std::vector<boost::int32_t>& uBndVec
+   std::vector<boost::int32_t>& lBndVec
+   , std::vector<boost::int32_t>& uBndVec
+   , const activityMode& am
 ) const {
-	this->int32Boundaries(lBndVec, uBndVec);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->int32Boundaries(lBndVec, uBndVec, am);
+   }
 }
 
 /******************************************************************************/
@@ -858,10 +926,15 @@ void GParameterBase::boundaries<boost::int32_t>(
  */
 template <>
 void GParameterBase::boundaries<bool>(
-		std::vector<bool>& lBndVec
-		, std::vector<bool>& uBndVec
+   std::vector<bool>& lBndVec
+   , std::vector<bool>& uBndVec
+   , const activityMode& am
 ) const {
-	this->booleanBoundaries(lBndVec, uBndVec);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->booleanBoundaries(lBndVec, uBndVec, am);
+   }
 }
 
 /******************************************************************************/
@@ -874,6 +947,7 @@ void GParameterBase::boundaries<bool>(
 void GParameterBase::floatBoundaries(
 		std::vector<float>& lBndVec
 		, std::vector<float>& uBndVec
+		, const activityMode&
 ) const {
 	/* do nothing by default */
 }
@@ -888,6 +962,7 @@ void GParameterBase::floatBoundaries(
 void GParameterBase::doubleBoundaries(
 		std::vector<double>& lBndVec
 		, std::vector<double>& uBndVec
+		, const activityMode&
 ) const {
 	/* do nothing by default */
 }
@@ -902,6 +977,7 @@ void GParameterBase::doubleBoundaries(
 void GParameterBase::int32Boundaries(
 		std::vector<boost::int32_t>& lBndVec
 		, std::vector<boost::int32_t>& uBndVec
+		, const activityMode&
 ) const {
 	/* do nothing by default */
 }
@@ -916,6 +992,7 @@ void GParameterBase::int32Boundaries(
 void GParameterBase::booleanBoundaries(
 		std::vector<bool>& lBndVec
 		, std::vector<bool>& uBndVec
+		, const activityMode&
 ) const {
 	/* do nothing by default */
 }
@@ -931,7 +1008,11 @@ template <>
 std::size_t GParameterBase::countParameters<float>(
    const activityMode& am
 ) const {
-	return this->countFloatParameters(am);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      return this->countFloatParameters(am);
+   }
 }
 
 /******************************************************************************/
@@ -945,7 +1026,11 @@ template <>
 std::size_t GParameterBase::countParameters<double>(
    const activityMode& am
 ) const {
-	return this->countDoubleParameters(am);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      return this->countDoubleParameters(am);
+   }
 }
 
 /******************************************************************************/
@@ -959,7 +1044,11 @@ template <>
 std::size_t GParameterBase::countParameters<boost::int32_t>(
    const activityMode& am
 ) const {
-	return this->countInt32Parameters(am);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      return this->countInt32Parameters(am);
+   }
 }
 
 /******************************************************************************/
@@ -973,7 +1062,11 @@ template <>
 std::size_t GParameterBase::countParameters<bool>(
    const activityMode& am
 ) const {
-	return this->countBoolParameters(am);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      return this->countBoolParameters(am);
+   }
 }
 
 /******************************************************************************/
@@ -1060,10 +1153,15 @@ std::size_t GParameterBase::countBoolParameters(
  */
 template <>
 void GParameterBase::assignValueVector<float>(
-		const std::vector<float>& parVec
-		, std::size_t& pos
+   const std::vector<float>& parVec
+   , std::size_t& pos
+   , const activityMode& am
 ) {
-	this->assignFloatValueVector(parVec, pos);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->assignFloatValueVector(parVec, pos, am);
+   }
 }
 
 /******************************************************************************/
@@ -1075,10 +1173,15 @@ void GParameterBase::assignValueVector<float>(
  */
 template <>
 void GParameterBase::assignValueVector<double>(
-		const std::vector<double>& parVec
-		, std::size_t& pos
+   const std::vector<double>& parVec
+   , std::size_t& pos
+   , const activityMode& am
 ) {
-	this->assignDoubleValueVector(parVec, pos);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->assignDoubleValueVector(parVec, pos, am);
+   }
 }
 
 /******************************************************************************/
@@ -1090,10 +1193,11 @@ void GParameterBase::assignValueVector<double>(
  */
 template <>
 void GParameterBase::assignValueVector<boost::int32_t>(
-		const std::vector<boost::int32_t>& parVec
-		, std::size_t& pos
+   const std::vector<boost::int32_t>& parVec
+   , std::size_t& pos
+   , const activityMode& am
 ) {
-	this->assignInt32ValueVector(parVec, pos);
+	this->assignInt32ValueVector(parVec, pos, am);
 }
 
 /******************************************************************************/
@@ -1105,17 +1209,22 @@ void GParameterBase::assignValueVector<boost::int32_t>(
  */
 template <>
 void GParameterBase::assignValueVector<bool>(
-		const std::vector<bool>& parVec
-		, std::size_t& pos
+   const std::vector<bool>& parVec
+   , std::size_t& pos
+   , const activityMode& am
 ) {
-	this->assignBooleanValueVector(parVec, pos);
+	this->assignBooleanValueVector(parVec, pos, am);
 }
 
 /******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter
  */
-void GParameterBase::assignFloatValueVector(const std::vector<float>& parVec, std::size_t& pos) {
+void GParameterBase::assignFloatValueVector(
+   const std::vector<float>& parVec
+   , std::size_t& pos
+   , const activityMode&
+) {
 	/* Do nothing by default */
 }
 
@@ -1128,7 +1237,11 @@ void GParameterBase::assignFloatValueVector(const std::vector<float>& parVec, st
 /**
  * Assigns part of a value vector to the parameter
  */
-void GParameterBase::assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
+void GParameterBase::assignDoubleValueVector(
+   const std::vector<double>& parVec
+   , std::size_t& pos
+   , const activityMode&
+) {
 	/* Do nothing by default */
 }
 
@@ -1141,7 +1254,11 @@ void GParameterBase::assignDoubleValueVector(const std::vector<double>& parVec, 
 /**
  * Assigns part of a value vector to the parameter
  */
-void GParameterBase::assignInt32ValueVector(const std::vector<boost::int32_t>& parVec, std::size_t& pos) {
+void GParameterBase::assignInt32ValueVector(
+   const std::vector<boost::int32_t>& parVec
+   , std::size_t& pos
+   , const activityMode&
+) {
 	/* Do nothing by default */
 }
 
@@ -1154,7 +1271,11 @@ void GParameterBase::assignInt32ValueVector(const std::vector<boost::int32_t>& p
 /**
  * Assigns part of a value vector to the parameter
  */
-void GParameterBase::assignBooleanValueVector(const std::vector<bool>& parVec, std::size_t& pos) {
+void GParameterBase::assignBooleanValueVector(
+   const std::vector<bool>& parVec
+   , std::size_t& pos
+   , const activityMode&
+) {
 	/* Do nothing by default */
 }
 
@@ -1171,9 +1292,15 @@ void GParameterBase::assignBooleanValueVector(const std::vector<bool>& parVec, s
  */
 template <>
 void GParameterBase::assignValueVectors<float>(
-   const std::map<std::string, std::vector<float> >& parMap
+   const std::map<std::string
+   , std::vector<float> >& parMap
+   , const activityMode& am
 ) {
-   this->assignFloatValueVectors(parMap);
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->assignFloatValueVectors(parMap, am);
+   }
 }
 
 /******************************************************************************/
@@ -1184,9 +1311,15 @@ void GParameterBase::assignValueVectors<float>(
  */
 template <>
 void GParameterBase::assignValueVectors<double>(
-   const std::map<std::string, std::vector<double> >& parMap
+   const std::map<std::string
+   , std::vector<double> >& parMap
+   , const activityMode& am
 ) {
-   this->assignDoubleValueVectors(parMap);
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->assignDoubleValueVectors(parMap, am);
+    }
 }
 
 /******************************************************************************/
@@ -1198,8 +1331,13 @@ void GParameterBase::assignValueVectors<double>(
 template <>
 void GParameterBase::assignValueVectors<boost::int32_t>(
    const std::map<std::string, std::vector<boost::int32_t> >& parMap
+   , const activityMode& am
 ) {
-   this->assignInt32ValueVectors(parMap);
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->assignInt32ValueVectors(parMap, am);
+    }
 }
 
 /******************************************************************************/
@@ -1211,15 +1349,23 @@ void GParameterBase::assignValueVectors<boost::int32_t>(
 template <>
 void GParameterBase::assignValueVectors<bool>(
    const std::map<std::string, std::vector<bool> >& parMap
+   , const activityMode& am
 ) {
-   this->assignBooleanValueVectors(parMap);
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->assignBooleanValueVectors(parMap, am);
+    }
 }
 
 /******************************************************************************/
 /**
  * Assigns part of a value vector to the parameter
  */
-void GParameterBase::assignFloatValueVectors(const std::map<std::string, std::vector<float> >& parMap) {
+void GParameterBase::assignFloatValueVectors(
+   const std::map<std::string, std::vector<float> >& parMap
+   , const activityMode&
+) {
    /* Do nothing by default */
 }
 
@@ -1232,7 +1378,10 @@ void GParameterBase::assignFloatValueVectors(const std::map<std::string, std::ve
 /**
  * Assigns part of a value vector to the parameter
  */
-void GParameterBase::assignDoubleValueVectors(const std::map<std::string, std::vector<double> >& parMap) {
+void GParameterBase::assignDoubleValueVectors(
+   const std::map<std::string, std::vector<double> >& parMap
+   , const activityMode&
+) {
    /* Do nothing by default */
 }
 
@@ -1245,7 +1394,10 @@ void GParameterBase::assignDoubleValueVectors(const std::map<std::string, std::v
 /**
  * Assigns part of a value vector to the parameter
  */
-void GParameterBase::assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >& parMap) {
+void GParameterBase::assignInt32ValueVectors(
+   const std::map<std::string, std::vector<boost::int32_t> >& parMap
+   , const activityMode&
+) {
    /* Do nothing by default */
 }
 
@@ -1258,7 +1410,10 @@ void GParameterBase::assignInt32ValueVectors(const std::map<std::string, std::ve
 /**
  * Assigns part of a value vector to the parameter
  */
-void GParameterBase::assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >& parMap) {
+void GParameterBase::assignBooleanValueVectors(
+   const std::map<std::string, std::vector<bool> >& parMap
+   , const activityMode&
+) {
    /* Do nothing by default */
 }
 

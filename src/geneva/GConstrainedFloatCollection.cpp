@@ -154,12 +154,12 @@ bool GConstrainedFloatCollection::operator!=(const GConstrainedFloatCollection& 
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GConstrainedFloatCollection::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const	{
 	using namespace Gem::Common;
 
@@ -194,7 +194,10 @@ std::string GConstrainedFloatCollection::name() const {
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GConstrainedFloatCollection::floatStreamline(std::vector<float>& parVec) const {
+void GConstrainedFloatCollection::floatStreamline(
+   std::vector<float>& parVec
+   , const activityMode& am
+) const {
    GConstrainedFloatCollection::const_iterator cit;
    for(cit=this->begin(); cit!=this->end(); ++cit) {
       parVec.push_back(this->transfer(*cit));
@@ -208,7 +211,10 @@ void GConstrainedFloatCollection::floatStreamline(std::vector<float>& parVec) co
  *
  * @param parVec The map to which the local value should be attached
  */
-void GConstrainedFloatCollection::floatStreamline(std::map<std::string, std::vector<float> >& parVec) const {
+void GConstrainedFloatCollection::floatStreamline(
+   std::map<std::string, std::vector<float> >& parVec
+   , const activityMode& am
+) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
@@ -219,7 +225,7 @@ void GConstrainedFloatCollection::floatStreamline(std::map<std::string, std::vec
 #endif /* DEBUG */
 
    std::vector<float> parameters;
-   this->floatStreamline(parameters);
+   this->floatStreamline(parameters, am);
    parVec[this->getParameterName()] = parameters;
 }
 
@@ -227,7 +233,10 @@ void GConstrainedFloatCollection::floatStreamline(std::map<std::string, std::vec
 /**
  * Assigns part of a value map to the parameter
  */
-void GConstrainedFloatCollection::assignFloatValueVectors(const std::map<std::string, std::vector<float> >& parMap) {
+void GConstrainedFloatCollection::assignFloatValueVectors(
+   const std::map<std::string, std::vector<float> >& parMap
+   , const activityMode& am
+) {
    for(std::size_t i=0; i<this->size(); i++) {
      this->setValue(i, this->transfer((Gem::Common::getMapItem(parMap,this->getParameterName())).at(i)));
    }
@@ -241,8 +250,9 @@ void GConstrainedFloatCollection::assignFloatValueVectors(const std::map<std::st
  * @param uBndVec A vector of upper float parameter boundaries
  */
 void GConstrainedFloatCollection::floatBoundaries(
-		std::vector<float>& lBndVec
-		, std::vector<float>& uBndVec
+   std::vector<float>& lBndVec
+   , std::vector<float>& uBndVec
+   , const activityMode& am
 ) const {
 	// Add a lower and upper boundary to the vectors
 	// for each variable in the collection
@@ -278,7 +288,10 @@ std::size_t GConstrainedFloatCollection::countFloatParameters(
  * @param parVec The vector from which the data should be taken
  * @param pos The position inside of the vector from which the data is extracted in each turn of the loop
  */
-void GConstrainedFloatCollection::assignFloatValueVector(const std::vector<float>& parVec, std::size_t& pos) {
+void GConstrainedFloatCollection::assignFloatValueVector(
+   const std::vector<float>& parVec, std::size_t& pos
+   , const activityMode& am
+) {
 	for(std::size_t i=0; i<this->size(); i++) {
 #ifdef DEBUG
 		  // Do we have a valid position ?

@@ -74,8 +74,8 @@ GInt32Object::GInt32Object(const boost::int32_t& val)
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
 GInt32Object::GInt32Object(
-		const boost::int32_t& lowerBoundary
-		, const boost::int32_t& upperBoundary
+   const boost::int32_t& lowerBoundary
+   , const boost::int32_t& upperBoundary
 )
 	: GNumIntT<boost::int32_t>(lowerBoundary, upperBoundary)
 { /* nothing */ }
@@ -90,9 +90,9 @@ GInt32Object::GInt32Object(
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
 GInt32Object::GInt32Object(
-		const boost::int32_t& val
-		, const boost::int32_t& lowerBoundary
-		, const boost::int32_t& upperBoundary
+   const boost::int32_t& val
+   , const boost::int32_t& lowerBoundary
+   , const boost::int32_t& upperBoundary
 )
 	: GNumIntT<boost::int32_t>(val, lowerBoundary, upperBoundary)
 { /* nothing */ }
@@ -177,12 +177,12 @@ bool GInt32Object::operator!=(const GInt32Object& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GInt32Object::checkRelationshipWith (
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -215,7 +215,10 @@ std::string GInt32Object::name() const {
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GInt32Object::int32Streamline(std::vector<boost::int32_t>& parVec) const {
+void GInt32Object::int32Streamline(
+   std::vector<boost::int32_t>& parVec
+   , const activityMode& am
+) const {
 	parVec.push_back(this->value());
 }
 
@@ -225,7 +228,10 @@ void GInt32Object::int32Streamline(std::vector<boost::int32_t>& parVec) const {
  *
  * @param parVec The map to which the local value should be attached
  */
-void GInt32Object::int32Streamline(std::map<std::string, std::vector<boost::int32_t> >& parVec) const {
+void GInt32Object::int32Streamline(
+   std::map<std::string, std::vector<boost::int32_t> >& parVec
+   , const activityMode& am
+) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
@@ -251,6 +257,7 @@ void GInt32Object::int32Streamline(std::map<std::string, std::vector<boost::int3
 void GInt32Object::int32Boundaries(
    std::vector<boost::int32_t>& lBndVec
    , std::vector<boost::int32_t>& uBndVec
+   , const activityMode& am
 ) const {
 	lBndVec.push_back(this->getLowerInitBoundary());
 	uBndVec.push_back(this->getUpperInitBoundary());
@@ -273,7 +280,11 @@ std::size_t GInt32Object::countInt32Parameters(
 /**
  * Assigns part of a value vector to the parameter
  */
-void GInt32Object::assignInt32ValueVector(const std::vector<boost::int32_t>& parVec, std::size_t& pos) {
+void GInt32Object::assignInt32ValueVector(
+   const std::vector<boost::int32_t>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
@@ -292,7 +303,10 @@ void GInt32Object::assignInt32ValueVector(const std::vector<boost::int32_t>& par
 /**
  * Assigns part of a value map to the parameter
  */
-void GInt32Object::assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >& parMap) {
+void GInt32Object::assignInt32ValueVectors(
+   const std::map<std::string, std::vector<boost::int32_t> >& parMap
+   , const activityMode& am
+) {
    this->setValue((Gem::Common::getMapItem(parMap,this->getParameterName())).at(0));
 }
 

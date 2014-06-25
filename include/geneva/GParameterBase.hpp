@@ -155,6 +155,49 @@ public:
 	/** @brief Checks whether this object matches a given activity mode and is modifiable */
 	bool modifiableAmMatchOrHandover(const activityMode&) const;
 
+   /***************************************************************************/
+   /**
+    * Allows to count parameters of a specific type. This function is a trap, needed to
+    * catch attempts to use this function with unsupported types. Use the supplied
+    * specializations instead.
+    *
+    * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
+    * @return The number of parameters of a given Type
+    */
+   template <typename par_type>
+   std::size_t countParameters(
+      const activityMode& am
+   ) const {
+      glogger
+      << "In GParameterBase::countParameters()" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
+
+      // Make the compiler happy
+      return (std::size_t)0;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to add all boundaries if parameters of a specific type to the vectors. This
+    * function is a trap, needed to catch streamlining attempts with unsupported types.
+    * Use the supplied specializations instead.
+    *
+    * @oaram lBndVec The vector with lower boundaries of parameters
+    * @oaram uBndVec The vector with upper boundaries of parameters
+    */
+   template <typename par_type>
+   void boundaries(
+      std::vector<par_type>& lBndVec
+      , std::vector<par_type>& uBndVec
+      , const activityMode& am
+   ) const  {
+      glogger
+      << "In GParameterBase::boundaries(std::vector<>&)" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Allows to add all parameters of a specific type to the vector. This function is a
@@ -164,8 +207,10 @@ public:
 	 * @oaram parVec The vector to which the items should be added
 	 */
 	template <typename par_type>
-	void streamline(std::vector<par_type>& parVec) const
-	{
+	void streamline(
+      std::vector<par_type>& parVec
+      , const activityMode& am
+   ) const {
 	   glogger
 	   << "In GParameterBase::streamline(std::vector<par_type>&)" << std::endl
       << "Function called for unsupported type!" << std::endl
@@ -181,96 +226,15 @@ public:
     * @oaram parVec The vector to which the items should be added
     */
    template <typename par_type>
-   void streamline(std::map<std::string, std::vector<par_type> >& parVec) const
-   {
+   void streamline(
+      std::map<std::string, std::vector<par_type> >& parVec
+      , const activityMode& am
+   ) const {
       glogger
       << "In GParameterBase::streamline(std::map<std::string, std::vec<par_type> >)" << std::endl
       << "Function called for unsupported type!" << std::endl
       << GEXCEPTION;
    }
-
-	/***************************************************************************/
-	/** @brief Attach parameters of type float to the vector */
-	virtual void floatStreamline(std::vector<float>&) const BASE;
-	/** @brief Attach parameters of type double to the vector */
-	virtual void doubleStreamline(std::vector<double>&) const BASE;
-	/** @brief Attach parameters of type boost::int32_t to the vector */
-	virtual void int32Streamline(std::vector<boost::int32_t>&) const BASE;
-	/** @brief Attach parameters of type bool to the vector */
-	virtual void booleanStreamline(std::vector<bool>&) const BASE;
-
-   /***************************************************************************/
-   /** @brief Attach parameters of type float to the map */
-   virtual void floatStreamline(std::map<std::string, std::vector<float> >&) const BASE;
-   /** @brief Attach parameters of type double to the map */
-   virtual void doubleStreamline(std::map<std::string, std::vector<double> >&) const BASE;
-   /** @brief Attach parameters of type boost::int32_t to the map */
-   virtual void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&) const BASE;
-   /** @brief Attach parameters of type bool to the map */
-   virtual void booleanStreamline(std::map<std::string, std::vector<bool> >&) const BASE;
-
-	/***************************************************************************/
-	/**
-	 * Allows to add all boundaries if parameters of a specific type to the vectors. This
-	 * function is a trap, needed to catch streamlining attempts with unsupported types.
-	 * Use the supplied specializations instead.
-	 *
-	 * @oaram lBndVec The vector with lower boundaries of parameters
-	 * @oaram uBndVec The vector with upper boundaries of parameters
-	 */
-	template <typename par_type>
-	void boundaries(
-      std::vector<par_type>& lBndVec
-      , std::vector<par_type>& uBndVec
-	) const	{
-	   glogger
-	   << "In GParameterBase::boundaries(std::vector<>&)" << std::endl
-      << "Function called for unsupported type!" << std::endl
-      << GEXCEPTION;
-	}
-
-	/***************************************************************************/
-	/** @brief Attach boundaries of type float to the vectors */
-	virtual void floatBoundaries(std::vector<float>&, std::vector<float>&) const BASE;
-	/** @brief Attach boundaries of type double to the vectors */
-	virtual void doubleBoundaries(std::vector<double>&, std::vector<double>&) const BASE;
-	/** @brief Attach boundaries of type boost::int32_t to the vectors */
-	virtual void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&) const BASE;
-	/** @brief Attach boundaries of type bool to the vectors */
-	virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&) const BASE;
-
-	/***************************************************************************/
-	/**
-	 * Allows to count parameters of a specific type. This function is a trap, needed to
-	 * catch attempts to use this function with unsupported types. Use the supplied
-	 * specializations instead.
-	 *
-	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
-	 * @return The number of parameters of a given Type
-	 */
-	template <typename par_type>
-	std::size_t countParameters(
-      const activityMode& am
-	) const {
-	   glogger
-	   << "In GParameterBase::countParameters()" << std::endl
-      << "Function called for unsupported type!" << std::endl
-      << GEXCEPTION;
-
-	   // Make the compiler happy
-	   return (std::size_t)0;
-	}
-
-	/***************************************************************************/
-
-	/** @brief Count the number of float parameters */
-	virtual std::size_t countFloatParameters(const activityMode& am) const BASE;
-	/** @brief Count the number of double parameters */
-	virtual std::size_t countDoubleParameters(const activityMode& am) const BASE;
-	/** @brief Count the number of boost::int32_t parameters */
-	virtual std::size_t countInt32Parameters(const activityMode& am) const BASE;
-	/** @brief Count the number of bool parameters */
-	virtual std::size_t countBoolParameters(const activityMode& am) const BASE;
 
 	/***************************************************************************/
 	/**
@@ -282,8 +246,11 @@ public:
 	 * @param pos The position from which parameters will be taken (will be updated by the call)
 	 */
 	template <typename par_type>
-	void assignValueVector(const std::vector<par_type>& parVec, std::size_t& pos)
-	{
+	void assignValueVector(
+      const std::vector<par_type>& parVec
+      , std::size_t& pos
+      , const activityMode& am
+   ) {
 	   glogger
 	   << "In GParameterBase::assignValueVector()" << std::endl
       << "Function called for unsupported type!" << std::endl
@@ -297,34 +264,17 @@ public:
     * @param parMao The map with the parameters to be assigned to the object
     */
    template <typename par_type>
-   void assignValueVectors(const std::map<std::string, std::vector<par_type> >& parMap)
-   {
+   void assignValueVectors(
+      const std::map<std::string, std::vector<par_type> >& parMap
+      , const activityMode& am
+   ) {
       glogger
       << "In GParameterBase::assignValueVectors()" << std::endl
       << "Function called for unsupported type!" << std::endl
       << GEXCEPTION;
    }
 
-	/***************************************************************************/
-
-	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&) BASE;
-	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&) BASE;
-	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&) BASE;
-	/** @brief Assigns part of a value vector to the parameter */
-	virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&) BASE;
-
-   /** @brief Assigns part of a value vector to the parameter */
-   virtual void assignFloatValueVectors(const std::map<std::string, std::vector<float> >&) BASE;
-   /** @brief Assigns part of a value vector to the parameter */
-   virtual void assignDoubleValueVectors(const std::map<std::string, std::vector<double> >&) BASE;
-   /** @brief Assigns part of a value vector to the parameter */
-   virtual void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&) BASE;
-   /** @brief Assigns part of a value vector to the parameter */
-   virtual void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&) BASE;
-
+   /***************************************************************************/
 	/** @brief Specifies that no random initialization should occur anymore */
 	void blockRandomInitialization();
 	/** @brief Makes random initialization possible */
@@ -403,6 +353,61 @@ protected:
 	Gem::Hap::GRandomBase *gr_local;
 	Gem::Hap::GRandomBase *gr;
 
+   /***************************************************************************/
+   /** @brief Count the number of float parameters */
+   virtual std::size_t countFloatParameters(const activityMode& am) const BASE;
+   /** @brief Count the number of double parameters */
+   virtual std::size_t countDoubleParameters(const activityMode& am) const BASE;
+   /** @brief Count the number of boost::int32_t parameters */
+   virtual std::size_t countInt32Parameters(const activityMode& am) const BASE;
+   /** @brief Count the number of bool parameters */
+   virtual std::size_t countBoolParameters(const activityMode& am) const BASE;
+
+   /** @brief Attach boundaries of type float to the vectors */
+   virtual void floatBoundaries(std::vector<float>&, std::vector<float>&, const activityMode&) const BASE;
+   /** @brief Attach boundaries of type double to the vectors */
+   virtual void doubleBoundaries(std::vector<double>&, std::vector<double>&, const activityMode&) const BASE;
+   /** @brief Attach boundaries of type boost::int32_t to the vectors */
+   virtual void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode&) const BASE;
+   /** @brief Attach boundaries of type bool to the vectors */
+   virtual void booleanBoundaries(std::vector<bool>&, std::vector<bool>&, const activityMode&) const BASE;
+
+   /** @brief Attach parameters of type float to the vector */
+   virtual void floatStreamline(std::vector<float>&, const activityMode&) const BASE;
+   /** @brief Attach parameters of type double to the vector */
+   virtual void doubleStreamline(std::vector<double>&, const activityMode&) const BASE;
+   /** @brief Attach parameters of type boost::int32_t to the vector */
+   virtual void int32Streamline(std::vector<boost::int32_t>&, const activityMode&) const BASE;
+   /** @brief Attach parameters of type bool to the vector */
+   virtual void booleanStreamline(std::vector<bool>&, const activityMode&) const BASE;
+
+   /** @brief Attach parameters of type float to the map */
+   virtual void floatStreamline(std::map<std::string, std::vector<float> >&, const activityMode&) const BASE;
+   /** @brief Attach parameters of type double to the map */
+   virtual void doubleStreamline(std::map<std::string, std::vector<double> >&, const activityMode&) const BASE;
+   /** @brief Attach parameters of type boost::int32_t to the map */
+   virtual void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&, const activityMode&) const BASE;
+   /** @brief Attach parameters of type bool to the map */
+   virtual void booleanStreamline(std::map<std::string, std::vector<bool> >&, const activityMode&) const BASE;
+
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignFloatValueVector(const std::vector<float>&, std::size_t&, const activityMode&) BASE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&, const activityMode&) BASE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&, const activityMode&) BASE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode&) BASE;
+
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignFloatValueVectors(const std::map<std::string, std::vector<float> >&, const activityMode&) BASE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignDoubleValueVectors(const std::map<std::string, std::vector<double> >&, const activityMode&) BASE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode&) BASE;
+   /** @brief Assigns part of a value vector to the parameter */
+   virtual void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&, const activityMode&) BASE;
+
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*) OVERRIDE;
@@ -430,35 +435,35 @@ public:
 /**
  * Specializations of some template functions
  */
-template <>	void GParameterBase::streamline<float>(std::vector<float>&) const;
-template <>	void GParameterBase::streamline<double>(std::vector<double>&) const;
-template <>	void GParameterBase::streamline<boost::int32_t>(std::vector<boost::int32_t>&) const;
-template <>	void GParameterBase::streamline<bool>(std::vector<bool>&) const;
+template <>	void GParameterBase::streamline<float>(std::vector<float>&, const activityMode&) const;
+template <>	void GParameterBase::streamline<double>(std::vector<double>&, const activityMode&) const;
+template <>	void GParameterBase::streamline<boost::int32_t>(std::vector<boost::int32_t>&, const activityMode&) const;
+template <>	void GParameterBase::streamline<bool>(std::vector<bool>&, const activityMode&) const;
 
-template <> void GParameterBase::streamline<float>(std::map<std::string, std::vector<float> >&) const;
-template <> void GParameterBase::streamline<double>(std::map<std::string, std::vector<double> >&) const;
-template <> void GParameterBase::streamline<boost::int32_t>(std::map<std::string, std::vector<boost::int32_t> >&) const;
-template <> void GParameterBase::streamline<bool>(std::map<std::string, std::vector<bool> >&) const;
+template <> void GParameterBase::streamline<float>(std::map<std::string, std::vector<float> >&, const activityMode&) const;
+template <> void GParameterBase::streamline<double>(std::map<std::string, std::vector<double> >&, const activityMode&) const;
+template <> void GParameterBase::streamline<boost::int32_t>(std::map<std::string, std::vector<boost::int32_t> >&, const activityMode&) const;
+template <> void GParameterBase::streamline<bool>(std::map<std::string, std::vector<bool> >&, const activityMode&) const;
 
-template <>	void GParameterBase::boundaries<float>(std::vector<float>&, std::vector<float>&) const;
-template <>	void GParameterBase::boundaries<double>(std::vector<double>&, std::vector<double>&) const;
-template <>	void GParameterBase::boundaries<boost::int32_t>(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&) const;
-template <>	void GParameterBase::boundaries<bool>(std::vector<bool>&, std::vector<bool>&) const;
+template <>	void GParameterBase::boundaries<float>(std::vector<float>&, std::vector<float>&, const activityMode&) const;
+template <>	void GParameterBase::boundaries<double>(std::vector<double>&, std::vector<double>&, const activityMode&) const;
+template <>	void GParameterBase::boundaries<boost::int32_t>(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode&) const;
+template <>	void GParameterBase::boundaries<bool>(std::vector<bool>&, std::vector<bool>&, const activityMode&) const;
 
 template <>	std::size_t GParameterBase::countParameters<float>(const activityMode& am) const;
 template <>	std::size_t GParameterBase::countParameters<double>(const activityMode& am) const;
 template <>	std::size_t GParameterBase::countParameters<boost::int32_t>(const activityMode& am) const;
 template <>	std::size_t GParameterBase::countParameters<bool>(const activityMode& am) const;
 
-template <>	void GParameterBase::assignValueVector<float>(const std::vector<float>&, std::size_t&);
-template <>	void GParameterBase::assignValueVector<double>(const std::vector<double>&, std::size_t&);
-template <>	void GParameterBase::assignValueVector<boost::int32_t>(const std::vector<boost::int32_t>&, std::size_t&);
-template <>	void GParameterBase::assignValueVector<bool>(const std::vector<bool>&, std::size_t&);
+template <>	void GParameterBase::assignValueVector<float>(const std::vector<float>&, std::size_t&, const activityMode&);
+template <>	void GParameterBase::assignValueVector<double>(const std::vector<double>&, std::size_t&, const activityMode&);
+template <>	void GParameterBase::assignValueVector<boost::int32_t>(const std::vector<boost::int32_t>&, std::size_t&, const activityMode&);
+template <>	void GParameterBase::assignValueVector<bool>(const std::vector<bool>&, std::size_t&, const activityMode&);
 
-template <> void GParameterBase::assignValueVectors<float>(const std::map<std::string, std::vector<float> >&);
-template <> void GParameterBase::assignValueVectors<double>(const std::map<std::string, std::vector<double> >&);
-template <> void GParameterBase::assignValueVectors<boost::int32_t>(const std::map<std::string, std::vector<boost::int32_t> >&);
-template <> void GParameterBase::assignValueVectors<bool>(const std::map<std::string, std::vector<bool> >&);
+template <> void GParameterBase::assignValueVectors<float>(const std::map<std::string, std::vector<float> >&, const activityMode&);
+template <> void GParameterBase::assignValueVectors<double>(const std::map<std::string, std::vector<double> >&, const activityMode&);
+template <> void GParameterBase::assignValueVectors<boost::int32_t>(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode&);
+template <> void GParameterBase::assignValueVectors<bool>(const std::map<std::string, std::vector<bool> >&, const activityMode&);
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -177,12 +177,12 @@ bool GConstrainedDoubleObject::operator!=(const GConstrainedDoubleObject& cp) co
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GConstrainedDoubleObject::checkRelationshipWith (
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -215,7 +215,10 @@ std::string GConstrainedDoubleObject::name() const {
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GConstrainedDoubleObject::doubleStreamline(std::vector<double>& parVec) const {
+void GConstrainedDoubleObject::doubleStreamline(
+   std::vector<double>& parVec
+   , const activityMode& am
+) const {
    // Note: application of the transfer function happens in GConstrainedNumT inside value()
 	parVec.push_back(this->value());
 }
@@ -226,7 +229,11 @@ void GConstrainedDoubleObject::doubleStreamline(std::vector<double>& parVec) con
  *
  * @param parVec The map to which the local value should be attached
  */
-void GConstrainedDoubleObject::doubleStreamline(std::map<std::string, std::vector<double> >& parVec) const {
+void GConstrainedDoubleObject::doubleStreamline(
+   std::map<std::string
+   , std::vector<double> >& parVec
+   , const activityMode& am
+) const {
    std::vector<double> parameters;
    // Note: application of the transfer function happens in GConstrainedNumT inside value()
    parameters.push_back(this->value());
@@ -241,8 +248,9 @@ void GConstrainedDoubleObject::doubleStreamline(std::map<std::string, std::vecto
  * @param uBndVec A vector of upper double parameter boundaries
  */
 void GConstrainedDoubleObject::doubleBoundaries(
-		std::vector<double>& lBndVec
-		, std::vector<double>& uBndVec
+   std::vector<double>& lBndVec
+   , std::vector<double>& uBndVec
+   , const activityMode& am
 ) const {
 	lBndVec.push_back(this->getLowerBoundary());
 	uBndVec.push_back(this->getUpperBoundary());
@@ -266,7 +274,11 @@ std::size_t GConstrainedDoubleObject::countDoubleParameters(
  * Assigns part of a value vector to the parameter. Note that we apply a transformation to
  * the parameter value, so that it lies inside of the allowed value range.
  */
-void GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
+void GConstrainedDoubleObject::assignDoubleValueVector(
+   const std::vector<double>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
@@ -285,7 +297,10 @@ void GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>
 /**
  * Assigns part of a value map to the parameter
  */
-void GConstrainedDoubleObject::assignDoubleValueVectors(const std::map<std::string, std::vector<double> >& parMap) {
+void GConstrainedDoubleObject::assignDoubleValueVectors(
+   const std::map<std::string, std::vector<double> >& parMap
+   , const activityMode& am
+) {
    this->setValue(
       this->transfer(
          Gem::Common::getMapItem(

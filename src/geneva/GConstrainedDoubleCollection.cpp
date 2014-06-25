@@ -154,12 +154,12 @@ bool GConstrainedDoubleCollection::operator!=(const GConstrainedDoubleCollection
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GConstrainedDoubleCollection::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const	{
 	using namespace Gem::Common;
 
@@ -194,7 +194,10 @@ std::string GConstrainedDoubleCollection::name() const {
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GConstrainedDoubleCollection::doubleStreamline(std::vector<double>& parVec) const {
+void GConstrainedDoubleCollection::doubleStreamline(
+   std::vector<double>& parVec
+   , const activityMode& am
+) const {
    GConstrainedDoubleCollection::const_iterator cit;
    for(cit=this->begin(); cit!=this->end(); ++cit) {
       parVec.push_back(this->transfer(*cit));
@@ -208,7 +211,10 @@ void GConstrainedDoubleCollection::doubleStreamline(std::vector<double>& parVec)
  *
  * @param parVec The map to which the local value should be attached
  */
-void GConstrainedDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double> >& parVec) const {
+void GConstrainedDoubleCollection::doubleStreamline(
+   std::map<std::string, std::vector<double> >& parVec
+   , const activityMode& am
+) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
@@ -219,7 +225,7 @@ void GConstrainedDoubleCollection::doubleStreamline(std::map<std::string, std::v
 #endif /* DEBUG */
 
    std::vector<double> parameters;
-   this->doubleStreamline(parameters);
+   this->doubleStreamline(parameters, am);
    parVec[this->getParameterName()] = parameters;
 }
 
@@ -231,8 +237,9 @@ void GConstrainedDoubleCollection::doubleStreamline(std::map<std::string, std::v
  * @param uBndVec A vector of upper double parameter boundaries
  */
 void GConstrainedDoubleCollection::doubleBoundaries(
-		std::vector<double>& lBndVec
-		, std::vector<double>& uBndVec
+   std::vector<double>& lBndVec
+   , std::vector<double>& uBndVec
+   , const activityMode& am
 ) const {
 	// Add a lower and upper boundary to the vectors
 	// for each variable in the collection
@@ -263,7 +270,11 @@ std::size_t GConstrainedDoubleCollection::countDoubleParameters(
  * @param parVec The vector from which the data should be taken
  * @param pos The position inside of the vector from which the data is extracted in each turn of the loop
  */
-void GConstrainedDoubleCollection::assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
+void GConstrainedDoubleCollection::assignDoubleValueVector(
+   const std::vector<double>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
 	for(std::size_t i=0; i<this->size(); i++) {
 #ifdef DEBUG
 		  // Do we have a valid position ?
@@ -284,7 +295,10 @@ void GConstrainedDoubleCollection::assignDoubleValueVector(const std::vector<dou
 /**
  * Assigns part of a value map to the parameter
  */
-void GConstrainedDoubleCollection::assignDoubleValueVectors(const std::map<std::string, std::vector<double> >& parMap) {
+void GConstrainedDoubleCollection::assignDoubleValueVectors(
+   const std::map<std::string, std::vector<double> >& parMap
+   , const activityMode& am
+) {
    for(std::size_t i=0; i<this->size(); i++) {
      this->setValue(i, this->transfer((Gem::Common::getMapItem(parMap,this->getParameterName())).at(i)));
    }

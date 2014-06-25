@@ -55,9 +55,9 @@ GFloatCollection::GFloatCollection()
  * @param max The maximum random value
  */
 GFloatCollection::GFloatCollection(
-		const std::size_t& nval
-		, const float& min
-		, const float& max
+   const std::size_t& nval
+   , const float& min
+   , const float& max
 )
 	: GFPNumCollectionT<float>(nval, min, max)
 { /* nothing */ }
@@ -72,10 +72,10 @@ GFloatCollection::GFloatCollection(
  * @param max The maximum random value
  */
 GFloatCollection::GFloatCollection(
-		const std::size_t& nval
-		, const float& val
-		, const float& min
-		, const float& max
+   const std::size_t& nval
+   , const float& val
+   , const float& min
+   , const float& max
 )
 	: GFPNumCollectionT<float>(nval, val, min, max)
 { /* nothing */ }
@@ -159,12 +159,12 @@ bool GFloatCollection::operator!=(const GFloatCollection& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GFloatCollection::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -197,7 +197,10 @@ std::string GFloatCollection::name() const {
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GFloatCollection::floatStreamline(std::vector<float>& parVec) const {
+void GFloatCollection::floatStreamline(
+   std::vector<float>& parVec
+   , const activityMode& am
+) const {
 	GFloatCollection::const_iterator cit;
 	for(cit=this->begin(); cit!=this->end(); ++cit) {
 		parVec.push_back(*cit);
@@ -208,7 +211,10 @@ void GFloatCollection::floatStreamline(std::vector<float>& parVec) const {
 /**
  * Assigns part of a value map to the parameter
  */
-void GFloatCollection::assignFloatValueVectors(const std::map<std::string, std::vector<float> >& parMap) {
+void GFloatCollection::assignFloatValueVectors(
+   const std::map<std::string, std::vector<float> >& parMap
+   , const activityMode& am
+) {
    GFloatCollection::iterator it;
    std::size_t cnt = 0;
    for(it=this->begin(); it!=this->end(); ++it) {
@@ -223,7 +229,10 @@ void GFloatCollection::assignFloatValueVectors(const std::map<std::string, std::
  *
  * @param parVec The map to which the local value should be attached
  */
-void GFloatCollection::floatStreamline(std::map<std::string, std::vector<float> >& parVec) const {
+void GFloatCollection::floatStreamline(
+   std::map<std::string, std::vector<float> >& parVec
+   , const activityMode& am
+) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
@@ -234,7 +243,7 @@ void GFloatCollection::floatStreamline(std::map<std::string, std::vector<float> 
 #endif /* DEBUG */
 
    std::vector<float> parameters;
-   this->floatStreamline(parameters);
+   this->floatStreamline(parameters, am);
    parVec[this->getParameterName()] = parameters;
 }
 
@@ -246,8 +255,9 @@ void GFloatCollection::floatStreamline(std::map<std::string, std::vector<float> 
  * @param uBndVec A vector of upper float parameter boundaries
  */
 void GFloatCollection::floatBoundaries(
-		std::vector<float>& lBndVec
-		, std::vector<float>& uBndVec
+   std::vector<float>& lBndVec
+   , std::vector<float>& uBndVec
+   , const activityMode& am
 ) const {
 	// Add as man lower and upper boundaries to the vector as
 	// there are variables
@@ -279,8 +289,9 @@ std::size_t GFloatCollection::countFloatParameters(
  * @param pos The position inside of the vector from which the data is extracted in each turn of the loop
  */
 void GFloatCollection::assignFloatValueVector(
-		const std::vector<float>& parVec
-		, std::size_t& pos
+   const std::vector<float>& parVec
+   , std::size_t& pos
+   , const activityMode& am
 ) {
 	  for(GFloatCollection::iterator it=this->begin(); it!=this->end(); ++it) {
 #ifdef DEBUG

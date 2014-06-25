@@ -1618,26 +1618,49 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
       p_test_0->push_back(poc_ptr);
 
-      std::size_t NDOUBLEACTIVE = 2*FPLOOPCOUNT + 2*FPLOOPCOUNT;
-      std::size_t NDOUBLEINACTIVE = NGDOUBLECOLL*FPLOOPCOUNT + FPLOOPCOUNT;
-      std::size_t NDOUBLEALL = NDOUBLEINACTIVE + NDOUBLEACTIVE;
-      std::size_t NINTACTIVE = 1;
-      std::size_t NINTINACTIVE = NINTCOLL*FPLOOPCOUNT;
-      std::size_t NINTALL = NINTINACTIVE + NINTACTIVE;
-      std::size_t NBOOLACTIVE = 1;
-      std::size_t NBOOLINACTIVE = 0;
-      std::size_t NBOOLALL = NBOOLINACTIVE + NBOOLACTIVE;
+      //-----------------------------------------------------------------
 
-      // Count the number of parameters and compare with the expected number
-      BOOST_CHECK(p_test_0->countParameters<double>(ACTIVEONLY) == NDOUBLEACTIVE);
-      BOOST_CHECK(p_test_0->countParameters<double>(INACTIVEONLY) == NDOUBLEINACTIVE);
-      BOOST_CHECK(p_test_0->countParameters<double>(ALLPARAMETERS) == NDOUBLEALL);
-      BOOST_CHECK(p_test_0->countParameters<boost::int32_t>(ACTIVEONLY) == NINTACTIVE);
-      BOOST_CHECK(p_test_0->countParameters<boost::int32_t>(INACTIVEONLY) == NINTINACTIVE);
-      BOOST_CHECK(p_test_0->countParameters<boost::int32_t>(ALLPARAMETERS) == NINTALL);
-      BOOST_CHECK(p_test_0->countParameters<bool>(ACTIVEONLY) == NBOOLACTIVE);
-      BOOST_CHECK(p_test_0->countParameters<bool>(INACTIVEONLY) == NBOOLINACTIVE);
-      BOOST_CHECK(p_test_0->countParameters<bool>(ALLPARAMETERS) == NBOOLALL);
+      { // Test setting and resetting of the random number generator
+         // Create a GParameterSet object as a clone of p_test_0 for further usage
+         boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+
+         std::size_t NDOUBLEACTIVE = 2*FPLOOPCOUNT + 2*FPLOOPCOUNT;
+         std::size_t NDOUBLEINACTIVE = NGDOUBLECOLL*FPLOOPCOUNT + FPLOOPCOUNT;
+         std::size_t NDOUBLEALL = NDOUBLEINACTIVE + NDOUBLEACTIVE;
+         std::size_t NINTACTIVE = 1;
+         std::size_t NINTINACTIVE = NINTCOLL*FPLOOPCOUNT;
+         std::size_t NINTALL = NINTINACTIVE + NINTACTIVE;
+         std::size_t NBOOLACTIVE = 1;
+         std::size_t NBOOLINACTIVE = 0;
+         std::size_t NBOOLALL = NBOOLINACTIVE + NBOOLACTIVE;
+
+         // Count the number of parameters and compare with the expected number
+         BOOST_CHECK(p_test->countParameters<double>(ACTIVEONLY) == NDOUBLEACTIVE);
+         BOOST_CHECK(p_test->countParameters<double>(INACTIVEONLY) == NDOUBLEINACTIVE);
+         BOOST_CHECK(p_test->countParameters<double>(ALLPARAMETERS) == NDOUBLEALL);
+         BOOST_CHECK(p_test->countParameters<boost::int32_t>(ACTIVEONLY) == NINTACTIVE);
+         BOOST_CHECK(p_test->countParameters<boost::int32_t>(INACTIVEONLY) == NINTINACTIVE);
+         BOOST_CHECK(p_test->countParameters<boost::int32_t>(ALLPARAMETERS) == NINTALL);
+         BOOST_CHECK(p_test->countParameters<bool>(ACTIVEONLY) == NBOOLACTIVE);
+         BOOST_CHECK(p_test->countParameters<bool>(INACTIVEONLY) == NBOOLINACTIVE);
+         BOOST_CHECK(p_test->countParameters<bool>(ALLPARAMETERS) == NBOOLALL);
+      }
+
+      //-----------------------------------------------------------------
+
+      { // Check that streamline(INACTIVEONLY) yields unchanged results before and after randomInit(ACTIVEONLY)
+         // Create a GParameterSet object as a clone of p_test_0 for further usage
+         boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+      }
+
+      //-----------------------------------------------------------------
+
+      { // Check that streamline(ACTIVEONLY) solely yields changed results after randomInit(ACTIVEONLY)
+         // Create a GParameterSet object as a clone of p_test_0 for further usage
+         boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+      }
+
+      //-----------------------------------------------------------------
 	}
 
 	//---------------------------------------------------------------------

@@ -212,7 +212,10 @@ std::string GDoubleObject::name() const {
  *
  * @param parVec The vector to which the local value should be attached
  */
-void GDoubleObject::doubleStreamline(std::vector<double>& parVec) const {
+void GDoubleObject::doubleStreamline(
+   std::vector<double>& parVec
+   , const activityMode& am
+) const {
 	parVec.push_back(this->value());
 }
 
@@ -222,7 +225,10 @@ void GDoubleObject::doubleStreamline(std::vector<double>& parVec) const {
  *
  * @param parVec The map to which the local value should be attached
  */
-void GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double> >& parVec) const {
+void GDoubleObject::doubleStreamline(
+   std::map<std::string, std::vector<double> >& parVec
+   , const activityMode& am
+) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
@@ -248,8 +254,9 @@ void GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double> >
  * @param uBndVec A vector of upper double parameter boundaries
  */
 void GDoubleObject::doubleBoundaries(
-		std::vector<double>& lBndVec
-		, std::vector<double>& uBndVec
+   std::vector<double>& lBndVec
+   , std::vector<double>& uBndVec
+   , const activityMode& am
 ) const {
 	lBndVec.push_back(this->getLowerInitBoundary());
 	uBndVec.push_back(this->getUpperInitBoundary());
@@ -272,7 +279,11 @@ std::size_t GDoubleObject::countDoubleParameters(
 /**
  * Assigns part of a value vector to the parameter
  */
-void GDoubleObject::assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
+void GDoubleObject::assignDoubleValueVector(
+   const std::vector<double>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
@@ -291,7 +302,10 @@ void GDoubleObject::assignDoubleValueVector(const std::vector<double>& parVec, s
 /**
  * Assigns part of a value map to the parameter
  */
-void GDoubleObject::assignDoubleValueVectors(const std::map<std::string, std::vector<double> >& parMap) {
+void GDoubleObject::assignDoubleValueVectors(
+   const std::map<std::string, std::vector<double> >& parMap
+   , const activityMode& am
+) {
    this->setValue((Gem::Common::getMapItem(parMap,this->getParameterName())).at(0));
 }
 
