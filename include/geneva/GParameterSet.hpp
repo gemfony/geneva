@@ -136,22 +136,6 @@ public:
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode(const bool&);
 
-	/** @brief Multiplies with a random floating point number in a given range */
-	void fpMultiplyByRandom(const float&, const float&);
-	/** @brief Multiplies with a random floating point number in the range [0, 1[ */
-	void fpMultiplyByRandom();
-
-	/** @brief Multiplies floating-point parameters with a given value */
-	void fpMultiplyBy(const float& val);
-
-	/** @brief Initializes floating-point parameters with a given value */
-	void fpFixedValueInit(const float&);
-
-	/** @brief Adds the floating point parameters of another GParameterSet object to this one */
-	void fpAdd(boost::shared_ptr<GParameterSet>);
-	/** @brief Subtracts the floating point parameters of another GParameterSet object from this one */
-	void fpSubtract(boost::shared_ptr<GParameterSet>);
-
 	/** @brief Emits a GParameterSet object that only has the GParameterBase objects attached to it */
 	boost::shared_ptr<GParameterSet> parameter_clone() const;
 
@@ -479,6 +463,127 @@ public:
     * So far untested.
     * ----------------------------------------------------------------------------------
     */
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a random value in a given range
+    */
+   template <typename par_type>
+   void multiplyByRandom(
+      const par_type& min
+      , const par_type& max
+      , const activityMode& am
+   ) {
+      // Loop over all GParameterBase objects.
+      GParameterSet::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->multiplyByRandom<par_type>(min, max, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a random value in the range [0, 1[
+    */
+   template <typename par_type>
+   void multiplyByRandom(
+      const activityMode& am
+   ) {
+      // Loop over all GParameterBase objects.
+      GParameterSet::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->multiplyByRandom<par_type>(am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a constant value
+    */
+   template <typename par_type>
+   void multiplyBy(
+      const par_type& val
+      , const activityMode& am
+   ) {
+      // Loop over all GParameterBase objects.
+      GParameterSet::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->multiplyBy<par_type>(val, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Initializes all parameters of a given type with a constant value
+    */
+   template <typename par_type>
+   void fixedValueInit(
+      const par_type& val
+      , const activityMode& am
+   ) {
+      // Loop over all GParameterBase objects.
+      GParameterSet::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->fixedValueInit<par_type>(val, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Adds the parameters of another GParameterSet object to this one
+    */
+   template <typename par_type>
+   void add(
+      boost::shared_ptr<GParameterSet> p
+      , const activityMode& am
+   ) {
+      GParameterSet::iterator it;
+      GParameterSet::const_iterator cit;
+
+      // Note that the GParameterBase objects need to accept a
+      // boost::shared_ptr<GParameterBase>, contrary to the calling conventions
+      // of this function.
+      for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
+         (*it)->add<par_type>(*cit, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Subtracts the parameters of another GParameterSet object from this one
+    */
+   template <typename par_type>
+   void subtract(
+      boost::shared_ptr<GParameterSet> p
+      , const activityMode& am
+   ) {
+      GParameterSet::iterator it;
+      GParameterSet::const_iterator cit;
+
+      // Note that the GParameterBase objects need to accept a
+      // boost::shared_ptr<GParameterBase>, contrary to the calling conventions
+      // of this function.
+      for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
+         (*it)->subtract<par_type>(*cit, am);
+      }
+   }
+
+   /***************************************************************************/
+   /** @brief Multiplies with a random floating point number in a given range */
+   void fpMultiplyByRandom(const float&, const float&);
+   /** @brief Multiplies with a random floating point number in the range [0, 1[ */
+   void fpMultiplyByRandom();
+
+   /** @brief Multiplies floating-point parameters with a given value */
+   void fpMultiplyBy(const float& val);
+
+   /** @brief Initializes floating-point parameters with a given value */
+   void fpFixedValueInit(const float&);
+
+   /** @brief Adds the floating point parameters of another GParameterSet object to this one */
+   void fpAdd(boost::shared_ptr<GParameterSet>);
+   /** @brief Subtracts the floating point parameters of another GParameterSet object from this one */
+   void fpSubtract(boost::shared_ptr<GParameterSet>);
 
 protected:
 	/***************************************************************************/

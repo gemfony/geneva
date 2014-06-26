@@ -1424,6 +1424,680 @@ void GParameterBase::assignBooleanValueVectors(
 
 /******************************************************************************/
 /**
+ * Multiplication with a random value in a given range
+ */
+template <>
+void GParameterBase::multiplyByRandom<float>(
+   const float& min
+   , const float& max
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->floatMultiplyByRandom(min, max, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in a given range
+ */
+template <>
+void GParameterBase::multiplyByRandom<double>(
+   const double& min
+   , const double& max
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->doubleMultiplyByRandom(min, max, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in a given range
+ */
+template <>
+void GParameterBase::multiplyByRandom<boost::int32_t>(
+   const boost::int32_t& min
+   , const boost::int32_t& max
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->int32MultiplyByRandom(min, max, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in a given range. This specialization for
+ * boolean values has been added for completeness and error-detection. It will throw
+ * when called.
+ */
+template <>
+void GParameterBase::multiplyByRandom<bool>(
+   const bool& min
+   , const bool& max
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      // NOTE: This will throw
+      this->booleanMultiplyByRandom(min, max, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in a given range
+ */
+void GParameterBase::floatMultiplyByRandom(
+   const float& min
+   , const float& max
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in a given range
+ */
+void GParameterBase::doubleMultiplyByRandom(
+   const double& min
+   , const double& max
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in a given range
+ */
+void GParameterBase::int32MultiplyByRandom(
+   const boost::int32_t& min
+   , const boost::int32_t& max
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in a given range
+ */
+void GParameterBase::booleanMultiplyByRandom(
+   const bool& min
+   , const bool& max
+   , const activityMode& am
+) {
+   // Complain: This function should not be called for boolean values
+   glogger
+   << "In GParameterBase::booleanMultiplyByRandom(min,max): Error!" << std::endl
+   << "This function should not be called for boolean parameters" << std::endl
+   << GEXCEPTION;
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+template <>
+void GParameterBase::multiplyByRandom<float>(
+   const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->floatMultiplyByRandom(am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+template <>
+void GParameterBase::multiplyByRandom<double>(
+   const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->doubleMultiplyByRandom(am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+template <>
+void GParameterBase::multiplyByRandom<boost::int32_t>(
+   const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->int32MultiplyByRandom(am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[. This specialization for
+ * boolean values has been added for completeness and error-detection. It will throw
+ * when called.
+ */
+template <>
+void GParameterBase::multiplyByRandom<bool>(
+   const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      // NOTE: This will throw
+      this->booleanMultiplyByRandom(am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+void GParameterBase::floatMultiplyByRandom(const activityMode& am) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+void GParameterBase::doubleMultiplyByRandom(const activityMode& am) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+void GParameterBase::int32MultiplyByRandom(const activityMode& am) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+void GParameterBase::booleanMultiplyByRandom(const activityMode& am) {
+   // Complain: This function should not be called for boolean values
+   glogger
+   << "In GParameterBase::booleanMultiplyByRandom(): Error!" << std::endl
+   << "This function should not be called for boolean parameters" << std::endl
+   << GEXCEPTION;
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+template <>
+void GParameterBase::multiplyBy<float>(
+   const float& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->floatMultiplyBy(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+template <>
+void GParameterBase::multiplyBy<double>(
+   const double& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->doubleMultiplyBy(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+template <>
+void GParameterBase::multiplyBy<boost::int32_t>(
+   const boost::int32_t& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->int32MultiplyBy(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value. This specialization for
+ * boolean values has been added for completeness and error-detection.
+ * It will throw when called.
+ */
+template <>
+void GParameterBase::multiplyBy<bool>(
+   const bool& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      // NOTE: This will throw
+      this->booleanMultiplyBy(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+void GParameterBase::floatMultiplyBy(
+   const float& value
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+void GParameterBase::doubleMultiplyBy(
+   const double& value
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+void GParameterBase::int32MultiplyBy(
+   const boost::int32_t& value
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+void GParameterBase::booleanMultiplyBy(
+   const bool& value
+   , const activityMode& am
+) {
+   // Complain: This function should not be called for boolean values
+   glogger
+   << "In GParameterBase::booleanMultiplyBy(): Error!" << std::endl
+   << "This function should not be called for boolean parameters" << std::endl
+   << GEXCEPTION;
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+template <>
+void GParameterBase::fixedValueInit<float>(
+   const float& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->floatFixedValueInit(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+template <>
+void GParameterBase::fixedValueInit<double>(
+   const double& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->doubleFixedValueInit(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+template <>
+void GParameterBase::fixedValueInit<boost::int32_t>(
+   const boost::int32_t& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->int32FixedValueInit(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+template <>
+void GParameterBase::fixedValueInit<bool>(
+   const bool& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->booleanFixedValueInit(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+void GParameterBase::floatFixedValueInit(
+   const float& value
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+void GParameterBase::doubleFixedValueInit(
+   const double& value
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+void GParameterBase::int32FixedValueInit(
+   const boost::int32_t& value
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+void GParameterBase::booleanFixedValueInit(
+   const bool& value
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+template <>
+void GParameterBase::add<float>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->floatAdd(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+template <>
+void GParameterBase::add<double>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->doubleAdd(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+template <>
+void GParameterBase::add<boost::int32_t>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->int32Add(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one.
+ * This specialization for boolean values has been added for completeness and error-detection.
+ * It will throw when called.
+ */
+template <>
+void GParameterBase::add<bool>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      // Note: This call will throw!
+      this->booleanAdd(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GParameterBase::floatAdd(
+   boost::shared_ptr<GParameterBase>
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GParameterBase::doubleAdd(
+   boost::shared_ptr<GParameterBase>
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GParameterBase::int32Add(
+   boost::shared_ptr<GParameterBase>
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GParameterBase::booleanAdd(
+   boost::shared_ptr<GParameterBase>
+   , const activityMode& am
+) {
+   // Complain: This function should not be called for boolean values
+   glogger
+   << "In GParameterBase::booleanAdd(): Error!" << std::endl
+   << "This function should not be called for boolean parameters" << std::endl
+   << GEXCEPTION;
+}
+
+/******************************************************************************/
+/**
+ * Subtracts the "same-type" parameters of another GParameterBase object from this one
+ */
+template <>
+void GParameterBase::subtract<float>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->floatSubtract(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Subtracts the "same-type" parameters of another GParameterBase object from this one
+ */
+template <>
+void GParameterBase::subtract<double>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->doubleSubtract(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Subtracts the "same-type" parameters of another GParameterBase object from this one
+ */
+template <>
+void GParameterBase::subtract<boost::int32_t>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->int32Subtract(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Subtracts the "same-type" parameters of another GParameterBase object from this one.
+ * This specialization for boolean values has been added for completeness and error-detection.
+ * It will throw when called.
+ */
+template <> void GParameterBase::subtract<bool>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      // NOTE: This call will throw
+      this->booleanSubtract(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Subtracts the "same-type" parameters of another GParameterBase object from this one
+ */
+void GParameterBase::floatSubtract(
+   boost::shared_ptr<GParameterBase>
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Subtracts the "same-type" parameters of another GParameterBase object from this one
+ */
+void GParameterBase::doubleSubtract(
+   boost::shared_ptr<GParameterBase>
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Subtracts the "same-type" parameters of another GParameterBase object from this one
+ */
+void GParameterBase::int32Subtract(
+   boost::shared_ptr<GParameterBase>
+   , const activityMode& am
+) {
+   /* Do nothing by default */
+}
+
+/******************************************************************************/
+/**
+ * Subtracts the "same-type" parameters of another GParameterBase object from this one
+ */
+void GParameterBase::booleanSubtract(
+   boost::shared_ptr<GParameterBase>
+   , const activityMode& am
+) {
+   // Complain: This function should not be called for boolean values
+   glogger
+   << "In GParameterBase::booleanSubtract(): Error!" << std::endl
+   << "This function should not be called for boolean parameters" << std::endl
+   << GEXCEPTION;
+}
+
+/******************************************************************************/
+/**
  * Specifies that no random initialization should occur anymore
  */
 void GParameterBase::blockRandomInitialization() {

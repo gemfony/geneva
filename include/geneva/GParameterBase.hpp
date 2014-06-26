@@ -275,6 +275,97 @@ public:
    }
 
    /***************************************************************************/
+   /**
+    * Multiplication with a random value in a given range
+    */
+   template <typename par_type>
+   void multiplyByRandom(
+      const par_type& min
+      , const par_type& max
+      , const activityMode& am
+   ) {
+      glogger
+      << "In GParameterBase::multiplyByRandom()" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
+   }
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a random value in the range [0, 1[
+    */
+   template <typename par_type>
+   void multiplyByRandom(
+      const activityMode& am
+   ) {
+      glogger
+      << "In GParameterBase::multiplyByRandom()" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
+   }
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a constant value
+    */
+   template <typename par_type>
+   void multiplyBy(
+      const par_type& val
+      , const activityMode& am
+   ) {
+      glogger
+      << "In GParameterBase::multiplyBy()" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
+   }
+
+   /***************************************************************************/
+   /**
+    * Initializes all parameters of a given type with a constant value
+    */
+   template <typename par_type>
+   void fixedValueInit(
+      const par_type& val
+      , const activityMode& am
+   ) {
+      glogger
+      << "In GParameterBase::fixedValueInit()" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
+   }
+
+   /***************************************************************************/
+   /**
+    * Adds the parameters of another GParameterSet object to this one
+    */
+   template <typename par_type>
+   void add(
+      boost::shared_ptr<GParameterBase> p
+      , const activityMode& am
+   ) {
+      glogger
+      << "In GParameterBase::add()" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
+   }
+
+   /***************************************************************************/
+   /**
+    * Subtracts the parameters of another GParameterSet object from this one
+    */
+   template <typename par_type>
+   void subtract(
+      boost::shared_ptr<GParameterBase> p
+      , const activityMode& am
+   ) {
+      glogger
+      << "In GParameterBase::subtract()" << std::endl
+      << "Function called for unsupported type!" << std::endl
+      << GEXCEPTION;
+   }
+
+   /***************************************************************************/
+
 	/** @brief Specifies that no random initialization should occur anymore */
 	void blockRandomInitialization();
 	/** @brief Makes random initialization possible */
@@ -408,6 +499,60 @@ protected:
    /** @brief Assigns part of a value vector to the parameter */
    virtual void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&, const activityMode&) BASE;
 
+   /** @brief Multiplication with a random value in a given range */
+   virtual void floatMultiplyByRandom(const float& min, const float& max, const activityMode& am) BASE;
+   /** @brief Multiplication with a random value in a given range */
+   virtual void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am) BASE;
+   /** @brief Multiplication with a random value in a given range */
+   virtual void int32MultiplyByRandom(const boost::int32_t& min, const boost::int32_t& max, const activityMode& am) BASE;
+   /** @brief Multiplication with a random value in a given range */
+   virtual void booleanMultiplyByRandom(const bool& min, const bool& max, const activityMode& am) BASE;
+
+   /** @brief Multiplication with a random value in the range [0,1[ */
+   virtual void floatMultiplyByRandom(const activityMode& am) BASE;
+   /** @brief Multiplication with a random value in the range [0,1[ */
+   virtual void doubleMultiplyByRandom(const activityMode& am) BASE;
+   /** @brief Multiplication with a random value in the range [0,1[ */
+   virtual void int32MultiplyByRandom(const activityMode& am) BASE;
+   /** @brief Multiplication with a random value in the range [0,1[ */
+   virtual void booleanMultiplyByRandom(const activityMode& am) BASE;
+
+   /** @brief Multiplication with a constant value */
+   virtual void floatMultiplyBy(const float& value, const activityMode& am) BASE;
+   /** @brief Multiplication with a constant value */
+   virtual void doubleMultiplyBy(const double& value, const activityMode& am) BASE;
+   /** @brief Multiplication with a constant value */
+   virtual void int32MultiplyBy(const boost::int32_t& value, const activityMode& am) BASE;
+   /** @brief Multiplication with a random value in the range [0,1[ */
+   virtual void booleanMultiplyBy(const bool& value, const activityMode& am) BASE;
+
+   /** @brief Initialization with a constant value */
+   virtual void floatFixedValueInit(const float& value, const activityMode& am) BASE;
+   /** @brief Initialization with a constant value */
+   virtual void doubleFixedValueInit(const double& value, const activityMode& am) BASE;
+   /** @brief Initialization with a constant value */
+   virtual void int32FixedValueInit(const boost::int32_t& value, const activityMode& am) BASE;
+   /** @brief Initialization with a random value in the range [0,1[ */
+   virtual void booleanFixedValueInit(const bool& value, const activityMode& am) BASE;
+
+   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+   virtual void floatAdd(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+   virtual void doubleAdd(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+   virtual void int32Add(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+   virtual void booleanAdd(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+
+   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+   virtual void floatSubtract(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+   virtual void doubleSubtract(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+   virtual void int32Subtract(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+   virtual void booleanSubtract(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*) OVERRIDE;
@@ -464,6 +609,36 @@ template <> void GParameterBase::assignValueVectors<float>(const std::map<std::s
 template <> void GParameterBase::assignValueVectors<double>(const std::map<std::string, std::vector<double> >&, const activityMode&);
 template <> void GParameterBase::assignValueVectors<boost::int32_t>(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode&);
 template <> void GParameterBase::assignValueVectors<bool>(const std::map<std::string, std::vector<bool> >&, const activityMode&);
+
+template <> void GParameterBase::multiplyByRandom<float>(const float& min, const float& max, const activityMode& am);
+template <> void GParameterBase::multiplyByRandom<double>(const double& min, const double& max, const activityMode& am);
+template <> void GParameterBase::multiplyByRandom<boost::int32_t>(const boost::int32_t& min, const boost::int32_t& max, const activityMode& am);
+template <> void GParameterBase::multiplyByRandom<bool>(const bool& min, const bool& max, const activityMode& am);
+
+template <> void GParameterBase::multiplyByRandom<float>(const activityMode& am);
+template <> void GParameterBase::multiplyByRandom<double>(const activityMode& am);
+template <> void GParameterBase::multiplyByRandom<boost::int32_t>(const activityMode& am);
+template <> void GParameterBase::multiplyByRandom<bool>(const activityMode& am);
+
+template <> void GParameterBase::multiplyBy<float>(const float& val, const activityMode& am);
+template <> void GParameterBase::multiplyBy<double>(const double& val, const activityMode& am);
+template <> void GParameterBase::multiplyBy<boost::int32_t>(const boost::int32_t& val, const activityMode& am);
+template <> void GParameterBase::multiplyBy<bool>(const bool& val, const activityMode& am);
+
+template <> void GParameterBase::fixedValueInit<float>(const float& val, const activityMode& am);
+template <> void GParameterBase::fixedValueInit<double>(const double& val, const activityMode& am);
+template <> void GParameterBase::fixedValueInit<boost::int32_t>(const boost::int32_t& val, const activityMode& am);
+template <> void GParameterBase::fixedValueInit<bool>(const bool& val, const activityMode& am);
+
+template <> void GParameterBase::add<float>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
+template <> void GParameterBase::add<double>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
+template <> void GParameterBase::add<boost::int32_t>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
+template <> void GParameterBase::add<bool>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
+
+template <> void GParameterBase::subtract<float>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
+template <> void GParameterBase::subtract<double>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
+template <> void GParameterBase::subtract<boost::int32_t>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
+template <> void GParameterBase::subtract<bool>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
 
 } /* namespace Geneva */
 } /* namespace Gem */

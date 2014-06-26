@@ -1137,6 +1137,266 @@ protected:
     * ----------------------------------------------------------------------------------
     */
 
+   /***************************************************************************/
+   /**
+    * Multiplication with a random value in a given range
+    */
+   virtual void floatMultiplyByRandom(
+      const float& min
+      , const float& max
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->multiplyByRandom<float>(min, max, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a random value in a given range
+    */
+   virtual void doubleMultiplyByRandom(
+      const double& min
+      , const double& max
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->multiplyByRandom<double>(min, max, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a random value in a given range
+    */
+   virtual void int32MultiplyByRandom(
+      const boost::int32_t& min
+      , const boost::int32_t& max
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->multiplyByRandom<boost::int32_t>(min, max, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a random value in the range [0,1[
+    */
+   virtual void floatMultiplyByRandom(const activityMode& am) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->multiplyByRandom<float>(am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a random value in the range [0,1[
+    */
+   virtual void doubleMultiplyByRandom(const activityMode& am) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->multiplyByRandom<double>(am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a random value in the range [0,1[
+    */
+   virtual void int32MultiplyByRandom(const activityMode& am) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->multiplyByRandom<boost::int32_t>(am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a constant value
+    */
+   virtual void floatMultiplyBy(
+      const float& value
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->multiplyBy<float>(value, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a constant value
+    */
+   virtual void doubleMultiplyBy(
+      const double& value
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->multiplyByRandom<double>(am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Multiplication with a constant value
+    */
+   virtual void int32MultiplyBy(
+      const boost::int32_t& value
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->multiplyByRandom<boost::int32_t>(am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Initialization with a constant value
+    */
+   virtual void floatFixedValueInit(
+      const float& value
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->fixedValueInit<float>(value, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Initialization with a constant value
+    */
+   virtual void doubleFixedValueInit(
+      const double& value
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->fixedValueInit<double>(value, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Initialization with a constant value
+    */
+   virtual void int32FixedValueInit(
+      const boost::int32_t& value
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->fixedValueInit<boost::int32_t>(value, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Initialization with a constant value
+    */
+   virtual void booleanFixedValueInit(
+      const bool& value
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->fixedValueInit<bool>(value, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Adds the "same-type" parameters of another GParameterBase object to this one
+    */
+   virtual void floatAdd(
+      boost::shared_ptr<GParameterBase> p
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->add<float>(p, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Adds the "same-type" parameters of another GParameterBase object to this one
+    */
+   virtual void doubleAdd(
+      boost::shared_ptr<GParameterBase> p
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->add<double>(p, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Adds the "same-type" parameters of another GParameterBase object to this one
+    */
+   virtual void int32Add(
+      boost::shared_ptr<GParameterBase> p
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->add<boost::int32_t>(p, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Subtracts the "same-type" parameters of another GParameterBase object from this one
+    */
+   virtual void floatSubtract(
+      boost::shared_ptr<GParameterBase> p
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->subtract<float>(p, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Subtracts the "same-type" parameters of another GParameterBase object from this one
+    */
+   virtual void doubleSubtract(
+      boost::shared_ptr<GParameterBase> p
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->subtract<float>(p, am);
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Subtracts the "same-type" parameters of another GParameterBase object from this one
+    */
+   virtual void int32Subtract(
+      boost::shared_ptr<GParameterBase> p
+      , const activityMode& am
+   ) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         (*it)->subtract<boost::int32_t>(p, am);
+      }
+   }
+
 public:
 	/***************************************************************************/
 	/**
