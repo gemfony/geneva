@@ -255,7 +255,7 @@ protected:
 	 * function assumes that the collection has been completely set up. Data
 	 * that is added later will remain unaffected.
 	 */
-	void randomInit_() OVERRIDE {
+	void randomInit_(const activityMode&) OVERRIDE {
 		int_type lowerBoundary = GNumCollectionT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumCollectionT<int_type>::getUpperInitBoundary();
 
@@ -333,7 +333,7 @@ public:
 			BOOST_CHECK(*p_test1 == *p_test2);
 
 			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
 
 			// Check that the object has indeed changed
 			BOOST_CHECK(*p_test1 != *p_test2);

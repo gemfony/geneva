@@ -153,7 +153,7 @@ void GBooleanCollection::load_(const GObject * cp){
  * function assumes that the collection has been completely set up. Data
  * that is added later will remain unaffected.
  */
-void GBooleanCollection::randomInit_() {
+void GBooleanCollection::randomInit_(const activityMode&) {
    for(std::size_t i=0; i<this->size(); i++) {
       (*this)[i] = gr->uniform_bool();
    }
@@ -165,7 +165,7 @@ void GBooleanCollection::randomInit_() {
  *
  * @param probability The probability for true values in the collection
  */
-void GBooleanCollection::randomInit_(const double& probability) {
+void GBooleanCollection::randomInit_(const double& probability, const activityMode&) {
    // Do some error checking
    if(probability<0. || probability>1.) {
       glogger
@@ -200,7 +200,7 @@ void GBooleanCollection::randomInit(const double& probability, const activityMod
       !GParameterBase::randomInitializationBlocked()
       && this->modifiableAmMatchOrHandover(am)
    ) {
-      randomInit_(probability);
+      randomInit_(probability, am);
    }
 }
 
@@ -576,7 +576,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
       BOOST_CHECK(p_test->size() == nItems);
 
       // Randomly initialize, using the internal function
-      BOOST_CHECK_NO_THROW(p_test->randomInit_());
+      BOOST_CHECK_NO_THROW(p_test->randomInit_(ALLPARAMETERS));
 
       // Count the number of true and false values
       std::size_t nTrue = 0;
@@ -611,7 +611,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
       }
 
       // Randomly initialize, using the internal function
-      BOOST_CHECK_NO_THROW(p_test->randomInit_(0.));
+      BOOST_CHECK_NO_THROW(p_test->randomInit_(0., ALLPARAMETERS));
 
       // Count the number of true and false values
       std::size_t nTrue = 0;
@@ -643,7 +643,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
       }
 
       // Randomly initialize, using the internal function
-      BOOST_CHECK_NO_THROW(p_test->randomInit_(1.));
+      BOOST_CHECK_NO_THROW(p_test->randomInit_(1., ALLPARAMETERS));
 
       // Count the number of true and false values
       std::size_t nTrue = 0;
@@ -676,7 +676,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
          }
 
          // Randomly initialize, using the internal function and the required probability
-         BOOST_CHECK_NO_THROW(p_test->randomInit_(d));
+         BOOST_CHECK_NO_THROW(p_test->randomInit_(d, ALLPARAMETERS));
 
          // Count the number of true and false values
          std::size_t nTrue = 0;
@@ -870,7 +870,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
       }
 
       // Randomly initialize, using the internal function
-      BOOST_CHECK_THROW(p_test->randomInit_(-1.), Gem::Common::gemfony_error_condition);
+      BOOST_CHECK_THROW(p_test->randomInit_(-1., ALLPARAMETERS), Gem::Common::gemfony_error_condition);
    }
 
    // --------------------------------------------------------------------------
@@ -887,7 +887,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
       }
 
       // Randomly initialize, using the internal function
-      BOOST_CHECK_THROW(p_test->randomInit_(2.), Gem::Common::gemfony_error_condition);
+      BOOST_CHECK_THROW(p_test->randomInit_(2., ALLPARAMETERS), Gem::Common::gemfony_error_condition);
    }
 
    // --------------------------------------------------------------------------

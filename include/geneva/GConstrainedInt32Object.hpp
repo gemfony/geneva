@@ -125,7 +125,7 @@ protected:
 	virtual GObject* clone_() const OVERRIDE;
 
 	/** @brief Triggers random initialization of the parameter object */
-	virtual void randomInit_() OVERRIDE;
+	virtual void randomInit_(const activityMode&) OVERRIDE;
 
    /** @brief Attach our local value to the vector. */
    virtual void int32Streamline(std::vector<boost::int32_t>&, const activityMode& am) const OVERRIDE;

@@ -174,7 +174,7 @@ void GBooleanObject::randomInit(const double& probability, const activityMode& a
      !GParameterBase::randomInitializationBlocked()
      && this->modifiableAmMatchOrHandover(am)
   ) {
-     randomInit_(probability);
+     randomInit_(probability, am);
   }
 }
 
@@ -189,7 +189,7 @@ void GBooleanObject::randomInit(const double& probability, const activityMode& a
  * This function holds the actual initialization logic, used in the publicly accessible
  * GBooleanObject::randomInit(const double& probability) function.
  */
-void GBooleanObject::randomInit_(const double& probability) {
+void GBooleanObject::randomInit_(const double& probability, const activityMode&) {
 	this->setValue(gr->weighted_bool(probability));
 }
 
@@ -202,7 +202,7 @@ void GBooleanObject::randomInit_(const double& probability) {
 /**
  * Triggers random initialization of the parameter object
  */
-void GBooleanObject::randomInit_() {
+void GBooleanObject::randomInit_(const activityMode&) {
 	this->setValue(gr->uniform_bool());
 }
 
@@ -495,7 +495,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		std::size_t nTrue = 0;
 		std::size_t nFalse = 0;
 		for(std::size_t i=0; i<nTests; i++) {
-			p_test->randomInit_();
+			p_test->randomInit_(ALLPARAMETERS);
 			p_test->value()?nTrue++:nFalse++;
 		}
 
@@ -526,7 +526,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		std::size_t nTrue = 0;
 		std::size_t nFalse = 0;
 		for(std::size_t i=0; i<nTests; i++) {
-			p_test->randomInit_(1.);
+			p_test->randomInit_(1., ALLPARAMETERS);
 			p_test->value()?nTrue++:nFalse++;
 		}
 
@@ -549,7 +549,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		std::size_t nTrue = 0;
 		std::size_t nFalse = 0;
 		for(std::size_t i=0; i<nTests; i++) {
-			p_test->randomInit_(0.);
+			p_test->randomInit_(0., ALLPARAMETERS);
 			p_test->value()?nTrue++:nFalse++;
 		}
 
@@ -569,14 +569,14 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK(p_test->value() == true);
 
 			// Randomly initialize, using the internal function, with the current probability
-			BOOST_CHECK_NO_THROW(p_test->randomInit_(d));
+			BOOST_CHECK_NO_THROW(p_test->randomInit_(d, ALLPARAMETERS));
 
 			// Count the number of true and false values for a number of subsequent initializations
 			// with the internal randomInit_ function.
 			std::size_t nTrue = 0;
 			std::size_t nFalse = 0;
 			for(std::size_t i=0; i<nTests; i++) {
-				p_test->randomInit_(d);
+				p_test->randomInit_(d, ALLPARAMETERS);
 				p_test->value()?nTrue++:nFalse++;
 			}
 

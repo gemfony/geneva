@@ -341,7 +341,7 @@ protected:
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
-	virtual void randomInit_() OVERRIDE {
+	virtual void randomInit_(const activityMode&) OVERRIDE {
 		this->setValue(
          this->GParameterBase::gr->uniform_int(
             GConstrainedNumT<int_type>::getLowerBoundary()
@@ -479,7 +479,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Randomly initialize using our internal function -- will use the most extreme boundaries available
-			BOOST_CHECK_NO_THROW(p_test->randomInit_());
+			BOOST_CHECK_NO_THROW(p_test->randomInit_(ALLPARAMETERS));
 		}
 
 		//------------------------------------------------------------------------------
@@ -498,7 +498,7 @@ public:
 				BOOST_CHECK_NO_THROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
 
 				// Randomly initialize, using our internal value
-				BOOST_CHECK_NO_THROW(p_test->randomInit_());
+				BOOST_CHECK_NO_THROW(p_test->randomInit_(ALLPARAMETERS));
 			}
 		}
 

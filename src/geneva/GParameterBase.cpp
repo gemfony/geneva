@@ -440,7 +440,7 @@ void GParameterBase::randomInit(const activityMode& am) {
       !randomInitializationBlocked_
       && this->modifiableAmMatchOrHandover(am)
    ) {
-	   randomInit_();
+	   randomInit_(am);
 	}
 }
 

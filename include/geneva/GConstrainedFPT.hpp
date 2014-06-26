@@ -525,7 +525,7 @@ protected:
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
-	virtual void randomInit_() OVERRIDE {
+	virtual void randomInit_(const activityMode&) OVERRIDE {
 		this->setValue(
 				this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
 						GConstrainedNumT<fp_type>::getLowerBoundary(), GConstrainedNumT<fp_type>::getUpperBoundary()
@@ -920,7 +920,7 @@ public:
 			// Repeatedly add and subtract a randomly initialized p_test2 from p_test1
 			for(std::size_t i=0; i<nTests; i++) {
 				// Randomly initialize p_test2
-				BOOST_CHECK_NO_THROW(p_test2->randomInit_());
+				BOOST_CHECK_NO_THROW(p_test2->randomInit_(ALLPARAMETERS));
 
 				fp_type firstValue = p_test2->value();
 
@@ -936,7 +936,7 @@ public:
 				BOOST_CHECK(p_test1->value()  < upper);
 
 				// Randomly initialize p_test2 again
-				BOOST_CHECK_NO_THROW(p_test2->randomInit_());
+				BOOST_CHECK_NO_THROW(p_test2->randomInit_(ALLPARAMETERS));
 
 				fp_type secondValue = p_test2->value();
 

@@ -1618,21 +1618,22 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
       p_test_0->push_back(poc_ptr);
 
+      // The amount of parameters of a given category
+      std::size_t NDOUBLEACTIVE = 2*FPLOOPCOUNT + 2*FPLOOPCOUNT;
+      std::size_t NDOUBLEINACTIVE = NGDOUBLECOLL*FPLOOPCOUNT + FPLOOPCOUNT;
+      std::size_t NDOUBLEALL = NDOUBLEINACTIVE + NDOUBLEACTIVE;
+      std::size_t NINTACTIVE = 1;
+      std::size_t NINTINACTIVE = NINTCOLL*FPLOOPCOUNT;
+      std::size_t NINTALL = NINTINACTIVE + NINTACTIVE;
+      std::size_t NBOOLACTIVE = 1;
+      std::size_t NBOOLINACTIVE = 0;
+      std::size_t NBOOLALL = NBOOLINACTIVE + NBOOLACTIVE;
+
       //-----------------------------------------------------------------
 
       { // Test setting and resetting of the random number generator
          // Create a GParameterSet object as a clone of p_test_0 for further usage
          boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
-
-         std::size_t NDOUBLEACTIVE = 2*FPLOOPCOUNT + 2*FPLOOPCOUNT;
-         std::size_t NDOUBLEINACTIVE = NGDOUBLECOLL*FPLOOPCOUNT + FPLOOPCOUNT;
-         std::size_t NDOUBLEALL = NDOUBLEINACTIVE + NDOUBLEACTIVE;
-         std::size_t NINTACTIVE = 1;
-         std::size_t NINTINACTIVE = NINTCOLL*FPLOOPCOUNT;
-         std::size_t NINTALL = NINTINACTIVE + NINTACTIVE;
-         std::size_t NBOOLACTIVE = 1;
-         std::size_t NBOOLINACTIVE = 0;
-         std::size_t NBOOLALL = NBOOLINACTIVE + NBOOLACTIVE;
 
          // Count the number of parameters and compare with the expected number
          BOOST_CHECK(p_test->countParameters<double>(ACTIVEONLY) == NDOUBLEACTIVE);
@@ -1649,15 +1650,81 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
       //-----------------------------------------------------------------
 
       { // Check that streamline(INACTIVEONLY) yields unchanged results before and after randomInit(ACTIVEONLY)
-         // Create a GParameterSet object as a clone of p_test_0 for further usage
-         boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+         // Create two GParameterSet objects as clones of p_test_0 for further usage
+         boost::shared_ptr<GParameterSet> p_test_orig = p_test_0->clone<GParameterSet>();
+         boost::shared_ptr<GParameterSet> p_test_rand = p_test_0->clone<GParameterSet>();
+
+         // Randomly initialize active components of p_test2
+         BOOST_CHECK_NO_THROW(p_test_rand->randomInit(ACTIVEONLY));
+
+         std::vector<double> orig_d_inactive;
+         std::vector<double> rand_d_inactive;
+
+         std::vector<boost::int32_t> orig_i_inactive;
+         std::vector<boost::int32_t> rand_i_inactive;
+
+         std::vector<bool> orig_b_inactive;
+         std::vector<bool> rand_b_inactive;
+
+         // Extract the parameters
+         BOOST_CHECK_NO_THROW(p_test_orig->streamline<double>(orig_d_inactive, INACTIVEONLY));
+         BOOST_CHECK_NO_THROW(p_test_rand->streamline<double>(rand_d_inactive, INACTIVEONLY));
+         BOOST_CHECK_NO_THROW(p_test_orig->streamline<boost::int32_t>(orig_i_inactive, INACTIVEONLY));
+         BOOST_CHECK_NO_THROW(p_test_rand->streamline<boost::int32_t>(rand_i_inactive, INACTIVEONLY));
+         BOOST_CHECK_NO_THROW(p_test_orig->streamline<bool>(orig_b_inactive, INACTIVEONLY));
+         BOOST_CHECK_NO_THROW(p_test_rand->streamline<bool>(rand_b_inactive, INACTIVEONLY));
+
+         // Check that the "inactive" vectors have the expected characteristics
+         BOOST_CHECK(orig_d_inactive.size() == NDOUBLEINACTIVE);
+         BOOST_CHECK(orig_d_inactive == rand_d_inactive);
+         BOOST_CHECK(orig_i_inactive.size() == NINTINACTIVE);
+         BOOST_CHECK(orig_i_inactive == rand_i_inactive);
+         BOOST_CHECK(orig_b_inactive.size() == NBOOLINACTIVE);
+         BOOST_CHECK(orig_b_inactive == rand_b_inactive);
       }
 
       //-----------------------------------------------------------------
 
-      { // Check that streamline(ACTIVEONLY) solely yields changed results after randomInit(ACTIVEONLY)
+      { // Check that streamline(ACTIVEONLY) yields changed results after randomInit(ACTIVEONLY)
          // Create a GParameterSet object as a clone of p_test_0 for further usage
-         boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+         // Create two GParameterSet objects as clones of p_test_0 for further usage
+         boost::shared_ptr<GParameterSet> p_test_orig = p_test_0->clone<GParameterSet>();
+         boost::shared_ptr<GParameterSet> p_test_rand = p_test_0->clone<GParameterSet>();
+
+         // Randomly initialize active components of p_test2
+         BOOST_CHECK_NO_THROW(p_test_rand->randomInit(ACTIVEONLY));
+
+         std::vector<double> orig_d_active;
+         std::vector<double> rand_d_active;
+
+         std::vector<boost::int32_t> orig_i_active;
+         std::vector<boost::int32_t> rand_i_active;
+
+         std::vector<bool> orig_b_active;
+         std::vector<bool> rand_b_active;
+
+         // Extract the parameters
+         BOOST_CHECK_NO_THROW(p_test_orig->streamline<double>(orig_d_active, ACTIVEONLY));
+         BOOST_CHECK_NO_THROW(p_test_rand->streamline<double>(rand_d_active, ACTIVEONLY));
+         BOOST_CHECK_NO_THROW(p_test_orig->streamline<boost::int32_t>(orig_i_active, ACTIVEONLY));
+         BOOST_CHECK_NO_THROW(p_test_rand->streamline<boost::int32_t>(rand_i_active, ACTIVEONLY));
+         BOOST_CHECK_NO_THROW(p_test_orig->streamline<bool>(orig_b_active, ACTIVEONLY));
+         BOOST_CHECK_NO_THROW(p_test_rand->streamline<bool>(rand_b_active, ACTIVEONLY));
+
+         // Check that the "active" vectors' contents indeed differ
+         BOOST_CHECK(orig_d_active.size() == NDOUBLEACTIVE);
+         BOOST_CHECK(rand_d_active.size() == NDOUBLEACTIVE);
+         BOOST_CHECK(orig_d_active != rand_d_active);
+         BOOST_CHECK(orig_i_active.size() == NINTACTIVE);
+         BOOST_CHECK(rand_i_active.size() == NINTACTIVE);
+         BOOST_CHECK(orig_i_active != rand_i_active);
+         BOOST_CHECK(orig_b_active.size() == NBOOLACTIVE);
+         BOOST_CHECK(rand_b_active.size() == NBOOLACTIVE);
+
+         // We do not compare the (single) boolean value here, as there are just
+         // two distinct values it may assume, so the likelihood for identical values
+         // and thus failure of this test is high.
+         // BOOST_CHECK(orig_b_active != rand_b_active);
       }
 
       //-----------------------------------------------------------------

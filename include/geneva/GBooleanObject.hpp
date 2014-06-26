@@ -121,9 +121,9 @@ protected:
 	virtual GObject* clone_() const OVERRIDE;
 
 	/** @brief Triggers random initialization of the parameter object */
-	virtual void randomInit_() OVERRIDE;
+	virtual void randomInit_(const activityMode&) OVERRIDE;
 	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
-	void randomInit_(const double&);
+	void randomInit_(const double&, const activityMode&);
 
 	/** @brief Returns a "comparative range" for this type */
 	virtual bool range() const OVERRIDE;

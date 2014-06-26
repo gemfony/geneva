@@ -391,7 +391,7 @@ protected:
 	 * that this function assumes that the collection has been completely
 	 * set up. Data that is added later will remain unaffected.
 	 */
-	virtual void randomInit_() OVERRIDE {
+	virtual void randomInit_(const activityMode& am) OVERRIDE {
 		fp_type lowerBoundary = GNumCollectionT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumCollectionT<fp_type>::getUpperInitBoundary();
 
@@ -478,7 +478,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
 			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
 
 			// Check that the object has indeed changed
 			BOOST_CHECK(*p_test1 != *p_test2);
@@ -512,7 +512,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
 			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
 
 			// Load the data into p_test2 and check that both objects are equal
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -605,8 +605,8 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Randomly initialize p_test1 and p_test2, so that both objects are different
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
-			BOOST_CHECK_NO_THROW(p_test2->randomInit_());
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_(ALLPARAMETERS));
 
 			// Check that they are indeed different
 			BOOST_CHECK(*p_test1 != *p_test2);
@@ -647,8 +647,8 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Randomly initialize p_test1 and p_test2, so that both objects are different
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
-			BOOST_CHECK_NO_THROW(p_test2->randomInit_());
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_(ALLPARAMETERS));
 
 			// Check that they are indeed different
 			BOOST_CHECK(*p_test1 != *p_test2);

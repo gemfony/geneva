@@ -571,49 +571,7 @@ public:
       }
    }
 
-   /***************************************************************************/
-   /**
-    * Triggers random initialization of all parameter objects. Essentially,
-    * this function replicates the functionality of GParameterBase::randomInit(activityMode).
-    * However, we distribute the calls to the objects in the container. This
-    * should really go into randomInit_(), however we need to pass the activity-mode
-    * to these objects, so the only option seems to be to overload randomInit().
-    */
-   virtual void randomInit(
-      const activityMode& am
-   ) OVERRIDE {
-      if(
-         !this->randomInitializationBlocked()
-         && this->modifiableAmMatchOrHandover(am) // will always be true for this object, as we are not a "leaf"
-      ) {
-         typename GParameterTCollectionT<T>::iterator it;
-         for(it=this->begin(); it!=this->end(); ++it) {
-            // Note that we do not call the randomInit_() function. First of all, we
-            // do not have access to it. Secondly it might be that re-initialization of
-            // a specific object is not desired.
-            (*it)->GParameterBase::randomInit(am);
-         }
-      }
-   }
-
-   /* ----------------------------------------------------------------------------------
-    * Tested in GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests()
-    * ----------------------------------------------------------------------------------
-    */
-
 protected:
-   /***************************************************************************/
-   /**
-    * This function is a trap
-    */
-   virtual void randomInit_() OVERRIDE {
-      glogger
-      << "In GParameterTCollectionT<>::ramdonInit_(): Error!" << std::endl
-      << "This function should never be called. Instead randomInit()" << std::endl
-      << "(without \"_\") should be called" << std::endl
-      << GEXCEPTION;
-   }
-
 	/***************************************************************************/
 	/**
 	 * Loads the data of another GParameterTCollectionT<T> object, camouflaged as a GObject
@@ -643,6 +601,20 @@ protected:
 	 * further optimizations.
 	 */
 	virtual void dummyFunction() OVERRIDE { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * This function distributes the random initialization to other objects
+    */
+   virtual void randomInit_(const activityMode& am) OVERRIDE {
+      typename GParameterTCollectionT<T>::iterator it;
+      for(it=this->begin(); it!=this->end(); ++it) {
+         // Note that we do not call the randomInit_() function. First of all, we
+         // do not have access to it. Secondly it might be that re-initialization of
+         // a specific object is not desired.
+         (*it)->GParameterBase::randomInit(am);
+      }
+   }
 
    /***************************************************************************/
    /**

@@ -279,7 +279,7 @@ protected:
 	/**
 	 * Triggers random initialization of the parameter collection
 	 */
-	virtual void randomInit_() OVERRIDE {
+	virtual void randomInit_(const activityMode&) OVERRIDE {
 		int_type lowerBoundary = GNumT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumT<int_type>::getUpperInitBoundary();
 
@@ -352,7 +352,7 @@ public:
 
 			// Check that the values of p_test1 are inside of the allowed boundaries
 			for(std::size_t i=0; i<nTests; i++) {
-				BOOST_CHECK_NO_THROW(p_test1->randomInit_());
+				BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
 				BOOST_CHECK(p_test1->value() >= LOWERINITBOUNDARY);
 				BOOST_CHECK(p_test1->value() <= UPPERINITBOUNDARY);
 				BOOST_CHECK(p_test1->value() != p_test2->value());

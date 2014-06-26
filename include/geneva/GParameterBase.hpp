@@ -560,7 +560,7 @@ protected:
 	virtual GObject* clone_() const = 0;
 
 	/** @brief Triggers random initialization of the parameter(-collection) */
-	virtual void randomInit_() = 0;
+	virtual void randomInit_(const activityMode&) BASE = 0;
 
 private:
 	bool adaptionsActive_; ///< Specifies whether adaptions of this object should be carried out

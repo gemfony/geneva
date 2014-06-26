@@ -369,7 +369,7 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 	/** @brief Triggers random initialization of the parameter(-collection) */
-	virtual void randomInit_() = 0;
+	virtual void randomInit_(const activityMode&) = 0;
 
 	/***************************************************************************/
 	/**
