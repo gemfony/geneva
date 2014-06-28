@@ -232,7 +232,7 @@ std::string GOptimizableEntity::name() const {
  * object will be cloned.
  */
 void GOptimizableEntity::registerConstraint(
-   boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > c_ptr
+   boost::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> > c_ptr
 ) {
    if(!c_ptr) {
       glogger
@@ -242,7 +242,7 @@ void GOptimizableEntity::registerConstraint(
    }
 
    // We store clones, so individual objects do not share the same object
-   individualConstraint_ = c_ptr->GObject::clone<GValidityCheckT<GOptimizableEntity> >();
+   individualConstraint_ = c_ptr->GObject::clone<GPreEvaluationValidityCheckT<GOptimizableEntity> >();
 }
 
 /******************************************************************************/

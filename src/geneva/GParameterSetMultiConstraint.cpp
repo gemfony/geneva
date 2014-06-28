@@ -53,7 +53,7 @@ GParameterSetConstraint::GParameterSetConstraint()
  * The copy constructor
  */
 GParameterSetConstraint::GParameterSetConstraint(const GParameterSetConstraint& cp)
-   : GValidityCheckT<GOptimizableEntity>(cp)
+   : GPreEvaluationValidityCheckT<GOptimizableEntity>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -69,7 +69,7 @@ GParameterSetConstraint::~GParameterSetConstraint()
  */
 const GParameterSetConstraint& GParameterSetConstraint::operator=(const GParameterSetConstraint& cp)
 {
-   GValidityCheckT<GOptimizableEntity>::load_(&cp);
+   GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(&cp);
    return *this;
 }
 
@@ -123,7 +123,7 @@ boost::optional<std::string> GParameterSetConstraint::checkRelationshipWith(
    std::vector<boost::optional<std::string> > deviations;
 
    // Check our parent class'es data ...
-   deviations.push_back(GValidityCheckT<GOptimizableEntity>::checkRelationshipWith(cp, e, limit, "GParameterSetConstraint", y_name, withMessages));
+   deviations.push_back(GPreEvaluationValidityCheckT<GOptimizableEntity>::checkRelationshipWith(cp, e, limit, "GParameterSetConstraint", y_name, withMessages));
 
    // no local data
 
@@ -139,7 +139,7 @@ void GParameterSetConstraint::addConfigurationOptions(
    , const bool& showOrigin
 ) {
    // Call our parent class'es function
-   GValidityCheckT<GOptimizableEntity>::addConfigurationOptions(gpb, showOrigin);
+   GPreEvaluationValidityCheckT<GOptimizableEntity>::addConfigurationOptions(gpb, showOrigin);
 }
 
 /******************************************************************************/
@@ -163,7 +163,7 @@ void GParameterSetConstraint::load_(const GObject* cp) {
    const GParameterSetConstraint *p_load = GObject::gobject_conversion<GParameterSetConstraint>(cp);
 
    // Load our parent class'es data ...
-   GValidityCheckT<GOptimizableEntity>::load_(cp);
+   GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(cp);
 
    // no local data
 }
@@ -207,7 +207,7 @@ GParameterSetFormulaConstraint::~GParameterSetFormulaConstraint()
  */
 const GParameterSetFormulaConstraint& GParameterSetFormulaConstraint::operator=(const GParameterSetFormulaConstraint& cp)
 {
-   GValidityCheckT<GOptimizableEntity>::load_(&cp);
+   GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(&cp);
    return *this;
 }
 
@@ -321,7 +321,7 @@ void GParameterSetFormulaConstraint::load_(const GObject* cp) {
    const GParameterSetFormulaConstraint *p_load = GObject::gobject_conversion<GParameterSetFormulaConstraint>(cp);
 
    // Load our parent class'es data ...
-   GValidityCheckT<GOptimizableEntity>::load_(cp);
+   GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(cp);
 
    // ... and then our local data
    rawFormula_ = p_load->rawFormula_;

@@ -64,7 +64,7 @@ namespace Geneva {
  * class is to "translate" GOptimizableEntity-based constraints into constraints
  * based on GParameterSets
  */
-class GParameterSetConstraint: public GValidityCheckT<GOptimizableEntity>
+class GParameterSetConstraint: public GPreEvaluationValidityCheckT<GOptimizableEntity>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -73,7 +73,7 @@ class GParameterSetConstraint: public GValidityCheckT<GOptimizableEntity>
    void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GValidityCheckT<GOptimizableEntity>);
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<GOptimizableEntity>);
    }
    ///////////////////////////////////////////////////////////////////////
 public:

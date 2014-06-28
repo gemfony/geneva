@@ -346,7 +346,7 @@ public:
    /** @brief Checks whether all constraints were fulfilled */
    bool constraintsFulfilled() const;
    /** @brief Allows to register a constraint with this individual */
-   void registerConstraint(boost::shared_ptr<GValidityCheckT<GOptimizableEntity> >);
+   void registerConstraint(boost::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> >);
 
    /** @brief Allows to set the policy to use in case this individual represents an invalid solution */
    void setEvaluationPolicy(evaluationPolicy evalPolicy);
@@ -501,7 +501,7 @@ private:
    double barrier_;
 
    /** @brief A constraint-check to be applied to one or more components of this individual */
-   boost::shared_ptr<GValidityCheckT<GOptimizableEntity> > individualConstraint_;
+   boost::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> > individualConstraint_;
 
    std::size_t maxUnsuccessfulAdaptions_; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
    std::size_t nAdaptions_; ///< Stores the actual number of adaptions after a call to "adapt()"

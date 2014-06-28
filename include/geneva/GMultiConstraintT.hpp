@@ -63,10 +63,11 @@ class GOptimizableEntity;
 /**
  * This is the base class of a hierarchy of classes dealing with inter-parameter
  * constraints. Objects representing the template parameter are evaluated for their
- * validity.
+ * validity. Note that the classes in this hierarchy are meant to be used PRIOR
+ * to the evaluation.
  */
 template <typename ind_type>
-class GValidityCheckT : public GObject
+class GPreEvaluationValidityCheckT : public GObject
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -88,7 +89,7 @@ public:
    /**
     * The default constructor
     */
-   GValidityCheckT()
+   GPreEvaluationValidityCheckT()
       : allowNegative_(false)
    { /* nothing */ }
 
@@ -96,7 +97,7 @@ public:
    /**
     * The copy constructor
     */
-   GValidityCheckT(const GValidityCheckT<ind_type>& cp)
+   GPreEvaluationValidityCheckT(const GPreEvaluationValidityCheckT<ind_type>& cp)
       : GObject(cp)
       , allowNegative_(cp.allowNegative_)
    { /* nothing */ }
@@ -105,15 +106,15 @@ public:
    /**
     * The destructor
     */
-   virtual ~GValidityCheckT()
+   virtual ~GPreEvaluationValidityCheckT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * A standard assignment operator
     */
-   const GValidityCheckT<ind_type>& operator=(const GValidityCheckT<ind_type>& cp)  {
-      GValidityCheckT<ind_type>::load_(&cp);
+   const GPreEvaluationValidityCheckT<ind_type>& operator=(const GPreEvaluationValidityCheckT<ind_type>& cp)  {
+      GPreEvaluationValidityCheckT<ind_type>::load_(&cp);
       return *this;
    }
 
@@ -121,20 +122,20 @@ public:
    /**
     * Checks for equality with another GIndividualConstraint object
     */
-   bool operator==(const GValidityCheckT<ind_type>& cp) const {
+   bool operator==(const GPreEvaluationValidityCheckT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GValidityCheckT<ind_type>::operator==","cp", CE_SILENT);
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GPreEvaluationValidityCheckT<ind_type>::operator==","cp", CE_SILENT);
    }
 
    /***************************************************************************/
    /**
     * Checks for inequality with another GIndividualConstraint object
     */
-   bool operator!=(const GValidityCheckT<ind_type>& cp) const {
+   bool operator!=(const GPreEvaluationValidityCheckT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GValidityCheckT<ind_type>::operator!=","cp", CE_SILENT);
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GPreEvaluationValidityCheckT<ind_type>::operator!=","cp", CE_SILENT);
    }
 
    /***************************************************************************/
@@ -161,18 +162,18 @@ public:
 
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
-      const GValidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckT<ind_type> >(&cp);
+      const GPreEvaluationValidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GPreEvaluationValidityCheckT<ind_type> >(&cp);
 
       // Will hold possible deviations from the expectation, including explanations
       std::vector<boost::optional<std::string> > deviations;
 
       // Check our parent class'es data ...
-      deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GValidityCheckT<ind_type>", y_name, withMessages));
+      deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GPreEvaluationValidityCheckT<ind_type>", y_name, withMessages));
 
       // ... and then our local data
-      deviations.push_back(checkExpectation(withMessages, "GValidityCheckT<ind_type>", allowNegative_, p_load->allowNegative_, "allowNegative_", "p_load->allowNegative_", e , limit));
+      deviations.push_back(checkExpectation(withMessages, "GPreEvaluationValidityCheckT<ind_type>", allowNegative_, p_load->allowNegative_, "allowNegative_", "p_load->allowNegative_", e , limit));
 
-      return evaluateDiscrepancies("GValidityCheckT<ind_type>", caller, deviations, e);
+      return evaluateDiscrepancies("GPreEvaluationValidityCheckT<ind_type>", caller, deviations, e);
    }
 
    /***************************************************************************/
@@ -226,7 +227,7 @@ public:
       }
 
       glogger
-      << "In GValidityCheckT<ind_type>::check(): Error!" << std::endl
+      << "In GPreEvaluationValidityCheckT<ind_type>::check(): Error!" << std::endl
       << "Error: This location should never be reached" << std::endl
       << GEXCEPTION;
 
@@ -298,12 +299,12 @@ protected:
 
    /***************************************************************************/
    /**
-    * Loads the data of another GValidityCheckT<ind_type>
+    * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
     */
    virtual void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
-      const GValidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckT<ind_type> >(cp);
+      const GPreEvaluationValidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GPreEvaluationValidityCheckT<ind_type> >(cp);
 
       // Load our parent class'es data ...
       GObject::load_(cp);
@@ -326,10 +327,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * An collection of validity checks with the GValidityCheckT interface
+ * An collection of validity checks with the GPreEvaluationValidityCheckT interface
  */
 template <typename ind_type>
-class GValidityCheckContainerT : public GValidityCheckT<ind_type>
+class GValidityCheckContainerT : public GPreEvaluationValidityCheckT<ind_type>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -338,7 +339,7 @@ class GValidityCheckContainerT : public GValidityCheckT<ind_type>
    void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GValidityCheckT<ind_type>);
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<ind_type>);
    }
    ///////////////////////////////////////////////////////////////////////
 
@@ -354,7 +355,7 @@ public:
    /**
     * Initialization from a vector of validity checks
     */
-   GValidityCheckContainerT(const std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >& validityChecks)
+   GValidityCheckContainerT(const std::vector<boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >& validityChecks)
    {
       copyGenevaSmartPointerVector(validityChecks, validityChecks_);
    }
@@ -364,7 +365,7 @@ public:
     * The copy constructor
     */
    GValidityCheckContainerT(const GValidityCheckContainerT<ind_type>& cp)
-      : GValidityCheckT<ind_type>(cp)
+      : GPreEvaluationValidityCheckT<ind_type>(cp)
    {
       copyGenevaSmartPointerVector(cp.validityChecks_, validityChecks_);
    }
@@ -435,7 +436,7 @@ public:
       std::vector<boost::optional<std::string> > deviations;
 
       // Check our parent class'es data ...
-      deviations.push_back(GValidityCheckT<ind_type>::checkRelationshipWith(cp, e, limit, "GValidityCheckContainerT<ind_type>", y_name, withMessages));
+      deviations.push_back(GPreEvaluationValidityCheckT<ind_type>::checkRelationshipWith(cp, e, limit, "GValidityCheckContainerT<ind_type>", y_name, withMessages));
 
       // ... and then our local data
       deviations.push_back(checkExpectation(withMessages, "GValidityCheckContainerT<ind_type>", validityChecks_, p_load->validityChecks_, "validityChecks_", "p_load->validityChecks_", e , limit));
@@ -448,7 +449,7 @@ public:
     * Adds a validity check to this object. Note that we clone the check so
     * that it can be used multiple times.
     */
-   void addCheck(boost::shared_ptr<GValidityCheckT<ind_type> > vc_ptr) {
+   void addCheck(boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > vc_ptr) {
       if(!vc_ptr) {
          glogger
          << "In GValidityCheckContainerT<>::addCheck(): Error!" << std::endl
@@ -456,7 +457,7 @@ public:
          << GEXCEPTION;
       }
 
-      validityChecks_.push_back(vc_ptr->GObject::template clone<GValidityCheckT<ind_type> >());
+      validityChecks_.push_back(vc_ptr->GObject::template clone<GPreEvaluationValidityCheckT<ind_type> >());
    }
 
 protected:
@@ -470,7 +471,7 @@ protected:
 
    /***************************************************************************/
    /**
-    * Loads the data of another GValidityCheckT<ind_type>
+    * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
     */
    virtual void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
@@ -478,7 +479,7 @@ protected:
       const GValidityCheckContainerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckContainerT<ind_type> >(cp);
 
       // Load our parent class'es data ...
-      GValidityCheckT<ind_type>::load_(cp);
+      GPreEvaluationValidityCheckT<ind_type>::load_(cp);
 
       // and then our local data
       copyGenevaSmartPointerVector(p_load->validityChecks_, validityChecks_);
@@ -486,7 +487,7 @@ protected:
 
    /***************************************************************************/
    /** @brief Holds all registered validity checks */
-   std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > > validityChecks_;
+   std::vector<boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > > validityChecks_;
 };
 
 /******************************************************************************/
@@ -507,7 +508,7 @@ class GCheckCombinerT
    void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GValidityCheckT<ind_type>)
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<ind_type>)
      & BOOST_SERIALIZATION_NVP(combinerPolicy_);
    }
    ///////////////////////////////////////////////////////////////////////
@@ -526,7 +527,7 @@ public:
     * Initialization from a vector of validity checks
     */
    GCheckCombinerT(
-      const std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >& validityChecks
+      const std::vector<boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >& validityChecks
    )
       : GValidityCheckContainerT<ind_type>(validityChecks)
       , combinerPolicy_(Gem::Geneva::MULTIPLYINVALID)
@@ -642,7 +643,7 @@ protected:
       // First identify invalid checks
       std::vector<double> invalidChecks;
       double validityLevel;
-      typename std::vector<boost::shared_ptr<GValidityCheckT<ind_type> > >::const_iterator cit;
+      typename std::vector<boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >::const_iterator cit;
       for(cit=GValidityCheckContainerT<ind_type>::validityChecks_.begin(); cit!=GValidityCheckContainerT<ind_type>::validityChecks_.end(); ++cit) {
          if(!(*cit)->isValid(cp, validityLevel)) {
             invalidChecks.push_back(validityLevel);
@@ -730,7 +731,7 @@ protected:
 
    /***************************************************************************/
    /**
-    * Loads the data of another GValidityCheckT<ind_type>
+    * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
     */
    virtual void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
@@ -738,7 +739,7 @@ protected:
       const GCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GCheckCombinerT<ind_type> >(cp);
 
       // Load our parent class'es data ...
-      GValidityCheckT<ind_type>::load_(cp);
+      GPreEvaluationValidityCheckT<ind_type>::load_(cp);
 
       // and then our local data
       combinerPolicy_ = p_load->combinerPolicy_;
@@ -763,9 +764,9 @@ private:
 namespace boost {
    namespace serialization {
       template<typename ind_type>
-      struct is_abstract< Gem::Geneva::GValidityCheckT<ind_type> > : public boost::true_type {};
+      struct is_abstract< Gem::Geneva::GPreEvaluationValidityCheckT<ind_type> > : public boost::true_type {};
       template<typename ind_type>
-      struct is_abstract< const Gem::Geneva::GValidityCheckT<ind_type> > : public boost::true_type {};
+      struct is_abstract< const Gem::Geneva::GPreEvaluationValidityCheckT<ind_type> > : public boost::true_type {};
    }
 }
 
