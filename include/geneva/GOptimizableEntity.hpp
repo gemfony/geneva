@@ -421,6 +421,9 @@ protected:
 	/** @brief Allows to check whether this solution was marked as invalid */
 	bool markedAsInvalidByUser() const;
 
+   /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
+   bool parameterSetFulfillsConstraints(double&) const;
+
 	/***************************************************************************/
 	/**
 	 * Checks if a given position of a boost::tuple is better then another,
@@ -461,8 +464,6 @@ protected:
 
 private:
    /***************************************************************************/
-   /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
-   bool parameterSetFulfillsConstraints_(double&) const;
    /** @brief Checks whether all results are at the worst possible value */
    bool allRawResultsAtWorst() const;
 

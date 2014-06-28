@@ -554,7 +554,7 @@ void GOptimizableEntity::enforceFitnessUpdate() {
 
    // Find out, whether this is a valid solution
    if(
-      this->parameterSetFulfillsConstraints_(validityLevel_) // Needs to be called first, or else the validityLevel_ will not be filled
+      this->parameterSetFulfillsConstraints(validityLevel_) // Needs to be called first, or else the validityLevel_ will not be filled
       || USESIMPLEEVALUATION==evalPolicy_
    ) {
       // Marking individuals as invalid happens inside of the user-supplied fitness
@@ -1042,9 +1042,10 @@ bool GOptimizableEntity::isValid() const {
 
 /******************************************************************************/
 /**
- * Checks whether this solution is valid
+ * Checks whether this solution fulfills the set of constraints. Note that this
+ * function may be called prior to evaluation in order to check
  */
-bool GOptimizableEntity::parameterSetFulfillsConstraints_(double& validityLevel) const {
+bool GOptimizableEntity::parameterSetFulfillsConstraints(double& validityLevel) const {
    if(individualConstraint_) {
       return individualConstraint_->isValid(this, validityLevel);
    } else { // Always valid, if no constraint object has been registered

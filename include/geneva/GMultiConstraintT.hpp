@@ -244,6 +244,7 @@ public:
     * @return A boolean indicating whether a constraint is valid
     */
    bool isValid(const ind_type *cp, double &validityLevel) const {
+      // Set the external validity level
       validityLevel = this->check(cp);
 
       if(boost::numeric::bounds<double>::highest() == validityLevel || boost::numeric::bounds<double>::lowest() == validityLevel) {
