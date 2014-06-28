@@ -62,7 +62,8 @@ GOptimizableEntity::GOptimizableEntity()
    , evalPolicy_(Gem::Geneva::USESIMPLEEVALUATION)
    , steepness_(Gem::Geneva::FITNESSSIGMOIDSTEEPNESS)
    , barrier_(Gem::Geneva::WORSTALLOWEDVALIDFITNESS)
-   , maxUnsuccessfulAdaptions_(DEFMAXUNSUCCESSFULADAPTIONS)
+   , maxUnsuccessfulAdaptions_(Gem::Geneva::DEFMAXUNSUCCESSFULADAPTIONS)
+   , maxRetriesUntilValid_(Gem::Geneva::DEFMAXRETRIESUNTILVALID)
    , nAdaptions_(0)
    , evaluationID_("empty")
 { /* nothing */ }
@@ -92,7 +93,8 @@ GOptimizableEntity::GOptimizableEntity(const std::size_t& nFitnessCriteria)
    , evalPolicy_(Gem::Geneva::USESIMPLEEVALUATION)
    , steepness_(Gem::Geneva::FITNESSSIGMOIDSTEEPNESS)
    , barrier_(Gem::Geneva::WORSTALLOWEDVALIDFITNESS)
-   , maxUnsuccessfulAdaptions_(DEFMAXUNSUCCESSFULADAPTIONS)
+   , maxUnsuccessfulAdaptions_(Gem::Geneva::DEFMAXUNSUCCESSFULADAPTIONS)
+   , maxRetriesUntilValid_(Gem::Geneva::DEFMAXRETRIESUNTILVALID)
    , nAdaptions_(0)
    , evaluationID_("empty")
 { /* nothing */ }
@@ -121,6 +123,7 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
    , steepness_(cp.steepness_)
    , barrier_(cp.barrier_)
    , maxUnsuccessfulAdaptions_(cp.maxUnsuccessfulAdaptions_)
+   , maxRetriesUntilValid_(cp.maxRetriesUntilValid_)
    , nAdaptions_(cp.nAdaptions_)
    , evaluationID_(cp.evaluationID_)
 {
@@ -212,6 +215,7 @@ boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", steepness_, p_load->steepness_, "steepness_", "p_load->steepness_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", barrier_, p_load->barrier_, "barrier_", "p_load->barrier_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", maxUnsuccessfulAdaptions_, p_load->maxUnsuccessfulAdaptions_, "maxUnsuccessfulAdaptions_", "p_load->maxUnsuccessfulAdaptions_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", maxRetriesUntilValid_, p_load->maxRetriesUntilValid_, "maxRetriesUntilValid_", "p_load->maxRetriesUntilValid_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nAdaptions_, p_load->nAdaptions_, "nAdaptions_", "p_load->nAdaptions_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", evaluationID_, p_load->evaluationID_, "evaluationID_", "p_load->evaluationID_", e , limit));
 
@@ -288,6 +292,7 @@ void GOptimizableEntity::load_(const GObject* cp) {
 	steepness_ = p_load->steepness_;
 	barrier_ = p_load->barrier_;
 	maxUnsuccessfulAdaptions_ = p_load->maxUnsuccessfulAdaptions_;
+	maxRetriesUntilValid_ = p_load->maxRetriesUntilValid_;
 	nAdaptions_ = p_load->nAdaptions_;
 	evaluationID_ = p_load->evaluationID_;
 
@@ -297,31 +302,53 @@ void GOptimizableEntity::load_(const GObject* cp) {
 
 /******************************************************************************/
 /**
- * The adaption interface. Triggers adaption of the individual, using each parameter object's adaptor.
- * Sets the dirty flag, as the parameters have been changed.
+ * The adaption interface. Triggers adaption of the individual, using each parameter object's
+ * adaptor. Sets the dirty flag, as the parameters have been changed. This facility is mostly
+ * used in Evolutionary Algorithms and Simulated Annealing. Other algorithms, such as
+ * PSO and Gradient Descents, may choose to change parameters directly. Adaptions will be performed
+ * until actual changes were done to the object AND a valid parameter set was found.
  */
 std::size_t GOptimizableEntity::adapt() {
    std::size_t nAdaptionAttempts = 0;
    std::size_t nAdaptions = 0; // This is a measure of the "effective" adaption probability
+   std::size_t nInvalidAdaptions = 0;
+   double validity = 0;
 
-   while(true) { // Try again if no adaption has taken place
-      // Perform the actual adaption
-      nAdaptions = this->customAdaptions();
+   // Perform adaptions until a valid solution was find. In the context
+   // of evolutionary algorithms, this process is indeed equivalent to
+   // a larger population, if invalid solutions were produced. The downside
+   // may be, that the algorithm moves closer to MUPLUSNU. Thus, if you find
+   // yourself stuck in local optima too often, consider setting maxRetriesUntilValid_
+   // to 0, using the appropriate function.
+   while(true) {
+      // Make sure at least one modification is performed. E.g., for low
+      // adaption probabilities combined with few parameters, it may happen
+      // otherwise that individuals remain unchanged after a call to adapt()
+      while(true) { // Try again if no adaption has taken place
+         // Perform the actual adaption
+         nAdaptions = this->customAdaptions();
 
-      // Terminate, if at least one adaption was performed
-      if(nAdaptions > 0) {
-         break;
+         // Terminate, if at least one adaption was performed
+         if(nAdaptions > 0) {
+            break;
+         }
+
+         // Terminate, if the maximum number of adaptions has been exceeded
+         if(maxUnsuccessfulAdaptions_ > 0 && ++nAdaptionAttempts > maxUnsuccessfulAdaptions_) {
+            break;
+         }
       }
 
-      // Terminate, if the maximum number of adaptions has been exceeded
-      if(maxUnsuccessfulAdaptions_ > 0 && ++nAdaptionAttempts > maxUnsuccessfulAdaptions_) {
+      if(
+         this->parameterSetFulfillsConstraints(validity)
+         || ++nInvalidAdaptions > maxRetriesUntilValid_
+      ) {
          break;
       }
    }
 
-   // TODO: Currently some parts of the code depend on the fact
-   // that individuals carry the "dirty flag" when they have been adapted.
-	GOptimizableEntity::setDirtyFlag(); // Make sure the individual is re-evaluated when fitness(...) is called next time
+   // Make sure the individual is re-evaluated when fitness(...) is called next time
+	GOptimizableEntity::setDirtyFlag();
 
 	// Store the number of adaptions for later use
    nAdaptions_ = nAdaptions;
@@ -952,6 +979,26 @@ std::size_t GOptimizableEntity::getMaxUnsuccessfulAdaptions() const {
 
 /******************************************************************************/
 /**
+ * Allows to set the maximum number of retries during the adaption of individuals
+ * until a valid individual was found. Setting this value to 0 will disable retries.
+ */
+void GOptimizableEntity::setMaxRetriesUntilValid(
+   std::size_t maxRetriesUntilValid
+) {
+   maxRetriesUntilValid_ = maxRetriesUntilValid;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the current maximum number of retries during the adaption of
+ * individuals until a valid individual was found.
+ */
+std::size_t GOptimizableEntity::getMaxRetriesUntilValid() const {
+   return maxRetriesUntilValid_;
+}
+
+/******************************************************************************/
+/**
  * Retrieves the number of adaptions performed during the last call to adapt()
  * (or 0, if no adaptions were performed so far).
  */
@@ -1493,6 +1540,26 @@ void GOptimizableEntity::addConfigurationOptions (
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
+
+   comment = ""; // Reset the comment string
+   comment += "The maximum allowed number of retries during the;";
+   comment += "adaption of individuals until a valid solution was found;";
+   comment += "A parameter set is considered to be \"valid\" if;";
+   comment += "it passes all validity checks;";
+   if(showOrigin) comment += "[GOptimizableEntity]";
+   gpb.registerFileParameter<std::size_t>(
+      "maxRetriesUntilValid" // The name of the variable
+      , DEFMAXRETRIESUNTILVALID // The default value
+      , boost::bind(
+         &GOptimizableEntity::setMaxRetriesUntilValid
+         , this
+         , _1
+        )
+      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+      , comment
+   );
+
+
 
 	// maximize_ will be set in GParameterSet, as it has a different
 	// meaning for optimization algorithms that also derive indirectly

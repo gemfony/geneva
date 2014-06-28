@@ -62,6 +62,13 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+/**
+ * The maximum number an adaption of an individual should be performed until a
+ * valid parameter set was found
+ */
+const std::size_t DEFMAXRETRIESUNTILVALID=10;
+
+/******************************************************************************/
 // Indicates whether only active, inactive or all parameters should be extracted
 enum activityMode {
    ACTIVEONLY = 0 // Extract only active parameters

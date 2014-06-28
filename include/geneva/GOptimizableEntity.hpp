@@ -117,6 +117,7 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(worstKnownValids_)
 	  & BOOST_SERIALIZATION_NVP(markedAsInvalidByUser_)
 	  & BOOST_SERIALIZATION_NVP(maxUnsuccessfulAdaptions_)
+	  & BOOST_SERIALIZATION_NVP(maxRetriesUntilValid_)
 	  & BOOST_SERIALIZATION_NVP(nAdaptions_)
 	  & BOOST_SERIALIZATION_NVP(evaluationID_);
 	}
@@ -224,6 +225,11 @@ public:
 	void setMaxUnsuccessfulAdaptions(std::size_t);
 	/** @brief Retrieves the maximum number of calls to customAdaptions that may pass without actual modifications */
 	std::size_t getMaxUnsuccessfulAdaptions() const;
+
+   /** @brief Set maximum number of retries until a valid individual was found  */
+   void setMaxRetriesUntilValid(std::size_t maxRetriesUntilValid);
+   /** Retrieves the maximum number of retries until a valid individual was found. */
+   std::size_t getMaxRetriesUntilValid() const;
 
 	/** @brief Retrieves the number of adaptions performed during the last call to adapt() */
 	std::size_t getNAdaptions() const;
@@ -504,6 +510,7 @@ private:
    boost::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> > individualConstraint_;
 
    std::size_t maxUnsuccessfulAdaptions_; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
+   std::size_t maxRetriesUntilValid_; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found
    std::size_t nAdaptions_; ///< Stores the actual number of adaptions after a call to "adapt()"
 
    /** @brief A unique id that is assigned to an evaluation */

@@ -41,6 +41,11 @@ The main other changes for this release include:
   to your formulas more easily.
 - MUCOMMANU-modes (single-eval and pareto) will now be the same as MUPLUSNU in the first
   iteration. All individuals will be evaluated in MUCOMMANU-mode in the first iteration.
+- The adapt() call of individuals (used particularly in evolutionary algorithms) will now
+  optionally take into account the validity of a given parameter set. I.e., if the 
+  parameter set does not satisfy the predefined constraints, adapt() will try a configurable
+  number of times to find a parameter set that does satisfy the constraints. Alternatively,
+  users may rely on the replacement-fitness calculated by Geneva for invalid solutions.
 
 The main bug fixes for this release include:
 - Work items could be added more than once to the priority queue defining the best solutions found
