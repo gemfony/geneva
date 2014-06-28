@@ -44,18 +44,11 @@ using namespace boost::unit_test;
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
-#include "geneva/GFloatBiGaussAdaptor.hpp"
-#include "geneva/GFloatCollection.hpp"
-#include "geneva/GFloatObject.hpp"
-#include "geneva/GFloatObjectCollection.hpp"
 #include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GBooleanObjectCollection.hpp"
 #include "geneva/GInt32ObjectCollection.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
-#include "geneva/GConstrainedFloatCollection.hpp"
-#include "geneva/GConstrainedFloatObject.hpp"
-#include "geneva/GConstrainedFloatObjectCollection.hpp"
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
 #include "geneva/GConstrainedInt32ObjectCollection.hpp"
 #include "geneva/GBooleanObject.hpp"
@@ -104,8 +97,6 @@ public:
 			GInt32FlipAdaptor
 			, GBooleanAdaptor
 			, GInt32GaussAdaptor
-			// , GFloatBiGaussAdaptor
-			// , GFloatGaussAdaptor
 			, GDoubleBiGaussAdaptor
 			, GDoubleGaussAdaptor
 		>
@@ -114,10 +105,8 @@ public:
 		typedef boost::mpl::list<
 			GBooleanObject
 			, GInt32Object
-			// , GFloatObject
 			, GDoubleObject
 			, GConstrainedInt32Object
-			//, GConstrainedFloatObject
 			, GConstrainedDoubleObject
 		>
 		data_types;
@@ -127,19 +116,15 @@ public:
 			, GBooleanObjectCollection
 			, GInt32ObjectCollection
 			, GConstrainedInt32ObjectCollection
-			// , GFloatObjectCollection
 			, GDoubleObjectCollection
-			//, GConstrainedFloatObjectCollection
 			, GConstrainedDoubleObjectCollection
 		>
 		object_collection_types;
 
 		typedef boost::mpl::list<
 			GInt32Collection
-			//, GFloatCollection
 			, GDoubleCollection
 			, GBooleanCollection
-			//, GConstrainedFloatCollection
 			, GConstrainedDoubleCollection
 			, GParameterSet
 		>

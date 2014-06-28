@@ -19,9 +19,6 @@ SET ( OPTIMIZATIONSOURCES
 	GConstrainedDoubleCollection
 	GConstrainedDoubleObject
 	GConstrainedDoubleObjectCollection
-	GConstrainedFloatCollection
-	GConstrainedFloatObject
-	GConstrainedFloatObjectCollection
 	GConstrainedInt32Object
 	GConstrainedInt32ObjectCollection
 	GConstrainedNumCollectionT
@@ -34,11 +31,6 @@ SET ( OPTIMIZATIONSOURCES
 	GEAPersonalityTraits
 	GenevaHelperFunctionsT
 	GEvolutionaryAlgorithmFactory
-	GFloatBiGaussAdaptor
-	GFloatCollection
-	GFloatGaussAdaptor
-	GFloatObject
-	GFloatObjectCollection
 	GGDPersonalityTraits
 	GGradientDescentFactory
 	GIndividualMultiConstraint

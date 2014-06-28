@@ -1,4 +1,0 @@
-This test adapts a float a given number of times and records the values of
-different entities of a GFloatGaussAdaptor as a function of the iteration.
-The output can be processed with the help of the ROOT analysis toolkit (see
-http://root.cern.ch .

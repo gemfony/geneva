@@ -28,6 +28,10 @@
    will upgrade to the newest version anyway, support for MacOS is now constrained 
    to the latest version with all updates (10.9 Mavericks, at the time of writing). 
    Note that support for this OS is still experimental.
+ - Removed single precision floating point times, as these were practically never
+   used and are realistically unneded in the presence of double precision types. 
+   This might later be replaced by a compile-time "define" of the base floating point
+   type.
 
 ********************************************************************************
 

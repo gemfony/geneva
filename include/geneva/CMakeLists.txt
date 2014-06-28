@@ -21,9 +21,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GConstrainedDoubleCollection.hpp
 	GConstrainedDoubleObject.hpp
 	GConstrainedDoubleObjectCollection.hpp
-	GConstrainedFloatCollection.hpp
-	GConstrainedFloatObject.hpp
-	GConstrainedFloatObjectCollection.hpp
 	GConstrainedFPT.hpp
 	GConstrainedFPNumCollectionT.hpp
 	GConstrainedInt32Object.hpp
@@ -41,11 +38,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GEAPersonalityTraits.hpp
 	GenevaHelperFunctionsT.hpp
 	GEvolutionaryAlgorithmFactory.hpp
-	GFloatBiGaussAdaptor.hpp
-	GFloatCollection.hpp
-	GFloatGaussAdaptor.hpp
-	GFloatObject.hpp
-	GFloatObjectCollection.hpp
 	GFPBiGaussAdaptorT.hpp
 	GFPGaussAdaptorT.hpp
 	GFPNumCollectionT.hpp
