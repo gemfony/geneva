@@ -19,7 +19,6 @@ ADD_DEPENDENCIES ( "geneva-tests-manual"
 ADD_SUBDIRECTORY ( GBooleanProbabilityTest )
 ADD_SUBDIRECTORY ( GConstrainedFPTTest )
 ADD_SUBDIRECTORY ( GConstrainedIntegerTTest )
-# ADD_SUBDIRECTORY ( GDataHierarchies )
 ADD_SUBDIRECTORY ( GDoubleBiGaussAdaptorTest )
 ADD_SUBDIRECTORY ( GDoubleGaussAdaptorTest )
 ADD_SUBDIRECTORY ( GParameterPropertyParserTest )
