@@ -414,8 +414,6 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 		//********************************
 	}
 
-	// --------------------------------------------------------------------------
-
 	// Reset to the original state
 	this->resetAdaptor();
 
@@ -423,6 +421,20 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+   // --------------------------------------------------------------------------
+
+	{ // Check that construction with initialization boundaries leads to random content
+
+	   boost::int32_t previous = -1;
+	   for(std::size_t i=0; i<10; i++) {
+	      GInt32Object p(0, 10000000);
+	      BOOST_CHECK(p.value() != previous);
+	      previous = p.value();
+	   }
+	}
+
+   // --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GInt32Object::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");

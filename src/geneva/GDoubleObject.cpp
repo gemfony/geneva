@@ -478,21 +478,28 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->getAdaptor<GDoubleGaussAdaptor>());
 	}
 
-	// --------------------------------------------------------------------------
+   // Remove the test adaptor
+   this->resetAdaptor();
 
-	{ // Test setting and retrieval of initialization boundaries
+   // Load the old adaptor, if needed
+   if(adaptorStored) {
+      this->addAdaptor(storedAdaptor);
+   }
 
-	}
 
    // --------------------------------------------------------------------------
 
-	// Remove the test adaptor
-	this->resetAdaptor();
+   { // Check that construction with initialization boundaries leads to random content
 
-	// Load the old adaptor, if needed
-	if(adaptorStored) {
-		this->addAdaptor(storedAdaptor);
-	}
+      double previous = -1.;
+      for(std::size_t i=0; i<10; i++) {
+         GDoubleObject p(0., 10000000.);
+         BOOST_CHECK(p.value() != previous);
+         previous = p.value();
+      }
+   }
+
+   // --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GDoubleObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");

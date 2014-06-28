@@ -110,7 +110,6 @@ public:
 	)
 		: GNumT<fp_type> (min, max)
 	{
-	   // TODO: This is an overloaded function. Is it available here ?
 		GNumFPT<fp_type>::randomInit(ACTIVEONLY);
 	}
 
