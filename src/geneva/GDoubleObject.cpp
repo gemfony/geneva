@@ -311,6 +311,82 @@ void GDoubleObject::assignDoubleValueVectors(
 
 /******************************************************************************/
 /**
+ * Multiplication with a random value in a given range
+ */
+void GDoubleObject::doubleMultiplyByRandom(
+   const double& min
+   , const double& max
+   , const activityMode& am
+) {
+   GParameterT<double>::setValue(
+      GParameterT<double>::value() * this->GParameterBase::gr->uniform_real<double>(min, max)
+   );
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+void GDoubleObject::doubleMultiplyByRandom(
+   const activityMode& am
+) {
+   GParameterT<double>::setValue(
+      GParameterT<double>::value() * this->GParameterBase::gr->uniform_01<double>()
+   );
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+void GDoubleObject::doubleMultiplyBy(
+   const double& val
+   , const activityMode& am
+) {
+   GParameterT<double>::setValue(val * GParameterT<double>::value());
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+void GDoubleObject::doubleFixedValueInit(
+   const double& val
+   , const activityMode& am
+) {
+   GParameterT<double>::setValue(val);
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GDoubleObject::doubleAdd(
+   boost::shared_ptr<GParameterBase> p_base
+   , const activityMode& am
+) {
+   // We first need to convert p_base into the local type
+   boost::shared_ptr<GDoubleObject> p
+      = GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
+   GParameterT<double>::setValue(this->value() + p->value());
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GDoubleObject::doubleSubtract(
+   boost::shared_ptr<GParameterBase> p_base
+   , const activityMode& am
+) {
+   // We first need to convert p_base into the local type
+   boost::shared_ptr<GDoubleObject> p
+      = GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
+   GParameterT<double>::setValue(this->value() - p->value());
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GDoubleObject object, camouflaged as a GObject

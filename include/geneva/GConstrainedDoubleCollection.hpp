@@ -109,12 +109,12 @@ public:
 
 	/** @brief Checks whether a given expectation is fulfilled */
 	boost::optional<std::string> checkRelationshipWith(
-			const GObject&
-			, const Gem::Common::expectation&
-			, const double&
-			, const std::string&
-			, const std::string&
-			, const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
@@ -139,6 +139,19 @@ protected:
    virtual void doubleStreamline(std::map<std::string, std::vector<double> >&, const activityMode& am) const OVERRIDE;
    /** @brief Assigns part of a value map to the parameter */
    virtual void assignDoubleValueVectors(const std::map<std::string, std::vector<double> >&, const activityMode& am) OVERRIDE;
+
+   /** @brief Multiplication with a random value in a given range */
+   virtual void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am) OVERRIDE;
+   /** @brief Multiplication with a random value in the range [0,1[ */
+   virtual void doubleMultiplyByRandom(const activityMode& am) OVERRIDE;
+   /** @brief Multiplication with a constant value */
+   virtual void doubleMultiplyBy(const double& value, const activityMode& am) OVERRIDE;
+   /** @brief Initialization with a constant value */
+   virtual void doubleFixedValueInit(const double& value, const activityMode& am) OVERRIDE;
+   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+   virtual void doubleAdd(boost::shared_ptr<GParameterBase>, const activityMode& am) OVERRIDE;
+   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+   virtual void doubleSubtract(boost::shared_ptr<GParameterBase>, const activityMode& am) OVERRIDE;
 
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally protected	 */

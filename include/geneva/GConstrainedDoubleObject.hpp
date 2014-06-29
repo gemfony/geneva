@@ -132,6 +132,19 @@ protected:
    /** @brief Assigns part of a value map to the parameter */
    virtual void assignDoubleValueVectors(const std::map<std::string, std::vector<double> >&, const activityMode& am) OVERRIDE;
 
+   /** @brief Multiplication with a random value in a given range */
+   virtual void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am) OVERRIDE;
+   /** @brief Multiplication with a random value in the range [0,1[ */
+   virtual void doubleMultiplyByRandom(const activityMode& am) OVERRIDE;
+   /** @brief Multiplication with a constant value */
+   virtual void doubleMultiplyBy(const double& value, const activityMode& am) OVERRIDE;
+   /** @brief Initialization with a constant value */
+   virtual void doubleFixedValueInit(const double& value, const activityMode& am) OVERRIDE;
+   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+   virtual void doubleAdd(boost::shared_ptr<GParameterBase>, const activityMode& am) OVERRIDE;
+   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+   virtual void doubleSubtract(boost::shared_ptr<GParameterBase>, const activityMode& am) OVERRIDE;
+
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests() OVERRIDE;

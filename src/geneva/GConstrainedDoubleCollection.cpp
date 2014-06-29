@@ -306,6 +306,127 @@ void GConstrainedDoubleCollection::assignDoubleValueVectors(
 
 /******************************************************************************/
 /**
+ * Multiplication with a random value in a given range
+ */
+void GConstrainedDoubleCollection::doubleMultiplyByRandom(
+   const double& min
+   , const double& max
+   , const activityMode& am
+) {
+   for(std::size_t pos=0; pos<this->size(); pos++) {
+      GParameterCollectionT<double>::setValue(
+         pos
+         , transfer(
+               this->value(pos) *
+               this->GParameterBase::gr->uniform_real<double>(min, max)
+         )
+      );
+   }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+void GConstrainedDoubleCollection::doubleMultiplyByRandom(
+   const activityMode& am
+) {
+   for(std::size_t pos=0; pos<this->size(); pos++) {
+      GParameterCollectionT<double>::setValue(
+            pos
+            , transfer(this->value(pos) * this->GParameterBase::gr->uniform_01<double>())
+      );
+   }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+void GConstrainedDoubleCollection::doubleMultiplyBy(
+   const double& val
+   , const activityMode& am
+) {
+   for(std::size_t pos=0; pos<this->size(); pos++) {
+      GParameterCollectionT<double>::setValue(pos, transfer(val * this->value(pos)));
+   }
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+void GConstrainedDoubleCollection::doubleFixedValueInit(
+   const double& val
+   , const activityMode& am
+) {
+   for(std::size_t pos=0; pos<this->size(); pos++) {
+      GParameterCollectionT<double>::setValue(pos, transfer(val));
+   }
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GConstrainedDoubleCollection::doubleAdd(
+   boost::shared_ptr<GParameterBase> p_base
+   , const activityMode& am
+) {
+   // We first need to convert p_base into the local type
+   boost::shared_ptr<GConstrainedDoubleCollection> p
+      = GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
+
+#ifdef DEBUG
+   // Cross-check that the sizes match
+   if(this->size() != p->size()) {
+      glogger
+      << "In GConstrainedDoubleCollection::doubleAdd():" << std::endl
+      << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+      << GEXCEPTION;
+   }
+#endif
+
+   for(std::size_t pos=0; pos<this->size(); pos++) {
+      GParameterCollectionT<double>::setValue(
+         pos
+         , transfer(this->value(pos) + p->value(pos))
+      );
+   }
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GConstrainedDoubleCollection::doubleSubtract(
+   boost::shared_ptr<GParameterBase> p_base
+   , const activityMode& am
+) {
+   // We first need to convert p_base into the local type
+   boost::shared_ptr<GConstrainedDoubleCollection> p
+      = GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
+
+#ifdef DEBUG
+   // Cross-check that the sizes match
+   if(this->size() != p->size()) {
+      glogger
+      << "In GConstrainedDoubleCollection::doubleSubtract():" << std::endl
+      << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+      << GEXCEPTION;
+   }
+#endif
+
+   for(std::size_t pos=0; pos<this->size(); pos++) {
+      GParameterCollectionT<double>::setValue(
+         pos
+         , transfer(this->value(pos) - p->value(pos))
+      );
+   }
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GConstrainedDoubleCollection object,
  * camouflaged as a GObject. We have no local data, so
  * all we need to do is to the standard identity check,

@@ -311,6 +311,124 @@ void GDoubleCollection::assignDoubleValueVectors(
 
 /******************************************************************************/
 /**
+ * Multiplication with a random value in a given range
+ */
+void GDoubleCollection::doubleMultiplyByRandom(
+   const double& min
+   , const double& max
+   , const activityMode& am
+) {
+   for(std::size_t pos=0; pos<this->size(); pos++) {
+      GParameterCollectionT<double>::setValue(
+         pos
+         , this->value(pos) * this->GParameterBase::gr->uniform_real<double>(min, max)
+      );
+   }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+void GDoubleCollection::doubleMultiplyByRandom(
+   const activityMode& am
+) {
+   for(std::size_t pos=0; pos<this->size(); pos++) {
+      GParameterCollectionT<double>::setValue(
+            pos
+            , this->value(pos) * this->GParameterBase::gr->uniform_01<double>()
+      );
+   }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+void GDoubleCollection::doubleMultiplyBy(
+   const double& val
+   , const activityMode& am
+) {
+   for(std::size_t pos=0; pos<this->size(); pos++) {
+      GParameterCollectionT<double>::setValue(pos, val * this->value(pos));
+   }
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+void GDoubleCollection::doubleFixedValueInit(
+   const double& val
+   , const activityMode& am
+) {
+   for(std::size_t pos=0; pos<this->size(); pos++) {
+      GParameterCollectionT<double>::setValue(pos, val);
+   }
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GDoubleCollection::doubleAdd(
+   boost::shared_ptr<GParameterBase> p_base
+   , const activityMode& am
+) {
+   // We first need to convert p_base into the local type
+   boost::shared_ptr<GDoubleCollection> p
+      = GParameterBase::parameterbase_cast<GDoubleCollection>(p_base);
+
+#ifdef DEBUG
+   // Cross-check that the sizes match
+   if(this->size() != p->size()) {
+      glogger
+      << "In GDoubleCollection::doubleAdd():" << std::endl
+      << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+      << GEXCEPTION;
+   }
+#endif
+
+   for(std::size_t pos=0; pos<this->size(); pos++) {
+      GParameterCollectionT<double>::setValue(
+         pos
+         , this->value(pos) + p->value(pos)
+      );
+   }
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GDoubleCollection::doubleSubtract(
+   boost::shared_ptr<GParameterBase> p_base
+   , const activityMode& am
+) {
+   // We first need to convert p_base into the local type
+   boost::shared_ptr<GDoubleCollection> p
+      = GParameterBase::parameterbase_cast<GDoubleCollection>(p_base);
+
+#ifdef DEBUG
+   // Cross-check that the sizes match
+   if(this->size() != p->size()) {
+      glogger
+      << "In GDoubleCollection::doubleSubtract():" << std::endl
+      << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+      << GEXCEPTION;
+   }
+#endif
+
+   for(std::size_t pos=0; pos<this->size(); pos++) {
+      GParameterCollectionT<double>::setValue(
+         pos
+         , this->value(pos) - p->value(pos)
+      );
+   }
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GDoubleCollection object, camouflaged as a GObject
