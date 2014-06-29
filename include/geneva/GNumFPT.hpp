@@ -440,12 +440,11 @@ public:
 			p_test1->setValue(fp_type(0));
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(boost::numeric_cast<float>(2.*UPPERINITBOUNDARY))); // Make sure the parameters indeed change
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(boost::numeric_cast<fp_type>(2.*UPPERINITBOUNDARY), ALLPARAMETERS)); // Make sure the parameters indeed change
 
-			// Check that the value has indeed been set. Note that we need to take into account
-			// FP inaccuracy, as fpFixedValueInit() deals with float values rather than doubles
+			// Check that the value has indeed been set.
 			BOOST_CHECK_MESSAGE(
-					fabs(p_test1->value() - 2.*UPPERINITBOUNDARY) < pow(10., -6)
+					fabs(p_test1->value() - fp_type(2.*UPPERINITBOUNDARY)) < pow(10., -6)
 					,  "\n"
 					<< std::setprecision(10)
 					<< "p_test1->value() = " << p_test1->value() << "\n"
@@ -487,7 +486,7 @@ public:
 			boost::shared_ptr<GNumFPT<fp_type> > p_test2 = this->GObject::clone<GNumFPT<fp_type> >();
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 			// Check that this value has been set
 			BOOST_CHECK(p_test1->value() == FIXEDVALUEINIT);
@@ -503,7 +502,7 @@ public:
 			BOOST_CHECK(*p_test1 == *p_test2);
 
 			// Multiply p_test1 with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fpMultiplyBy(MULTVALUE));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::multiplyBy<fp_type>(MULTVALUE, ALLPARAMETERS));
 
 			// Check that the multiplication has succeeded
 			BOOST_CHECK(p_test1->value() == MULTVALUE * p_test2->value());
@@ -515,13 +514,13 @@ public:
 			boost::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(1.)); // 1. chosen so we see the multiplication value of the random number generator
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(1., ALLPARAMETERS)); // 1. chosen so we see the multiplication value of the random number generator
 
 			// Check that this value has been set
 			BOOST_CHECK(p_test1->value() == 1.);
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::multiplyByRandom<fp_type>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, ALLPARAMETERS));
 
 			// Check that all values are in the allowed range
 			BOOST_CHECK(p_test1->value() >= RANDLOWERBOUNDARY);
@@ -534,13 +533,13 @@ public:
 			boost::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(1.)); // 1. chosen so we see the multiplication value of the random number generator
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(1., ALLPARAMETERS)); // 1. chosen so we see the multiplication value of the random number generator
 
 			// Check that this value has been set
 			BOOST_CHECK(p_test1->value() == 1.);
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom());
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::multiplyByRandom<fp_type>(ALLPARAMETERS));
 
 			// Check that all values are in the allowed range
 			BOOST_CHECK(p_test1->value() >= 0.);
@@ -555,7 +554,7 @@ public:
 			boost::shared_ptr<GNumFPT<fp_type> > p_test3 = this->GObject::clone<GNumFPT<fp_type> >();
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(0.));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(0., ALLPARAMETERS));
 			BOOST_CHECK(p_test1->value() == 0.);
 
 			// Set initialization boundaries
@@ -575,7 +574,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
 
 			// Add p_test1 to p_test3
-			BOOST_CHECK_NO_THROW(p_test3->fpAdd(p_test1));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::add<fp_type>(p_test1, ALLPARAMETERS));
 
 			// Cross-check that the addition has worked
 			BOOST_CHECK(p_test3->value() == p_test1->value() + p_test2->value());
@@ -589,7 +588,7 @@ public:
 			boost::shared_ptr<GNumFPT<fp_type> > p_test3 = this->GObject::clone<GNumFPT<fp_type> >();
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(0.));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(0., ALLPARAMETERS));
 			BOOST_CHECK(p_test1->value() == 0.);
 
 			// Set initialization boundaries
@@ -609,7 +608,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
 
 			// Subtract p_test1 from p_test3
-			BOOST_CHECK_NO_THROW(p_test3->fpSubtract(p_test1));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::subtract<fp_type>(p_test1, ALLPARAMETERS));
 
 			// Cross-check that the addition has worked. Note that we do need to take into
 			// account effects of floating point accuracy
