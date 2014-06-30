@@ -183,136 +183,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Initializes floating-point-based parameters with a given value.
-	 *
-	 * @param val The value to use for the initialization
-	 */
-	virtual void fpFixedValueInit(const float& val) OVERRIDE {
-		typename GFPNumCollectionT<fp_type>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)=fp_type(val);
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Multiplies floating-point-based parameters with a given value
-	 *
-	 * @param val The value to be multiplied with the parameter
-	 */
-	virtual void fpMultiplyBy(const float& val) OVERRIDE {
-		typename GFPNumCollectionT<fp_type>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it) *= fp_type(val);
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Multiplies with a random floating point number in a given range.
-	 *
-	 * @param min The lower boundary for random number generation
-	 * @param max The upper boundary for random number generation
-	 */
-	virtual void fpMultiplyByRandom(const float& min, const float& max) OVERRIDE	{
-		typename GFPNumCollectionT<fp_type>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it) *= this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(fp_type(min), fp_type(max));
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Multiplies with a random floating point number in the range [0, 1[.
-	 */
-	virtual void fpMultiplyByRandom() OVERRIDE {
-		typename GFPNumCollectionT<fp_type>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it) *= this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_01<fp_type>();
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Adds the floating point parameters of another GParameterBase object to this one.
-	 *
-	 * @oaram p A boost::shared_ptr to another GParameterBase object
-	 */
-	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) OVERRIDE {
-		// We first need to convert p_base into the local type
-		boost::shared_ptr<GFPNumCollectionT<fp_type> > p = GParameterBase::parameterbase_cast<GFPNumCollectionT<fp_type> >(p_base);
-
-		// Do some error checking
-		if(this->size() != p->size()) {
-		   glogger
-		   << "In GFPNumCollectionT<fp_type>::fpAdd():" << std::endl
-         << "Collection sizes don't match: " << this->size() << " " << p->size() << std::endl
-         << GEXCEPTION;
-		}
-
-		typename GFPNumCollectionT<fp_type>::iterator it, it_p;
-		for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
-			(*it) += (*it_p);
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Subtracts the floating point parameters of another GParameterBase object
-	 * from this one.
-	 *
-	 * @oaram p A boost::shared_ptr to another GParameterBase object
-	 */
-	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) OVERRIDE {
-		// We first need to convert p_base into the local type
-		boost::shared_ptr<GFPNumCollectionT<fp_type> > p = GParameterBase::parameterbase_cast<GFPNumCollectionT<fp_type> >(p_base);
-
-		// Do some error checking
-		if(this->size() != p->size()) {
-		   glogger
-		   << "In GFPNumCollectionT<fp_type>::fpSubtract():" << std::endl
-         << "Collection sizes don't match: " << this->size() << " " << p->size() << std::endl
-         << GEXCEPTION;
-		}
-
-		typename GFPNumCollectionT<fp_type>::iterator it, it_p;
-		for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
-			(*it) -= (*it_p);
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
 	 *
@@ -464,8 +334,8 @@ public:
 			}
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
-			BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(FIXEDVALUEINIT));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 			// Check that values have indeed been set
 			for(std::size_t i=0; i<nItems; i++) {
@@ -506,7 +376,7 @@ public:
 			}
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 			// Set initialization boundaries
 			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
@@ -519,7 +389,7 @@ public:
 			BOOST_CHECK(*p_test1 == *p_test2);
 
 			// Multiply p_test1 with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fpMultiplyBy(MULTVALUE));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::multiplyBy<fp_type>(MULTVALUE, ALLPARAMETERS));
 
 			// Check that the multiplication has succeeded
 			for(std::size_t i=0; i<nItems; i++) {
@@ -542,10 +412,10 @@ public:
 			}
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(1.));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(1., ALLPARAMETERS));
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::multiplyByRandom<fp_type>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, ALLPARAMETERS));
 
 			// Check that all values are in this range
 			for(std::size_t i=0; i<nItems; i++) {
@@ -569,10 +439,10 @@ public:
 			}
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(1.));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(1., ALLPARAMETERS));
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom());
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::multiplyByRandom<fp_type>(ALLPARAMETERS));
 
 			// Check that all values are in this range
 			for(std::size_t i=0; i<nItems; i++) {
@@ -615,7 +485,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
 
 			// Add p_test1 to p_test3
-			BOOST_CHECK_NO_THROW(p_test3->fpAdd(p_test1));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::add<fp_type>(p_test1, ALLPARAMETERS));
 
 			// Cross check that for each i p_test3[i] == p_test1[i] + p_test2[i]
 			for(std::size_t i=0; i<nItems; i++) {
@@ -657,7 +527,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
 
 			// Add p_test1 to p_test3
-			BOOST_CHECK_NO_THROW(p_test3->fpSubtract(p_test1));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::subtract<fp_type>(p_test1, ALLPARAMETERS));
 
 			// Cross check that for each i p_test3[i] == p_test1[i] - p_test2[i]
 			for(std::size_t i=0; i<nItems; i++) {
@@ -695,7 +565,7 @@ public:
 				p_test1->push_back(fp_type(0));
 			}
 
-			BOOST_CHECK_THROW(p_test1->fpAdd(p_test2), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test1->GParameterBase::add<fp_type>(p_test2, ALLPARAMETERS), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------
@@ -709,7 +579,7 @@ public:
 				p_test1->push_back(fp_type(0));
 			}
 
-			BOOST_CHECK_THROW(p_test1->fpSubtract(p_test2), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test1->GParameterBase::subtract<fp_type>(p_test2, ALLPARAMETERS), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------

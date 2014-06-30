@@ -332,7 +332,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Test initialization of p_test2 with a fixed value
-		BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(FIXEDVALUEINIT));
+		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 		// The first two parameters should be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -359,14 +359,14 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
 
-		// Load the data intp p_test2
+		// Load the data into p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 		// Check that both individuals are identical
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Initialize p_test2 with a fixed value
-		BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(FIXEDVALUEINIT));
+		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 		// The first two parameters should be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -384,14 +384,17 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(gdo_ptr2->value() == FIXEDVALUEINIT);
 
 		// Multiply with a fixed value
-		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyBy(MULTVALUE));
+		BOOST_CHECK_NO_THROW(p_test2->multiplyBy<double>(MULTVALUE, ALLPARAMETERS));
 
 		// The first two parameters should again be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// The fp value should have changed
-		BOOST_CHECK(gdo_ptr2->value() == FIXEDVALUEINIT*MULTVALUE);
+		BOOST_CHECK_MESSAGE(
+         gdo_ptr2->value() == FIXEDVALUEINIT*MULTVALUE
+         , "gdo_ptr2->value() = " << gdo_ptr2->value() << ", FIXEDVALUEINIT*MULTVALUE = " << FIXEDVALUEINIT*MULTVALUE
+      );
 	}
 
 	//------------------------------------------------------------------------------
@@ -404,7 +407,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
 
 		// Initialize p_test1 with a fixed value
-		BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 		// Load the data intp p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -413,7 +416,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Multiply p_test2 with a random number in a given range
-		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyByRandom(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY));
+		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, ALLPARAMETERS));
 
 		// The first two parameters should again be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -438,7 +441,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
 
 		// Initialize p_test1 with a fixed value
-		BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 		// Load the data intp p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -447,7 +450,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Multiply p_test2 with a random number in the range [0,1[
-		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyByRandom());
+		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(ALLPARAMETERS));
 
 		// The first two parameters should again be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -472,7 +475,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
 
 		// Initialize p_test1 with a fixed value
-		BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 		// Load the data intp p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -481,7 +484,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Add p_test1 to p_test2
-		BOOST_CHECK_NO_THROW(p_test2->fpAdd(p_test1));
+		BOOST_CHECK_NO_THROW(p_test2->add<double>(p_test1, ALLPARAMETERS));
 
 		// The first two parameters should again be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -507,7 +510,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
 
 		// Initialize p_test1 with a fixed value
-		BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 		// Load the data intp p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -516,7 +519,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Subtract p_test1 from p_test2
-		BOOST_CHECK_NO_THROW(p_test2->fpSubtract(p_test1));
+		BOOST_CHECK_NO_THROW(p_test2->subtract<double>(p_test1, ALLPARAMETERS));
 
 		// The first two parameters should again be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));

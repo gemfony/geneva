@@ -504,164 +504,6 @@ void GParameterSet::setMaxMode(const bool& mode) {
 
 /******************************************************************************/
 /**
- * Recursively initializes floating-point-based parameters with a given value. Allows e.g. to set all
- * floating point parameters to 0. "float" is used as the largest common denominator of float and double
- * types.
- *
- * @param val The value to be assigned to the parameters
- */
-void GParameterSet::fpFixedValueInit(const float& val) {
-	// Loop over all GParameterBase objects
-	GParameterSet::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)->fpFixedValueInit(val);
-	}
-
-	// As we have modified our internal data sets, make sure the dirty flag is set
-	GOptimizableEntity::setDirtyFlag();
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Multiplies floating-point-based parameters with a given value.
- *
- * @param val The value to be multiplied with parameters
- * @param dummy A dummy parameter needed to ensure that fp_type is indeed a floating point value
- */
-void GParameterSet::fpMultiplyBy(const float& val) {
-	// Loop over all GParameterBase objects
-	GParameterSet::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)->fpMultiplyBy(val);
-	}
-
-	// As we have modified our internal data sets, make sure the dirty flag is set
-	GOptimizableEntity::setDirtyFlag();
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Triggers multiplication of floating point parameters with a random floating point number in a given range
- *
- * @param min The lower boundary for random number generation
- * @param max The upper boundary for random number generation
- */
-void GParameterSet::fpMultiplyByRandom(const float& min, const float& max) {
-	// Loop over all GParameterBase objects
-	GParameterSet::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)->fpMultiplyByRandom(min, max);
-	}
-
-	// As we have modified our internal data sets, make sure the dirty flag is set
-	GOptimizableEntity::setDirtyFlag();
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Triggers multiplication of floating point parameters with a random floating point number in the range [0,1[
- */
-void GParameterSet::fpMultiplyByRandom() {
-	// Loop over all GParameterBase objects
-	GParameterSet::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)->fpMultiplyByRandom();
-	}
-
-	// As we have modified our internal data sets, make sure the dirty flag is set
-	GOptimizableEntity::setDirtyFlag();
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Adds the floating point parameters of another GParameterSet object to this one
- *
- * @param cp A boost::shared_ptr to another GParameterSet object whose floating point parameters should be added to this one
- */
-void GParameterSet::fpAdd(boost::shared_ptr<GParameterSet> p) {
-	// Some error checking
-	if(p->size() != this->size()) {
-	   glogger
-	   << "In GParameterSet::fpAdd():" << std::endl
-      << "Sizes do not match: " << this->size() << " " << p->size() << std::endl
-      << GEXCEPTION;
-	}
-
-	// Loop over all GParameterBase objects in this and the other object
-	GParameterSet::iterator it;
-	GParameterSet::const_iterator cit;
-	// Note that the GParameterBase objects need to accept a
-	// boost::shared_ptr<GParameterBase>, contrary to the calling conventions
-	// of this function.
-	for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
-		(*it)->fpAdd(*cit);
-	}
-
-	// As we have modified our internal data sets, make sure the dirty flag is set
-	GOptimizableEntity::setDirtyFlag();
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Subtract the floating point parameters of another GParameterSet object from this one
- *
- * @param cp A boost::shared_ptr to another GParameterSet object whose floating point parameters should be subtracted from this one
- */
-void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
-	// Some error checking
-	if(p->size() != this->size()) {
-	   glogger
-	   << "In GParameterSet::fpAdd():" << std::endl
-      << "Sizes do not match: " << this->size() << " " << p->size() << std::endl
-      << GEXCEPTION;
-	}
-
-	// Loop over all GParameterBase objects in this and the other object
-	GParameterSet::iterator it;
-	GParameterSet::iterator it_p;
-	// Note that the GParameterBase objects need to accept a
-	// boost::shared_ptr<GParameterBase>, contrary to the calling conventions
-	// of this function.
-	for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
-		(*it)->fpSubtract(*it_p);
-	}
-
-	// As we have modified our internal data sets, make sure the dirty flag is set
-	GOptimizableEntity::setDirtyFlag();
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
  * Emits a GParameterSet object that only has clones of our GParameterBase objects attached to it
  *
  * @return A GParameterSet object that only has clones of our GParameterBase objects attached to it
@@ -1198,7 +1040,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
 				// Initialize all fp-values with 0.
-				p_test->fpFixedValueInit(d);
+				p_test->fixedValueInit<double>(d, ALLPARAMETERS);
 
 				// Make sure the dirty flag is set
 				BOOST_CHECK(p_test->isDirty() == true);
@@ -1261,10 +1103,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
 				// Initialize all fp-values with FPFIXEDVALINITMAX
-				BOOST_CHECK_NO_THROW(p_test->fpFixedValueInit(FPFIXEDVALINITMAX));
+				BOOST_CHECK_NO_THROW(p_test->fixedValueInit<double>(FPFIXEDVALINITMAX, ALLPARAMETERS));
 
 				// Multiply this fixed value by d
-				BOOST_CHECK_NO_THROW(p_test->fpMultiplyBy(d));
+				BOOST_CHECK_NO_THROW(p_test->multiplyBy<double>(d, ALLPARAMETERS));
 
 				// Make sure the dirty flag is set
 				BOOST_CHECK(p_test->isDirty() == true);
@@ -1318,7 +1160,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			boost::shared_ptr<GParameterSet> p_test       = p_test_0->clone<GParameterSet>();
 
 			// Multiply each floating point value with a constrained random value
-			BOOST_CHECK_NO_THROW(p_test->fpMultiplyByRandom(FPMULTIPLYBYRANDMIN, FPMULTIPLYBYRANDMAX));
+			BOOST_CHECK_NO_THROW(p_test->multiplyByRandom<double>(FPMULTIPLYBYRANDMIN, FPMULTIPLYBYRANDMAX, ALLPARAMETERS));
 
 			// Make sure the dirty flag is set
 			BOOST_CHECK(p_test->isDirty() == true);
@@ -1370,7 +1212,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			boost::shared_ptr<GParameterSet> p_test       = p_test_0->clone<GParameterSet>();
 
 			// Multiply each floating point value with a constrained random value
-			BOOST_CHECK_NO_THROW(p_test->fpMultiplyByRandom());
+			BOOST_CHECK_NO_THROW(p_test->multiplyByRandom<double>(ALLPARAMETERS));
 
 			// Make sure the dirty flag is set
 			BOOST_CHECK(p_test->isDirty() == true);
@@ -1422,11 +1264,11 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			boost::shared_ptr<GParameterSet> p_test       = p_test_0->clone<GParameterSet>();
 			boost::shared_ptr<GParameterSet> p_test_fixed = p_test_0->clone<GParameterSet>();
 
-			// Initialize all fp-values of the "add" individual with a fixed valie
-			BOOST_CHECK_NO_THROW(p_test_fixed->fpFixedValueInit(FPADD));
+			// Initialize all fp-values of the "add" individual with a fixed value
+			BOOST_CHECK_NO_THROW(p_test_fixed->fixedValueInit<double>(FPADD, ALLPARAMETERS));
 
 			// Add p_test_fixed to p_test
-			BOOST_CHECK_NO_THROW(p_test->fpAdd(p_test_fixed));
+			BOOST_CHECK_NO_THROW(p_test->add<double>(p_test_fixed, ALLPARAMETERS));
 
 			// Check the results
 			std::size_t counter = 0;
@@ -1481,10 +1323,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			boost::shared_ptr<GParameterSet> p_test_fixed = p_test_0->clone<GParameterSet>();
 
 			// Initialize all fp-values of the "add" individual with a fixed valie
-			BOOST_CHECK_NO_THROW(p_test_fixed->fpFixedValueInit(FPSUBTRACT));
+			BOOST_CHECK_NO_THROW(p_test_fixed->fixedValueInit<double>(FPSUBTRACT, ALLPARAMETERS));
 
 			// Add p_test_fixed to p_test
-			BOOST_CHECK_NO_THROW(p_test->fpSubtract(p_test_fixed));
+			BOOST_CHECK_NO_THROW(p_test->subtract<double>(p_test_fixed, ALLPARAMETERS));
 
 			// Check the results
 			std::size_t counter = 0;

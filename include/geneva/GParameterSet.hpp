@@ -568,23 +568,6 @@ public:
       }
    }
 
-   /***************************************************************************/
-   /** @brief Multiplies with a random floating point number in a given range */
-   void fpMultiplyByRandom(const float&, const float&);
-   /** @brief Multiplies with a random floating point number in the range [0, 1[ */
-   void fpMultiplyByRandom();
-
-   /** @brief Multiplies floating-point parameters with a given value */
-   void fpMultiplyBy(const float& val);
-
-   /** @brief Initializes floating-point parameters with a given value */
-   void fpFixedValueInit(const float&);
-
-   /** @brief Adds the floating point parameters of another GParameterSet object to this one */
-   void fpAdd(boost::shared_ptr<GParameterSet>);
-   /** @brief Subtracts the floating point parameters of another GParameterSet object from this one */
-   void fpSubtract(boost::shared_ptr<GParameterSet>);
-
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */

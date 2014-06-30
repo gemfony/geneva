@@ -76,10 +76,11 @@ class GParameterBase
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-         & BOOST_SERIALIZATION_NVP(adaptionsActive_)
-         & BOOST_SERIALIZATION_NVP(randomInitializationBlocked_)
-         & BOOST_SERIALIZATION_NVP(parameterName_);
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+      & BOOST_SERIALIZATION_NVP(adaptionsActive_)
+      & BOOST_SERIALIZATION_NVP(randomInitializationBlocked_)
+      & BOOST_SERIALIZATION_NVP(parameterName_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -125,19 +126,6 @@ public:
 	virtual bool isIndividualParameter() const BASE;
 	/** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
 	virtual bool isParameterCollection() const BASE;
-
-	/** @brief Initializes double-based parameters with a given value */
-	virtual void fpFixedValueInit(const float& val) BASE;
-	/** @brief Multiplies double-based parameters with a given value */
-	virtual void fpMultiplyBy(const float& val) BASE;
-	/** @brief Multiplies with a random floating point number in a given range */
-	virtual void fpMultiplyByRandom(const float&, const float&) BASE;
-	/** @brief Multiplies with a random floating point number in the range [0, 1[ */
-	virtual void fpMultiplyByRandom() BASE;
-	/** @brief Adds the floating point parameters of another GParameterBase object to this one */
-	virtual void fpAdd(boost::shared_ptr<GParameterBase>) BASE;
-	/** @brief Subtract the floating point parameters of another GParameterBase object from this one */
-	virtual void fpSubtract(boost::shared_ptr<GParameterBase>) BASE;
 
 	/** @brief Emits a name for this class / object */
 	virtual std::string name() const OVERRIDE;
@@ -421,8 +409,8 @@ public:
 		if(p) return p;
 		else {
 		   glogger
-		   << "In boost::shared_ptr<load_type> GParameterBase::gobject_conversion<load_type>() :" << std::endl
-         << "Invalid conversion" << std::endl
+		   << "In boost::shared_ptr<load_type> GParameterBase::parameterbase_cast<load_type>() :" << std::endl
+         << "Invalid conversion with load_type = " << typeid(load_type).name() << std::endl
          << GEXCEPTION;
 
 		   // Make the compiler happy

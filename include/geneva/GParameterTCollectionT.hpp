@@ -250,142 +250,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Initializes floating-point-based parameters with a given value. Allows e.g. to set all
-	 * floating point parameters to 0.
-	 *
-	 * @param val The value to be assigned to the parameters
-	 */
-	virtual void fpFixedValueInit(const float& val) OVERRIDE {
-		typename GParameterTCollectionT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->fpFixedValueInit(val);
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in most-derived classes
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Multiplies floating-point-based parameters with a given value.
-	 *
-	 * @param val The value to be multiplied with the parameter
-	 */
-	virtual void fpMultiplyBy(const float& val) OVERRIDE {
-		typename GParameterTCollectionT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->fpMultiplyBy(val);
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in most-derived classes
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Multiplies with a random floating point number in a given range.
-	 *
-	 * @param min The lower boundary for random number generation
-	 * @param max The upper boundary for random number generation
-	 */
-	virtual void fpMultiplyByRandom(const float& min, const float& max) OVERRIDE {
-		typename GParameterTCollectionT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->fpMultiplyByRandom(min, max);
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in most-derived classes
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Multiplies with a random floating point number in the range [0, 1[.
-	 */
-	virtual void fpMultiplyByRandom() OVERRIDE {
-		typename GParameterTCollectionT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->fpMultiplyByRandom();
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in most-derived classes
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Adds the floating point parameters of another GParameterTCollectionT object to this one.
-	 *
-	 * @oaram p A boost::shared_ptr to another GParameterBase object
-	 */
-	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) OVERRIDE {
-		// We first need to convert p_base to our local type
-		typename boost::shared_ptr<GParameterTCollectionT<T> > p
-			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
-
-		// Check that both collections have the same size
-		if(this->size() != p->size()) {
-		   glogger
-		   << "In GParameterTCollectionT<T>::fpAdd():" << std::endl
-         << "Collections have different sizes: " << this->size() << " " << p->size() << std::endl
-         << GEXCEPTION;
-		}
-
-		// Call fpAdd on all objects stored in this collection
-		typename GParameterTCollectionT<T>::iterator it, it_p;
-		for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
-			(*it)->fpAdd(*it_p);
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in most-derived classes
-	 * Throw due to invalid size tested in GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Subtracts the floating point parameters of another GParameterTCollectionT object from this one.
-	 *
-	 * @oaram p A boost::shared_ptr to another GParameterBase object
-	 */
-	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) OVERRIDE	{
-		// We first need to convert p_base to our local type
-		typename boost::shared_ptr<GParameterTCollectionT<T> > p
-			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
-
-		// Check that both collections have the same size
-		if(this->size() != p->size()) {
-		   glogger
-		   << "In GParameterTCollectionT<T>::fpSubtract():" << std::endl
-         << "Collections have different sizes: " << this->size() << " " << p->size() << std::endl
-         << GEXCEPTION;
-		}
-
-		// Call fpAdd on all objects stored in this collection
-		typename GParameterTCollectionT<T>::iterator it, it_p;
-		for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
-			(*it)->fpSubtract(*it_p);
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in most-derived classes
-	 * Throw due to invalid size tested in GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
 	 * Assigns a random number generator from another object to all objects stored in this
 	 * collection and to the object itself.
 	 *
@@ -1211,7 +1075,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyByRandom<double>(am);
+         (*it)->multiplyBy<double>(value, am);
       }
    }
 
@@ -1225,7 +1089,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyByRandom<boost::int32_t>(am);
+         (*it)->multiplyBy<boost::int32_t>(value, am);
       }
    }
 
@@ -1290,12 +1154,27 @@ protected:
     * Adds the "same-type" parameters of another GParameterBase object to this one
     */
    virtual void floatAdd(
-      boost::shared_ptr<GParameterBase> p
+      boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) OVERRIDE {
+      // We first need to convert p_base into the local type
+      boost::shared_ptr<GParameterTCollectionT<T> > p
+         = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+
+#ifdef DEBUG
+      // Check that both collections have the same size
+      if(this->size() != p->size()) {
+         glogger
+         << "In GParameterTCollectionT<T>::floatAdd(): Error!" << std::endl
+         << "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
       typename GParameterTCollectionT<T>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->add<float>(p, am);
+      typename GParameterTCollectionT<T>::iterator p_it;
+      for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
+         (*it)->add<float>(*p_it, am);
       }
    }
 
@@ -1304,12 +1183,27 @@ protected:
     * Adds the "same-type" parameters of another GParameterBase object to this one
     */
    virtual void doubleAdd(
-      boost::shared_ptr<GParameterBase> p
+      boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) OVERRIDE {
+      // We first need to convert p_base into the local type
+      boost::shared_ptr<GParameterTCollectionT<T> > p
+         = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+
+#ifdef DEBUG
+      // Check that both collections have the same size
+      if(this->size() != p->size()) {
+         glogger
+         << "In GParameterTCollectionT<T>::doubleAdd(): Error!" << std::endl
+         << "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
       typename GParameterTCollectionT<T>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->add<double>(p, am);
+      typename GParameterTCollectionT<T>::iterator p_it;
+      for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
+         (*it)->add<double>(*p_it, am);
       }
    }
 
@@ -1318,12 +1212,27 @@ protected:
     * Adds the "same-type" parameters of another GParameterBase object to this one
     */
    virtual void int32Add(
-      boost::shared_ptr<GParameterBase> p
+      boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) OVERRIDE {
+      // We first need to convert p_base into the local type
+      boost::shared_ptr<GParameterTCollectionT<T> > p
+         = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+
+#ifdef DEBUG
+      // Check that both collections have the same size
+      if(this->size() != p->size()) {
+         glogger
+         << "In GParameterTCollectionT<T>::int32Add(): Error!" << std::endl
+         << "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
       typename GParameterTCollectionT<T>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->add<boost::int32_t>(p, am);
+      typename GParameterTCollectionT<T>::iterator p_it;
+      for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
+         (*it)->add<boost::int32_t>(*p_it, am);
       }
    }
 
@@ -1332,12 +1241,27 @@ protected:
     * Subtracts the "same-type" parameters of another GParameterBase object from this one
     */
    virtual void floatSubtract(
-      boost::shared_ptr<GParameterBase> p
+      boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) OVERRIDE {
+      // We first need to convert p_base into the local type
+      boost::shared_ptr<GParameterTCollectionT<T> > p
+         = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+
+#ifdef DEBUG
+      // Check that both collections have the same size
+      if(this->size() != p->size()) {
+         glogger
+         << "In GParameterTCollectionT<T>::floatSubtract(): Error!" << std::endl
+         << "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
       typename GParameterTCollectionT<T>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->subtract<float>(p, am);
+      typename GParameterTCollectionT<T>::iterator p_it;
+      for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
+         (*it)->subtract<float>(*p_it, am);
       }
    }
 
@@ -1346,12 +1270,27 @@ protected:
     * Subtracts the "same-type" parameters of another GParameterBase object from this one
     */
    virtual void doubleSubtract(
-      boost::shared_ptr<GParameterBase> p
+      boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) OVERRIDE {
+      // We first need to convert p_base into the local type
+      boost::shared_ptr<GParameterTCollectionT<T> > p
+         = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+
+#ifdef DEBUG
+      // Check that both collections have the same size
+      if(this->size() != p->size()) {
+         glogger
+         << "In GParameterTCollectionT<T>::doubleSubtract(): Error!" << std::endl
+         << "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
       typename GParameterTCollectionT<T>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->subtract<float>(p, am);
+      typename GParameterTCollectionT<T>::iterator p_it;
+      for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
+         (*it)->subtract<double>(*p_it, am);
       }
    }
 
@@ -1360,12 +1299,27 @@ protected:
     * Subtracts the "same-type" parameters of another GParameterBase object from this one
     */
    virtual void int32Subtract(
-      boost::shared_ptr<GParameterBase> p
+      boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) OVERRIDE {
+      // We first need to convert p_base into the local type
+      boost::shared_ptr<GParameterTCollectionT<T> > p
+         = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+
+#ifdef DEBUG
+      // Check that both collections have the same size
+      if(this->size() != p->size()) {
+         glogger
+         << "In GParameterTCollectionT<T>::int32Subtract(): Error!" << std::endl
+         << "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
       typename GParameterTCollectionT<T>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->subtract<boost::int32_t>(p, am);
+      typename GParameterTCollectionT<T>::iterator p_it;
+      for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
+         (*it)->subtract<boost::int32_t>(*p_it, am);
       }
    }
 

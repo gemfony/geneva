@@ -378,27 +378,27 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Try to add a fixed fp value to p_test1 and check whether it has changed
-		BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Try to multiply p_test1 with a fixed fp value and check whether it has changed
-		BOOST_CHECK_NO_THROW(p_test1->fpMultiplyBy(MULTVALUE));
+		BOOST_CHECK_NO_THROW(p_test1->multiplyBy<double>(MULTVALUE, ALLPARAMETERS));
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Try to multiply p_test1 with a random fp value in a given range and check whether it has changed
-		BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY));
+		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, ALLPARAMETERS));
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Try to multiply p_test1 with a random fp value in the range [0,1[ and check whether it has changed
-		BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom());
+		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(ALLPARAMETERS));
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Try to add p_test2 to p_test1 and see whether it has changed
-		BOOST_CHECK_NO_THROW(p_test1->fpAdd(p_test2));
+		BOOST_CHECK_NO_THROW(p_test1->add<double>(p_test2, ALLPARAMETERS));
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Try to subtract p_test2 from p_test1 and see whether it has changed
-		BOOST_CHECK_NO_THROW(p_test1->fpSubtract(p_test2));
+		BOOST_CHECK_NO_THROW(p_test1->subtract<double>(p_test2, ALLPARAMETERS));
 		BOOST_CHECK(*p_test1 == *p_test2);
 	}
 

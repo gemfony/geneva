@@ -574,7 +574,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
 		// Initialize with a fixed value
-		BOOST_CHECK_NO_THROW(p_test->fpFixedValueInit(42.));
+		BOOST_CHECK_NO_THROW(p_test->fixedValueInit<double>(42., ALLPARAMETERS));
 
 		// Check the current size
 		BOOST_CHECK(p_test->size() == nItems);

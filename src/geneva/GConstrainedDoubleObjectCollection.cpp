@@ -313,7 +313,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK(p_test1->size() == nAddedObjects);
 
 		// Initialize with a fixed value
-		BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 		// Check that all items have the expected value
 		for(std::size_t i=0; i<nAddedObjects; i++) {
@@ -333,10 +333,10 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK(p_test1->size() == nAddedObjects);
 
 		// Initialize with a fixed value (1), so we have a defined start value for the multiplication
-		BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 		// Multiply all items with a defined value
-		BOOST_CHECK_NO_THROW(p_test1->fpMultiplyBy(MULTVALUE));
+		BOOST_CHECK_NO_THROW(p_test1->multiplyBy<double>(MULTVALUE, ALLPARAMETERS));
 
 		// Check the values of all items
 		for(std::size_t i=0; i<nAddedObjects; i++) {
@@ -360,7 +360,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK(p_test1->size() == nAddedObjects);
 
 		// Initialize with a fixed value (1), so we have a defined start value for the multiplication
-		BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 		// Load p_test1 into p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -369,7 +369,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Multiply p_test1 with a random value
-		BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(LOWERINITBOUNDARY, UPPERINITBOUNDARY, ALLPARAMETERS));
 
 		// Check that p_test1 and p_test2 differ
 		BOOST_CHECK(*p_test1 != *p_test2);
@@ -396,7 +396,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK(p_test1->size() == nAddedObjects);
 
 		// Initialize with a fixed value (1), so we have a defined start value for the multiplication
-		BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 		// Load p_test1 into p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -405,7 +405,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Multiply p_test1 with a random value
-		BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom());
+		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(ALLPARAMETERS));
 
 		// Check that p_test1 and p_test2 differ
 		BOOST_CHECK(*p_test1 != *p_test2);
@@ -432,12 +432,12 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 		// Initialize p_test1 with a fixed value (1)
-		BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(double(1.)));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(double(1.), ALLPARAMETERS));
 		// Initialize p_test2 with a fixed value (2)
-		BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(double(2.)));
+		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(double(2.), ALLPARAMETERS));
 
 		// Add p_test1 to p_test2
-		BOOST_CHECK_NO_THROW(p_test2->fpAdd(p_test1));
+		BOOST_CHECK_NO_THROW(p_test2->add<double>(p_test1, ALLPARAMETERS));
 
 		// Check each position of p_test2 individually
 		for(std::size_t i=0; i<nAddedObjects; i++) {
@@ -461,12 +461,12 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 		// Initialize p_test1 with a fixed value (1)
-		BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(double(1.)));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(double(1.), ALLPARAMETERS));
 		// Initialize p_test2 with a fixed value (2)
-		BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(double(2.)));
+		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(double(2.), ALLPARAMETERS));
 
 		// Subtract p_test1 from p_test2
-		BOOST_CHECK_NO_THROW(p_test2->fpSubtract(p_test1));
+		BOOST_CHECK_NO_THROW(p_test2->subtract<double>(p_test1, ALLPARAMETERS));
 
 		// Check each position of p_test2 individually
 		for(std::size_t i=0; i<nAddedObjects; i++) {
@@ -512,7 +512,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 		BOOST_CHECK(p_test1->size() != p_test2->size() && p_test2->size() == 0);
 
 		// Adding p_test2 to p_test1 should throw
-		BOOST_CHECK_THROW(p_test1->fpAdd(p_test2), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test1->add<double>(p_test2, ALLPARAMETERS), Gem::Common::gemfony_error_condition);
 	}
 
 	// --------------------------------------------------------------------------
@@ -534,7 +534,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 		BOOST_CHECK(p_test1->size() != p_test2->size() && p_test2->size() == 0);
 
 		// Subtracting p_test2 from p_test1 should throw
-		BOOST_CHECK_THROW(p_test1->fpSubtract(p_test2), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test1->subtract<double>(p_test2, ALLPARAMETERS), Gem::Common::gemfony_error_condition);
 	}
 
 	// --------------------------------------------------------------------------

@@ -310,9 +310,9 @@ public:
       }
 
 		GConstrainedNumT<fp_type>::setValue(
-		      tmpVal
-		      , lowerBoundary
-		      , boost::math::float_prior<fp_type>(upperBoundary)
+         tmpVal
+         , lowerBoundary
+         , boost::math::float_prior<fp_type>(upperBoundary)
 		);
 	}
 
@@ -375,116 +375,6 @@ public:
 
 		// Make the compiler happy
 		return fp_type(0.);
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Initializes floating-point-based parameters with a given value. Allows e.g. to set all
-	 * floating point parameters to 0. Note that, contrary to the usual behavior,
-	 * we accept initialization outside of the allowed boundaries. However, the internal
-	 * representation will then be transferred back to an external value in the allowed
-	 * value range.
-	 *
-	 * @param val The value to be assigned to the parameters
-	 */
-	virtual void fpFixedValueInit(const float& val) OVERRIDE	{
-		GParameterT<fp_type>::setValue(transfer(fp_type(val)));
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Multiplies floating-point-based parameters with a given value. Note that the resulting
-	 * internal value may well be outside of the allowed boundaries. However, the internal
-	 * representation will then be transferred back to an external value in the allowed
-	 * value range.
-	 */
-	virtual void fpMultiplyBy(const float& val) OVERRIDE {
-		GParameterT<fp_type>::setValue(transfer(fp_type(val) * GParameterT<fp_type>::value()));
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Multiplies with a random floating point number in a given range.  Note that the resulting
-	 * internal value may well be outside of the allowed boundaries. However, the internal
-	 * representation will then be transferred back to an external value in the allowed
-	 * value range.
-	 *
-	 * @param min The lower boundary for random number generation
-	 * @param max The upper boundary for random number generation
-	 */
-	virtual void fpMultiplyByRandom(const float& min, const float& max) OVERRIDE {
-		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() * this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(fp_type(min), fp_type(max))));
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Multiplies with a random floating point number in the range [0, 1[.  Note that the resulting
-	 * internal value may well be outside of the allowed boundaries. However, the internal
-	 * representation will then be transferred back to an external value in the allowed
-	 * value range.
-	 */
-	virtual void fpMultiplyByRandom() OVERRIDE {
-		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() * this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_01<fp_type>()));
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Adds the floating point parameters of another GParameterBase object to this one.
-	 * Note that the resulting internal value may well be outside of the allowed boundaries.
-	 * However, the internal representation will then be transferred back to an external
-	 * value in the allowed value range.
-	 *
-	 * @oaram p A boost::shared_ptr to another GParameterBase object
-	 */
-	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) OVERRIDE {
-		// We first need to convert p_base into the local type
-		boost::shared_ptr<GConstrainedFPT<fp_type> > p = GParameterBase::parameterbase_cast<GConstrainedFPT<fp_type> >(p_base);
-		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() + p->value()));
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Subtracts the floating point parameters of another GParameterBase object
-	 * from this one. Note that the resulting internal value may well be outside of
-	 * the allowed boundaries. However, the internal representation will then be
-	 * transferred back to an external value in the allowed value range.
-	 *
-	 * @oaram p A boost::shared_ptr to another GParameterBase object
-	 */
-	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) OVERRIDE {
-		// We first need to convert p_base into the local type
-		boost::shared_ptr<GConstrainedFPT<fp_type> > p = GParameterBase::parameterbase_cast<GConstrainedFPT<fp_type> >(p_base);
-		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() - p->value()));
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -710,7 +600,13 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Randomly initialize with a "fixed" value
-				BOOST_CHECK_NO_THROW(p_test->fpFixedValueInit(boost::numeric_cast<float>(this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary))));
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::fixedValueInit<fp_type>(
+				      boost::numeric_cast<fp_type>(
+                     this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary)
+                  )
+                  , ALLPARAMETERS
+               )
+            );
 
 				// Check that the external value is inside of the allowed value range
 				// Check that the value is still in the allowed range
@@ -738,7 +634,7 @@ public:
 
 			for(std::size_t i=1; i<99; i++) {
 				// Multiply by the counter variable
-				BOOST_CHECK_NO_THROW(p_test->fpMultiplyBy(fp_type(i)));
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::multiplyBy<fp_type>(fp_type(i), ALLPARAMETERS));
 
 				// Check that the external value is in the expected range
 				BOOST_CHECK_MESSAGE (
@@ -776,7 +672,14 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Multiply with a random value in a very wide
-				BOOST_CHECK_NO_THROW(p_test->fpMultiplyBy(boost::numeric_cast<float>(this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary))));
+				BOOST_CHECK_NO_THROW(
+               p_test->GParameterBase::multiplyBy<fp_type>(
+                  boost::numeric_cast<fp_type>(
+                     this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary)
+                  )
+                  , ALLPARAMETERS
+               )
+            );
 
 				// Check that the value is still in the allowed range
 				BOOST_CHECK_MESSAGE(
@@ -803,7 +706,7 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Multiply with a random value in a very wide
-				BOOST_CHECK_NO_THROW(p_test->fpMultiplyByRandom(lowerRandomBoundary, upperRandomBoundary));
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::multiplyByRandom<fp_type>(lowerRandomBoundary, upperRandomBoundary, ALLPARAMETERS));
 
 				// Check that the value is still in the allowed range
 				BOOST_CHECK_MESSAGE(
@@ -832,7 +735,7 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Multiply with a random value in a very wide
-				BOOST_CHECK_NO_THROW(p_test->fpMultiplyByRandom());
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::multiplyByRandom<fp_type>(ALLPARAMETERS));
 
 				// Check that the value is still in the allowed range
 				BOOST_CHECK_MESSAGE(
@@ -867,11 +770,11 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Assign a value of 1 to p_test2
-			BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(fp_type(1.)));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::fixedValueInit<fp_type>(fp_type(1.), ALLPARAMETERS));
 
 			fp_type currentVal = fp_type(-10000.);
 			for(boost::int32_t i=-9999; i<9999; i++) {
-				BOOST_CHECK_NO_THROW(p_test1->fpAdd(p_test2));
+				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::add<fp_type>(p_test2, ALLPARAMETERS));
 				currentVal += fp_type(1.);
 				BOOST_CHECK(p_test1->value() == currentVal);
 			}
@@ -895,11 +798,11 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Assign a value of 1 to p_test2
-			BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(fp_type(1.)));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::fixedValueInit<fp_type>(fp_type(1.), ALLPARAMETERS));
 
 			fp_type currentVal = fp_type(upper - fp_type(1));
 			for(boost::int32_t i=9999; i>=-9998; i--) {
-				BOOST_CHECK_NO_THROW(p_test1->fpSubtract(p_test2));
+				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::subtract<fp_type>(p_test2, ALLPARAMETERS));
 				currentVal -= fp_type(1.);
 				BOOST_CHECK(p_test1->value() == currentVal);
 			}
@@ -929,7 +832,7 @@ public:
 				BOOST_CHECK(firstValue  < upper);
 
 				// Add to p_test1
-				BOOST_CHECK_NO_THROW(p_test1->fpAdd(p_test2));
+				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::add<fp_type>(p_test2, ALLPARAMETERS));
 
 				// Check that p_test1 is still inside of the allowed value range
 				BOOST_CHECK(p_test1->value() >= lower);
@@ -948,7 +851,7 @@ public:
 				BOOST_CHECK(firstValue != secondValue);
 
 				// Subtract from p_test1
-				BOOST_CHECK_NO_THROW(p_test1->fpSubtract(p_test2));
+				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::subtract<fp_type>(p_test2, ALLPARAMETERS));
 
 				// Check that p_test1 is still inside of the allowed value range
 				BOOST_CHECK(p_test1->value() >= lower);
