@@ -87,7 +87,7 @@ public:
 	/** @brief The default constructor */
 	GMultiThreadedGD();
 	/** @brief Initialization with the number of starting points and the size of the finite step */
-	GMultiThreadedGD(const std::size_t&, const float&, const float&);
+	GMultiThreadedGD(const std::size_t&, const double&, const double&);
 	/** @brief A standard copy constructor */
 	GMultiThreadedGD(const GMultiThreadedGD&);
 	/** @brief The destructor */
@@ -103,12 +103,12 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&
-			, const Gem::Common::expectation&
-			, const double&
-			, const std::string&
-			, const std::string&
-			, const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
 	/** @brief Sets the maximum number of threads */

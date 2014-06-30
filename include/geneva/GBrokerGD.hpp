@@ -86,7 +86,7 @@ public:
 	/** @brief The default constructor */
 	GBrokerGD();
 	/** @brief Initialization with the number of starting points and the size of the finite step */
-	GBrokerGD(const std::size_t&, const float&, const float&);
+	GBrokerGD(const std::size_t&, const double&, const double&);
 	/** @brief A standard copy constructor */
 	GBrokerGD(const GBrokerGD&);
 	/** @brief The destructor */
@@ -102,12 +102,12 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&
-			, const Gem::Common::expectation&
-			, const double&
-			, const std::string&
-			, const std::string&
-			, const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
 	/** @brief Checks whether a given algorithm type likes to communicate via the broker */

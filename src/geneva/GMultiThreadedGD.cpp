@@ -54,8 +54,8 @@ GMultiThreadedGD::GMultiThreadedGD()
  */
 GMultiThreadedGD::GMultiThreadedGD (
 		const std::size_t& nStartingPoints
-		, const float& finiteStep
-		, const float& stepSize
+		, const double& finiteStep
+		, const double& stepSize
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize)
 	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))

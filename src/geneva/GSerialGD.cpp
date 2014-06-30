@@ -53,8 +53,8 @@ GSerialGD::GSerialGD()
  */
 GSerialGD::GSerialGD (
 		const std::size_t& nStartingPoints
-		, const float& finiteStep
-		, const float& stepSize
+		, const double& finiteStep
+		, const double& stepSize
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize)
 { /* nothing */ }

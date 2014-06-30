@@ -100,7 +100,7 @@ public:
 	/** @brief The default constructor */
 	GBaseGD();
 	/** @brief Initialization with the number of starting points and the size of the finite step */
-	GBaseGD(const std::size_t&, const float&, const float&);
+	GBaseGD(const std::size_t&, const double&, const double&);
 	/** @brief A standard copy constructor */
 	GBaseGD(const GBaseGD&);
 	/** @brief The destructor */
@@ -136,14 +136,14 @@ public:
 	void setNStartingPoints(std::size_t);
 
 	/** @brief Set the size of the finite step of the adaption process */
-	void setFiniteStep(float);
+	void setFiniteStep(double);
 	/** @brief Retrieve the size of the finite step of the adaption process */
-	float getFiniteStep() const;
+	double getFiniteStep() const;
 
 	/** @brief Sets a multiplier for the adaption process */
-	void setStepSize(float);
+	void setStepSize(double);
 	/** @brief Retrieves the current step size */
-	float getStepSize() const;
+	double getStepSize() const;
 
    /** @brief Retrieves the number of processable items for the current iteration */
    virtual std::size_t getNProcessableItems() const OVERRIDE;
@@ -194,8 +194,8 @@ private:
 	/***************************************************************************/
 	std::size_t nStartingPoints_; ///< The number of starting positions in the parameter space
 	std::size_t nFPParmsFirst_; ///< The amount of floating point values in the first individual
-	float finiteStep_; ///< The size of the incremental adaption of the feature vector
-	float stepSize_; ///< A multiplicative factor for the adaption  TODO: why float ???
+	double finiteStep_; ///< The size of the incremental adaption of the feature vector
+	double stepSize_; ///< A multiplicative factor for the adaption
 
 	/** @brief Lets individuals know about their position in the population */
 	void markIndividualPositions();

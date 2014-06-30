@@ -54,7 +54,7 @@ GBrokerGD::GBrokerGD()
  */
 GBrokerGD::GBrokerGD(
 		const std::size_t& nStartingPoints
-		, const float& finiteStep, const float& stepSize
+		, const double& finiteStep, const double& stepSize
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize)
 	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::RESUBMISSIONAFTERTIMEOUT)

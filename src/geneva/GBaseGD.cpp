@@ -72,8 +72,8 @@ GBaseGD::GBaseGD()
  */
 GBaseGD::GBaseGD(
 		const std::size_t& nStartingPoints
-		, const float& finiteStep
-		, const float& stepSize
+		, const double& finiteStep
+		, const double& stepSize
 )
 	: GOptimizationAlgorithmT<GParameterSet>()
 	, nStartingPoints_(nStartingPoints)
@@ -158,11 +158,11 @@ void GBaseGD::setNStartingPoints(std::size_t nStartingPoints) {
  *
  * @param finiteStep The desired size of the adaption
  */
-void GBaseGD::setFiniteStep(float finiteStep) {
+void GBaseGD::setFiniteStep(double finiteStep) {
 	// Do some error checking
 	if(finiteStep <= 0.) {
 	   glogger
-	   << "In GBaseGD::setFiniteStep(const float&):" << std::endl
+	   << "In GBaseGD::setFiniteStep(const double&):" << std::endl
       << "Got invalid finite step size: " << finiteStep << std::endl
       << GEXCEPTION;
 	}
@@ -176,7 +176,7 @@ void GBaseGD::setFiniteStep(float finiteStep) {
  *
  * @return The current finite step size
  */
-float GBaseGD::getFiniteStep() const {
+double GBaseGD::getFiniteStep() const {
 	return finiteStep_;
 }
 
@@ -186,11 +186,11 @@ float GBaseGD::getFiniteStep() const {
  *
  * @param stepSize A multiplicative factor for the adaption process
  */
-void GBaseGD::setStepSize(float stepSize) {
+void GBaseGD::setStepSize(double stepSize) {
 	// Do some error checking
 	if(stepSize <= 0.) {
 	   glogger
-	   << "In GBaseGD::setStepSize(const float&):" << std::endl
+	   << "In GBaseGD::setStepSize(const double&):" << std::endl
       << "Got invalid step size: " << stepSize << std::endl
       << GEXCEPTION;
 	}
@@ -204,7 +204,7 @@ void GBaseGD::setStepSize(float stepSize) {
  *
  * @return The current valze of the step size
  */
-float GBaseGD::getStepSize() const {
+double GBaseGD::getStepSize() const {
 	return stepSize_;
 }
 
@@ -563,7 +563,7 @@ void GBaseGD::addConfigurationOptions (
 	comment = ""; // Reset the comment string
 	comment += "The size of the adjustment in the difference quotient;";
 	if(showOrigin) comment += "[GBaseGD]";
-	gpb.registerFileParameter<float>(
+	gpb.registerFileParameter<double>(
 		"finiteStep" // The name of the variable
 		, DEFAULTFINITESTEP // The default value
 		, boost::bind(
@@ -579,7 +579,7 @@ void GBaseGD::addConfigurationOptions (
 	comment += "The size of each step into the;";
 	comment += "direction of steepest descent.;";
 	if(showOrigin) comment += "[GBaseGD]";
-	gpb.registerFileParameter<float>(
+	gpb.registerFileParameter<double>(
 		"stepSize" // The name of the variable
 		, DEFAULTSTEPSIZE // The default value
 		, boost::bind(
