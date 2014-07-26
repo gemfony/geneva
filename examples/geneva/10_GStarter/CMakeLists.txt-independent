@@ -121,16 +121,6 @@ ENDIF()
 
 INCLUDE(IdentifySystemParameters)
 
-###############################################################################
-# Identify old CMake version
-
-# The "FOREACH IN LISTS" construct is only available starting with CMake 2.8.
-# Detect that case to avoid build errors in CMake 2.6. 
-IF( ${CMAKE_VERSION} VERSION_LESS 2.8.0 )
-	SET( OLD_CMAKE TRUE )
-	# We print a warning at end of the generation, to avoid it getting lost
-ENDIF()
-
 # Nice formatting
 MESSAGE ("")
 
@@ -309,11 +299,9 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 # the build tree for easier testing.
 
 # Copy the config files to the build tree for easier testing
-IF( NOT OLD_CMAKE )
-	FOREACH ( file IN LISTS CONFIGFILES )
-		CONFIGURE_FILE ( ${file} ${file} . COPYONLY )
-	ENDFOREACH ()
-ENDIF()
+FOREACH ( file IN LISTS CONFIGFILES )
+	CONFIGURE_FILE ( ${file} ${file} . COPYONLY )
+ENDFOREACH ()
 
 #IF( GENEVA_BUILD_TESTS )
 #	ADD_SUBDIRECTORY (Tests)

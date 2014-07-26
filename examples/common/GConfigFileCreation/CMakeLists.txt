@@ -109,11 +109,9 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 )
 
 # Copy the config files to the build tree for easier testing
-IF( NOT OLD_CMAKE )
-	FOREACH ( file IN LISTS CONFIGFILE )
-		CONFIGURE_FILE ( ${file} ${file} COPYONLY )
-	ENDFOREACH ()
-ENDIF()
+FOREACH ( file IN LISTS CONFIGFILE )
+	CONFIGURE_FILE ( ${file} ${file} COPYONLY )
+ENDFOREACH ()
 
 SET ( COMMON_LIBNAME "gemfony-common" )
 
