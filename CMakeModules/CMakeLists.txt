@@ -1,12 +1,13 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( CMAKEFILES
-	clean-cmake-temporaries.cmake
 	COPYING-CMAKE-SCRIPTS
 	FindBoost.cmake
 	FindGeneva.cmake
+	# Other macro files
+	CleanCmakeTemporaries.cmake
 	IdentifySystemParameters.cmake
-	independent-built.cmake
+	IndependentBuild.cmake
 )
 
 INSTALL ( FILES ${CMAKEFILES} DESTINATION CMakeModules

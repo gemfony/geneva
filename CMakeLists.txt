@@ -325,7 +325,7 @@ IF(UNIX)
 	ADD_CUSTOM_TARGET(
 		"clean-cmake" 
 		COMMAND ${CMAKE_BUILD_TOOL} clean 2>&1 > /dev/null
-		COMMAND ${CMAKE_COMMAND} -DOLD_CMAKE=${OLD_CMAKE} -P ${PROJECT_SOURCE_DIR}/CMakeModules/clean-cmake-temporaries.cmake
+		COMMAND ${CMAKE_COMMAND} -DOLD_CMAKE=${OLD_CMAKE} -P ${PROJECT_SOURCE_DIR}/CMakeModules/CleanCmakeTemporaries.cmake
 	)
 ENDIF()
 
