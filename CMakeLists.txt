@@ -62,19 +62,6 @@ SET(VERSION_PATCH "0")
 
 SET(GENEVA_MIN_BOOST_VERSION 1.48)
 
-###############################################################################
-# Identify old CMake version
-
-# The "FOREACH IN LISTS" construct is only available starting with CMake 2.8.
-# Detect that case to avoid build errors in CMake 2.6. 
-IF( ${CMAKE_VERSION} VERSION_LESS 2.8.0 )
-	SET( OLD_CMAKE TRUE )
-	# We print a warning at end of the generation, to avoid it getting lost
-ENDIF()
-
-# Nice formatting
-MESSAGE ("")
-
 ################################################################################
 #
 # Set some default values for user-settings. Generally, these should be provided
@@ -119,6 +106,9 @@ ENDIF()
 IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
 	SET( CMAKE_INSTALL_PREFIX "/opt/geneva-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}" )
 ENDIF()
+
+# Nice formatting
+MESSAGE ("")
 
 ################################################################################
 # Validates the build type chosen by the user (Release or Debug). Also sets
@@ -329,7 +319,7 @@ SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
 
 ################################################################################
 # On a Unix-system, run a "make clean" and remove temporaries, so the configuration 
-# process may start fresh. The make command will not be available on windows, so
+# process may start fresh. The make command will not be available on windows.
 #
 IF(UNIX)
 	ADD_CUSTOM_TARGET(
@@ -418,19 +408,6 @@ INSTALL ( FILES ${INFORMATIONFILES} DESTINATION .
 	GROUP_READ
 	WORLD_READ
 )
-
-################################################################################
-#
-# Warning for CMake 2.6, comes last to avoid the message being "lost" in the later output.
-#
-IF( OLD_CMAKE )
-	MESSAGE( 
-		AUTHOR_WARNING 
-		": You are using CMake 2.6. Some files will not be copied to the _build_ tree, "
-		"in particular the configuration files for the examples will be missing. "
-		"Updating to CMake 2.8 or later is recommended!" 
-	)
-ENDIF()
 
 ################################################################################
 # Code for the creation of reference documentation for Geneva
