@@ -32,6 +32,7 @@
    used and are realistically unneded in the presence of double precision types. 
    This might later be replaced by a compile-time "define" of the base floating point
    type.
+ - The CMAKE version required for compiling Geneva is now v2.8.
 
 ********************************************************************************
 

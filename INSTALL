@@ -21,8 +21,8 @@ bugtracker: https://bugs.launchpad.net/geneva
 Prerequisites
 =============
 
-The build system uses CMake in version 2.6 or later. We recommend at least CMake 2.8,
-as certain functionality of the build-system will otherwise be missing.
+The build system uses CMake in version 2.8. At the moment CMake 3.0 is still
+untested, but you may want to give it a try.
 
 You will also need the Boost libraries (see http://www.boost.org) in version
 1.48 or newer. See either the Appendix "Installing Boost in Debian/Ubuntu" or
