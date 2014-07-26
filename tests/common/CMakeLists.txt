@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 ADD_CUSTOM_TARGET ( "common-tests"
 	COMMENT "Building the tests for the Common library"

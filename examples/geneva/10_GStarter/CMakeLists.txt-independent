@@ -34,7 +34,7 @@
 
 PROJECT (GStarter)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 ###############################################################################
 # Adapt these for your environment. If you want to add custom libraries, you
