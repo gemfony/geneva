@@ -71,9 +71,9 @@ GBaseGD::GBaseGD()
  * @param stepSize The size of the multiplicative factor of the adaption process
  */
 GBaseGD::GBaseGD(
-		const std::size_t& nStartingPoints
-		, const double& finiteStep
-		, const double& stepSize
+   const std::size_t& nStartingPoints
+   , const double& finiteStep
+   , const double& stepSize
 )
 	: GOptimizationAlgorithmT<GParameterSet>()
 	, nStartingPoints_(nStartingPoints)
@@ -276,12 +276,12 @@ bool GBaseGD::operator!=(const GBaseGD& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GBaseGD::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -453,7 +453,7 @@ void GBaseGD::updateChildParameters() {
 	for(std::size_t i=0; i<nStartingPoints_; i++) {
 		// Extract the fp vector
 		std::vector<double> parmVec;
-		this->at(i)->streamline(parmVec);
+		this->at(i)->streamline<double>(parmVec, ACTIVEONLY); // Only extract active parameters
 
 		// Loop over all directions
 		for(std::size_t j=0; j<nFPParmsFirst_; j++) {
@@ -473,7 +473,7 @@ void GBaseGD::updateChildParameters() {
 			parmVec[j] += finiteStep_;
 
 			// Attach the feature vector to the child individual
-			this->at(childPos)->assignValueVector(parmVec);
+			this->at(childPos)->assignValueVector<double>(parmVec, ACTIVEONLY);
 
 			// Restore the original value in the feature vector
 			parmVec[j] = origParmVal;
@@ -489,7 +489,7 @@ void GBaseGD::updateParentIndividuals() {
 	for(std::size_t i=0; i<nStartingPoints_; i++) {
 		// Extract the fp vector
 		std::vector<double> parmVec;
-		this->at(i)->streamline(parmVec);
+		this->at(i)->streamline<double>(parmVec, ACTIVEONLY);
 
 #ifdef DEBUG
 		// Make sure the parents are clean
@@ -522,7 +522,7 @@ void GBaseGD::updateParentIndividuals() {
 		}
 
 		// Load the parameter vector back into the parent
-		this->at(i)->assignValueVector(parmVec);
+		this->at(i)->assignValueVector<double>(parmVec, ACTIVEONLY);
 	}
 }
 
