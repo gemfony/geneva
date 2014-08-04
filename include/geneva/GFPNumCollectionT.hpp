@@ -96,9 +96,9 @@ public:
 	 * @param max The maximum random value
 	 */
 	GFPNumCollectionT(
-			const std::size_t& nval
-			, const fp_type& min
-			, const fp_type& max
+      const std::size_t& nval
+      , const fp_type& min
+      , const fp_type& max
 	)
 		: GNumCollectionT<fp_type>(nval, min, min, max) // The vector is preset to nval entries with value "min"
 	{

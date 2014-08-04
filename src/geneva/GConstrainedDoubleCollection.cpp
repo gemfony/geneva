@@ -377,7 +377,6 @@ void GConstrainedDoubleCollection::doubleAdd(
    boost::shared_ptr<GConstrainedDoubleCollection> p
       = GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
 
-#ifdef DEBUG
    // Cross-check that the sizes match
    if(this->size() != p->size()) {
       glogger
@@ -385,7 +384,6 @@ void GConstrainedDoubleCollection::doubleAdd(
       << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
       << GEXCEPTION;
    }
-#endif
 
    for(std::size_t pos=0; pos<this->size(); pos++) {
       GParameterCollectionT<double>::setValue(
@@ -407,7 +405,6 @@ void GConstrainedDoubleCollection::doubleSubtract(
    boost::shared_ptr<GConstrainedDoubleCollection> p
       = GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
 
-#ifdef DEBUG
    // Cross-check that the sizes match
    if(this->size() != p->size()) {
       glogger
@@ -415,7 +412,6 @@ void GConstrainedDoubleCollection::doubleSubtract(
       << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
       << GEXCEPTION;
    }
-#endif
 
    for(std::size_t pos=0; pos<this->size(); pos++) {
       GParameterCollectionT<double>::setValue(

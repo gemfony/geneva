@@ -66,8 +66,8 @@ namespace Geneva {
  */
 template<typename T>
 class GParameterTCollectionT
-	:public GParameterBase,
-	 public GStdPtrVectorInterfaceT<T>
+	: public GParameterBase
+	, public GStdPtrVectorInterfaceT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
