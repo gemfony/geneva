@@ -1161,7 +1161,6 @@ protected:
       boost::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
 
-#ifdef DEBUG
       // Check that both collections have the same size
       if(this->size() != p->size()) {
          glogger
@@ -1169,7 +1168,6 @@ protected:
          << "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
          << GEXCEPTION;
       }
-#endif
 
       typename GParameterTCollectionT<T>::iterator it;
       typename GParameterTCollectionT<T>::iterator p_it;
@@ -1190,7 +1188,6 @@ protected:
       boost::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
 
-#ifdef DEBUG
       // Check that both collections have the same size
       if(this->size() != p->size()) {
          glogger
@@ -1198,7 +1195,6 @@ protected:
          << "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
          << GEXCEPTION;
       }
-#endif
 
       typename GParameterTCollectionT<T>::iterator it;
       typename GParameterTCollectionT<T>::iterator p_it;
@@ -1219,7 +1215,6 @@ protected:
       boost::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
 
-#ifdef DEBUG
       // Check that both collections have the same size
       if(this->size() != p->size()) {
          glogger
@@ -1227,7 +1222,6 @@ protected:
          << "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
          << GEXCEPTION;
       }
-#endif
 
       typename GParameterTCollectionT<T>::iterator it;
       typename GParameterTCollectionT<T>::iterator p_it;
@@ -1248,7 +1242,6 @@ protected:
       boost::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
 
-#ifdef DEBUG
       // Check that both collections have the same size
       if(this->size() != p->size()) {
          glogger
@@ -1256,7 +1249,6 @@ protected:
          << "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
          << GEXCEPTION;
       }
-#endif
 
       typename GParameterTCollectionT<T>::iterator it;
       typename GParameterTCollectionT<T>::iterator p_it;
@@ -1277,7 +1269,6 @@ protected:
       boost::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
 
-#ifdef DEBUG
       // Check that both collections have the same size
       if(this->size() != p->size()) {
          glogger
@@ -1285,7 +1276,6 @@ protected:
          << "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
          << GEXCEPTION;
       }
-#endif
 
       typename GParameterTCollectionT<T>::iterator it;
       typename GParameterTCollectionT<T>::iterator p_it;
@@ -1306,7 +1296,6 @@ protected:
       boost::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
 
-#ifdef DEBUG
       // Check that both collections have the same size
       if(this->size() != p->size()) {
          glogger
@@ -1314,7 +1303,6 @@ protected:
          << "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
          << GEXCEPTION;
       }
-#endif
 
       typename GParameterTCollectionT<T>::iterator it;
       typename GParameterTCollectionT<T>::iterator p_it;
