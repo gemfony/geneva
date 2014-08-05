@@ -600,7 +600,7 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Randomly initialize with a "fixed" value
-				BOOST_CHECK_NO_THROW(p_test->GParameterBase::fixedValueInit<fp_type>(
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template fixedValueInit<fp_type>(
 				      boost::numeric_cast<fp_type>(
                      this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary)
                   )
@@ -634,7 +634,7 @@ public:
 
 			for(std::size_t i=1; i<99; i++) {
 				// Multiply by the counter variable
-				BOOST_CHECK_NO_THROW(p_test->GParameterBase::multiplyBy<fp_type>(fp_type(i), ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyBy<fp_type>(fp_type(i), ALLPARAMETERS));
 
 				// Check that the external value is in the expected range
 				BOOST_CHECK_MESSAGE (
@@ -673,7 +673,7 @@ public:
 			for(std::size_t i=0; i<nTests; i++) {
 				// Multiply with a random value in a very wide
 				BOOST_CHECK_NO_THROW(
-               p_test->GParameterBase::multiplyBy<fp_type>(
+               p_test->GParameterBase::template multiplyBy<fp_type>(
                   boost::numeric_cast<fp_type>(
                      this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary)
                   )
@@ -706,7 +706,7 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Multiply with a random value in a very wide
-				BOOST_CHECK_NO_THROW(p_test->GParameterBase::multiplyByRandom<fp_type>(lowerRandomBoundary, upperRandomBoundary, ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyByRandom<fp_type>(lowerRandomBoundary, upperRandomBoundary, ALLPARAMETERS));
 
 				// Check that the value is still in the allowed range
 				BOOST_CHECK_MESSAGE(
@@ -735,7 +735,7 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Multiply with a random value in a very wide
-				BOOST_CHECK_NO_THROW(p_test->GParameterBase::multiplyByRandom<fp_type>(ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyByRandom<fp_type>(ALLPARAMETERS));
 
 				// Check that the value is still in the allowed range
 				BOOST_CHECK_MESSAGE(
@@ -770,11 +770,11 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Assign a value of 1 to p_test2
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::fixedValueInit<fp_type>(fp_type(1.), ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<fp_type>(fp_type(1.), ALLPARAMETERS));
 
 			fp_type currentVal = fp_type(-10000.);
 			for(boost::int32_t i=-9999; i<9999; i++) {
-				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::add<fp_type>(p_test2, ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template add<fp_type>(p_test2, ALLPARAMETERS));
 				currentVal += fp_type(1.);
 				BOOST_CHECK(p_test1->value() == currentVal);
 			}
@@ -798,11 +798,11 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Assign a value of 1 to p_test2
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::fixedValueInit<fp_type>(fp_type(1.), ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<fp_type>(fp_type(1.), ALLPARAMETERS));
 
 			fp_type currentVal = fp_type(upper - fp_type(1));
 			for(boost::int32_t i=9999; i>=-9998; i--) {
-				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::subtract<fp_type>(p_test2, ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template subtract<fp_type>(p_test2, ALLPARAMETERS));
 				currentVal -= fp_type(1.);
 				BOOST_CHECK(p_test1->value() == currentVal);
 			}
@@ -832,7 +832,7 @@ public:
 				BOOST_CHECK(firstValue  < upper);
 
 				// Add to p_test1
-				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::add<fp_type>(p_test2, ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template add<fp_type>(p_test2, ALLPARAMETERS));
 
 				// Check that p_test1 is still inside of the allowed value range
 				BOOST_CHECK(p_test1->value() >= lower);
@@ -851,7 +851,7 @@ public:
 				BOOST_CHECK(firstValue != secondValue);
 
 				// Subtract from p_test1
-				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::subtract<fp_type>(p_test2, ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template subtract<fp_type>(p_test2, ALLPARAMETERS));
 
 				// Check that p_test1 is still inside of the allowed value range
 				BOOST_CHECK(p_test1->value() >= lower);

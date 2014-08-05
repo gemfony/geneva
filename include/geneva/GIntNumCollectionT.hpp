@@ -366,27 +366,27 @@ public:
 			BOOST_CHECK(*p_test3 == *p_test2);
 
 			// Check that initialization with a fixed floating point value has no effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::fixedValueInit<double>(2., ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<double>(2., ALLPARAMETERS));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that multiplication with a fixed floating point value has no effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::multiplyBy<double>(2., ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyBy<double>(2., ALLPARAMETERS));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::multiplyByRandom<double>(1., 2., ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyByRandom<double>(1., 2., ALLPARAMETERS));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::multiplyByRandom<double>(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyByRandom<double>(ALLPARAMETERS));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that adding p_test1 to p_test3 does not have an effect
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::add<double>(p_test1, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template add<double>(p_test1, ALLPARAMETERS));
 			BOOST_CHECK(*p_test3 == *p_test2);
 
 			// Check that subtracting p_test1 from p_test3 does not have an effect
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::subtract<double>(p_test1, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template subtract<double>(p_test1, ALLPARAMETERS));
 			BOOST_CHECK(*p_test3 == *p_test2);
 		}
 

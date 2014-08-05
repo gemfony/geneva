@@ -537,7 +537,7 @@ FUNCTION (
 
 		SET (
 		    GENEVA_COMPILER_FLAGS
-		    "${GENEVA_COMPILER_FLAGS} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread"
+		    "${GENEVA_COMPILER_FLAGS} -ftemplate-depth=512 -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread"
 		 )
 
 		 IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Debug") 
@@ -557,7 +557,7 @@ FUNCTION (
 		 IF("${GENEVA_OS_NAME_IN}" STREQUAL "MacOSX") # Special provisions for MacOS
 	        SET (
      	    	GENEVA_COMPILER_FLAGS
-    	     	"${GENEVA_COMPILER_FLAGS} -ftemplate-depth=512 -stdlib=libstdc++"
+    	     	"${GENEVA_COMPILER_FLAGS} -stdlib=libstdc++"
 	        )
 	     ELSEIF(${GENEVA_COMPILER_VERSION_IN} VERSION_LESS 3.1)
 	        SET (

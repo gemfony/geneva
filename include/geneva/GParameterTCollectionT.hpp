@@ -493,7 +493,7 @@ protected:
    ) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->streamline<float>(parVec, am);
+         (*cit)->template streamline<float>(parVec, am);
       }
    }
 
@@ -515,7 +515,7 @@ protected:
    ) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->streamline<double>(parVec, am);
+         (*cit)->template streamline<double>(parVec, am);
       }
    }
 
@@ -537,7 +537,7 @@ protected:
    ) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->streamline<boost::int32_t>(parVec, am);
+         (*cit)->template streamline<boost::int32_t>(parVec, am);
       }
    }
 
@@ -559,7 +559,7 @@ protected:
    ) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->streamline<bool>(parVec, am);
+         (*cit)->template streamline<bool>(parVec, am);
       }
    }
 
@@ -581,7 +581,7 @@ protected:
    ) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->streamline<float>(parVec, am);
+         (*cit)->template streamline<float>(parVec, am);
       }
    }
 
@@ -603,7 +603,7 @@ protected:
    ) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->streamline<double>(parVec, am);
+         (*cit)->template streamline<double>(parVec, am);
       }
    }
 
@@ -625,7 +625,7 @@ protected:
    ) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->streamline<boost::int32_t>(parVec, am);
+         (*cit)->template streamline<boost::int32_t>(parVec, am);
       }
    }
 
@@ -647,7 +647,7 @@ protected:
    ) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->streamline<bool>(parVec, am);
+         (*cit)->template streamline<bool>(parVec, am);
       }
    }
 
@@ -670,7 +670,7 @@ protected:
    ) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->boundaries<float>(lBndVec, uBndVec, am);
+         (*cit)->template boundaries<float>(lBndVec, uBndVec, am);
       }
    }
 
@@ -688,7 +688,7 @@ protected:
    ) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->boundaries<double>(lBndVec, uBndVec, am);
+         (*cit)->template boundaries<double>(lBndVec, uBndVec, am);
       }
    }
 
@@ -706,7 +706,7 @@ protected:
    ) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->boundaries<boost::int32_t>(lBndVec, uBndVec, am);
+         (*cit)->template boundaries<boost::int32_t>(lBndVec, uBndVec, am);
       }
    }
 
@@ -727,7 +727,7 @@ protected:
    ) const OVERRIDE {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->boundaries<bool>(lBndVec, uBndVec, am);
+         (*cit)->template boundaries<bool>(lBndVec, uBndVec, am);
       }
    }
 
@@ -746,7 +746,7 @@ protected:
 
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         result += (*cit)->countParameters<float>(am);
+         result += (*cit)->template countParameters<float>(am);
       }
 
       return result;
@@ -767,7 +767,7 @@ protected:
 
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         result += (*cit)->countParameters<double>(am);
+         result += (*cit)->template countParameters<double>(am);
       }
 
       return result;
@@ -788,7 +788,7 @@ protected:
 
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         result += (*cit)->countParameters<boost::int32_t>(am);
+         result += (*cit)->template countParameters<boost::int32_t>(am);
       }
 
       return result;
@@ -809,7 +809,7 @@ protected:
 
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
-         result += (*cit)->countParameters<bool>(am);
+         result += (*cit)->template countParameters<bool>(am);
       }
 
       return result;
@@ -826,7 +826,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->assignValueVector<float>(parVec, pos, am);
+         (*it)->template assignValueVector<float>(parVec, pos, am);
       }
    }
 
@@ -846,7 +846,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->assignValueVector<double>(parVec, pos, am);
+         (*it)->template assignValueVector<double>(parVec, pos, am);
       }
    }
 
@@ -866,7 +866,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->assignValueVector<boost::int32_t>(parVec, pos, am);
+         (*it)->template assignValueVector<boost::int32_t>(parVec, pos, am);
       }
    }
 
@@ -886,7 +886,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->assignValueVector<bool>(parVec, pos, am);
+         (*it)->template assignValueVector<bool>(parVec, pos, am);
       }
    }
 
@@ -905,7 +905,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->assignValueVectors<float>(parMap, am);
+         (*it)->template assignValueVectors<float>(parMap, am);
       }
    }
 
@@ -924,7 +924,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->assignValueVectors<double>(parMap, am);
+         (*it)->template assignValueVectors<double>(parMap, am);
       }
    }
 
@@ -944,7 +944,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->assignValueVectors<boost::int32_t>(parMap, am);
+         (*it)->template assignValueVectors<boost::int32_t>(parMap, am);
       }
    }
 
@@ -964,7 +964,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->assignValueVectors<bool>(parMap, am);
+         (*it)->template assignValueVectors<bool>(parMap, am);
       }
    }
 
@@ -984,7 +984,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyByRandom<float>(min, max, am);
+         (*it)->template multiplyByRandom<float>(min, max, am);
       }
    }
 
@@ -999,7 +999,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyByRandom<double>(min, max, am);
+         (*it)->template multiplyByRandom<double>(min, max, am);
       }
    }
 
@@ -1014,7 +1014,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyByRandom<boost::int32_t>(min, max, am);
+         (*it)->template multiplyByRandom<boost::int32_t>(min, max, am);
       }
    }
 
@@ -1025,7 +1025,7 @@ protected:
    virtual void floatMultiplyByRandom(const activityMode& am) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyByRandom<float>(am);
+         (*it)->template multiplyByRandom<float>(am);
       }
    }
 
@@ -1036,7 +1036,7 @@ protected:
    virtual void doubleMultiplyByRandom(const activityMode& am) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyByRandom<double>(am);
+         (*it)->template multiplyByRandom<double>(am);
       }
    }
 
@@ -1047,7 +1047,7 @@ protected:
    virtual void int32MultiplyByRandom(const activityMode& am) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyByRandom<boost::int32_t>(am);
+         (*it)->template multiplyByRandom<boost::int32_t>(am);
       }
    }
 
@@ -1061,7 +1061,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyBy<float>(value, am);
+         (*it)->template multiplyBy<float>(value, am);
       }
    }
 
@@ -1075,7 +1075,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyBy<double>(value, am);
+         (*it)->template multiplyBy<double>(value, am);
       }
    }
 
@@ -1089,7 +1089,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyBy<boost::int32_t>(value, am);
+         (*it)->template multiplyBy<boost::int32_t>(value, am);
       }
    }
 
@@ -1103,7 +1103,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->fixedValueInit<float>(value, am);
+         (*it)->template fixedValueInit<float>(value, am);
       }
    }
 
@@ -1117,7 +1117,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->fixedValueInit<double>(value, am);
+         (*it)->template fixedValueInit<double>(value, am);
       }
    }
 
@@ -1131,7 +1131,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->fixedValueInit<boost::int32_t>(value, am);
+         (*it)->template fixedValueInit<boost::int32_t>(value, am);
       }
    }
 
@@ -1145,7 +1145,7 @@ protected:
    ) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->fixedValueInit<bool>(value, am);
+         (*it)->template fixedValueInit<bool>(value, am);
       }
    }
 
@@ -1172,7 +1172,7 @@ protected:
       typename GParameterTCollectionT<T>::iterator it;
       typename GParameterTCollectionT<T>::iterator p_it;
       for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
-         (*it)->add<float>(*p_it, am);
+         (*it)->template add<float>(*p_it, am);
       }
    }
 
@@ -1199,7 +1199,7 @@ protected:
       typename GParameterTCollectionT<T>::iterator it;
       typename GParameterTCollectionT<T>::iterator p_it;
       for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
-         (*it)->add<double>(*p_it, am);
+         (*it)->template add<double>(*p_it, am);
       }
    }
 
@@ -1226,7 +1226,7 @@ protected:
       typename GParameterTCollectionT<T>::iterator it;
       typename GParameterTCollectionT<T>::iterator p_it;
       for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
-         (*it)->add<boost::int32_t>(*p_it, am);
+         (*it)->template add<boost::int32_t>(*p_it, am);
       }
    }
 
@@ -1253,7 +1253,7 @@ protected:
       typename GParameterTCollectionT<T>::iterator it;
       typename GParameterTCollectionT<T>::iterator p_it;
       for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
-         (*it)->subtract<float>(*p_it, am);
+         (*it)->template subtract<float>(*p_it, am);
       }
    }
 
@@ -1280,7 +1280,7 @@ protected:
       typename GParameterTCollectionT<T>::iterator it;
       typename GParameterTCollectionT<T>::iterator p_it;
       for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
-         (*it)->subtract<double>(*p_it, am);
+         (*it)->template subtract<double>(*p_it, am);
       }
    }
 
@@ -1307,7 +1307,7 @@ protected:
       typename GParameterTCollectionT<T>::iterator it;
       typename GParameterTCollectionT<T>::iterator p_it;
       for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
-         (*it)->subtract<boost::int32_t>(*p_it, am);
+         (*it)->template subtract<boost::int32_t>(*p_it, am);
       }
    }
 

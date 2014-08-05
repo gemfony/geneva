@@ -334,8 +334,8 @@ public:
 			}
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 			// Check that values have indeed been set
 			for(std::size_t i=0; i<nItems; i++) {
@@ -376,7 +376,7 @@ public:
 			}
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 			// Set initialization boundaries
 			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
@@ -389,7 +389,7 @@ public:
 			BOOST_CHECK(*p_test1 == *p_test2);
 
 			// Multiply p_test1 with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::multiplyBy<fp_type>(MULTVALUE, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyBy<fp_type>(MULTVALUE, ALLPARAMETERS));
 
 			// Check that the multiplication has succeeded
 			for(std::size_t i=0; i<nItems; i++) {
@@ -412,10 +412,10 @@ public:
 			}
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(1., ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., ALLPARAMETERS));
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::multiplyByRandom<fp_type>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, ALLPARAMETERS));
 
 			// Check that all values are in this range
 			for(std::size_t i=0; i<nItems; i++) {
@@ -439,10 +439,10 @@ public:
 			}
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::fixedValueInit<fp_type>(1., ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., ALLPARAMETERS));
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::multiplyByRandom<fp_type>(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(ALLPARAMETERS));
 
 			// Check that all values are in this range
 			for(std::size_t i=0; i<nItems; i++) {
@@ -485,7 +485,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
 
 			// Add p_test1 to p_test3
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::add<fp_type>(p_test1, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template add<fp_type>(p_test1, ALLPARAMETERS));
 
 			// Cross check that for each i p_test3[i] == p_test1[i] + p_test2[i]
 			for(std::size_t i=0; i<nItems; i++) {
@@ -527,7 +527,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
 
 			// Add p_test1 to p_test3
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::subtract<fp_type>(p_test1, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template subtract<fp_type>(p_test1, ALLPARAMETERS));
 
 			// Cross check that for each i p_test3[i] == p_test1[i] - p_test2[i]
 			for(std::size_t i=0; i<nItems; i++) {
@@ -565,7 +565,7 @@ public:
 				p_test1->push_back(fp_type(0));
 			}
 
-			BOOST_CHECK_THROW(p_test1->GParameterBase::add<fp_type>(p_test2, ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test1->GParameterBase::template add<fp_type>(p_test2, ALLPARAMETERS), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------
@@ -579,7 +579,7 @@ public:
 				p_test1->push_back(fp_type(0));
 			}
 
-			BOOST_CHECK_THROW(p_test1->GParameterBase::subtract<fp_type>(p_test2, ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test1->GParameterBase::template subtract<fp_type>(p_test2, ALLPARAMETERS), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------
