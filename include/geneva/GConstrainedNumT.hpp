@@ -76,9 +76,10 @@ class GConstrainedNumT
 		using boost::serialization::make_nvp;
 
 		// Save data
-		ar & make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T> >(*this))
-		   & BOOST_SERIALIZATION_NVP(lowerBoundary_)
-		   & BOOST_SERIALIZATION_NVP(upperBoundary_);
+		ar
+		& make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T> >(*this))
+		& BOOST_SERIALIZATION_NVP(lowerBoundary_)
+		& BOOST_SERIALIZATION_NVP(upperBoundary_);
 	}
 	///////////////////////////////////////////////////////////////////////
 

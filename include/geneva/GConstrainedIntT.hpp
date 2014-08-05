@@ -128,9 +128,9 @@ public:
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	GConstrainedIntT(
-			const int_type& val,
-			const int_type& lowerBoundary,
-			const int_type& upperBoundary
+      const int_type& val
+      , const int_type& lowerBoundary
+      , const int_type& upperBoundary
 	)
 		: GConstrainedNumT<int_type>(val, lowerBoundary, upperBoundary)
 	{ /* nothing */	}

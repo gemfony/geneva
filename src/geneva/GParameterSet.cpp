@@ -1380,23 +1380,24 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Check counting of active and inactive parameters
       // Some settings for the collection of tests below
-      const double MINGCONSTRDOUBLE    = -4.;
-      const double MAXGCONSTRDOUBLE    =  4.;
-      const double MINGDOUBLE          = -5.;
-      const double MAXGDOUBLE          =  5.;
-      const double MINGDOUBLECOLL      = -3.;
-      const double MAXGDOUBLECOLL      =  3.;
-      const std::size_t NGDOUBLECOLL   = 10 ;
-      const std::size_t NINTCOLL       = 10 ;
-      const boost::int32_t MININT      = -10;
-      const boost::int32_t MAXINT      =  10;
-      const std::size_t FPLOOPCOUNT    =  5 ;
-      const double FPFIXEDVALINITMIN   = -3.;
-      const double FPFIXEDVALINITMAX   =  3.;
-      const double FPMULTIPLYBYRANDMIN = -5.;
-      const double FPMULTIPLYBYRANDMAX =  5.;
-      const double FPADD               =  2.;
-      const double FPSUBTRACT          =  2.;
+      const double MINGCONSTRDOUBLE    =  -4.;
+      const double MAXGCONSTRDOUBLE    =   4.;
+      const double MINGDOUBLE          =  -5.;
+      const double MAXGDOUBLE          =   5.;
+      const double MINGDOUBLECOLL      =  -3.;
+      const double MAXGDOUBLECOLL      =   3.;
+      const std::size_t NGDOUBLECOLL   =  10 ;
+      const std::size_t NINTCOLL       =  10 ;
+      const std::size_t NINTBOOLOBJ    =  10 ;
+      const boost::int32_t MININT      = -100;
+      const boost::int32_t MAXINT      =  100;
+      const std::size_t FPLOOPCOUNT    =   5 ;
+      const double FPFIXEDVALINITMIN   =  -3.;
+      const double FPFIXEDVALINITMAX   =   3.;
+      const double FPMULTIPLYBYRANDMIN =  -5.;
+      const double FPMULTIPLYBYRANDMAX =   5.;
+      const double FPADD               =   2.;
+      const double FPSUBTRACT          =   2.;
 
       // Create a GParameterSet object as a clone of this object for further usage
       boost::shared_ptr<GParameterSet> p_test_0 = this->clone<GParameterSet>();
@@ -1404,7 +1405,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
       p_test_0->clear();
       // Make sure it is really empty
       BOOST_CHECK(p_test_0->empty());
-      // Add some floating pount parameters
+      // Add some floating point parameters
       for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
          boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(gr.uniform_real<double>(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE));
          boost::shared_ptr<GDoubleObject> gdo_ptr = boost::shared_ptr<GDoubleObject>(new GDoubleObject(gr.uniform_real<double>(MINGDOUBLE,MAXGDOUBLE)));
@@ -1420,8 +1421,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
       }
 
       // Attach a few other parameter types
-      p_test_0->push_back(boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(7, -10, 10)));
-      p_test_0->push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject(true)));
+      for(std::size_t i=0; i<NINTBOOLOBJ; i++) {
+         p_test_0->push_back(boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(7, MININT, MAXINT)));
+         p_test_0->push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject(true)));
+      }
 
       // Finally we add a tree structure
       boost::shared_ptr<GParameterObjectCollection> poc_ptr =
@@ -1464,10 +1467,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
       std::size_t NDOUBLEACTIVE = 2*FPLOOPCOUNT + 2*FPLOOPCOUNT;
       std::size_t NDOUBLEINACTIVE = NGDOUBLECOLL*FPLOOPCOUNT + FPLOOPCOUNT;
       std::size_t NDOUBLEALL = NDOUBLEINACTIVE + NDOUBLEACTIVE;
-      std::size_t NINTACTIVE = 1;
+      std::size_t NINTACTIVE = NINTBOOLOBJ;
       std::size_t NINTINACTIVE = NINTCOLL*FPLOOPCOUNT;
       std::size_t NINTALL = NINTINACTIVE + NINTACTIVE;
-      std::size_t NBOOLACTIVE = 1;
+      std::size_t NBOOLACTIVE = NINTBOOLOBJ;
       std::size_t NBOOLINACTIVE = 0;
       std::size_t NBOOLALL = NBOOLINACTIVE + NBOOLACTIVE;
 
@@ -1559,7 +1562,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
          BOOST_CHECK(orig_d_active != rand_d_active);
          BOOST_CHECK(orig_i_active.size() == NINTACTIVE);
          BOOST_CHECK(rand_i_active.size() == NINTACTIVE);
-         BOOST_CHECK(orig_i_active != rand_i_active);
+         BOOST_CHECK_MESSAGE(
+               orig_i_active != rand_i_active
+               , "orig_i_active: " << Gem::Common::vecToString(orig_i_active) << "\n" << "rand_i_active: " << Gem::Common::vecToString(rand_i_active) << "\n"
+         );
          BOOST_CHECK(orig_b_active.size() == NBOOLACTIVE);
          BOOST_CHECK(rand_b_active.size() == NBOOLACTIVE);
 

@@ -185,12 +185,10 @@ void GBooleanObject::randomInit(const double& probability, const activityMode& a
 
 /******************************************************************************/
 /**
- * Triggers random initialization of the parameter object, with a given likelihood structure.
- * This function holds the actual initialization logic, used in the publicly accessible
- * GBooleanObject::randomInit(const double& probability) function.
+ * Triggers random initialization of the parameter object
  */
-void GBooleanObject::randomInit_(const double& probability, const activityMode&) {
-	this->setValue(gr->weighted_bool(probability));
+void GBooleanObject::randomInit_(const activityMode&) {
+	this->setValue(gr->uniform_bool());
 }
 
 /* ----------------------------------------------------------------------------------
@@ -200,10 +198,12 @@ void GBooleanObject::randomInit_(const double& probability, const activityMode&)
 
 /******************************************************************************/
 /**
- * Triggers random initialization of the parameter object
+ * Triggers random initialization of the parameter object, with a given likelihood structure.
+ * This function holds the actual initialization logic, used in the publicly accessible
+ * GBooleanObject::randomInit(const double& probability) function.
  */
-void GBooleanObject::randomInit_(const activityMode&) {
-	this->setValue(gr->uniform_bool());
+void GBooleanObject::randomInit_(const double& probability, const activityMode& am) {
+   this->setValue(gr->weighted_bool(probability));
 }
 
 /* ----------------------------------------------------------------------------------

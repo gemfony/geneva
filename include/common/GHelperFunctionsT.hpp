@@ -79,6 +79,25 @@ namespace Common {
 
 /******************************************************************************/
 /**
+ * This function takes a std::vector and transforms its contents to a std::string.
+ * Note that this function assumes, that the template type of the vector can
+ * be streamed.
+ *
+ * @param vec The vector to be printed
+ * @return A string-representation of the vector
+ */
+template <typename vecType>
+std::string vecToString(const std::vector<vecType>& vec) {
+   std::ostringstream result;
+   typename std::vector<vecType>::const_iterator cit;
+   for(cit=vec.begin(); cit!=vec.end(); ++cit) {
+      result << *cit << " ";
+   }
+   return result.str();
+}
+
+/******************************************************************************/
+/**
  * This function takes two smart pointers and copies their contents (if any). Note that this
  * function might yield bad results for virtual types and will not work for purely virtual types.
  *
