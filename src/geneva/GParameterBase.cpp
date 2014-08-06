@@ -920,6 +920,8 @@ std::size_t GParameterBase::countParameters<float>(
       this->modifiableAmMatchOrHandover(am)
    ) {
       return this->countFloatParameters(am);
+   } else {
+      return 0;
    }
 }
 
@@ -938,6 +940,8 @@ std::size_t GParameterBase::countParameters<double>(
       this->modifiableAmMatchOrHandover(am)
    ) {
       return this->countDoubleParameters(am);
+   } else {
+      return 0;
    }
 }
 
@@ -956,6 +960,8 @@ std::size_t GParameterBase::countParameters<boost::int32_t>(
       this->modifiableAmMatchOrHandover(am)
    ) {
       return this->countInt32Parameters(am);
+   } else {
+      return 0;
    }
 }
 
@@ -974,6 +980,8 @@ std::size_t GParameterBase::countParameters<bool>(
       this->modifiableAmMatchOrHandover(am)
    ) {
       return this->countBoolParameters(am);
+   } else {
+      return 0;
    }
 }
 

@@ -1405,6 +1405,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
       p_test_0->clear();
       // Make sure it is really empty
       BOOST_CHECK(p_test_0->empty());
+
       // Add some floating point parameters
       for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
          boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(gr.uniform_real<double>(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE));
@@ -1481,7 +1482,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
          boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
          // Count the number of parameters and compare with the expected number
-         BOOST_CHECK(p_test->countParameters<double>(ACTIVEONLY) == NDOUBLEACTIVE);
+         BOOST_CHECK(p_test->countParameters<double>(ACTIVEONLY) == NDOUBLEACTIVE);  // TODO
          BOOST_CHECK(p_test->countParameters<double>(INACTIVEONLY) == NDOUBLEINACTIVE);
          BOOST_CHECK(p_test->countParameters<double>(ALLPARAMETERS) == NDOUBLEALL);
          BOOST_CHECK(p_test->countParameters<boost::int32_t>(ACTIVEONLY) == NINTACTIVE);
