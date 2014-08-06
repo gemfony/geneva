@@ -537,8 +537,16 @@ FUNCTION (
 
 		SET (
 		    GENEVA_COMPILER_FLAGS
-		    "${GENEVA_COMPILER_FLAGS} -ftemplate-depth=512 -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread"
+		    "${GENEVA_COMPILER_FLAGS} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread"
 		 )
+
+         # CLang 3.0 does not seem to support -ftemplate-depth
+         IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 3.0)
+	        SET (
+     	    	GENEVA_COMPILER_FLAGS
+    	     	"${GENEVA_COMPILER_FLAGS} -ftemplate-depth=512"
+	        )
+		 ENDIF()
 
 		 IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Debug") 
 		     SET (
