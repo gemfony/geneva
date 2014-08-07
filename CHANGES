@@ -3,15 +3,6 @@
 
 ****************************** BREAKING CHANGES ********************************
 
- - Value ranges of parameter objects are now always closed, i.e, Geneva now always
-   assumes boundaries [x,y] instead of [x,y[, where y is never reached. Geneva used 
-   to silently change the upper boundary by subtracting the smallest representable 
-   double value. However, this was the source of some confusion and has made the code
-   overly complex. This change should have no effect on most users. If you DO require 
-   an "open" upper boundary that cannot be reached, you MUST now specify the correct 
-   value yourself. Note that this is easily possible using the Boost function 
-   boost::math::float_prior<fp_type>(x) . See the manual for further information.
-   NOTE: THIS CHANGE IS STILL WORK IN PROGRESS
  - Constraint objects now use a new nomenclature to flag valid and invalid checks.
    Values > 1 are considered to be "invalid" as before. Values < 0 are now flagged
    as invalid (with an automatic calculation of an "invalidity"), unless the
@@ -24,11 +15,11 @@
    builds. All other Geneva examples can only be built inside of the Geneva source
    tree. CMakeLists.txt-independent should however give you a good starting point
    to make other examples independent from the main Geneva source tree.
- - As we do not have any testing facilities for older versions and most users
+ - As we do not have any testing facilities for older MacOS versions, and most users
    will upgrade to the newest version anyway, support for MacOS is now constrained 
    to the latest version with all updates (10.9 Mavericks, at the time of writing). 
    Note that support for this OS is still experimental.
- - Removed single precision floating point times, as these were practically never
+ - Removed single precision floating point classes, as these were practically never
    used and are realistically unneded in the presence of double precision types. 
    This might later be replaced by a compile-time "define" of the base floating point
    type.
@@ -74,6 +65,7 @@ Wishlist:
  - Make the build-system log whether the libraries were built with or without 
    test- and mpi-support, so independent builds may configure themselves automatically
  - Automatic recreation and distribution of relevant configuration files
+ - Make value ranges of parameter objects always closed, even for fp
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.2, "Mont Blanc" - March 22, 2014
