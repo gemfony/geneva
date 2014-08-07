@@ -58,6 +58,7 @@ GBaseSwarm::GBaseSwarm()
 	, c_velocity_(DEFAULTCVELOCITY)
 	, updateRule_(DEFAULTUPDATERULE)
 	, randomFillUp_(true)
+	, repulsionThreshold_(DEFREPULSIONTHRESHOLD)
 	, dblLowerParameterBoundaries_()
 	, dblUpperParameterBoundaries_()
 	, dblVelVecMax_()
@@ -99,6 +100,7 @@ GBaseSwarm::GBaseSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNe
 	, c_velocity_(DEFAULTCVELOCITY)
 	, updateRule_(DEFAULTUPDATERULE)
 	, randomFillUp_(true)
+	, repulsionThreshold_(DEFREPULSIONTHRESHOLD)
 	, dblLowerParameterBoundaries_()
 	, dblUpperParameterBoundaries_()
 	, dblVelVecMax_()
@@ -139,6 +141,7 @@ GBaseSwarm::GBaseSwarm(const GBaseSwarm& cp)
 	, c_velocity_(cp.c_velocity_)
 	, updateRule_(cp.updateRule_)
 	, randomFillUp_(cp.randomFillUp_)
+	, repulsionThreshold_(cp.repulsionThreshold_)
 	, dblLowerParameterBoundaries_(cp.dblLowerParameterBoundaries_)
 	, dblUpperParameterBoundaries_(cp.dblUpperParameterBoundaries_)
 	, dblVelVecMax_(cp.dblVelVecMax_)
@@ -215,6 +218,7 @@ void GBaseSwarm::load_(const GObject *cp)
 	c_velocity_ = p_load->c_velocity_;
 	updateRule_ = p_load->updateRule_;
 	randomFillUp_ = p_load->randomFillUp_;
+	repulsionThreshold_ = p_load->repulsionThreshold_;
 
 	dblLowerParameterBoundaries_ = p_load->dblLowerParameterBoundaries_;
 	dblUpperParameterBoundaries_ = p_load->dblUpperParameterBoundaries_;
@@ -347,6 +351,7 @@ boost::optional<std::string> GBaseSwarm::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", c_velocity_, p_load->c_velocity_, "c_velocity_", "p_load->c_velocity_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", updateRule_, p_load->updateRule_, "updateRule_", "p_load->updateRule_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", randomFillUp_, p_load->randomFillUp_, "randomFillUp_", "p_load->randomFillUp_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", repulsionThreshold_, p_load->repulsionThreshold_, "repulsionThreshold_", "p_load->repulsionThreshold_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_, "dblLowerParameterBoundaries_", "p_load->dblLowerParameterBoundaries_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_, "dblUpperParameterBoundaries_", "p_load->dblUpperParameterBoundaries_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", dblVelVecMax_, p_load->dblVelVecMax_, "dblVelVecMax_", "p_load->dblVelVecMax_", e , limit));
@@ -749,6 +754,22 @@ void GBaseSwarm::addConfigurationOptions (
 		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
 		, comment
 	);
+
+   comment = ""; // Reset the comment string
+   comment += "The number of stalls as of which the algorithm switches to repulsive mode;";
+   comment += "Set this to 0 in order to disable this feature;";
+   if(showOrigin) comment += "[GBaseSwarm]";
+   gpb.registerFileParameter<boost::uint32_t>(
+      "repulsionThreshold" // The name of the variable
+      , DEFREPULSIONTHRESHOLD // The default value
+      , boost::bind(
+         &GBaseSwarm::setRepulsionThreshold
+         , this
+         , _1
+        )
+      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+      , comment
+   );
 }
 
 /******************************************************************************/
@@ -1100,8 +1121,14 @@ void GBaseSwarm::updateIndividualPositions(
 	// be sure it is inside of the allowed range
 	pruneVelocity(velVec);
 
-	// Add the velocity parameters to the individual's parameters
-	Gem::Common::addVec<double>(indVec, velVec);
+	// Add or subtract the velocity parameters to the individual's parameters, depending on
+	// the number of stalls and the value of the repulsionThreshold_ variable. This allows
+	// the algorithm to escape local optima, if repulsionThreshold_ is > 0.
+	if(0<repulsionThreshold_ && this->getStallCounter() >= repulsionThreshold_) {
+	   Gem::Common::subtractVec<double>(indVec, velVec); // repulsion -- walk away from best known individuals
+	} else {
+	   Gem::Common::addVec<double>(indVec, velVec); // attraction - walk towards best known individuals
+	}
 
 	// Update the velocity individual
 	velocity->assignValueVector<double>(velVec, ACTIVEONLY);
@@ -1546,6 +1573,28 @@ void GBaseSwarm::setUpdateRule(updateRule ur) {
  */
 updateRule GBaseSwarm::getUpdateRule() const {
 	return updateRule_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to specify the number of stalls as of which the algorithm switches to
+ * repulsive mode. Set this value to 0 in order to disable repulsive mode.
+ *
+ * @param repulsionThreshold The threshold as of which the algorithm switches to repulsive mode
+ */
+void GBaseSwarm::setRepulsionThreshold(boost::uint32_t& repulsionThreshold) {
+   repulsionThreshold_ = repulsionThreshold;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the number of stalls as of which the algorithm switches
+ * to repulsive mode.
+ *
+ * @return The value of the repulsionThreshold_ variable
+ */
+boost::uint32_t GBaseSwarm::getRepulsionThreshold() const {
+   return repulsionThreshold_;
 }
 
 /******************************************************************************/

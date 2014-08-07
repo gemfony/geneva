@@ -83,22 +83,24 @@ class GBaseSwarm
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
-		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_)
-		   & BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_)
-		   & BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
-		   & BOOST_SERIALIZATION_NVP(global_best_)
-		   & BOOST_SERIALIZATION_NVP(neighborhood_bests_)
-		   & BOOST_SERIALIZATION_NVP(c_personal_)
-		   & BOOST_SERIALIZATION_NVP(c_neighborhood_)
-		   & BOOST_SERIALIZATION_NVP(c_global_)
-		   & BOOST_SERIALIZATION_NVP(c_velocity_)
-		   & BOOST_SERIALIZATION_NVP(updateRule_)
-		   & BOOST_SERIALIZATION_NVP(randomFillUp_)
-		   & BOOST_SERIALIZATION_NVP(dblLowerParameterBoundaries_)
-		   & BOOST_SERIALIZATION_NVP(dblUpperParameterBoundaries_)
-		   & BOOST_SERIALIZATION_NVP(dblVelVecMax_)
-		   & BOOST_SERIALIZATION_NVP(velocityRangePercentage_);
+		ar
+		& make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
+		& BOOST_SERIALIZATION_NVP(nNeighborhoods_)
+		& BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_)
+		& BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
+		& BOOST_SERIALIZATION_NVP(global_best_)
+		& BOOST_SERIALIZATION_NVP(neighborhood_bests_)
+		& BOOST_SERIALIZATION_NVP(c_personal_)
+		& BOOST_SERIALIZATION_NVP(c_neighborhood_)
+		& BOOST_SERIALIZATION_NVP(c_global_)
+		& BOOST_SERIALIZATION_NVP(c_velocity_)
+		& BOOST_SERIALIZATION_NVP(updateRule_)
+		& BOOST_SERIALIZATION_NVP(randomFillUp_)
+		& BOOST_SERIALIZATION_NVP(repulsionThreshold_)
+		& BOOST_SERIALIZATION_NVP(dblLowerParameterBoundaries_)
+		& BOOST_SERIALIZATION_NVP(dblUpperParameterBoundaries_)
+		& BOOST_SERIALIZATION_NVP(dblVelVecMax_)
+		& BOOST_SERIALIZATION_NVP(velocityRangePercentage_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -179,6 +181,11 @@ public:
 	/** @brief Allows to retrieve the update rule currently used by the swarm */
 	updateRule getUpdateRule() const;
 
+	/** @brief Allows to specify the number of stalls as of which the algorithm switches to repulsive mode */
+	void setRepulsionThreshold(boost::uint32_t&);
+	/** @brief Allows to retrieve the number of stalls as of which the algorithm switches to repulsive mode */
+	boost::uint32_t getRepulsionThreshold() const;
+
 	/** @brief All individuals automatically added to a neighborhood will have equal value */
 	void setNeighborhoodsEqualFillUp();
 	/** @brief All individuals automatically added to a neighborhood will have a random value */
@@ -206,8 +213,8 @@ public:
 	 */
 	template <typename parameterset_type>
 	boost::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
-			std::size_t neighborhood
-		  , typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
+      std::size_t neighborhood
+     , typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
 	){
 #ifdef DEBUG
 		// Check that the neighborhood is in a valid range
@@ -265,12 +272,12 @@ protected:
 
 	/** @brief Triggers an update of an individual's positions */
 	void updateIndividualPositions(
-		  const std::size_t&
-		  , boost::shared_ptr<GParameterSet>
-		  , boost::shared_ptr<GParameterSet>
-	  	  , boost::shared_ptr<GParameterSet>
-		  , boost::shared_ptr<GParameterSet>
-		  , boost::tuple<double, double, double, double>
+     const std::size_t&
+     , boost::shared_ptr<GParameterSet>
+     , boost::shared_ptr<GParameterSet>
+     , boost::shared_ptr<GParameterSet>
+     , boost::shared_ptr<GParameterSet>
+     , boost::tuple<double, double, double, double>
 	);
 
 	/** @brief Triggers an update of all individual's positions */
@@ -296,6 +303,8 @@ protected:
 
 	updateRule updateRule_; ///< Specifies how the parameters are updated
 	bool randomFillUp_; ///< Specifies whether neighborhoods are filled up with random values
+
+	boost::uint32_t repulsionThreshold_; ///< The number of stalls until the swarm algorithm switches to repulsion instead of attraction
 
 	std::vector<double> dblLowerParameterBoundaries_; ///< Holds lower boundaries of double parameters
 	std::vector<double> dblUpperParameterBoundaries_; ///< Holds upper boundaries of double parameters
@@ -346,10 +355,11 @@ public:
 	    void serialize(Archive & ar, const unsigned int){
 	      using boost::serialization::make_nvp;
 
-	      ar & make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this))
-	         & BOOST_SERIALIZATION_NVP(xDim_)
-	         & BOOST_SERIALIZATION_NVP(yDim_)
-	         & BOOST_SERIALIZATION_NVP(resultFile_);
+	      ar
+	      & make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this))
+	      & BOOST_SERIALIZATION_NVP(xDim_)
+	      & BOOST_SERIALIZATION_NVP(yDim_)
+	      & BOOST_SERIALIZATION_NVP(resultFile_);
 	    }
 	    ///////////////////////////////////////////////////////////////////////
 
@@ -370,12 +380,12 @@ public:
 
 	    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
 	    virtual boost::optional<std::string> checkRelationshipWith(
-	    		const GObject&
-	    		, const Gem::Common::expectation&
-	    		, const double&
-	    		, const std::string&
-	    		, const std::string&
-	    		, const bool&
+         const GObject&
+         , const Gem::Common::expectation&
+         , const double&
+         , const std::string&
+         , const std::string&
+         , const bool&
 	    ) const OVERRIDE;
 
 	    /** @brief Set the dimension of the output canvas */

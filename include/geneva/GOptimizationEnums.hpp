@@ -63,6 +63,14 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * The default number of stalls, as of which Genevas swarm implementation switches
+ * to repulsion mode. Setting this to 0 will force the swarm algorithm to always
+ * use the attraction-mode
+ */
+const boost::uint32_t DEFREPULSIONTHRESHOLD = 0;
+
+/******************************************************************************/
+/**
  * The maximum number an adaption of an individual should be performed until a
  * valid parameter set was found
  */
