@@ -354,6 +354,11 @@ ELSE()
 	MESSAGE ("\tbut no tests")
 ENDIF()
 MESSAGE ("\tin ${CMAKE_BUILD_TYPE} mode")
+
+IF("${GENEVA_BUILD_TYPE}" STREQUAL "Sanitize")
+    MESSAGE ("\twith -fsanitize=thread (if available)")
+ENDIF() 
+
 MESSAGE ("\tusing ${MSG_COMPILER} compiler settings")
 MESSAGE ("\twith Boost include file location ${Boost_INCLUDE_DIRS}")
 MESSAGE ("\twith Boost library location ${Boost_LIBRARY_DIRS}")

@@ -53,11 +53,11 @@ if [ $# -eq 0 ]; then
 	BOOSTROOT="/opt/boost"                    # Where Boost is installed
 	BOOSTLIBS="${BOOSTROOT}/lib"              # Where the Boost libraries are
 	BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
-	BUILDMODE="Release"                       # Release or Debug
+	BUILDMODE="Release"                       # Release, Debug or Sanitize (experimental, will default to Debug on unsupported platforms; compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html)
 	BUILDSTD="cxx98"                          # "auto": choose automatically; "cxx98": enforce the C++98 standard; "cxx11": enforce the C++11 standard
-	BUILDWITHMPI="0"                          # Whether Geneva should be built with MPI support (experimental)
+	BUILDWITHMPI="0"                          # Whether Geneva should be built with MPI support (experimental!). NOTE: Boost.MPI must be installed alongside supported MPI libraries
 	BUILDTESTCODE="0"                         # Whether to build Geneva with testing code
-	BUILDSTATIC="0"                           # Whether to build static code / libraries (experimental)
+	BUILDSTATIC="0"                           # Whether to build static code / libraries (experimental!)
 	VERBOSEMAKEFILE="0"                       # Whether compilation information should be emitted
 	INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
 	CEXTRAFLAGS=""                            # Further CMake settings you might want to provide
@@ -167,7 +167,7 @@ if [ ! -e ${BOOSTINCL}/version.hpp ]; then
 	exit
 fi
 
-if [ ! "${BUILDMODE}" = "Release" -a ! "${BUILDMODE}" = "Debug" ]; then
+if [ ! "${BUILDMODE}" = "Release" -a ! "${BUILDMODE}" = "Debug" -a ! "${BUILDMODE}" = "Sanitize" ]; then
 	echo "Error: Invalid build mode ${BUILDMODE} provided. Leaving"
 	exit
 fi

@@ -21,7 +21,7 @@
    Note that support for this OS is still experimental.
  - Removed single precision floating point classes, as these were practically never
    used and are realistically unneded in the presence of double precision types. 
-   This might later be replaced by a compile-time "define" of the base floating point
+   This might later be replaced by a compile-time #define of the base floating point
    type.
  - The CMAKE version required for compiling Geneva is now v2.8.
 
@@ -66,6 +66,7 @@ Wishlist:
    test- and mpi-support, so independent builds may configure themselves automatically
  - Automatic recreation and distribution of relevant configuration files
  - Make value ranges of parameter objects always closed, even for fp
+ - full integration of -fsanitize=X
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.2, "Mont Blanc" - March 22, 2014

@@ -91,6 +91,10 @@ MACRO (
 		ELSEIF(${GENEVA_BUILD_TYPE} STREQUAL "Release")
 			MESSAGE ("Setting the build type to Release")
 			SET(CMAKE_BUILD_TYPE "Release")
+	    ELSEIF(${GENEVA_BUILD_TYPE} STREQUAL "Sanitize")
+	        MESSAGE ("Setting the build type to Sanitize")
+	        MESSAGE ("This will default to Debug on systems that do not support this setting")
+	        SET(CMAKE_BUILD_TYPE "Debug")
 		ELSE()
 			MESSAGE (FATAL_ERROR "Unknown compilation mode GENEVA_BUILD_TYPE=${GENEVA_BUILD_TYPE}")
 		ENDIF()
@@ -548,7 +552,7 @@ FUNCTION (
 	        )
 		 ENDIF()
 
-		 IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Debug") 
+		 IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Debug"  OR  "${GENEVA_BUILD_MODE_IN}" STREQUAL "Sanitize") 
 		     SET (
 		     	GENEVA_COMPILER_FLAGS
 		    	"${GENEVA_COMPILER_FLAGS} -g -DDEBUG"
@@ -561,6 +565,15 @@ FUNCTION (
  		 ELSE()
 		 	MESSAGE(FATAL_ERROR "Build mode ${GENEVA_BUILD_MODE_IN} is not supported")	
 		 ENDIF()
+
+         # Switch on Googles thread-sanitizer if this is a supported platform and the feature was requested.
+         # Compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
+         IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Sanitize" AND ${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 3.0)
+ 		     SET (
+		     	GENEVA_COMPILER_FLAGS
+		    	"${GENEVA_COMPILER_FLAGS} -fsanitize=thread"
+		     )	
+         ENDIF()    
 
 		 IF("${GENEVA_OS_NAME_IN}" STREQUAL "MacOSX") # Special provisions for MacOS
 	        SET (
@@ -583,7 +596,7 @@ FUNCTION (
 	     	"${GENEVA_COMPILER_FLAGS} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth-1024"
         )
 	
-	 	IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Debug") 
+	 	IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Debug"   OR  "${GENEVA_BUILD_MODE_IN}" STREQUAL "Sanitize") 
 		     SET (
 		     	GENEVA_COMPILER_FLAGS
 		    	"${GENEVA_COMPILER_FLAGS} -g -DDEBUG"
@@ -596,6 +609,15 @@ FUNCTION (
  		 ELSE()
 		 	MESSAGE(FATAL_ERROR "Build mode ${GENEVA_BUILD_MODE_IN} is not supported")	
 		 ENDIF()
+	
+	     # Switch on Googles thread-sanitizer if this is a supported platform and the feature was requested.
+         # Compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
+         IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Sanitize" AND ${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 4.7)
+ 		     SET (
+		     	GENEVA_COMPILER_FLAGS
+		    	"${GENEVA_COMPILER_FLAGS} -fsanitize=thread"
+		     )	
+         ENDIF()    
 	
 	#*****************************************************************
 	ELSEIF("${GENEVA_COMPILER_NAME_IN}" MATCHES "${MSVC_DEF_IDENTIFIER}")
