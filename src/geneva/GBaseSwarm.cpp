@@ -319,12 +319,12 @@ bool GBaseSwarm::operator!=(const GBaseSwarm& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GBaseSwarm::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -771,7 +771,7 @@ void GBaseSwarm::init() {
 	GOptimizationAlgorithmT<GParameterSet>::init();
 
    // Extract the boundaries of all parameters
-   this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_);
+   this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, ACTIVEONLY);
 
 #ifdef DEBUG
    // Size matters!
@@ -804,7 +804,7 @@ void GBaseSwarm::init() {
 
       // Extract the parameter vector
       std::vector<double> velVec;
-      p->streamline(velVec);
+      p->streamline(velVec, ACTIVEONLY);
 
 #ifdef DEBUG
       // Check that the number of parameters equals those in the velocity boundaries
@@ -825,12 +825,11 @@ void GBaseSwarm::init() {
       }
 
       // Load the array into the velocity object
-      p->assignValueVector<double>(velVec);
+      p->assignValueVector<double>(velVec, ACTIVEONLY);
+      p->setDirtyFlag(); // Catch cases where a value is calculated for the velocity individual
 
       // Add the initialized velocity to the array.
       velocities_.push_back(p);
-
-      // TODO: do we need to mark any individuals as dirty here ?
    }
 }
 
@@ -985,12 +984,12 @@ void GBaseSwarm::updatePositions() {
  * @param constants A boost::tuple holding the various constants needed for the position update
  */
 void GBaseSwarm::updateIndividualPositions(
-	  const std::size_t& neighborhood
-	  , boost::shared_ptr<GParameterSet> ind
-	  , boost::shared_ptr<GParameterSet> neighborhood_best
-	  , boost::shared_ptr<GParameterSet> global_best
-	  , boost::shared_ptr<GParameterSet> velocity
-	  , boost::tuple<double, double, double, double> constants
+  const std::size_t& neighborhood
+  , boost::shared_ptr<GParameterSet> ind
+  , boost::shared_ptr<GParameterSet> neighborhood_best
+  , boost::shared_ptr<GParameterSet> global_best
+  , boost::shared_ptr<GParameterSet> velocity
+  , boost::tuple<double, double, double, double> constants
 ) {
 	// Extract the constants from the tuple
 	double cPersonal     = boost::get<0>(constants);
@@ -1046,11 +1045,11 @@ void GBaseSwarm::updateIndividualPositions(
 	// Extract the vectors for the individual, the personal, neighborhood and global bests,
 	// as well as the velocity
 	std::vector <double> indVec, personalBestVec, nbhBestVec, glbBestVec, velVec;
-	ind->streamline(indVec);
-	personal_best->streamline(personalBestVec);
-	neighborhood_best->streamline(nbhBestVec);
-	global_best->streamline(glbBestVec);
-	velocity->streamline(velVec);
+	ind->streamline(indVec, ACTIVEONLY);
+	personal_best->streamline(personalBestVec, ACTIVEONLY);
+	neighborhood_best->streamline(nbhBestVec, ACTIVEONLY);
+	global_best->streamline(glbBestVec, ACTIVEONLY);
+	velocity->streamline(velVec, ACTIVEONLY);
 
 	// Subtract the individual vector from the personal, neighborhood and global bests
 	Gem::Common::subtractVec<double>(personalBestVec, indVec);
@@ -1059,7 +1058,7 @@ void GBaseSwarm::updateIndividualPositions(
 
 	switch(updateRule_) {
 	case SWARM_UPDATERULE_CLASSIC:
-		// Multiply each floating point value with a random fp number in the range [0,1[ times a constant
+		// Multiply each floating point value with a random fp number in the range [0,1[, times a constant
 		for(std::size_t i=0; i<personalBestVec.size(); i++) {
 			personalBestVec[i] *= (cPersonal * gr.uniform_01<double>());
 			nbhBestVec[i] *= (cNeighborhood * gr.uniform_01<double>());
@@ -1105,10 +1104,10 @@ void GBaseSwarm::updateIndividualPositions(
 	Gem::Common::addVec<double>(indVec, velVec);
 
 	// Update the velocity individual
-	velocity->assignValueVector<double>(velVec);
+	velocity->assignValueVector<double>(velVec, ACTIVEONLY);
 
 	// Update the candidate solution
-	ind->assignValueVector<double>(indVec);
+	ind->assignValueVector<double>(indVec, ACTIVEONLY);
 }
 
 /******************************************************************************/
@@ -1142,9 +1141,9 @@ void GBaseSwarm::pruneVelocity(std::vector<double>& velVec) {
 		}
 #endif /* DEBUG */
 
-		if(fabs(velVec[i]) > dblVelVecMax_[i]) {
+		if(Gem::Common::gfabs(velVec[i]) > dblVelVecMax_[i]) {
 			overflowFound=true;
-			currentPercentage = fabs(velVec[i])/dblVelVecMax_[i];
+			currentPercentage = Gem::Common::gfabs(velVec[i])/dblVelVecMax_[i];
 			if(currentPercentage > maxPercentage) {
 				maxPercentage = currentPercentage;
 			}
@@ -1280,8 +1279,7 @@ void GBaseSwarm::adjustPopulation() {
       << "You need to add at least one individual before" << std::endl
       << "the call to this function." << std::endl
       << GEXCEPTION;
-	}
-	else if(currentSize==1) {
+	} else if(currentSize==1) {
 		// Fill up with random items to the number of neighborhoods
 		for(std::size_t i=1; i<nNeighborhoods_; i++) {
 			this->push_back(this->front()->clone<GParameterSet>());
@@ -1721,12 +1719,12 @@ bool GBaseSwarm::GSwarmOptimizationMonitor::operator!=(const GBaseSwarm::GSwarmO
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GBaseSwarm::GSwarmOptimizationMonitor::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
 	using namespace Gem::Common;
 
@@ -1754,7 +1752,7 @@ boost::optional<std::string> GBaseSwarm::GSwarmOptimizationMonitor::checkRelatio
  * @param resultFile The desired name of the result file
  */
 void GBaseSwarm::GSwarmOptimizationMonitor::setResultFileName(
-      const std::string& resultFile
+   const std::string& resultFile
 ) {
   resultFile_ = resultFile;
 }
@@ -1776,7 +1774,10 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::getResultFileName() const {
  * @param xDim The desired dimension of the canvas in x-direction
  * @param yDim The desired dimension of the canvas in y-direction
  */
-void GBaseSwarm::GSwarmOptimizationMonitor::setDims(const boost::uint16_t& xDim, const boost::uint16_t& yDim) {
+void GBaseSwarm::GSwarmOptimizationMonitor::setDims(
+   const boost::uint16_t& xDim
+   , const boost::uint16_t& yDim
+) {
 	xDim_ = xDim;
 	yDim_ = yDim;
 }
