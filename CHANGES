@@ -1,72 +1,87 @@
 //------------------------------------------------------------------------------------------------------
-* Development version 1.3, will be released as version 1.4 when ready
+* Development version 1.5, to be released as version 1.6 when ready
 
-****************************** BREAKING CHANGES ********************************
-
- - Constraint objects now use a new nomenclature to flag valid and invalid checks.
-   Values > 1 are considered to be "invalid" as before. Values < 0 are now flagged
-   as invalid (with an automatic calculation of an "invalidity"), unless the
-   "allowNegative" parameter of the constraint objects has been set. In this case
-   negative values are still considered to be valid in constraint objects. 
- - The CMakeLists.txt file of the 10_GStarter example can no longer be used for
-   builds independent of the Geneva main source tree. Instead, if you want to build
-   example 10 independently (for example in order to build your own code on top), 
-   rename CMakeLists.txt-independent to CMakeLists.txt . This allows independent
-   builds. All other Geneva examples can only be built inside of the Geneva source
-   tree. CMakeLists.txt-independent should however give you a good starting point
-   to make other examples independent from the main Geneva source tree.
- - As we do not have any testing facilities for older MacOS versions, and most users
-   will upgrade to the newest version anyway, support for MacOS is now constrained 
-   to the latest version with all updates (10.9 Mavericks, at the time of writing). 
-   Note that support for this OS is still experimental.
- - Removed single precision floating point classes, as these were practically never
-   used and are realistically unneded in the presence of double precision types. 
-   This might later be replaced by a compile-time #define of the base floating point
-   type.
- - The CMAKE version required for compiling Geneva is now v2.8.
-
-********************************************************************************
-
-The main other changes for this release include:
-- prepareBuild.sh can now be called multiple times (it will do a "make clean-all" if
-  a Makefile is found in the build-directory
-- Added support for "make doc" to create reference documentation for the entire
-  Geneva source tree
-- The formula parser will now throw custom exceptions when invalid calculations (such 
-  as a division by 0) were requested. This allows you to deal with invalid parameters
-  to your formulas more easily.
-- MUCOMMANU-modes (single-eval and pareto) will now be the same as MUPLUSNU in the first
-  iteration. All individuals will be evaluated in MUCOMMANU-mode in the first iteration.
-- The adapt() call of individuals (used particularly in evolutionary algorithms) will now
-  optionally take into account the validity of a given parameter set. I.e., if the 
-  parameter set does not satisfy the predefined constraints, adapt() will try a configurable
-  number of times to find a parameter set that does satisfy the constraints. Alternatively,
-  users may rely on the replacement-fitness calculated by Geneva for invalid solutions.
-
-The main bug fixes for this release include:
-- Work items could be added more than once to the priority queue defining the best solutions found
-  under certain circumstances
-
-Other changes in this release
-- The build-system was renovated to make it easier to add new platforms and to
-  make the build system more manageable
+The main changes for this release include:
 
 Wishlist:
  - A scripting interface to optimization algorithms, so that new
    algorithms can be more easily implemented and tested even by
-   people not familiar with all of Geneva
+   people not familiar with all of Geneva.
  - A "Python-Individual", so that optimization algorithms may be
-   specified in Python
- - Additional optimization algorithms (particularly Simplex
-   and Conjugate Gradient)
- - MS Windows port
- - Rework of the test infrastructure
- - Variable length parents in evolutionary algorithms to better support pareto optimization
- - Make the build-system log whether the libraries were built with or without 
-   test- and mpi-support, so independent builds may configure themselves automatically
- - Automatic recreation and distribution of relevant configuration files
- - Make value ranges of parameter objects always closed, even for fp
- - full integration of -fsanitize=X
+   specified in Python.
+ - Additional optimization algorithms (particularly Simplex and
+   Conjugate Gradient).
+ - MS Windows port.
+ - Variable length parents in evolutionary algorithms to better support
+   pareto optimization.
+ - Make the build-system log whether the libraries were built with or
+   without test- and mpi-support, so independent builds may configure
+   themselves automatically.
+ - Automatic recreation and distribution of relevant configuration files.
+ - Make value ranges of parameter objects always closed, even for fp.
+ - Rework of the test infrastructure.
+ - Full integration of -fsanitize=X.
+
+//------------------------------------------------------------------------------------------------------
+* Version 1.4, "Aosta" - August 8, 2014
+
+The main changes for this release include:
+
+****************************** BREAKING CHANGES ********************************
+
+ - Constraint objects now use a new nomenclature to flag valid and invalid
+   checks. Values > 1 are considered to be "invalid" as before. Values < 0
+   are now flagged as invalid (with an automatic calculation of an
+   "invalidity"), unless the "allowNegative" parameter of the constraint
+   objects has been set. In this case negative values are still considered
+   to be valid in constraint objects. 
+ - Removed single precision floating point classes, as these were
+   practically never used and are realistically unneded in the presence
+   of double precision types. This might later be replaced by a
+   compile-time #define of the base floating point type.
+ - The CMakeLists.txt file of the 10_GStarter example can no longer be
+   used for builds independent of the Geneva main source tree. Instead,
+   if you want to build Example #10 independently (for example in order
+   to build your own code on top), rename CMakeLists.txt-independent to
+   CMakeLists.txt . This allows independent builds. All other Geneva
+   examples can only be built inside of the Geneva source tree.
+   CMakeLists.txt-independent should however give you a good starting
+   point to make other examples independent from the main Geneva source
+   tree.
+ - As we do not have any testing facilities for older MacOS versions, and
+   most users will upgrade to the newest version anyway, support for MacOS
+   is now constrained to the latest version including all updates (i.e.,
+   10.9 Mavericks, at the time of this release). Note that support for
+   this OS is still experimental.
+ - The CMAKE version required for compiling Geneva is now v2.8.
+
+********************************************************************************
+
+- The formula parser will now throw custom exceptions when invalid
+  calculations (such as a division by 0) were requested. This allows
+  you to deal with invalid parameters to your formulas more easily.
+- MUCOMMANU-modes (single-eval and pareto) will now be the same as
+  MUPLUSNU in the first iteration. All individuals will be evaluated
+  in MUCOMMANU-mode in the first iteration.
+- The adapt() call of individuals (used particularly in evolutionary
+  algorithms) will now optionally take into account the validity of a
+  given parameter set. I.e., if the parameter set does not satisfy the
+  predefined constraints, adapt() will try a configurable number of times
+  to find a parameter set that does satisfy the constraints. Alternatively,
+  users may rely on the replacement-fitness calculated by Geneva for
+  invalid solutions.
+- The script "prepareBuild.sh" can now be called multiple times: it will
+  do a "make clean-all" if a Makefile is found in the build-directory.
+- The build-system was restructured and improved to simplify adding new
+  platforms and to make it more modular.
+- Added a target "make doc" to create reference documentation for the
+  entire Geneva source tree.
+
+The main bug fixes for this release include:
+- Under certain circumstances, work items could be added more than once
+  to the priority queue defining the best solutions found.
+
+Recommended version of Boost: 1.55; Minimum Boost version: 1.48.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.2, "Mont Blanc" - March 22, 2014
@@ -137,7 +152,7 @@ The main changes for this release include:
  - Experimental port to MacOS 10.9.
  - Ported to Boost 1.55.
 
-Recommended version of Boost: 1.55; Minimum Boost version is 1.48
+Recommended version of Boost: 1.55; Minimum Boost version: 1.48.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.0, "Chamonix" - August 31, 2013
@@ -146,7 +161,7 @@ The main changes for this release include:
  - Gave Go2 the ability to accept custom command line options from the user.
  - Updated all examples and tests.
 
-Recommended version of Boost: 1.54; Minimum Boost version is 1.41
+Recommended version of Boost: 1.54; Minimum Boost version: 1.41.
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.11, "Route de Chamonix" - August 14, 2013
@@ -218,7 +233,7 @@ The main changes for this release include:
  - Ported to MacOS X (still highly experimental).
  - Ported to Boost 1.54.
 
-Recommended version of Boost: 1.54; Minimum Boost version is 1.41
+Recommended version of Boost: 1.54; Minimum Boost version: 1.41.
 
 //-----------------------------------------------------------------------------------------------------
 * Version 0.9.10, "Route Blanche" - September 30, 2012
