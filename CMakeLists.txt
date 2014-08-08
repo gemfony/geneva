@@ -57,7 +57,7 @@ INCLUDE(IdentifySystemParameters)
 # Set the library/package version
 
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "3")
+SET(VERSION_MINOR "4")
 SET(VERSION_PATCH "0")
 
 SET(GENEVA_MIN_BOOST_VERSION 1.48)
