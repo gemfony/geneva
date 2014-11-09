@@ -777,8 +777,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class allows to log all candidate solutions found to a file. NOTE that
- * the file may become very large! Results are output in the following format:
+ * This class allows to log all candidate solutions found to a file, including the parameetr
+ * values. NOTE that the file may become very large! Results are output in the following format:
  * param1 param2 ... param_m eval1 eval2 ... eval_n . By default, no commas and
  * explanations are printed. If withNameAndType is set to true, the values are
  * prepended by a line with variable names and types. If withCommas is set to true,
@@ -1045,6 +1045,172 @@ private:
    bool withCommas_; ///< When set to true, commas will be printed in-between values
    bool useRawFitness_; ///< Indicates whether true- or transformed fitness should be output
    bool showValidity_; ///< Indicates whether the validity of a solution should be shown
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class prints out all evaluations of each iteration. The format is
+ * eval0_0, eval0_1, ... ,eval0_n, ..., evalm_0, evalm_1, ... ,evalm_n
+ */
+template <typename ind_type>
+class GIterationResultsFileLoggerT : public GBasePluggableOMT<ind_type>
+{
+   // Make sure this class can only be instantiated if ind_type is a derivative of GParameterSet
+   BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
+
+public:
+   /***************************************************************************/
+   /**
+    * The default constructor
+    */
+   GIterationResultsFileLoggerT()
+      : fileName_("CompleteSolutionLog.txt")
+      , withCommas_(false)
+      , useRawFitness_(true)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Initialization with a file name
+    */
+   GIterationResultsFileLoggerT(const std::string& fileName)
+      : fileName_(fileName)
+      , withCommas_(false)
+      , useRawFitness_(true)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The copy constructor
+    */
+   GIterationResultsFileLoggerT(const GIterationResultsFileLoggerT<ind_type>& cp)
+      : fileName_(cp.fileName_)
+      , withCommas_(cp.withCommas_)
+      , useRawFitness_(cp.useRawFitness_)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * The destructor
+    */
+   virtual ~GIterationResultsFileLoggerT()
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Sets the file name
+    */
+   void setFileName(std::string fileName) {
+      fileName_ = fileName;
+   }
+
+   /***************************************************************************/
+   /**
+    * Retrieves the current file name
+    */
+   std::string getFileName() const {
+      return fileName_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to specify whether commas should be printed in-between values
+    */
+   void setPrintWithCommas(bool withCommas) {
+      withCommas_ = withCommas;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether commas should be printed in-between values
+    */
+   bool getPrintWithCommas() const {
+      return withCommas_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to specify whether the true (instead of the transformed) fitness should be shown
+    */
+   void setUseTrueFitness(bool useRawFitness) {
+      useRawFitness_ = useRawFitness;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
+    */
+   bool getUseTrueFitness() const {
+      return useRawFitness_;
+   }
+
+   /***************************************************************************/
+   /**
+    * Allows to emit information in different stages of the information cycle
+    * (initialization, during each cycle and during finalization)
+    */
+   virtual void informationFunction(
+      const infoMode& im
+      , GOptimizationAlgorithmT<ind_type> * const goa
+   ) OVERRIDE {
+      switch(im) {
+      case Gem::Geneva::INFOINIT:
+      {
+         // If the file pointed to by fileName_ already exists, make a back-up
+         if(bf::exists(fileName_)) {
+            const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
+            std::string newFileName = fileName_ + ".bak_" + boost::lexical_cast<std::string>(currentTime);
+
+            glogger
+            << "In GIterationResultsFileLoggerT<T>::informationFunction(): Warning!" << std::endl
+            << "Attempt to output information to file " << fileName_ << std::endl
+            << "which already exists. We will rename the old file to" << std::endl
+            << newFileName << std::endl
+            << GWARNING;
+
+            bf::rename(fileName_, newFileName);
+         }
+      }
+      break;
+
+      case Gem::Geneva::INFOPROCESSING:
+      {
+         // Open the external file
+         std::ofstream data(fileName_.c_str(), std::ofstream::app);
+         std::vector<double> fitnessVec;
+
+         // Loop over all individuals of the algorithm.
+         std::size_t nIndividuals = goa->size();
+         for(std::size_t pos=0; pos<nIndividuals; pos++) {
+            boost::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+            fitnessVec = goa->at(pos)->fitnessVec(useRawFitness_);
+
+            std::size_t nFitnessCriteria = goa->getNumberOfFitnessCriteria();
+            for(std::size_t i=0; i<nFitnessCriteria; i++) {
+               data << fitnessVec.at(i) << ((withCommas_ && (nFitnessCriteria*nIndividuals > (i+1)*(pos+1)))?", ":" ");
+            }
+         }
+         data << std::endl;
+
+         // Close the external file
+         data.close();
+      }
+      break;
+
+      case Gem::Geneva::INFOEND:
+      // nothing
+      break;
+      };
+   }
+
+private:
+   /***************************************************************************/
+
+   std::string fileName_; ///< The name of the file to which solutions should be stored
+   bool withCommas_; ///< When set to true, commas will be printed in-between values
+   bool useRawFitness_; ///< Indicates whether true- or transformed fitness should be output
 };
 
 /******************************************************************************/

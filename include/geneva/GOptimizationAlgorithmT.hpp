@@ -492,7 +492,9 @@ public:
 			// We want to provide feedback to the user in regular intervals.
 			// Set the reportGeneration_ variable to 0 in order not to emit
 			// any information at all.
-			if(reportIteration_ && (iteration_%reportIteration_ == 0)) doInfo(INFOPROCESSING);
+			if(reportIteration_ && (iteration_%reportIteration_ == 0)) {
+			   doInfo(INFOPROCESSING);
+			}
 
 			// update the iteration_ counter
 			iteration_++;

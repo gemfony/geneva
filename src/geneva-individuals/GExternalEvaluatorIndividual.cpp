@@ -229,7 +229,7 @@ std::size_t GExternalEvaluatorIndividual::getNExpectedResults() const {
 /** @brief Triggers archiving of the evaluation results */
 void GExternalEvaluatorIndividual::archive() const {
    // Transform this object into a boost property tree
-   boost::property_tree::ptree ptr_out;
+   pt::ptree ptr_out;
    this->toPropertyTree(ptr_out);
 
    // Create a suitable extension and exchange file names for this object
@@ -237,8 +237,8 @@ void GExternalEvaluatorIndividual::archive() const {
    std::string parameterfileName = parameterFileBaseName_ + extension;
 
    // Save the parameters to a file for the external evaluation
-   boost::property_tree::xml_writer_settings<char> settings('\t', 1);
-   boost::property_tree::write_xml(parameterfileName, ptr_out, std::locale(), settings);
+   pt::xml_writer_settings<char> settings(char('\t'), 1);
+   pt::write_xml(parameterfileName, ptr_out, std::locale(), settings);
 
    // Create full command string for the external evaluation
    std::string command;
@@ -294,7 +294,7 @@ GObject* GExternalEvaluatorIndividual::clone_() const{
  */
 double GExternalEvaluatorIndividual::fitnessCalculation() {
    // Transform this object into a boost property tree
-   boost::property_tree::ptree ptr_out;
+   pt::ptree ptr_out;
    this->toPropertyTree(ptr_out);
 
    // Create a suitable extension and exchange file names for this object
@@ -303,9 +303,9 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
    std::string resultFileName = std::string("result") + extension;
 
    // Save the parameters to a file for the external evaluation
-   boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+   pt::xml_writer_settings<char> settings('\t', 1);
 
-   boost::property_tree::write_xml(parameterfileName, ptr_out, std::locale(), settings);
+   pt::write_xml(parameterfileName, ptr_out, std::locale(), settings);
 
    // Create full command string for the external evaluation
    std::string command;
@@ -328,7 +328,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
    }
 
    // Parse the results
-   boost::property_tree::ptree ptr_in; // A property tree object;
+   pt::ptree ptr_in; // A property tree object;
    pt::read_xml(resultFileName, ptr_in);
 
    // Check that the number of results provided by the result file
@@ -357,7 +357,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
       double currentResult = 0.;
       std::size_t resultCounter = 0;
       std::string resultString;
-      boost::property_tree::ptree::const_iterator cit;
+      pt::ptree::const_iterator cit;
       for (std::size_t res=0; res<nResults_; res++) {
          resultString = std::string("result") + boost::lexical_cast<std::string>(res);
 

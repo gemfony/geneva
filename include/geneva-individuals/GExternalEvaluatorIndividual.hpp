@@ -167,12 +167,13 @@ class GExternalEvaluatorIndividual :public GParameterSet
 
 	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
 	boost::optional<std::string> checkRelationshipWith(
-	      const GObject&,
-	      const Gem::Common::expectation&,
-	      const double&,
-	      const std::string&,
-	      const std::string&,
-	      const bool&) const;
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
+   ) const;
 
    /** @brief Sets the name of the external evaluation program */
    void setProgramName(const std::string&);

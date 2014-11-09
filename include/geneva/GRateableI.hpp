@@ -34,6 +34,7 @@
 
 // Standard header files go here
 #include <sstream>
+#include <vector>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -77,6 +78,13 @@ public:
    virtual double fitness(const std::size_t&, bool, bool) BASE = 0;
    /** @brief Calculate or returns the result of a fitness function with a given id */
    virtual double fitness(const std::size_t&, bool, bool) const BASE = 0;
+
+   /** @brief Returns all raw fitness results in a std::vector */
+   virtual std::vector<double> fitnessVec() const BASE = 0;
+   /** @brief Returns all raw or transformed results in a std::vector */
+   virtual std::vector<double> fitnessVec(bool) const BASE = 0;
+   /** @brief Returns all transformed fitness results in a std::vector */
+   virtual std::vector<double> transformedFitnessVec() const BASE = 0;
 };
 
 /******************************************************************************/

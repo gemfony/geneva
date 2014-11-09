@@ -166,6 +166,13 @@ public:
    /** @brief Returns the transformed result of a fitness function with a given id */
    virtual double transformedFitness(const std::size_t&) const OVERRIDE;
 
+   /** @brief Returns all raw fitness results in a std::vector */
+   virtual std::vector<double> fitnessVec() const OVERRIDE;
+   /** @brief Returns all raw or transformed results in a std::vector */
+   virtual std::vector<double> fitnessVec(bool) const OVERRIDE;
+   /** @brief Returns all transformed fitness results in a std::vector */
+   virtual std::vector<double> transformedFitnessVec() const OVERRIDE;
+
    /** @brief A wrapper for the non-const fitness function, so we can bind to it */
    double nonConstFitness(const std::size_t&, bool, bool);
    /** @brief A wrapper for the const fitness function, so we can bind to it */

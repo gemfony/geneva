@@ -399,6 +399,55 @@ double GOptimizableEntity::transformedFitness(const std::size_t& id) const {
 
 /******************************************************************************/
 /**
+ * Returns all raw fitness results in a std::vector
+ */
+std::vector<double> GOptimizableEntity::fitnessVec() const {
+   std::size_t nFitnessCriteria = this->getNumberOfFitnessCriteria();
+   std::vector<double> resultVec;
+
+   for(std::size_t i=0; i<nFitnessCriteria; i++) {
+      resultVec.push_back(this->fitness(i));
+   }
+
+   return resultVec;
+}
+
+/******************************************************************************/
+/**
+ * Returns all raw or transformed fitness results in a std::vector
+ */
+std::vector<double> GOptimizableEntity::fitnessVec(bool useRawFitness) const {
+   std::size_t nFitnessCriteria = this->getNumberOfFitnessCriteria();
+   std::vector<double> resultVec;
+
+   for(std::size_t i=0; i<nFitnessCriteria; i++) {
+      if(useRawFitness) {
+         resultVec.push_back(this->fitness(i));
+      } else {
+         resultVec.push_back(this->transformedFitness(i));
+      }
+   }
+
+   return resultVec;
+}
+
+/******************************************************************************/
+/**
+ * Returns all transformed fitness results in a std::vector
+ */
+std::vector<double> GOptimizableEntity::transformedFitnessVec() const {
+   std::size_t nFitnessCriteria = this->getNumberOfFitnessCriteria();
+   std::vector<double> resultVec;
+
+   for(std::size_t i=0; i<nFitnessCriteria; i++) {
+      resultVec.push_back(this->transformedFitness(i));
+   }
+
+   return resultVec;
+}
+
+/******************************************************************************/
+/**
  * A wrapper for the non-const fitness function, so we can bind to it. It is
  * needed as boost::bind cannot distinguish between the non-const and const
  * overload of the fitness() function.
@@ -811,12 +860,12 @@ void GOptimizableEntity::setFitness_(const std::vector<double>& f_vec) {
 	for(std::size_t i=0; i<this->getNumberOfFitnessCriteria(); i++) {
 	   boost::get<G_RAW_FITNESS>(currentFitnessVec_.at(i)) = f_vec.at(i);
 
-	   if(USESIGMOID == evalPolicy_) { // Update the fitness value to use sigmoidal values
-	      boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) =
-	            Gem::Common::gsigmoid(boost::get<G_RAW_FITNESS>(currentFitnessVec_.at(i)), barrier_, steepness_);
-	   } else { // All other transformation policies leave valid solutions intact
-	      boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = boost::get<G_RAW_FITNESS>(currentFitnessVec_.at(i));
-	   }
+	   // We need to update the transformed fitness for the USESIGMOID
+	   // case. All other transformations are handled elsewhere.
+	   boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) =
+	         USESIGMOID == evalPolicy_
+	         ? Gem::Common::gsigmoid(f_vec.at(i), barrier_, steepness_)
+	         : f_vec.at(i);
 	}
 
 	// Clear the dirty flag
