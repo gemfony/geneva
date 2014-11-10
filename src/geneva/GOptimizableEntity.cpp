@@ -477,9 +477,9 @@ double GOptimizableEntity::constFitness(
 /******************************************************************************/
 /**
  * Returns the last known fitness calculations of this object. Re-calculation
- * of the fitness is triggered, unless this is the server mode. By means of supplying
- * an id it is possible to distinguish between different target functions. 0 denotes
- * the main fitness criterion. The user can specify whether he/she is interested
+ * of the fitness is triggered, if the "dirty flag" is set, unless this is the server mode.
+ * By means of supplying an id it is possible to distinguish between different target functions.
+ * 0 denotes the main fitness criterion. The user can specify whether he/she is interested
  * in the transformed or the raw fitness value.
  *
  * @param id The id of the fitness criterion
@@ -515,7 +515,7 @@ double GOptimizableEntity::fitness(
 	}
 
 	// Return the desired result -- there should be no situation where the dirtyFlag is still set
-	if(useTransformedFitness && true == this->getMaxMode()) {
+	if(/* useTransformedFitness && */ true == this->getMaxMode()) { // TODO: Why the "useTransformedFitness && ...) ???
 	   return -getCachedFitness(id, useTransformedFitness); // This negation will transform maximization problems into minimization problems
 	} else {
 	   return getCachedFitness(id, useTransformedFitness);
@@ -620,7 +620,7 @@ void GOptimizableEntity::registerSecondaryResult(
 /**
  * Enforces re-calculation of the fitness values.
  */
-void GOptimizableEntity::enforceFitnessUpdate() {
+void GOptimizableEntity::enforceFitnessUpdate(boost::function<std::vector<double>()> f) {
    // Assign a new evaluation id
    evaluationID_ = std::string("eval_") + boost::lexical_cast<std::string>(boost::uuids::random_generator()());
 
@@ -637,10 +637,31 @@ void GOptimizableEntity::enforceFitnessUpdate() {
       // calculation (if at all) so we want to reset the corresponding "invalid" flag
       markedAsInvalidByUser_.unlockWithValue(OE_NOT_MARKED_AS_INVALID);
 
-      // Trigger actual fitness calculation using the user-supplied function. This will
-      // also register secondary "raw" fitness values used in multi-criterion optimization.
-      // Transformed values are taken care of below
-      boost::get<G_RAW_FITNESS>(currentFitnessVec_.at(0)) = fitnessCalculation();
+      if(f) {
+         std::vector<double> fitnessVec = f();
+
+         // Use the external evaluation function (needed e.g. when using a GPGPU for the evaluation step)
+#ifdef DEBUG
+         if(fitnessVec.size() != getNumberOfFitnessCriteria()) {
+            glogger
+            << "In GOptimizableEntity::enforceFitnessUpdate(): Error!" << std::endl
+            << "Invalid size of external evaluation criteria: " << fitnessVec.size() << " (expected " << getNumberOfFitnessCriteria() << ")" << std::endl
+            <<  GEXCEPTION;
+         }
+#endif
+
+         // Assign the actual fitness values
+         for(std::size_t i=0; i<getNumberOfFitnessCriteria(); i++) {
+            boost::get<G_RAW_FITNESS>(currentFitnessVec_.at(0)) = fitnessVec.at(i);
+         }
+
+
+      } else {
+         // Trigger actual fitness calculation using the user-supplied function. This will
+         // also register secondary "raw" fitness values used in multi-criterion optimization.
+         // Transformed values are taken care of below
+         boost::get<G_RAW_FITNESS>(currentFitnessVec_.at(0)) = fitnessCalculation();
+      }
 
       // Lock setting of the variable again, so the invalidity state can only be changed
       // upon re-calculation of the object's values

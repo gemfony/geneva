@@ -185,7 +185,7 @@ public:
 	double getCachedFitness(const std::size_t& = 0, const bool& = USETRANSFORMEDFITNESS) const;
 
 	/** @brief Enforce fitness (re-)calculation */
-	void enforceFitnessUpdate();
+	void enforceFitnessUpdate(boost::function<std::vector<double>()> =  boost::function<std::vector<double>()>());
 
 	/** @brief Registers a new, secondary result value of the custom fitness calculation */
 	void registerSecondaryResult(const std::size_t&, const double&);

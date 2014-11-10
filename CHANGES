@@ -3,6 +3,8 @@
 
 The main changes for this release include:
 
+ - Removed GExternalSetterIndividual in favour of a more versatile enforceFitnessUpdate()
+
 Wishlist:
  - A scripting interface to optimization algorithms, so that new
    algorithms can be more easily implemented and tested even by

@@ -74,7 +74,6 @@
 #include "geneva/GConstrainedInt32Object.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva-individuals/GExternalSetterIndividual.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GParserBuilder.hpp"

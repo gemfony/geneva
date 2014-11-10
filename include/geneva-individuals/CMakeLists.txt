@@ -2,7 +2,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( SAMPLEINDIVIDUALINCLUDES
 	GExternalEvaluatorIndividual.hpp
-	GExternalSetterIndividual.hpp
 	GFunctionIndividual.hpp
 	GMetaOptimizerIndividualT.hpp
 	GNeuralNetworkIndividual.hpp
