@@ -77,6 +77,7 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 
+/******************************************************************************/
 /**
  * Check that we have support for threads. This collection of classes is useless
  * without this.
@@ -118,7 +119,7 @@ const bool GCL_IMPLICIT_NOT_ALLOWED = false;
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Gives access to a reference to parm_ a single time. When this has happened,
+ * Gives write access to a reference to parm_ a single time. When this has happened,
  * only an explicit reset allows to gain access to a parameter-reference again.
  * It is however possible to explicitly set the parameter.
  */

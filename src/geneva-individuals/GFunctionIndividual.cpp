@@ -1668,12 +1668,12 @@ double GFunctionIndividualFactory::getAdaptAdProb() const {
  */
 void GFunctionIndividualFactory::setAdaptAdProb(double adaptAdProb) {
 #ifdef DEBUG
-      if(adaptAdProb < 0.) {
-         glogger
-         << "In GFunctionIndividualFactory::setAdaptAdProb(): Error!" << std::endl
-         << "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
-         << GEXCEPTION;
-      }
+   if(adaptAdProb < 0.) {
+      glogger
+      << "In GFunctionIndividualFactory::setAdaptAdProb(): Error!" << std::endl
+      << "Invalid value for adaptAdProb given: " << adaptAdProb.value() << std::endl
+      << GEXCEPTION;
+   }
 #endif /* DEBUG */
 
    adaptAdProb_ = adaptAdProb;
@@ -1693,26 +1693,26 @@ boost::tuple<double,double> GFunctionIndividualFactory::getAdProbRange() const {
  */
 void GFunctionIndividualFactory::setAdProbRange(double minAdProb, double maxAdProb) {
 #ifdef DEBUG
-      if(minAdProb < 0.) {
-         glogger
-         << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
-         << "minAdProb < 0: " << minAdProb << std::endl
-         << GEXCEPTION;
-      }
+   if(minAdProb < 0.) {
+      glogger
+      << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
+      << "minAdProb < 0: " << minAdProb << std::endl
+      << GEXCEPTION;
+   }
 
-      if(minAdProb > maxAdProb) {
-         glogger
-         << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
-         << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
-         << GEXCEPTION;
-      }
+   if(minAdProb > maxAdProb) {
+      glogger
+      << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
+      << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
+      << GEXCEPTION;
+   }
 
-      if(maxAdProb > 1.) {
-         glogger
-         << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
-         << "maxAdProb > 1: " << maxAdProb << std::endl
-         << GEXCEPTION;
-      }
+   if(maxAdProb > 1.) {
+      glogger
+      << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
+      << "maxAdProb > 1: " << maxAdProb << std::endl
+      << GEXCEPTION;
+   }
 #endif /* DEBUG */
 
    minAdProb_ = minAdProb;
