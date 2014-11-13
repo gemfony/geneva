@@ -61,6 +61,7 @@ void parseCommandLine(
    , bool& printValid
    , bool& useRawFitness
    , std::string& monitorSpec
+   , bool& bestOnly
    , bool& observeBoundaries
    , std::string& logAll
    , std::string& monitorNAdaptions
@@ -92,6 +93,15 @@ void parseCommandLine(
       )
    );
    od.push_back(monitorSpec_option);
+
+   boost::shared_ptr<po::option_description> bestOnly_option(
+      new po::option_description(
+         "bestOnly"
+         , po::value<bool>(&bestOnly)->default_value(false)
+         , "Allows you to specify whether only the best solutions should be monitored. This option only has an effect when monitorSpec is set."
+      )
+   );
+   od.push_back(bestOnly_option);
 
    boost::shared_ptr<po::option_description> observeBoundaries_option(
       new po::option_description(
@@ -143,6 +153,7 @@ int main(int argc, char **argv) {
    bool printValid = false;
    bool useRawFitness = false;
    std::string monitorSpec = "empty";
+   bool bestOnly = false;
    bool observeBoundaries = "false";
    std::string logAll = "empty";
    std::string monitorNAdaptions = "empty";
@@ -155,6 +166,7 @@ int main(int argc, char **argv) {
       , printValid
       , useRawFitness
       , monitorSpec
+      , bestOnly
       , observeBoundaries
       , logAll
       , monitorNAdaptions
@@ -188,6 +200,7 @@ int main(int argc, char **argv) {
       progplot_ptr->setObserveBoundaries(observeBoundaries);
       progplot_ptr->setMonitorValidOnly(printValid); // Only record valid parameters, when printValid is set to true
       progplot_ptr->setUseRawEvaluation(useRawFitness); // Use untransformed evaluation values for logging
+      progplot_ptr->setMonitorBestOnly(bestOnly); // Whether only the best solutions should be monitored
 
       // Request printing of png files (upon processing of the .C file with ROOT)
       progplot_ptr->setAddPrintCommand(true);
