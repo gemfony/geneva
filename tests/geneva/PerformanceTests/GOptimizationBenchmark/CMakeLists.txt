@@ -48,6 +48,7 @@ FIND_PACKAGE( Boost 1.48 REQUIRED COMPONENTS
 	serialization
 	system
 	thread
+	test_exec_monitor
 )
 
 # Check whether we want to activate the test code and build tests, if not done yet
