@@ -1671,7 +1671,7 @@ void GFunctionIndividualFactory::setAdaptAdProb(double adaptAdProb) {
    if(adaptAdProb < 0.) {
       glogger
       << "In GFunctionIndividualFactory::setAdaptAdProb(): Error!" << std::endl
-      << "Invalid value for adaptAdProb given: " << adaptAdProb.value() << std::endl
+      << "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
