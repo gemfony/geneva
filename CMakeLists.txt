@@ -43,8 +43,8 @@ SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 # We create some examples and test programs as part of the build process.
 # This variable allows their build-scripts to detect that they are being
 # called from within the master build-script. This prevents redundant searches
-# and checks and allows examples to be built independent of the main Geneva
-# source tree. 
+# and checks, while still allowing examples to be built independently of the
+# main Geneva source tree. 
 
 SET(GENEVA_DEPENDENT_BUILD TRUE)
 
@@ -111,13 +111,13 @@ ENDIF()
 MESSAGE ("")
 
 ################################################################################
-# Validates the build type chosen by the user (Release or Debug). Also sets
-# the CMAKE_BUILD_TYPE accordingly
+# Validate the build type chosen by the user (Release or Debug). This macro
+# also sets CMAKE_BUILD_TYPE accordingly.
 
 VALIDATE_BUILD_TYPE()
 
 ################################################################################
-# Set a number of variables related to static or dynamic build-mode
+# Set the build mode static or dynamic
 
 IF ( GENEVA_STATIC ) 
 	SET (BUILD_SHARED_LIBS OFF)
@@ -145,8 +145,8 @@ FIND_HOST_COMPILER (
 SET(MSG_COMPILER ${GENEVA_COMPILER_NAME})
 
 ################################################################################
-# Determine the C++ standard to be used (depending on the desired standard
-# and the maximum supported standard by the chosen compiler. This function
+# Determine the C++ standard to be used, depending on the desired standard
+# and the maximum standard allowed by the chosen compiler. This function
 # will raise an error if the desired standard is higher than the maximum
 # supported standard. It will also resolve the "auto" setting of the standard
 # by setting it to the maximum supported standard.
@@ -189,7 +189,7 @@ ADD_DEFINITIONS("${GENEVA_COMPILER_FLAGS_OUT}")
 # Boost-specific code
 
 SET (Boost_USE_MULTITHREAD ON)
-SET (Boost_ADDITIONAL_VERSIONS "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "1.52" "1.52.0" "1.53" "1.53.0" "1.54" "1.54.0" "1.55.0" "1.56.0" )
+SET (Boost_ADDITIONAL_VERSIONS "1.57.0" "1.57")
 
 IF ( GENEVA_STATIC ) 
 	SET (Boost_USE_STATIC_LIBS ON)
