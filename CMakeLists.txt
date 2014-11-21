@@ -189,7 +189,7 @@ ADD_DEFINITIONS("${GENEVA_COMPILER_FLAGS_OUT}")
 # Boost-specific code
 
 SET (Boost_USE_MULTITHREAD ON)
-SET (Boost_ADDITIONAL_VERSIONS "1.57.0" "1.57")
+SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0")
 
 IF ( GENEVA_STATIC ) 
 	SET (Boost_USE_STATIC_LIBS ON)
@@ -241,19 +241,16 @@ FIND_PACKAGE(
 
 # The MPI mode is currently only supported under Linux and BSD
 IF( GENEVA_WITH_MPI )
-    IF( UNIX AND NOT "${GENEVA_OS_NAME}" MATCHES "MacOSX" )
-        # Search for MPI libraries and headers
-        FIND_PACKAGE(MPI)
-        
-        # Has the library been found ? Complain if not
-        IF( NOT MPI_CXX_FOUND )
-            MESSAGE (FATAL_ERROR "You have requested MPI support, but no suitable MPI libraries were found. We cannot continue.")
-        ENDIF()
-        
-    ELSE()
-        # Complain
-        MESSAGE (FATAL_ERROR "The MPI-mode is currently only supported under Linux and BSD")
-    ENDIF()
+	IF( UNIX AND NOT "${GENEVA_OS_NAME}" MATCHES "MacOSX" )
+		# Search for MPI libraries and headers
+		FIND_PACKAGE(MPI)
+
+		IF( NOT MPI_CXX_FOUND )
+			MESSAGE (FATAL_ERROR "You have requested MPI support, but no suitable MPI libraries were found. We cannot continue.")
+		ENDIF()
+	ELSE()
+		MESSAGE (FATAL_ERROR "The MPI-mode is currently only supported under Linux and BSD")
+	ENDIF()
 ENDIF()
 
 IF(UNIX)
