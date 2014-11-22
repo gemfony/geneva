@@ -36,15 +36,56 @@
 # "/where/geneva/resides/scripts/prepareBuild.sh ./myGenevaConfig.gcfg"
 # Follow the instructions given by the script.
 
-CMAKE=/usr/bin/cmake                      # Where the cmake executable is located
-BOOSTROOT="/opt/boost"                    # Where Boost is installed
-BOOSTLIBS="${BOOSTROOT}/lib"              # Where the Boost libraries are
-BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
-BUILDMODE="Release"                       # Release, Debug or Sanitize (experimental! Will default to Debug on unsupported platforms; compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html)
-BUILDSTD="cxx98"                          # "auto": choose automatically; "cxx98": enforce the C++98 standard; "cxx11": enforce the C++11 standard
-BUILDWITHMPI="0"                          # Whether Geneva should be built with MPI support (experimental!). NOTE: Boost.MPI must be installed alongside supported MPI libraries
-BUILDTESTCODE="0"                         # Whether to build Geneva with testing code
-BUILDSTATIC="0"                           # Whether to build static code / libraries (experimental!)
-VERBOSEMAKEFILE="0"                       # Whether compilation information should be emitted
-INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
-CEXTRAFLAGS=""                            # Further CMake settings you might want to provide
+
+# Where the cmake executable is located
+CMAKE="/usr/bin/cmake"
+
+#
+# The Boost location parameters.
+#
+# NOTE: you need to either leave all three parameters empty, or set
+# the parameter BOOSTROOT, or set both of BOOSTLIBS and BOOSTINCL.
+#
+# If you installed a binary Boost distribution you should first try
+# leaving all three parameters undefined (commented out).
+# If you installed Boost from source using a default installation tree,
+# then it should be enough to set BOOSTROOT to the Boost installation prefix.
+# If CMake is not able to find the Boost headers/libraries correctly,
+# or these are installed at non-standard locations, then you should try
+# to set BOOSTLIBS and BOOSTINCL. The folder BOOSTLIBS should be the
+# location of the libboost_* libraries, and the folder BOOSTINCL should
+# be the location of Boost's 'boost/' headers folder where the file
+# 'version.hpp' is found.
+#
+#BOOSTROOT="/opt/boost"
+#BOOSTLIBS="/usr/lib"
+#BOOSTINCL="/usr/include"
+
+# Build mode must be either 'Release', 'Debug' or 'Sanitize'
+# NOTE: the 'Sanitize' setting is experimental! It will default
+# to 'Debug' on unsupported platforms; see
+# http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
+BUILDMODE="Release"
+
+# The C++ standard to use for building, one of 'auto' (choose automatically),
+# 'cxx98' (enforce the C++98 standard), 'cxx11' (enforce the C++11 standard)
+BUILDSTD="cxx98"
+
+# Whether Geneva should be built with MPI support (experimental!).
+# NOTE: Boost.MPI must be installed alongside supported MPI libraries
+BUILDWITHMPI="0"
+
+# Whether to build Geneva with testing code
+BUILDTESTCODE="0"
+
+# Whether to build static code / libraries (experimental!)
+BUILDSTATIC="0"
+
+# Whether compilation information should be emitted
+VERBOSEMAKEFILE="0"
+
+# Where the Geneva library shall go
+INSTALLDIR="/opt/geneva"
+
+# Further CMake settings you might want to provide
+CEXTRAFLAGS=""

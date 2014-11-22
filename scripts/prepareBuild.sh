@@ -40,7 +40,7 @@
 
 ####################################################################
 # Make a note of the build-root-directory
-GENEVA_BUILDROOT=${PWD}
+GENEVA_BUILDROOT="${PWD}"
 
 ####################################################################
 # Check variables, set variable defaults if no config file was given
@@ -49,10 +49,7 @@ if [ $# -eq 0 ]; then
 	echo -e "file was provided. See the Geneva 'scripts' directory"
 	echo -e "for an example (genevaConfig.gcfg).\n"
 
-	CMAKE=/usr/bin/cmake                      # Where the cmake executable is located
-	BOOSTROOT="/opt/boost"                    # Where Boost is installed
-	BOOSTLIBS="${BOOSTROOT}/lib"              # Where the Boost libraries are
-	BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
+	CMAKE="/usr/bin/cmake"                    # Where the cmake executable is located
 	BUILDMODE="Release"                       # Release, Debug or Sanitize (experimental, will default to Debug on unsupported platforms; compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html)
 	BUILDSTD="cxx98"                          # "auto": choose automatically; "cxx98": enforce the C++98 standard; "cxx11": enforce the C++11 standard
 	BUILDWITHMPI="0"                          # Whether Geneva should be built with MPI support (experimental!). NOTE: Boost.MPI must be installed alongside supported MPI libraries
@@ -65,140 +62,158 @@ elif [ $# -eq 1 ]; then
 	# Check that the command file has the expected form (ends with .gcfg)
 	testfile=`basename $1 .gcfg`.gcfg
 	if [ ! `basename $1` = "$testfile" ]; then
-		echo "File $1 does not seem to be a Geneva config file, as it does not"
-		echo "end in .gcfg as expected. Tested with ${testfile}. Leaving."
+		echo -e "\nFile '$1' does not seem to be a Geneva config file, as it"
+		echo -e "does not end in '.gcfg' as expected. Leaving...\n"
 		exit
 	fi
 
 	# Check that the file exists
 	if [ ! -e $1 ]; then
-		echo "Error: File $1 does not seem to exist. Leaving"
+		echo -e "\nError: File '$1' does not seem to exist.\nLeaving...\n"
 		exit
 	fi
 
 	# Source the config file
-	echo -e "\nUsing configuration file $1"
+	echo -e "\nUsing configuration file '$1'\n"
 	. $1
 
 	# Check whether all required variables were set
 	if [ -z "${CMAKE}" ]; then
-		CMAKE=/usr/bin/cmake
-		echo "Variable CMAKE wasn't set. Setting to default value ${CMAKE}"
-	fi
-
-	if [ -z "${BOOSTROOT}" ]; then
-		BOOSTROOT="/opt/boost"
-		echo "Variable BOOSTROOT wasn't set. Setting to default value ${BOOSTROOT}"
-	fi
-
-	if [ -z "${BOOSTLIBS}" ]; then
-		BOOSTLIBS="${BOOSTROOT}/lib"
-		echo "Variable BOOSTLIBS wasn't set. Setting to default value ${BOOSTLIBS}"
-	fi
-
-	if [ -z "${BOOSTINCL}" ]; then
-		BOOSTINCL="${BOOSTROOT}/include/boost"
-		echo "Variable BOOSTINCL wasn't set. Setting to default value ${BOOSTINCL}"
+		CMAKE="/usr/bin/cmake"
+		echo "Variable CMAKE wasn't set. Setting to default value '${CMAKE}'"
 	fi
 
 	if [ -z "${BUILDMODE}" ]; then
 		BUILDMODE="Release"
-		echo "Variable BUILDMODE wasn't set. Setting to default value ${BUILDMODE}"
+		echo "Variable BUILDMODE wasn't set. Setting to default value '${BUILDMODE}'"
 	fi
 
 	if [ -z "${BUILDSTD}" ]; then
 		BUILDSTD="cxx98"
-		echo "Variable BUILDSTD wasn't set. Setting to default value ${BUILDSTD}"
+		echo "Variable BUILDSTD wasn't set. Setting to default value '${BUILDSTD}'"
 	fi
 
 	if [ -z "${BUILDWITHMPI}" ]; then
 		BUILDWITHMPI="0"
-		echo "Variable BUILDWITHMPI wasn't set. Setting to default value ${BUILDWITHMPI}"
+		echo "Variable BUILDWITHMPI wasn't set. Setting to default value '${BUILDWITHMPI}'"
 	fi
 
 	if [ -z "${BUILDTESTCODE}" ]; then
 		BUILDTESTCODE="0"
-		echo "Variable BUILDTESTCODE wasn't set. Setting to default value ${BUILDTESTCODE}"
+		echo "Variable BUILDTESTCODE wasn't set. Setting to default value '${BUILDTESTCODE}'"
 	fi
 
 	if [ -z "${BUILDSTATIC}" ]; then
 		BUILDSTATIC="0"
-		echo "Variable BUILDSTATIC wasn't set. Setting to default value ${BUILDSTATIC}"
+		echo "Variable BUILDSTATIC wasn't set. Setting to default value '${BUILDSTATIC}'"
 	fi
 
 	if [ -z "${VERBOSEMAKEFILE}" ]; then
 		VERBOSEMAKEFILE="0"
-		echo "Variable VERBOSEMAKEFILE wasn't set. Setting to default value ${VERBOSEMAKEFILE}"
+		echo "Variable VERBOSEMAKEFILE wasn't set. Setting to default value '${VERBOSEMAKEFILE}'"
 	fi
 
 	if [ -z "${INSTALLDIR}" ]; then
 		INSTALLDIR="/opt/geneva"
-		echo "Variable INSTALLDIR wasn't set. Setting to default value ${INSTALLDIR}"
+		echo "Variable INSTALLDIR wasn't set. Setting to default value '${INSTALLDIR}'"
 	fi
 
 	if [ -z "${CEXTRAFLAGS}" ]; then
 		CEXTRAFLAGS=""
 	fi
 else
-    echo "Received $# command line arguments, which is an invalid number."
-    echo "You can either call this script without arguments, in which case"
-	echo "default values will be assumed for all configuration options,"
-	echo "or you can provide exactly one Geneva config file as command"
-	echo "line argument, ending in .gcfg . Leaving now, as we do not know"
-	echo "how to proceed."
+	echo -e "\nReceived $# command line arguments, which is an invalid number."
+	echo -e "You can either call this script without arguments, in which case"
+	echo -e "default values will be assumed for all configuration options,"
+	echo -e "or you can provide exactly one Geneva config file as command"
+	echo -e "line argument, ending in '.gcfg'. Leaving now, as we do not know"
+	echo -e "how to proceed.\n"
 	exit
 fi
 
 ####################################################################
 # Some checks
-if [ ! -x ${CMAKE} ]; then
-	echo "Error: Could not find cmake executable ${CMAKE}"
-	echo "Please provide the correct path in the configuration file."
+if [ ! -x "${CMAKE}" ]; then
+	echo -e "\nError: Could not find cmake executable '${CMAKE}'"
+	echo -e "Please provide the correct path in the configuration file."
+	echo -e "Leaving...\n"
 	exit
 fi
 
-if [ ! -e ${BOOSTINCL}/version.hpp ]; then
-	echo "Error: There does not seem to be a complete"
-	echo "Boost installation. Got variables"
-	echo "BOOSTROOT = ${BOOSTROOT}"
-	echo "BOOSTLIBS = ${BOOSTLIBS}"
-	echo "BOOSTINCL = ${BOOSTINCL}"
-	echo "Leaving"
+# Check if the BOOST* variables were set correctly: either ROOT or LIB+INCLUDE
+# must be set, or none at all
+if [ -z "${BOOSTROOT}" ] && [ -z "${BOOSTLIBS}" ] && [ -z "${BOOSTINCL}" ]; then
+	_BOOST_SYSTEM="true"
+	echo "Variable BOOSTROOT wasn't set. Letting CMake search for a system Boost installation."
+elif [ -z "${BOOSTLIBS}" ] && [ -n "${BOOSTINCL}" ]; then
+	_BOOST_VAR_ERROR="true"
+elif [ -n "${BOOSTLIBS}" ] && [ -z "${BOOSTINCL}" ]; then
+	_BOOST_VAR_ERROR="true"
+elif [ -n "${BOOSTROOT}" ] && [ -n "${BOOSTLIBS}" ] && [ -n "${BOOSTINCL}" ]; then
+	_BOOST_VAR_ERROR="true"
+elif [ -n "${BOOSTROOT}" ] && [ -z "${BOOSTLIBS}" ] && [ -z "${BOOSTINCL}" ]; then
+	# This case is fine, let CMakes' FindBoost find the header and lib locations,
+	# but without searching system paths
+	_BOOST_SYSTEM="false"
+elif [ -z "${BOOSTROOT}" ] && [ -n "${BOOSTLIBS}" ] && [ -n "${BOOSTINCL}" ]; then
+	# This case is fine, both the header and lib locations are given explicitely
+	# so do not search system paths
+	_BOOST_SYSTEM="false"
+fi
+
+if [ "x${_BOOST_VAR_ERROR}" = "xtrue" ]; then
+	echo -e "\nError: inconsistent Boost location variables. Please"
+	echo -e "set either BOOSTROOT, or both BOOSTLIBS and BOOSTINCL,"
+	echo -e "or none at all. Got variables:"
+	echo -e "\tBOOSTROOT = ${BOOSTROOT}"
+	echo -e "\tBOOSTLIBS = ${BOOSTLIBS}"
+	echo -e "\tBOOSTINCL = ${BOOSTINCL}"
+	echo -e "Leaving...\n"
+	exit
+fi
+
+if [ -n "${BOOSTINCL}" ] && [ ! -e "${BOOSTINCL}/boost/version.hpp" ]; then
+	echo -e "\nError: there does not seem to be a complete Boost installation."
+	echo -e "Expected to find the file 'boost/version.hpp' in \$BOOSTINCL."
+	echo -e "Got variables:"
+	echo -e "\tBOOSTLIBS = ${BOOSTLIBS}"
+	echo -e "\tBOOSTINCL = ${BOOSTINCL}"
+	echo -e "Leaving...\n"
 	exit
 fi
 
 if [ ! "${BUILDMODE}" = "Release" ] && [ ! "${BUILDMODE}" = "Debug" ] && [ ! "${BUILDMODE}" = "Sanitize" ]; then
-	echo "Error: Invalid build mode ${BUILDMODE} provided. Leaving"
+	echo -e "\nError: Invalid build mode ${BUILDMODE} provided. Leaving...\n"
 	exit
 fi
 
 if [ ! "${BUILDTESTCODE}" = "0" ] && [ ! "${BUILDTESTCODE}" = "1" ]; then
-	echo "Error: Variable BUILDTESTCODE must be 0 or 1. Got ${BUILDTESTCODE}"
-	echo "Leaving"
+	echo -e "\nError: Variable BUILDTESTCODE must be 0 or 1. Got ${BUILDTESTCODE}"
+	echo -e "Leaving...\n"
 	exit
 fi
 
 if [ ! "${BUILDWITHMPI}" = "0" ] && [ ! "${BUILDWITHMPI}" = "1" ]; then
-	echo "Error: Variable BUILDWITHMPI must be 0 or 1. Got ${BUILDWITHMPI}"
-	echo "Leaving"
+	echo -e "\nError: Variable BUILDWITHMPI must be 0 or 1. Got ${BUILDWITHMPI}"
+	echo -e "Leaving...\n"
 	exit
 fi
 
 if [ ! "${BUILDSTATIC}" = "0" ] && [ ! "${BUILDSTATIC}" = "1" ]; then
-	echo "Error: Variable BUILDSTATIC must be 0 or 1. Got ${BUILDSTATIC}"
-	echo "Leaving"
+	echo -e "\nError: Variable BUILDSTATIC must be 0 or 1. Got ${BUILDSTATIC}"
+	echo -e "Leaving...\n"
 	exit
 fi
 
 if [ ! "${VERBOSEMAKEFILE}" = "0" ] && [ ! "${VERBOSEMAKEFILE}" = "1" ]; then
-	echo "Error: Variable VERBOSEMAKEFILE must be 0 or 1. Got ${VERBOSEMAKEFILE}"
-	echo "Leaving"
+	echo -e "\nError: Variable VERBOSEMAKEFILE must be 0 or 1. Got ${VERBOSEMAKEFILE}"
+	echo -e "Leaving...\n"
 	exit
 fi
 
 if [ ! "${BUILDSTD}" = "auto" ] && [ ! "${BUILDSTD}" = "cxx98" ] && [ ! "${BUILDSTD}" = "cxx11" ]; then
-	echo "Error: Variable BUILDSTD must be auto, cxx98 or cxx11. Got ${BUILDSTD}"
-	echo "Leaving"
+	echo -e "\nError: Variable BUILDSTD must be auto, cxx98 or cxx11. Got ${BUILDSTD}"
+	echo -e "Leaving...\n"
 	exit
 fi
 
@@ -207,9 +222,9 @@ fi
 # CMakeLists.txt file in the same directory. We then assume that
 # this is the project root, as it should be.
 PROJECTROOT=`dirname $0`/..
-if [ ! -e ${PROJECTROOT}/CMakeLists.txt ]; then
-	echo "Error: the script should reside in the project root."
-	echo "Leaving."
+if [ ! -e "${PROJECTROOT}/CMakeLists.txt" ]; then
+	echo -e "Error: the script should reside in the project root."
+	echo -e "Leaving...\n"
 	exit
 fi
 
@@ -219,20 +234,36 @@ fi
 # clean-all is a build-target defined by the Geneva-build-system.
 # If a Makefile exists, we assume that the build environment has been
 # set up before
-if [ -e ${GENEVA_BUILDROOT}/Makefile ]; then
-	cd ${GENEVA_BUILDROOT}
-	echo "Cleaning old build-environment ..."
-	make clean-cmake 2>&1 > /dev/null
-	echo "... done"
+if [ -e "${GENEVA_BUILDROOT}/Makefile" ]; then
+	cd "${GENEVA_BUILDROOT}"
+	echo -en "Cleaning old build-environment ..."
+	make clean-cmake > /dev/null 2>&1
+	echo -e " done"
+fi
+# CMake variables get cached and old ones may be used if currently
+# missing, which is very misleading if the user tries changing values.
+# Force removing the cache, because 'make clean-cmake' may fail if
+# a previous cmake run failed.
+if [ -e "${GENEVA_BUILDROOT}/CMakeCache.txt" ]; then
+	rm -f "${GENEVA_BUILDROOT}/CMakeCache.txt"
 fi
 
 ####################################################################
-# Do the actual call to cmake
-CONFIGURE="${CMAKE} \
--DBoost_NO_SYSTEM_PATHS=1 \
--DBOOST_ROOT=${BOOSTROOT} \
--DBOOST_LIBRARYDIR=${BOOSTLIBS} \
--DBOOST_INCLUDEDIR=${BOOSTINCL} \
+# Do the actual call to cmake.
+#
+# The 'FindBoost' module uses either the BOOST_ROOT or the
+# BOOST_LIBRARYDIR and BOOST_INCLUDEDIR variables, not both.
+if [ -n "${BOOSTROOT}" ]; then
+	BOOSTLOCATIONPATHS="-DBOOST_ROOT=${BOOSTROOT}"
+elif [ -n "${BOOSTLIBS}" ]; then
+	BOOSTLOCATIONPATHS="-DBOOST_LIBRARYDIR=${BOOSTLIBS} -DBOOST_INCLUDEDIR=${BOOSTINCL}"
+fi
+
+if [ "x${_BOOST_SYSTEM}" = "xfalse" ]; then
+	BOOSTSYSTEMFLAG="-DBoost_NO_SYSTEM_PATHS=1"
+fi
+
+CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
 -DGENEVA_BUILD_TYPE=${BUILDMODE} \
 -DGENEVA_BUILD_TESTS=${BUILDTESTCODE} \
 -DGENEVA_STATIC=${BUILDSTATIC} \
@@ -259,4 +290,4 @@ if [ $? -eq 0 ]; then
 fi
 
 ####################################################################
-# done
+# Done
