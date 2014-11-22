@@ -167,36 +167,36 @@ if [ ! -e ${BOOSTINCL}/version.hpp ]; then
 	exit
 fi
 
-if [ ! "${BUILDMODE}" = "Release" -a ! "${BUILDMODE}" = "Debug" -a ! "${BUILDMODE}" = "Sanitize" ]; then
+if [ ! "${BUILDMODE}" = "Release" ] && [ ! "${BUILDMODE}" = "Debug" ] && [ ! "${BUILDMODE}" = "Sanitize" ]; then
 	echo "Error: Invalid build mode ${BUILDMODE} provided. Leaving"
 	exit
 fi
 
-if [ ! "${BUILDTESTCODE}" = "0" -a ! "${BUILDTESTCODE}" = "1" ]; then
+if [ ! "${BUILDTESTCODE}" = "0" ] && [ ! "${BUILDTESTCODE}" = "1" ]; then
 	echo "Error: Variable BUILDTESTCODE must be 0 or 1. Got ${BUILDTESTCODE}"
 	echo "Leaving"
 	exit
 fi
 
-if [ ! "${BUILDWITHMPI}" = "0" -a ! "${BUILDWITHMPI}" = "1" ]; then
+if [ ! "${BUILDWITHMPI}" = "0" ] && [ ! "${BUILDWITHMPI}" = "1" ]; then
 	echo "Error: Variable BUILDWITHMPI must be 0 or 1. Got ${BUILDWITHMPI}"
 	echo "Leaving"
 	exit
 fi
 
-if [ ! "${BUILDSTATIC}" = "0" -a ! "${BUILDSTATIC}" = "1" ]; then
+if [ ! "${BUILDSTATIC}" = "0" ] && [ ! "${BUILDSTATIC}" = "1" ]; then
 	echo "Error: Variable BUILDSTATIC must be 0 or 1. Got ${BUILDSTATIC}"
 	echo "Leaving"
 	exit
 fi
 
-if [ ! "${VERBOSEMAKEFILE}" = "0" -a ! "${VERBOSEMAKEFILE}" = "1" ]; then
+if [ ! "${VERBOSEMAKEFILE}" = "0" ] && [ ! "${VERBOSEMAKEFILE}" = "1" ]; then
 	echo "Error: Variable VERBOSEMAKEFILE must be 0 or 1. Got ${VERBOSEMAKEFILE}"
 	echo "Leaving"
 	exit
 fi
 
-if [ ! "${BUILDSTD}" = "auto" -a ! "${BUILDSTD}" = "cxx98" -a ! "${BUILDSTD}" = "cxx11" ]; then
+if [ ! "${BUILDSTD}" = "auto" ] && [ ! "${BUILDSTD}" = "cxx98" ] && [ ! "${BUILDSTD}" = "cxx11" ]; then
 	echo "Error: Variable BUILDSTD must be auto, cxx98 or cxx11. Got ${BUILDSTD}"
 	echo "Leaving"
 	exit
