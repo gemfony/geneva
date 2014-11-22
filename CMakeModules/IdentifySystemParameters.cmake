@@ -224,65 +224,6 @@ FUNCTION (
 ENDFUNCTION()
 
 ###############################################################################
-# Checks if a desired c++ standard string matches the maximum supported version
-#
-FUNCTION (
-	CHECK_DESIRED_CXX_STANDARD
-	GENEVA_CXX_DESIRED_STANDARD_IN
-	GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN
-	GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT
-)
-
-	#--------------------------------------------------------------------------
-	# Transform the two strings into numeric ids
-	GET_STANDARD_ID(${GENEVA_CXX_DESIRED_STANDARD_IN} GENEVA_CXX_DESIRED_STANDARD_NUMERIC)
-	GET_STANDARD_ID(${GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN} GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC)
-
-	# Compare the two numbers. The desired max supported id may
-	# not be smaller than the desired id
-	IF(${GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_DESIRED_STANDARD_NUMERIC})
-		SET(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT} "unsupported" PARENT_SCOPE)
-	ELSE()
-		SET(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT} "supported" PARENT_SCOPE)
-	ENDIF()
-	#--------------------------------------------------------------------------
-
-ENDFUNCTION()
-
-###############################################################################
-# Tries to identify the operating system and version of the host system
-#
-FUNCTION (
-	FIND_HOST_OS
-	GENEVA_OS_NAME_OUT
-	GENEVA_OS_VERSION_OUT
-)
-
-	#--------------------------------------------------------------------------
-	IF(APPLE)
-		EXEC_PROGRAM(uname ARGS -r  OUTPUT_VARIABLE DARWIN_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-		SET(${GENEVA_OS_NAME_OUT} "MacOSX" PARENT_SCOPE)
-		SET(${GENEVA_OS_VERSION_OUT} "${DARWIN_VERSION}" PARENT_SCOPE)
-	ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-		EXEC_PROGRAM(uname ARGS -r  OUTPUT_VARIABLE LINUX_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-		SET(${GENEVA_OS_NAME_OUT} "Linux" PARENT_SCOPE)
-		SET(${GENEVA_OS_VERSION_OUT} "${LINUX_VERSION}" PARENT_SCOPE)
-	ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
-		EXEC_PROGRAM(uname ARGS -r  OUTPUT_VARIABLE FREEBSD_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-		SET(${GENEVA_OS_NAME_OUT} "FreeBSD" PARENT_SCOPE)
-		SET(${GENEVA_OS_VERSION_OUT} "${FREEBSD_VERSION}" PARENT_SCOPE)
-	ELSEIF(WIN32)
-		SET(${GENEVA_OS_NAME_OUT} "Windows" PARENT_SCOPE)
-		SET(${GENEVA_OS_VERSION_OUT} "unsupported" PARENT_SCOPE)
-	ELSE()
-		SET(${GENEVA_OS_NAME_OUT} "unsupported" PARENT_SCOPE)
-		SET(${GENEVA_OS_VERSION_OUT} "unsupported" PARENT_SCOPE)
-	ENDIF()
-	#-------------------------------------------------------------------------
-
-ENDFUNCTION()
-
-###############################################################################
 # Identifies the compiler, version and the maximum fully supported C++ standard.
 # GENEVA_COMPILER_NAME_OUT will be one of Clang, GNU, Intel or MSVC
 # GENEVA_COMPILER_VERSION_OUT will only be filled for CMake versions >= 2.8.10
