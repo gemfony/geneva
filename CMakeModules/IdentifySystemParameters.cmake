@@ -527,7 +527,7 @@ FUNCTION (
 		     	 GENEVA_COMPILER_FLAGS
 		    	 "${GENEVA_COMPILER_FLAGS} -g -DDEBUG"
 		     )	
-         ELSEIF("${GENEVA_BUILD_MODE_IN" STREQUAL "Release")			    
+         ELSEIF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Release")			    
 		     SET (
 		     	 GENEVA_COMPILER_FLAGS
 		    	 "${GENEVA_COMPILER_FLAGS} -O3 -DNDEBUG"
