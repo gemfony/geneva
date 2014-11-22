@@ -145,9 +145,9 @@ ENDFUNCTION()
 # 2 means cxx14
 #
 FUNCTION (
-	 GET_STANDARD_STRING
-	 GENEVA_CXX_STANDARD_ID_IN
-	 GENEVA_CXX_STANDARD_STRING_OUT
+	GET_STANDARD_STRING
+	GENEVA_CXX_STANDARD_ID_IN
+	GENEVA_CXX_STANDARD_STRING_OUT
 )
 
 	#--------------------------------------------------------------------------
@@ -168,10 +168,10 @@ ENDFUNCTION()
 # Checks if a desired c++ standard string matches the maximum supported version
 #
 FUNCTION (
-	 CHECK_DESIRED_CXX_STANDARD
-	 GENEVA_CXX_DESIRED_STANDARD_IN
-	 GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN
-	 GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT
+	CHECK_DESIRED_CXX_STANDARD
+	GENEVA_CXX_DESIRED_STANDARD_IN
+	GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN
+	GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT
 )
 
 	#--------------------------------------------------------------------------
@@ -182,9 +182,9 @@ FUNCTION (
 	# Compare the two numbers. The desired max supported id may
 	# not be smaller than the desired id
 	IF(${GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_DESIRED_STANDARD_NUMERIC})
-	SET(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT} "unsupported" PARENT_SCOPE)
+		SET(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT} "unsupported" PARENT_SCOPE)
 	ELSE()
-	SET(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT} "supported" PARENT_SCOPE)
+		SET(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT} "supported" PARENT_SCOPE)
 	ENDIF()
 	#--------------------------------------------------------------------------
 
@@ -379,9 +379,9 @@ ENDFUNCTION()
 # Retrieves the correct flag for a given C++ standard, based on the compiler
 #
 FUNCTION (
-	 GET_CXX_STANDARD_SWITCH
-	 GENEVA_CXX_STANDARD_IN
-	 GENEVA_CXX_STANDARD_SWITCH_OUT
+	GET_CXX_STANDARD_SWITCH
+	GENEVA_CXX_STANDARD_IN
+	GENEVA_CXX_STANDARD_SWITCH_OUT
 )
 
 	#--------------------------------------------------------------------------
@@ -556,7 +556,7 @@ FUNCTION (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -O3 -DNDEBUG"
 			)
- 		ELSE()
+		ELSE()
 			MESSAGE(FATAL_ERROR "Build mode ${GENEVA_BUILD_MODE_IN} is not supported")
 		ENDIF()
 
@@ -600,7 +600,7 @@ FUNCTION (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -O3 -DNDEBUG"
 			)
- 		ELSE()
+		ELSE()
 			MESSAGE(FATAL_ERROR "Build mode ${GENEVA_BUILD_MODE_IN} is not supported")
 		ENDIF()
 
