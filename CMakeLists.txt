@@ -30,9 +30,9 @@
 #
 ################################################################################
 
-PROJECT (geneva-library-collection)
-
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+PROJECT (geneva-library-collection)
 
 ################################################################################
 # Make sure we first check our local modules directory
