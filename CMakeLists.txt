@@ -149,6 +149,7 @@ SET (MSG_CXXSTANDARDMODE "Using ${GENEVA_COMPILER_NAME} compiler with ${GENEVA_A
 
 ###############################################################################
 # Identify unsupported setups as early as possible
+
 FLAG_UNSUPPORTED_SETUPS(
 	GENEVA_OS_NAME 
 	GENEVA_OS_VERSION
@@ -223,9 +224,18 @@ FIND_PACKAGE(
 	COMPONENTS ${GENEVA_BOOST_LIBS}
 )
 
+# Define a list with all the Boost libraries found, i.e. the actual file paths
+FOREACH (blib IN LISTS GENEVA_BOOST_LIBS)
+	STRING (TOUPPER ${blib} libname)
+	SET (
+		GENEVA_BOOST_FOUND_LIBS
+		${GENEVA_BOOST_FOUND_LIBS}
+		${Boost_${libname}_LIBRARY}
+	)
+ENDFOREACH()
+
 ################################################################################
 # Add additional libraries and flags, further error checks
-#
 
 # The MPI mode is currently only supported under Linux and BSD
 IF( GENEVA_WITH_MPI )
@@ -244,22 +254,6 @@ ENDIF()
 IF(UNIX)
 	#---------------------------------------------------------------------------
 	IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
-		LINK_LIBRARIES(
-			${Boost_DATE_TIME_LIBRARY}
-			${Boost_FILESYSTEM_LIBRARY}
-			${Boost_REGEX_LIBRARY}
-			${Boost_SERIALIZATION_LIBRARY}
-			${Boost_SYSTEM_LIBRARY}
-			${Boost_THREAD_LIBRARY}
-			${Boost_PROGRAM_OPTIONS_LIBRARY}
-		)
-		
-		IF( GENEVA_BUILD_TESTS )
-			LINK_LIBRARIES(
-				${Boost_TEST_EXEC_MONITOR_LIBRARY}
-			)
-		ENDIF()
-		
 		IF( GENEVA_STATIC )	
 			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
 		ELSE() # Dynamic libraries

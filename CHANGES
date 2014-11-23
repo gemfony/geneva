@@ -16,6 +16,7 @@ The main changes for this release include:
 ********************************************************************************
 
  - Removed GExternalSetterIndividual in favour of a more versatile enforceFitnessUpdate()
+ - Added support for MS Windows using the Cygwin environment.
 
 Wishlist:
  - A scripting interface to optimization algorithms, so that new

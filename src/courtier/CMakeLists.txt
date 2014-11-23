@@ -16,17 +16,12 @@ SET_TARGET_PROPERTIES( ${COURTIER_LIBNAME}
 	PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
 )
 
-################################################################################
-# Add additional libraries if this is MacOS
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	TARGET_LINK_LIBRARIES(
-		${COURTIER_LIBNAME}
-		${HAP_LIBNAME}
-		${COMMON_LIBNAME}
-	)
-ENDIF()
-
-################################################################################
+TARGET_LINK_LIBRARIES(
+	${COURTIER_LIBNAME}
+	${HAP_LIBNAME}
+	${COMMON_LIBNAME}
+	${GENEVA_BOOST_FOUND_LIBS}
+)
 
 INSTALL ( TARGETS ${COURTIER_LIBNAME} DESTINATION lib
 	PERMISSIONS
