@@ -67,18 +67,6 @@ SET(GENEVA_MIN_BOOST_VERSION 1.48)
 # Set some default values for user-settings. Generally, these should be provided
 # through a custom genevaConfig.gcfg, in conjunction with the prepareBuild.sh script.
 
-IF( NOT DEFINED BOOST_ROOT )
-	SET( BOOST_ROOT "/opt/boost155" )
-ENDIF()
- 
-IF( NOT DEFINED BOOST_LIBRARYDIR )
-	SET( BOOST_LIBRARYDIR "/opt/boost155/lib" )
-ENDIF()
-
-IF( NOT DEFINED BOOST_INCLUDEDIR )
-	SET( BOOST_INCLUDEDIR "/opt/boost155/include/boost" )
-ENDIF()
-
 IF( NOT DEFINED GENEVA_BUILD_TYPE )
 	SET( GENEVA_BUILD_TYPE "Release" )
 ENDIF()
