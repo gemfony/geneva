@@ -212,6 +212,10 @@ FUNCTION (
 		EXEC_PROGRAM(uname ARGS -r  OUTPUT_VARIABLE FREEBSD_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 		SET(${GENEVA_OS_NAME_OUT} "FreeBSD" PARENT_SCOPE)
 		SET(${GENEVA_OS_VERSION_OUT} "${FREEBSD_VERSION}" PARENT_SCOPE)
+	ELSEIF(CYGWIN)
+		EXEC_PROGRAM(uname ARGS -r  OUTPUT_VARIABLE CYGWIN_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+		SET(${GENEVA_OS_NAME_OUT} "Cygwin" PARENT_SCOPE)
+		SET(${GENEVA_OS_VERSION_OUT} "${CYGWIN_VERSION}" PARENT_SCOPE)
 	ELSEIF(WIN32)
 		SET(${GENEVA_OS_NAME_OUT} "Windows" PARENT_SCOPE)
 		SET(${GENEVA_OS_VERSION_OUT} "unsupported" PARENT_SCOPE)
@@ -625,10 +629,12 @@ FUNCTION (
 		# No restrictions at the moment
 	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "FreeBSD")
 		# No restrictions at the moment
+	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "Cygwin")
+		# No restrictions at the moment
 	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "Windows")
-		MESSAGE("################################")
-		MESSAGE("# Windows is not yet supported #")
-		MESSAGE("################################")
+		MESSAGE("######################################################")
+		MESSAGE("# Windows is currently supported only through Cygwin #")
+		MESSAGE("######################################################")
 		MESSAGE(FATAL_ERROR)
 	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "unsupported")
 		MESSAGE("#####################################")
