@@ -150,8 +150,12 @@ entries there), or provide the necessary variables at the command line
 when calling cmake. This can be done in the following way (assuming that
 Boost is installed in /opt/boost155):
 
-cmake /path/to/geneva-top-dir -DBOOST_ROOT="/opt/boost155"\
-                              -DBOOST_INCLUDEDIR="/opt/boost155/include/boost/"\
+cmake /path/to/geneva-top-dir -DBOOST_ROOT="/opt/boost155"
+
+Alternatively, if you installed Boost in some non-standard directories,
+you may try defining both the include and library locations:
+
+cmake /path/to/geneva-top-dir -DBOOST_INCLUDEDIR="/opt/boost155/include" \
                               -DBOOST_LIBRARYDIR="/opt/boost155/lib"
 
 Adding another define -DGENEVA_BUILD_TYPE="Release" or -DGENEVA_BUILD_TYPE="Debug"
