@@ -82,8 +82,8 @@ For compiling a given example proceed as follows:
 	cd /tmp/build
 
 - Run cmake with the appropriate options:
-	cmake -DBOOSTROOT=<PATH_TO_BOOST_ROOT> -DBOOST_INCLUDEDIR="${BOOSTROOT}/lib" \
-	      -DBOOST_LIBRARYDIR="${BOOSTROOT}/include/boost" \
+	cmake [-DBOOSTROOT=<PATH_TO_BOOST_ROOT>] \
+	      [-DBOOST_LIBRARYDIR="${BOOSTROOT}/lib" -DBOOST_INCLUDEDIR="${BOOSTROOT}/include"] \
 	      -DGENEVA_ROOT=<PATH_TO_GENEVA_INSTALL_DIR> \
 	      -DGENEVA_BUILD_TYPE=[Release|Debug] \
 	      -DCMAKE_INSTALL_PREFIX=<PATH_TO_GENEVA_EXAMPLE_INSTALL_DIR> \
