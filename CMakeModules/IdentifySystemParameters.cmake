@@ -453,7 +453,7 @@ FUNCTION (
 
 	#--------------------------------------------------------------------------
 	# Determine the other compiler flags. We organize this by compiler,  as the same compiler may
-	# be present on multiple platforms. The chosen switches are taylored for the use with geneva
+	# be present on multiple platforms. The chosen switches are tailored for the use with geneva
 	#
 	#*****************************************************************
 	IF("${GENEVA_COMPILER_NAME_IN}" MATCHES "${INTEL_DEF_IDENTIFIER}")
@@ -555,6 +555,16 @@ FUNCTION (
 			SET (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -fsanitize=thread"
+			)
+		ENDIF()
+
+		# GCC 4.8 on Cygwin does not provide the math constants (M_PI...) by
+		# default (pure ANSI standard), unless _XOPEN_SOURCE=500 is set, see
+		# http://www.gnu.org/software/libc/manual/html_node/Feature-Test-Macros.html
+		IF("${GENEVA_OS_NAME_IN}" STREQUAL "Cygwin")
+			SET (
+				GENEVA_COMPILER_FLAGS
+				"${GENEVA_COMPILER_FLAGS} -D_XOPEN_SOURCE=500"
 			)
 		ENDIF()
 
