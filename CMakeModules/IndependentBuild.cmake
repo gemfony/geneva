@@ -49,17 +49,17 @@ MACRO (
 	# Set some default values for user-settings. Generally, these should be provided
 	# through a custom genevaConfig.gcfg, in conjunction with the prepareBuild.sh script.
 	
-	IF( NOT DEFINED BOOST_ROOT )
-		SET( BOOST_ROOT "/opt/boost155" )
-	ENDIF()
+	#IF( NOT DEFINED BOOST_ROOT )
+	#	SET( BOOST_ROOT "/opt/boost155" )
+	#ENDIF()
 	 
-	IF( NOT DEFINED BOOST_LIBRARYDIR )
-		SET( BOOST_LIBRARYDIR "/opt/boost155/lib" )
-	ENDIF()
+	#IF( NOT DEFINED BOOST_LIBRARYDIR )
+	#	SET( BOOST_LIBRARYDIR "/opt/boost155/lib" )
+	#ENDIF()
 	
-	IF( NOT DEFINED BOOST_INCLUDEDIR )
-		SET( BOOST_INCLUDEDIR "/opt/boost155/include/boost" )
-	ENDIF()
+	#IF( NOT DEFINED BOOST_INCLUDEDIR )
+	#	SET( BOOST_INCLUDEDIR "/opt/boost155/include/boost" )
+	#ENDIF()
 	
 	IF( NOT DEFINED GENEVA_BUILD_TYPE )
 		SET( GENEVA_BUILD_TYPE "Release" )
@@ -146,7 +146,7 @@ MACRO (
 	# Boost-specific code
 
 	SET (Boost_USE_MULTITHREAD ON)
-	SET (Boost_ADDITIONAL_VERSIONS "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "1.52" "1.52.0" "1.53" "1.53.0" "1.54" "1.54.0" "1.55.0")
+	SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0")
 	
 	IF ( GENEVA_STATIC ) 
 		SET (Boost_USE_STATIC_LIBS ON)
