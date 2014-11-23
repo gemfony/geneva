@@ -3,6 +3,18 @@
 
 The main changes for this release include:
 
+****************************** BREAKING CHANGES ********************************
+
+ - The handling of the BOOST location variables in the Geneva configuration
+   file "scripts/genevaConfig.gcfg" was changed. The changes are minor, but
+   you will need to adapt your current configuration. Read the configuration
+   file comments for more details. Thanks to these changes, if a binary OS
+   Boost installation is available, the "prepareBuild.sh" script will now be
+   able to configure a default Geneva build without requiring any
+   configuration file.
+
+********************************************************************************
+
  - Removed GExternalSetterIndividual in favour of a more versatile enforceFitnessUpdate()
 
 Wishlist:
