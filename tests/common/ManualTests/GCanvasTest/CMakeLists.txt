@@ -6,7 +6,6 @@ SET (${EXECUTABLENAME}_SRCS
 	GCanvasTest
 )
 
-
 SET ( TESTPICTURES
 	./pictures/ml.ppm
 )

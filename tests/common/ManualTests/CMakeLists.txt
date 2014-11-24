@@ -5,7 +5,7 @@ ADD_CUSTOM_TARGET ( "common-tests-manual" )
 ADD_DEPENDENCIES ( "common-tests-manual"
 	# Add all the available tests targets (EXECUTABLENAMEs) here
 	GCanvasTest
-	GFormulaParser
+	GFormulaParserTest
 	GHelperFunctionsTest
 	GLoggerTest
 	GPlotDesignerTest
@@ -14,7 +14,7 @@ ADD_DEPENDENCIES ( "common-tests-manual"
 
 ADD_SUBDIRECTORY ( GCanvasTest )
 ADD_SUBDIRECTORY ( GHelperFunctionsTest )
-ADD_SUBDIRECTORY ( GFormulaParser )
+ADD_SUBDIRECTORY ( GFormulaParserTest )
 ADD_SUBDIRECTORY ( GLoggerTest )
 ADD_SUBDIRECTORY ( GPlotDesignerTest )
 ADD_SUBDIRECTORY ( GRegressionTest )
