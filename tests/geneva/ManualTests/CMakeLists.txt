@@ -7,13 +7,11 @@ ADD_DEPENDENCIES ( "geneva-tests-manual"
 	GBooleanProbabilityTest
 	GConstrainedFPTTest
 	GConstrainedIntTTest
-	# GDataHierarchies
-	GFloatBiGaussAdaptorTest
-	GFloatGaussAdaptorTest
 	GDoubleBiGaussAdaptorTest
 	GDoubleGaussAdaptorTest
 	GParameterPropertyParserTest
 	GRandomWalk
+	GSigmaSigmaAdaptionTest
 )
 
 ADD_SUBDIRECTORY ( GBooleanProbabilityTest )
