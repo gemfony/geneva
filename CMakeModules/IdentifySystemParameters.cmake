@@ -589,6 +589,34 @@ FUNCTION (
 ENDFUNCTION()
 
 ###############################################################################
+# Tries to determine other build flags for this platform and compiler.
+#
+FUNCTION (
+	GET_BUILD_FLAGS
+	GENEVA_OS_NAME_IN
+	GENEVA_OS_VERSION_IN
+	GENEVA_COMPILER_NAME_IN
+	GENEVA_COMPILER_VERSION_IN
+	GENEVA_CXX_STANDARD_IN
+	GENEVA_STATIC_IN
+	PLATFORM_NEEDS_LIBRARY_LINKING_OUT
+)
+
+	#--------------------------------------------------------------------------
+	IF(APPLE)
+		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} TRUE PARENT_SCOPE)
+	ELSEIF(CYGWIN)
+		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} TRUE PARENT_SCOPE)
+	ELSEIF(WIN32)
+		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} TRUE PARENT_SCOPE)
+	ELSE()
+		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} FALSE PARENT_SCOPE)
+	ENDIF()
+	#-------------------------------------------------------------------------
+
+ENDFUNCTION()
+
+###############################################################################
 # Identifies unsupported setups as early as possible
 #
 FUNCTION (

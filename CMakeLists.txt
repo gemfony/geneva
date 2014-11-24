@@ -175,6 +175,18 @@ GET_COMPILER_FLAGS (
 ADD_DEFINITIONS("${GENEVA_COMPILER_FLAGS_OUT}")
 
 ################################################################################
+# Set other necessary build flags
+
+GET_BUILD_FLAGS (
+	${GENEVA_OS_NAME}
+	${GENEVA_OS_VERSION}
+	${GENEVA_COMPILER_NAME}
+	${GENEVA_COMPILER_VERSION}
+	${GENEVA_ACTUAL_CXX_STANDARD}
+	${GENEVA_BUILD_TYPE}
+	PLATFORM_NEEDS_LIBRARY_LINKING
+)
+################################################################################
 # Boost-specific code
 
 SET (Boost_USE_MULTITHREAD ON)
@@ -224,16 +236,6 @@ FIND_PACKAGE(
 	COMPONENTS ${GENEVA_BOOST_LIBS}
 )
 
-# Define a list with all the Boost libraries found, i.e. the actual file paths
-FOREACH (blib IN LISTS GENEVA_BOOST_LIBS)
-	STRING (TOUPPER ${blib} libname)
-	SET (
-		GENEVA_BOOST_FOUND_LIBS
-		${GENEVA_BOOST_FOUND_LIBS}
-		${Boost_${libname}_LIBRARY}
-	)
-ENDFOREACH()
-
 ################################################################################
 # Add additional libraries and flags, further error checks
 
@@ -279,14 +281,6 @@ ENDIF()
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
 	${Boost_INCLUDE_DIRS}
-)
-
-LINK_DIRECTORIES (
-	${PROJECT_SOURCE_DIR}/src/common
-	${PROJECT_SOURCE_DIR}/src/hap
-	${PROJECT_SOURCE_DIR}/src/courtier
-	${PROJECT_SOURCE_DIR}/src/geneva
-	${Boost_LIBRARY_DIRS}
 )
 
 # The names of the libraries that will be built
@@ -482,4 +476,4 @@ ENDIF()
 INCLUDE(CPack)
 
 ################################################################################
-# done
+# Done
