@@ -196,7 +196,7 @@ IF ( GENEVA_STATIC )
 	SET (Boost_USE_STATIC_LIBS ON)
 ELSE() # dynamic libraries
 	SET (Boost_USE_STATIC_LIBS OFF)
-ENDIF()  
+ENDIF()
 
 # These are the libraries required for any Geneva build
 SET (
@@ -329,7 +329,7 @@ ENDIF()
 MESSAGE ("\tin ${CMAKE_BUILD_TYPE} mode")
 
 IF("${GENEVA_BUILD_TYPE}" STREQUAL "Sanitize")
-    MESSAGE ("\twith -fsanitize=thread (if available)")
+	MESSAGE ("\twith -fsanitize=thread (if available)")
 ENDIF() 
 
 MESSAGE ("\tusing ${MSG_COMPILER} compiler settings")
@@ -408,7 +408,7 @@ ENDIF()
 ################################################################################
 # Code for package generation with CPack. This is experimental and the packages 
 # don't satisfy the Linux FHS yet. Use with care.
-#  
+#
 # RPM or DEB packages can be created using umask 022 && fakeroot make package.
 
 INCLUDE(InstallRequiredSystemLibraries)

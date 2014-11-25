@@ -84,7 +84,7 @@ ENDIF()
 
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}
-    ${PROJECT_SOURCE_DIR}/../SampleIndividuals
+	${PROJECT_SOURCE_DIR}/../SampleIndividuals
 	${GENEVA_ROOT}/include
 #	${Boost_INCLUDE_DIRS}
 )

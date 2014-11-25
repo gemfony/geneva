@@ -7,7 +7,7 @@ SET (${EXECUTABLENAME}_SRCS
 )
 
 SET (CONFIGURATIONFILES
-    config/GLineFitIndividual.json
+	config/GLineFitIndividual.json
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

@@ -10,5 +10,5 @@ ADD_CUSTOM_TARGET( "examples_hap"
 )
 
 ADD_SUBDIRECTORY (
-  05_GHapUsagePatterns
+	05_GHapUsagePatterns
 )

@@ -10,5 +10,5 @@ ADD_CUSTOM_TARGET( "examples_common"
 )
 
 ADD_SUBDIRECTORY (
-  GConfigFileCreation
+	GConfigFileCreation
 )

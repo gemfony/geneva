@@ -47,14 +47,14 @@ SET ( CONFIGFILE
 )
 
 SET ( DATASETS
-  ./DataSets/axis_centric.dat.C
-  ./DataSets/axis_centric.dat  
-  ./DataSets/hyper_cube.dat.C
-  ./DataSets/hyper_cube.dat
-  ./DataSets/hyper_sphere.dat.C
-  ./DataSets/hyper_sphere.dat
-  ./DataSets/sinus.dat.C
-  ./DataSets/sinus.dat
+	./DataSets/axis_centric.dat.C
+	./DataSets/axis_centric.dat	
+	./DataSets/hyper_cube.dat.C
+	./DataSets/hyper_cube.dat
+	./DataSets/hyper_sphere.dat.C
+	./DataSets/hyper_sphere.dat
+	./DataSets/sinus.dat.C
+	./DataSets/sinus.dat
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
