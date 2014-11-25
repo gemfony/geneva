@@ -3,8 +3,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 SET (EXECUTABLENAME GDoubleGaussAdaptorTest)
 
 SET (${EXECUTABLENAME}_SRCS
- 	GDoubleGaussAdaptorTest
- 	GCommandLineParser
+	GDoubleGaussAdaptorTest
+	GCommandLineParser
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

@@ -306,7 +306,7 @@ ENDIF()
 # Custom targets for building single libraries only
 #
 ADD_CUSTOM_TARGET( "common"                   DEPENDS ${COMMON_LIBNAME}              COMMENT "Building only the Common library." )
-ADD_CUSTOM_TARGET( "hap"                      DEPENDS ${HAP_LIBNAME}  	             COMMENT "Building only the Hap library." )
+ADD_CUSTOM_TARGET( "hap"                      DEPENDS ${HAP_LIBNAME}                 COMMENT "Building only the Hap library." )
 ADD_CUSTOM_TARGET( "courtier"                 DEPENDS ${COURTIER_LIBNAME}            COMMENT "Building only the Courtier library." )
 ADD_CUSTOM_TARGET( "geneva"                   DEPENDS ${GENEVA_LIBNAME}              COMMENT "Building only the Geneva library." )
 ADD_CUSTOM_TARGET( "geneva-individuals"       DEPENDS ${GENEVA_INDIVIDUAL_LIBNAME}   COMMENT "Building only the Geneva-Individuals library." )
